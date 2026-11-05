@@ -1,8 +1,8 @@
 """CSNN -- Cooperative Sheaf Neural Network (Ribeiro et al., 2026).
 
-Unlike the other baselines, CSNN lives in this repository rather than a clone: it is the
-legacy homogeneous model under ``models/`` and ``exp/``, kept for comparison runs (see
-CLAUDE.md, "Legacy baseline"). The adapter imports it from there so there is exactly one
+Unlike the other baselines, CSNN is part of this repository rather than a clone: it is the
+legacy homogeneous model under ``vendor/csnn/`` (``models/`` and ``exp/``), kept for
+comparison runs (see CLAUDE.md, "Legacy baseline"). The adapter imports it from there so there is exactly one
 copy of the model.
 
 Same two adaptations as ChebNetII and NSD, both recorded on the run record:
@@ -13,7 +13,7 @@ Same two adaptations as ChebNetII and NSD, both recorded on the run record:
    CSNN's ``lin1`` expects one dense matrix.
 
 Published settings cover the heterophilic node benchmarks and TUDataset
-(``exp/scripts/``), not ACM/DBLP/IMDB, so node-classification cells here are tuned.
+(``vendor/csnn/exp/scripts/``), not ACM/DBLP/IMDB, so node-classification cells here are tuned.
 ENZYMES *is* covered by ``exp/scripts/run_enzymes.sh`` and is the campaign's only
 published graph-classification cell.
 

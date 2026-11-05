@@ -1,0 +1,25 @@
+unmutated: all pass
+[dense v1 maps x1.001 (reviewer M11)] test_T11_dense_matches_pre_change_golden_outputs: fails as required
+[forward allocates [M, d*d]] test_no_dense_map_tensor_over_observed_edges_in_forward_or_backward: fails as required
+[forward allocates [2M, d, d]] test_no_dense_map_tensor_over_observed_edges_in_forward_or_backward: fails as required
+[operator holds an extra float cache] test_T10_storage_matches_the_bound_exactly: fails as required
+[reflection order swapped] test_T2_apply_and_apply_T_match_dense_reference: fails as required
+[reflection order swapped] test_T3_closed_form_inverse_is_the_true_inverse: fails as required
+[inverse multiplies by c] test_T3_closed_form_inverse_is_the_true_inverse: fails as required
+[inverse multiplies by c] test_T8_matrix_free_path_transport_equals_dense_product: fails as required
+[src and tgt maps tied] test_T4_maps_are_side_specific_and_node_dependent: fails as required
+[src and tgt maps tied] test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence: fails as required
+[maps ignore node states] test_T4_maps_are_side_specific_and_node_dependent: fails as required
+[maps ignore node states] test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence: fails as required
+[delta0^T sign error] test_matrix_free_coboundary_and_pooling_match_dense: fails as required
+[delta0^T sign error] test_factorized_model_equals_v1_pipeline_fed_the_same_maps: fails as required
+[face transport uses F^T as inverse] test_T6_full_model_chain_condition_float64: fails as required
+[face transport uses F^T as inverse] test_factorized_model_equals_v1_pipeline_fed_the_same_maps: fails as required
+[forward materializes [M,d,d]] test_no_dense_map_tensor_over_observed_edges_in_forward_or_backward: fails as required
+[no reflector-norm guard] test_T9_finite_gradients_with_near_zero_reflectors: fails as required
+[no reflector-norm guard] test_T9_zero_reflector_mlp_keeps_model_finite: fails as required
+[no scale lower bound] test_T9_finite_gradients_with_near_zero_reflectors: fails as required
+[path transport order reversed] test_T8_matrix_free_path_transport_equals_dense_product: fails as required
+[out-of-scope guard removed] test_out_of_scope_tasks_raise_not_implemented: fails as required
+vacuous=0
+

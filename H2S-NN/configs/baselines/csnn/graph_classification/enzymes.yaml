@@ -1,7 +1,7 @@
 model: csnn
 task: graph_classification
 dataset: enzymes
-source: exp/scripts/run_enzymes.sh (the authors' own ENZYMES command for the legacy CSNN
+source: vendor/csnn/exp/scripts/run_enzymes.sh (the authors' own ENZYMES command for the legacy CSNN
   baseline, which lives in this repository under models/ and exp/)
 notes: |
   The only published graph-classification cell in the campaign. Renames: early_stopping

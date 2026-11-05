@@ -1,7 +1,8 @@
 """Locate the cloned baseline repositories without installing them.
 
-The baseline authors' code lives in sibling clones at the repository root
-(``HGB/``, ``SeHGNN/``, ``PSHGCN/``, ...). None of them is pip-installable in place, and
+The baseline authors' code lives in clones under ``vendor/`` at the repository root
+(``vendor/HGB/``, ``vendor/SeHGNN/``, ``vendor/PSHGCN/``, ...), next to the legacy CSNN
+baseline in ``vendor/csnn/``. None of them is pip-installable in place, and
 several use flat intra-package imports (``from model import ...``, ``from utils import
 ...``) that only resolve when their own directory is on ``sys.path``.
 
@@ -20,29 +21,32 @@ from typing import Iterator
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
+#: Every vendored baseline lives under this one directory.
+VENDOR_DIR = PROJECT_ROOT / "vendor"
+
 # Directory that must be on sys.path for each vendor's own imports to resolve.
 VENDOR_ROOTS: dict[str, Path] = {
-    "hgb_nc": PROJECT_ROOT / "HGB" / "NC" / "benchmark",
-    "hgb_nc_gnn": PROJECT_ROOT / "HGB" / "NC" / "benchmark" / "methods" / "GNN",
-    "hgb_nc_han": PROJECT_ROOT / "HGB" / "NC" / "benchmark" / "methods" / "HAN",
-    "hgb_lp": PROJECT_ROOT / "HGB" / "LP" / "benchmark",
-    "hgb_lp_gnn": PROJECT_ROOT / "HGB" / "LP" / "benchmark" / "methods" / "GNN",
-    "sehgnn": PROJECT_ROOT / "SeHGNN" / "hgb",
+    "hgb_nc": VENDOR_DIR / "HGB" / "NC" / "benchmark",
+    "hgb_nc_gnn": VENDOR_DIR / "HGB" / "NC" / "benchmark" / "methods" / "GNN",
+    "hgb_nc_han": VENDOR_DIR / "HGB" / "NC" / "benchmark" / "methods" / "HAN",
+    "hgb_lp": VENDOR_DIR / "HGB" / "LP" / "benchmark",
+    "hgb_lp_gnn": VENDOR_DIR / "HGB" / "LP" / "benchmark" / "methods" / "GNN",
+    "sehgnn": VENDOR_DIR / "SeHGNN" / "hgb",
     # SeHGNN/hgb/utils.py does a bare `from data_loader import data_loader`, which
     # lives one level up in SeHGNN/data/.
-    "sehgnn_data": PROJECT_ROOT / "SeHGNN" / "data",
-    "pshgcn": PROJECT_ROOT / "PSHGCN" / "hgb",
-    "pshgcn_lp": PROJECT_ROOT / "PSHGCN" / "hgb-lp",
-    "h2sgnn": PROJECT_ROOT / "H2SGNN",
-    "hetero2net": PROJECT_ROOT / "Hetero2Net",
-    "chebnetii": PROJECT_ROOT / "ChebNetII" / "main",
-    "nsd": PROJECT_ROOT / "neural-sheaf-diffusion",
-    "latgrl": PROJECT_ROOT / "LatGRL" / "LatGRL",
-    "h2gb": PROJECT_ROOT / "H2GB",
+    "sehgnn_data": VENDOR_DIR / "SeHGNN" / "data",
+    "pshgcn": VENDOR_DIR / "PSHGCN" / "hgb",
+    "pshgcn_lp": VENDOR_DIR / "PSHGCN" / "hgb-lp",
+    "h2sgnn": VENDOR_DIR / "H2SGNN",
+    "hetero2net": VENDOR_DIR / "Hetero2Net",
+    "chebnetii": VENDOR_DIR / "ChebNetII" / "main",
+    "nsd": VENDOR_DIR / "neural-sheaf-diffusion",
+    "latgrl": VENDOR_DIR / "LatGRL" / "LatGRL",
+    "h2gb": VENDOR_DIR / "H2GB",
     # The authors' own HINormer, not H2GB's (whose transformer stack is commented out).
-    "hinormer": PROJECT_ROOT / "HINormer",
-    # CSNN lives in this repository as the legacy homogeneous baseline.
-    "csnn": PROJECT_ROOT,
+    "hinormer": VENDOR_DIR / "HINormer",
+    # CSNN is the legacy homogeneous baseline that used to live at the repository root.
+    "csnn": VENDOR_DIR / "csnn",
 }
 
 #: Vendors that ship a properly namespaced package rather than flat top-level modules.
@@ -63,8 +67,8 @@ def vendor_path(name: str) -> Path:
         raise KeyError(f"Unknown vendor {name!r}. Known vendors: {known}.") from exc
     if not path.is_dir():
         raise FileNotFoundError(
-            f"Baseline repository {name!r} is not present at {path}. Clone it at the "
-            "repository root before running this adapter."
+            f"Baseline repository {name!r} is not present at {path}. Clone it into the "
+            "vendor/ directory before running this adapter."
         )
     return path
 
@@ -86,8 +90,8 @@ def _module_root(module: object) -> Path | None:
     except (OSError, ValueError):
         return None
     for root in VENDOR_ROOTS.values():
-        # `csnn` maps to PROJECT_ROOT, which contains every other vendor; skip it here so
-        # it does not claim modules that belong to a more specific root.
+        # Defensive: a root equal to PROJECT_ROOT would contain every vendor and claim
+        # modules that belong to a more specific root. (`csnn` used to map there.)
         if root == PROJECT_ROOT:
             continue
         try:

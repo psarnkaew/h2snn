@@ -109,7 +109,7 @@ LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
 
 #: Shared by every graph-classification dataset.
 #
-# HINPool's evaluation protocol (ref/HINPOOL.pdf, and hinpool/utils/utils.py:18-48):
+# HINPool's evaluation protocol (references/background/HINPOOL.pdf, and hinpool/utils/utils.py:18-48):
 # a stratified 80/10/10 holdout repeated over five seeded runs, with 100-epoch early
 # stopping on validation. They argue explicitly against 10-fold CV as usually practised,
 # because reporting the best test score reached during training leaks through model

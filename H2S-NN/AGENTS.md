@@ -1,6 +1,13 @@
-# AGENTS.md - H2SNN Agent Instructions
+# AGENTS.md - H2S-NN Agent Instructions
 
-This file gives Codex and other coding agents the project-specific rules for working in this repository. It is based on the current H2SNN implementation, `docs/h2snn_current_model_documentation.html`, and `CLAUDE.md`.
+This file gives Codex and other coding agents the project-specific rules for this repository.
+`CLAUDE.md` holds the same rules in more detail (coding-style templates, architecture tables);
+when the two differ, report it and follow `CLAUDE.md`.
+
+> **H2S-NN is mid-revision.** The code in `src/` is **v1**, the submitted model. The target is
+> **v2**, defined in the planning documents in the parent folder. As of 2026-11-06 the only v2
+> code is D1 (`model.map_family: factorized`, node classification only; default `dense` is v1).
+> Read "Revision Status" below before any task.
 
 ## Environment - Always Use `h2snn`
 
@@ -19,7 +26,6 @@ Use one of these forms:
 # Also acceptable in an interactive PowerShell session
 conda activate h2snn
 python -m unittest discover -s tests -v
-python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test
 ```
 
 If using an absolute Python path in automation, use:
@@ -28,13 +34,11 @@ If using an absolute Python path in automation, use:
 C:\Users\Acer\anaconda3\envs\h2snn\python.exe -m unittest discover -s tests -v
 ```
 
-Current dependency notes:
+Dependency notes:
 
-- Python: `3.12` in `h2snn`.
-- PyTorch target: `torch==2.6.*` with CUDA 12.4 wheels.
-- PyG packages: `torch_geometric`, `torch_scatter`, `torch_sparse`.
-- `torch_householder` is no longer required by the current `src/` model; the active `fasthpp` map uses the pure-PyTorch compact-WY implementation in `src/models/fasthpp.py`.
-- Do not install `requirements.txt` into `base`.
+- Python `3.12`; PyTorch `torch==2.6.*` with CUDA 12.4 wheels; `torch_geometric`, `torch_scatter`, `torch_sparse`.
+- `src/` does not need `torch_householder`; v1 orthogonal maps use the pure-PyTorch compact-WY implementation in `src/models/fasthpp.py`. Only the legacy CSNN/NSD baselines use `torch_householder`.
+- Pins live in `requirements/` (`core.txt` is required; the `baselines-*.txt` groups back individual baselines). `requirements.txt` aggregates them. Do not install it into `base`.
 
 Sanity check:
 
@@ -42,161 +46,109 @@ Sanity check:
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -c "import torch, torch_geometric, torch_scatter, torch_sparse; print(torch.__version__, torch.cuda.is_available())"
 ```
 
-## Active Codebase
+## Revision Status
 
-The current H2SNN implementation lives in:
+### Sources of truth, in this order
 
-- `src/`
-- `scripts/train_h2snn.py`
-- `configs/experiments/`
-- `tests/`
-- `docs/h2snn_current_model_documentation.html`
+The planning documents live in the parent folder (`../` from `H2S-NN/`).
 
-The older `models/`, `exp/`, and top-level `utils/` code is a legacy homogeneous-graph CSNN baseline. Do not add new H2SNN features there unless the task explicitly asks for baseline comparison work.
+1. `CLAUDE.md` and this file - environment and coding conventions. Binding.
+2. `../H2S-NN_v2_plan.md` - agreed decisions D1-D5. Do not reopen an agreed decision; if evidence contradicts one, stop and report.
+3. `../H2S-NN_fix_spec.md` - verified facts F1-F18, hypotheses H1-H12, protocol fixes (§6), writing decisions (§7). In force except where the v2 plan supersedes it (P2, P3, P5, P6).
+4. `../H2S-NN_agent_prompt.md` - role, evidence rules, the mandatory self-correction loop, and task cards. Task card D1 runs first.
+5. The code. When a document and the code disagree, the code describes what runs; report the disagreement.
 
-## Current Model Summary
+Context: `../critical_reviewer_reviews.md` (reviews); `../h2snn_manuscript_paper.pdf` and `../h2snn_manuscript_material.pdf` (submitted version); manuscript source in `paper/`.
 
-H2SNN is a heterogeneous sheaf-Hodge neural network for typed graphs. It turns selected typed path instances into face-like higher-order structures, learns sheaf restriction maps, runs Hodge-style diffusion over node and edge cochains, and predicts labels for a target node type.
+### v2 decisions
 
-Current pipeline:
+| ID | Decision | State |
+|---|---|---|
+| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c * R_{psi,side} * H_k(u)`; `model.map_family: dense \| factorized` (default `dense`), `model.householder_k` | Implemented for node classification, unit-tested; accuracy experiments (plan §1.6) not run |
+| D2 | Redesign AMPSS; mechanism open. Interim: fixed literature schemas + uniform per-batch instance sampling | Open |
+| D3 | Scalability first: normalized Laplacians (full-graph degrees), `eta = sigmoid(theta)`, equivariant normalization, per-batch path cells, `NeighborLoader`. Scale v2, not v1 | Not started |
+| D4 | Path 2-cells couple to every boundary node through the vertex-2-cell sheaf Laplacian; edge-cochain machinery deleted | Agreed, not started |
+| D5 | Baseline provenance and IMDB heterophily fixes (parallel) | Not started |
 
-1. `src/data/dataset.py` loads ACM, DBLP, or IMDB via PyTorch Geometric and flattens heterogeneous stores.
-2. `src/data/preprocessing.py` pads typed node features, computes training-label-only propagation metrics, and appends relation metrics.
-3. Manual schema mode enumerates configured meta-paths such as `PAP`, `PSP`, `APA`, and `MAM`; auto mode uses hard task-aligned AMPSS Stage-I pool construction followed by `schema_conditioned_v1` instance weighting inside the upper-Hodge operator.
-4. `TypeSpecificNodeEncoder` embeds typed node features into shared hidden stalk dimension `d`.
-5. `NodeToEdgeSheaf` learns relation-aware source and target maps for `delta0`.
-6. `SequenceEdgeToFaceSheaf` uses an ordered path encoder (concatenation by default; LSTM as an ablation) to build edge-to-face maps for `delta1`.
-7. `HodgeDiffusion` updates node states through `L0` and edge states through `L1`.
-8. `NodeReadout` combines final node states, initial node states, and incident edge-state pooling for target-node classification.
+### v1 components that v2 deletes - do not extend or scale them
 
-Key files:
+Edge cochain `s` and `L1`; `EdgeInitializer`; the `delta1` face term in the dynamics; the `d^2`-output `A_f` head and `[F, l+1, d, d]` face maps; closure edges inside `Delta0` (ablation control only); edge `LayerNorm`; edge pooling in the readout; the operator ramp tied to the face term; the AMPSS Stage-I endpoint-proxy selector. Keep them working so v1 stays reachable for regression and ablations.
 
-- `src/models/h2snn_model.py`: end-to-end model wiring.
-- `src/models/sheaf_maps.py`: node-to-edge maps, edge initializer, edge-to-face maps.
-- `src/models/coboundary_ops.py`: matrix-free `delta0`, `delta1`, `L0`, `L1`.
-- `src/models/diffusion.py`: K-step Hodge diffusion.
-- `src/models/readout.py`: target-node classifier.
-- `src/data/{node_stage1,link_stage1,graph_classification_dataset}.py`: task-aligned AMPSS Stage-I selection and task-specific sparse coverage.
-- `src/trainers/trainer.py`: loss computation, optimization, metrics, checkpointing.
+### Out of scope for the current v2 work
 
-## Research And Correctness Status
+Graph classification, link prediction, `SheafCovPool`, S2Pool, THS-Pool. Keep their code and tests passing; do not extend them. If a v2 option reaches these paths, raise a clear `NotImplementedError` naming the decision.
 
-Keep claims code-grounded. The living documentation is `docs/h2snn_current_model_documentation.html`; read and update it when code changes affect model claims.
+### Evidence and conduct rules
 
-Verified fixes as of 2026-07-29:
+- Tag every non-trivial claim: `VERIFIED-CODE` (`file:line`), `VERIFIED-RUN` (command + output), `VERIFIED-SOURCE`, `DERIVED`, `UNVERIFIED`, or `PROPOSAL`. Never claim a test passes, a number improved, or a bug is fixed without showing the run output.
+- Never invent file paths, functions, APIs, config keys, numbers, citations or results. Confirm an API exists in the `h2snn` environment before using it.
+- No long training jobs, sweeps or multi-seed experiments without explicit approval. Short smoke tests and microbenchmarks are fine.
+- Results produced before the revision do not validate v2. Label every baseline number rerun / published / quoted and trace it to an artifact.
+- Keep v1 behaviour unchanged behind default config values unless a task card says otherwise.
+- Forbidden fixes: loosening tolerances, deleting or skipping tests, silencing exceptions, special-casing test inputs, editing the spec to fit the code.
+- Stay inside the task card's scope; list out-of-scope problems instead of fixing them. Do not commit or push unless asked.
 
-- Closure edges are first-class members of the extended edge domain. They enter `delta0`, `L0`, `L1_down`, edge diffusion/readout, and the closed boundary consumed by `delta1`; their maps are defined by path transport rather than separately learned.
-- `closure_scale` is consumed by the transported closure restrictions and must remain positive.
-- Orientation is explicit through `face_edge_sign` on `FaceGroup` and `FaceMapCache`, and `CoboundaryOps.delta1` / `delta1_T` apply the signs.
-- AMPSS uses protocol version `schema_conditioned_v1`: Stage I greedily selects exact post-quota support by held-out task gain under hard schema/instance/incidence budgets. Coverage is diagnostic only. Stage II learns positive schema-conditioned instance weights only through the linear PSD upper-Hodge term `B^T W B`, with a neutral-to-learned operator ramp.
-- Link prediction pools the extended edge cochain into endpoint representations. Auto graph discovery requires `SheafCovPool`; `auto + MeanPool` and direct face-curl readouts are rejected.
-- AMPSS has no schema gate, instance-sparsity gate, partial-schema dropout, or auxiliary discovery loss. Training uses the task loss only; coverage and incidence statistics are selection diagnostics or hard Stage-I constraints.
-- Link selection removes inner-selection positives and reverse counterparts, then rematerializes Stage II on the full outer-training graph. Selector and final support hashes are distinct.
-- Link coverage uses a fixed seeded subset of positive outer-training target edges; graph quotas are per graph and graph costs are training-fold mean incidences.
-- Legacy entropy/redundancy keys, old checkpoints, and old tuning states are rejected. Active configs support only the task-aligned probe selector; DCV remains historical study code.
+## Codebase Map
 
-Remaining cautions:
+- `src/`, `scripts/`, `configs/experiments/`, `tests/` - H2S-NN (v1 today; all v2 work goes here).
+- `vendor/` - every external baseline: `vendor/csnn/` (legacy homogeneous CSNN: `models/`, `exp/`, `utils/`, `gnn_evaluation.py`), the committed `vendor/HINPool/` and `vendor/HINormer/`, and empty clone targets (`vendor/H2GB/`, `vendor/SeHGNN/`, `vendor/HGB/`, ...). Leave the empty folders in place. `src/baselines/runtime/vendor_paths.py` is the single place mapping each baseline to its folder; `src/baselines/` holds the adapters. Do not add H2S-NN features under `vendor/`.
+- `folds/` - TU graph-classification splits, read relative to the working directory: run from the repository root. Legacy CSNN runs also need `PYTHONPATH=vendor/csnn` (see `CLAUDE.md`).
+- `references/` - reference PDFs (`HETSHEAF.pdf`, `background/`, `metapath_search/`, `rl_and_search/`, `readout/`, `misc/`).
+- `docs/h2snn_current_model_documentation.html` - documents **v1** only. `docs/pyg_dataset_eda_homophily_report.html` - dataset homophily EDA cited by the v2 plan.
+- `notebooks/` - Colab notebooks checked by `tests/test_baselines.py` and `tests/test_wandb_and_runs.py` (`baselines_*.ipynb`, `h2snn_*_colab.ipynb`, and `notebooks/baselines/`, generated by `scripts/generate_baseline_notebooks.py` - edit the generator, never those files). Keep them committed without outputs.
 
-- Production meta-path enumeration currently walks stored directed relations forward, so generated `face_edge_sign` values are always `+1`; non-trivial signs are supported and tested, but not produced by the default DFS path.
-- Schema discovery is a prototype and is not the default experiment mode.
-- Schema preselection is still a non-differentiable candidate-pool construction step; concrete instances from the selected pool are weighted differentiably afterward.
-- Stage-I forward selection is a deterministic task-aligned heuristic under hard budgets; its refitted probe loss is not a submodular objective and carries no approximation guarantee.
-- AMPSS results produced before `schema_conditioned_v1` do not validate the current protocol. Run fresh sweeps and repeated-seed ablations with frozen Stage-I selector and materialization manifests.
-- Do not claim broad benchmark validation from correctness tests alone. Broader repeated-seed experiments and baselines are still needed for paper-level claims.
-- Full-size FastHPP orthogonal configs can be memory-heavy in constrained environments. For smoke tests, use smaller `d` and optionally `use_orthogonal: false`; this is an execution constraint, not a closure/sign/discovery-loss bug.
-- The current `src/` model accepts only `orthogonal_map: fasthpp`; its exact non-power-of-two fallback also lives in `src/models/fasthpp.py`. Householder/Cayley/Euler/matrix-exponential API choices are not part of the current model. The legacy `models/` baseline remains separate.
-- CUDA node-to-edge map materialization is guarded by `model.node_edge_memory_guard_fraction` (default `0.20`). W&B/Optuna defaults use `d in {16,32}` for full-graph tasks and `{16,32,64}` for graph classification.
-- Node- and link-prediction primary tuning remains full-graph; there is no query-batch-size tuning parameter. SheafCovPool always consumes three semantic views and therefore a fixed raw `3x3` Gram descriptor. For graph classification with fixed `data.pooling_type: sheafcov`, tune only the post-Gram width with `--sheafcov_feat_dims 4 8 16`; do not combine it with `--include_pooling_type`.
-- W&B tuning state is versioned and fingerprinted. With `--resume`, compatible per-run states
-  resume their original sweeps; missing runs start fresh sweeps, and incompatible existing runs
-  are preserved while a numbered continuation sweep is created. Each W&B trial runs in a fresh
-  worker process. Use `--run_start` and `--run_count` to partition a fixed total `--num_runs`
-  campaign across machines while keeping `--base_seed` unchanged; an explicit `--sweep_id`
-  remains strict exact-resume mode.
+v1 key files: `src/models/h2snn_model.py` (wiring), `sheaf_maps.py` (node-to-edge, edge initializer, edge-to-face maps), `coboundary_ops.py` (matrix-free `delta0`, `delta1`, `L0`, `L1`), `diffusion.py`, `readout.py`, `src/data/{node_stage1,schema_discovery,stage1_selector}.py` (AMPSS Stage I), `src/trainers/trainer.py`. For the v1 data flow, the fate of each module in v2, and the known v1 issues, see "Architecture" in `CLAUDE.md`.
 
 ## Coding Rules
 
-- Prefer the current `src/` architecture and existing dataclass config system.
+- Prefer the current `src/` architecture and existing dataclass config system. Validate every new config key in its dataclass; no hard-coded hyperparameters outside the config.
 - Keep entry scripts thin: parse args, load config, build components, call `trainer.fit()`.
-- Pass config, model, optimizer, logger, and checkpointer explicitly.
-- Do not use globals for experiment state.
+- Pass config, model, optimizer, logger, and checkpointer explicitly. No globals.
 - Keep model files focused on architecture; training side effects belong in trainers/loggers/checkpointers.
 - Use typed returns such as `NamedTuple` for multi-tensor model outputs.
 - Save reproducibility artifacts at run start: `config.yaml`, `run.log`, `metrics.jsonl`, `checkpoints/last.pt`, and `checkpoints/best.pt`.
-- Do not commit or preserve generated experiment artifacts unless explicitly requested.
+- Minimal diffs in the repo's style. Do not commit generated experiment artifacts unless explicitly requested.
 
 ## Testing
 
-Use `unittest`, not bare `pytest`, for the current test suite unless the task specifically adds pytest support.
+Use `unittest`, not bare `pytest`:
 
 ```powershell
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m unittest discover -s tests -v
 ```
 
-The current suite discovers 118 tests. In a clean environment the expected result is:
+Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress.
 
-```text
-Ran 118 tests
-OK
-```
+On this Windows machine, PyG-dependent tests can be blocked while importing `xxhash._xxhash` by Application Control. Treat that as an environment-policy blocker, not an H2S-NN defect; report it, run the complete suite in the clean Colab environment, and do not weaken the policy or add model workarounds.
 
-On the current Windows machine, PyG-dependent tests can instead be blocked while importing
-`xxhash._xxhash` by Application Control. Treat that as an environment-policy blocker, not an
-H2SNN defect; run the complete suite in the clean Colab environment and do not weaken the policy
-or add model workarounds.
+If a test writes trainer artifacts, close file handlers (`ExperimentLogger.close()`) before deleting temporary directories on Windows.
 
-If a test writes trainer artifacts, make sure file handlers are closed before deleting temporary directories on Windows. `ExperimentLogger.close()` exists for this.
+## Training Commands (v1)
 
-## Training Commands
-
-Manual-schema H2SNN examples:
+Only v1 exists. Respect the approval rule for anything longer than a smoke test.
 
 ```powershell
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\dblp_h2snn.yaml --device cuda --exp_name dblp_h2snn_test
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\imdb_h2snn.yaml --device cuda --exp_name imdb_h2snn_test
-```
-
-Prototype auto-discovery configs:
-
-```powershell
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cpu --exp_name acm_smoke_cpu
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn_ampss.yaml --device cuda --exp_name acm_h2snn_ampss_test
 ```
 
-For CPU smoke tests:
-
-```powershell
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cpu --exp_name acm_smoke_cpu
-```
+Node-classification configs: `acm`, `dblp`, `imdb` (`*_h2snn.yaml` manual schemas, `*_h2snn_ampss.yaml` AMPSS). Link-prediction (`lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon`) and graph-classification (`mutag`, `enzymes`, `nci1`, `proteins`) configs are out of scope for v2 work.
 
 W&B tuning preflight (does not contact W&B or train):
 
 ```powershell
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\acm_h2snn_ampss.yaml --num_runs 5 --n_trials 30 --d_values 16 32 --validate_only
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\mutag_h2snn.yaml --num_runs 5 --n_trials 30 --d_values 16 32 64 --sheafcov_feat_dims 4 8 16 --validate_only
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_graph_classification_repeated_cv_wandb_tuning.py --config configs\experiments\mutag_h2snn.yaml --num_repetitions 10 --num_folds 10 --n_trials 30 --unit_start 0 --unit_count 1 --validate_only
 ```
 
-Graph-classification configs continue to default to five independent stratified
-80/10/10 holdout runs. The separate repeated-CV entry point implements the legacy-style
-unstratified protocol: 10 shuffled KFold partitions repeated 10 times, with an inner 10%
-validation split and one independent W&B sweep per repetition/fold pair. A full campaign is
-100 sweeps and approximately `100 * n_trials` model fits. Partition it with `--unit_start` and
-`--unit_count` while keeping `--base_seed`, `--split_seed`, `--num_repetitions`, and
-`--num_folds` fixed.
-
-For a five-seed campaign split across machines, keep `--num_runs 5` and the same
-`--base_seed`, then use `--run_start 0 --run_count 2` on one machine and
-`--run_start 2 --run_count 3` on the other. Both machines must use the same experiment/state
-directory and must not execute the same run index concurrently.
+W&B tuning state is versioned and fingerprinted; `--resume` continues compatible sweeps and creates numbered continuation sweeps for incompatible ones. To split a campaign across machines, keep `--num_runs` and `--base_seed` fixed and use `--run_start`/`--run_count`; never run the same run index concurrently.
 
 ## Documentation Updates
 
-When changing current model behavior:
-
 - Update tests first or alongside the code.
-- Update `docs/h2snn_current_model_documentation.html` if the architecture, limitations, or research claims change.
-- Keep `requirements.txt` synchronized with actual imports.
+- When v1 behaviour changes, update `docs/h2snn_current_model_documentation.html`.
+- When a v2 component lands, record it in the task's final report (format in `../H2S-NN_agent_prompt.md`) and update the "State" column of the decision tables in this file and `CLAUDE.md`.
+- Keep `requirements/` synchronized with actual imports, and `src/baselines/runtime/dependencies.py` with the baseline groups.
 - If command guidance changes, update this `AGENTS.md` and `CLAUDE.md` together so future agents do not fall back to `base`.
 
 ## LaTeX Research-Paper Writing And Editing
@@ -212,12 +164,14 @@ science reader who is not a specialist in heterogeneous sheaves or Hodge theory.
 - Read the surrounding manuscript section and the relevant entries in `paper/references.bib` before
   editing. Preserve the paper's established macros, notation, labels, terminology, and venue format
   unless the task explicitly changes them.
-- Ground descriptions of the current model first in
-  `docs/h2snn_current_model_documentation.html`, then in the implemented `src/` code, tests,
-  experiment configs, and completed result artifacts. Treat the manuscript, specifications, and
-  plans as claims to verify, not as proof that a feature or result exists.
-- Use `HETSHEAF.pdf`, `research_paper/HeterSEED.pdf`, and
-  `research_paper/Hetero2Net.pdf` as rhetorical style references. Extract their structural habits;
+- The manuscript describes **v1**. Ground any description of what v1 does in the implemented `src/`
+  code, tests, experiment configs and completed result artifacts, then in
+  `docs/h2snn_current_model_documentation.html` (v1 only). Ground any description of the revised
+  model in `../H2S-NN_v2_plan.md` and `../H2S-NN_fix_spec.md` (§7, Claims and writing), and describe
+  a v2 component as implemented only once its code and tests exist. Treat the manuscript,
+  specifications and plans as claims to verify, not as proof that a feature or result exists.
+- Use `references/HETSHEAF.pdf`, `references/metapath_search/HeterSEED.pdf`, and
+  `references/metapath_search/Hetero2Net.pdf` as rhetorical style references. Extract their structural habits;
   never copy or closely paraphrase their sentences, and never cite them as evidence for a claim
   merely because they are style references.
 - If sources, code, and prose conflict, do not silently choose the stronger claim. State or mark the
@@ -310,12 +264,22 @@ unless a specific component is technically solid and important for deciding what
 - Report quantitative claims only from traceable tables, logs, or source papers. Include the metric,
   dataset/split, comparison scope, and variability or number of runs when available. Never manufacture
   missing values or use placeholders as completed evidence.
-- Keep the implementation boundary explicit: closure edges affect `closure_L0`; the learned
-  `delta1` remains path-edge-only; the exact chain condition is encouraged rather than guaranteed;
-  default DFS orientations currently yield `+1`; and schema preselection is non-differentiable.
-  `SheafCovPool` is the finalized single-level graph readout: invariant Gram descriptors feed
-  attention-weighted means and covariances. THS-Pool, Galerkin coarsening, spectral pooling, and
-  hierarchical variants are superseded historical experiments; do not describe them as the current readout.
+- Keep the implementation boundary explicit.
+  - **v1 (submitted model, current code):** closure edges are first-class 1-cells inside `delta0`;
+    `delta1` spans the full boundary cycle and `delta1 . delta0 = 0` holds by construction;
+    edge-to-face maps are built by transport from one free per-instance map `A_f`; faces are simple
+    paths; incidence signs are `+1` because enumeration is forward-only; schema preselection is
+    non-differentiable. `SheafCovPool` is v1's single-level graph readout; THS-Pool, Galerkin
+    coarsening, spectral pooling and hierarchical variants are superseded historical experiments.
+  - **v2 wording rules (plan §4.5), for the revision:** the whole 2-complex carries a genuine
+    cellular sheaf (functoriality enforced by transport); states are cochains, not sections, so write
+    "diffuses over a cellular sheaf on the 2-complex, including its node→2-cell maps", never "the
+    model makes the graph a sheaf". Call the node operator the **vertex–2-cell sheaf Laplacian**, not
+    the Hodge Laplacian of the 2-complex (Lemma A′ rules that out). The closure edge belongs to the
+    definition of the 2-cell, not the computation. Distinguish the construction from sheaf
+    hypergraph models (Duta et al. 2023) and MAGNN as plan §4.5 describes.
+  - **Scope of claims:** follow fix spec §7 decision A/B on whether "heterophilic" stays in the
+    framing; SheafCovPool and graph classification move to the appendix or a separate paper.
 - Never claim broad state of the art, scalability, parameter efficiency, theoretical guarantees, or
   generalization beyond the datasets and evidence actually evaluated. Prefer "best among the compared
   methods under this protocol" over an unqualified "state of the art."

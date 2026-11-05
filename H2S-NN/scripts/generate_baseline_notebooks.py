@@ -581,7 +581,7 @@ else:
         code(gate_cell(lane)),
         code(
             f"""
-# The vendored baselines are cloned at the repository root, not pip-installed. Check the
+# The vendored baselines are cloned under vendor/, not pip-installed. Check the
 # ones this lane reads before anything trains.
 from src.baselines.runtime import available_vendors
 
@@ -591,7 +591,7 @@ for name in REQUIRED_VENDORS:
     print(('OK      ' if present.get(name) else 'MISSING '), name)
 missing = [name for name in REQUIRED_VENDORS if not present.get(name)]
 if missing:
-    raise RuntimeError(f'Clone these at the repository root first: {{missing}}')
+    raise RuntimeError(f'Clone these under vendor/ first: {{missing}}')
 """
         ),
         code(

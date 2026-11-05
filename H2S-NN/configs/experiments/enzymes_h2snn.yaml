@@ -2,7 +2,7 @@ data:
   dataset_name: enzymes
   root: data
   pooling_type: sheafcov
-  # HINPool's protocol (ref/HINPOOL.pdf): stratified 80/10/10 holdout over five
+  # HINPool's protocol (references/background/HINPOOL.pdf): stratified 80/10/10 holdout over five
   # seeded runs, 100-epoch early stopping. Selection and reporting are on Macro-F1.
   split_protocol: stratified_holdout
   num_runs: 5

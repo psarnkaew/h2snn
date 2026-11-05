@@ -9,7 +9,7 @@ everything they do lives here, and the W&B orchestration itself is
 
 **A unit** is one seed, for all three tasks. Five units per cell.
 
-Graph classification follows HINPool (ref/HINPOOL.pdf, hinpool/utils/utils.py:18-48):
+Graph classification follows HINPool (references/background/HINPOOL.pdf, hinpool/utils/utils.py:18-48):
 a stratified 80/10/10 holdout redrawn per seed, rather than cross-validation. Each unit
 is therefore a different stratified split *and* a different initialisation, which is
 what their 'varied stratified splits and random seeds' describes.

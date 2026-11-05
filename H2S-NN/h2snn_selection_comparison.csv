@@ -1,8 +1,0 @@
-Comparison dimension,LMSPS,AMP-HGNAS,MCTS-HGNN,PMMM,HG-Search,PM-HGNN (2022),AMPSS (Ours)
-Selection learns continuous weights over schema or message-type candidates,Yes,Yes,No,Yes,No,No,Yes
-Learns a dedicated scalar for each complete concrete path instance,No,No,No,No,No,No,Yes
-Jointly optimizes schema-level and complete-instance weights in the final operator,No,No,No,No,No,No,Yes
-Penalizes redundant or overlapping schemas during selection,No,Yes,No,No,No,No,Yes
-Selection and final model training happen in one continuous run (no search-then-retrain pipeline),No,No,No,No,No,Yes,Yes
-Can accept user-provided schemas as a starting point and improve them,No,No,No,No,No,No,Yes
-Uses Hodge/topology-aware structural utility signals to score schemas beyond task accuracy or redundancy,No,No,No,No,No,No,Yes
