@@ -238,6 +238,16 @@ class FactorizedMapOperator:
         self._check_input(y)
         return self._rotate(self._reflect(y, False), False) / _broadcast_rows(self.scale, y)
 
+    def apply_orthogonal(self, x: torch.Tensor) -> torch.Tensor:
+        """`R H x_e`: the map without its scale (D1a: shared scales cancel in transports)."""
+        self._check_input(x)
+        return self._rotate(self._reflect(x, False), False)
+
+    def apply_orthogonal_T(self, y: torch.Tensor) -> torch.Tensor:
+        """`H^T R^T y_e`, the transpose and the inverse of `apply_orthogonal`."""
+        self._check_input(y)
+        return self._reflect(self._rotate(y, True), True)
+
     # ------------------------------------------------- dense reference (tests/subsets)
     def reflection_product(self) -> torch.Tensor:
         """Explicit `[E, d, d]` product `H(v_1) ... H(v_k)` from outer products."""
@@ -343,6 +353,10 @@ class PathTransportOperator:
     factorized map applications per path, and nothing `d x d` is formed. (The sum
     `sum_i T_{v_i} x_{v_i}` alone could use Horner's O(L) form; per-position values cannot.)
 
+    With one scale per edge shared by both sides (D1a, `shared_scale=True`) the scales cancel,
+    `Q_j = H_src^T R_src^T R_tgt H_tgt` is exactly orthogonal, and the operator applies only
+    the orthogonal factors: no scale multiplication, and every inverse is a transpose.
+
     Args:
         src: source-side factorized maps of the observed edges.
         tgt: target-side factorized maps of the same edges.
@@ -350,6 +364,7 @@ class PathTransportOperator:
         face_edge_index: `[P, L]` edge ids along each path (indices into `src`/`tgt`).
         edge_index: `[2, E]` observed edge list; used to check that every path edge is
             stored along the path and that paths are simple, which the formula assumes.
+        shared_scale: the two sides carry the same scale on every edge (checked).
     """
 
     def __init__(
@@ -359,6 +374,7 @@ class PathTransportOperator:
         face_node_index: torch.Tensor,
         face_edge_index: torch.Tensor,
         edge_index: torch.Tensor,
+        shared_scale: bool = False,
     ) -> None:
         if face_node_index.dim() != 2 or face_edge_index.dim() != 2:
             raise ValueError("face_node_index and face_edge_index must be two-dimensional.")
@@ -372,17 +388,33 @@ class PathTransportOperator:
         validate_face_orientation(
             face_node_index, face_edge_index, edge_index, template_name="PathTransportOperator"
         )
+        if shared_scale and not torch.equal(src.scale, tgt.scale):
+            raise ValueError(
+                "shared_scale=True needs the same scale on both sides of every edge (D1a)."
+            )
+        self.shared_scale = shared_scale
         self.face_node_index = face_node_index
         self.length = int(face_edge_index.size(1))
         self._src = tuple(src.select(face_edge_index[:, j]) for j in range(self.length))
         self._tgt = tuple(tgt.select(face_edge_index[:, j]) for j in range(self.length))
 
+    def _step(self, j: int, y: torch.Tensor) -> torch.Tensor:
+        """`Q_j y = (F^{e_j}_src)^-1 F^{e_j}_tgt y` (orthogonal factors only when shared)."""
+        if self.shared_scale:
+            return self._src[j].apply_orthogonal_T(self._tgt[j].apply_orthogonal(y))
+        return self._src[j].apply_inverse(self._tgt[j].apply(y))
+
+    def _step_T(self, j: int, w: torch.Tensor) -> torch.Tensor:
+        """`Q_j^T w = (F^{e_j}_tgt)^T (F^{e_j}_src)^-T w`."""
+        if self.shared_scale:
+            return self._tgt[j].apply_orthogonal_T(self._src[j].apply_orthogonal(w))
+        return self._tgt[j].apply_T(self._src[j].apply_inverse_T(w))
+
     def apply(self, x: torch.Tensor) -> torch.Tensor:
         """`[N, d]` node cochain -> `[P, L+1, d]` values `T_{v_i} x_{v_i}` in `F(f)`."""
         values = x[self.face_node_index]
         for j in range(self.length, 0, -1):
-            tail = self._tgt[j - 1].apply(values[:, j:])
-            tail = self._src[j - 1].apply_inverse(tail)
+            tail = self._step(j - 1, values[:, j:])
             values = torch.cat([values[:, :j], tail], dim=1)
         return values
 
@@ -395,8 +427,7 @@ class PathTransportOperator:
             )
         values = w
         for j in range(1, self.length + 1):
-            tail = self._src[j - 1].apply_inverse_T(values[:, j:])
-            tail = self._tgt[j - 1].apply_T(tail)
+            tail = self._step_T(j - 1, values[:, j:])
             values = torch.cat([values[:, :j], tail], dim=1)
         output = w.new_zeros((num_nodes, w.size(-1)))
         output.index_add_(0, self.face_node_index.reshape(-1), values.reshape(-1, w.size(-1)))

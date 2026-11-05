@@ -1,0 +1,12 @@
+﻿conda.exe : ................................
+At line:1 char:613
++ ... ct -Last 3; & "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2sn ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (................................:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+----------------------------------------------------------------------
+Ran 32 tests in 2.808s
+
+OK
+

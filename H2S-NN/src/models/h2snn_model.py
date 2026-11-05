@@ -168,6 +168,12 @@ class H2SNNOutput(NamedTuple):
 class H2SNN(nn.Module):
     def __init__(self, config: TrainConfig, dims: ModelDims) -> None:
         super().__init__()
+        if config.model.architecture != "v1":
+            raise NotImplementedError(
+                f"H2SNN is the v1 model; model.architecture='{config.model.architecture}' "
+                "(v2 decision D4) is node classification only and is built by build_model. "
+                "Link prediction and graph classification are not implemented for v2 (D4 scope)."
+            )
         self.config = config
         self.model_config = config.model
         self.data_config = config.data
@@ -226,6 +232,7 @@ class H2SNN(nn.Module):
                 householder_k=self.model_config.householder_k,
                 scale_eps=self.model_config.map_scale_eps,
                 orthogonal_map=self.model_config.orthogonal_map,
+                map_scale=self.model_config.map_scale,
             )
         self.edge_initializer = EdgeInitializer(
             d=self.model_config.d,
@@ -875,6 +882,8 @@ class H2SNN(nn.Module):
 
 
 def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
+    if config.model.architecture == "v2":
+        raise NotImplementedError("architecture 'v2' (D4) is not built yet (D4 unit 4).")
     return H2SNN(config=config, dims=ModelDims.from_prepared_data(data))
 
 

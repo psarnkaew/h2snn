@@ -1,0 +1,5 @@
+﻿relations ('paper__cite__paper', 'paper__ref__paper', 'paper__to__author', 'author__to__paper', 'paper__to__subject', 'subject__to__paper', 'paper__to__term', 'term__to__paper')
+self_loops 16 by_rel [8, 8, 0, 0, 0, 0, 0, 0]
+edges_by_rel [5343, 5343, 9949, 9949, 3025, 3025, 255619, 255619]
+target paper 3025 classes 3 train/val/test 726 181 2118
+

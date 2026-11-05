@@ -1,0 +1,15 @@
+L=2 torch.float64  shared=True  max|T^T T - I| = 2.442e-15
+L=2 torch.float64  shared=False max|T^T T - I| = 8.800e+09
+L=2 torch.float32  shared=True  max|T^T T - I| = 5.960e-07
+L=2 torch.float32  shared=False max|T^T T - I| = 8.800e+09
+L=3 torch.float64  shared=True  max|T^T T - I| = 2.665e-15
+L=3 torch.float64  shared=False max|T^T T - I| = 1.448e+08
+L=3 torch.float32  shared=True  max|T^T T - I| = 7.153e-07
+L=3 torch.float32  shared=False max|T^T T - I| = 1.448e+08
+L=4 torch.float64  shared=True  max|T^T T - I| = 2.998e-15
+L=4 torch.float64  shared=False max|T^T T - I| = 1.729e+08
+L=4 torch.float32  shared=True  max|T^T T - I| = 9.537e-07
+L=4 torch.float32  shared=False max|T^T T - I| = 1.729e+08
+unmutated: (3, 0)
+M-a fast path uses scales  -> (run, failed): (1, 1)
+M-b per-side copy of c_e    -> (run, failed): (2, 5)

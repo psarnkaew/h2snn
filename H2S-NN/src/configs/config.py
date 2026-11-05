@@ -651,6 +651,14 @@ class ModelConfig:
     # Lower bound eps of the factorized conformal scale c = softplus(.) + eps. Bounds the
     # closed-form inverse 1/c used by the face transport.
     map_scale_eps: float = 0.1
+    # Model generation (v2 decision D4). "v1" is the submitted model; "v2" is the vertex-2-cell
+    # sheaf Laplacian model (src/models/h2snn_v2.py), node classification only.
+    architecture: str = "v1"
+    # Conformal scale of the node->edge maps (v2 decision D1a). "per_edge": one c_e per edge,
+    # shared by both sides, so every edge transport is orthogonal. "per_side": D1's
+    # per-incidence scales (v1, and an ablation under v2). None resolves to "per_edge" under
+    # architecture "v2" and to "per_side" under "v1", which accepts nothing else.
+    map_scale: str | None = None
     use_delta0_init: bool = True
     classifier_dropout: float = 0.1
     # How the free per-instance face map A_f is produced. "concat" concatenates the path's
@@ -710,6 +718,24 @@ class ModelConfig:
         if not self.map_scale_eps > 0.0:
             raise ValueError(
                 f"model.map_scale_eps must be positive, got {self.map_scale_eps}."
+            )
+        supported_architectures = {"v1", "v2"}
+        if self.architecture not in supported_architectures:
+            raise ValueError(
+                f"Unsupported model.architecture '{self.architecture}'. "
+                "Supported values: v1, v2."
+            )
+        if self.map_scale is None:
+            self.map_scale = "per_edge" if self.architecture == "v2" else "per_side"
+        if self.map_scale not in {"per_edge", "per_side"}:
+            raise ValueError(
+                f"Unsupported model.map_scale '{self.map_scale}'. "
+                "Supported values: per_edge, per_side."
+            )
+        if self.architecture == "v1" and self.map_scale != "per_side":
+            raise ValueError(
+                "model.map_scale='per_edge' (D1a) is a v2 setting; architecture 'v1' keeps "
+                "D1's per-side scales unchanged."
             )
         if self.map_family == "factorized":
             # d reflections already generate O(d), so k > d adds parameters, not reach.
@@ -786,6 +812,8 @@ class ModelConfig:
             # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
             householder_k=raw.get("householder_k", 2),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
+            architecture=str(raw.get("architecture", "v1")),
+            map_scale=raw.get("map_scale"),
             use_delta0_init=bool(raw.get("use_delta0_init", True)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
             face_encoder=str(raw.get("face_encoder", "concat")),

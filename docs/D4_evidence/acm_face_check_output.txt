@@ -1,0 +1,38 @@
+﻿{
+ "N": 10942,
+ "M": 547872,
+ "num_relations": 8,
+ "discovery_is_none": true,
+ "groups": [
+  {
+   "name": "PAP",
+   "faces": 29210,
+   "L": 2,
+   "orientation_ok": true,
+   "simple": true,
+   "relation_sequence_constant": true,
+   "relation_sequence": [
+    2,
+    3
+   ],
+   "closure_is_vL_v0": true,
+   "edge_types_match_relation_index": true
+  },
+  {
+   "name": "PSP",
+   "faces": 139314,
+   "L": 2,
+   "orientation_ok": true,
+   "simple": true,
+   "relation_sequence_constant": true,
+   "relation_sequence": [
+    4,
+    5
+   ],
+   "closure_is_vL_v0": true,
+   "edge_types_match_relation_index": true
+  }
+ ],
+ "nodes_without_observed_edges": 0
+}
+
