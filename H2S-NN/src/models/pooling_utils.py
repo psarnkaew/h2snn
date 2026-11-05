@@ -2,6 +2,50 @@ from __future__ import annotations
 
 import torch
 
+from src.models.map_operators import EdgeMapPair
+
+
+def pool_edge_stalks_to_nodes_matrix_free(
+    s_star: torch.Tensor,
+    edge_index: torch.Tensor,
+    maps: EdgeMapPair,
+    num_nodes: int,
+) -> torch.Tensor:
+    """`pool_edge_stalks_to_nodes` with map operators (v2 decision D1).
+
+    Same summary -- the mean over incidences of `F_{v<|e}^T s_e`, both endpoints with a `+`
+    sign -- but `F^T s` is applied through `maps` instead of a gathered `[E, d, d]` tensor.
+    `s_star`, `edge_index` and `maps` must cover the same extended edge domain.
+    """
+    if edge_index.dim() != 2 or edge_index.size(0) != 2:
+        raise ValueError(
+            f"edge_index must have shape [2, num_edges], got {tuple(edge_index.shape)}."
+        )
+    num_edges = edge_index.size(1)
+    if (
+        s_star.size(0) != num_edges
+        or maps.src.num_edges != num_edges
+        or maps.tgt.num_edges != num_edges
+    ):
+        raise ValueError(
+            "s_star, edge_index and maps must align over the same extended edge domain: "
+            f"edge_index {num_edges}, s_star {s_star.size(0)}, maps "
+            f"{maps.src.num_edges}/{maps.tgt.num_edges}."
+        )
+    d = s_star.size(-1)
+    src_messages = maps.src.apply_T(s_star)
+    tgt_messages = maps.tgt.apply_T(s_star)
+
+    pooled_edges = torch.zeros((num_nodes, d), device=s_star.device, dtype=s_star.dtype)
+    counts = torch.zeros((num_nodes, 1), device=s_star.device, dtype=s_star.dtype)
+    ones = torch.ones((num_edges, 1), device=s_star.device, dtype=s_star.dtype)
+
+    pooled_edges.index_add_(0, edge_index[0], src_messages)
+    pooled_edges.index_add_(0, edge_index[1], tgt_messages)
+    counts.index_add_(0, edge_index[0], ones)
+    counts.index_add_(0, edge_index[1], ones)
+    return pooled_edges / counts.clamp_min(1.0)
+
 
 def pool_edge_stalks_to_nodes(
     s_star: torch.Tensor,

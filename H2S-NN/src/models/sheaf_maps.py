@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Callable, NamedTuple
 
@@ -7,8 +8,13 @@ import torch
 from torch import nn
 
 from src.data.structures import FaceGroup
+from src.models.map_operators import EdgeMapPair, FactorizedMapOperator
 from src.models.orthogonal import Orthogonal
 from src.utils.memory_guard import validate_node_edge_memory_budget
+
+# Numerical guard of the Householder normalization (see `normalize_reflectors`): below this
+# norm a reflection vector is not normalized exactly. Not a modelling hyperparameter.
+REFLECTOR_NORM_EPS = 1e-6
 
 
 def _build_mlp(input_dim: int, hidden_dim: int, output_dim: int) -> nn.Sequential:
@@ -70,6 +76,27 @@ def _invert_path_maps(
         return torch.linalg.inv(F_src_path)
     squared = (conformal_scale * conformal_scale).unsqueeze(-1).unsqueeze(-1)
     return F_src_path.transpose(-2, -1) / squared
+
+
+def _gather_factorized_path_maps(
+    maps: EdgeMapPair,
+    path_edge_index: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Dense `[B, L, d, d]` (F_src, F_tgt, F_src^-1) for one face chunk's path edges.
+
+    Only the gathered path edges of the chunk are materialized -- the v1 face code needs
+    explicit matrices until D4 removes it -- never the observed-edge set as a whole. The
+    inverse is the closed form `c^-1 H^T R^T` (what `_invert_path_maps` does for v1).
+    """
+    if not isinstance(maps.src, FactorizedMapOperator) or not isinstance(
+        maps.tgt, FactorizedMapOperator
+    ):
+        raise TypeError("factorized face gathering needs FactorizedMapOperator maps.")
+    d = maps.src.d
+    shape = tuple(path_edge_index.shape) + (d, d)
+    src_maps, src_inverses = maps.src.select(path_edge_index).materialize_with_inverse()
+    tgt_maps = maps.tgt.select(path_edge_index).materialize()
+    return src_maps.view(shape), tgt_maps.view(shape), src_inverses.view(shape)
 
 
 def compose_face_transport(
@@ -286,6 +313,102 @@ class NodeToEdgeSheaf(nn.Module):
         )
 
 
+class FactorizedNodeToEdgeSheafOutput(NamedTuple):
+    maps: EdgeMapPair  # FactorizedMapOperator per side over the observed edges
+
+
+class FactorizedNodeToEdgeSheaf(nn.Module):
+    """Factorized node->edge maps (v2 decision D1), returned as operators, not tensors.
+
+        F_{v<|e} = c_{v<|e} * R_{psi(e),side} * H_k(u_{v<|e})
+        c        = softplus(scale_mlp(z)) + scale_eps
+        u        = reflector_mlp(z),   z = [h_v, h_other, rel_emb(psi(e)), onehot(side)]
+
+    `R_{psi,side}` is one FastHPP orthogonal matrix per (relation, side), shared by all
+    edges of that relation. The two sides differ in their frame `R`, in the side code, and
+    in the order of the endpoint states, so `F_src != F_tgt` and the edge transport
+    `F_src^-1 F_tgt` is not the identity (a shared map would collapse path holonomy).
+    """
+
+    def __init__(
+        self,
+        d: int,
+        d_r: int,
+        num_relations: int,
+        hidden_dim: int,
+        householder_k: int,
+        scale_eps: float,
+        orthogonal_map: str,
+    ) -> None:
+        super().__init__()
+        if householder_k < 1:
+            raise ValueError(f"householder_k must be >= 1, got {householder_k}.")
+        if scale_eps <= 0.0:
+            raise ValueError(f"scale_eps must be positive, got {scale_eps}.")
+        self.d = d
+        self.d_r = d_r
+        self.num_relations = num_relations
+        self.householder_k = householder_k
+        self.scale_eps = scale_eps
+        self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
+        # Row 2 * relation + side holds R_{relation, side}. Initialised like a random
+        # FastHPP output (entries ~ 1/sqrt(d)) so the two sides start in different frames.
+        self.rotation_params = nn.Parameter(
+            torch.empty(2 * num_relations, self.orthogonal.parameter_count)
+        )
+        nn.init.normal_(self.rotation_params, mean=0.0, std=1.0 / math.sqrt(d))
+        input_dim = 2 * d + d_r + 2
+        self.reflector_mlp = _build_mlp(input_dim, hidden_dim, householder_k * d)
+        self.scale_mlp = _build_mlp(input_dim, hidden_dim, 1)
+
+    def rotations(self) -> torch.Tensor:
+        """`[num_relations, 2, d, d]`: `R_{psi, side}` with side 0 = source, 1 = target."""
+        return self.orthogonal(self.rotation_params).view(
+            self.num_relations, 2, self.d, self.d
+        )
+
+    def _side_operator(
+        self,
+        h_self: torch.Tensor,
+        h_other: torch.Tensor,
+        relation_features: torch.Tensor,
+        side: int,
+        rotations: torch.Tensor,
+        edge_type: torch.Tensor,
+    ) -> FactorizedMapOperator:
+        side_code = h_self.new_zeros((h_self.size(0), 2))
+        side_code[:, side] = 1.0
+        inputs = torch.cat([h_self, h_other, relation_features, side_code], dim=-1)
+        raw_reflectors = self.reflector_mlp(inputs).view(-1, self.householder_k, self.d)
+        raw_scale = self.scale_mlp(inputs).squeeze(-1)
+        return FactorizedMapOperator.from_raw(
+            raw_reflectors=raw_reflectors,
+            raw_scale=raw_scale,
+            rotations=rotations[:, side],
+            group_ids=edge_type,
+            scale_eps=self.scale_eps,
+            reflector_eps=REFLECTOR_NORM_EPS,
+        )
+
+    def forward(
+        self,
+        h: torch.Tensor,
+        edge_index: torch.Tensor,
+        edge_type: torch.Tensor,
+        relation_embeddings: torch.Tensor,
+    ) -> FactorizedNodeToEdgeSheafOutput:
+        src_idx = edge_index[0]
+        tgt_idx = edge_index[1]
+        h_src = h[src_idx]
+        h_tgt = h[tgt_idx]
+        relation_features = relation_embeddings[edge_type]
+        rotations = self.rotations()
+        src = self._side_operator(h_src, h_tgt, relation_features, 0, rotations, edge_type)
+        tgt = self._side_operator(h_tgt, h_src, relation_features, 1, rotations, edge_type)
+        # delta0 is applied by the caller over the extended (observed + closure) edge set.
+        return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(src=src, tgt=tgt))
+
+
 class EdgeInitializer(nn.Module):
     def __init__(
         self,
@@ -425,12 +548,13 @@ class SequenceEdgeToFaceSheaf(nn.Module):
         h: torch.Tensor,
         face_groups: tuple[FaceGroup, ...],
         relation_embeddings: torch.Tensor,
-        F_src: torch.Tensor,
-        F_tgt: torch.Tensor,
+        F_src: torch.Tensor | None,
+        F_tgt: torch.Tensor | None,
         F_src_scale: torch.Tensor | None,
         num_real_edges: int,
         closure_scale: float = 1.0,
         instance_weight_scorer: Callable[[int, torch.Tensor], torch.Tensor] | None = None,
+        factorized_maps: EdgeMapPair | None = None,
     ) -> EdgeToFaceOutput:
         """Build functorial edge-to-face maps and the closure edges' restriction maps.
 
@@ -444,7 +568,15 @@ class SequenceEdgeToFaceSheaf(nn.Module):
         edge id of that instance's closure edge, which lives at
         `num_real_edges + <running face-instance index>` — the same order in which
         `PreparedH2SData.closure_edge_index` concatenates per-group closure edges.
+
+        Pass either dense `F_src`/`F_tgt` (+ `F_src_scale`) or `factorized_maps` (D1). In the
+        factorized case only each chunk's gathered path edges are materialized.
         """
+        if factorized_maps is None:
+            if F_src is None or F_tgt is None:
+                raise ValueError("Dense F_src and F_tgt are required without factorized_maps.")
+        elif F_src is not None or F_tgt is not None or F_src_scale is not None:
+            raise ValueError("Pass either dense F_src/F_tgt/F_src_scale or factorized_maps.")
         caches: list[FaceMapCache] = []
         closure_F_src: list[torch.Tensor] = []
         closure_F_tgt: list[torch.Tensor] = []
@@ -503,12 +635,17 @@ class SequenceEdgeToFaceSheaf(nn.Module):
                     assert weight_parts is not None
                     weight_parts[group_id].append(learned_weight)
 
-                F_src_path = F_src[chunk_face_edge_index]
-                F_tgt_path = F_tgt[chunk_face_edge_index]
-                F_src_path_inv = _invert_path_maps(
-                    F_src_path,
-                    None if F_src_scale is None else F_src_scale[chunk_face_edge_index],
-                )
+                if factorized_maps is None:
+                    F_src_path = F_src[chunk_face_edge_index]
+                    F_tgt_path = F_tgt[chunk_face_edge_index]
+                    F_src_path_inv = _invert_path_maps(
+                        F_src_path,
+                        None if F_src_scale is None else F_src_scale[chunk_face_edge_index],
+                    )
+                else:
+                    F_src_path, F_tgt_path, F_src_path_inv = _gather_factorized_path_maps(
+                        factorized_maps, chunk_face_edge_index
+                    )
                 transport = compose_face_transport(
                     A_f=A_f,
                     F_src_path=F_src_path,
@@ -568,7 +705,7 @@ class SequenceEdgeToFaceSheaf(nn.Module):
                 closure_F_tgt.append(group_closure_F_tgt)
 
         if not closure_F_src:
-            empty = F_src.new_zeros((0, self.d, self.d))
+            empty = (F_src if F_src is not None else h).new_zeros((0, self.d, self.d))
             return EdgeToFaceOutput(
                 caches=tuple(),
                 closure_F_src=empty,

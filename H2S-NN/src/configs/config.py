@@ -642,6 +642,15 @@ class ModelConfig:
     use_orthogonal: bool = True
     orthogonal_map: str = "fasthpp"
     node_edge_memory_guard_fraction: float = 0.20
+    # Node->edge restriction-map family (v2 decision D1). "dense" is v1: per-edge [M, d, d]
+    # FastHPP maps. "factorized" is F = c * R_{relation,side} * H_k(u), applied matrix-free
+    # (src/models/map_operators.py); node classification only.
+    map_family: str = "dense"
+    # Householder reflections k per incidence in the factorized family, 1 <= k <= d.
+    householder_k: int = 2
+    # Lower bound eps of the factorized conformal scale c = softplus(.) + eps. Bounds the
+    # closed-form inverse 1/c used by the face transport.
+    map_scale_eps: float = 0.1
     use_delta0_init: bool = True
     classifier_dropout: float = 0.1
     # How the free per-instance face map A_f is produced. "concat" concatenates the path's
@@ -683,6 +692,44 @@ class ModelConfig:
                 "model.sheafcov_feat_dim must be positive, "
                 f"got {self.sheafcov_feat_dim}."
             )
+        supported_map_families = {"dense", "factorized"}
+        if self.map_family not in supported_map_families:
+            supported = ", ".join(sorted(supported_map_families))
+            raise ValueError(
+                f"Unsupported model.map_family '{self.map_family}'. "
+                f"Supported values: {supported}."
+            )
+        if isinstance(self.householder_k, bool) or not isinstance(self.householder_k, int):
+            raise ValueError(
+                f"model.householder_k must be an integer, got {self.householder_k!r}."
+            )
+        if self.householder_k < 1:
+            raise ValueError(
+                f"model.householder_k must be >= 1, got {self.householder_k}."
+            )
+        if not self.map_scale_eps > 0.0:
+            raise ValueError(
+                f"model.map_scale_eps must be positive, got {self.map_scale_eps}."
+            )
+        if self.map_family == "factorized":
+            # d reflections already generate O(d), so k > d adds parameters, not reach.
+            if self.householder_k > self.d:
+                raise ValueError(
+                    f"model.householder_k must be <= d={self.d} for map_family='factorized', "
+                    f"got {self.householder_k}."
+                )
+            # Factorized maps are conformal-orthogonal by construction, and the identity
+            # ablation would materialize [M, d, d]; neither v1 switch has a D1 meaning.
+            if not self.use_orthogonal:
+                raise ValueError(
+                    "model.use_orthogonal=false selects unconstrained dense maps and is "
+                    "incompatible with map_family='factorized' (always conformal-orthogonal)."
+                )
+            if self.ablate_identity_maps:
+                raise ValueError(
+                    "model.ablate_identity_maps is a dense-map (v1) ablation and is not "
+                    "implemented for map_family='factorized' (D1 scope)."
+                )
         supported_encoders = {"concat", "lstm"}
         if self.face_encoder not in supported_encoders:
             supported = ", ".join(sorted(supported_encoders))
@@ -735,6 +782,9 @@ class ModelConfig:
             node_edge_memory_guard_fraction=float(
                 raw.get("node_edge_memory_guard_fraction", 0.20)
             ),
+            map_family=str(raw.get("map_family", "dense")),
+            householder_k=int(raw.get("householder_k", 2)),
+            map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             use_delta0_init=bool(raw.get("use_delta0_init", True)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
             face_encoder=str(raw.get("face_encoder", "concat")),

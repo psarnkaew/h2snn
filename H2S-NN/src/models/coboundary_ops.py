@@ -4,6 +4,7 @@ from typing import Callable, NamedTuple
 
 import torch
 
+from src.models.map_operators import EdgeMapPair
 from src.models.sheaf_maps import FaceMapCache
 
 
@@ -228,6 +229,20 @@ class CoboundaryOps:
             src_idx,
             tgt_idx,
         )
+        up = CoboundaryOps._upper_hodge_term(
+            s, face_caches, map_builder, num_edges, face_weights
+        )
+        return down + up
+
+    @staticmethod
+    def _upper_hodge_term(
+        s: torch.Tensor,
+        face_caches: tuple[FaceMapCache, ...],
+        map_builder: Callable[[FaceMapCache], torch.Tensor],
+        num_edges: int,
+        face_weights: tuple[torch.Tensor, ...] | None,
+    ) -> torch.Tensor:
+        """`delta1^T W delta1 s`, the face part of `L1`."""
         # delta1 builds maps once; delta1_T reuses them from the result — no redundant forward pass.
         raw_up_result = CoboundaryOps.delta1(s, face_caches, map_builder)
         up_result = CoboundaryOps.scale_delta1_rows(
@@ -236,10 +251,78 @@ class CoboundaryOps:
             face_weights,
             power=1.0,
         )
-        up = CoboundaryOps.delta1_T(
+        return CoboundaryOps.delta1_T(
             delta1_result=up_result,
             face_caches=face_caches,
             num_edges=num_edges,
             d=s.size(-1),
+        )
+
+    # ------------------------------------------------------------------------------
+    # Matrix-free variants (v2 decision D1). Maps are operators (`EdgeMapPair`), so no
+    # `[num_edges, d, d]` tensor is gathered or formed; the arithmetic matches the dense
+    # methods above term by term.
+    # ------------------------------------------------------------------------------
+    @staticmethod
+    def delta0_matrix_free(
+        x: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+    ) -> torch.Tensor:
+        """`(delta0 x)_e = F^e_tgt x_tgt - F^e_src x_src`."""
+        return maps.tgt.apply(x[tgt_idx]) - maps.src.apply(x[src_idx])
+
+    @staticmethod
+    def delta0_T_matrix_free(
+        s: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+        num_nodes: int,
+    ) -> torch.Tensor:
+        """Exact adjoint of `delta0_matrix_free`."""
+        output = torch.zeros((num_nodes, s.size(-1)), device=s.device, dtype=s.dtype)
+        output.index_add_(0, tgt_idx, maps.tgt.apply_T(s))
+        output.index_add_(0, src_idx, -maps.src.apply_T(s))
+        return output
+
+    @staticmethod
+    def L0_matrix_free(
+        x: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+        num_nodes: int,
+    ) -> torch.Tensor:
+        return CoboundaryOps.delta0_T_matrix_free(
+            CoboundaryOps.delta0_matrix_free(x, maps, src_idx, tgt_idx),
+            maps,
+            src_idx,
+            tgt_idx,
+            num_nodes,
+        )
+
+    @staticmethod
+    def L1_matrix_free(
+        s: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+        num_nodes: int,
+        face_caches: tuple[FaceMapCache, ...],
+        map_builder: Callable[[FaceMapCache], torch.Tensor],
+        num_edges: int,
+        face_weights: tuple[torch.Tensor, ...] | None = None,
+    ) -> torch.Tensor:
+        """v1 `L1` with a matrix-free down term; the face (up) term is unchanged v1 code."""
+        down = CoboundaryOps.delta0_matrix_free(
+            CoboundaryOps.delta0_T_matrix_free(s, maps, src_idx, tgt_idx, num_nodes),
+            maps,
+            src_idx,
+            tgt_idx,
+        )
+        up = CoboundaryOps._upper_hodge_term(
+            s, face_caches, map_builder, num_edges, face_weights
         )
         return down + up

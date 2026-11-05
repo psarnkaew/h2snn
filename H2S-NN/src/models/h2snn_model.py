@@ -18,7 +18,16 @@ from src.models.link_readout import LinkPredictionReadout
 from src.models.node_encoder import TypeSpecificNodeEncoder
 from src.models.readout import NodeReadout
 from src.models.instance_weights import InstanceWeightNetwork
-from src.models.sheaf_maps import EdgeInitializer, NodeToEdgeSheaf, SequenceEdgeToFaceSheaf
+from src.models.map_operators import DenseMapOperator, EdgeMapPair, StackedMapOperator
+from src.models.sheaf_maps import (
+    EdgeInitializer,
+    FactorizedNodeToEdgeSheaf,
+    NodeToEdgeSheaf,
+    SequenceEdgeToFaceSheaf,
+)
+
+# Tasks whose readouts consume dense [E, d, d] maps from `EncodedState.F_src/F_tgt`.
+_DENSE_MAP_ONLY_TASKS = ("link_prediction", "graph_classification")
 
 
 def _per_type_layout(
@@ -124,8 +133,10 @@ class EncodedState(NamedTuple):
     delta0_x_star: torch.Tensor
     raw_face_curl: torch.Tensor
     delta1_delta0_h0: torch.Tensor
-    F_src: torch.Tensor
-    F_tgt: torch.Tensor
+    # Dense [E_ext, d, d] maps under map_family="dense"; None under "factorized", whose
+    # maps are the operators in `edge_maps` (never materialized for the observed edges).
+    F_src: torch.Tensor | None
+    F_tgt: torch.Tensor | None
     # Edge list *extended* with the synthetic closure 1-cells, in the order the edge
     # cochain uses. Every consumer of `s_star`/`delta0_*` must index with this rather than
     # with `data.edge_index`, which covers real edges only.
@@ -136,6 +147,8 @@ class EncodedState(NamedTuple):
     instance_weight_nonempty_mask: torch.Tensor | None
     operator_ramp: float
     x_trajectory: list[torch.Tensor] | None = None
+    # Extended-edge map operators under map_family="factorized"; None under "dense".
+    edge_maps: EdgeMapPair | None = None
 
 
 class H2SNNOutput(NamedTuple):
@@ -158,6 +171,14 @@ class H2SNN(nn.Module):
         self.config = config
         self.model_config = config.model
         self.data_config = config.data
+        self.map_family = self.model_config.map_family
+        if self.map_family == "factorized" and config.data.task_type in _DENSE_MAP_ONLY_TASKS:
+            raise NotImplementedError(
+                f"model.map_family='factorized' is not implemented for task "
+                f"'{config.data.task_type}': v2 decision D1 covers node classification only. "
+                "Graph classification, link prediction, SheafCovPool, S2Pool and THS-Pool "
+                "consume dense [E, d, d] maps; use map_family='dense' there."
+            )
 
         # Feature-less graphs (e.g. LastFM/AmazonBook link prediction, which ship no
         # node features at all) would collapse every node of a type to an identical
@@ -185,15 +206,27 @@ class H2SNN(nn.Module):
         self.relation_embedding = nn.Embedding(
             dims.num_relations + 1, self.model_config.d_r
         )
-        self.node_to_edge = NodeToEdgeSheaf(
-            d=self.model_config.d,
-            d_r=self.model_config.d_r,
-            num_relations=dims.num_relations,
-            hidden_dim=self.model_config.edge_mlp_hidden_dim,
-            use_orthogonal=self.model_config.use_orthogonal,
-            orthogonal_map=self.model_config.orthogonal_map,
-            memory_guard_fraction=self.model_config.node_edge_memory_guard_fraction,
-        )
+        self.node_to_edge: NodeToEdgeSheaf | FactorizedNodeToEdgeSheaf
+        if self.map_family == "dense":
+            self.node_to_edge = NodeToEdgeSheaf(
+                d=self.model_config.d,
+                d_r=self.model_config.d_r,
+                num_relations=dims.num_relations,
+                hidden_dim=self.model_config.edge_mlp_hidden_dim,
+                use_orthogonal=self.model_config.use_orthogonal,
+                orthogonal_map=self.model_config.orthogonal_map,
+                memory_guard_fraction=self.model_config.node_edge_memory_guard_fraction,
+            )
+        else:
+            self.node_to_edge = FactorizedNodeToEdgeSheaf(
+                d=self.model_config.d,
+                d_r=self.model_config.d_r,
+                num_relations=dims.num_relations,
+                hidden_dim=self.model_config.edge_mlp_hidden_dim,
+                householder_k=self.model_config.householder_k,
+                scale_eps=self.model_config.map_scale_eps,
+                orthogonal_map=self.model_config.orthogonal_map,
+            )
         self.edge_initializer = EdgeInitializer(
             d=self.model_config.d,
             d_r=self.model_config.d_r,
@@ -549,11 +582,28 @@ class H2SNN(nn.Module):
         num_real_edges = num_edges
         src_idx = edge_index[0]
         tgt_idx = edge_index[1]
+        # Map operators over the (extended) edge set under map_family="factorized".
+        edge_maps: EdgeMapPair | None = None
         if injected_maps is not None:
+            if self.map_family == "factorized":
+                raise NotImplementedError(
+                    "injected_maps (THS-Pool map injection) needs dense [E, d, d] maps and is "
+                    "not implemented for model.map_family='factorized' (D1 scope)."
+                )
             # THS-Pool V1.5: coarsen the sheaf by restriction — reuse the surviving fine
             # node->edge maps rather than re-learning them on the tiny coarse graph. delta0_h0 is
             # recomputed from the injected maps and the current (coarse, gated) h0.
             F_src, F_tgt = injected_maps
+            F_src_scale = None
+        elif self.map_family == "factorized":
+            edge_maps = self.node_to_edge(
+                h=h0,
+                edge_index=edge_index,
+                edge_type=edge_type,
+                relation_embeddings=relation_embeddings,
+            ).maps
+            F_src = None
+            F_tgt = None
             F_src_scale = None
         else:
             sheaf_output = self.node_to_edge(
@@ -593,6 +643,7 @@ class H2SNN(nn.Module):
             num_real_edges=num_real_edges,
             closure_scale=self.data_config.closure_scale,
             instance_weight_scorer=instance_weight_scorer,
+            factorized_maps=edge_maps,
         )
         face_caches = edge_to_face_output.caches
         cached_faces = sum(cache.face_edge_index.size(0) for cache in face_caches)
@@ -618,8 +669,20 @@ class H2SNN(nn.Module):
                     "Closure edge indices and transported restriction maps must have "
                     "exactly one aligned entry per materialized face."
                 )
-            F_src = torch.cat([F_src, edge_to_face_output.closure_F_src], dim=0)
-            F_tgt = torch.cat([F_tgt, edge_to_face_output.closure_F_tgt], dim=0)
+            if edge_maps is None:
+                F_src = torch.cat([F_src, edge_to_face_output.closure_F_src], dim=0)
+                F_tgt = torch.cat([F_tgt, edge_to_face_output.closure_F_tgt], dim=0)
+            else:
+                # Observed edges stay matrix-free; the closure edges keep the per-face dense
+                # maps the v1 transport produces (holonomy, identity) until D4 removes them.
+                edge_maps = EdgeMapPair(
+                    src=StackedMapOperator(
+                        (edge_maps.src, DenseMapOperator(edge_to_face_output.closure_F_src))
+                    ),
+                    tgt=StackedMapOperator(
+                        (edge_maps.tgt, DenseMapOperator(edge_to_face_output.closure_F_tgt))
+                    ),
+                )
             edge_index = torch.cat(
                 [edge_index, active_closure_edge_index], dim=1
             )
@@ -636,13 +699,18 @@ class H2SNN(nn.Module):
 
         # delta0 over the *extended* edge set, so the edge cochain and the chain-condition
         # diagnostic both see the closure 1-cells.
-        delta0_h0 = CoboundaryOps.delta0(
-            x=h0,
-            F_src=F_src,
-            F_tgt=F_tgt,
-            src_idx=src_idx,
-            tgt_idx=tgt_idx,
-        )
+        if edge_maps is None:
+            delta0_h0 = CoboundaryOps.delta0(
+                x=h0,
+                F_src=F_src,
+                F_tgt=F_tgt,
+                src_idx=src_idx,
+                tgt_idx=tgt_idx,
+            )
+        else:
+            delta0_h0 = CoboundaryOps.delta0_matrix_free(
+                x=h0, maps=edge_maps, src_idx=src_idx, tgt_idx=tgt_idx
+            )
         s0 = self.edge_initializer(
             h=h0,
             edge_index=edge_index,
@@ -668,6 +736,14 @@ class H2SNN(nn.Module):
             # Closure edges are inside F_src/F_tgt/src_idx/tgt_idx now, so L0 = delta0^T delta0
             # picks them up mechanically. The old `closure_L0` correction (frozen scale*I maps,
             # applied outside delta0) is gone — it was inconsistent with delta1's domain.
+            if edge_maps is not None:
+                return CoboundaryOps.L0_matrix_free(
+                    x=x_in,
+                    maps=edge_maps,
+                    src_idx=src_idx,
+                    tgt_idx=tgt_idx,
+                    num_nodes=num_nodes,
+                )
             return CoboundaryOps.L0(
                 x=x_in,
                 F_src=F_src,
@@ -678,6 +754,18 @@ class H2SNN(nn.Module):
             )
 
         def apply_l1(s_in: torch.Tensor) -> torch.Tensor:
+            if edge_maps is not None:
+                return CoboundaryOps.L1_matrix_free(
+                    s=s_in,
+                    maps=edge_maps,
+                    src_idx=src_idx,
+                    tgt_idx=tgt_idx,
+                    num_nodes=num_nodes,
+                    face_caches=face_caches,
+                    map_builder=self.edge_to_face.build_maps,
+                    num_edges=num_edges,
+                    face_weights=face_weights,
+                )
             return CoboundaryOps.L1(
                 s=s_in,
                 F_src=F_src,
@@ -700,13 +788,18 @@ class H2SNN(nn.Module):
         )
         x_star = self.node_norm(x_star)
         s_star = self.edge_norm(s_star)
-        delta0_x_star = CoboundaryOps.delta0(
-            x=x_star,
-            F_src=F_src,
-            F_tgt=F_tgt,
-            src_idx=src_idx,
-            tgt_idx=tgt_idx,
-        )
+        if edge_maps is None:
+            delta0_x_star = CoboundaryOps.delta0(
+                x=x_star,
+                F_src=F_src,
+                F_tgt=F_tgt,
+                src_idx=src_idx,
+                tgt_idx=tgt_idx,
+            )
+        else:
+            delta0_x_star = CoboundaryOps.delta0_matrix_free(
+                x=x_star, maps=edge_maps, src_idx=src_idx, tgt_idx=tgt_idx
+            )
         raw_face_curl_result = CoboundaryOps.delta1(
             s=s_star,
             face_caches=face_caches,
@@ -736,6 +829,7 @@ class H2SNN(nn.Module):
             instance_weight_nonempty_mask=instance_weight_nonempty_mask,
             operator_ramp=self._operator_ramp(epoch),
             x_trajectory=x_trajectory,
+            edge_maps=edge_maps,
         )
 
     def forward(
@@ -762,6 +856,7 @@ class H2SNN(nn.Module):
             F_src=encoded.F_src,
             F_tgt=encoded.F_tgt,
             target_indices=data.target_indices,
+            edge_maps=encoded.edge_maps,
         )
 
         return H2SNNOutput(
