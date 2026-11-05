@@ -475,6 +475,18 @@ class PathTransportOperator:
                 squares.append(squares[-1] * (self._tgt[j].scale / self._src[j].scale).square())
         return torch.stack(squares, dim=1)
 
+    def apply_holonomy(self, y: torch.Tensor) -> torch.Tensor:
+        """`[P, d]` -> `T_{v_L} y = Q_1 Q_2 ... Q_L y` (path holonomy, gauge `A_f = I`)."""
+        for j in range(self.length, 0, -1):
+            y = self._step(j - 1, y)
+        return y
+
+    def apply_holonomy_T(self, w: torch.Tensor) -> torch.Tensor:
+        """`[P, d]` -> `T_{v_L}^T w = Q_L^T ... Q_1^T w`."""
+        for j in range(1, self.length + 1):
+            w = self._step_T(j - 1, w)
+        return w
+
     def apply(self, x: torch.Tensor) -> torch.Tensor:
         """`[N, d]` node cochain -> `[P, L+1, d]` values `T_{v_i} x_{v_i}` in `F(f)`."""
         values = x[self.face_node_index]

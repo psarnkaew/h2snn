@@ -113,6 +113,62 @@ class PathCellTerm:
         return output
 
 
+class EdgePairTerm:
+    """`sum_p w_p delta_p^T delta_p` over one extra edge per path, stored `src -> tgt`:
+    `delta_p x = F_tgt x_tgt - F_src x_src` (ablation `path_mode: endpoint_edges`, with
+    `(src, tgt) = (v_0, v_L)` and maps learned from the endpoints only)."""
+
+    def __init__(self, maps: EdgeMapPair, edge_index: torch.Tensor, weights: torch.Tensor) -> None:
+        if edge_index.shape != (2, weights.numel()) or maps.src.num_edges != weights.numel():
+            raise ValueError("edge_index, maps and weights must cover the same edges.")
+        self.maps = maps
+        self.src_idx = edge_index[0]
+        self.tgt_idx = edge_index[1]
+        self.weights = weights
+
+    def apply(self, x: torch.Tensor, num_nodes: int) -> torch.Tensor:
+        delta = self.maps.tgt.apply(x[self.tgt_idx]) - self.maps.src.apply(x[self.src_idx])
+        weighted = delta * self.weights.unsqueeze(-1)
+        output = torch.zeros_like(x)
+        output.index_add_(0, self.tgt_idx, self.maps.tgt.apply_T(weighted))
+        output.index_add_(0, self.src_idx, -self.maps.src.apply_T(weighted))
+        return output
+
+    def diagonal(self, num_nodes: int) -> torch.Tensor:
+        output = self.weights.new_zeros(num_nodes)
+        output.index_add_(0, self.src_idx, self.weights * self.maps.src.scale.square())
+        output.index_add_(0, self.tgt_idx, self.weights * self.maps.tgt.scale.square())
+        return output
+
+
+class HolonomyEdgeTerm:
+    """v1-style shortcut (ablation `path_mode: holonomy_edges`): one closure edge
+    `(v_L -> v_0)` per path with `F_src = T_{v_L}` (the path holonomy) and `F_tgt = I`,
+    i.e. `delta_f x = x_{v_0} - T_{v_L} x_{v_L}`, applied matrix-free."""
+
+    def __init__(self, transport: "PathTransportOperator", weights: torch.Tensor) -> None:  # noqa: F821
+        if weights.shape != (transport.face_node_index.size(0),):
+            raise ValueError("weights must have one entry per path.")
+        self.transport = transport
+        self.first = transport.face_node_index[:, 0]
+        self.last = transport.face_node_index[:, -1]
+        self.weights = weights
+
+    def apply(self, x: torch.Tensor, num_nodes: int) -> torch.Tensor:
+        delta = x[self.first] - self.transport.apply_holonomy(x[self.last])
+        weighted = delta * self.weights.unsqueeze(-1)
+        output = torch.zeros_like(x)
+        output.index_add_(0, self.first, weighted)
+        output.index_add_(0, self.last, -self.transport.apply_holonomy_T(weighted))
+        return output
+
+    def diagonal(self, num_nodes: int) -> torch.Tensor:
+        output = self.weights.new_zeros(num_nodes)
+        output.index_add_(0, self.first, self.weights)
+        output.index_add_(0, self.last, self.weights * self.transport.squared_scales()[:, -1])
+        return output
+
+
 class PathTerm(Protocol):
     """A path-coupling term (2-cell, or an ablation's per-path edge): `apply` and `diagonal`."""
 

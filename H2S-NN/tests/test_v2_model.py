@@ -1032,6 +1032,202 @@ class V2ModelTests(unittest.TestCase):
                 logger.close()
 
 
+# ----------------------------------------------------------------------------- ablations (T11)
+def _with(data, **changes):
+    from src.data.structures import PreparedH2SData
+
+    fields = {name: getattr(data, name) for name in PreparedH2SData.__slots__}
+    fields.update(changes)
+    return PreparedH2SData(**fields)
+
+
+def _float64_pap():
+    from tests.test_factorized_maps import _as_float64
+
+    return _as_float64(_random_pap_data())
+
+
+class AblationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = _float64_pap()
+        self.authors = self.data.node_type == 1
+        # Authors sit at odd positions of every PAP / PAPAP path: never an endpoint.
+        for group in self.data.face_groups:
+            self.assertFalse(bool(self.authors[group.face_node_index[:, [0, -1]]].any()))
+            self.assertTrue(bool(self.authors[group.face_node_index[:, 1]].all()))
+        generator = torch.Generator().manual_seed(9)
+        self.author_noise = torch.randn(int(self.authors.sum()), 8, generator=generator,
+                                        dtype=torch.float64)
+
+    def _model(self, **model):
+        return _v2_model(self.data, **model).double().eval()
+
+    def _logits(self, model, data=None) -> torch.Tensor:
+        with torch.no_grad():
+            return model(self.data if data is None else data).logits
+
+    def test_T11_no_path_cells_makes_logits_independent_of_path_data(self) -> None:
+        model = self._model(ablate_no_path_cells=True)
+        self.assertIsNone(model.theta_gamma)
+        self.assertIsNone(model.path_encoder)
+        self.assertIsNone(model.path_gate)
+        no_faces = _with(self.data, face_groups=(), closure_edge_index=torch.zeros(2, 0).long())
+        self.assertTrue(torch.equal(self._logits(model), self._logits(model, no_faces)))
+        control = self._model()
+        self.assertGreater(float((self._logits(control) - self._logits(control, no_faces))
+                                 .abs().max()), 1e-6)
+
+    def test_T11_uniform_gate_gives_w_identically_one(self) -> None:
+        model = self._model(uniform_path_gate=True)
+        self.assertIsNone(model.path_gate)
+        self.assertIsNone(model.path_encoder)
+        h0 = model.encode_nodes(self.data.x, self.data.node_type)
+        operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                        self.data.face_groups, self.data.num_nodes)
+        for weights in operator.path_weights:
+            self.assertTrue(torch.equal(weights, torch.ones_like(weights)))
+        learned = self._model()
+        h0 = learned.encode_nodes(self.data.x, self.data.node_type)
+        weights = learned.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                         self.data.face_groups, self.data.num_nodes).path_weights
+        self.assertGreater(float((torch.cat(weights) - 1).abs().min()), 0.1)
+
+    def test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term(self) -> None:
+        for mode, expect_equal in (("endpoint_edges", True), ("cells", False)):
+            with self.subTest(path_mode=mode):
+                model = self._model(path_mode=mode)
+                h0 = model.encode_nodes(self.data.x, self.data.node_type)
+                maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
+                                          model.relation_embedding.weight).maps
+                h0_moved = h0.clone()
+                h0_moved[self.authors] += self.author_noise
+                x = torch.randn(self.data.num_nodes, 8, dtype=torch.float64,
+                                generator=torch.Generator().manual_seed(3))
+                x_moved = x.clone()
+                x_moved[self.authors] += self.author_noise
+                N = self.data.num_nodes
+                with torch.no_grad():
+                    terms, _ = model.path_terms(h0, maps, self.data.edge_index,
+                                                self.data.face_groups)
+                    terms_moved, _ = model.path_terms(h0_moved, maps, self.data.edge_index,
+                                                      self.data.face_groups)
+                    base = sum(term.apply(x, N) for term in terms)
+                    via_h0 = sum(term.apply(x, N) for term in terms_moved)
+                    via_x = sum(term.apply(x_moved, N) for term in terms)
+                    diag = sum(term.diagonal(N) for term in terms)
+                    diag_moved = sum(term.diagonal(N) for term in terms_moved)
+                self.assertGreater(float(base.abs().max()), 1e-3)  # the term is not empty
+                if expect_equal:
+                    self.assertTrue(torch.equal(base, via_h0))
+                    self.assertTrue(torch.equal(base, via_x))
+                    self.assertTrue(torch.equal(diag, diag_moved))
+                else:  # control: the 2-cell reads the intermediate nodes
+                    self.assertGreater(float((base - via_h0).abs().max()), 1e-6)
+                    self.assertGreater(float((base - via_x).abs().max()), 1e-6)
+
+    def test_T11_holonomy_edges_equal_the_dense_closure_edge(self) -> None:
+        from src.models.vertex_path_laplacian import HolonomyEdgeTerm
+
+        for map_scale in ("per_edge", "per_side"):
+            with self.subTest(map_scale=map_scale):
+                model = self._model(path_mode="holonomy_edges", map_scale=map_scale)
+                h0 = model.encode_nodes(self.data.x, self.data.node_type)
+                with torch.no_grad():
+                    operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                                    self.data.face_groups, self.data.num_nodes)
+                N, d = self.data.num_nodes, 8
+                for term, group, weights in zip(operator.laplacian.path_terms,
+                                                self.data.face_groups, operator.path_weights):
+                    self.assertIsInstance(term, HolonomyEdgeTerm)
+                    holonomy = _dense_transports(operator.maps, group.face_edge_index)[:, -1]
+                    want = torch.zeros(N * d, N * d, dtype=torch.float64)
+                    for p in range(group.num_faces):
+                        B = torch.zeros(d, N * d, dtype=torch.float64)
+                        v0, vL = int(group.face_node_index[p, 0]), int(group.face_node_index[p, -1])
+                        B[:, v0 * d:(v0 + 1) * d] += torch.eye(d, dtype=torch.float64)
+                        B[:, vL * d:(vL + 1) * d] -= holonomy[p]
+                        want += weights[p] * B.T @ B
+                    with torch.no_grad():
+                        got = _matrix(lambda x: term.apply(x, N), N, d)
+                        diagonal = term.diagonal(N)
+                    self.assertLess(_rel_err(got, want), F64_TOL)
+                    blocks = torch.stack([want[v * d:(v + 1) * d, v * d:(v + 1) * d].diagonal()
+                                          for v in range(N)])
+                    self.assertLess(_rel_err(diagonal.unsqueeze(-1).expand_as(blocks), blocks),
+                                    F64_TOL)
+
+    def test_T11_free_maps_are_orthogonal_and_per_incidence(self) -> None:
+        from src.models.vertex_path_laplacian import FreeIncidenceOperator
+
+        model = self._model(path_maps="free")
+        h0 = model.encode_nodes(self.data.x, self.data.node_type)
+        with torch.no_grad():
+            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                            self.data.face_groups, self.data.num_nodes)
+        for term in operator.laplacian.path_terms:
+            incidence = term.incidence
+            self.assertIsInstance(incidence, FreeIncidenceOperator)
+            maps = incidence.maps.materialize()  # scale 1: the orthogonal factor itself
+            self.assertLess(_orthogonality_error(maps), F64_TOL)
+            nodes = incidence.face_node_index.reshape(-1)
+            repeated = int(torch.mode(nodes).values)
+            rows = (nodes == repeated).nonzero().view(-1)
+            self.assertGreater(rows.numel(), 1)
+            self.assertGreater(float((maps[rows[0]] - maps[rows[1]]).abs().max()), 1e-3)
+        model(self.data).logits.square().sum().backward()
+        self.assertGreater(float(model.free_maps.reflector_mlp[0].weight.grad.abs().sum()), 0.0)
+
+    def test_T11_per_side_scales_reach_transports_and_degree(self) -> None:
+        model = self._model(map_scale="per_side")
+        h0 = model.encode_nodes(self.data.x, self.data.node_type)
+        with torch.no_grad():
+            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                            self.data.face_groups, self.data.num_nodes)
+        self.assertIsNot(operator.maps.src.scale, operator.maps.tgt.scale)
+        for term in operator.laplacian.path_terms:
+            self.assertFalse(term.incidence.shared_scale)
+            squares = term.incidence.squared_scales()
+            self.assertGreater(float((squares - 1).abs().max()), 1e-3)
+            self.assertTrue(torch.equal(squares[:, 0], torch.ones_like(squares[:, 0])))
+        per_edge = self._model()
+        with torch.no_grad():
+            h0 = per_edge.encode_nodes(self.data.x, self.data.node_type)
+            terms = per_edge.build_operator(h0, self.data.edge_index, self.data.edge_type,
+                                            self.data.face_groups,
+                                            self.data.num_nodes).laplacian.path_terms
+        for term in terms:
+            self.assertTrue(torch.equal(term.incidence.squared_scales(),
+                                        torch.ones_like(term.incidence.squared_scales())))
+
+    def test_T11_h0_only_readout_ignores_the_graph(self) -> None:
+        moved_x = self.data.x.clone()
+        moved_x[self.authors] += 1.0
+        variants = [_with(self.data, x=moved_x),
+                    _with(self.data, face_groups=(), closure_edge_index=torch.zeros(2, 0).long())]
+        model = self._model(readout="h0_only")
+        self.assertEqual(model.readout[0].in_features, 8)
+        for variant in variants:
+            self.assertTrue(torch.equal(self._logits(model), self._logits(model, variant)))
+        control = self._model()
+        for variant in variants:
+            self.assertGreater(float((self._logits(control) - self._logits(control, variant))
+                                     .abs().max()), 1e-6)
+
+    def test_every_ablation_trains_one_step(self) -> None:
+        switches = [{"ablate_no_path_cells": True}, {"uniform_path_gate": True},
+                    {"path_maps": "free"}, {"path_mode": "endpoint_edges"},
+                    {"path_mode": "holonomy_edges"}, {"map_scale": "per_side"},
+                    {"readout": "h0_only"}, {"map_family": "dense"}]
+        for switch in switches:
+            with self.subTest(switch=switch):
+                model = _v2_model(_random_pap_data(), **switch)
+                output = model(_random_pap_data())
+                output.logits.square().sum().backward()
+                self.assertTrue(bool(torch.isfinite(output.logits).all()))
+                self.assertTrue(all(bool(torch.isfinite(p.grad).all())
+                                    for p in model.parameters() if p.grad is not None))
+
+
 # ----------------------------------------------------------------------------- config, scope
 class ArchitectureConfigTests(unittest.TestCase):
     def test_map_scale_defaults_follow_the_architecture(self) -> None:
