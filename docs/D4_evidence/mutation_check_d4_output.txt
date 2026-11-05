@@ -1,0 +1,72 @@
+2026-11-06 06:32:31,723 | INFO | Epoch 0000 | train_loss: 1.1137 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0937 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:32:31,738 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:32:31,912 | INFO | Epoch 0001 | train_loss: 1.0512 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0850 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 06:32:31,919 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:32:31,920 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+2026-11-06 06:33:01,011 | INFO | Epoch 0000 | train_loss: 1.1242 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0971 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:33:01,024 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:01,192 | INFO | Epoch 0001 | train_loss: 1.0625 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0878 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:33:01,198 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:01,198 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+2026-11-06 06:33:28,971 | INFO | Epoch 0000 | train_loss: 1.0841 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0796 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 06:33:28,983 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:29,152 | INFO | Epoch 0001 | train_loss: 0.9931 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0564 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 06:33:29,159 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:29,159 | INFO | Best epoch 0 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250 | test_acc: 0.1250
+2026-11-06 06:33:39,383 | INFO | Epoch 0000 | train_loss: 1.1185 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0951 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2286 | test_micro_f1: 0.2500
+2026-11-06 06:33:39,395 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:39,568 | INFO | Epoch 0001 | train_loss: 1.0671 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0882 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:33:39,575 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:33:39,575 | INFO | Best epoch 0 | test_macro_f1: 0.2286 | test_micro_f1: 0.2500 | test_acc: 0.2500
+2026-11-06 06:34:08,099 | INFO | Epoch 0000 | train_loss: 1.1168 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0883 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:34:08,112 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:34:08,281 | INFO | Epoch 0001 | train_loss: 1.0543 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0801 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 06:34:08,287 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:34:08,288 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+2026-11-06 06:34:36,679 | INFO | Epoch 0000 | train_loss: 1.1165 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0904 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-06 06:34:36,692 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:34:36,867 | INFO | Epoch 0001 | train_loss: 1.0517 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0811 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 06:34:36,873 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 06:34:36,874 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+unmutated: ran 44, failing 0: []
+[1 wrong transport order] failing 3:
+    PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference
+    PerEdgeScaleTests.test_T12b_shared_scale_path_uses_no_scale
+    SectionPreservationTests.test_T4_sections_are_preserved_and_the_kernel_is_unchanged
+[2 z_f without 1/|f|] failing 4:
+    PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference
+    PathLaplacianTests.test_T3_normalized_operator_is_self_adjoint_and_psd
+    PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer
+    SectionPreservationTests.test_T4_sections_are_preserved_and_the_kernel_is_unchanged
+[3 D not operator-consistent (edge part only)] failing 3:
+    PathLaplacianTests.test_D_is_the_per_incidence_degree_of_the_operators_own_terms
+    PathLaplacianTests.test_T3_normalized_operator_is_self_adjoint_and_psd
+    PathLaplacianTests.test_T5_normalized_spectrum_is_bounded_by_two
+[4 w_f not applied in D] failing 1:
+    PathLaplacianTests.test_D_is_the_per_incidence_degree_of_the_operators_own_terms
+[5 path term on endpoints only] failing 3:
+    AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term
+    PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference
+    V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node
+[6 per_edge: different scales on the two sides] failing 20:
+    AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term
+    AblationTests.test_T11_h0_only_readout_ignores_the_graph
+    AblationTests.test_T11_holonomy_edges_equal_the_dense_closure_edge
+    AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data
+    AblationTests.test_T11_per_side_scales_reach_transports_and_degree
+    AblationTests.test_T11_uniform_gate_gives_w_identically_one
+    AblationTests.test_every_ablation_trains_one_step
+    PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge
+    PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal
+    PerEdgeVersionsOfD1Tests.test_T10_per_edge_storage_matches_the_bound_exactly
+    PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies
+    V2ModelTests.test_T10_gradients_reach_every_learned_component
+    V2ModelTests.test_T13_dense_and_factorized_families_match_on_materialized_maps
+    V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node
+    V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward
+    V2ModelTests.test_T9_deleted_components_are_absent
+    V2ModelTests.test_build_model_dispatches_on_architecture
+    V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients
+    V2ModelTests.test_gate_initialization_is_near_one_half
+    V2ModelTests.test_trainer_runs_v2_unchanged_and_checkpoints_reload
+mutations=6 vacuous=0

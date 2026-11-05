@@ -805,6 +805,12 @@ class V2ModelTests(unittest.TestCase):
             self.assertGreater(float(block(gamma, 0, 2).abs().max()), 1e-8)
         middle_change = (block(0.3, 0, 1) - block(2.0, 0, 1)).abs().max()
         self.assertGreater(float(middle_change), 1e-8)
+        # The clause above also holds through D alone (gamma enters D_{A1}, D_P), so it does
+        # not prove intermediate reach by itself: the path term's own blocks must link P and A1
+        # in both directions.
+        path_only = torch.autograd.functional.jacobian(operator.laplacian.apply_path, h0.clone())
+        self.assertGreater(float(path_only[0, :, 1, :].abs().max()), 1e-8)  # A1 <- P
+        self.assertGreater(float(path_only[1, :, 0, :].abs().max()), 1e-8)  # P <- A1
         # The model's own gamma also reaches A2 (and the ablation does not).
         jacobian = torch.autograd.functional.jacobian(
             lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
