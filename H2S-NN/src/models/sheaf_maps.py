@@ -8,7 +8,7 @@ import torch
 from torch import nn
 
 from src.data.structures import FaceGroup
-from src.models.map_operators import EdgeMapPair, FactorizedMapOperator
+from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, checkpoint_if_grad
 from src.models.orthogonal import Orthogonal
 from src.utils.memory_guard import validate_node_edge_memory_budget
 
@@ -94,9 +94,15 @@ def _gather_factorized_path_maps(
         raise TypeError("factorized face gathering needs FactorizedMapOperator maps.")
     d = maps.src.d
     shape = tuple(path_edge_index.shape) + (d, d)
-    src_maps, src_inverses = maps.src.select(path_edge_index).materialize_with_inverse()
-    tgt_maps = maps.tgt.select(path_edge_index).materialize()
-    return src_maps.view(shape), tgt_maps.view(shape), src_inverses.view(shape)
+
+    def gather(rows: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        src_maps, src_inverses = maps.src.select(rows).materialize_with_inverse()
+        tgt_maps = maps.tgt.select(rows).materialize()
+        return src_maps.view(shape), tgt_maps.view(shape), src_inverses.view(shape)
+
+    # Checkpointed so autograd keeps only the three outputs (what v1's index gather keeps),
+    # not the 2k+3 intermediate [B*L, d, d] products of each materialization.
+    return checkpoint_if_grad(gather, path_edge_index)
 
 
 def compose_face_transport(
@@ -367,28 +373,32 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
             self.num_relations, 2, self.d, self.d
         )
 
-    def _side_operator(
+    def _side_factors(
         self,
-        h_self: torch.Tensor,
-        h_other: torch.Tensor,
-        relation_features: torch.Tensor,
+        h: torch.Tensor,
+        relation_embeddings: torch.Tensor,
+        self_idx: torch.Tensor,
+        other_idx: torch.Tensor,
+        edge_type: torch.Tensor,
         side: int,
         rotations: torch.Tensor,
-        edge_type: torch.Tensor,
-    ) -> FactorizedMapOperator:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """`(c, unit u)` per incidence on one side: `z = [h_v, h_other, rel_emb, onehot(side)]`."""
+        h_self = h[self_idx]
         side_code = h_self.new_zeros((h_self.size(0), 2))
         side_code[:, side] = 1.0
-        inputs = torch.cat([h_self, h_other, relation_features, side_code], dim=-1)
-        raw_reflectors = self.reflector_mlp(inputs).view(-1, self.householder_k, self.d)
-        raw_scale = self.scale_mlp(inputs).squeeze(-1)
-        return FactorizedMapOperator.from_raw(
-            raw_reflectors=raw_reflectors,
-            raw_scale=raw_scale,
-            rotations=rotations[:, side],
+        inputs = torch.cat(
+            [h_self, h[other_idx], relation_embeddings[edge_type], side_code], dim=-1
+        )
+        operator = FactorizedMapOperator.from_raw(
+            raw_reflectors=self.reflector_mlp(inputs).view(-1, self.householder_k, self.d),
+            raw_scale=self.scale_mlp(inputs).squeeze(-1),
+            rotations=rotations,
             group_ids=edge_type,
             scale_eps=self.scale_eps,
             reflector_eps=REFLECTOR_NORM_EPS,
         )
+        return operator.scale, operator.reflectors
 
     def forward(
         self,
@@ -399,14 +409,31 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     ) -> FactorizedNodeToEdgeSheafOutput:
         src_idx = edge_index[0]
         tgt_idx = edge_index[1]
-        h_src = h[src_idx]
-        h_tgt = h[tgt_idx]
-        relation_features = relation_embeddings[edge_type]
         rotations = self.rotations()
-        src = self._side_operator(h_src, h_tgt, relation_features, 0, rotations, edge_type)
-        tgt = self._side_operator(h_tgt, h_src, relation_features, 1, rotations, edge_type)
+        operators: list[FactorizedMapOperator] = []
+        for side, (self_idx, other_idx) in enumerate(((src_idx, tgt_idx), (tgt_idx, src_idx))):
+            # Checkpointed per side: autograd keeps h and the factors (the map storage
+            # itself), not the [M, hidden] MLP activations, which are replayed in backward.
+            side_rotations = rotations[:, side]
+            scale, reflectors = checkpoint_if_grad(
+                lambda h_in, rel_in, i=self_idx, j=other_idx, s=side, r=side_rotations: (
+                    self._side_factors(h_in, rel_in, i, j, edge_type, s, r)
+                ),
+                h,
+                relation_embeddings,
+            )
+            operators.append(
+                FactorizedMapOperator(
+                    scale=scale,
+                    reflectors=reflectors,
+                    rotations=side_rotations,
+                    group_ids=edge_type,
+                )
+            )
         # delta0 is applied by the caller over the extended (observed + closure) edge set.
-        return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(src=src, tgt=tgt))
+        return FactorizedNodeToEdgeSheafOutput(
+            maps=EdgeMapPair(src=operators[0], tgt=operators[1])
+        )
 
 
 class EdgeInitializer(nn.Module):

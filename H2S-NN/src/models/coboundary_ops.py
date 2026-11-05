@@ -4,7 +4,7 @@ from typing import Callable, NamedTuple
 
 import torch
 
-from src.models.map_operators import EdgeMapPair
+from src.models.map_operators import EdgeMapPair, checkpoint_if_grad
 from src.models.sheaf_maps import FaceMapCache
 
 
@@ -263,6 +263,31 @@ class CoboundaryOps:
     # `[num_edges, d, d]` tensor is gathered or formed; the arithmetic matches the dense
     # methods above term by term.
     # ------------------------------------------------------------------------------
+    #
+    # Each public entry point runs under `checkpoint_if_grad`: autograd keeps only its input
+    # (for `L0`, the [N, d] node cochain) instead of every [E, d] intermediate.
+    @staticmethod
+    def _delta0_mf(
+        x: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+    ) -> torch.Tensor:
+        return maps.tgt.apply(x[tgt_idx]) - maps.src.apply(x[src_idx])
+
+    @staticmethod
+    def _delta0_T_mf(
+        s: torch.Tensor,
+        maps: EdgeMapPair,
+        src_idx: torch.Tensor,
+        tgt_idx: torch.Tensor,
+        num_nodes: int,
+    ) -> torch.Tensor:
+        output = torch.zeros((num_nodes, s.size(-1)), device=s.device, dtype=s.dtype)
+        output.index_add_(0, tgt_idx, maps.tgt.apply_T(s))
+        output.index_add_(0, src_idx, -maps.src.apply_T(s))
+        return output
+
     @staticmethod
     def delta0_matrix_free(
         x: torch.Tensor,
@@ -271,7 +296,9 @@ class CoboundaryOps:
         tgt_idx: torch.Tensor,
     ) -> torch.Tensor:
         """`(delta0 x)_e = F^e_tgt x_tgt - F^e_src x_src`."""
-        return maps.tgt.apply(x[tgt_idx]) - maps.src.apply(x[src_idx])
+        return checkpoint_if_grad(
+            lambda x_in: CoboundaryOps._delta0_mf(x_in, maps, src_idx, tgt_idx), x
+        )
 
     @staticmethod
     def delta0_T_matrix_free(
@@ -282,10 +309,9 @@ class CoboundaryOps:
         num_nodes: int,
     ) -> torch.Tensor:
         """Exact adjoint of `delta0_matrix_free`."""
-        output = torch.zeros((num_nodes, s.size(-1)), device=s.device, dtype=s.dtype)
-        output.index_add_(0, tgt_idx, maps.tgt.apply_T(s))
-        output.index_add_(0, src_idx, -maps.src.apply_T(s))
-        return output
+        return checkpoint_if_grad(
+            lambda s_in: CoboundaryOps._delta0_T_mf(s_in, maps, src_idx, tgt_idx, num_nodes), s
+        )
 
     @staticmethod
     def L0_matrix_free(
@@ -295,13 +321,13 @@ class CoboundaryOps:
         tgt_idx: torch.Tensor,
         num_nodes: int,
     ) -> torch.Tensor:
-        return CoboundaryOps.delta0_T_matrix_free(
-            CoboundaryOps.delta0_matrix_free(x, maps, src_idx, tgt_idx),
-            maps,
-            src_idx,
-            tgt_idx,
-            num_nodes,
-        )
+        """`delta0^T delta0 x` as one checkpointed block: nothing edge-sized is retained."""
+
+        def l0(x_in: torch.Tensor) -> torch.Tensor:
+            edge_values = CoboundaryOps._delta0_mf(x_in, maps, src_idx, tgt_idx)
+            return CoboundaryOps._delta0_T_mf(edge_values, maps, src_idx, tgt_idx, num_nodes)
+
+        return checkpoint_if_grad(l0, x)
 
     @staticmethod
     def L1_matrix_free(
@@ -316,12 +342,12 @@ class CoboundaryOps:
         face_weights: tuple[torch.Tensor, ...] | None = None,
     ) -> torch.Tensor:
         """v1 `L1` with a matrix-free down term; the face (up) term is unchanged v1 code."""
-        down = CoboundaryOps.delta0_matrix_free(
-            CoboundaryOps.delta0_T_matrix_free(s, maps, src_idx, tgt_idx, num_nodes),
-            maps,
-            src_idx,
-            tgt_idx,
-        )
+
+        def down_term(s_in: torch.Tensor) -> torch.Tensor:
+            node_values = CoboundaryOps._delta0_T_mf(s_in, maps, src_idx, tgt_idx, num_nodes)
+            return CoboundaryOps._delta0_mf(node_values, maps, src_idx, tgt_idx)
+
+        down = checkpoint_if_grad(down_term, s)
         up = CoboundaryOps._upper_hodge_term(
             s, face_caches, map_builder, num_edges, face_weights
         )

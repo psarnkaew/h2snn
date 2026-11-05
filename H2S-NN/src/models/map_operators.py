@@ -18,10 +18,29 @@ and for small gathered subsets (the v1 face chunks) only.
 
 from __future__ import annotations
 
-from typing import NamedTuple, Protocol
+from typing import Callable, NamedTuple, Protocol
 
 import torch
 import torch.nn.functional as F
+import torch.utils.checkpoint
+
+
+def checkpoint_if_grad(
+    function: Callable[..., torch.Tensor | tuple[torch.Tensor, ...]],
+    *inputs: torch.Tensor,
+) -> torch.Tensor | tuple[torch.Tensor, ...]:
+    """Run `function` under activation checkpointing while autograd is recording.
+
+    A matrix-free map application creates several `[E, d]` intermediates (reflection
+    inputs, the relation-sorted copy, the pre-scale output). Autograd would keep all of
+    them for every call -- on ACM (d=32, K=4) that alone exceeds 7 GiB. Checkpointing keeps
+    only `inputs` and replays the deterministic forward during backward, so gradients are
+    those of `function` itself. Same trade as the FastHPP merge in `orthogonal.py`.
+    Tensors that `function` closes over (the map factors) still receive gradients.
+    """
+    if not torch.is_grad_enabled():
+        return function(*inputs)
+    return torch.utils.checkpoint.checkpoint(function, *inputs, use_reentrant=False)
 
 
 def normalize_reflectors(raw: torch.Tensor, eps: float) -> torch.Tensor:
@@ -183,7 +202,9 @@ class FactorizedMapOperator:
         for j in order:
             v = self.reflectors[:, j]
             v = v.reshape((v.size(0),) + middle + (v.size(-1),))
-            y = y - 2.0 * v * (v * y).sum(dim=-1, keepdim=True)
+            # v * (2 <v, y>) rather than (2 v) * <v, y>: same value (x2 is exact), but no
+            # fresh [E, d] tensor `2 v` for autograd to keep.
+            y = y - v * (2.0 * (v * y).sum(dim=-1, keepdim=True))
         return y
 
     def _check_input(self, x: torch.Tensor) -> None:

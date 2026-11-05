@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from src.models.map_operators import EdgeMapPair
+from src.models.map_operators import EdgeMapPair, checkpoint_if_grad
 
 
 def pool_edge_stalks_to_nodes_matrix_free(
@@ -33,15 +33,17 @@ def pool_edge_stalks_to_nodes_matrix_free(
             f"{maps.src.num_edges}/{maps.tgt.num_edges}."
         )
     d = s_star.size(-1)
-    src_messages = maps.src.apply_T(s_star)
-    tgt_messages = maps.tgt.apply_T(s_star)
 
-    pooled_edges = torch.zeros((num_nodes, d), device=s_star.device, dtype=s_star.dtype)
+    def pooled_sum(s_in: torch.Tensor) -> torch.Tensor:
+        pooled = torch.zeros((num_nodes, d), device=s_in.device, dtype=s_in.dtype)
+        pooled.index_add_(0, edge_index[0], maps.src.apply_T(s_in))
+        pooled.index_add_(0, edge_index[1], maps.tgt.apply_T(s_in))
+        return pooled
+
+    # Checkpointed: autograd keeps s_star, not the [E, d] intermediates of the operators.
+    pooled_edges = checkpoint_if_grad(pooled_sum, s_star)
     counts = torch.zeros((num_nodes, 1), device=s_star.device, dtype=s_star.dtype)
     ones = torch.ones((num_edges, 1), device=s_star.device, dtype=s_star.dtype)
-
-    pooled_edges.index_add_(0, edge_index[0], src_messages)
-    pooled_edges.index_add_(0, edge_index[1], tgt_messages)
     counts.index_add_(0, edge_index[0], ones)
     counts.index_add_(0, edge_index[1], ones)
     return pooled_edges / counts.clamp_min(1.0)

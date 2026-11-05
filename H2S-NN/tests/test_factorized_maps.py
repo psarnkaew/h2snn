@@ -609,6 +609,22 @@ class ModelIntegrationTests(unittest.TestCase):
         for field in ("logits", "x_star", "s_star", "delta0_h0", "delta0_x_star", "raw_face_curl"):
             self.assertLess(_max_err(getattr(got, field), getattr(want, field)), F64_TOL, field)
 
+        # Backward too: every parameter gradient (checkpointed matrix-free path vs v1 code).
+        weights = torch.randn_like(got.logits)
+        gradients = []
+        for model in (factorized, dense):
+            factorized.zero_grad(set_to_none=True)
+            dense.zero_grad(set_to_none=True)
+            output = model(data)
+            ((output.logits * weights).sum() + output.s_star.square().mean()).backward()
+            named = model.named_parameters()
+            gradients.append({name.replace("node_to_edge.factorized.", "node_to_edge."): p.grad
+                              for name, p in named if p.grad is not None})
+        self.assertEqual(set(gradients[0]), set(gradients[1]))
+        self.assertTrue(any(name.startswith("node_to_edge.") for name in gradients[0]))
+        for name, grad in gradients[0].items():
+            self.assertLess(_max_err(grad, gradients[1][name]), F64_TOL, name)
+
     def test_matrix_free_coboundary_and_pooling_match_dense(self) -> None:
         operator_src = _random_operator(9, 2, 4, 2, seed=1)
         operator_tgt = _random_operator(9, 2, 4, 2, seed=2, group_ids=operator_src.group_ids)
@@ -629,6 +645,56 @@ class ModelIntegrationTests(unittest.TestCase):
         self.assertLess(abs(lhs - rhs), F64_TOL)
         self.assertLess(_max_err(pool_edge_stalks_to_nodes_matrix_free(s, edge_index, maps, 6),
                                  pool_edge_stalks_to_nodes(s, edge_index, F_src, F_tgt, 6)), F64_TOL)
+
+    def test_matrix_free_gradients_match_dense_reference(self) -> None:
+        """Backward, not just forward: grads w.r.t. every factor and the input agree with
+        the v1 dense operators applied to the materialized maps (float64)."""
+        generator = torch.Generator().manual_seed(11)
+        E, k, d, N = 12, 2, 4, 7
+        group_ids = torch.randint(3, (E,), generator=generator)
+        edge_index = torch.randint(N, (2, E), generator=generator)
+        leaves = {
+            "u_src": torch.randn(E, k, d, generator=generator, dtype=torch.float64),
+            "u_tgt": torch.randn(E, k, d, generator=generator, dtype=torch.float64),
+            "c_src": torch.randn(E, generator=generator, dtype=torch.float64),
+            "c_tgt": torch.randn(E, generator=generator, dtype=torch.float64),
+            "rot": torch.linalg.qr(torch.randn(3, d, d, generator=generator,
+                                               dtype=torch.float64))[0],
+            "x": torch.randn(N, d, generator=generator, dtype=torch.float64),
+            "s": torch.randn(E, d, generator=generator, dtype=torch.float64),
+        }
+        weights = torch.randn(3, E, d, generator=generator, dtype=torch.float64)
+
+        def grads(matrix_free: bool) -> dict[str, torch.Tensor]:
+            leaf = {name: value.clone().requires_grad_(True) for name, value in leaves.items()}
+            src = FactorizedMapOperator.from_raw(leaf["u_src"], leaf["c_src"], leaf["rot"],
+                                                 group_ids, 0.1, 1e-6)
+            tgt = FactorizedMapOperator.from_raw(leaf["u_tgt"], leaf["c_tgt"], leaf["rot"],
+                                                 group_ids, 0.1, 1e-6)
+            maps = EdgeMapPair(src, tgt)
+            F_src, F_tgt = src.materialize(), tgt.materialize()
+            src_idx, tgt_idx = edge_index
+            if matrix_free:
+                l0 = CoboundaryOps.L0_matrix_free(leaf["x"], maps, src_idx, tgt_idx, N)
+                l1 = CoboundaryOps.L1_matrix_free(leaf["s"], maps, src_idx, tgt_idx, N,
+                                                  (), lambda c: c.maps, E)
+                pooled = pool_edge_stalks_to_nodes_matrix_free(leaf["s"], edge_index, maps, N)
+                d0 = CoboundaryOps.delta0_matrix_free(leaf["x"], maps, src_idx, tgt_idx)
+            else:
+                l0 = CoboundaryOps.L0(leaf["x"], F_src, F_tgt, src_idx, tgt_idx, N)
+                l1 = CoboundaryOps.L1(leaf["s"], F_src, F_tgt, src_idx, tgt_idx, N,
+                                      (), lambda c: c.maps, E)
+                pooled = pool_edge_stalks_to_nodes(leaf["s"], edge_index, F_src, F_tgt, N)
+                d0 = CoboundaryOps.delta0(leaf["x"], F_src, F_tgt, src_idx, tgt_idx)
+            loss = ((l0.square().sum() + pooled.square().sum())
+                    + (weights[0] * l1).sum() + (weights[1] * d0).sum())
+            loss.backward()
+            return {name: value.grad for name, value in leaf.items()}
+
+        got, want = grads(True), grads(False)
+        for name in leaves:
+            self.assertIsNotNone(got[name], name)
+            self.assertLess(_max_err(got[name], want[name]), F64_TOL, name)
 
     def _record(self, model, data) -> _ShapeRecorder:
         recorder = _ShapeRecorder()
