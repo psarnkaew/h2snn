@@ -3,7 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > **H2S-NN is mid-revision.** Before any task, read "Revision Status — Read This First" below. The
-> code in `src/` is v1; the agreed v2 design lives in `../H2S-NN_v2_plan.md`.
+> code in `src/` runs v1 by default; v2 (D1 + D4, node classification) is selected by
+> `model.architecture: v2`. The agreed v2 design lives in `../docs/H2S-NN_v2_plan.md`.
 
 ## Environment — Always Use the `h2snn` Conda Environment
 
@@ -674,33 +675,39 @@ def _eval_epoch(self, loader, epoch): ...
 
 ## Revision Status — Read This First
 
-H2S-NN is being revised after critical reviews. **The code in `src/` is v1, the submitted model.
-The target is v2, defined by agreed decisions in the planning documents.** A v2 component exists
-only once its code and tests exist. Never describe v2 behaviour as what the code does, and never
-treat older v1 design notes as the plan.
+H2S-NN is being revised after critical reviews. **The default code path in `src/` is v1, the
+submitted model. The target is v2, defined by agreed decisions in the planning documents.** A v2
+component exists only once its code and tests exist. Never describe a v2 component that has no
+code as what the code does, and never treat older v1 design notes as the plan.
 
-As of 2026-11-06 the only v2 code is D1: `model.map_family: factorized` (node classification
-only; default `dense` is v1, unchanged), in `src/models/map_operators.py` and
-`FactorizedNodeToEdgeSheaf` (`src/models/sheaf_maps.py`), tested by `tests/test_factorized_maps.py`.
-No experiment config selects it yet, and no accuracy result exists for it.
+As of 2026-11-06 the v2 code is D1, D1a and D4, node classification only, all behind non-default
+config values (v1 is unchanged by default):
+- D1: `model.map_family: factorized` — `src/models/map_operators.py`, `FactorizedNodeToEdgeSheaf`
+  (`src/models/sheaf_maps.py`); tests `tests/test_factorized_maps.py`.
+- D1a: `model.map_scale: per_edge` (one conformal scale per edge; v2 only).
+- D4: `model.architecture: v2` — `src/models/h2snn_v2.py` (model, ablation switches) and
+  `src/models/vertex_path_laplacian.py` (operators); tests `tests/test_v2_model.py`. Report:
+  `../docs/H2S-NN_D4_report.md`.
+No experiment config selects v2 yet, and no accuracy result exists for it.
 
 ### Sources of truth, in this order
 
-The planning documents live in the **parent folder** of this repository (`../` from `H2S-NN/`).
+The planning documents live in `../docs/` (from `H2S-NN/`).
 
 1. `CLAUDE.md` and `AGENTS.md` — environment and coding conventions. Binding.
-2. `../H2S-NN_v2_plan.md` — agreed decisions D1–D5. Do not reopen an agreed decision; if evidence
+2. `../docs/H2S-NN_v2_plan.md` — agreed decisions D1–D5. Do not reopen an agreed decision; if evidence
    contradicts one, stop and report.
-3. `../H2S-NN_fix_spec.md` — verified facts F1–F18, falsifiable hypotheses H1–H12, protocol
+3. `../docs/H2S-NN_fix_spec.md` — verified facts F1–F18, falsifiable hypotheses H1–H12, protocol
    fixes (§6) and writing decisions (§7). Still in force except where the v2 plan supersedes it
    (P2, P3, P5 and P6 are superseded or rejected; see plan §0).
-4. `../H2S-NN_agent_prompt.md` — role, evidence rules, the mandatory self-correction loop, and task
-   cards. Task card D1 runs first.
+4. `../docs/H2S-NN_agent_prompt.md` — role, evidence rules, the mandatory self-correction loop, and task
+   cards. Task cards D1 and D4 are done (reports `../docs/H2S-NN_D1_report.md`,
+   `../docs/H2S-NN_D4_report.md`).
 5. The code. When a document and the code disagree, the code describes what runs. Report the
    disagreement; do not silently pick one.
 
-Context documents in the same folder: `../critical_reviewer_reviews.md` (the reviews),
-`../h2snn_manuscript_paper.pdf` and `../h2snn_manuscript_material.pdf` (the submitted version).
+Context documents in the same folder: `../docs/critical_reviewer_reviews.md` (the reviews),
+`../docs/h2snn_manuscript_paper.pdf` and `../docs/h2snn_manuscript_material.pdf` (the submitted version).
 The manuscript source is `paper/h2snn_manuscript.tex`.
 
 ### Evidence tags
@@ -713,12 +720,12 @@ number improved, or a bug is fixed without showing the run output.
 
 ### v2 decisions at a glance
 
-| ID | Decision (details in `../H2S-NN_v2_plan.md`) | State |
+| ID | Decision (details in `../docs/H2S-NN_v2_plan.md`) | State |
 |---|---|---|
-| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; selected by `model.map_family: dense \| factorized` (default `dense`) and `model.householder_k` | Implemented for node classification, unit-tested; accuracy experiments (plan §1.6) not run |
+| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; selected by `model.map_family: dense \| factorized` (default `dense`) and `model.householder_k` | Implemented for node classification, unit-tested; accuracy experiments (plan §1.6) not run. D1a (one scale per edge, `model.map_scale: per_edge`) implemented for v2 |
 | D2 | Redesign AMPSS (task-driven meta-path selection), scalable, path-aware, ≤ 3 knobs. Mechanism **open**. Interim: fixed literature schema lists + uniform per-batch instance sampling | Open |
 | D3 | Scalability first: normalized Laplacians with full-graph degrees, `η = σ(θ)`, equivariant stalk normalization, per-batch path cells, `NeighborLoader` mini-batching. **Scale v2, not v1** | Not started |
-| D4 | Path 2-cells couple to **every** boundary node through the **vertex–2-cell sheaf Laplacian**; the edge-cochain machinery is deleted | Agreed, not started |
+| D4 | Path 2-cells couple to **every** boundary node through the **vertex–2-cell sheaf Laplacian**; the edge-cochain machinery is deleted | Implemented (`model.architecture: v2`, node classification) with §4.6 ablation switches, unit-tested; ACM memory and 20-epoch smoke run only; accuracy and ablation experiments not run |
 | D5 | Baseline provenance (fix spec H8) and IMDB heterophily under fair multilabel definitions (H5); parallel track | Not started |
 
 Order of work and gates: plan §6. Dataset ladder (HGB → Freebase / rewiring / IEEE-CIS-G →
@@ -795,7 +802,8 @@ Other folders:
 
 ## Running Experiments
 
-These commands run **v1**, the only model implemented. Remember the approval rule above before
+These commands run **v1** unless the config sets `model.architecture: v2` (node classification
+only; no committed config does). Remember the approval rule above before
 launching anything longer than a smoke test.
 
 ```bash
@@ -904,7 +912,7 @@ Known v1 issues the revision addresses (fix spec §2–3; tags from there):
 - AMPSS Stage I scores schemas by endpoint proxies with type-blind label propagation, loops in
   Python, and fails past 128 candidates (F9, F10).
 
-### v2 target — PROPOSAL until implemented (plan §4.2)
+### v2 — `H2SNNv2`, `src/models/h2snn_v2.py` (`model.architecture: v2`, plan §4.2)
 
 ```
 h₀ = TypeEncoder(x)
@@ -986,7 +994,7 @@ science reader who is not a specialist in heterogeneous sheaves or Hodge theory.
 - The manuscript describes **v1**. Ground any description of what v1 does in the implemented `src/`
   code, tests, experiment configs and completed result artifacts, then in
   `docs/h2snn_current_model_documentation.html` (v1 only). Ground any description of the revised
-  model in `../H2S-NN_v2_plan.md` and `../H2S-NN_fix_spec.md` (§7, Claims and writing), and describe
+  model in `../docs/H2S-NN_v2_plan.md` and `../docs/H2S-NN_fix_spec.md` (§7, Claims and writing), and describe
   a v2 component as implemented only once its code and tests exist. Treat the manuscript,
   specifications and plans as claims to verify, not as proof that a feature or result exists.
 - Use `references/HETSHEAF.pdf`, `references/metapath_search/HeterSEED.pdf`, and
