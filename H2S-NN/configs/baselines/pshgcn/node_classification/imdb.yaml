@@ -1,0 +1,18 @@
+model: pshgcn
+task: node_classification
+dataset: imdb
+source: PSHGCN/hgb/config.yaml -> 'IMDB' block (upstream commit as cloned)
+notes: wd -> weight_decay. epochs/early_stopping are PSHGCN/hgb/main.py argparse defaults,
+  not dataset-specific.
+params:
+  K: 1
+  emb_dim: 128
+  hidden: 256
+  input_drop: 0.05
+  dropout: 0.7
+  lr: 0.0005
+  weight_decay: 0.0005
+  prop_lr: 0.008
+  prop_wd: 0.0
+  epochs: 1000
+  early_stopping: 100

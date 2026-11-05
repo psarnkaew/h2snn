@@ -1,0 +1,18 @@
+model: pshgcn
+task: node_classification
+dataset: dblp
+source: PSHGCN/hgb/config.yaml -> 'DBLP' block (upstream commit as cloned)
+notes: wd -> weight_decay. epochs/early_stopping are PSHGCN/hgb/main.py argparse defaults,
+  not dataset-specific.
+params:
+  K: 5
+  emb_dim: 16
+  hidden: 64
+  input_drop: 0.4
+  dropout: 0.1
+  lr: 0.006
+  weight_decay: 0.0
+  prop_lr: 0.002
+  prop_wd: 0.8
+  epochs: 1000
+  early_stopping: 100

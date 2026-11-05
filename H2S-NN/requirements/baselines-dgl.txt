@@ -1,0 +1,23 @@
+# Optional group: DGL.  Backs GCN, GAT, HAN, SeHGNN, HINormer (all tasks) and PSHGCN
+# on link prediction only -- PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`
+# that its node-classification counterpart does not have.
+# Without this group those models cannot be fitted; every other baseline is unaffected.
+#
+# DGL is NOT on PyPI past 2.1.0 -- it publishes its own wheel index, one repo per torch
+# build, and only for Linux. So the pin has to split by platform; a bare `dgl==2.2.1`
+# resolves against PyPI and fails with "No matching distribution found".
+#
+#   Linux (Colab)    dgl 2.5.0+cu124, the torch-2.6 build, from the -f index below.
+#   Windows (local)  DGL ships no Windows wheel for any 2.x. The `h2snn` env already has
+#                    dgl 2.2.1 from an older channel, so this line is a no-op there
+#                    ("Requirement already satisfied"). A *fresh* Windows env cannot
+#                    install it from any index and must obtain the 2.2.1 wheel manually.
+#
+# The Windows 2.2.1 wheel ships no graphbolt binary for torch 2.6, so `import dgl` raises
+# FileNotFoundError on graphbolt_pytorch_2.6.0.dll. src/baselines/runtime/_dgl_compat.py
+# pre-registers a stub `dgl.graphbolt` module before the import; these baselines use the
+# graph/conv APIs, not GraphBolt. Do not remove that shim. Linux's 2.5.0+cu124 is a
+# healthy install and the shim detects that and leaves it alone.
+-f https://data.dgl.ai/wheels/torch-2.6/cu124/repo.html
+dgl==2.5.0+cu124; sys_platform == "linux"
+dgl==2.2.1; sys_platform == "win32"

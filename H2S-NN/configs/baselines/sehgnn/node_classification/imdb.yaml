@@ -1,0 +1,24 @@
+model: sehgnn
+task: node_classification
+dataset: imdb
+source: 'SeHGNN/hgb/Readme.md Training section: `python main.py --epoch 200 --dataset
+  IMDB --n-fp-layers 2 --n-task-layers 4 --num-hops 4 --num-label-hops 4 --label-feats
+  --hidden 512 --embed-size 512 --dropout 0.5 --input-drop 0. --amp --seeds 1 2 3
+  4 5`'
+notes: 'lr/weight_decay are main.py argparse defaults (the commands do not set them).
+  --amp (mixed precision) is not replicated: it is a speed setting, and the campaign
+  keeps numerics identical across baselines. --seeds is handled by the campaign''s
+  own 5-seed loop.'
+params:
+  n_fp_layers: 2
+  n_task_layers: 4
+  num_hops: 4
+  num_label_hops: 4
+  label_feats: true
+  residual: false
+  hidden: 512
+  embed_size: 512
+  dropout: 0.5
+  input_drop: 0.0
+  epochs: 200
+  early_stopping: 30

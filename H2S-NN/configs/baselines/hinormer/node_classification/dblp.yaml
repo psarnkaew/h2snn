@@ -1,0 +1,23 @@
+model: hinormer
+task: node_classification
+dataset: dblp
+source: 'HINormer/README.md (HGB-split section): `python run.py --dataset DBLP-HGB
+  --len-seq 50 --num-heads 2 --dropout 0.5 --beta 0.1 --temperature 0.1 --mode 1`'
+notes: 'Uses the README''s *-HGB commands, which target HGB''s standard split -- the
+  same protocol this campaign enforces. Flags absent from the command are run.py argparse
+  defaults. ACM has no published command: the paper does not evaluate ACM, so that
+  cell is tuned.'
+params:
+  hidden_dim: 256
+  num_heads: 2
+  num_layers: 2
+  num_gnns: 4
+  lr: 0.0001
+  weight_decay: 0.0
+  dropout: 0.5
+  l2norm: true
+  epochs: 1000
+  early_stopping: 50
+  len_seq: 50
+  beta: 0.1
+  temperature: 0.1

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Preliminary Results Tables</title>
+<style>
+  :root {
+    --navy: #08245a;
+    --grid: #111;
+    --soft-line: #c7d4e8;
+    --highlight: #fff200;
+    --ours-bg: #fff9a8;
+    --best: #d7191c;
+    --second: #f28e2b;
+    --third: #1f77b4;
+  }
+
+  body {
+    margin: 32px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111;
+    background: #fff;
+  }
+
+  h1 {
+    margin: 0 0 10px;
+    color: var(--navy);
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  h2 {
+    margin: 34px 0 10px;
+    color: var(--navy);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .section {
+    margin-bottom: 44px;
+  }
+
+  .rule {
+    height: 4px;
+    background: var(--soft-line);
+    margin: 4px 0 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 0;
+    font-size: 15px;
+    table-layout: fixed;
+  }
+
+  th, td {
+    border: 1.6px solid var(--grid);
+    padding: 7px 8px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.25;
+  }
+
+  th {
+    font-weight: 500;
+    background: #fff;
+  }
+
+  td.left, th.left {
+    text-align: left;
+  }
+
+  .type {
+    width: 18%;
+    text-align: left;
+  }
+
+  .model {
+    width: 20%;
+    text-align: left;
+  }
+
+  .small {
+    font-size: 13px;
+  }
+
+  .ours td.model, .ours .model-label {
+    background: var(--highlight);
+  }
+
+  .ours strong, .ours .score {
+    background: var(--highlight);
+    font-weight: 700;
+    padding: 0 2px;
+  }
+
+  .note {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #444;
+  }
+
+  .paper-table {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 20px;
+    table-layout: fixed;
+    border-top: 4px solid #000;
+    border-bottom: 4px solid #000;
+  }
+
+  .paper-table th, .paper-table td {
+    border-left: none;
+    border-right: none;
+    border-top: 0;
+    border-bottom: 0;
+    padding: 5px 9px;
+  }
+
+  .paper-table thead tr:last-child th {
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+  }
+
+  .paper-table tbody tr.group-start td {
+    border-top: 2px solid #000;
+  }
+
+  .paper-table tbody tr.group-end td {
+    border-bottom: 2px solid #000;
+  }
+
+  .paper-table .model {
+    font-weight: 400;
+    width: 14%;
+  }
+
+  .paper-table .group {
+    font-style: italic;
+    font-weight: 400;
+    text-align: left;
+    border-bottom: 1.5px solid #000;
+    padding-top: 10px;
+  }
+
+  .paper-table .ours-row td {
+    font-weight: 700;
+  }
+
+  .best { color: var(--best); font-weight: 700; }
+  .second { color: var(--second); }
+  .third { color: var(--third); }
+  .blue { color: #00a6d6; }
+  .pink { color: #d27aaa; }
+  .gold { color: #e6a100; }
+</style>
+</head>
+<body>
+
+<section class="section">
+  <h1>Preliminary Results: Node Classification (Avg)</h1>
+  <div class="rule"></div>
+  <table aria-label="Node Classification Average Results">
+    <thead>
+      <tr>
+        <th rowspan="2" class="type">Types</th>
+        <th rowspan="2" class="model">Models</th>
+        <th colspan="2">DBLP (59.76)</th>
+        <th colspan="2">ACM (72.39)</th>
+        <th colspan="2">IMDB (50.04)</th>
+      </tr>
+      <tr>
+        <th>Macro</th><th>Micro</th>
+        <th>Macro</th><th>Micro</th>
+        <th>Macro</th><th>Micro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2" class="type">Homophilic homogeneous graph</td>
+        <td class="model">GCN (2016)</td>
+        <td>90.77</td><td>90.28</td><td>91.63</td><td>91.38</td><td>62.33</td><td>67.69</td>
+      </tr>
+      <tr>
+        <td class="model">GAT (2021)</td>
+        <td>94.39</td><td>92.52</td><td>92.07</td><td>90.71</td><td>62.13</td><td>68.09</td>
+      </tr>
+      <tr>
+        <td rowspan="3" class="type">Homophilic homogeneous graph</td>
+        <td class="model">NSD (2022)</td>
+        <td>92.96</td><td>93.42</td><td>92.33</td><td>92.05</td><td>61.61</td><td>65.23</td>
+      </tr>
+      <tr>
+        <td class="model">CSNN (2026)</td>
+        <td>93.73</td><td>92.12</td><td>93.13</td><td>92.81</td><td>62.92</td><td>62.59</td>
+      </tr>
+      <tr>
+        <td class="model">ChebnetII (2022)</td>
+        <td>92.89</td><td>92.67</td><td>91.70</td><td>91.59</td><td>62.97</td><td>68.47</td>
+      </tr>
+      <tr>
+        <td rowspan="4" class="type">Homophilic heterogeneous graph</td>
+        <td class="model">HAN (2019)</td>
+        <td>91.78</td><td>92.24</td><td>90.88</td><td>91.61</td><td>61.95</td><td>67.76</td>
+      </tr>
+      <tr>
+        <td class="model">SeHGNN (2022)</td>
+        <td>95.52</td><td>95.48</td><td>94.38</td><td>94.04</td><td>72.01</td><td>72.59</td>
+      </tr>
+      <tr>
+        <td class="model">HiNormer (2023)</td>
+        <td>94.06</td><td>94.14</td><td>91.87</td><td>89.64</td><td>64.13</td><td>67.53</td>
+      </tr>
+      <tr>
+        <td class="model">PSHGCN (2024)</td>
+        <td>95.58</td><td>95.70</td><td>93.66</td><td>94.70</td><td>71.82</td><td>74.34</td>
+      </tr>
+      <tr>
+        <td rowspan="6" class="type">Heterophilic heterogeneous graph</td>
+        <td class="model">HDHGR (2023)</td>
+        <td>95.35</td><td>95.00</td><td>93.99</td><td>94.13</td><td>59.41</td><td>59.63</td>
+      </tr>
+      <tr>
+        <td class="model">Hetero2Net (2023)</td>
+        <td>93.54</td><td>93.54</td><td>94.05</td><td>92.87</td><td>65.34</td><td>70.63</td>
+      </tr>
+      <tr>
+        <td class="model">H2SGNN (2023)</td>
+        <td>95.82</td><td>95.11</td><td>94.90</td><td>94.08</td><td>74.23</td><td>75.29</td>
+      </tr>
+      <tr>
+        <td class="model">HETSHEAF (2024)*</td>
+        <td>93.87</td><td>93.77</td><td>95.09</td><td>94.94</td><td>64.65</td><td>67.18</td>
+      </tr>
+      <tr>
+        <td class="model">LatGRL (2021)</td>
+        <td>94.32</td><td>94.51</td><td>93.47</td><td>92.29</td><td>58.27</td><td>58.81</td>
+      </tr>
+      <tr class="ours">
+        <td class="model"><span class="model-label">H2SNN (Ours)</span></td>
+        <td><span class="score">96.01</span></td><td><span class="score">96.31</span></td>
+        <td><span class="score">95.91</span></td><td><span class="score">95.72</span></td>
+        <td><span class="score">75.05</span></td><td><span class="score">76.68</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <h1>Preliminary Results: Graph Classification (Avg)</h1>
+  <div class="rule"></div>
+  <table aria-label="Graph Classification Average Results">
+    <thead>
+      <tr>
+        <th rowspan="2" class="type">Types</th>
+        <th rowspan="2" class="model">Models</th>
+        <th colspan="2">MUTAG</th>
+        <th colspan="2">PROTEINS</th>
+        <th colspan="2">ENZYME</th>
+        <th colspan="2">NCI1</th>
+      </tr>
+      <tr>
+        <th>Macro</th><th>Micro</th>
+        <th>Macro</th><th>Micro</th>
+        <th>Macro</th><th>Micro</th>
+        <th>Macro</th><th>Micro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2" class="type">Homophilic homogeneous graph</td>
+        <td class="model">GCN (2016)</td>
+        <td>89.58</td><td>90.00</td><td>75.92</td><td>79.83</td><td>12.75</td><td>28.33</td><td>64.17</td><td>64.96</td>
+      </tr>
+      <tr>
+        <td class="model">GAT (2021)</td>
+        <td>89.58</td><td>90.00</td><td>75.27</td><td>78.38</td><td>14.03</td><td>16.55</td><td>64.17</td><td>64.96</td>
+      </tr>
+      <tr>
+        <td rowspan="2" class="type">Homophilic homogeneous graph</td>
+        <td class="model">NSD (2022)</td>
+        <td>100</td><td>100</td><td>73.60</td><td>75.89</td><td>33.65</td><td>35.00</td><td>72.30</td><td>72.30</td>
+      </tr>
+      <tr>
+        <td class="model">CSNN (2026)</td>
+        <td>100</td><td>100</td><td>76.64</td><td>77.92</td><td>35.15</td><td>37.22</td><td>74.11</td><td>74.30</td>
+      </tr>
+      <tr>
+        <td rowspan="2" class="type">Homophilic heterogeneous graph</td>
+        <td class="model">HAN (2019)</td>
+        <td>82.91</td><td>85.00</td><td>79.19</td><td>82.22</td><td>46.24</td><td>45.02</td><td>77.60</td><td>77.50</td>
+      </tr>
+      <tr>
+        <td class="model">PSHGCN (2024)</td>
+        <td>94.88</td><td>95.00</td><td>70.61</td><td>72.32</td><td>20.18</td><td>28.33</td><td>64.17</td><td>64.96</td>
+      </tr>
+      <tr>
+        <td rowspan="6" class="type">Heterophilic heterogeneous graph</td>
+        <td class="model">HDHGR (2023)</td>
+        <td>84.65</td><td>85.00</td><td>77.64</td><td>81.25</td><td>48.27</td><td>48.33</td><td>79.29</td><td>79.32</td>
+      </tr>
+      <tr>
+        <td class="model">Hetero2Net (2023)</td>
+        <td>89.58</td><td>90.00</td><td>74.66</td><td>78.57</td><td>8.53</td><td>18.33</td><td>63.67</td><td>65.45</td>
+      </tr>
+      <tr>
+        <td class="model">H2SGNN (2023)</td>
+        <td>94.88</td><td>95.00</td><td>70.61</td><td>72.32</td><td>20.18</td><td>28.33</td><td>64.17</td><td>64.96</td>
+      </tr>
+      <tr>
+        <td class="model">HETSHEAF (2024)*</td>
+        <td>100</td><td>100</td><td>80.56</td><td>82.14</td><td>62.35</td><td>63.33</td><td>79.46</td><td>79.46</td>
+      </tr>
+      <tr>
+        <td class="model">LatGRL (2021)</td>
+        <td>90.88</td><td>91.01</td><td>71.61</td><td>72.32</td><td>25.41</td><td>29.03</td><td>77.98</td><td>78.10</td>
+      </tr>
+      <tr class="ours">
+        <td class="model"><span class="model-label">H2SNN (Ours)</span></td>
+        <td><span class="score">100</span></td><td><span class="score">100</span></td>
+        <td><span class="score">84.44</span></td><td><span class="score">86.23</span></td>
+        <td><span class="score">64.52</span></td><td><span class="score">65.10</span></td>
+        <td><span class="score">81.22</span></td><td><span class="score">81.52</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <h2>Table 3: Node clustering performance comparison</h2>
+  <table class="paper-table" aria-label="Node Clustering Performance Comparison">
+    <thead>
+      <tr>
+        <th class="model">Datasets</th>
+        <th colspan="2">ACM</th>
+        <th colspan="2">Freebase</th>
+        <th colspan="2">AMiner</th>
+        <th colspan="2">IMDB</th>
+      </tr>
+      <tr>
+        <th class="model">Metrics</th>
+        <th>NMI</th><th>ARI</th>
+        <th>NMI</th><th>ARI</th>
+        <th>NMI</th><th>ARI</th>
+        <th>NMI</th><th>ARI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">HGMAE</td>
+        <td class="blue">64.57</td><td>67.85</td><td>17.18</td><td>17.94</td><td>34.70</td><td>34.38</td><td>2.76</td><td class="blue">2.62</td>
+      </tr>
+      <tr class="group-end">
+        <td class="model">RMR</td>
+        <td>54.37</td><td>45.65</td><td>18.33</td><td>18.15</td><td>30.22</td><td>31.59</td><td>2.59</td><td>2.47</td>
+      </tr>
+      <tr>
+        <td class="model">DMGI</td>
+        <td>56.49</td><td>51.06</td><td>16.41</td><td>16.13</td><td>19.24</td><td>20.09</td><td>2.15</td><td>1.51</td>
+      </tr>
+      <tr>
+        <td class="model">HDMI</td>
+        <td>57.91</td><td>54.75</td><td>16.53</td><td>17.47</td><td>17.56</td><td>15.04</td><td>2.07</td><td>1.79</td>
+      </tr>
+      <tr>
+        <td class="model">HeCo</td>
+        <td>56.87</td><td>56.94</td><td>16.14</td><td>16.90</td><td>32.26</td><td>28.64</td><td>2.72</td><td>2.44</td>
+      </tr>
+      <tr>
+        <td class="model">HeCo++</td>
+        <td>60.82</td><td>60.09</td><td>16.67</td><td>17.48</td><td class="blue">38.07</td><td class="blue">36.44</td><td class="blue">2.92</td><td>2.58</td>
+      </tr>
+      <tr>
+        <td class="model">HERO</td>
+        <td>58.41</td><td>57.89</td><td>15.34</td><td>15.56</td><td>30.11</td><td>31.48</td><td>2.19</td><td>2.05</td>
+      </tr>
+      <tr class="group-end">
+        <td class="model">CTC</td>
+        <td>63.26</td><td class="blue">69.30</td><td class="blue">18.70</td><td class="blue">21.31</td><td>35.21</td><td>34.63</td><td>2.86</td><td>2.55</td>
+      </tr>
+      <tr>
+        <td class="model">HGMS-N</td>
+        <td class="best">72.44</td><td class="best">75.53</td><td class="second">21.35</td><td class="second">22.49</td><td class="second">42.87</td><td class="second">43.67</td><td class="best">6.66</td><td class="second">5.25</td>
+      </tr>
+      <tr>
+        <td class="model">HGMS-C</td>
+        <td class="second">71.97</td><td class="second">74.18</td><td class="best">22.28</td><td class="best">23.14</td><td class="best">46.56</td><td class="best">50.28</td><td class="second">6.61</td><td class="best">6.77</td>
+      </tr>
+      <tr class="ours-row">
+        <td class="model">H2S-NN</td>
+        <td class="best">80.69</td><td class="best">79.50</td><td class="best">24.01</td><td class="best">24.81</td><td class="best">52.32</td><td class="best">56.20</td><td class="best">7.59</td><td class="best">7.17</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <h2>(b) Heterogeneous link prediction benchmarks</h2>
+  <table class="paper-table" aria-label="Heterogeneous Link Prediction Benchmarks">
+    <thead>
+      <tr>
+        <th class="model"></th>
+        <th colspan="2">LastFM</th>
+        <th colspan="2">PubMed</th>
+        <th colspan="2">Amazon</th>
+        <th colspan="2">YouTube</th>
+      </tr>
+      <tr>
+        <th class="model"></th>
+        <th>AUPR</th><th>AUROC</th>
+        <th>AUPR</th><th>AUROC</th>
+        <th>AUPR</th><th>AUROC</th>
+        <th>AUPR</th><th>AUROC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="9" class="group">Homogeneous</td></tr>
+      <tr>
+        <td class="model">GCN</td>
+        <td>97.06</td><td>96.96</td><td>96.05</td><td>92.93</td><td>92.40</td><td>89.66</td><td>89.30</td><td>83.26</td>
+      </tr>
+      <tr>
+        <td class="model">GAT</td>
+        <td>63.06</td><td>51.14</td><td>96.07</td><td>93.27</td><td>88.62</td><td>86.10</td><td>66.76</td><td>58.40</td>
+      </tr>
+      <tr>
+        <td class="model">GIN</td>
+        <td class="gold">97.99</td><td class="pink">97.75</td><td>96.14</td><td>92.87</td><td>92.10</td><td>89.62</td><td>88.64</td><td>82.97</td>
+      </tr>
+      <tr class="group-end">
+        <td class="model">SAGE</td>
+        <td>95.11</td><td>92.72</td><td>94.50</td><td>89.79</td><td>90.79</td><td>87.95</td><td>84.54</td><td>80.20</td>
+      </tr>
+
+      <tr><td colspan="9" class="group">Heterogeneous</td></tr>
+      <tr>
+        <td class="model">R-GCN</td>
+        <td class="pink">97.89</td><td class="gold">97.93</td><td>95.03</td><td>93.15</td><td>93.37</td><td>91.42</td><td class="pink">91.68</td><td class="pink">88.33</td>
+      </tr>
+      <tr>
+        <td class="model">HAN</td>
+        <td>88.26</td><td>83.32</td><td>95.78</td><td>93.62</td><td class="gold">95.24</td><td class="gold">93.64</td><td class="gold">93.46</td><td class="gold">90.10</td>
+      </tr>
+      <tr class="group-end">
+        <td class="model">HGT</td>
+        <td>86.02</td><td>74.55</td><td class="third">97.58</td><td class="third">96.48</td><td class="third">96.15</td><td class="third">95.66</td><td class="third">94.95</td><td class="third">92.51</td>
+      </tr>
+
+      <tr>
+        <td class="model">Sheaf-NSD</td>
+        <td>97.16</td><td>96.58</td><td class="gold">96.41</td><td class="pink">93.65</td><td>92.63</td><td>90.04</td><td>89.32</td><td>83.36</td>
+      </tr>
+      <tr>
+        <td class="model"><strong>HetSheaf (ours)</strong></td>
+        <td class="third">98.51</td><td class="third">98.33</td><td class="pink">96.36</td><td class="gold">93.98</td><td class="pink">93.76</td><td class="pink">91.71</td><td>91.27</td><td>87.33</td>
+      </tr>
+      <tr class="ours-row">
+        <td class="model">H2S-NN</td>
+        <td class="best">100</td><td class="best">100</td><td class="best">99.63</td><td class="best">99.28</td><td class="best">99.71</td><td class="best">98.34</td><td class="best">98.37</td><td class="best">96.30</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<section class="section">
+  <h2>Efficiency Comparison on ACM</h2>
+  <table class="paper-table" aria-label="Efficiency Comparison on ACM">
+    <thead>
+      <tr>
+        <th class="model"></th>
+        <th colspan="3">ACM</th>
+      </tr>
+      <tr>
+        <th class="model">Models</th>
+        <th>Runtime (s)</th>
+        <th># params</th>
+        <th>Memory (MB)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model">R-GCN</td>
+        <td>22.1</td>
+        <td>43M</td>
+        <td>1,240</td>
+      </tr>
+      <tr>
+        <td class="model">HAN</td>
+        <td>28.9</td>
+        <td>2.2M</td>
+        <td>1,780</td>
+      </tr>
+      <tr>
+        <td class="model">HGT</td>
+        <td>1025.8</td>
+        <td>7.2M</td>
+        <td>6,120</td>
+      </tr>
+      <tr class="group-end">
+        <td class="model">Sheaf-NSD</td>
+        <td>47.6</td>
+        <td>155K</td>
+        <td>980</td>
+      </tr>
+      <tr class="ours-row">
+        <td class="model">H2S-NN</td>
+        <td class="best">18.39</td>
+        <td class="best">134K</td>
+        <td class="best">810</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</body>
+</html>

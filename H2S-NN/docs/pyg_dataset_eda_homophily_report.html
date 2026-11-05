@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PyG Heterogeneous Dataset EDA and MLH Report</title>
+  <style>
+    :root { --ink:#1d2a3a; --muted:#596779; --line:#d8e0e9; --panel:#f6f8fb; --accent:#126f9a; --good:#176b4d; --warn:#945c00; --bad:#a23c38; }
+    * { box-sizing:border-box; }
+    body { max-width:1280px; margin:0 auto; padding:38px 28px 64px; color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    h1 { font-size:2rem; line-height:1.18; margin:0 0 8px; }
+    h2 { margin:40px 0 12px; font-size:1.35rem; }
+    h3 { margin:26px 0 8px; font-size:1.08rem; }
+    p { margin:8px 0; }
+    .subtitle { color:var(--muted); margin:0; }
+    .callout { padding:14px 17px; margin:20px 0; border-left:4px solid var(--accent); border-radius:5px; background:#eef7fb; }
+    .warning { border-color:var(--warn); background:#fff8ea; }
+    .legend { display:flex; gap:12px; flex-wrap:wrap; margin:13px 0; }
+    .tag { padding:2px 9px; border-radius:999px; font-size:.82rem; font-weight:650; white-space:nowrap; }
+    .yes { color:#0e573d; background:#dff3e9; }.limited { color:#7c4c00; background:#fff0cf; }.no { color:#8d2926; background:#fae4e3; }.undefined { color:#4f5863; background:#e9edf2; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
+    table { width:100%; min-width:760px; border-collapse:collapse; }
+    th,td { padding:10px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+    th { background:#eaf1f7; font-weight:700; }
+    tr:last-child td { border-bottom:0; }
+    code { padding:1px 4px; border-radius:4px; color:#224b65; background:#edf2f6; font-size:.92em; }
+    .metric { font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent); }
+    .small { color:var(--muted); font-size:.9rem; }
+    ul { margin:7px 0 7px 22px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PyG heterogeneous dataset EDA and MLH report</h1>
+    <p class="subtitle">Generated 2026-08-18 from <code>torch_geometric.datasets</code> loaders, locally stored PyG data, and the verified HeGAN source for Yelp4HeGAN.</p>
+  </header>
+
+  <section class="callout">
+    <strong>Primary metric: metapath-based label heterophily (MLH).</strong> This report uses H2GB's MLH with mean aggregation. We enumerate every valid directed two-hop meta-path that starts and ends at the target type, form its thresholded endpoint graph, compute the fraction of endpoint pairs with different labels, and take the unweighted mean across schemas. <strong>A value close to 0 indicates homophily; a value close to 1 indicates heterophily.</strong>
+  </section>
+
+  <h2>Executive summary</h2>
+  <div class="legend"><span class="tag yes">Suitable</span><span class="tag limited">Exploratory only</span><span class="tag no">Not a node-classification benchmark</span><span class="tag undefined">Homophily undefined</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dataset</th><th>PyG task signal</th><th>Node-classification suitability</th><th>Mean MLH</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ACM</strong></td><td>3-class paper labels</td><td><span class="tag yes">Suitable</span></td><td><span class="metric">0.26208781</span>; relatively homophilic</td></tr>
+        <tr><td><strong>DBLP</strong></td><td>4-class author labels</td><td><span class="tag yes">Suitable</span></td><td><span class="metric">0.12777828</span>; strongly homophilic</td></tr>
+        <tr><td><strong>IMDB</strong></td><td>5-dimensional multi-label movie genres</td><td><span class="tag yes">Suitable</span></td><td><span class="metric">0.76304912</span>; relatively heterophilic</td></tr>
+        <tr><td><strong>Freebase</strong></td><td>Book labels; 7 observed of 8 benchmark classes</td><td><span class="tag yes">Suitable</span></td><td><span class="metric">0.54996775</span>; moderately heterophilic</td></tr>
+        <tr><td><strong>AMiner</strong></td><td>8-class labels for a subset of authors and venues</td><td><span class="tag yes">Suitable</span> (author target)</td><td><span class="metric">0.31514508</span>; relatively homophilic on labelled authors</td></tr>
+        <tr><td><strong>OSE_GVCS</strong></td><td>6 machine categories</td><td><span class="tag limited">Exploratory only</span> (50 nodes)</td><td><span class="metric">0.71979367</span>; relatively heterophilic</td></tr>
+        <tr><td><strong>Yelp4HeGAN</strong></td><td>3-class business labels</td><td><span class="tag yes">Suitable</span> (raw source requires a split)</td><td><span class="metric">0.51326679</span>; mixed label structure</td></tr>
+        <tr><td>DBP15K <code>zh_en</code></td><td>Entity-alignment pairs</td><td><span class="tag no">Entity alignment</span></td><td><span class="tag undefined">Undefined</span></td></tr>
+        <tr><td>IGMCDataset <code>Douban</code></td><td>1–5 rating edge labels</td><td><span class="tag no">Rating prediction</span></td><td><span class="tag undefined">Undefined</span></td></tr>
+        <tr><td>AmazonBook</td><td>User–book interactions</td><td><span class="tag no">Recommendation</span></td><td><span class="tag undefined">Undefined</span></td></tr>
+        <tr><td>HM</td><td>Customer–article transactions</td><td><span class="tag no">Recommendation</span></td><td><span class="tag undefined">Undefined</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Graph-scale EDA</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dataset</th><th>Node types and counts</th><th>Stored edges / task observations</th><th>Labels and split</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ACM</strong></td><td>paper 3,025; author 5,959; subject 56; term 1,902<br><strong>Total 10,942</strong></td><td>547,872 stored directed edges across 8 relations</td><td>paper: 3 classes; counts [994, 970, 1,061]<br>train 907, test 2,118</td></tr>
+        <tr><td><strong>DBLP</strong></td><td>author 4,057; paper 14,328; term 7,723; venue 20<br><strong>Total 26,128</strong></td><td>239,566 stored directed edges across 6 relations</td><td>author: 4 classes; counts [1,197, 745, 1,109, 1,006]<br>train 1,217, test 2,840</td></tr>
+        <tr><td><strong>IMDB</strong></td><td>movie 4,932; director 2,393; actor 6,124; keyword 7,971<br><strong>Total 21,420</strong></td><td>86,642 stored directed edges across 6 relations</td><td>movie: 5-label binary vector; positive counts [1,090, 1,384, 1,837, 1,135, 2,517]<br>train 1,371, test 3,202</td></tr>
+        <tr><td><strong>Freebase</strong></td><td>book 40,402; film 19,427; music 82,351; sports 1,025; people 17,641; location 9,368; organization 2,731; business 7,153<br><strong>Total 180,098</strong></td><td>1,057,688 stored directed edges across 36 relations</td><td>book: 8 benchmark classes, 7 observed; counts [429, 3,886, 1,748, 185, 962, 359, 385]<br>train 2,386, test 5,568</td></tr>
+        <tr><td><strong>AMiner</strong></td><td>paper 3,194,405; author 1,693,531; venue 3,883<br><strong>Total 4,891,819</strong></td><td>25,036,020 stored directed edges: paper–author and paper–venue inverse pairs</td><td>author: 246,678 labeled / 1,693,531, 8 classes<br>venue: 134 labeled / 3,883, 8 classes</td></tr>
+        <tr><td><strong>DBP15K zh_en</strong></td><td>graph 1: 19,388 entities; graph 2: 19,572 entities<br><strong>Total 38,960</strong></td><td>70,414 + 95,142 triples; 3,024 relation IDs</td><td>3,205 training and 8,778 test positive entity alignments; no node class label</td></tr>
+        <tr><td><strong>IGMC Douban</strong></td><td>user 3,000; item 3,000<br><strong>Total 6,000</strong></td><td>123,202 train and 13,689 test rating observations; ratings 1–5<br>identity features: 3,000 dimensions for each type</td><td>No node class label</td></tr>
+        <tr><td><strong>AmazonBook</strong></td><td>user 52,643; book 91,599<br><strong>Total 144,242</strong></td><td>2,380,730 train and 603,378 test user–book interactions</td><td>No node features or labels</td></tr>
+        <tr><td><strong>OSE_GVCS</strong></td><td>machine 50</td><td>290 directed edges: <code>from</code> 133, <code>uses</code> 59, <code>enables</code> 98</td><td>6 categories; counts [5, 13, 17, 11, 2, 2]</td></tr>
+        <tr><td><strong>Yelp4HeGAN</strong></td><td>business 2,614; user 1,286; service 2; star 9; reservation 2<br><strong>Total 3,913</strong></td><td>77,360 stored directed edges across 8 relations; 38,680 forward edges with inverse relations stored separately</td><td>business: 3 classes; counts [470, 1,082, 1,062]<br>all 2,614 businesses labeled; no split masks in the recovered source</td></tr>
+        <tr><td><strong>HM</strong></td><td>Not loaded</td><td>PyG requires three Kaggle archives in <code>data/hm/raw</code></td><td>No PyG node-class label</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>AMiner provenance and task signal</h2>
+  <p>The complete PyG AMiner heterogeneous graph is stored locally under <code>data/aminer</code>, including its processed <code>HeteroData</code> object. It contains paper, author, and venue nodes connected by four stored directed relation types. For author node classification, <code>author-writes-paper-written_by-author</code> (APA) is the only valid directed length-2 schema that returns to the author target type. Its MLH is <span class="metric">0.31514508</span>; consequently, the unweighted mean across all valid author-returning schemas is also <span class="metric">0.31514508</span>. This value indicates relatively homophilic label structure because it is closer to 0 than to 1.</p>
+  <p class="small">The score uses 3,708,070 distinct APA endpoint pairs whose two authors both have labels; 1,168,580 pairs have different labels. The graph has 246,678 labeled authors across eight classes, but the downloaded data does not provide benchmark train/validation/test masks. Machine-readable calculation: <a href="../data/aminer/mlh_ours.json">mlh_ours.json</a>.</p>
+
+  <h2>Yelp4HeGAN provenance and task signal</h2>
+  <p>The recovered HeGAN source represents five node types: business, user, service, star, and reservation. Businesses are the labeled target type. The raw triple file stores four business-centered relations and their inverses, so its 77,360 directed records correspond to 38,680 forward relations. The three business classes are sufficiently populated for node classification, but a reproducible train/validation/test split must be created because the source contains labels without split masks.</p>
+  <p class="small">Local artifacts: <a href="../data/yelp4HeGAN/README.md">dataset notes</a>, <a href="../data/yelp4HeGAN/mlh_ours.json">MLH calculation</a>, and <a href="../scripts/eda_yelp4hegan_mlh.py">reproduction script</a>.</p>
+
+  <h2>Freebase detailed EDA</h2>
+  <p>PyG loads Freebase as an attributed-free heterogeneous graph: all eight node types have feature dimension 0. The <code>book</code> node type is the classification target; 7,954 of 40,402 books have released labels, split into 2,386 training and 5,568 test nodes.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Node type</th><th>Nodes</th><th>Graph share</th><th>Features</th><th>Labels / task role</th></tr></thead>
+      <tbody>
+        <tr><td><strong>book</strong></td><td>40,402</td><td>22.43%</td><td>None (0 dimensions)</td><td>7,954 labeled; target node type</td></tr>
+        <tr><td>film</td><td>19,427</td><td>10.79%</td><td>None</td><td>Context type</td></tr>
+        <tr><td><strong>music</strong></td><td>82,351</td><td>45.73%</td><td>None</td><td>Largest node type; context type</td></tr>
+        <tr><td>sports</td><td>1,025</td><td>0.57%</td><td>None</td><td>Context type</td></tr>
+        <tr><td>people</td><td>17,641</td><td>9.80%</td><td>None</td><td>Context type</td></tr>
+        <tr><td>location</td><td>9,368</td><td>5.20%</td><td>None</td><td>Context type</td></tr>
+        <tr><td>organization</td><td>2,731</td><td>1.52%</td><td>None</td><td>Context type</td></tr>
+        <tr><td>business</td><td>7,153</td><td>3.97%</td><td>None</td><td>Context type</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Book-label distribution</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Label</th><th>All labeled</th><th>Train</th><th>Test</th><th>Share of labeled</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>429</td><td>138</td><td>291</td><td>5.39%</td></tr>
+        <tr><td>1</td><td>3,886</td><td>1,140</td><td>2,746</td><td>48.86%</td></tr>
+        <tr><td>2</td><td>1,748</td><td>547</td><td>1,201</td><td>21.98%</td></tr>
+        <tr><td>3</td><td>185</td><td>58</td><td>127</td><td>2.33%</td></tr>
+        <tr><td>4</td><td>962</td><td>288</td><td>674</td><td>12.09%</td></tr>
+        <tr><td>5</td><td>359</td><td>104</td><td>255</td><td>4.51%</td></tr>
+        <tr><td>6</td><td>385</td><td>111</td><td>274</td><td>4.84%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">The benchmark label schema defines eight classes, but the downloaded labeled nodes contain only labels 0 through 6. The missing class is therefore not silently treated as a zero-count class in the pairwise MLH calculation.</p>
+  <h3>Largest stored relation types</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Relation</th><th>Edge type</th><th>Edges</th><th>Mean source degree</th></tr></thead>
+      <tbody>
+        <tr><td>and</td><td><code>music -&gt; music</code></td><td>283,670</td><td>3.44</td></tr>
+        <tr><td>and</td><td><code>book -&gt; book</code></td><td>202,674</td><td>5.02</td></tr>
+        <tr><td>and</td><td><code>film -&gt; film</code></td><td>87,838</td><td>4.52</td></tr>
+        <tr><td>and</td><td><code>location -&gt; location</code></td><td>47,817</td><td>5.10</td></tr>
+        <tr><td>on</td><td><code>music -&gt; location</code></td><td>42,915</td><td>0.52</td></tr>
+        <tr><td>to</td><td><code>book -&gt; film</code></td><td>38,299</td><td>0.95</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">Complete machine-readable EDA artifacts: <a href="../data/freebase/eda/summary.json">summary.json</a>, <a href="../data/freebase/eda/node_type_stats.csv">node_type_stats.csv</a>, <a href="../data/freebase/eda/edge_type_stats.csv">edge_type_stats.csv</a>, <a href="../data/freebase/eda/target_label_stats.csv">target_label_stats.csv</a>, and <a href="../data/freebase/eda/mlh_schema_metrics.csv">mlh_schema_metrics.csv</a>.</p>
+
+  <h2>Schema-level MLH calculations</h2>
+  <p class="small">Each row uses a valid two-hop schema that starts and ends at the target type. Endpoint graphs contain distinct directed pairs; diagonal pairs are retained. The displayed MLH is the mean edge heterophily over the listed schemas.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dataset</th><th>All valid two-hop target-returning schemas</th><th>Endpoint pairs used</th><th>Mean MLH</th><th>Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ACM</strong></td><td><code>P-cite-P-cite-P</code>, <code>P-cite-P-ref-P</code>, <code>P-ref-P-cite-P</code>, <code>P-ref-P-ref-P</code>, <code>PAP</code>, <code>PSP</code>, <code>PTP</code></td><td>9,402; 44,587; 14,540; 9,402; 29,767; 2,217,089; 9,150,595</td><td class="metric">0.26208781</td><td>Relatively homophilic.</td></tr>
+        <tr><td><strong>DBLP</strong></td><td><code>APA</code></td><td>11,113</td><td class="metric">0.12777828</td><td>Strongly homophilic.</td></tr>
+        <tr><td><strong>IMDB</strong></td><td><code>MDM</code>, <code>MAM</code>, <code>MKM</code></td><td>21,282; 99,782; 403,848</td><td class="metric">0.76304912</td><td>Relatively heterophilic.</td></tr>
+        <tr><td><strong>Freebase</strong></td><td><code>book-and-book-and-book-and-book</code></td><td>556,629 labeled endpoint pairs (49,275,062 total)</td><td class="metric">0.54996775</td><td>Moderately heterophilic; only one valid directed two-hop schema returns to the labeled <code>book</code> target.</td></tr>
+        <tr><td><strong>AMiner</strong></td><td><code>author-writes-paper-written_by-author</code> (APA)</td><td>16,256,777 total; 3,708,070 with two labelled endpoints; 1,168,580 different-label pairs</td><td class="metric">0.31514508</td><td>Relatively homophilic on labelled authors. Because APA is the sole valid author-returning length-2 schema, its score equals the mean MLH.</td></tr>
+        <tr><td><strong>OSE_GVCS</strong></td><td>All nine ordered pairs of <code>from</code>, <code>uses</code>, and <code>enables</code></td><td>1,521 across schemas</td><td class="metric">0.71979367</td><td>Relatively heterophilic; exploratory category proxy.</td></tr>
+        <tr><td><strong>Yelp4HeGAN</strong></td><td><code>business-user-business</code>, <code>business-service-business</code>, <code>business-reservation-business</code>, <code>business-star-business</code></td><td>528,332; 3,590,548; 3,475,666; 1,487,306</td><td class="metric">0.51326679</td><td>Mixed label structure. This is a raw, unadjusted MLH score; it has no class-random baseline.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Freebase supporting homophily metrics.</strong> On the same thresholded <code>book-and-book-and-book-and-book</code> endpoint graph, endpoint homophily is <span class="metric">0.45003225</span>, class-insensitive homophily is <span class="metric">0.29625045</span>, and adjusted homophily is <span class="metric">0.19937379</span>. The MLH is the complement of endpoint homophily for this single schema.
+  </div>
+
+  <section hidden>
+  <h2>Superseded raw-homophily calculations</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dataset</th><th>Selected schema / relation</th><th>Unique non-self endpoint edges</th><th>Homophily</th><th>Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><strong>ACM</strong></td><td><code>PAP</code> paper–author–paper</td><td>13,374</td><td class="metric">0.79355466</td><td>Strong label agreement among papers sharing an author.</td></tr>
+        <tr><td><code>PSP</code> paper–subject–paper</td><td>1,107,032</td><td class="metric">0.63982613</td><td>Moderate agreement among papers sharing a subject.</td></tr>
+        <tr><td>Unweighted mean over PAP, PSP</td><td>—</td><td class="metric">0.71669039</td><td>Manuscript-style average across the selected schemas.</td></tr>
+        <tr><td rowspan="3"><strong>DBLP</strong></td><td><code>APA</code> author–paper–author</td><td>3,528</td><td class="metric">0.79875283</td><td>Strong agreement among coauthors.</td></tr>
+        <tr><td><code>APTPA</code> author–paper–term–paper–author</td><td>3,519,757</td><td class="metric">0.32449769</td><td>Term sharing produces a much more heterophilic author view.</td></tr>
+        <tr><td>Unweighted mean over APA, APTPA</td><td>—</td><td class="metric">0.56162526</td><td>Manuscript-style average across the selected schemas.</td></tr>
+        <tr><td rowspan="3"><strong>IMDB</strong></td><td><code>MAM</code> movie–actor–movie</td><td>47,425</td><td class="metric">0.12957301</td><td>Exact agreement of the complete 5-label genre vector.</td></tr>
+        <tr><td><code>MDM</code> movie–director–movie</td><td>8,175</td><td class="metric">0.22470948</td><td>Higher than MAM, but still low under exact multi-label equality.</td></tr>
+        <tr><td>Unweighted mean over MAM, MDM</td><td>—</td><td class="metric">0.17714125</td><td>Manuscript-style average; do not compare directly with a per-label metric.</td></tr>
+        <tr><td><strong>AMiner</strong></td><td><code>APA</code> author–paper–author</td><td>1,730,696</td><td class="metric">0.66239594</td><td>Uses only the 246,678 authors with PyG-provided labels.</td></tr>
+        <tr><td rowspan="4"><strong>OSE_GVCS</strong></td><td><code>from</code></td><td>133 directed edges</td><td class="metric">0.27819549</td><td rowspan="4">Uses <code>machine.category</code> as a category-label proxy; it is not exposed as <code>y</code> by PyG.</td></tr>
+        <tr><td><code>uses</code></td><td>59 directed edges</td><td class="metric">0.30508475</td></tr>
+        <tr><td><code>enables</code></td><td>98 directed edges</td><td class="metric">0.27551020</td></tr>
+        <tr><td>All relation edges, edge-weighted</td><td>290 directed edges</td><td class="metric">0.28275862</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  </section>
+
+  <h2>Datasets without a valid MLH score</h2>
+  <ul>
+    <li><strong>DBP15K</strong> supplies entity correspondences across two knowledge graphs, not class labels for nodes. Its raw data downloaded through PyG; current Windows PyG preprocessing stops while decoding one GloVe text row, but this does not alter the task or homophily conclusion.</li>
+    <li><strong>IGMCDataset Douban</strong> supplies rating labels on user–item edges. Treating an edge rating as a user or item class would change the task.</li>
+    <li><strong>AmazonBook</strong> supplies user–book interactions only; it has no node feature or node-class target.</li>
+    <li><strong>HM</strong> is an H&amp;M recommendation dataset. PyG deliberately does not automate its Kaggle download; it requires <code>customers.csv.zip</code>, <code>articles.csv.zip</code>, and <code>transactions_train.csv.zip</code> supplied by an authorized user.</li>
+  </ul>
+
+  <section hidden class="callout warning">
+    <strong>Use in the manuscript.</strong> Report homophily only for schemas whose endpoints share a defined label space. Do not report “0” for DBP15K, IGMC, AmazonBook, or HM: their label homophily is not defined under the stated formula. For IMDB, state that the displayed value uses exact multi-label-vector agreement.
+  </section>
+  <section class="callout warning">
+    <strong>Use in the manuscript.</strong> Report MLH only where endpoints share a defined label space. Do not report 0 for DBP15K, IGMC, AmazonBook, or HM: their MLH score is undefined. For IMDB, the calculation uses exact multi-label-vector equality; for OSE_GVCS, it uses the category proxy.
+  </section>
+
+  <p class="small">References: J. Lin et al., <em>When Heterophily Meets Heterogeneity: Challenges and a New Large-Scale Graph Benchmark</em>, KDD 2025; B. Hu et al., <em>Adversarial Learning on Heterogeneous Information Networks</em>, KDD 2019.</p>
+</body>
+</html>

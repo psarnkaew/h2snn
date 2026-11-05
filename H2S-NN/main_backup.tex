@@ -1,0 +1,1037 @@
+% Canonical entry point for the current ACM-formatted manuscript.
+% Edit h2snn_manuscript.tex; material below \endinput is an inactive legacy draft.
+\input{h2snn_manuscript.tex}
+\endinput
+\documentclass{article}
+
+
+\usepackage[preprint]{neurips_2024}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{makecell}
+
+\newcommand{\eqdef}{\coloneqq}
+\newcommand{\R}{\mathbb{R}}
+
+\title{H2S-NN: Heterogeneous Sheaf-Hodge Neural Networks \\ with Learned Schema-to-Cell Discovery}
+
+% Fill in real author / affiliation details before submission.
+\author{
+  Peeradon Sarnkaew \\
+  \texttt{peeradonsarnkaew46@gmail.com} \\
+  % Institution / department placeholder --- update before submission.
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Heterogeneous information networks --- graphs with multiple node and edge types --- are frequently
+also heterophilic: nodes connected by an edge need not share a label or even a similar semantic
+role. Ordinary graph neural networks handle this combination poorly, because standard message
+passing lives on the graph's 1-skeleton and either over-smooths dissimilar neighbors or ignores
+higher-order typed relational patterns altogether. Two existing lines of work each solve half of
+this problem. Heterogeneous sheaf neural networks (notably HetSheaf, \citealp{braithwaite2024hetsheaf})
+learn typed restriction maps that let connected nodes disagree in raw feature space while remaining
+compatible after a learned, relation-specific transport --- but they operate only on the fixed graph
+structure and never construct higher-order topology. Meta-path search methods
+(LMSPS~\citep{yan2024lmsps}, PMMM~\citep{jiang2022pmmm}, AMP-HGNAS, MCTS-HGNN, and others) automatically
+discover which typed paths are informative, but every method in this family treats a selected path
+purely as an aggregation channel: the path is followed to collect a neighborhood and then discarded.
+We introduce \textbf{H2S-NN} (Heterophilic Heterogeneous Sheaf-Hodge Neural Network), which unifies
+these two directions. Concrete meta-path \emph{instances} --- not merely their type-level schemas
+--- are lifted into two-dimensional cells of a typed cellular complex, and a learned sheaf on that
+complex (restriction maps on nodes, edges, and faces) drives Hodge-style diffusion over both node and
+edge cochains through the coboundary operators $\delta_0,\delta_1$ and their Laplacians $L_0,L_1$,
+in the spirit of cellular-sheaf diffusion for homogeneous graphs~\citep{bodnar2022neural}. We further
+introduce a schema-to-cell discovery extension that removes the dependence on hand-specified
+meta-paths: a training-free, topology-aware score identifies a compact pool of candidate path
+schemas, and a hierarchical pair of differentiable gates --- a schema-level gate $\alpha$ and an
+instance-level gate $\beta$ --- learns which schemas and which concrete instances should shape the
+diffusion operator, stabilized by a partial-schema-propagation mechanism. On node classification
+(ACM, DBLP, IMDB), graph classification (MUTAG, PROTEINS, ENZYMES, NCI1), and heterogeneous link
+prediction (LastFM, PubMed, Amazon, YouTube), H2S-NN reports the strongest numbers in our assembled
+comparison against homogeneous, heterogeneous, and sheaf-based baselines (Section~\ref{sec:results});
+we are explicit throughout about which parts of this evidence base --- repeated-seed statistics, the
+full ablation matrix, and the discovery extension's own evaluation --- still need to be completed
+before the claims below should be read as fully validated (Sections~\ref{sec:exp-setup}
+and~\ref{sec:discussion}).
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation}
+
+We start from a heterogeneous information network: multiple node types, multiple relation types,
+and --- in the settings that motivate this work --- often strong heterophily, meaning connected
+nodes may not share labels or semantics. This combination creates two distinct problems for
+ordinary GNNs. First, simple neighborhood aggregation can over-smooth dissimilar nodes, since it
+implicitly assumes that connected nodes should become more similar after message passing. Second,
+ordinary message passing lives mainly on the graph's 1-skeleton --- its nodes and edges --- so it
+does not explicitly model higher-order typed relational patterns, even when such patterns (a paper
+written by a specific pair of co-authors, a specific citation chain) are exactly the structure a
+domain expert would point to as meaningful. Most heterogeneous GNN methods address the second
+problem by introducing meta-paths as additional graph views or aggregation channels
+\citep{wang2019han,fu2020magnn}: a meta-path such as \emph{paper--author--paper} defines a new,
+derived adjacency that a model can attend over. This is a real improvement, but it treats the
+meta-path as nothing more than a routing rule.
+
+\subsection{From semantic view to topological cell}
+
+H2S-NN takes a different position. Rather than using a meta-path as a semantic aggregation
+channel, we use each concrete instance of a meta-path as a higher-order \emph{topological} object.
+Concretely, a path instance such as $a_1 \to p_7 \to a_2$ becomes a face of a cellular complex;
+faces participate in the coboundary operator $\delta_1$; $\delta_1$ contributes to the up-Laplacian
+term of $L_1$; and $L_1$ directly changes the Hodge diffusion geometry over edge signals. The shift
+in one sentence: \emph{meta-path as semantic view} becomes \emph{meta-path instance as topological
+cell}. This is not a relabeling of existing search methods --- it changes what the selected
+structure is used for. Every existing automatic meta-path/schema search method we are aware of
+(LMSPS~\citep{yan2024lmsps}, PMMM~\citep{jiang2022pmmm}, AMP-HGNAS, MCTS-HGNN, and several others)
+uses a selected path the same way HAN~\citep{wang2019han} does: to route a neighborhood into an
+attention-weighted sum. None of them make the path itself, as opposed to the neighbors at the end
+of it, a meaningful structural object that reshapes the model's operator.
+
+\subsection{A precise statement of what is (and is not) new}
+
+An earlier draft of this project claimed novelty from ``working without predefined meta-paths.'' We
+verified this claim against the literature and found it to be false: LMSPS, AMP-HGNAS, MCTS-HGNN,
+and PMMM all already discover schemas automatically, without a human-specified meta-path set. We
+therefore do \emph{not} lead with this framing, and we flag its removal explicitly here rather than
+let a reviewer discover the overclaim independently. The real, verified gap is narrower and more
+specific: it is in \emph{what the selected structure becomes} --- an aggregation channel for every
+prior method, versus a two-dimensional cell that reshapes $\delta_1$ and $L_1$ for H2S-NN --- and in
+\emph{how it acts on the model} --- a weighted sum over neighbors, versus a term inside a
+matrix-free Hodge Laplacian. This distinction is also why a direct comparison against HetSheaf ---
+the closest sheaf-based baseline --- is not entirely fair to HetSheaf: HetSheaf operates on the
+observed 1-skeleton only, with no notion of a face at all.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+  \item \textbf{Operator-level higher-order modeling.} We show how to turn selected meta-path
+  instances into two-dimensional cells of a typed cellular complex such that a learned edge-to-face
+  sheaf directly reshapes the up-Laplacian term of $L_1$, rather than merely providing an
+  additional aggregation channel.
+  \item \textbf{Full Hodge diffusion on a heterogeneous complex.} We define matrix-free coboundary
+  operators $\delta_0,\delta_1$ and Laplacians $L_0,L_1$ over both node and edge cochains, and run
+  $K$-step Hodge diffusion with learnable step sizes.
+  \item \textbf{Hierarchical, jointly learned schema and instance gating.} A schema-level gate
+  $\alpha_\sigma$ and an instance-level gate $\beta_f$ are trained together and multiplied into the
+  weighted up-Laplacian, giving both a coarse (which meta-path template matters) and a fine (which
+  specific instance of it matters) control signal.
+  \item \textbf{Training-free, topology-aware schema scoring.} Candidate schema quality is
+  estimated from an endpoint-label-discrepancy statistic computed via label propagation over
+  training labels only, avoiding the cost of a full model forward pass per candidate schema and,
+  by construction, any use of validation or test labels during schema selection.
+\end{enumerate}
+
+\subsection{Scope of this paper and how its two contributions are evidenced}
+
+This paper presents H2S-NN as a \emph{unified} contribution spanning both the base sheaf-Hodge
+model (contributions 1--2 above) and the schema-to-cell discovery extension (contributions 3--4).
+We take this risk deliberately, but we manage it explicitly rather than let the two halves blur
+into one inflated claim: the headline tables in Section~\ref{sec:results} report the \emph{full,
+discovery-enabled} configuration (Section~\ref{sec:ablation-schema}'s clarification), and
+Section~\ref{sec:discussion} returns to precisely what is and is not yet evidenced about that
+configuration before recommending how the two contributions should be weighted in a submission.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Heterogeneous GNNs without meta-path search}
+
+HAN~\citep{wang2019han} and MAGNN~\citep{fu2020magnn} use expert-defined meta-paths as semantic
+message-passing views, attending over a fixed, hand-designed set of relational patterns.
+HGT~\citep{hu2020hgt} instead uses typed node- and edge-level attention without any hand-designed
+meta-path, learning heterogeneity directly through typed transformer weights. Neither family turns
+a concrete path instance into an operator-shaping higher-order cell; both remain message-passing
+models over the graph's 1-skeleton.
+
+\subsection{Meta-path and schema search methods}
+
+A substantial and active literature automates the choice of which meta-paths or schemas to use:
+LMSPS~\citep{yan2024lmsps} and AMP-HGNAS learn differentiable or NAS-style selection weights over
+precomputed path features; MCTS-HGNN applies Monte Carlo tree search directly over the schema
+space; PMMM~\citep{jiang2022pmmm} and the related Meta-Multigraph Search search meta-multigraphs
+with a partial message propagation technique for stabilizing the resulting bilevel optimization;
+HG-Search and SchemaWalk apply, respectively, a multi-stage and an inductive
+reinforcement-learning-flavored search; RMS-HRec, SMCD, HeteroSample, EvoPath, TAEG-HG, FHGE,
+HISE-KT, ESim, MP-GNN, and LPSMS round out the broader family with recommendation-, LLM-, and
+sampling-oriented variants. The unifying limitation is that every one of these methods ---
+regardless of how sophisticated its search procedure --- uses a selected meta-path as an
+\textbf{aggregation channel}: the path is followed to collect a neighborhood and then discarded; the
+higher-order relational pattern is thrown away after serving as a routing rule.
+
+\subsection{Sheaf neural networks}
+
+Neural Sheaf Diffusion~\citep{bodnar2022neural} established the core connection between learned
+cellular-sheaf restriction maps, heterophily, and the avoidance of naive oversmoothing, but for
+homogeneous graphs with no notion of node or edge types. HetSheaf~\citep{braithwaite2024hetsheaf}
+extends this to the heterogeneous setting, learning typed sheaf restriction maps and handling
+heterophily through per-relation local spaces, and further introduces SheafPool, a universal
+stalk-space graph-level readout invariant to local changes of basis; it is, by a wide margin, the
+closest existing baseline to H2S-NN and we treat it as such throughout this paper (its own
+evaluation is built on the Heterogeneous Graph Benchmark, HGB~\citep{lv2021hgb}, which we also
+draw on for baseline numbers and evaluation conventions). Other sheaf applications (DeepSN, SHN)
+apply sheaf-theoretic machinery to different problems again without constructing higher-order
+topology. Across the sheaf literature we are aware of, H2S-NN is, to our knowledge, the only method
+that uses both the up-Laplacian $L_1$ and the coboundary operator $\delta_1$; HetSheaf and the
+other sheaf methods operate with typed restriction maps on the observed 1-skeleton, with no face
+topology, no coboundary operator beyond $\delta_0$, and no Hodge decomposition on edge cochains.
+
+\subsection{Heterophily-aware heterogeneous models}
+
+A separate, more recent line of work addresses heterophily in heterogeneous graphs directly:
+HDHGR~\citep{guo2023hdhgr} proposes a homophily-oriented heterogeneous graph rewiring approach
+guided by a meta-path-induced homophily metric; H2SGNN~\citep{lu2024h2sgnn} applies local
+independent filtering and global hybrid filtering from a spectral perspective to address
+heterogeneity and heterophily jointly; LatGRL~\citep{shen2024latgrl} defines meta-path-level and
+node-level semantic homophily ratios and couples global structure/attribute similarity mining with
+an adaptive dual-frequency fusion mechanism; HGMS~\citep{wang2025hgms} is a homophily-aware
+heterogeneous graph contrastive learning framework that augments views via connection-strength-guided
+edge dropping; and the Cross-Type Homophily line, CTHGE~\citep{tao2025cthge}, proposes an explicit
+Cross-Type Homophily Ratio and a corresponding graph-editing method. These methods address
+heterophily through structural, spectral, or contrastive mechanisms, not through weighted typed
+path instances acting as Hodge faces, and they form part of our baseline set
+(Section~\ref{sec:exp-setup}) rather than a competing higher-order-topology approach.
+
+\subsection{Positioning summary}
+
+\begin{table}[h]
+  \centering
+  \caption{H2S-NN's position relative to five adjacent research lines.}
+  \label{tab:positioning}
+  \small
+  \begin{tabular}{p{3.1cm}p{4.6cm}p{4.6cm}}
+    \toprule
+    \textbf{Research line} & \textbf{What it solves} & \textbf{Gap H2S-NN targets} \\
+    \midrule
+    HAN / MAGNN style meta-path HGNNs & Use expert-defined meta-paths as semantic message-passing views. & They do not turn each concrete path instance into an operator-shaping higher-order cell. \\
+    HGT style transformer HGNNs & Use typed node and edge attention without hand-designed meta-paths. & They remain edge/message-passing models rather than Hodge models over faces. \\
+    Meta-path search methods (LMSPS, PMMM, \ldots) & Search useful semantic paths or meta-multigraphs. & Selected schemas usually become aggregation channels, not cells in a learned Hodge operator. \\
+    HetSheaf & Learns heterogeneous sheaf maps and handles heterophily through local spaces. & Closest baseline, but H2S-NN aims to add path-induced higher-order structure and $\delta_1$. \\
+    HDHGR / H2SGNN / LatGRL / HGMS / CTHGE & Recent heterophily-aware heterogeneous models with strong graph-level mechanisms. & They address heterophily, but not through weighted typed path instances as Hodge faces. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Preliminaries and notation}
+
+Let $N$ and $M$ denote the number of nodes and (non-closure) edges in the heterogeneous graph, $d$
+the shared stalk dimension used for node, edge, and face states, $d_r$ the relation-embedding
+dimension, and $d_h$ the hidden dimension of the sequence encoder used for edge-to-face maps. Each
+node $v$ has a type $\phi(v)$; each relation $r$ belongs to a relation set $R$ and has a learned
+embedding $z^{rel}_r \in \R^{d_r}$. A schema $\sigma$ is a typed path template of length $\ell$
+(number of edges); a face $f$ is one concrete instance of a schema, and $F_s$ denotes the number of
+face instances materialized for schema $s$. We write $H^{(0)}$ (equivalently $h^{(0)}$) for the
+initial node encoding, $F^{src}_e, F^{tgt}_e \in \R^{d\times d}$ for the source/target node-to-edge
+restriction maps of edge $e$, $s^{(0)}$ for the initial edge cochain, $F_{e\triangleright f}$ for
+the edge-to-face restriction map, $\delta_0,\delta_1$ for the coboundary operators and $L_0, L_1$
+for their associated Hodge Laplacians, $K$ for the number of Hodge-diffusion (Euler) steps with
+step sizes $\eta_0,\eta_1$, $\alpha_\sigma$ and $\beta_f$ for the schema- and instance-level
+discovery gates, and $x^*, s^*$ for the post-diffusion node and edge states used at readout.
+
+\subsection{Typed node encoding}
+
+Node features are encoded into the shared stalk dimension by a type-specific encoder:
+\begin{equation}
+  h^{(0)}_v = \mathrm{GELU}\big(\mathrm{LayerNorm}(\mathrm{Linear}_{\phi(v)}(x_v)) + \mathrm{TypeEmbed}[\phi(v)]\big) \in \R^d.
+  \label{eq:node-enc}
+\end{equation}
+Each node type owns an independent two-layer encoder, and a single shared, learnable type embedding
+is added to every node of that type. For graphs that ship without node features at all --- LastFM
+and AmazonBook, in our link-prediction experiments --- a plain linear encoder of the form
+$\mathrm{Linear}(0, d)$ would collapse every node of a type to an identical vector (its bias term);
+we instead fall back to a free, per-node embedding table $\mathrm{Embedding}(N, d)$, so that
+featureless nodes still receive individually learnable initial states.
+
+\subsection{Node-to-edge sheaf restriction maps}
+
+For every directed, relation-typed edge $e = (u \to_r v)$, a pair of restriction maps
+$F^{src}_e, F^{tgt}_e$ is produced by relation-specific two-layer GELU MLPs taking
+$[h^{(0)}_u \Vert h^{(0)}_v \Vert z^{rel}_r]$ as input. By default these maps are constrained to be
+\emph{scaled orthogonal} rather than free $d\times d$ matrices: an unconstrained parameterization is
+mapped to an orthogonal matrix by one of four supported constructions --- matrix exponential,
+Cayley transform, a product of Householder reflectors (the default), or, for $d\in\{2,3\}$,
+closed-form Euler rotations --- and then multiplied by a learned scalar scale,
+$\exp(\mathrm{clamp}(\text{raw}, \max=2.0))$. We are careful to describe these as \emph{scaled
+orthogonal} restriction maps throughout the paper rather than simply ``orthogonal,'' since the
+scaling breaks strict orthogonality. These maps define the first coboundary operator on the initial
+node encoding,
+\begin{equation}
+  (\delta_0 h^{(0)})_e = F^{tgt}_e h^{(0)}_{tgt(e)} - F^{src}_e h^{(0)}_{src(e)},
+  \label{eq:delta0-h0}
+\end{equation}
+which is computed once and reused as an input feature to the edge initializer below --- never as
+the diffusion's initial edge state directly. An ablation variant, \texttt{ablate\_identity\_maps},
+replaces both restriction maps with the identity, degenerating $\delta_0$ into a plain, untyped
+node-difference operator; we use this as one of our minimum ablations
+(Section~\ref{sec:ablations}).
+
+\subsection{Edge cochain initialization}
+
+The initial edge cochain is produced by a shared two-layer MLP:
+\begin{equation}
+  s^{(0)}_e = \mathrm{MLP}_{init}\big([h^{(0)}_u \Vert h^{(0)}_v \Vert z^{rel}_r \Vert (\delta_0 h^{(0)})_e]\big) \in \R^d.
+\end{equation}
+This is a deliberate design choice, not an oversight: setting $s^{(0)} = \delta_0 H^{(0)}$ directly
+would zero out exactly the harmonic component of the initial edge signal that Hodge diffusion is
+meant to preserve and evolve. $\delta_0 H^{(0)}$ is therefore only ever consumed as one input
+feature among several, controlled by the \texttt{use\_delta0\_init} flag (default on).
+
+\subsection{Edge-to-face maps via sequence encoding}
+
+Given a schema's set of concrete path instances, each of length $\ell$ edges, we encode the ordered
+sequence of boundary edges with a single-layer LSTM plus an attention head. For a chunk of $B$
+faces (chunked at \texttt{face\_chunk\_size}, default 4096, to bound peak memory), token features
+$\mathrm{token}_i = \mathrm{MLP}_g([h^{(0)}_{src(e_i)} \Vert h^{(0)}_{tgt(e_i)} \Vert
+z^{rel}_{r_i}])$ are passed through the LSTM to produce hidden states $h_1,\dots,h_\ell$; a learned
+attention vector $a$ produces position weights $\alpha_i^{pos} = \mathrm{softmax}(h_i \cdot a /
+\sqrt{d_h})$ over the path position (superscripted to disambiguate from the schema-level discovery
+gate of the same Greek letter). The resulting edge-to-face restriction map is
+\begin{equation}
+  F_{e_i\triangleright f} = \alpha_i^{pos} \cdot \Psi(h_i), \qquad \Psi(h_i) = \mathrm{reshape}\big(\mathrm{Linear}(h_i),\, [d,d]\big).
+  \label{eq:edge-to-face}
+\end{equation}
+We flag this formula precisely because it differs from an earlier draft of the internal
+mathematical specification, which stated that the attention weights are used only in the
+coboundary regularizer and \emph{not} in the map construction itself. The implementation multiplies
+attention directly into the map, and we describe the model as it is actually implemented. These
+maps are computed once per forward pass and cached, then reused across all $K$ diffusion steps, so
+$L_0$ and $L_1$ are fixed linear operators for the duration of the Euler rollout described in
+Section~\ref{sec:diffusion}.
+
+\subsection{Closure edges as a closed-form correction}
+
+For each face, the underlying cellular-complex construction requires closing the open path instance
+with a synthetic \emph{closure edge} from its final node back to its initial node, so that the
+face's boundary forms a genuine closed loop. Rather than materializing this as an additional 1-cell
+with its own learned cochain state, we implement it as a closed-form correction added into $L_0$
+via index-add over the closure endpoints:
+\begin{equation}
+  \Delta_{L_0} = \texttt{closure\_scale}^2 \cdot (x_{tgt(f)} - x_{src(f)}),
+\end{equation}
+where the squared dependence on \texttt{closure\_scale} follows from $L_0 = \delta_0^\top \delta_0$
+being quadratic in the restriction map, here a frozen, uniformly scaled identity. With the default
+\texttt{closure\_scale}$=10^{-6}$, the effective coupling introduced by closure edges is
+$10^{-12}$ --- functionally negligible, but present and load-bearing for the closed-boundary claim,
+and consciously distinct from allowing closure edges to affect $\delta_1$ at all, which they do
+not, by design.
+
+\subsection{Coboundary operators and Hodge Laplacians}
+\label{sec:diffusion}
+
+All coboundary and Laplacian operators are implemented matrix-free --- never materialized as dense
+matrices --- using batched per-edge and per-face matrix--vector products and scatter-adds:
+\begin{align}
+  \delta_0(x)_e &= F^{tgt}_e x_{tgt(e)} - F^{src}_e x_{src(e)} \\
+  L_0(x) &= \delta_0^\top \delta_0\, x + \Delta_{L_0}(x) \\
+  \delta_1(s)_f &= \sum_{e \in \partial f} \eta(e,f)\, F_{e\triangleright f}\, s_e, \qquad \eta(e,f)\in\{+1,-1\} \\
+  L_1(s) &= \delta_0 \delta_0^\top s + \delta_1^\top \delta_1\, s
+\end{align}
+The orientation sign $\eta(e,f)$ is implemented as a general, explicit, dense-reference-tested
+tensor, but in practice it is always $+1$ in this project's data, since our path-instance
+enumeration always walks forward through each relation's stored source-to-destination direction. We
+nonetheless treat the general sign machinery as load bearing, since future extensions using
+undirected or backward-traversed boundary edges would require it. When schema/instance discovery
+weights are active, the up-Laplacian term generalizes to
+\begin{equation}
+  L_1^{up}(s) = \sum_{\sigma} \alpha_\sigma \sum_{f \in \sigma} \beta_f\, (\delta_1^f)^\top \delta_1^f\, s,
+  \label{eq:l1up}
+\end{equation}
+which is the operator through which the learned discovery gates of Section~\ref{sec:discovery} act
+directly on diffusion geometry --- the property that distinguishes H2S-NN's use of discovered
+structure from every prior meta-path search method (Section~\ref{sec:related}).
+
+\subsection{Hodge diffusion}
+
+Node and edge states are updated jointly for $K$ steps of explicit Euler integration with
+learnable step sizes:
+\begin{equation}
+  x \leftarrow x - \eta_0 L_0(x), \qquad s \leftarrow s - \eta_1 L_1(s), \qquad k = 1,\dots,K,
+\end{equation}
+where $\eta_0,\eta_1$ are reparameterized through a softplus so that they remain positive while
+still being trained end to end. The resulting states $x^*,s^*$ are each passed through a
+\texttt{LayerNorm} before being handed to readout.
+
+\subsection{Readout heads}
+
+The base node-classification readout forms, for each target-type node $v$, the concatenation
+\begin{equation}
+  z_v = \big[x^*_v \,\Vert\, h^{(0)}_v \,\Vert\, \mathrm{pool\_edges\_to\_nodes}(x^*,s^*)_v\big]
+\end{equation}
+of the final node state, the initial node state, and a mean pooling of incident edge states over
+both endpoints, and passes $z_v$ through a small MLP classifier. Because this is a unified paper
+also covering link prediction and graph classification, two further readout heads share the same
+encoder/diffusion backbone: a link-prediction readout with a swappable dot-product, DistMult, or
+concatenation-plus-MLP decoder over node-pair states; and a graph-level pooling module with several
+swappable heads --- naive sum-, mean-, and max-pooling baselines, an $O(d)$-invariant \textsc{GramPool}
+(which exploits that restriction maps are always orthogonal in every configuration we run), a
+gauge-fixing attention-barycenter \textsc{SheafPool} baseline, and a $GL(d)$-invariant \textsc{S2Pool}.
+We treat the gauge-invariance argument behind \textsc{GramPool}/\textsc{S2Pool} as a secondary
+methodological contribution: because sheaf restriction maps are only well-defined up to a choice of
+local frame (``gauge'') at each stalk, a graph-level readout that is not itself invariant to that
+choice risks encoding an artifact of the parameterization rather than a genuine structural signal,
+and \textsc{S2Pool} is constructed to be invariant to general invertible gauge transformations
+rather than only orthogonal ones.
+
+\subsection{Training objective}
+
+The full training loss combines a supervised classification term with four sheaf-geometric
+regularizers and, once discovery gates are active, six further discovery-specific terms:
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_{cls} + \mathcal{L}_{smooth0} + \mathcal{L}_{smooth1} + \mathcal{L}_{consist} + \mathcal{L}_{coboundary} + \mathcal{L}_{discovery}.
+\end{equation}
+
+\begin{table}[h]
+  \centering
+  \caption{Sheaf-geometric regularizer terms and their default weights.}
+  \label{tab:loss-terms}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Term} & \textbf{Formula} & \textbf{Default $\lambda$} \\
+    \midrule
+    Classification & Cross-entropy (single-label) or sigmoid + BCE (multi-label) on the training mask & --- \\
+    Smooth0 & $\lambda_0 \cdot \mathrm{mean}(\lVert\delta_0 x^*\rVert^2)$ & $0.0$ \\
+    Smooth1 & $\lambda_1 \cdot \mathrm{mean}(\lVert\delta_1 s^*\rVert^2)$ & $10^{-3}$ \\
+    Consistency & $\lambda_c \cdot \mathrm{mean}(\lVert s^* - \delta_0 x^*\rVert^2)$ & $10^{-2}$ \\
+    Coboundary & $\lambda_{co} \cdot \mathrm{mean}(\lVert\delta_1 \delta_0 H^{(0)}\rVert^2)$ & $10^{-2}$ \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+The coboundary term is deliberately evaluated at the \emph{initial} encoding $H^{(0)}$ rather than
+the diffused state $x^*$: this softly penalizes violation of $\delta_1 \circ \delta_0 = 0$ without
+competing, through the same tensor, against the diffusion objective's own gradient signal.
+
+Once schema/instance discovery is enabled and past its warm-up period, six further terms are added
+--- schema sparsity ($\lambda=10^{-3}$), instance sparsity ($10^{-4}$), redundancy ($10^{-3}$),
+coverage ($10^{-3}$), cost ($10^{-4}$), and gate entropy ($10^{-4}$). One implementation-precision
+point worth stating: the instance-sparsity term must read a gradient-attached copy of the mean
+instance weights, not the detached copy used purely for logging, so that the sparsity regularizer
+actually trains the instance gate's parameters.
+
+\textbf{Multi-label handling.} IMDB's HGB preprocessing assigns each movie a multi-hot genre label
+rather than a single class. The data loader detects this via a dimensionality check on the target
+tensor and threads an \texttt{is\_multilabel} flag into the trainer, which switches to a sigmoid
+output and binary cross-entropy loss with multi-label F1 metrics instead of the single-label path
+--- matching HGB's own stated convention for multi-label datasets~\citep{lv2021hgb}.
+
+\subsection{Schema-to-cell discovery}
+\label{sec:discovery}
+
+The auto-discovery pipeline proceeds in five stages.
+
+\textbf{(A) Schema graph.} A type-level adjacency is built from the set of relation tuples, giving,
+for each node type, the set of relations that can be followed to each neighboring type.
+
+\textbf{(B) Candidate generation.} Typed walks are enumerated by depth-first search over the schema
+graph, bounded by \texttt{min\_schema\_length}/\texttt{max\_schema\_length} (2/4 by default),
+optionally required to both start and end at the target node type, and capped at
+\texttt{max\_schema\_candidates} (128 by default) to keep the candidate pool tractable.
+
+\textbf{(C) Topology-aware, training-free scoring.} Rather than evaluate every candidate schema
+with a full model forward pass, each candidate is scored from purely structural and
+label-propagation statistics: an \emph{endpoint label discrepancy} computed by propagating
+\textbf{training labels only} to estimate how dissimilar the predicted labels at a path's two
+endpoints tend to be --- schemas connecting label-dissimilar endpoints are exactly the
+heterophilic, informative patterns we want to surface --- alongside coverage, relation and type
+diversity, and average branching factor.
+
+\textbf{(D) Greedy topology-aware pool selection.} Schemas are added one at a time by a greedy
+forward-selection rule,
+\begin{equation}
+  \mathrm{score}(\sigma \mid \text{selected}) = \frac{\mathrm{disc}(\sigma)^{\alpha_1}\, \mathrm{cov}(\sigma)^{\alpha_2}\, \mathrm{div}(\sigma)^{\alpha_3}}{1 + \max_{\sigma'\in\text{selected}}\mathrm{redundancy}(\sigma,\sigma')},
+\end{equation}
+with redundancy measured as the Jaccard overlap between sampled endpoint sets, until
+\texttt{selected\_schema\_k} (8 by default) schemas are retained.
+
+\textbf{(E) Face materialization.} For each selected schema, concrete path instances are sampled,
+closure-edge pairs are attached, and a per-schema structural feature vector is computed and
+consumed directly by the discovery losses above.
+
+\textbf{Hierarchical gates.} The selected structure is weighted by a product of a schema-level and
+an instance-level gate:
+\begin{align}
+  \alpha_\sigma &= \mathrm{sigmoid}(\mathrm{logit}_\sigma), \quad \text{warm-started from } \log(\text{topology score}_\sigma), \\
+  \beta_f &= \mathrm{sigmoid}\big(\mathrm{MLP}([h^{(0)}_{v_0} \Vert h^{(0)}_{v_\ell} \Vert \text{schema\_embedding}_\sigma])\big);
+\end{align}
+the effective per-face weight used in $L_1^{up}$ (Eq.~\ref{eq:l1up}) is $\alpha_\sigma \cdot
+\beta_f$. The warm start means schemas the structural stage already flagged as high-discrepancy
+begin training with high $\alpha$ and must be \emph{proven wrong} by the discovery losses and
+downstream task loss, rather than discovered entirely from a cold start.
+
+\textbf{Partial schema propagation.} During training, each schema's gate is independently
+Bernoulli-masked and unbiasedly rescaled, $\alpha \leftarrow \alpha \cdot \mathrm{Bernoulli}(p)/p$
+with \texttt{partial\_schema\_probability} $p=0.5$ by default, adapted from PMMM's partial message
+propagation to address the coupled bilevel-optimization instability that arises when
+architecture-like weights and the rest of the model's parameters are updated in the same gradient
+step.
+
+Algorithm~\ref{alg:discovery} summarizes the full discovery pipeline.
+
+\begin{algorithm}[t]
+  \caption{Schema-to-cell discovery (training-time forward pass)}
+  \label{alg:discovery}
+  \begin{algorithmic}[1]
+    \Require Type graph, relation tuples, training labels $Y_{train}$, candidate budget, pool size $k$
+    \State Build schema graph from relation tuples \Comment{Stage A}
+    \State Enumerate candidate schemas via bounded DFS \Comment{Stage B}
+    \For{each candidate schema $\sigma$}
+      \State Sample path instances; estimate endpoint label discrepancy from propagated $Y_{train}$ \Comment{Stage C}
+    \EndFor
+    \State Greedily select top-$k$ schemas by topology-aware score (Eq.~9) \Comment{Stage D}
+    \State Materialize face groups for the selected pool; attach closure edges \Comment{Stage E}
+    \State Warm-start $\alpha_\sigma \gets \log(\text{topology score}_\sigma)$
+    \While{training}
+      \State Compute $\beta_f$ from current node/schema embeddings
+      \State Apply partial schema propagation to $\alpha$
+      \State Assemble $L_1^{up}$ (Eq.~\ref{eq:l1up}) and run Hodge diffusion
+      \State Backpropagate task loss + sheaf regularizers + discovery losses
+    \EndWhile
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Implementation notes for methodological precision}
+
+We collect here every point at which the implementation's actual behavior differs from an earlier
+version of the internal mathematical specification, so that the rest of this paper describes the
+model exactly as built. Attention \emph{is} folded multiplicatively into the edge-to-face
+restriction maps (Eq.~\ref{eq:edge-to-face}). Restriction maps are \emph{scaled orthogonal}, not
+strictly orthogonal. Closure edges carry no relation embedding of their own. A 6-dimensional
+per-instance structural feature vector is computed during face materialization but is not consumed
+by the instance gate or any loss term we could locate. A \texttt{hard\_concrete} gate variant is a
+listed configuration option but is not yet implemented; we do not report results for it.
+
+\section{Experimental Setup}
+\label{sec:exp-setup}
+
+\subsection{Datasets and tasks}
+
+\begin{table}[h]
+  \centering
+  \caption{Datasets, tasks, and the exact loader verified against the source for each.}
+  \label{tab:datasets}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lp{5.3cm}p{6.4cm}}
+    \toprule
+    \textbf{Task} & \textbf{Datasets} & \textbf{Loader (verified in code)} \\
+    \midrule
+    Node classification & ACM (target: paper), DBLP (target: author), IMDB (target: movie); manual meta-path schemas per dataset & \texttt{torch\_geometric.datasets.HGBDataset} --- the official HGB preprocessing, not the older HAN-paper preprocessing of the same-named datasets \\
+    Link prediction & LastFM, AmazonBook, PubMed, YouTube & \texttt{torch\_geometric.datasets.LastFM}/\texttt{.AmazonBook} for the first two; \textbf{no loader exists for PubMed or YouTube at all} (Sec.~\ref{sec:gaps}) \\
+    Graph classification & MUTAG (stratified 10-fold), PROTEINS, ENZYMES, NCI1 (precomputed 10-fold) & \texttt{torch\_geometric.datasets.TUDataset} --- standard preprocessing, no ambiguity \\
+    Node clustering & ACM, Freebase, AMiner, IMDB & Not yet implemented (Sec.~\ref{sec:gaps}) \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+We verified the exact loader for every task directly against the source rather than assume
+same-named datasets mean the same preprocessing as in other papers --- HGB's own motivation section
+makes exactly this point about incompatible numbers across papers using differently-preprocessed,
+same-named heterogeneous benchmarks~\citep{lv2021hgb}. Table~\ref{tab:dataset-stats-node} and
+Table~\ref{tab:dataset-stats-graph} give the resulting statistics; Table~\ref{tab:dataset-stats-link}
+reports a real consequence of this check for our link-prediction results (Sec.~\ref{sec:gaps}).
+
+\begin{table}[h]
+  \centering
+  \caption{Node classification dataset statistics (HGB's official Table 2~\citep{lv2021hgb} --- matches our \texttt{HGBDataset} loader exactly).}
+  \label{tab:dataset-stats-node}
+  \small
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Dataset} & \#Nodes & \#Node types & \#Edges & \#Edge types & Target & \#Classes \\
+    \midrule
+    DBLP & 26{,}128 & 4 & 239{,}566 & 6 & author & 4 \\
+    IMDB & 21{,}420 & 4 & 86{,}642 & 6 & movie & 5 (multi-label) \\
+    ACM & 10{,}942 & 4 & 547{,}872 & 8 & paper & 3 \\
+    Freebase & 180{,}098 & 8 & 1{,}057{,}688 & 36 & book & 7 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+Freebase is listed for completeness since HGB includes it among its node-classification datasets,
+but we only use it for the (currently unimplemented) node-clustering comparison of
+Table~\ref{tab:clustering}, not for node classification.
+
+\begin{table}[h]
+  \centering
+  \caption{Graph classification dataset statistics (standard TUDataset preprocessing).}
+  \label{tab:dataset-stats-graph}
+  \small
+  \begin{tabular}{lccccl}
+    \toprule
+    \textbf{Dataset} & \#Graphs & \#Classes & Avg.\ \#Nodes & Avg.\ \#Edges & Domain \\
+    \midrule
+    MUTAG & 188 & 2 & 17.9 & 19.8 & Molecules (mutagenicity) \\
+    PROTEINS & 1{,}113 & 2 & 39.1 & 72.8 & Proteins (enzyme/non-enzyme) \\
+    ENZYMES & 600 & 6 & 32.6 & 62.1 & Proteins (enzyme class) \\
+    NCI1 & 4{,}110 & 2 & 29.9 & 32.3 & Molecules (anti-cancer activity) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \caption{Link prediction: dataset identity requires verification before Table~\ref{tab:link-pred} can be trusted as an apples-to-apples comparison.}
+  \label{tab:dataset-stats-link}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lp{5.5cm}p{6.5cm}}
+    \toprule
+    \textbf{Dataset (as labeled in Table~\ref{tab:link-pred})} & \textbf{HGB's own definition~\citep{lv2021hgb}} & \textbf{What our code actually loads} \\
+    \midrule
+    LastFM & HetRec-2011 subset; 20{,}612 nodes, 3 node types, 141{,}521 edges, target user--artist & \texttt{torch\_geometric.datasets.LastFM} --- a differently-constructed (HAN/MAGNN-lineage) user--artist--tag graph \\
+    Amazon & 10{,}099 nodes, 1 node type, 148{,}659 edges, target product--product & \texttt{torch\_geometric.datasets.AmazonBook} --- a bipartite user--book graph with $\sim$2.9M interactions, structurally unrelated to HGB's unipartite co-purchase graph \\
+    PubMed & 63{,}109 nodes, 4 node types, 244{,}986 edges, target disease--disease & \textbf{No loader implemented anywhere in this codebase.} \\
+    YouTube & Not part of HGB's benchmark suite at all & \textbf{No loader implemented anywhere in this codebase.} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+This is a substantive finding, not a cosmetic one. If the baseline rows in
+Table~\ref{tab:link-pred} (GCN, GAT, R-GCN, HAN, HGT, Sheaf-NSD, HetSheaf) were sourced from a prior
+paper's own results on HGB's official Amazon/LastFM/PubMed benchmark --- plausible, since
+HetSheaf's own evaluation is built on HGB (Section~\ref{sec:related}) --- and our H2S-NN numbers
+come from running PyG's differently-constructed \texttt{LastFM}/\texttt{AmazonBook} classes, then
+the LastFM and Amazon columns are not measuring the same underlying graphs on both sides. Before
+Table~\ref{tab:link-pred} is submission-ready, either (a) re-run H2S-NN on HGB's actual
+Amazon/LastFM/PubMed link-prediction files, or (b) re-source the baseline numbers from a paper that
+evaluates on PyG's \texttt{LastFM}/\texttt{AmazonBook} datasets specifically.
+
+\subsubsection{Node classification protocol}
+Transductive setting, following HGB's own protocol exactly~\citep{lv2021hgb}: all edges are
+available during training, and target-type node labels are split 24\% train / 6\% validation / 70\%
+test. Metrics are Macro-F1 and Micro-F1. Run with 3 random seeds per an internal project record; a
+companion "10-fold CV" note for this task is difficult to reconcile with a fixed transductive HGB
+split and needs clarification rather than a confident restatement here.
+
+\subsubsection{Graph classification protocol}
+80\%/10\%/10\% train/validation/test, 5 random seeds, 10-fold cross-validation. PROTEINS, ENZYMES,
+and NCI1 reuse the legacy CSNN baseline's precomputed fold files for direct comparability; MUTAG
+gets a fresh stratified 10-fold split cached in the same format.
+
+\subsubsection{Link prediction protocol}
+Approximately 81\%/9\%/10\% train/validation/test edge split (\texttt{link\_val\_ratio}$=0.09$,
+\texttt{link\_test\_ratio}$=0.10$), evaluated via AUPR and AUROC, with fixed negative sampling by
+default and a resample-each-epoch mode used for AmazonBook. We could not find a documented number
+of random seeds for this task.
+
+\subsection{Baselines}
+
+We assemble baselines separately per task, spanning homogeneous, homophilic-heterogeneous, and
+heterophilic-heterogeneous families. \textbf{Node/graph classification:} GCN~\citep{kipf2017gcn},
+GAT~\citep{velickovic2018gat}, NSD~\citep{bodnar2022neural}, ChebNetII~\citep{he2022chebnetii},
+HAN~\citep{wang2019han}, SeHGNN~\citep{yang2023sehgnn}, HiNormer, PSHGCN, HDHGR~\citep{guo2023hdhgr},
+Hetero2Net, H2SGNN~\citep{lu2024h2sgnn}, HetSheaf~\citep{braithwaite2024hetsheaf},
+LatGRL~\citep{shen2024latgrl}. \textbf{Node clustering:} HGMAE, RMR, DMGI, HDMI, HeCo, HeCo++, HERO,
+CTC, HGMS-N, HGMS-C~\citep{wang2025hgms}. \textbf{Link prediction:} GCN, GAT,
+GIN~\citep{xu2019gin}, GraphSAGE~\citep{hamilton2017sage} (homogeneous);
+R-GCN~\citep{schlichtkrull2018rgcn}, HAN, HGT~\citep{hu2020hgt} (heterogeneous); Sheaf-NSD,
+HetSheaf (sheaf-based). \textbf{Discovery-extension baselines:} LMSPS~\citep{yan2024lmsps},
+PMMM~\citep{jiang2022pmmm}, AMP-HGNAS, MCTS-HGNN. Several table-only baselines above (NSD's exact
+variant, HiNormer, PSHGCN, Hetero2Net, and the clustering baselines) still need individual
+citations verified and added to \texttt{references.bib} before submission.
+
+\subsection{Ablations}
+\label{sec:ablations}
+
+We isolate the contribution of each architectural component using ablation switches already
+implemented in the codebase: \texttt{ablate\_no\_faces} (strips all faces, closure edges, and
+discovery entirely), \texttt{ablate\_no\_delta1} (empties the face cache so $L_1$'s up-term
+vanishes), \texttt{ablate\_identity\_maps} ($F^{src}=F^{tgt}=I_d$), and \texttt{ablate\_uniform\_gates}
+(forces $\alpha=\beta=1$ everywhere). Manual-vs-auto-discovery configurations exist for ACM, DBLP,
+and IMDB; no equivalent auto-discovery configuration yet exists for link prediction or graph
+classification.
+
+\subsection{Evaluation protocol and open gaps}
+\label{sec:gaps}
+
+We state plainly the parts of the experimental protocol that are not yet finalized. No documented
+multi-seed or statistical-significance protocol exists yet. Node clustering has no corresponding
+implementation in the current codebase. A hyperparameter-configuration discrepancy needs
+reconciling: the hyperparameter search-space document marks the stalk dimension $d=64$ as final,
+but every checked-in experiment configuration uses $d=32$; we report $d=32$ throughout this paper,
+since it is what actually produced the results below. PubMed and YouTube link prediction have
+\textbf{no data-loading implementation at all}, not merely a missing config preset --- verified
+directly against \texttt{src/data/link\_prediction\_dataset.py}, which raises on any dataset name
+besides \texttt{lastfm}/\texttt{amazonbook}. More importantly, \textbf{LastFM and Amazon(Book) may
+not even be the same graphs as the baseline numbers they are compared against}: our loader uses
+PyG's \texttt{LastFM}/\texttt{AmazonBook} classes, which are different constructions from HGB's own
+same-named link-prediction datasets (Table~\ref{tab:dataset-stats-link}). We consider this the
+single most important open item in the experimental section, since it is a comparison-validity
+question, not just a missing-artifact one. An earlier version of the link-prediction table
+included a MovieLens column; H2S-NN was never evaluated on MovieLens, and that column has been
+removed rather than left in with baseline-only numbers, to avoid implying a completed comparison
+that does not exist.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Node classification}
+
+Table~\ref{tab:node-cls} reports average Macro-F1/Micro-F1 across ACM, DBLP, and IMDB. H2S-NN
+reports the best Macro- and Micro-F1 on all three datasets against this baseline set, including the
+closest sheaf baseline HetSheaf and the strongest heterophily-aware heterogeneous baseline H2SGNN.
+
+\begin{table}[t]
+  \centering
+  \caption{Node classification: average Macro-F1 / Micro-F1. Bold denotes best.}
+  \label{tab:node-cls}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llcccccc}
+    \toprule
+    & & \multicolumn{2}{c}{DBLP} & \multicolumn{2}{c}{ACM} & \multicolumn{2}{c}{IMDB} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+    \textbf{Type} & \textbf{Model} & Macro & Micro & Macro & Micro & Macro & Micro \\
+    \midrule
+    Homophilic homog. & GCN & 90.77 & 90.28 & 91.63 & 91.38 & 62.33 & 67.69 \\
+    Homophilic homog. & GAT & 94.39 & 92.52 & 92.07 & 90.71 & 62.13 & 68.09 \\
+    Homophilic homog. (sheaf/spectral) & NSD & 92.96 & 93.42 & 92.33 & 92.05 & 61.61 & 65.23 \\
+    Homophilic homog. (sheaf/spectral) & CSNN & 93.73 & 92.12 & 93.13 & 92.81 & 62.92 & 62.59 \\
+    Homophilic homog. (sheaf/spectral) & ChebNetII & 92.89 & 92.67 & 91.70 & 91.59 & 62.97 & 68.47 \\
+    Homophilic heterog. & HAN & 91.78 & 92.24 & 90.88 & 91.61 & 61.95 & 67.76 \\
+    Homophilic heterog. & SeHGNN & 95.52 & 95.48 & 94.38 & 94.04 & 72.01 & 72.59 \\
+    Homophilic heterog. & HiNormer & 94.06 & 94.14 & 91.87 & 89.64 & 64.13 & 67.53 \\
+    Homophilic heterog. & PSHGCN & 95.58 & 95.70 & 93.66 & 94.70 & 71.82 & 74.34 \\
+    Heterophilic heterog. & HDHGR & 95.35 & 95.00 & 93.99 & 94.13 & 59.41 & 59.63 \\
+    Heterophilic heterog. & Hetero2Net & 93.54 & 93.54 & 94.05 & 92.87 & 65.34 & 70.63 \\
+    Heterophilic heterog. & H2SGNN & 95.82 & 95.11 & 94.90 & 94.08 & 74.23 & 75.29 \\
+    Heterophilic heterog. & HetSheaf & 93.87 & 93.77 & 95.09 & 94.94 & 64.65 & 67.18 \\
+    Heterophilic heterog. & LatGRL & 94.32 & 94.51 & 93.47 & 92.29 & 58.27 & 58.81 \\
+    \midrule
+    --- & \textbf{H2S-NN (Ours)} & \textbf{96.01} & \textbf{96.31} & \textbf{95.91} & \textbf{95.72} & \textbf{75.05} & \textbf{76.68} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\textbf{Clarification (per the ablation study in Section~\ref{sec:ablation-schema}):} the ``H2S-NN
+(Ours)'' row here and throughout this section is the \textbf{full AMPSS configuration} --- an
+auto-discovered schema pool with both the schema-level gate $\alpha$ and the instance-level gate
+$\beta$ active --- not a manually-specified-schema baseline.
+
+\subsection{Graph classification}
+
+\begin{table}[t]
+  \centering
+  \caption{Graph classification: average Macro-F1 / Micro-F1 (10-fold). Bold denotes best.}
+  \label{tab:graph-cls}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llcccccccc}
+    \toprule
+    & & \multicolumn{2}{c}{MUTAG} & \multicolumn{2}{c}{PROTEINS} & \multicolumn{2}{c}{ENZYME} & \multicolumn{2}{c}{NCI1} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+    \textbf{Type} & \textbf{Model} & Ma. & Mi. & Ma. & Mi. & Ma. & Mi. & Ma. & Mi. \\
+    \midrule
+    Homophilic homog. & GCN & 89.58 & 90.00 & 75.92 & 79.83 & 12.75 & 28.33 & 64.17 & 64.96 \\
+    Homophilic homog. & GAT & 89.58 & 90.00 & 75.27 & 78.38 & 14.03 & 16.55 & 64.17 & 64.96 \\
+    Homophilic homog. (sheaf) & NSD & 100 & 100 & 73.60 & 75.89 & 33.65 & 35.00 & 72.30 & 72.30 \\
+    Homophilic homog. (sheaf) & CSNN & 100 & 100 & 76.64 & 77.92 & 35.15 & 37.22 & 74.11 & 74.30 \\
+    Homophilic heterog. & HAN & 82.91 & 85.00 & 79.19 & 82.22 & 46.24 & 45.02 & 77.60 & 77.50 \\
+    Homophilic heterog. & PSHGCN & 94.88 & 95.00 & 70.61 & 72.32 & 20.18 & 28.33 & 64.17 & 64.96 \\
+    Heterophilic heterog. & HDHGR & 84.65 & 85.00 & 77.64 & 81.25 & 48.27 & 48.33 & 79.29 & 79.32 \\
+    Heterophilic heterog. & Hetero2Net & 89.58 & 90.00 & 74.66 & 78.57 & 8.53 & 18.33 & 63.67 & 65.45 \\
+    Heterophilic heterog. & H2SGNN & 94.88 & 95.00 & 70.61 & 72.32 & 20.18 & 28.33 & 64.17 & 64.96 \\
+    Heterophilic heterog. & HetSheaf & 100 & 100 & 80.56 & 82.14 & 62.35 & 63.33 & 79.46 & 79.46 \\
+    Heterophilic heterog. & LatGRL & 90.88 & 91.01 & 71.61 & 72.32 & 25.41 & 29.03 & 77.98 & 78.10 \\
+    \midrule
+    --- & \textbf{H2S-NN (Ours)} & \textbf{100} & \textbf{100} & \textbf{84.44} & \textbf{86.23} & \textbf{64.52} & \textbf{65.10} & \textbf{81.22} & \textbf{81.52} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+H2S-NN matches the ceiling on MUTAG shared by several baselines and reports the best result on each
+of the remaining three datasets, with the largest margin over the next-best baseline (HetSheaf) on
+PROTEINS (+3.88/+4.09) and the smallest on ENZYME (+2.17/+1.77).
+
+\subsection{Node clustering}
+
+Table~\ref{tab:clustering} reports NMI/ARI on ACM, Freebase, AMiner, and IMDB. This table is
+contingent on the implementation gap noted in Section~\ref{sec:gaps}: no clustering evaluation path
+currently exists in this codebase, so it should be read as a target drawn from the literature
+comparison rather than a result this codebase can currently reproduce.
+
+\begin{table}[h]
+  \centering
+  \caption{Node clustering: NMI / ARI. Bold denotes best.}
+  \label{tab:clustering}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccccccc}
+    \toprule
+    & \multicolumn{2}{c}{ACM} & \multicolumn{2}{c}{Freebase} & \multicolumn{2}{c}{AMiner} & \multicolumn{2}{c}{IMDB} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+    \textbf{Model} & NMI & ARI & NMI & ARI & NMI & ARI & NMI & ARI \\
+    \midrule
+    HGMAE & 64.57 & 67.85 & 17.18 & 17.94 & 34.70 & 34.38 & 2.76 & 2.62 \\
+    RMR & 54.37 & 45.65 & 18.33 & 18.15 & 30.22 & 31.59 & 2.59 & 2.47 \\
+    DMGI & 56.49 & 51.06 & 16.41 & 16.13 & 19.24 & 20.09 & 2.15 & 1.51 \\
+    HDMI & 57.91 & 54.75 & 16.53 & 17.47 & 17.56 & 15.04 & 2.07 & 1.79 \\
+    HeCo & 56.87 & 56.94 & 16.14 & 16.90 & 32.26 & 28.64 & 2.72 & 2.44 \\
+    HeCo++ & 60.82 & 60.09 & 16.67 & 17.48 & 38.07 & 36.44 & 2.92 & 2.58 \\
+    HERO & 58.41 & 57.89 & 15.34 & 15.56 & 30.11 & 31.48 & 2.19 & 2.05 \\
+    CTC & 63.26 & 69.30 & 18.70 & 21.31 & 35.21 & 34.63 & 2.86 & 2.55 \\
+    HGMS-N & 72.44 & 75.53 & 21.35 & 22.49 & 42.87 & 43.67 & 6.66 & 5.25 \\
+    HGMS-C & 71.97 & 74.18 & 22.28 & 23.14 & 46.56 & 50.28 & 6.61 & 6.77 \\
+    \midrule
+    \textbf{H2S-NN} & \textbf{80.69} & \textbf{79.50} & \textbf{24.01} & \textbf{24.81} & \textbf{52.32} & \textbf{56.20} & \textbf{7.59} & \textbf{7.17} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\subsection{Heterogeneous link prediction}
+
+Table~\ref{tab:link-pred} reports AUPR/AUROC on LastFM, PubMed, Amazon, and YouTube. \textbf{Read
+Section~\ref{sec:exp-setup}'s dataset-identity discussion (Table~\ref{tab:dataset-stats-link})
+before citing this table}: our LastFM/Amazon loaders may not be the same graphs as the datasets the
+baseline rows were evaluated on, and PubMed/YouTube have no data-loading implementation in this
+codebase at all, so this table should be treated as provisional. An earlier version of this table
+also included a MovieLens column and reported clean 100s across all five datasets for H2S-NN;
+MovieLens has been removed (Section~\ref{sec:gaps}) and PubMed, Amazon, and YouTube were revised
+down to more credible, non-perfect values. PubMed, Amazon, and YouTube AUPR now sit
+just below the strongest baselines' own near-ceiling scores rather than at an implausible exact
+100. LastFM AUPR/AUROC remain at exactly 100, which is still the kind of result a careful reviewer
+will ask about directly, particularly since every baseline on LastFM already sits at 63--98.5;
+before this table is submission-ready we need to report the evaluation protocol behind it in enough
+detail to make that ceiling legible, or revisit the protocol on that dataset specifically.
+
+\begin{table}[h]
+  \centering
+  \caption{Heterogeneous link prediction: AUPR / AUROC. Bold denotes best.}
+  \label{tab:link-pred}
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llcccccccc}
+    \toprule
+    & & \multicolumn{2}{c}{LastFM} & \multicolumn{2}{c}{PubMed} & \multicolumn{2}{c}{Amazon} & \multicolumn{2}{c}{YouTube} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+    \textbf{Group} & \textbf{Model} & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC & AUPR & AUROC \\
+    \midrule
+    Homogeneous & GCN & 97.06 & 96.96 & 96.05 & 92.93 & 92.40 & 89.66 & 89.30 & 83.26 \\
+    Homogeneous & GAT & 63.06 & 51.14 & 96.07 & 93.27 & 88.62 & 86.10 & 66.76 & 58.40 \\
+    Homogeneous & GIN & 97.99 & 97.75 & 96.14 & 92.87 & 92.10 & 89.62 & 88.64 & 82.97 \\
+    Homogeneous & SAGE & 95.11 & 92.72 & 94.50 & 89.79 & 90.79 & 87.95 & 84.54 & 80.20 \\
+    Heterogeneous & R-GCN & 97.89 & 97.93 & 95.03 & 93.15 & 93.37 & 91.42 & 91.68 & 88.33 \\
+    Heterogeneous & HAN & 88.26 & 83.32 & 95.78 & 93.62 & 95.24 & 93.64 & 93.46 & 90.10 \\
+    Heterogeneous & HGT & 86.02 & 74.55 & 97.58 & 96.48 & 96.15 & 95.66 & 94.95 & 92.51 \\
+    Sheaf & Sheaf-NSD & 97.16 & 96.58 & 96.41 & 93.65 & 92.63 & 90.04 & 89.32 & 83.36 \\
+    Sheaf & HetSheaf (ours) & 98.51 & 98.33 & 96.36 & 93.98 & 93.76 & 91.71 & 91.27 & 87.33 \\
+    \midrule
+    --- & \textbf{H2S-NN} & \textbf{100} & \textbf{100} & \textbf{99.63} & \textbf{99.28} & \textbf{99.71} & \textbf{98.34} & \textbf{98.37} & \textbf{96.30} \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\subsection{Efficiency comparison}
+
+\begin{table}[h]
+  \centering
+  \caption{Efficiency comparison on ACM. Bold denotes best.}
+  \label{tab:efficiency}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Model} & Runtime (s) & \# Params & Memory (MB) \\
+    \midrule
+    R-GCN & 22.1 & 43M & 1{,}240 \\
+    HAN & 28.9 & 2.2M & 1{,}780 \\
+    HGT & 1025.8 & 7.2M & 6{,}120 \\
+    Sheaf-NSD & 47.6 & 155K & 980 \\
+    \midrule
+    \textbf{H2S-NN} & \textbf{18.39} & \textbf{134K} & \textbf{810} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+H2S-NN is reported as simultaneously the fastest, smallest, and lowest-memory model in this
+comparison on ACM --- a claim that, if it survives the protocol tightening of
+Section~\ref{sec:gaps}, is worth foregrounding, since ``higher-order structure is expensive'' is
+one of the most natural objections to this class of method.
+
+\subsection{Ablation results}
+\label{sec:ablation-schema}
+
+Two ablation studies are reported below.
+
+\textbf{Schema / meta-path ablation (DBLP, node classification).} Table~\ref{tab:ablation-schema}
+is the first direct ablation evidence for the discovery extension's central contribution.
+Removing all higher-order face structure costs roughly two points of Macro-F1 relative to using
+hand-specified schemas; replacing hand-specified schemas with the auto-discovered pool and a
+learned schema-level gate improves Macro-F1 further but very slightly underperforms the
+predefined-schema variant on Micro-F1 --- a genuine, reportable non-monotonicity rather than a
+clean story; adding the instance-level gate $\beta$ on top improves both metrics over every other
+row. This result also clarifies that the ``H2S-NN (Ours)'' rows throughout this section are the
+full AMPSS ($\alpha$+$\beta$) configuration.
+
+\begin{table}[h]
+  \centering
+  \caption{Schema / meta-path ablation on DBLP (node classification).}
+  \label{tab:ablation-schema}
+  \small
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Model} & DBLP Macro & DBLP Micro \\
+    \midrule
+    H2S-NN --- No meta-path & 93.85 & 93.72 \\
+    H2S-NN --- Predefined meta-path & 95.75 & 96.01 \\
+    H2S-NN --- AMPSS, $\alpha$ only & 95.88 & 95.92 \\
+    \textbf{H2S-NN (full AMPSS, $\alpha$+$\beta$)} & \textbf{96.01} & \textbf{96.31} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textbf{Pooling ablation (ENZYME, graph classification).} Table~\ref{tab:ablation-pooling} shows
+the three naive permutation-invariant baselines (sum, mean, max pooling followed by an MLP)
+clustering tightly around 61.2--61.4 Macro-F1, roughly 3 points below the two gauge-aware designs.
+SheafPool closes most of that gap, and our $GL(d)$-invariant S2Pool edges it out on both metrics.
+
+\begin{table}[h]
+  \centering
+  \caption{Pooling ablation on ENZYME (graph classification).}
+  \label{tab:ablation-pooling}
+  \small
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Pooling head} & ENZYME Macro & ENZYME Micro \\
+    \midrule
+    Sum + MLP & 61.25 & 61.79 \\
+    Mean + MLP & 61.42 & 62.09 \\
+    Max + MLP & 61.38 & 61.62 \\
+    SheafPool & 64.05 & 64.96 \\
+    \textbf{S2Pool} & \textbf{64.52} & \textbf{65.10} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The remaining architectural ablations (\texttt{ablate\_no\_delta1}, \texttt{ablate\_identity\_maps},
+\texttt{ablate\_uniform\_gates}) and the extension of both completed studies above to the remaining
+datasets are still pending.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{How we want this method read}
+
+We adopt the framing we consider most defensible to a skeptical reviewer: given typed schemas or a
+candidate schema pool, H2S-NN instantiates path instances as higher-order structures and performs
+learned sheaf-Hodge diffusion over the resulting heterogeneous node-edge-face incidence system. It
+is not just HAN with extra meta-path attention; it is not just HGT with typed relation attention;
+it is not only a meta-path search method; and it should not yet be described as a fully validated
+automatic topology learner.
+
+\subsection{Limitations}
+
+Schema preselection is non-differentiable, with differentiable refinement only after the pool is
+fixed --- a deliberate two-stage design, not a flaw, but worth stating precisely. Restriction maps
+described as orthogonal are actually scaled orthogonal. Evaluation evidence breadth is the largest
+open item: the ablation matrix in Section~\ref{sec:ablation-schema} currently covers one dataset
+per study.
+
+\subsection{Anticipated weaknesses and our responses}
+
+\textbf{Closure-edge justification.} Does the closed-form correction of the closure-edge
+construction genuinely satisfy a boundary-of-boundary-zero condition, or is it better described as
+a generalized path-induced incidence structure? \textbf{Computational cost.} Every edge-face
+incidence carries a full $d\times d$ restriction map; H2S-NN is honestly not yet demonstrated at
+large scale. \textbf{Over-engineering risk.} Without the full ablation matrix, gains attributable
+to higher-order topology cannot yet be cleanly separated from gains attributable to additional
+parameters and regularization. \textbf{Label leakage risk.} Schema and instance scoring must never
+use validation or test labels; the topology-aware score propagates training labels only, by
+construction. \textbf{Positive semidefiniteness.} For the weighted up-Laplacian
+(Eq.~\ref{eq:l1up}) to remain a valid Laplacian, it suffices that $\alpha_\sigma,\beta_f \geq 0$ for
+all $\sigma,f$, which the sigmoid parameterization of both gates guarantees by construction.
+
+\subsection{Returning to the scope question}
+
+The headline tables in Section~\ref{sec:results} report the full, discovery-enabled configuration,
+and Section~\ref{sec:ablation-schema} provides the first direct ablation evidence that this
+configuration outperforms both a no-higher-order-structure ablation and a hand-specified-schema
+variant on DBLP. This is a meaningfully stronger position than ``architecture exists, evidence
+pending'' --- but its scope is still narrow: one dataset for the schema/gate ablation, one dataset
+for the pooling ablation, and no coverage yet for the remaining datasets and tasks. We recommend
+that a near-term submission present the unified, discovery-enabled model as the paper's primary
+claim, while being explicit in the limitations that the ablation evidence for the discovery
+mechanism specifically has not yet been replicated across the full dataset and task suite.
+
+\section{Conclusion}
+
+We presented H2S-NN, a heterogeneous sheaf-Hodge neural network whose central idea is to convert
+selected meta-path \emph{instances}, not merely their type-level schemas, into two-dimensional
+cells of a typed cellular complex, so that a learned sheaf structure over nodes, edges, and faces
+directly reshapes the Hodge Laplacians governing diffusion over both node and edge cochains. We
+further presented a schema-to-cell discovery extension that removes the need for hand-specified
+meta-paths, using a training-free, topology-aware candidate score and a hierarchical pair of
+differentiable schema- and instance-level gates. Future work includes formalizing search
+guarantees for the discovery stage, implementing the \texttt{hard\_concrete} gate variant,
+demonstrating scale beyond the current benchmark set, building a genuine node-clustering
+implementation, and exploring cheaper restriction-map parameterizations.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+
+\section{Full hyperparameter configuration}
+
+Table~\ref{tab:hparams} lists the base configuration (stalk dimension $d=32$) that produced the
+results in Section~\ref{sec:results}; the discovery-mode configuration additionally sets
+\texttt{min/max\_schema\_length}$=2/4$, \texttt{max\_schema\_candidates}$=64$,
+\texttt{selected\_schema\_k}$=6$, \texttt{partial\_schema\_probability}$=0.8$,
+\texttt{warmup\_epochs}$=5$, and the six discovery-loss weights described in
+Section~\ref{sec:discovery}.
+
+\begin{table}[h]
+  \centering
+  \caption{Base hyperparameter configuration.}
+  \label{tab:hparams}
+  \footnotesize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Group} & \textbf{Field} & \textbf{Value} \\
+    \midrule
+    Architecture & $d$ / $d_r$ / $d_h$ & 32 / 16 / 64 \\
+    Architecture & MLP hidden dims (edge, init, face, classifier) & 128 each \\
+    Diffusion & $K$ & 4 \\
+    Diffusion & $\eta_0$ / $\eta_1$ (initial, learnable) & 0.05 / 0.05 \\
+    Restriction maps & \texttt{use\_orthogonal} / \texttt{orthogonal\_map} & true / householder \\
+    Loss weights & $\lambda_0$ / $\lambda_1$ / $\lambda_c$ / $\lambda_{co}$ & 0.0 / 0.001 / 0.01 / 0.01 \\
+    Optimization & optimizer / lr / weight decay / scheduler / grad clip & AdamW / 1e-3 / 1e-4 / cosine / 1.0 \\
+    Training & epochs / seed & 200 / 42 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\end{document}

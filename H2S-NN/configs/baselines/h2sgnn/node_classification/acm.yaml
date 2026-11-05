@@ -1,0 +1,28 @@
+model: h2sgnn
+task: node_classification
+dataset: acm
+source: H2SGNN/config.yaml -> 'ACM' block (upstream commit as cloned)
+notes: wd -> weight_decay. u and epochs/early_stopping come from H2SGNN/main.py argparse
+  defaults; the ACM block's unused 'dprate' key is dropped.
+params:
+  K: 10
+  emb_dim: 64
+  hidden: 16
+  input_drop: 0.3
+  dropout: 0.0
+  lr: 0.0005
+  weight_decay: 0.0
+  temp_lr: 0.05
+  temp_wd: 0.4
+  temp_list_lr: 0.05
+  temp_list_wd: 0.7
+  beta_lr: 0.01
+  beta_wd: 0.3
+  alpha: 0.1
+  alpha_list: 0.1
+  a: 0.0
+  b: -0.25
+  u: 0.5
+  poly: GPR_jaco
+  epochs: 1000
+  early_stopping: 100

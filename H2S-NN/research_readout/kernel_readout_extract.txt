@@ -1,0 +1,835 @@
+                             Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+
+                                   Kernel Readout for Graph Neural Networks
+           Jiajun Yu1,3,5 , Zhihao Wu2,3 , Jinyu Cai4 , Adele Lu Jia1∗ and Jicong Fan2,3∗
+        1
+     College of Information and Electrical Engineering, China Agricultural University, Beijing, China
+ 2
+   School of Data Science, The Chinese University of Hong Kong, Shenzhen (CUHK-Shenzhen), China
+                         3
+                           Shenzhen Research Institute of Big Data, Shenzhen, China
+                 4
+                   Institute of Data Science, National University of Singapore, Singapore
+         5
+           College of Computer Science and Technology, Zhejiang University, Hangzhou, China
+ 2017307070311@cau.edu.cn, zhihaowu1999@gmail.com, jinyucai1995@gmail.com, ljia@cau.edu.cn,
+                                          fanjicong@cuhk.edu.cn
+
+                             Abstract                                             and the most prevalent GNNs have been validated to generate
+                                                                                  expressive node representations.
+        Graph neural networks (GNNs) for graph classifi-                             Beyond that, some critical real-world scenarios, e.g. pro-
+        cation or representation learning require a pooling                       tein interface prediction [Fout et al., 2017; Liu et al., 2020]
+        operation to convert the nodes’ embeddings of each                        and compounds functionality analysis [Kojima et al., 2020],
+        graph to a vector as the graph-level representation                       require predicting for entire graphs, leading to graph-level
+        and the operation has a significant impact on model                       tasks, where each graph, rather than a node, is a sample. A
+        accuracy. The paper presents a novel graph pool-                          key challenge is the graph isomorphism problem, that is, how
+        ing method called Kernel Readout (KerRead). Ker-                          to recognize whether two graphs are isomorphic or not. Xu
+        Read maps the node embeddings from the sample                             et al. [2018] first explored the connection between GNNs
+        space with limited nodes to an augmented sample                           and the graph isomorphic problem, proving that GNNs are
+        space with infinite nodes, and then calculates the in-                    at least as powerful as the Weisfeiler-Lehman graph isomor-
+        ner product between some learnable adaptive cen-                          phism test. Motivated by these, many researchers have pro-
+        ters and the augmented node embeddings, which                             posed GNNs focusing on graph-level tasks [Gilmer et al.,
+        forms a final graph-level feature vector. We ap-                          2017]. Generally, these methods apply readout functions,
+        ply the proposed strategy to six supervised and two                       also known as graph pooling functions, on node representa-
+        unsupervised graph neural networks such as GCN,                           tions, and then obtain graph-level representations, i.e., a vec-
+        GIN, GUNet, InfoGraph, and GraphCL, and the ex-                           tor representing the entire graph.
+        periments on eight benchmark datasets show that                              Readout is a crucial technique bridging powerful GNNs
+        the proposed readout outperforms classical pool-                          and graph-level learning. The most widely adopted graph-
+        ing methods such as Sum and seven state-of-the-                           level GNN backbones [Xu et al., 2018] only used some sim-
+        art pooling methods such as SRead and Janossy                             ple readout functions like Sum, Max, and Mean. These func-
+        GRU. Code and Appendix are both available at                              tions typically collect first-order statistics only, which does
+        https://github.com/jiajunCAU/KerRead.                                     not accurately characterize the distribution of graphs. Mean-
+                                                                                  while, they are fixed and non-data-driven operations, so they
+                                                                                  may not fit different graphs well. Some recent work has
+1       Introduction                                                              put forward learnable readout functions to solve these is-
+In recent years, graph neural networks (GNNs) have flour-                         sues. They are mainly categorized as attention-based [Li et
+ished in many fields such as machine learning [Yu and Jia,                        al., 2016; Itoh et al., 2022; Fan et al., 2020] and sequence-
+2023; Wu et al., 2023b; Zhang et al., 2024], computer vi-                         based [Vinyals et al., 2016; Buterez et al., 2022] approaches.
+sion [Han et al., 2022a; Chen et al., 2023b; Cai et al.,                          These methods have made some progress, but the gains are
+2024b], and bioinformatics [Gilmer et al., 2017; Gasteiger                        not steady, and most critically, no unified framework to guide
+et al., 2021]. Originating from the theoretical investiga-                        the design of readout. [Sun and Fan, 2024] proposed a deep
+tion of both spatial and spectral domains, GNN has become                         MMD graph kernel (MMD-GK) that integrates graph kernel
+a general paradigm powerful for modeling non-Euclidean                            learning with graph neural networks and has promising per-
+graph data. Typically, GNNs generate representations that                         formance in graph classification and clustering. Although
+preserve structural information by recursive neighborhood                         Deep MMD-GK does not require any readout operation, it
+aggregation. Numerous studies [Welling and Kipf, 2017;                            has quadratic time and space complexities.
+Hamilton et al., 2017; Zheng et al., 2023; Jin et al., 2021]                         In this article, we propose a novel kernel-based readout
+have been devoted to designing various GNN architectures                          function named KerRead, which utilizes the kernel technol-
+for node-level tasks like node classification and clustering,                     ogy in readout. The detailed process of KerRead is depicted
+                                                                                  in Figure 1. To be specific, we treat each dimension as a point
+    ∗
+        Corresponding authors.                                                    with coordinates determined by the feature values of each
+
+
+
+                                                                           2505
+                          Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+
+                                                                                                 Virtual Node 1
+                                            Node 1
+        Graph 𝒢1                                        Dimension 1                                                Adaptive
+
+          …                                                           Dimension 2                                  Center 1
+
+
+
+
+                           Various GNNs
+
+
+
+
+                                                                                                                                                                         Fusion
+                                                              Adaptive                                                                       Kernel   Dimension-Center
+                                                              Center 1                                                                       Value      Kernel Matrix
+                                                                             Dimension 4
+                                                     Dimension 3
+
+                                                                   Adaptive
+                                                                   Center 2                                                   Adaptive
+                                                                                                                              Center 2
+
+        Graph 𝒢𝑖                                                                                                   …                     …
+
+
+          …                                                                                                        …                     …
+
+                                          Node Representation                Centers                     Augmented               Augmented              Kernel Matrix     Graph Vector
+        Graph 𝒢 𝔾                                𝐇𝒢𝑖 ∈ ℝ𝑛𝑖 ×𝑑𝐿           𝐂𝒢𝑖 ∈ ℝ𝑛𝑖 ×𝑚           𝜙(𝐇𝒢𝑖 ) ∈ ℝ∞×𝑑𝐿                𝜙(𝐂𝒢𝑖 ) ∈ ℝ∞×𝑚             𝐙𝒢𝑖 ∈ ℝ𝑚×𝑑𝐿         𝐳𝒢𝑖 ∈ ℝ𝑑𝐿
+      Input Graphs                                       Sample Space                              Augmented Sample Space                                  Graph Representation
+
+Figure 1: The overall framework of KerRead. The kernel readout function first designs the adaptive center, and then uses a kernel function
+to map the node embedding and the adaptive center to the augmented sample space, and then calculates the kernel value based on each
+dimension of augmented node embedding and the augmented adaptive center to obtain the final graph vector. This can be formulated as:
+                                                                         ϕ                                        ϕ(CG )∈R∞×m
+                                          GNN                                 i                                                                       w
+Gi = (XGi ∈ Rni ×d , AGi ∈ Rni ×ni ) −−→ HGi ∈ Rni ×dL −
+                                                       −→ ϕ(HGi ) ∈ R∞×dL −
+                                                                          −−−−−      → ZGi ∈ Rm×dL −−→ zGi ∈ RdL .
+                                                                                −−−−−−
+
+
+
+node in this dimension, then we define several adaptive cen-                                  Veličković et al., 2018; Xu et al., 2018; Cai et al., 2024a;
+ters and calculate kernels between these centers and dimen-                                   Yu and Jia, 2024], which can acquire the node representa-
+sion points, leading to several advantages over other meth-                                   tion by message passing mechanism. For instance, Graph-
+ods: 1) KerRead implicitly augments the number of nodes in                                    SAGE [Hamilton et al., 2017] aggregated the sampled neigh-
+a graph to be large or even infinite through the Gaussian ker-                                borhoods of the target nodes to generate the target node rep-
+nel; 2) Graph representations are generated by computing the                                  resentations. Graph Attention Network (GAT) [Veličković
+kernel matrices so they are naturally in the same scale; 3) The                               et al., 2018] introduced the multi-attentional module mech-
+centers are trainable and the number of centers can be flexi-                                 anism into GraphSAGE. Meanwhile, many widely devel-
+bly defined. 4) KerRead adheres to the crucial property of                                    oped domains, such as machine learning [Chen et al., 2023a;
+permutation invariance, a vital characteristic for robust graph                               Fan et al., 2022; Chen et al., 2022; Fan, 2022] and data
+learning. In general, KerRead employs kernel technology to                                    mining [Cai et al., 2022; Zheng et al., 2022; Fan, 2021;
+better reflect the latent distributions of diverse node represen-                             Cai and Fan, 2022], have extensively employed numerous
+tations, which is a more powerful and scalable method.                                        GNN variants [Chen et al., 2023c; Chen et al., 2023d;
+   Our contributions are as follows.                                                          Wu et al., 2023a; Zheng et al., 2021].
+    • We propose a new paradigm to analyze and design read-                                   2.2                 Graph-level Prediction
+      out functions from the perspective of kernel functions.
+                                                                                              Graph-level tasks treat each entire graph as a sample, pos-
+    • We put forward KerRead which solves several draw-                                       ing many new challenges for GNNs. For this purpose, many
+      backs of existing methods.                                                              GNN methods were focusing on the graph-level tasks [Xu
+    • We conduct comprehensive experiments to evaluate the                                    et al., 2018; Gilmer et al., 2017; Gao and Ji, 2019; Buterez
+      proposed KerRead, including graph classification and                                    et al., 2022; Ju et al., 2022; Sun and Fan, 2024; Han et al.,
+      clustering with various GNN backbones.                                                  2022b]. For instance, [Gilmer et al., 2017] proposed a general
+                                                                                              framework for quantum chemistry representation called Mes-
+2     Related Work                                                                            sage Passing Neural Networks. GUNet [Gao and Ji, 2019]
+                                                                                              added the graph pooling and unpooling layers during graph
+2.1    Graph Neural Networks                                                                  convolution. [Luo et al., 2023] explored the semi-supervised
+Graph neural networks (GNNs) aim to learn low-dimensional                                     classification problem from a subgraph perspective. [Cai et
+and dense node representations from high-dimensional sparse                                   al., 2024a] advanced graph clustering with a novel pseudo-
+graphs while preserving the original structural information.                                  label mechanism. [Liu et al., 2022] considered the long-tailed
+Initially, GNNs were operated in the spectral domain [Bruna                                   problem in the graph classification. [Sun et al., 2023] utilized
+et al., 2014; Defferrard et al., 2016; Welling and Kipf, 2017;                                the Lovász principle to build an unsupervised graph represen-
+Wang and Zhang, 2022; Wu et al., 2024] and transformed                                        tation learning framework.
+the feature signals of the graph into the frequency domain
+through Fourier transformation and subsequently designing                                     2.3                 Readout Function
+various filters in the frequency domain, where the goal was                                   The readout function, a vital component in GNNs, pools
+to make the signal of target node more similar with its                                       the learned graph embedding matrix into a graph embed-
+neighbors. Meanwhile, other graph neural network meth-                                        ding vector for the subsequent graph classification task. The
+ods operated in the spatial domain [Hamilton et al., 2017;                                    aforementioned graph-level methods use simple and naive
+
+
+
+                                                                                       2506
+                         Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+readout functions, such as sum, mean, or max, to gener-                          • Challenge 3: How to capture latent distributions from
+ate the final graph representation vector. [Li et al., 2016;                       graphs with scarce and varying numbers of nodes?
+Itoh et al., 2022; Fan et al., 2020] proposed attention-based                 The following involves devising an adaptive center, and we
+readout functions to capture the importance of each node.                     leverage expressive kernel functions to calculate graph repre-
+[Lee et al., 2021] proposed learnable modules for readout
+                                                                              sentations, e.g., Gaussian kernel. Moreover, we put forth the
+functions to further improve their expressive power. To fur-                  concept of multi-head centers to further enhance the model’s
+ther enhance the expressiveness of readout functions, cer-                    capabilities. The overall framework is shown in Figure 1.
+tain methods incorporate techniques designed for sequence
+data types into the readout process [Navarin et al., 2019;                    Adaptive Center In graph-level tasks, although graphs
+Xu et al., 2018; Buterez et al., 2022]. There are also some                   vary, nodes of different graphs are described by features with
+hierarchical readout methods, that is, reading out smaller and                the same meaning and amount. Therefore, it makes more
+smaller graphs step by step as the graph is embedded until it is              sense to think of readout in a dimension-wise perspective than
+aggregated into a node [Zhang et al., 2018; Ying et al., 2018;                in the sample-wise one, i.e., we describe graphs by consider-
+Du et al., 2021], however, these hierarchical methods also                    ing how to express distributions in each dimension instead of
+need a readout function to gradually reduce the size of the                   directly considering fusing representations of all nodes.
+graph, so in this article, we only focus the readout function                    More specifically, HGi [:, j] in the node representations can
+which map the node embedding into graph vector directly.                      be viewed as a description or distribution for the distribu-
+                                                                              tion of graph Gi in the corresponding dimension, and these
+3     Proposed Method                                                         distributions of different graphs are naturally comparable.
+                                                                              From this view, mapping the node representation matrix into
+3.1    Notation and Problem Formulation                                       a graph representation vector can be regarded as representing
+A graph is presented as G = (A, X), where A ∈ Rn×n is the                     the distributions of each dimension by one value. Assume
+adjacency matrix, where Aij = 1 denotes that vi is connected                  there is a central dimension called center in this paper, we
+to vj and Aij = 0 otherwise. Let G = {G1 , ..., GN } be the                   can represent the distribution by calculating certain distances
+graph set. We aim to learn the graph representation vector zGi                between each dimension and the center, and our key idea is
+for each graph Gi to facilitate downstream tasks.                             employing the effective kernel method to achieve this. It is
+Encoding Graph GNNs are usually used to encode each                           obvious that the design of the center is critical in our method.
+graph and consist of some graph convolutional layers. Each                    On the one hand, one single and fixed center can not adapt
+layer is based on the message-passing mechanism, i.e., ag-                    to different graphs; On the other hand, centers of different
+gregating the neighborhood information for each target node,                  graphs can not be totally individual otherwise the graph rep-
+which is formed by two steps                                                  resentations may not be compared. For this purpose, we de-
+                                                                              sign an adaptive center which can adapt different graphs and
+             (l+1)                             (l)                           share information among graphs. First we leverage a shared
+           H̄Gi = AGGREGATE AGi , HGi ,                    (1)
+             (l+1)                    (l)  (l+1)                             model fΘ : RdL → R to generate the adaptive center as
+           HGi = COMBINE HGi , H̄Gi                ,       (2)
+                                                                                                         cGi = s · fΘ (HGi ),                    (4)
+                  (0)
+where we have HGi = XGi . For convenience in expression,
+                                                                              where s ∈ R is a learnable scale factor, and fΘ can be a
+we will use HGi ∈ Rni ×dL to denote the node embedding                        certain neural network like Multi-Layer Perceptrons (MLP)
+matrix of graph Gi at final layers in the following part.                     performed on each row of HGi and Θ is the set of learnable
+Readout Function After convolution by GNNs and getting                        parameters. Note that fΘ can also be a simple pooling func-
+node emebdding matrix HGi , a readout function is utilized to                 tion, in which Θ is the empty set. For example, the adaptive
+map HGi ∈ Rni ×dL into a graph vector zGi ∈ RdL for the                       center cGi ∈ Rni can be
+following graph classification task:                                                                                                      ⊤
+                                                                                 cGi = [s · fΘ (HGi [1, :]), · · · , s · fΘ (HGi [ni , :])] .   (5)
+        zGi = READOUT {HGi [j, :] | vj ∈ Gi } ,           (3)
+                                                                              In this way, the learning of centers is data-driven and op-
+where HGi [j, :] refers to the j-th row of Gi node embedding                  timized in conjunction with GNNs. More importantly, the
+matrix, i.e., node vj in graph Gi .                                           designed model can address graphs with different sizes as it
+                                                                              adaptively generates a center for each graph. Meanwhile, all
+3.2    Detailed Method
+                                                                              graphs share fΘ and the scale factor s, so that the training
+In this part, we will introduce our proposed KerRead, which                   process incorporates information from various graphs. These
+incorporates the principles of kernels into the realm of read-                provide bases to solve Challenge 1 and 2. After obtaining cGi
+out mechanisms. KerRead is a learnable readout function that                  with flexible size ni , i.e., the number of nodes in Gi , we can
+matches GNNs’ expressiveness well by solving the following                    calculate the kernel value between each dimension of node
+challenges of existing methods:                                               embedding and the adaptive center to obtain the final graph
+   • Challenge 1: How to ‘readout’ distinguishable graph                      vector in the following section.
+     representations in a data-driven manner?                                 Kernel Calculation Compared to node-level tasks, graphs
+   • Challenge 2: How to fairly learn graph representations                   commonly contain very scarce nodes in graph-level tasks
+     for all graphs in a unified size sample space?                           (e.g., molecules), and the number of nodes in different graphs
+
+
+
+                                                                       2507
+                                 Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+may be imbalanced. Thus, it is difficult to capture latent                                      Overall Framework The entire pipeline of graph represen-
+distributions and derive discriminative graph representations                                   tation learning on graph Gi with KerRead is formulated as
+(Challenges 3). To tackle this, we further employ a transfor-                                                 
+                                                                                                                                ⊤  GNN         
+mation function ϕ to map each column of node embedding                                                                 GNN
+                                                                                                   zGi = hΥ ϕ gΨ fW (Gi )            ϕ fW (Gi )
+and the adaptive center into augmented sample space with                                                       |        {z
+                                                                                                                       m×n′
+                                                                                                                                  } |      {z
+                                                                                                                                         n′ ×d
+                                                                                                                                                  }     (13)
+more virtual nodes:                                                                                                          i                i     L
+
+
+                                                                                                      ≜ MΥ,Ψ,W (Gi ),
+                                                    
+       ϕ(HGi ) = ϕ HGi [:, 1] , · · · , ϕ HGi [:, dL ] ,  (6)
+                                                                                                         GNN
+where HGi [:, j] denotes the j-th column of HGi , and ϕ :                                       where fW      is a certain GNN with parameter set W and
+           ′
+Rni → Rni maps a vector refers to ni nodes to a vector refers                                   we denote MΥ,Ψ,W the over-all graph representation learn-
+to ni nodes, where n′i ≫ ni . In general, explicitly designing
+    ′                                                                                           ing model with KerRead for convenience. Recall that ϕ is the
+a ϕ is cost-prohibitive, particularly when n′i is significantly                                 implicit mapping induced by the kernel function k. When k
+large or even infinite. Instead, we leverage kernel functions                                   is a Gaussian kernel, then n′i = ∞.
+k : X × X → R capable of implicitly inducing ϕ:                                                 Theorem 1. Suppose the kernel k is feature permutation in-
+                                                                                                variant, then MΥ,Ψ,W is node permutation invariant—that
+          k cGi , HGi [:, j] = ϕ(cGi )⊤ ϕ(HGi [:, j]).
+                            
+                                                            (7)                                 is, for any graph G and its any permuted counterpart G ′ ,
+Thus the final graph representation vector is:                                                  MΥ,Ψ,W (G ′ ) = MΥ,Ψ,W (G) always holds.
+                                                                                               The proof is deferred to Appendix A1 . Note that the as-
+  zGi = k cGi , HGi [:, 1] , · · · , k cGi , HGi [:, dL ] .                            (8)
+                                                                                                sumption in the theorem is very general. Many popular ker-
+There are numerous available kernel functions, each induc-                                      nels such as Gaussian kernel, Laplacian kernel, and polyno-
+ing a unique feature map ϕ. Perhaps the best-known kernel                                       mial kernels are feature permutation invariant. Theorem 1
+function is the Gaussian kernel, i.e.,                                                          indicates the permutation invariance of our proposed frame-
+                                                                                                work, which has been proven to be very critical in graph-level
+                                 ∥cGi − HGi [:, j]∥2
+                                                    
+    k(cGi , HGi [:, j]) = exp −                        , (9)                                    learning [Buterez et al., 2022].
+                                        2σ 2                                                       The training strategy of KerRead is based on the selected
+where cGi is the proposed learnable adaptive center corre-                                      GNN backbone. For the graph classification task, we em-
+sponding to Gi , and the parameter σ ∈ R is also learnable.                                     ploy a supervised GNN algorithm, using cross-entropy as the
+The mapping ϕ induced by a Gaussian kernel is infinite-                                         loss function for supervised learning. Conversely, in han-
+dimension. In our experiment, we evaluated various ker-                                         dling graph clustering tasks, we opt for an unsupervised GNN
+nel functions, including the Laplace kernel, Sigmoid kernel,                                    backbone and utilize such as InfoNCE loss [Oord et al., 2018]
+Polynomial kernel, and others. The performance results for                                      for representation learning, and then input learned graph em-
+these kernels can be found in Section 4.3.                                                      beddings into clustering algorithms, such as K-means [Lloyd,
+                                                                                                1982] or spectral clustering [Ng et al., 2001] to obtain the
+Multi-head Centers In order to enhance the richness of in-                                      clustering results. This ensures that our model can be flexibly
+formation captured from node representation HGi , relying                                       and effectively applied to different tasks.
+solely on a single center may be insufficient. To address                                          For the complexity analysis of KerRead and MΥ,Ψ,W , we
+this limitation, we further introduce the concept of multi-head                                 denote the number of graphs as N and the initial node fea-
+center, which initializes m learnable scale factors denoted as                                  ture dimension as d0 , n = max({ni }N   i=1 ) is the max number
+s = [s1 , ..., sm ]. The adaptive center matrix CGi ∈ Rni ×m is                                 of nodes and |E| = max({|Ei |}N        )
+                                                                                                                                   i=1 is the max number of
+then defined as follows:                                                                        edges among graphs, where Ei is the edge set of Gi . Consid-
+ CGi = gΨ (HGi ) = [s1 · fΘ (HGi ), · · · , sm · fΘ (HGi )], (10)                               ering an L-layer GNN, we define d = max({di }L        i=1 ) is the
+                                                                                                max hidden dimension. For the forward pass of MΥ,Ψ,W in
+where Ψ = {s, Θ} is the parameter set containing scale fac-                                     per iteration, the time complexity of KerRead is O(N nmd),
+tors and parameters of fΘ . Subsequently, the multi-head ker-                                   including adaptive centers generation and kernel calculation.
+nel matrix ZGi ∈ Rm×dL is expressed as:                                                         The overall time complexity is O(N (nd+|E|)(Ld+d0 )) with
+       
+            k CGi [:, 1], HGi [:, 1]
+                                       
+                                           ···    k CGi [:, 1], HGi [:, dL ]
+                                                                                              m ≪ d0 . The space complexity of KerRead is O(m(n + d)),
+                       ..                  ..                  ..                               and that of the overall framework is O(N ((n+d)(Ld+d0 )+
+ Z Gi =                                                                           , (11)
+                                                                                  
+                        .                    .                 .                              L|E|)). Generally, the additional costs our approach imposes
+            k CGi [:, m], HGi [:, 1]       ···    k CGi [:, m], HGi [:, dL ]
+                                                                                                on the framework are negligible.
+where ZGi is only related to the number of heads m and hid-
+den dimension dL . Finally, the fusion is performed on all                                      3.3   Connection to Existing Work
+graph representation vectors:                                                                   For brief formulation, we adopt one center vector cGi for
+                                                                                                graph Gi , meaning a feature dimension in graph Gi , and com-
+                              zGi = hΥ (ZGi ),                                        (12)      pute the j-th element of graph representation zGi as
+where hΥ : Rm → R is a fusion model and Υ is the param-                                                         zGi [j] = ϕ(cGi )⊤ ϕ(HGi [:, j]).            (14)
+eter set. As a simple example, hΥ can be a weighted sum-
+mation of {ZGi [j, :]}m
+                      j=1 , allowing for adaptive learning of
+                                                                                                   1
+                                                                                                     The appendix can be found at https://github.com/jiajunCAU/
+contributions from each center to the final graph vector.                                       KerRead/blob/master/Appendix.pdf
+
+
+
+                                                                                         2508
+                                   Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+      Backbone        Readout                 MUTAG             DD           PROTEINS              NCI1       Mutagenicity    IMDB-B       IMDB-M       Avg
+                      Sum                     86.7 (5.5)     68.8 (4.7)      73.9 (3.5)          75.8 (2.3)     78.0 (1.8)    69.9 (4.3)   48.1 (4.1)   71.6
+                      Max                     81.8 (9.7)     72.8 (4.3)      66.0 (5.7)          72.4 (3.9)     79.6 (1.7)    71.2 (4.1)   46.7 (4.3)   70.1
+                      Mean                    87.2 (7.3)     71.1 (3.0)      68.1 (4.1)          73.6 (1.8)     78.5 (2.2)    71.1 (3.3)   48.7 (3.8)   71.2
+                      Set2set                 84.0 (4.2)     74.2 (4.9)      72.5 (4.0)          80.9 (1.9)     82.0 (0.9)    69.3 (4.3)   48.5 (3.8)   73.1
+        GCN           Attention               87.2 (4.4)     71.4 (4.0)      70.5 (3.5)          74.5 (2.6)     80.2 (2.3)    72.0 (4.6)   47.1 (5.5)   71.8
+     [Welling and     Deep Sets               84.6 (4.9)     73.6 (3.3)      75.5 (5.3)          76.2 (1.9)     78.2 (1.1)    72.0 (2.9)   48.5 (2.8)   72.7
+     Kipf, 2017]      SRead                   86.1 (5.6)     68.8 (3.2)      74.1 (5.0)          75.8 (2.0)     78.4 (1.9)    70.4 (4.7)   47.6 (3.9)   71.6
+                      Set Transformer         84.6 (6.0)     69.7 (3.9)      71.7 (5.8)          80.7 (2.6)     82.0 (1.7)    72.1 (3.0)   48.3 (1.7)   72.7
+                      Janossy MLP            76.7 (11.4)     54.0 (3.4)      65.6 (4.0)          71.8 (2.1)     74.6 (1.7)    67.8 (3.3)   48.3 (3.1)   65.5
+                      Janossy GRU             84.6 (7.7)     58.6 (0.4)      59.5 (0.2)          80.2 (1.6)    73.5 (10.8)    69.3 (3.6)   46.1 (6.6)   67.4
+                      KerRead                 88.3 (6.1)     77.8 (3.0)      75.9 (2.8)          82.6 (2.0)     82.6 (2.0)    72.5 (2.4)   49.0 (2.9)   75.5
+                      Sum                     76.0 (8.8)     73.6 (3.9)      73.6 (3.1)          70.9 (3.0)     75.0 (2.1)    50.0 (0.0)   34.7 (2.3)   64.8
+                      Max                     75.5 (8.4)     74.3 (4.1)      66.9 (5.0)          62.0 (3.5)     73.3 (2.9)    50.0 (0.0)   33.3 (0.0)   62.2
+                      Mean                    74.9 (9.7)     70.3 (4.2)      70.0 (5.4)          69.1 (2.2)     75.8 (2.6)    50.0 (0.0)   33.7 (1.4)   63.4
+                      Set2set                76.0 (10.9)     75.2 (5.4)      72.6 (4.1)          73.5 (1.6)     78.7 (2.4)    50.0 (0.0)   33.3 (0.0)   65.6
+         GAT          Attention               78.7 (8.1)     67.7 (4.2)      71.4 (5.4)          69.5 (2.2)     76.9 (1.8)    50.0 (0.0)   33.3 (0.0)   63.9
+      [Veličković   Deep Sets              74.0 (12.0)     72.8 (4.6)      74.2 (4.9)          72.0 (1.7)     74.7 (1.3)    50.0 (0.0)   33.3 (0.0)   64.4
+     et al., 2018]    SRead                   74.4 (7.8)     70.0 (4.5)      73.8 (4.0)          70.2 (3.1)     74.1 (1.8)    50.2 (0.6)   34.4 (2.3)   63.9
+                      Set Transformer         74.0 (8.6)     66.8 (4.0)      73.4 (5.2)          72.9 (2.3)     79.6 (1.8)    50.0 (0.0)   33.3 (0.0)   64.3
+                      Janossy MLP             74.4 (7.4)     52.3 (3.9)      65.0 (4.7)          68.4 (1.8)     71.4 (1.7)    50.0 (0.0)   33.3 (0.0)   59.3
+                      Janossy GRU             75.5 (9.1)     69.9 (5.0)      59.5 (0.3)          75.5 (3.1)    65.3 (11.5)    49.8 (1.1)   32.9 (0.8)   61.2
+                      KerRead                 79.0 (5.4)     76.1 (3.2)      75.1 (3.2)          76.0 (2.3)     79.8 (1.8)    53.9 (3.1)   36.1 (2.5)   68.0
+                      Sum                     87.3 (5.9)     72.5 (3.2)      70.3 (4.1)          79.0 (1.6)     81.0 (1.4)    71.0 (3.7)   48.1 (2.2)   72.7
+                      Max                     82.5 (4.6)     72.4 (3.3)      72.5 (2.7)          81.0 (2.1)    82.0 (1.9)     71.2 (4.3)   48.2 (3.7)   72.8
+                      Mean                    87.2 (5.0)     69.7 (3.3)      68.1 (4.1)          77.7 (1.9)     81.2 (1.6)    71.4 (4.3)   47.3 (2.3)   71.8
+                      Set2set                 87.3 (4.2)     73.5 (5.5)      69.0 (4.4)          80.7 (1.2)     82.5 (1.8)    71.8 (4.0)   47.6 (3.3)   73.2
+         GIN          Attention               85.1 (6.1)     70.0 (5.0)      68.4 (4.5)          78.4 (1.7)     81.9 (1.5)    70.9 (3.3)   48.4 (4.6)   71.9
+      [Xu et al.,     Deep Sets               86.8 (4.8)     73.6 (3.3)      75.4 (4.8)          79.1 (2.0)     81.1 (2.3)    71.7 (2.7)   47.9 (2.6)   73.7
+        2018]         SRead                   86.2 (6.9)     69.0 (3.7)      71.7 (5.0)          77.7 (1.7)     80.1 (2.1)    70.8 (3.7)   46.5 (3.8)   71.7
+                      Set Transformer         87.3 (4.8)     66.9 (4.3)      72.1 (3.9)          79.3 (1.7)     81.7 (1.5)    71.6 (2.0)   47.5 (3.3)   72.3
+                      Janossy MLP            79.4 (11.6)     53.1 (2.7)      60.7 (3.7)          70.8 (1.8)     77.3 (1.8)    69.5 (4.6)   47.9 (2.6)   65.5
+                      Janossy GRU             82.4 (6.6)     58.6 (0.4)      61.3 (4.1)          79.3 (2.8)    60.9 (10.0)    68.2 (5.8)   36.4 (7.8)   63.9
+                      KerRead                 88.8 (7.6)     76.5 (4.2)      72.7 (5.2)          83.0 (2.7)     82.8 (2.4)    72.5 (5.5)   49.0 (4.6)   75.0
+
+
+Table 1: Graph classification accuracy (mean and std%) with three GNN backbones (GCN, GAT, and GIN), where orange shading denotes
+the best performance and blue shading indicates the second-best performance. Note that GAT performs abnormally on the IMDB-B and
+IMDB-M datasets due to the absence of features which results in meaningless attention calculations.
+
+
+Based on this formula, the process of readout can be de-                                  tings, and then we present the comparison results of our meth-
+scribed as performing a kernel on the dimensions of node                                  ods with other readout functions in different GNN backbones
+representations and a center vector:                                                      on graph classification tasks and graph clustering tasks.
+                        zGi [j] = k(cGi , HGi [:, j]).                      (15)
+                                                                                          4.1      Experimental Setting
+For example, the widely adopted Sum can be formulated as
+                                                                                          Datasets This study employs a total of 8 graph-level
+    SUM(HGi )[j] = 1⊤
+                    Gi (HGi [:, j]) = k(1Gi , HGi [:, j]) (16)                            datasets, comprising 6 chemical molecule datasets (MUTAG,
+where 1Gi is an all-one vector and a linear kernel is employed,                           DD, PROTEINS, NCI1, Mutagenicity and OGBG-Molhiv)
+thus ϕ is an identity mapping. Similarly, we have                                         and 2 social network graph datasets (IMDB-B, IMDB-M),
+                                                                                         these datasets are collected in TU datasets2 and open graph
+                                                                                          benchmark3 . The description and statistics of the dataset are
+ 
+ MEAN(HGi )[j] = k eGi , HGi [:, j] ,           
+   MAX(HGi )[j] = k Imax (HGi [:, j]), HGi [:, j] ,                         (17)          in Appendix C.
+                                                    
+   ATTENTION(HGi )[j] = k fΩatt (HGi ), HGi [:, j] ,
+ 
+                                                                                          Backbone and Baseline We use 6 widely adopted super-
+where k is a linear kernel, eGi = [1/ni , · · · , 1/ni ], and                             vised GNN methods, including three baseline GNNs (GCN
+              
+                        1,      if i = arg max(x)
+                                                                                          [Welling and Kipf, 2017], GraphSAGE [Hamilton et al.,
+    Imax (x)i =                                   . fΩatt is an attention                 2017], SGC [Wu et al., 2019]), three more expressive GNNs
+                        0,      otherwise
+                                                                                          (GAT [Veličković et al., 2018], GIN [Xu et al., 2018] and
+model to generate the attention score as the node weight. In
+                                                                                          GUNet [Gao and Ji, 2019]), and two unsupervised GNNs (In-
+this way, we innovatively explain several common readout
+                                                                                          foGraph [Sun et al., 2019] and GraphCL [You et al., 2020])
+methods from the perspective of the kernel, and find these
+                                                                                          are also used in this article. To ensure a fair comparison,
+traditional readout functions both are simplified versions and
+                                                                                          we select 10 readout functions as our baseline for compari-
+special instances of KerRead. Furthermore, this perspective
+                                                                                          son. These encompass simple readout functions (Sum, Mean,
+also explains the causes of the above challenges: Challenge
+                                                                                          Max), along with Attention [Li et al., 2016], Set2set [Vinyals
+1—fixed center; Challenge 2—non-adaptive center for all
+                                                                                          et al., 2016], Deep Sets [Zaheer et al., 2017], SRead [Lee et
+graphs; Challenge 3—linear kernel.
+                                                                                          al., 2021], Set Transformer, Janossy MLP, and Janossy GRU
+                                                                                          [Buterez et al., 2022].
+4     Experiments
+                                                                                             2
+In this section, we first introduce the benchmark datasets, the                                  https://chrsmrrs.github.io/datasets/
+                                                                                             3
+backbone, the baseline readout function, and parameter set-                                      https://ogb.stanford.edu/
+
+
+
+                                                                                 2509
+                                 Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+      Backbone       Readout                MUTAG                  DD              PROTEINS              NCI1           Mutagenicity        IMDB-B         IMDB-M        Avg
+                     Sum                    74.1 (6.3)          70.6 (3.1)         71.3 (4.8)          76.9 (3.2)         77.9 (2.0)       63.7 (5.8)      41.4 (3.6)    68.0
+                     Max                    73.9 (6.2)          70.5 (4.8)         71.2 (5.0)          75.6 (2.0)         80.5 (1.8)       63.6 (5.9)      40.9 (3.4)    68.0
+                     Mean                   76.6 (9.2)          72.9 (4.4)         71.8 (4.4)          77.7 (2.3)         80.2 (1.4)       62.2 (5.4)      40.3 (3.5)    69.1
+                     Set2set               74.4 (10.9)          72.5 (3.9)         71.2 (4.5)          74.0 (3.4)         79.8 (2.0)       64.9 (5.8)      40.0 (3.4)    68.1
+        GUNet        Attention              74.4 (6.3)          70.6 (3.1)         71.3 (4.8)          76.9 (3.2)         77.9 (2.0)       63.7 (5.8)      42.4 (3.8)    68.2
+      [Gao and Ji,   Deep Sets             75.5 (14.5)          71.6 (3.8)         75.3 (3.1)          77.2 (1.9)         78.6 (2.0)       62.0 (3.8)      38.5 (3.8)    68.4
+        2019]        SRead                 75.0 (11.1)          75.8 (2.9)         72.5 (3.1)          76.4 (2.4)         80.2 (2.3)       64.5 (4.7)      42.7 (3.8)    69.6
+                     Set Transformer       76.6 (11.4)          65.7 (3.2)         72.2 (5.3)          75.0 (2.1)         80.2 (1.6)       64.2 (2.1)      40.5 (3.8)    67.8
+                     Janossy MLP           72.9 (11.6)          56.0 (2.2)         68.4 (5.5)          75.1 (1.1)         77.4 (2.0)       62.4 (3.8)      38.5 (2.6)    64.4
+                     Janossy GRU            77.0 (6.7)          67.0 (7.9)         59.4 (0.5)          73.4 (2.5)         57.1 (3.8)       60.3 (7.9)      32.6 (8.4)    61.0
+                     KerRead                77.1 (6.0)          76.1 (4.4)         74.9 (3.5)          78.4 (3.0)         81.9 (1.4)       65.2 (3.2)      41.7 (2.5)    70.8
+                     Sum                   87.7 (5.5)           69.3 (3.8)         74.0 (3.7)          71.1 (1.8)         76.3 (1.4)       65.2 (4.8)      45.0 (2.9)    69.8
+                     Max                   82.9 (7.6)           74.9 (3.4)         74.1 (4.4)          73.7 (1.6)        79.7 (2.1)        58.8 (3.8)      44.6 (2.5)    69.8
+                     Mean                  87.8 (3.5)           70.8 (3.6)         65.1 (3.4)          67.3 (1.5)         77.3 (1.4)       65.6 (6.1)      43.5 (5.3)    68.2
+                     Set2set               85.6 (4.2)           75.6 (4.9)         73.1 (4.2)          73.2 (3.4)         81.2 (1.7)       71.1 (4.2)      46.3 (3.4)    72.3
+   GraphSAGE         Attention             87.2 (5.5)           69.9 (2.0)         69.0 (3.4)          69.2 (2.6)         79.0 (1.9)       70.1 (4.0)      45.4 (2.6)    70.0
+   [Hamilton et      Deep Sets             88.8 (4.4)           78.7 (5.1)         74.9 (3.4)          71.0 (2.5)         77.3 (2.0)       67.9 (3.4)      43.6 (3.5)    71.7
+    al., 2017]       SRead                 86.2 (4.2)           68.8 (2.9)         72.9 (4.0)          71.1 (1.8)         76.9 (1.6)       69.9 (4.5)      44.5 (4.4)    70.0
+                     Set Transformer       80.3 (4.9)           67.7 (3.7)         71.0 (3.0)          77.2 (1.3)         81.5 (1.5)       70.4 (2.4)      47.4 (2.5)    70.8
+                     Janossy MLP           77.7 (8.7)           52.0 (4.5)         64.1 (4.7)          68.7 (1.9)         73.1 (1.6)       65.1 (4.6)      44.2 (3.5)    63.6
+                     Janossy GRU           80.3 (5.9)           71.1 (2.2)         60.6 (4.2)          78.2 (2.5)        75.3 (10.0)       66.1 (8.3)      32.1 (6.9)    66.2
+                     KerRead               88.9 (6.3)           75.8 (2.9)         75.0 (2.9)          77.6 (2.7)         81.6 (1.4)       71.2 (4.7)      47.5 (3.5)    73.9
+                     Sum                    72.8 (7.9)          67.0 (2.5)         74.0 (3.3)          64.9 (1.9)        68.1 (1.8)        56.7 (6.9)      37.7 (2.3)    63.0
+                     Max                    72.8 (9.7)          72.2 (3.5)         71.4 (4.4)          69.7 (1.9)        77.2 (1.3)        58.0 (4.9)      40.3 (3.9)    65.9
+                     Mean                   73.9 (6.2)          70.3 (3.4)         66.8 (2.7)          59.3 (1.8)        67.3 (1.8)        60.6 (6.2)      39.7 (2.1)    62.6
+                     Set2set               80.2 (12.3)          72.8 (5.0)         73.0 (4.8)          67.7 (3.2)         76.2 (1.9)       61.0 (5.2)      40.9 (1.9)    67.4
+        SGC          Attention              74.9 (7.3)          69.7 (4.8)         66.8 (2.6)          61.3 (1.8)        69.4 (2.0)        59.3 (6.1)      39.4 (3.1)    63.0
+      [Wu et al.,    Deep Sets              70.7 (7.7)          76.8 (4.2)         74.5 (4.3)          64.9 (2.3)        68.3 (2.0)        61.4 (3.5)      41.1 (3.5)    65.4
+        2019]        SRead                  77.6 (8.5)          69.4 (5.0)         69.8 (3.1)          68.1 (2.4)        71.4 (2.1)        58.9 (4.8)      39.6 (3.4)    65.0
+                     Set Transformer        76.7 (9.0)          70.2 (3.6)         72.9 (4.5)          77.6 (2.9)        77.4 (1.3)        59.1 (5.3)      39.1 (3.1)    67.6
+                     Janossy MLP           78.7 (10.0)          57.4 (3.4)         63.4 (3.3)          61.7 (2.0)         66.3 (3.0)       53.5 (4.3)      37.7 (2.8)    59.8
+                     Janossy GRU            81.9 (8.3)          58.6 (0.4)         73.9 (5.0)          77.5 (1.1)        66.0 (11.7)       63.1 (2.8)      43.9 (2.5)    66.4
+                     KerRead                77.7 (9.5)          76.9 (2.8)         75.5 (2.9)          74.9 (2.4)        77.5 (2.3)        61.5 (2.6)      40.7 (3.3)    69.3
+
+
+Table 2: Graph classification accuracy (mean and std%) with three GNN backbones (GUNet, GraphSAGE, and SGC), where orange shading
+denotes the best performance and blue shading indicates the second-best performance.
+
+          Dataset        Readout                         GCN                 GIN            GraphSAGE                 GAT               GUNet             SGC           Avg
+                         Sum                       60.9 (2.9)            71.3 (1.7)             58.3 (2.3)          62.3 (2.1)         59.0 (1.7)       59.7 (2.1)      61.9
+                         Max                       58.4 (2.3)            71.8 (2.0)             66.9 (3.6)          67.7 (2.0)         66.7 (4.4)       66.1 (3.2)      66.3
+      OGBG-Molhiv        Mean                      57.4 (1.8)            70.9 (2.4)             51.0 (2.2)          60.4 (2.3)         50.3 (1.0)       50.3 (0.7)      56.7
+                         Set2set                   66.8 (1.8)            70.9 (1.3)             59.4 (1.8)          65.7 (2.0)         56.7 (2.1)       58.0 (1.1)      62.9
+   # Graphs: 41,127      Attention                 62.0 (1.7)            70.4 (1.5)             51.1 (1.9)          58.5 (3.0)         51.0 (1.6)       51.8 (2.2)      57.5
+     # Features: 9       Deep Sets                 63.3 (2.0)            52.9 (1.0)             53.1 (0.8)          62.2 (2.2)         53.4 (1.4)       52.7 (1.0)      56.3
+     # Classes: 2        SRead                     63.0 (1.4)            70.9 (2.5)             57.2 (1.2)          63.2 (2.9)         59.1 (3.4)       51.8 (2.2)      60.9
+  Avg. # Nodes: 25.5     Set Transformer           72.2 (1.6)            71.2 (1.3)             61.3 (1.4)          69.4 (1.5)         61.8 (2.2)       69.2 (2.1)      67.5
+  Avg. # Edges: 27.5     Janossy MLP               52.4 (0.6)            50.0 (0.1)             50.0 (0.1)          51.5 (1.2)         50.0 (0.0)       50.0 (0.0)      50.7
+                         Janossy GRU               71.1 (1.4)            67.9 (2.6)             68.1 (2.4)          69.1 (1.2)         67.1 (1.9)       68.1 (2.2)      68.6
+                         KerRead                   72.5 (1.6)            72.2 (1.5)             67.1 (1.2)          70.4 (0.7)         67.9 (2.6)       68.9 (2.1)      69.8
+
+
+Table 3: Graph classification AUC (mean and std%) on OGBG-Molhiv dataset with six GNN backbones, where orange shading denotes the
+best performance and blue shading indicates the second-best performance.
+
+
+Parameter Settings We employ the officially released                                            most powerful baseline Set2set readout by 2.3% and 2.4% on
+source code and adopt the parameters suggested in the re-                                       GCN and GAT backbones on average.
+spective papers for all baseline readout functions and GNN                                         (ii) KerRead has achieved the best performance on datasets
+backbones. Additional information on experimental settings                                      with different sizes. Compared to baseline readout functions,
+can be found in Appendix C.                                                                     we observe an AUC increase ranging from 0.8% to 19.2% on
+                                                                                                large-scale dataset OGBG-Molhiv on average.
+4.2      Performance Analysis                                                                      (iii) The average performance of different readouts in SGC
+In this section, we analyze the performance of graph classifi-                                  was significantly lower than GUNet and GraphSAGE, which
+cation and graph clustering.                                                                    indicates that SGC does not possess a substantial advantage in
+Graph Classifications      We conducted a comprehensive                                         graph-level tasks similar to its superiority in node-level tasks.
+analysis comparing the graph classification performance of                                         (iv) Sequence-based readout methods, such as Janossy
+KerRead with ten other readout functions across six GNN                                         GRU, Set2Set, and Set Transformer, demonstrated better av-
+backbone models on eight datasets, as detailed in Table 1,                                      erage performance on SGC. We speculate that incorporating
+Table 2, and Table 3. We obtain the following observations                                      complex sequential information can enhance the expressive
+from this comparison:                                                                           power of final graph embedding when the backbone cannot
+   (i) KerRead consistently outperforms other readout meth-                                     capture enough information.
+ods across various GNN backbones. KerRead surpasses the                                            In particular, KerRead outperforms Sum, Mean, Max, and
+
+
+
+                                                                                       2510
+                                         Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+                                                     MUTAG                      DD               PROTEINS                             NCI1          Mutagenicity     IMDB-B        IMDB-M
+    Backbone                Readout
+                                                   ACC   NMI             ACC         NMI        ACC    NMI                     ACC           NMI   ACC      NMI    ACC    NMI    ACC    NMI
+                            Sum                     71.3        14.1     59.7         2.6       60.4      2.6                  56.6          1.3   56.4     1.7    62.3    4.4   40.8          2.2
+                            Max                     80.9        25.6     60.8         4.7       61.7      2.8                  60.4          3.3   57.2     1.6    61.1    4.7   38.9          2.2
+                            Mean                    71.3        14.1     56.5         2.2       62.4      3.4                  56.8          1.4   60.0     3.5    63.1    5.2   41.0          2.4
+                            Set2set                 74.5        17.5     63.2         6.0       62.5      3.2                  59.0          2.4   62.7     4.3    62.9    5.1   40.5          3.2
+    InfoGraph               Attention               80.3        24.4     55.2         1.0       59.9      2.4                  57.3          1.6   63.3     5.1    62.9    5.0   40.3          1.8
+    [Sun et al.,            Deep Sets               76.1        33.5     60.9         3.2       62.3      3.2                  57.8          1.9   60.5     3.7    62.4    4.6   41.3          2.2
+      2019]                 SRead                   79.3        31.7     60.4         3.6       59.5      2.0                  58.3          2.0   61.1     4.2    62.6    4.6   41.5          2.5
+                            Set Transformer         73.9        16.9     70.3        13.0       59.8      2.6                  60.9          3.6   65.2     6.4    63.6    5.4   41.5          1.9
+                            Janossy MLP             62.8        11.5     55.4         1.3       58.8      0.4                  59.4          3.0   62.4     7.3    62.2    4.3   41.9          2.1
+                            Janossy GRU             70.7        26.0     58.6         0.0       59.4      0.0                  58.1          0.0   62.3     0.1    50.1    0.0   42.3          3.5
+                            KerRead                 83.5        36.4     74.8        20.5       63.4      6.3                  61.8          3.8   65.7     7.0    63.5    5.3   42.8          2.6
+                            Sum                     73.9        16.9     66.0         8.3       64.8      4.7                  57.2          1.6   61.5     3.7    57.6    2.4   42.5          3.0
+                            Max                     79.3        21.8     59.1         3.1       64.4      4.5                  58.7          2.2   61.1     3.7    62.6    5.0   39.9          3.4
+                            Mean                    73.9        16.9     66.3         8.7       64.4      4.5                  55.2          0.8   61.6     3.4    61.6    4.0   42.9          3.3
+                            Set2set                 70.7        17.5     60.7         2.5       63.4      3.2                  58.3          2.6   63.6     6.6    64.8    6.4   43.8          3.8
+     GraphCL                Attention               76.1        24.3     55.8         0.5       62.0      2.1                  57.6          2.3   61.1     3.1    60.9    4.5   39.9          3.5
+    [You et al.,            Deep Sets               75.0        18.2     58.7         4.1       61.2      2.5                  57.8          2.1   64.5     6.2    59.6    3.3   41.8          2.8
+      2020]                 SRead                   76.6        24.9     68.1        8.9        65.1      5.0                  57.1          2.1   62.2     5.8    63.9    8.6   43.9          4.0
+                            Set Transformer         79.8        32.2     53.7         0.3       58.3      1.7                  55.7          1.0   61.4     4.0    59.6    4.2   41.9          2.5
+                            Janossy MLP             72.3         9.8     52.0         0.2       62.1      2.3                  54.3          0.7   64.1     6.0    60.7    3.4   42.3          2.9
+                            Janossy GRU             81.4        33.8     55.4         0.6       65.1      4.7                  56.2          1.2   56.6     1.3    57.7    2.3   44.7          3.0
+                            KerRead                 83.5        34.1     75.4        18.7       70.9     11.2                  58.8          2.8   64.2     6.1    64.4    6.5   45.0          3.6
+
+
+Table 4: Graph clustering accuracy (ACC) and normalized mutual information (NMI) with two unsupervised GNN backbones (InfoGraph,
+GraphCL), where orange shading denotes the best performance and blue shading indicates the second-best performance.
+
+                                  MUTAG                        DD            PROTEINS                  NCI1                    Mutagenicity          IMDB-B         IMDB-M              Avg
+ Linear                          86.3 (7.9)            71.0 (5.2)            72.6 (4.2)           79.0 (2.1)                     81.3 (1.4)          71.0 (2.5)     47.2 (2.5)          72.6
+ Sigmoid                         86.0 (5.2)            73.3 (4.2)            75.0 (5.5)           80.2 (2.1)                     81.0 (1.7)          71.0 (3.0)     47.4 (2.5)          73.4
+ Polynomial                      87.5 (6.8)            72.2 (2.6)            73.0 (5.6)           80.2 (2.2)                     81.9 (1.2)          70.8 (2.6)     47.6 (2.4)          73.3
+ Laplacian                       88.1 (5.5)            76.7 (5.4)            72.5 (3.9)           82.2 (1.8)                     81.4 (1.4)          71.5 (2.4)     47.2 (1.7)          74.2
+ Gaussian                        88.3 (6.1)            77.8 (3.0)            75.9 (2.8)           82.6 (2.0)                     82.6 (2.0)          72.5 (2.4)     49.0 (2.9)          75.5
+
+Table 5: Mean accuracy (10 folds) and standard deviation on the 7 graph classification datasets with 5 kernel functions, where GCN is
+employed as the backbone.
+
+
+                   78                                                    DD (Gaussian)
+                                                                         DD (Laplacian)
+                                                                         PROTEINS (Gaussian)
+                   77
+                                                                         PROTEINS (Laplacian)
+
+                   76
+    Accurayc (%)
+
+
+
+
+                   75
+                                                                                                                Accuracy (%)
+
+
+
+
+                   74
+
+
+                   73
+
+
+                   72
+
+
+                   71
+
+
+                   70
+                        1   2     3      4         5       6         7   8       9       10
+                                             The number of headers
+                                                                                                                                                      Training Time (ms)
+Figure 2: The performance of graph classification with different ker-                                     Figure 3: Performance over training time on DD dataset. KerRead
+nels and different numbers of heads.                                                                      (1), (2), and (5) refer to KerRead with 1, 2, and 5 heads respectively.
+
+Attention in all comparisons, which aligns with earlier analy-
+                                                                                                          datasets using two classic unsupervised graph backbone net-
+sis since these readout functions are special cases of KerRead,
+                                                                                                          works, as shown in Table 4. In general, KerRead continues to
+and their expressivity is weaker than KerRead. Furthermore,
+                                                                                                          demonstrate highly competitive performance in graph clus-
+KerRead’s performance is more stable than some sequence-
+                                                                                                          tering tasks. Compared to other readout functions, we ob-
+based methods, we consider KerRead satisfies permutation
+                                                                                                          served an increase in ACC from 2.6% to 20.7% and an im-
+invariance, so it is not influenced by the order of input nodes,
+                                                                                                          provement in NMI from 2.9% to 24.9% on MUTAG when
+thus avoiding any impact on performance.
+                                                                                                          using InfoGraph. On GraphCL, ACC increased from 2.1% to
+Graph Representation Learning & Clustering To pro-                                                        12.8%, and NMI increased from 0.3% to 24.3%. However,
+vide a more comprehensive evaluation of KerRead, we con-                                                  KerRead did not achieve optimal performance on the IMDB-
+ducted graph clustering experiments on seven benchmark                                                    B and IMDB-M datasets. We speculate that this may be at-
+
+
+
+                                                                                                   2511
+                                         Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+                     100
+                                                                                          U1          the number of heads can enhance performance, but an exces-
+                                                                                          U2          sive number may lead to detrimental effects on the model.
+                      90                                                                  U3
+                                                                                          U4
+                                                                                                      Training Time We conducted an efficiency analysis com-
+                      80                                                                              paring our model with a baseline readout. As illustrated in
+                                                                                                      Figure 3, we depict the training time (measured in millisec-
+      Accuracy (%)
+
+
+
+
+                      70                                                                              onds per epoch) variation of KerRead under 1, 2, and 5 heads,
+                                                                                                      as well as other methods. Generally, KerRead requires more
+                      60                                                                              training time as the number of heads increases. However,
+                                                                                                      its training time remains closely aligned with the linear read-
+                      50                                                                              out function and consistently stays below the complex read-
+                                                                                                      out functions (Set Transformer, Janossy GRU), however, Ker-
+                      40                                                                              Read achieves significant performance improvements com-
+                           MUTAG   DD   PROTEINS Mutagenicity   NCI1   IMDB-BINARYIMDB-MULTI
+                                                   Dataset                                            pared to these linear readout functions. Furthermore, Ker-
+                                                                                                      Read demonstrates optimal performance on the DD dataset,
+Figure 4: The graph classification performance of KerRead with dif-                                   where each epoch takes approximately 4.1% longer than the
+ferent learning strategies. (U1: both c and σ are learnable, U2: only                                 linear readout function, which indicates that the gains in ac-
+c is learnable while σ is fixed, U3: only σ is learnable while c is                                   curacy achieved by KerRead outweigh the marginal pressure
+fixed, U4: both c and σ are fixed.)                                                                   introduced by the training time.
+                                                                                                      Learning Strategies We mentioned that the parameters c
+tributed to insufficient initial features in these two datasets,                                      and σ in the model are learnable as shown in Eq (9) when em-
+leading to the inability to capture enough information when                                           ploying Gaussian kernel. However, what impact would ensue
+computing the kernel values between each dimension of node                                            if these parameters were fixed? As illustrated in Figure 4,
+embedding and the adaptive center.                                                                    we present the performance comparison of these four update
+4.3                  Sensitivity Analysis                                                             strategies across seven datasets. Our observations indicate
+                                                                                                      that, on average, the optimal performance is attained when
+In this section, we will focus on conducting a sensitivity anal-                                      both parameters are learnable. Across the seven datasets, U1
+ysis of the parameters of our proposed KerRead. This in-                                              outperforms U4 by 1.67%, 3.48%, 2.33%, 0.24%, 0.07%,
+cludes examining the impact of varying the number of heads,                                           1.6%, and 1.47%, respectively. This suggests that concur-
+different kernel functions, distinct update strategies on the fi-                                     rently updating both parameters indeed facilitates the learn-
+nal results, and the efficiency analysis.                                                             ing of a superior model.
+Kernel Function Selection As depicted in Figure 2, we an-
+alyze two common kernel functions, namely the Laplace ker-                                            4.4    Supplementary Experiment
+nel function and the Gaussian kernel, on the DD and PRO-
+                                                                                                      Due to space constraints, we have included the other curial
+TEINS datasets. Overall, the performance of the Gaussian
+                                                                                                      experiments in Appendix C, which include the t-SNE visual-
+kernel surpasses that of the Laplace kernel. Besides, we have
+                                                                                                      izations.
+further compared the graph classification performance of five
+commonly used kernel functions on seven datasets. The ex-
+perimental results are shown in Table 5, revealing the fol-                                           5     Conclusions
+lowing observations: (i) Overall, KerRead outperforms most                                            This work proposed a novel graph pooling strategy called ker-
+baselines regardless of the kernel function used. (ii) The use                                        nel readout. The main idea is to transfer the node embedding
+of non-linear kernel functions yields better performance com-                                         from the sample space with limited nodes to the augmented
+pared to linear kernel functions. Specifically, the Gaussian                                          sample space with infinite virtual nodes, and then generate
+kernel outperforms the Linear kernel by an average accuracy                                           the graph vector by kernel methods. The strategy has been
+increase of 2.9%.                                                                                     applied to six supervised GNN backbones and two unsuper-
+The Number of Heads To explore the impact of the num-                                                 vised GNN backbones and outperformed previous methods
+ber of heads on the results, we present the graph classifica-                                         of graph pooling, on eight graph datasets.
+tion results on the DD and PROTEINS datasets under differ-
+ent numbers of heads as shown in Figure 2. Overall, optimal
+performance is observed when the number of heads ranges
+                                                                                                      Acknowledgements
+from 2 to 6. However, as the number of heads increases,                                               This work was partially supported by the National Natu-
+there may be a negative impact on performance. Specifically,                                          ral Science Foundation of China under Grant No.62376236,
+the Laplace kernel achieves optimal performance on the DD                                             the General Program JCYJ20210324130208022 of Shenzhen
+dataset when the number of heads is 5, surpassing the perfor-                                         Fundamental Research, the Guangdong Key Lab of Mathe-
+mance at 1 and 10 heads by 2.04% and 2.51%, respectively.                                             matical Foundations for Artificial Intelligence (PPA00003),
+Similarly, the Gaussian kernel attains its best performance                                           the funding UDF01001770 of The Chinese University of
+on the DD dataset with 5 heads, exhibiting improvements                                               Hong Kong, Shenzhen, and the National Natural Science
+of 3.46% and 3.88% compared to 1 and 10 heads, respec-                                                Foundation for Young Scholars of China under Grants
+tively. These findings suggest that an appropriate increase in                                        No.61502500 and No.61602500.
+
+
+
+                                                                                               2512
+                        Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+Contribution Statement                                                       [Fan et al., 2020] Xiaolong Fan, Maoguo Gong, Yu Xie,
+Jiajun Yu and Zhihao Wu contributed equally as co-first au-                     Fenlong Jiang, and Hao Li. Structured self-attention ar-
+thors.                                                                          chitecture for graph-level representation learning. Pattern
+                                                                                Recognition, 100:107084, 2020.
+References                                                                   [Fan et al., 2022] Jicong Fan, Yiheng Tu, Zhao Zhang,
+                                                                                Mingbo Zhao, and Haijun Zhang. A simple approach to
+[Bruna et al., 2014] Joan Bruna, Wojciech Zaremba, Arthur
+                                                                                automated spectral clustering. In NeurIPS, pages 9907–
+  Szlam, and Yann LeCun. Spectral networks and deep lo-                         9921, 2022.
+  cally connected networks on graphs. In ICLR, 2014.
+                                                                             [Fan, 2021] Jicong Fan. Large-scale subspace clustering via
+[Buterez et al., 2022] David Buterez, Jon Paul Janet,                           k-factorization. In SIGKDD, pages 342–352, 2021.
+  Steven J Kiddle, Dino Oglic, and Pietro Liò. Graph neural
+  networks with adaptive readouts. In NeurIPS, pages                         [Fan, 2022] Jicong Fan. Multi-mode deep matrix and tensor
+  19746–19758, 2022.                                                            factorization. In ICLR, 2022.
+[Cai and Fan, 2022] Jinyu Cai and Jicong Fan. Perturbation                   [Fout et al., 2017] Alex Fout, Jonathon Byrd, Basir Shariat,
+  learning based anomaly detection. In NeurIPS, 2022.                           and Asa Ben-Hur. Protein interface prediction using graph
+                                                                                convolutional networks. In NeurIPS, 2017.
+[Cai et al., 2022] Jinyu Cai, Jicong Fan, Wenzhong Guo,
+                                                                             [Gao and Ji, 2019] Hongyang Gao and Shuiwang Ji. Graph
+  Shiping Wang, Yunhe Zhang, and Zhao Zhang. Efficient
+                                                                                u-nets. In ICML, pages 2083–2092, 2019.
+  deep embedded subspace clustering. In CVPR, pages 21–
+  30, 2022.                                                                  [Gasteiger et al., 2021] Johannes Gasteiger, Florian Becker,
+[Cai et al., 2024a] Jinyu Cai, Yi Han, Wenzhong Guo, and                        and Stephan Günnemann. Gemnet: Universal directional
+                                                                                graph neural networks for molecules. In NeurIPS, pages
+  Jicong Fan. Deep graph-level clustering using pseudo-
+                                                                                6790–6802, 2021.
+  label-guided mutual information maximization network.
+  NCAA, pages 1–16, 2024.                                                    [Gilmer et al., 2017] Justin Gilmer, Samuel S Schoenholz,
+                                                                                Patrick F Riley, Oriol Vinyals, and George E Dahl. Neural
+[Cai et al., 2024b] Jinyu Cai, Yunhe Zhang, Shiping Wang,
+                                                                                message passing for quantum chemistry. In ICML, pages
+  Jicong Fan, and Wenzhong Guo. Wasserstein embedding                           1263–1272, 2017.
+  learning for deep clustering: A generative approach. IEEE
+  T-MM, 2024.                                                                [Hamilton et al., 2017] Will Hamilton, Zhitao Ying, and Jure
+                                                                                Leskovec. Inductive representation learning on large
+[Chen et al., 2022] Man-Sheng Chen, Tuo Liu, Chang-Dong                         graphs. In NeurIPS, 2017.
+  Wang, Dong Huang, and Jian-Huang Lai. Adaptively-
+  weighted integral space for fast multiview clustering. In                  [Han et al., 2022a] Kai Han, Yunhe Wang, Jianyuan Guo,
+  MM, pages 3774–3782, 2022.                                                    Yehui Tang, and Enhua Wu. Vision gnn: An image is
+                                                                                worth graph of nodes. In NeurIPS, pages 8291–8303,
+[Chen et al., 2023a] Man-Sheng Chen, Jia-Qi Lin, Chang-                         2022.
+  Dong Wang, Wu-Dong Xi, and Dong Huang. On regular-
+                                                                             [Han et al., 2022b] Xiaotian Han, Zhimeng Jiang, Ninghao
+  izing multiple clusterings for ensemble clustering by graph
+  tensor learning. In MM, pages 3069–3077, 2023.                                Liu, and Xia Hu. G-mixup: Graph data augmentation for
+                                                                                graph classification. In ICML, pages 8230–8248, 2022.
+[Chen et al., 2023b] Zhaoliang Chen, Lele Fu, Jie Yao, Wen-
+                                                                             [Itoh et al., 2022] Takeshi D Itoh, Takatomi Kubo, and
+  zhong Guo, Claudia Plant, and Shiping Wang. Learnable
+                                                                                Kazushi Ikeda. Multi-level attention pooling for graph
+  graph convolutional network and feature fusion for multi-
+                                                                                neural networks: Unifying graph representations with
+  view learning. Information Fusion, 95:109–119, 2023.
+                                                                                multiple localities. Neural Networks, 145:356–373, 2022.
+[Chen et al., 2023c] Zhaoliang      Chen,     Zhihao     Wu,                 [Jin et al., 2021] Ming Jin, Yizhen Zheng, Yuan-Fang Li,
+  Zhenghong Lin, Shiping Wang, Claudia Plant, and
+                                                                                Chen Gong, Chuan Zhou, and Shirui Pan. Multi-scale
+  Wenzhong Guo. Agnn: Alternating graph-regularized
+                                                                                contrastive siamese networks for self-supervised graph
+  neural networks to alleviate over-smoothing.          IEEE
+                                                                                representation learning. In International Joint Confer-
+  T-NNLS, pages 1–13, 2023.
+                                                                                ence on Artificial Intelligence 2021, pages 1477–1483. As-
+[Chen et al., 2023d] Zhaoliang Chen, Zhihao Wu, Shiping                         sociation for the Advancement of Artificial Intelligence
+  Wang, and Wenzhong Guo. Dual low-rank graph autoen-                           (AAAI), 2021.
+  coder for semantic and topological networks. In AAAI,                      [Ju et al., 2022] Wei Ju, Xiao Luo, Meng Qu, Yifan Wang,
+  pages 4191–4198, 2023.                                                        Chong Chen, Minghua Deng, Xian-Sheng Hua, and Ming
+[Defferrard et al., 2016] Michaël Defferrard, Xavier Bres-                     Zhang. Tgnn: A joint semi-supervised framework for
+  son, and Pierre Vandergheynst. Convolutional neural net-                      graph-level classification. In IJCAI, 2022.
+  works on graphs with fast localized spectral filtering. In                 [Kojima et al., 2020] Ryosuke Kojima, Shoichi Ishida,
+  NeurIPS, 2016.                                                                Masateru Ohta, Hiroaki Iwata, Teruki Honma, and
+[Du et al., 2021] Jinlong Du, Senzhang Wang, Hao Miao,                          Yasushi Okuno. kgcn: a graph-based deep learning frame-
+  and Jiaqiang Zhang. Multi-channel pooling graph neural                        work for chemical structures. Journal of Cheminformatics,
+  networks. In IJCAI, pages 1442–1448, 2021.                                    12:1–10, 2020.
+
+
+
+                                                                      2513
+                          Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI-24)
+
+
+
+[Lee et al., 2021] Dongha Lee, Su Kim, Seonghyeon Lee,                         [Wu et al., 2023a] Zhihao Wu, Xincan Lin, Zhenghong Lin,
+   Chanyoung Park, and Hwanjo Yu. Learnable structural                            Zhaoliang Chen, Yang Bai, and Shiping Wang. Inter-
+   semantic readout for graph classification. In ICDM, pages                      pretable graph convolutional network for multi-view semi-
+   1180–1185, 2021.                                                               supervised learning. IEEE T-MM, 25:8593–8606, 2023.
+[Li et al., 2016] Yujia Li,        Richard Zemel,          Marc                [Wu et al., 2023b] Zhihao Wu, Zhao Zhang, and Jicong Fan.
+   Brockschmidt, and Daniel Tarlow. Gated graph se-                               Graph convolutional kernel machine versus graph convo-
+   quence neural networks. In ICLR, 2016.                                         lutional networks. In NeurIPS, 2023.
+[Liu et al., 2020] Yi Liu, Hao Yuan, Lei Cai, and Shuiwang                     [Wu et al., 2024] Zhihao Wu, Zhaoliang Chen, Shide Du,
+   Ji. Deep learning of high-order interactions for protein                       Sujia Huang, and Shiping Wang. Graph convolutional
+   interface prediction. In SIGKDD, pages 679–687, 2020.                          network with elastic topology. Pattern Recognition,
+[Liu et al., 2022] Zemin Liu, Qiheng Mao, Chenghao Liu,                           151:110364, 2024.
+   Yuan Fang, and Jianling Sun. On size-oriented long-tailed                   [Xu et al., 2018] Keyulu Xu, Weihua Hu, Jure Leskovec, and
+   graph classification of graph neural networks. In WWW,                         Stefanie Jegelka. How powerful are graph neural net-
+   pages 1506–1516, 2022.                                                         works? In ICLR, 2018.
+[Lloyd, 1982] Stuart Lloyd. Least squares quantization in                      [Ying et al., 2018] Zhitao Ying, Jiaxuan You, Christopher
+   pcm. IEEE T-IT, 28(2):129–137, 1982.                                           Morris, Xiang Ren, Will Hamilton, and Jure Leskovec.
+[Luo et al., 2023] Xiao Luo, Yusheng Zhao, Yifang Qin, Wei                        Hierarchical graph representation learning with differen-
+   Ju, and Ming Zhang. Towards semi-supervised universal                          tiable pooling. In NeurIPS, 2018.
+   graph classification. IEEE T-KDE, 2023.                                     [You et al., 2020] Yuning You, Tianlong Chen, Yongduo Sui,
+[Navarin et al., 2019] Nicolò Navarin, Dinh Van Tran, and                        Ting Chen, Zhangyang Wang, and Yang Shen. Graph con-
+   Alessandro Sperduti. Universal readout for graph convo-                        trastive learning with augmentations. In NeurIPS, pages
+   lutional neural networks. In IJCNN, pages 1–7, 2019.                           5812–5823, 2020.
+[Ng et al., 2001] Andrew Ng, Michael Jordan, and Yair                          [Yu and Jia, 2023] Jiajun Yu and Adele Lu Jia. Mlgal:
+   Weiss. On spectral clustering: Analysis and an algorithm.                      Multi-level label graph adaptive learning for node clus-
+   In NeurIPS, 2001.                                                              tering in the attributed graph. Knowledge-Based Systems,
+[Oord et al., 2018] Aaron van den Oord, Yazhe Li, and Oriol                       278:110876, 2023.
+   Vinyals. Representation learning with contrastive predic-                   [Yu and Jia, 2024] Jiajun Yu and Adele Lu Jia. Agcl: Adap-
+   tive coding. arXiv preprint arXiv:1807.03748, 2018.                            tive graph contrastive learning for graph representation
+[Sun and Fan, 2024] Yan Sun and Jicong Fan. Mmd graph                             learning. Neurocomputing, 566:127019, 2024.
+   kernel: Effective metric learning for graphs via maximum                    [Zaheer et al., 2017] Manzil Zaheer, Satwik Kottur, Siamak
+   mean discrepancy. In ICLR, 2024.                                               Ravanbakhsh, Barnabas Poczos, Russ R Salakhutdinov,
+[Sun et al., 2019] Fan-Yun Sun, Jordan Hoffman, Vikas                             and Alexander J Smola. Deep sets. In NeurIPS, 2017.
+   Verma, and Jian Tang. Infograph: Unsupervised and semi-                     [Zhang et al., 2018] Muhan Zhang, Zhicheng Cui, Marion
+   supervised graph-level representation learning via mutual                      Neumann, and Yixin Chen. An end-to-end deep learning
+   information maximization. In ICLR, 2019.                                       architecture for graph classification. In AAAI, 2018.
+[Sun et al., 2023] Ziheng Sun, Chris Ding, and Jicong Fan.                     [Zhang et al., 2024] Yunhe Zhang, Yan Sun, Jinyu Cai, and
+   Lovász principle for unsupervised graph representation                        Jicong Fan. Deep orthogonal hypersphere compression for
+   learning. In NeurIPS, 2023.                                                    anomaly detection. In ICLR, 2024.
+[Veličković et al., 2018] Petar Veličković, Guillem Cucurull,              [Zheng et al., 2021] Yizhen Zheng, Vincent CS Lee, Zong-
+   Arantxa Casanova, Adriana Romero, Pietro Liò, and                             han Wu, and Shirui Pan. Heterogeneous graph at-
+   Yoshua Bengio. Graph attention networks. In ICLR, 2018.                        tention network for small and medium-sized enterprises
+[Vinyals et al., 2016] Oriol Vinyals, Samy Bengio, and Man-                       bankruptcy prediction. In Pacific-Asia Conference on
+   junath Kudlur. Order matters: Sequence to sequence for                         Knowledge Discovery and Data Mining, pages 140–151.
+   sets. In ICLR, 2016.                                                           Springer, 2021.
+[Wang and Zhang, 2022] Xiyuan Wang and Muhan Zhang.                            [Zheng et al., 2022] Yizhen Zheng, Shirui Pan, Vincent Lee,
+   How powerful are spectral graph neural networks. In                            Yu Zheng, and Philip S Yu. Rethinking and scaling up
+   ICML, pages 23341–23362, 2022.                                                 graph contrastive learning: An extremely efficient ap-
+[Welling and Kipf, 2017] Max Welling and Thomas N Kipf.                           proach with group discrimination. In NeurIPS, pages
+                                                                                  10809–10820, 2022.
+   Semi-supervised classification with graph convolutional
+   networks. In ICLR, 2017.                                                    [Zheng et al., 2023] Yizhen Zheng, He Zhang, Vincent Lee,
+[Wu et al., 2019] Felix Wu, Amauri Souza, Tianyi Zhang,                           Yu Zheng, Xiao Wang, and Shirui Pan.               Finding
+                                                                                  the missing-half: Graph complementary learning for
+   Christopher Fifty, Tao Yu, and Kilian Weinberger. Sim-
+                                                                                  homophily-prone and heterophily-prone graphs. In ICML,
+   plifying graph convolutional networks. In ICML, pages
+                                                                                  pages 42492–42505, 2023.
+   6861–6871, 2019.
+
+
+
+                                                                        2514
+

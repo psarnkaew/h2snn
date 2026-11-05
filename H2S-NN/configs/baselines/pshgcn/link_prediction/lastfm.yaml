@@ -1,0 +1,29 @@
+model: pshgcn
+task: link_prediction
+dataset: lastfm
+source: PSHGCN/hgb-lp/training.py argparse defaults (the script their README invokes as
+  `python training.py --dataset LastFM`)
+notes: |
+  Their README states these parameters "correspond to the results presented in the paper",
+  and ships a separate runner per dataset with different values, so this is dataset-specific
+  published tuning rather than a single default block. Renames: wd -> weight_decay,
+  epoch -> epochs, patience -> early_stopping, decode -> decoder_type, output_dim ->
+  embed_dim (the width lin2 emits, which the decoder scores in).
+
+  The same README warns that "the same parameters can yield widely varying results when run
+  on different machines". We report what we measure under these settings rather than tuning
+  until the paper's number is reproduced.
+params:
+  K: 1
+  emb_dim: 256
+  hidden: 128
+  embed_dim: 16
+  input_drop: 0.5
+  dropout: 0.6
+  lr: 0.0005
+  weight_decay: 0.8
+  prop_lr: 0.05
+  prop_wd: 0.00005
+  decoder_type: dot
+  epochs: 100
+  early_stopping: 50

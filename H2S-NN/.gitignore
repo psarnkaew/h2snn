@@ -1,0 +1,80 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+*.so
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Editors and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+~$*
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.aws/
+
+# Local experiment outputs and tracking logs
+/wandb/
+/experiments/
+/folds/*.npz
+*.log
+*.jsonl
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.pickle
+*.h5
+*.joblib
+
+# Downloaded datasets and archives
+/data/
+/tud-data/
+*.zip
+*.tar
+*.tar.gz
+
+# Temporary workspace and Codex/test artifacts
+/tmp/
+/tmp*/
+/.tmp*/
+/.codex_render/
+/.pycache_check/
+/pytest-cache-files-*/
+
+# Jupyter and common build outputs
+.ipynb_checkpoints/
+build/
+dist/
+*.egg-info/
+
+# LaTeX auxiliary files (keep .tex, .bib, and source figures)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+

@@ -1,0 +1,20 @@
+model: hetero2net
+task: node_classification
+dataset: dblp
+source: 'Hetero2Net/README.md Reproduction: `python main.py --dataset DBLP --dropout
+  0.5 --lr 0.001 --beta 0.2 --alpha 0. --mask_lp --p 0.7`'
+notes: 'Flags absent from the command are main.py argparse defaults. NOTE: these were
+  tuned under the vendor''s RandomNodeSplit(0.2/0.2) 60/20/20 partition, not HGB''s
+  official split, so they are a starting point rather than a like-for-like transfer.'
+params:
+  dropout: 0.5
+  lr: 0.001
+  beta: 0.2
+  alpha: 0.0
+  mask_lp: true
+  p: 0.7
+  hidden: 128
+  r: 0.5
+  weight_decay: 0.0
+  epochs: 50
+  early_stopping: 50

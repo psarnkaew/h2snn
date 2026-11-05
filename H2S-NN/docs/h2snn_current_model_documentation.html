@@ -1,0 +1,1730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>H2S-NN Current Model Documentation</title>
+  <style>
+    :root {
+      --ink: #172026;
+      --muted: #5d6b73;
+      --paper: #fbfcfd;
+      --panel: #ffffff;
+      --line: #d8e0e5;
+      --blue: #1f5f8b;
+      --teal: #0b7a75;
+      --green: #417a3d;
+      --red: #a64036;
+      --amber: #9a6a12;
+      --lavender: #6b5b95;
+      --code-bg: #eef3f5;
+      --shadow: 0 10px 28px rgba(23, 32, 38, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      padding: 0.1rem 0.32rem;
+      border-radius: 4px;
+      background: var(--code-bg);
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0f1820;
+      color: #edf5f7;
+      line-height: 1.45;
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: 0.88rem;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid var(--line);
+      background: #f3f7f8;
+      padding: 1.35rem 1rem;
+    }
+
+    aside .label {
+      margin: 0 0 0.6rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    aside h2 {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    nav a {
+      display: block;
+      padding: 0.42rem 0.55rem;
+      border-radius: 6px;
+      color: #314047;
+      font-size: 0.92rem;
+    }
+
+    nav a:hover {
+      background: #e5edf0;
+      text-decoration: none;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      padding: 2rem clamp(1rem, 3.8vw, 3.5rem) 4rem;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1.35rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.9rem;
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.1rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.85rem;
+      padding: 0.25rem 0.62rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: #314047;
+      font-size: 0.84rem;
+      font-weight: 650;
+    }
+
+    section {
+      margin: 2rem 0 2.5rem;
+    }
+
+    h2 {
+      margin: 0 0 0.9rem;
+      font-size: 1.55rem;
+      line-height: 1.18;
+    }
+
+    h3 {
+      margin: 1.35rem 0 0.55rem;
+      font-size: 1.08rem;
+      line-height: 1.22;
+    }
+
+    p {
+      margin: 0.55rem 0;
+    }
+
+    ul,
+    ol {
+      margin: 0.55rem 0 0.7rem 1.25rem;
+      padding: 0;
+    }
+
+    li {
+      margin: 0.28rem 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .span-4 {
+      grid-column: span 4;
+    }
+
+    .span-6 {
+      grid-column: span 6;
+    }
+
+    .span-8 {
+      grid-column: span 8;
+    }
+
+    .span-12 {
+      grid-column: span 12;
+    }
+
+    .callout {
+      border-left: 4px solid var(--blue);
+      border-radius: var(--radius);
+      background: #eef6fb;
+      padding: 0.95rem 1rem;
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: #fff8ea;
+    }
+
+    .callout.danger {
+      border-left-color: var(--red);
+      background: #fff2f0;
+    }
+
+    .callout.success {
+      border-left-color: var(--green);
+      background: #eff8ef;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 0.25rem 0.25rem 0;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: #e8eff2;
+      color: #344249;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tag.red {
+      background: #ffe7e3;
+      color: var(--red);
+    }
+
+    .tag.green {
+      background: #e5f4e4;
+      color: var(--green);
+    }
+
+    .tag.amber {
+      background: #fff1d6;
+      color: var(--amber);
+    }
+
+    .tag.blue {
+      background: #e5f2fb;
+      color: var(--blue);
+    }
+
+    .tag.purple {
+      background: #eeeaf8;
+      color: var(--lavender);
+    }
+
+    .pipeline {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+      gap: 0.85rem;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 0.8rem;
+    }
+
+    .stage-num {
+      display: grid;
+      place-items: center;
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      font-weight: 800;
+    }
+
+    .stage h3 {
+      margin-top: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 0.72rem 0.78rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    th {
+      background: #edf4f6;
+      color: #263238;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .status-ok {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .status-risk {
+      color: var(--amber);
+      font-weight: 800;
+    }
+
+    .status-bug {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .update-box {
+      border: 1px dashed #9fb1ba;
+      border-radius: var(--radius);
+      background: #f8fbfc;
+      padding: 1rem;
+    }
+
+    .toc-note {
+      margin-top: 1rem;
+      padding: 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        display: block;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.25rem;
+      }
+
+      .span-4,
+      .span-6,
+      .span-8 {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        padding: 1.25rem 1rem 3rem;
+      }
+
+      nav {
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-num {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside>
+      <p class="label">Living Document</p>
+      <h2>H2S-NN Current Model Documentation</h2>
+      <nav aria-label="Document navigation">
+        <a href="#snapshot">Snapshot</a>
+        <a href="#definition">What It Is</a>
+        <a href="#pipeline">Current Pipeline</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#discovery">Schema Discovery</a>
+        <a href="#research-position">Research Position</a>
+        <a href="#benefits">Benefits</a>
+        <a href="#limitations">Limitations And Bugs</a>
+        <a href="#validation">Validation Plan</a>
+        <a href="#update-log">Update Log</a>
+      </nav>
+      <div class="toc-note">
+        Update this file whenever code, experiments, theory, or reviewer-facing claims change.
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div class="eyebrow">Heterophilic Heterogeneous Sheaf-Hodge Neural Network</div>
+        <h1>H2S-NN Current Model Documentation</h1>
+        <p class="subtitle">
+          A clear, code-grounded explanation of the current H2S-NN model, its research value,
+          and the implementation limitations that must be fixed before making strong paper claims.
+        </p>
+        <div class="meta-row">
+          <span class="pill">Document version: 0.2</span>
+          <span class="pill">Created: 2026-07-04</span>
+          <span class="pill">Updated: 2026-07-06</span>
+          <span class="pill">Project root: H2S-NN_test</span>
+          <span class="pill">Status: living documentation</span>
+        </div>
+      </header>
+
+      <section id="snapshot">
+        <h2>Snapshot</h2>
+        <div class="grid">
+          <div class="card span-4">
+            <h3>Current Core</h3>
+            <p>
+              H2S-NN performs learned sheaf-Hodge diffusion on heterogeneous graphs. It learns
+              typed node-to-edge maps, edge-to-face maps, node and edge states, and a node-level
+              readout for classification.
+            </p>
+            <span class="tag green">Implemented</span>
+            <span class="tag blue">Code-backed</span>
+          </div>
+
+          <div class="card span-4">
+            <h3>Main Novelty</h3>
+            <p>
+              Meta-path instances are intended to become higher-order face-like structures that
+              affect the edge Hodge operator through <code>&delta;<sub>1</sub></code>, rather than only
+              serving as semantic aggregation channels.
+            </p>
+            <span class="tag purple">Research claim</span>
+            <span class="tag amber">Needs formal cleanup</span>
+          </div>
+
+          <div class="card span-4">
+            <h3>Exact Cochain Condition (Road A)</h3>
+            <p>
+              Closure edges are now <strong>first-class 1-cells</strong> inside the edge list, so they
+              enter <code>&delta;<sub>0</sub></code> (and hence <code>L0</code>) like any data edge;
+              <code>CoboundaryOps.closure_L0</code> is <strong>deleted</strong>. <code>&delta;<sub>1</sub></code>
+              spans the full boundary cycle, and edge-to-face maps are built by transport from one free
+              per-instance map <code>A_f</code>, making them functorial. Consequently
+              <code>&delta;<sub>1</sub>&middot;&delta;<sub>0</sub> = 0</code> holds <strong>identically</strong>
+              &mdash; measured at ~1e-7 relative (float32 roundoff) on ACM/DBLP/IMDB and AMPSS.
+              Faces are simple paths; uniform <code>+1</code> signs are asserted, not assumed.
+            </p>
+            <span class="tag green">Fixed</span>
+            <span class="tag blue">Tested</span>
+          </div>
+        </div>
+
+        <div class="callout warning" style="margin-top: 1rem;">
+          <strong>Research hygiene note:</strong>
+          this document separates what the code currently does from what the method can claim
+          after fixes and validation. That separation should be preserved in paper writing.
+        </div>
+      </section>
+
+      <section id="definition">
+        <h2>What H2S-NN Is</h2>
+        <p>
+          <strong>One-sentence definition:</strong>
+          H2S-NN is a heterogeneous sheaf-Hodge neural network that turns selected typed path
+          instances into higher-order face-like structures and uses them to shape diffusion over
+          node and edge cochains.
+        </p>
+
+        <p>
+          The model starts from a heterogeneous information network with typed nodes and typed
+          directed edges. It embeds all nodes into a shared hidden dimension, learns sheaf
+          restriction maps for relation-aware node-to-edge comparison, learns edge-to-face maps
+          from ordered path instances, applies Hodge-style diffusion, and predicts labels for a
+          target node type.
+        </p>
+
+        <div class="grid">
+          <div class="card span-6">
+            <h3>What It Is Not</h3>
+            <ul>
+              <li>It is not just HAN with extra meta-path attention.</li>
+              <li>It is not just HGT with typed relation attention.</li>
+              <li>It is not only a meta-path search method.</li>
+              <li>It should not yet be described as a fully validated automatic topology learner.</li>
+            </ul>
+          </div>
+
+          <div class="card span-6">
+            <h3>Best Reviewer-Facing Framing</h3>
+            <p>
+              Given typed schemas or a candidate schema pool, H2S-NN instantiates path instances
+              as higher-order structures and performs learned sheaf-Hodge diffusion over the
+              resulting heterogeneous node-edge-face incidence system.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="pipeline">
+        <h2>Current Pipeline</h2>
+        <div class="pipeline">
+          <div class="stage">
+            <div class="stage-num">1</div>
+            <div>
+              <h3>Load Heterogeneous Dataset</h3>
+              <p>
+                <code>src/data/dataset.py</code> loads ACM, DBLP, or IMDB through PyTorch Geometric,
+                flattens heterogeneous node and edge stores, and preserves node type and relation
+                type metadata.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">2</div>
+            <div>
+              <h3>Build Node Features And Label-Derived Metrics</h3>
+              <p>
+                <code>src/data/preprocessing.py</code> pads features to a common dimension, performs
+                training-label-only propagation, computes relation metrics, and appends those
+                metrics to node features.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">3</div>
+            <div>
+              <h3>Create Face Groups From Schemas</h3>
+              <p>
+                In manual mode, configured meta-path templates such as <code>PAP</code>, <code>PSP</code>,
+                <code>APA</code>, and <code>MAM</code> are enumerated or sampled into concrete path
+                instances. In auto mode, a candidate schema pool is generated from the type graph.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">4</div>
+            <div>
+              <h3>Encode Nodes And Relations</h3>
+              <p>
+                <code>TypeSpecificNodeEncoder</code> maps typed node features into a shared hidden
+                space, while relation IDs are embedded using a learnable relation embedding table.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">5</div>
+            <div>
+              <h3>Learn Node-To-Edge Sheaf Maps</h3>
+              <p>
+                <code>NodeToEdgeSheaf</code> produces source and target restriction maps for each
+                edge. These maps define <code>&delta;<sub>0</sub></code>, which measures relation-aware
+                endpoint disagreement.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">6</div>
+            <div>
+              <h3>Learn Edge-To-Face Maps</h3>
+              <p>
+                <code>SequenceEdgeToFaceSheaf</code> concatenates each path's node states in order with
+                its schema's relation embeddings and applies one MLP per distinct path length, yielding
+                the single free per-instance map <code>A<sub>f</sub></code>. The per-edge maps into the
+                face stalk then follow by transport, and define <code>&delta;<sub>1</sub></code>.
+                Position is preserved structurally &mdash; every slot of the concatenation has its own
+                parameters &mdash; and schema identity enters as input rather than as per-schema
+                weights, since a face group fixes its relation sequence.
+                Set <code>model.face_encoder='lstm'</code> to restore the superseded LSTM + attention-pool
+                encoder; it is retained only so the sequence-encoder ablation can be run. Measured on the
+                replacement: IMDB <code>d=16 K=4</code> 5.70 &rarr; 5.11 GiB, ACM <code>d=8 K=1</code>
+                6.04 &rarr; 5.10 GiB, with the chain residual unchanged at float32 roundoff.
+                <code>model.face_map_param='triangular'</code> additionally gauge-fixes
+                <code>A<sub>f</sub></code> to upper triangular: the model consumes it only through
+                <code>A<sub>f</sub><sup>T</sup>A<sub>f</sub></code>, so a full
+                <code>d&times;d</code> output carries <code>d(d-1)/2</code> directions no gradient can
+                see. This is lossless (every PSD matrix is <code>R<sup>T</sup>R</code> for upper
+                triangular <code>R</code>) and cuts face-encoder parameters by a further ~36% at
+                <code>d=16</code>, but it does not reduce peak activation memory.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">7</div>
+            <div>
+              <h3>Run Hodge Diffusion</h3>
+              <p>
+                <code>HodgeDiffusion</code> iteratively updates node states with <code>L0</code> and edge
+                states with <code>L1</code>, where <code>L1</code> combines a down term from
+                <code>&delta;<sub>0</sub></code> and an up term from <code>&delta;<sub>1</sub></code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="stage-num">8</div>
+            <div>
+              <h3>Apply a Task-Specific Readout</h3>
+              <p>
+                <code>NodeReadout</code> predicts target-node labels, <code>LinkPredictionReadout</code>
+                decodes shared endpoint projections of final node and incident extended-edge states,
+                and <code>SheafCovPool</code> produces graph logits from
+                single-level node and edge summaries. All three readouts transport incident edge
+                states into each endpoint's node stalk through the transpose restriction map before
+                aggregation. Only <code>SheafCovPool</code> claims gauge invariance; the node and link
+                heads use ordinary learned projections after constructing their stalk-consistent inputs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <h2>Architecture</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>File</th>
+                <th>Role</th>
+                <th>Current Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dataset builder</td>
+                <td><a href="../src/data/dataset.py"><code>src/data/dataset.py</code></a></td>
+                <td>Loads HIN data, flattens stores, prepares masks, creates face groups.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>Manual face enumeration</td>
+                <td><a href="../src/data/preprocessing.py"><code>src/data/preprocessing.py</code></a></td>
+                <td>Enumerates sampled meta-path instances; stores closure edges and explicit orientation signs.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>Graph/link face enumeration</td>
+                <td><a href="../src/data/graph_faces.py"><code>src/data/graph_faces.py</code></a></td>
+                <td>Builds typed two-hop path faces for TU graph-classification batches and train-only link-prediction graphs, grouped by node/edge-type signature.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>Schema discovery</td>
+                <td><a href="../src/data/schema_discovery.py"><code>src/data/schema_discovery.py</code></a></td>
+                <td>Generates schemas, estimates topology-aware stats, selects a pool, materializes faces.</td>
+                <td><span class="status-ok">Used by node, link, and graph configs when AMPSS is enabled</span></td>
+              </tr>
+              <tr>
+                <td>Model wrapper</td>
+                <td><a href="../src/models/h2snn_model.py"><code>src/models/h2snn_model.py</code></a></td>
+                <td>Connects encoders, sheaf maps, gates, diffusion, losses, and readout.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>Node-to-edge sheaf</td>
+                <td><a href="../src/models/sheaf_maps.py"><code>src/models/sheaf_maps.py</code></a></td>
+                <td>Learns relation-aware source and target restriction maps.</td>
+                <td><span class="status-risk">Uses scaled orthogonal maps</span></td>
+              </tr>
+              <tr>
+                <td>Edge-to-face sheaf</td>
+                <td><a href="../src/models/sheaf_maps.py"><code>src/models/sheaf_maps.py</code></a></td>
+                <td>Uses sequence encoding to produce position-aware edge-to-face maps.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>Coboundary operators</td>
+                <td><a href="../src/models/coboundary_ops.py"><code>src/models/coboundary_ops.py</code></a></td>
+                <td>Applies <code>&delta;<sub>0</sub></code>, raw signed <code>&delta;<sub>1</sub></code>, row-weighted <code>&delta;<sub>1,w</sub></code>, <code>L0</code>, and <code>L1</code> over the extended edge set.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+              <tr>
+                <td>AMPSS instance weights</td>
+                <td><a href="../src/models/instance_weights.py"><code>src/models/instance_weights.py</code></a></td>
+                <td>Learns positive schema-conditioned weights for retained concrete path instances.</td>
+                <td><span class="status-ok">Neutral initialization; task loss only</span></td>
+              </tr>
+              <tr>
+                <td>Graph readout</td>
+                <td><a href="../src/models/graph_pooling.py"><code>src/models/graph_pooling.py</code></a></td>
+                <td><code>SheafCovPool</code> projects per-node and per-edge 3&times;3 Gram descriptors
+                to <code>model.sheafcov_feat_dim</code> features (default <code>8</code>), applies
+                invariant attention, and pools weighted means and covariances. The node
+                view stack's incident-edge column is built by
+                <code>pool_edge_stalks_to_nodes</code>, which pulls each edge state back through its
+                own endpoint restriction map (<code>F<sup>T</sup></code>) before averaging.</td>
+                <td><span class="status-ok">Finalized single-level orthogonal-gauge-invariant readout;
+                <code>SheafCovPool</code>/<code>sheafcov</code> remain compatibility aliases</span></td>
+              </tr>
+              <tr>
+                <td>Trainer</td>
+                <td><a href="../src/trainers/trainer.py"><code>src/trainers/trainer.py</code></a></td>
+                <td>Optimizes the task-specific supervised loss; structural quantities are diagnostics.</td>
+                <td><span class="status-ok">Implemented</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <strong>Pooling status.</strong> SheafCovPool is a terminal readout, not a graph hierarchy:
+          it does not construct supernodes, a coarse sheaf, or a Galerkin operator. THS-Pool,
+          Galerkin coarsening, spectral pooling, and related hierarchical variants are retained only
+          as superseded historical experiments. Their recorded numerical evidence is unchanged.
+        </div>
+
+        <div class="callout">
+          <strong>Why the raw Gram matrix stays 3&times;3.</strong> Its order is the number of
+          semantic stalk-valued views, not a free model width. The node stack contains final node
+          state, initial node state, and transported incident-edge state; the edge stack contains
+          <code>&delta;<sub>0</sub>x*</code>, <code>&delta;<sub>0</sub>h<sup>(0)</sup></code>, and final
+          edge state. Their Gram matrix therefore contains three energies and three pairwise
+          alignments. A 5&times;5 or 7&times;7 matrix would require adding new views and would change the
+          readout architecture; padding, repeating, or linearly expanding the three existing views
+          adds no new invariant information. Graph-classification tuning instead varies the
+          post-Gram projection width <code>model.sheafcov_feat_dim</code> over
+          <code>{4, 8, 16}</code>. This width changes capacity after the fixed semantic descriptor.
+        </div>
+
+        <div class="callout">
+          <strong>What the gauge invariance assumes.</strong> Both view stacks must consist of
+          sections expressed in one common stalk. The edge stack
+          (<code>&delta;<sub>0</sub>x*</code>, <code>&delta;<sub>0</sub>h<sup>(0)</sup></code>,
+          <code>s*</code>) already is: all three move by that edge's <code>R<sub>e</sub></code>. The
+          node stack's third column is made so by endpoint-adjoint transport, since with
+          <code>F' = R<sub>e</sub> F Q<sub>v</sub><sup>T</sup></code> we get
+          <code>(F')<sup>T</sup>s' = Q<sub>v</sub>F<sup>T</sup>s</code>. The condition is on the
+          <em>gauge group</em> being orthogonal, not on the restriction maps:
+          <code>use_orthogonal: True</code> yields conformal-orthogonal maps
+          <code>F = cQ</code> with a learned scale, and the argument holds for arbitrary
+          <code>F</code> regardless. Both endpoints contribute with a <code>+</code> sign &mdash;
+          this is an incident-edge context summary, not the signed coboundary adjoint
+          <code>&delta;<sub>0</sub><sup>T</sup>s</code>. The invariance is a property of the readout
+          as a function of cochains; the network as a whole is <em>not</em> claimed to be
+          gauge-equivariant, since the post-diffusion LayerNorm, coordinate-wise dropout, and the
+          map-generating MLP do not commute with arbitrary basis changes.
+        </div>
+
+        <div class="callout">
+          <strong>Known defect &mdash; <code>S2Pool</code> is degenerate.</strong> Its descriptor
+          <code>P = X<sup>T</sup>(XX<sup>T</sup>)<sup>+</sup>X</code> collapses to the constant
+          identity whenever the stack has full column rank, which is the normal case (3 views,
+          <code>d &ge; 3</code>): with the thin SVD <code>X = U&Sigma;V<sup>T</sup></code>,
+          <code>P = V&Sigma;U<sup>T</sup>(U&Sigma;<sup>2</sup>U<sup>T</sup>)<sup>+</sup>U&Sigma;V<sup>T</sup>
+          = VV<sup>T</sup> = I<sub>3</sub></code>. Measured: <code>max |P - I| = 3.6e-07</code>, and
+          logits differ by <code>1.5e-08</code> between unrelated batches where GramPool and
+          SheafCovPool differ by <code>~2e-01</code>. Its advertised GL(<em>d</em>) invariance is
+          therefore invariance-by-constancy, which is also why an invariance test never caught it.
+          Do not cite <code>S2Pool</code> as a baseline until this is fixed.
+        </div>
+
+        <h3>Core Operators</h3>
+        <pre><code># Edge set is EXTENDED: real edges, then one closure 1-cell per face instance.
+delta0(x)_e = F_tgt(e) x_tgt - F_src(e) x_src         # over the extended edge set
+L0(x)       = delta0^T delta0 x                       # closure edges included mechanically
+
+# Face maps by transport (functorial), for boundary v0 -> ... -> vL -> v0:
+T[v0]       = A_f                                     # one free d x d map per instance
+T[vi]       = T[v(i-1)] @ inv(F_src(ei)) @ F_tgt(ei)  # inv = F^T / lambda^2 (scaled-orthogonal)
+F_{ei->f}   = T[v(i-1)] @ inv(F_src(ei))
+F_cl_tgt    = I ; F_cl_src = holonomy ; F_{cl->f} = A_f
+
+B(s)_f      = sum over boundary edges e of eta(e,f) * F_{e->f} s_e
+delta1_w(s) = sqrt(w_f) * B(s)_f                    # exact zero remains exactly zero
+L1(s)       = delta0 delta0^T s + B^T W B s         # linear and PSD in nonnegative w_f
+
+Discovery weight during the operator ramp:
+w_f(r) = (1-r) + r * a_tilde_{schema(f)} * b_f</code></pre>
+
+        <div class="callout success">
+          <strong>Exact within the implemented face contract.</strong>
+          <code>&delta;<sub>1</sub>&delta;<sub>0</sub> = 0</code> holds up to floating-point
+          roundoff for the simple, forward-oriented, transport-composed faces and aligned closure
+          edges built by the current materializers; this is not a guarantee for arbitrary external
+          complexes. The <code>lambda_co</code> chain penalty is therefore gone. It was
+          previously aimed at a target no non-degenerate face maps could reach: on an <em>open</em> path
+          the two endpoint blocks of <code>&delta;<sub>1</sub>&delta;<sub>0</sub></code> each appear in a
+          single term and the node-to-edge maps are invertible, so exact zero forced the face maps to
+          zero. Fixing it required three things together: the closure 1-cell inside
+          <code>&delta;<sub>1</sub></code>'s boundary, functorial (transport-composed) face maps, and
+          simple-path faces. Note this supersedes the earlier claim that
+          <code>H2SNN_corrected_algorithm.md</code> §2.3/§4.2 makes the path-edge-only
+          <code>&delta;<sub>1</sub></code> spec-correct &mdash; that design cannot satisfy the cochain
+          condition. Verified by <code>tests/test_coboundary_chain.py</code> (L=2,3,4 plus adjointness)
+          and end-to-end on all three datasets.
+        </div>
+      </section>
+
+      <section id="discovery">
+        <h2>AMPSS Schema Discovery (<code>schema_conditioned_v1</code>)</h2>
+        <p>
+          AMPSS is a two-stage method. Stage I is a non-differentiable, task-aligned probe
+          selector that fixes a candidate pool and materialized faces under exact joint
+          face/incidence quotas. Every trial's features, coverage, and cost come from the same
+          deterministic post-quota prefix accepted by final materialization. The greedy selector
+          ranks feasible additions by held-out task-loss reduction and stops when no candidate has
+          positive task gain. Coverage and Jaccard overlap are diagnostics only. Because the probe
+          is refit for each subset, this is a deterministic forward-selection heuristic rather than
+          a submodular objective with an approximation guarantee.
+        </p>
+
+        <p>
+          Stage II learns one positive weight for each retained concrete path instance. Let
+          <code>z_f</code> be the ordered path latent and <code>e_s</code> the embedding of its
+          selected schema:
+        </p>
+
+        <pre><code>learned weight(f) = 2 * sigmoid(g_w(concat(z_f, e_schema(f))))
+operator weight(f, r) = (1-r) + r * learned weight(f),  0 &lt;= r &lt;= 1
+training loss = task loss</code></pre>
+
+        <div class="callout success">
+          <strong>Operator semantics.</strong> The instance weights affect only the upper edge-Hodge term
+          <code>B<sup>T</sup>WB</code>. They do not remove the closure 1-cell from
+          <code>&delta;<sub>0</sub></code>, <code>L0</code>, the lower edge term, or the edge
+          readout, and they never create, delete, or prune faces. The output layer of
+          <code>g_w</code> is zero-initialized, so every learned weight starts at one. The
+          post-warm-up operator ramp starts at the all-ones operator and
+          reaches the learned weights continuously over <code>operator_anneal_epochs</code>.
+          The task loss reaches <code>g_w</code> only through this ramp; validation, test, and
+          standalone inference use the full operator (<code>r=1</code>).
+        </div>
+
+        <div class="callout">
+          <strong>No auxiliary discovery objective.</strong>
+          AMPSS has no schema gate, sparsity penalty, incidence-mass penalty, coverage reward,
+          partial-schema dropout, or separate discovery loss. Incidence remains a hard Stage-I
+          budget, while coverage remains a reported property of the selected support.
+        </div>
+
+        <div class="table-wrap" style="margin-top: 1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Implemented definition</th>
+                <th>Boundary / invariant</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sparse metadata</td>
+                <td><code>num_schemas</code>, group-level <code>schema_ids</code>,
+                fold/graph-level <code>schema_incidence_mass</code>, and sorted unique sparse incidence
+                vectors <code>coverage_schema_index</code>/<code>coverage_unit_index</code>.</td>
+                <td>No dense <code>[S,N]</code> coverage tensor and no Stage-I
+                <code>schema_features</code> in the training-loss path.</td>
+              </tr>
+              <tr>
+                <td>Stage-I score</td>
+                <td>Held-out task-loss reduction after refitting the probe on the exact
+                post-quota support for each feasible schema addition.</td>
+                <td>Coverage does not enter the score or stopping rule; canonical schema
+                identity resolves numerical ties deterministically.</td>
+              </tr>
+              <tr>
+                <td>Node coverage</td>
+                <td>Target nodes occurring in post-quota materialized faces.</td>
+                <td>Computed after materialization quotas.</td>
+              </tr>
+              <tr>
+                <td>Link coverage</td>
+                <td>A fixed seeded subset of positive training target edges; a schema covers
+                an edge only when a materialized directed path connects its endpoints.</td>
+                <td>Probe features may use positive and negative examples, but Stage-I gain
+                and coverage diagnostics use positive pairs only and are independent of
+                stochastic training negatives.</td>
+              </tr>
+              <tr>
+                <td>Graph coverage</td>
+                <td>Batch-local graph slots with at least one selected-schema face.</td>
+                <td>Materialization quotas and seeds are per graph, so faces are invariant
+                to batch size, partition, and order when graph IDs are fixed.</td>
+              </tr>
+              <tr>
+                <td>Incidence cost</td>
+                <td><code>c_s = sum_{f in F_s}(path_length(f)+1)</code>, counting every path
+                edge and exactly one closure incidence.</td>
+                <td>Every Stage-I trial is costed after the final joint quota policy. Node/link
+                use total post-quota incidence. Graph classification uses fixed mean post-quota
+                incidence per training-fold graph; validation/test reuse that statistic. This is a
+                structural-complexity budget, not an inference-speed guarantee: Stage II does not
+                prune operator tensors.</td>
+              </tr>
+              <tr>
+                <td>Empty semantics</td>
+                <td>If a dataset/fold has no selected materialized faces,
+                <code>discovery=None</code>. An empty graph minibatch contributes no AMPSS
+                weight statistics and is trained with its ordinary task loss.</td>
+                <td>No auxiliary term requires a special empty-batch convention.</td>
+              </tr>
+              <tr>
+                <td>Candidate safety</td>
+                <td>Typed-schema enumeration is streaming and raises immediately upon encountering
+                identity or viable candidate <code>guard+1</code>. Candidate limits are fail-fast
+                guards; silent order-based truncation is disabled.</td>
+                <td>Values such as 128 or the next power of two are shipped engineering
+                margins, not scientific requirements and not tuning parameters.</td>
+              </tr>
+              <tr>
+                <td>Reproducibility</td>
+                <td>Selector and materialization seeds are separate from the training seed.
+                Reports record candidate/selected statistics, coverage/Jaccard diagnostics,
+                selector-unit, selector-support, final-materialization, and face-set hashes.
+                Checkpoints bind the ordered selected identities, both support hashes, the
+                operator schedule state, and the manifest SHA-256 before loading parameters.</td>
+                <td><code>selector_report.json</code>, <code>selector_manifest.json</code>,
+                and its manifest hash are run artifacts. Stage-II ablations 3--5 must share
+                these Stage-I identities and hashes. Filtering to selected graph templates does
+                not release the per-anchor sampling quota, so it cannot change the frozen path pool.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Configurations containing obsolete gate/loss keys, checkpoints from another protocol
+          version, and legacy tuning states are rejected with a migration error. Historical DCV
+          code is diagnostics-only and is not an active selector strategy.
+        </p>
+        <p>
+          W&amp;B campaign resume is per-run: compatible fingerprinted states resume their stored
+          sweeps, missing run states create fresh sweeps, and incompatible existing states are
+          preserved while numbered continuation sweeps are created. An explicit
+          <code>--sweep_id</code> remains strict exact-resume mode.
+        </p>
+        <p>
+          A fixed multi-machine campaign can be partitioned with <code>--run_start</code> and
+          <code>--run_count</code> while keeping <code>--num_runs</code> and
+          <code>--base_seed</code> unchanged. For example, machines can process run indices
+          <code>0--1</code> and <code>2--4</code> separately while sharing the same state directory.
+        </p>
+      </section>
+
+      <section id="research-position">
+        <h2>Research Position</h2>
+        <p>
+          H2S-NN sits between heterogeneous graph learning, heterophily-aware GNNs, meta-path
+          search, sheaf neural networks, and higher-order Hodge diffusion.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Research Line</th>
+                <th>What It Solves</th>
+                <th>Gap H2S-NN Targets</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>HAN / MAGNN style meta-path HGNNs</td>
+                <td>Use expert-defined meta-paths as semantic message-passing views.</td>
+                <td>They do not turn each concrete path instance into an operator-shaping higher-order cell.</td>
+              </tr>
+              <tr>
+                <td>HGT style transformer HGNNs</td>
+                <td>Use typed node and edge attention without hand-designed meta-paths.</td>
+                <td>They remain edge/message-passing models rather than Hodge models over faces.</td>
+              </tr>
+              <tr>
+                <td>Meta-path search methods such as LMSPS and PMMM</td>
+                <td>Search useful semantic paths or meta-multigraphs.</td>
+                <td>Selected schemas usually become aggregation channels, not cells in a learned Hodge operator.</td>
+              </tr>
+              <tr>
+                <td>HetSheaf</td>
+                <td>Learns heterogeneous sheaf maps and handles heterophily through local spaces.</td>
+                <td>Closest baseline, but H2S-NN aims to add path-induced higher-order structure and <code>&delta;<sub>1</sub></code>.</td>
+              </tr>
+              <tr>
+                <td>HeterSEED / AHGNN / H2SGNN</td>
+                <td>Recent heterophily-aware heterogeneous models with strong graph-level mechanisms.</td>
+                <td>They address heterophily, but not through weighted typed path instances as Hodge faces.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>External Reference Anchors</h3>
+        <ul>
+          <li><a href="https://arxiv.org/abs/2409.08036">HetSheaf: Sheaf Neural Networks for Heterogeneous Graphs</a></li>
+          <li><a href="https://arxiv.org/abs/2605.04594">HeterSEED: Semantic and Structural Neighbors for Heterophilous Heterogeneous Graphs</a></li>
+          <li><a href="https://arxiv.org/abs/2508.06034">Adaptive Heterogeneous Graph Neural Network for Multi-Hop Heterophily</a></li>
+          <li><a href="https://arxiv.org/abs/2410.13373">H2SGNN: Heterophily-aware Heterogeneous Graph Neural Network</a></li>
+          <li><a href="https://arxiv.org/abs/2307.08430">LMSPS: Learning Meta-path Selection for Heterogeneous Graph Neural Networks</a></li>
+          <li><a href="https://arxiv.org/abs/2211.14752">PMMM: Differentiable Meta Multigraph Search on Heterogeneous Information Networks</a></li>
+        </ul>
+      </section>
+
+      <section id="benefits">
+        <h2>Benefits</h2>
+        <div class="grid">
+          <div class="card span-6">
+            <h3>1. Operator-Level Higher-Order Modeling</h3>
+            <p>
+              Existing meta-path methods often use schemas as routes for aggregation. H2S-NN's
+              strongest idea is to make selected path instances affect the operator that controls
+              diffusion. This is a deeper use of meta-path information.
+            </p>
+          </div>
+
+          <div class="card span-6">
+            <h3>2. Better Inductive Bias For Heterophily</h3>
+            <p>
+              Sheaf restriction maps allow two connected nodes to disagree in raw feature space
+              while still being compatible after relation-specific transport. This is more flexible
+              than direct neighbor averaging.
+            </p>
+          </div>
+
+          <div class="card span-6">
+            <h3>3. Heterogeneous Type Awareness</h3>
+            <p>
+              Node types, relation types, and typed path sequences are preserved. The model does not
+              collapse the heterogeneous graph into a single untyped adjacency matrix.
+            </p>
+          </div>
+
+          <div class="card span-6">
+            <h3>4. Instance-Level Interpretability</h3>
+            <p>
+              If discovery is validated, Stage-I task gains show which schemas entered the pool,
+              while learned instance weights show which retained concrete paths shape diffusion.
+            </p>
+          </div>
+
+          <div class="card span-6">
+            <h3>5. Bridge Between Search And Sheaf Geometry</h3>
+            <p>
+              H2S-NN can be positioned as a unification of meta-path search and heterogeneous sheaf
+              learning: search decides what higher-order support exists, sheaf-Hodge diffusion
+              decides how signals move through it.
+            </p>
+          </div>
+
+          <div class="card span-6">
+            <h3>6. Strong Ablation Story</h3>
+            <p>
+              The method naturally supports ablations: remove faces, remove <code>&delta;<sub>1</sub></code>,
+              replace maps with identity maps, use uniform instance weights, or compare manual
+              schemas against discovered schemas.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="limitations">
+        <h2>Limitations And Bugs</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Priority</th>
+                <th>Issue</th>
+                <th>Why It Matters</th>
+                <th>Suggested Fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="status-ok">Resolved</span></td>
+                <td>Closure edges were generated but not used anywhere in the model.</td>
+                <td>The strict 2-cell/cellular-complex claim depends on closed boundaries.</td>
+                <td>Closure edges are now appended to the edge list as real 1-cells with their own stalks, so they enter <code>&delta;<sub>0</sub></code>, <code>L0</code>, and <code>&delta;<sub>1</sub></code>'s boundary. <code>CoboundaryOps.closure_L0</code> is deleted. Their restriction maps are <em>defined</em> as the path holonomy (no new parameters). This supersedes the earlier reading of <code>H2SNN_corrected_algorithm.md</code> §2.3-§2.5, under which closure edges stayed outside <code>&delta;<sub>1</sub></code> &mdash; that design makes <code>&delta;<sub>1</sub>&delta;<sub>0</sub> = 0</code> unreachable.</td>
+              </tr>
+              <tr>
+                <td><span class="status-ok">Resolved</span></td>
+                <td>Orientation signs were implicitly hardcoded as +1 inside <code>&delta;<sub>1</sub></code>, with no explicit sign field.</td>
+                <td>Hodge/cellular coboundary operators require signed incidence for mathematical correctness.</td>
+                <td>Added an explicit <code>face_edge_sign</code> tensor threaded through <code>FaceGroup</code>/<code>FaceMapCache</code>/<code>CoboundaryOps.delta1</code>/<code>delta1_T</code>. Production data always yields +1, and this is now <em>correct</em> rather than merely convenient: all three enumerators walk forward through stored <code>src&rarr;dst</code>, and the closure cell is stored <code>(last, first)</code>, i.e. oriented along the cycle. <code>src/data/face_geometry.py::validate_face_orientation</code> asserts this per face group, so introducing reverse traversal fails loudly instead of silently invalidating the boundary map.</td>
+              </tr>
+              <tr>
+                <td><span class="status-ok">Resolved</span></td>
+                <td>The former hierarchical gate objective stacked four auxiliary terms around schema and instance gates.</td>
+                <td>The extra scales obscured attribution and did not establish useful schema ranking.</td>
+                <td>Removed both gates and all auxiliary terms. Stage II now reports effective
+                per-schema instance-weight mean/std while task gradients train a single
+                schema-conditioned weight network.</td>
+              </tr>
+              <tr>
+                <td><span class="status-risk">P1</span></td>
+                <td>Schema preselection is non-differentiable and has no approximation guarantee.</td>
+                <td>The refitted held-out probe loss is not known to be monotone submodular.</td>
+                <td>Frame Stage I as deterministic task-aligned candidate-pool construction under
+                hard budgets. Compare manual, uniform-weight, schema-agnostic, and full
+                schema-conditioned variants with a frozen Stage-I manifest.</td>
+              </tr>
+              <tr>
+                <td><span class="status-ok">Resolved</span></td>
+                <td><code>closure_scale</code> existed in config but was not used by the model.</td>
+                <td>This made the closure-edge design incomplete and confusing.</td>
+                <td>Now the scale on the closure 1-cell's restriction maps, defaulting to <code>1.0</code> (the old <code>1e-6</code> effectively switched them off). The face map absorbs a compensating <code>1/closure_scale</code>, so <code>&delta;<sub>1</sub>&delta;<sub>0</sub> = 0</code> holds for any positive value; only the closure edge's <code>L0</code> contribution varies (quadratically). It must stay strictly positive &mdash; use <code>ablate_no_delta1</code> to remove faces and closure edges together.</td>
+              </tr>
+              <tr>
+                <td><span class="status-risk">P2</span></td>
+                <td>Maps described as orthogonal are actually scaled orthogonal.</td>
+                <td>Scaled maps may be useful, but the paper should not overstate strict orthogonality.</td>
+                <td>Rename claim to "scaled orthogonal restriction maps" or remove scaling for strict orthogonality.</td>
+              </tr>
+              <tr>
+                <td><span class="status-ok">Resolved locally</span></td>
+                <td>The <code>h2snn</code> Conda environment exercises the current API with <code>unittest</code>.</td>
+                <td>The hierarchical objective, sparse metadata, task coverage, per-graph quota, versioning, and gradients have focused regressions.</td>
+                <td>Continue running the complete suite before each implementation phase; Application Control can still block PyG imports on some Windows hosts.</td>
+              </tr>
+              <tr>
+                <td><span class="status-risk">P2</span></td>
+                <td>Evaluation evidence is still narrow.</td>
+                <td>ACM manual-schema results are not enough for broad claims about heterophilic heterogeneous learning.</td>
+                <td>Add HetSheaf, HeterSEED, AHGNN, H2SGNN, LMSPS, and PMMM baselines where feasible.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout danger" style="margin-top: 1rem;">
+          <strong>Do not claim yet:</strong>
+          "H2S-NN is a fully validated automatic schema-to-cell discovery model." The closure/orientation
+          mathematical fixes are complete and dense-reference tested (see Update Log), so the
+          "closed 2-cell" claim is now code-grounded; what remains open is breadth of experiments —
+          baselines and evaluation beyond the ACM manual-schema results (see P2 rows above).
+        </div>
+      </section>
+
+      <section id="validation">
+        <h2>Validation Plan</h2>
+        <h3>Minimum Ablations</h3>
+        <ul>
+          <li>H2S-NN without faces: remove <code>&delta;<sub>1</sub></code> and compare with graph-only sheaf diffusion.</li>
+          <li>Identity maps: replace learned sheaf maps with identity matrices.</li>
+          <li>Diagonal or scalar maps: test cheaper parameterizations.</li>
+          <li>Uniform instance weights: isolate the selected Stage-I support from Stage-II weighting.</li>
+          <li>Schema-agnostic instance weights: test whether schema identity adds value beyond the ordered path latent.</li>
+          <li>Manual schemas versus auto-discovered schemas.</li>
+          <li>Learned upper-Hodge weights versus an all-ones upper-Hodge operator.</li>
+        </ul>
+
+        <h3>Minimum Baselines</h3>
+        <ul>
+          <li>HAN or MAGNN for manual meta-path aggregation.</li>
+          <li>HGT for typed attention without meta-paths.</li>
+          <li>HetSheaf for the closest heterogeneous sheaf baseline.</li>
+          <li>HeterSEED, AHGNN, or H2SGNN for recent heterophily-aware heterogeneous baselines.</li>
+          <li>LMSPS or PMMM for automatic meta-path/search baselines.</li>
+        </ul>
+
+        <h3>Reporting Checklist</h3>
+        <ul>
+          <li>Macro-F1 and micro-F1 across repeated seeds for HGB node classification; accuracy is optional logging only.</li>
+          <li>Runtime and memory usage with face counts.</li>
+          <li>For node and link prediction, report peak training memory for the complete-graph
+          forward/backward step. Query or subcomplex minibatching is not part of the current primary
+          tuning protocol and should be introduced only if profiling demonstrates that it is needed.</li>
+          <li>Number of schemas, number of faces, and average path length.</li>
+          <li>Effect of closure edges and orientation signs.</li>
+          <li>Stability and dispersion of effective instance weights within each schema.</li>
+          <li>No validation/test label use in schema scoring.</li>
+        </ul>
+      </section>
+
+      <section id="update-log">
+        <h2>Update Log</h2>
+        <div class="update-box">
+          <h3>2026-08-18 - Version 0.21 (node/link endpoint-adjoint transport)</h3>
+          <ul>
+            <li><code>NodeReadout</code> and <code>LinkPredictionReadout</code> now use
+            <code>pool_edge_stalks_to_nodes</code> over the complete observed-plus-closure edge domain.
+            Both heads receive <code>F_src</code>/<code>F_tgt</code> from the encoded state and transport
+            each incident edge state into its endpoint node stalk before mean aggregation.</li>
+            <li>The relation-specific bilinear decoder now evaluates the explicit
+            <code>z_src^T W_r z_tgt</code> order. Focused regression tests cover node and link transport
+            wiring and the bilinear operand order.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-08-05 - Version 0.20 (repeated graph-classification KFold workflow)</h3>
+          <ul>
+            <li>The existing graph-classification experiment configs remain five independent
+            stratified 80/10/10 holdout runs. A separate
+            <code>scripts/run_graph_classification_repeated_cv_wandb_tuning.py</code> entry point now
+            provides baseline-compatible repeated cross-validation without changing that default.</li>
+            <li>The new protocol uses ordinary shuffled <code>KFold</code> with 10 folds and 10
+            independently seeded repetitions. Each outer training partition contributes 10% to
+            validation, giving approximately 81/9/10 train/validation/test proportions. Each of
+            the resulting 100 repetition/fold units owns an independent validation-selected W&amp;B
+            sweep and held-out test score.</li>
+            <li>Campaign artifacts and fingerprints carry repetition, fold, split seed, and model
+            seed. The summary reports per-repetition fold means, population standard deviation
+            across repetition means, and population standard deviation across all 100 fold scores.
+            A full campaign costs approximately <code>100 * n_trials</code> model fits and can be
+            partitioned safely through <code>--unit_start</code>/<code>--unit_count</code>.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-08-05 - Version 0.19 (full-batch-first tuning audit)</h3>
+          <ul>
+            <li>Kept node- and link-prediction tuning on the complete graph. The current primary
+            protocol has no query-batch-size search; graph classification continues to use the
+            implementation's fixed batch size of 32 independent complete graphs.</li>
+            <li>Node- and link-prediction trainers now enforce
+            <code>early_stopping_patience</code>, matching the existing graph-classification
+            behavior. This is a training-control correction and does not change the model.</li>
+            <li>Made the SheafCovPool post-Gram feature width explicit as
+            <code>model.sheafcov_feat_dim</code> and limited its graph-only primary search to
+            <code>{4, 8, 16}</code>.</li>
+            <li>Fixed the raw node/edge Gram order at 3&times;3 because it is determined by the three
+            semantic views. Historical 5&times;5 and 7&times;7 search claims did not correspond to the
+            implemented readout and must not be reported as completed experiments.</li>
+            <li>Started a new fingerprinted W&amp;B state generation. New primary notebooks default
+            to fresh state directories; <code>--resume</code> is only valid for an interrupted sweep
+            created from the identical resolved config and search space.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-30 - Version 0.18 (<code>schema_conditioned_v1</code>)</h3>
+          <ul>
+            <li>Stage I now ranks feasible schemas only by held-out task gain. Coverage and
+            Jaccard overlap remain diagnostics; schema, face, and incidence limits remain hard
+            constraints.</li>
+            <li>Stage II now uses one neutral-initialized, schema-conditioned instance-weight
+            network. Effective weights are ramped from one and enter only
+            <code>B<sup>T</sup>WB</code>.</li>
+            <li>Removed schema gates, instance sparsity gates, partial-schema dropout, all four
+            auxiliary discovery terms, and their tuning dimensions. All task trainers now optimize
+            only their supervised task loss.</li>
+            <li>Renamed reproducibility compatibility from objective version to AMPSS protocol
+            version. Old configs, checkpoints, manifests, and sweep states require fresh runs.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-29 - Version 0.17 (SheafCovPool endpoint-adjoint transport)</h3>
+          <ul>
+            <li>Fixed the node view stack of every flat graph readout. The incident-edge column was
+            built by summing raw <code>s*</code> coordinates drawn from different edge stalks, so it
+            did not co-transform with <code>x*</code>/<code>h<sup>(0)</sup></code> and the Gram
+            entries mixing them changed with the choice of basis &mdash; the orthogonal-gauge
+            invariance SheafCovPool claims was false for three of the six unique node-descriptor
+            entries. New <code>pool_edge_stalks_to_nodes</code> in
+            <a href="../src/models/pooling_utils.py"><code>src/models/pooling_utils.py</code></a>
+            transports each edge state through its own endpoint restriction map
+            (<code>F<sub>src</sub><sup>T</sup></code> / <code>F<sub>tgt</sub><sup>T</sup></code>,
+            reusing the batched-adjoint pattern of <code>CoboundaryOps.delta0_T</code>) before
+            averaging, with explicit <code>ValueError</code> guards on extended-domain alignment,
+            tensor rank, and stalk dimension. The edge stack needed no change: its three views
+            already share one stalk.</li>
+            <li><code>GraphPooling.forward</code> now takes <code>F_src</code>/<code>F_tgt</code>, and
+            GramPool, S2Pool, the adapted SheafPool, and SheafCovPool all consume the same corrected
+            summary, so a readout-vs-readout comparison isolates the pooling mechanism rather than
+            the fix. <code>MeanPool</code> accepts the maps and ignores them. The hierarchical
+            poolers in <code>src/models/s2pool_h2.py</code> sit on a separate trainer branch and are
+            untouched.</li>
+            <li>At this version, <code>NodeReadout</code> and <code>LinkPredictionReadout</code> still used
+            untransported edge pooling because they made no gauge-invariance claim. Version 0.21
+            completed their separate endpoint-adjoint transport cleanup to align the implementation
+            with the manuscript's stalk-consistent node and link inputs.</li>
+            <li>Replaced the old global-rotation regression test, which only established global
+            O(<em>d</em>) invariance, with tests over <em>independent</em> per-node
+            <code>Q<sub>v</sub></code> and per-edge <code>R<sub>e</sub></code> gauges and
+            correspondingly transformed restrictions <code>R<sub>e</sub>FQ<sub>v</sub><sup>T</sup></code>.
+            Added hand-computed endpoint aggregation, isolated-node and self-loop behavior, the five
+            validation guards, node/edge permutation invariance, extended-domain participation, and
+            an inline negative control that shows the pre-fix aggregation fails the same assertion.
+            The shape/finite sweep now covers all five poolers; <code>sheafpool</code> and
+            <code>sheafcov</code> previously had none.</li>
+            <li>Corrected documentation that described restriction maps as "always orthogonal". With
+            <code>use_orthogonal: True</code> they are conformal-orthogonal <code>F = cQ</code>; the
+            orthogonality requirement belongs to the gauge group, not to the maps.</li>
+            <li>Recorded a pre-existing defect found while verifying the above: <code>S2Pool</code>'s
+            descriptor is the constant identity for full-rank stacks and carries no information. See
+            the "Known defect" callout in the architecture section. Not fixed &mdash; out of scope.</li>
+            <li>At this version, the manuscript still described the untransported node view. The
+            graph-readout figure was already updated; Version 0.21 completed synchronization of the
+            node/link equations and implementation.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-29 - Version 0.16 (<code>hierarchical_v4</code>)</h3>
+          <ul>
+            <li>Connected the supervised task loss to AMPSS gates for every task: link endpoints
+            now combine node states with incident real-plus-closure edge states, and auto graph
+            discovery requires <code>SheafCovPool</code>. Mean-only and direct-curl auto readouts
+            fail during configuration validation.</li>
+            <li>Separated <code>raw_face_curl</code> from diagnostic
+            <code>weighted_face_curl</code>. Only <code>B<sup>T</sup>WB</code> consumes the
+            face weights; readouts never reinsert them.</li>
+            <li>Made Stage-I evidence exact after quota allocation, removed inner link-selection
+            positives and reverse counterparts, rematerialized link training support on the full
+            outer-training graph, and persisted distinct selector/final support hashes.</li>
+            <li>Bound checkpoints to objective version, operator schedule, ordered schema
+            identities, selector/final support hashes, and manifest SHA-256. Validation,
+            testing, and inference use <code>r=1</code>; best-checkpoint selection starts only
+            after the operator reaches that state.</li>
+            <li>Required explicit structural incidence budgets, added streaming fail-fast guards
+            and strict tensor/count checks, and reduced the current orthogonal-map API to
+            <code>fasthpp</code> with its fallback implemented in the same module.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-28 - Version 0.15 (superseded AMPSS objective)</h3>
+          <ul>
+            <li>Defined AMPSS gates as linear PSD upper-Hodge weights
+            <code>B<sup>T</sup>WB</code>; closure 1-cells remain in the extended edge complex.</li>
+            <li>Replaced endpoint-only instance gates with ordered path-latent gates and added
+            a separate all-ones-to-learned operator ramp after warm-up.</li>
+            <li>Made Stage-I trial cost exact under final joint face/incidence quotas, including
+            one closure incidence per materialized face. Graph discovery rematerializes selected
+            schemas with the same deterministic per-graph policy used at runtime.</li>
+            <li>Renamed the complexity prior to incidence-weighted schema mass, routed
+            Householder products through <code>src/models/fasthpp.py</code>, and fixed graph
+            readouts to use the encoded extended edge domain.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-28 - Version 0.14 (superseded AMPSS objective)</h3>
+          <ul>
+            <li>Replaced dense discovery coverage with sorted sparse schema-unit incidence and
+            a grouped-product union reward. Added task-specific post-quota node coverage,
+            positive-training-pair link coverage, and batch-local graph coverage.</li>
+            <li>Separated base schema gates from propagation dropout and replaced effective
+            face-weight summaries with raw grad-attached <code>instance_beta_means</code> plus
+            nonempty masks. The clean objective contains schema sparsity, incidence-weighted schema mass,
+            instance sparsity, and schema-support coverage only.</li>
+            <li>Removed entropy, redundancy, score warm-starts, and active DCV routing. Legacy
+            objective keys, checkpoints, and tuning states now fail with migration errors.</li>
+            <li>Made graph quotas per graph, fixed graph costs to training-fold mean incidence,
+            added complete selector reports and deterministic hashes, and versioned persisted
+            selector manifests. Tuning searches only Stage-II objective/training parameters.</li>
+            <li>Added the exact ten-condition ablation generator and frozen Stage-I manifest
+            validator. Previous AMPSS measurements predate the current objective and do not
+            validate the current objective.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-20 - Version 0.11</h3>
+          <ul>
+            <li>This historical version disabled <code>matrix_exp</code>. Unsafe
+            configurations and stale W&amp;B trial parameters are now rejected before CUDA seeding
+            or model construction. FastHPP is now the default matrix-materialization algorithm;
+            Householder and Cayley were then compatibility/ablation choices. Cayley used only the effective strict-lower
+            <code>d(d-1)/2</code> parameters.</li>
+            <li>Added <code>model.node_edge_memory_guard_fraction</code> (default
+            <code>0.20</code>). Before node-to-edge MLP/map materialization, CUDA runs estimate the
+            minimum simultaneous source/target raw-parameter and dense-map storage and fail with
+            an actionable dimension recommendation when the configured GPU budget would be
+            exceeded.</li>
+            <li>Changed default tuning dimensions to <code>[16,32]</code> for node/link tasks and
+            <code>[16,32,64]</code> for graph classification, with deliberate overrides through
+            <code>--d_values</code>. W&amp;B now supports read-only <code>--validate_only</code>
+            preflight.</li>
+            <li>Versioned and fingerprinted W&amp;B resume state. Fresh runs refuse to overwrite
+            existing state, resumes reject legacy or changed configurations/search spaces, and
+            every trial executes in a fresh Python worker process so a fatal CUDA context is not
+            reused by later trials.</li>
+            <li>Cleaned all four W&amp;B Colab notebooks: pinned Torch 2.6/CUDA 12.4 bootstrap,
+            dependency/GPU sanity checks, fresh-sweep defaults, preflight validation, Colab Secret
+            login, and zero stored outputs or stale debug-run paths. Per-run
+            <code>config.yaml</code> snapshots remain required reproducibility artifacts.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-28 - Version 0.13</h3>
+          <ul>
+            <li>Aligned the AMPSS manuscript with the implemented Stage-I selector: feasible typed
+            paths are sampled under an incidence budget, task-specific feature blocks feed an
+            inner-training probe, and schemas are greedily selected by held-out probe-loss
+            reduction plus marginal task coverage.</li>
+            <li>Removed the mislabeled differentiable redundancy proxy from the discovery
+            objective. It used only scalar coverage magnitudes rather than pairwise schema overlap.
+            At that intermediate version, historical <code>lambda_redundancy</code> values still
+            parsed as a no-op; Version 0.14 now rejects them.</li>
+            <li>Removed unused static per-instance features and all-one instance priors from
+            <code>DiscoveryMetadata</code>, preprocessing, graph batches, and tests. The active
+            instance gate continues to use current endpoint embeddings and the learned schema
+            embedding.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-28 - Version 0.12</h3>
+          <ul>
+            <li>Changed link-prediction and graph-classification AMPSS Stage-I auto-discovery
+            to use the same task-aligned probe-selector family as node classification. Link
+            prediction builds binary edge-label probe features and graph classification builds
+            graph-level schema count/presence features, then greedily adds schemas by inner-split
+            task-loss reduction plus coverage under an incidence budget.</li>
+            <li>Added <code>discovery.selector_strategy</code> with default <code>probe</code>.
+            The older DCV score <code>D^a C^b V^c/(1+J)</code> was retained at that time through
+            <code>dcv_heuristic</code> aliases; Version 0.14 removed those production aliases.</li>
+            <li>Added <code>discovery.selector_max_examples</code> to cap the train-edge probe set
+            used by link Stage-I selection, keeping preprocessing bounded on large link datasets.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-14 - Version 0.10</h3>
+          <ul>
+            <li>Extended discovery gates beyond node classification. Link prediction now carries
+            <code>DiscoveryMetadata</code> through <code>PreparedLinkPredData</code>, builds schema gates in
+            <code>ModelDims.from_link_pred_data</code>, passes discovery into <code>H2SNN.encode()</code>,
+            and adds the existing AMPSS discovery loss to BCE link training. The original train-role
+            DCV selector from this version is superseded by the Version 0.12 probe selector and kept
+            only as a baseline option.</li>
+            <li>Graph classification now builds a fixed train-derived schema pool from typed two-hop
+            face signatures, constructs per-batch <code>DiscoveryMetadata</code> for the selected face groups,
+            and applies the same <code>SchemaGate</code>/<code>InstanceGate</code> weighting and discovery
+            regularizer inside <code>GraphClassificationTrainer</code>.</li>
+            <li>Added <code>src/data/discovery_preparation.py</code> for the original DCV candidate/stat
+            and face materialization path. Existing link and graph experiment YAMLs now enable
+            <code>discovery.enabled: true</code> with bounded instance caps.</li>
+            <li>Added focused regression tests for link-prediction gate construction and graph batch
+            schema-id filtering. Full suite on 2026-07-14: 46 tests passing when run unsandboxed; the
+            sandboxed run is blocked by Windows/Drive temporary-file and pycache write permissions.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-14 - Version 0.9</h3>
+          <ul>
+            <li>Added <code>model.layer_dropout</code> as true diffusion-layer dropout. During training,
+            <code>HodgeDiffusion</code> now applies dropout to both node cochains and edge cochains after
+            each Hodge update step; evaluation remains deterministic. The default is <code>0.0</code> for
+            backward compatibility, and W&amp;B/Optuna tuning now sweep
+            <code>[0.0, 0.1, 0.2, 0.3]</code>.</li>
+            <li>Aligned the tuning grids for learning rate and weight decay with the discrete paper-style
+            sets: learning rate uses <code>{1,5} x {10^-5,10^-4,10^-3,10^-2}</code>, and weight decay uses
+            <code>{1,5} x {10^-5,10^-4,10^-3}</code>.</li>
+            <li>Link prediction now materializes typed two-hop path faces from its train-only
+            message-passing graph using the same <code>FaceGroup</code> contract as node and graph
+            classification. This activates the existing edge-to-face sheaf and
+            <code>&delta;<sub>1</sub>/L1</code> path without introducing validation/test positive edges
+            into face construction.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-14 - Version 0.8</h3>
+          <ul>
+            <li>Fixed a schema-gate warm-start bug found by inspecting the one completed AMPSS run
+            on disk (<code>experiments/colab/imdb_h2snn_colab_ampss/</code>): <code>SchemaGate
+            .init_from_scores</code> set <code>logit = log(topology_score)</code> directly, and
+            since <code>topology_score</code> is a product of several sub-1 factors, every gate
+            &mdash; not just weak ones &mdash; started deep in sigmoid's saturated region. That run's
+            logged <code>schema_alpha_mean</code> moved in the 5th decimal place across 200 epochs
+            and <code>schema_active_count</code> (&alpha;&gt;0.5) stayed at 0.0 for every epoch,
+            including at the best checkpoint, while test Macro-F1 (0.559) landed far below the
+            75.05 the paper reports for the same "full AMPSS" configuration on IMDB. Root cause:
+            vanishing sigmoid gradient at that initialization, not a training-dynamics issue.
+            <code>init_from_scores</code> now standardizes log-scores (zero mean/unit std) before
+            scaling by a new <code>schema_gate_init_temperature</code> and clamping to
+            <code>schema_gate_init_max_logit</code>, centering the gate population near
+            alpha=0.5 with a non-vanishing initial gradient while still preserving relative
+            ranking. A now-superseded separate discovery-loss ramp was also introduced. The
+            current objective instead uses the operator ramp for both task connectivity and
+            discovery regularization.</li>
+            <li>Added a global <code>max_total_instances</code> cap (default <code>None</code> =
+            unbounded, matches prior behavior) enforced across the whole selected schema pool in
+            <code>enumerate_discovered_faces</code>, complementing the existing per-schema
+            <code>max_instances_per_schema</code> cap — memory/compute no longer scales
+            unboundedly with <code>selected_schema_k</code>.</li>
+            <li>Removed the dead <code>data.face_sample_k</code> entry from the three
+            <code>{acm,dblp,imdb}_h2snn_ampss.yaml</code> configs — it only feeds the manual
+            metapath path (<code>MetaPathConfig.sample_per_anchor</code>) and was never read by
+            <code>enumerate_discovered_faces</code>, so setting it in an auto-discovery config gave
+            the false impression it controlled AMPSS path sampling.</li>
+            <li>Added <code>tests/test_schema_discovery.py</code> — previously the schema-discovery
+            pipeline (<code>generate_schema_candidates</code>, <code>select_schema_pool</code>,
+            <code>enumerate_discovered_faces</code>, all of <code>src/data/schema_discovery.py</code>)
+            had zero direct unit test coverage; only the gate/loss layer had a regression test
+            against synthetic <code>DiscoveryMetadata</code>. New tests also cover the
+            <code>SchemaGate.init_from_scores</code> centering/clamping fix above and its
+            single-schema edge case (<code>torch.std()</code> of one element is NaN, guarded
+            separately). Full suite: 43 tests passing.</li>
+            <li>Added all AMPSS/discovery hyperparameters to
+            <code>scripts/run_h2snn_wandb_tuning.py</code>'s sweep space, gated behind a new
+            <code>--include_discovery</code> flag (mirrors the existing
+            <code>--include_pooling_type</code>/<code>--include_decoder_type</code> pattern):
+            schema-pool size and length bounds, instance sampling caps, partial-schema-propagation
+            probability, warmup epochs, the then-current six discovery loss lambdas, and the two new
+            <code>schema_gate_init_*</code> knobs. Deliberately not swept:
+            <code>min_schema_length</code>, the structural booleans
+            (<code>require_target_start/end</code>, <code>allow_repeated_node_types</code>,
+            <code>exclude_identity_metapaths</code>), and <code>schema_gate_type</code>/
+            <code>instance_gate_type</code> (only <code>"sigmoid"</code> is implemented) — these
+            change what problem is being solved rather than tune it.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-14 - Version 0.7</h3>
+          <ul>
+            <li>Graph classification now constructs real H2S-NN faces instead of passing empty
+            <code>face_groups</code> into the shared encoder. Each PyG mini-batch materializes directed
+            two-hop typed paths <code>u -&gt; v -&gt; w</code> as <code>FaceGroup</code> instances, grouped by
+            <code>(node_type, edge_type, node_type, edge_type, node_type)</code>, with the same synthetic
+            closure edge convention <code>w -&gt; u</code> used by node-classification meta-path faces.</li>
+            <li>TU graph data now carries a stable per-graph id so <code>face_sample_k</code> sampling is
+            reproducible across different PyG batch orders. The graph-classification trainer passes these
+            faces and closure edges to <code>H2SNN.encode()</code>, activating the existing edge-to-face
+            sheaf and <code>&delta;<sub>1</sub>/L1</code> path for MUTAG, PROTEINS, ENZYMES, and NCI1.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-14 - Version 0.6</h3>
+          <ul>
+            <li>Added <code>data/amazon</code> — HGB's official Amazon link-prediction benchmark (10,099
+            "product" nodes, relations <code>rel_0</code>/<code>rel_1</code> both "product-product", 148,659
+            total edges — matches HGB Table 2 exactly). Its official test file spans both relation ids, so
+            unlike every other local-HGB dataset here (one target relation each), Amazon pools both into a
+            single joint target, trained and scored together with relation id as an explicit decoder
+            feature — mirroring Simple-HGN's own <code>run_dist.py</code>, per <code>HGB/LP/benchmark/methods/baseline/README.md</code>
+            (<code>run_dist.py --dataset amazon</code>; <code>run_new.py</code> is used only for LastFM, which
+            has a single target relation). <code>LinkPredictionReadout</code>'s <code>distmult</code> decoder
+            now holds one d&times;d relation matrix per pooled relation (was a single global matrix); <code>dot</code>
+            and <code>concat_mlp</code> stay relation-agnostic, matching that HGB itself only ever tries
+            dot/DistMult for link prediction. <code>PreparedLinkPredData</code> carries a per-edge relation-id
+            tensor (train/val/test, pos/neg) that's all-zeros for every other dataset.</li>
+            <li>Moved <code>lastfm</code> from PyG's bundled <code>LastFM</code> class to the local HGB folder
+            (<code>data/LastFM</code>) that ships the same <code>node.dat</code>/<code>link.dat</code>/<code>link.dat.test</code>
+            format as PubMed/YouTube/Amazon, target relation <code>(user, rel_0, artist)</code> — the sole
+            relation in its <code>link.dat.test</code>.</li>
+            <li>Test-time negatives now come from HGB's own official fixed evaluation files
+            (<code>data/&lt;Folder&gt;_ini/&lt;Folder&gt;_ini_&lt;relation_id&gt;_label.txt</code>) when the
+            provider shipped one (PubMed, LastFM, Amazon), falling back to the existing 2-hop sampler only
+            for YouTube/AmazonBook, which have none. Confirmed via
+            <code>HGB/LP/benchmark/methods/baseline/run_new.py</code> / <code>run_dist.py</code> that this is
+            the literal file Simple-HGN reads in place of regenerating negatives — using it makes test AUROC/MRR
+            directly reproducible against HGB's published Table 4 rather than an approximation. The file's
+            head/tail columns are in HGB's raw, cross-type-shared node.dat id space (e.g. LastFM's artists
+            start at raw id 1892, not 0) and must go through the existing <code>raw_to_local</code> map before
+            adding this repo's own flattened per-type offset — an early version of this change skipped that
+            remap and produced silently wrong node pairs for LastFM.</li>
+            <li>Validation negatives switched from the 2-hop sampler to plain uniform-random for every link-prediction
+            dataset, matching HGB's official <code>get_valid_neg</code> (confirmed identical — no 2-hop
+            variant — across all three copies of HGB's data loader in this repo's <code>HGB/</code> mirror:
+            the shared benchmark loader, HGT's, and RGCN-WN18's). 2-hop/fixed-file negatives are now test-only,
+            as HGB itself does; only the <code>_sample_hgb_eval_negatives</code> family is test-facing.</li>
+            <li>Fixed two leak-check false positives surfaced by adding Amazon's two-relation pooling:
+            <code>_assert_no_message_passing_leak</code> and <code>_assert_no_leakage</code> were being called
+            once on the union of both pooled relations' edges, so a node pair connected by <em>both</em>
+            <code>rel_0</code> and <code>rel_1</code> (common for Amazon's product graph — frequently
+            co-viewed <em>and</em> co-purchased) tripped a spurious leak error even though each relation's
+            own held-out split was correctly excluded from its own message-passing edges. Both checks now run
+            per relation instead of pooled.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-06 - Version 0.5</h3>
+          <ul>
+            <li>Aligned node classification with the local HGB/NC benchmark setup: ACM, DBLP, and IMDB now load
+            through PyG <code>HGBDataset</code>, use the HGB train/test label masks, and carve validation from
+            the provided training labels with the benchmark's 20% train-label validation ratio.</li>
+            <li>Added IMDB multi-label support for HGB NC: labels remain multi-hot, training uses
+            binary cross-entropy with logits, prediction uses the HGB-equivalent <code>logits &gt; 0</code>
+            threshold, and reporting/checkpointing follows macro-F1/micro-F1 rather than accuracy.</li>
+            <li>Updated label propagation and feature-prototype augmentation so multi-hot labels are handled
+            as normalized label distributions instead of being coerced into single-class IDs.</li>
+            <li>Added local HGB-style link-prediction loaders for <code>data/PubMed</code> and
+            <code>data/youtube</code>. PubMed now uses the benchmark local files rather than Planetoid
+            PubMed, with default target relation <code>(disease, rel_2, disease)</code>; YouTube uses
+            the local multiplex user graph and defaults to one relation at a time
+            (<code>(user, rel_0, user)</code>). Added <code>pubmed_h2snn.yaml</code> and
+            <code>youtube_h2snn.yaml</code>; read-only smoke builds verified PubMed at 63,109 nodes,
+            10 relation types, and YouTube at 2,000 nodes, 5 relation types. Full test suite on
+            2026-07-06: 24 tests passing.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-05 - Version 0.4</h3>
+          <ul>
+            <li>Aligned link prediction evaluation with the HGB protocol: LastFM keeps its shipped positive
+            train/validation/test split, but validation/test negatives are now regenerated as source-node
+            two-hop hard negatives with a 1:1 positive/negative ratio. Link prediction metrics now include
+            HGB-style source-grouped MRR alongside AUROC.</li>
+            <li>For PyG AmazonBook, which does not ship HGB LP split files and is a pure user-book bipartite
+            graph, the loader now builds a deterministic 81/9/10 positive split, reconstructs forward and
+            reverse message-passing relations from train positives only, and falls back to deterministic random
+            non-edges when no source-to-target two-hop candidates exist in that topology.</li>
+            <li>Added focused regression tests for the 81/9/10 split, HGB two-hop negative sampling, and HGB
+            source-grouped MRR. Full test suite on 2026-07-05: 20 tests passing.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-05 - Version 0.3</h3>
+          <ul>
+            <li>Extended the current H2S-NN (<code>src/</code>) beyond node classification to
+            <strong>link prediction</strong> (LastFM, AmazonBook) and <strong>graph classification</strong>
+            (MUTAG, PROTEINS, ENZYMES, NCI1) — matching the task/dataset/metric setup of the HetSheaf
+            reference paper (arXiv:2409.08036) on the PyG-ready dataset subset. <code>H2SNN.forward</code>
+            was split into a reusable <code>encode()</code> backbone (everything through the diffusion and
+            regularizer terms, task-agnostic) plus task-specific readout heads: the existing
+            <code>NodeReadout</code>, a new <code>LinkPredictionReadout</code> (swappable dot-product /
+            DistMult / concat+MLP decoder), and a new <code>GraphPooling</code> interface with three
+            swappable graph-level readouts — <code>MeanPool</code> (baseline floor), <code>GramPool</code>
+            (O(d)-invariant, exploits that restriction maps are always orthogonal in every existing config),
+            and <code>S2Pool</code> (GL(d)-invariant, per <code>S2Pool_proposal.md</code>) — ablated the same
+            way HetSheaf's own Table 1 pooling ablation is structured, rather than committing to one
+            untested design.</li>
+            <li>Graph classification reuses the legacy CSNN baseline's precomputed 10-fold splits
+            (<code>folds/{ENZYMES,PROTEINS,NCI1}_splits.json</code>) for direct comparability; MUTAG (which
+            the legacy baseline never ran) gets a fresh stratified 10-fold split, cached to
+            <code>folds/MUTAG_splits.json</code> in the same JSON shape.</li>
+            <li>Fixed a data-leakage bug found during verification: AmazonBook mirrors its target relation
+            into a reverse relation (<code>('book','rated_by','user')</code>) built from the same edge
+            index — held-out validation edges were being removed from the forward relation's message-passing
+            graph but not the reverse, leaking validation supervision back in. Both directions are now
+            stripped, with an explicit assertion guarding against regression.</li>
+            <li>Added a learned per-node "free" embedding fallback for feature-less graphs (LastFM/AmazonBook
+            ship no node features at all — <code>TypeSpecificNodeEncoder</code>'s <code>nn.Linear(0, d)</code>
+            would otherwise collapse every node of a type to an identical vector).</li>
+            <li>New entry points: <code>scripts/run_graph_classification_folds.py</code> (10-fold loop driver)
+            alongside the existing <code>scripts/train_h2snn.py</code> (now dispatches on
+            <code>cfg.task_type</code>, unchanged in structure); new notebooks
+            <code>executer_link_prediction.ipynb</code> and <code>executer_graph_classification.ipynb</code>
+            following the existing <code>executer.ipynb</code> thin-driver pattern.</li>
+            <li>Verified end-to-end on real downloaded data for every new dataset (not just synthetic
+            fixtures): LastFM and AmazonBook link prediction (loss decreasing, AUROC/AUPR improving from
+            near-random), MUTAG with all three pooling variants, and ENZYMES exercising the precomputed-fold
+            reuse path. Added <code>tests/test_graph_pooling.py</code>, including gauge-invariance regression
+            tests for GramPool (orthogonal gauge) and S2Pool (both orthogonal and general invertible gauge) —
+            the shape-and-NaN check alone would not have caught the degenerate-constant failure mode a
+            single-column descriptor stack produces.</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-05 - Version 0.2</h3>
+          <ul>
+            <li>Fixed both P0 bugs: closure edges now enter <code>&delta;<sub>0</sub></code>/<code>L0</code> via a new <code>CoboundaryOps.closure_L0</code> (frozen, <code>closure_scale</code>-scaled correction), matching <code>H2SNN_corrected_algorithm.md</code> §2.3-§2.5 rather than adding them to <code>&delta;<sub>1</sub></code> (which already contributes zero there by design). Orientation is now an explicit, tested <code>face_edge_sign</code> tensor on <code>FaceGroup</code>/<code>FaceMapCache</code> instead of an implicit +1 assumption.</li>
+            <li>Fixed the P1 <code>closure_scale</code>-unused bug as part of the same change — it is now the frozen closure-edge map scale.</li>
+            <li>Fixed the P1 instance-sparsity gradient bug: added <code>H2SNNOutput.face_weight_means_grad</code> (grad-attached) so the sparsity regularizer actually trains <code>InstanceGate</code> (&beta;); the existing detached <code>face_weight_means</code> field is kept for logging only.</li>
+            <li>Added dense-reference tests for <code>closure_L0</code> and for signed <code>&delta;<sub>1</sub></code>/<code>delta1_T</code> (using a non-trivial -1 sign), plus a targeted gradient-flow test for the instance-sparsity fix. All in <code>tests/test_models.py</code>; full suite remains green (13 tests).</li>
+          </ul>
+        </div>
+        <div class="update-box">
+          <h3>2026-07-04 - Version 0.1</h3>
+          <ul>
+            <li>Created first living HTML documentation for current H2S-NN.</li>
+            <li>Documented current implementation, architecture, benefits, and research position.</li>
+            <li>Flagged closure-edge, orientation-sign, discovery-gradient, and test-coverage risks.</li>
+            <li>Reframed AMPSS discovery from "not fully end-to-end" to a two-stage design: non-differentiable schema preselection followed by differentiable sheaf-Hodge refinement.</li>
+          </ul>
+        </div>
+
+        <h3>How To Update This Document</h3>
+        <ol>
+          <li>When code changes, update the affected architecture and limitation rows.</li>
+          <li>When experiments run, add result summaries under validation with dataset, seed count, and config.</li>
+          <li>When a bug is fixed, move it from the limitation table into the update log with a link to the file or commit.</li>
+          <li>When paper positioning changes, update the research position and external reference anchors.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

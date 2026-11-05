@@ -1,0 +1,71 @@
+# =========================
+# NODE CLASSIFICATION - AMPSS / discovery tuning
+# Use notebook: notebooks/h2snn_node_classification_wandb_tuning_colab.ipynb
+# Recommended: INCLUDE_DISCOVERY = True
+# =========================
+
+CONFIG_PATH = Path('configs/experiments/acm_h2snn_ampss.yaml')
+EXP_NAME = 'acm_h2snn_ampss_node_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/dblp_h2snn_ampss.yaml')
+EXP_NAME = 'dblp_h2snn_ampss_node_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/imdb_h2snn_ampss.yaml')
+EXP_NAME = 'imdb_h2snn_ampss_node_paper_tuning'
+
+
+# =========================
+# NODE CLASSIFICATION - manual schema tuning
+# Use notebook: notebooks/h2snn_node_classification_wandb_tuning_colab.ipynb
+# Recommended: INCLUDE_DISCOVERY = False
+# =========================
+
+CONFIG_PATH = Path('configs/experiments/acm_h2snn.yaml')
+EXP_NAME = 'acm_h2snn_node_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/dblp_h2snn.yaml')
+EXP_NAME = 'dblp_h2snn_node_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/imdb_h2snn.yaml')
+EXP_NAME = 'imdb_h2snn_node_paper_tuning'
+
+
+# =========================
+# LINK PREDICTION
+# Use notebook: notebooks/h2snn_link_prediction_wandb_tuning_colab.ipynb
+# Recommended: INCLUDE_DECODER_TYPE = True
+# =========================
+
+CONFIG_PATH = Path('configs/experiments/lastfm_h2snn.yaml')
+EXP_NAME = 'lastfm_h2snn_link_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/amazonbook_h2snn.yaml')
+EXP_NAME = 'amazonbook_h2snn_link_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/pubmed_h2snn.yaml')
+EXP_NAME = 'pubmed_h2snn_link_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/youtube_h2snn.yaml')
+EXP_NAME = 'youtube_h2snn_link_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/amazon_h2snn.yaml')
+EXP_NAME = 'amazon_h2snn_link_paper_tuning'
+
+
+# =========================
+# GRAPH CLASSIFICATION
+# Use notebook: notebooks/h2snn_graph_classification_wandb_tuning_colab.ipynb
+# Recommended: INCLUDE_POOLING_TYPE = True
+# =========================
+
+CONFIG_PATH = Path('configs/experiments/mutag_h2snn.yaml')
+EXP_NAME = 'mutag_h2snn_graph_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/proteins_h2snn.yaml')
+EXP_NAME = 'proteins_h2snn_graph_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/enzymes_h2snn.yaml')
+EXP_NAME = 'enzymes_h2snn_graph_paper_tuning'
+
+CONFIG_PATH = Path('configs/experiments/nci1_h2snn.yaml')
+EXP_NAME = 'nci1_h2snn_graph_paper_tuning'

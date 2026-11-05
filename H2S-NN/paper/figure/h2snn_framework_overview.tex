@@ -1,0 +1,367 @@
+\documentclass[tikz,border=5pt]{standalone}
+
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{
+  arrows.meta,
+  positioning,
+  calc,
+  fit,
+  backgrounds
+}
+
+\definecolor{ink}{HTML}{243447}
+\definecolor{blue}{HTML}{4477AA}
+\definecolor{cyan}{HTML}{66CCEE}
+\definecolor{green}{HTML}{228833}
+\definecolor{gold}{HTML}{CCBB44}
+\definecolor{rose}{HTML}{CC6677}
+\definecolor{lightblue}{HTML}{EAF2F8}
+\definecolor{lightcyan}{HTML}{EAF8FA}
+\definecolor{lightgreen}{HTML}{EAF5EE}
+\definecolor{lightgold}{HTML}{FAF6DF}
+\definecolor{papergray}{HTML}{F5F6F7}
+
+\begin{document}
+
+\begin{tikzpicture}[
+  font=\sffamily\footnotesize,
+  text=ink,
+  >=Latex,
+
+  flow/.style={
+    -{Latex[length=2.4mm,width=1.7mm]},
+    line width=1pt,
+    draw=ink
+  },
+
+  internal flow/.style={
+    -{Latex[length=1.7mm,width=1.2mm]},
+    draw=ink!75,
+    line width=0.65pt,
+    rounded corners=2pt
+  },
+
+  stage/.style={
+    rounded corners=3pt,
+    line width=0.9pt,
+    minimum width=4.15cm,
+    minimum height=4.80cm,
+    inner sep=7pt,
+    align=center
+  },
+
+  title/.style={
+    font=\sffamily\bfseries\scriptsize,
+    text height=1.6ex,
+    text depth=0.35ex,
+    align=center
+  },
+
+  item/.style={
+    rounded corners=1.8pt,
+    draw=ink!42,
+    fill=white,
+    line width=0.55pt,
+    text width=3.25cm,
+    minimum height=0.70cm,
+    align=center,
+    inner xsep=3pt,
+    inner ysep=3pt
+  },
+
+  compact item/.style={
+    rounded corners=1.8pt,
+    draw=ink!42,
+    fill=white,
+    line width=0.55pt,
+    text width=1.30cm,
+    minimum width=1.30cm,
+    minimum height=0.82cm,
+    align=center,
+    inner xsep=2pt,
+    inner ysep=3pt
+  },
+
+  output/.style={
+    rounded corners=1.8pt,
+    draw=ink!45,
+    fill=white,
+    line width=0.55pt,
+    text width=2.85cm,
+    minimum height=0.58cm,
+    align=center,
+    inner xsep=3pt,
+    inner ysep=2.5pt
+  },
+
+  flow label/.style={
+    font=\sffamily\tiny,
+    align=center,
+    fill=white,
+    inner xsep=2pt,
+    inner ysep=1pt
+  }
+]
+
+% ------------------------------------------------------------------
+% Stage containers
+% ------------------------------------------------------------------
+
+\node[
+  stage,
+  draw=blue,
+  fill=lightblue
+] (data) {};
+
+\node[
+  stage,
+  draw=gold!85!black,
+  fill=lightgold,
+  right=8mm of data
+] (ampss) {};
+
+\node[
+  stage,
+  draw=green,
+  fill=lightgreen,
+  right=8mm of ampss
+] (hodge) {};
+
+\node[
+  stage,
+  draw=rose,
+  fill=rose!8,
+  right=8mm of hodge
+] (task) {};
+
+% ------------------------------------------------------------------
+% Stage 1: Data input
+% ------------------------------------------------------------------
+
+\node[
+  title,
+  blue!70!black,
+  anchor=north
+] (data-title) at ([yshift=-3.5mm]data.north)
+  {1.\ Data Input};
+
+\node[
+  item,
+  below=5.5mm of data-title
+] (graph)
+  {Typed nodes, edges,\\and features};
+
+\node[
+  item,
+  below=3.5mm of graph
+] (encode)
+  {Type-specific\\node encoder};
+
+\node[
+  item,
+  below=3.5mm of encode
+] (relation)
+  {Relation embeddings};
+
+% Optional internal flow
+\draw[internal flow,draw=blue!75!black]
+  (graph.south) -- (encode.north);
+
+\draw[internal flow,draw=blue!75!black]
+  (encode.south) -- (relation.north);
+
+% ------------------------------------------------------------------
+% Stage 2: AMPSS
+% ------------------------------------------------------------------
+
+\node[
+  title,
+  gold!55!black,
+  anchor=north
+] (ampss-title) at ([yshift=-3.5mm]ampss.north)
+  {2.\ AMPSS Selection};
+
+\node[
+  item,
+  below=5.5mm of ampss-title
+] (candidate)
+  {Candidate schemas\\\(\sigma\)};
+
+\node[
+  item,
+  below=3.5mm of candidate
+] (preselect)
+  {Training-only\\preselection};
+
+\node[
+  item,
+  below=3.5mm of preselect
+] (gates)
+  {Instance weights\\
+   \(\alpha_\sigma,\ \beta_f,\ w_f\)};
+
+\node[
+  font=\sffamily\tiny,
+  fill=gold!28,
+  draw=gold!55!black,
+  line width=0.35pt,
+  rounded corners=1.5pt,
+  inner xsep=3pt,
+  inner ysep=1.5pt,
+  anchor=south
+] at ([yshift=2.5mm]ampss.south)
+  {preselection: training only};
+
+\draw[internal flow,draw=gold!65!black]
+  (candidate.south) -- (preselect.north);
+
+\draw[internal flow,draw=gold!65!black]
+  (preselect.south) -- (gates.north);
+
+% ------------------------------------------------------------------
+% Stage 3: H2S-NN learning
+% ------------------------------------------------------------------
+
+\node[
+  title,
+  green!60!black,
+  anchor=north
+] (hodge-title) at ([yshift=-3.5mm]hodge.north)
+  {3.\ H2S-NN Learning};
+
+\node[
+  item,
+  below=5.5mm of hodge-title
+] (geometry)
+  {Node--edge--face\\restrictions};
+
+\coordinate (split) at ([yshift=-3.2mm]geometry.south);
+
+\node[
+  compact item,
+  below left=6.5mm and 2.5mm of split
+] (nodeflow)
+  {node \(x\)\\[1pt]
+   \(\delta_0,\ L_0\)};
+
+\node[
+  compact item,
+  below right=6.5mm and 2.5mm of split
+] (edgeflow)
+  {edge \(s\)\\[1pt]
+   \(\delta_{1,w},\ L_1\)};
+
+\coordinate (merge) at
+  ($(nodeflow.south)!0.5!(edgeflow.south)+(0,-4mm)$);
+
+\node[
+  item,
+  below=7mm of merge
+] (parallel)
+  {Parallel Hodge diffusion};
+
+% Split arrows
+\draw[
+  internal flow,
+  draw=green!72!black
+]
+  (geometry.south) -- (split)
+  -| (nodeflow.north);
+
+\draw[
+  internal flow,
+  draw=green!72!black
+]
+  (geometry.south) -- (split)
+  -| (edgeflow.north);
+
+% Merge arrows
+\draw[
+  internal flow,
+  draw=green!72!black
+]
+  (nodeflow.south) -- ++(0,-3mm)
+  -| (parallel.north west);
+
+\draw[
+  internal flow,
+  draw=green!72!black
+]
+  (edgeflow.south) -- ++(0,-3mm)
+  -| (parallel.north east);
+
+% ------------------------------------------------------------------
+% Stage 4: prediction heads
+% ------------------------------------------------------------------
+
+\node[
+  title,
+  rose!75!black,
+  anchor=north
+] (task-title) at ([yshift=-3.5mm]task.north)
+  {4.\ Downstream Prediction};
+
+\node[
+  output,
+  below=5mm of task-title
+] (nodeout)
+  {Node classification};
+
+\node[
+  output,
+  below=2.8mm of nodeout
+] (linkout)
+  {Link prediction};
+
+\node[
+  output,
+  draw=rose!70!black,
+  fill=rose!12,
+  below=3.8mm of linkout
+] (pool)
+  {\textbf{SheafCovPool}};
+
+\node[
+  output,
+  below=4.5mm of pool
+] (graphout)
+  {Graph classification};
+
+\draw[
+  internal flow,
+  draw=rose!75!black
+]
+  (pool.south) -- (graphout.north);
+
+% ------------------------------------------------------------------
+% Main inter-stage flows
+% ------------------------------------------------------------------
+
+\draw[flow]
+  (data.east) -- (ampss.west);
+
+\draw[flow]
+  (ampss.east) -- (hodge.west);
+
+\draw[flow]
+  (hodge.east) -- (task.west);
+
+% Main flow labels
+\node[
+  flow label
+] at ($(data.east)!0.5!(ampss.west)$)
+  {typed\\states};
+
+\node[
+  flow label
+] at ($(ampss.east)!0.5!(hodge.west)$)
+  {selected\\paths};
+
+\node[
+  flow label
+] at ($(hodge.east)!0.5!(task.west)$)
+  {\(x^\star,\ s^\star\)};
+
+\end{tikzpicture}
+
+\end{document}

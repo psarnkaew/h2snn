@@ -1,0 +1,17 @@
+# Optional group: the H2GB stack.  Backs H2G-former, which runs through H2GB's vendored
+# graphgym. Without this group only H2G-former is lost.
+#
+# `datatable` appears in H2GB/setup.py but is imported nowhere in the package, and has no
+# Python 3.12 Windows wheel -- deliberately omitted.
+# `performer-pytorch` is required: H2GB/H2GB/network/gt_model.py (H2G-former) imports
+# GPSLayer, which imports performer_pytorch at module load.
+# `seaborn` is imported by H2GB/H2GB/graphgym/utils/plot.py.
+ogb
+yacs
+dill
+pytorch_lightning
+torchmetrics
+prettytable
+gdown
+performer-pytorch
+seaborn

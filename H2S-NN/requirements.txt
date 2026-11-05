@@ -1,0 +1,38 @@
+# H2S-NN dependencies
+#
+# Interpreter: Python 3.12 (conda env `h2snn`) - CUDA 12.4 - torch 2.6
+# This project is never installed into `base` or the system/Windows-Store Python.
+# See CLAUDE.md "Environment" for the full rule.
+#
+#   "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m pip install -r requirements.txt
+#
+# Sanity check:
+#   conda run -n h2snn python -c "import torch, torch_geometric; print(torch.__version__, torch.cuda.is_available())"
+#
+# ---------------------------------------------------------------------------------
+# This file is an aggregator. The real pins live in requirements/, split into groups
+# so one group failing to install disables only the baselines it backs instead of the
+# whole campaign -- the Colab notebooks install them one at a time and report which
+# models each failure costs. src/baselines/runtime/dependencies.py maps groups to
+# models and is the single source of truth for that mapping.
+#
+#   core.txt                 src/, scripts/, tests/ and every baseline (required)
+#   baselines-dgl.txt        GCN, GAT, HAN, SeHGNN, HINormer, PSHGCN (link pred. only)
+#   baselines-sheaf.txt      CSNN, NSD
+#   baselines-h2gb.txt       H2G-former
+#   baselines-hetero2net.txt Hetero^2Net
+#
+# Baselines needing nothing beyond core: ChebNetII, H2SGNN, LatGRL, PSHGCN (node
+# classification and graph classification).
+# ---------------------------------------------------------------------------------
+
+-r requirements/core.txt
+
+# --- baseline reproduction only: src/baselines/, scripts/run_baseline_*.py ---
+# Not needed to train or evaluate H2S-NN itself. These support the cloned baseline
+# repositories (HGB/, SeHGNN/, PSHGCN/, H2SGNN/, Hetero2Net/, H2GB/, ChebNetII/,
+# neural-sheaf-diffusion/, LatGRL/) used for the comparison tables.
+-r requirements/baselines-dgl.txt
+-r requirements/baselines-sheaf.txt
+-r requirements/baselines-h2gb.txt
+-r requirements/baselines-hetero2net.txt

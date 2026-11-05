@@ -1,0 +1,18 @@
+model: pshgcn
+task: node_classification
+dataset: acm
+source: PSHGCN/hgb/config.yaml -> 'ACM' block (upstream commit as cloned)
+notes: wd -> weight_decay. epochs/early_stopping are PSHGCN/hgb/main.py argparse defaults,
+  not dataset-specific.
+params:
+  K: 5
+  emb_dim: 64
+  hidden: 256
+  input_drop: 0.85
+  dropout: 0.25
+  lr: 0.004
+  weight_decay: 0.0
+  prop_lr: 0.05
+  prop_wd: 0.8
+  epochs: 1000
+  early_stopping: 100

@@ -1,0 +1,23 @@
+model: pshgcn
+task: link_prediction
+dataset: amazon
+source: PSHGCN/hgb-lp/training_dis.py argparse defaults (the script their README invokes as
+  `python training_dis.py --dataset amazon`)
+notes: |
+  A separate runner from the LastFM one, with materially different values (K 3 vs 1,
+  distmult vs dot, lr 6e-3 vs 5e-4), which is why both count as published cells.
+  Renames as in lastfm.yaml. See that file for their reproducibility caveat.
+params:
+  K: 3
+  emb_dim: 128
+  hidden: 256
+  embed_dim: 256
+  input_drop: 0.4
+  dropout: 0.1
+  lr: 0.006
+  weight_decay: 0.00005
+  prop_lr: 0.008
+  prop_wd: 0.001
+  decoder_type: distmult
+  epochs: 100
+  early_stopping: 50

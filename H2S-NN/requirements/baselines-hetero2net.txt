@@ -1,0 +1,9 @@
+# Optional group: Hetero2Net's own dependencies.  Backs Hetero^2Net only.
+#
+# torch_cluster is required by its metapath dropping (Hetero2Net/hetero2net/metapath.py:82),
+# not by H2S-NN itself. It is built against torch, so it comes from the same PyG index as
+# torch_scatter/torch_sparse rather than from PyPI.
+-f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+torch_cluster
+texttable
+termcolor

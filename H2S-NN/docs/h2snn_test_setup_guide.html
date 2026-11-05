@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>H2SNN Local Testing Setup Guide</title>
+  <style>
+    :root {
+      --ink: #172026;
+      --muted: #596972;
+      --paper: #f7fafb;
+      --panel: #ffffff;
+      --line: #d7e0e5;
+      --blue: #1f5f8b;
+      --teal: #0b7a75;
+      --green: #3f7b48;
+      --red: #a33e36;
+      --amber: #94620f;
+      --code-bg: #101820;
+      --code-ink: #eef6f7;
+      --soft-blue: #e9f3f8;
+      --soft-green: #eaf5ec;
+      --soft-amber: #fbf0d9;
+      --shadow: 0 12px 30px rgba(23, 32, 38, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.56;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      padding: 0.08rem 0.3rem;
+      border-radius: 4px;
+      background: #edf3f6;
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 2rem 1.25rem;
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      overflow-y: auto;
+    }
+
+    .brand {
+      margin: 0 0 0.25rem;
+      font-size: 1.15rem;
+      font-weight: 760;
+      color: var(--ink);
+    }
+
+    .subtitle {
+      margin: 0 0 1.35rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .nav {
+      display: grid;
+      gap: 0.18rem;
+      margin-top: 1rem;
+    }
+
+    .nav a {
+      display: block;
+      padding: 0.48rem 0.58rem;
+      border-radius: 6px;
+      color: #30424c;
+      font-size: 0.93rem;
+    }
+
+    .nav a:hover {
+      background: var(--soft-blue);
+      text-decoration: none;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 3.25rem min(6vw, 4rem) 2.25rem;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(31, 95, 139, 0.10), rgba(11, 122, 117, 0.08)),
+        #fbfdfe;
+    }
+
+    .hero h1 {
+      max-width: 860px;
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 850px;
+      margin: 1rem 0 0;
+      color: #40535d;
+      font-size: 1.08rem;
+    }
+
+    .content {
+      max-width: 980px;
+      padding: 2rem min(6vw, 4rem) 4rem;
+    }
+
+    section {
+      margin: 0 0 2.4rem;
+    }
+
+    h2 {
+      margin: 0 0 0.8rem;
+      font-size: 1.45rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 1.35rem 0 0.5rem;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0.5rem 0 0.9rem;
+    }
+
+    ul,
+    ol {
+      margin-top: 0.55rem;
+      padding-left: 1.35rem;
+    }
+
+    li {
+      margin: 0.38rem 0;
+    }
+
+    .callout {
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .callout.good {
+      border-left-color: var(--green);
+      background: var(--soft-green);
+      box-shadow: none;
+    }
+
+    .callout.warn {
+      border-left-color: var(--amber);
+      background: var(--soft-amber);
+      box-shadow: none;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .step {
+      margin: 1.2rem 0;
+      padding: 1.05rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .step h3 {
+      margin-top: 0;
+    }
+
+    .code-block {
+      margin-top: 0.75rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid #243340;
+      background: var(--code-bg);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.48rem 0.62rem 0.48rem 0.78rem;
+      border-bottom: 1px solid #2a3a47;
+      color: #bed0d7;
+      font-size: 0.82rem;
+    }
+
+    .copy {
+      flex: 0 0 auto;
+      min-width: 4.25rem;
+      padding: 0.34rem 0.58rem;
+      border: 1px solid #69818d;
+      border-radius: 5px;
+      color: #f3fbfc;
+      background: #1f5f8b;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .copy:hover {
+      background: #2872a4;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 1rem;
+      color: var(--code-ink);
+      background: var(--code-bg);
+      line-height: 1.45;
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: 0.9rem;
+    }
+
+    .checks {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 1rem;
+    }
+
+    .check {
+      padding: 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .check strong {
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .troubleshooting {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .troubleshooting th,
+    .troubleshooting td {
+      padding: 0.85rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .troubleshooting th {
+      background: #eef5f8;
+      color: #263943;
+      font-size: 0.92rem;
+    }
+
+    .troubleshooting tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 820px) {
+      .page {
+        display: block;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 1.2rem;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+
+      .hero {
+        padding: 2.25rem 1.25rem 1.6rem;
+      }
+
+      .content {
+        padding: 1.5rem 1.25rem 3rem;
+      }
+
+      .troubleshooting {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <p class="brand">H2SNN Setup</p>
+      <p class="subtitle">Local manual test guide for Windows PowerShell, Conda, PyTorch, and PyG.</p>
+      <nav class="nav" aria-label="Guide sections">
+        <a href="#do-this-first">Do This First</a>
+        <a href="#create-env">Create Environment</a>
+        <a href="#install">Install Packages</a>
+        <a href="#verify">Verify Torch</a>
+        <a href="#tests">Run Tests</a>
+        <a href="#training">Train H2SNN</a>
+        <a href="#success">Success Criteria</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <h1>H2SNN Local Testing Setup Guide</h1>
+        <p>
+          Follow these PowerShell steps to create a clean Conda environment, install the pinned
+          PyTorch/PyG dependencies, verify CUDA, run unit tests, and launch a small H2SNN training run.
+        </p>
+      </header>
+
+      <div class="content">
+        <section id="do-this-first">
+          <h2>Do This First</h2>
+          <div class="callout warn">
+            <strong>Use a new environment, not <code>base</code>.</strong>
+            The current <code>base</code> environment uses Python <code>3.13.9</code> and does not have
+            <code>torch</code> or <code>torch_geometric</code>. This repo pins <code>torch==2.6.*</code>
+            plus CUDA 12.4 PyG wheels, so a clean Python <code>3.12</code> Conda environment is the safer
+            test target.
+          </div>
+          <p>
+            Open Windows PowerShell. Run every command from the repository root:
+          </p>
+          <div class="code-block">
+            <div class="code-head">
+              <span>PowerShell</span>
+              <button class="copy" type="button">Copy</button>
+            </div>
+            <pre><code>cd "G:\My Drive\H2S-NN_test"</code></pre>
+          </div>
+        </section>
+
+        <section id="create-env">
+          <h2>Create Environment</h2>
+          <p>
+            Create one dedicated Conda environment named <code>h2snn</code>. Reuse it for later tests by
+            running only <code>conda activate h2snn</code>.
+          </p>
+          <div class="step">
+            <h3>1. Create and activate the environment</h3>
+            <div class="code-block">
+              <div class="code-head">
+                <span>PowerShell</span>
+                <button class="copy" type="button">Copy</button>
+              </div>
+              <pre><code>conda create -n h2snn python=3.12 -y
+conda activate h2snn
+python -m pip install --upgrade pip</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <h3>2. Confirm you are not in base</h3>
+            <div class="code-block">
+              <div class="code-head">
+                <span>PowerShell</span>
+                <button class="copy" type="button">Copy</button>
+              </div>
+              <pre><code>python --version
+conda info --envs</code></pre>
+            </div>
+            <p class="small">
+              Expected: Python should report <code>3.12.x</code>, and the active environment marker should be
+              next to <code>h2snn</code>.
+            </p>
+          </div>
+        </section>
+
+        <section id="install">
+          <h2>Install Packages</h2>
+          <p>
+            The repository already contains the dependency file. It points pip to CUDA 12.4 PyTorch and
+            PyTorch Geometric wheels.
+          </p>
+          <div class="code-block">
+            <div class="code-head">
+              <span>PowerShell</span>
+              <button class="copy" type="button">Copy</button>
+            </div>
+            <pre><code>pip install -r requirements.txt</code></pre>
+          </div>
+          <div class="callout">
+            <strong>Why this should work on your GPU</strong>
+            Your machine has an NVIDIA RTX 4060 Laptop GPU. The installed driver can run CUDA 12.4
+            PyTorch wheels even if <code>nvidia-smi</code> reports a newer maximum CUDA runtime.
+          </div>
+        </section>
+
+        <section id="verify">
+          <h2>Verify Torch And GPU</h2>
+          <p>
+            Run this exactly after installation. It checks that Python can import the graph stack and that
+            PyTorch sees CUDA.
+          </p>
+          <div class="code-block">
+            <div class="code-head">
+              <span>PowerShell</span>
+              <button class="copy" type="button">Copy</button>
+            </div>
+            <pre><code>@'
+import torch
+import torch_geometric
+print("torch:", torch.__version__)
+print("cuda available:", torch.cuda.is_available())
+print("torch cuda:", torch.version.cuda)
+print("gpu:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU only")
+'@ | python -</code></pre>
+          </div>
+          <div class="checks">
+            <div class="check">
+              <strong>Good result</strong>
+              <span><code>cuda available: True</code> and a GPU name similar to RTX 4060.</span>
+            </div>
+            <div class="check">
+              <strong>Still usable</strong>
+              <span><code>cuda available: False</code> means CPU tests can run, but CUDA training will not.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="tests">
+          <h2>Run Tests</h2>
+          <p>
+            Run discovery only from the <code>tests</code> folder. This avoids importing package
+            directories as failed tests.
+          </p>
+          <div class="code-block">
+            <div class="code-head">
+              <span>PowerShell</span>
+              <button class="copy" type="button">Copy</button>
+            </div>
+            <pre><code>python -m unittest discover -s tests -v</code></pre>
+          </div>
+          <p class="small">
+            Expected: the data, model, and trainer smoke tests should run instead of skipping with
+            <code>No module named 'torch'</code>.
+          </p>
+        </section>
+
+        <section id="training">
+          <h2>Train H2SNN</h2>
+          <p>
+            Start with CPU if you only want to verify the code path. Use CUDA once the import and GPU
+            checks pass.
+          </p>
+          <div class="step">
+            <h3>CPU smoke training</h3>
+            <div class="code-block">
+              <div class="code-head">
+                <span>PowerShell</span>
+                <button class="copy" type="button">Copy</button>
+              </div>
+              <pre><code>python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cpu --exp_name acm_smoke_cpu</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <h3>CUDA training</h3>
+            <div class="code-block">
+              <div class="code-head">
+                <span>PowerShell</span>
+                <button class="copy" type="button">Copy</button>
+              </div>
+              <pre><code>python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test</code></pre>
+            </div>
+          </div>
+          <div class="callout warn">
+            <strong>First dataset load can take time.</strong>
+            PyTorch Geometric may process cached dataset files under <code>data/</code> during the first run.
+            Let it finish unless it shows a real traceback.
+          </div>
+        </section>
+
+        <section id="success">
+          <h2>Success Criteria</h2>
+          <ul>
+            <li><code>python --version</code> reports Python <code>3.12.x</code> inside <code>h2snn</code>.</li>
+            <li>The verification snippet imports <code>torch</code> and <code>torch_geometric</code>.</li>
+            <li><code>torch.cuda.is_available()</code> is <code>True</code> for GPU training.</li>
+            <li><code>python -m unittest discover -s tests -v</code> runs the H2SNN tests without missing-torch skips.</li>
+            <li>Training creates <code>experiments\&lt;exp_name&gt;\config.yaml</code>, <code>run.log</code>, <code>metrics.jsonl</code>, and checkpoint files.</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-head">
+              <span>PowerShell</span>
+              <button class="copy" type="button">Copy</button>
+            </div>
+            <pre><code>Get-ChildItem experiments\acm_h2snn_test
+Get-ChildItem experiments\acm_h2snn_test\checkpoints</code></pre>
+          </div>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <table class="troubleshooting">
+            <thead>
+              <tr>
+                <th>Symptom</th>
+                <th>Likely cause</th>
+                <th>Fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>No module named 'torch'</code></td>
+                <td>You are in <code>base</code> or install failed.</td>
+                <td>Run <code>conda activate h2snn</code>, then rerun <code>pip install -r requirements.txt</code>.</td>
+              </tr>
+              <tr>
+                <td><code>conda activate</code> fails in PowerShell</td>
+                <td>Conda shell integration is not initialized.</td>
+                <td>Run <code>conda init powershell</code>, close PowerShell, reopen it, then activate <code>h2snn</code>.</td>
+              </tr>
+              <tr>
+                <td>PyG packages fail to install</td>
+                <td>Python version or wheel index does not match the repo pin.</td>
+                <td>Confirm Python <code>3.12.x</code>, then use the repo command <code>pip install -r requirements.txt</code> from the root folder.</td>
+              </tr>
+              <tr>
+                <td><code>cuda available: False</code></td>
+                <td>CPU-only torch installed, driver issue, or GPU hidden from the environment.</td>
+                <td>Run the CPU smoke command first. For GPU, reinstall from <code>requirements.txt</code> inside <code>h2snn</code> and confirm <code>nvidia-smi</code> works.</td>
+              </tr>
+              <tr>
+                <td>Tests error when using plain discovery</td>
+                <td><code>python -m unittest discover -v</code> may discover package directories.</td>
+                <td>Use <code>python -m unittest discover -s tests -v</code>.</td>
+              </tr>
+              <tr>
+                <td>Training starts but is slow</td>
+                <td>The ACM config uses <code>epochs: 200</code> and the first data processing pass can be slow.</td>
+                <td>Let the run continue, or make a temporary short config later if you only need a one-epoch smoke test.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="notes">
+          <h2>Notes</h2>
+          <p>
+            This file is only a local guide. It does not install packages or modify your environment by
+            itself. The actual setup happens when you copy the commands into PowerShell.
+          </p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll(".code-block").forEach((block) => {
+      const button = block.querySelector(".copy");
+      const code = block.querySelector("pre code");
+      if (!button || !code) {
+        return;
+      }
+      button.addEventListener("click", async () => {
+        const text = code.innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = "Copied";
+          window.setTimeout(() => {
+            button.textContent = "Copy";
+          }, 1400);
+        } catch (error) {
+          const range = document.createRange();
+          range.selectNodeContents(code);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          button.textContent = "Selected";
+          window.setTimeout(() => {
+            button.textContent = "Copy";
+          }, 1400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

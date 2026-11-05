@@ -1,0 +1,77 @@
+"""Historical DCV selector retained for provenance only."""
+
+from __future__ import annotations
+
+from typing import Mapping
+
+import torch
+
+from src.configs.config import TrainConfig
+from src.data.schema_discovery import (
+    enumerate_discovered_faces,
+    estimate_schema_stats,
+    generate_schema_candidates,
+    select_schema_pool,
+)
+from src.data.schema_structures import DiscoveryMetadata
+from src.data.structures import FaceGroup
+
+
+def build_amp_ss_faces(
+    config: TrainConfig,
+    *,
+    node_slices: Mapping[str, tuple[int, int]],
+    edge_index: torch.Tensor,
+    edge_type: torch.Tensor,
+    relation_tuples: tuple[tuple[str, str, str], ...],
+    target_node_type: str,
+    propagated_labels: torch.Tensor,
+    split_seed: int,
+) -> tuple[tuple[FaceGroup, ...], DiscoveryMetadata | None, torch.Tensor]:
+    """Run the deprecated DCV-heuristic AMPSS path for baseline compatibility."""
+    candidates = generate_schema_candidates(
+        relation_tuples=relation_tuples,
+        target_node_type=target_node_type,
+        min_length=config.discovery.min_schema_length,
+        max_length=config.discovery.max_schema_length,
+        require_target_start=config.discovery.require_target_start,
+        require_target_end=config.discovery.require_target_end,
+        allow_repeated_node_types=config.discovery.allow_repeated_node_types,
+        max_identities=config.discovery.max_schema_identities,
+    )
+    if not candidates:
+        return tuple(), None, edge_index.new_empty((2, 0))
+
+    stats = estimate_schema_stats(
+        candidates=candidates,
+        node_slices=node_slices,
+        edge_index=edge_index,
+        edge_type=edge_type,
+        propagated_labels=propagated_labels,
+        target_node_type=target_node_type,
+        max_instances_per_anchor=config.discovery.max_instances_per_anchor,
+        split_seed=split_seed,
+    )
+    selected_schemas, selected_stats, topology_scores = select_schema_pool(
+        candidates=candidates,
+        stats=stats,
+        selected_schema_k=config.discovery.selected_schema_k,
+    )
+    if not selected_schemas:
+        return tuple(), None, edge_index.new_empty((2, 0))
+
+    face_groups, discovery_metadata, closure_edge_index = enumerate_discovered_faces(
+        node_slices=node_slices,
+        edge_index=edge_index,
+        edge_type=edge_type,
+        schemas=selected_schemas,
+        selected_stats=selected_stats,
+        topology_scores=topology_scores,
+        max_instances_per_anchor=config.discovery.max_instances_per_anchor,
+        max_instances_per_schema=config.discovery.max_instances_per_schema,
+        exclude_identity_metapaths=config.discovery.exclude_identity_metapaths,
+        split_seed=split_seed,
+        max_schema_length=config.discovery.max_schema_length,
+        max_total_instances=config.discovery.max_total_instances,
+    )
+    return face_groups, discovery_metadata, closure_edge_index

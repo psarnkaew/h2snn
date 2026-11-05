@@ -1,0 +1,27 @@
+# Core stack: required by src/, scripts/, tests/ and by EVERY baseline.
+#
+# Interpreter: Python 3.12 (conda env `h2snn`) - CUDA 12.4 - torch 2.6
+# This project is never installed into `base` or the system/Windows-Store Python.
+# See CLAUDE.md "Environment" for the full rule.
+#
+# Installing this file alone is enough to train and evaluate H2S-NN itself. The
+# baseline comparison tables additionally need the optional groups in this directory;
+# see requirements.txt for the full list.
+
+tqdm
+numpy
+scipy
+pyyaml
+scikit-learn
+wandb
+pandas
+umap-learn
+matplotlib
+
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch==2.6.*
+
+-f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+torch_geometric
+torch_scatter
+torch_sparse

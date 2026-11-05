@@ -1,0 +1,42 @@
+model: csnn
+task: graph_classification
+dataset: enzymes
+source: exp/scripts/run_enzymes.sh (the authors' own ENZYMES command for the legacy CSNN
+  baseline, which lives in this repository under models/ and exp/)
+notes: |
+  The only published graph-classification cell in the campaign. Renames: early_stopping
+  stays as-is, hidden_channels as-is, weight_decay from --weight_decay.
+
+  Three flags from that script are deliberately not carried over, because they belong to
+  their runner rather than to the model:
+    --folds=10, --stop_strategy=acc  -> the campaign's protocol supplies the splits and
+        selects on validation Macro-F1 uniformly across every baseline.
+    --model=CoopSheaf                -> selects the architecture their exp.run dispatches
+        on; the adapter constructs CSNN directly.
+    --task=graph_level               -> their readout is global mean pool followed by
+        their own MLP. The campaign gives every graph-classification baseline the same
+        mean-pool + linear head, so the encoder runs with graph_level off and emits node
+        embeddings. The difference is a linear head in place of their MLP.
+params:
+  d: 3
+  layers: 1
+  hidden_channels: 64
+  embed_dim: 64
+  gnn_type: SAGE
+  gnn_layers: 1
+  gnn_hidden: 64
+  gnn_default: true
+  gnn_residual: false
+  linear_emb: false
+  layer_norm: false
+  batch_norm: true
+  num_heads: 1
+  left_weights: true
+  right_weights: true
+  use_act: true
+  lr: 0.002
+  weight_decay: 0.0001
+  input_dropout: 0.0
+  dropout: 0.1
+  epochs: 3000
+  early_stopping: 500

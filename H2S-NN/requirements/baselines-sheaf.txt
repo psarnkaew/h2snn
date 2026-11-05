@@ -1,0 +1,14 @@
+# Optional group: Householder orthogonal maps.  Backs CSNN (models/orthogonal.py:9) and
+# NSD (neural-sheaf-diffusion/models/orthogonal.py), both of which import it at module
+# level, so neither can be fitted without it.
+#
+# The current src/ H2S-NN does NOT use this -- it uses the pure-PyTorch
+# src/models/fasthpp.py. The package exists in this environment for those two baselines.
+#
+# torch_householder ships no wheels, only an sdist whose setup.py does
+# `from torch.utils.cpp_extension import BuildExtension, CppExtension` at build time.
+# Under pip's default build isolation the build env has no torch and the build fails with
+# "No module named 'torch'". Install this group only AFTER core.txt is in place, and if
+# the build still fails, rerun it with --no-build-isolation so setup.py can see the
+# already-installed torch.
+torch_householder

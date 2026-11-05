@@ -1,0 +1,28 @@
+model: h2sgnn
+task: node_classification
+dataset: dblp
+source: H2SGNN/config.yaml -> 'DBLP' block (upstream commit as cloned)
+notes: wd -> weight_decay. u and epochs/early_stopping come from H2SGNN/main.py argparse
+  defaults; the ACM block's unused 'dprate' key is dropped.
+params:
+  K: 6
+  emb_dim: 256
+  hidden: 32
+  input_drop: 0.8
+  dropout: 0.5
+  lr: 0.005
+  weight_decay: 0.0001
+  temp_lr: 0.001
+  temp_wd: 0.01
+  temp_list_lr: 0.001
+  temp_list_wd: 0.01
+  beta_lr: 1.0e-05
+  beta_wd: 0.0
+  alpha: 0.1
+  alpha_list: 0.8
+  a: -0.75
+  b: 1.25
+  u: 0.5
+  poly: GPR_legendre
+  epochs: 1000
+  early_stopping: 100

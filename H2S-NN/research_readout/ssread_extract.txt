@@ -1,0 +1,685 @@
+                                                      Learnable Structural Semantic Readout for
+                                                                 Graph Classification
+                                                                    Dongha Lee1 , Su Kim2 , Seonghyeon Lee2 , Chanyoung Park3 , Hwanjo Yu2∗
+                                                                     1
+                                                                   University of Illinois at Urbana-Champaign (UIUC), Urbana, IL, United States
+                                                              2
+                                                               Pohang University of Science and Technology (POSTECH), Pohang, Republic of Korea
+                                                            3
+                                                              Korea Advanced Institute of Science and Technology (KAIST), Daejeon, Republic of Korea
+                                                               donghal@illinois.edu, {kimsu, sh0416, hwanjoyu}@postech.ac.kr, cy.park@kaist.ac.kr
+arXiv:2111.11523v1 [cs.LG] 22 Nov 2021
+
+
+
+
+                                            Abstract—With the great success of deep learning in various
+                                         domains, graph neural networks (GNNs) also become a dominant
+                                         approach to graph classification. By the help of a global readout
+                                         operation that simply aggregates all node (or node-cluster)
+                                         representations, existing GNN classifiers obtain a graph-level
+                                         representation of an input graph and predict its class label using
+                                         the representation. However, such global aggregation does not
+                                         consider the structural information of each node, which results in
+                                         information loss on the global structure. Particularly, it limits the
+                                         discrimination power by enforcing the same weight parameters
+                                         of the classifier for all the node representations; in practice, each
+                                         of them contributes to target classes differently depending on its
+                                         structural semantic. In this work, we propose structural semantic
+                                         readout (SSRead) to summarize the node representations at the
+                                         position-level, which allows to model the position-specific weight      Fig. 1: Examples of graph-level structural information. Two
+                                         parameters for classification as well as to effectively capture         input graphs are consistently morphed in the space where
+                                         the graph semantic relevant to the global structure. Given an           structural semantic is encoded (plotted by t-SNE), and the
+                                         input graph, SSRead aims to identify structurally-meaningful            structural positions are marked in four different colors.
+                                         positions by using the semantic alignment between its nodes and
+                                         structural prototypes, which encode the prototypical features
+                                         of each position. The structural prototypes are optimized to            machine (SVM); this makes the features non-adaptive to a
+                                         minimize the alignment cost for all training graphs, while the          target task [7].
+                                         other GNN parameters are trained to predict the class labels.              Recently, there have been a lot of attempts to exploit
+                                         Our experimental results demonstrate that SSRead significantly
+                                         improves the classification performance and interpretability of         graph neural networks (GNNs) for graph classification [7]–
+                                         GNN classifiers while being compatible with a variety of aggre-         [11], and they have shown promising results without expensive
+                                         gation functions, GNN architectures, and learning frameworks.           computations required by graph kernels. They aim to learn the
+                                                                                                                 effective representations (i.e., low-dimensional latent vectors)
+                                           Index Terms—Graph classification, Graph neural networks,              of input graphs while being trained to predict the class labels
+                                         Global structural information, Learnable graph readout
+                                                                                                                 based on the representations. Most of them basically adopt
+                                                                                                                 the message passing architecture such as graph convolutional
+                                                                    I. I NTRODUCTION                             networks (GCNs) [12] that compute each node representation
+                                            Graph classification refers to the task of predicting class          based on its local graph structure. Through hierarchical graph
+                                         labels of input graphs, and it has been applied to a wide               pooling [8], [10], [11], [13] and readout [9], [14], [15] which
+                                         range of graphs, including molecular structures [1], biological         summarize the node representations, they finally obtain a
+                                         networks [2], and social networks [3]. The key challenge is             graph-level representation of the entire input graph.
+                                         to extract informative (or discriminative) graph features from             A recent challenge for improving the expressivity of the
+                                         topological structures (i.e., nodes and edges) and auxiliary            GNNs is leveraging the global (or graph-level) structural
+                                         node features. Early work on graph classification utilized a            information. In case of convolutional neural networks (CNNs)
+                                         variety of graph kernels [4], [5] to generate task-agnostic             for encoding images, they fully utilize the fixed position of
+                                         features from complex graph structures and use them for                 each pixel by the help of spatial convolution and spatial
+                                         classification. However, such kernel-based approaches incur             pooling, thereby obtaining a structured feature map that pre-
+                                         expensive computational cost which is quadratic (or sometimes           serves the spatial information. Unlike images whose pixels
+                                         cubic) with respect to the number of training graphs and their          have consistent positions in a structured way, graphs implicitly
+                                         nodes [6]. In addition, they are not able to jointly learn graph        represent the global position of their nodes by an adjacency
+                                         features with an off-the-shelf classifier such as support vector        matrix whose node-order can be permuted (i.e., graph iso-
+                                                                                                                 morphism). In this sense, most studies have developed GNN
+                                           * Corresponding author                                                modules that capture such global position information into
+the representations at the node-level [16]–[18] (e.g., structure-       Our extensive evaluation on graph classification benchmarks
+aware message passing which further considers structural             demonstrates the effectiveness of SSRead in terms of both
+information of neighbor nodes), or at the subgraph-level [11],       classification performance and interpretability. SSRead sig-
+[13], [19] (e.g., graph pooling based on spectral clustering).       nificantly enhances the discrimination power of a classifier
+   Despite these efforts, the global structural information has      for all the datasets, regardless of aggregation functions, GNN
+not been carefully considered at the graph-level representations     architectures, and learning objectives. In particular, it achieves
+yet. Note that every GNN classifier uses a global readout            higher accuracy for predicting the structural properties (e.g.,
+operation, which simply aggregates all remaining node (or            the number of rings in an input molecule) than the global
+subgraph) representations, to obtain a permutation-invariant         readout, by effectively capturing the global structural infor-
+graph-level representation [8]–[10], [20]. In this work, we          mation into its final graph-level representation. Furthermore,
+point out that the global readout does not consider the              our qualitative analyses on node-position alignment and its
+structural information of each node, which incurs information        localization performance support that SSRead provides better
+loss on the global structure of an input graph. As depicted          interpretability of GNNs as well.
+in Figure 1, graphs are composed of several structurally-               The main contributions are summarized as follows.
+meaningful positions, termed as structural positions; e.g.,             • Compatibility — SSRead can be easily embedded into
+different functional groups for molecular graphs, and commu-               any GNN architectures (i.e., compatible with a variety of
+nities with different densities for social graphs. In this case, a         message passing and graph pooling layers) and make use
+globally-aggregated representation cannot accurately express               of any aggregation functions for its position-level readout.
+the inclusive graph semantic relevant to the structural posi-           • Performance — SSRead improves the classification ac-
+tions. Moreover, it limits the capability of the GNN classifier            curacy by learning the position-level graph representa-
+in that the classification layer considers all the aggregated              tions with the position-aware classification layer, which
+nodes by using the global weight parameters. That is, it cannot            exploits the global structural information.
+model different interactions of each node (atom) with the target        • Interpretability — With the structural prototypes opti-
+class (molecular property) depending on its structural position            mized from training data, SSRead can perform segmen-
+(functional group).                                                        tation on a graph according to the structural semantic and
+   To tackle this challenge, we propose a novel graph readout              localize further discriminative regions for the target class.
+technique, Structural Semantic Readout (SSRead), that outputs
+the graph-level representation explicitly keeping the global                                   II. P RELIMINARY
+structural information. Motivated by consistently-morphed            A. Problem Formulation
+graphs in the latent space according to its structural semantic
+                                                                        Let D be a training set of graph instances (G ∈ G) with
+(Figure 1), our SSRead takes advantage of consistent po-
+                                                                     their class labels (y ∈ Y), where there exist C classes,
+sitions in the latent space, which eventually correspond to
+                                                                     Y = {1, . . . , C}. Each graph can be represented as an
+the structurally-meaningful positions in each graph. We first
+                                                                     adjacency matrix A ∈ {0, 1}N ×N and its node feature matrix
+introduce trainable parameters for representing the predefined
+                                                                     X ∈ RN ×F , where N and F are the numbers of nodes and
+number of the structural positions, referred to as structural
+                                                                     node features, respectively. The goal of our work is to train an
+prototypes, to encode the latent semantic (i.e., prototypical
+                                                                     effective graph encoder that maps input graphs into the low-
+features) of the positions seen in the training graphs. Using the
+                                                                     dimensional latent representations, and also its classifier that
+structural prototypes, SSRead aligns each node representation
+                                                                     accurately predicts the class labels using the representations.
+with its semantically-closest position, then it aggregates the
+set of node representations aligned with each position. By           B. Graph Neural Networks for Classification
+doing so, SSRead produces a permutation-invariant graph-
+level representation that consists of multiple-and-consistent           The most basic architecture of graph neural networks
+positions. In the end, it allows to model the classification layer   (GNNs) is a stack of graph convolutional layers [12] or
+by using position-specific weight parameters.                        graph attentional layers [21]. Each layer of this architec-
+                                                                     ture, also known as a message-passing mechanism, computes
+   As a part of the GNN classifier trained for its target task,
+                                                                     the representation of each node by aggregating those of its
+the structural prototypes are simultaneously optimized so that
+                                                                     neighbor nodes. To be specific, starting from the input node
+the total alignment cost is minimized for all training graphs.
+                                                                     features H (0) = X ∈ RN ×F , the output of the l-th graph
+However, the optimal cost for the hard (i.e., discontinuous)
+                                                                     convolutional layer H (l) ∈ RN ×d is computed by1
+alignment between the nodes and the positions is not differ-                                                            
+                                                                                                  1       1
+entiable. Thus, in order to effectively update the parameters                  H (l) = ReLU D̃ − 2 ÃD̃ − 2 H (l−1) W (l) ,    (1)
+by using its gradient, we utilize the soft-relaxation of the
+node-position alignment cost which considers all possible            where Ã = A + I is the adjacency matrix with added self-
+alignments. That is, the structural prototypes are optimized         loops, D̃ is the degree matrix of Ã, and W (l) is a trainable
+to be better aligned with the node representations, while the        weight matrix. The node representations computed by the last
+GNN parameters are optimized to more accurately classify             graph convolution (i.e., the L-th layer) is regarded as the
+an input graph. These two types of optimizations mutually
+enhance each other in a unified manner.                                1 For simplicity, we use the same dimensionality d for all the layers.
+                                                                                 node clusters within an input graph, while keeping the struc-
+                                                                                 tural information in its adjacency matrix A. For this reason,
+                                                                                 the node (or node cluster) representations from the graph
+                                                                                 pooling need to be summarized into a consistent graph-level
+                                                                                 representation in the end, mainly performed by a permutation-
+                                                                                 invariant readout operation.
+                                                                                    In this work, we point out that the global readout operation
+                                                                                 cannot capture the structural information of each node (or node
+                                                                                 cluster) representation. In Figure 1, a single graph instance
+                                                                                 consists of several structurally-meaningful positions, referred
+     Fig. 2: The overall architecture of a GNN classifier.                       to as structural positions, whose nodes share distinct local
+                                                                                 structures. A global aggregation of all node representations,
+                                                                                 not explicitly considering such position information, makes the
+output of a GNN node encoder, GNN(G; Θ) = H (L) ∈ RN ×d
+                                                                                 final representation difficult to clearly express the global struc-
+where Θ is the set of all trainable parameters in the layers.
+                                                                                 ture of an input graph. Particularly, in terms of classification,
+   To summarize the node representations into a higher-level
+                                                                                 it allows its classification layer only to adopt global weight
+graph representation, recent studies have developed various
+                                                                                 parameters that equally consider all the nodes regardless
+hierarchical pooling techniques that iteratively downsample
+                                                                                 of their structural position. Since different local structures
+the nodes while preserving the topological structure based
+                                                                                 can differently contribute to target classes, the global weight
+on a bottom-up approach. This type of graph pooling layer
+                                                                                 eventually limits the discrimination power of the classifier.
+allows GNNs to attain scaled-down graphs in an end-to-end
+manner, based on score-based node selection [10], [20], [22]
+and node clustering [8], [11], [13]. In the end, a graph-                                  IV. S TRUCTURAL S EMANTIC R EADOUT
+level representation is obtained by a readout operation that
+aggregates the representations of all remaining nodes, then                      A. Structural Semantic Readout
+the final classification scores are computed based on the
+representation. Figure 2 illustrates the overall architecture of                    The goal of SSRead is to attain a structured graph represen-
+a GNN classifier.                                                                tation by summarizing the unordered node representation. For-
+                                                                                 mally, it takes the hidden representation H = [h1 ; . . . ; hN ] ∈
+                     III. R ELATED W ORK                                         RN ×d as its input, then outputs H = [h1 ; . . . ; hK ] ∈ RK×d
+   We review the literature on hierarchical graph pooling and                    where K is the predefined number of structural positions.
+clarify its difference from a readout operation. Most of the                     In other words, it maps a node-level (or node cluster-level)
+existing graph pooling techniques that reduce the number                         representation into a position-level representation that keeps
+of nodes from N to N 0 can be categorized as either node                         structural consistency for any input graph. To this end, SSRead
+selection or node clustering. First, node selection methods                      (i) aligns each hidden vector with its semantically-closest
+select N 0 nodes based on their self-attention scores [10] or                    structural position, then (ii) summarizes the set of hidden
+projected scores [20] with the other0 nodes discarded. That is,                  vectors aligned with the same position.
+the pooled representation H 0 ∈ R0 N ×d and the corresponding                       1) Semantic alignment with structural prototypes: To ob-
+adjacency matrix A ∈ RN ×N are obtained by using the                             tain the alignment between the nodes and structural positions,
+indices of N 0 selected nodes idx = select(score(H), N 0 ).                      we first define M ⊂ {0, 1}N ×K to be the set of possible
+                                                                                 binary alignment matrices. For an alignment matrix M ∈ M,
+              H = H[idx, :] and A = A[idx, idx].
+                                                                                 each entry indicates the alignment between node n and struc-
+On the other hand, node clustering methods reduce the size                       tural position k; i.e., Mnk = 1 if node n is aligned with
+of a graph by pooling the node representations based on                          position k,P    otherwise Mnk = 0. We additionally enforce the
+their assigned
+            0
+               N 0 clusters. Given a cluster assignment matrix                   constraint k Mnk = 1 so that each node should be aligned
+C ∈ RN ×N obtained by graph clustering, such as soft node-                       with only a single position.
+clustering [8], [19] and spectral clustering [11], [13], the                        Then, we introduce structural prototypes P                    =
+pooled representation is computed by                                             [p1 ; . . . , pK ] ∈ RK×d , which parameterize the latent semantic
+                                                                                 (i.e., prototypical hidden features) of the structural positions.
+                  H = C T H and A = C T AC.
+                                                                                 Using a target hidden representation H and the structural
+However, the hierarchical graph pooling is not capable of                        prototypes P , we can fill the cost matrix ∆(H, P ) ∈ RN ×K
+mapping input graphs into consistent representations. To be                      whose entry becomes the alignment cost (or distance) between
+precise, the pooled representation H is still row-wise per-                      each node and structural position. In this work, we simply use
+mutable according to the order of selected nodes2 or identified                  the cosine distance between hn and pk for the cost function,
+                                                                                 i.e., [∆(H, P )]nk := δ(hn , pk ) = 1 − hn · pk /khn kkpk k.
+  2 In this work, we categorize SortPool [22] as a readout operation (not a
+                                                                                    Given an arbitrary alignment M , the total alignment cost is
+hierarchical pooling), because it arranges top-N 0 nodes in a consistent order
+by their last hidden dimension. In the PyTorch Geometric library, it is also     computed by the inner product between M and ∆(H, P ). In
+implemented as one of the global methods along with other readout operations.    this sense, the optimal cost for structural semantic alignment
+(denoted by SSA) and its alignment matrix (denoted by M ∗ )
+are obtained by
+           SSA(H, P ) =       min hM , ∆(H, P )i
+                             M ∈M
+                                                             (2)
+                   M ∗ = argminhM , ∆(H, P )i,
+                            M ∈M
+
+where h·, ·i is the Frobenius inner product between two
+matrices. Due to the constraint on the alignment matrices,
+                             P solved in a node-wise manner,
+Equation (2) can be efficiently
+                                                         ∗
+which are SSA(H, P ) =         n mink δ(hn , pk ) and Mnk =
+I[k == argmink0 δ(hn , pk0 )].
+   2) Position-level readout based on node-position alignment:     Fig. 3: The overview of the structural semantic readout.
+Using the optimal node-position alignment matrix M ∗ , SS-         Based on the optimal alignment between node representations
+Read generates a summarized vector for structural position k:      and structural prototypes, SSRead produces the position-level
+                                                                   representation. Best viewed in color.
+                              ∗
+ hk = φ(H; M ∗ , k) = φ({hn |Mnk = 1, ∀n ∈ [1, N ]}). (3)
+φ : P(Rd ) → Rd is an aggregation function which maps              positions. Our key idea is to find the optimal P that minimizes
+the set of vectors into a global vector, and P denotes the         its semantic alignment cost (defined in Equation (2)) for the
+powerset of a space. To be specific, MAX, MEAN, and SUM            hidden representations of all graph instances in the training set.
+generate a single vector by taking the maximum, mean, and          However, the naive gradient of Equation (2) cannot provide
+summation value for each latent dimension, respectively. In        P with useful guidance to learn better alignment, because
+addition, ATTENTION [14] and SET 2 SET [15] adopt the atten-       its hard-min operation takes only the optimal alignment that
+tion mechanism to take into consideration the importance of        yields the minimum cost (i.e., not differentiable). For the
+each vector, and SORT [22] performs a 1D spatial convolution       effective update of the structural prototypes by using a well-
+along the node vectors sorted by their last hidden dimension.      defined gradient, we propose a soft-relaxation of our semantic
+In the end, SSRead(H; P ) = [h1 ; . . . ; hK ] produces the        alignment cost, termed as soft-SSA, by adopting the concept
+position-level representation of reduced size K. The overview      of global alignment kernels [23]. Instead of the discontinuous
+of SSRead is illustrated in Figure 3.                              hard-min operation, soft-SSA utilizes the soft-min operation
+Theorem 1. SSRead is a permutation-invariant function,             with a smoothing parameter γ as follows.
+whose output is invariant under node permutations. That is,
+                                                                     SSAγ (H, P ) = minγ {hM , ∆(H, P )i, ∀M ∈ M} ,              (4)
+SSRead(H; P ) = SSRead(π(H); P ) for any row-wise matrix                                       (
+permutation π.                                                                                   mini≤n ai ,       γ=0
+                                                                     minγ {a1 , . . . , an } =         Pn −ai /γ                 (5)
+Proof. Let M ∗ = argminM ∈M hM , ∆(H, P )i. Given any                                            −γ log i=1 e    , γ > 0.
+row-wise matrix permutation π and permutation-invariant ag-
+                                                                   Note that the original SSA in Equation (2) is the special
+gregation function φ, the k-th vector from the SSRead layer
+                                                                   case of soft-SSA with γ = 0. In contrast to SSA(H, P ),
+is obtained by
+                                                                   Equation (4) includes all the alignment costs for possible
+     Mπ∗ = argminM ∈M hM , ∆(π(H), P )i                            alignment matrices, with the importance inversely proportional
+         = argminM ∈M hM , π(∆(H, P ))i                            to their alignment cost. Thus, the gradient of soft-SSA with
+                                                                   respect to P (i.e., ∇P SSAγ (H, P )) can effectively update
+         = π(argminM ∈M hM , ∆(H, P )i) = π(M ∗ ),                 P to minimize its distance from H by considering numerous
+  [SSRead(π(H); P )]k                                              plausible alignments rather than only the optimal alignment.
+          = φ(π(H); Mπ∗ , k) = φ(π(H); π(M ∗ ), k)                   Using the soft-SSA cost, the alignment loss for learning the
+          = φ(H; M ∗ , k) = [SSRead(H; P )]k .                     representation of the structural prototypes is defined as
+                                                                                       1    X
+   3) Complexity analyses: The semantic alignment of SS-                   Lalign =               SSAγ (GNN(G; Θ), P ).       (6)
+Read takes O(K) for parallel node-wise computation of                                 |D|
+                                                                                          (G,y)∈D
+Equation (2), with additional KD parameters for the structural
+                                                                   As the alignment loss decreases, each structural prototype pk
+prototypes P ; they do not depend on the number of nodes
+                                                                   of the SSRead layer converges to a prototypical hidden vector
+N . Since the number of structural positions is set to a smaller
+                                                                   in the latent space induced by the GNN. The gradient of
+value than the number of nodes (i.e., K < N ), SSRead neither
+                                                                   Equation (6) is efficiently calculated by the following theorem.
+incurs large memory requirements nor computational costs.
+                                                                   Theorem 2. The soft-relaxation of the semantic alignment cost
+B. Learning the Structural Prototypes                              can be calculated by summing the soft-min values of the align-
+  The remaining challenge is to learn the structural prototypes                    Peach
+                                                                   ment cost between       node and structural positions. That is,
+                                                                                      N
+so that they can capture the latent semantic of K structural       SSAγ (H, P ) = n=1 minγ {δ(hn , pk ), ∀k ∈ {1, . . . , K}}.
+Proof. For notational simplicity, we define mn to be the index                 Algorithm 1: Optimization of a GNN classifier
+of the position aligned with node n for an alignment M ∈ M.                     Input: A training set of graph instances D
+SSAγ (H, P ) = −γ log M ∈M exp(− γ1 hM , ∆(H, P )i)
+                         P                                                      Output: GNN parameters Θ, W = {W1 , . . . , WC , b}, and
+                                                                                         the structural prototypes P
+               = −γ log M ∈M exp(− γ1 n δ(hn , pmn ))
+                         P                 P
+                                                                              1 while not converged do
+
+               = −γ log n k exp(− γ1 δ(hn , pk ))
+                         Q P
+                                                                              2     for (G, y) ∈ D do
+                                                                                           . Compute the scores for C classes
+               = n −γ log k exp(− γ1 δ(hn , pk ))
+                  P          P
+                  P                                                                     H ← GNN(G; Θ)
+               = n minγ {δ(hn , pk ), ∀k ∈ {1, . . . , K}}.                   3         M ∗ ← argminM ∈M hM , ∆(P , H)i
+   It is worth noting that the process of optimizing the struc-               4         H ← [φ(H; M ∗ , 1); . . . ; φ(H; M ∗ , K)]
+tural prototypes does not explicitly require any class labels,                5         s ← softmax([hH, W1 i + b1 , . . . , hH, WC i + bC ])
+because it directly learns from the hidden representations                                            . Calculate the two losses
+H = GNN(G; Θ) of the training graphs. In other words, P is                               Lalign ← SSAγ (H, P )
+implicitly guided by a target task used for optimizing the GNN                6          Lclass ← CrossEntropy(y, s)
+parameters. For this reason, this objective can be plugged-in
+                                                                                            . Update all the model parameters
+a variety of learning frameworks, optimized by supervised or
+                                                                                         P ← P − η · ∂Lalign /∂P
+unsupervised (self-supervised) tasks.
+                                                                              7          Θ ← Θ − η · ∂Lclass /∂Θ
+C. Learning the GNN Parameters                                                8          W ← W − η · ∂Lclass /∂W
+   1) Supervised learning based on graph class labels:
+The parameters in a GNN classifier are trained in an end-
+                                                                              utilized instead of the classification loss for training our
+to-end manner by the supervised loss that guides to learn
+                                                                              graph encoder, because it provides supervision on graph-level
+discriminative graph features among the classes. For graph
+                                                                              representations based on the relationship among graphs.
+classification, thePloss is defined based on the cross entropy,
+                1                                                                Precisely, graph contrastive learning learns the graph rep-
+Lclass = − |D|        (G,y)∈D log P (y|f (G)) where P (y|f (G))               resentations of positively-related (i.e., similar) instances to be
+denotes the softmax probability that the final representation
+                                                                              close, while those of negatively-related (i.e., dissimilar) ones
+of an input graph f (G) belongs to class y, usually obtained
+                                                                              far from each other. To identify similar and dissimilar graph
+by a linear layer (or multi-layer perceptrons).
+                                                                              pairs without any class labels, it utilizes the graph augmen-
+   The major advantage of SSRead is the availability of
+                                                                              tation function T which stochastically adds small noises to
+modeling position-specific classification weights,3 which can
+                                                                              an input graph (e.g., random node drop, edge perturbation).
+be implemented by a fully-connected layer. Note that the fully-
+                                                                              For a target graph G, any augmented graphs from T (G) are
+connected layer combined with SSRead introduces the classifi-
+                                                                              regarded as positive, and all the other graphs in the training
+cation weights independently for each structural position. As a
+                                                                              set are used as negative. That is, the contrastive loss for graph
+result, the GNN classifier is able to learn more accurate classi-
+                                                                              representation learning is described by
+fication weights for the nodes with different structural seman-
+tics. For a final representation H = SSRead(GNN(G; Θ); P ),                       Lcontr =                                            (8)
+the softmax probability is defined by                                                 1  X                     exp (sim(G, G+ ))
+                                                                                  −            E     log P                             .
+                                                                                     |D|                   G− ∈D\{G} exp (sim(G, G− ))
+                               P                      
+                                  K                                                        G+ ∼T (G)
+                           exp    k=1 hk · wc,k + bc                                    G∈D
+   P (y = c|H) = P               P                           , (7)          The sim function is defined by the cosine similarity between
+                        C            K
+                         0
+                        c =1 exp     k=1  hk · w c0 ,k + bc0
+                                                                              the projected representations of two graphs; given a GNN
+where Wc = [wc,1 ; . . . ; wc,K ] ∈ RK×d and bc ∈ R are                       graph encoder f and a projection function g, sim(G1 , G2 ) =
+the classification weight matrix and bias term for class c,                   z1 · z2 /kz1 kkz1 k where z1 = g(f (G1 )) and z2 = g(f (G2 )).
+respectively. That is, the output score for class c is computed               To exploit the position-level representation obtained by the
+by sc = hH, Wc i + bc .                                                       SSRead layer, we flatten the representation by f (G) =
+   2) Self-supervised learning based on augmented graphs:                     (Flatten ◦ SSRead ◦ GNN)(G). For efficiency and scalability,
+In addition to supervised learning, we present how to learn                   only the graphs in each minibatch are considered as negative
+the GNN graph encoder that adopts the SSRead layer in                         for the computation of Equation (8), as done in [24], [27].
+an unsupervised manner. Inspired by the recent success of                        3) Optimization: Algorithm 1 describes the overall process
+self-supervised learning in computer vision [24] and natural                  of training the GNN classifier that adopts the SSRead layer. As
+language processing [25], several self-supervised methods for                 training progresses, the GNN parameters Θ and the structural
+graph representation learning were developed [26], [27] and                   prototypes P collaboratively improve with each other. To be
+they showed remarkable results for many downstream tasks.                     precise, updating the GNN parameters results in better node
+Among them, the graph-level contrastive loss [27] can be                      representations H = GNN(G; Θ) that encodes the high-level
+                                                                              features of local graph structures, thereby P can learn the
+  3 In this paper, we use the term “classification weight” to represent the   prototypical features from the enhanced representations. In
+weight parameters of the classification layer.                                addition, using more accurate structural prototypes for the SS-
+Read layer encourages the GNN to learn further discriminative                                      TABLE I: Statistics of the datasets.
+features because the classification loss is computed from the
+                                                                                     Datasets        #Graphs      Avg.#Nodes       Avg.#Edges   #Classes
+position-level representation H = SSRead(H; P ).
+                                                                                       D&D            1,178         284.32           715.66        2
+   In case of unsupervised learning, the GNN parameters                              MUTAG              188          17.93            19.79        2
+except for the classification weights can be updated by the                          Mutagen          4,337          30.32            30.77        2
+contrastive loss Lcontr (defined in Equation (8)), instead of the                      NCI1           4,110          29.87            32.30        2
+classification loss Lclass . Without any graph labels, the GNN                     PROTEINS           1,113          39.06            72.82        2
+graph encoder is effectively trained to output useful graph                          IMDB-B           1,000          19.77            96.53        2
+representations, while its SSRead layer is optimized to identify                    IMDB-M            1,500          13.00            65.94        3
+K structural positions based on the semantic alignment with
+the structural prototypes.                                                        unsupervised setting. As several unsupervised methods for
+                                                                                  node-level representation learning [30], [31] can be applied
+                           V. E XPERIMENTS                                        to graph classification, we consider one of them as well
+A. Experimental Settings                                                          as the self-supervised method for graph-level representation
+                                                                                  learning [27]. Both of them necessarily use any readout, which
+   1) Datasets: In our experiments, we use 6 graph classifi-                      can be either GRead or SSRead.
+cation benchmarks from the biochemical domain (i.e., D&D,
+                                                                                     • InfoGraph [30]: The graph learning framework that
+MUTAG, Mutagen, NCI1, and PROTEINS) and social domain
+(i.e., IMDB-B and IMDB-M), collected in TU datasets [28].                               maximizes the mutual information between graph-level
+For in-depth analyses on molecular graphs, we utilize the ad-                           and subgraph-level (of various scales) representations.
+                                                                                     • GraphCL [27]: The graph contrastive learning frame-
+ditional data sources (e.g., SMILES) of MUTAG downloaded
+from the external ChemDB.4 Figure 1 shows several examples                              work based on graph augmentation (Section IV-C2).
+of graph instances from MUTAG and IMDB-B, respectively.                              3) Implementation Details: We implement all the GNN
+   2) Baselines: We validate the effectiveness of our SSRead                      classifiers, including the GRead and SSRead layers, by using
+layer against the global readout layer (denoted by GRead) by                      PyTorch6 and PyTorch Geometric.7 For global aggregation
+using various GNN architectures. As the main architecture,                        functions, we employ the official implementation of SUM,
+we employ the GNN classifier that consists of three GCN                           MAX , MEAN , ATTENTION , SET 2 SET , and SORT , provided by
+layers [12] without any hierarchical pooling layers (denoted by                   Pytorch Geometric. In case of SORT, we  0
+                                                                                                                             tailor its aggregation
+GCN). We also consider the state-of-the-art GNN classifiers                       module from (SORT : P(Rd ) → RN ×d ) that outputs sorted
+that use advanced message passing or hierarchical pooling.                        node representations to (Flatten◦Conv◦ SORT : P(Rd ) → Rd )
+                                                                                  that outputs a summarized representation, in order to facilitate
+   • GIN [9]: The graph isomorphism network that tailors the
+                                                                                  to combine it with our SSRead layer. We only consider
+       GNN to be injective for maximizing its representational
+                                                                                  the global aggregation functions officially implemented in
+       capacity as powerful as the Wisfeiler-Lehman (WL) test.
+                                                                                  PyTorch Geometric, but any other global aggregations, such
+   • DGCNN [22]: The GNN that adopts 1D conv layers after
+                                                                                  as the second-order pooling [32], also can be combined with
+       sorting top-N 0 nodes by their last hidden dimension.
+                                                                                  our SSRead layer to output the position-level representation.
+   • DiffPool [8]: The GNN that adopts differentiable graph
+                                                                                     4) Experimental settings: For quantitative evaluation on
+       pooling layers based on the soft cluster assignment.
+                                                                                  graph classification, we follow the fair evaluation setup sug-
+   • SAGPool [10]: The GNN with pooling layers that keep
+                                                                                  gested by [7]. In detail, we train each GNN classifier with 10-
+       only a portion of nodes based on their attention scores.
+                                                                                  fold cross validation, while we further partition the training
+   • GUNet [20]: The U-Net architecture that downscales a
+                                                                                  data into training/validation sets with the ratio of 9:1. The
+       graph by selecting nodes based on their projected scores.
+                                                                                  maximum number of epochs is set to 500, and we stop training
+Note that the goal of our work is to enhance the discrimination                   if the performance on the validation set does not improve for
+power of existing GNN classifiers by replacing their GRead                        consecutive 50 epochs. We repeat each experiment five times
+layer with the SSRead layer. For this reason, we follow the de-                   with different random seeds and report their mean performance
+tails of each architecture (i.e., the composition of GNN layers                   with the standard deviation. All the experiments are conducted
+and its classification module) provided by the original papers.5                  on NVIDIA Titan Xp for GPU parallel computation. The
+The detailed architectures are described in Table II. We remark                   elapsed time for training the GNN classifiers (Figure 8) is
+that any other hierarchical graph pooling techniques [19], [29],                  also measured in this environment.
+which are not included in our experiments, are also compatible                       For each dataset, we choose the optimal number of structural
+with our readout layer; this means that their final classification                positions K ∈ {2, 4, 8, 16} that achieves the best validation
+performance can be further improved with the help of SSRead.                      accuracy for the base classifier, i.e., GCN + SSRead (SUM).
+   In addition to the supervised task that learns from labeled                    In case of the smoothing parameter γ, we fix its value to 0.01
+graphs, we also evaluate our readout layer optimized in an                        without the search to eliminate the benefit from hyperparam-
+  4 http://cdb.ics.uci.edu/cgibin/LearningDatasetsWeb.py                          eter tuning. The sensitivity analysis on these hyperparameters
+   5 Since the property of various message passing and hierarchical pooling is    is provided in Section V-D.
+all different, their optimal GNN architecture also cannot be the same. For this
+                                                                                    6 https://pytorch.org/
+reason, we employ the entire architecture suggested by the original papers,
+rather than simply replacing each GNN layer in a single fixed architecture.         7 https://pytorch-geometric.readthedocs.io/en/latest/
+TABLE II: The detailed architecture of GNN classifiers. “MP”: message passing layer, “Pool”: hierarchical pooling layer. All
+the layers (i.e., MP, Pool, and Readout) are optimized by target supervised/self-supervised tasks in an end-to-end way.
+      GNN         Message      Hierarchical    Pooling                    Architecture
+                                                                                                                  Readout          Classification
+    Classifier    Passing        Pooling        Ratio                   (Before Readout)
+    GIN [9]       GIN [9]           -              -                  MP+MP+MP+MP+MP                              SUM                 Linear
+  DGCNN [22]     GCN [12]           -              -                    MP+MP+MP+MP                         SORT (+Conv)             2L MLP
+  DiffPool [8]   SAGE [33]     DiffPool [8]       0.1                (MP+MP+MP)+Pool+MP                          MAX                 2L MLP
+  SAGPool [10]   GCN [12]     SAGPool [10]    0.5,0.5,0.5           MP+Pool+MP+Pool+MP+Pool                  MAX , MEAN              3L MLP
+   GUNet [20]    GCN [12]     TopKPool [20]   0.9,0.8,0.7   (MP+Pool+MP+Pool+MP+Pool)+(MP+MP+MP)           SUM , MAX , MEAN          2L MLP
+
+
+TABLE III: Classification accuracy of the base GNN classifier with GRead and SSRead, using five different aggregation
+functions. The results of statistically-significant improvement (i.e., p ≤ 0.05 from the paired t-test) are marked in bold face.
+ GNN Architecture                        D&D          MUTAG           Mutagen          NCI1        PROTEINS          IMDB-B          IMDB-M
+ GCN + GRead (SUM)                    67.25 (0.92)   84.84 (1.24)    80.11 (0.25)   79.79 (0.30)   71.80 (0.80)     70.62 (0.49)    47.20 (0.66)
+ GCN + SSRead (SUM)                   70.23 (1.03)   87.16 (0.84)    81.37 (0.58)   81.60 (0.42)   73.55 (0.57)     71.18 (0.45)    47.81 (0.60)
+ GCN + GRead (MAX)                    73.87 (0.99)   85.54 (1.61)    78.91 (0.41)   71.08 (0.88)   67.37 (0.67)     70.48 (0.64)    46.63 (0.65)
+ GCN + SSRead (MAX)                   75.86 (0.61)   87.87 (1.19)    80.32 (0.50)   73.19 (0.83)   69.02 (1.08)     71.26 (0.46)    47.73 (0.30)
+ GCN + GRead (MEAN)                   65.77 (0.28)   84.63 (1.20)    79.64 (0.53)   78.47 (0.78)   68.86 (0.67)     70.72 (0.47)    46.89 (0.28)
+ GCN + SSRead (MEAN)                  66.71 (0.88)   86.30 (1.25)    81.86 (0.59)   80.88 (0.31)   71.35 (0.77)     70.94 (0.74)    48.24 (0.32)
+ GCN + GRead (ATTENTION)              70.68 (0.79)   84.37 (0.82)    80.85 (0.25)   78.26 (0.28)   70.62 (0.42)     70.98 (0.56)    47.05 (0.33)
+ GCN + SSRead (ATTENTION)             71.03 (0.54)   85.35 (0.56)    81.27 (0.33)   80.83 (0.41)   71.41 (0.85)     71.66 (0.54)    47.99 (0.66)
+ GCN + GRead (SET 2 SET)              72.26 (0.63)   84.61 (0.90)    80.37 (0.58)   78.29 (0.50)   70.13 (0.81)     70.94 (0.56)    47.31 (0.40)
+ GCN + SSRead (SET 2 SET)             73.14 (0.82)   87.37 (1.56)    81.14 (0.68)   80.56 (0.28)   71.23 (1.12)     71.06 (0.26)    48.13 (0.13)
+ GCN + GRead (SORT)                   71.03 (0.75)   83.85 (1.07)    79.04 (0.35)   78.09 (0.44)   71.56 (0.55)     70.56 (0.27)    47.76 (0.66)
+ GCN + SSRead (SORT)                  72.24 (0.76)   86.48 (1.05)    81.46 (0.22)   80.44 (0.35)   73.78 (0.19)     71.26 (0.51)    48.53 (0.34)
+
+B. Effectiveness of SSRead                                             by additionally leveraging the global structural information,
+                                                                       as a completely independent module with other hierarchical
+   1) The effectiveness of SSRead with various aggregation             graph pooling layers.
+functions: To validate the effectiveness of our SSRead, we
+first compare the performance of the base GNN classifier that             3) The effectiveness of SSRead in an unsupervised setting:
+adopts either GRead or SSRead. We consider six different               We also investigate the effectiveness of SSRead in the unsu-
+aggregation functions φ: SUM, MAX, MEAN, ATTENTION,                    pervised setting, where only unlabeled graphs are available for
+SET 2 SET , and SORT . The aggregation functions that employ           training the GNN graph encoder. To this end, we first optimize
+parametric modules (i.e., ATTENTION, SET 2 SET, and SORT)              the GIN, which adopts either GRead or SSRead as its readout
+are also optimized for the target task. In Table III, SSRead           layer, based on the unsupervised (or self-supervised) learning
+shows significantly higher classification accuracy than GRead          frameworks. Then, we measure the performance of a linear
+for all the datasets. In case of GRead, the best performing            SVM classifier trained on their graph-level representations
+aggregation function varies depending on the target dataset,           with the class labels, based on 10-fold cross validation; it is
+while SSRead further improves its performance independently            also known as linear evaluation protocol conventionally used
+with the type of aggregation. Particularly, for all the datasets       to assess the quality of representations in the unsupervised
+except for D&D, SSRead (with SUM) outperforms GRead                    setting [26], [27], [30], [31]. In Table V, SSRead brings a
+(with its best performing φ). The results demonstrate good             significant improvement over GRead for both the cases of
+compatibility of SSRead with any aggregation functions used            InfoGraph and GraphCL. Interestingly, their performances are
+for its position-level readout operation.                              comparable to that of the supervised classifiers (Table IV,
+   2) The effectiveness of SSRead with the state-of-the-art            GIN) especially for the datasets containing only a small
+GNN classifiers: Next, we compare the performance of the               number of graphs (e.g., D&D, MUTAG, and PROTEINS).
+state-of-the-art GNN classifiers that adopt either GRead or            This is because the supervised GNN classifiers are easily
+SSRead. For the readout of each classifier, we adopt the               overfitted to the limited number of training graphs and their
+aggregation function φ suggested in the original papers: they          class labels, whereas the unsupervised GNN encoders are
+simply utilize one of the aggregators (i.e., SUM, MAX, MEAN,           less affected by the class labels and encode richer semantic
+SORT ) [9], [10], [22], or use multiple types of aggregation
+                                                                       related to graph structures. In conclusion, SSRead successfully
+functions together to concatenate the obtained representa-             learns the structural prototypes from the unsupervised tasks
+tions [8], [20]. In Table IV, SSRead achieves the consistent           as well, which are as effective as the supervised tasks for
+improvement over GRead for most cases. Even though the                 several datasets, thereby it enhances the quality of graph-level
+existing GNN classifiers adopt several pooling layers for hi-          representation.
+erarchical graph summarization, their last GRead layer incurs             4) The effectiveness of SSRead in predicting global struc-
+information loss on the global structure of an input graph.            tural properties: To evaluate how effectively the structural
+Thus, our SSRead layer successfully boosts the performance             information is encoded into the graph-level representation, we
+TABLE IV: Classification accuracy of the state-of-the-art GNN classifiers with GRead and SSRead. The results of statistically-
+significant improvement (i.e., p ≤ 0.05 from the paired t-test) are marked in bold face.
+  GNN Architecture                          D&D          MUTAG           Mutagen          NCI1        PROTEINS        IMDB-B         IMDB-M
+  GIN + GRead (SUM)                      70.81 (0.94)   86.09 (0.23)    82.30 (0.34)   80.71 (0.34)   71.28 (0.48)   70.44 (0.59)   47.23 (0.55)
+  GIN + SSRead (SUM)                     72.24 (0.54)   87.22 (0.65)    82.73 (0.31)   82.90 (0.33)   73.14 (0.44)   71.64 (0.52)   47.93 (0.37)
+  DGCNN + GRead (SORT)                   73.57 (0.66)   82.43 (0.67)    74.94 (0.54)   72.86 (0.46)   71.66 (0.69)   70.48 (0.70)   47.06 (0.59)
+  DGCNN + SSRead (SORT)                  74.72 (0.84)   84.77 (0.75)    77.15 (0.48)   75.66 (0.65)   72.79 (0.78)   70.78 (0.94)   47.83 (0.42)
+  DiffPool + GRead (MAX)                 76.27 (1.04)   80.22 (0.77)    81.62 (0.42)   80.02 (0.14)   71.79 (0.50)   63.62 (1.01)   45.60 (0.45)
+  DiffPool + SSRead (MAX)                77.23 (0.97)   82.20 (0.66)    81.52 (0.36)   80.54 (0.19)   71.21 (0.68)   64.66 (0.66)   46.72 (0.39)
+  SAGPool + GRead (MAX, MEAN)            73.65 (0.44)   74.89 (0.78)    76.04 (0.53)   71.50 (0.56)   71.50 (0.71)   55.56 (0.99)   39.10 (0.23)
+  SAGPool + SSRead (MAX, MEAN)           75.74 (0.80)   76.06 (0.79)    75.72 (0.73)   72.61 (0.61)   73.05 (0.81)   58.30 (0.86)   39.93 (0.42)
+  GUNet + GRead (SUM, MAX, MEAN)         74.43 (0.35)   83.29 (0.75)    81.84 (0.55)   79.27 (0.26)   75.42 (0.27)   57.94 (1.03)   43.33 (0.70)
+  GUNet + SSRead (SUM, MAX, MEAN)        76.96 (0.57)   84.34 (0.56)    81.99 (0.54)   79.71 (0.32)   75.20 (0.36)   59.16 (0.79)   44.47 (0.99)
+
+
+TABLE V: Classification accuracy on the graph-level representations from GRead and SSRead, optimized in an unsupervised
+setting. The results of statistically-significant improvement (i.e., p ≤ 0.05 from the paired t-test) are marked in bold face.
+  Learning     GNN Architecture             D&D          MUTAG           Mutagen          NCI1        PROTEINS        IMDB-B         IMDB-M
+               GIN + GRead (SUM)         70.46 (0.84)   84.91 (0.61)    73.93 (0.55)   70.54 (0.46)   72.94 (0.78)   68.66 (0.49)   47.52 (0.34)
+  InfoGraph
+               GIN + SSRead (SUM)        72.51 (0.81)   86.73 (0.68)    77.20 (0.51)   73.73 (0.43)   74.00 (0.30)   69.52 (0.28)   49.31 (0.28)
+               GIN + GRead (SUM)         71.47 (0.28)   85.61 (0.65)    74.67 (0.08)   70.65 (0.96)   73.07 (0.52)   70.58 (0.27)   47.76 (0.42)
+  GraphCL
+               GIN + SSRead (SUM)        72.94 (0.45)   88.21 (0.73)    78.45 (0.15)   74.77 (0.68)   74.19 (0.27)   72.12 (0.34)   49.52 (0.30)
+
+                                                                          comparison results. First, the supervised GIN performs better
+                                                                          than the unsupervised GIN in case of predicting the number
+                                                                          of rings. This is because there is a strong correlation between
+                                                                          the number of rings in each molecule (the target structural
+                                                                          property) and its mutagenic activity (the class label) [34].9
+                                                                          Second, InfoGraph performs better than GraphCL for these
+                                                                          tasks (Figure 4, Right), which indicates that supervision from
+                                                                          augmented graphs in GraphCL is not enough to learn the
+                                                                          global structural properties. Despite these dynamics of per-
+                                                                          formances, our SSRead steadily strengthens their capability to
+                                                                          capture the global structures compared to the case of using
+                                                                          the GRead, since every GNN architecture requires a readout
+                                                                          operation to obtain graph-level representations.
+                                                                          C. Qualitative Analysis
+                                                                             We visualize the node-position alignment obtained by SS-
+                                                                          Read (K = 4), so as to compare it with the result of
+                                                                          node clustering or node selection obtained by existing graph
+                                                                          poolings (N 0 = 4). In Figure 5, three molecular graphs from
+                                                                          MUTAG are drawn with their nodes marked in different colors.
+                                                                          SSRead clearly identifies consistent structural positions, each
+Fig. 4: Performance of GRead and SSRead in predicting                     of which actually corresponds to a different functional group
+global structural properties, optimized in supervised (Left) and          derived by chemical knowledge: benzene rings (red), car-
+unsupervised (Right) settings. Dataset: MUTAG.                            bonyl group (blue), nitro group (yellow), and cyclo-pentadiene
+                                                                          (green). On the other hand, EigenPool [11] that performs
+introduce new tasks of predicting several structural properties8          spectral clustering partitions each graph into N 0 connected
+(i.e., the number of rings, aromatic rings, and rotatable bonds)          subgraphs, but each subgraph (or node cluster) does not imply
+on the MUTAG dataset. Similar to Section V-B3, we measure                 any consistent chemical semantic; the same functional groups
+the accuracy of a linear SVM classifier based on 10-fold                  are colored differently across different molecules as well as
+cross validation, after optimizing the GNN encoder in the                 within a single molecule. TopKPool [20] selects only N 0
+supervised or unsupervised manner. In Figure 4, SSRead                    nodes within benzene rings while dropping all the other nodes,
+significantly beats GRead for all the cases, implying that                and the soft cluster assignment of DiffPool [8] is hard to
+it can effectively capture the structural properties into the             be interpreted or matched with any functional groups. In
+final representations. There are two minor observations on the            conclusion, our SSRead is capable of performing semantic
+   8 They are extracted from SMILES of each molecule by using the rd-        9 In MUTAG, the molecules possessing one or two fused rings have much
+kit.Chem package.                                                         less mutagenic potency than compounds with three or more fused rings [34].
+                                                                     Fig. 6: Test graphs from class 1 (Red) and class 2 (Blue),
+                                                                     highlighted with their CAM scores. Dataset: MUTAG.
+
+
+
+
+Fig. 5: Visualization of our structural semantic alignment
+(K = 4) and other hierarchical graph poolings (N 0 = 4).
+The structural positions and node-clusters (or selected nodes)
+are represented in different colors. Dataset: MUTAG.
+
+segmentation on input graphs without using explicit labels
+of structural semantic, by learning the structural prototypes
+from the training dataset. This can be practically used for
+discovering meaningful substructures from graph datasets.
+   We also qualitatively analyze the class activation map
+(CAM) [35], [36] on test graphs, which provides an ex-
+planation on how much each structural region (i.e., node)
+contributes to the classification of a target graph. Similar to
+grad-CAM [37], the activation of node n for its target class
+c is defined by CAMc (n) = (∂sc /∂hn ) · hn , where the
+node-wise gradient (∂sc /∂hn ) ∈ Rd implies the position-
+specific classification weight modeled by Equation (7). Fig-
+ure 6 presents correctly-classified test graphs (whose computed
+softmax probabilities are larger than 0.9), with their nodes         Fig. 7: Performance change varying the number of structural
+highlighted proportionally to their CAM scores. Note that the        positions (Left) and the smoothing parameter (Right).
+class label of MUTAG is highly correlated with the number
+of rings in a molecule, as discussed in Section V-B4. From           K and (ii) the smoothing parameter γ in the soft-SSA cost.
+the perspective of this chemical knowledge, SSRead accurately        In terms of K, for each dataset, we observe a consistent trend
+localizes the ring structure as the discriminative region of class   across the aggregation functions (Figure 7, Left). Specifically,
+1, whereas GRead more focuses on the rest of the ring when           the GNN classifier performs the best at K = 4 for MUTAG
+predicting class 1. Since GRead aggregates all node represen-        and IMDB-M, and K = 8 for NCI1. This is because all graph
+tations regardless of their structural position, it identifies the   instances in the same dataset share global properties, such as
+nitro and carbonyl groups as the representative structure for        the number of nodes and the combination of substructures,
+class 1, which are clearly distinguished from the ring structure     which are directly relevant to the optimal number of structural
+of class 2. In contrast, our position-level readout allows to        positions. Thus, we tune the value of K for each dataset, as
+extract more discriminative features within the ring structure       described in Section V-A4.
+(precisely, its corresponding structural position), while keeping       On the other hand, the optimal γ value varies depending
+the importance of other structures lower. This analysis supports     on the aggregation functions as well as the target dataset
+that the position-specific classification weights help to improve    (Figure 7, Right). Thus we simply fix it by γ = 0.01 rather
+the localization performance of the GNN classifier.                  than using its optimal value in our experiments, for a fair
+                                                                     setting. As an ablation analysis on γ, it is obvious that γ = 0
+D. Sensitivity Analysis                                              leads to significantly lower performance than its appropriate
+   We investigate the performance changes of the base GNN            value γ > 0, which support our claim that the naive gradient of
+classifier with respect to (i) the number of structural positions    hard alignment cost (Equation (2)) cannot effectively optimize
+                                                                                 [8] Z. Ying, J. You, C. Morris, X. Ren, W. Hamilton, and J. Leskovec,
+                                                                                     “Hierarchical graph representation learning with differentiable pooling,”
+                                                                                     in NeurIPS, 2018, pp. 4800–4810.
+                                                                                 [9] K. Xu, W. Hu, J. Leskovec, and S. Jegelka, “How powerful are graph
+                                                                                     neural networks?” in ICLR, 2019.
+                                                                                [10] J. Lee, I. Lee, and J. Kang, “Self-attention graph pooling,” in ICML,
+                                                                                     2019.
+                                                                                [11] Y. Ma, S. Wang, C. C. Aggarwal, and J. Tang, “Graph convolutional
+                                                                                     networks with eigenpooling,” in KDD, 2019, pp. 723–731.
+                                                                                [12] T. N. Kipf and M. Welling, “Semi-supervised classification with graph
+ Fig. 8: Training time of the GNN classifiers, increasing K.                         convolutional networks,” in ICLR, 2017.
+                                                                                [13] F. M. Bianchi, D. Grattarola, and C. Alippi, “Spectral clustering with
+                                                                                     graph neural networks for graph pooling,” in ICML, 2020, pp. 874–883.
+the structural prototypes for better alignment.                                 [14] Y. Li, D. Tarlow, M. Brockschmidt, and R. Zemel, “Gated graph
+   Finally, we report the training time of the state-of-the-art                      sequence neural networks,” in ICLR, 2016.
+                                                                                [15] O. Vinyals, S. Bengio, and M. Kudlur, “Order matters: Sequence to
+GNN classifiers on the D&D and NCI1 datasets,10 increasing                           sequence for sets,” in ICLR, 2016.
+K from 2 to 16. In Figure 8, the training time of the GNN                       [16] G. Bouritsas, F. Frasca, S. Zafeiriou, and M. M. Bronstein, “Improving
+classifiers with SSRead is not much different compared to the                        graph neural network expressivity via subgraph isomorphism counting,”
+                                                                                     arXiv preprint arXiv:2006.09252, 2020.
+case of GRead. This strongly indicates that the computation                     [17] H. Pei, B. Wei, K. C.-C. Chang, Y. Lei, and B. Yang, “Geom-gcn:
+of the optimal alignment hardly affects the total training time,                     Geometric graph convolutional networks,” in ICLR, 2020.
+as discussed in Section IV-A3. Moreover, the forward and                        [18] J. You, R. Ying, and J. Leskovec, “Position-aware graph neural net-
+                                                                                     works,” in ICML, 2019, pp. 7134–7143.
+backward computation of Equation (4) (Lines 7 and 9 in                          [19] H. Yuan and S. Ji, “Structpool: Structured graph pooling via conditional
+Algorithm 1) does not incur much cost by Theorem 2, which                            random fields,” in ICLR, 2020.
+facilitates the efficient optimization.                                         [20] H. Gao and S. Ji, “Graph u-nets,” in ICML, 2019.
+                                                                                [21] P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Lio, and
+                                                                                     Y. Bengio, “Graph attention networks,” in ICLR, 2018.
+                          VI. C ONCLUSION                                       [22] M. Zhang, Z. Cui, M. Neumann, and Y. Chen, “An end-to-end deep
+   This paper proposes a novel graph readout technique, named                        learning architecture for graph classification,” in AAAI, 2018.
+                                                                                [23] M. Cuturi, J.-P. Vert, O. Birkenes, and T. Matsui, “A kernel for time
+as SSRead, which outputs structured (or position-level) repre-                       series based on global alignments,” in ICASSP, vol. 2, 2007, pp. II–413.
+sentations in order to explicitly leverage the global structural                [24] T. Chen, S. Kornblith, M. Norouzi, and G. Hinton, “A simple framework
+information for graph classification. To this end, SSRead first                      for contrastive learning of visual representations,” in ICML, 2020.
+                                                                                [25] J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “BERT: Pre-
+identifies the structural position of the nodes by using the                         training of deep bidirectional transformers for language understanding,”
+semantic alignment between the node representations and the                          in NAACL, jun 2019, pp. 4171–4186.
+structural prototypes, which are optimized to best summarize                    [26] Y. Rong, Y. Bian, T. Xu, W. Xie, Y. Wei, W. Huang, and J. Huang, “Self-
+                                                                                     supervised graph transformer on large-scale molecular data,” NeurIPS,
+K structural semantics observed in the training graphs. Then,                        2020.
+it produces position-level representations by aggregating the                   [27] Y. You, T. Chen, Y. Sui, T. Chen, Z. Wang, and Y. Shen, “Graph
+node representations in each position. Our experiments support                       contrastive learning with augmentations,” in NeurIPS, 2020.
+                                                                                [28] C. Morris, N. M. Kriege, F. Bause, K. Kersting, P. Mutzel, and M. Neu-
+that SSRead consistently enhances the classification perfor-                         mann, “Tudataset: A collection of benchmark datasets for learning with
+mance and interpretability of the GNN classifier while pro-                          graphs,” arXiv preprint arXiv:2007.08663, 2020.
+viding great compatibility with various aggregation functions,                  [29] E. Noutahi, D. Beaini, J. Horwood, S. Giguère, and P. Tossou, “To-
+                                                                                     wards interpretable sparse graph representation learning with laplacian
+GNN architectures, and learning frameworks.                                          pooling,” arXiv preprint arXiv:1905.11577, 2019.
+Acknowledgement. This work was supported by the NRF                             [30] F.-Y. Sun, J. Hoffmann, V. Verma, and J. Tang, “Infograph: Unsupervised
+                                                                                     and semi-supervised graph-level representation learning via mutual
+grant funded by the MSIT (No. 2020R1A2B5B03097210,                                   information maximization,” in ICLR, 2020.
+2021R1C1C1009081), and the IITP grant funded by the MSIT                        [31] P. Veličković, W. Fedus, W. L. Hamilton, P. Liò, Y. Bengio, and R. D.
+(No. 2018-0-00584, 2019-0-01906).                                                    Hjelm, “Deep graph infomax,” in ICLR, 2019.
+                                                                                [32] Z. Wang and S. Ji, “Second-order pooling for graph neural networks,”
+                                                                                     TPAMI, 2020.
+                             R EFERENCES                                        [33] W. Hamilton, Z. Ying, and J. Leskovec, “Inductive representation
+ [1] N. Wale, I. A. Watson, and G. Karypis, “Comparison of descriptor spaces         learning on large graphs,” in NeurIPS, 2017, pp. 1024–1034.
+     for chemical compound retrieval and classification,” KAIS, pp. 347–375,    [34] A. K. Debnath, R. L. Lopez de Compadre, G. Debnath, A. J. Shusterman,
+     2008.                                                                           and C. Hansch, “Structure-activity relationship of mutagenic aromatic
+ [2] K. M. Borgwardt, C. S. Ong, S. Schönauer, S. Vishwanathan, A. J.               and heteroaromatic nitro compounds. correlation with molecular orbital
+     Smola, and H.-P. Kriegel, “Protein function prediction via graph ker-           energies and hydrophobicity,” Journal of medicinal chemistry, pp. 786–
+     nels,” Bioinformatics, vol. 21, 2005.                                           797, 1991.
+ [3] P. Yanardag and S. Vishwanathan, “Deep graph kernels,” in KDD, 2015.       [35] B. Zhou, A. Khosla, A. Lapedriza, A. Oliva, and A. Torralba, “Learning
+ [4] K. M. Borgwardt and H.-P. Kriegel, “Shortest-path kernels on graphs,”           deep features for discriminative localization,” in CVPR, 2016, pp. 2921–
+     in ICDM, 2005.                                                                  2929.
+ [5] N. Shervashidze, P. Schweitzer, E. J. Van Leeuwen, K. Mehlhorn, and        [36] P. E. Pope, S. Kolouri, M. Rostami, C. E. Martin, and H. Hoffmann,
+     K. M. Borgwardt, “Weisfeiler-lehman graph kernels,” JMLR, 2011.                 “Explainability methods for graph convolutional neural networks,” in
+ [6] Z. Wu, S. Pan, F. Chen, G. Long, C. Zhang, and S. Y. Philip, “A                 CVPR, 2019, pp. 10 772–10 781.
+     comprehensive survey on graph neural networks,” IEEE transactions          [37] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and
+     on neural networks and learning systems, 2020.                                  D. Batra, “Grad-cam: Visual explanations from deep networks via
+ [7] F. Errica, M. Podda, D. Bacciu, and A. Micheli, “A fair comparison of           gradient-based localization,” in ICCV, 2017, pp. 618–626.
+     graph neural networks for graph classification,” in ICLR, 2020.
+
+  10 In Table I, each graph from the D&D dataset has a large number of nodes,
+while the NCI1 dataset contains a large number of graph instances.
+

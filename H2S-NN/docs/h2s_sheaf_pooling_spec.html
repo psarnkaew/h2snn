@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H2S-Pool: Gauge-Equivariant Typed Sheaf Pooling Specification</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #172033;
+      --text: #e5e7eb;
+      --muted: #a7b0c0;
+      --accent: #7dd3fc;
+      --accent-2: #c4b5fd;
+      --good: #86efac;
+      --warn: #fde68a;
+      --bad: #fca5a5;
+      --border: #334155;
+      --code: #0b1020;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 44px 28px 90px;
+    }
+    h1, h2, h3, h4 { line-height: 1.25; color: #f8fafc; }
+    h1 { font-size: 2.25rem; margin: 0 0 12px; }
+    h2 { font-size: 1.65rem; margin-top: 48px; border-top: 1px solid var(--border); padding-top: 28px; }
+    h3 { font-size: 1.25rem; margin-top: 32px; }
+    h4 { font-size: 1.05rem; margin-top: 24px; color: #dbeafe; }
+    a { color: var(--accent); }
+    p { margin: 0.65rem 0; }
+    .subtitle { color: var(--muted); font-size: 1.08rem; max-width: 900px; }
+    .meta { margin-top: 16px; color: var(--muted); font-size: 0.95rem; }
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin: 22px 0;
+      box-shadow: 0 16px 30px rgba(0,0,0,0.18);
+    }
+    .note { border-left: 4px solid var(--accent); }
+    .warning { border-left: 4px solid var(--warn); }
+    .danger { border-left: 4px solid var(--bad); }
+    .success { border-left: 4px solid var(--good); }
+    .toc {
+      columns: 2;
+      column-gap: 36px;
+      margin-top: 16px;
+    }
+    .toc a { display: block; text-decoration: none; margin: 4px 0; color: #bfdbfe; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    th, td {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th { background: #1e293b; color: #e0f2fe; text-align: left; font-weight: 650; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.025); }
+    tr:last-child td { border-bottom: none; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    code { background: rgba(125, 211, 252, 0.1); color: #bae6fd; padding: 0.1em 0.35em; border-radius: 6px; }
+    pre {
+      background: var(--code);
+      color: #d1d5db;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .mini {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.025);
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 10px;
+      margin: 3px 4px 3px 0;
+      color: #dbeafe;
+      background: rgba(125,211,252,0.08);
+      font-size: 0.84rem;
+    }
+    .formula-block {
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+    .small { color: var(--muted); font-size: 0.92rem; }
+    .checklist li { margin: 7px 0; }
+    .section-label { color: var(--accent-2); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; font-size: 0.82rem; }
+    .kbd { border: 1px solid var(--border); border-bottom-width: 2px; padding: 1px 6px; border-radius: 6px; background: #111827; color: #e5e7eb; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="section-label">Implementation specification</div>
+      <h1>H2S-Pool: Gauge-Equivariant Typed Sheaf Pooling for Graph Classification</h1>
+      <p class="subtitle">
+        A detailed design document for implementing a true hierarchical sheaf pooling layer that produces graph-level representations while respecting permutation symmetry, gauge symmetry, heterogeneous node/edge types, and heterophilous structure.
+      </p>
+      <p class="meta">
+        Intended users: Codex, Claude Code, and human researchers implementing H2S-NN-style graph classification models.
+      </p>
+    </header>
+
+    <section class="card note">
+      <h3>Historical status: superseded</h3>
+      <p>
+        This document records an abandoned hierarchical pooling exploration and is not the current
+        H2S-NN graph readout. The finalized method is <strong>SheafCovPool</strong>, a single-level,
+        attention-based mean-and-covariance readout over orthogonal-gauge-invariant Gram descriptors.
+        See <a href="sheafcovpool_implementation.md">the current mechanism specification</a>.
+        THS-Pool, Galerkin coarsening, spectral pooling, and other hierarchical variants below are
+        retained only as historical design work.
+      </p>
+    </section>
+
+    <section class="card note">
+      <h3>Core idea in one paragraph</h3>
+      <p>
+        SHEAFPOOL-style readout solves a useful but limited problem: it aggregates stalk-valued node embeddings into one graph representation. H2S-Pool is more ambitious. It performs <strong>actual hierarchical sheaf pooling</strong>: it maps a fine graph sheaf $(G,\mathcal F,H)$ into a smaller coarse graph sheaf $(G',\mathcal F',H')$, then optionally applies further sheaf message passing on the coarse graph. The intermediate hierarchy should be <strong>permutation-equivariant</strong> and <strong>gauge-equivariant</strong>, while only the final graph representation must be <strong>permutation-invariant</strong> and <strong>gauge-invariant</strong>.
+      </p>
+    </section>
+
+    <section class="card">
+      <h3>Table of contents</h3>
+      <div class="toc">
+        <a href="#scope">1. Scope and design principle</a>
+        <a href="#notation">2. Mathematical notation</a>
+        <a href="#symmetries">3. Required symmetries</a>
+        <a href="#architecture">4. Proposed architecture</a>
+        <a href="#descriptors">5. Gauge-invariant descriptors</a>
+        <a href="#assignment">6. Type-aware assignment matrix</a>
+        <a href="#transport">7. Transport-before-pooling</a>
+        <a href="#coarse-sheaf">8. Coarsening the sheaf</a>
+        <a href="#heterogeneous">9. Heterogeneous graph handling</a>
+        <a href="#heterophily">10. Heterophily-aware pooling</a>
+        <a href="#readout">11. Final invariant readout</a>
+        <a href="#losses">12. Training losses</a>
+        <a href="#implementation">13. PyTorch implementation plan</a>
+        <a href="#pseudocode">14. Pseudocode</a>
+        <a href="#tests">15. Unit tests and invariance checks</a>
+        <a href="#experiments">16. Experiments and ablations</a>
+        <a href="#node-tasks">17. Extension to node/link tasks</a>
+        <a href="#agent-instructions">18. Coding-agent instructions</a>
+      </div>
+    </section>
+
+    <section id="scope">
+      <h2>1. Scope and design principle</h2>
+      <p>
+        The target problem is graph classification using a sheaf neural network on homogeneous, heterogeneous, or heterophilous graphs. The method should produce a graph representation $h_G$ for each input graph and should be compatible with hierarchical pooling.
+      </p>
+
+      <h3>1.1 Readout versus actual pooling</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Input</th>
+            <th>Output</th>
+            <th>Example</th>
+            <th>Limitation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Terminal graph readout</td>
+            <td>$\{H_v\}_{v\in V}$</td>
+            <td>$h_G$</td>
+            <td>Mean, sum, attention, SHEAFPOOL</td>
+            <td>No smaller graph; no subsequent coarse sheaf diffusion</td>
+          </tr>
+          <tr>
+            <td>Hierarchical graph pooling</td>
+            <td>$(G,\mathcal F,H)$</td>
+            <td>$(G',\mathcal F',H')$ with $|V'|<|V|$</td>
+            <td>DiffPool-style coarsening, MinCut-style coarsening, proposed H2S-Pool</td>
+            <td>Requires valid coarse graph and valid coarse sheaf</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card warning">
+        <p>
+          Do not implement H2S-Pool as only <code>global_pool(H)</code>. The intended contribution is a coarsening layer that can be placed between sheaf convolution blocks.
+        </p>
+      </div>
+
+      <h3>1.2 Main design principle</h3>
+      <div class="formula-block">
+        $$
+        \boxed{
+        \text{intermediate hierarchy: permutation-equivariant and gauge-equivariant}
+        }
+        $$
+        $$
+        \boxed{
+        \text{final graph representation: permutation-invariant and gauge-invariant}
+        }
+        $$
+      </div>
+      <p>
+        Intermediate layers should not collapse all gauge-dependent information into scalar invariants too early. Stalk-valued signals often need to remain vector- or matrix-valued so that later sheaf convolution layers can process them. The final classifier, however, must not depend on arbitrary node ordering or arbitrary stalk coordinate choices.
+      </p>
+    </section>
+
+    <section id="notation">
+      <h2>2. Mathematical notation</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Meaning</th>
+            <th>Typical tensor shape</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$G=(V,E)$</td>
+            <td>Input graph</td>
+            <td>Node count $n=|V|$, edge count $e=|E|$</td>
+          </tr>
+          <tr>
+            <td>$\tau(v)$</td>
+            <td>Node type of node $v$</td>
+            <td><code>node_type: [N]</code></td>
+          </tr>
+          <tr>
+            <td>$\rho(e)$</td>
+            <td>Edge or relation type of edge $e$</td>
+            <td><code>edge_type: [E]</code></td>
+          </tr>
+          <tr>
+            <td>$H_v$</td>
+            <td>Stalk-valued node embedding at node $v$</td>
+            <td>$H_v\in\mathbb R^{d_{\tau(v)}\times C}$</td>
+          </tr>
+          <tr>
+            <td>$H$</td>
+            <td>All node stalk embeddings</td>
+            <td><code>[N, d, C]</code> if all stalk dimensions equal</td>
+          </tr>
+          <tr>
+            <td>$F_{u\to v}^{(r)}$</td>
+            <td>Fine-scale sheaf transport/restriction map for relation $r$</td>
+            <td><code>[E, d_dst, d_src]</code></td>
+          </tr>
+          <tr>
+            <td>$L_{\mathcal F}$</td>
+            <td>Sheaf Laplacian</td>
+            <td><code>[N*d, N*d]</code> conceptually; sparse/block in practice</td>
+          </tr>
+          <tr>
+            <td>$m$</td>
+            <td>Number of coarse supernodes</td>
+            <td>$m=\lceil r_{pool} n\rceil$ or type-dependent</td>
+          </tr>
+          <tr>
+            <td>$S$</td>
+            <td>Soft node-to-supernode assignment matrix</td>
+            <td>$S\in\mathbb R^{n\times m}$</td>
+          </tr>
+          <tr>
+            <td>$T_{v\to a}$</td>
+            <td>Transport from node $v$'s stalk to supernode $a$'s stalk</td>
+            <td>$\mathbb R^{d'_a\times d_v}$</td>
+          </tr>
+          <tr>
+            <td>$H'_a$</td>
+            <td>Coarse stalk-valued embedding at supernode $a$</td>
+            <td>$H'_a\in\mathbb R^{d'_a\times C}$</td>
+          </tr>
+          <tr>
+            <td>$F'_{a\to b}$</td>
+            <td>Coarse sheaf transport/restriction map</td>
+            <td>$\mathbb R^{d'_b\times d'_a}$</td>
+          </tr>
+          <tr>
+            <td>$h_G$</td>
+            <td>Final graph representation for classification</td>
+            <td><code>[B, hidden_dim]</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.1 Graph classification data format</h3>
+      <p>
+        For PyTorch Geometric-style batching, the implementation should support:
+      </p>
+      <pre><code>data.x_stalk      # [N_total, d, C] or packed type-specific representation
+      data.edge_index    # [2, E_total]
+      data.edge_type     # [E_total]
+      data.node_type     # [N_total]
+      data.batch         # [N_total], graph id for each node
+      data.y             # [B] or [B, num_targets]
+      data.sheaf_maps    # optional: [E_total, d_dst, d_src]</code></pre>
+    </section>
+
+    <section id="symmetries">
+      <h2>3. Required symmetries</h2>
+
+      <h3>3.1 Permutation equivariance and invariance</h3>
+      <p>
+        Let $P$ be a permutation matrix acting on nodes. A valid pooling layer should satisfy:
+      </p>
+      <div class="formula-block">
+        $$
+        \operatorname{Pool}(PH, PAP^\top, P\mathcal F P^\top)
+        =
+        P'\operatorname{Pool}(H,A,\mathcal F),
+        $$
+      </div>
+      <p>
+        where $P'$ is the induced permutation of supernodes. For the final graph representation:
+      </p>
+      <div class="formula-block">
+        $$
+        h_G(PH, PAP^\top, P\mathcal F P^\top)=h_G(H,A,\mathcal F).
+        $$
+      </div>
+      <p>
+        Implementation rule: assignment scores and pooling operations should use message passing, scatter operations, segment softmax, and symmetric reductions, never raw node indices as features.
+      </p>
+
+      <h3>3.2 Gauge transformations</h3>
+      <p>
+        A gauge transformation is a local change of stalk basis. For each node $v$:
+      </p>
+      <div class="formula-block">
+        $$
+        H_v \mapsto \widetilde H_v = G_v H_v,
+        \qquad
+        G_v\in \mathcal G_v.
+        $$
+      </div>
+      <p>
+        For an edge transport map $F_{u\to v}$, the consistent transformation is:
+      </p>
+      <div class="formula-block">
+        $$
+        F_{u\to v}\mapsto
+        \widetilde F_{u\to v}
+        =
+        G_v F_{u\to v}G_u^{-1}.
+        $$
+      </div>
+      <p>
+        If $H_v$ changes by $G_v$ and $F_{u\to v}$ changes accordingly, the transported signal transforms consistently:
+      </p>
+      <div class="formula-block">
+        $$
+        \widetilde F_{u\to v}\widetilde H_u
+        =
+        G_vF_{u\to v}G_u^{-1}G_uH_u
+        =
+        G_vF_{u\to v}H_u.
+        $$
+      </div>
+
+      <h3>3.3 Recommended gauge group</h3>
+      <div class="card warning">
+        <p>
+          For exact implementation and testing, start with the orthogonal gauge group $O(d)$, not unrestricted $GL(d)$. Orthogonal gauge invariance is clean because Gram matrices and Frobenius norms are exactly invariant:
+        </p>
+        <div class="formula-block">
+          $$
+          (QH)^\top(QH)=H^\top H,\qquad Q^\top Q=I.
+          $$
+        </div>
+        <p>
+          General $GL(d)$ invariance requires whitening or quotient constructions and is usually only approximate under rank deficiency and regularization. Do not overclaim exact $GL(d)$ invariance unless proven and tested.
+        </p>
+      </div>
+
+      <h3>3.4 Correct symmetry target</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Permutation behavior</th>
+            <th>Gauge behavior</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Assignment network</td>
+            <td>Equivariant</td>
+            <td>Invariant</td>
+            <td>Cluster membership should not depend on coordinate basis</td>
+          </tr>
+          <tr>
+            <td>Transported pooled stalks</td>
+            <td>Equivariant</td>
+            <td>Equivariant</td>
+            <td>Coarse stalks should remain valid sheaf signals</td>
+          </tr>
+          <tr>
+            <td>Coarse sheaf maps</td>
+            <td>Equivariant</td>
+            <td>Equivariant</td>
+            <td>Restriction maps must transform with coarse stalk bases</td>
+          </tr>
+          <tr>
+            <td>Final readout</td>
+            <td>Invariant</td>
+            <td>Invariant</td>
+            <td>Graph label should not depend on ordering or basis</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="architecture">
+      <h2>4. Proposed architecture</h2>
+      <p>
+        The full model should be implemented as a stack of sheaf convolution and sheaf pooling blocks:
+      </p>
+      <div class="formula-block">
+        $$
+        (G^{(0)},\mathcal F^{(0)},H^{(0)})
+        \xrightarrow{\text{SheafConv}}
+        (G^{(0)},\mathcal F^{(0)},H^{(1)})
+        \xrightarrow{\text{H2S-Pool}}
+        (G^{(1)},\mathcal F^{(1)},H^{(1)}_{pool})
+        $$
+        $$
+        \xrightarrow{\text{SheafConv}}
+        (G^{(1)},\mathcal F^{(1)},H^{(2)})
+        \xrightarrow{\text{FinalReadout}}
+        h_G
+        \xrightarrow{\text{MLP}}
+        \hat y_G.
+        $$
+      </div>
+
+      <h3>4.1 Module pipeline</h3>
+      <ol>
+        <li><strong>Sheaf encoder:</strong> compute stalk-valued node embeddings $H_v$.</li>
+        <li><strong>Invariant descriptor builder:</strong> compute gauge-invariant node, edge, and role features.</li>
+        <li><strong>Type-aware assignment network:</strong> compute $S\in\mathbb R^{n\times m}$ with type constraints.</li>
+        <li><strong>Transport builder:</strong> compute or retrieve $T_{v\to a}$.</li>
+        <li><strong>Transported stalk pooling:</strong> compute $H'_a$.</li>
+        <li><strong>Coarse graph and coarse sheaf constructor:</strong> compute $A'$, $F'$, or $L_{\mathcal F'}$.</li>
+        <li><strong>Optional repeated hierarchy:</strong> apply another sheaf block on the coarse graph.</li>
+        <li><strong>Final invariant readout:</strong> produce $h_G$ for graph classification.</li>
+      </ol>
+
+      <div class="card success">
+        <p>
+          The strongest implementation path is incremental: first implement a terminal invariant readout baseline, then implement type-aware assignments, then transported stalk pooling, then coarse sheaf maps, then Galerkin coarsening.
+        </p>
+      </div>
+    </section>
+
+    <section id="descriptors">
+      <h2>5. Gauge-invariant descriptors</h2>
+      <p>
+        The assignment matrix should be computed from gauge-invariant descriptors. This prevents cluster membership from changing under arbitrary local basis changes.
+      </p>
+
+      <h3>5.1 Node Gram descriptor</h3>
+      <p>
+        For orthogonal gauges $Q_v\in O(d)$, the simplest invariant descriptor is the channel Gram matrix:
+      </p>
+      <div class="formula-block">
+        $$
+        K_v = H_v^\top H_v \in \mathbb R^{C\times C}.
+        $$
+        $$
+        (Q_vH_v)^\top(Q_vH_v)=H_v^\top Q_v^\top Q_vH_v=H_v^\top H_v.
+        $$
+      </div>
+      <p>
+        Use either the full symmetric matrix or its upper-triangular vectorization:
+      </p>
+      <div class="formula-block">
+        $$
+        k_v=\operatorname{vec}_{\mathrm{sym}}(K_v).
+        $$
+      </div>
+      <p>
+        Avoid using only $\operatorname{diag}(K_v)$ as the main descriptor. The diagonal keeps per-channel energies but discards cross-channel geometry.
+      </p>
+
+      <h3>5.2 Normalized Gram descriptor</h3>
+      <p>
+        To reduce scale sensitivity, use a normalized Gram:
+      </p>
+      <div class="formula-block">
+        $$
+        \bar K_v = \frac{H_v^\top H_v}{\operatorname{tr}(H_v^\top H_v)+\epsilon}.
+        $$
+      </div>
+      <p>
+        This is useful when graph size, node degree, or feature magnitude varies substantially across datasets.
+      </p>
+
+      <h3>5.3 Edge residual descriptor</h3>
+      <p>
+        Sheaf information is not only in node stalks; it is also in edge-level disagreement. For edge $e=(u,v)$:
+      </p>
+      <div class="formula-block">
+        $$
+        r_e = F_{u\to e}H_u - F_{v\to e}H_v.
+        $$
+      </div>
+      <p>
+        If using directed node-to-node transport maps $F_{u\to v}$, a simplified residual is:
+      </p>
+      <div class="formula-block">
+        $$
+        r_{u\to v}=F_{u\to v}H_u-H_v.
+        $$
+      </div>
+      <p>
+        Gauge-invariant residual descriptors include:
+      </p>
+      <div class="formula-block">
+        $$
+        E_e=\|r_e\|_F^2,
+        \qquad
+        R_e=r_e^\top r_e.
+        $$
+      </div>
+      <p>
+        These descriptors are especially important for heterophily, where disagreement is not always noise; it may be task-relevant signal.
+      </p>
+
+      <h3>5.4 Node role descriptor</h3>
+      <p>
+        For heterophilous graphs, assignment should rely on structural role, not just feature similarity. Construct:
+      </p>
+      <div class="formula-block">
+        $$
+        \operatorname{role}(v)=
+        \operatorname{concat}
+        \left[
+        \{\deg_r(v)\}_{r\in\mathcal R},
+        \{\bar E_{v,r}\}_{r\in\mathcal R},
+        \operatorname{PE}(v),
+        \operatorname{typeEmb}(\tau(v))
+        \right].
+        $$
+      </div>
+      <p>
+        Here $\bar E_{v,r}$ is the average relation-specific sheaf residual energy around node $v$:
+      </p>
+      <div class="formula-block">
+        $$
+        \bar E_{v,r}
+        =
+        \frac{1}{|\mathcal N_r(v)|+\epsilon}
+        \sum_{u\in\mathcal N_r(v)}
+        \|F_{u\to v}^{(r)}H_u-H_v\|_F^2.
+        $$
+      </div>
+
+      <h3>5.5 Assignment input feature</h3>
+      <p>
+        The assignment network should receive only invariant or type/structure information:
+      </p>
+      <div class="formula-block">
+        $$
+        z_v^{assign}
+        =
+        \operatorname{concat}
+        \left[
+        \operatorname{vec}_{sym}(\bar K_v),
+        \operatorname{role}(v),
+        \operatorname{typeEmb}(\tau(v))
+        \right].
+        $$
+      </div>
+      <p>
+        Do not feed raw flattened $H_v$ to the assignment network unless you explicitly allow gauge-dependent assignments.
+      </p>
+    </section>
+
+    <section id="assignment">
+      <h2>6. Type-aware assignment matrix</h2>
+      <p>
+        The assignment matrix $S\in\mathbb R^{n\times m}$ maps fine nodes to coarse supernodes.
+      </p>
+      <div class="formula-block">
+        $$
+        S_{va}\ge 0,
+        \qquad
+        \sum_{a=1}^{m}S_{va}=1.
+        $$
+      </div>
+
+      <h3>6.1 Type-preserving assignment</h3>
+      <p>
+        For heterogeneous graphs, the safest formulation is type-preserving pooling. Let coarse supernode $a$ have type $\tau'(a)$. Then:
+      </p>
+      <div class="formula-block">
+        $$
+        S_{va}=0
+        \quad\text{if}\quad
+        \tau(v)\ne \tau'(a).
+        $$
+      </div>
+      <p>
+        This prevents invalid merges such as pooling author nodes and venue nodes into the same uninterpretable supernode.
+      </p>
+
+      <h3>6.2 Type-specific cluster counts</h3>
+      <p>
+        For each node type $t$, choose a pooling ratio $r_t\in(0,1]$ and define:
+      </p>
+      <div class="formula-block">
+        $$
+        m_t=\max\left(1,\left\lceil r_t n_t\right\rceil\right),
+        \qquad
+        n_t=|\{v:\tau(v)=t\}|.
+        $$
+      </div>
+      <p>
+        The total number of coarse nodes is:
+      </p>
+      <div class="formula-block">
+        $$
+        m=\sum_{t\in\mathcal T_V}m_t.
+        $$
+      </div>
+
+      <h3>6.3 Prototype-based assignment</h3>
+      <p>
+        For each type $t$, maintain learnable cluster prototypes $c_{t,1},\dots,c_{t,m_t}$. Compute:
+      </p>
+      <div class="formula-block">
+        $$
+        q_v=\phi_t(z_v^{assign}),
+        \qquad
+        \ell_{v,a}=q_v^\top c_{t,a},
+        \quad a\in\mathcal C_t.
+        $$
+      </div>
+      <p>
+        Then apply a type-restricted softmax:
+      </p>
+      <div class="formula-block">
+        $$
+        S_{v,a}
+        =
+        \frac{\exp(\ell_{v,a}/\tau_S)}
+        {\sum_{b\in\mathcal C_{\tau(v)}}\exp(\ell_{v,b}/\tau_S)}.
+        $$
+      </div>
+      <p>
+        $\tau_S$ is a temperature. Lower values create harder assignments; higher values create smoother assignments.
+      </p>
+
+      <h3>6.4 Assignment regularization</h3>
+      <p>
+        Avoid cluster collapse with a balance loss:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{bal}
+        =
+        \sum_{t\in\mathcal T_V}
+        \left\|
+        \frac{1}{n_t}S_t^\top\mathbf 1_{n_t}
+        -
+        \frac{1}{m_t}\mathbf 1_{m_t}
+        \right\|_2^2.
+        $$
+      </div>
+      <p>
+        Optionally encourage interpretable assignments with entropy:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{ent}
+        =
+        -\frac{1}{n}
+        \sum_{v=1}^{n}\sum_{a=1}^{m}
+        S_{va}\log(S_{va}+\epsilon).
+        $$
+      </div>
+      <p>
+        Usually minimize entropy weakly. Do not over-penalize entropy early in training because hard assignments can destabilize sheaf coarsening.
+      </p>
+    </section>
+
+    <section id="transport">
+      <h2>7. Transport-before-pooling</h2>
+      <p>
+        A core issue in sheaf pooling is that stalk embeddings at different nodes live in different local coordinate systems. Therefore, the expression
+      </p>
+      <div class="formula-block">
+        $$
+        \sum_v S_{va}H_v
+        $$
+      </div>
+      <p>
+        is generally not geometrically meaningful. We must transport all node stalks into the supernode stalk before addition.
+      </p>
+
+      <h3>7.1 Main pooling formula</h3>
+      <div class="formula-block">
+        $$
+        H'_a
+        =
+        \frac{1}{Z_a}
+        \sum_{v=1}^{n}
+        S_{va}\,T_{v\to a}H_v,
+        \qquad
+        Z_a=\sum_{v=1}^{n}S_{va}+\epsilon.
+        $$
+      </div>
+      <p>
+        Here $T_{v\to a}\in\mathbb R^{d'_a\times d_v}$ maps from node $v$'s stalk to supernode $a$'s stalk.
+      </p>
+
+      <h3>7.2 Gauge-equivariance condition</h3>
+      <p>
+        Suppose:
+      </p>
+      <div class="formula-block">
+        $$
+        H_v\mapsto \widetilde H_v=G_vH_v,
+        \qquad
+        H'_a\mapsto \widetilde H'_a=G'_aH'_a.
+        $$
+      </div>
+      <p>
+        The transport map must transform as:
+      </p>
+      <div class="formula-block">
+        $$
+        T_{v\to a}\mapsto
+        \widetilde T_{v\to a}
+        =
+        G'_aT_{v\to a}G_v^{-1}.
+        $$
+      </div>
+      <p>
+        Then the pooled stalk transforms equivariantly:
+      </p>
+      <div class="formula-block">
+        $$
+        \widetilde H'_a
+        =
+        \frac{1}{Z_a}\sum_v S_{va}\widetilde T_{v\to a}\widetilde H_v
+        =
+        \frac{1}{Z_a}\sum_v S_{va}G'_aT_{v\to a}G_v^{-1}G_vH_v
+        =
+        G'_aH'_a.
+        $$
+      </div>
+      <p>
+        This is the key theorem that makes the pooling layer mathematically clean.
+      </p>
+
+      <h3>7.3 Practical transport variants</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Description</th>
+            <th>Difficulty</th>
+            <th>Recommended use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A. Identity transport baseline</td>
+            <td>Assume all stalks of the same type share a common frame; $T_{v\to a}=I$ for same type.</td>
+            <td>Low</td>
+            <td>Debugging baseline only; not full gauge-equivariant sheaf pooling</td>
+          </tr>
+          <tr>
+            <td>B. Existing sheaf-map transport</td>
+            <td>Build $T_{v\to a}$ from products or averages of learned restriction maps along paths.</td>
+            <td>Medium</td>
+            <td>Best first serious implementation</td>
+          </tr>
+          <tr>
+            <td>C. Cluster barycentric transport</td>
+            <td>Estimate local cluster frames by minimizing transport disagreement inside each cluster.</td>
+            <td>High</td>
+            <td>Research-grade extension</td>
+          </tr>
+          <tr>
+            <td>D. Invariant-statistic pooling</td>
+            <td>Pool $H_v^\top H_v$ and residual energies instead of stalk vectors.</td>
+            <td>Low-Medium</td>
+            <td>Terminal readout or ablation, not intermediate sheaf coarsening</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>7.4 Path-based transport</h3>
+      <p>
+        If there is a path $p=(v=v_0,v_1,\dots,v_k=a)$ from node $v$ to a representative or anchor of cluster $a$, define:
+      </p>
+      <div class="formula-block">
+        $$
+        T_{v\to a}^{(p)}
+        =
+        F_{v_{k-1}\to v_k}\cdots F_{v_0\to v_1}.
+        $$
+      </div>
+      <p>
+        If multiple paths exist, use attention-weighted path transport:
+      </p>
+      <div class="formula-block">
+        $$
+        T_{v\to a}
+        =
+        \sum_{p\in\mathcal P(v,a)}\alpha_p T_{v\to a}^{(p)},
+        \qquad
+        \sum_p\alpha_p=1.
+        $$
+      </div>
+      <p>
+        The path attention $\alpha_p$ should be computed from gauge-invariant path descriptors, such as path type, path length, and transported residual energies.
+      </p>
+
+      <h3>7.5 Cluster representative approximation</h3>
+      <p>
+        For implementation simplicity, each soft cluster $a$ may choose a representative node $r(a)$ by maximum assignment:
+      </p>
+      <div class="formula-block">
+        $$
+        r(a)=\arg\max_v S_{va}.
+        $$
+      </div>
+      <p>
+        Then approximate $T_{v\to a}$ by transport from $v$ to $r(a)$ using shortest paths or relation-specific message passing. This is useful for early experiments, but it makes the method less differentiable because of the hard representative choice. A differentiable approximation uses a weighted mixture over possible representatives:
+      </p>
+      <div class="formula-block">
+        $$
+        T_{v\to a}
+        =
+        \sum_{r=1}^{n}
+        \beta_{r|a}T_{v\to r},
+        \qquad
+        \beta_{r|a}=\frac{S_{ra}}{\sum_u S_{ua}+\epsilon}.
+        $$
+      </div>
+    </section>
+
+    <section id="coarse-sheaf">
+      <h2>8. Coarsening the sheaf</h2>
+      <p>
+        A real sheaf pooling layer must output a coarse graph and a coarse sheaf, not only pooled node features.
+      </p>
+
+      <h3>8.1 Coarse adjacency</h3>
+      <p>
+        For each relation type $r$, let $A^{(r)}\in\mathbb R^{n\times n}$ be the fine adjacency matrix. The coarse relation adjacency is:
+      </p>
+      <div class="formula-block">
+        $$
+        A'^{(r)} = S^\top A^{(r)} S.
+        $$
+      </div>
+      <p>
+        Entrywise:
+      </p>
+      <div class="formula-block">
+        $$
+        A'^{(r)}_{ab}
+        =
+        \sum_{u,v}S_{ua}A^{(r)}_{uv}S_{vb}.
+        $$
+      </div>
+      <p>
+        In type-preserving pooling, $A'^{(r)}_{ab}$ is only valid if the coarse source and target types match the schema of relation $r$.
+      </p>
+
+      <h3>8.2 Coarse restriction maps</h3>
+      <p>
+        For directed edge type $r:u\to v$, aggregate fine restriction maps into a coarse transport map:
+      </p>
+      <div class="formula-block">
+        $$
+        F'^{(r)}_{a\to b}
+        =
+        \frac{1}{Z_{ab}^{(r)}}
+        \sum_{(u,v)\in E_r}
+        S_{ua}S_{vb}
+        T_{v\to b}
+        F^{(r)}_{u\to v}
+        T_{u\to a}^{\dagger},
+        $$
+        $$
+        Z_{ab}^{(r)}=
+        \sum_{(u,v)\in E_r}S_{ua}S_{vb}+\epsilon.
+        $$
+      </div>
+      <p>
+        $T_{u\to a}^{\dagger}$ is a pseudoinverse or adjoint transport from the supernode frame back to node $u$'s frame. If transports are orthogonal, $T^\dagger=T^\top$.
+      </p>
+
+      <h3>8.3 Gauge behavior of coarse restriction maps</h3>
+      <p>
+        If the fine maps transform as:
+      </p>
+      <div class="formula-block">
+        $$
+        F_{u\to v}\mapsto G_vF_{u\to v}G_u^{-1},
+        $$
+      </div>
+      <p>
+        and transports transform as:
+      </p>
+      <div class="formula-block">
+        $$
+        T_{u\to a}\mapsto G'_aT_{u\to a}G_u^{-1},
+        \qquad
+        T_{v\to b}\mapsto G'_bT_{v\to b}G_v^{-1},
+        $$
+      </div>
+      <p>
+        then the coarse map should transform as:
+      </p>
+      <div class="formula-block">
+        $$
+        F'_{a\to b}\mapsto
+        G'_bF'_{a\to b}(G'_a)^{-1}.
+        $$
+      </div>
+      <p>
+        This is the desired gauge-equivariance condition for the coarse sheaf.
+      </p>
+
+      <h3>8.4 Galerkin coarsening alternative</h3>
+      <p>
+        Instead of explicitly aggregating every restriction map, define a block pooling operator $\Pi$ that maps fine stalk signals to coarse stalk signals.
+      </p>
+      <div class="formula-block">
+        $$
+        (\Pi H)_a
+        =
+        \sum_v S_{va}T_{v\to a}H_v.
+        $$
+      </div>
+      <p>
+        In block matrix notation, $\Pi$ contains blocks:
+      </p>
+      <div class="formula-block">
+        $$
+        \Pi_{a v}=S_{va}T_{v\to a}.
+        $$
+      </div>
+      <p>
+        Then define the coarse sheaf Laplacian by Galerkin projection:
+      </p>
+      <div class="formula-block">
+        $$
+        L_{\mathcal F'}=\Pi L_{\mathcal F}\Pi^\dagger
+        $$
+      </div>
+      <p>
+        or, if using the convention that $\Pi$ maps coarse-to-fine:
+      </p>
+      <div class="formula-block">
+        $$
+        L_{\mathcal F'}=\Pi^\top L_{\mathcal F}\Pi.
+        $$
+      </div>
+      <p>
+        Choose one convention and keep it consistent throughout the implementation.
+      </p>
+
+      <h3>8.5 Energy preservation</h3>
+      <p>
+        The sheaf Dirichlet energy is:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal E_{\mathcal F}(H)
+        =
+        \sum_{(u,v)\in E}
+        \|F_{u\to v}H_u-H_v\|_F^2
+        =
+        \langle H,L_{\mathcal F}H\rangle.
+        $$
+      </div>
+      <p>
+        The coarse sheaf should preserve task-relevant energy:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{energy}
+        =
+        \left|
+        \mathcal E_{\mathcal F}(H)
+        -
+        \mathcal E_{\mathcal F'}(H')
+        \right|.
+        $$
+      </div>
+      <p>
+        Relation-specific energy preservation is better for heterogeneous graphs:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{energy}^{rel}
+        =
+        \sum_{r\in\mathcal R}
+        \omega_r
+        \left|
+        \mathcal E_{\mathcal F}^{(r)}(H)
+        -
+        \mathcal E_{\mathcal F'}^{(r)}(H')
+        \right|.
+        $$
+      </div>
+    </section>
+
+    <section id="heterogeneous">
+      <h2>9. Heterogeneous graph handling</h2>
+      <p>
+        Heterogeneous graphs have node types and relation types. Pooling must preserve the semantic schema.
+      </p>
+
+      <h3>9.1 Type-preserving pooling as default</h3>
+      <p>
+        Use type-preserving pooling for the first implementation:
+      </p>
+      <div class="formula-block">
+        $$
+        S_{va}=0\quad\text{unless}\quad\tau(v)=\tau'(a).
+        $$
+      </div>
+      <p>
+        This ensures that author nodes pool into author supernodes, paper nodes into paper supernodes, etc.
+      </p>
+
+      <h3>9.2 Relation-specific coarse edges</h3>
+      <p>
+        For each relation type $r=(t_s,t_d)$, create coarse edges only between coarse nodes of types $t_s$ and $t_d$:
+      </p>
+      <div class="formula-block">
+        $$
+        E'_{r}\subseteq
+        \{(a,b):\tau'(a)=t_s,\tau'(b)=t_d\}.
+        $$
+      </div>
+      <p>
+        Use thresholding or top-$k$ sparsification on $A'^{(r)}_{ab}$ to avoid a dense coarse graph:
+      </p>
+      <div class="formula-block">
+        $$
+        (a,b)\in E'_r
+        \quad\text{if}\quad
+        A'^{(r)}_{ab}>\eta_r
+        $$
+      </div>
+      <p>
+        or keep the top $k_r$ coarse neighbors for each coarse node and relation.
+      </p>
+
+      <h3>9.3 Type-specific stalk dimensions</h3>
+      <p>
+        If each type has a different stalk dimension $d_t$, use type-specific modules:
+      </p>
+      <div class="formula-block">
+        $$
+        H_v\in\mathbb R^{d_{\tau(v)}\times C},
+        \qquad
+        H'_a\in\mathbb R^{d'_{\tau'(a)}\times C}.
+        $$
+      </div>
+      <p>
+        For early implementation, using a shared $d$ for all types is acceptable. For a paper-level implementation, supporting type-specific $d_t$ is better.
+      </p>
+
+      <h3>9.4 Type-compositional pooling as extension</h3>
+      <p>
+        Later, allow motif-level supernodes with compositional types, such as Author-Paper or Paper-Venue. This is more expressive but requires defining new coarse stalk spaces and relation schemas. Do not implement this in the first version.
+      </p>
+    </section>
+
+    <section id="heterophily">
+      <h2>10. Heterophily-aware pooling</h2>
+      <p>
+        Heterophilous graphs violate the assumption that neighboring nodes should have similar labels or features. Pooling must not simply merge adjacent similar nodes.
+      </p>
+
+      <h3>10.1 Avoid homophily-biased losses</h3>
+      <div class="card danger">
+        <p>
+          Avoid using a naive smooth assignment loss such as
+        </p>
+        <div class="formula-block">
+          $$
+          \sum_{(u,v)\in E}\|S_u-S_v\|^2.
+          $$
+        </div>
+        <p>
+          This loss encourages connected nodes to be assigned to the same cluster and is often inappropriate for heterophily.
+        </p>
+      </div>
+
+      <h3>10.2 Cluster by structural role</h3>
+      <p>
+        In heterophily, two nodes may be similar because they play the same structural role, not because they are adjacent or feature-similar. Use role descriptors:
+      </p>
+      <div class="formula-block">
+        $$
+        z_v^{role}
+        =
+        \operatorname{concat}
+        \left[
+        \deg_1(v),\dots,\deg_R(v),
+        \bar E_{v,1},\dots,\bar E_{v,R},
+        \operatorname{PE}(v)
+        \right].
+        $$
+      </div>
+
+      <h3>10.3 Preserve disagreement energy</h3>
+      <p>
+        In homophilous graphs, edge disagreement may be noise. In heterophilous graphs, edge disagreement can encode class boundaries or role complementarity. Preserve it through:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{disagree}
+        =
+        \sum_{r\in\mathcal R}
+        \left|
+        \sum_{e\in E_r}\|r_e\|_F^2
+        -
+        \sum_{e'\in E'_r}\|r'_{e'}\|_F^2
+        \right|.
+        $$
+      </div>
+
+      <h3>10.4 Relation-conditioned attraction and repulsion</h3>
+      <p>
+        Let $\gamma_r\in[-1,1]$ be a learned or predefined relation-specific tendency. If $\gamma_r>0$, relation $r$ encourages same-cluster assignment. If $\gamma_r<0$, relation $r$ encourages separation.
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{rel}
+        =
+        \sum_{(u,v,r)\in E}
+        \gamma_r\|S_u-S_v\|_2^2.
+        $$
+      </div>
+      <p>
+        If using this loss, constrain or regularize $\gamma_r$ carefully. A negative $\gamma_r$ makes the objective nonstandard and can destabilize training. A safer formulation is:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{rel}
+        =
+        \sum_{(u,v,r)\in E}
+        \left[
+        \max(0,\gamma_r)\|S_u-S_v\|_2^2
+        +
+        \max(0,-\gamma_r)\max(0,m_0-\|S_u-S_v\|_2)^2
+        \right].
+        $$
+      </div>
+    </section>
+
+    <section id="readout">
+      <h2>11. Final invariant readout</h2>
+      <p>
+        At the final scale, convert the coarse sheaf into a graph representation $h_G$ that is invariant to node permutations and gauge transformations.
+      </p>
+
+      <h3>11.1 Type-wise Gram readout</h3>
+      <p>
+        For each coarse node $a$, compute:
+      </p>
+      <div class="formula-block">
+        $$
+        K'_a=(H'_a)^\top H'_a.
+        $$
+      </div>
+      <p>
+        Then aggregate by type:
+      </p>
+      <div class="formula-block">
+        $$
+        g_t
+        =
+        \rho_t
+        \left(
+        \sum_{a:\tau'(a)=t}
+        \phi_t\left(\operatorname{vec}_{sym}(K'_a)\right)
+        \right).
+        $$
+      </div>
+      <p>
+        This is permutation-invariant over coarse nodes of the same type and gauge-invariant under orthogonal gauge transformations.
+      </p>
+
+      <h3>11.2 Edge energy readout</h3>
+      <p>
+        Add relation-specific sheaf energy summaries:
+      </p>
+      <div class="formula-block">
+        $$
+        e_r
+        =
+        \sum_{(a,b)\in E'_r}
+        \|F'^{(r)}_{a\to b}H'_a-H'_b\|_F^2.
+        $$
+      </div>
+      <p>
+        Use a neural embedding:
+      </p>
+      <div class="formula-block">
+        $$
+        q_r=\psi_r(e_r,\operatorname{stats}_r(E'_r)).
+        $$
+      </div>
+
+      <h3>11.3 Final graph representation</h3>
+      <p>
+        Combine type and relation summaries:
+      </p>
+      <div class="formula-block">
+        $$
+        h_G
+        =
+        \operatorname{MLP}
+        \left(
+        \operatorname{concat}
+        \left[
+        \{g_t:t\in\mathcal T_V\},
+        \{q_r:r\in\mathcal R\}
+        \right]
+        \right).
+        $$
+      </div>
+      <p>
+        Alternatively, use a small transformer over type/relation tokens:
+      </p>
+      <div class="formula-block">
+        $$
+        h_G
+        =
+        \operatorname{ReadoutTransformer}
+        \left(
+        [\mathrm{CLS}],
+        \{g_t\}_{t\in\mathcal T_V},
+        \{q_r\}_{r\in\mathcal R}
+        \right)_{\mathrm{CLS}}.
+        $$
+      </div>
+
+      <h3>11.4 Classifier</h3>
+      <div class="formula-block">
+        $$
+        \hat y_G=\operatorname{softmax}(W h_G+b).
+        $$
+      </div>
+    </section>
+
+    <section id="losses">
+      <h2>12. Training losses</h2>
+      <p>
+        The total loss for graph classification is:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L
+        =
+        \mathcal L_{task}
+        +
+        \lambda_{bal}\mathcal L_{bal}
+        +
+        \lambda_{ent}\mathcal L_{ent}
+        +
+        \lambda_{energy}\mathcal L_{energy}
+        +
+        \lambda_{spec}\mathcal L_{spec}
+        +
+        \lambda_{rel}\mathcal L_{rel}.
+        $$
+      </div>
+
+      <h3>12.1 Task loss</h3>
+      <p>
+        For graph classification:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{task}
+        =
+        -\sum_{G}\sum_{c=1}^{C_y}
+        y_{G,c}\log \hat y_{G,c}.
+        $$
+      </div>
+
+      <h3>12.2 Balance loss</h3>
+      <p>
+        Prevent cluster collapse:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{bal}
+        =
+        \sum_t
+        \left\|
+        \frac{1}{n_t}S_t^\top\mathbf 1
+        -
+        \frac{1}{m_t}\mathbf 1
+        \right\|_2^2.
+        $$
+      </div>
+
+      <h3>12.3 Entropy loss</h3>
+      <p>
+        Encourage sharp assignments only after warm-up:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{ent}
+        =
+        -\frac{1}{n}\sum_{v,a}S_{va}\log(S_{va}+\epsilon).
+        $$
+      </div>
+      <p>
+        Recommended schedule: set $\lambda_{ent}=0$ for the first 20-40% of training, then gradually increase it.
+      </p>
+
+      <h3>12.4 Energy preservation loss</h3>
+      <p>
+        Preserve sheaf residual energy:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{energy}
+        =
+        \sum_r
+        \left|
+        \mathcal E_r(H,F)-\mathcal E'_r(H',F')
+        \right|.
+        $$
+      </div>
+
+      <h3>12.5 Spectral consistency loss</h3>
+      <p>
+        If computing Laplacians, preserve low-frequency diffusion behavior:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{spec}
+        =
+        \left\|
+        U_k^\top U_k -
+        \widetilde U_k^\top \widetilde U_k
+        \right\|_F^2
+        $$
+      </div>
+      <p>
+        or approximate Rayleigh quotient preservation:
+      </p>
+      <div class="formula-block">
+        $$
+        \mathcal L_{rayleigh}
+        =
+        \mathbb E_x
+        \left[
+        \left(
+        \frac{x^\top L_{\mathcal F}x}{x^\top x+\epsilon}
+        -
+        \frac{(\Pi x)^\top L_{\mathcal F'}(\Pi x)}{(\Pi x)^\top(\Pi x)+\epsilon}
+        \right)^2
+        \right].
+        $$
+      </div>
+      <p>
+        This is optional. Start without it because it can be computationally expensive.
+      </p>
+    </section>
+
+    <section id="implementation">
+      <h2>13. PyTorch implementation plan</h2>
+
+      <h3>13.1 Recommended implementation order</h3>
+      <ol class="checklist">
+        <li><strong>Version 0:</strong> implement final invariant Gram readout only. Confirm graph classification runs.</li>
+        <li><strong>Version 1:</strong> implement type-aware assignment $S$ using invariant descriptors.</li>
+        <li><strong>Version 2:</strong> implement transported feature pooling with identity transport for debugging.</li>
+        <li><strong>Version 3:</strong> replace identity transport with sheaf-map/path-based transport.</li>
+        <li><strong>Version 4:</strong> construct coarse adjacency $A'=S^\top AS$.</li>
+        <li><strong>Version 5:</strong> construct coarse sheaf maps $F'$ or coarse Laplacian $L_{\mathcal F'}$.</li>
+        <li><strong>Version 6:</strong> stack multiple pooling layers and evaluate hierarchy.</li>
+      </ol>
+
+      <h3>13.2 Suggested class structure</h3>
+      <pre><code>class InvariantDescriptor(nn.Module):
+    """Build gauge-invariant node/edge descriptors for assignment."""
+    def forward(self, H, edge_index, edge_type, node_type, sheaf_maps=None, batch=None):
+        # returns z_assign: [N, assign_dim]
+        pass
+
+class TypeAwareAssignment(nn.Module):
+    """Compute type-restricted soft assignment S per graph."""
+    def forward(self, z_assign, node_type, batch):
+        # returns assignments in sparse/block format
+        pass
+
+class TransportBuilder(nn.Module):
+    """Build T_{v->a} transports."""
+    def forward(self, H, S, edge_index, edge_type, sheaf_maps, node_type, batch):
+        # returns transports, possibly sparse per (v,a)
+        pass
+
+class SheafTransportPool(nn.Module):
+    """Compute H'_a = sum_v S_va T_va H_v / Z_a."""
+    def forward(self, H, S, transports, batch):
+        pass
+
+class CoarseSheafBuilder(nn.Module):
+    """Construct coarse graph edges and coarse sheaf maps."""
+    def forward(self, S, transports, edge_index, edge_type, sheaf_maps, node_type, batch):
+        pass
+
+class FinalInvariantReadout(nn.Module):
+    """Graph-level gauge-invariant and permutation-invariant readout."""
+    def forward(self, H_coarse, node_type_coarse, edge_index_coarse, edge_type_coarse, sheaf_maps_coarse, batch_coarse):
+        pass
+
+class H2SPoolLayer(nn.Module):
+    """One hierarchical sheaf pooling layer."""
+    def forward(self, graph_state):
+        # graph_state contains G, F, H, types, batch
+        pass
+
+class H2SSheafPoolNet(nn.Module):
+    """Full graph classification model."""
+    def forward(self, data):
+        pass</code></pre>
+
+      <h3>13.3 Tensor representation options</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Representation</th>
+            <th>Pros</th>
+            <th>Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Shared stalk dimension</td>
+            <td><code>H: [N, d, C]</code></td>
+            <td>Simple and fast</td>
+            <td>Less flexible for heterogeneous types</td>
+          </tr>
+          <tr>
+            <td>Type-specific tensors</td>
+            <td><code>H_by_type[t]: [N_t, d_t, C]</code></td>
+            <td>Mathematically cleaner for heterogeneous graphs</td>
+            <td>More complex batching and indexing</td>
+          </tr>
+          <tr>
+            <td>Padded type-specific</td>
+            <td><code>H: [N, d_max, C]</code> plus mask</td>
+            <td>Compromise between simplicity and flexibility</td>
+            <td>Some wasted computation</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Recommended first version: shared stalk dimension $d$ for all types. After validating the method, move to type-specific stalk dimensions.
+      </p>
+
+      <h3>13.4 Dense versus sparse assignment</h3>
+      <p>
+        Dense $S\in\mathbb R^{n\times m}$ is convenient for small graphs. For large graphs, use top-$k$ sparse assignments.
+      </p>
+      <div class="formula-block">
+        $$
+        S_{va}=0\quad\text{except for top-}k\text{ clusters of node }v.
+        $$
+      </div>
+      <p>
+        For TU-style graph classification datasets, dense assignment is acceptable. For OGB-scale graphs, sparse assignment is necessary.
+      </p>
+    </section>
+
+    <section id="pseudocode">
+      <h2>14. Pseudocode</h2>
+
+      <h3>14.1 Invariant descriptor</h3>
+      <pre><code>def gram_descriptor(H, eps=1e-8):
+    # H: [N, d, C]
+    # K: [N, C, C]
+    K = torch.matmul(H.transpose(-1, -2), H)
+    trace = K.diagonal(dim1=-2, dim2=-1).sum(-1).clamp_min(eps)
+    K_norm = K / trace[:, None, None]
+    z = vectorize_symmetric(K_norm)  # [N, C*(C+1)//2]
+    return z</code></pre>
+
+      <h3>14.2 Type-aware assignment</h3>
+      <pre><code>def type_aware_assignment(z, node_type, batch, type_mlps, prototypes, temperature):
+    # z: [N, assign_dim]
+    # node_type: [N]
+    # batch: [N]
+    # prototypes[t]: [m_t, q_dim]
+    # returns a block-sparse representation of S
+
+    rows, cols, vals = [], [], []
+    coarse_offset = compute_coarse_offsets_per_graph_and_type(batch, node_type)
+
+    for graph_id in unique(batch):
+        node_idx_g = where(batch == graph_id)
+        for t in unique(node_type[node_idx_g]):
+            idx = node_idx_g[node_type[node_idx_g] == t]
+            q = type_mlps[t](z[idx])                 # [n_t, q_dim]
+            c = prototypes[t]                       # [m_t, q_dim]
+            logits = q @ c.T / temperature          # [n_t, m_t]
+            S_local = softmax(logits, dim=-1)       # row-stochastic
+
+            local_cols = coarse_offset[(graph_id, t)] + arange(m_t)
+            append_sparse_entries(rows, cols, vals, idx, local_cols, S_local)
+
+    return SparseAssignment(rows, cols, vals)</code></pre>
+
+      <h3>14.3 Transported pooling</h3>
+      <pre><code>def transported_pool(H, assignment, transports, num_coarse, eps=1e-8):
+    # H: [N, d, C]
+    # assignment entries: (v_idx, a_idx, S_va)
+    # transports for each nonzero assignment: T_va [d_prime, d]
+    # output Hc: [M, d_prime, C]
+
+    Hc = zeros([num_coarse, d_prime, C], device=H.device)
+    Z = zeros([num_coarse], device=H.device)
+
+    for entry_id, (v, a, s) in enumerate(assignment.entries()):
+        T = transports[entry_id]          # [d_prime, d]
+        Hv_to_a = T @ H[v]                # [d_prime, C]
+        Hc[a] += s * Hv_to_a
+        Z[a] += s
+
+    Hc = Hc / Z.clamp_min(eps)[:, None, None]
+    return Hc</code></pre>
+
+      <h3>14.4 Coarse adjacency</h3>
+      <pre><code>def coarse_adjacency(edge_index, edge_type, assignment, num_coarse, threshold=1e-6):
+    # Computes A'_ab^r = sum_(u,v in E_r) S_ua S_vb
+    # Use sparse assignment lists for scalability.
+
+    accum = defaultdict(float)
+    for e in range(edge_index.size(1)):
+        u, v = edge_index[:, e]
+        r = edge_type[e]
+        for a, S_ua in assignment.clusters_of_node(u):
+            for b, S_vb in assignment.clusters_of_node(v):
+                accum[(a, b, r)] += S_ua * S_vb
+
+    coarse_edges = []
+    coarse_edge_types = []
+    coarse_edge_weights = []
+    for (a, b, r), w in accum.items():
+        if w > threshold:
+            coarse_edges.append((a, b))
+            coarse_edge_types.append(r)
+            coarse_edge_weights.append(w)
+
+    return coarse_edges, coarse_edge_types, coarse_edge_weights</code></pre>
+
+      <h3>14.5 Final invariant readout</h3>
+      <pre><code>def final_invariant_readout(Hc, coarse_node_type, batch_coarse, type_readout_mlps):
+    # Hc: [M, d, C]
+    K = torch.matmul(Hc.transpose(-1, -2), Hc)       # [M, C, C]
+    z = vectorize_symmetric(K)                       # [M, C*(C+1)//2]
+
+    graph_tokens = []
+    for graph_id in unique(batch_coarse):
+        tokens = []
+        for t in all_node_types:
+            idx = where((batch_coarse == graph_id) & (coarse_node_type == t))
+            if len(idx) == 0:
+                token_t = zeros([hidden_dim])
+            else:
+                token_t = type_readout_mlps[t](z[idx]).sum(dim=0)
+            tokens.append(token_t)
+        graph_tokens.append(concat(tokens))
+
+    hG = stack(graph_tokens, dim=0)
+    return hG</code></pre>
+    </section>
+
+    <section id="tests">
+      <h2>15. Unit tests and invariance checks</h2>
+      <p>
+        These tests are essential. They should be implemented before large experiments.
+      </p>
+
+      <h3>15.1 Permutation test</h3>
+      <p>
+        Randomly permute nodes within each graph and verify that graph logits do not change:
+      </p>
+      <div class="formula-block">
+        $$
+        \frac{\|f(G)-f(PG)\|_2}{\|f(G)\|_2+\epsilon}<\delta.
+        $$
+      </div>
+      <pre><code>def test_permutation_invariance(model, data):
+    logits1 = model(data)
+    data_perm = permute_nodes(data)
+    logits2 = model(data_perm)
+    assert relative_error(logits1, logits2) < 1e-5</code></pre>
+
+      <h3>15.2 Orthogonal gauge invariance of final readout</h3>
+      <p>
+        Sample random orthogonal matrices $Q_v$ and transform:
+      </p>
+      <div class="formula-block">
+        $$
+        H_v\leftarrow Q_vH_v,
+        \qquad
+        F_{u\to v}\leftarrow Q_vF_{u\to v}Q_u^\top.
+        $$
+      </div>
+      <p>
+        Verify final logits are unchanged:
+      </p>
+      <pre><code>def random_orthogonal(d):
+    A = torch.randn(d, d)
+    Q, R = torch.linalg.qr(A)
+    return Q
+
+def test_gauge_invariance(model, data):
+    logits1 = model(data)
+    data_gauge = apply_random_orthogonal_gauge(data)
+    logits2 = model(data_gauge)
+    assert relative_error(logits1, logits2) < 1e-4</code></pre>
+
+      <h3>15.3 Gauge equivariance of pooled stalks</h3>
+      <p>
+        If $H'_a$ is the pooled representation and $\widetilde H'_a$ is the pooled representation after gauge transformation, verify:
+      </p>
+      <div class="formula-block">
+        $$
+        \widetilde H'_a\approx G'_aH'_a.
+        $$
+      </div>
+      <p>
+        This requires knowing or constructing the induced coarse gauge $G'_a$.
+      </p>
+
+      <h3>15.4 Type-mask test</h3>
+      <p>
+        Verify that assignments violating type constraints are exactly zero:
+      </p>
+      <pre><code>def test_type_mask(S, node_type, coarse_type):
+    for v, a, s in S.entries():
+        if node_type[v] != coarse_type[a]:
+            assert abs(s) == 0.0</code></pre>
+
+      <h3>15.5 Cluster collapse test</h3>
+      <p>
+        Monitor effective cluster usage:
+      </p>
+      <div class="formula-block">
+        $$
+        n^{eff}_a=\sum_v S_{va}.
+        $$
+      </div>
+      <p>
+        Raise a warning if too many $n^{eff}_a$ values are near zero.
+      </p>
+
+      <h3>15.6 Gradient stability test</h3>
+      <p>
+        Check that loss, logits, assignment values, transports, and coarse maps remain finite:
+      </p>
+      <pre><code>def test_finite_gradients(model, data):
+    loss = compute_loss(model(data), data.y)
+    loss.backward()
+    for name, p in model.named_parameters():
+        if p.grad is not None:
+            assert torch.isfinite(p.grad).all(), name</code></pre>
+    </section>
+
+    <section id="experiments">
+      <h2>16. Experiments and ablations</h2>
+
+      <h3>16.1 Main task</h3>
+      <p>
+        Start with graph classification. Pooling is most naturally justified when the model must produce a graph-level representation.
+      </p>
+
+      <h3>16.2 Dataset groups</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Dataset type</th>
+            <th>Examples</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Homogeneous graph classification</td>
+            <td>TU datasets such as MUTAG, PROTEINS, ENZYMES, NCI1, IMDB-BINARY</td>
+            <td>Compare with standard pooling baselines</td>
+          </tr>
+          <tr>
+            <td>Molecular/property graphs</td>
+            <td>OGBG datasets if computationally feasible</td>
+            <td>Evaluate scale and chemical relevance</td>
+          </tr>
+          <tr>
+            <td>Constructed heterogeneous graph classification</td>
+            <td>Graphs with node/edge labels interpreted as types</td>
+            <td>Test typed pooling mechanism</td>
+          </tr>
+          <tr>
+            <td>Synthetic heterophilous graph classification</td>
+            <td>Role-based or bipartite synthetic graphs</td>
+            <td>Test heterophily preservation explicitly</td>
+          </tr>
+          <tr>
+            <td>Synthetic gauge transformation benchmark</td>
+            <td>Apply random gauge transformations to the same graphs</td>
+            <td>Verify invariance/robustness claims</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>16.3 Baselines</h3>
+      <ul>
+        <li>GIN + global mean/sum pooling.</li>
+        <li>GIN + TopKPool, SAGPool, ASAP, DiffPool, MinCutPool where applicable.</li>
+        <li>Sheaf model + mean pooling.</li>
+        <li>Sheaf model + attention pooling over flattened stalks.</li>
+        <li>Sheaf model + SHEAFPOOL-style terminal readout.</li>
+        <li>H2S-NN without hierarchical pooling.</li>
+        <li>H2S-NN + terminal invariant Gram readout.</li>
+        <li>H2S-NN + full H2S-Pool.</li>
+      </ul>
+
+      <h3>16.4 Ablations</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Ablation</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Raw assignment from flattened $H_v$</td>
+            <td>Shows importance of gauge-invariant assignment</td>
+          </tr>
+          <tr>
+            <td>Diagonal Gram only</td>
+            <td>Tests whether cross-channel correlations matter</td>
+          </tr>
+          <tr>
+            <td>Full Gram descriptor</td>
+            <td>Main invariant descriptor</td>
+          </tr>
+          <tr>
+            <td>Identity transport</td>
+            <td>Debug baseline; tests value of actual sheaf transport</td>
+          </tr>
+          <tr>
+            <td>Path-based transport</td>
+            <td>Tests geometry-aware pooling</td>
+          </tr>
+          <tr>
+            <td>No type mask</td>
+            <td>Tests importance of semantic type constraints</td>
+          </tr>
+          <tr>
+            <td>No energy preservation loss</td>
+            <td>Tests heterophily/sheaf consistency preservation</td>
+          </tr>
+          <tr>
+            <td>No relation-aware role descriptors</td>
+            <td>Tests heterophily-aware assignment</td>
+          </tr>
+          <tr>
+            <td>Terminal readout only</td>
+            <td>Tests whether actual hierarchy helps</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>16.5 Metrics</h3>
+      <ul>
+        <li>Accuracy or Macro-F1 for graph classification.</li>
+        <li>Mean and standard deviation over multiple random seeds.</li>
+        <li>Gauge invariance error.</li>
+        <li>Permutation invariance error.</li>
+        <li>Cluster utilization entropy.</li>
+        <li>Energy preservation ratio.</li>
+        <li>Runtime, parameter count, and memory usage.</li>
+      </ul>
+
+      <h3>16.6 Gauge invariance error metric</h3>
+      <div class="formula-block">
+        $$
+        \operatorname{Err}_{gauge}
+        =
+        \mathbb E_{G,\{Q_v\}}
+        \left[
+        \frac{\|f(G,H,F)-f(G,\widetilde H,\widetilde F)\|_2}
+        {\|f(G,H,F)\|_2+\epsilon}
+        \right].
+        $$
+      </div>
+      <p>
+        This should be near numerical precision for exact orthogonal gauge-invariant final readouts.
+      </p>
+    </section>
+
+    <section id="node-tasks">
+      <h2>17. Extension to node classification and link prediction</h2>
+
+      <h3>17.1 Is pooling only for graph classification?</h3>
+      <p>
+        No. Pooling is most natural for graph classification, but hierarchical pooling can also help node classification and link prediction if paired with unpooling and skip connections.
+      </p>
+
+      <h3>17.2 Node classification with sheaf unpooling</h3>
+      <p>
+        Use an encoder-decoder architecture:
+      </p>
+      <div class="formula-block">
+        $$
+        H^{(0)}\rightarrow H^{(1)}_{coarse}\rightarrow \widehat H^{(0)}.
+        $$
+      </div>
+      <p>
+        Unpool from supernodes to nodes using reverse transport:
+      </p>
+      <div class="formula-block">
+        $$
+        \widehat H_v
+        =
+        \sum_a S_{va}T_{a\to v}H'_a.
+        $$
+      </div>
+      <p>
+        Combine with skip connections:
+      </p>
+      <div class="formula-block">
+        $$
+        Z_v=\operatorname{MLP}\left([H_v^{skip},\widehat H_v]\right).
+        $$
+      </div>
+      <p>
+        Then predict node labels from $Z_v$.
+      </p>
+
+      <h3>17.3 Link prediction</h3>
+      <p>
+        For link prediction, pooling can provide multiscale endpoint representations:
+      </p>
+      <div class="formula-block">
+        $$
+        z_u=\operatorname{concat}\left[H_u^{(0)},\widehat H_u^{(1)},\widehat H_u^{(2)}\right].
+        $$
+      </div>
+      <p>
+        Then use a relation-specific decoder:
+      </p>
+      <div class="formula-block">
+        $$
+        s(u,v,r)=\operatorname{Decoder}_r(z_u,z_v).
+        $$
+      </div>
+      <p>
+        For a first paper, keep link prediction as future work unless graph classification experiments are already complete and strong.
+      </p>
+    </section>
+
+    <section id="agent-instructions">
+      <h2>18. Coding-agent instructions</h2>
+      <div class="card note">
+        <h3>Instruction block for Codex or Claude Code</h3>
+        <p>
+          Use this block as the practical implementation directive.
+        </p>
+        <pre><code>Implement H2S-Pool as a hierarchical sheaf pooling layer for graph classification.
+
+Main requirements:
+1. The assignment network must use gauge-invariant descriptors, especially Gram matrices H_v^T H_v, not raw flattened stalk matrices.
+2. The assignment matrix S must be permutation-equivariant and type-aware.
+3. For heterogeneous graphs, default to type-preserving pooling: nodes can only assign to supernodes of the same type.
+4. Pooled stalk features must be computed by transport-before-aggregation:
+      H'_a = sum_v S_va T_{v->a} H_v / (sum_v S_va + eps)
+5. First implement identity transport as a debug baseline, then implement sheaf-map/path-based transport.
+6. Coarsen adjacency by A'_r = S^T A_r S for each relation type r.
+7. If possible, coarsen restriction maps using weighted aggregation:
+      F'_{a->b} = sum_{(u,v) in E_r} S_ua S_vb T_{v->b} F_{u->v} T_{u->a}^dagger / Z_ab
+8. The final graph readout must be permutation-invariant and gauge-invariant. Use type-wise full Gram pooling:
+      K'_a = H'_a^T H'_a
+      g_t = rho_t(sum_{a:type(a)=t} phi_t(vec_sym(K'_a)))
+9. Include losses for task classification, cluster balance, optional assignment entropy, and optional sheaf energy preservation.
+10. Add unit tests for permutation invariance, orthogonal gauge invariance of final logits, type-mask correctness, finite gradients, and cluster collapse.
+
+Do not overclaim exact GL(d) invariance. Start with exact O(d) gauge tests.</code></pre>
+      </div>
+
+      <h3>18.1 Minimal configuration example</h3>
+      <pre><code>model:
+  name: H2SSheafPoolNet
+  stalk_dim: 4
+  channels: 32
+  hidden_dim: 128
+  num_sheaf_layers_before_pool: 2
+  num_sheaf_layers_after_pool: 1
+  pooling:
+    type: H2SPool
+    ratio_by_type:
+      default: 0.5
+    assignment_descriptor: full_normalized_gram
+    type_preserving: true
+    transport: identity_then_path
+    topk_assignment: null
+    entropy_warmup_epochs: 50
+  readout:
+    type: typewise_full_gram
+    include_edge_energy: true
+loss:
+  task_weight: 1.0
+  balance_weight: 0.01
+  entropy_weight: 0.001
+  energy_weight: 0.01
+training:
+  seeds: [0, 1, 2, 3, 4]
+  epochs: 300
+  optimizer: AdamW
+  lr: 0.001
+  weight_decay: 0.0001</code></pre>
+
+      <h3>18.2 Common implementation pitfalls</h3>
+      <ul>
+        <li><strong>Pitfall:</strong> summing $H_v$ directly across nodes. <strong>Fix:</strong> transport into a common supernode stalk before aggregation.</li>
+        <li><strong>Pitfall:</strong> computing assignments from flattened $H_v$. <strong>Fix:</strong> use $H_v^\top H_v$ and role descriptors.</li>
+        <li><strong>Pitfall:</strong> merging incompatible node types. <strong>Fix:</strong> enforce type masks.</li>
+        <li><strong>Pitfall:</strong> using homophily-biased assignment smoothing. <strong>Fix:</strong> use role descriptors and energy preservation instead.</li>
+        <li><strong>Pitfall:</strong> creating dense coarse graphs that explode memory. <strong>Fix:</strong> threshold or top-$k$ sparsify $A'$.</li>
+        <li><strong>Pitfall:</strong> claiming exact $GL(d)$ invariance. <strong>Fix:</strong> claim exact $O(d)$ invariance and test it.</li>
+      </ul>
+
+      <h3>18.3 Suggested paper contribution statement</h3>
+      <div class="card success">
+        <p>
+          We introduce a hierarchical sheaf pooling framework that learns type-aware soft graph coarsenings using gauge-invariant assignment scores while transporting stalk-valued signals into gauge-equivariant supernode representations. The resulting coarse sheaf preserves permutation symmetry, heterogeneous relation semantics, and multiscale sheaf disagreement energy without requiring global canonical gauge fixing.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Final recommended implementation strategy</h2>
+      <p>
+        For the first working version, implement the following in order:
+      </p>
+      <ol>
+        <li>Sheaf encoder producing $H_v\in\mathbb R^{d\times C}$.</li>
+        <li>Full normalized Gram descriptor $\bar K_v$.</li>
+        <li>Type-preserving soft assignment $S$.</li>
+        <li>Identity-transport pooling baseline.</li>
+        <li>Coarse adjacency $A'=S^\top AS$.</li>
+        <li>Final type-wise Gram readout.</li>
+        <li>Permutation and orthogonal gauge tests.</li>
+        <li>Replace identity transport with sheaf-map/path-based transport.</li>
+        <li>Add energy preservation loss.</li>
+        <li>Add coarse restriction maps or Galerkin sheaf Laplacian.</li>
+      </ol>
+      <p>
+        The first complete experimental claim should be about graph classification. Node classification and link prediction require unpooling and should be treated as extensions, not as the first target.
+      </p>
+    </section>
+
+
+    <section id="comparison-with-existing-pooling">
+      <h2>Appendix A. Comparison with existing graph pooling methods</h2>
+      <p>
+        This appendix is intentionally appended after the original specification. It should help coding agents and researchers understand how the proposed H2S-Pool differs from standard PyG pooling layers, MVPool, HINPool, and SHEAFPOOL. The main point is that most existing pooling layers operate on ordinary vector-valued node embeddings $h_v\in\mathbb R^C$, whereas H2S-NN produces typed sheaf-valued node embeddings $H_v\in\mathbb R^{d\times C}$ together with learned restriction maps or transport maps. Therefore, the proposed method must pool not only node features, but also the sheaf structure.
+      </p>
+
+      <div class="card note">
+        <p><strong>Core distinction.</strong> Existing methods usually implement one of the following operations:</p>
+        <ul>
+          <li><strong>Flat readout:</strong> $\{h_v\}_{v\in V}\mapsto h_G$.</li>
+          <li><strong>Node-selection pooling:</strong> $(G,X)\mapsto (G[\mathrm{idx}],X_{\mathrm{idx}})$.</li>
+          <li><strong>Soft cluster pooling:</strong> $(A,X)\mapsto (S^\top A S,S^\top X)$.</li>
+        </ul>
+        <p>
+          H2S-Pool should instead implement a sheaf coarsening:
+        </p>
+        <div class="formula-block">
+          $$
+          (G,\mathcal F,H,\tau,\rho)
+          \longrightarrow
+          (G',\mathcal F',H',\tau',\rho'),
+          $$
+        </div>
+        <p>
+          where $G'$ is a smaller graph, $H'$ is a set of pooled supernode stalk embeddings, and $\mathcal F'$ is a coarse sheaf containing induced restriction maps or an induced sheaf Laplacian.
+        </p>
+      </div>
+
+      <h3>A.1 Summary comparison table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Primary operation</th>
+            <th>Permutation property</th>
+            <th>Gauge compatibility</th>
+            <th>Heterogeneous support</th>
+            <th>Heterophily handling</th>
+            <th>Main limitation for H2S-NN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>global_add_pool</strong></td>
+            <td>$h_G=\sum_v h_v$</td>
+            <td>Permutation invariant</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>No explicit mechanism</td>
+            <td>Flat readout; assumes all node embeddings live in one common vector space.</td>
+          </tr>
+          <tr>
+            <td><strong>global_mean_pool</strong></td>
+            <td>$h_G=\frac{1}{|V|}\sum_v h_v$</td>
+            <td>Permutation invariant</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>No explicit mechanism</td>
+            <td>Destroys sheaf coordinate structure if applied to $\operatorname{vec}(H_v)$.</td>
+          </tr>
+          <tr>
+            <td><strong>global_max_pool</strong></td>
+            <td>$h_G=\max_v h_v$</td>
+            <td>Permutation invariant</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>No explicit mechanism</td>
+            <td>Coordinate-wise max is not meaningful under local stalk basis changes.</td>
+          </tr>
+          <tr>
+            <td><strong>TopKPooling / Graph U-Nets</strong></td>
+            <td>Score nodes, keep top-$k$, induce subgraph</td>
+            <td>Permutation equivariant if implemented with graph operations</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>Weak; usually favors individually salient nodes</td>
+            <td>Node scores from flattened stalks are gauge-dependent.</td>
+          </tr>
+          <tr>
+            <td><strong>SAGPooling</strong></td>
+            <td>Use a GNN/self-attention scorer, keep top-$k$ nodes</td>
+            <td>Permutation equivariant</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>Depends on scorer; usually homophily-biased</td>
+            <td>Better structural scoring than TopK, but still ordinary vector-space pooling.</td>
+          </tr>
+          <tr>
+            <td><strong>ASAPooling</strong></td>
+            <td>Structure-aware local pooling around selected nodes</td>
+            <td>Permutation equivariant</td>
+            <td>No</td>
+            <td>No explicit type mechanism</td>
+            <td>Better local structure preservation than TopK/SAG</td>
+            <td>Does not construct pooled stalks or coarse restriction maps.</td>
+          </tr>
+          <tr>
+            <td><strong>MVPool</strong></td>
+            <td>Multi-view node ranking plus structure learning</td>
+            <td>Permutation equivariant if implemented properly</td>
+            <td>No</td>
+            <td>Homogeneous by design</td>
+            <td>Structure learning can help, but not sheaf-energy based</td>
+            <td>Useful inspiration for multi-view ranking, but not sheaf-aware.</td>
+          </tr>
+          <tr>
+            <td><strong>HINPool / HINPooling</strong></td>
+            <td>Type-aware selector, type-aware readout, cross-layer fusion</td>
+            <td>Permutation equivariant within each type</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Implicit through types, not explicit heterophily energy</td>
+            <td>Useful inspiration for type-aware pooling, but assumes ordinary vector embeddings.</td>
+          </tr>
+          <tr>
+            <td><strong>SHEAFPOOL</strong></td>
+            <td>Whitening, Procrustes alignment, gauge-aware terminal readout</td>
+            <td>Permutation invariant at graph readout</td>
+            <td>Approximately or conditionally yes, depending on assumptions</td>
+            <td>Not primarily a heterogeneous pooling method</td>
+            <td>Indirect through sheaf encoder</td>
+            <td>Terminal readout only; it does not produce $G'$, $H'$, or $\mathcal F'$.</td>
+          </tr>
+          <tr>
+            <td><strong>Proposed H2S-Pool</strong></td>
+            <td>Typed gauge-compatible assignment, transport-before-pooling, coarse sheaf construction</td>
+            <td>Permutation equivariant in hierarchy; invariant at final readout</td>
+            <td>Yes by design for stated gauge group</td>
+            <td>Yes, via type-compatible assignments and type-wise readout</td>
+            <td>Yes, via sheaf disagreement energy and role-aware descriptors</td>
+            <td>More complex; requires careful implementation and ablation.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>A.2 Why standard global pooling is insufficient</h3>
+      <p>
+        For ordinary GNNs, a graph representation can be constructed as:
+      </p>
+      <div class="formula-block">
+        $$
+        h_G^{\mathrm{mean}}=\frac{1}{|V|}\sum_{v\in V}h_v,
+        \qquad
+        h_G^{\mathrm{sum}}=\sum_{v\in V}h_v,
+        \qquad
+        h_G^{\mathrm{max}}=\max_{v\in V}h_v.
+        $$
+      </div>
+      <p>
+        These are valid permutation-invariant readouts when all node embeddings lie in a common latent vector space $\mathbb R^C$. In H2S-NN, however, the node representation is stalk-valued:
+      </p>
+      <div class="formula-block">
+        $$
+        H_v\in\mathbb R^{d\times C}.
+        $$
+      </div>
+      <p>
+        If each node stalk undergoes a local change of basis,
+      </p>
+      <div class="formula-block">
+        $$
+        H_v\mapsto G_vH_v,
+        $$
+      </div>
+      <p>
+        then naïve pooling gives:
+      </p>
+      <div class="formula-block">
+        $$
+        \sum_v G_vH_v\neq G\sum_vH_v
+        $$
+      </div>
+      <p>
+        for any single global matrix $G$ in general. This means that direct addition, averaging, max pooling, or flattening of stalks is not geometrically well-defined unless the stalks are first transported or converted into invariant descriptors. Therefore, global pooling should be used only as a lower-bound baseline.
+      </p>
+
+      <h3>A.3 Relation to TopKPooling and Graph U-Nets</h3>
+      <p>
+        TopKPooling and Graph U-Nets use a learnable score to select important nodes. A typical simplified scoring rule is:
+      </p>
+      <div class="formula-block">
+        $$
+        s_v=\frac{x_v^\top p}{\|p\|},
+        \qquad
+        \mathrm{idx}=\operatorname{TopK}(s,k),
+        $$
+      </div>
+      <p>
+        followed by:
+      </p>
+      <div class="formula-block">
+        $$
+        X'=X_{\mathrm{idx}},
+        \qquad
+        A'=A_{\mathrm{idx},\mathrm{idx}}.
+        $$
+      </div>
+      <p>
+        A direct sheaf adaptation would flatten each stalk:
+      </p>
+      <div class="formula-block">
+        $$
+        x_v=\operatorname{vec}(H_v),
+        $$
+      </div>
+      <p>
+        and then apply the same top-$k$ mechanism. This is not recommended as the proposed method because the score is gauge-dependent:
+      </p>
+      <div class="formula-block">
+        $$
+        f(\operatorname{vec}(G_vH_v))\neq f(\operatorname{vec}(H_v)).
+        $$
+      </div>
+      <p>
+        The H2S-Pool analogue should compute node scores from gauge-invariant descriptors:
+      </p>
+      <div class="formula-block">
+        $$
+        K_v=H_v^\top H_v,
+        \qquad
+        s_v=f_{\tau(v)}\left(\operatorname{vec}_{\mathrm{sym}}(K_v),r_v,e_v,p_v\right),
+        $$
+      </div>
+      <p>
+        where $r_v$ is a typed structural-role descriptor, $e_v$ is a local sheaf-energy descriptor, and $p_v$ is a positional, path-level, or cell-level descriptor. This gives a TopK-like baseline that is type-aware and gauge-invariant at the scoring stage.
+      </p>
+
+      <h3>A.4 Relation to SAGPooling</h3>
+      <p>
+        SAGPooling improves TopKPooling by using a graph neural network to compute the selection score:
+      </p>
+      <div class="formula-block">
+        $$
+        s=\operatorname{GNN}(X,A).
+        $$
+      </div>
+      <p>
+        The benefit is that node importance depends on graph structure, not just a single projection vector. However, if the input is a flattened sheaf stalk, the scorer remains gauge-dependent. H2S-Pool should instead use a sheaf-compatible scorer:
+      </p>
+      <div class="formula-block">
+        $$
+        s_v=
+        \operatorname{SheafScore}_{\tau(v)}
+        \left(
+        H_v^\top H_v,
+        \{\|F_{v\triangleleft e}H_v-F_{u\triangleleft e}H_u\|_F^2:e=(v,u)\},
+        \{\deg_\rho(v)\}_{\rho\in\mathcal R}
+        \right).
+        $$
+      </div>
+      <p>
+        This keeps the good idea of structure-aware scoring while replacing ordinary vector features with gauge-invariant sheaf statistics.
+      </p>
+
+      <h3>A.5 Relation to ASAPooling</h3>
+      <p>
+        ASAPooling is closer to substructure pooling than pure node dropping. This is useful because graph-level labels often depend on motifs or local functional units rather than isolated high-score nodes. However, ASAPooling still operates on ordinary node features and ordinary graph adjacency. It does not define a coarsened sheaf.
+      </p>
+      <p>
+        H2S-Pool should generalize this idea from local structural pooling to local sheaf pooling. Instead of merely constructing $(A',X')$, the layer should construct:
+      </p>
+      <div class="formula-block">
+        $$
+        (A',H',\mathcal F')
+        $$
+      </div>
+      <p>
+        where $H'$ is obtained after transporting fine node stalks into supernode stalks, and $\mathcal F'$ describes restriction maps between pooled stalks.
+      </p>
+
+      <h3>A.6 Relation to MVPool</h3>
+      <p>
+        MVPool is valuable because it observes that a single node-ranking view can be biased. It ranks nodes using multiple contextual views, combines them with attention, selects top-ranked nodes, and then learns a refined graph structure after pooling. This addresses the failure mode where top-$k$ pooling produces disconnected or structurally distorted induced subgraphs.
+      </p>
+      <p>
+        H2S-Pool should borrow the <strong>multi-view ranking principle</strong>, but the views should be sheaf-aware:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>MVPool-style view</th>
+            <th>H2S-Pool replacement</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Feature view</td>
+            <td>$\operatorname{vec}_{\mathrm{sym}}(H_v^\top H_v)$</td>
+            <td>Gauge-invariant node-stalk descriptor.</td>
+          </tr>
+          <tr>
+            <td>Structure view</td>
+            <td>$\{\deg_\rho(v)\}_{\rho\in\mathcal R}$ and typed path participation</td>
+            <td>Captures heterogeneous relation profile.</td>
+          </tr>
+          <tr>
+            <td>Structure-feature view</td>
+            <td>Sheaf residual profile $\sum_{e\ni v}\|\delta_e\|_F^2$</td>
+            <td>Captures compatibility or disagreement under restriction maps.</td>
+          </tr>
+          <tr>
+            <td>Global view</td>
+            <td>Multiscale sheaf energy, spectral summaries, or coarse role descriptors</td>
+            <td>Captures information beyond immediate neighbors.</td>
+          </tr>
+          <tr>
+            <td>Structure learning</td>
+            <td>Coarse sheaf construction or sheaf-aware adjacency refinement</td>
+            <td>Repairs topology and preserves sheaf diffusion geometry.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The important distinction is that MVPool learns a refined graph structure, whereas H2S-Pool should learn or induce a refined <strong>coarse sheaf structure</strong>:
+      </p>
+      <div class="formula-block">
+        $$
+        L_{\mathcal F'}\approx \Pi^\top L_{\mathcal F}\Pi,
+        $$
+      </div>
+      <p>
+        or explicitly:
+      </p>
+      <div class="formula-block">
+        $$
+        F'_{a\to b}
+        =
+        \frac{1}{Z_{ab}}
+        \sum_{(u,v)\in E}
+        S_{ua}S_{vb}
+        T_{v\to b}F_{u\to v}T_{u\to a}^{\dagger}.
+        $$
+      </div>
+
+      <h3>A.7 Relation to HINPool / HINPooling</h3>
+      <p>
+        HINPool is highly relevant because it explicitly treats graph classification datasets as heterogeneous information networks. Its useful design ideas are type-aware node selection, type-aware readout, and cross-layer fusion. H2S-Pool should borrow these ideas but generalize them to sheaf-valued embeddings.
+      </p>
+      <p>
+        HINPool-style type-aware selection can be written as:
+      </p>
+      <div class="formula-block">
+        $$
+        S_t^\ell=\operatorname{MLP}_t(Z_t^\ell),
+        \qquad
+        Z_t^{\ell'}=\operatorname{TopK}(Z_t^\ell,K_t).
+        $$
+      </div>
+      <p>
+        The H2S-Pool replacement should be:
+      </p>
+      <div class="formula-block">
+        $$
+        q_v=\phi_{\tau(v)}\left(\operatorname{vec}_{\mathrm{sym}}(H_v^\top H_v),r_v,e_v,p_v\right),
+        \qquad
+        S_{va}=0\quad\text{if }\tau(v)\not\sim\tau'(a).
+        $$
+      </div>
+      <p>
+        Here $\tau(v)\not\sim\tau'(a)$ means that node $v$ is not type-compatible with supernode $a$. This preserves heterogeneous semantics and prevents early collapse of distinct entity types.
+      </p>
+      <p>
+        HINPool-style readout fusion can also be adapted. For each coarse node type $t$, compute a type-wise invariant readout:
+      </p>
+      <div class="formula-block">
+        $$
+        g_t^\ell
+        =
+        \rho_t\left(
+        \sum_{a:\tau'(a)=t}
+        \phi_t\left(\operatorname{vec}_{\mathrm{sym}}((H_a^\ell)^\top H_a^\ell)\right)
+        \right).
+        $$
+      </div>
+      <p>
+        Then combine type-wise summaries and cross-layer summaries:
+      </p>
+      <div class="formula-block">
+        $$
+        h_G=
+ho_{\mathrm{CL}}
+        \left(
+        \{\operatorname{Fuse}_{t\in\mathcal T}(g_t^\ell):\ell=0,1,\ldots,L\}
+        \right).
+        $$
+      </div>
+      <p>
+        This preserves the practical value of HINPool's cross-layer fusion while making the graph representation gauge-invariant.
+      </p>
+
+      <h3>A.8 Relation to SHEAFPOOL</h3>
+      <p>
+        SHEAFPOOL is the closest conceptual baseline because it directly addresses the problem of pooling sheaf-valued node embeddings. Its typical pipeline is:
+      </p>
+      <div class="formula-block">
+        $$
+        S_i=H_iH_i^\top+\epsilon I_d,
+        \qquad
+        Z_i=S_i^{-1/2}H_i,
+        $$
+      </div>
+      <div class="formula-block">
+        $$
+        R_i^*=\arg\min_{R\in O(d)}\|R^\top Z_i-A\|_F^2,
+        \qquad
+        \widetilde Z_i=(R_i^*)^\top Z_i,
+        $$
+      </div>
+      <div class="formula-block">
+        $$
+        P_G=\sum_i\alpha_i\widetilde Z_i,
+        \qquad
+        g_G=\operatorname{diag}(\widehat T_G^\top\widehat T_G).
+        $$
+      </div>
+      <p>
+        This is useful as a terminal gauge-aware readout. However, it is not actual hierarchical sheaf pooling because it does not output a coarse graph, pooled stalks for later sheaf convolution, or coarse restriction maps. H2S-Pool should differ from SHEAFPOOL in three ways:
+      </p>
+      <ol>
+        <li><strong>No global anchor as the main mechanism.</strong> Prefer invariant assignment and transport-before-pooling over global Procrustes gauge fixing.</li>
+        <li><strong>Intermediate equivariance rather than early invariance.</strong> Coarse stalks $H'_a$ should remain gauge-equivariant so that later sheaf layers can process them.</li>
+        <li><strong>True sheaf coarsening.</strong> The output should include $\mathcal F'$ or $L_{\mathcal F'}$, not only $h_G$.</li>
+      </ol>
+    
+      <h3>A.9 How the proposed H2S-Pool should be positioned</h3>
+      <p>
+        The method should not be presented as simply replacing <code>global_mean_pool</code> with a more complicated readout. It should be presented as a new pooling class for sheaf neural networks:
+      </p>
+      <div class="formula-block">
+        $$
+        \boxed{
+        \text{ordinary pooling: }(G,X)\mapsto(G',X')
+        }
+        $$
+      </div>
+      <div class="formula-block">
+        $$
+        \boxed{
+        \text{H2S-Pool: }(G,\mathcal F,H,\tau,\rho)\mapsto(G',\mathcal F',H',\tau',\rho')
+        }
+        $$
+      </div>
+      <p>
+        The intended novelty is the simultaneous satisfaction of the following properties:
+      </p>
+      <ul>
+        <li><strong>Permutation equivariance</strong> during hierarchical coarsening.</li>
+        <li><strong>Permutation invariance</strong> at final graph prediction.</li>
+        <li><strong>Gauge-invariant assignment scores</strong> using descriptors such as $H_v^\top H_v$.</li>
+        <li><strong>Gauge-equivariant intermediate pooled stalks</strong> using transport-before-pooling.</li>
+        <li><strong>Heterogeneous type preservation</strong> through type-compatible assignment masks.</li>
+        <li><strong>Heterophily preservation</strong> through sheaf disagreement energy and role descriptors.</li>
+        <li><strong>Coarse sheaf construction</strong> through induced restriction maps or Galerkin sheaf Laplacian coarsening.</li>
+      </ul>
+
+      <h3>A.10 Recommended baseline implementation matrix</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Baseline group</th>
+            <th>Implementation</th>
+            <th>Purpose</th>
+            <th>Expected interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PyG global pooling</td>
+            <td>GIN/GCN/GAT + global add/mean/max</td>
+            <td>Basic graph-level readout baseline</td>
+            <td>Shows whether hierarchy is useful.</td>
+          </tr>
+          <tr>
+            <td>PyG hierarchical pooling</td>
+            <td>GIN/GCN/GAT + TopK/SAG/ASAP</td>
+            <td>Standard homogeneous pooling comparison</td>
+            <td>Shows whether sheaf-specific pooling is needed beyond ordinary hierarchy.</td>
+          </tr>
+          <tr>
+            <td>Flattened sheaf pooling</td>
+            <td>H2S encoder + pooling on $\operatorname{vec}(H_v)$</td>
+            <td>Naïve sheaf baseline</td>
+            <td>Tests whether ignoring gauge structure hurts.</td>
+          </tr>
+          <tr>
+            <td>Invariant sheaf readout</td>
+            <td>H2S encoder + $H_v^\top H_v$ graph readout</td>
+            <td>Simple gauge-invariant baseline</td>
+            <td>Tests whether invariance alone is enough.</td>
+          </tr>
+          <tr>
+            <td>SHEAFPOOL-style readout</td>
+            <td>Whitening + Procrustes + terminal graph readout</td>
+            <td>Closest sheaf readout baseline</td>
+            <td>Tests whether actual coarsening improves over terminal readout.</td>
+          </tr>
+          <tr>
+            <td>HINPool-style type-aware pooling</td>
+            <td>Type-aware TopK + type-aware readout on ordinary vectors</td>
+            <td>Heterogeneous pooling baseline</td>
+            <td>Tests whether gauge/sheaf geometry adds value beyond type awareness.</td>
+          </tr>
+          <tr>
+            <td>H2S-TopKPool</td>
+            <td>Gauge-invariant score + type-wise TopK</td>
+            <td>First proposed ablation</td>
+            <td>Separates gauge-invariant selection from full sheaf coarsening.</td>
+          </tr>
+          <tr>
+            <td>H2S-Pool-SL</td>
+            <td>Gauge-invariant score + sheaf-aware structure learning</td>
+            <td>MVPool-inspired ablation</td>
+            <td>Tests value of repairing coarse topology.</td>
+          </tr>
+          <tr>
+            <td>Full H2S-Pool</td>
+            <td>Assignment + transport-before-pooling + coarse sheaf maps + final invariant readout</td>
+            <td>Main method</td>
+            <td>Tests full contribution.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>A.11 Minimal ablation sequence for the paper</h3>
+      <p>
+        To make the comparison convincing, implement the following ablations in order:
+      </p>
+      <ol>
+        <li><strong>Naïve flatten readout:</strong> $h_G=\operatorname{global\_mean\_pool}(\operatorname{vec}(H_v))$.</li>
+        <li><strong>Gram readout:</strong> $h_G=\rho(\sum_v\phi(H_v^\top H_v))$.</li>
+        <li><strong>Type-wise Gram readout:</strong> $h_G=\rho(\bigoplus_t\sum_{v:\tau(v)=t}\phi_t(H_v^\top H_v))$.</li>
+        <li><strong>Gauge-invariant TopK:</strong> select nodes using $s_v=f_{\tau(v)}(H_v^\top H_v,r_v,e_v)$.</li>
+        <li><strong>Soft assignment without transport:</strong> $H'_a=\sum_vS_{va}H_v$; include only as a negative or diagnostic ablation.</li>
+        <li><strong>Transport-before-pooling:</strong> $H'_a=Z_a^{-1}\sum_vS_{va}T_{v\to a}H_v$.</li>
+        <li><strong>Transport plus coarse adjacency:</strong> $A'=S^\top AS$ or sparse thresholded version.</li>
+        <li><strong>Transport plus coarse sheaf maps:</strong> construct $F'_{a\to b}$ from fine maps.</li>
+        <li><strong>Energy preservation loss:</strong> add $\mathcal L_{\mathrm{energy}}$.</li>
+        <li><strong>Cross-layer type-wise invariant readout:</strong> combine all hierarchy levels.</li>
+      </ol>
+
+      <h3>A.12 Claims to make and claims to avoid</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Safe claim</th>
+            <th>Unsafe claim</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>H2S-Pool is designed to be permutation-equivariant during coarsening and permutation-invariant at final readout.</td>
+            <td>H2S-Pool is invariant at every layer.</td>
+            <td>Intermediate stalks should be equivariant, not invariant, otherwise useful sheaf information may be destroyed.</td>
+          </tr>
+          <tr>
+            <td>Assignment scores are gauge-invariant under the stated gauge group, e.g., orthogonal gauge if using Gram descriptors.</td>
+            <td>The method is exactly invariant to all $GL(d)$ transformations.</td>
+            <td>Exact $GL(d)$ invariance is much harder and requires additional assumptions.</td>
+          </tr>
+          <tr>
+            <td>The method performs actual sheaf coarsening if it outputs $G'$, $H'$, and $\mathcal F'$.</td>
+            <td>The method is actual pooling if it only outputs $h_G$.</td>
+            <td>Outputting only $h_G$ is terminal readout, not hierarchical sheaf pooling.</td>
+          </tr>
+          <tr>
+            <td>The method is type-aware and can preserve heterogeneous semantics through assignment masks and type-wise readouts.</td>
+            <td>The method automatically solves all heterogeneous graph learning problems.</td>
+            <td>Type construction, node features, and relation sparsity still matter.</td>
+          </tr>
+          <tr>
+            <td>Sheaf-energy preservation is intended to retain heterophilous disagreement structure.</td>
+            <td>The method always improves heterophily performance.</td>
+            <td>Performance must be verified under controlled heterophily benchmarks and ablations.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>A.13 One-paragraph explanation for README or paper draft</h3>
+      <div class="card success">
+        <p>
+          Unlike standard graph pooling layers such as TopKPooling, SAGPooling, ASAPooling, and global mean/sum/max readout, H2S-Pool is designed for sheaf-valued graph representations. Standard pooling assumes all node embeddings live in a shared coordinate space, whereas H2S-NN assigns each node a local stalk whose coordinates are meaningful only up to gauge transformations. H2S-Pool therefore computes type-aware assignment scores from gauge-invariant sheaf descriptors, transports node stalks into supernode stalks before aggregation, constructs a coarse sheaf with induced restriction maps or a Galerkin coarsened sheaf Laplacian, and performs a final type-wise invariant readout. Compared with MVPool, H2S-Pool replaces ordinary multi-view node ranking and graph-structure learning with sheaf-energy-aware ranking and coarse sheaf construction. Compared with HINPool, it extends type-aware heterogeneous pooling to gauge-compatible sheaf-valued representations. Compared with SHEAFPOOL, it performs actual hierarchical coarsening rather than only terminal graph readout.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
