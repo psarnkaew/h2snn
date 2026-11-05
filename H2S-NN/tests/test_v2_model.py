@@ -340,6 +340,51 @@ class ArchitectureConfigTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     ModelConfig.from_dict(raw)
 
+    def test_v2_defaults_are_valid_and_documented(self) -> None:
+        config = ModelConfig.from_dict({"architecture": "v2", "map_family": "factorized"})
+        self.assertEqual((config.gamma_init, config.eta_init), (1.0, 0.5))
+        self.assertTrue(config.checkpointing)
+        self.assertEqual((config.path_maps, config.path_mode, config.readout),
+                         ("transport", "cells", "full"))
+        self.assertFalse(config.uniform_path_gate or config.ablate_no_path_cells)
+        ModelConfig.from_dict({"architecture": "v2", "map_family": "dense"})
+        for switch in ({"path_maps": "free"}, {"path_mode": "endpoint_edges"},
+                       {"path_mode": "holonomy_edges"}, {"uniform_path_gate": True},
+                       {"ablate_no_path_cells": True}, {"map_scale": "per_side"},
+                       {"readout": "h0_only"}, {"checkpointing": False}):
+            with self.subTest(switch=switch):
+                ModelConfig.from_dict({"architecture": "v2", **switch})
+
+    def test_no_v2_key_is_reachable_from_v1(self) -> None:
+        for raw in ({"gamma_init": 2.0}, {"eta_init": 0.3}, {"checkpointing": False},
+                    {"path_maps": "free"}, {"path_mode": "endpoint_edges"},
+                    {"path_mode": "holonomy_edges"}, {"uniform_path_gate": True},
+                    {"ablate_no_path_cells": True}, {"readout": "h0_only"}):
+            for family in ("dense", "factorized"):
+                with self.subTest(raw=raw, family=family):
+                    with self.assertRaisesRegex(ValueError, "v2"):
+                        ModelConfig.from_dict({"map_family": family, **raw})
+
+    def test_v2_rejects_v1_switches_bad_ranges_and_conflicts(self) -> None:
+        cases = [
+            {"ablate_no_faces": True}, {"ablate_no_delta1": True},
+            {"ablate_identity_maps": True}, {"use_orthogonal": False},
+            {"learnable_eta": False}, {"face_encoder": "lstm"},
+            {"face_map_param": "triangular"},
+            {"eta_init": 0.0}, {"eta_init": 1.0}, {"gamma_init": 0.0}, {"gamma_init": -1.0},
+            {"path_maps": "hypergraph"}, {"path_mode": "edges"}, {"readout": "x_only"},
+            {"checkpointing": "false"}, {"uniform_path_gate": 1},
+            {"path_maps": "free", "path_mode": "endpoint_edges"},
+            {"path_maps": "free", "map_scale": "per_side"},
+            {"ablate_no_path_cells": True, "path_maps": "free"},
+            {"ablate_no_path_cells": True, "path_mode": "holonomy_edges"},
+            {"ablate_no_path_cells": True, "uniform_path_gate": True},
+        ]
+        for raw in cases:
+            with self.subTest(raw=raw):
+                with self.assertRaises(ValueError):
+                    ModelConfig.from_dict({"architecture": "v2", **raw})
+
     def test_v1_model_class_refuses_v2_configs_for_every_task(self) -> None:
         dims = ModelDims(in_channels=6, num_node_types=2, num_relations=2, num_classes=3)
         for task in ("graph_classification", "link_prediction", "node_classification"):

@@ -659,6 +659,20 @@ class ModelConfig:
     # per-incidence scales (v1, and an ablation under v2). None resolves to "per_edge" under
     # architecture "v2" and to "per_side" under "v1", which accepts nothing else.
     map_scale: str | None = None
+    # --- v2 only (architecture "v2", decision D4); v1 rejects any non-default value. ---
+    # Initial path-coupling strength gamma = softplus(theta_gamma) and step eta = sigmoid(theta_eta).
+    gamma_init: float = 1.0
+    eta_init: float = 0.5
+    # Activation checkpointing of the matrix-free map and Laplacian applications (D1).
+    checkpointing: bool = True
+    # Ablations (plan §4.6). path_maps "free": per-incidence maps instead of the transport.
+    path_maps: str = "transport"
+    # path_mode "endpoint_edges" / "holonomy_edges": one edge per path instead of the 2-cell.
+    path_mode: str = "cells"
+    uniform_path_gate: bool = False
+    ablate_no_path_cells: bool = False
+    # readout "h0_only": MLP([h0]) sanity control.
+    readout: str = "full"
     use_delta0_init: bool = True
     classifier_dropout: float = 0.1
     # How the free per-instance face map A_f is produced. "concat" concatenates the path's
@@ -737,6 +751,7 @@ class ModelConfig:
                 "model.map_scale='per_edge' (D1a) is a v2 setting; architecture 'v1' keeps "
                 "D1's per-side scales unchanged."
             )
+        self._validate_v2_keys()
         if self.map_family == "factorized":
             # d reflections already generate O(d), so k > d adds parameters, not reach.
             if self.householder_k > self.d:
@@ -770,6 +785,66 @@ class ModelConfig:
                 f"Unsupported model.face_map_param '{self.face_map_param}'. "
                 f"Supported values: {supported}."
             )
+
+    def _validate_v2_keys(self) -> None:
+        """Ranges of the v2 keys; v1 must leave them at their defaults (nothing v2 reaches v1),
+        and v2 rejects the v1 switches that select machinery D4 deletes."""
+        if not 0.0 < self.eta_init < 1.0:
+            raise ValueError(f"model.eta_init must be in (0, 1), got {self.eta_init}.")
+        if not self.gamma_init > 0.0:
+            raise ValueError(
+                f"model.gamma_init must be positive (gamma = softplus(theta)), got "
+                f"{self.gamma_init}; use model.ablate_no_path_cells for gamma = 0."
+            )
+        choices = {
+            "path_maps": {"transport", "free"},
+            "path_mode": {"cells", "endpoint_edges", "holonomy_edges"},
+            "readout": {"full", "h0_only"},
+        }
+        for name, allowed in choices.items():
+            if getattr(self, name) not in allowed:
+                raise ValueError(
+                    f"Unsupported model.{name} '{getattr(self, name)}'. "
+                    f"Supported values: {', '.join(sorted(allowed))}."
+                )
+        for name in ("checkpointing", "uniform_path_gate", "ablate_no_path_cells"):
+            if not isinstance(getattr(self, name), bool):
+                raise ValueError(f"model.{name} must be a boolean, got {getattr(self, name)!r}.")
+        fields = type(self).__dataclass_fields__
+        if self.architecture == "v1":
+            v2_only = ("gamma_init", "eta_init", "checkpointing", "path_maps", "path_mode",
+                       "uniform_path_gate", "ablate_no_path_cells", "readout")
+            changed = [name for name in v2_only if getattr(self, name) != fields[name].default]
+            if changed:
+                raise ValueError(
+                    f"model.{', model.'.join(changed)} apply to architecture 'v2' only (D4); "
+                    "v1 keeps its behaviour unchanged."
+                )
+            return
+        v1_switches = ("ablate_no_faces", "ablate_no_delta1", "ablate_identity_maps",
+                       "use_orthogonal", "learnable_eta", "face_encoder", "face_map_param")
+        changed = [name for name in v1_switches if getattr(self, name) != fields[name].default]
+        if changed:
+            raise ValueError(
+                f"model.{', model.'.join(changed)} select v1 machinery that architecture 'v2' "
+                "does not have (D4 deletes faces, A_f and the edge cochain; v2 maps are always "
+                "conformal-orthogonal and eta = sigmoid(theta) is always learned)."
+            )
+        if self.path_maps == "free" and (
+            self.path_mode != "cells" or self.map_scale != "per_edge"
+        ):
+            raise ValueError(
+                "model.path_maps='free' is an ablation of the path cells under per-edge scales: "
+                "it needs path_mode='cells' and map_scale='per_edge'."
+            )
+        if self.ablate_no_path_cells and (
+            self.path_maps != "transport" or self.path_mode != "cells" or self.uniform_path_gate
+        ):
+            raise ValueError(
+                "model.ablate_no_path_cells removes the path term; it cannot be combined with "
+                "path_maps, path_mode or uniform_path_gate."
+            )
+
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
         legacy_gate_flags = sorted(
@@ -814,6 +889,15 @@ class ModelConfig:
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             architecture=str(raw.get("architecture", "v1")),
             map_scale=raw.get("map_scale"),
+            gamma_init=float(raw.get("gamma_init", 1.0)),
+            eta_init=float(raw.get("eta_init", 0.5)),
+            # Not cast with bool(): a string such as "false" must fail validation.
+            checkpointing=raw.get("checkpointing", True),
+            path_maps=str(raw.get("path_maps", "transport")),
+            path_mode=str(raw.get("path_mode", "cells")),
+            uniform_path_gate=raw.get("uniform_path_gate", False),
+            ablate_no_path_cells=raw.get("ablate_no_path_cells", False),
+            readout=str(raw.get("readout", "full")),
             use_delta0_init=bool(raw.get("use_delta0_init", True)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
             face_encoder=str(raw.get("face_encoder", "concat")),
