@@ -30,6 +30,7 @@ from src.data.face_geometry import validate_face_orientation
 def checkpoint_if_grad(
     function: Callable[..., torch.Tensor | tuple[torch.Tensor, ...]],
     *inputs: torch.Tensor,
+    enabled: bool = True,
 ) -> torch.Tensor | tuple[torch.Tensor, ...]:
     """Run `function` under activation checkpointing while autograd is recording.
 
@@ -39,8 +40,9 @@ def checkpoint_if_grad(
     only `inputs` and replays the deterministic forward during backward, so gradients are
     those of `function` itself. Same trade as the FastHPP merge in `orthogonal.py`.
     Tensors that `function` closes over (the map factors) still receive gradients.
+    `enabled=False` (v2 `model.checkpointing: false`) runs `function` plainly.
     """
-    if not torch.is_grad_enabled():
+    if not enabled or not torch.is_grad_enabled():
         return function(*inputs)
     return torch.utils.checkpoint.checkpoint(function, *inputs, use_reentrant=False)
 
@@ -282,26 +284,72 @@ class DenseMapOperator:
     """Explicit `[E, d, d]` maps behind the operator interface.
 
     Used for the v1 closure edges, whose maps (path holonomy and identity) are produced
-    by the face transport per face instance, not per observed edge.
+    by the face transport per face instance, not per observed edge, and for the v2 dense
+    map family. With `scale` (maps conformal-orthogonal, `F = c Q`) the inverse is the
+    closed form `F^T / c^2`; no general solve is ever taken.
     """
 
-    def __init__(self, maps: torch.Tensor) -> None:
+    def __init__(self, maps: torch.Tensor, scale: torch.Tensor | None = None) -> None:
         if maps.dim() != 3 or maps.size(-1) != maps.size(-2):
             raise ValueError(f"maps must be [E, d, d], got {tuple(maps.shape)}.")
+        if scale is not None and scale.shape != (maps.size(0),):
+            raise ValueError(f"scale must be [{maps.size(0)}], got {tuple(scale.shape)}.")
         self.maps = maps
+        self.scale = scale
 
     @property
     def num_edges(self) -> int:
         return int(self.maps.size(0))
 
+    @property
+    def d(self) -> int:
+        return int(self.maps.size(-1))
+
     def stored_elements(self) -> int:
-        return int(self.maps.numel())
+        return int(self.maps.numel() + (0 if self.scale is None else self.scale.numel()))
+
+    @staticmethod
+    def _matvec(maps: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
+        if x.dim() == 2:
+            return torch.bmm(maps, x.unsqueeze(-1)).squeeze(-1)
+        middle = (1,) * (x.dim() - 2)
+        return (maps.reshape((maps.size(0),) + middle + maps.shape[1:]) @ x.unsqueeze(-1)).squeeze(-1)
+
+    def _closed_form_scale(self, like: torch.Tensor) -> torch.Tensor:
+        if self.scale is None:
+            raise ValueError(
+                "DenseMapOperator needs its conformal scale for the closed-form inverse."
+            )
+        return _broadcast_rows(self.scale, like)
 
     def apply(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.bmm(self.maps, x.unsqueeze(-1)).squeeze(-1)
+        return self._matvec(self.maps, x)
 
     def apply_T(self, y: torch.Tensor) -> torch.Tensor:
-        return torch.bmm(self.maps.transpose(-2, -1), y.unsqueeze(-1)).squeeze(-1)
+        return self._matvec(self.maps.transpose(-2, -1), y)
+
+    def apply_inverse(self, y: torch.Tensor) -> torch.Tensor:
+        """`F^-1 y = F^T y / c^2`."""
+        return self._matvec(self.maps.transpose(-2, -1), y) / self._closed_form_scale(y).square()
+
+    def apply_inverse_T(self, y: torch.Tensor) -> torch.Tensor:
+        """`F^-T y = F y / c^2`."""
+        return self._matvec(self.maps, y) / self._closed_form_scale(y).square()
+
+    def apply_orthogonal(self, x: torch.Tensor) -> torch.Tensor:
+        """`Q x = F x / c`."""
+        return self._matvec(self.maps, x) / self._closed_form_scale(x)
+
+    def apply_orthogonal_T(self, y: torch.Tensor) -> torch.Tensor:
+        """`Q^T y = F^T y / c`."""
+        return self._matvec(self.maps.transpose(-2, -1), y) / self._closed_form_scale(y)
+
+    def select(self, rows: torch.Tensor) -> "DenseMapOperator":
+        flat = rows.reshape(-1)
+        return DenseMapOperator(
+            self.maps.index_select(0, flat),
+            None if self.scale is None else self.scale.index_select(0, flat),
+        )
 
 
 class StackedMapOperator:
@@ -369,8 +417,8 @@ class PathTransportOperator:
 
     def __init__(
         self,
-        src: FactorizedMapOperator,
-        tgt: FactorizedMapOperator,
+        src: FactorizedMapOperator | DenseMapOperator,
+        tgt: FactorizedMapOperator | DenseMapOperator,
         face_node_index: torch.Tensor,
         face_edge_index: torch.Tensor,
         edge_index: torch.Tensor,
@@ -409,6 +457,23 @@ class PathTransportOperator:
         if self.shared_scale:
             return self._tgt[j].apply_orthogonal_T(self._src[j].apply_orthogonal(w))
         return self._tgt[j].apply_T(self._src[j].apply_inverse_T(w))
+
+    def squared_scales(self) -> torch.Tensor:
+        """`[P, L+1]` squared conformal scale `s_i^2` of each `T_{v_i}` (`T^T T = s^2 I`).
+
+        `s_i = prod_{j<=i} c^{e_j}_tgt / c^{e_j}_src`; exactly 1 under shared scales (D1a).
+        """
+        reference = self._src[0].scale if self.length else None
+        if reference is None:
+            return torch.ones(self.face_node_index.shape, dtype=torch.float32,
+                              device=self.face_node_index.device)
+        squares = [torch.ones_like(reference)]
+        for j in range(self.length):
+            if self.shared_scale:
+                squares.append(squares[-1])
+            else:
+                squares.append(squares[-1] * (self._tgt[j].scale / self._src[j].scale).square())
+        return torch.stack(squares, dim=1)
 
     def apply(self, x: torch.Tensor) -> torch.Tensor:
         """`[N, d]` node cochain -> `[P, L+1, d]` values `T_{v_i} x_{v_i}` in `F(f)`."""

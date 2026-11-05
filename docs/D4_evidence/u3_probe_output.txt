@@ -1,0 +1,12 @@
+T2 worst relative error vs Kron-reduced reference: 2.559e-15
+T4 seed=0 edges     kernel=3  largest-in-kernel=3.42e-16  smallest-outside=2.99e-06
+T4 seed=0 transport kernel=3  largest-in-kernel=9.67e-16  smallest-outside=2.17e-03
+T4 seed=0 free      kernel=0  largest-in-kernel=nan  smallest-outside=7.88e-04
+T4 seed=1 edges     kernel=3  largest-in-kernel=1.61e-16  smallest-outside=8.30e-07
+T4 seed=1 transport kernel=3  largest-in-kernel=5.63e-16  smallest-outside=7.84e-04
+T4 seed=1 free      kernel=0  largest-in-kernel=nan  smallest-outside=4.03e-04
+T4 seed=2 edges     kernel=3  largest-in-kernel=3.34e-16  smallest-outside=1.24e-01
+T4 seed=2 transport kernel=3  largest-in-kernel=1.34e-15  smallest-outside=1.24e-01
+T4 seed=2 free      kernel=0  largest-in-kernel=nan  smallest-outside=1.05e-03
+T5 normalized lambda_max: max=1.9999901386543395 min=1.2895
+T5 unnormalized lambda_max: max=2.416e+16 fixtures>2: 60/60

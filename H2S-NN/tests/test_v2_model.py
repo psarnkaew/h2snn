@@ -319,6 +319,419 @@ class PerEdgeVersionsOfD1Tests(unittest.TestCase):
             self.assertLess(spread, 1e-10)
 
 
+# ----------------------------------------------------------------------------- operators (T2-T5, T7, T14)
+def _operators(num_edges: int, d: int, k: int, generator: torch.Generator,
+               src_scale: torch.Tensor, tgt_scale: torch.Tensor,
+               num_groups: int = 3) -> EdgeMapPair:
+    """Random factorized maps (float64) with the given per-side scales."""
+    group_ids = torch.randint(num_groups, (num_edges,), generator=generator)
+
+    def side(scale: torch.Tensor) -> FactorizedMapOperator:
+        rotations, _ = torch.linalg.qr(torch.randn(num_groups, d, d, generator=generator,
+                                                   dtype=torch.float64))
+        return FactorizedMapOperator(
+            scale=scale,
+            reflectors=normalize_reflectors(
+                torch.randn(num_edges, k, d, generator=generator, dtype=torch.float64), 1e-6),
+            rotations=rotations,
+            group_ids=group_ids,
+        )
+
+    return EdgeMapPair(src=side(src_scale), tgt=side(tgt_scale))
+
+
+class _Complex:
+    """Random small 2-complex: a directed multigraph with one self-loop, one isolated node,
+    extra edges that close cycles, and simple paths (lengths 2-4) along stored edges, grouped
+    by length. Scales: `per_edge` (shared c_e) or `per_side`; values drawn from `scale_values`
+    (or uniform in [0.5, 2] when None)."""
+
+    def __init__(self, seed: int, num_nodes: int = 10, d: int = 3, k: int = 2,
+                 scale_mode: str = "per_edge", scale_values: tuple[float, ...] | None = None,
+                 lengths: tuple[int, ...] = (2, 3, 4), paths_per_length: int = 2,
+                 extra_edges: int = 4) -> None:
+        g = torch.Generator().manual_seed(seed)
+        self.generator = g
+        self.num_nodes = num_nodes
+        self.d = d
+        active = num_nodes - 1  # node num_nodes-1 stays isolated
+        src: list[int] = []
+        tgt: list[int] = []
+        self.groups: list[tuple[torch.Tensor, torch.Tensor]] = []
+        for length in lengths:
+            node_rows, edge_rows = [], []
+            for _ in range(paths_per_length):
+                nodes = torch.randperm(active, generator=g)[: length + 1].tolist()
+                edge_ids = []
+                for a, b in zip(nodes[:-1], nodes[1:]):
+                    edge_ids.append(len(src))
+                    src.append(a)
+                    tgt.append(b)
+                node_rows.append(nodes)
+                edge_rows.append(edge_ids)
+            self.groups.append((torch.tensor(node_rows), torch.tensor(edge_rows)))
+        for _ in range(extra_edges):
+            a, b = torch.randperm(active, generator=g)[:2].tolist()
+            src.append(a)
+            tgt.append(b)
+        self.self_loop_node = int(torch.randint(active, (1,), generator=g))
+        src.append(self.self_loop_node)
+        tgt.append(self.self_loop_node)
+        self.edge_index = torch.tensor([src, tgt])
+        num_edges = len(src)
+
+        def draw() -> torch.Tensor:
+            if scale_values is None:
+                return 0.5 + 1.5 * torch.rand(num_edges, generator=g, dtype=torch.float64)
+            choice = torch.randint(len(scale_values), (num_edges,), generator=g)
+            return torch.tensor(scale_values, dtype=torch.float64)[choice]
+
+        c_src = draw()
+        c_tgt = c_src if scale_mode == "per_edge" else draw()
+        self.scale_mode = scale_mode
+        self.maps = _operators(num_edges, d, k, g, c_src, c_tgt)
+        self.weights = [torch.rand(nodes.size(0), generator=g, dtype=torch.float64)
+                        for nodes, _ in self.groups]
+
+    def transports(self, nodes: torch.Tensor, edges: torch.Tensor) -> PathTransportOperator:
+        return PathTransportOperator(self.maps.src, self.maps.tgt, nodes, edges, self.edge_index,
+                                     shared_scale=self.scale_mode == "per_edge")
+
+    def laplacian(self, gamma: float | None, free: bool = False, terms: bool = True):
+        from src.models.vertex_path_laplacian import (
+            FreeIncidenceOperator, PathCellTerm, VertexPathSheafLaplacian)
+
+        path_terms = []
+        if terms:
+            for (nodes, edges), weights in zip(self.groups, self.weights):
+                if free:
+                    incidence = FreeIncidenceOperator(self.free_maps(nodes), nodes)
+                else:
+                    incidence = self.transports(nodes, edges)
+                path_terms.append(PathCellTerm(incidence, weights))
+        return VertexPathSheafLaplacian(
+            self.maps, self.edge_index, self.num_nodes, tuple(path_terms),
+            None if gamma is None else torch.tensor(gamma, dtype=torch.float64),
+            checkpoint=False,
+        )
+
+    def free_maps(self, nodes: torch.Tensor) -> FactorizedMapOperator:
+        g = torch.Generator().manual_seed(int(nodes.sum()) + 7)
+        size = nodes.numel()
+        return _operators(size, self.d, 2, g, torch.ones(size, dtype=torch.float64),
+                          torch.ones(size, dtype=torch.float64), num_groups=1).src
+
+
+def _matrix(apply, num_nodes: int, d: int) -> torch.Tensor:
+    """Dense `[N d, N d]` matrix of a linear map on `[N, d]` node cochains."""
+    columns = []
+    for index in range(num_nodes * d):
+        x = torch.zeros(num_nodes * d, dtype=torch.float64)
+        x[index] = 1.0
+        columns.append(apply(x.view(num_nodes, d)).reshape(-1))
+    return torch.stack(columns, dim=1)
+
+
+def _dense_delta0(maps: EdgeMapPair, edge_index: torch.Tensor, num_nodes: int,
+                  keep: torch.Tensor | None = None) -> torch.Tensor:
+    """Independent dense `Delta_0 = B^T B` from materialized maps (rows `F_tgt x_t - F_src x_s`)."""
+    F_src, F_tgt = maps.src.materialize(), maps.tgt.materialize()
+    d = F_src.size(-1)
+    num_edges = F_src.size(0)
+    B = torch.zeros(num_edges * d, num_nodes * d, dtype=torch.float64)
+    for e in range(num_edges):
+        if keep is not None and not bool(keep[e]):
+            continue
+        s, t = int(edge_index[0, e]), int(edge_index[1, e])
+        B[e * d:(e + 1) * d, s * d:(s + 1) * d] -= F_src[e]
+        B[e * d:(e + 1) * d, t * d:(t + 1) * d] += F_tgt[e]
+    return B.T @ B
+
+
+def _dense_path_term(transports: torch.Tensor, nodes: torch.Tensor, weights: torch.Tensor,
+                     num_nodes: int) -> torch.Tensor:
+    """Kron-reduced `sum_f w_f B_f^T (I - 1 1^T/|f|) B_f` from materialized `T_v` `[P, n, d, d]`."""
+    num_paths, n, d, _ = transports.shape
+    projector = torch.kron(torch.eye(n, dtype=torch.float64)
+                           - torch.full((n, n), 1.0 / n, dtype=torch.float64),
+                           torch.eye(d, dtype=torch.float64))
+    total = torch.zeros(num_nodes * d, num_nodes * d, dtype=torch.float64)
+    for p in range(num_paths):
+        B = torch.zeros(n * d, num_nodes * d, dtype=torch.float64)
+        for i in range(n):
+            v = int(nodes[p, i])
+            B[i * d:(i + 1) * d, v * d:(v + 1) * d] = transports[p, i]
+        total += weights[p] * B.T @ projector @ B
+    return total
+
+
+def _dense_path_part(complex_: _Complex) -> torch.Tensor:
+    total = 0.0
+    for (nodes, edges), weights in zip(complex_.groups, complex_.weights):
+        total = total + _dense_path_term(_dense_transports(complex_.maps, edges), nodes, weights,
+                                         complex_.num_nodes)
+    return total
+
+
+def _rel_err(a: torch.Tensor, b: torch.Tensor) -> float:
+    return float((a - b).abs().max() / b.abs().max().clamp_min(1.0))
+
+
+class DenseOperatorTests(unittest.TestCase):
+    def test_dense_operator_closed_form_inverse_and_shapes(self) -> None:
+        from src.models.map_operators import DenseMapOperator
+
+        g = torch.Generator().manual_seed(0)
+        c = 0.1 + 5 * torch.rand(12, generator=g, dtype=torch.float64)
+        maps = _operators(12, 5, 2, g, c, c).src
+        dense = DenseMapOperator(maps.materialize(), maps.scale)
+        x = torch.randn(12, 5, generator=g, dtype=torch.float64)
+        inverse = torch.linalg.inv(maps.materialize())
+        self.assertLess(_rel_err(dense.apply_inverse(x), (inverse @ x.unsqueeze(-1)).squeeze(-1)),
+                        F64_TOL)
+        self.assertLess(_rel_err(dense.apply_inverse_T(x),
+                                 (inverse.transpose(-2, -1) @ x.unsqueeze(-1)).squeeze(-1)), F64_TOL)
+        for name in ("apply", "apply_T", "apply_inverse", "apply_orthogonal", "apply_orthogonal_T"):
+            self.assertLess(_rel_err(getattr(dense, name)(x), getattr(maps, name)(x)), F64_TOL)
+        x3 = torch.randn(12, 3, 5, generator=g, dtype=torch.float64)
+        self.assertLess(_rel_err(dense.apply(x3), maps.apply(x3)), F64_TOL)
+        rows = torch.tensor([3, 0, 3])
+        self.assertTrue(torch.equal(dense.select(rows).maps, dense.maps[rows]))
+        with self.assertRaisesRegex(ValueError, "scale"):
+            DenseMapOperator(maps.materialize()).apply_inverse(x)
+
+    def test_path_transport_accepts_dense_operators(self) -> None:
+        from src.models.map_operators import DenseMapOperator
+
+        for mode in ("per_edge", "per_side"):
+            with self.subTest(mode=mode):
+                complex_ = _Complex(seed=3, scale_mode=mode)
+                maps = complex_.maps
+                dense = EdgeMapPair(DenseMapOperator(maps.src.materialize(), maps.src.scale),
+                                    DenseMapOperator(maps.tgt.materialize(), maps.tgt.scale))
+                x = torch.randn(complex_.num_nodes, 3, dtype=torch.float64)
+                for nodes, edges in complex_.groups:
+                    shared = mode == "per_edge"
+                    a = PathTransportOperator(maps.src, maps.tgt, nodes, edges,
+                                              complex_.edge_index, shared_scale=shared)
+                    b = PathTransportOperator(dense.src, dense.tgt, nodes, edges,
+                                              complex_.edge_index, shared_scale=shared)
+                    self.assertLess(_rel_err(b.apply(x), a.apply(x)), F64_TOL)
+                    self.assertLess(_rel_err(b.squared_scales(), a.squared_scales()), F64_TOL)
+
+
+class PathLaplacianTests(unittest.TestCase):
+    def test_T2_path_operator_equals_dense_kron_reduced_reference(self) -> None:
+        """Mixed path lengths 2, 3, 4 in one complex; per-edge and per-side scales."""
+        for mode in ("per_edge", "per_side"):
+            for seed in range(3):
+                with self.subTest(mode=mode, seed=seed):
+                    complex_ = _Complex(seed=seed, scale_mode=mode)
+                    operator = complex_.laplacian(gamma=1.0)
+                    got = _matrix(operator.apply_path, complex_.num_nodes, complex_.d)
+                    want = _dense_path_part(complex_)
+                    self.assertLess(_rel_err(got, want), F64_TOL)
+                    full = _matrix(operator.apply, complex_.num_nodes, complex_.d)
+                    want_full = _dense_delta0(complex_.maps, complex_.edge_index,
+                                              complex_.num_nodes) + want
+                    self.assertLess(_rel_err(full, want_full), F64_TOL)
+
+    def test_T3_normalized_operator_is_self_adjoint_and_psd(self) -> None:
+        for mode, values in (("per_edge", (EPS, 50.0 + EPS)), ("per_side", (EPS, 50.0 + EPS)),
+                             ("per_edge", None)):
+            with self.subTest(mode=mode, values=values):
+                complex_ = _Complex(seed=11, scale_mode=mode, scale_values=values)
+                operator = complex_.laplacian(gamma=2.5)
+                g = torch.Generator().manual_seed(1)
+                x = torch.randn(complex_.num_nodes, complex_.d, generator=g, dtype=torch.float64)
+                y = torch.randn(complex_.num_nodes, complex_.d, generator=g, dtype=torch.float64)
+                lhs = float((x * operator.apply_normalized(y)).sum())
+                rhs = float((operator.apply_normalized(x) * y).sum())
+                self.assertLess(abs(lhs - rhs), F64_TOL * max(1.0, abs(lhs)))
+                matrix = _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
+                self.assertLess(float((matrix - matrix.T).abs().max()), F64_TOL)
+                eigenvalues = torch.linalg.eigvalsh(0.5 * (matrix + matrix.T))
+                self.assertGreaterEqual(float(eigenvalues.min()), -1e-12)
+                quadratic = float((x * operator.apply_normalized(x)).sum())
+                self.assertGreaterEqual(quadratic, -1e-12 * float(x.square().sum()))
+
+    def test_D_is_the_per_incidence_degree_of_the_operators_own_terms(self) -> None:
+        """`D_v I` equals the dense diagonal block of `L` at every node without a self-loop;
+        at the self-loop node it equals the block without that edge plus `c_src^2 + c_tgt^2`."""
+        for mode in ("per_edge", "per_side"):
+            with self.subTest(mode=mode):
+                complex_ = _Complex(seed=5, scale_mode=mode, scale_values=(EPS, 50.0 + EPS))
+                gamma = 0.7
+                operator = complex_.laplacian(gamma=gamma)
+                degree = operator.degree()
+                d = complex_.d
+                loop_edge = complex_.edge_index.size(1) - 1
+                keep = torch.ones(complex_.edge_index.size(1), dtype=torch.bool)
+                keep[loop_edge] = False
+                dense = (_dense_delta0(complex_.maps, complex_.edge_index, complex_.num_nodes, keep)
+                         + gamma * _dense_path_part(complex_))
+                eye = torch.eye(d, dtype=torch.float64)
+                for v in range(complex_.num_nodes):
+                    block = dense[v * d:(v + 1) * d, v * d:(v + 1) * d]
+                    if v == complex_.self_loop_node:
+                        block = block + (complex_.maps.src.scale[loop_edge] ** 2
+                                         + complex_.maps.tgt.scale[loop_edge] ** 2) * eye
+                    self.assertLess(_rel_err(degree[v] * eye, block), F64_TOL)
+                self.assertEqual(float(degree[complex_.num_nodes - 1]), 0.0)
+
+    def test_T5_normalized_spectrum_is_bounded_by_two(self) -> None:
+        """60 fixtures: c in {eps, 50} (40 per-edge, 20 per-side), random w_f, gamma."""
+        max_normalized = 0.0
+        max_unnormalized = 0.0
+        for seed in range(60):
+            mode = "per_edge" if seed < 40 else "per_side"
+            complex_ = _Complex(seed=100 + seed, scale_mode=mode,
+                                scale_values=(EPS, 50.0 + EPS))
+            g = torch.Generator().manual_seed(seed)
+            gamma = float(10 ** (4 * torch.rand(1, generator=g) - 2))
+            operator = complex_.laplacian(gamma=gamma)
+            normalized = _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
+            unnormalized = _matrix(operator.apply, complex_.num_nodes, complex_.d)
+            lam = float(torch.linalg.eigvalsh(0.5 * (normalized + normalized.T)).max())
+            self.assertLessEqual(lam, 2.0 + 1e-9, f"seed {seed}")
+            isolated = complex_.num_nodes - 1
+            rows = normalized[isolated * complex_.d:(isolated + 1) * complex_.d]
+            self.assertEqual(float(rows.abs().max()), 0.0)
+            max_normalized = max(max_normalized, lam)
+            max_unnormalized = max(max_unnormalized,
+                                   float(torch.linalg.eigvalsh(unnormalized).max()))
+        self.assertGreater(max_unnormalized, 2.0)  # negative control: normalization matters
+        self.assertGreater(max_normalized, 1.0)    # the bound is not met vacuously
+
+    def test_T7_cell_state_is_the_least_squares_minimizer(self) -> None:
+        from src.models.vertex_path_laplacian import PathCellTerm
+
+        for mode in ("per_edge", "per_side"):
+            complex_ = _Complex(seed=8, scale_mode=mode)
+            x = torch.randn(complex_.num_nodes, complex_.d, dtype=torch.float64,
+                            generator=torch.Generator().manual_seed(4))
+            for (nodes, edges), weights in zip(complex_.groups, complex_.weights):
+                with self.subTest(mode=mode, length=edges.size(1)):
+                    term = PathCellTerm(complex_.transports(nodes, edges), weights)
+                    y, z = term.cell_values(x)
+                    n, d = y.size(1), y.size(2)
+                    stacked = torch.eye(d, dtype=torch.float64).repeat(n, 1)
+                    for p in range(y.size(0)):
+                        solution = torch.linalg.lstsq(stacked, y[p].reshape(-1, 1)).solution
+                        self.assertLess(_rel_err(z[p], solution.view(-1)), F64_TOL)
+                        self.assertLess(_rel_err(z[p], y[p].sum(0) / n), F64_TOL)
+
+
+def _tree_complex(seed: int, num_nodes: int = 12, d: int = 3,
+                  scale_values: tuple[float, ...] | None = (EPS, 50.0 + EPS)):
+    """Random rooted tree, edges stored parent -> child, and root-ward chains of length 2
+    and 3 along tree edges. Returns (complex-like object, explicit global sections [d, N, d])."""
+    g = torch.Generator().manual_seed(seed)
+    parent = [-1] + [int(torch.randint(v, (1,), generator=g)) for v in range(1, num_nodes)]
+    edge_of = {v: v - 1 for v in range(1, num_nodes)}  # edge id of (parent[v] -> v)
+    edge_index = torch.tensor([[parent[v] for v in range(1, num_nodes)],
+                               list(range(1, num_nodes))])
+    chains: dict[int, list[tuple[list[int], list[int]]]] = {2: [], 3: []}
+    for v in range(num_nodes):
+        for length in (2, 3):
+            nodes = [v]
+            while len(nodes) < length + 1 and parent[nodes[0]] >= 0:
+                nodes.insert(0, parent[nodes[0]])
+            if len(nodes) == length + 1:
+                chains[length].append((nodes, [edge_of[u] for u in nodes[1:]]))
+    complex_ = _Complex.__new__(_Complex)
+    complex_.num_nodes = num_nodes
+    complex_.d = d
+    complex_.edge_index = edge_index
+    complex_.scale_mode = "per_edge"
+    num_edges = num_nodes - 1
+    if scale_values is None:
+        c = 0.5 + 1.5 * torch.rand(num_edges, generator=g, dtype=torch.float64)
+    else:
+        c = torch.tensor(scale_values, dtype=torch.float64)[
+            torch.randint(len(scale_values), (num_edges,), generator=g)]
+    complex_.maps = _operators(num_edges, d, 2, g, c, c)
+    complex_.groups = [(torch.tensor([n for n, _ in chains[L]]),
+                        torch.tensor([e for _, e in chains[L]])) for L in (2, 3) if chains[L]]
+    complex_.weights = [torch.rand(nodes.size(0), generator=g, dtype=torch.float64)
+                        for nodes, _ in complex_.groups]
+    # Global sections: x_root free; delta_e x = F_tgt x_child - F_src x_parent = 0.
+    F_src, F_tgt = complex_.maps.src.materialize(), complex_.maps.tgt.materialize()
+    sections = torch.zeros(d, num_nodes, d, dtype=torch.float64)
+    sections[:, 0] = torch.eye(d, dtype=torch.float64)
+    for v in range(1, num_nodes):  # parents have smaller ids
+        e = edge_of[v]
+        sections[:, v] = (torch.linalg.solve(F_tgt[e], F_src[e] @ sections[:, parent[v]].T)).T
+    return complex_, sections
+
+
+def _kernel_dimension(matrix: torch.Tensor, threshold: float = 1e-9) -> int:
+    return int((torch.linalg.eigvalsh(0.5 * (matrix + matrix.T)).abs() < threshold).sum())
+
+
+class SectionPreservationTests(unittest.TestCase):
+    """T4. Eigenvalue threshold 1e-9 (stated before running), on normalized operators."""
+
+    def test_T4_sections_are_preserved_and_the_kernel_is_unchanged(self) -> None:
+        for seed in range(3):
+            with self.subTest(seed=seed):
+                complex_, sections = _tree_complex(seed)
+                self.assertGreater(sum(n.size(0) for n, _ in complex_.groups), 3)
+                edge_only = complex_.laplacian(gamma=None, terms=False)
+                full = complex_.laplacian(gamma=3.0)
+                for section in sections:
+                    scale = float(section.abs().max())
+                    self.assertLess(float(edge_only.apply(section).abs().max()) / scale, F64_TOL)
+                    self.assertLess(float(full.apply_path(section).abs().max()) / scale, F64_TOL)
+                N, d = complex_.num_nodes, complex_.d
+                kernel_edges = _kernel_dimension(_matrix(edge_only.apply_normalized, N, d))
+                kernel_full = _kernel_dimension(_matrix(full.apply_normalized, N, d))
+                self.assertEqual(kernel_edges, d)  # connected tree: H^0 has dimension d
+                self.assertEqual(kernel_full, kernel_edges)
+
+    def test_T4_negative_control_free_maps_shrink_the_kernel(self) -> None:
+        for seed in range(3):
+            with self.subTest(seed=seed):
+                complex_, sections = _tree_complex(seed)
+                free = complex_.laplacian(gamma=3.0, free=True)
+                N, d = complex_.num_nodes, complex_.d
+                kernel_free = _kernel_dimension(_matrix(free.apply_normalized, N, d))
+                self.assertLess(kernel_free, d)
+                residual = max(float(free.apply_path(s).abs().max() / s.abs().max())
+                               for s in sections)
+                self.assertGreater(residual, 1e-3)
+
+
+class ScaleGaugeTests(unittest.TestCase):
+    def test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0(self) -> None:
+        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
+
+        complex_ = _Complex(seed=21, extra_edges=8)  # extra edges close cycles
+        g = torch.Generator().manual_seed(0)
+        c = complex_.maps.src.scale
+        node_gauge = 0.5 + 1.5 * torch.rand(complex_.num_nodes, generator=g, dtype=torch.float64)
+        src_idx, tgt_idx = complex_.edge_index
+
+        def normalized_delta0(src_scale: torch.Tensor, tgt_scale: torch.Tensor) -> torch.Tensor:
+            maps = EdgeMapPair(
+                FactorizedMapOperator(src_scale, complex_.maps.src.reflectors,
+                                      complex_.maps.src.rotations, complex_.maps.src.group_ids),
+                FactorizedMapOperator(tgt_scale, complex_.maps.tgt.reflectors,
+                                      complex_.maps.tgt.rotations, complex_.maps.tgt.group_ids),
+            )
+            operator = VertexPathSheafLaplacian(maps, complex_.edge_index, complex_.num_nodes,
+                                                (), None, checkpoint=False)
+            return _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
+
+        per_edge = normalized_delta0(c, c)
+        gauged = normalized_delta0(node_gauge[src_idx] * c, node_gauge[tgt_idx] * c)
+        generic = normalized_delta0(
+            0.5 + 1.5 * torch.rand(c.shape, generator=g, dtype=torch.float64),
+            0.5 + 1.5 * torch.rand(c.shape, generator=g, dtype=torch.float64))
+        self.assertLess(float((gauged - per_edge).abs().max()), F64_TOL)
+        self.assertGreater(float((generic - per_edge).abs().max()), 1e-3)
+
+
 # ----------------------------------------------------------------------------- config, scope
 class ArchitectureConfigTests(unittest.TestCase):
     def test_map_scale_defaults_follow_the_architecture(self) -> None:

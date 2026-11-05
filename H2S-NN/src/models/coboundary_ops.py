@@ -320,6 +320,7 @@ class CoboundaryOps:
         src_idx: torch.Tensor,
         tgt_idx: torch.Tensor,
         num_nodes: int,
+        checkpoint: bool = True,
     ) -> torch.Tensor:
         """`delta0^T delta0 x` as one checkpointed block: nothing edge-sized is retained."""
 
@@ -327,7 +328,7 @@ class CoboundaryOps:
             edge_values = CoboundaryOps._delta0_mf(x_in, maps, src_idx, tgt_idx)
             return CoboundaryOps._delta0_T_mf(edge_values, maps, src_idx, tgt_idx, num_nodes)
 
-        return checkpoint_if_grad(l0, x)
+        return checkpoint_if_grad(l0, x, enabled=checkpoint)
 
     @staticmethod
     def L1_matrix_free(
