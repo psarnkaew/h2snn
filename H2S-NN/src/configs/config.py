@@ -783,7 +783,8 @@ class ModelConfig:
                 raw.get("node_edge_memory_guard_fraction", 0.20)
             ),
             map_family=str(raw.get("map_family", "dense")),
-            householder_k=int(raw.get("householder_k", 2)),
+            # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
+            householder_k=raw.get("householder_k", 2),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             use_delta0_init=bool(raw.get("use_delta0_init", True)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),

@@ -357,8 +357,9 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         self.householder_k = householder_k
         self.scale_eps = scale_eps
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
-        # Row 2 * relation + side holds R_{relation, side}. Initialised like a random
-        # FastHPP output (entries ~ 1/sqrt(d)) so the two sides start in different frames.
+        # Row 2 * relation + side holds the FastHPP *parameters* (strictly-lower Householder
+        # entries) of R_{relation, side}, drawn N(0, 1/d) so the two sides start in
+        # different frames. The std is an initialization choice, not a config key.
         self.rotation_params = nn.Parameter(
             torch.empty(2 * num_relations, self.orthogonal.parameter_count)
         )

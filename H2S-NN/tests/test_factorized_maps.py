@@ -476,7 +476,8 @@ class ChainConditionTests(unittest.TestCase):
         for group in data.face_groups:
             with self.subTest(template=group.template_name):
                 operator = PathTransportOperator(
-                    output.maps.src, output.maps.tgt, group.face_node_index, group.face_edge_index
+                    output.maps.src, output.maps.tgt, group.face_node_index,
+                    group.face_edge_index, data.edge_index,
                 )
                 values = operator.apply(x)
                 self.assertEqual(tuple(values.shape), (group.num_faces, group.length + 1, 8))
@@ -493,6 +494,15 @@ class ChainConditionTests(unittest.TestCase):
                 lhs = float((values * w).sum())
                 rhs = float((x * operator.apply_T(w, data.num_nodes)).sum())
                 self.assertLess(abs(lhs - rhs), F64_TOL * max(1.0, abs(lhs)))
+
+    def test_T8_path_transport_rejects_edges_against_the_path(self) -> None:
+        data = _random_pap_data()
+        _, _, _, output = _module_maps(data)
+        group = data.face_groups[0]
+        reversed_edges = data.edge_index.flip(0)  # every edge now points against the path
+        with self.assertRaisesRegex(ValueError, "stored src->tgt direction"):
+            PathTransportOperator(output.maps.src, output.maps.tgt, group.face_node_index,
+                                  group.face_edge_index, reversed_edges)
 
 
 # ----------------------------------------------------------------------------- T9, T10
@@ -543,16 +553,39 @@ class NumericalGuardTests(unittest.TestCase):
         self.assertEqual(float(unit[2].abs().max()), 0.0)
 
     def test_T10_storage_matches_the_bound_exactly(self) -> None:
+        """Counts the tensors the operators actually hold (found generically, after an
+        apply has built the lazy grouping), not the operator's own report."""
+
+        def held_tensors(operator: FactorizedMapOperator) -> list[torch.Tensor]:
+            found: list[torch.Tensor] = []
+            for value in vars(operator).values():
+                items = value if isinstance(value, (tuple, list)) else (value,)
+                found.extend(item for item in items if isinstance(item, torch.Tensor))
+            return found
+
         data = _random_pap_data()
         num_relations = len(data.relation_names)
         M = data.num_edges
         for d, k in ((8, 1), (8, 2), (32, 2), (32, 4)):
             with self.subTest(d=d, k=k):
                 _, _, _, output = _module_maps(data, d=d, k=k)
-                stored = output.maps.src.stored_elements() + output.maps.tgt.stored_elements()
-                self.assertEqual(stored, 2 * M * (k * d + 1) + 2 * num_relations * d * d)
+                floats = 0
+                integers = 0
+                for side in (output.maps.src, output.maps.tgt):
+                    side.apply(torch.zeros(M, d, dtype=torch.float64))  # builds the layout
+                    tensors = held_tensors(side)
+                    floats += sum(t.numel() for t in tensors if t.is_floating_point())
+                    integers += sum(t.numel() for t in tensors if not t.is_floating_point())
+                    self.assertEqual(
+                        side.stored_elements(),
+                        sum(t.numel() for t in tensors if t.is_floating_point()),
+                    )
+                self.assertEqual(floats, 2 * M * (k * d + 1) + 2 * num_relations * d * d)
+                # Integer index storage per side: relation ids (a reference to edge_type)
+                # plus the relation-sort permutation and its inverse.
+                self.assertLessEqual(integers, 2 * 3 * M)
                 if (d, k) == (32, 2):
-                    self.assertGreaterEqual(2 * M * d * d / stored, 10.0)
+                    self.assertGreaterEqual(2 * M * d * d / floats, 10.0)
 
 
 # ----------------------------------------------------------------------------- integration
@@ -706,33 +739,43 @@ class ModelIntegrationTests(unittest.TestCase):
         return recorder
 
     def test_no_dense_map_tensor_over_observed_edges_in_forward_or_backward(self) -> None:
-        data = _random_pap_data()
-        d = 8
+        """Every tensor any op produces in forward or backward (incl. checkpoint replay).
+
+        Two rules: (i) shape `[..., d, d]` whose leading dims multiply to the observed or
+        extended edge count; (ii) any tensor holding >= M*d*d/4 elements, whatever its
+        shape (catches `[2M, d, d]`, `[M, d*d]`, `[M, k, d, d]`). The fixture keeps the v1
+        face tensors (which D1 may still materialize per chunk) far below rule (ii)."""
+        # M = 1200 > d*d, so no parameter (e.g. the v1 d*d-output A_f head) reaches rule (ii).
+        data = _random_pap_data(num_papers=200, num_authors=100, max_faces=10)
+        d = 32
         M = data.num_edges
         extended = M + sum(group.num_faces for group in data.face_groups)
         forbidden = {M, extended}
-        # The v1 face code legitimately builds per-chunk tensors; make sure their sizes
-        # cannot be mistaken for the observed-edge set (fixture sanity).
+        numel_limit = M * d * d // 4
         face_sizes = set()
         for group in data.face_groups:
             face_sizes |= {group.num_faces, group.num_faces * group.length,
                            group.num_faces * (group.length + 1)}
         face_sizes.add(sum(group.num_faces for group in data.face_groups))
         self.assertFalse(face_sizes & forbidden, "fixture collision")
+        self.assertLess(max(face_sizes) * d * d, numel_limit, "fixture: face tensors too big")
 
         def dense_hits(recorder: _ShapeRecorder, phase: str) -> list[tuple[int, ...]]:
-            return [shape for p, shape in recorder.shapes
-                    if p == phase and len(shape) >= 3 and shape[-2:] == (d, d)
-                    and math.prod(shape[:-2]) in forbidden]
+            return [shape for p, shape in recorder.shapes if p == phase and (
+                (len(shape) >= 3 and shape[-2:] == (d, d) and math.prod(shape[:-2]) in forbidden)
+                or math.prod(shape) >= numel_limit)]
 
         torch.manual_seed(0)
-        factorized = self._record(build_model(_config(map_family="factorized"), data), data)
+        model = build_model(_config(map_family="factorized", d=32), data)
+        largest_parameter = max(p.numel() for p in model.parameters())
+        self.assertLess(largest_parameter, numel_limit, "fixture: a parameter trips rule (ii)")
+        factorized = self._record(model, data)
         self.assertEqual(dense_hits(factorized, "forward"), [])
         self.assertEqual(dense_hits(factorized, "backward"), [])
         self.assertTrue(any(p == "backward" for p, _ in factorized.shapes))
         # Negative control: the same detector flags v1 in both passes.
         torch.manual_seed(0)
-        dense = self._record(build_model(_config(), data), data)
+        dense = self._record(build_model(_config(d=32), data), data)
         self.assertTrue(dense_hits(dense, "forward"))
         self.assertTrue(dense_hits(dense, "backward"))
 
@@ -826,6 +869,10 @@ class ConfigAndScopeTests(unittest.TestCase):
                     ModelConfig.from_dict(raw)
         with self.assertRaises(ValueError):
             ModelConfig(householder_k=True)  # type: ignore[arg-type]
+        for not_an_int in (2.9, True, "2"):
+            with self.subTest(householder_k=not_an_int):
+                with self.assertRaises(ValueError):
+                    ModelConfig.from_dict({"householder_k": not_an_int})
         # Dense configs never trip the factorized-only bound (v1 unchanged for any d).
         self.assertEqual(ModelConfig.from_dict({"d": 1}).householder_k, 2)
 
@@ -851,6 +898,56 @@ class ConfigAndScopeTests(unittest.TestCase):
                 closure_edge_index=data.closure_edge_index, num_nodes=data.num_nodes,
                 num_edges=data.num_edges, injected_maps=(eye, eye),
             )
+
+    # Outputs of the PRE-change code (commit 0172044), recorded on CPU in float32 with the
+    # seeds used below: eval logits, train-mode logits sum, sum of squared gradients.
+    T11_GOLDEN = {
+        "acm": (False, (0.08945903182029724, -0.05324907600879669,
+                        0.18663734197616577, -0.11267569661140442),
+                -0.006220608949661255, 18.25995569351168),
+        "dblp": (False, (-0.25717800855636597, 0.012932587414979935,
+                         -0.20732030272483826, -0.04156850278377533),
+                 -0.4914790764451027, 7.6137750301077585),
+        "imdb": (False, (0.08945903182029724, -0.05324907600879669,
+                         0.18663734197616577, -0.11267569661140442),
+                 -0.006220608949661255, 18.25995569351168),
+        "acm_auto": (True, (0.1350582093000412, -0.10817259550094604,
+                            0.18875104188919067, -0.1167091429233551),
+                     0.001686006784439087, 21.306526011802973),
+    }
+
+    def test_T11_dense_matches_pre_change_golden_outputs(self) -> None:
+        """v1 regression against values recorded from the pre-change code (card: <= 1e-6)."""
+        from tests.test_models import _make_prepared_data
+
+        small = {"d": 4, "d_r": 2, "d_h": 8, "K": 2, "classifier_hidden_dim": 8}
+        discovery = {"enabled": True, "mode": "auto", "max_total_instances": 10,
+                     "max_total_incidences": 30}
+        for case, (auto, logits, train_sum, grad_sq) in self.T11_GOLDEN.items():
+            with self.subTest(case=case):
+                raw = {"device": "cpu", "checkpoint_metric": "acc",
+                       "model": dict(small, K=1) if auto else small}
+                if auto:
+                    raw["discovery"] = discovery
+                torch.manual_seed(1234)
+                data = _make_prepared_data(case.removesuffix("_auto"), with_discovery=auto)
+                config = TrainConfig.from_dict(raw)
+                torch.manual_seed(42)
+                model = build_model(config, data)
+                model.eval()
+                with torch.no_grad():
+                    eval_logits = model(data).logits
+                model.train()
+                torch.manual_seed(7)
+                output = model(data)
+                (output.logits.square().sum() + output.s_star.square().mean()
+                 + output.x_star.square().mean()).backward()
+                got_grad_sq = sum(float(p.grad.double().square().sum())
+                                  for p in model.parameters() if p.grad is not None)
+                self.assertLess(_max_err(eval_logits.double().flatten(),
+                                         torch.tensor(logits, dtype=torch.float64)), 1e-6)
+                self.assertLess(abs(float(output.logits.double().sum()) - train_sum), 1e-6)
+                self.assertLess(abs(got_grad_sq - grad_sq) / grad_sq, 1e-6)
 
     def test_T11_explicit_dense_is_identical_to_the_default(self) -> None:
         """Bit-for-bit equality with the pre-change code is checked by a one-off script

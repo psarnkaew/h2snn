@@ -24,6 +24,8 @@ import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint
 
+from src.data.face_geometry import validate_face_orientation
+
 
 def checkpoint_if_grad(
     function: Callable[..., torch.Tensor | tuple[torch.Tensor, ...]],
@@ -61,7 +63,10 @@ def normalize_reflectors(raw: torch.Tensor, eps: float) -> torch.Tensor:
 
 
 class MapOperator(Protocol):
-    """One side's restriction maps over `num_edges` edges, applied to `[E, ..., d]`."""
+    """One side's restriction maps over `num_edges` edges, applied to `[E, d]` inputs.
+
+    `FactorizedMapOperator` also accepts `[E, n, d]`; `DenseMapOperator` does not.
+    """
 
     @property
     def num_edges(self) -> int: ...
@@ -334,14 +339,17 @@ class PathTransportOperator:
 
     `apply` returns `T_{v_i} x_{v_i}` for every position of every path; `apply_T` is its
     exact adjoint (node cochain <- per-incidence values). Each `Q_j` is applied to all
-    positions `i >= j` at once, so the cost is `L(L+1)/2` factorized map applications per
-    path and nothing `d x d` is formed.
+    positions `i >= j` at once: `L(L+1)/2` applications of a `Q_j`, i.e. `L(L+1)`
+    factorized map applications per path, and nothing `d x d` is formed. (The sum
+    `sum_i T_{v_i} x_{v_i}` alone could use Horner's O(L) form; per-position values cannot.)
 
     Args:
         src: source-side factorized maps of the observed edges.
         tgt: target-side factorized maps of the same edges.
         face_node_index: `[P, L+1]` node ids along each path.
         face_edge_index: `[P, L]` edge ids along each path (indices into `src`/`tgt`).
+        edge_index: `[2, E]` observed edge list; used to check that every path edge is
+            stored along the path and that paths are simple, which the formula assumes.
     """
 
     def __init__(
@@ -350,6 +358,7 @@ class PathTransportOperator:
         tgt: FactorizedMapOperator,
         face_node_index: torch.Tensor,
         face_edge_index: torch.Tensor,
+        edge_index: torch.Tensor,
     ) -> None:
         if face_node_index.dim() != 2 or face_edge_index.dim() != 2:
             raise ValueError("face_node_index and face_edge_index must be two-dimensional.")
@@ -358,8 +367,11 @@ class PathTransportOperator:
                 "face_node_index must be [P, L+1] for face_edge_index [P, L], got "
                 f"{tuple(face_node_index.shape)} and {tuple(face_edge_index.shape)}."
             )
-        if src.num_edges != tgt.num_edges:
-            raise ValueError("src and tgt operators must cover the same edges.")
+        if src.num_edges != tgt.num_edges or edge_index.size(1) != src.num_edges:
+            raise ValueError("src, tgt and edge_index must cover the same edges.")
+        validate_face_orientation(
+            face_node_index, face_edge_index, edge_index, template_name="PathTransportOperator"
+        )
         self.face_node_index = face_node_index
         self.length = int(face_edge_index.size(1))
         self._src = tuple(src.select(face_edge_index[:, j]) for j in range(self.length))
