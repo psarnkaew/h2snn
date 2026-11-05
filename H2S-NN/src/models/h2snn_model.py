@@ -13,6 +13,7 @@ from src.data.structures import FaceGroup, PreparedH2SData, face_lengths_of
 from src.models.coboundary_ops import CoboundaryOps
 from src.models.diffusion import HodgeDiffusion
 from src.models.graph_pooling import GraphPooling, build_graph_pooling
+from src.models.h2snn_v2 import H2SNNv2
 from src.models.s2pool_h2 import S2PoolH2, GalerkinSheafPool, SheafSpectralPool
 from src.models.link_readout import LinkPredictionReadout
 from src.models.node_encoder import TypeSpecificNodeEncoder
@@ -881,9 +882,10 @@ class H2SNN(nn.Module):
         )
 
 
-def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
+def build_model(config: TrainConfig, data: PreparedH2SData) -> "H2SNN | H2SNNv2":
+    """Node-classification model selected by `model.architecture` (v1 default)."""
     if config.model.architecture == "v2":
-        raise NotImplementedError("architecture 'v2' (D4) is not built yet (D4 unit 4).")
+        return H2SNNv2(config=config, dims=ModelDims.from_prepared_data(data))
     return H2SNN(config=config, dims=ModelDims.from_prepared_data(data))
 
 

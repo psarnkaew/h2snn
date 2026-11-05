@@ -10,6 +10,7 @@ from torch import nn
 
 from src.data.structures import FaceGroup
 from src.models.map_operators import (
+    DenseMapOperator,
     EdgeMapPair,
     FactorizedMapOperator,
     checkpoint_if_grad,
@@ -357,6 +358,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         scale_eps: float,
         orthogonal_map: str,
         map_scale: str = "per_side",
+        checkpoint: bool = True,
     ) -> None:
         super().__init__()
         if householder_k < 1:
@@ -371,6 +373,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         self.householder_k = householder_k
         self.scale_eps = scale_eps
         self.map_scale = map_scale
+        self.checkpoint = checkpoint
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
         # Row 2 * relation + side holds the FastHPP *parameters* (strictly-lower Householder
         # entries) of R_{relation, side}, drawn N(0, 1/d) so the two sides start in
@@ -475,6 +478,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
                 ),
                 h,
                 relation_embeddings,
+                enabled=self.checkpoint,
             )
             operators.append(
                 FactorizedMapOperator(
@@ -503,6 +507,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
             lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
             h,
             relation_embeddings,
+            enabled=self.checkpoint,
         )
         operators: list[FactorizedMapOperator] = []
         for side, (self_idx, other_idx) in enumerate(((src_idx, tgt_idx), (tgt_idx, src_idx))):
@@ -512,6 +517,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
                 ),
                 h,
                 relation_embeddings,
+                enabled=self.checkpoint,
             )
             # The same `scale` tensor object on both sides: one c_e per edge (D1a).
             operators.append(
@@ -524,6 +530,105 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
             )
         return FactorizedNodeToEdgeSheafOutput(
             maps=EdgeMapPair(src=operators[0], tgt=operators[1])
+        )
+
+
+class DenseConformalNodeToEdgeSheaf(nn.Module):
+    """v2 dense map family (D4): `F = c * Q` with explicit `[M, d, d]` maps.
+
+    `Q` is v1's per-edge, per-side FastHPP orthogonal map from per-relation MLPs over
+    `[h_src, h_tgt, rel_emb]`; the scale `c` follows the same law as the factorized family
+    (`map_scale`: one `c_e` per edge, or D1's per-side `c`). So dense and factorized differ
+    only in how the orthogonal part is parameterized. Returned as `DenseMapOperator`s that
+    carry `c`, so every inverse is the closed form `F^T / c^2`.
+    """
+
+    def __init__(
+        self,
+        d: int,
+        d_r: int,
+        num_relations: int,
+        hidden_dim: int,
+        scale_eps: float,
+        orthogonal_map: str,
+        map_scale: str,
+        memory_guard_fraction: float,
+    ) -> None:
+        super().__init__()
+        if scale_eps <= 0.0:
+            raise ValueError(f"scale_eps must be positive, got {scale_eps}.")
+        if map_scale not in {"per_side", "per_edge"}:
+            raise ValueError(f"map_scale must be 'per_side' or 'per_edge', got {map_scale!r}.")
+        self.d = d
+        self.scale_eps = scale_eps
+        self.map_scale = map_scale
+        self.memory_guard_fraction = memory_guard_fraction
+        self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
+        self.param_dim = self.orthogonal.parameter_count
+        input_dim = 2 * d + d_r
+        self.src_mlps = nn.ModuleList(
+            [_build_mlp(input_dim, hidden_dim, self.param_dim) for _ in range(num_relations)]
+        )
+        self.tgt_mlps = nn.ModuleList(
+            [_build_mlp(input_dim, hidden_dim, self.param_dim) for _ in range(num_relations)]
+        )
+        if map_scale == "per_edge":
+            self.edge_scale_mlp = _build_mlp(input_dim, hidden_dim, 1)
+        else:
+            self.scale_mlp = _build_mlp(input_dim + 2, hidden_dim, 1)
+
+    @staticmethod
+    def _project_by_relation(
+        inputs: torch.Tensor, edge_type: torch.Tensor, mlps: nn.ModuleList
+    ) -> torch.Tensor:
+        output_dim = mlps[0][-1].out_features
+        projected = inputs.new_zeros((inputs.size(0), output_dim))
+        for relation_id, mlp in enumerate(mlps):
+            relation_mask = edge_type == relation_id
+            if relation_mask.any():
+                projected[relation_mask] = mlp(inputs[relation_mask])
+        return projected
+
+    def _side_scale(self, h: torch.Tensor, relation_features: torch.Tensor,
+                    self_idx: torch.Tensor, other_idx: torch.Tensor, side: int) -> torch.Tensor:
+        side_code = h.new_zeros((self_idx.numel(), 2))
+        side_code[:, side] = 1.0
+        inputs = torch.cat([h[self_idx], h[other_idx], relation_features, side_code], dim=-1)
+        return F.softplus(self.scale_mlp(inputs).squeeze(-1)) + self.scale_eps
+
+    def forward(
+        self,
+        h: torch.Tensor,
+        edge_index: torch.Tensor,
+        edge_type: torch.Tensor,
+        relation_embeddings: torch.Tensor,
+    ) -> FactorizedNodeToEdgeSheafOutput:
+        if h.is_cuda:
+            validate_node_edge_memory_budget(
+                num_edges=int(edge_index.size(1)),
+                d=self.d,
+                param_dim=self.param_dim,
+                use_orthogonal=True,
+                element_size=h.element_size(),
+                total_device_bytes=torch.cuda.get_device_properties(h.device).total_memory,
+                guard_fraction=self.memory_guard_fraction,
+            )
+        src_idx, tgt_idx = edge_index[0], edge_index[1]
+        relation_features = relation_embeddings[edge_type]
+        inputs = torch.cat([h[src_idx], h[tgt_idx], relation_features], dim=-1)
+        Q_src = self.orthogonal(self._project_by_relation(inputs, edge_type, self.src_mlps))
+        Q_tgt = self.orthogonal(self._project_by_relation(inputs, edge_type, self.tgt_mlps))
+        if self.map_scale == "per_edge":
+            c_src = F.softplus(self.edge_scale_mlp(inputs).squeeze(-1)) + self.scale_eps
+            c_tgt = c_src
+        else:
+            c_src = self._side_scale(h, relation_features, src_idx, tgt_idx, 0)
+            c_tgt = self._side_scale(h, relation_features, tgt_idx, src_idx, 1)
+        return FactorizedNodeToEdgeSheafOutput(
+            maps=EdgeMapPair(
+                src=DenseMapOperator(Q_src * c_src.view(-1, 1, 1), c_src),
+                tgt=DenseMapOperator(Q_tgt * c_tgt.view(-1, 1, 1), c_tgt),
+            )
         )
 
 

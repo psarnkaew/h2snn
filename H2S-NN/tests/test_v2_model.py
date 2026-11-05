@@ -732,6 +732,306 @@ class ScaleGaugeTests(unittest.TestCase):
         self.assertGreater(float((generic - per_edge).abs().max()), 1e-3)
 
 
+# ----------------------------------------------------------------------------- v2 model (T1, T6, T8-T10, T13)
+def _v2_config(**model: object) -> TrainConfig:
+    base = {"architecture": "v2", "map_family": "factorized", "d": 8, "d_r": 4, "K": 2,
+            "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
+    base.update(model)
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base})
+
+
+def _v2_model(data, seed: int = 0, **model: object):
+    from src.models.h2snn_model import build_model
+
+    torch.manual_seed(seed)
+    return build_model(_v2_config(**model), data)
+
+
+def _a1_p_a2():
+    """Path A1 -> P -> A2 (nodes 0, 1, 2), one 2-cell on it, plus a pendant node 3 on A2."""
+    from src.data.structures import FaceGroup
+
+    edge_index = torch.tensor([[0, 1, 2], [1, 2, 3]])
+    edge_type = torch.tensor([0, 1, 0])
+    nodes = torch.tensor([[0, 1, 2]])
+    edges = torch.tensor([[0, 1]])
+    group = FaceGroup(template_name="APA", node_type_sequence=("a", "p", "a"),
+                      face_node_index=nodes, face_edge_index=edges,
+                      relation_index=edge_type[edges], face_edge_sign=torch.ones(1, 2),
+                      closure_edge_index=torch.tensor([[2, 0]]))
+    return edge_index, edge_type, (group,)
+
+
+class V2ModelTests(unittest.TestCase):
+    def test_build_model_dispatches_on_architecture(self) -> None:
+        from src.models.h2snn_v2 import H2SNNv2
+
+        data = _random_pap_data()
+        model = _v2_model(data)
+        self.assertIsInstance(model, H2SNNv2)
+        output = model(data)
+        self.assertEqual(tuple(output.logits.shape), (data.target_indices.numel(), 3))
+        self.assertTrue(bool(torch.isfinite(output.logits).all()))
+
+    def test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node(self) -> None:
+        """One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links
+        A1 to A2 in one step), and d x1(A1)/d x0(P) changes with gamma."""
+        from src.models.h2snn_v2 import H2SNNv2
+        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
+
+        edge_index, edge_type, groups = _a1_p_a2()
+        dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
+                         face_lengths=(2,))
+        torch.manual_seed(0)
+        model = H2SNNv2(_v2_config(), dims).double()
+        h0 = torch.randn(4, 8, dtype=torch.float64)
+        operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
+        self.assertEqual(len(operator.laplacian.path_terms), 1)
+
+        def block(gamma: float, row: int, column: int) -> torch.Tensor:
+            laplacian = VertexPathSheafLaplacian(
+                operator.maps, edge_index, 4, operator.laplacian.path_terms,
+                torch.tensor(gamma, dtype=torch.float64), checkpoint=False)
+
+            def step(x0: torch.Tensor) -> torch.Tensor:
+                return x0 - operator.eta * laplacian.apply_normalized(x0)
+
+            jacobian = torch.autograd.functional.jacobian(step, h0.detach().clone())
+            return jacobian[row, :, column, :]
+
+        far_zero = block(0.0, 0, 2)
+        self.assertEqual(float(far_zero.abs().max()), 0.0)
+        for gamma in (0.3, 2.0):
+            self.assertGreater(float(block(gamma, 0, 2).abs().max()), 1e-8)
+        middle_change = (block(0.3, 0, 1) - block(2.0, 0, 1)).abs().max()
+        self.assertGreater(float(middle_change), 1e-8)
+        # The model's own gamma also reaches A2 (and the ablation does not).
+        jacobian = torch.autograd.functional.jacobian(
+            lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
+        self.assertGreater(float(jacobian[0, :, 2, :].abs().max()), 1e-8)
+        torch.manual_seed(0)
+        ablated = H2SNNv2(_v2_config(ablate_no_path_cells=True), dims).double()
+        ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
+        jacobian = torch.autograd.functional.jacobian(
+            lambda x0: x0 - ablated_operator.eta
+            * ablated_operator.laplacian.apply_normalized(x0), h0.clone())
+        self.assertEqual(float(jacobian[0, :, 2, :].abs().max()), 0.0)
+
+    def test_T8_no_dense_map_tensor_in_v2_forward_or_backward(self) -> None:
+        """Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4
+        elements. Dense control: v1 (dense and factorized) is flagged in both passes."""
+        from src.models.h2snn_model import build_model
+        from tests.test_factorized_maps import _ShapeRecorder
+
+        data = _random_pap_data(num_papers=100, num_authors=50, max_faces=270)
+        d = 32
+        M = data.num_edges
+        F = sum(group.num_faces for group in data.face_groups)
+        forbidden = {M, F}
+        for group in data.face_groups:
+            forbidden |= {group.num_faces, group.num_faces * (group.length + 1)}
+        numel_limit = min(M, F) * d * d // 4
+        self.assertGreater(F, M // 2, "fixture: F must be comparable to M")
+
+        def hits(recorder: _ShapeRecorder, phase: str) -> list[tuple[int, ...]]:
+            return [shape for p, shape in recorder.shapes if p == phase and (
+                (len(shape) >= 3 and shape[-2:] == (d, d) and math.prod(shape[:-2]) in forbidden)
+                or math.prod(shape) >= numel_limit)]
+
+        def record(model) -> _ShapeRecorder:
+            recorder = _ShapeRecorder()
+            with recorder:
+                output = model(data)
+                loss = output.logits.square().sum()
+                recorder.phase = "backward"
+                loss.backward()
+            return recorder
+
+        model = _v2_model(data, d=d, face_mlp_hidden_dim=128, edge_mlp_hidden_dim=128)
+        self.assertLess(max(p.numel() for p in model.parameters()), numel_limit)
+        v2 = record(model)
+        self.assertEqual(hits(v2, "forward"), [])
+        self.assertEqual(hits(v2, "backward"), [])
+        self.assertTrue(any(p == "backward" for p, _ in v2.shapes))
+        for family in ("dense", "factorized"):
+            with self.subTest(v1=family):
+                torch.manual_seed(0)
+                v1 = record(build_model(_config(d=d, map_family=family), data))
+                self.assertTrue(hits(v1, "forward"))
+                self.assertTrue(hits(v1, "backward"))
+
+    def test_T9_deleted_components_are_absent(self) -> None:
+        from src.models.h2snn_model import build_model
+        from src.models.sheaf_maps import EdgeInitializer, SequenceEdgeToFaceSheaf
+        from tests.test_factorized_maps import _ShapeRecorder
+
+        data = _random_pap_data()
+        model = _v2_model(data)
+        for name in model.state_dict():
+            for deleted in ("edge_initializer", "edge_to_face", "map_head", "edge_norm",
+                            "node_norm", "diffusion.eta_1"):
+                self.assertNotIn(deleted, name)
+        for name, module in model.named_modules():
+            self.assertNotIsInstance(module, (EdgeInitializer, SequenceEdgeToFaceSheaf))
+            if isinstance(module, torch.nn.LayerNorm):
+                self.assertTrue(name.startswith("node_encoder"), name)
+        M = data.num_edges
+        extended = M + sum(group.num_faces for group in data.face_groups)
+        h0 = model.encode_nodes(data.x, data.node_type)
+        operator = model.build_operator(h0, data.edge_index, data.edge_type, data.face_groups,
+                                        data.num_nodes)
+        self.assertEqual(operator.laplacian.src_idx.numel(), M)  # no closure edges in Delta_0
+
+        def edge_cochains(model_) -> list[tuple[int, ...]]:
+            recorder = _ShapeRecorder()
+            with recorder:
+                output = model_(data)
+                recorder.phase = "backward"
+                output.logits.square().sum().backward()
+            return [s for _, s in recorder.shapes if len(s) == 2 and s[0] == extended]
+
+        self.assertEqual(edge_cochains(model), [])
+        torch.manual_seed(0)
+        self.assertTrue(edge_cochains(build_model(_config(), data)))  # control: v1 has s
+
+    def test_T10_gradients_reach_every_learned_component(self) -> None:
+        data = _random_pap_data()
+        model = _v2_model(data)
+        model(data).logits.square().sum().backward()
+        groups = ["theta_eta", "theta_gamma", "path_gate", "path_encoder",
+                  "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
+                  "node_to_edge.rotation_params", "node_encoder", "relation_embedding",
+                  "readout"]
+        named = dict(model.named_parameters())
+        for prefix in groups:
+            with self.subTest(prefix=prefix):
+                grads = [p.grad for n, p in named.items() if n.startswith(prefix)]
+                self.assertTrue(grads)
+                self.assertTrue(all(g is not None for g in grads))
+                self.assertGreater(sum(float(g.abs().sum()) for g in grads), 0.0)
+
+    def test_gate_initialization_is_near_one_half(self) -> None:
+        data = _random_pap_data()
+        model = _v2_model(data)
+        self.assertEqual(float(model.path_gate.bias.abs().max()), 0.0)
+        output = model(data)
+        self.assertLess(abs(float(output.path_gate_mean) - 0.5), 0.1)
+        self.assertLess(float(output.path_gate_max), 0.75)
+
+    def test_T13_dense_and_factorized_families_match_on_materialized_maps(self) -> None:
+        import copy
+
+        from src.models.map_operators import DenseMapOperator
+        from src.models.sheaf_maps import FactorizedNodeToEdgeSheafOutput
+        from tests.test_factorized_maps import _as_float64
+
+        class Materialized(torch.nn.Module):
+            def __init__(self, factorized: FactorizedNodeToEdgeSheaf) -> None:
+                super().__init__()
+                self.factorized = factorized
+
+            def forward(self, h, edge_index, edge_type, relation_embeddings):
+                maps = self.factorized(h, edge_index, edge_type, relation_embeddings).maps
+                return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(
+                    DenseMapOperator(maps.src.materialize(), maps.src.scale),
+                    DenseMapOperator(maps.tgt.materialize(), maps.tgt.scale)))
+
+        data = _as_float64(_random_pap_data())
+        for map_scale in ("per_edge", "per_side"):
+            with self.subTest(map_scale=map_scale):
+                factorized = _v2_model(data, map_scale=map_scale).double().eval()
+                dense = copy.deepcopy(factorized)
+                dense.node_to_edge = Materialized(dense.node_to_edge)
+                outputs = []
+                for model in (factorized, dense):
+                    output = model(data)
+                    output.logits.square().sum().backward()
+                    outputs.append(output)
+                self.assertLess(_rel_err(outputs[1].logits, outputs[0].logits), F64_TOL)
+                grads_a = {n: p.grad for n, p in factorized.named_parameters()}
+                grads_b = {n.replace("node_to_edge.factorized.", "node_to_edge."): p.grad
+                           for n, p in dense.named_parameters()}
+                self.assertEqual(set(grads_a), set(grads_b))
+                for name, grad in grads_a.items():
+                    self.assertLess(_rel_err(grads_b[name], grad), F64_TOL, name)
+        dense_family = _v2_model(_random_pap_data(), map_family="dense")
+        output = dense_family(_random_pap_data())
+        output.logits.square().sum().backward()
+        self.assertTrue(bool(torch.isfinite(output.logits).all()))
+        self.assertGreater(float(dense_family.node_to_edge.src_mlps[0][0].weight.grad.abs().sum()), 0)
+        self.assertGreater(
+            float(dense_family.node_to_edge.edge_scale_mlp[0].weight.grad.abs().sum()), 0)
+
+    def test_checkpointing_switch_does_not_change_outputs_or_gradients(self) -> None:
+        from tests.test_factorized_maps import _as_float64
+
+        data = _as_float64(_random_pap_data())
+        results = []
+        for checkpointing in (True, False):
+            model = _v2_model(data, checkpointing=checkpointing).double().eval()
+            output = model(data)
+            output.logits.square().sum().backward()
+            results.append((output.logits, {n: p.grad for n, p in model.named_parameters()}))
+        self.assertLess(_rel_err(results[1][0], results[0][0]), F64_TOL)
+        for name, grad in results[0][1].items():
+            self.assertLess(_rel_err(results[1][1][name], grad), F64_TOL, name)
+
+    def test_v2_rejects_ampss_auto_discovery(self) -> None:
+        from src.models.h2snn_model import build_model
+        from tests.test_models import _make_prepared_data
+
+        data = _make_prepared_data("acm", with_discovery=True)
+        config = TrainConfig.from_dict({
+            "device": "cpu", "checkpoint_metric": "acc",
+            "model": {"architecture": "v2", "map_family": "factorized", "d": 4, "d_r": 2},
+            "discovery": {"enabled": True, "mode": "auto", "max_total_instances": 10,
+                          "max_total_incidences": 30}})
+        with self.assertRaisesRegex(NotImplementedError, "D2"):
+            build_model(config, data)
+
+    def test_trainer_runs_v2_unchanged_and_checkpoints_reload(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        from src.models.h2snn_model import build_model
+        from src.trainers.trainer import build_trainer
+        from src.utils.checkpointer import Checkpointer
+        from src.utils.logger import ExperimentLogger
+        from src.utils.misc import save_config
+
+        data = _random_pap_data()
+        tmp_parent = Path(__file__).resolve().parent.parent
+        with tempfile.TemporaryDirectory(dir=tmp_parent) as tmpdir:
+            cfg = TrainConfig.from_dict({
+                "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
+                "checkpoint_metric": "acc", "checkpoint_mode": "max",
+                "model": {"architecture": "v2", "map_family": "factorized", "d": 8, "d_r": 4,
+                          "K": 2, "classifier_hidden_dim": 16}})
+            torch.manual_seed(0)
+            model = build_model(cfg, data)
+            logger = ExperimentLogger(cfg.exp_dir)
+            checkpointer = Checkpointer(cfg.exp_dir, metric="acc", mode="max")
+            save_config(cfg, cfg.exp_dir / "config.yaml")
+            trainer = build_trainer(model=model,
+                                    optimizer=torch.optim.Adam(model.parameters(), lr=1e-3),
+                                    scheduler=None, cfg=cfg, logger=logger,
+                                    checkpointer=checkpointer)
+            try:
+                trainer.fit(data)
+                self.assertTrue((cfg.exp_dir / "metrics.jsonl").exists())
+                self.assertTrue((cfg.exp_dir / "checkpoints" / "best.pt").exists())
+                import yaml
+
+                with (cfg.exp_dir / "config.yaml").open(encoding="utf-8") as handle:
+                    reloaded_cfg = TrainConfig.from_dict(yaml.safe_load(handle))
+                self.assertEqual(reloaded_cfg.model.architecture, "v2")
+                self.assertEqual(reloaded_cfg.model.map_scale, "per_edge")
+                fresh = build_model(reloaded_cfg, data)
+                Checkpointer(cfg.exp_dir, metric="acc", mode="max").load(fresh, tag="best")
+            finally:
+                logger.close()
+
+
 # ----------------------------------------------------------------------------- config, scope
 class ArchitectureConfigTests(unittest.TestCase):
     def test_map_scale_defaults_follow_the_architecture(self) -> None:
