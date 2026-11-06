@@ -51,6 +51,8 @@ def _config(output_dir: str):
         checkpoint_metric="acc",
         log_every=100,
         exp_dir=Path(output_dir),
+        # Read by Trainer.training_draw (D8 protocol); False keeps one fixed path draw.
+        data=SimpleNamespace(resample_paths=False),
     )
 
 

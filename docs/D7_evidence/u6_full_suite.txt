@@ -199,15 +199,15 @@ test_T3_closed_form_inverse_is_the_true_inverse (test_factorized_maps.OperatorAl
 test_T4_maps_are_side_specific_and_node_dependent (test_factorized_maps.SideAndNodeDependenceTests.test_T4_maps_are_side_specific_and_node_dependent) ... ok
 test_config_rejects_nonpositive_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
 test_link_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
-test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ERROR
-test_early_stopping_tracks_validation_auroc (test_graph_classification_trainer.GraphClassificationTrainerTests.test_early_stopping_tracks_validation_auroc) ... 2026-11-07 04:22:21,678 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
-2026-11-07 04:22:21,693 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
-2026-11-07 04:22:21,695 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
-2026-11-07 04:22:21,704 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
-2026-11-07 04:22:21,710 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
-2026-11-07 04:22:21,714 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
-2026-11-07 04:22:21,714 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
-2026-11-07 04:22:21,715 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+test_early_stopping_tracks_validation_auroc (test_graph_classification_trainer.GraphClassificationTrainerTests.test_early_stopping_tracks_validation_auroc) ... 2026-11-07 04:31:21,677 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:31:21,701 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 04:31:21,706 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:31:21,726 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:31:21,735 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:31:21,743 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 04:31:21,743 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-07 04:31:21,743 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
 ok
 test_T8_mean_of_draws_matches_the_exact_target (test_paths_and_facts.EstimatorTests.test_T8_mean_of_draws_matches_the_exact_target) ... ok
 test_T8_negative_control_dropping_duplicates_is_biased (test_paths_and_facts.EstimatorTests.test_T8_negative_control_dropping_duplicates_is_biased) ... ok
@@ -257,9 +257,9 @@ test_each_decoder_trains_one_step_and_reaches_the_encoder (test_task_heads.LinkP
 test_no_path_cell_or_message_edge_is_a_held_out_positive (test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
 test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
 Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
-test_trainer_writes_expected_artifacts (test_trainer.TrainerSmokeTests.test_trainer_writes_expected_artifacts) ... 2026-11-07 04:25:18,229 | INFO | Epoch 0000 | train_loss: 1.1190 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.3333 | train_micro_f1: 0.5000 | val_loss: 1.0492 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
-2026-11-07 04:25:18,265 | INFO | Checkpoint metric acc: 0.5000
-2026-11-07 04:25:18,265 | INFO | Best epoch 0 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250 | test_acc: 0.1250
+test_trainer_writes_expected_artifacts (test_trainer.TrainerSmokeTests.test_trainer_writes_expected_artifacts) ... 2026-11-07 04:34:13,613 | INFO | Epoch 0000 | train_loss: 1.1190 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.3333 | train_micro_f1: 0.5000 | val_loss: 1.0492 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-07 04:34:13,650 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:34:13,651 | INFO | Best epoch 0 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250 | test_acc: 0.1250
 ok
 test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) ... ok
 test_T11_free_maps_are_orthogonal_and_per_incidence (test_v2_model.AblationTests.test_T11_free_maps_are_orthogonal_and_per_incidence) ... ok
@@ -308,11 +308,11 @@ test_T9_deleted_components_are_absent (test_v2_model.V2ModelTests.test_T9_delete
 test_build_model_builds_the_node_classification_head (test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
 test_checkpointing_switch_does_not_change_outputs_or_gradients (test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
 test_gate_initialization_is_near_one_half (test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
-test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload) ... 2026-11-07 04:26:10,841 | INFO | Epoch 0000 | train_loss: 1.1137 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0937 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
-2026-11-07 04:26:10,857 | INFO | Checkpoint metric acc: 0.5000
-2026-11-07 04:26:10,999 | INFO | Epoch 0001 | train_loss: 1.0512 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0849 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
-2026-11-07 04:26:11,006 | INFO | Checkpoint metric acc: 0.5000
-2026-11-07 04:26:11,006 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload) ... 2026-11-07 04:35:08,207 | INFO | Epoch 0000 | train_loss: 1.1137 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0937 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-07 04:35:08,228 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:35:08,490 | INFO | Epoch 0001 | train_loss: 1.0512 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0849 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-07 04:35:08,518 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:35:08,518 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
 ok
 test_agent_worker_runs_exactly_one_trial_and_records_pid (test_wandb_and_runs.WandbAndRunReportingTests.test_agent_worker_runs_exactly_one_trial_and_records_pid) ... ok
 test_campaign_resume_selects_compatible_continuation_or_new_state (test_wandb_and_runs.WandbAndRunReportingTests.test_campaign_resume_selects_compatible_continuation_or_new_state) ... ok
@@ -322,9 +322,9 @@ test_notebooks_reference_repeated_run_and_wandb_tuning_scripts (test_wandb_and_r
 test_repeated_cv_notebook_is_clean_and_uses_fold_campaign (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_notebook_is_clean_and_uses_fold_campaign) ... ok
 test_repeated_cv_unit_mapping_config_and_population_summary (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_unit_mapping_config_and_population_summary) ... ok
 test_run_summary_uses_task_metrics_and_mean_std (test_wandb_and_runs.WandbAndRunReportingTests.test_run_summary_uses_task_metrics_and_mean_std) ... ok
-test_wandb_disabled_preserves_local_metrics_jsonl (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_disabled_preserves_local_metrics_jsonl) ... 2026-11-07 04:26:11,410 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+test_wandb_disabled_preserves_local_metrics_jsonl (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_disabled_preserves_local_metrics_jsonl) ... 2026-11-07 04:35:09,041 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
 ok
-test_wandb_enabled_logs_flattened_metrics_and_finishes (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_enabled_logs_flattened_metrics_and_finishes) ... 2026-11-07 04:26:11,424 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+test_wandb_enabled_logs_flattened_metrics_and_finishes (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_enabled_logs_flattened_metrics_and_finishes) ... 2026-11-07 04:35:09,063 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
 ok
 test_wandb_sweep_config_and_tuning_selection (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_sweep_config_and_tuning_selection) ... ok
 test_wandb_tuning_resume_requires_matching_fingerprints (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_tuning_resume_requires_matching_fingerprints) ... ok
@@ -599,20 +599,6 @@ Traceback (most recent call last):
 FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
 
 ======================================================================
-ERROR: test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_full_graph_early_stopping.py", line 140, in test_node_trainer_honors_patience
-    trainer.fit(
-  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 82, in fit
-    train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
-                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 52, in training_draw
-    if not self.cfg.data.resample_paths:
-           ^^^^^^^^^^^^^
-AttributeError: 'types.SimpleNamespace' object has no attribute 'data'
-
-======================================================================
 FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
 Outputs and execution counts must not be committed.
 ----------------------------------------------------------------------
@@ -706,9 +692,9 @@ Traceback (most recent call last):
 AssertionError: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl'] is not false : missing baseline clones: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl']
 
 ----------------------------------------------------------------------
-Ran 237 tests in 269.892s
+Ran 237 tests in 303.762s
 
-FAILED (failures=11, errors=14)
+FAILED (failures=11, errors=13)
 
 ERROR conda.cli.main_run:execute(127): `conda run python -m unittest discover -s tests -v` failed. (See above for error)
 [coverage] 113/113 runnable cells have an adapter; no adapter yet: none

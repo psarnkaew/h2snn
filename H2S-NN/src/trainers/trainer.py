@@ -9,7 +9,6 @@ import torch
 import torch.nn as nn
 
 from src.configs.config import TrainConfig
-from src.data.dataset import build_node_classification_paths
 from src.data.structures import PreparedH2SData
 from src.models.h2snn_model import H2SNNOutput
 from src.utils.checkpointer import Checkpointer
@@ -51,6 +50,8 @@ class Trainer:
         built on the CPU copy `data` and moved to the device (plan §9.2)."""
         if not self.cfg.data.resample_paths:
             return prepared_data
+        from src.data.dataset import build_node_classification_paths  # resampling only
+
         groups = build_node_classification_paths(
             config=self.cfg,
             fact_layer=data.fact_layer,
