@@ -15,8 +15,9 @@
 | D1b | Paper wording: edge transports and holonomies lie in **SO(d)**; claim "transports can reverse feature directions in pairs", not "a reflection flips a direction". | **Agreed (2026-11-06)** |
 | D2 | Redesign AMPSS while keeping its intent (task-driven meta-path selection). Mechanism not yet chosen. | **Agreed — flagged, mechanism open** |
 | D3 | Scalability is the first engineering priority, so that heterophilic heterogeneous benchmarks (mostly large) become usable. Scale **v2**, not v1. | **Agreed** |
-| D4 | 2-cells reach nodes through the **vertex–2-cell sheaf Laplacian** (option b only); edge-cochain machinery is deleted. | **Agreed (2026-11-06)** — see §4 |
+| D4 | 2-cells reach nodes through the **vertex–2-cell sheaf Laplacian** (option b only); edge-cochain machinery is deleted. | **Implemented and verified** (branch `D1matbounding_D4coupling`, 9 commits; `docs/H2S-NN_D4_report.md`) — see §4.7 |
 | D5 | Fix baseline provenance and IMDB heterophily (fix spec H5, H8) in parallel. Independent of D1–D4. | Recommended (parallel track) |
+| D6 | v2 is the only model. v1 is deleted (kept on git tag `v1-submitted`). Link prediction and graph classification are **ported** to the v2 encoder, not rewritten: task layer (datasets, splits, negative sampling, trainers, metrics) kept; only the heads change, and only where forced. See §4.8. | **Agreed (2026-11-06)** |
 
 ### What this plan supersedes in the fix spec
 - **P3 (structured maps) as written is replaced by D1.** P3's `F = R_ψ·diag(s_e)` with one map per edge gives `F_src = F_tgt`, so every edge transport is `I`, the path holonomy collapses to `I`, and closure edges become plain endpoint edges (DERIVED). D1 fixes this with side-specific, node-dependent factors.
@@ -48,7 +49,7 @@ F_{v◁e} = c_{v◁e} · R_{ψ(e),side} · H_k(u_{v◁e})
 1. **Invertible** — no low-rank factorization (transport and holonomy need `F⁻¹`).
 2. **Side-specific and node-dependent** — otherwise holonomy becomes `I` (see P3 note above).
 3. **Never materialized** — apply to vectors: k rank-1 reflections → grouped GEMM by `(ψ, side)` → scale.
-4. **Face side too** — path transports applied matrix-free (sequential/Horner along each path); `A_f` reduced to an orthogonal gauge (identity) plus a scalar weight, removing the `d²` head and the `[F, ℓ+1, d, d]` tensor.
+4. **Face side too** — path transports applied matrix-free (sequentially along each path; per-position values are needed, so L(L+1)/2 transport steps per path, see §4.2); `A_f` reduced to an orthogonal gauge (identity) plus a scalar weight, removing the `d²` head and the `[F, ℓ+1, d, d]` tensor.
 
 **Interpretation for the paper:** `R_ψ` is the relation's change of frame; the Householder factors make the map node-dependent. **Correction (D1b, DERIVED and confirmed by the independent review):** both sides of an edge have the same determinant sign `(−1)^d·(−1)^k`, so every edge transport `F_src⁻¹F_tgt` and every path holonomy lies in SO(d) (v1's FastHPP maps have the same property). A single transport cannot flip one direction; it can reverse directions **in pairs** (a 180° rotation in a plane). Write the contrast claim that way.
 
@@ -186,7 +187,7 @@ repeat K steps:
 logits = MLP([x_K, h₀])
 ```
 - `Δ₀`: sheaf Laplacian on **observed** edges with D1 factorized maps, degree-normalized with full-graph degrees.
-- `T_v = F_{v◁f} = F_{e◁f} F_{v◁e}`: node→2-cell restriction, forced by functoriality to be ordered parallel transport along the path (gauge `A_f = I`). Applied matrix-free (Horner-style accumulation along the path, one pass per step).
+- `T_v = F_{v◁f} = F_{e◁f} F_{v◁e}`: node→2-cell restriction, forced by functoriality to be ordered parallel transport along the path (gauge `A_f = I`). Applied matrix-free with `PathTransportOperator`. **Correction (2026-11-06):** the update needs the per-position values `T_{v_i}x_{v_i}` (for `T_vᵀ(y − z_f)`), not only their sum, so Horner's O(L) form does not apply; the cost is L(L+1)/2 transport steps per path (3 for L = 2), which is negligible for L ≤ 4.
 - `w_f`: per-path gate from the ordered path (positional encoder over `h₀` and the relation sequence) — continues Stage II. D2 schema weights will multiply `w_f`.
 - `η = σ(θ)`; `γ ≥ 0` learnable; both terms normalized (node degree and path size).
 - With D1a (one scale per edge) every `T_v` is orthogonal, so `‖T_v‖ = 1` and the path part of the normalization diagonal is simply `γ Σ_{f∋v} w_f (1 − 1/|f|)`.
@@ -225,6 +226,34 @@ Edge cochain `s` and `L₁` (down and up terms) · `EdgeInitializer` · `δ₁` 
 
 **Kill criterion:** if `γ = 0` or endpoint meta-path edges are within 1 std of the full model on Tier 0 **and** Tier 1, the core claim fails; narrow the paper (fix spec §7 option B). No additional component is added to rescue it.
 
+### 4.7 Status (2026-11-06) — source: `docs/H2S-NN_D4_report.md`
+**Verified (VERIFIED-RUN in the report):**
+- `model.architecture: v2`; v1 bit-for-bit unchanged (0/912 after every unit); D1a per-edge scale with orthogonal transports (≤ 3e-15 float64, ≤ 1e-6 float32 at L = 4); all seven ablation switches, none reachable from v1.
+- Theory holds in the real code: `L_P` equals the dense Kron-reduced reference (2.6e-15); PSD; sections preserved (kernel d) with transport maps and destroyed (kernel 0) with free maps; normalized `λ_max ≤ 1.99999` over 60 fixtures vs unnormalized up to 2.4e16; one-step reach of the intermediate node.
+- 44 new tests; 6/6 required mutations caught; full suite unchanged (same 24 pre-existing `test_baselines` failures).
+- `D` is the per-incidence sum because ACM has 16 self-loops; `L ≼ 2D` still holds.
+
+**Memory (ACM, RTX 4060 8 GB):** v2 factorized k = 2 at d = 32 peaks at **2.52 GiB** (v1 cannot run at d = 32). At d = 8: v2 1.11 GiB vs v1 dense 6.08 GiB (**5.5×**). Parameters at d = 32: 1.62M (v1 dense) → 0.31M (v2).
+**Decision:** the plan's "≥ 10× peak memory" target is replaced by these measured numbers. The 10× figure was a self-set target, not a reviewer requirement; the paper reports the actual scaling curves (§3.4) instead.
+
+**Smoke run (20 epochs, ACM, d = 32):** stable (η·λ_max ≤ 0.96, loss finite). η and γ barely moved (0.50, 0.99): with full-batch training there is one optimizer step per epoch, so AdamW at lr 1e-3 can move each scalar's raw parameter by at most ≈ 0.02 in 20 epochs (≈ 0.2 in 200). The mean gate `w_f` fell from 0.57 to 0.25 — watch it in Tier 0; gates collapsing toward 0 would point at the kill criterion.
+
+### 4.8 Task heads after v1 removal (D6)
+Principle: one encoder; a head changes only when it is forced to, and no component is added without an exact reason.
+
+| Head | Change | Exact reason |
+|---|---|---|
+| Node classification | None (done in D4): `MLP([x_K, h₀])` | — |
+| Link prediction | **Forced, minimal:** the existing decoders `dot`, `distmult`, `concat_mlp` now read the node representation `[x_K, h₀]`. The decoder stays a per-dataset choice, selected on validation only and reported | v1's link readout pooled edge states, which v2 deleted. Nothing new is added. Path information reaches the decoder through `x_K` (Lemma A′; D4 test T6) |
+| Graph classification | **Forced:** SheafCovPool (and the other v1 pools) replaced by **sum pooling of `[x_K, h₀]` → BatchNorm → MLP**; the `pooling_type` setting disappears | SheafCovPool's edge half reads deleted edge states. P1: the model is not gauge-equivariant (h₀ and the maps live in one learned basis), so the readout needs only permutation invariance. P2: SheafCovPool reduces each node's 3 stalk vectors to their 3×3 Gram matrix (6 of 3d numbers; `descriptor_dim = 3*3`), losing any information that differs by a rotation. P3: sum + MLP is permutation-invariant and can be injective on multisets (Xu et al., ICLR 2019), unlike mean or max. Repo evidence: SheafCovPool docstring says hierarchical variants "tied or lost against a plain invariant readout"; ENZYMES gain within std |
+
+**Considered and rejected (no exact necessity):**
+- *Sheaf-consistency link decoder* (`β_r − ‖Q_u x_u − Q_v x_v‖²`): principled, but it would add a claim needing its own ablation and confound comparison with baselines that have no sheaf maps. Revisit only if a result gives a reason.
+- *Per-relation / per-schema energy features* for graph classification: a hypothesis without demonstrated need.
+- *Disjoint message/supervision split* for link prediction: training positives are both in the message graph and supervised (VERIFIED-CODE `link_prediction_dataset.py:922`, `link_prediction_trainer.py:177,281`). This is a protocol question shared by all message-passing models; keep the HGB protocol. **Open check:** confirm HGB's reference code and our baseline runs train the same way; if not, match them.
+
+**Follow-up before Tier 0 (small, no new test campaign):** a separate optimizer parameter group for the scalars `θ_η`, `θ_γ` (higher lr, no weight decay); reject v1 keys that v2 ignores silently; keep `docs/D4_evidence/acm_prepared.pt` out of git.
+
 ---
 
 ## 5. Parallel track — D5 integrity fixes
@@ -239,7 +268,7 @@ Edge cochain `s` and `L₁` (down and up terms) · `EdgeInitializer` · `δ₁` 
 | Step | Work | Gate |
 |---|---|---|
 | 1 | D1 implemented and verified (§1.7). D5 audit still open | Done for D1 |
-| 2 | **Next: D4 task card** (`H2S-NN_agent_prompt.md` Part C): D1a per-edge scale, v2 model with normalized vertex–2-cell Laplacian, deletions, ablation hooks, ACM memory measurement | D4 card tests and stop conditions |
+| 2 | **Done (§4.7).** D4 task card (`H2S-NN_agent_prompt.md` Part C): D1a per-edge scale, v2 model with normalized vertex–2-cell Laplacian, deletions, ablation hooks, ACM memory measurement | D4 card tests and stop conditions |
 | 3 | Tier 0 experiments on v2: §4.6 ablations incl. dense vs factorized k ∈ {1, 2} (closes §1.6); decide D2 mechanism | §1.6, §3.5 Tier-0 and §4.6 criteria; D2 decision written here |
 | 4 | Tier 1 (Freebase, rewiring, IEEE-CIS-G) | Heterophily evidence; decide claim scope (fix spec §7 A/B) |
 | 5 | Mini-batch; Tier 2 (ogbn-mag, mag-year, H-Pokec) | §3.5 Tier-2 criteria |
