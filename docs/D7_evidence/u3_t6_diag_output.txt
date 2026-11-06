@@ -1,0 +1,7 @@
+shared=True seed=0: |L_P|max=4.250e+00 |x|max=1.881e+00 |L_P x|max=1.776e-15  relative to max_row(|L_P||x|)=1.273e-16
+shared=True seed=1: |L_P|max=4.250e+00 |x|max=1.135e+00 |L_P x|max=1.332e-15  relative to max_row(|L_P||x|)=1.678e-16
+shared=True seed=2: |L_P|max=4.250e+00 |x|max=1.398e+00 |L_P x|max=1.332e-15  relative to max_row(|L_P||x|)=1.190e-16
+shared=False seed=0: |L_P|max=3.003e+07 |x|max=1.165e+03 |L_P x|max=1.513e-09  relative to max_row(|L_P||x|)=1.253e-16
+shared=False seed=1: |L_P|max=5.599e+09 |x|max=3.888e+03 |L_P x|max=3.725e-08  relative to max_row(|L_P||x|)=5.194e-17
+shared=False seed=2: |L_P|max=3.750e+10 |x|max=1.018e+04 |L_P x|max=1.788e-07  relative to max_row(|L_P||x|)=4.912e-17
+

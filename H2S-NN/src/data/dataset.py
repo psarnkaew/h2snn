@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from src.configs.config import TrainConfig
+from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.preprocessing import (
     compute_relation_diagnostics,
@@ -124,6 +125,12 @@ def build_dataset(config: TrainConfig) -> PreparedH2SData:
     data = _load_hetero_data(config)
     raw_x, node_type, node_type_names, node_slices, feature_dims = stack_node_features(data)
     edge_index, edge_type, relation_names, relation_tuples = flatten_edges(data, node_slices)
+    # Fact layer (D7): rho from exact edge-set equality, one 1-cell per fact when tied.
+    fact_layer = build_fact_layer(edge_index, edge_type, relation_names, raw_x.size(0),
+                                  config.data.fact_layer)
+    edge_index, edge_type = apply_fact_layer(fact_layer, edge_index, edge_type)
+    relation_names = fact_layer.kept_names
+    relation_tuples = tuple(relation_tuples[r] for r in fact_layer.kept)
 
     (
         y,
@@ -201,4 +208,5 @@ def build_dataset(config: TrainConfig) -> PreparedH2SData:
         is_multilabel=is_multilabel,
         face_groups=face_groups,
         metrics=metrics,
+        fact_layer=fact_layer,
     )

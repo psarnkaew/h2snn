@@ -52,6 +52,8 @@ class Trainer:
     ) -> None:
         self.model.to(self.device)
         prepared_data = data.to(self.device)
+        if getattr(data, "fact_layer", None) is not None:
+            self.logger.info("fact layer: %s", data.fact_layer.summary())
         bad_epochs = 0
         for epoch in range(self.cfg.epochs):
             train_metrics = self._train_epoch(prepared_data, epoch)

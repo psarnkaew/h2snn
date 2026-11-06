@@ -5,6 +5,8 @@ from typing import Mapping
 
 import torch
 
+from src.data.fact_layer import FactLayer
+
 
 @dataclass(slots=True)
 class FaceGroup:
@@ -69,6 +71,8 @@ class PreparedH2SData:
     is_multilabel: bool
     face_groups: tuple[FaceGroup, ...]
     metrics: torch.Tensor
+    # rho, kept relations, unmatched edges (D7); None for data built without a fact layer.
+    fact_layer: FactLayer | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -103,4 +107,5 @@ class PreparedH2SData:
             is_multilabel=self.is_multilabel,
             face_groups=tuple(group.to(device) for group in self.face_groups),
             metrics=self.metrics.to(device),
+            fact_layer=self.fact_layer,
         )

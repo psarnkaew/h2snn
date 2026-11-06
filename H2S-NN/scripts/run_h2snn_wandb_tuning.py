@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.configs.config import TrainConfig
+from src.configs.config import TrainConfig, reject_never_tuned_settings
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
     default_monitor_for_task,
@@ -145,7 +145,9 @@ def parse_args() -> argparse.Namespace:
 
 def load_raw_config(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
-        return yaml.safe_load(handle)
+        raw = yaml.safe_load(handle)
+    reject_never_tuned_settings(raw)  # fact_layer: untied is never tuned (plan §9.1)
+    return raw
 
 
 def load_config(path: Path) -> TrainConfig:
@@ -309,6 +311,7 @@ def build_sweep_config(
     if include_decoder_type:
         parameters["decoder_type"] = {"values": ["dot", "distmult", "concat_mlp"]}
 
+    reject_never_tuned_settings(None, parameters)
     return {
         "method": "bayes",
         "metric": {"name": f"best/{metric.removeprefix('val_')}", "goal": "maximize"},
@@ -329,6 +332,7 @@ def apply_sweep_overrides(
     allowed_parameters: set[str] | frozenset[str] | None = None,
 ) -> dict[str, Any]:
     validate_trial_params(params, allowed_parameters=allowed_parameters)
+    reject_never_tuned_settings(raw, params)
     payload = copy.deepcopy(raw)
     model = payload.setdefault("model", {})
     optim = payload.setdefault("optim", {})

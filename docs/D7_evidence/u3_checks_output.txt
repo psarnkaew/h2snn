@@ -1,0 +1,31 @@
+factorized per_edge T5 shared 0.00e+00 | control separate 5.828e-01 | T16 blind all-flip 0.00e+00 | control directed 6.044e-01
+factorized per_side T5 shared 0.00e+00 | control separate 5.478e-01 | T16 blind all-flip 0.00e+00 | control directed 5.650e-01
+dense      per_edge T5 shared 2.22e-16 | control separate 4.483e-01 | T16 blind all-flip 0.00e+00 | control directed 6.303e-01
+dense      per_side T5 shared 0.00e+00 | control separate 4.823e-01 | T16 blind all-flip 0.00e+00 | control directed 5.790e-01
+T6 spectra, extreme per-side scales [0.1, 50] of _chain_operators (diagnostic):
+  shared=True seed=0 Delta0      : dim ker=3, max kernel ev=1.15e-16, min non-kernel ev=7.091e-06, lambda_max=1.9975
+  shared=True seed=0 Delta0+gL_P : dim ker=3, max kernel ev=9.46e-16, min non-kernel ev=1.743e-03, lambda_max=1.9990
+  shared=True seed=1 Delta0      : dim ker=3, max kernel ev=1.16e-16, min non-kernel ev=2.064e-03, lambda_max=1.9983
+  shared=True seed=1 Delta0+gL_P : dim ker=3, max kernel ev=2.50e-16, min non-kernel ev=2.609e-01, lambda_max=1.9993
+  shared=True seed=2 Delta0      : dim ker=3, max kernel ev=-7.93e-17, min non-kernel ev=5.106e-05, lambda_max=1.9981
+  shared=True seed=2 Delta0+gL_P : dim ker=3, max kernel ev=2.60e-16, min non-kernel ev=1.021e-02, lambda_max=1.9993
+  shared=False seed=0 Delta0      : dim ker=3, max kernel ev=4.27e-17, min non-kernel ev=1.569e-06, lambda_max=1.2985
+  shared=False seed=0 Delta0+gL_P : dim ker=3, max kernel ev=4.83e-16, min non-kernel ev=5.144e-01, lambda_max=1.4856
+  shared=False seed=1 Delta0      : dim ker=3, max kernel ev=6.88e-17, min non-kernel ev=1.910e-08, lambda_max=0.9443
+  shared=False seed=1 Delta0+gL_P : dim ker=3, max kernel ev=-3.33e-16, min non-kernel ev=5.986e-01, lambda_max=1.4108
+  shared=False seed=2 Delta0      : dim ker=6, max kernel ev=7.95e-10, min non-kernel ev=6.494e-05, lambda_max=1.1746
+  shared=False seed=2 Delta0+gL_P : dim ker=3, max kernel ev=-6.36e-17, min non-kernel ev=5.820e-01, lambda_max=1.5551
+T6 spectra, T6 fixture (scales log-uniform in [0.5, 2]):
+  shared=True seed=0 Delta0      : dim ker=3, max kernel ev=9.89e-16, min non-kernel ev=3.432e-02, lambda_max=1.3879
+  shared=True seed=0 Delta0+gL_P : dim ker=3, max kernel ev=7.22e-16, min non-kernel ev=2.855e-01, lambda_max=1.7611
+  shared=True seed=1 Delta0      : dim ker=3, max kernel ev=2.07e-16, min non-kernel ev=1.056e-01, lambda_max=1.2736
+  shared=True seed=1 Delta0+gL_P : dim ker=3, max kernel ev=4.80e-16, min non-kernel ev=3.672e-01, lambda_max=1.7441
+  shared=True seed=2 Delta0      : dim ker=3, max kernel ev=4.30e-16, min non-kernel ev=2.780e-02, lambda_max=1.4420
+  shared=True seed=2 Delta0+gL_P : dim ker=3, max kernel ev=7.78e-16, min non-kernel ev=2.337e-01, lambda_max=1.8054
+  shared=False seed=0 Delta0      : dim ker=3, max kernel ev=3.24e-16, min non-kernel ev=7.484e-02, lambda_max=1.5518
+  shared=False seed=0 Delta0+gL_P : dim ker=3, max kernel ev=8.73e-16, min non-kernel ev=2.487e-01, lambda_max=1.8324
+  shared=False seed=1 Delta0      : dim ker=3, max kernel ev=5.37e-16, min non-kernel ev=1.269e-01, lambda_max=1.4853
+  shared=False seed=1 Delta0+gL_P : dim ker=3, max kernel ev=1.33e-16, min non-kernel ev=3.642e-01, lambda_max=1.8190
+  shared=False seed=2 Delta0      : dim ker=3, max kernel ev=3.99e-16, min non-kernel ev=3.529e-02, lambda_max=1.4331
+  shared=False seed=2 Delta0+gL_P : dim ker=3, max kernel ev=5.87e-16, min non-kernel ev=2.607e-01, lambda_max=1.7443
+

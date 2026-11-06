@@ -54,6 +54,8 @@ class GraphClassificationTrainer:
         epoch_callback: "callable | None" = None,
     ) -> None:
         self.model.to(self.device)
+        if getattr(fold, "fact_layer", None) is not None:
+            self.logger.info("fact layer: %s", fold.fact_layer.summary())
         bad_epochs = 0
         for epoch in range(self.cfg.epochs):
             train_metrics = self._run_epoch(fold.train_loader, epoch, train=True)

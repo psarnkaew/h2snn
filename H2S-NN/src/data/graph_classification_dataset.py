@@ -10,6 +10,7 @@ from torch_geometric.datasets import TUDataset
 from torch_geometric.loader import DataLoader
 
 from src.configs.config import TrainConfig
+from src.data.fact_layer import FactLayer, build_fact_layer, fact_mask
 from src.models.h2snn_model import ModelDims
 
 _TUD_NAMES: dict[str, str] = {
@@ -33,6 +34,7 @@ class GraphClassificationFold:
     repetition_index: int = 0
     num_repetitions: int = 1
     split_seed: int = 42
+    fact_layer: FactLayer | None = None
 
 
 def _read_int_file(path: Path) -> list[int] | None:
@@ -114,6 +116,37 @@ def _load_tu_type_tensors(
     mapping[torch.tensor(values, dtype=torch.long)] = torch.arange(len(values))
     edge_type_parts = [mapping[part] for part in raw_parts]
     return node_type_parts, edge_type_parts, num_node_types, max(len(values), 1)
+
+
+def _tie_tu_facts(
+    data_list: list[Data],
+    edge_types: list[torch.Tensor],
+    num_relations: int,
+    mode: str,
+) -> tuple[FactLayer, list[Data], list[torch.Tensor]]:
+    """Fact layer of a TU dataset: `rho` from the union of all graphs (disjoint node ids),
+    then each graph keeps its facts (edge_index, edge_attr and types filtered together)."""
+    offsets, offset = [], 0
+    for data in data_list:
+        offsets.append(offset)
+        offset += int(data.num_nodes)
+    union_index = torch.cat([data.edge_index + shift
+                             for data, shift in zip(data_list, offsets, strict=True)], dim=1)
+    layer = build_fact_layer(
+        union_index, torch.cat(edge_types), tuple(f"edge_label_{r}" for r in range(num_relations)),
+        offset, mode,
+    )
+    compact = torch.full((num_relations,), -1, dtype=torch.long)
+    compact[list(layer.kept)] = torch.arange(len(layer.kept))
+    tied_data, tied_types = [], []
+    for data, edge_type in zip(data_list, edge_types, strict=True):
+        keep = fact_mask(layer, data.edge_index, edge_type)
+        data.edge_index = data.edge_index[:, keep]
+        if getattr(data, "edge_attr", None) is not None:
+            data.edge_attr = data.edge_attr[keep]
+        tied_data.append(data)
+        tied_types.append(compact[edge_type[keep]])
+    return layer, tied_data, tied_types
 
 
 def _annotate_tu_types(
@@ -307,6 +340,10 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         tud_name=tud_name,
         data_list=raw_data_list,
     )
+    fact_layer, raw_data_list, edge_types = _tie_tu_facts(
+        raw_data_list, edge_types, num_relations, config.data.fact_layer
+    )
+    num_relations = len(fact_layer.kept)
     data_list = [
         _annotate_tu_types(data, node_type, edge_type, graph_id=index)
         for index, (data, node_type, edge_type) in enumerate(
@@ -382,6 +419,7 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         # GraphClassificationTrainer enumerates two-hop typed paths per batch
         # (build_typed_path_face_groups defaults), so the only path length is 2.
         face_lengths=(2,),
+        self_inverse_relations=fact_layer.self_inverse,
     )
 
     return GraphClassificationFold(
@@ -396,4 +434,5 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         repetition_index=repetition_index,
         num_repetitions=num_repetitions,
         split_seed=split_seed,
+        fact_layer=fact_layer,
     )

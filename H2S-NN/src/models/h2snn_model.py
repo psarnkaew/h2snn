@@ -102,6 +102,9 @@ class ModelDims(NamedTuple):
     # a projection created lazily on first forward would be registered after
     # build_optimizer() has already captured model.parameters(), so it would never train.
     face_lengths: tuple[int, ...] = ()
+    # Relation ids (compact, after the fact layer) with rho(r) = r: their source and target
+    # roles coincide (D7). Empty under `fact_layer: untied` and when no layer was built.
+    self_inverse_relations: tuple[int, ...] = ()
 
     @classmethod
     def from_prepared_data(cls, data: PreparedH2SData) -> "ModelDims":
@@ -120,6 +123,7 @@ class ModelDims(NamedTuple):
             type_num_nodes=type_counts,
             type_offsets=type_offsets,
             face_lengths=face_lengths_of(data.face_groups),
+            self_inverse_relations=_self_inverse_of(data),
         )
 
     @classmethod
@@ -140,7 +144,14 @@ class ModelDims(NamedTuple):
             type_num_nodes=type_counts,
             type_offsets=type_offsets,
             face_lengths=face_lengths_of(data.face_groups),
+            self_inverse_relations=_self_inverse_of(data),
         )
+
+
+def _self_inverse_of(data: object) -> tuple[int, ...]:
+    """Self-inverse relation ids of the data's fact layer (empty without one)."""
+    layer = getattr(data, "fact_layer", None)
+    return () if layer is None else tuple(layer.self_inverse)
 
 
 class DiffusionOperator(NamedTuple):
@@ -380,6 +391,12 @@ class H2SNN(nn.Module):
                 type_offsets=dims.type_offsets,
             )
         self.relation_embedding = nn.Embedding(dims.num_relations, model_config.d_r)
+        # Shared roles (D7): relations with rho(r) = r, or every relation under the
+        # direction-blind ablation.
+        self.shared_role_relations = (
+            tuple(range(dims.num_relations)) if ablation.direction_blind_maps
+            else tuple(dims.self_inverse_relations)
+        )
         self.node_to_edge: FactorizedNodeToEdgeSheaf | DenseConformalNodeToEdgeSheaf
         if model_config.map_family == "factorized":
             self.node_to_edge = FactorizedNodeToEdgeSheaf(
@@ -392,6 +409,7 @@ class H2SNN(nn.Module):
                 orthogonal_map=model_config.orthogonal_map,
                 map_scale=self.map_scale,
                 checkpoint=model_config.checkpointing,
+                shared_role_relations=self.shared_role_relations,
             )
         else:
             self.node_to_edge = DenseConformalNodeToEdgeSheaf(
@@ -403,6 +421,7 @@ class H2SNN(nn.Module):
                 orthogonal_map=model_config.orthogonal_map,
                 map_scale=self.map_scale,
                 memory_guard_fraction=model_config.node_edge_memory_guard_fraction,
+                shared_role_relations=self.shared_role_relations,
             )
         self.theta_eta = nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
         self.use_path_cells = not ablation.no_path_cells

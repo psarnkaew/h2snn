@@ -37,6 +37,45 @@ def _build_mlp(input_dim: int, hidden_dim: int, output_dim: int) -> nn.Sequentia
     )
 
 
+def _relation_mask(relations: tuple[int, ...], num_relations: int,
+                   device: torch.device) -> torch.Tensor:
+    """`[num_relations]` bool, True for the listed relation ids."""
+    mask = torch.zeros(num_relations, dtype=torch.bool, device=device)
+    if relations:
+        mask[list(relations)] = True
+    return mask
+
+
+def _symmetrize_shared(
+    raw: torch.Tensor,
+    mlp: nn.Module,
+    h: torch.Tensor,
+    src_idx: torch.Tensor,
+    tgt_idx: torch.Tensor,
+    relation: torch.Tensor,
+    edge_type: torch.Tensor,
+    shared_role_relations: tuple[int, ...],
+    num_relations: int,
+) -> torch.Tensor:
+    """`raw` with `(g(h_u, h_v) + g(h_v, h_u)) / 2` on the edges of shared-role relations."""
+    shared = _relation_mask(shared_role_relations, num_relations, edge_type.device)[edge_type]
+    rows = shared.nonzero(as_tuple=True)[0]
+    if rows.numel() == 0:
+        return raw
+    reverse = torch.cat([h[tgt_idx[rows]], h[src_idx[rows]], relation[rows]], dim=-1)
+    averaged = 0.5 * (raw[rows] + mlp(reverse).squeeze(-1))
+    return raw.index_put((rows,), averaged)
+
+
+def _validate_shared(shared_role_relations: tuple[int, ...], num_relations: int) -> tuple[int, ...]:
+    shared = tuple(sorted(set(int(r) for r in shared_role_relations)))
+    if any(r < 0 or r >= num_relations for r in shared):
+        raise ValueError(
+            f"shared_role_relations {shared} out of range for {num_relations} relations."
+        )
+    return shared
+
+
 class FactorizedNodeToEdgeSheafOutput(NamedTuple):
     maps: EdgeMapPair  # FactorizedMapOperator per side over the observed edges
 
@@ -57,6 +96,12 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     edge shared by both sides, `c_e = softplus(edge_scale_mlp([h_u, h_v, rel_emb])) + eps`
     from the ordered edge input; both operators then hold the same `[E]` tensor, and every
     edge transport `F_src^-1 F_tgt` is exactly orthogonal.
+
+    Shared roles (D7, plan §9.1): for the relations in `shared_role_relations` (those with
+    `rho(r) = r`, or every relation under `ablation.direction_blind_maps`) the two roles
+    coincide: the target side uses the source frame `R_{psi,0}`, the side code is zero, and
+    `c_e = softplus((g(h_u, h_v) + g(h_v, h_u)) / 2) + eps` is symmetrized over both input
+    orders, so the operator does not depend on the stored orientation of these edges.
     """
 
     def __init__(
@@ -70,6 +115,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         orthogonal_map: str,
         map_scale: str = "per_side",
         checkpoint: bool = True,
+        shared_role_relations: tuple[int, ...] = (),
     ) -> None:
         super().__init__()
         if householder_k < 1:
@@ -85,6 +131,8 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         self.scale_eps = scale_eps
         self.map_scale = map_scale
         self.checkpoint = checkpoint
+        # Plain tuple, not a buffer: the state_dict is the same with or without shared roles.
+        self.shared_role_relations = _validate_shared(shared_role_relations, num_relations)
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
         # Row 2 * relation + side holds the FastHPP *parameters* (strictly-lower Householder
         # entries) of R_{relation, side}, drawn N(0, 1/d) so the two sides start in
@@ -101,10 +149,27 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
             self.edge_scale_mlp = _build_mlp(2 * d + d_r, hidden_dim, 1)
 
     def rotations(self) -> torch.Tensor:
-        """`[num_relations, 2, d, d]`: `R_{psi, side}` with side 0 = source, 1 = target."""
-        return self.orthogonal(self.rotation_params).view(
+        """`[num_relations, 2, d, d]`: `R_{psi, side}` with side 0 = source, 1 = target.
+
+        A shared-role relation uses its source frame on both sides."""
+        frames = self.orthogonal(self.rotation_params).view(
             self.num_relations, 2, self.d, self.d
         )
+        if not self.shared_role_relations:
+            return frames
+        shared = _relation_mask(self.shared_role_relations, self.num_relations, frames.device)
+        target = torch.where(shared.view(-1, 1, 1), frames[:, 0], frames[:, 1])
+        return torch.stack([frames[:, 0], target], dim=1)
+
+    def _side_code(self, like: torch.Tensor, edge_type: torch.Tensor, side: int) -> torch.Tensor:
+        """`[M, 2]` one-hot side code; all zero on edges of shared-role relations."""
+        side_code = like.new_zeros((edge_type.numel(), 2))
+        if not self.shared_role_relations:
+            side_code[:, side] = 1.0
+            return side_code
+        shared = _relation_mask(self.shared_role_relations, self.num_relations, edge_type.device)
+        side_code[:, side] = (~shared[edge_type]).to(like.dtype)
+        return side_code
 
     def _side_factors(
         self,
@@ -118,8 +183,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """`(c, unit u)` per incidence on one side: `z = [h_v, h_other, rel_emb, onehot(side)]`."""
         h_self = h[self_idx]
-        side_code = h_self.new_zeros((h_self.size(0), 2))
-        side_code[:, side] = 1.0
+        side_code = self._side_code(h_self, edge_type, side)
         inputs = torch.cat(
             [h_self, h[other_idx], relation_embeddings[edge_type], side_code], dim=-1
         )
@@ -144,8 +208,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     ) -> torch.Tensor:
         """Unit reflectors only (per-edge scale mode); same input `z` as `_side_factors`."""
         h_self = h[self_idx]
-        side_code = h_self.new_zeros((h_self.size(0), 2))
-        side_code[:, side] = 1.0
+        side_code = self._side_code(h_self, edge_type, side)
         inputs = torch.cat(
             [h_self, h[other_idx], relation_embeddings[edge_type], side_code], dim=-1
         )
@@ -160,9 +223,15 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         tgt_idx: torch.Tensor,
         edge_type: torch.Tensor,
     ) -> torch.Tensor:
-        """`c_e = softplus(edge_scale_mlp([h_src, h_tgt, rel_emb])) + eps`, one per edge."""
-        inputs = torch.cat([h[src_idx], h[tgt_idx], relation_embeddings[edge_type]], dim=-1)
-        return F.softplus(self.edge_scale_mlp(inputs).squeeze(-1)) + self.scale_eps
+        """`c_e = softplus(edge_scale_mlp([h_src, h_tgt, rel_emb])) + eps`, one per edge;
+        on shared-role edges the MLP output is averaged over both input orders."""
+        relation = relation_embeddings[edge_type]
+        inputs = torch.cat([h[src_idx], h[tgt_idx], relation], dim=-1)
+        raw = self.edge_scale_mlp(inputs).squeeze(-1)
+        if self.shared_role_relations:
+            raw = _symmetrize_shared(raw, self.edge_scale_mlp, h, src_idx, tgt_idx, relation,
+                                     edge_type, self.shared_role_relations, self.num_relations)
+        return F.softplus(raw) + self.scale_eps
 
     def forward(
         self,
@@ -251,6 +320,11 @@ class DenseConformalNodeToEdgeSheaf(nn.Module):
     (`map_scale`: one `c_e` per edge, or D1's per-side `c`). So dense and factorized differ
     only in how the orthogonal part is parameterized. Returned as `DenseMapOperator`s that
     carry `c`, so every inverse is the closed form `F^T / c^2`.
+
+    Shared roles (D7): on edges of `shared_role_relations` the target map is the source MLP
+    applied to the swapped input `[h_tgt, h_src, rel]` (one frame), the per-side scale has
+    no side code, and the per-edge `c_e` is symmetrized over both input orders. The
+    relation's `tgt_mlps` entry is then unused.
     """
 
     def __init__(
@@ -263,12 +337,15 @@ class DenseConformalNodeToEdgeSheaf(nn.Module):
         orthogonal_map: str,
         map_scale: str,
         memory_guard_fraction: float,
+        shared_role_relations: tuple[int, ...] = (),
     ) -> None:
         super().__init__()
         if scale_eps <= 0.0:
             raise ValueError(f"scale_eps must be positive, got {scale_eps}.")
         if map_scale not in {"per_side", "per_edge"}:
             raise ValueError(f"map_scale must be 'per_side' or 'per_edge', got {map_scale!r}.")
+        self.num_relations = num_relations
+        self.shared_role_relations = _validate_shared(shared_role_relations, num_relations)
         self.d = d
         self.scale_eps = scale_eps
         self.map_scale = map_scale
@@ -300,9 +377,15 @@ class DenseConformalNodeToEdgeSheaf(nn.Module):
         return projected
 
     def _side_scale(self, h: torch.Tensor, relation_features: torch.Tensor,
-                    self_idx: torch.Tensor, other_idx: torch.Tensor, side: int) -> torch.Tensor:
+                    self_idx: torch.Tensor, other_idx: torch.Tensor, side: int,
+                    edge_type: torch.Tensor) -> torch.Tensor:
         side_code = h.new_zeros((self_idx.numel(), 2))
-        side_code[:, side] = 1.0
+        if self.shared_role_relations:
+            shared = _relation_mask(self.shared_role_relations, self.num_relations,
+                                    edge_type.device)
+            side_code[:, side] = (~shared[edge_type]).to(h.dtype)
+        else:
+            side_code[:, side] = 1.0
         inputs = torch.cat([h[self_idx], h[other_idx], relation_features, side_code], dim=-1)
         return F.softplus(self.scale_mlp(inputs).squeeze(-1)) + self.scale_eps
 
@@ -327,13 +410,29 @@ class DenseConformalNodeToEdgeSheaf(nn.Module):
         relation_features = relation_embeddings[edge_type]
         inputs = torch.cat([h[src_idx], h[tgt_idx], relation_features], dim=-1)
         Q_src = self.orthogonal(self._project_by_relation(inputs, edge_type, self.src_mlps))
-        Q_tgt = self.orthogonal(self._project_by_relation(inputs, edge_type, self.tgt_mlps))
+        tgt_params = self._project_by_relation(inputs, edge_type, self.tgt_mlps)
+        if self.shared_role_relations:
+            shared = _relation_mask(self.shared_role_relations, self.num_relations,
+                                    edge_type.device)[edge_type]
+            rows = shared.nonzero(as_tuple=True)[0]
+            if rows.numel():
+                swapped = torch.cat([h[tgt_idx[rows]], h[src_idx[rows]],
+                                     relation_features[rows]], dim=-1)
+                tgt_params = tgt_params.index_put(
+                    (rows,), self._project_by_relation(swapped, edge_type[rows], self.src_mlps)
+                )
+        Q_tgt = self.orthogonal(tgt_params)
         if self.map_scale == "per_edge":
-            c_src = F.softplus(self.edge_scale_mlp(inputs).squeeze(-1)) + self.scale_eps
+            raw = self.edge_scale_mlp(inputs).squeeze(-1)
+            if self.shared_role_relations:
+                raw = _symmetrize_shared(raw, self.edge_scale_mlp, h, src_idx, tgt_idx,
+                                         relation_features, edge_type,
+                                         self.shared_role_relations, self.num_relations)
+            c_src = F.softplus(raw) + self.scale_eps
             c_tgt = c_src
         else:
-            c_src = self._side_scale(h, relation_features, src_idx, tgt_idx, 0)
-            c_tgt = self._side_scale(h, relation_features, tgt_idx, src_idx, 1)
+            c_src = self._side_scale(h, relation_features, src_idx, tgt_idx, 0, edge_type)
+            c_tgt = self._side_scale(h, relation_features, tgt_idx, src_idx, 1, edge_type)
         return FactorizedNodeToEdgeSheafOutput(
             maps=EdgeMapPair(
                 src=DenseMapOperator(Q_src * c_src.view(-1, 1, 1), c_src),

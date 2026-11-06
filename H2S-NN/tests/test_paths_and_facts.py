@@ -6,6 +6,8 @@ Test ids follow the task card (T1-T16; T3, T7 and T15 were dropped by the user).
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 try:
     import torch
@@ -13,7 +15,9 @@ except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
 from src.data.face_geometry import validate_face_orientation
+from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.models.map_operators import DenseMapOperator, EdgeMapPair, PathTransportOperator
+from src.models.sheaf_maps import DenseConformalNodeToEdgeSheaf, FactorizedNodeToEdgeSheaf
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm, PathCellTerm
 from tests.test_v2_model import _chain_operators
 
@@ -97,9 +101,13 @@ def _materialize(transport: PathTransportOperator, num_nodes: int, d: int) -> to
 def _dense_path_laplacian(maps: EdgeMapPair, paths: SignedPaths, weights: list[torch.Tensor],
                           d: int) -> torch.Tensor:
     """Reference `sum_f w_f B_f^T (I - 1 1^T / n) B_f` as an explicit `[N d, N d]` matrix."""
-    num_nodes = paths.num_nodes
+    return _dense_cells(maps, paths.nodes, paths.edges, paths.signs, weights, paths.num_nodes, d)
+
+
+def _dense_cells(maps: EdgeMapPair, node_groups, edge_groups, sign_groups, weights,
+                 num_nodes: int, d: int) -> torch.Tensor:
     output = torch.zeros(num_nodes * d, num_nodes * d, dtype=torch.float64)
-    for nodes, edges, signs, w in zip(paths.nodes, paths.edges, paths.signs, weights):
+    for nodes, edges, signs, w in zip(node_groups, edge_groups, sign_groups, weights):
         transports = _signed_dense_transports(maps, edges, signs)
         n = nodes.size(1)
         centering = torch.eye(n, dtype=torch.float64) - 1.0 / n
@@ -287,6 +295,366 @@ class SignedTransportTests(unittest.TestCase):
             validate_face_orientation(torch.tensor([[0, 1, 0]]), torch.tensor([[0, 0]]),
                                       torch.tensor([[0], [1]]), "t",
                                       face_edge_sign=torch.tensor([[1.0, -1.0]]))
+
+
+# ----------------------------------------------------------------------------- D7 (T4)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _layer(edges: list[tuple[int, int, int]], num_relations: int, num_nodes: int,
+           mode: str = "tied"):
+    edge_index = torch.tensor([[u for u, _, _ in edges], [v for _, _, v in edges]])
+    edge_type = torch.tensor([r for _, r, _ in edges])
+    names = tuple(f"r{r}" for r in range(num_relations))
+    layer = build_fact_layer(edge_index, edge_type, names, num_nodes, mode)
+    tied_index, tied_type = apply_fact_layer(layer, edge_index, edge_type)
+    return layer, tied_index, tied_type
+
+
+class FactLayerDefinitionTests(unittest.TestCase):
+    """T4: the one definition on fixtures, on real data, and the tuning check."""
+
+    def test_T4_exact_mirror_pair_gives_one_cell_per_fact(self) -> None:
+        layer, index, types = _layer([(0, 0, 1), (2, 0, 3), (1, 1, 0), (3, 1, 2)], 2, 4)
+        self.assertEqual(layer.rho, (1, 0))
+        self.assertEqual(layer.kept, (0,))
+        self.assertEqual(layer.self_inverse, ())
+        self.assertEqual(index.tolist(), [[0, 2], [1, 3]])  # orientation of the lower id
+        self.assertEqual(types.tolist(), [0, 0])
+        self.assertEqual((layer.facts_before, layer.facts_after), (4, 2))
+        self.assertEqual(layer.resolve("r0"), (0, 1))
+        self.assertEqual(layer.resolve("r1"), (0, -1))
+
+    def test_T4_self_inverse_relation_gives_one_cell_per_unordered_pair(self) -> None:
+        layer, index, types = _layer([(1, 0, 0), (0, 0, 1), (2, 0, 2), (3, 0, 1), (1, 0, 3)],
+                                     1, 4)
+        self.assertEqual(layer.rho, (0,))
+        self.assertEqual(layer.self_inverse, (0,))
+        self.assertEqual(sorted(map(tuple, index.t().tolist())), [(0, 1), (1, 3), (2, 2)])
+        self.assertEqual(layer.facts_after, 3)  # self-loop once
+
+    def test_T4_reciprocal_facts_of_a_directed_relation_stay_two_cells(self) -> None:
+        cite = [(0, 0, 1), (1, 0, 0), (0, 0, 2)]
+        ref = [(v, 1, u) for u, _, v in cite]
+        layer, index, _ = _layer(cite + ref, 2, 3)
+        self.assertEqual(layer.rho, (1, 0))  # cite is not its own reversal: rho(cite) = ref
+        self.assertEqual(sorted(map(tuple, index.t().tolist())), [(0, 1), (0, 2), (1, 0)])
+
+    def test_T4_a_missing_reverse_edge_leaves_the_pair_untied(self) -> None:
+        layer, index, types = _layer([(0, 0, 1), (2, 0, 3), (1, 1, 0)], 2, 4)
+        self.assertEqual(layer.rho, (None, None))
+        self.assertEqual(layer.unmatched_edges, (2, 1))
+        self.assertEqual(layer.kept, (0, 1))
+        self.assertEqual(index.size(1), 3)
+        self.assertEqual(types.tolist(), [0, 0, 1])
+
+    def test_T4_untied_keeps_every_stored_edge_and_relation(self) -> None:
+        edges = [(0, 0, 1), (2, 0, 3), (1, 1, 0), (3, 1, 2), (1, 2, 1)]
+        layer, index, types = _layer(edges, 3, 4, mode="untied")
+        self.assertEqual(layer.rho, (1, 0, 2))  # rho is still computed and reported
+        self.assertEqual(layer.kept, (0, 1, 2))
+        self.assertEqual(layer.self_inverse, ())
+        self.assertEqual(index.tolist(), [[0, 2, 1, 3, 1], [1, 3, 0, 2, 1]])
+        self.assertEqual(types.tolist(), [0, 0, 1, 1, 2])
+
+    def test_T4_two_exact_partners_are_an_error(self) -> None:
+        with self.assertRaises(ValueError):
+            _layer([(0, 0, 1), (1, 1, 0), (1, 2, 0)], 3, 2)
+
+    @unittest.skipUnless((REPO_ROOT / "data" / "acm").exists(), "HGB data not present")
+    def test_T4_real_hgb_counts(self) -> None:
+        from src.configs.config import TrainConfig
+        from src.data.dataset import _load_hetero_data
+        from src.data.hetero_flatten import flatten_edges, stack_node_features
+
+        expected = {"acm": (547872, 273936, 4), "dblp": (239566, 119783, 3),
+                    "imdb": (86642, 43321, 3)}
+        for name, (before, after, pairs) in expected.items():
+            if not (REPO_ROOT / "data" / name).exists():
+                continue
+            with self.subTest(dataset=name):
+                config = TrainConfig.from_dict(
+                    {"data": {"dataset_name": name, "root": str(REPO_ROOT / "data")}})
+                data = _load_hetero_data(config)
+                x, _, _, slices, _ = stack_node_features(data)
+                edge_index, edge_type, names, _ = flatten_edges(data, slices)
+                layer = build_fact_layer(edge_index, edge_type, names, x.size(0), "tied")
+                self.assertEqual((layer.facts_before, layer.facts_after), (before, after))
+                self.assertEqual(sum(layer.unmatched_edges), 0)
+                self.assertEqual(len(layer.kept), pairs)
+                self.assertEqual(layer.self_inverse, ())
+                if name == "acm":
+                    self.assertEqual(layer.rho[names.index("paper__cite__paper")],
+                                     names.index("paper__ref__paper"))
+
+    @unittest.skipUnless((REPO_ROOT / "data" / "tud").exists(), "TU data not present")
+    def test_T4_real_tu_relations_are_self_inverse(self) -> None:
+        from torch_geometric.datasets import TUDataset
+
+        from src.data.graph_classification_dataset import _load_tu_type_tensors, _tie_tu_facts
+
+        expected = {"MUTAG": (7442, 3721), "PROTEINS": (162088, 81044),
+                    "ENZYMES": (74564, 37282), "NCI1": (265506, 132753)}
+        for tud, (before, after) in expected.items():
+            if not (REPO_ROOT / "data" / "tud" / tud).exists():
+                continue
+            with self.subTest(dataset=tud):
+                dataset = TUDataset(root=str(REPO_ROOT / "data" / "tud"), name=tud)
+                data_list = [dataset[i].clone() for i in range(len(dataset))]
+                _, edge_types, _, num_relations = _load_tu_type_tensors(
+                    REPO_ROOT / "data", tud, data_list)
+                layer, tied, _ = _tie_tu_facts(data_list, edge_types, num_relations, "tied")
+                self.assertEqual((layer.facts_before, layer.facts_after), (before, after))
+                self.assertEqual(sum(d.edge_index.size(1) for d in tied), after)
+                self.assertEqual(layer.self_inverse, tuple(range(num_relations)))
+
+    def test_T4_untied_is_rejected_by_the_tuning_check(self) -> None:
+        from scripts.run_h2snn_wandb_tuning import (apply_sweep_overrides, build_sweep_config,
+                                                    load_raw_config)
+        from src.configs.config import reject_never_tuned_settings
+
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings({"data": {"fact_layer": "untied"}})
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings(None, {"fact_layer": {"values": ["tied", "untied"]}})
+        reject_never_tuned_settings({"data": {"fact_layer": "tied"}}, {"lr": {}})
+        with self.assertRaises(ValueError):  # a trial applied on an untied base config
+            apply_sweep_overrides({"data": {"fact_layer": "untied"}}, {"lr": 1e-3})
+        for task in ("node_classification", "link_prediction", "graph_classification"):
+            sweep = build_sweep_config(task_type=task, metric="val_acc", epochs=50)
+            self.assertFalse(any("fact_layer" in key for key in sweep["parameters"]))
+        with TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            path = Path(tmp) / "base.yaml"
+            path.write_text("data:\n  dataset_name: acm\n  fact_layer: untied\n",
+                            encoding="utf-8")
+            with self.assertRaises(ValueError):
+                load_raw_config(path)
+        for notebook in sorted((REPO_ROOT / "notebooks").glob("*tuning*.ipynb")):
+            with self.subTest(notebook=notebook.name):
+                self.assertNotIn("fact_layer", notebook.read_text(encoding="utf-8"))
+
+
+# ----------------------------------------------------------------------------- D7 (T5, T16)
+def _map_module(family: str, map_scale: str, shared: tuple[int, ...], num_relations: int,
+                d: int = 4, seed: int = 0):
+    torch.manual_seed(seed)
+    if family == "factorized":
+        module = FactorizedNodeToEdgeSheaf(
+            d=d, d_r=2, num_relations=num_relations, hidden_dim=8, householder_k=2,
+            scale_eps=0.1, orthogonal_map="fasthpp", map_scale=map_scale, checkpoint=False,
+            shared_role_relations=shared)
+    else:
+        module = DenseConformalNodeToEdgeSheaf(
+            d=d, d_r=2, num_relations=num_relations, hidden_dim=8, scale_eps=0.1,
+            orthogonal_map="fasthpp", map_scale=map_scale, memory_guard_fraction=0.9,
+            shared_role_relations=shared)
+    return module.double()
+
+
+def _normalized_delta0(maps: EdgeMapPair, edge_index: torch.Tensor, num_nodes: int,
+                       d: int) -> torch.Tensor:
+    """Dense `D^-1/2 Delta_0 D^-1/2`, `Delta_0 = sum_e B_e^T B_e`, `D_v = sum c^2`."""
+    F_src, F_tgt = _materialized(maps.src), _materialized(maps.tgt)
+    L = torch.zeros(num_nodes * d, num_nodes * d, dtype=torch.float64)
+    degree = torch.zeros(num_nodes, dtype=torch.float64)
+    for e in range(edge_index.size(1)):
+        u, v = int(edge_index[0, e]), int(edge_index[1, e])
+        B = torch.zeros(d, num_nodes * d, dtype=torch.float64)
+        B[:, u * d:(u + 1) * d] -= F_src[e]
+        B[:, v * d:(v + 1) * d] += F_tgt[e]
+        L += B.T @ B
+        degree[u] += maps.src.scale[e] ** 2
+        degree[v] += maps.tgt.scale[e] ** 2
+    scale = degree.clamp_min(1e-300).rsqrt().repeat_interleave(d)
+    return scale.view(-1, 1) * L * scale.view(1, -1)
+
+
+def _materialized(operator) -> torch.Tensor:
+    return operator.materialize() if hasattr(operator, "materialize") else operator.maps
+
+
+def _flip(edge_index: torch.Tensor, rows: torch.Tensor) -> torch.Tensor:
+    flipped = edge_index.clone()
+    flipped[:, rows] = edge_index.flip(0)[:, rows]
+    return flipped
+
+
+def _two_relation_graph(seed: int):
+    """Relation 0 (to be shared) and relation 1 (directed) on 7 nodes."""
+    generator = torch.Generator().manual_seed(seed)
+    pairs = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (5, 6), (6, 1), (2, 5), (3, 3)]
+    edge_index = torch.tensor(pairs).t()
+    edge_type = torch.tensor([0, 1, 0, 1, 0, 1, 0, 1, 0])
+    h = torch.randn(7, 4, generator=generator, dtype=torch.float64)
+    rel = torch.randn(2, 2, generator=generator, dtype=torch.float64)
+    return edge_index, edge_type, h, rel
+
+
+FAMILIES = [(family, scale) for family in ("factorized", "dense")
+            for scale in ("per_edge", "per_side")]
+
+
+class SharedRoleTests(unittest.TestCase):
+    """T5 (self-inverse relations) and T16 (direction_blind_maps): orientation invariance."""
+
+    def _change(self, family: str, scale: str, shared: tuple[int, ...],
+                flip_rows: torch.Tensor) -> float:
+        edge_index, edge_type, h, rel = _two_relation_graph(1)
+        module = _map_module(family, scale, shared, num_relations=2)
+        with torch.no_grad():
+            before = _normalized_delta0(module(h, edge_index, edge_type, rel).maps,
+                                        edge_index, 7, 4)
+            flipped = _flip(edge_index, flip_rows)
+            after = _normalized_delta0(module(h, flipped, edge_type, rel).maps, flipped, 7, 4)
+        return float((before - after).abs().max())
+
+    def test_T5_flipping_cells_of_a_self_inverse_relation_leaves_delta0_unchanged(self) -> None:
+        relation0 = torch.tensor([0, 2, 4, 6, 8])  # includes the self-loop (3, 3)
+        for family, scale in FAMILIES:
+            for subset in (relation0, relation0[:2], relation0[2:3]):
+                with self.subTest(family=family, scale=scale, subset=subset.tolist()):
+                    self.assertLess(self._change(family, scale, (0,), subset), F64_TOL)
+
+    def test_T5_negative_control_separate_roles_change_delta0(self) -> None:
+        for family, scale in FAMILIES:
+            with self.subTest(family=family, scale=scale):
+                self.assertGreater(self._change(family, scale, (), torch.tensor([0, 2])), 1e-3)
+
+    def test_T16_direction_blind_maps_make_delta0_invariant_to_flipping_any_cell(self) -> None:
+        for family, scale in FAMILIES:
+            for subset in (torch.tensor([1, 3]), torch.tensor([0, 1, 5, 7]), torch.arange(9)):
+                with self.subTest(family=family, scale=scale, subset=subset.tolist()):
+                    self.assertLess(self._change(family, scale, (0, 1), subset), F64_TOL)
+            with self.subTest(family=family, scale=scale, control="relation 1 directed"):
+                self.assertGreater(self._change(family, scale, (0,), torch.tensor([1, 3])),
+                                   1e-3)
+
+    def test_T16_model_shares_roles_per_fact_layer_and_ablation(self) -> None:
+        from src.configs.config import TrainConfig
+        from src.models.h2snn_model import H2SNN, ModelDims
+
+        dims = ModelDims(in_channels=5, num_node_types=2, num_relations=3, num_classes=2,
+                         face_lengths=(2,), self_inverse_relations=(2,))
+        for blind, want in ((False, (2,)), (True, (0, 1, 2))):
+            config = TrainConfig.from_dict({"device": "cpu",
+                                            "ablation": {"direction_blind_maps": blind}})
+            model = H2SNN(config, dims)
+            self.assertEqual(model.shared_role_relations, want)
+            self.assertEqual(model.node_to_edge.shared_role_relations, want)
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"ablation": {"direction_blind_maps": "yes"}})
+
+
+# ----------------------------------------------------------------------------- D7 (T6)
+def _moderate_scales(maps: EdgeMapPair, generator: torch.Generator, shared: bool) -> EdgeMapPair:
+    """Same frames and reflectors, scales log-uniform in [0.5, 2]. With `_chain_operators`'
+    per-side scales spanning [0.1, 50] the normalized Delta_0 of the tree has genuine
+    non-kernel eigenvalues down to ~1e-9 (docs/D7_evidence/u3_checks_output.txt), which no
+    fixed kernel threshold can separate; the property itself is scale-free."""
+    from src.models.map_operators import FactorizedMapOperator
+
+    def draw():
+        return torch.exp((torch.rand(maps.src.num_edges, generator=generator,
+                                     dtype=torch.float64) * 2 - 1) * 0.6931471805599453)
+
+    src_scale = draw()
+    tgt_scale = src_scale if shared else draw()
+
+    def side(op, scale):
+        return FactorizedMapOperator(scale=scale, reflectors=op.reflectors,
+                                     rotations=op.rotations, group_ids=op.group_ids)
+
+    return EdgeMapPair(src=side(maps.src, src_scale), tgt=side(maps.tgt, tgt_scale))
+
+
+class SectionPreservationTests(unittest.TestCase):
+    """T6: on a tree with mixed-direction path hops, sections are in ker L_P and
+    `dim ker(Delta_0 + gamma L_P) = dim ker Delta_0` (eigenvalue threshold 1e-9)."""
+
+    KERNEL_TOL = 1e-9
+
+    def _tree(self, seed: int):
+        generator = torch.Generator().manual_seed(seed)
+        parent = {1: 0, 2: 0, 3: 1, 4: 1, 5: 2, 6: 2, 7: 5}
+        pairs = []
+        for child, par in parent.items():  # random stored orientation per tree edge
+            pairs.append((par, child) if torch.rand(1, generator=generator) < 0.5
+                         else (child, par))
+        edge_index = torch.tensor(pairs).t()
+        lookup = {frozenset(p): e for e, p in enumerate(pairs)}
+        node_paths = {2: [[3, 1, 0], [1, 0, 2], [5, 2, 6], [7, 5, 2]],
+                      3: [[3, 1, 0, 2], [4, 1, 0, 2], [7, 5, 2, 0]]}
+        groups = []
+        for length, sequences in node_paths.items():
+            nodes = torch.tensor(sequences)
+            edges = torch.tensor([[lookup[frozenset((s[j], s[j + 1]))] for j in range(length)]
+                                  for s in sequences])
+            signs = torch.tensor([[1.0 if pairs[lookup[frozenset((s[j], s[j + 1]))]][0] == s[j]
+                                   else -1.0 for j in range(length)] for s in sequences])
+            groups.append((nodes, edges, signs))
+        return edge_index, groups
+
+    def test_T6_sections_are_preserved_with_signed_hops(self) -> None:
+        d, num_nodes, gamma = 3, 8, 0.7
+        for shared in (True, False):
+            for seed in range(3):
+                with self.subTest(shared=shared, seed=seed):
+                    edge_index, groups = self._tree(seed)
+                    self.assertTrue(any(bool((s < 0).any()) for _, _, s in groups))
+                    generator = torch.Generator().manual_seed(100 + seed)
+                    maps = _moderate_scales(
+                        _chain_operators(edge_index.size(1), k=2, d=d, seed=seed,
+                                         dtype=torch.float64, shared=shared),
+                        generator, shared)
+                    F_src, F_tgt = maps.src.materialize(), maps.tgt.materialize()
+                    weights = [torch.rand(n.size(0), generator=generator, dtype=torch.float64)
+                               + 0.5 for n, _, _ in groups]
+                    L_P = _dense_cells(maps, [g[0] for g in groups], [g[1] for g in groups],
+                                       [g[2] for g in groups], weights, num_nodes, d)
+                    # a section: x_0 free, then F_tgt x_tgt = F_src x_src on every edge
+                    x = torch.zeros(num_nodes, d, dtype=torch.float64)
+                    x[0] = torch.randn(d, dtype=torch.float64)
+                    known = {0}
+                    while len(known) < num_nodes:
+                        for e in range(edge_index.size(1)):
+                            u, v = int(edge_index[0, e]), int(edge_index[1, e])
+                            if u in known and v not in known:
+                                x[v] = torch.linalg.solve(F_tgt[e], F_src[e] @ x[u])
+                                known.add(v)
+                            elif v in known and u not in known:
+                                x[u] = torch.linalg.solve(F_src[e], F_tgt[e] @ x[v])
+                                known.add(u)
+                    # Relative to the row magnitude |L_P| |x|: per-side scales span [0.1, 50],
+                    # so entries of L_P reach ~1e10 (docs/D7_evidence/u3_t6_diag_output.txt).
+                    residual = (L_P @ x.reshape(-1)).abs().max()
+                    magnitude = (L_P.abs() @ x.reshape(-1).abs()).max()
+                    self.assertLess(float(residual / magnitude), F64_TOL)
+                    # kernel dimensions (normalized operators, D > 0 on every node)
+                    delta0 = torch.zeros_like(L_P)
+                    degree = torch.zeros(num_nodes, dtype=torch.float64)
+                    for e in range(edge_index.size(1)):
+                        u, v = int(edge_index[0, e]), int(edge_index[1, e])
+                        B = torch.zeros(d, num_nodes * d, dtype=torch.float64)
+                        B[:, u * d:(u + 1) * d] -= F_src[e]
+                        B[:, v * d:(v + 1) * d] += F_tgt[e]
+                        delta0 += B.T @ B
+                        degree[u] += maps.src.scale[e] ** 2
+                        degree[v] += maps.tgt.scale[e] ** 2
+                    for (nodes, edges, signs), w in zip(groups, weights):
+                        n = nodes.size(1)
+                        squares = (_signed_dense_transports(maps, edges, signs)
+                                   .square().sum(dim=(-2, -1)) / d)  # s_i^2
+                        per_incidence = (1 - 1 / n) * w.unsqueeze(1) * squares
+                        degree.index_add_(0, nodes.reshape(-1), gamma * per_incidence.reshape(-1))
+                    scale = degree.rsqrt().repeat_interleave(d)
+                    norm = scale.view(-1, 1) * scale.view(1, -1)
+                    for name, matrix in (("delta0", delta0), ("full", delta0 + gamma * L_P)):
+                        eigenvalues = torch.linalg.eigvalsh(norm * matrix)
+                        kernel = int((eigenvalues <= self.KERNEL_TOL).sum())
+                        # connected tree: exactly one d-dimensional space of global sections
+                        self.assertEqual(kernel, d, name)
+                        # the threshold separates: the next eigenvalue is far above it
+                        self.assertGreater(float(eigenvalues[kernel]), 1e3 * self.KERNEL_TOL, name)
 
 
 if __name__ == "__main__":

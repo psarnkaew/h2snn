@@ -16,6 +16,34 @@ def _reject_unknown_keys(section: str, raw: Mapping[str, Any], config_class: typ
         )
 
 
+# Settings that are ablation controls only: reported as separate experiments and never part
+# of a tuning search space, sweep config or tuning notebook (plan §9.1, §4.6).
+NEVER_TUNED_DATA_KEYS: tuple[str, ...] = ("fact_layer",)
+
+
+def reject_never_tuned_settings(
+    raw_config: Mapping[str, Any] | None,
+    search_parameters: Any = (),
+) -> None:
+    """Refuse a tuning setup that touches a never-tuned ablation control.
+
+    Raises if the base config sets `data.fact_layer: untied`, or if any search-space
+    parameter name mentions `fact_layer` (with any values). The model's default is the tied
+    layer, so the untied control is reachable only by setting it explicitly.
+    """
+    data = (raw_config or {}).get("data") or {}
+    if str(data.get("fact_layer", "")).lower() == "untied":
+        raise ValueError(
+            "data.fact_layer: untied is an ablation control and must not be used in tuning "
+            "(plan §9.1); tune the tied model and report untied separately."
+        )
+    for name in search_parameters:
+        if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
+            raise ValueError(
+                f"tuning search space contains {name!r}: fact_layer is never tuned (plan §9.1)."
+            )
+
+
 @dataclass(slots=True)
 class MetaPathConfig:
     name: str
@@ -174,6 +202,13 @@ class DataConfig:
     # per-node two-hop pass. scripts/h2snn_paper_studies.py turns it on.
     compute_relation_diagnostics: bool = False
 
+    # --- all tasks: fact layer (plan §9.1) ---
+    # "tied": one oriented 1-cell per fact, rho from exact edge-set equality (the model).
+    # "untied": every stored edge is its own 1-cell (ablation control; never tuned, see
+    # `reject_never_tuned_settings`). Interim default "untied" until the walk path sampler
+    # exists (D8): the DFS enumerators walk stored out-edges and cannot follow tied facts.
+    fact_layer: str = "untied"
+
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
     decoder_type: str = "dot"                    # "dot" | "distmult" | "concat_mlp"
@@ -217,6 +252,7 @@ class DataConfig:
             compute_relation_diagnostics=bool(
                 raw.get("compute_relation_diagnostics", False)
             ),
+            fact_layer=str(raw.get("fact_layer", "untied")),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -253,6 +289,15 @@ class DataConfig:
         dataset_name = self.dataset_name.lower()
         if self.face_sample_k <= 0:
             raise ValueError("data.face_sample_k must be positive.")
+        if self.fact_layer not in {"tied", "untied"}:
+            raise ValueError(
+                f"data.fact_layer must be 'tied' or 'untied', got {self.fact_layer!r}."
+            )
+        if self.fact_layer == "tied":
+            raise ValueError(
+                "data.fact_layer: tied needs the walk path sampler (D8), which is not "
+                "implemented yet; the DFS enumerators walk stored out-edges only."
+            )
         task_type = self.task_type or DATASET_TASK_TYPES.get(dataset_name, "")
         if not task_type:
             raise ValueError(
@@ -546,6 +591,9 @@ class AblationConfig:
     per_side_scale: bool = False
     # Read out from h0 only (sanity control: is diffusion used at all?).
     h0_only_readout: bool = False
+    # Same frame on both sides, no side code and a symmetrized c_e for EVERY relation
+    # (shared roles everywhere; the analogue of DSNN's q = 0).
+    direction_blind_maps: bool = False
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
