@@ -1,0 +1,6 @@
+MUTAG: relations old=4 new=4; graphs changed 188/188; edges changed 1771/7442
+  rho with fixed types: self_inverse=['edge_label_0', 'edge_label_1', 'edge_label_2', 'edge_label_3'] untied=[] facts 7442 -> 3721
+PROTEINS: relations old=1 new=1; graphs changed 0/1113; edges changed 0/162088
+ENZYMES: relations old=1 new=1; graphs changed 0/600; edges changed 0/74564
+NCI1: relations old=1 new=1; graphs changed 0/4110; edges changed 0/265506
+

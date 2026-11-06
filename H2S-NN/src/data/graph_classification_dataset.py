@@ -42,17 +42,6 @@ def _read_int_file(path: Path) -> list[int] | None:
         return [int(line.strip()) for line in handle if line.strip()]
 
 
-def _read_edge_pairs(path: Path) -> list[tuple[int, int]]:
-    with path.open("r", encoding="utf-8") as handle:
-        rows: list[tuple[int, int]] = []
-        for line in handle:
-            if not line.strip():
-                continue
-            left, right = line.replace(",", " ").split()[:2]
-            rows.append((int(left), int(right)))
-    return rows
-
-
 def _compact_labels(values: list[int]) -> tuple[list[int], int]:
     mapping = {value: idx for idx, value in enumerate(sorted(set(values)))}
     return [mapping[value] for value in values], len(mapping)
@@ -88,37 +77,43 @@ def _load_tu_type_tensors(
                 f"used {offset}, found {len(compact_node_labels)}."
             )
 
-    edge_labels = _read_int_file(raw_dir / f"{tud_name}_edge_labels.txt")
-    edge_pairs_path = raw_dir / f"{tud_name}_A.txt"
-    if edge_labels is None or graph_indicator is None or not edge_pairs_path.exists():
+    # Edge labels come from PyG's `edge_attr` (one-hot of the TU edge label), which PyG keeps
+    # aligned with its own `edge_index`. The raw `*_A.txt` order is NOT that order (PyG
+    # coalesces and sorts edges), so labels must never be assigned by raw position.
+    edge_labels_path = raw_dir / f"{tud_name}_edge_labels.txt"
+    has_attr = [getattr(data, "edge_attr", None) is not None for data in data_list]
+    if not any(has_attr):
+        if edge_labels_path.exists():
+            raise ValueError(
+                f"{tud_name} has raw edge labels but the PyG graphs carry no edge_attr; "
+                "edge labels cannot be aligned with the PyG edge order."
+            )
         edge_type_parts = [
             torch.zeros(data.edge_index.size(1), dtype=torch.long) for data in data_list
         ]
         return node_type_parts, edge_type_parts, num_node_types, 1
+    if not all(has_attr):
+        raise ValueError(f"{tud_name}: some graphs carry edge_attr and some do not.")
 
-    edge_pairs = _read_edge_pairs(edge_pairs_path)
-    if len(edge_pairs) != len(edge_labels):
-        raise ValueError(
-            f"TU edge-label count mismatch for {tud_name}: "
-            f"{len(edge_labels)} labels for {len(edge_pairs)} edges."
-        )
-
-    compact_edge_labels, num_relations = _compact_labels(edge_labels)
-    labels_by_graph: list[list[int]] = [[] for _ in data_list]
-    for (src, _), label in zip(edge_pairs, compact_edge_labels, strict=True):
-        graph_id = graph_indicator[src - 1] - 1
-        labels_by_graph[graph_id].append(label)
-
-    edge_type_parts = []
-    for graph_index, (data, labels) in enumerate(zip(data_list, labels_by_graph, strict=True)):
-        num_edges = int(data.edge_index.size(1))
-        if len(labels) != num_edges:
+    raw_parts = []
+    for graph_index, data in enumerate(data_list):
+        attr = data.edge_attr
+        if attr.dim() != 2 or attr.size(0) != data.edge_index.size(1):
             raise ValueError(
-                f"TU edge-label count mismatch for {tud_name} graph {graph_index}: "
-                f"{len(labels)} labels for {num_edges} PyG edges."
+                f"{tud_name} graph {graph_index}: edge_attr must be [E, C] for "
+                f"{data.edge_index.size(1)} edges, got {tuple(attr.shape)}."
             )
-        edge_type_parts.append(torch.tensor(labels, dtype=torch.long))
-    return node_type_parts, edge_type_parts, num_node_types, num_relations
+        one_hot = bool(((attr == 0) | (attr == 1)).all()) and bool((attr.sum(dim=1) == 1).all())
+        if attr.size(0) and not one_hot:
+            raise ValueError(
+                f"{tud_name} graph {graph_index}: edge_attr is not a one-hot edge label."
+            )
+        raw_parts.append(attr.argmax(dim=1) if attr.size(0) else attr.new_zeros(0).long())
+    values = sorted({int(v) for part in raw_parts for v in part.tolist()})
+    mapping = torch.full((max(values, default=0) + 1,), -1, dtype=torch.long)
+    mapping[torch.tensor(values, dtype=torch.long)] = torch.arange(len(values))
+    edge_type_parts = [mapping[part] for part in raw_parts]
+    return node_type_parts, edge_type_parts, num_node_types, max(len(values), 1)
 
 
 def _annotate_tu_types(

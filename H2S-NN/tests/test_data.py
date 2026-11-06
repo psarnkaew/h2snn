@@ -407,6 +407,12 @@ class DataPipelineTests(unittest.TestCase):
             )
 
     def test_tu_type_tensors_use_node_and_edge_labels(self) -> None:
+        """Edge labels follow PyG's edge order (its `edge_attr`), not the raw file order.
+
+        The raw file lists graph 0's edges as (1,2) label 9, (2,1) label 8; the PyG graph
+        stores them the other way round, as PyG does after sorting. Assigning by raw
+        position (the old behaviour) would give [1, 0] instead of [0, 1].
+        """
         torch = self._require_torch()
         from torch_geometric.data import Data
 
@@ -421,9 +427,12 @@ class DataPipelineTests(unittest.TestCase):
             (raw_dir / "FAKE_A.txt").write_text("1, 2\n2, 1\n3, 3\n", encoding="utf-8")
             (raw_dir / "FAKE_edge_labels.txt").write_text("9\n8\n9\n", encoding="utf-8")
 
+            # edge_attr columns: [label 8, label 9]
             data_list = [
-                Data(edge_index=torch.tensor([[0, 1], [1, 0]]), num_nodes=2),
-                Data(edge_index=torch.tensor([[0], [0]]), num_nodes=1),
+                Data(edge_index=torch.tensor([[1, 0], [0, 1]]), num_nodes=2,
+                     edge_attr=torch.tensor([[1.0, 0.0], [0.0, 1.0]])),
+                Data(edge_index=torch.tensor([[0], [0]]), num_nodes=1,
+                     edge_attr=torch.tensor([[0.0, 1.0]])),
             ]
             node_types, edge_types, num_node_types, num_relations = _load_tu_type_tensors(
                 root=Path(tmpdir),
@@ -431,12 +440,64 @@ class DataPipelineTests(unittest.TestCase):
                 data_list=data_list,
             )
 
-        self.assertEqual(num_node_types, 2)
-        self.assertEqual(num_relations, 2)
-        self.assertTrue(torch.equal(node_types[0], torch.tensor([0, 1])))
-        self.assertTrue(torch.equal(node_types[1], torch.tensor([0])))
-        self.assertTrue(torch.equal(edge_types[0], torch.tensor([1, 0])))
-        self.assertTrue(torch.equal(edge_types[1], torch.tensor([1])))
+            self.assertEqual(num_node_types, 2)
+            self.assertEqual(num_relations, 2)
+            self.assertTrue(torch.equal(node_types[0], torch.tensor([0, 1])))
+            self.assertTrue(torch.equal(node_types[1], torch.tensor([0])))
+            self.assertTrue(torch.equal(edge_types[0], torch.tensor([0, 1])))
+            self.assertTrue(torch.equal(edge_types[1], torch.tensor([1])))
+
+            # Raw edge labels without PyG edge_attr cannot be aligned: refuse.
+            bare = [Data(edge_index=d.edge_index, num_nodes=d.num_nodes) for d in data_list]
+            with self.assertRaises(ValueError):
+                _load_tu_type_tensors(root=Path(tmpdir), tud_name="FAKE", data_list=bare)
+            # edge_attr that is not a one-hot label: refuse.
+            soft = [Data(edge_index=torch.tensor([[0], [0]]), num_nodes=1,
+                         edge_attr=torch.tensor([[0.5, 0.5]]))]
+            with self.assertRaises(ValueError):
+                _load_tu_type_tensors(root=Path(tmpdir), tud_name="FAKE", data_list=soft)
+
+    @unittest.skipUnless(
+        (Path(__file__).resolve().parents[1] / "data" / "tud" / "MUTAG" / "raw"
+         / "MUTAG_edge_labels.txt").exists(),
+        "MUTAG raw files not present",
+    )
+    def test_tu_edge_types_match_raw_labels_by_key_on_mutag(self) -> None:
+        """Real data: every PyG edge's type equals the raw label of the same (graph, src, dst)
+        key, looked up independently of any edge order."""
+        torch = self._require_torch()
+        from torch_geometric.datasets import TUDataset
+
+        from src.data.graph_classification_dataset import _load_tu_type_tensors
+
+        root = Path(__file__).resolve().parents[1] / "data"
+        raw = root / "tud" / "MUTAG" / "raw"
+        dataset = TUDataset(root=str(root / "tud"), name="MUTAG")
+        data_list = [dataset[i] for i in range(len(dataset))]
+        _, edge_types, _, num_relations = _load_tu_type_tensors(root, "MUTAG", data_list)
+
+        def ints(name):
+            return [int(line) for line in (raw / name).read_text().split()]
+
+        indicator = ints("MUTAG_graph_indicator.txt")
+        labels = ints("MUTAG_edge_labels.txt")
+        starts = {}
+        for node, graph in enumerate(indicator, start=1):
+            starts.setdefault(graph, node)
+        key_to_label = {}
+        pairs = (raw / "MUTAG_A.txt").read_text().strip().splitlines()
+        for line, label in zip(pairs, labels, strict=True):
+            a, b = (int(v) for v in line.replace(",", " ").split())
+            graph = indicator[a - 1]
+            key_to_label[(graph, a - starts[graph], b - starts[graph])] = label
+        compact = {v: i for i, v in enumerate(sorted(set(labels)))}
+        self.assertEqual(num_relations, len(compact))
+        checked = 0
+        for g, (data, types) in enumerate(zip(data_list, edge_types), start=1):
+            for (s, t), r in zip(data.edge_index.t().tolist(), types.tolist()):
+                self.assertEqual(r, compact[key_to_label[(g, s, t)]])
+                checked += 1
+        self.assertEqual(checked, len(labels))
 
     def test_tu_type_tensors_fallback_to_single_edge_type(self) -> None:
         torch = self._require_torch()
