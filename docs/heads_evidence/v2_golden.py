@@ -2,6 +2,7 @@
 
     python <this> capture <out.pt>    # run BEFORE the v1 removal (pre-change code)
     python <this> compare <ref.pt>    # run after; exits 1 on any mismatch
+    python <this> recapture <ref.pt> <out.pt>   # re-record outputs on ref's stored fixtures
 
 Each case seeds the RNG, builds the v2 model on a stored fixture, records the initial
 state_dict, eval logits, train-mode logits and every parameter gradient. `capture` also
@@ -170,6 +171,20 @@ def main() -> None:
         torch.save(results, path)
         total = sum(len(entry["record"]) for entry in results.values())
         print(f"captured {len(results)} cases, {total} entries -> {path}")
+        return
+    if mode == "recapture":
+        # Re-record outputs on the fixtures stored in an existing reference (the fixture
+        # builder `tests.test_models` no longer exists). Only the records change.
+        out = Path(sys.argv[3])
+        reference = torch.load(path, weights_only=False)
+        results = {}
+        for case, _, model_overrides, ablations in CASES:
+            data = _deserialize(reference[case]["data"])
+            results[case] = {"data": reference[case]["data"],
+                             "record": run_case(data, model_overrides, ablations)}
+        torch.save(results, out)
+        total = sum(len(entry["record"]) for entry in results.values())
+        print(f"re-captured {len(results)} cases, {total} entries on stored fixtures -> {out}")
         return
     compared, mismatches, messages = compare(path)
     for message in messages[:40]:
