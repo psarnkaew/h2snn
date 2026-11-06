@@ -138,10 +138,11 @@ class WandbAndRunReportingTests(unittest.TestCase):
         self.assertEqual(sweep["metric"]["name"], "best/auroc")
         self.assertEqual(sweep["early_terminate"]["type"], "hyperband")
         self.assertEqual(sweep["parameters"]["d"]["values"], [16, 32, 64])
-        # Initial values of the learned diffusion scalars eta = sigmoid(.), gamma = softplus(.).
-        self.assertIn("eta_init", sweep["parameters"])
-        self.assertIn("gamma_init", sweep["parameters"])
+        # eta = sigmoid(theta), gamma = softplus(theta) are learned; their initial values
+        # stay at the config defaults (0.5, 1.0) and are not searched.
         for legacy_parameter in (
+            "eta_init",
+            "gamma_init",
             "eta_0",
             "eta_1",
             "pooling_type",
@@ -702,13 +703,12 @@ class WandbAndRunReportingTests(unittest.TestCase):
             self.assertIn("scripts/run_h2snn_wandb_tuning.py", source)
             self.assertIn("runs_summary.json", source)
             self.assertIn("NUM_RUNS = 5", source)
-        tuning_expectations = {
-            "h2snn_node_classification_wandb_tuning_colab.ipynb": None,
-            "h2snn_link_prediction_wandb_tuning_colab.ipynb": None,
-            "h2snn_graph_classification_wandb_tuning_colab.ipynb": "--sheafcov_feat_dims",
-            "h2snn_wandb_paper_tuning_colab.ipynb": "--sheafcov_feat_dims",
-        }
-        for name, expected_switch in tuning_expectations.items():
+        for name in (
+            "h2snn_node_classification_wandb_tuning_colab.ipynb",
+            "h2snn_link_prediction_wandb_tuning_colab.ipynb",
+            "h2snn_graph_classification_wandb_tuning_colab.ipynb",
+            "h2snn_wandb_paper_tuning_colab.ipynb",
+        ):
             payload = json.loads((notebook_dir / name).read_text(encoding="utf-8"))
             source = "\n".join(
                 "".join(cell.get("source", [])) for cell in payload.get("cells", [])
@@ -736,14 +736,15 @@ class WandbAndRunReportingTests(unittest.TestCase):
             self.assertNotIn("fearless-sweep", source)
             self.assertNotIn("cuda_illegal_access_debug", source)
             self.assertIn("HYPERBAND_MIN_ITER", source)
-            for ablation_switch in (
+            for removed_switch in (
                 "--include_discovery",
                 "--include_decoder_type",
                 "--include_pooling_type",
+                "--pooling_type",
+                "--sheafcov_feat_dims",
+                "_ampss.yaml",
             ):
-                self.assertNotIn(ablation_switch, source)
-            if expected_switch is not None:
-                self.assertIn(expected_switch, source)
+                self.assertNotIn(removed_switch, source)
 
     def test_repeated_cv_notebook_is_clean_and_uses_fold_campaign(self) -> None:
         notebook_dir = Path(__file__).resolve().parent.parent / "notebooks"

@@ -1,0 +1,662 @@
+===== notebooks\h2snn_graph_classification_colab.ipynb cell 7 (markdown)
+## 4. Choose Dataset And Write Colab Config
+
+Keep `POOLING_TYPE` fixed for normal reporting; W&B tuning can optionally include pooling type.
+===== notebooks\h2snn_graph_classification_colab.ipynb cell 8 (code)
+from pathlib import Path
+import yaml
+
+DATASET = 'proteins'       # one of: 'mutag', 'proteins', 'enzymes', 'nci1'
+POOLING_TYPE = 's2pool'    # one of: 'meanpool', 'grampool', 's2pool'
+NUM_RUNS = 5
+BASE_SEED = 42
+TRAIN_RATIO = 0.8
+VAL_RATIO = 0.1
+TEST_RATIO = 0.1
+EPOCHS = 200
+MONITOR = 'auroc'
+EARLY_STOPPING_PATIENCE = 100
+USE_ORTHOGONAL = True
+USE_WANDB = False
+WANDB_PROJECT = 'h2snn'
+WANDB_MODE = 'online'
+
+CONFIG_BY_DATASET = {
+    'mutag': 'configs/experiments/mutag_h2snn.yaml',
+    'proteins': 'configs/experiments/proteins_h2snn.yaml',
+    'enzymes': 'configs/experiments/enzymes_h2snn.yaml',
+    'nci1': 'configs/experiments/nci1_h2snn.yaml',
+}
+
+base_config = Path(CONFIG_BY_DATASET[DATASET])
+payload = yaml.safe_load(base_config.read_text(encoding='utf-8'))
+exp_name = f'{DATASET}_h2snn_colab_{POOLING_TYPE}'
+payload['epochs'] = EPOCHS
+payload['seed'] = BASE_SEED
+payload['device'] = DEVICE
+payload['exp_name'] = exp_name
+payload['output_dir'] = 'experiments/colab'
+payload['checkpoint_metric'] = MONITOR
+payload['checkpoint_mode'] = 'max'
+payload['early_stopping_patience'] = EARLY_STOPPING_PATIENCE
+payload['use_wandb'] = USE_WANDB
+payload['wandb_project'] = WANDB_PROJECT
+payload['wandb_mode'] = WANDB_MODE
+payload.setdefault('data', {})['pooling_type'] = POOLING_TYPE
+payload['data']['split_protocol'] = 'stratified_holdout'
+payload['data']['num_runs'] = NUM_RUNS
+payload['data']['run_index'] = 0
+payload['data']['train_ratio'] = TRAIN_RATIO
+payload['data']['val_ratio'] = VAL_RATIO
+payload['data']['test_ratio'] = TEST_RATIO
+payload.setdefault('model', {})['use_orthogonal'] = USE_ORTHOGONAL
+
+CONFIG_PATH = Path('configs/generated/colab') / f'{exp_name}.yaml'
+CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+CONFIG_PATH.write_text(yaml.safe_dump(payload, sort_keys=False), encoding='utf-8')
+
+EXP_NAME = exp_name
+print('base config:', base_config)
+print('colab config:', CONFIG_PATH)
+print('experiment:', EXP_NAME)
+
+===== notebooks\h2snn_graph_classification_colab.ipynb cell 12 (code)
+import os
+import subprocess
+import sys
+
+command = [
+    sys.executable,
+    '-u',
+    'scripts/run_h2snn_runs.py',
+    '--config',
+    str(CONFIG_PATH),
+    '--device',
+    DEVICE,
+    '--exp_name',
+    EXP_NAME,
+    '--num_runs',
+    str(NUM_RUNS),
+    '--base_seed',
+    str(BASE_SEED),
+    '--monitor',
+    MONITOR,
+    '--patience',
+    str(EARLY_STOPPING_PATIENCE),
+        '--pooling_type',
+        POOLING_TYPE,
+        '--train_ratio',
+        str(TRAIN_RATIO),
+        '--val_ratio',
+        str(VAL_RATIO),
+        '--test_ratio',
+        str(TEST_RATIO),
+]
+if USE_WANDB:
+    command.extend(['--use_wandb', '--wandb_project', WANDB_PROJECT, '--wandb_mode', WANDB_MODE])
+
+env = os.environ.copy()
+env['PYTHONUNBUFFERED'] = '1'
+
+print('Running:', ' '.join(command))
+process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, env=env)
+for line in process.stdout:
+    print(line, end='')
+return_code = process.wait()
+if return_code != 0:
+    raise RuntimeError(f'Training failed with exit code {return_code}')
+
+===== notebooks\h2snn_graph_classification_colab.ipynb cell 16 (code)
+RUN_WANDB_TUNING = False
+TUNE_TRIALS_PER_SEED = 20
+TUNE_METRIC = 'auroc'
+INCLUDE_POOLING_TYPE_IN_TUNING = False
+INCLUDE_DECODER_TYPE_IN_TUNING = False
+print('W&B tuning enabled:', RUN_WANDB_TUNING)
+print('Tune metric:', TUNE_METRIC)
+
+===== notebooks\h2snn_graph_classification_colab.ipynb cell 17 (code)
+import os
+import subprocess
+import sys
+
+if RUN_WANDB_TUNING:
+    command = [
+        sys.executable,
+        '-u',
+        'scripts/run_h2snn_wandb_tuning.py',
+        '--config',
+        str(CONFIG_PATH),
+        '--device',
+        DEVICE,
+        '--exp_name',
+        f'{EXP_NAME}_tune',
+        '--num_runs',
+        str(NUM_RUNS),
+        '--base_seed',
+        str(BASE_SEED),
+        '--n_trials',
+        str(TUNE_TRIALS_PER_SEED),
+        '--monitor',
+        TUNE_METRIC,
+        '--patience',
+        str(EARLY_STOPPING_PATIENCE),
+        '--wandb_project',
+        WANDB_PROJECT,
+        '--wandb_mode',
+        WANDB_MODE,
+    ]
+    if 'POOLING_TYPE' in globals():
+        command.extend(['--pooling_type', POOLING_TYPE])
+    if 'DECODER_TYPE' in globals():
+        command.extend(['--decoder_type', DECODER_TYPE])
+    if INCLUDE_POOLING_TYPE_IN_TUNING:
+        command.append('--include_pooling_type')
+    if INCLUDE_DECODER_TYPE_IN_TUNING:
+        command.append('--include_decoder_type')
+
+    env = os.environ.copy()
+    env['PYTHONUNBUFFERED'] = '1'
+    print('Running:', ' '.join(command))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, env=env)
+    for line in process.stdout:
+        print(line, end='')
+    return_code = process.wait()
+    if return_code != 0:
+        raise RuntimeError(f'W&B tuning failed with exit code {return_code}')
+else:
+    print('Skipping W&B tuning. Normal 5-run reporting is in the training section.')
+
+===== notebooks\h2snn_graph_classification_repeated_cv_wandb_tuning_colab.ipynb cell 4 (code)
+DATASET = 'mutag'  # mutag, proteins, enzymes, or nci1
+BASE_CONFIG_PATH = Path(f'configs/experiments/{DATASET}_h2snn.yaml')
+EXP_NAME = f'{DATASET}_h2snn_repeated_10x10_kfold'
+OUTPUT_DIR = Path('experiments/colab')
+STATE_DIR = OUTPUT_DIR / EXP_NAME / 'tuning_state'
+
+NUM_REPETITIONS = 5
+NUM_FOLDS = 10
+TOTAL_UNITS = NUM_REPETITIONS * NUM_FOLDS
+UNIT_START = 0
+UNIT_COUNT = TOTAL_UNITS
+BASE_SEED = 42
+SPLIT_SEED = 42
+N_TRIALS = 30
+EPOCHS = 500
+PATIENCE = 50
+HYPERBAND_MIN_ITER = 30
+HYPERBAND_ETA = 3
+D_VALUES = [16, 32, 64]
+SHEAFCOV_FEAT_DIMS = [4, 8, 16]
+MONITOR = 'auroc'
+
+RESUME = False
+SWEEP_ID = ''  # only for RESUME=True with UNIT_COUNT=1
+WANDB_PROJECT = 'h2snn'
+WANDB_ENTITY = ''
+WANDB_MODE = 'online'
+WANDB_TAGS = ['paper-quality', 'graph-classification', 'repeated-kfold']
+print('Estimated model fits:', TOTAL_UNITS * N_TRIALS)
+===== notebooks\h2snn_graph_classification_repeated_cv_wandb_tuning_colab.ipynb cell 6 (code)
+cmd = [
+    sys.executable, 'scripts/run_graph_classification_repeated_cv_wandb_tuning.py',
+    '--config', str(BASE_CONFIG_PATH), '--exp_name', EXP_NAME,
+    '--output_dir', str(OUTPUT_DIR), '--device', DEVICE,
+    '--num_repetitions', str(NUM_REPETITIONS), '--num_folds', str(NUM_FOLDS),
+    '--unit_start', str(UNIT_START), '--unit_count', str(UNIT_COUNT),
+    '--base_seed', str(BASE_SEED), '--split_seed', str(SPLIT_SEED),
+    '--n_trials', str(N_TRIALS), '--epochs', str(EPOCHS),
+    '--patience', str(PATIENCE), '--monitor', MONITOR,
+    '--hyperband_min_iter', str(HYPERBAND_MIN_ITER), '--hyperband_eta', str(HYPERBAND_ETA),
+    '--state_dir', str(STATE_DIR), '--wandb_project', WANDB_PROJECT,
+    '--wandb_mode', WANDB_MODE, '--wandb_tags', *WANDB_TAGS,
+    '--d_values', *[str(value) for value in D_VALUES],
+    '--sheafcov_feat_dims', *[str(value) for value in SHEAFCOV_FEAT_DIMS],
+]
+if WANDB_ENTITY:
+    cmd.extend(['--wandb_entity', WANDB_ENTITY])
+if RESUME:
+    cmd.append('--resume')
+if SWEEP_ID:
+    cmd.extend(['--sweep_id', SWEEP_ID])
+print('Validating:', ' '.join([*cmd, '--validate_only']))
+subprocess.run([*cmd, '--validate_only'], check=True)
+print('Starting:', ' '.join(cmd))
+subprocess.run(cmd, check=True)
+===== notebooks\h2snn_graph_classification_wandb_tuning_colab.ipynb cell 0 (markdown)
+# H2S-NN Graph Classification W&B Tuning - Colab
+
+Primary W&B tuning notebook for MUTAG/PROTEINS/ENZYMES/NCI1 graph classification. It keeps SheafCovPool fixed, keeps its semantic Gram descriptor fixed at 3 x 3, and searches only the post-Gram feature width over {4, 8, 16}. Each graph remains a complete complex inside the implementation's fixed batch of up to 32 graphs.
+===== notebooks\h2snn_graph_classification_wandb_tuning_colab.ipynb cell 4 (code)
+from pathlib import Path
+
+BASE_CONFIG_PATH = Path('configs/experiments/mutag_h2snn.yaml')
+
+# AMPSS discovery controls. These are fixed before W&B trials because they define
+# the candidate pool and must not vary across trials.
+DISCOVERY_MAX_SCHEMA_LENGTH = 2
+DISCOVERY_MAX_SCHEMA_CANDIDATES = 128
+DISCOVERY_SELECTED_SCHEMA_K = 6
+DISCOVERY_MAX_INSTANCES_PER_SCHEMA = 8000
+DISCOVERY_MAX_INSTANCES_PER_ANCHOR = 30
+DISCOVERY_MAX_TOTAL_INSTANCES = 20000
+DISCOVERY_MAX_TOTAL_INCIDENCES = 60000
+DISCOVERY_ALLOW_REPEATED_NODE_TYPES = True
+
+EXP_NAME = 'mutag_h2snn_graph_sheafcov_primary_v5'
+OUTPUT_DIR = Path('experiments/colab')
+STATE_DIR = OUTPUT_DIR / EXP_NAME / 'tuning_state'
+
+NUM_RUNS = 5
+N_TRIALS = 50
+EPOCHS = 600
+PATIENCE = 80
+HYPERBAND_MIN_ITER = 30
+HYPERBAND_ETA = 3
+D_VALUES = [8,16, 32, 64]
+SHEAFCOV_FEAT_DIMS = [4, 8, 16]
+BASE_SEED = 42
+RUN_START = 0
+RUN_COUNT = NUM_RUNS
+
+RESUME = False
+SWEEP_ID = ''
+WANDB_PROJECT = 'h2snn'
+WANDB_ENTITY = ''
+WANDB_MODE = 'online'
+WANDB_TAGS = ['paper-quality', 'graph-classification', 'wandb-tuning']
+
+print('After tuning:', OUTPUT_DIR / EXP_NAME / 'tuning_summary.json')
+print('Repeated-run summaries use runs_summary.json from scripts/run_h2snn_runs.py')
+
+
+import yaml
+
+if not BASE_CONFIG_PATH.exists():
+    raise FileNotFoundError(f'Base config does not exist: {BASE_CONFIG_PATH}')
+base_payload = yaml.safe_load(BASE_CONFIG_PATH.read_text(encoding='utf-8'))
+base_payload.setdefault('discovery', {}).update({
+    'max_schema_length': DISCOVERY_MAX_SCHEMA_LENGTH,
+    'max_schema_candidates': DISCOVERY_MAX_SCHEMA_CANDIDATES,
+    'selected_schema_k': DISCOVERY_SELECTED_SCHEMA_K,
+    'max_instances_per_schema': DISCOVERY_MAX_INSTANCES_PER_SCHEMA,
+    'max_instances_per_anchor': DISCOVERY_MAX_INSTANCES_PER_ANCHOR,
+    'max_total_instances': DISCOVERY_MAX_TOTAL_INSTANCES,
+    'max_total_incidences': DISCOVERY_MAX_TOTAL_INCIDENCES,
+    'allow_repeated_node_types': DISCOVERY_ALLOW_REPEATED_NODE_TYPES,
+})
+CONFIG_PATH = OUTPUT_DIR / EXP_NAME / 'notebook_tuning_config.yaml'
+CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+CONFIG_PATH.write_text(yaml.safe_dump(base_payload, sort_keys=False), encoding='utf-8')
+base_orthogonal_map = str(base_payload.get('model', {}).get('orthogonal_map', 'fasthpp'))
+if base_orthogonal_map != 'fasthpp':
+    raise ValueError('The current src model and tuning protocol support only orthogonal_map=fasthpp.')
+base_pooling_type = str(base_payload.get('data', {}).get('pooling_type', ''))
+if base_pooling_type not in {'sheafcov', 'sheafconv'}:
+    raise ValueError('Post-Gram feature-width tuning requires a SheafCovPool base config.')
+print('Resolved base orthogonal map:', base_orthogonal_map)
+print('Resolved graph pooling:', base_pooling_type)
+print('Requested d values:', D_VALUES or 'safe task defaults')
+print('Raw Gram size: fixed 3 x 3 (three semantic views)')
+print('Requested post-Gram feature widths:', SHEAFCOV_FEAT_DIMS)
+print('Graph batch size: fixed by the implementation at 32; each graph is kept complete')
+print('Fresh sweep:', not RESUME)
+
+===== notebooks\h2snn_graph_classification_wandb_tuning_colab.ipynb cell 6 (code)
+import subprocess
+import sys
+
+cmd = [sys.executable, 'scripts/run_h2snn_wandb_tuning.py', '--config', str(CONFIG_PATH), '--exp_name', EXP_NAME, '--output_dir', str(OUTPUT_DIR), '--device', DEVICE, '--num_runs', str(NUM_RUNS), '--n_trials', str(N_TRIALS), '--epochs', str(EPOCHS), '--patience', str(PATIENCE), '--hyperband_min_iter', str(HYPERBAND_MIN_ITER), '--hyperband_eta', str(HYPERBAND_ETA), '--state_dir', str(STATE_DIR), '--wandb_project', WANDB_PROJECT, '--wandb_mode', WANDB_MODE, '--wandb_tags', *WANDB_TAGS]
+if D_VALUES:
+    cmd.extend(['--d_values', *[str(value) for value in D_VALUES]])
+if SHEAFCOV_FEAT_DIMS:
+    cmd.extend(['--sheafcov_feat_dims', *[str(value) for value in SHEAFCOV_FEAT_DIMS]])
+cmd.extend(['--base_seed', str(BASE_SEED), '--run_start', str(RUN_START), '--run_count', str(RUN_COUNT)])
+if WANDB_ENTITY:
+    cmd.extend(['--wandb_entity', WANDB_ENTITY])
+if RESUME:
+    cmd.append('--resume')
+if SWEEP_ID:
+    cmd.extend(['--sweep_id', SWEEP_ID])
+print('Validating:', ' '.join([*cmd, '--validate_only']))
+subprocess.run([*cmd, '--validate_only'], check=True)
+print('Starting:', ' '.join(cmd))
+subprocess.run(cmd, check=True)
+
+===== notebooks\h2snn_link_prediction_colab.ipynb cell 16 (code)
+RUN_WANDB_TUNING = False
+TUNE_TRIALS_PER_SEED = 20
+TUNE_METRIC = 'auroc'
+INCLUDE_POOLING_TYPE_IN_TUNING = False
+INCLUDE_DECODER_TYPE_IN_TUNING = False
+print('W&B tuning enabled:', RUN_WANDB_TUNING)
+print('Tune metric:', TUNE_METRIC)
+
+===== notebooks\h2snn_link_prediction_colab.ipynb cell 17 (code)
+import os
+import subprocess
+import sys
+
+if RUN_WANDB_TUNING:
+    command = [
+        sys.executable,
+        '-u',
+        'scripts/run_h2snn_wandb_tuning.py',
+        '--config',
+        str(CONFIG_PATH),
+        '--device',
+        DEVICE,
+        '--exp_name',
+        f'{EXP_NAME}_tune',
+        '--num_runs',
+        str(NUM_RUNS),
+        '--base_seed',
+        str(BASE_SEED),
+        '--n_trials',
+        str(TUNE_TRIALS_PER_SEED),
+        '--monitor',
+        TUNE_METRIC,
+        '--patience',
+        str(EARLY_STOPPING_PATIENCE),
+        '--wandb_project',
+        WANDB_PROJECT,
+        '--wandb_mode',
+        WANDB_MODE,
+    ]
+    if 'POOLING_TYPE' in globals():
+        command.extend(['--pooling_type', POOLING_TYPE])
+    if 'DECODER_TYPE' in globals():
+        command.extend(['--decoder_type', DECODER_TYPE])
+    if INCLUDE_POOLING_TYPE_IN_TUNING:
+        command.append('--include_pooling_type')
+    if INCLUDE_DECODER_TYPE_IN_TUNING:
+        command.append('--include_decoder_type')
+
+    env = os.environ.copy()
+    env['PYTHONUNBUFFERED'] = '1'
+    print('Running:', ' '.join(command))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, env=env)
+    for line in process.stdout:
+        print(line, end='')
+    return_code = process.wait()
+    if return_code != 0:
+        raise RuntimeError(f'W&B tuning failed with exit code {return_code}')
+else:
+    print('Skipping W&B tuning. Normal 5-run reporting is in the training section.')
+
+===== notebooks\h2snn_node_classification_colab.ipynb cell 7 (markdown)
+## 4. Choose Dataset And Write Colab Config
+
+Set `EPOCHS = 500` for a full run. Use `MODE = 'ampss'` for the prototype automatic schema-discovery configs.
+===== notebooks\h2snn_node_classification_colab.ipynb cell 8 (code)
+from pathlib import Path
+import yaml
+
+DATASET = 'imdb'      # one of: 'acm', 'dblp', 'imdb'
+MODE = 'ampss'        # one of: 'manual', 'ampss'
+NUM_RUNS = 5
+BASE_SEED = 42
+EPOCHS = 500
+MONITOR = 'macro_f1'
+EARLY_STOPPING_PATIENCE = 50
+USE_ORTHOGONAL = True
+USE_WANDB = False
+WANDB_PROJECT = 'h2snn'
+WANDB_MODE = 'online'
+
+CONFIG_BY_CHOICE = {
+    ('acm', 'manual'): 'configs/experiments/acm_h2snn.yaml',
+    ('dblp', 'manual'): 'configs/experiments/dblp_h2snn.yaml',
+    ('imdb', 'manual'): 'configs/experiments/imdb_h2snn.yaml',
+    ('acm', 'ampss'): 'configs/experiments/acm_h2snn_ampss.yaml',
+    ('dblp', 'ampss'): 'configs/experiments/dblp_h2snn_ampss.yaml',
+    ('imdb', 'ampss'): 'configs/experiments/imdb_h2snn_ampss.yaml',
+}
+
+base_config = Path(CONFIG_BY_CHOICE[(DATASET, MODE)])
+payload = yaml.safe_load(base_config.read_text(encoding='utf-8'))
+exp_name = f'{DATASET}_h2snn_colab_{MODE}'
+payload['epochs'] = EPOCHS
+payload['seed'] = BASE_SEED
+payload['device'] = DEVICE
+payload['exp_name'] = exp_name
+payload['output_dir'] = 'experiments/colab'
+payload['checkpoint_metric'] = MONITOR
+payload['checkpoint_mode'] = 'max'
+payload['early_stopping_patience'] = EARLY_STOPPING_PATIENCE
+payload['use_wandb'] = USE_WANDB
+payload['wandb_project'] = WANDB_PROJECT
+payload['wandb_mode'] = WANDB_MODE
+payload.setdefault('data', {})['num_runs'] = NUM_RUNS
+payload['data']['run_index'] = 0
+payload.setdefault('model', {})['use_orthogonal'] = USE_ORTHOGONAL
+
+CONFIG_PATH = Path('configs/generated/colab') / f'{exp_name}.yaml'
+CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+CONFIG_PATH.write_text(yaml.safe_dump(payload, sort_keys=False), encoding='utf-8')
+
+EXP_NAME = exp_name
+print('base config:', base_config)
+print('colab config:', CONFIG_PATH)
+print('experiment:', EXP_NAME)
+
+===== notebooks\h2snn_node_classification_colab.ipynb cell 16 (code)
+RUN_WANDB_TUNING = False
+TUNE_TRIALS_PER_SEED = 20
+TUNE_METRIC = 'macro_f1'
+INCLUDE_POOLING_TYPE_IN_TUNING = False
+INCLUDE_DECODER_TYPE_IN_TUNING = False
+print('W&B tuning enabled:', RUN_WANDB_TUNING)
+print('Tune metric:', TUNE_METRIC)
+
+===== notebooks\h2snn_node_classification_colab.ipynb cell 17 (code)
+import os
+import subprocess
+import sys
+
+if RUN_WANDB_TUNING:
+    command = [
+        sys.executable,
+        '-u',
+        'scripts/run_h2snn_wandb_tuning.py',
+        '--config',
+        str(CONFIG_PATH),
+        '--device',
+        DEVICE,
+        '--exp_name',
+        f'{EXP_NAME}_tune',
+        '--num_runs',
+        str(NUM_RUNS),
+        '--base_seed',
+        str(BASE_SEED),
+        '--n_trials',
+        str(TUNE_TRIALS_PER_SEED),
+        '--monitor',
+        TUNE_METRIC,
+        '--patience',
+        str(EARLY_STOPPING_PATIENCE),
+        '--wandb_project',
+        WANDB_PROJECT,
+        '--wandb_mode',
+        WANDB_MODE,
+    ]
+    if 'POOLING_TYPE' in globals():
+        command.extend(['--pooling_type', POOLING_TYPE])
+    if 'DECODER_TYPE' in globals():
+        command.extend(['--decoder_type', DECODER_TYPE])
+    if INCLUDE_POOLING_TYPE_IN_TUNING:
+        command.append('--include_pooling_type')
+    if INCLUDE_DECODER_TYPE_IN_TUNING:
+        command.append('--include_decoder_type')
+
+    env = os.environ.copy()
+    env['PYTHONUNBUFFERED'] = '1'
+    print('Running:', ' '.join(command))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, env=env)
+    for line in process.stdout:
+        print(line, end='')
+    return_code = process.wait()
+    if return_code != 0:
+        raise RuntimeError(f'W&B tuning failed with exit code {return_code}')
+else:
+    print('Skipping W&B tuning. Normal 5-run reporting is in the training section.')
+
+===== notebooks\h2snn_node_classification_wandb_tuning_colab.ipynb cell 0 (markdown)
+# H2S-NN Node Classification W&B Tuning - Colab
+
+Primary W&B tuning notebook for ACM/DBLP/IMDB node classification. Defaults target AMPSS configs, train on the complete graph in one optimizer step per epoch, and use isolated, fingerprinted trials for Colab time-limit restarts. Query minibatching is intentionally not part of this initial sweep.
+===== notebooks\h2snn_node_classification_wandb_tuning_colab.ipynb cell 4 (code)
+from pathlib import Path
+
+CONFIG_PATH = Path('configs/experiments/acm_h2snn_ampss.yaml')  # acm/dblp/imdb *_ampss.yaml
+EXP_NAME = 'acm_h2snn_ampss_node_fullbatch_primary_v5'
+OUTPUT_DIR = Path('experiments/colab')
+STATE_DIR = OUTPUT_DIR / EXP_NAME / 'tuning_state'
+
+NUM_RUNS = 5
+N_TRIALS = 50
+EPOCHS = 500
+PATIENCE = 50
+HYPERBAND_MIN_ITER = 30
+HYPERBAND_ETA = 3
+D_VALUES = [8,16, 32]
+BASE_SEED = 42
+RUN_START = 0
+RUN_COUNT = NUM_RUNS
+
+RESUME = False
+SWEEP_ID = ''
+WANDB_PROJECT = 'h2snn'
+WANDB_ENTITY = ''
+WANDB_MODE = 'online'
+WANDB_TAGS = ['paper-quality', 'node-classification', 'wandb-tuning']
+
+print('After tuning:', OUTPUT_DIR / EXP_NAME / 'tuning_summary.json')
+print('Repeated-run summaries use runs_summary.json from scripts/run_h2snn_runs.py')
+
+
+import yaml
+
+if not CONFIG_PATH.exists():
+    raise FileNotFoundError(f'Base config does not exist: {CONFIG_PATH}')
+base_payload = yaml.safe_load(CONFIG_PATH.read_text(encoding='utf-8'))
+base_orthogonal_map = str(base_payload.get('model', {}).get('orthogonal_map', 'fasthpp'))
+if base_orthogonal_map != 'fasthpp':
+    raise ValueError('The current src model and tuning protocol support only orthogonal_map=fasthpp.')
+print('Resolved base orthogonal map:', base_orthogonal_map)
+print('Requested d values:', D_VALUES or 'safe task defaults')
+print('Training context: complete graph; query minibatching is not enabled')
+print('Fresh sweep:', not RESUME)
+
+===== notebooks\h2snn_wandb_paper_tuning_colab.ipynb cell 0 (markdown)
+# H2S-NN W&B Paper Tuning - Colab
+
+Fresh-sweep-first primary Bayesian W&B tuning notebook. Node and link tasks use the complete graph with no query-minibatch search. Graph tasks use the fixed implementation batch size of 32 complete graphs and, when SheafCovPool is fixed, search only the post-Gram feature width over {4, 8, 16}.
+===== notebooks\h2snn_wandb_paper_tuning_colab.ipynb cell 8 (code)
+from pathlib import Path
+
+# Choose one base config. Examples:
+#   configs/experiments/acm_h2snn_ampss.yaml       # node classification + AMPSS
+#   configs/experiments/dblp_h2snn_ampss.yaml
+#   configs/experiments/imdb_h2snn_ampss.yaml
+#   configs/experiments/lastfm_h2snn.yaml          # link prediction
+#   configs/experiments/mutag_h2snn.yaml           # graph classification
+CONFIG_PATH = Path('configs/experiments/acm_h2snn_ampss.yaml')
+
+EXP_NAME = 'acm_h2snn_ampss_node_fullbatch_primary_v5'
+OUTPUT_DIR = Path('experiments/colab')
+STATE_DIR = OUTPUT_DIR / EXP_NAME / 'tuning_state'
+
+NUM_RUNS = 5
+N_TRIALS = 30
+EPOCHS = 500
+PATIENCE = 50
+HYPERBAND_MIN_ITER = 30
+HYPERBAND_ETA = 3
+D_VALUES = None
+SHEAFCOV_FEAT_DIMS = [4, 8, 16]
+
+# Partitioning a campaign across machines: keep NUM_RUNS and BASE_SEED
+# fixed everywhere and give each machine a disjoint run range. Never run
+# the same run index concurrently.
+BASE_SEED = 42
+RUN_START = 0
+RUN_COUNT = NUM_RUNS
+
+RESUME = False
+SWEEP_ID = ''                  # optional manual W&B sweep id; use with NUM_RUNS = 1
+WANDB_PROJECT = 'h2snn'
+WANDB_ENTITY = ''
+WANDB_MODE = 'online'
+WANDB_TAGS = ['paper-quality', 'wandb-tuning']
+
+print('Config:', CONFIG_PATH)
+print('State dir:', STATE_DIR)
+print('After tuning, inspect:', OUTPUT_DIR / EXP_NAME / 'tuning_summary.json')
+print('Repeated-run baseline summaries use runs_summary.json from scripts/run_h2snn_runs.py')
+
+
+import yaml
+
+if not CONFIG_PATH.exists():
+    raise FileNotFoundError(f'Base config does not exist: {CONFIG_PATH}')
+base_payload = yaml.safe_load(CONFIG_PATH.read_text(encoding='utf-8'))
+from src.configs.config import TrainConfig
+resolved_base = TrainConfig.from_dict(base_payload)
+resolved_task_type = resolved_base.task_type
+resolved_pooling_type = resolved_base.data.pooling_type
+base_orthogonal_map = str(base_payload.get('model', {}).get('orthogonal_map', 'fasthpp'))
+if base_orthogonal_map != 'fasthpp':
+    raise ValueError('The current src model and tuning protocol support only orthogonal_map=fasthpp.')
+print('Resolved base orthogonal map:', base_orthogonal_map)
+print('Resolved task:', resolved_task_type)
+print('Requested d values:', D_VALUES or 'safe task defaults')
+if resolved_task_type in {'node_classification', 'link_prediction'}:
+    print('Training context: complete graph; query minibatching is not enabled')
+elif resolved_pooling_type == 'sheafcov':
+    print('Raw Gram size: fixed 3 x 3; post-Gram widths:', SHEAFCOV_FEAT_DIMS)
+print('Fresh sweep:', not RESUME)
+
+===== notebooks\h2snn_wandb_paper_tuning_colab.ipynb cell 12 (code)
+import subprocess
+import sys
+
+cmd = [
+    sys.executable,
+    'scripts/run_h2snn_wandb_tuning.py',
+    '--config', str(CONFIG_PATH),
+    '--exp_name', EXP_NAME,
+    '--output_dir', str(OUTPUT_DIR),
+    '--device', DEVICE,
+    '--num_runs', str(NUM_RUNS),
+    '--n_trials', str(N_TRIALS),
+    '--epochs', str(EPOCHS),
+    '--patience', str(PATIENCE),
+    '--hyperband_min_iter', str(HYPERBAND_MIN_ITER),
+    '--hyperband_eta', str(HYPERBAND_ETA),
+    '--state_dir', str(STATE_DIR),
+    '--wandb_project', WANDB_PROJECT,
+    '--wandb_mode', WANDB_MODE,
+    '--wandb_tags', *WANDB_TAGS,
+]
+if D_VALUES:
+    cmd.extend(['--d_values', *[str(value) for value in D_VALUES]])
+if resolved_task_type == 'graph_classification' and resolved_pooling_type == 'sheafcov':
+    cmd.extend(['--sheafcov_feat_dims', *[str(value) for value in SHEAFCOV_FEAT_DIMS]])
+cmd.extend([
+    '--base_seed', str(BASE_SEED),
+    '--run_start', str(RUN_START),
+    '--run_count', str(RUN_COUNT),
+])
+if WANDB_ENTITY:
+    cmd.extend(['--wandb_entity', WANDB_ENTITY])
+if RESUME:
+    cmd.append('--resume')
+if SWEEP_ID:
+    cmd.extend(['--sweep_id', SWEEP_ID])
+
+print('Validating:', ' '.join([*cmd, '--validate_only']))
+subprocess.run([*cmd, '--validate_only'], check=True)
+print('Starting:', ' '.join(cmd))
+subprocess.run(cmd, check=True)
+

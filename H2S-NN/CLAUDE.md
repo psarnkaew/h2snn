@@ -880,7 +880,7 @@ parallel transport along the path (`PathTransportOperator`, matrix-free, orthogo
 | Task head | Module | Reads |
 |---|---|---|
 | Node classification | `H2SNN.readout` (MLP) | `[x_K, h₀]` of target nodes |
-| Link prediction | `LinkPredictionReadout` (`src/models/link_readout.py`): `dot` / `distmult` / `concat_mlp` | `[x_K, h₀]` of both endpoints; encoder runs on the train-only message graph and its path cells |
+| Link prediction | `LinkPredictionReadout` (`src/models/link_readout.py`): endpoint projection `Linear(2d, d) + GELU`, then `dot` / `distmult` / `concat_mlp` | `[x_K, h₀]` of both endpoints; encoder runs on the train-only message graph and its path cells |
 | Graph classification | `GraphReadout` (`src/models/graph_readout.py`) | sum of `[x_K, h₀]` per graph → BatchNorm → MLP; path cells enumerated per batch |
 
 Trainers: `src/trainers/trainer.py` (node), `link_prediction_trainer.py`,

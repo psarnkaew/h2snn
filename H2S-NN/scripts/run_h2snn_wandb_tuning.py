@@ -60,8 +60,6 @@ PRIMARY_PARAMETER_NAMES = frozenset(
     {
         "d",
         "K",
-        "eta_init",
-        "gamma_init",
         "layer_dropout",
         "lr",
         "weight_decay",
@@ -222,7 +220,7 @@ def validate_trial_params(
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be positive."
             )
-    for key in ("gamma_init", "lr"):
+    for key in ("lr",):
         if key in params and float(params[key]) <= 0.0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be positive."
@@ -237,10 +235,6 @@ def validate_trial_params(
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be in [0, 1)."
             )
-    if "eta_init" in params and not 0.0 < float(params["eta_init"]) < 1.0:
-        raise ValueError(
-            f"W&B proposed invalid eta_init={params['eta_init']!r}; eta_init must be in (0, 1)."
-        )
     if "decoder_type" in params and str(params["decoder_type"]) not in {
         "dot",
         "distmult",
@@ -294,9 +288,6 @@ def build_sweep_config(
     parameters: dict[str, Any] = {
         "d": {"values": resolved_d_values},
         "K": {"values": [2, 3, 4, 5, 6]},
-        # Initial values of the learned eta = sigmoid(theta) and gamma = softplus(theta).
-        "eta_init": {"values": [0.1, 0.3, 0.5, 0.7, 0.9]},
-        "gamma_init": {"distribution": "log_uniform_values", "min": 0.1, "max": 10.0},
         "layer_dropout": {"values": [0.0, 0.1, 0.2, 0.3]},
         "lr": {"values": [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2]},
         "weight_decay": {"values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3]},
@@ -345,8 +336,6 @@ def apply_sweep_overrides(
 
     for key in (
         "K",
-        "eta_init",
-        "gamma_init",
         "layer_dropout",
         "encoder_dropout",
         "classifier_dropout",

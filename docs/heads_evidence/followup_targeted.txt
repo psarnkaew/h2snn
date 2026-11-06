@@ -1,0 +1,28 @@
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_agent_worker_runs_exactly_one_trial_and_records_pid (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_agent_worker_runs_exactly_one_trial_and_records_pid) ... ok
+test_campaign_resume_selects_compatible_continuation_or_new_state (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_campaign_resume_selects_compatible_continuation_or_new_state) ... ok
+test_failed_worker_does_not_prevent_next_isolated_attempt (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_failed_worker_does_not_prevent_next_isolated_attempt) ... W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+ok
+test_fresh_validation_refuses_to_overwrite_existing_state (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_fresh_validation_refuses_to_overwrite_existing_state) ... ok
+test_notebooks_reference_repeated_run_and_wandb_tuning_scripts (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_notebooks_reference_repeated_run_and_wandb_tuning_scripts) ... ok
+test_repeated_cv_notebook_is_clean_and_uses_fold_campaign (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_notebook_is_clean_and_uses_fold_campaign) ... ok
+test_repeated_cv_unit_mapping_config_and_population_summary (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_unit_mapping_config_and_population_summary) ... ok
+test_run_summary_uses_task_metrics_and_mean_std (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_run_summary_uses_task_metrics_and_mean_std) ... ok
+test_wandb_disabled_preserves_local_metrics_jsonl (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_disabled_preserves_local_metrics_jsonl) ... 2026-11-06 21:08:24,291 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+ok
+test_wandb_enabled_logs_flattened_metrics_and_finishes (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_enabled_logs_flattened_metrics_and_finishes) ... 2026-11-06 21:08:24,304 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_wandb_sweep_config_and_tuning_selection (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_sweep_config_and_tuning_selection) ... ok
+test_wandb_tuning_resume_requires_matching_fingerprints (tests.test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_tuning_resume_requires_matching_fingerprints) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 21.742s
+
+OK

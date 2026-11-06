@@ -449,6 +449,7 @@ class H2SNN(nn.Module):
         self.graph_readout: GraphReadout | None = None
         if self.task_type == _LINK_PREDICTION:
             self.link_readout = LinkPredictionReadout(
+                d=d,
                 input_dim=representation_dim,
                 decoder_type=config.data.decoder_type,
                 hidden_dim=model_config.classifier_hidden_dim,
