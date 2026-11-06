@@ -1220,7 +1220,11 @@ class AblationTests(unittest.TestCase):
                                      .abs().max()), 1e-6)
 
     def test_every_ablation_trains_one_step(self) -> None:
-        switches = [({name: True}, {}) for name in AblationConfig.__dataclass_fields__]
+        # boolean switches (D10's `coupling` is a mode, covered below)
+        switches = [({name: True}, {}) for name in AblationConfig.__dataclass_fields__
+                    if name != "coupling"]
+        switches += [({"coupling": mode}, {}) for mode in ("cooperative", "listen_only",
+                                                           "symmetric")]
         switches.append(({}, {"map_family": "dense"}))
         for ablation, model_overrides in switches:
             with self.subTest(ablation=ablation, model=model_overrides):
@@ -1238,7 +1242,10 @@ class ConfigTests(unittest.TestCase):
         config = TrainConfig.from_dict({})
         self.assertEqual(config.ablation, AblationConfig())
         self.assertFalse(any(getattr(config.ablation, name)
-                             for name in AblationConfig.__dataclass_fields__))
+                             for name in AblationConfig.__dataclass_fields__
+                             if name != "coupling"))  # every boolean switch is off
+        self.assertEqual(config.ablation.coupling, "cooperative")  # D10 default
+        self.assertEqual(config.model.coupling_gate_init, 0.95)
         self.assertEqual(config.ablation.map_scale, "per_edge")
         self.assertEqual(config.ablation.path_mode, "cells")
         self.assertEqual(config.model.map_family, "factorized")

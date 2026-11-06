@@ -162,6 +162,10 @@ class DiffusionOperator(NamedTuple):
     gamma: torch.Tensor | None
     path_weights: tuple[torch.Tensor, ...]
     maps: EdgeMapPair
+    # D10 listen / broadcast gates g, b in (0, 1), shape [N]; None = 1 (symmetric, or the
+    # absent half under `listen_only`). The update is x <- x - eta G Delta B x.
+    listen: torch.Tensor | None = None
+    broadcast: torch.Tensor | None = None
 
 
 class EncodedState(NamedTuple):
@@ -347,6 +351,16 @@ class FreeIncidenceMaps(nn.Module):
         )
 
 
+def _gate_head(d: int, gate_init: float) -> nn.Linear:
+    """`g = sigmoid(a^T h0 + beta)` as a linear head: bias = logit(gate_init) so every gate
+    starts at `coupling_gate_init`, weights N(0, 0.01^2) (an initialisation choice, like the
+    frame init in sheaf_maps.py, not a config key) so training starts near the symmetric model."""
+    head = nn.Linear(d, 1)
+    nn.init.normal_(head.weight, mean=0.0, std=0.01)
+    nn.init.constant_(head.bias, _logit(gate_init))
+    return head
+
+
 def _logit(p: float) -> float:
     return math.log(p / (1.0 - p))
 
@@ -462,6 +476,17 @@ class H2SNN(nn.Module):
                 self.path_gate = nn.Linear(hidden, 1)
                 nn.init.zeros_(self.path_gate.bias)
         self.layer_dropout = nn.Dropout(model_config.layer_dropout)
+        self.coupling = ablation.coupling
+        self.listen_gate: nn.Linear | None = None
+        self.broadcast_gate: nn.Linear | None = None
+        self.last_coupling_stats: dict[str, float] = {}
+        # Gate heads are created last, so the other parameters initialise exactly as before
+        # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
+        # diffusion (`h0_only_readout`).
+        if not self.h0_only and self.coupling != "symmetric":
+            self.listen_gate = _gate_head(d, model_config.coupling_gate_init)
+            if self.coupling == "cooperative":
+                self.broadcast_gate = _gate_head(d, model_config.coupling_gate_init)
 
         # Task head on the node representation [x_K, h0] (h0 under h0_only_readout).
         representation_dim = d if self.h0_only else 2 * d
@@ -508,6 +533,7 @@ class H2SNN(nn.Module):
             gamma = self.gamma()
             if gamma is not None:
                 scalars["gamma"] = float(gamma)
+        scalars.update(self.last_coupling_stats)  # gates of the last training forward
         return scalars
 
     def scalar_parameters(self) -> list[nn.Parameter]:
@@ -580,6 +606,16 @@ class H2SNN(nn.Module):
             weights.append(gate_weights)
         return tuple(terms), tuple(weights)
 
+    def coupling_gates(self, h0: torch.Tensor) -> tuple[torch.Tensor | None, torch.Tensor | None]:
+        """`(g, b)`, each `[N]` in (0, 1) or None when absent: `sigmoid(a^T h0 + beta)`,
+        computed once from h0 like the maps (plan §10.4)."""
+        listen = broadcast = None
+        if self.listen_gate is not None:
+            listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
+        if self.broadcast_gate is not None:
+            broadcast = torch.sigmoid(self.broadcast_gate(h0).squeeze(-1))
+        return listen, broadcast
+
     def build_operator(
         self,
         h0: torch.Tensor,
@@ -607,15 +643,84 @@ class H2SNN(nn.Module):
             gamma=gamma if terms else None,
             checkpoint=self.checkpointing,
         )
+        listen, broadcast = self.coupling_gates(h0)
         return DiffusionOperator(laplacian=laplacian, eta=self.eta(), gamma=gamma,
-                                 path_weights=weights, maps=maps)
+                                 path_weights=weights, maps=maps, listen=listen,
+                                 broadcast=broadcast)
 
     def diffuse(self, x0: torch.Tensor, operator: DiffusionOperator) -> torch.Tensor:
+        """K steps of `x <- x - eta G Delta B x` (then layer dropout). G and B are skipped,
+        not multiplied by ones, when absent, so `symmetric` runs the pre-D10 operations."""
         x = x0
         for _ in range(self.num_steps):
-            x = x - operator.eta * operator.laplacian.apply_normalized(x)
+            y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
+            y = operator.laplacian.apply_normalized(y)
+            if operator.listen is not None:
+                y = operator.listen.unsqueeze(-1) * y
+            x = x - operator.eta * y
             x = self.layer_dropout(x)
         return x
+
+    # ------------------------------------------------------------------ D10 diagnostics
+    @staticmethod
+    def coupling_scale(operator: DiffusionOperator, like: torch.Tensor) -> torch.Tensor:
+        """`[N]` per-node `sqrt(g b)`: `G Delta B` is similar to `S Delta S` with this `S`."""
+        scale = torch.ones(like.size(0), dtype=like.dtype, device=like.device)
+        if operator.listen is not None:
+            scale = scale * operator.listen
+        if operator.broadcast is not None:
+            scale = scale * operator.broadcast
+        return scale.sqrt()
+
+    def coupling_stats(self, operator: DiffusionOperator) -> dict[str, float]:
+        """Mean and min of the gates present (detached floats, logging only)."""
+        stats: dict[str, float] = {}
+        for name, gate in (("g", operator.listen), ("b", operator.broadcast)):
+            if gate is not None and gate.numel():
+                values = gate.detach()
+                stats[f"{name}_mean"] = float(values.mean())
+                stats[f"{name}_min"] = float(values.min())
+        return stats
+
+    @torch.no_grad()
+    def lambda_max(self, operator: DiffusionOperator, num_nodes: int, steps: int = 30,
+                   seed: int = 0) -> float:
+        """Largest eigenvalue of `G Delta B` by power iteration on its symmetric similar form
+        `(GB)^{1/2} Delta (GB)^{1/2}` (plan §10.3). Returns the Rayleigh quotient after
+        `steps` steps: a lower bound of lambda_max that converges from below."""
+        probe = operator.eta
+        scale = self.coupling_scale(operator, probe.new_zeros(num_nodes)).unsqueeze(-1)
+        generator = torch.Generator(device=probe.device).manual_seed(seed)
+        x = torch.randn((num_nodes, self.d), generator=generator, device=probe.device,
+                        dtype=probe.dtype)
+        x = x / x.norm()
+
+        def apply(v: torch.Tensor) -> torch.Tensor:
+            return scale * operator.laplacian.apply_normalized(scale * v)
+
+        for _ in range(steps):
+            y = apply(x)
+            norm = y.norm()
+            if float(norm) == 0.0:
+                return 0.0
+            x = y / norm
+        return float((x * apply(x)).sum())
+
+    @torch.no_grad()
+    def eta_lambda_max(self, x: torch.Tensor, node_type: torch.Tensor,
+                       edge_index: torch.Tensor, edge_type: torch.Tensor,
+                       face_groups: tuple[FaceGroup, ...], num_nodes: int,
+                       steps: int = 30) -> float:
+        """`eta * lambda_max(G Delta B)` of a fresh eval-mode operator (diagnostic, no grad);
+        the training state of the module is restored."""
+        was_training = self.training
+        self.eval()
+        try:
+            h0 = self.encode_nodes(x, node_type)
+            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+            return float(operator.eta) * self.lambda_max(operator, num_nodes, steps)
+        finally:
+            self.train(was_training)
 
     # ------------------------------------------------------------------ encoder
     def encode(
@@ -632,6 +737,8 @@ class H2SNN(nn.Module):
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
         operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+        if self.training:
+            self.last_coupling_stats = self.coupling_stats(operator)  # logging only
         x_star = self.diffuse(h0, operator)
         return EncodedState(
             h0=h0,

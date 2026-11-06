@@ -1,0 +1,54 @@
+.......EF..............................C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-07 06:06:33,040 | INFO | Epoch 0000 | train_loss: 1.0359 | train_acc: 0.6250 | train_auroc: 0.0000 | train_macro_f1: 0.6190 | train_micro_f1: 0.6250 | val_loss: 1.0587 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-07 06:06:33,056 | INFO | Checkpoint metric acc: 0.3750
+2026-11-07 06:06:33,153 | INFO | Epoch 0001 | train_loss: 1.0089 | train_acc: 0.7500 | train_auroc: 0.0000 | train_macro_f1: 0.7333 | train_micro_f1: 0.7500 | val_loss: 1.0574 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-07 06:06:33,160 | INFO | Checkpoint metric acc: 0.3750
+2026-11-07 06:06:33,160 | INFO | Best epoch 0 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250 | test_acc: 0.1250
+.........2026-11-07 06:06:35,316 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 06:06:35,319 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 06:06:35,320 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 06:06:35,327 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 06:06:35,331 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 06:06:35,333 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 06:06:35,333 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-07 06:06:35,333 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+..........................
+======================================================================
+ERROR: test_every_ablation_trains_one_step (tests.test_v2_model.AblationTests.test_every_ablation_trains_one_step) (ablation={'coupling': True}, model={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1227, in test_every_ablation_trains_one_step
+    model = _v2_model(_random_pap_data(), ablation=ablation, **model_overrides)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 742, in _v2_model
+    return build_model(_v2_config(ablation, **model), data)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 734, in _v2_config
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 791, in from_dict
+    ablation=AblationConfig.from_dict(raw.get("ablation", {})),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 719, in from_dict
+    return cls(**{name: raw.get(name, getattr(defaults, name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 12, in __init__
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 681, in __post_init__
+    raise ValueError(
+ValueError: ablation.coupling must be one of ('cooperative', 'listen_only', 'symmetric'), got True.
+
+======================================================================
+FAIL: test_defaults_are_the_full_model (tests.test_v2_model.ConfigTests.test_defaults_are_the_full_model)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1240, in test_defaults_are_the_full_model
+    self.assertFalse(any(getattr(config.ablation, name)
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 74 tests in 31.871s
+
+FAILED (failures=1, errors=1)
+
+ERROR conda.cli.main_run:execute(127): `conda run python -m unittest tests.test_v2_model tests.test_task_heads tests.test_full_graph_early_stopping tests.test_graph_classification_trainer tests.test_data` failed. (See above for error)

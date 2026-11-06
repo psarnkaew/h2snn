@@ -160,6 +160,12 @@ class Trainer:
         self.optimizer.step()
         # Diffusion step and path-coupling strength after this epoch's update.
         metrics.update(self.model.diffusion_scalars())  # type: ignore[operator]
+        if epoch % self.cfg.log_every == 0 and not self.model.h0_only:  # type: ignore[attr-defined]
+            # eta * lambda_max of G Delta B (D10, power iteration, 30 steps: a lower bound).
+            metrics["eta_lambda_max"] = self.model.eta_lambda_max(  # type: ignore[operator]
+                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
+                data.num_nodes,
+            )
         return metrics
 
     def _eval_epoch(

@@ -19,6 +19,9 @@ def _reject_unknown_keys(section: str, raw: Mapping[str, Any], config_class: typ
 # Settings that are ablation controls only: reported as separate experiments and never part
 # of a tuning search space, sweep config or tuning notebook (plan §9.1, §4.6).
 NEVER_TUNED_DATA_KEYS: tuple[str, ...] = ("fact_layer",)
+# D10: neither the coupling mode nor the gate init is ever a search-space parameter.
+NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling", "coupling_gate_init")
+COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric")
 
 
 def reject_never_tuned_settings(
@@ -41,6 +44,11 @@ def reject_never_tuned_settings(
         if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
             raise ValueError(
                 f"tuning search space contains {name!r}: fact_layer is never tuned (plan §9.1)."
+            )
+        if any(key in str(name) for key in NEVER_TUNED_MODEL_KEYS):
+            raise ValueError(
+                f"tuning search space contains {name!r}: ablation.coupling and "
+                "model.coupling_gate_init are never tuned (plan §10.5)."
             )
 
 
@@ -558,6 +566,9 @@ class ModelConfig:
     # Initial gamma = softplus(theta_gamma) > 0 and eta = sigmoid(theta_eta) in (0, 1).
     gamma_init: float = 1.0
     eta_init: float = 0.5
+    # D10: initial value of the listen / broadcast gates g, b in (0, 1) (plan §10.2); training
+    # starts near the symmetric model. The only new model hyperparameter of D10; never tuned.
+    coupling_gate_init: float = 0.95
     # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
 
@@ -591,6 +602,10 @@ class ModelConfig:
             )
         if not self.map_scale_eps > 0.0:
             raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
+        if not 0.0 < self.coupling_gate_init < 1.0:
+            raise ValueError(
+                f"model.coupling_gate_init must be in (0, 1), got {self.coupling_gate_init}."
+            )
         if not 0.0 < self.eta_init < 1.0:
             raise ValueError(f"model.eta_init must be in (0, 1), got {self.eta_init}.")
         if not self.gamma_init > 0.0:
@@ -626,6 +641,7 @@ class ModelConfig:
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             gamma_init=float(raw.get("gamma_init", 1.0)),
             eta_init=float(raw.get("eta_init", 0.5)),
+            coupling_gate_init=float(raw.get("coupling_gate_init", 0.95)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
         )
@@ -652,11 +668,19 @@ class AblationConfig:
     # Same frame on both sides, no side code and a symmetrized c_e for EVERY relation
     # (shared roles everywhere; the analogue of DSNN's q = 0).
     direction_blind_maps: bool = False
+    # D10 (plan §10): node-level listen / broadcast gates, x <- x - eta G Delta B x.
+    # "cooperative": both gates; "listen_only": B = I; "symmetric": no gate heads, all gates
+    # 1 (the pre-D10 model). Never tuned (see `reject_never_tuned_settings`).
+    coupling: str = "cooperative"
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
-            if not isinstance(getattr(self, name), bool):
+            if name != "coupling" and not isinstance(getattr(self, name), bool):
                 raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
+        if self.coupling not in COUPLING_MODES:
+            raise ValueError(
+                f"ablation.coupling must be one of {COUPLING_MODES}, got {self.coupling!r}."
+            )
         if self.endpoint_edges and self.holonomy_edges:
             raise ValueError("ablation.endpoint_edges and ablation.holonomy_edges are exclusive.")
         if self.free_path_maps and (

@@ -25,7 +25,7 @@ REPO = Path(__file__).resolve().parents[2] / "H2S-NN"
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from src.configs.config import TrainConfig  # noqa: E402
+from src.configs.config import AblationConfig, TrainConfig  # noqa: E402
 from src.data.structures import FaceGroup, PreparedH2SData  # noqa: E402
 from src.models.h2snn_model import build_model  # noqa: E402
 
@@ -61,6 +61,10 @@ def build_config(model: dict, ablations: tuple[str, ...]) -> TrainConfig:
                  "model": {"map_family": "factorized", **model}}
     if "ablation" in TrainConfig.__dataclass_fields__:  # after the move (Phase 2 step 2)
         raw["ablation"] = {name: True for name in ablations}
+        # D10: the golden outputs are the pre-D10 (symmetric) model; the default is now
+        # cooperative, so the harness names the symmetric mode explicitly.
+        if "coupling" in AblationConfig.__dataclass_fields__:
+            raw["ablation"]["coupling"] = "symmetric"
     else:
         raw["model"]["architecture"] = "v2"
         for name in ablations:

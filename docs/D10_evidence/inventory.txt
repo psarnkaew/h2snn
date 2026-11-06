@@ -1,0 +1,79 @@
+== DiffusionOperator( / H2SNNOutput( / .diffuse( / apply_normalized( consumers
+src/models/h2snn_model.py:157:class DiffusionOperator(NamedTuple):
+src/models/h2snn_model.py:176:class H2SNNOutput(NamedTuple):
+src/models/h2snn_model.py:610:        return DiffusionOperator(laplacian=laplacian, eta=self.eta(), gamma=gamma,
+src/models/h2snn_model.py:616:            x = x - operator.eta * operator.laplacian.apply_normalized(x)
+src/models/h2snn_model.py:634:        operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+src/models/h2snn_model.py:635:        x_star = self.diffuse(h0, operator)
+src/models/h2snn_model.py:658:            return H2SNNOutput(logits=logits, x_star=encoded.x_star, h0=encoded.h0,
+src/models/h2snn_model.py:666:        return H2SNNOutput(
+tests/test_paths_and_facts.py:951:            matrix = torch.stack([laplacian.apply_normalized(b).reshape(-1) for b in basis], 1)
+tests/test_v2_model.py:542:                lhs = float((x * operator.apply_normalized(y)).sum())
+tests/test_v2_model.py:543:                rhs = float((operator.apply_normalized(x) * y).sum())
+tests/test_v2_model.py:549:                quadratic = float((x * operator.apply_normalized(x)).sum())
+tests/test_v2_model.py:782:        operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
+tests/test_v2_model.py:791:                return x0 - operator.eta * laplacian.apply_normalized(x0)
+tests/test_v2_model.py:810:            lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
+tests/test_v2_model.py:814:        ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
+tests/test_v2_model.py:817:            * ablated_operator.laplacian.apply_normalized(x0), h0.clone())
+tests/test_v2_model.py:878:        operator = model.build_operator(h0, data.edge_index, data.edge_type, data.face_groups,
+tests/test_v2_model.py:1090:        operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+tests/test_v2_model.py:1096:        weights = learned.build_operator(h0, self.data.edge_index, self.data.edge_type,
+tests/test_v2_model.py:1142:                    operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+tests/test_v2_model.py:1171:            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+tests/test_v2_model.py:1190:            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
+tests/test_v2_model.py:1201:            terms = per_edge.build_operator(h0, self.data.edge_index, self.data.edge_type,
+../docs/D4_evidence/smoke_d4.py:32:    operator = model.build_operator(h0, data.edge_index, data.edge_type, data.face_groups,
+../docs/D4_evidence/smoke_d4.py:38:        y = operator.laplacian.apply_normalized(x)
+../docs/D4_evidence/smoke_d4.py:40:    return float((x * operator.laplacian.apply_normalized(x)).sum())
+../docs/D4_evidence/u4_probe.py:46:    op = v2.build_operator(h0, edge_index, edge_type, groups, 4)
+../docs/D4_evidence/u4_probe.py:51:            lambda x0: x0 - op.eta * lap.apply_normalized(x0), h0.clone())
+== AblationConfig / ablation field consumers
+src/configs/config.py:10:    unknown = sorted(set(raw) - set(config_class.__dataclass_fields__))
+src/configs/config.py:533:    `AblationConfig`.
+src/configs/config.py:635:class AblationConfig:
+src/configs/config.py:657:        for name in type(self).__dataclass_fields__:
+src/configs/config.py:691:    def from_dict(cls, raw: dict[str, Any]) -> "AblationConfig":
+src/configs/config.py:696:                      for name in cls.__dataclass_fields__})
+src/configs/config.py:734:    ablation: AblationConfig = field(default_factory=AblationConfig)
+src/configs/config.py:767:            ablation=AblationConfig.from_dict(raw.get("ablation", {})),
+src/configs/__init__.py:4:    AblationConfig,
+src/configs/__init__.py:13:    "AblationConfig",
+src/models/h2snn_model.py:17:Ablation switches (plan §4.6) come from `config.ablation`.
+src/models/h2snn_model.py:366:        ablation = config.ablation
+../docs/heads_evidence/v2_golden.py:62:    if "ablation" in TrainConfig.__dataclass_fields__:  # after the move (Phase 2 step 2)
+== ModelConfig keys eta_init/gamma_init
+559:    gamma_init: float = 1.0
+560:    eta_init: float = 0.5
+594:        if not 0.0 < self.eta_init < 1.0:
+595:            raise ValueError(f"model.eta_init must be in (0, 1), got {self.eta_init}.")
+596:        if not self.gamma_init > 0.0:
+598:                f"model.gamma_init must be positive (gamma = softplus(theta)), got "
+599:                f"{self.gamma_init}; use ablation.no_path_cells for gamma = 0."
+627:            gamma_init=float(raw.get("gamma_init", 1.0)),
+628:            eta_init=float(raw.get("eta_init", 0.5)),
+== model dir imports of config / tuning KNOWN_PARAMETER_NAMES
+75:KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
+76-
+77-
+78-def parse_args() -> argparse.Namespace:
+79-    parser = argparse.ArgumentParser(description="Per-seed W&B Bayesian+Hyperband tuning for H2SNN")
+80-    parser.add_argument("--config", type=Path, default=None)
+81-    parser.add_argument("--exp_name", type=str, default=None)
+82-    parser.add_argument("--output_dir", type=Path, default=None)
+83-    parser.add_argument("--device", type=str, default=None)
+84-    parser.add_argument("--num_runs", type=int, default=None)
+85-    parser.add_argument("--base_seed", type=int, default=None)
+86-    parser.add_argument(
+87-        "--run_start",
+88-        type=int,
+89-        default=0,
+--
+208:    allowed = set(KNOWN_PARAMETER_NAMES if allowed_parameters is None else allowed_parameters)
+209:    unsupported_allowed = sorted(allowed - KNOWN_PARAMETER_NAMES)
+210-    if unsupported_allowed:
+211-        raise ValueError(
+212-            "Local sweep declared unsupported tuning parameter name(s): "
+213-            f"{', '.join(unsupported_allowed)}."
+214-        )
+215-    unknown = sorted(set(params) - allowed)

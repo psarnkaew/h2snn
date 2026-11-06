@@ -1,0 +1,2 @@
+{"fixtures": 60, "gate_range": [0.010040938505094037, 0.9899704186774958], "max_abs_imag_over_max_abs_lambda": 0.0, "max_lambda_minus_2max_gb": -0.11720956756040213, "max_lambda_over_2max_gb": 0.9298193098786863, "min_eigenvalue": 0.0, "csnn_control_max_abs_imag": 1.4285837266843882}
+

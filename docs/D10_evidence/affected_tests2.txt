@@ -1,0 +1,13 @@
+.......................................C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-07 06:07:38,536 | INFO | Epoch 0000 | train_loss: 1.0359 | train_acc: 0.6250 | train_auroc: 0.0000 | train_macro_f1: 0.6190 | train_micro_f1: 0.6250 | val_loss: 1.0587 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-07 06:07:38,549 | INFO | Checkpoint metric acc: 0.3750
+2026-11-07 06:07:38,649 | INFO | Epoch 0001 | train_loss: 1.0089 | train_acc: 0.7500 | train_auroc: 0.0000 | train_macro_f1: 0.7333 | train_micro_f1: 0.7500 | val_loss: 1.0574 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-07 06:07:38,656 | INFO | Checkpoint metric acc: 0.3750
+2026-11-07 06:07:38,656 | INFO | Best epoch 0 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250 | test_acc: 0.1250
+.
+----------------------------------------------------------------------
+Ran 40 tests in 27.080s
+
+OK
+

@@ -1,0 +1,8 @@
+ACM kept relations: ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term']
+paper__cite__paper: facts 5343; paper degree mean 3.53 max 81
+paper__to__author: facts 9949; author degree mean 1.7 max 50 p99 10; paper degree mean 3.29 max 16; hub-to-paper fan-out ratio max/mean 29.9
+paper__to__subject: facts 3025; subject degree mean 54.0 max 1195 p99 1195; paper degree mean 1.00 max 1; hub-to-paper fan-out ratio max/mean 22.1
+paper__to__term: facts 255619; term degree mean 134.4 max 3001 p99 1722; paper degree mean 84.50 max 196; hub-to-paper fan-out ratio max/mean 22.3
+PAP: cells 12630; endpoint label homophily (cells) 0.824; weighted by m_f 0.857; chance for 3 classes ~0.33
+PSP: cells 121744; endpoint label homophily (cells) 0.669; weighted by m_f 0.656; chance for 3 classes ~0.33
+

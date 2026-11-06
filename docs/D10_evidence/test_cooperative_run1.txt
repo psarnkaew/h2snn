@@ -1,0 +1,18 @@
+..........F...
+======================================================================
+FAIL: test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 184, in test_T1_control_the_default_model_is_not_the_golden_one
+    self.assertEqual(extra, {"listen_gate.weight", "listen_gate.bias",
+AssertionError: Items in the first set but not the second:
+'path_gate.weight'
+'path_gate.bias'
+
+----------------------------------------------------------------------
+Ran 14 tests in 48.949s
+
+FAILED (failures=1)
+
+ERROR conda.cli.main_run:execute(127): `conda run python -m unittest tests.test_cooperative` failed. (See above for error)

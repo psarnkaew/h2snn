@@ -1,0 +1,4 @@
+{"coupling": "symmetric", "params": 302695, "peak_gib": 1.4869804382324219, "time_s_median": 1.052643499977421, "times_s": [1.054854299989529, 1.052643499977421, 1.0516055999905802], "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"}
+{"coupling": "cooperative", "params": 302761, "peak_gib": 1.4940643310546875, "time_s_median": 1.0663581999833696, "times_s": [1.0663581999833696, 1.067304999975022, 1.060495899990201], "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"}
+{"coupling": "symmetric", "params": 302695, "peak_gib": 1.4869804382324219, "time_s_median": 1.06050740001956, "times_s": [1.06050740001956, 1.0588621000060812, 1.0612894999794662], "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"}
+{"coupling": "cooperative", "params": 302761, "peak_gib": 1.4940643310546875, "time_s_median": 1.0590233000111766, "times_s": [1.064399000024423, 1.0590233000111766, 1.0560399999958463], "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"}
