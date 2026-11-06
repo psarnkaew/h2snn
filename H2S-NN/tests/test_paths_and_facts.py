@@ -1041,5 +1041,109 @@ class SamplerConfigAndFreeWalkTests(unittest.TestCase):
         self.assertTrue(bool((group.path_weight > 0).all()))
 
 
+# ----------------------------------------------------------------------------- D8 (T12)
+def _groups_equal(a, b) -> bool:
+    return len(a) == len(b) and all(
+        x.template_name == y.template_name
+        and all(torch.equal(getattr(x, f), getattr(y, f))
+                for f in ("face_node_index", "face_edge_index", "face_edge_sign", "path_weight"))
+        for x, y in zip(a, b))
+
+
+def _prepared_small(config):
+    from src.data.dataset import build_node_classification_paths
+    from src.data.structures import PreparedH2SData
+
+    edge_index, edge_type, node_type, type_names, tuples = _small_hetero()
+    layer = build_fact_layer(edge_index, edge_type, ("paper__cite__paper", "paper__to__author"),
+                             9, "tied")
+    slices = {"paper": (0, 6), "author": (6, 9)}
+    groups = build_node_classification_paths(config, layer, slices, node_type, type_names,
+                                             edge_index, edge_type, tuples, seed=config.seed)
+    mask = torch.ones(6, dtype=torch.bool)
+    return PreparedH2SData(
+        x=torch.randn(9, 3), y=torch.zeros(9, dtype=torch.long), node_type=node_type,
+        node_type_names=type_names, node_slices=slices, feature_dims={"paper": 3, "author": 3},
+        edge_index=edge_index, edge_type=edge_type, relation_names=layer.kept_names,
+        relation_tuples=tuples, train_mask=torch.ones(9, dtype=torch.bool),
+        val_mask=torch.ones(9, dtype=torch.bool), test_mask=torch.ones(9, dtype=torch.bool),
+        target_node_type="paper", target_indices=torch.arange(6),
+        target_y=torch.zeros(6, dtype=torch.long), target_train_mask=mask,
+        target_val_mask=mask, target_test_mask=mask, num_classes=2, is_multilabel=False,
+        face_groups=groups, metrics=torch.zeros(0), fact_layer=layer)
+
+
+def _small_config(resample: bool):
+    from src.configs.config import TrainConfig
+
+    return TrainConfig.from_dict({"device": "cpu", "seed": 7, "data": {
+        "dataset_name": "acm", "fact_layer": "tied", "path_sampler": "walk",
+        "resample_paths": resample, "face_sample_k": 3,
+        "metapath_templates": [{"name": "PAP", "node_types": ["paper", "author", "paper"]},
+                               {"name": "cocite", "node_types": ["paper"] * 3,
+                                "hops": [["paper__cite__paper", "+"],
+                                         ["paper__cite__paper", "-"]]}]}})
+
+
+class ProtocolTests(unittest.TestCase):
+    """T12: evaluation draw fixed; training draws differ between epochs; seeds reproduce."""
+
+    def test_T12_node_classification(self) -> None:
+        from src.trainers.trainer import Trainer
+
+        for resample in (True, False):
+            config = _small_config(resample)
+            data = _prepared_small(config)
+            trainer = Trainer.__new__(Trainer)
+            trainer.cfg, trainer.device = config, torch.device("cpu")
+            draws = [trainer.training_draw(data, data, epoch).face_groups for epoch in range(4)]
+            again = [trainer.training_draw(data, data, epoch).face_groups for epoch in range(4)]
+            with self.subTest(resample=resample):
+                for first, second in zip(draws, again):  # same seed reproduces
+                    self.assertTrue(_groups_equal(first, second))
+                if resample:
+                    self.assertTrue(_groups_equal(draws[0], data.face_groups))  # seed + 0
+                    self.assertFalse(any(_groups_equal(draws[i], draws[j])
+                                         for i in range(4) for j in range(i + 1, 4)))
+                else:
+                    self.assertTrue(all(d is data.face_groups for d in draws))
+                # the evaluation draw is the one built with the data, rebuilt identically
+                self.assertTrue(_groups_equal(_prepared_small(config).face_groups,
+                                              data.face_groups))
+
+    def test_T12_graph_classification(self) -> None:
+        from torch_geometric.data import Batch, Data
+
+        from src.trainers.graph_classification_trainer import GraphClassificationTrainer
+
+        config = _small_config(True)
+        trainer = GraphClassificationTrainer.__new__(GraphClassificationTrainer)
+        trainer.cfg = config
+        trainer.model = type("M", (), {"self_inverse_relations": (0,)})()
+        self.assertEqual({trainer.draw_seed(e, False) for e in range(5)}, {config.seed})
+        self.assertEqual([trainer.draw_seed(e, True) for e in range(3)],
+                         [config.seed, config.seed + 1, config.seed + 2])
+        graph = Data(edge_index=torch.tensor([[0, 1, 2, 3, 0, 1], [1, 2, 3, 4, 2, 4]]),
+                     edge_type=torch.zeros(6, dtype=torch.long),
+                     node_type=torch.zeros(5, dtype=torch.long), num_nodes=5)
+        batch = Batch.from_data_list([graph, graph.clone()])
+        same = [trainer.batch_path_groups(batch, seed=config.seed) for _ in range(2)]
+        self.assertTrue(_groups_equal(*same))
+        other = trainer.batch_path_groups(batch, seed=config.seed + 1)
+        self.assertFalse(_groups_equal(same[0], other))
+        no_resample = _small_config(False)
+        trainer.cfg = no_resample
+        self.assertEqual({trainer.draw_seed(e, True) for e in range(5)}, {no_resample.seed})
+
+    def test_T12_config_rules(self) -> None:
+        from src.configs.config import TrainConfig
+
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "resample_paths": True}})
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
+                                            "path_sampler": "walk", "resample_paths": "yes"}})
+
+
 if __name__ == "__main__":
     unittest.main()

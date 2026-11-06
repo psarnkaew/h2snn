@@ -163,7 +163,7 @@ class GraphClassificationTrainer:
                 self.optimizer.zero_grad()
 
             with torch.set_grad_enabled(train):
-                logits = self.forward_batch(batch)
+                logits = self.forward_batch(batch, seed=self.draw_seed(epoch, train))
                 labels = batch.y.view(-1)
                 loss = self.criterion(logits, labels)
 
@@ -216,9 +216,18 @@ class GraphClassificationTrainer:
             length=2,
         )
 
-    def forward_batch(self, batch) -> torch.Tensor:
+    def draw_seed(self, epoch: int, train: bool) -> int:
+        """Path-draw seed (plan §9.2): `seed + epoch` for training batches under
+        `data.resample_paths`, else `seed`. Evaluation draws therefore repeat exactly across
+        epochs; they depend on the evaluation batch composition, which is fixed because
+        evaluation loaders do not shuffle (decision 13)."""
+        if train and self.cfg.data.resample_paths:
+            return self.cfg.seed + epoch
+        return self.cfg.seed
+
+    def forward_batch(self, batch, seed: int | None = None) -> torch.Tensor:
         """Logits of one PyG batch: two-hop typed path cells, encoder, graph readout."""
-        face_groups = self.batch_path_groups(batch, seed=self.cfg.seed)
+        face_groups = self.batch_path_groups(batch, seed=self.cfg.seed if seed is None else seed)
         encoded = self.model.encode(
             x=batch.x,
             node_type=batch.node_type,

@@ -234,6 +234,10 @@ class DataConfig:
     # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only), "uniform_instance"
     # (ablation: draws uniform over instances, L <= 2). Interim default "dfs" (see above).
     path_sampler: str = "dfs"
+    # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
+    # epoch); validation and test always use the draw with seed `seed`. Interim default
+    # False with the interim dfs default (DFS keeps its fixed seed, decision 6).
+    resample_paths: bool = False
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -280,6 +284,7 @@ class DataConfig:
             ),
             fact_layer=str(raw.get("fact_layer", "untied")),
             path_sampler=str(raw.get("path_sampler", "dfs")),
+            resample_paths=raw.get("resample_paths", False),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -324,6 +329,15 @@ class DataConfig:
             raise ValueError(
                 "data.path_sampler must be 'walk', 'dfs' or 'uniform_instance', got "
                 f"{self.path_sampler!r}."
+            )
+        if not isinstance(self.resample_paths, bool):
+            raise ValueError(
+                f"data.resample_paths must be a boolean, got {self.resample_paths!r}."
+            )
+        if self.resample_paths and self.path_sampler == "dfs":
+            raise ValueError(
+                "data.resample_paths needs a sampler with a draw seed (walk or "
+                "uniform_instance); path_sampler: dfs keeps its fixed seed."
             )
         if self.fact_layer == "tied" and self.path_sampler == "dfs":
             raise ValueError(
@@ -430,7 +444,7 @@ class DataConfig:
     def _resolved_link_prediction(
         self, dataset_name: str, task_type: str, explicit: frozenset[str] = frozenset()
     ) -> "DataConfig":
-        if self.fact_layer != "untied" or self.path_sampler != "dfs":
+        if self.fact_layer != "untied" or self.path_sampler != "dfs" or self.resample_paths:
             raise ValueError(
                 "link prediction supports fact_layer: untied with path_sampler: dfs only "
                 "until the split-by-fact protocol lands (D7 unit U7)."

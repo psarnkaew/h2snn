@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from collections.abc import Callable
 from typing import Any
 
@@ -8,6 +9,7 @@ import torch
 import torch.nn as nn
 
 from src.configs.config import TrainConfig
+from src.data.dataset import build_node_classification_paths
 from src.data.structures import PreparedH2SData
 from src.models.h2snn_model import H2SNNOutput
 from src.utils.checkpointer import Checkpointer
@@ -42,6 +44,27 @@ class Trainer:
         self._best_test_metrics: dict[str, float] | None = None
         self._best_epoch: int = -1
 
+    def training_draw(self, data: PreparedH2SData, prepared_data: PreparedH2SData,
+                      epoch: int) -> PreparedH2SData:
+        """Data for one training epoch: the evaluation draw (seed `cfg.seed`, built with the
+        data) or, with `data.resample_paths`, a fresh draw with seed `cfg.seed + epoch`,
+        built on the CPU copy `data` and moved to the device (plan §9.2)."""
+        if not self.cfg.data.resample_paths:
+            return prepared_data
+        groups = build_node_classification_paths(
+            config=self.cfg,
+            fact_layer=data.fact_layer,
+            node_slices=data.node_slices,
+            node_type=data.node_type,
+            node_type_names=data.node_type_names,
+            edge_index=data.edge_index,
+            edge_type=data.edge_type,
+            relation_tuples=data.relation_tuples,
+            seed=self.cfg.seed + epoch,
+        )
+        return replace(prepared_data,
+                       face_groups=tuple(group.to(self.device) for group in groups))
+
     def fit(
         self,
         data: PreparedH2SData,
@@ -56,7 +79,8 @@ class Trainer:
             self.logger.info("fact layer: %s", data.fact_layer.summary())
         bad_epochs = 0
         for epoch in range(self.cfg.epochs):
-            train_metrics = self._train_epoch(prepared_data, epoch)
+            train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
+                                              epoch)
             val_metrics = self._eval_epoch(prepared_data, prepared_data.target_val_mask, epoch)
             test_metrics = self._eval_epoch(prepared_data, prepared_data.target_test_mask, epoch)
 
