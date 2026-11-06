@@ -360,8 +360,9 @@ class PathTransportOperator:
     `apply` returns `T_{v_i} x_{v_i}` for every position of every path; `apply_T` is its
     exact adjoint (node cochain <- per-incidence values). Each `Q_j` is applied to all
     positions `i >= j` at once: `L(L+1)/2` applications of a `Q_j`, i.e. `L(L+1)`
-    factorized map applications per path, and nothing `d x d` is formed. (The sum
-    `sum_i T_{v_i} x_{v_i}` alone could use Horner's O(L) form; per-position values cannot.)
+    factorized map applications per path, and nothing `d x d` is formed. The 2-cell term
+    (`PathCellTerm`) needs only `sum_i T_{v_i} x_{v_i}` (`transport_sum`, Horner, L steps)
+    and `T_{v_i}^T z` (`adjoint_prefix`, L steps): 2L steps per path instead of `L(L+1)` (D9).
 
     With one scale per edge shared by both sides (D1a, `shared_scale=True`) the scales cancel,
     `Q_j = H_src^T R_src^T R_tgt H_tgt` is exactly orthogonal, and the operator applies only
@@ -448,6 +449,25 @@ class PathTransportOperator:
         for j in range(1, self.length + 1):
             w = self._step_T(j - 1, w)
         return w
+
+    def transport_sum(self, x: torch.Tensor) -> torch.Tensor:
+        """`[N, d]` -> `[P, d]` `sum_i T_{v_i} x_{v_i}` by Horner's rule (L steps, D9):
+
+            S = x_{v_0} + Q_1 (x_{v_1} + Q_2 (x_{v_2} + ... + Q_L x_{v_L})).
+        """
+        values = x[self.face_node_index]
+        total = values[:, self.length]
+        for j in range(self.length, 0, -1):
+            total = values[:, j - 1] + self._step(j - 1, total)
+        return total
+
+    def adjoint_prefix(self, z: torch.Tensor) -> torch.Tensor:
+        """`[P, d]` -> `[P, L+1, d]` `t_i = T_{v_i}^T z` by `t_0 = z, t_i = Q_i^T t_{i-1}`
+        (L steps, D9)."""
+        prefix = [z]
+        for j in range(1, self.length + 1):
+            prefix.append(self._step_T(j - 1, prefix[-1]))
+        return torch.stack(prefix, dim=1)
 
     def apply(self, x: torch.Tensor) -> torch.Tensor:
         """`[N, d]` node cochain -> `[P, L+1, d]` values `T_{v_i} x_{v_i}` in `F(f)`."""

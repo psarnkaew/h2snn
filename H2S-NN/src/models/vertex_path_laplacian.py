@@ -26,7 +26,12 @@ from typing import Protocol
 import torch
 
 from src.models.coboundary_ops import CoboundaryOps
-from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, checkpoint_if_grad
+from src.models.map_operators import (
+    EdgeMapPair,
+    FactorizedMapOperator,
+    PathTransportOperator,
+    checkpoint_if_grad,
+)
 
 
 class IncidenceOperator(Protocol):
@@ -97,9 +102,26 @@ class PathCellTerm:
         return y, y.mean(dim=1)
 
     def apply(self, x: torch.Tensor, num_nodes: int) -> torch.Tensor:
+        if isinstance(self.incidence, PathTransportOperator):
+            return self._apply_transport(x, num_nodes)
         y, z = self.cell_values(x)
         residual = (y - z.unsqueeze(1)) * self.weights.view(-1, 1, 1)
         return self.incidence.apply_T(residual, num_nodes)
+
+    def _apply_transport(self, x: torch.Tensor, num_nodes: int) -> torch.Tensor:
+        """O(L) form (D9), exact because `T_{v_i}^T T_{v_i} = s_i^2 I`:
+
+            z_f = (sum_i T_{v_i} x_{v_i}) / n,   (L_f x)_{v_i} = w_f (s_i^2 x_{v_i} - T_{v_i}^T z_f).
+        """
+        transport = self.incidence
+        nodes = transport.face_node_index
+        z = transport.transport_sum(x) / self.cell_size
+        pulled = transport.adjoint_prefix(z)
+        own = x[nodes] * transport.squared_scales().unsqueeze(-1)
+        residual = (own - pulled) * self.weights.view(-1, 1, 1)
+        output = x.new_zeros((num_nodes, x.size(-1)))
+        output.index_add_(0, nodes.reshape(-1), residual.reshape(-1, x.size(-1)))
+        return output
 
     def diagonal(self, num_nodes: int) -> torch.Tensor:
         """Per-node scalar diagonal: `sum w_f (1 - 1/|f|) s_{v,f}^2`."""

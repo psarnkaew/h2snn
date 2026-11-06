@@ -1,0 +1,15 @@
+toy_acm                      30 entries differ, max|diff|=4.172e-07 (grad/node_to_edge.reflector_mlp.2.bias)
+toy_dblp                     31 entries differ, max|diff|=1.490e-06 (grad/node_to_edge.reflector_mlp.0.weight)
+toy_imdb                     30 entries differ, max|diff|=4.731e-07 (grad/node_to_edge.reflector_mlp.2.bias)
+pap                          33 entries differ, max|diff|=1.907e-06 (grad/readout.3.bias)
+pap_dense                    43 entries differ, max|diff|=9.537e-07 (grad/readout.3.bias)
+pap_no_checkpointing         33 entries differ, max|diff|=1.907e-06 (grad/readout.3.bias)
+pap_no_path_cells            bit-identical
+pap_uniform_path_gate        26 entries differ, max|diff|=4.768e-07 (grad/readout.3.bias)
+pap_free_path_maps           bit-identical
+pap_endpoint_edges           bit-identical
+pap_holonomy_edges           bit-identical
+pap_per_side_scale           32 entries differ, max|diff|=1.907e-06 (grad/readout.3.bias)
+pap_h0_only_readout          bit-identical
+OVERALL max|diff| = 1.907e-06  (rule: <= 1e-5 re-capture, > 1e-5 stop)
+

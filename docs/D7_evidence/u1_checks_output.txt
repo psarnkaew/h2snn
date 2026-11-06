@@ -1,0 +1,10 @@
+T1 shared=True dense_family=False: max rel err 1.291e-15
+T1 shared=True dense_family=True: max rel err 1.291e-15
+T1 shared=False dense_family=False: max rel err 1.491e-15
+T1 shared=False dense_family=True: max rel err 1.491e-15
+L=2: old apply+apply_T steps/path 6, new O(L) steps/path 4
+L=3: old apply+apply_T steps/path 12, new O(L) steps/path 6
+L=4: old apply+apply_T steps/path 20, new O(L) steps/path 8
+mutation x_i instead of s_i^2 x_i, shared=True: rel err 4.791e-16
+mutation x_i instead of s_i^2 x_i, shared=False: rel err 1.247e+00
+
