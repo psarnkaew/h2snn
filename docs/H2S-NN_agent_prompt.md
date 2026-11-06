@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done) or Part C (D4, next). Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done) or Part D (D7–D9, next). Part A is reusable for review, design and implementation work on H2S-NN.
 
 ---
 
@@ -13,7 +13,7 @@ Prioritize **correctness, falsifiability and feasibility** over sounding impress
 
 ### Sources of truth (read before acting, in this order)
 1. `CLAUDE.md` and `AGENTS.md` in the repo — environment and coding conventions are binding.
-2. `../docs/H2S-NN_v2_plan.md` — agreed decisions (D1–D5). Do not reopen an agreed decision; if evidence contradicts it, stop and report.
+2. `../docs/H2S-NN_v2_plan.md` — agreed decisions (D1–D9). Do not reopen an agreed decision; if evidence contradicts it, stop and report.
 3. `../docs/H2S-NN_fix_spec.md` — hypotheses, protocol fixes, status tags. Earlier task reports (e.g. `../docs/H2S-NN_D1_report.md`) are also inputs.
 4. The code itself. When a document and the code disagree, the code describes what runs; report the disagreement.
 
@@ -41,10 +41,10 @@ A work unit is the smallest change that can be tested on its own.
 
 ### Hard constraints
 - Stay inside the task card's scope. List out-of-scope problems you notice; do not fix them.
-- Keep v1 behaviour reachable and unchanged behind the default config value unless the task card says otherwise.
+- Keep the previous behaviour reachable and unchanged behind a config value unless the task card says otherwise (v1 itself was removed by D6 and lives on the tag `v1-submitted`).
 - Minimal diffs; follow the repo's style (dataclass configs, explicit arguments, no globals, no hard-coded hyperparameters outside the config).
 - Do not run long training jobs, sweeps or multi-seed experiments without explicit approval. Short smoke tests and microbenchmarks are allowed.
-- Do not commit or push unless asked.
+- Do not commit or push unless asked or the task card says so.
 
 ### Final report format
 1. **Summary** — at most 5 lines: what was done, what passed, what failed.
@@ -257,3 +257,147 @@ Stop and report instead of continuing if:
 - a needed change falls outside the scope above.
 
 Write the report to `docs/H2S-NN_D4_report.md` in the Part A format.
+
+**Status (2026-11-06):** done; see `docs/H2S-NN_D4_report.md` and plan §4.7–4.8 (heads ported in `bafb80b`, `e7c3ab1`).
+
+---
+
+## Part D — Task card D7–D9: fact layer, path-cell builder, O(L) path term
+
+### Goal
+Make the 2-complex that H2S-NN diffuses over match the problem setting and the sheaf theory:
+- one oriented 1-cell per directed fact (D7);
+- path 2-cells that are identified by their facts, drawn from a stated distribution, merged by summing weights, and built without a Python loop over nodes (D8);
+- the path term computed in 2L transport steps per path (D9).
+
+Spec: `H2S-NN_v2_plan.md` §9 (D7–D9) and §4.6 (new ablation rows). Evidence for every problem: `Reviews/H2S-NN_methodology_check.md` (project doc; numbers are quoted in plan §9).
+
+Read first: plan §9, §4.2, §4.4; `docs/H2S-NN_D4_report.md`; `src/models/map_operators.py` (`PathTransportOperator`), `src/models/vertex_path_laplacian.py` (`PathCellTerm`, `HolonomyEdgeTerm`), `src/data/preprocessing.py` (`enumerate_metapath_faces`), `src/data/graph_faces.py` (`build_typed_path_face_groups`), `src/data/face_geometry.py`, `src/data/hetero_flatten.py` (`flatten_edges`), `src/data/structures.py` (`FaceGroup.face_edge_sign`), `src/data/link_prediction_dataset.py` (reverse-relation mirroring near `:891–933`, `_assert_no_message_passing_leak`, `_assert_no_leakage`), `src/configs/config.py` (`MetaPathConfig`, presets, `face_sample_k`).
+
+### Mathematical specification
+**D9 — O(L) path term** (per path cell `f` with nodes `v_0..v_L`, `n = L + 1`, merged weight `m_f`, gate `w_f`):
+```
+S   = x_{v_0} + Q_1 (x_{v_1} + Q_2 (x_{v_2} + … + Q_L x_{v_L}))      # Horner, L steps: S = Σ_i T_i x_i
+z_f = S / n
+t_0 = z_f ;  t_i = Q_iᵀ t_{i−1}                                       # L steps: t_i = T_iᵀ z_f
+(L_f x)_{v_i} = w_f m_f ( s_i² x_{v_i} − t_i )                        # s_i² from squared_scales(); 1 under D1a
+diag: w_f m_f (1 − 1/n) s_i²                                          # unchanged
+```
+Valid because `T_iᵀT_i = s_i² I` for every map family in the code (DERIVED, plan §9.3). The free-map ablation already costs O(n); leave its algorithm unchanged.
+
+**D7 — transport with direction.** For hop `j`, with fact `e_j` and sign `σ_j = face_edge_sign[·, j]`:
+```
+σ_j = +1 (e_j stored v_{j−1} → v_j):  Q_j = F_src⁻¹ F_tgt
+σ_j = −1 (e_j stored v_j → v_{j−1}):  Q_j = F_tgt⁻¹ F_src      (= Q_fwdᵀ under D1a)
+```
+Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F_{v_j◁e}⁻¹`. `apply`, `apply_T`, `apply_holonomy(_T)`, the Horner sum and the prefix recursion must all use the signed step.
+
+**D7 — fact rule** (decided per dataset, from the data, never from relation names):
+1. Mirror pair `r ≠ r′` with `E(r′) = reverse(E(r))` exactly → keep `r` (lower relation id), drop `r′`.
+2. Symmetric relation `E(r) = reverse(E(r))` → one cell per unordered pair, stored `min → max`; maps orientation-invariant: one frame `R_ψ` for both sides, no side code, `c_e` symmetrized over both input orders.
+3. Directed relation (neither) → every stored edge is a fact; reciprocal facts stay two cells.
+4. Partial overlap between two relations → keep both untied; report.
+
+**D8 — estimator.** For each (anchor `a`, schema `π`): draw `r` walks; at hop `j` pick a uniform neighbour among the facts of relation `ψ_j` in direction `σ_j` (out-neighbours for +1, in-neighbours for −1); reject walks that revisit a node (they contribute 0). Each accepted walk gives a cell with weight `1/r`. Cells with the same identity are merged and their weights **summed** into `m_f`. Identity key: the tuple of fact ids in canonical orientation (the lexicographically smaller of the fact sequence and its reversal). Then `E[L̂_P] = L_P^target` (plan §9.2) and `m_f` enters both `L_P` and `D`.
+
+### Scope
+**In scope**
+1. **D9** in `PathCellTerm` / `PathTransportOperator` (new methods for the Horner sum and the prefix recursion); `HolonomyEdgeTerm` keeps using `apply_holonomy(_T)`.
+2. **Signed transport** (`face_edge_sign ∈ {+1, −1}`) in `PathTransportOperator`; `validate_face_orientation` accepts −1 hops whose fact is stored reversed, and still rejects anything else and non-simple paths.
+3. **Fact layer** as a data-preparation step shared by all three tasks, before path building. Config `data.fact_layer: "tied" | "untied"` (default `"tied"`; `"untied"` = current behaviour, the ablation). Record per relation its class (mirror kept / mirror dropped / symmetric / directed / partial) in the prepared data and log it.
+4. **Symmetric-relation maps** in `FactorizedNodeToEdgeSheaf` and `DenseConformalNodeToEdgeSheaf` (shared frame, no side code, symmetrized `c_e`), driven by the per-relation class.
+5. **Schemas with direction:** `MetaPathConfig` gains optional `hops: [[relation_name, "+" | "-"], …]`. Without `hops`, each node-type transition must resolve to exactly one (relation, direction) under the active fact layer; otherwise raise an error naming the transition and the candidates. A schema and its reverse form one face group.
+6. **Walk sampler + cell identity** (D8), vectorized (per-relation CSR/CSC index tensors, all anchors of a schema at once; no Python loop over nodes or anchors), replacing `enumerate_metapath_faces` and `build_typed_path_face_groups` for all three tasks. Config `data.path_sampler: "walk" | "dfs" | "uniform_instance"` (default `"walk"`; `"dfs"` = current behaviour; `"uniform_instance"` = ablation, implemented for schemas with L ≤ 2 only, error otherwise). `r` is the existing `face_sample_k` / `sample_per_anchor`. `FaceGroup` gains the merged weight `m_f`.
+7. **Protocol:** `data.resample_paths: bool` (default `true`). Training draws use seed `base_seed + epoch`; validation and test always use the draw with `base_seed`. Wire this into the node-classification, link-prediction and graph-classification trainers with the smallest explicit change.
+8. **Link prediction under tied facts:** a held-out positive removes its single tied fact; extend the leak checks so that no held-out fact, in either orientation, appears in the message graph or on any sampled path, at train and at evaluation.
+9. **Ablation switch** `ablation.direction_blind_maps: bool` (same frame both sides and no side code for **every** relation; the analogue of DSNN's `q = 0`). Validate all new keys in the dataclasses; reject combinations that make no sense (e.g. `fact_layer: untied` with explicit `-` hops).
+
+**Out of scope** (report, do not change)
+- D2 schema selection (schema gates, pruning), mini-batching, new datasets, multi-seed accuracy runs.
+- Asymmetric in/out coupling strengths (would leave the self-adjoint operator class; plan §9.1).
+- Eq. 9 (neighbourhood context) — open question 5 in the plan.
+
+### Unit order (commit each unit on branch `D1_add` after its tests pass; do not push)
+| Unit | Content | Gate |
+|---|---|---|
+| U1 | D9 O(L) path term | T1; golden re-capture rule below |
+| U2 | Signed transport + orientation check | T2, T3 |
+| U3 | Fact layer + symmetric-relation maps + `direction_blind_maps` | T4, T5, T6, T16 (part) |
+| U4 | Schemas with direction | T10 |
+| U5 | Walk sampler, cell identity, `m_f`, `uniform_instance` | T7, T8, T9, T13, T15, T16 (part) |
+| U6 | Resampling protocol in the three trainers | T12 |
+| U7 | Link-prediction leak checks under tied facts | T11 |
+| U8 | Measurements, report, CLAUDE.md/AGENTS.md state | — |
+
+**Golden test rule (explicitly authorized here, an exception to Part A's "no loosened tolerances").** U1 changes only the summation order of an exact identity, so `tests/test_task_heads.py::NodeClassificationGoldenTests` may no longer be bit-identical. Before U1, run it and record the result. After U1, measure the max abs difference of logits and gradients against `docs/heads_evidence/v2_golden.pt`. If ≤ 1e-5 (float32), re-capture the golden file with `docs/heads_evidence/v2_golden.py`, commit it separately with the measured difference in the commit message, and from then on require bit-identity again. If > 1e-5, stop and report. After U3–U6 the golden test must still pass bit-for-bit with `fact_layer: untied`, `path_sampler: dfs`, `resample_paths: false`.
+
+### Pre-step: inventory
+1. Every consumer of `FaceGroup`, `PathTransportOperator`, `enumerate_metapath_faces`, `build_typed_path_face_groups`, `validate_face_orientation`, `flatten_edges`, `edge_type`/`relation_names`/`relation_tuples` (heads, trainers, analysis, scripts, notebooks, tests), with `file:line`.
+2. **Per dataset** (ACM, DBLP, IMDB; every link-prediction dataset; every TU graph-classification dataset): the class of every relation under the D7 rule (count of mirror pairs, symmetric, directed, partial; reciprocal facts inside directed relations; self-loops). Expected for HGB (VERIFIED-RUN in the plan): all 10 pairs mirror; ACM `cite` directed with 25 reciprocal pairs and 8 self-loops; facts after merging ACM 273,936, DBLP 119,783, IMDB 43,321. TU graphs: expected symmetric (UNVERIFIED). Stop if a default schema needs a partial-overlap relation.
+3. Where each trainer builds or reuses face groups, so U6 can be minimal.
+
+### Tests to add (`tests/test_paths_and_facts.py`, unittest)
+| ID | Check | Tolerance / rule |
+|---|---|---|
+| T1 | O(L) `PathCellTerm.apply` equals a dense reference `Σ w m Bᵀ(I − 11ᵀ/n)B` built from materialized `T_v`; mixed L ∈ {2, 3, 4}; per-edge and per-side scales; signed hops | float64 ≤ 1e-10 |
+| T2 | Signed transport equals the dense product with `F_tgt⁻¹F_src` on −1 hops; functoriality holds on every boundary edge with mixed signs; `apply_T` is the exact adjoint | float64 ≤ 1e-10 |
+| T3 | Reversal invariance: building a cell from the reversed fact sequence (base vertex `v_L`) gives the same `L_f` under tied facts | float64 ≤ 1e-10 |
+| T4 | Fact rule on fixtures: mirror pair merged; symmetric relation one cell per unordered pair; directed relation keeps reciprocal facts; partial overlap kept and reported. Real HGB data: the expected counts of inventory item 2 | exact |
+| T5 | Symmetric relation: flipping the stored orientation of any subset of its cells leaves normalized `Δ₀` unchanged. **Negative control:** with side-specific frames it changes | ≤ 1e-10 vs > 1e-3 |
+| T6 | Sections preserved with signed hops: on a tree with mixed-direction path hops, `L_P x = 0` for every section and `dim ker(Δ₀ + γL_P) = dim ker Δ₀` | eigenvalue threshold 1e-9, stated before running |
+| T7 | Sampler distribution: on the 3-author × 30-paper fixture and the 300-paper hub fixture, empirical intermediate frequencies over ≥ 2,000 draws match the walk probabilities (state the test and threshold before running). **Negative control:** `path_sampler: dfs` fails it | pre-registered |
+| T8 | Unbiasedness: on a small graph, the mean of `L̂_P x` over ≥ 2,000 draws approaches `L_P^target x` computed by exact enumeration with walk probabilities (pre-register the relative-error threshold). **Negative control:** merging by dropping duplicates instead of summing weights is biased | pre-registered |
+| T9 | Identity: no two cells share a key; a path and its reversal map to one key with summed weight; paths through different reciprocal facts get different keys | exact |
+| T10 | Schemas: ACM paper→paper citation chain (`cite +, cite +`) and co-citation (`cite +, cite −`) are distinct groups; an ambiguous transition without `hops` raises; a schema and its reverse share one group | exact |
+| T11 | Link prediction: no held-out fact, in either orientation, in the message graph or on any sampled path (train and eval). **Negative control:** injecting a held-out fact is caught | exact |
+| T12 | Protocol: evaluation draw identical across calls and epochs; training draws differ between epochs; same seed reproduces | exact |
+| T13 | Stability with `m_f` and signs: `λ_max(D^{-1/2} L D^{-1/2}) ≤ 2 + 1e-9` over ≥ 50 random fixtures | — |
+| T14 | Regression: with `fact_layer: untied`, `path_sampler: dfs`, `resample_paths: false`, the golden test passes (after the U1 rule) | bit-for-bit |
+| T15 | Vectorized sampler: no Python loop over nodes or anchors (show the code); time grows at most ~linearly in anchors (10× anchors → ≤ 15× time, CPU, pre-registered) | pre-registered |
+| T16 | Ablations do what they say: `fact_layer: untied` reproduces current cells and edges; `direction_blind_maps` makes `Δ₀` invariant to flipping any cell; `uniform_instance` samples instances uniformly (L ≤ 2) and raises for L > 2 | exact or ≤ 1e-10 |
+
+**Mutation check** (show the targeted tests fail for each):
+- −1 hop uses `Q` instead of `Qᵀ`;
+- duplicates dropped instead of weights summed;
+- symmetric relation keeps the side code;
+- identity keyed by node sequence instead of facts;
+- evaluation draw reseeded per call;
+- O(L) term uses `x_i` instead of `s_i² x_i` (caught under per-side scales);
+- the reversed orientation of a held-out fact not removed;
+- `m_f` applied in `L_P` but not in `D`.
+
+### Measurements (allowed without approval)
+For ACM, DBLP and IMDB, before (`untied` + `dfs`) and after (`tied` + `walk`), d = 32, factorized k = 2:
+- facts and `Δ₀` edges; cells, incidences, duplicates merged;
+- mean distinct intermediates per anchor and schema;
+- sampling time per draw (CPU and GPU if used);
+- one forward + backward: peak memory and wall time (5 repeats after 1 warm-up), plus parameter count.
+
+Pre-register the expected `Δ₀` ratio (≈ 0.5) and the transport-step ratio of U1 (L = 2: 6 → 4).
+
+**Smoke run:** ACM, single seed, ≤ 20 epochs, defaults after U6. Log loss, η, γ, mean/max `w_f`, mean `m_f`, `η·λ_max`. **No accuracy claims.**
+
+### Adversarial self-review checklist (D7–D9)
+- [ ] O(L) term equals the dense reference for every map family and both signs (T1); transport steps per path are 2L (show the count).
+- [ ] Every −1 hop uses the adjoint step, in `apply`, `apply_T`, holonomy, Horner and prefix (T2, mutation).
+- [ ] Fact classes come from edge-set equality on the data, never from names; partial overlaps are reported, not merged (T4).
+- [ ] Symmetric relations are orientation-invariant (T5 with its control).
+- [ ] Theory still holds: sections preserved (T6), `λ_max ≤ 2` with `m_f` (T13), `m_f` in both `L_P` and `D`.
+- [ ] The sampler has a stated distribution and the estimator is unbiased for the stated target (T7, T8 with controls).
+- [ ] Identity is by facts; weights are summed, never dropped (T8, T9).
+- [ ] No leakage of held-out facts in either orientation (T11 with its control).
+- [ ] Evaluation is deterministic; training resamples (T12).
+- [ ] Old behaviour reachable with `untied` + `dfs` + no resampling, bit-for-bit after the U1 re-capture (T14).
+- [ ] Every new config key is validated; no hard-coded hyperparameters.
+- [ ] Each test would fail if its property were broken (mutation check, 0 vacuous).
+
+### Stop conditions
+Stop and report instead of continuing if:
+- the U1 golden difference exceeds 1e-5;
+- T2, T6 or T13 fails after 3 diagnosed attempts;
+- a default schema needs a partial-overlap relation;
+- the sampler cannot be vectorized without enumerating all instances;
+- leakage freedom (T11) cannot be guaranteed;
+- a needed change falls outside the scope above.
+
+Write the report to `docs/H2S-NN_D7_report.md` in the Part A format.

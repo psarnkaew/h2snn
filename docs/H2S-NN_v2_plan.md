@@ -13,15 +13,18 @@
 | D1 | Replace dense per-edge restriction maps with factorized, matrix-free, conformal-orthogonal maps. | **Implemented and verified** (branch `d1-factorized-maps`, commits `dd42b8e`, `11ba6c3`, `924be78`); accuracy validation moved into D4 — see §1.7 |
 | D1a | **One scale per edge, shared by both sides:** `F_{v◁e} = c_e · R_{ψ,side} · H_k(u_{v◁e})`, `c_e = softplus(MLP([h_u, h_v, rel_emb])) + ε`. Every edge transport and path holonomy is then exactly orthogonal. Replaces per-side scales; supersedes the earlier "bound `c` to `[e⁻², e²]`" proposal, which did not fix the problem (§1.7). | **Agreed (2026-11-06)** — implemented as D4 unit 1 |
 | D1b | Paper wording: edge transports and holonomies lie in **SO(d)**; claim "transports can reverse feature directions in pairs", not "a reflection flips a direction". | **Agreed (2026-11-06)** |
-| D2 | Redesign AMPSS while keeping its intent (task-driven meta-path selection). Mechanism not yet chosen. | **Agreed — flagged, mechanism open** |
+| D2 | Redesign AMPSS while keeping its intent (task-driven meta-path selection). Mechanism not yet chosen. Its instance interface (directed, de-duplicated, weighted path cells per batch) is provided by D8. | **Agreed — flagged, mechanism open** |
 | D3 | Scalability is the first engineering priority, so that heterophilic heterogeneous benchmarks (mostly large) become usable. Scale **v2**, not v1. | **Agreed** |
 | D4 | 2-cells reach nodes through the **vertex–2-cell sheaf Laplacian** (option b only); edge-cochain machinery is deleted. | **Implemented and verified** (branch `D1matbounding_D4coupling`, 9 commits; `docs/H2S-NN_D4_report.md`) — see §4.7 |
 | D5 | Fix baseline provenance and IMDB heterophily (fix spec H5, H8) in parallel. Independent of D1–D4. | Recommended (parallel track) |
+| D7 | **Fact layer:** one oriented 1-cell per directed fact. Mirror relation types (edge set equal to another relation's reversed, checked on the data) are merged into their partner; a relation equal to its own reverse is a symmetric relation (one cell per unordered pair, orientation-invariant maps); reciprocal facts inside a directed relation stay two cells. A backward hop on a path uses the adjoint transport. See §9.1. | **Agreed (2026-11-06)** — task card Part D |
+| D8 | **Path-cell builder:** (i) a 2-cell is identified by its sequence of facts (canonical orientation); identical cells are merged by **summing** their sampling weights; (ii) instances are drawn by a relation- and direction-constrained random walk (uniform neighbour per hop, non-simple walks rejected), `r` walks per (anchor, schema), weight `1/r` per walk; (iii) vectorized; (iv) resampled every training epoch, one fixed draw for evaluation. Replaces the DFS-with-quota enumerators and is the interim sampler of §2.4 and the instance interface of D2. See §9.2. | **Agreed (2026-11-06)** — task card Part D |
+| D9 | **O(L) path term:** `(L_f x)_{v_i} = w_f (s_i² x_i − T_iᵀ z_f)`, with `Σ_i T_i x_i` by Horner and `T_iᵀ z_f` by a prefix recursion: 2L transport steps per path instead of L(L+1). Exact identity (DERIVED from `T_iᵀT_i = s_i²I`); supersedes the §4.2 "correction". See §9.3. | **Agreed (2026-11-06)** — task card Part D |
 | D6 | v2 is the only model. v1 is deleted (kept on git tag `v1-submitted`). Link prediction and graph classification are **ported** to the v2 encoder, not rewritten: task layer (datasets, splits, negative sampling, trainers, metrics) kept; only the heads change, and only where forced. See §4.8. | **Agreed (2026-11-06)** |
 
 ### What this plan supersedes in the fix spec
 - **P3 (structured maps) as written is replaced by D1.** P3's `F = R_ψ·diag(s_e)` with one map per edge gives `F_src = F_tgt`, so every edge transport is `I`, the path holonomy collapses to `I`, and closure edges become plain endpoint edges (DERIVED). D1 fixes this with side-specific, node-dependent factors.
-- **P5 (uniform relation-first walk sampler) is deferred to D2.**
+- **P5 (uniform relation-first walk sampler) is implemented by D8** (the interim sampler; D2 builds on it).
 - **P2 (unsigned node–edge coupling) is rejected by D4**, and **P6 (typed edge pooling in the readout) is obsolete**: edge states and edge pooling are deleted.
 - **H3 (`w_cl = 0`) framing is revised.** Closure edges carry the path holonomy, which depends on intermediate nodes. The correct control is a closure edge with endpoint-learned maps (no holonomy), not removing the closure edge.
 
@@ -49,7 +52,7 @@ F_{v◁e} = c_{v◁e} · R_{ψ(e),side} · H_k(u_{v◁e})
 1. **Invertible** — no low-rank factorization (transport and holonomy need `F⁻¹`).
 2. **Side-specific and node-dependent** — otherwise holonomy becomes `I` (see P3 note above).
 3. **Never materialized** — apply to vectors: k rank-1 reflections → grouped GEMM by `(ψ, side)` → scale.
-4. **Face side too** — path transports applied matrix-free (sequentially along each path; per-position values are needed, so L(L+1)/2 transport steps per path, see §4.2); `A_f` reduced to an orthogonal gauge (identity) plus a scalar weight, removing the `d²` head and the `[F, ℓ+1, d, d]` tensor.
+4. **Face side too** — path transports applied matrix-free (sequentially along each path; 2L transport steps per path with the O(L) form of D9, §9.3); `A_f` reduced to an orthogonal gauge (identity) plus a scalar weight, removing the `d²` head and the `[F, ℓ+1, d, d]` tensor.
 
 **Interpretation for the paper:** `R_ψ` is the relation's change of frame; the Householder factors make the map node-dependent. **Correction (D1b, DERIVED and confirmed by the independent review):** both sides of an edge have the same determinant sign `(−1)^d·(−1)^k`, so every edge transport `F_src⁻¹F_tgt` and every path holonomy lies in SO(d) (v1's FastHPP maps have the same property). A single transport cannot flip one direction; it can reverse directions **in pairs** (a 180° rotation in a plane). Write the contrast claim that way.
 
@@ -98,7 +101,7 @@ Plus `2·|R|·d²` shared floats (negligible). Peak memory will fall by less tha
   - **Problem.** With per-side scales, each edge transport carries the ratio `c_tgt/c_src`, and path transports multiply these ratios. `z_f` is then dominated by the node with the largest `‖T_v‖`, so a path cell degenerates toward one node, and float32 can overflow or underflow on long paths. Stability of `Δ₀` is **not** the issue: Prop. 3 holds for any positive scales once the Laplacian is normalized.
   - **Rejected band-aid: bounding `c` to `[e⁻², e²]`.** Each ratio can still reach `e⁴`, so a path of length L still spans `e^{4L}` (≈ 3·10³ for L = 2, ≈ 9·10⁶ for L = 4). It adds two arbitrary knobs and saturating gradients without removing the cause.
   - **Fix.** `F_src = c_e·R_{ψ,src}·H(u_src)`, `F_tgt = c_e·R_{ψ,tgt}·H(u_tgt)`. The edge transport `F_src⁻¹F_tgt = (c_e/c_e) × rotation` is exactly orthogonal, so `‖T_v‖ = 1` at every position of every path, at any length. `c_e` becomes a learned edge weight in `Δ₀` (the edge term is scaled by `c_e²`).
-  - **Direction is unaffected.** Edges are oriented 1-cells built per PyG relation type (`src/data/hetero_flatten.py:66`); `R_{ψ,src} ≠ R_{ψ,tgt}`; reflection vectors depend on side and endpoint order; `c_e` is computed from the ordered input. The sheaf Laplacian was symmetric in v1 too; orientation only fixes signs.
+  - **Direction is unaffected.** (Storage of edges is superseded by D7, §9.1: one cell per fact, not per PyG relation type; the argument below still holds per cell.) Edges are oriented 1-cells built per PyG relation type (`src/data/hetero_flatten.py:66`); `R_{ψ,src} ≠ R_{ψ,tgt}`; reflection vectors depend on side and endpoint order; `c_e` is computed from the ordered input. The sheaf Laplacian was symmetric in v1 too; orientation only fixes signs.
   - **What is lost (DERIVED, numerically checked):** about one number per edge (at k = 2, d = 32: 130 → 129 per-edge degrees of freedom).
     - Per-side scales that factor as `c_{v◁e} = s_v·c_e` are a node rescaling `y_v = s_v x_v`, and the degree normalization cancels it **exactly** (normalized operators differ by 4e-16 on a two-cycle test graph). In the path term this part only rescales the gate `w_f`.
     - The genuinely lost part is **scale holonomy**: the product of `c_tgt/c_src` around a cycle differing from 1 (generic per-side scales change the normalized operator by 0.58 on the same graph). On a tree nothing is lost. This is exactly the part that produced the magnitude blow-up; rotational holonomy, which is kept, preserves norms.
@@ -187,7 +190,7 @@ repeat K steps:
 logits = MLP([x_K, h₀])
 ```
 - `Δ₀`: sheaf Laplacian on **observed** edges with D1 factorized maps, degree-normalized with full-graph degrees.
-- `T_v = F_{v◁f} = F_{e◁f} F_{v◁e}`: node→2-cell restriction, forced by functoriality to be ordered parallel transport along the path (gauge `A_f = I`). Applied matrix-free with `PathTransportOperator`. **Correction (2026-11-06):** the update needs the per-position values `T_{v_i}x_{v_i}` (for `T_vᵀ(y − z_f)`), not only their sum, so Horner's O(L) form does not apply; the cost is L(L+1)/2 transport steps per path (3 for L = 2), which is negligible for L ≤ 4.
+- `T_v = F_{v◁f} = F_{e◁f} F_{v◁e}`: node→2-cell restriction, forced by functoriality to be ordered parallel transport along the path (gauge `A_f = I`). Applied matrix-free with `PathTransportOperator`. ~~Correction (2026-11-06): per-position values are needed, so Horner's O(L) form does not apply.~~ **Withdrawn (D9):** because `T_vᵀT_v = s_v²I`, `T_vᵀ(T_v x_v − z_f) = s_v² x_v − T_vᵀ z_f`, so per-position values are not needed and the cost is 2L transport steps per path (§9.3).
 - `w_f`: per-path gate from the ordered path (positional encoder over `h₀` and the relation sequence) — continues Stage II. D2 schema weights will multiply `w_f`.
 - `η = σ(θ)`; `γ ≥ 0` learnable; both terms normalized (node degree and path size).
 - With D1a (one scale per edge) every `T_v` is orthogonal, so `‖T_v‖ = 1` and the path part of the normalization diagonal is simply `γ Σ_{f∋v} w_f (1 − 1/|f|)`.
@@ -223,6 +226,9 @@ Edge cochain `s` and `L₁` (down and up terms) · `EdgeInitializer` · `δ₁` 
 | `h₀`-only readout MLP | Sanity: is diffusion used at all? |
 | Dense vs factorized k ∈ {1, 2} | Map family (D1; closes §1.6). k = 4 is excluded by the 10× storage rule (§1.7) |
 | Per-edge scale `c_e` vs per-side scales `c_{v◁e}` | Does losing scale holonomy cost accuracy? (D1a) |
+| Tied facts (D7) vs untied mirror relations | Does storing each fact twice, with unrelated maps, help or hurt? (D7) |
+| Direction-blind maps (same frame both sides, no side code; the analogue of DSNN's `q = 0`) | Does edge direction matter? |
+| Walk sampler (D8) vs instance-uniform sampling (same `r`) | Do diverse intermediate nodes matter? (R2 W3, R4) |
 
 **Kill criterion:** if `γ = 0` or endpoint meta-path edges are within 1 std of the full model on Tier 0 **and** Tier 1, the core claim fails; narrow the paper (fix spec §7 option B). No additional component is added to rescue it.
 
@@ -269,6 +275,7 @@ Principle: one encoder; a head changes only when it is forced to, and no compone
 |---|---|---|
 | 1 | D1 implemented and verified (§1.7). D5 audit still open | Done for D1 |
 | 2 | **Done (§4.7).** D4 task card (`H2S-NN_agent_prompt.md` Part C): D1a per-edge scale, v2 model with normalized vertex–2-cell Laplacian, deletions, ablation hooks, ACM memory measurement | D4 card tests and stop conditions |
+| 2b | D7–D9 task card (`H2S-NN_agent_prompt.md` Part D) on branch `D1_add`: fact layer, path-cell builder, O(L) path term | Part D tests and stop conditions |
 | 3 | Tier 0 experiments on v2: §4.6 ablations incl. dense vs factorized k ∈ {1, 2} (closes §1.6); decide D2 mechanism | §1.6, §3.5 Tier-0 and §4.6 criteria; D2 decision written here |
 | 4 | Tier 1 (Freebase, rewiring, IEEE-CIS-G) | Heterophily evidence; decide claim scope (fix spec §7 A/B) |
 | 5 | Mini-batch; Tier 2 (ogbn-mag, mag-year, H-Pokec) | §3.5 Tier-2 criteria |
@@ -278,6 +285,49 @@ Principle: one encoder; a head changes only when it is forced to, and no compone
 2. Target venue (theory-leaning vs. data/scale-leaning).
 3. Default `k` if several pass.
 4. ~~Keep closure edges inside `Δ₀`?~~ Resolved by D4: closure edges are definitional only; the v1-style holonomy shortcut is kept as an ablation control (§4.6).
+5. Eq. 9 of the submitted paper (relation-wise neighbourhood context for the restriction maps) is not in the v2 code; the maps read `h₀`. Restore it, or delete it and its motivating sentence from the paper.
 
 ## 8. Agent prompt
-Implementation work is driven by `H2S-NN_agent_prompt.md` (role, evidence rules, self-correction loop, task cards). Task card D1 (Part B) is done; task card D4 (Part C) is next.
+Implementation work is driven by `H2S-NN_agent_prompt.md` (role, evidence rules, self-correction loop, task cards). Task cards D1 (Part B) and D4 (Part C) are done; task card D7–D9 (Part D) is next.
+
+---
+
+## 9. D7–D9 — Fact layer, path-cell builder, O(L) path term (agreed 2026-11-06)
+
+Source: `Reviews/H2S-NN_methodology_check.md` (independent numerical check of `e7c3ab1`) and the discussion of 2026-11-06, including *Sheaves Reloaded: A Directional Awakening* (Fiorini et al., ICLR 2026, arXiv:2506.02842).
+
+### 9.1 D7 — Fact layer
+**Problem (VERIFIED-RUN on the local processed HGB files).** All 10 relation pairs in ACM, DBLP and IMDB are exact mirrors (`E(r′) = reverse(E(r))`), so each fact is stored twice, as two 1-cells with unrelated maps. On one link (d = 8, init) the consistent space drops from 8 to 0, `Δ₀` is twice as large, and the second copy carries no direction: one oriented cell is already direction-aware (reversing it changes the operator by 0.83; block (v,u) = block (u,v)ᵀ; transport non-symmetric, ‖τ − τᵀ‖ = 1.05). ACM `cite` additionally has 25 reciprocal pairs inside the relation (two distinct facts each) and 8 self-loops. Reverse relations exist for message passing, where messages flow src → tgt only; the sheaf Laplacian is symmetric, so the reason disappears. The submitted paper is silent on this (Appendix counts DBLP's 3 mirror pairs as "six relation types").
+
+**Rule.**
+1. **Mirror pair** `r ≠ r′`, `E(r′) = reverse(E(r))` exactly: keep `r` (lower relation id), drop `r′`; an `r′`-hop becomes a backward hop on `r`.
+2. **Symmetric relation** `E(r) = reverse(E(r))` (e.g. TU graphs, which store both directions with one label; UNVERIFIED per dataset, check in the inventory): one cell per unordered pair, stored `min → max`. Its maps must be **orientation-invariant**: one frame for both sides, no side code, and `c_e` symmetrized over both input orders; reversing the stored orientation must leave `Δ₀` unchanged.
+3. **Directed relation** (neither): every stored edge is a fact; reciprocal facts stay two cells.
+4. **Partial overlap** between two relations: keep both untied and report it.
+
+**Transport with direction.** For hop `j` of a path, if fact `e_j` is stored `v_{j−1} → v_j` (sign +1), `Q_j = F_src⁻¹F_tgt`; if stored `v_j → v_{j−1}` (sign −1), `Q_j = F_tgt⁻¹F_src = Q_fwdᵀ` under D1a. Functoriality `T_{v_{j−1}}F_{v_{j−1}◁e}⁻¹ = T_{v_j}F_{v_j◁e}⁻¹` gives both cases (DERIVED). `FaceGroup.face_edge_sign` carries the sign.
+
+**Schemas** are sequences of (relation, direction). A transition between node types that resolves to more than one (relation, direction) must be spelled out in the config (e.g. ACM paper→paper: citation chain vs co-citation); otherwise error. A schema and its reverse describe the same cells.
+
+**Link prediction.** A held-out positive removes its single tied fact; the leak check asserts that no held-out fact, in either orientation, is in the message graph or on any sampled path.
+
+**Paper.** Problem formulation: E is a set of directed typed facts; mirror relations added for message passing are merged; each fact is one oriented 1-cell. Prop. 1 is restated with signed boundaries (a backward hop applies the adjoint). Related work: position against DSNN (direction through restriction maps, Hermitian/symmetric operator; H2S-NN learns the direction-dependent transport per relation and node pair instead of a fixed phase `q`). Appendix: relation counts after merging. Limitation stated: the coupling strength is equal in both directions (`c_e²`); only the transport differs (same as DSNN).
+
+### 9.2 D8 — Path-cell builder
+**Problems (VERIFIED-RUN).** (a) DFS-with-quota has no sampling distribution: with 3 authors × 30 papers and `r = 20`, every one of 200 seeds used 1 of 3 intermediates (random walk: 3 of 3); with a 300-paper hub author, 48–50 of 50 paths went through the hub. (b) A path and its reversal become two cells (3,690 of 16,300 in a synthetic PAP test), so weights depend on sampling luck. (c) Python loop per anchor; the preprocessing bottleneck for Tier 1–2.
+
+**Target operator.** For anchor `a` and schema `π`: `L_P^target = Σ_π Σ_a E_{walk ~ p(·|a,π)}[ 1{walk simple} · L_{f(walk)} ]`, `p` = product of `1/out-degree` (in the hop's relation and direction) along the walk.
+
+**Estimator.** `r` walks per (anchor, schema), weight `1/r` each; rejected walks contribute 0. Cells with the same identity are merged and their weights **summed** (so `E[L̂_P] = L_P^target`; dropping duplicates would bias it). The merged weight `m_f` multiplies `w_f` in both `L_P` and `D`, so Prop. 3 holds for every draw.
+
+**Identity.** Key = tuple of fact ids in canonical orientation (the lexicographically smaller of the sequence and its reversal), plus the schema group of the canonical orientation. Not the node sequence: paths through different reciprocal facts are different cells.
+
+**Anchors.** As now: every node of the schema's start type (node classification); per graph (graph classification); message graph only (link prediction).
+
+**Protocol.** Training resamples every epoch (seed = base seed + epoch); validation and test use one fixed draw (base seed). Knobs: `ℓ` (from the schemas), `r`. Reported per dataset: cells, incidences, sampling ms.
+
+### 9.3 D9 — O(L) path term
+`(L_f x)_{v_i} = w_f m_f (s_i² x_i − T_iᵀ z_f)`, `z_f = (1/n) Σ_i T_i x_i`. `Σ_i T_i x_i = x_0 + Q_1(x_1 + Q_2(x_2 + ⋯ + Q_L x_L))` (L steps); `T_0ᵀz = z`, `T_iᵀz = Q_iᵀ(T_{i−1}ᵀz)` (L steps). Identity valid whenever `T_iᵀT_i = s_i²I` (all map families in the code). Checked against the current `PathCellTerm`: float64 ≤ 2e-12, float32 ≤ 7e-5, the same order as the current code vs a dense reference (VERIFIED-RUN, methodology check §3). Transport steps per path: L = 2: 6 → 4; L = 4: 20 → 8.
+
+### 9.4 Not changed by D7–D9
+D1/D1a maps, D4 operator and normalization, Prop. 2–3, heads (D6), ablation switches of §4.6 (new rows added). Prior v1 results used the DFS sampler and untied relations; all Tier 0 numbers come after Part D.
