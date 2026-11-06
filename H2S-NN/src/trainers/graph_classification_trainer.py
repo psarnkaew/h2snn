@@ -8,6 +8,7 @@ from torch_geometric.loader import DataLoader
 
 from src.configs.config import TrainConfig
 from src.data.graph_faces import build_typed_path_face_groups
+from src.data.path_sampler import build_free_path_groups
 from src.data.graph_classification_dataset import GraphClassificationFold
 from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
@@ -187,18 +188,37 @@ class GraphClassificationTrainer:
             metrics.update(self.model.diffusion_scalars())
         return metrics
 
-    def forward_batch(self, batch) -> torch.Tensor:
-        """Logits of one PyG batch: two-hop typed path cells, encoder, graph readout."""
-        face_groups = build_typed_path_face_groups(
+    def batch_path_groups(self, batch, seed: int):
+        """Two-hop path cells of one batch: schema-free walks (D8, decision 4) from every
+        node of the batch, or the pre-D7 DFS (`path_sampler: dfs`)."""
+        if self.cfg.data.path_sampler == "dfs":
+            return build_typed_path_face_groups(
+                edge_index=batch.edge_index,
+                edge_type=batch.edge_type,
+                node_type=batch.node_type,
+                batch=batch.batch,
+                graph_id=getattr(batch, "graph_id", None),
+                max_paths_per_anchor=self.cfg.data.face_sample_k,
+                exclude_identity_paths=self.cfg.data.exclude_identity_metapaths,
+                seed=seed,
+            )
+        if self.cfg.data.path_sampler != "walk":
+            raise ValueError("graph classification supports path_sampler walk or dfs.")
+        return build_free_path_groups(
             edge_index=batch.edge_index,
             edge_type=batch.edge_type,
             node_type=batch.node_type,
-            batch=batch.batch,
-            graph_id=getattr(batch, "graph_id", None),
-            max_paths_per_anchor=self.cfg.data.face_sample_k,
-            exclude_identity_paths=self.cfg.data.exclude_identity_metapaths,
-            seed=self.cfg.seed,
+            relation_names=None,
+            self_inverse=self.model.self_inverse_relations,
+            tied=self.cfg.data.fact_layer == "tied",
+            walks_per_anchor=self.cfg.data.face_sample_k,
+            seed=seed,
+            length=2,
         )
+
+    def forward_batch(self, batch) -> torch.Tensor:
+        """Logits of one PyG batch: two-hop typed path cells, encoder, graph readout."""
+        face_groups = self.batch_path_groups(batch, seed=self.cfg.seed)
         encoded = self.model.encode(
             x=batch.x,
             node_type=batch.node_type,

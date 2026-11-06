@@ -227,9 +227,13 @@ class DataConfig:
     # --- all tasks: fact layer (plan §9.1) ---
     # "tied": one oriented 1-cell per fact, rho from exact edge-set equality (the model).
     # "untied": every stored edge is its own 1-cell (ablation control; never tuned, see
-    # `reject_never_tuned_settings`). Interim default "untied" until the walk path sampler
-    # exists (D8): the DFS enumerators walk stored out-edges and cannot follow tied facts.
+    # `reject_never_tuned_settings`). Interim default "untied" until link prediction
+    # supports the tied layer (U7); the DFS enumerators cannot follow tied facts.
     fact_layer: str = "untied"
+    # Path-cell builder (plan §9.2): "walk" (r walks per anchor and schema, merged weights,
+    # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only), "uniform_instance"
+    # (ablation: draws uniform over instances, L <= 2). Interim default "dfs" (see above).
+    path_sampler: str = "dfs"
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -275,6 +279,7 @@ class DataConfig:
                 raw.get("compute_relation_diagnostics", False)
             ),
             fact_layer=str(raw.get("fact_layer", "untied")),
+            path_sampler=str(raw.get("path_sampler", "dfs")),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -315,10 +320,15 @@ class DataConfig:
             raise ValueError(
                 f"data.fact_layer must be 'tied' or 'untied', got {self.fact_layer!r}."
             )
-        if self.fact_layer == "tied":
+        if self.path_sampler not in {"walk", "dfs", "uniform_instance"}:
             raise ValueError(
-                "data.fact_layer: tied needs the walk path sampler (D8), which is not "
-                "implemented yet; the DFS enumerators walk stored out-edges only."
+                "data.path_sampler must be 'walk', 'dfs' or 'uniform_instance', got "
+                f"{self.path_sampler!r}."
+            )
+        if self.fact_layer == "tied" and self.path_sampler == "dfs":
+            raise ValueError(
+                "data.path_sampler: dfs walks stored out-edges only and cannot follow tied "
+                "facts; use path_sampler: walk (or fact_layer: untied for the old behaviour)."
             )
         task_type = self.task_type or DATASET_TASK_TYPES.get(dataset_name, "")
         if not task_type:
@@ -420,6 +430,11 @@ class DataConfig:
     def _resolved_link_prediction(
         self, dataset_name: str, task_type: str, explicit: frozenset[str] = frozenset()
     ) -> "DataConfig":
+        if self.fact_layer != "untied" or self.path_sampler != "dfs":
+            raise ValueError(
+                "link prediction supports fact_layer: untied with path_sampler: dfs only "
+                "until the split-by-fact protocol lands (D7 unit U7)."
+            )
         preset = LINK_PREDICTION_PRESETS.get(dataset_name, {})
         target_relation = (
             self.target_relation

@@ -768,5 +768,278 @@ class SchemaTests(unittest.TestCase):
                         self.assertTrue(all(d == 1 for s in schemas for _, d in s.hops))
 
 
+# ----------------------------------------------------------------------------- D8 fixtures
+def _small_hetero(seed: int = 0):
+    """Papers 0-5, authors 6-8; tied facts: cite (0) incl. a reciprocal pair, writes (1)
+    stored paper -> author. Returns edge_index, edge_type, node_type, names, tuples."""
+    cite = [(0, 1), (1, 0), (1, 2), (2, 3), (3, 0), (4, 1), (5, 2), (4, 5)]
+    writes = [(0, 6), (1, 6), (2, 6), (2, 7), (3, 7), (4, 8), (5, 8), (5, 7)]
+    edges = [(u, 0, v) for u, v in cite] + [(u, 1, v) for u, v in writes]
+    edge_index = torch.tensor([[u for u, _, _ in edges], [v for _, _, v in edges]])
+    edge_type = torch.tensor([r for _, r, _ in edges])
+    node_type = torch.tensor([0] * 6 + [1] * 3)
+    return edge_index, edge_type, node_type, ("paper", "author"), (
+        ("paper", "cite", "paper"), ("paper", "to", "author"))
+
+
+SCHEMAS_T8 = (
+    ("PAP", ("paper", "author", "paper"), ((1, 1), (1, -1))),       # palindromic
+    ("cocite", ("paper", "paper", "paper"), ((0, 1), (0, -1))),     # mixed directions
+    ("PPA", ("paper", "paper", "author"), ((0, 1), (1, 1))),        # not palindromic
+)
+
+
+def _resolved(schemas, r: int):
+    from src.data.schemas import ResolvedSchema
+
+    return tuple(ResolvedSchema(name, types, hops, r) for name, types, hops in schemas)
+
+
+def _draw(seed: int, r: int, merge: str = "sum", sampler: str = "walk", schemas=SCHEMAS_T8):
+    from src.data.path_sampler import build_schema_path_groups
+
+    edge_index, edge_type, node_type, type_names, _ = _small_hetero()
+    return build_schema_path_groups(
+        edge_index, edge_type, node_type, type_names, _resolved(schemas, r), (), True,
+        anchors_of=lambda t: (node_type == type_names.index(t)).nonzero(as_tuple=True)[0],
+        default_walks=r, seed=seed, sampler=sampler, merge=merge)
+
+
+def _apply_groups(groups, maps, edge_index, x) -> torch.Tensor:
+    output = torch.zeros_like(x)
+    for group in groups:
+        transport = PathTransportOperator(maps.src, maps.tgt, group.face_node_index,
+                                          group.face_edge_index, edge_index, shared_scale=True,
+                                          face_edge_sign=group.face_edge_sign)
+        output += PathCellTerm(transport, group.path_weight.double()).apply(x, x.size(0))
+    return output
+
+
+def _exact_target(maps, x) -> torch.Tensor:
+    """`sum_pi sum_a sum_walk p(walk) 1{simple} L_f x`, walks enumerated exhaustively."""
+    edge_index, edge_type, node_type, type_names, _ = _small_hetero()
+    from src.data.path_sampler import build_half_edges, hop_csr
+
+    half = build_half_edges(edge_index, edge_type, node_type.numel(), (), True)
+    output = torch.zeros_like(x)
+    for _, types, hops in SCHEMAS_T8:
+        csrs = [hop_csr(half, r, d) for r, d in hops]
+        anchors = (node_type == type_names.index(types[0])).nonzero(as_tuple=True)[0].tolist()
+        stack = [([a], [], [], 1.0) for a in anchors]
+        while stack:
+            nodes, facts, signs, p = stack.pop()
+            j = len(facts)
+            if j == len(hops):
+                if len(set(nodes)) == len(nodes):
+                    transport = PathTransportOperator(
+                        maps.src, maps.tgt, torch.tensor([nodes]), torch.tensor([facts]),
+                        edge_index, shared_scale=True, face_edge_sign=torch.tensor([signs]))
+                    output += PathCellTerm(transport, torch.tensor([p], dtype=torch.float64)
+                                           ).apply(x, x.size(0))
+                continue
+            csr = csrs[j]
+            start, end = int(csr.ptr[nodes[-1]]), int(csr.ptr[nodes[-1] + 1])
+            for k in range(start, end):
+                stack.append((nodes + [int(csr.other[k])], facts + [int(csr.fact[k])],
+                              signs + [float(csr.sign[k])], p / (end - start)))
+    return output
+
+
+class EstimatorTests(unittest.TestCase):
+    """T8: the merged-weight estimator is unbiased for the stated target."""
+
+    DRAWS, R = 4000, 3
+
+    def _statistics(self, merge: str) -> tuple[float, float]:
+        edge_index, *_ = _small_hetero()
+        maps = _chain_operators(edge_index.size(1), k=2, d=3, seed=11, dtype=torch.float64,
+                                shared=True)
+        x = torch.randn(9, 3, generator=torch.Generator().manual_seed(5), dtype=torch.float64)
+        target = _exact_target(maps, x).reshape(-1)
+        samples = torch.stack([_apply_groups(_draw(seed, self.R, merge), maps, edge_index, x)
+                               .reshape(-1) for seed in range(self.DRAWS)])
+        mean = samples.mean(dim=0)
+        stderr = samples.std(dim=0) / self.DRAWS ** 0.5
+        z = (mean - target).abs() / stderr.clamp_min(1e-300)
+        z = torch.where((mean - target).abs() < 1e-12, torch.zeros_like(z), z)
+        return float((mean - target).norm() / target.norm()), float(z.max())
+
+    def test_T8_mean_of_draws_matches_the_exact_target(self) -> None:
+        relative, z = self._statistics("sum")
+        self.assertLessEqual(relative, 0.02)
+        self.assertLessEqual(z, 5.0)
+
+    def test_T8_negative_control_dropping_duplicates_is_biased(self) -> None:
+        _, z = self._statistics("drop_duplicates")
+        self.assertGreater(z, 10.0)
+
+
+class IdentityTests(unittest.TestCase):
+    """T9: cell identity by facts, weights summed."""
+
+    def _merge(self, rows, weights):
+        from src.data.path_sampler import Walks, merge_cells
+
+        edge_index, _, node_type, _, _ = _small_hetero()
+        walks = Walks(
+            nodes=torch.tensor([r[0] for r in rows]), facts=torch.tensor([r[1] for r in rows]),
+            signs=torch.tensor([r[2] for r in rows]),
+            relations=torch.tensor([r[3] for r in rows]),
+            directions=torch.tensor([r[4] for r in rows]),
+            weight=torch.tensor(weights, dtype=torch.float64))
+        return merge_cells(walks, node_type, edge_index, lambda s: (str(s), ("t",) * 3))
+
+    def test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight(self) -> None:
+        # 2 -cite(fact 2: 1->2, sign -1)- 1 -cite(fact 0: 0->1, sign -1)- 0, and its reversal
+        forward = ([2, 1, 0], [2, 0], [-1, -1], [0, 0], [-1, -1])
+        backward = ([0, 1, 2], [0, 2], [1, 1], [0, 0], [1, 1])
+        groups = self._merge([forward, backward, forward], [0.5, 0.25, 0.5])
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].num_faces, 1)
+        self.assertAlmostEqual(float(groups[0].path_weight[0]), 1.25, places=6)
+        # canonical reading: the smaller signature; directions are coded d + 1, so the
+        # (cite -, cite -) reading [2, 1, 0] precedes (cite +, cite +)
+        self.assertEqual(groups[0].face_node_index.tolist(), [[2, 1, 0]])
+
+    def test_T9_paths_through_different_reciprocal_facts_are_different_cells(self) -> None:
+        # 3 -cite(fact 4: 3->0)- 0 then to 1 via fact 0 (0->1, +) or fact 1 (1->0, -)
+        via_forward = ([3, 0, 1], [4, 0], [1, 1], [0, 0], [1, 1])
+        via_backward = ([3, 0, 1], [4, 1], [1, -1], [0, 0], [1, -1])
+        groups = self._merge([via_forward, via_backward], [1.0, 1.0])
+        cells = sum(g.num_faces for g in groups)
+        self.assertEqual(cells, 2)
+        for group in groups:
+            keys = group.face_edge_index.tolist()
+            self.assertEqual(len(keys), len(set(map(tuple, keys))))
+
+    def test_T9_no_two_cells_share_a_key_in_real_draws(self) -> None:
+        for seed in range(20):
+            for group in _draw(seed, 5):
+                keys = list(map(tuple, group.face_edge_index.tolist()))
+                self.assertEqual(len(keys), len(set(keys)))
+                reversed_keys = {k[::-1] for k in keys}
+                palindromic = group.node_type_sequence == group.node_type_sequence[::-1]
+                if not palindromic:
+                    continue
+                # a path and its reversal never both appear
+                self.assertFalse(any(k in reversed_keys and k != k[::-1] for k in keys))
+
+
+class StabilityTests(unittest.TestCase):
+    """T13: lambda_max(D^-1/2 L D^-1/2) <= 2 + 1e-9 with m_f and signs, 60 fixtures."""
+
+    def test_T13_lambda_max_at_most_two(self) -> None:
+        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
+
+        worst = 0.0
+        for fixture in range(60):
+            shared = fixture % 2 == 0
+            generator = torch.Generator().manual_seed(1000 + fixture)
+            paths = SignedPaths(7, (2, 3), 3, generator, signed=True)
+            maps = _chain_operators(paths.edge_index.size(1), k=2, d=3, seed=fixture,
+                                    dtype=torch.float64, shared=shared)
+            terms = []
+            for transport in paths.transports(maps, shared):
+                m = 3.0 * (1.0 - torch.rand(transport.face_node_index.size(0),
+                                            generator=generator, dtype=torch.float64))
+                w = torch.rand(m.numel(), generator=generator, dtype=torch.float64)
+                terms.append(PathCellTerm(transport, w * m))
+            gamma = torch.rand(1, generator=generator, dtype=torch.float64)[0] * 3
+            laplacian = VertexPathSheafLaplacian(maps, paths.edge_index, 7, tuple(terms), gamma,
+                                                 checkpoint=False)
+            basis = torch.eye(7 * 3, dtype=torch.float64).view(7 * 3, 7, 3)
+            matrix = torch.stack([laplacian.apply_normalized(b).reshape(-1) for b in basis], 1)
+            worst = max(worst, float(torch.linalg.eigvalsh(0.5 * (matrix + matrix.T))[-1]))
+        self.assertLessEqual(worst, 2.0 + 1e-9)
+
+
+class UniformInstanceTests(unittest.TestCase):
+    """T16 (part): uniform_instance draws instances uniformly; it refuses L > 2."""
+
+    def _hub(self):
+        # anchor paper 0 with authors 1, 2, 3; author 1 has 30 more papers, authors 2, 3 have 3
+        writes = [(0, 1), (0, 2), (0, 3)]
+        paper = 4
+        for author, count in ((1, 30), (2, 3), (3, 3)):
+            for _ in range(count):
+                writes.append((paper, author))
+                paper += 1
+        edge_index = torch.tensor(writes).t()
+        node_type = torch.tensor([0] + [1, 1, 1] + [0] * (paper - 4))
+        return edge_index, torch.zeros(len(writes), dtype=torch.long), node_type
+
+    def _counts(self, sampler: str, draws: int) -> torch.Tensor:
+        from src.data.path_sampler import build_half_edges, hop_csr, sample_walks
+
+        edge_index, edge_type, node_type = self._hub()
+        half = build_half_edges(edge_index, edge_type, node_type.numel(), (), True)
+        csrs = [hop_csr(half, 0, 1), hop_csr(half, 0, -1)]
+        walks = sample_walks(csrs, torch.tensor([0]), draws, torch.Generator().manual_seed(3),
+                             uniform_instance=(sampler == "uniform_instance"))
+        return torch.bincount(walks.nodes[:, 2], minlength=node_type.numel())[4:]
+
+    def test_T16_uniform_instance_is_uniform_over_instances(self) -> None:
+        draws = 36 * 1000
+        counts = self._counts("uniform_instance", draws).double()
+        accepted = counts.sum()
+        expected = accepted / 36
+        sigma = (expected * (1 - 1 / 36)) ** 0.5
+        self.assertLess(float(((counts - expected).abs() / sigma).max()), 5.0)
+        walk = self._counts("walk", draws).double()  # control: 1/90 vs 1/9 per instance
+        self.assertGreater(float(((walk - walk.sum() / 36).abs()
+                                  / (walk.sum() / 36) ** 0.5).max()), 10.0)
+
+    def test_T16_uniform_instance_refuses_long_schemas(self) -> None:
+        with self.assertRaisesRegex(ValueError, "L <= 2"):
+            _draw(0, 2, sampler="uniform_instance",
+                  schemas=(("PPPA", ("paper",) * 3 + ("author",), ((0, 1), (0, 1), (1, 1))),))
+
+
+class SamplerConfigAndFreeWalkTests(unittest.TestCase):
+    def test_config_rules(self) -> None:
+        from src.configs.config import TrainConfig
+
+        with self.assertRaisesRegex(ValueError, "dfs"):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
+                                            "path_sampler": "dfs"}})
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_sampler": "bfs"}})
+        for sampler in ("walk", "uniform_instance"):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
+                                            "path_sampler": sampler}})
+
+    def test_batch_without_the_highest_self_inverse_relation(self) -> None:
+        from src.data.path_sampler import build_free_path_groups
+
+        # relations 0..3 self-inverse, but this batch only holds relation 0
+        groups = build_free_path_groups(torch.tensor([[0, 1], [1, 2]]),
+                                        torch.zeros(2, dtype=torch.long),
+                                        torch.zeros(3, dtype=torch.long), None, (0, 1, 2, 3),
+                                        tied=True, walks_per_anchor=4, seed=0)
+        self.assertEqual(sum(g.num_faces for g in groups), 1)
+
+    def test_schema_free_walks_on_a_self_inverse_relation(self) -> None:
+        from src.data.fact_layer import FactLayer
+        from src.data.path_sampler import build_free_path_groups
+
+        # undirected 6-cycle plus a chord, stored once per pair (tied, rho(r) = r)
+        pairs = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0, 5), (1, 4)]
+        edge_index = torch.tensor(pairs).t()
+        groups = build_free_path_groups(edge_index, torch.zeros(7, dtype=torch.long),
+                                        torch.zeros(6, dtype=torch.long), ("bond",), (0,),
+                                        tied=True, walks_per_anchor=20, seed=0)
+        self.assertEqual(len(groups), 1)
+        group = groups[0]
+        self.assertEqual(group.relation_index.unique().tolist(), [0])
+        self.assertTrue(bool((group.face_edge_sign == 1).any() & (group.face_edge_sign == -1).any()))
+        keys = {tuple(k) for k in group.face_edge_index.tolist()}
+        self.assertEqual(len(keys), group.num_faces)
+        self.assertFalse(any(k[::-1] in keys for k in keys))  # one cell per path up to reversal
+        # 2-paths up to reversal = sum_v C(deg v, 2); with 20 walks per anchor all are drawn
+        degree = torch.bincount(edge_index.reshape(-1), minlength=6)
+        self.assertEqual(group.num_faces, int((degree * (degree - 1) // 2).sum()))
+        self.assertTrue(bool((group.path_weight > 0).all()))
+
+
 if __name__ == "__main__":
     unittest.main()

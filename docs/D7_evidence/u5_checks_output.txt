@@ -1,0 +1,5 @@
+T8 merge=sum              draws=4000 r=3: rel err 0.0050 (pass <= 0.02), max|z| 2.73 (sum: <= 5, dedup control: > 10)
+T8 merge=drop_duplicates  draws=4000 r=3: rel err 0.4747 (pass <= 0.02), max|z| 949.42 (sum: <= 5, dedup control: > 10)
+T16 uniform_instance: accepted 33164, per-instance counts min 849 max 981, expected-if-uniform 921.2, max|dev|/sqrt(E) 2.38
+T16 walk            : accepted 29489, per-instance counts min 337 max 3073, expected-if-uniform 819.1, max|dev|/sqrt(E) 78.75
+

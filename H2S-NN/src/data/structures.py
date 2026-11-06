@@ -16,6 +16,9 @@ class FaceGroup:
     face_edge_index: torch.Tensor
     relation_index: torch.Tensor
     face_edge_sign: torch.Tensor
+    # Merged weight m_f of each cell (D8: summed 1/r over the walks that drew it); None for
+    # the DFS builders (every cell weight 1). Multiplies w_f in both L_P and D.
+    path_weight: torch.Tensor | None = None
 
     @property
     def num_faces(self) -> int:
@@ -33,6 +36,7 @@ class FaceGroup:
             face_edge_index=self.face_edge_index.to(device),
             relation_index=self.relation_index.to(device),
             face_edge_sign=self.face_edge_sign.to(device),
+            path_weight=None if self.path_weight is None else self.path_weight.to(device),
         )
 
 

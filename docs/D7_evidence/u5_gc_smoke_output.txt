@@ -1,0 +1,3 @@
+mutag: relations 4, self-inverse (0, 1, 2, 3), shared roles (0, 1, 2, 3), batch edges 655, groups 24, cells 966, logits (32, 2), finite True
+proteins: relations 1, self-inverse (0,), shared roles (0,), batch edges 1761, groups 18, cells 5234, logits (32, 2), finite True
+

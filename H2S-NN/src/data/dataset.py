@@ -6,14 +6,16 @@ from typing import TYPE_CHECKING
 import torch
 
 from src.configs.config import TrainConfig
-from src.data.fact_layer import apply_fact_layer, build_fact_layer
+from src.data.fact_layer import FactLayer, apply_fact_layer, build_fact_layer
+from src.data.path_sampler import build_schema_path_groups
+from src.data.schemas import resolve_schemas
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.preprocessing import (
     compute_relation_diagnostics,
     deterministic_validation_split,
     enumerate_metapath_faces,
 )
-from src.data.structures import PreparedH2SData
+from src.data.structures import FaceGroup, PreparedH2SData
 
 if TYPE_CHECKING:
     from torch_geometric.data import HeteroData
@@ -121,6 +123,50 @@ def _prepare_target_labels(
     )
 
 
+def build_node_classification_paths(
+    config: TrainConfig,
+    fact_layer: FactLayer,
+    node_slices,
+    node_type: torch.Tensor,
+    node_type_names: tuple[str, ...],
+    edge_index: torch.Tensor,
+    edge_type: torch.Tensor,
+    relation_tuples: tuple[tuple[str, str, str], ...],
+    seed: int,
+) -> tuple[FaceGroup, ...]:
+    """Path cells of one draw: the walk sampler over the resolved schemas (D8; `seed` is
+    the draw's seed), or the pre-D7 DFS (`path_sampler: dfs`, seeded by acm_split_seed)."""
+    if config.data.path_sampler == "dfs":
+        return enumerate_metapath_faces(
+            node_slices=node_slices,
+            edge_index=edge_index,
+            edge_type=edge_type,
+            relation_tuples=relation_tuples,
+            templates=config.data.metapath_templates,
+            exclude_identity_metapaths=config.data.exclude_identity_metapaths,
+            split_seed=config.data.acm_split_seed,
+        )
+    schemas = resolve_schemas(config.data.metapath_templates, fact_layer, relation_tuples)
+
+    def anchors_of(type_name: str) -> torch.Tensor:
+        start, end = node_slices[type_name]
+        return torch.arange(start, end)
+
+    return build_schema_path_groups(
+        edge_index=edge_index,
+        edge_type=edge_type,
+        node_type=node_type,
+        node_type_names=node_type_names,
+        schemas=schemas,
+        self_inverse=fact_layer.self_inverse,
+        tied=fact_layer.mode == "tied",
+        anchors_of=anchors_of,
+        default_walks=config.data.face_sample_k,
+        seed=seed,
+        sampler=config.data.path_sampler,
+    )
+
+
 def build_dataset(config: TrainConfig) -> PreparedH2SData:
     data = _load_hetero_data(config)
     raw_x, node_type, node_type_names, node_slices, feature_dims = stack_node_features(data)
@@ -155,14 +201,16 @@ def build_dataset(config: TrainConfig) -> PreparedH2SData:
     train_indices = target_indices[target_train_mask]
     train_labels = target_y[target_train_mask]
 
-    face_groups = enumerate_metapath_faces(
+    face_groups = build_node_classification_paths(
+        config=config,
+        fact_layer=fact_layer,
         node_slices=node_slices,
+        node_type=node_type,
+        node_type_names=node_type_names,
         edge_index=edge_index,
         edge_type=edge_type,
         relation_tuples=relation_tuples,
-        templates=config.data.metapath_templates,
-        exclude_identity_metapaths=config.data.exclude_identity_metapaths,
-        split_seed=config.data.acm_split_seed,
+        seed=config.seed,
     )
 
     # Reporting-only statistics; never concatenated onto node features. See

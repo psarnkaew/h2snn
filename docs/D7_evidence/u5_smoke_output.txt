@@ -1,0 +1,10 @@
+acm: facts 273936 relations ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'] build 7.7s
+  PAP ('paper', 'author', 'paper') cells=12630 L=2 signs=[-1.0, 1.0] m_f mean=0.0969 max=1.040 sum=1224.4
+  PSP ('paper', 'subject', 'paper') cells=121744 L=2 signs=[-1.0, 1.0] m_f mean=0.0244 max=1.180 sum=2969.3
+dblp: facts 119783 relations ['author__to__paper', 'paper__to__term', 'paper__to__venue'] build 3.1s
+  APA ('author', 'paper', 'author') cells=6016 L=2 signs=[-1.0, 1.0] m_f mean=0.1660 max=1.260 sum=998.9
+  APTPA ('author', 'paper', 'term', 'paper', 'author') cells=168948 L=4 signs=[-1.0, 1.0] m_f mean=0.0215 max=0.340 sum=3636.7
+imdb: facts 43321 relations ['movie__to__director', 'movie__>actorh__actor', 'movie__to__keyword'] build 2.0s
+  MDM ('movie', 'director', 'movie') cells=8165 L=2 signs=[-1.0, 1.0] m_f mean=0.3107 max=1.300 sum=2537.2
+  MAM ('movie', 'actor', 'movie') cells=39519 L=2 signs=[-1.0, 1.0] m_f mean=0.0729 max=0.540 sum=2879.7
+

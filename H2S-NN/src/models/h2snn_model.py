@@ -391,6 +391,8 @@ class H2SNN(nn.Module):
                 type_offsets=dims.type_offsets,
             )
         self.relation_embedding = nn.Embedding(dims.num_relations, model_config.d_r)
+        # rho(r) = r relations of the data's fact layer (the GC path builder needs them).
+        self.self_inverse_relations = tuple(dims.self_inverse_relations)
         # Shared roles (D7): relations with rho(r) = r, or every relation under the
         # direction-blind ablation.
         self.shared_role_relations = (
@@ -555,6 +557,9 @@ class H2SNN(nn.Module):
                 continue
             latent = self._path_latent(h0, group)
             group_weights = self._path_weights(latent, group, h0)
+            gate_weights = group_weights
+            if group.path_weight is not None:  # merged weight m_f, in both L_P and D (D8)
+                group_weights = group_weights * group.path_weight.to(group_weights.dtype)
             nodes = group.face_node_index
             if self.path_mode == "endpoint_edges":
                 endpoints = torch.stack([nodes[:, 0], nodes[:, -1]])
@@ -572,7 +577,7 @@ class H2SNN(nn.Module):
                 else:
                     term = PathCellTerm(transport, group_weights)
             terms.append(term)
-            weights.append(group_weights)
+            weights.append(gate_weights)
         return tuple(terms), tuple(weights)
 
     def build_operator(
