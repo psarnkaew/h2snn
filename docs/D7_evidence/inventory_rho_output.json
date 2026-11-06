@@ -1,0 +1,48 @@
+[
+ {
+  "dataset": "amazonbook",
+  "num_nodes": 144242,
+  "num_relations": 2,
+  "facts_before": 4761460,
+  "facts_after": 2380730,
+  "self_inverse": [],
+  "mirror_pairs": [
+   [
+    "book__rated_by__user",
+    "user__rates__book"
+   ]
+  ],
+  "untied": [],
+  "near_partners": [],
+  "relations": [
+   {
+    "relation": "user__rates__book",
+    "types": [
+     "user",
+     "book"
+    ],
+    "stored_edges": 2380730,
+    "distinct_edges": 2380730,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 0,
+    "rho": "book__rated_by__user",
+    "unmatched_edges": 0
+   },
+   {
+    "relation": "book__rated_by__user",
+    "types": [
+     "book",
+     "user"
+    ],
+    "stored_edges": 2380730,
+    "distinct_edges": 2380730,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 0,
+    "rho": "user__rates__book",
+    "unmatched_edges": 0
+   }
+  ]
+ }
+]

@@ -1,0 +1,8 @@
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.164s
+
+OK
+

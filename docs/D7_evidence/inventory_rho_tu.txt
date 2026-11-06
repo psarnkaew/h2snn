@@ -1,0 +1,318 @@
+Downloading https://www.chrsmrrs.com/graphkerneldatasets/MUTAG.zip
+Processing...
+Done!
+Downloading https://www.chrsmrrs.com/graphkerneldatasets/PROTEINS.zip
+Processing...
+Done!
+Downloading https://www.chrsmrrs.com/graphkerneldatasets/ENZYMES.zip
+Processing...
+Done!
+Downloading https://www.chrsmrrs.com/graphkerneldatasets/NCI1.zip
+Processing...
+Done!
+
+{
+ "dataset": "mutag",
+ "num_nodes": 3371,
+ "num_relations": 4,
+ "facts_before": 7442,
+ "facts_after": 7441,
+ "self_inverse": [
+  "edge_label_3"
+ ],
+ "mirror_pairs": [],
+ "untied": [
+  "edge_label_0",
+  "edge_label_1",
+  "edge_label_2"
+ ],
+ "near_partners": [
+  {
+   "r": "edge_label_0",
+   "r_prime": "edge_label_0",
+   "reversed_E_r": 4708,
+   "E_r_prime": 4708,
+   "intersection": 3906,
+   "missing_from_r_prime": 802,
+   "extra_in_r_prime": 802
+  },
+  {
+   "r": "edge_label_0",
+   "r_prime": "edge_label_1",
+   "reversed_E_r": 4708,
+   "E_r_prime": 2008,
+   "intersection": 711,
+   "missing_from_r_prime": 3997,
+   "extra_in_r_prime": 1297
+  },
+  {
+   "r": "edge_label_0",
+   "r_prime": "edge_label_2",
+   "reversed_E_r": 4708,
+   "E_r_prime": 724,
+   "intersection": 91,
+   "missing_from_r_prime": 4617,
+   "extra_in_r_prime": 633
+  },
+  {
+   "r": "edge_label_1",
+   "r_prime": "edge_label_1",
+   "reversed_E_r": 2008,
+   "E_r_prime": 2008,
+   "intersection": 758,
+   "missing_from_r_prime": 1250,
+   "extra_in_r_prime": 1250
+  },
+  {
+   "r": "edge_label_1",
+   "r_prime": "edge_label_2",
+   "reversed_E_r": 2008,
+   "E_r_prime": 724,
+   "intersection": 539,
+   "missing_from_r_prime": 1469,
+   "extra_in_r_prime": 185
+  },
+  {
+   "r": "edge_label_2",
+   "r_prime": "edge_label_2",
+   "reversed_E_r": 724,
+   "E_r_prime": 724,
+   "intersection": 94,
+   "missing_from_r_prime": 630,
+   "extra_in_r_prime": 630
+  }
+ ],
+ "relations": [
+  {
+   "relation": "edge_label_0",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 4708,
+   "distinct_edges": 4708,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 1953,
+   "rho": null,
+   "unmatched_edges": 4708
+  },
+  {
+   "relation": "edge_label_1",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 2008,
+   "distinct_edges": 2008,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 379,
+   "rho": null,
+   "unmatched_edges": 2008
+  },
+  {
+   "relation": "edge_label_2",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 724,
+   "distinct_edges": 724,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 47,
+   "rho": null,
+   "unmatched_edges": 724
+  },
+  {
+   "relation": "edge_label_3",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 2,
+   "distinct_edges": 2,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 1,
+   "rho": "edge_label_3",
+   "unmatched_edges": 0
+  }
+ ],
+ "num_graphs": 188,
+ "pipeline_num_relations": 4,
+ "pyg_edge_attr_available": true,
+ "pipeline_vs_pyg_label_mismatch": 1771,
+ "pyg_label_analysis": {
+  "dataset": "mutag_pyg_edge_attr",
+  "num_nodes": 3371,
+  "num_relations": 4,
+  "facts_before": 7442,
+  "facts_after": 3721,
+  "self_inverse": [
+   "edge_label_0",
+   "edge_label_1",
+   "edge_label_2",
+   "edge_label_3"
+  ],
+  "mirror_pairs": [],
+  "untied": [],
+  "near_partners": [],
+  "relations": [
+   {
+    "relation": "edge_label_0",
+    "types": [
+     "node",
+     "node"
+    ],
+    "stored_edges": 4708,
+    "distinct_edges": 4708,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 2354,
+    "rho": "edge_label_0",
+    "unmatched_edges": 0
+   },
+   {
+    "relation": "edge_label_1",
+    "types": [
+     "node",
+     "node"
+    ],
+    "stored_edges": 2008,
+    "distinct_edges": 2008,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 1004,
+    "rho": "edge_label_1",
+    "unmatched_edges": 0
+   },
+   {
+    "relation": "edge_label_2",
+    "types": [
+     "node",
+     "node"
+    ],
+    "stored_edges": 724,
+    "distinct_edges": 724,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 362,
+    "rho": "edge_label_2",
+    "unmatched_edges": 0
+   },
+   {
+    "relation": "edge_label_3",
+    "types": [
+     "node",
+     "node"
+    ],
+    "stored_edges": 2,
+    "distinct_edges": 2,
+    "duplicate_edges": 0,
+    "self_loops": 0,
+    "reciprocal_pairs_within": 1,
+    "rho": "edge_label_3",
+    "unmatched_edges": 0
+   }
+  ]
+ }
+}
+{
+ "dataset": "proteins",
+ "num_nodes": 43471,
+ "num_relations": 1,
+ "facts_before": 162088,
+ "facts_after": 81044,
+ "self_inverse": [
+  "edge_label_0"
+ ],
+ "mirror_pairs": [],
+ "untied": [],
+ "near_partners": [],
+ "relations": [
+  {
+   "relation": "edge_label_0",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 162088,
+   "distinct_edges": 162088,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 81044,
+   "rho": "edge_label_0",
+   "unmatched_edges": 0
+  }
+ ],
+ "num_graphs": 1113,
+ "pipeline_num_relations": 1,
+ "pyg_edge_attr_available": false
+}
+{
+ "dataset": "enzymes",
+ "num_nodes": 19580,
+ "num_relations": 1,
+ "facts_before": 74564,
+ "facts_after": 37282,
+ "self_inverse": [
+  "edge_label_0"
+ ],
+ "mirror_pairs": [],
+ "untied": [],
+ "near_partners": [],
+ "relations": [
+  {
+   "relation": "edge_label_0",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 74564,
+   "distinct_edges": 74564,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 37282,
+   "rho": "edge_label_0",
+   "unmatched_edges": 0
+  }
+ ],
+ "num_graphs": 600,
+ "pipeline_num_relations": 1,
+ "pyg_edge_attr_available": false
+}
+{
+ "dataset": "nci1",
+ "num_nodes": 122747,
+ "num_relations": 1,
+ "facts_before": 265506,
+ "facts_after": 132753,
+ "self_inverse": [
+  "edge_label_0"
+ ],
+ "mirror_pairs": [],
+ "untied": [],
+ "near_partners": [],
+ "relations": [
+  {
+   "relation": "edge_label_0",
+   "types": [
+    "node",
+    "node"
+   ],
+   "stored_edges": 265506,
+   "distinct_edges": 265506,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 132753,
+   "rho": "edge_label_0",
+   "unmatched_edges": 0
+  }
+ ],
+ "num_graphs": 4110,
+ "pipeline_num_relations": 1,
+ "pyg_edge_attr_available": false
+}
+

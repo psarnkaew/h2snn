@@ -1,0 +1,382 @@
+{
+ "dataset": "acm",
+ "num_nodes": 10942,
+ "num_relations": 8,
+ "facts_before": 547872,
+ "facts_after": 273936,
+ "self_inverse": [],
+ "mirror_pairs": [
+  [
+   "author__to__paper",
+   "paper__to__author"
+  ],
+  [
+   "paper__cite__paper",
+   "paper__ref__paper"
+  ],
+  [
+   "paper__to__subject",
+   "subject__to__paper"
+  ],
+  [
+   "paper__to__term",
+   "term__to__paper"
+  ]
+ ],
+ "untied": [],
+ "near_partners": [
+  {
+   "r": "paper__cite__paper",
+   "r_prime": "paper__cite__paper",
+   "reversed_E_r": 5343,
+   "E_r_prime": 5343,
+   "intersection": 58,
+   "missing_from_r_prime": 5285,
+   "extra_in_r_prime": 5285
+  },
+  {
+   "r": "paper__ref__paper",
+   "r_prime": "paper__ref__paper",
+   "reversed_E_r": 5343,
+   "E_r_prime": 5343,
+   "intersection": 58,
+   "missing_from_r_prime": 5285,
+   "extra_in_r_prime": 5285
+  }
+ ],
+ "relations": [
+  {
+   "relation": "paper__cite__paper",
+   "types": [
+    "paper",
+    "paper"
+   ],
+   "stored_edges": 5343,
+   "distinct_edges": 5343,
+   "duplicate_edges": 0,
+   "self_loops": 8,
+   "reciprocal_pairs_within": 25,
+   "rho": "paper__ref__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__ref__paper",
+   "types": [
+    "paper",
+    "paper"
+   ],
+   "stored_edges": 5343,
+   "distinct_edges": 5343,
+   "duplicate_edges": 0,
+   "self_loops": 8,
+   "reciprocal_pairs_within": 25,
+   "rho": "paper__cite__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__author",
+   "types": [
+    "paper",
+    "author"
+   ],
+   "stored_edges": 9949,
+   "distinct_edges": 9949,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "author__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "author__to__paper",
+   "types": [
+    "author",
+    "paper"
+   ],
+   "stored_edges": 9949,
+   "distinct_edges": 9949,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__author",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__subject",
+   "types": [
+    "paper",
+    "subject"
+   ],
+   "stored_edges": 3025,
+   "distinct_edges": 3025,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "subject__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "subject__to__paper",
+   "types": [
+    "subject",
+    "paper"
+   ],
+   "stored_edges": 3025,
+   "distinct_edges": 3025,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__subject",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__term",
+   "types": [
+    "paper",
+    "term"
+   ],
+   "stored_edges": 255619,
+   "distinct_edges": 255619,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "term__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "term__to__paper",
+   "types": [
+    "term",
+    "paper"
+   ],
+   "stored_edges": 255619,
+   "distinct_edges": 255619,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__term",
+   "unmatched_edges": 0
+  }
+ ]
+}
+{
+ "dataset": "dblp",
+ "num_nodes": 26128,
+ "num_relations": 6,
+ "facts_before": 239566,
+ "facts_after": 119783,
+ "self_inverse": [],
+ "mirror_pairs": [
+  [
+   "author__to__paper",
+   "paper__to__author"
+  ],
+  [
+   "paper__to__term",
+   "term__to__paper"
+  ],
+  [
+   "paper__to__venue",
+   "venue__to__paper"
+  ]
+ ],
+ "untied": [],
+ "near_partners": [],
+ "relations": [
+  {
+   "relation": "author__to__paper",
+   "types": [
+    "author",
+    "paper"
+   ],
+   "stored_edges": 19645,
+   "distinct_edges": 19645,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__author",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__term",
+   "types": [
+    "paper",
+    "term"
+   ],
+   "stored_edges": 85810,
+   "distinct_edges": 85810,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "term__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__venue",
+   "types": [
+    "paper",
+    "venue"
+   ],
+   "stored_edges": 14328,
+   "distinct_edges": 14328,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "venue__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "paper__to__author",
+   "types": [
+    "paper",
+    "author"
+   ],
+   "stored_edges": 19645,
+   "distinct_edges": 19645,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "author__to__paper",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "term__to__paper",
+   "types": [
+    "term",
+    "paper"
+   ],
+   "stored_edges": 85810,
+   "distinct_edges": 85810,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__term",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "venue__to__paper",
+   "types": [
+    "venue",
+    "paper"
+   ],
+   "stored_edges": 14328,
+   "distinct_edges": 14328,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "paper__to__venue",
+   "unmatched_edges": 0
+  }
+ ]
+}
+{
+ "dataset": "imdb",
+ "num_nodes": 21420,
+ "num_relations": 6,
+ "facts_before": 86642,
+ "facts_after": 43321,
+ "self_inverse": [],
+ "mirror_pairs": [
+  [
+   "actor__to__movie",
+   "movie__>actorh__actor"
+  ],
+  [
+   "director__to__movie",
+   "movie__to__director"
+  ],
+  [
+   "keyword__to__movie",
+   "movie__to__keyword"
+  ]
+ ],
+ "untied": [],
+ "near_partners": [],
+ "relations": [
+  {
+   "relation": "movie__to__director",
+   "types": [
+    "movie",
+    "director"
+   ],
+   "stored_edges": 4932,
+   "distinct_edges": 4932,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "director__to__movie",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "director__to__movie",
+   "types": [
+    "director",
+    "movie"
+   ],
+   "stored_edges": 4932,
+   "distinct_edges": 4932,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "movie__to__director",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "movie__>actorh__actor",
+   "types": [
+    "movie",
+    "actor"
+   ],
+   "stored_edges": 14779,
+   "distinct_edges": 14779,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "actor__to__movie",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "actor__to__movie",
+   "types": [
+    "actor",
+    "movie"
+   ],
+   "stored_edges": 14779,
+   "distinct_edges": 14779,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "movie__>actorh__actor",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "movie__to__keyword",
+   "types": [
+    "movie",
+    "keyword"
+   ],
+   "stored_edges": 23610,
+   "distinct_edges": 23610,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "keyword__to__movie",
+   "unmatched_edges": 0
+  },
+  {
+   "relation": "keyword__to__movie",
+   "types": [
+    "keyword",
+    "movie"
+   ],
+   "stored_edges": 23610,
+   "distinct_edges": 23610,
+   "duplicate_edges": 0,
+   "self_loops": 0,
+   "reciprocal_pairs_within": 0,
+   "rho": "movie__to__keyword",
+   "unmatched_edges": 0
+  }
+ ]
+}
+

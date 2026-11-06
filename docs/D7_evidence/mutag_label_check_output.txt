@@ -1,0 +1,4 @@
+raw edges 7442 raw (u,v) whose reverse has a different/missing label: 0
+PyG edges in the same position as raw A.txt: 943 of 7442
+PyG edge_attr label vs raw label of the same (u,v): 0 mismatches
+
