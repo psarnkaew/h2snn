@@ -546,7 +546,7 @@ class H2SNN(nn.Module):
             else:
                 transport = PathTransportOperator(
                     maps.src, maps.tgt, nodes, group.face_edge_index, edge_index,
-                    shared_scale=shared,
+                    shared_scale=shared, face_edge_sign=group.face_edge_sign,
                 )
                 if self.path_mode == "holonomy_edges":
                     term = HolonomyEdgeTerm(transport, group_weights)

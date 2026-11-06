@@ -349,13 +349,46 @@ class DenseMapOperator:
         )
 
 
+def _mix_rows(
+    first: FactorizedMapOperator | DenseMapOperator,
+    second: FactorizedMapOperator | DenseMapOperator,
+    take_second: torch.Tensor,
+) -> FactorizedMapOperator | DenseMapOperator:
+    """Row-wise choice between two operators over the same rows: row `p` is `second`'s map
+    where `take_second[p]`, else `first`'s. Used for hops traversed against their stored
+    direction, whose near side is the target role."""
+    if isinstance(first, DenseMapOperator):
+        pick = take_second.view(-1, 1, 1)
+        scale = None if first.scale is None else torch.where(take_second, second.scale,
+                                                             first.scale)
+        return DenseMapOperator(torch.where(pick, second.maps, first.maps), scale)
+    if first.rotations is second.rotations:
+        rotations = first.rotations
+        offset = 0
+    else:
+        rotations = torch.cat([first.rotations, second.rotations], dim=0)
+        offset = int(first.rotations.size(0))
+    return FactorizedMapOperator(
+        scale=torch.where(take_second, second.scale, first.scale),
+        reflectors=torch.where(take_second.view(-1, 1, 1), second.reflectors, first.reflectors),
+        rotations=rotations,
+        group_ids=torch.where(take_second, second.group_ids + offset, first.group_ids),
+    )
+
+
 class PathTransportOperator:
     """Matrix-free parallel transport into each path's 2-cell stalk, gauge `A_f = I`.
 
-    For a path `v_0 -e_1-> v_1 ... -e_L-> v_L` whose edges are stored along the path
-    (`validate_face_orientation`), functoriality forces the node->2-cell maps
+    For a simple path `v_0, e_1, v_1, ..., e_L, v_L` with hop signs `sigma_j`
+    (`face_edge_sign`; +1: `e_j` stored `v_{j-1} -> v_j`, -1: stored `v_j -> v_{j-1}`;
+    checked by `validate_face_orientation`), functoriality
+    `T_{v_{j-1}} F_{v_{j-1}<|e}^-1 = T_{v_j} F_{v_j<|e}^-1` forces the node->2-cell maps
 
-        T_{v_0} = I,   T_{v_i} = Q_1 Q_2 ... Q_i,   Q_j = (F^{e_j}_src)^-1 F^{e_j}_tgt.
+        T_{v_0} = I,   T_{v_i} = Q_1 Q_2 ... Q_i,   Q_j = F_{v_{j-1}<|e_j}^-1 F_{v_j<|e_j},
+
+    i.e. `Q_j = (F_src)^-1 F_tgt` on +1 hops and `Q_j = (F_tgt)^-1 F_src` on -1 hops
+    (`= Q_fwd^T` under D1a). Every method (`apply`, `apply_T`, holonomy, Horner sum, prefix
+    recursion, `squared_scales`) goes through the same signed step.
 
     `apply` returns `T_{v_i} x_{v_i}` for every position of every path; `apply_T` is its
     exact adjoint (node cochain <- per-incidence values). Each `Q_j` is applied to all
@@ -373,9 +406,14 @@ class PathTransportOperator:
         tgt: target-side factorized maps of the same edges.
         face_node_index: `[P, L+1]` node ids along each path.
         face_edge_index: `[P, L]` edge ids along each path (indices into `src`/`tgt`).
-        edge_index: `[2, E]` observed edge list; used to check that every path edge is
-            stored along the path and that paths are simple, which the formula assumes.
+        edge_index: `[2, E]` observed edge list; used to check every hop against its sign
+            and that paths are simple, which the formula assumes.
         shared_scale: the two sides carry the same scale on every edge (checked).
+        face_edge_sign: `[P, L]` hop signs in {+1, -1}; None means all +1.
+
+    `_src[j]` / `_tgt[j]` hold the maps at `v_{j-1}` / `v_j` of hop `j`: the stored source /
+    target roles, swapped row-wise on -1 hops. Columns without a -1 hop use the plain
+    selections, so all-+1 groups take exactly the unsigned code path.
     """
 
     def __init__(
@@ -386,6 +424,7 @@ class PathTransportOperator:
         face_edge_index: torch.Tensor,
         edge_index: torch.Tensor,
         shared_scale: bool = False,
+        face_edge_sign: torch.Tensor | None = None,
     ) -> None:
         if face_node_index.dim() != 2 or face_edge_index.dim() != 2:
             raise ValueError("face_node_index and face_edge_index must be two-dimensional.")
@@ -397,7 +436,8 @@ class PathTransportOperator:
         if src.num_edges != tgt.num_edges or edge_index.size(1) != src.num_edges:
             raise ValueError("src, tgt and edge_index must cover the same edges.")
         validate_face_orientation(
-            face_node_index, face_edge_index, edge_index, template_name="PathTransportOperator"
+            face_node_index, face_edge_index, edge_index, template_name="PathTransportOperator",
+            face_edge_sign=face_edge_sign,
         )
         if shared_scale and not torch.equal(src.scale, tgt.scale):
             raise ValueError(
@@ -406,17 +446,30 @@ class PathTransportOperator:
         self.shared_scale = shared_scale
         self.face_node_index = face_node_index
         self.length = int(face_edge_index.size(1))
-        self._src = tuple(src.select(face_edge_index[:, j]) for j in range(self.length))
-        self._tgt = tuple(tgt.select(face_edge_index[:, j]) for j in range(self.length))
+        # All source selections first, then all target selections: the autograd graph (and
+        # so the gradient summation order) of all-+1 groups is exactly the unsigned one.
+        src_sel = [src.select(face_edge_index[:, j]) for j in range(self.length)]
+        tgt_sel = [tgt.select(face_edge_index[:, j]) for j in range(self.length)]
+        near, far = [], []
+        for j in range(self.length):
+            reversed_hop = None if face_edge_sign is None else face_edge_sign[:, j] < 0
+            if reversed_hop is None or not bool(reversed_hop.any()):
+                near.append(src_sel[j])
+                far.append(tgt_sel[j])
+            else:
+                near.append(_mix_rows(src_sel[j], tgt_sel[j], reversed_hop))
+                far.append(_mix_rows(tgt_sel[j], src_sel[j], reversed_hop))
+        self._src = tuple(near)
+        self._tgt = tuple(far)
 
     def _step(self, j: int, y: torch.Tensor) -> torch.Tensor:
-        """`Q_j y = (F^{e_j}_src)^-1 F^{e_j}_tgt y` (orthogonal factors only when shared)."""
+        """`Q_j y = F_{v_{j-1}<|e_j}^-1 F_{v_j<|e_j} y` (orthogonal factors only when shared)."""
         if self.shared_scale:
             return self._src[j].apply_orthogonal_T(self._tgt[j].apply_orthogonal(y))
         return self._src[j].apply_inverse(self._tgt[j].apply(y))
 
     def _step_T(self, j: int, w: torch.Tensor) -> torch.Tensor:
-        """`Q_j^T w = (F^{e_j}_tgt)^T (F^{e_j}_src)^-T w`."""
+        """`Q_j^T w = F_{v_j<|e_j}^T F_{v_{j-1}<|e_j}^-T w`."""
         if self.shared_scale:
             return self._tgt[j].apply_orthogonal_T(self._src[j].apply_orthogonal(w))
         return self._tgt[j].apply_T(self._src[j].apply_inverse_T(w))
@@ -424,7 +477,7 @@ class PathTransportOperator:
     def squared_scales(self) -> torch.Tensor:
         """`[P, L+1]` squared conformal scale `s_i^2` of each `T_{v_i}` (`T^T T = s^2 I`).
 
-        `s_i = prod_{j<=i} c^{e_j}_tgt / c^{e_j}_src`; exactly 1 under shared scales (D1a).
+        `s_i = prod_{j<=i} c_{v_j<|e_j} / c_{v_{j-1}<|e_j}`; exactly 1 under shared scales (D1a).
         """
         reference = self._src[0].scale if self.length else None
         if reference is None:
