@@ -227,12 +227,13 @@ class DataConfig:
     # --- all tasks: fact layer (plan §9.1) ---
     # "tied": one oriented 1-cell per fact, rho from exact edge-set equality (the model).
     # "untied": every stored edge is its own 1-cell (ablation control; never tuned, see
-    # `reject_never_tuned_settings`). Interim default "untied" until link prediction
-    # supports the tied layer (U7); the DFS enumerators cannot follow tied facts.
+    # `reject_never_tuned_settings`). Interim default "untied": see path_sampler below.
     fact_layer: str = "untied"
     # Path-cell builder (plan §9.2): "walk" (r walks per anchor and schema, merged weights,
     # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only), "uniform_instance"
-    # (ablation: draws uniform over instances, L <= 2). Interim default "dfs" (see above).
+    # (ablation: draws uniform over instances, L <= 2). Interim defaults untied + dfs +
+    # no resampling: flipping them would also change the baselines' data, which come
+    # through the same builders with default configs (src/baselines/bundles.py).
     path_sampler: str = "dfs"
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
     # epoch); validation and test always use the draw with seed `seed`. Interim default
@@ -444,10 +445,9 @@ class DataConfig:
     def _resolved_link_prediction(
         self, dataset_name: str, task_type: str, explicit: frozenset[str] = frozenset()
     ) -> "DataConfig":
-        if self.fact_layer != "untied" or self.path_sampler != "dfs" or self.resample_paths:
+        if self.path_sampler == "uniform_instance":
             raise ValueError(
-                "link prediction supports fact_layer: untied with path_sampler: dfs only "
-                "until the split-by-fact protocol lands (D7 unit U7)."
+                "link prediction has no schemas; path_sampler: uniform_instance needs one."
             )
         preset = LINK_PREDICTION_PRESETS.get(dataset_name, {})
         target_relation = (

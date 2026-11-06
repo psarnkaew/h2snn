@@ -52,6 +52,23 @@ class LinkPredictionTrainer:
         self._best_test_metrics: dict[str, float] | None = None
         self._best_epoch: int = -1
 
+    def training_draw(self, data: PreparedLinkPredData, prepared_data: PreparedLinkPredData,
+                      epoch: int) -> PreparedLinkPredData:
+        """Data for one training epoch: the evaluation draw (seed `cfg.seed`) or, with
+        `data.resample_paths`, a fresh draw on the message graph with seed `cfg.seed +
+        epoch` (plan §9.2), built on the CPU copy and moved to the device."""
+        if not self.cfg.data.resample_paths:
+            return prepared_data
+        from dataclasses import replace
+
+        from src.data.link_prediction_dataset import build_link_path_groups  # resampling only
+
+        groups = build_link_path_groups(self.cfg, data.fact_layer, data.edge_index,
+                                        data.edge_type, data.node_type,
+                                        seed=self.cfg.seed + epoch)
+        return replace(prepared_data,
+                       face_groups=tuple(group.to(self.device) for group in groups))
+
     def fit(
         self,
         data: PreparedLinkPredData,
@@ -60,8 +77,11 @@ class LinkPredictionTrainer:
         self.model.to(self.device)
         prepared_data = data.to(self.device)
         bad_epochs = 0
+        if getattr(data, "fact_layer", None) is not None:
+            self.logger.info("fact layer: %s", data.fact_layer.summary())
         for epoch in range(self.cfg.epochs):
-            train_metrics = self._train_epoch(prepared_data, epoch)
+            train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
+                                              epoch)
             val_metrics = self._eval_epoch(prepared_data, "val", epoch)
             test_metrics = self._eval_epoch(prepared_data, "test", epoch)
 

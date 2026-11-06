@@ -1,0 +1,707 @@
+test_supported_cells_are_runnable_in_the_registry (test_baselines.AdapterContractTests.test_supported_cells_are_runnable_in_the_registry) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_supports_agrees_with_search_space (test_baselines.AdapterContractTests.test_supports_agrees_with_search_space) ... ok
+test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed. ... FAIL
+test_notebooks_drive_the_entry_scripts (test_baselines.BaselineNotebookTests.test_notebooks_drive_the_entry_scripts)
+The notebooks must call the scripts, not reimplement the campaign. ... ok
+test_graph_summary_reports_one_standard_deviation (test_baselines.CampaignSummaryTests.test_graph_summary_reports_one_standard_deviation)
+Under HINPool's holdout there is no repetition structure to average over. ... ok
+test_seed_tasks_report_one_standard_deviation (test_baselines.CampaignSummaryTests.test_seed_tasks_report_one_standard_deviation) ... ok
+test_every_runnable_cell_builds_a_sweep (test_baselines.CampaignSweepTests.test_every_runnable_cell_builds_a_sweep)
+A search space that fails to resolve must fail now, not mid-campaign. ... ok
+test_hyperband_window_must_be_valid (test_baselines.CampaignSweepTests.test_hyperband_window_must_be_valid) ... ok
+test_graph_split_comes_from_seed_not_overrides (test_baselines.CampaignUnitTests.test_graph_split_comes_from_seed_not_overrides)
+The split position travels as run_index/seed, which build_bundle takes. ... ok
+test_graph_units_are_seeded_holdout_runs (test_baselines.CampaignUnitTests.test_graph_units_are_seeded_holdout_runs)
+HINPool's protocol: five seeded stratified 80/10/10 holdouts, not folds. ... ok
+test_link_units_carry_no_split_overrides (test_baselines.CampaignUnitTests.test_link_units_carry_no_split_overrides) ... ok
+test_node_and_link_units_are_seeds (test_baselines.CampaignUnitTests.test_node_and_link_units_are_seeds) ... ok
+test_report_current_adapter_coverage (test_baselines.CoverageReportTests.test_report_current_adapter_coverage)
+Not a pass/fail gate -- prints how much of the matrix is actually implemented. ... ok
+test_a_machine_without_a_gpu_has_no_defect (test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect. ... ok
+test_cpu_only_dgl_on_windows_stays_installed (test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+test_scripts_importing_src_bootstrap_the_project_root (test_baselines.EntryPointBootstrapTests.test_scripts_importing_src_bootstrap_the_project_root) ... ok
+test_a_hyperband_stop_is_not_a_failure (test_baselines.EpochReportingTests.test_a_hyperband_stop_is_not_a_failure)
+W&B terminates a pruned run thread with a bare ``Exception``. ... ok
+test_report_key_matches_the_sweep_metric (test_baselines.EpochReportingTests.test_report_key_matches_the_sweep_metric)
+Live series and sweep metric must share a key, or nothing can prune. ... ok
+test_shared_loops_accept_a_report (test_baselines.EpochReportingTests.test_shared_loops_accept_a_report) ... ok
+test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) ... ok
+test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) ... ok
+test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) ... ok
+test_graph_head_pools_per_graph (test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_featureless_type_falls_back_to_identity (test_baselines.HomogeneousViewTests.test_featureless_type_falls_back_to_identity) ... ok
+test_link_prediction_view_keeps_real_features (test_baselines.HomogeneousViewTests.test_link_prediction_view_keeps_real_features)
+Regression: the default view once replaced real features with an identity. ... ok
+test_symmetrization_adds_self_loops_and_drops_duplicates (test_baselines.HomogeneousViewTests.test_symmetrization_adds_self_loops_and_drops_duplicates) ... ok
+test_a_lane_declares_the_vendor_clones_its_models_read (test_baselines.LaneNotebookTests.test_a_lane_declares_the_vendor_clones_its_models_read) ... ok
+test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator)
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... 
+  test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_core')
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... FAIL
+  test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_dgl')
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... FAIL
+test_each_lane_installs_only_its_own_group (test_baselines.LaneNotebookTests.test_each_lane_installs_only_its_own_group)
+The whole reason for the split: one optional group per runtime. ... ok
+test_every_lane_drives_the_entry_scripts_and_can_resume (test_baselines.LaneNotebookTests.test_every_lane_drives_the_entry_scripts_and_can_resume) ... ok
+test_every_lane_model_needs_that_lane_group (test_baselines.LaneNotebookTests.test_every_lane_model_needs_that_lane_group) ... ok
+test_lanes_partition_every_requested_cell_exactly_once (test_baselines.LaneNotebookTests.test_lanes_partition_every_requested_cell_exactly_once)
+No cell may be dropped between lanes, and none may be run twice. ... ok
+test_no_lane_overrides_the_shared_training_budget (test_baselines.LaneNotebookTests.test_no_lane_overrides_the_shared_training_budget)
+`--epochs` reaches the training loops now, so a notebook must not set it. ... ok
+test_node_classification_runs_only_the_requested_subset (test_baselines.LaneNotebookTests.test_node_classification_runs_only_the_requested_subset)
+HINormer on ACM alone; the other four on all three datasets. ... ok
+test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) ... 
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=2) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=4) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=2) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=4) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=5) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=6) ... FAIL
+  test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=8) ... FAIL
+test_the_dgl_lane_refuses_to_run_on_cpu (test_baselines.LaneNotebookTests.test_the_dgl_lane_refuses_to_run_on_cpu)
+A CPU-only DGL wastes the whole session; the lane must stop, not warn. ... ok
+test_an_explicit_ratio_survives_the_preset (test_baselines.LinkProtocolTests.test_an_explicit_ratio_survives_the_preset) ... ok
+test_every_hgb_dataset_holds_out_at_hgbs_rate (test_baselines.LinkProtocolTests.test_every_hgb_dataset_holds_out_at_hgbs_rate)
+HGB draws validation at 1 - train_ratio = 0.10 on every link dataset. ... ok
+test_homogeneous_link_baselines_share_one_graph (test_baselines.LinkProtocolTests.test_homogeneous_link_baselines_share_one_graph)
+GCN/GAT read ``view.edge_index``, the reduction NSD and CSNN already got. ... ok
+test_split_overlap_is_measured (test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded. ... ERROR
+test_adapters_can_be_called_twice_in_one_process (test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects. ... ERROR
+test_oracle_topk_matches_the_vendor_implementation (test_baselines.MultiLabelProtocolTests.test_oracle_topk_matches_the_vendor_implementation) ... ok
+test_project_helper_can_reproduce_the_hgb_convention (test_baselines.MultiLabelProtocolTests.test_project_helper_can_reproduce_the_hgb_convention)
+src/utils/misc.py must be able to reproduce PSHGCN/H2SGNN's convention. ... ok
+test_rejects_an_unknown_protocol (test_baselines.MultiLabelProtocolTests.test_rejects_an_unknown_protocol) ... ok
+test_topk_selects_exactly_the_true_label_count (test_baselines.MultiLabelProtocolTests.test_topk_selects_exactly_the_true_label_count) ... ok
+test_no_cell_reads_a_name_no_earlier_cell_defines (test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines) ... ERROR
+test_only_the_lanes_that_install_a_group_define_one (test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables. ... ERROR
+test_the_checker_catches_the_bug_it_was_written_for (test_baselines.NotebookNameResolutionTests.test_the_checker_catches_the_bug_it_was_written_for)
+A gate reading GROUP_OK with no install cell above it must be flagged. ... ok
+test_amazon_keeps_parallel_relations_apart (test_baselines.PolynomialRelationKeyTests.test_amazon_keeps_parallel_relations_apart)
+Their Amazon branch emits PP and UU for two product-product relations. ... ERROR
+test_every_transposed_monomial_resolves_to_known_keys (test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on all four datasets. ... ERROR
+test_keys_are_exactly_two_characters (test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator. ... ERROR
+test_lastfm_matches_the_authors_key_set (test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations. ... ERROR
+test_pubmed_keys_encode_node_types (test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies. ... ERROR
+test_single_node_type_keys_are_palindromic (test_baselines.PolynomialRelationKeyTests.test_single_node_type_keys_are_palindromic)
+lis_t reverses a key in place, so a symmetric operator needs a palindrome. ... ERROR
+test_youtube_gets_one_operator_per_relation (test_baselines.PolynomialRelationKeyTests.test_youtube_gets_one_operator_per_relation)
+Five user-user relations must stay five operators. ... ERROR
+test_published_cells_are_declared_runnable (test_baselines.PublishedParamsTests.test_published_cells_are_declared_runnable) ... ok
+test_published_files_declare_a_source (test_baselines.PublishedParamsTests.test_published_files_declare_a_source) ... ok
+test_campaign_matrix_matches_planned_cell_counts (test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts) ... ok
+test_every_cell_is_runnable_or_has_a_reason (test_baselines.RegistryTests.test_every_cell_is_runnable_or_has_a_reason) ... ok
+test_every_model_module_declares_an_adapter (test_baselines.RegistryTests.test_every_model_module_declares_an_adapter) ... ok
+test_latgrl_graph_classification_reason_is_specific (test_baselines.RegistryTests.test_latgrl_graph_classification_reason_is_specific)
+The generic 'no implementation' fallback must not mask the real reason. ... ok
+test_vendor_model_init_is_reproducible_under_seed_everything (test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models. ... ERROR
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_every_published_value_is_reachable (test_baselines.SearchSpaceCoverageTests.test_every_published_value_is_reachable) ... ok
+test_each_loop_selects_on_its_documented_metric (test_baselines.SelectionMetricTests.test_each_loop_selects_on_its_documented_metric)
+Read the loops' source: the stopping rule must use the expected key. ... ok
+test_monitor_matches_the_reported_headline_metric (test_baselines.SelectionMetricTests.test_monitor_matches_the_reported_headline_metric) ... ok
+test_sweeps_optimise_the_same_metric_training_selects_on (test_baselines.SelectionMetricTests.test_sweeps_optimise_the_same_metric_training_selects_on) ... ok
+test_the_module_docstring_does_not_contradict_the_code (test_baselines.SelectionMetricTests.test_the_module_docstring_does_not_contradict_the_code) ... ok
+test_every_code_cell_parses (test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+test_budget_is_never_searched (test_baselines.TrainingBudgetTests.test_budget_is_never_searched)
+A tuned trial must not be able to buy itself a longer run. ... ok
+test_hyperband_bracket_matches_the_real_epoch_budget (test_baselines.TrainingBudgetTests.test_hyperband_bracket_matches_the_real_epoch_budget) ... ok
+test_no_adapter_sets_its_own_budget (test_baselines.TrainingBudgetTests.test_no_adapter_sets_its_own_budget) ... ok
+test_published_params_keep_the_authors_budget (test_baselines.TrainingBudgetTests.test_published_params_keep_the_authors_budget)
+Reproducing a reported number means using the budget it was reported at. ... ok
+test_tuned_params_get_the_shared_budget (test_baselines.TrainingBudgetTests.test_tuned_params_get_the_shared_budget) ... ok
+test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present) ... FAIL
+test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own. ... ERROR
+test_every_adapter_module_names_a_registered_vendor (test_baselines.VendorRootIntegrityTests.test_every_adapter_module_names_a_registered_vendor)
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+test_cpu_seeding_does_not_touch_cuda_seed_state (test_cuda_hardening.CudaHardeningTests.test_cpu_seeding_does_not_touch_cuda_seed_state) ... ok
+test_fasthpp_has_finite_orthogonal_parameterisation (test_cuda_hardening.CudaHardeningTests.test_fasthpp_has_finite_orthogonal_parameterisation) ... ok
+test_householder_orgqr_dispatches_on_shape (test_cuda_hardening.CudaHardeningTests.test_householder_orgqr_dispatches_on_shape)
+Non-power-of-two and non-square inputs must fall back to the sequential builder. ... ok
+test_householder_wy_matches_the_sequential_builder (test_cuda_hardening.CudaHardeningTests.test_householder_wy_matches_the_sequential_builder)
+The compact-WY builder is an implementation swap, not a reparameterisation. ... ok
+test_householder_wy_routes_through_fasthpp (test_cuda_hardening.CudaHardeningTests.test_householder_wy_routes_through_fasthpp) ... ok
+test_matrix_exp_config_is_rejected_before_seeding (test_cuda_hardening.CudaHardeningTests.test_matrix_exp_config_is_rejected_before_seeding) ... ok
+test_memory_guard_accepts_safe_and_rejects_unsafe_workloads (test_cuda_hardening.CudaHardeningTests.test_memory_guard_accepts_safe_and_rejects_unsafe_workloads) ... ok
+test_model_memory_guard_fraction_is_validated (test_cuda_hardening.CudaHardeningTests.test_model_memory_guard_fraction_is_validated) ... ok
+test_deterministic_validation_split_is_reproducible (test_data.DataPipelineTests.test_deterministic_validation_split_is_reproducible) ... ok
+test_encoder_gives_featureless_types_distinct_embeddings (test_data.DataPipelineTests.test_encoder_gives_featureless_types_distinct_embeddings) ... ok
+test_encoder_normalises_featureless_and_featured_types_alike (test_data.DataPipelineTests.test_encoder_normalises_featureless_and_featured_types_alike) ... ok
+test_encoder_sizes_each_type_to_its_own_width (test_data.DataPipelineTests.test_encoder_sizes_each_type_to_its_own_width) ... ok
+test_featureless_node_types_are_padded_to_common_dim (test_data.DataPipelineTests.test_featureless_node_types_are_padded_to_common_dim) ... ok
+test_flatten_and_face_enumeration_build_path_cells (test_data.DataPipelineTests.test_flatten_and_face_enumeration_build_path_cells) ... ok
+test_graph_classification_metrics_include_binary_and_multiclass_auroc (test_data.DataPipelineTests.test_graph_classification_metrics_include_binary_and_multiclass_auroc) ... ok
+test_graph_face_builder_excludes_identity_backtracking (test_data.DataPipelineTests.test_graph_face_builder_excludes_identity_backtracking) ... ok
+test_graph_face_builder_uses_typed_two_hop_paths (test_data.DataPipelineTests.test_graph_face_builder_uses_typed_two_hop_paths) ... ok
+test_graph_holdout_split_is_stratified_and_reproducible (test_data.DataPipelineTests.test_graph_holdout_split_is_stratified_and_reproducible) ... ok
+test_hgb_link_split_uses_81_9_10_ratios (test_data.DataPipelineTests.test_hgb_link_split_uses_81_9_10_ratios) ... ok
+test_hgb_multilabel_target_labels_are_preserved (test_data.DataPipelineTests.test_hgb_multilabel_target_labels_are_preserved) ... ok
+test_hgb_two_hop_negatives_are_grouped_by_source (test_data.DataPipelineTests.test_hgb_two_hop_negatives_are_grouped_by_source) ... ok
+test_link_prediction_macro_equals_pooled_on_one_relation (test_data.DataPipelineTests.test_link_prediction_macro_equals_pooled_on_one_relation)
+LastFM and PubMed target a single relation, so selection must not shift. ... ok
+test_link_prediction_metrics_include_hgb_mrr (test_data.DataPipelineTests.test_link_prediction_metrics_include_hgb_mrr) ... ok
+test_link_prediction_metrics_macro_average_matches_hgb (test_data.DataPipelineTests.test_link_prediction_metrics_macro_average_matches_hgb)
+HGB scores each test relation separately and averages the results. ... ok
+test_local_hgb_train_valid_split_keeps_each_head_in_train (test_data.DataPipelineTests.test_local_hgb_train_valid_split_keeps_each_head_in_train) ... ok
+test_multilabel_classification_metrics_follow_hgb_threshold (test_data.DataPipelineTests.test_multilabel_classification_metrics_follow_hgb_threshold) ... ok
+test_multilabel_label_propagation_accepts_multi_hot_labels (test_data.DataPipelineTests.test_multilabel_label_propagation_accepts_multi_hot_labels) ... ok
+test_relation_diagnostics_are_a_single_global_vector (test_data.DataPipelineTests.test_relation_diagnostics_are_a_single_global_vector) ... ok
+test_repeated_kfold_config_validates_indices (test_data.DataPipelineTests.test_repeated_kfold_config_validates_indices) ... ok
+test_repeated_kfold_splits_cover_each_repetition_once (test_data.DataPipelineTests.test_repeated_kfold_splits_cover_each_repetition_once) ... ok
+test_tu_edge_types_match_raw_labels_by_key_on_mutag (test_data.DataPipelineTests.test_tu_edge_types_match_raw_labels_by_key_on_mutag)
+Real data: every PyG edge's type equals the raw label of the same (graph, src, dst) ... ok
+test_tu_type_tensors_fallback_to_single_edge_type (test_data.DataPipelineTests.test_tu_type_tensors_fallback_to_single_edge_type) ... ok
+test_tu_type_tensors_use_node_and_edge_labels (test_data.DataPipelineTests.test_tu_type_tensors_use_node_and_edge_labels)
+Edge labels follow PyG's edge order (its `edge_attr`), not the raw file order. ... ok
+test_invalid_values_are_rejected (test_factorized_maps.ConfigAndScopeTests.test_invalid_values_are_rejected) ... ok
+test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence (test_factorized_maps.HolonomyTests.test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence) ... ok
+test_T5_negative_control_tied_maps_collapse_holonomy_to_identity (test_factorized_maps.HolonomyTests.test_T5_negative_control_tied_maps_collapse_holonomy_to_identity) ... ok
+test_cuda_float32_matches_cpu_float64_reference (test_factorized_maps.ModelIntegrationTests.test_cuda_float32_matches_cpu_float64_reference) ... ok
+test_T10_storage_matches_the_bound_exactly (test_factorized_maps.NumericalGuardTests.test_T10_storage_matches_the_bound_exactly)
+Counts the tensors the operators actually hold (found generically, after an ... ok
+test_T9_finite_gradients_with_near_zero_reflectors (test_factorized_maps.NumericalGuardTests.test_T9_finite_gradients_with_near_zero_reflectors) ... ok
+test_T9_zero_reflector_mlp_keeps_model_finite (test_factorized_maps.NumericalGuardTests.test_T9_zero_reflector_mlp_keeps_model_finite) ... ok
+test_normalized_reflectors_are_unit_above_eps (test_factorized_maps.NumericalGuardTests.test_normalized_reflectors_are_unit_above_eps) ... ok
+test_T1_negative_control_detects_a_non_orthogonal_factor (test_factorized_maps.OperatorAlgebraTests.test_T1_negative_control_detects_a_non_orthogonal_factor) ... ok
+test_T1_rotation_and_householder_factors_are_orthogonal (test_factorized_maps.OperatorAlgebraTests.test_T1_rotation_and_householder_factors_are_orthogonal) ... ok
+test_T2_apply_and_apply_T_match_dense_reference (test_factorized_maps.OperatorAlgebraTests.test_T2_apply_and_apply_T_match_dense_reference) ... ok
+test_T3_closed_form_inverse_is_the_true_inverse (test_factorized_maps.OperatorAlgebraTests.test_T3_closed_form_inverse_is_the_true_inverse) ... ok
+test_T4_maps_are_side_specific_and_node_dependent (test_factorized_maps.SideAndNodeDependenceTests.test_T4_maps_are_side_specific_and_node_dependent) ... ok
+test_config_rejects_nonpositive_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
+test_link_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
+test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+test_early_stopping_tracks_validation_auroc (test_graph_classification_trainer.GraphClassificationTrainerTests.test_early_stopping_tracks_validation_auroc) ... 2026-11-07 04:48:16,188 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:48:16,204 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 04:48:16,206 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:48:16,216 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:48:16,221 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-07 04:48:16,224 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-07 04:48:16,225 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-07 04:48:16,225 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_T8_mean_of_draws_matches_the_exact_target (test_paths_and_facts.EstimatorTests.test_T8_mean_of_draws_matches_the_exact_target) ... ok
+test_T8_negative_control_dropping_duplicates_is_biased (test_paths_and_facts.EstimatorTests.test_T8_negative_control_dropping_duplicates_is_biased) ... ok
+test_T4_a_missing_reverse_edge_leaves_the_pair_untied (test_paths_and_facts.FactLayerDefinitionTests.test_T4_a_missing_reverse_edge_leaves_the_pair_untied) ... ok
+test_T4_exact_mirror_pair_gives_one_cell_per_fact (test_paths_and_facts.FactLayerDefinitionTests.test_T4_exact_mirror_pair_gives_one_cell_per_fact) ... ok
+test_T4_real_hgb_counts (test_paths_and_facts.FactLayerDefinitionTests.test_T4_real_hgb_counts) ... ok
+test_T4_real_tu_relations_are_self_inverse (test_paths_and_facts.FactLayerDefinitionTests.test_T4_real_tu_relations_are_self_inverse) ... ok
+test_T4_reciprocal_facts_of_a_directed_relation_stay_two_cells (test_paths_and_facts.FactLayerDefinitionTests.test_T4_reciprocal_facts_of_a_directed_relation_stay_two_cells) ... ok
+test_T4_self_inverse_relation_gives_one_cell_per_unordered_pair (test_paths_and_facts.FactLayerDefinitionTests.test_T4_self_inverse_relation_gives_one_cell_per_unordered_pair) ... ok
+test_T4_two_exact_partners_are_an_error (test_paths_and_facts.FactLayerDefinitionTests.test_T4_two_exact_partners_are_an_error) ... ok
+test_T4_untied_is_rejected_by_the_tuning_check (test_paths_and_facts.FactLayerDefinitionTests.test_T4_untied_is_rejected_by_the_tuning_check) ... ok
+test_T4_untied_keeps_every_stored_edge_and_relation (test_paths_and_facts.FactLayerDefinitionTests.test_T4_untied_keeps_every_stored_edge_and_relation) ... ok
+test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight (test_paths_and_facts.IdentityTests.test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight) ... ok
+test_T9_no_two_cells_share_a_key_in_real_draws (test_paths_and_facts.IdentityTests.test_T9_no_two_cells_share_a_key_in_real_draws) ... ok
+test_T9_paths_through_different_reciprocal_facts_are_different_cells (test_paths_and_facts.IdentityTests.test_T9_paths_through_different_reciprocal_facts_are_different_cells) ... ok
+test_T11_config (test_paths_and_facts.LinkPredictionFactTests.test_T11_config) ... ok
+test_T11_no_held_out_fact_in_message_graph_or_paths (test_paths_and_facts.LinkPredictionFactTests.test_T11_no_held_out_fact_in_message_graph_or_paths) ... ok
+test_T11_split_is_by_fact (test_paths_and_facts.LinkPredictionFactTests.test_T11_split_is_by_fact) ... ok
+test_T11_tied_layer_on_link_prediction (test_paths_and_facts.LinkPredictionFactTests.test_T11_tied_layer_on_link_prediction) ... ok
+test_T12_link_prediction_resampling (test_paths_and_facts.LinkPredictionFactTests.test_T12_link_prediction_resampling) ... ok
+test_T1_matches_dense_reference_mixed_lengths_scales_families_and_signs (test_paths_and_facts.OLPathTermTests.test_T1_matches_dense_reference_mixed_lengths_scales_families_and_signs) ... ok
+test_T1_uses_2L_transport_steps_per_path (test_paths_and_facts.OLPathTermTests.test_T1_uses_2L_transport_steps_per_path) ... ok
+test_T12_config_rules (test_paths_and_facts.ProtocolTests.test_T12_config_rules) ... ok
+test_T12_graph_classification (test_paths_and_facts.ProtocolTests.test_T12_graph_classification) ... ok
+test_T12_node_classification (test_paths_and_facts.ProtocolTests.test_T12_node_classification) ... ok
+test_batch_without_the_highest_self_inverse_relation (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_batch_without_the_highest_self_inverse_relation) ... ok
+test_config_rules (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_config_rules) ... ok
+test_schema_free_walks_on_a_self_inverse_relation (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_schema_free_walks_on_a_self_inverse_relation) ... ok
+test_T10_a_schema_and_its_reverse_share_one_group (test_paths_and_facts.SchemaTests.test_T10_a_schema_and_its_reverse_share_one_group) ... ok
+test_T10_ambiguous_transition_without_hops_raises (test_paths_and_facts.SchemaTests.test_T10_ambiguous_transition_without_hops_raises) ... ok
+test_T10_citation_chain_and_co_citation_are_distinct (test_paths_and_facts.SchemaTests.test_T10_citation_chain_and_co_citation_are_distinct) ... ok
+test_T10_every_default_schema_resolves_on_real_data (test_paths_and_facts.SchemaTests.test_T10_every_default_schema_resolves_on_real_data) ... ok
+test_T10_self_inverse_hops_have_no_direction (test_paths_and_facts.SchemaTests.test_T10_self_inverse_hops_have_no_direction) ... ok
+test_T10_untied_rejects_minus_hops (test_paths_and_facts.SchemaTests.test_T10_untied_rejects_minus_hops) ... ok
+test_T6_sections_are_preserved_with_signed_hops (test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T16_direction_blind_maps_make_delta0_invariant_to_flipping_any_cell (test_paths_and_facts.SharedRoleTests.test_T16_direction_blind_maps_make_delta0_invariant_to_flipping_any_cell) ... ok
+test_T16_model_shares_roles_per_fact_layer_and_ablation (test_paths_and_facts.SharedRoleTests.test_T16_model_shares_roles_per_fact_layer_and_ablation) ... ok
+test_T5_flipping_cells_of_a_self_inverse_relation_leaves_delta0_unchanged (test_paths_and_facts.SharedRoleTests.test_T5_flipping_cells_of_a_self_inverse_relation_leaves_delta0_unchanged) ... ok
+test_T5_negative_control_separate_roles_change_delta0 (test_paths_and_facts.SharedRoleTests.test_T5_negative_control_separate_roles_change_delta0) ... ok
+test_T2_every_method_is_consistent_and_apply_T_is_the_exact_adjoint (test_paths_and_facts.SignedTransportTests.test_T2_every_method_is_consistent_and_apply_T_is_the_exact_adjoint) ... ok
+test_T2_functoriality_on_every_boundary_edge_with_mixed_signs (test_paths_and_facts.SignedTransportTests.test_T2_functoriality_on_every_boundary_edge_with_mixed_signs)
+`T_{v_{j-1}} F_{v_{j-1}<|e_j}^-1 = T_{v_j} F_{v_j<|e_j}^-1` for every hop, where ... ok
+test_T2_holonomy_term_uses_the_signed_step (test_paths_and_facts.SignedTransportTests.test_T2_holonomy_term_uses_the_signed_step) ... ok
+test_T2_orientation_check_accepts_signed_hops_and_rejects_the_rest (test_paths_and_facts.SignedTransportTests.test_T2_orientation_check_accepts_signed_hops_and_rejects_the_rest) ... ok
+test_T2_signed_transport_matches_dense_product (test_paths_and_facts.SignedTransportTests.test_T2_signed_transport_matches_dense_product) ... ok
+test_T13_lambda_max_at_most_two (test_paths_and_facts.StabilityTests.test_T13_lambda_max_at_most_two) ... ok
+test_T16_uniform_instance_is_uniform_over_instances (test_paths_and_facts.UniformInstanceTests.test_T16_uniform_instance_is_uniform_over_instances) ... ok
+test_T16_uniform_instance_refuses_long_schemas (test_paths_and_facts.UniformInstanceTests.test_T16_uniform_instance_refuses_long_schemas) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... ok
+test_one_training_step_is_finite (test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_trainer_writes_expected_artifacts (test_trainer.TrainerSmokeTests.test_trainer_writes_expected_artifacts) ... 2026-11-07 04:50:45,444 | INFO | Epoch 0000 | train_loss: 1.1190 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.3333 | train_micro_f1: 0.5000 | val_loss: 1.0492 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-07 04:50:45,462 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:50:45,462 | INFO | Best epoch 0 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250 | test_acc: 0.1250
+ok
+test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) ... ok
+test_T11_free_maps_are_orthogonal_and_per_incidence (test_v2_model.AblationTests.test_T11_free_maps_are_orthogonal_and_per_incidence) ... ok
+test_T11_h0_only_readout_ignores_the_graph (test_v2_model.AblationTests.test_T11_h0_only_readout_ignores_the_graph) ... ok
+test_T11_holonomy_edges_equal_the_dense_closure_edge (test_v2_model.AblationTests.test_T11_holonomy_edges_equal_the_dense_closure_edge) ... ok
+test_T11_no_path_cells_makes_logits_independent_of_path_data (test_v2_model.AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data) ... ok
+test_T11_per_side_scales_reach_transports_and_degree (test_v2_model.AblationTests.test_T11_per_side_scales_reach_transports_and_degree) ... ok
+test_T11_uniform_gate_gives_w_identically_one (test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one) ... ok
+test_every_ablation_trains_one_step (test_v2_model.AblationTests.test_every_ablation_trains_one_step) ... ok
+test_defaults_are_the_full_model (test_v2_model.ConfigTests.test_defaults_are_the_full_model) ... ok
+test_invalid_values_and_conflicting_ablations_are_rejected (test_v2_model.ConfigTests.test_invalid_values_and_conflicting_ablations_are_rejected) ... ok
+test_unknown_keys_fail_loudly (test_v2_model.ConfigTests.test_unknown_keys_fail_loudly)
+Old (v1 / AMPSS) settings and typos are rejected in every section. ... ok
+test_dense_operator_closed_form_inverse_and_shapes (test_v2_model.DenseOperatorTests.test_dense_operator_closed_form_inverse_and_shapes) ... ok
+test_path_transport_accepts_dense_operators (test_v2_model.DenseOperatorTests.test_path_transport_accepts_dense_operators) ... ok
+test_D_is_the_per_incidence_degree_of_the_operators_own_terms (test_v2_model.PathLaplacianTests.test_D_is_the_per_incidence_degree_of_the_operators_own_terms)
+`D_v I` equals the dense diagonal block of `L` at every node without a self-loop; ... ok
+test_T2_path_operator_equals_dense_kron_reduced_reference (test_v2_model.PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference)
+Mixed path lengths 2, 3, 4 in one complex; per-edge and per-side scales. ... ok
+test_T3_normalized_operator_is_self_adjoint_and_psd (test_v2_model.PathLaplacianTests.test_T3_normalized_operator_is_self_adjoint_and_psd) ... ok
+test_T5_normalized_spectrum_is_bounded_by_two (test_v2_model.PathLaplacianTests.test_T5_normalized_spectrum_is_bounded_by_two)
+60 fixtures: c in {eps, 50} (40 per-edge, 20 per-side), random w_f, gamma. ... ok
+test_T7_cell_state_is_the_least_squares_minimizer (test_v2_model.PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer) ... ok
+test_T12a_both_sides_share_exactly_one_scale_per_edge (test_v2_model.PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge) ... ok
+test_T12a_per_side_ablation_keeps_two_scales (test_v2_model.PerEdgeScaleTests.test_T12a_per_side_ablation_keeps_two_scales) ... ok
+test_T12b_edge_transports_are_orthogonal (test_v2_model.PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal) ... ok
+test_T12b_negative_control_per_side_scales_break_orthogonality (test_v2_model.PerEdgeScaleTests.test_T12b_negative_control_per_side_scales_break_orthogonality) ... ok
+test_T12b_path_transports_are_orthogonal_at_every_length (test_v2_model.PerEdgeScaleTests.test_T12b_path_transports_are_orthogonal_at_every_length) ... ok
+test_T12b_shared_scale_path_uses_no_scale (test_v2_model.PerEdgeScaleTests.test_T12b_shared_scale_path_uses_no_scale)
+The fast path never touches `c`: transports are bit-identical for any shared scale, ... ok
+test_T12c_scale_lower_bound_and_finite_gradients_at_extremes (test_v2_model.PerEdgeScaleTests.test_T12c_scale_lower_bound_and_finite_gradients_at_extremes) ... ok
+test_T10_per_edge_storage_matches_the_bound_exactly (test_v2_model.PerEdgeVersionsOfD1Tests.test_T10_per_edge_storage_matches_the_bound_exactly)
+Unique float storage held by both operators: `2 M k d + M + 2 |R| d^2`. ... ok
+test_T4_per_edge_maps_are_side_specific_and_node_dependent (test_v2_model.PerEdgeVersionsOfD1Tests.test_T4_per_edge_maps_are_side_specific_and_node_dependent) ... ok
+test_T5_per_edge_holonomy_is_nontrivial_and_varies (test_v2_model.PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies) ... ok
+test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0 (test_v2_model.ScaleGaugeTests.test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0) ... ok
+test_T4_negative_control_free_maps_shrink_the_kernel (test_v2_model.SectionPreservationTests.test_T4_negative_control_free_maps_shrink_the_kernel) ... ok
+test_T4_sections_are_preserved_and_the_kernel_is_unchanged (test_v2_model.SectionPreservationTests.test_T4_sections_are_preserved_and_the_kernel_is_unchanged) ... ok
+test_T10_gradients_reach_every_learned_component (test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) ... ok
+test_T13_dense_and_factorized_families_match_on_materialized_maps (test_v2_model.V2ModelTests.test_T13_dense_and_factorized_families_match_on_materialized_maps) ... ok
+test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node (test_v2_model.V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node)
+One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links ... ok
+test_T8_no_dense_map_tensor_in_v2_forward_or_backward (test_v2_model.V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward)
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4 ... ok
+test_T9_deleted_components_are_absent (test_v2_model.V2ModelTests.test_T9_deleted_components_are_absent) ... ok
+test_build_model_builds_the_node_classification_head (test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
+test_checkpointing_switch_does_not_change_outputs_or_gradients (test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
+test_gate_initialization_is_near_one_half (test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
+test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload) ... 2026-11-07 04:51:32,983 | INFO | Epoch 0000 | train_loss: 1.1137 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2424 | train_micro_f1: 0.5000 | val_loss: 1.0937 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-07 04:51:33,013 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:51:33,226 | INFO | Epoch 0001 | train_loss: 1.0512 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2667 | train_micro_f1: 0.5000 | val_loss: 1.0849 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-07 04:51:33,240 | INFO | Checkpoint metric acc: 0.5000
+2026-11-07 04:51:33,241 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+ok
+test_agent_worker_runs_exactly_one_trial_and_records_pid (test_wandb_and_runs.WandbAndRunReportingTests.test_agent_worker_runs_exactly_one_trial_and_records_pid) ... ok
+test_campaign_resume_selects_compatible_continuation_or_new_state (test_wandb_and_runs.WandbAndRunReportingTests.test_campaign_resume_selects_compatible_continuation_or_new_state) ... ok
+test_failed_worker_does_not_prevent_next_isolated_attempt (test_wandb_and_runs.WandbAndRunReportingTests.test_failed_worker_does_not_prevent_next_isolated_attempt) ... ok
+test_fresh_validation_refuses_to_overwrite_existing_state (test_wandb_and_runs.WandbAndRunReportingTests.test_fresh_validation_refuses_to_overwrite_existing_state) ... ok
+test_notebooks_reference_repeated_run_and_wandb_tuning_scripts (test_wandb_and_runs.WandbAndRunReportingTests.test_notebooks_reference_repeated_run_and_wandb_tuning_scripts) ... ok
+test_repeated_cv_notebook_is_clean_and_uses_fold_campaign (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_notebook_is_clean_and_uses_fold_campaign) ... ok
+test_repeated_cv_unit_mapping_config_and_population_summary (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_unit_mapping_config_and_population_summary) ... ok
+test_run_summary_uses_task_metrics_and_mean_std (test_wandb_and_runs.WandbAndRunReportingTests.test_run_summary_uses_task_metrics_and_mean_std) ... ok
+test_wandb_disabled_preserves_local_metrics_jsonl (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_disabled_preserves_local_metrics_jsonl) ... 2026-11-07 04:51:33,605 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+ok
+test_wandb_enabled_logs_flattened_metrics_and_finishes (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_enabled_logs_flattened_metrics_and_finishes) ... 2026-11-07 04:51:33,624 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_wandb_sweep_config_and_tuning_selection (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_sweep_config_and_tuning_selection) ... ok
+test_wandb_tuning_resume_requires_matching_fingerprints (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_tuning_resume_requires_matching_fingerprints) ... ok
+
+======================================================================
+ERROR: test_split_overlap_is_measured (test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1206, in test_split_overlap_is_measured
+    overlap = link_split_overlap(cached_bundle("link_prediction", "lastfm").data)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_adapters_can_be_called_twice_in_one_process (test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 773, in test_adapters_can_be_called_twice_in_one_process
+    import H2GB  # type: ignore[import-not-found]  # noqa: F401
+    ^^^^^^^^^^^
+ModuleNotFoundError: No module named 'H2GB'
+
+======================================================================
+ERROR: test_no_cell_reads_a_name_no_earlier_cell_defines (test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1710, in test_no_cell_reads_a_name_no_earlier_cell_defines
+    visitor.visit(ast.parse("".join(cell["source"])))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_only_the_lanes_that_install_a_group_define_one (test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1744, in test_only_the_lanes_that_install_a_group_define_one
+    for node in ast.walk(ast.parse("".join(cell["source"]))):
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_amazon_keeps_parallel_relations_apart (test_baselines.PolynomialRelationKeyTests.test_amazon_keeps_parallel_relations_apart)
+Their Amazon branch emits PP and UU for two product-product relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 219, in test_amazon_keeps_parallel_relations_apart
+    adjacencies, chaining = self._keys("amazon")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_every_transposed_monomial_resolves_to_known_keys (test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on all four datasets.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 259, in test_every_transposed_monomial_resolves_to_known_keys
+    adjacencies, chaining = self._keys(dataset)
+                            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_keys_are_exactly_two_characters (test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 274, in test_keys_are_exactly_two_characters
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_lastfm_matches_the_authors_key_set (test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 196, in test_lastfm_matches_the_authors_key_set
+    adjacencies, chaining = self._keys("lastfm")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_pubmed_keys_encode_node_types (test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 237, in test_pubmed_keys_encode_node_types
+    adjacencies, chaining = self._keys("pubmed")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\PubMed'.
+
+======================================================================
+ERROR: test_single_node_type_keys_are_palindromic (test_baselines.PolynomialRelationKeyTests.test_single_node_type_keys_are_palindromic)
+lis_t reverses a key in place, so a symmetric operator needs a palindrome.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 249, in test_single_node_type_keys_are_palindromic
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_youtube_gets_one_operator_per_relation (test_baselines.PolynomialRelationKeyTests.test_youtube_gets_one_operator_per_relation)
+Five user-user relations must stay five operators.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 230, in test_youtube_gets_one_operator_per_relation
+    adjacencies, chaining = self._keys("youtube")
+                            ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 367, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\youtube'.
+
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 664, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 658, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 111, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 413, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_core')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[19832 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[21130 chars]n}\n'
+Diff is 40370 characters long. Set self.maxDiff to None to see it. : node_classification_core.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_dgl')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[33512 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[22273 chars]n}\n'
+Diff is 54511 characters long. Set self.maxDiff to None to see it. : node_classification_dgl.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1580, in test_notebooks_are_committed_clean_and_parse
+    self.assertFalse(cell.get("outputs"))
+AssertionError: [{'output_type': 'stream', 'name': 'stdout', 'text': ['installed torch distribution: 2.11.0+cu128\n']}] is not false
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 7 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 9 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 11 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 2 is not None
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 138, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl'] is not false : missing baseline clones: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl']
+
+----------------------------------------------------------------------
+Ran 242 tests in 248.311s
+
+FAILED (failures=11, errors=13)
+
+ERROR conda.cli.main_run:execute(127): `conda run python -m unittest discover -s tests -v` failed. (See above for error)
+[coverage] 113/113 runnable cells have an adapter; no adapter yet: none
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+

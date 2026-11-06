@@ -1,0 +1,6 @@
+pre-U7 (1a0ea8f) dump:
+{'plain/reverse_leaks': 0, 'tied/reverse_leaks': 8}
+U7 dump:
+{'plain/reverse_leaks': 0, 'tied/reverse_leaks': 0}
+plain: 14 entries, differing 0: []
+tied: 20 entries, differing 15: ['tied/edge_index', 'tied/edge_type', 'tied/group0/edges', 'tied/group0/nodes', 'tied/group1/edges', 'tied/group1/nodes', 'tied/group2/edges', 'tied/group2/nodes', 'tied/group3/edges', 'tied/group3/nodes', 'tied/group4/edges', 'tied/group4/nodes', 'tied/group5/edges', 'tied/group5/nodes', 'tied/reverse_leaks']

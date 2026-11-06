@@ -185,3 +185,65 @@ def apply_fact_layer(
                          device=edge_type.device)
     compact[list(layer.kept)] = torch.arange(len(layer.kept), device=edge_type.device)
     return edge_index[:, keep], compact[edge_type[keep]]
+
+
+def inverse_relations_typed(
+    edges_by_relation: dict,
+    type_sizes: dict[str, int],
+) -> dict:
+    """`rho` over relations keyed by `(src_type, name, dst_type)` with per-type local edge
+    lists (used where the split happens, before flattening). Same definition as
+    `exact_inverse_relations`; returns `{relation: partner relation or None}`."""
+    type_names = sorted(type_sizes)
+    offsets, total = {}, 0
+    for name in type_names:
+        offsets[name] = total
+        total += int(type_sizes[name])
+    relations = sorted(edges_by_relation)
+    parts, types = [], []
+    for r, relation in enumerate(relations):
+        local = edges_by_relation[relation].long()
+        parts.append(torch.stack([local[0] + offsets[relation[0]],
+                                  local[1] + offsets[relation[2]]]))
+        types.append(torch.full((local.size(1),), r, dtype=torch.long))
+    edge_index = torch.cat(parts, dim=1) if parts else torch.empty((2, 0), dtype=torch.long)
+    edge_type = torch.cat(types) if types else torch.empty(0, dtype=torch.long)
+    rho = exact_inverse_relations(edge_index, edge_type, len(relations), total)
+    return {relation: (None if rho[r] is None else relations[rho[r]])
+            for r, relation in enumerate(relations)}
+
+
+def held_out_fact_leaks(
+    layer: FactLayer,
+    edge_index: torch.Tensor,
+    edge_type: torch.Tensor,
+    held_out_edge_index: torch.Tensor,
+    held_out_relation: torch.Tensor,
+) -> int:
+    """Number of held-out facts present in a message graph, in either orientation.
+
+    `edge_index`/`edge_type` are a message graph under `layer` (compact relation ids);
+    `held_out_relation` gives the ORIGINAL relation id of each held-out pair. An edge
+    `(a, k, b)` carries the fact `(a, R, b) == (b, rho(R), a)` with `R = layer.kept[k]`,
+    so a held-out `(u, r, v)` leaks if some edge carries `(u, r, v)` or `(v, rho(r), u)`.
+    """
+    if held_out_edge_index.numel() == 0:
+        return 0
+    num_nodes = int(max(int(edge_index.max()) if edge_index.numel() else 0,
+                        int(held_out_edge_index.max()))) + 1
+    kept = torch.tensor(layer.kept, dtype=torch.long, device=edge_type.device)
+    original = kept[edge_type]
+    rho = torch.tensor([-1 if p is None else p for p in layer.rho], dtype=torch.long,
+                       device=edge_type.device)
+
+    def keys(src, rel, dst):
+        return (rel * num_nodes + src.long()) * num_nodes + dst.long()
+
+    carried = [keys(edge_index[0], original, edge_index[1])]
+    partner = rho[original]
+    has = partner >= 0
+    carried.append(keys(edge_index[1][has], partner[has], edge_index[0][has]))
+    carried = torch.unique(torch.cat(carried))
+    held = keys(held_out_edge_index[0], held_out_relation.to(edge_type.device).long(),
+                held_out_edge_index[1])
+    return int(torch.isin(held, carried).sum())

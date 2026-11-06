@@ -1145,5 +1145,153 @@ class ProtocolTests(unittest.TestCase):
                                             "path_sampler": "walk", "resample_paths": "yes"}})
 
 
+# ----------------------------------------------------------------------------- D7 (T11)
+def _write_tied_lastfm(root: Path) -> None:
+    """Local HGB LastFM with a mirror pair and a self-inverse relation: rel 0 user->artist
+    (target), rel 3 artist->user = exact reverse of rel 0 in link.dat, rel 1 user-user
+    stored in both orientations, rel 2 artist->tag. link.dat.test: rel-0 pairs not in
+    link.dat."""
+    folder = root / "LastFM"
+    folder.mkdir(parents=True)
+    generator = torch.Generator().manual_seed(0)
+    users, artists, tags = range(0, 12), range(12, 24), range(24, 30)
+    with (folder / "node.dat").open("w", encoding="utf-8") as handle:
+        for node_type, ids in enumerate((users, artists, tags)):
+            for raw in ids:
+                features = ",".join(f"{float(v):.4f}" for v in torch.rand(3, generator=generator))
+                handle.write(f"{raw}\tn{raw}\t{node_type}\t{features}\n")
+    train_pairs, test_pairs = set(), set()
+    for user in users:
+        chosen = torch.randperm(12, generator=generator)[:6].tolist()
+        for rank, artist in enumerate(chosen):
+            (test_pairs if rank == 5 else train_pairs).add((user, 12 + artist))
+    friends = {(u, (u + 1) % 12) for u in users} | {(u, (u + 5) % 12) for u in users}
+    with (folder / "link.dat").open("w", encoding="utf-8") as handle:
+        for user, artist in sorted(train_pairs):
+            handle.write(f"{user}\t{artist}\t0\t1.0\n")
+            handle.write(f"{artist}\t{user}\t3\t1.0\n")
+        for a, b in sorted(friends | {(b, a) for a, b in friends}):
+            handle.write(f"{a}\t{b}\t1\t1.0\n")
+        for artist in artists:
+            handle.write(f"{artist}\t{24 + artist % 6}\t2\t1.0\n")
+    with (folder / "link.dat.test").open("w", encoding="utf-8") as handle:
+        for user, artist in sorted(test_pairs):
+            handle.write(f"{user}\t{artist}\t0\t1.0\n")
+
+
+def _lp_config(root: Path, mode: str, sampler: str, resample: bool = False):
+    from src.configs.config import TrainConfig
+
+    return TrainConfig.from_dict({"device": "cpu", "seed": 3, "data": {
+        "dataset_name": "lastfm", "root": str(root), "fact_layer": mode,
+        "path_sampler": sampler, "resample_paths": resample, "face_sample_k": 4}})
+
+
+class LinkPredictionFactTests(unittest.TestCase):
+    """T11: no held-out fact, in either orientation, in the message graph or on any path."""
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        _write_tied_lastfm(self.root)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _build(self, mode: str, sampler: str, resample: bool = False):
+        from src.data.link_prediction_dataset import build_link_prediction_dataset
+
+        return build_link_prediction_dataset(_lp_config(self.root, mode, sampler, resample))
+
+    def test_T11_split_is_by_fact(self) -> None:
+        from src.data.link_prediction_dataset import _load_local_hgb_link_data
+
+        split = _load_local_hgb_link_data(_lp_config(self.root, "untied", "dfs"))
+        rel = {r[1]: r for r in split.valid_edge_index_by_relation}
+        self.assertTrue(torch.equal(split.valid_edge_index_by_relation[rel["rel_3"]],
+                                    split.valid_edge_index_by_relation[rel["rel_0"]].flip(0)))
+        self.assertTrue(torch.equal(split.train_edge_index_by_relation[rel["rel_3"]],
+                                    split.train_edge_index_by_relation[rel["rel_0"]].flip(0)))
+        friends_valid = _pairs_of(split.valid_edge_index_by_relation[rel["rel_1"]])
+        friends_train = _pairs_of(split.train_edge_index_by_relation[rel["rel_1"]])
+        self.assertGreater(len(friends_valid), 0)
+        self.assertEqual(friends_valid, {(b, a) for a, b in friends_valid})  # both sides
+        self.assertFalse(friends_valid & friends_train)
+
+    def test_T11_no_held_out_fact_in_message_graph_or_paths(self) -> None:
+        from src.data.fact_layer import held_out_fact_leaks
+
+        for mode, sampler in (("tied", "walk"), ("untied", "dfs"), ("untied", "walk")):
+            with self.subTest(mode=mode, sampler=sampler):
+                data = self._build(mode, sampler)
+                layer = data.fact_layer
+                names = layer.relation_names
+                inverse = names.index("artist__rel_3__user")
+                self.assertEqual(layer.rho[names.index("user__rel_0__artist")], inverse)
+                held = torch.cat([data.val_pos_edge_index, data.test_pos_edge_index], dim=1)
+                target = layer.relation_names.index("user__rel_0__artist")
+                relation = torch.full((held.size(1),), target, dtype=torch.long)
+                self.assertGreater(held.size(1), 0)
+                self.assertGreater(sum(g.num_faces for g in data.face_groups), 0)
+                self.assertEqual(held_out_fact_leaks(layer, data.edge_index, data.edge_type,
+                                                     held, relation), 0)
+                # independent, representation-free check: neither orientation of a
+                # held-out pair is any message edge or any path edge
+                pairs = _pairs_of(held) | {(b, a) for a, b in _pairs_of(held)}
+                used = _pairs_of(data.edge_index)
+                for group in data.face_groups:
+                    used |= _pairs_of(data.edge_index[:, group.face_edge_index.reshape(-1)])
+                self.assertFalse(pairs & used)
+                # negative control: inject the reverse orientation of one held-out fact
+                u, v = int(held[0, 0]), int(held[1, 0])
+                if mode == "tied":  # the fact is stored in the orientation of its kept id
+                    if target in layer.kept:
+                        edge, etype = [[u], [v]], layer.kept.index(target)
+                    else:
+                        edge, etype = [[v], [u]], layer.kept.index(inverse)
+                else:  # untied: the reverse orientation (v, rho(target), u)
+                    edge, etype = [[v], [u]], inverse
+                leaked_index = torch.cat([data.edge_index, torch.tensor(edge)], dim=1)
+                leaked_type = torch.cat([data.edge_type, torch.tensor([etype])])
+                self.assertEqual(held_out_fact_leaks(layer, leaked_index, leaked_type,
+                                                     held, relation), 1)
+
+    def test_T11_tied_layer_on_link_prediction(self) -> None:
+        data = self._build("tied", "walk")
+        summary = data.fact_layer.summary()
+        self.assertEqual(summary["rho"]["user__rel_0__artist"], "artist__rel_3__user")
+        self.assertEqual(summary["self_inverse_relations"], ["user__rel_1__user"])
+        # one of the mirror pair is kept: the lower flattened id (names sort artist < user)
+        self.assertIn("artist__rel_3__user", data.relation_names)
+        self.assertNotIn("user__rel_0__artist", data.relation_names)
+        friends = data.edge_index[:, data.edge_type == data.relation_names.index(
+            "user__rel_1__user")]
+        self.assertTrue(bool((friends[0] <= friends[1]).all()))  # one cell per pair
+
+    def test_T12_link_prediction_resampling(self) -> None:
+        from src.trainers.link_prediction_trainer import LinkPredictionTrainer
+
+        data = self._build("tied", "walk", resample=True)
+        trainer = LinkPredictionTrainer.__new__(LinkPredictionTrainer)
+        trainer.cfg = _lp_config(self.root, "tied", "walk", True)
+        trainer.device = torch.device("cpu")
+        draws = [trainer.training_draw(data, data, e).face_groups for e in range(3)]
+        again = [trainer.training_draw(data, data, e).face_groups for e in range(3)]
+        for first, second in zip(draws, again):
+            self.assertTrue(_groups_equal(first, second))
+        self.assertTrue(_groups_equal(draws[0], data.face_groups))  # seed + 0 = eval draw
+        self.assertFalse(_groups_equal(draws[1], draws[2]))
+        trainer.cfg = _lp_config(self.root, "tied", "walk", False)
+        self.assertIs(trainer.training_draw(data, data, 5), data)
+
+    def test_T11_config(self) -> None:
+        with self.assertRaises(ValueError):
+            _lp_config(self.root, "tied", "uniform_instance")
+
+
+def _pairs_of(edge_index: torch.Tensor) -> set[tuple[int, int]]:
+    return {(int(a), int(b)) for a, b in edge_index.t().tolist()}
+
+
 if __name__ == "__main__":
     unittest.main()

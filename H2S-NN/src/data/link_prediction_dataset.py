@@ -9,9 +9,17 @@ from typing import TYPE_CHECKING
 import torch
 
 from src.configs.config import TrainConfig
+from src.data.fact_layer import (
+    FactLayer,
+    apply_fact_layer,
+    build_fact_layer,
+    held_out_fact_leaks,
+    inverse_relations_typed,
+)
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.link_pred_structures import PreparedLinkPredData
+from src.data.path_sampler import build_free_path_groups
 
 if TYPE_CHECKING:
     from torch_geometric.data import HeteroData
@@ -77,6 +85,9 @@ class _LocalHGBLinkData:
     train_edge_index_by_relation: dict[tuple[str, str, str], torch.Tensor]
     valid_edge_index_by_relation: dict[tuple[str, str, str], torch.Tensor]
     test_edge_index_by_relation: dict[tuple[str, str, str], torch.Tensor]
+    # Every relation of link.dat before the split: rho is computed on this graph (D7,
+    # decision 2), never on the split message graph.
+    link_edge_index_by_relation: dict[tuple[str, str, str], torch.Tensor]
     # HGB's node.dat ids are raw and global (shared across node types — e.g.
     # LastFM's users are raw ids 0-1891, artists 1892-19523, not each restarting
     # at 0), while our own flattened graph offsets per-type LOCAL ids. Needed to
@@ -333,19 +344,40 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
     train_edges: dict[tuple[str, str, str], torch.Tensor] = {}
     valid_edges: dict[tuple[str, str, str], torch.Tensor] = {}
     all_relations = sorted(set(link_edges) | set(test_edges))
-    for relation in all_relations:
-        relation_id = int(relation[1].removeprefix("rel_"))
+    # Split by FACT (D7, decision 2): rho from link.dat before splitting; a relation tied
+    # to a lower-id partner takes the partner's split flipped, a self-inverse relation is
+    # split over unordered pairs and both orientations go to the same side. Relations
+    # without a partner are split exactly as before (same function, same seeds).
+    type_sizes = {name: int(nodes.data[name].num_nodes) for name in nodes.data.node_types}
+    rho = inverse_relations_typed(link_edges, type_sizes)
+
+    def relation_id_of(relation: tuple[str, str, str]) -> int:
+        return int(relation[1].removeprefix("rel_"))
+
+    for relation in sorted(all_relations, key=relation_id_of):
+        partner = rho.get(relation)
+        if partner is not None and partner != relation \
+                and relation_id_of(partner) < relation_id_of(relation):
+            continue  # filled from its lower-id partner below
+        relation_id = relation_id_of(relation)
+        edges = link_edges.get(relation, torch.empty((2, 0), dtype=torch.long))
+        if partner == relation:
+            edges = edges[:, edges[0] <= edges[1]]
         train_edge_index, valid_edge_index = _split_edge_index_hgb_by_head(
-            edge_index=link_edges.get(
-                relation,
-                torch.empty((2, 0), dtype=torch.long),
-            ),
+            edge_index=edges,
             val_ratio=config.data.link_val_ratio,
             seed=config.data.acm_split_seed + relation_id * 9973,
         )
+        if partner == relation:
+            train_edge_index = _with_reversed(train_edge_index)
+            valid_edge_index = _with_reversed(valid_edge_index)
         train_edges[relation] = train_edge_index
         valid_edges[relation] = valid_edge_index
-        nodes.data[relation].edge_index = train_edge_index
+        if partner is not None and partner != relation:
+            train_edges[partner] = train_edge_index.flip(0)
+            valid_edges[partner] = valid_edge_index.flip(0)
+    for relation in all_relations:
+        nodes.data[relation].edge_index = train_edges[relation]
 
     for relation in test_edges:
         if relation not in nodes.data.edge_types:
@@ -356,8 +388,15 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
         train_edge_index_by_relation=train_edges,
         valid_edge_index_by_relation=valid_edges,
         test_edge_index_by_relation=test_edges,
+        link_edge_index_by_relation=link_edges,
         raw_to_local=nodes.raw_to_local,
     )
+
+
+def _with_reversed(edge_index: torch.Tensor) -> torch.Tensor:
+    """Both orientations of the facts of a self-inverse relation (self-loops once)."""
+    non_loop = edge_index[:, edge_index[0] != edge_index[1]]
+    return torch.cat([edge_index, non_loop.flip(0)], dim=1)
 
 
 def _split_edge_index_hgb(
@@ -637,6 +676,91 @@ def _assert_no_leakage(
         raise ValueError("Val/test positive edges overlap.")
 
 
+def _flatten_relation_edges(
+    edges_by_relation: dict[tuple[str, str, str], torch.Tensor],
+    relation_tuples: tuple[tuple[str, str, str], ...],
+    node_slices,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Global `(edge_index, edge_type)` of per-relation local edges, in `relation_tuples`
+    order (relations without edges contribute nothing)."""
+    parts, types = [], []
+    for relation_id, relation in enumerate(relation_tuples):
+        local = edges_by_relation.get(relation)
+        if local is None or local.numel() == 0:
+            continue
+        parts.append(_offset_edge_index(local, node_slices[relation[0]][0],
+                                        node_slices[relation[2]][0]))
+        types.append(torch.full((local.size(1),), relation_id, dtype=torch.long))
+    if not parts:
+        return torch.empty((2, 0), dtype=torch.long), torch.empty(0, dtype=torch.long)
+    return torch.cat(parts, dim=1), torch.cat(types)
+
+
+def build_link_path_groups(
+    config: TrainConfig,
+    fact_layer: FactLayer,
+    edge_index: torch.Tensor,
+    edge_type: torch.Tensor,
+    node_type: torch.Tensor,
+    seed: int,
+) -> tuple:
+    """Path cells on the message graph: schema-free walks (D8, decision 4; `seed` is the
+    draw's seed) or the pre-D7 DFS (`path_sampler: dfs`)."""
+    if config.data.path_sampler == "dfs":
+        return build_typed_path_face_groups(
+            edge_index=edge_index,
+            edge_type=edge_type,
+            node_type=node_type,
+            batch=None,
+            graph_id=None,
+            max_paths_per_anchor=config.data.face_sample_k,
+            exclude_identity_paths=config.data.exclude_identity_metapaths,
+            seed=seed,
+        )
+    if config.data.path_sampler != "walk":
+        raise ValueError("link prediction supports path_sampler walk or dfs.")
+    return build_free_path_groups(
+        edge_index=edge_index,
+        edge_type=edge_type,
+        node_type=node_type,
+        relation_names=fact_layer.kept_names,
+        self_inverse=fact_layer.self_inverse,
+        tied=fact_layer.mode == "tied",
+        walks_per_anchor=config.data.face_sample_k,
+        seed=seed,
+        length=2,
+    )
+
+
+def assert_no_held_out_facts(
+    fact_layer: FactLayer,
+    edge_index: torch.Tensor,
+    edge_type: torch.Tensor,
+    face_groups: tuple,
+    held_out_edge_index: torch.Tensor,
+    held_out_relation: torch.Tensor,
+) -> None:
+    """No held-out fact, in either orientation, in the message graph or on any path cell
+    (D7, T11). Path cells reference message-graph edges by id, so the facts on every path
+    are checked through the edges they use."""
+    leaks = held_out_fact_leaks(fact_layer, edge_index, edge_type, held_out_edge_index,
+                                held_out_relation)
+    if leaks:
+        raise AssertionError(
+            f"{leaks} held-out fact(s) present in the message graph (either orientation)."
+        )
+    for group in face_groups:
+        used = group.face_edge_index.reshape(-1)
+        if used.numel() and int(used.max()) >= edge_index.size(1):
+            raise AssertionError(f"path group {group.template_name!r} uses a non-message edge.")
+        path_leaks = held_out_fact_leaks(fact_layer, edge_index[:, used], edge_type[used],
+                                         held_out_edge_index, held_out_relation)
+        if path_leaks:
+            raise AssertionError(
+                f"{path_leaks} held-out fact(s) on path group {group.template_name!r}."
+            )
+
+
 def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
     dataset_name = config.data.dataset_name.lower()
     local_hgb_data: _LocalHGBLinkData | None = None
@@ -648,6 +772,13 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
 
     raw_x, node_type, node_type_names, node_slices, feature_dims = stack_node_features(data)
     edge_index, edge_type, relation_names, relation_tuples = flatten_edges(data, node_slices)
+    if local_hgb_data is None:
+        # AmazonBook: the stored graph before our re-split; rho is computed on it.
+        pre_split_edge_index, pre_split_edge_type = edge_index, edge_type
+    else:
+        pre_split_edge_index, pre_split_edge_type = _flatten_relation_edges(
+            local_hgb_data.link_edge_index_by_relation, relation_tuples, node_slices
+        )
 
     src_type, relation_name, dst_type = config.data.target_relation
     target_relation = (src_type, relation_name, dst_type)
@@ -859,6 +990,9 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         test_neg_edge_index = torch.cat(test_neg_parts, dim=1)
         test_neg_edge_relation = torch.cat(test_neg_relation_parts, dim=0)
         num_target_relations = len(target_relation_ids)
+        target_original_ids = torch.tensor(
+            [relation_tuples.index(relation) for relation in target_relations], dtype=torch.long
+        )
     elif dataset_name == "amazonbook":
         label_pos_edge_index = _offset_edge_index(
             edge_store.edge_label_index,
@@ -933,6 +1067,7 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
             edge_index, edge_type, reverse_candidates, held_out.flip(0)
         )
         num_target_relations = 1
+        target_original_ids = torch.tensor([relation_id], dtype=torch.long)
         train_pos_edge_relation = torch.zeros(train_pos_edge_index.size(1), dtype=torch.long)
         val_pos_edge_relation = torch.zeros(val_pos_edge_index.size(1), dtype=torch.long)
         val_neg_edge_relation = torch.zeros(val_neg_edge_index.size(1), dtype=torch.long)
@@ -947,18 +1082,25 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         # node pair connected by more than one pooled relation.
         _assert_no_leakage(train_pos_edge_index, val_pos_edge_index, test_pos_edge_index)
 
-    # Path cells on the message graph `edge_index`, which holds training positives only:
-    # validation and test positives were removed from it above (and checked).
-    face_groups = build_typed_path_face_groups(
-        edge_index=edge_index,
-        edge_type=edge_type,
-        node_type=node_type,
-        batch=None,
-        graph_id=None,
-        max_paths_per_anchor=config.data.face_sample_k,
-        exclude_identity_paths=config.data.exclude_identity_metapaths,
-        seed=config.seed,
-    )
+    # Fact layer (D7): rho from the graph BEFORE the split (decision 2), applied to the
+    # message graph, which holds training positives only. Negatives, splits and the
+    # per-relation checks above are computed on the stored (untied) graph, so they are the
+    # same under both fact layers.
+    fact_layer = build_fact_layer(pre_split_edge_index, pre_split_edge_type, relation_names,
+                                  raw_x.size(0), config.data.fact_layer)
+    edge_index, edge_type = apply_fact_layer(fact_layer, edge_index, edge_type)
+    relation_names = fact_layer.kept_names
+    relation_tuples = tuple(relation_tuples[r] for r in fact_layer.kept)
+
+    # Path cells on the message graph `edge_index`, which holds training positives only.
+    face_groups = build_link_path_groups(config, fact_layer, edge_index, edge_type, node_type,
+                                         seed=config.seed)
+    held_out_edge_index = torch.cat([val_pos_edge_index, test_pos_edge_index], dim=1)
+    held_out_relation = target_original_ids[
+        torch.cat([val_pos_edge_relation, test_pos_edge_relation])
+    ]
+    assert_no_held_out_facts(fact_layer, edge_index, edge_type, face_groups,
+                             held_out_edge_index, held_out_relation)
 
     return PreparedLinkPredData(
         x=raw_x,
@@ -991,4 +1133,5 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         src_node_offset=src_offset,
         dst_node_offset=dst_offset,
         face_groups=face_groups,
+        fact_layer=fact_layer,
     )

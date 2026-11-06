@@ -5,6 +5,8 @@ from typing import Mapping
 
 import torch
 
+from src.data.fact_layer import FactLayer
+
 from src.data.structures import FaceGroup
 
 
@@ -65,6 +67,8 @@ class PreparedLinkPredData:
 
     # Path cells, enumerated on the train-only message graph `edge_index`.
     face_groups: tuple[FaceGroup, ...]
+    # rho, kept relations, unmatched edges (D7); None for data built without a fact layer.
+    fact_layer: "FactLayer | None" = None
 
     @property
     def num_nodes(self) -> int:
@@ -110,4 +114,5 @@ class PreparedLinkPredData:
             src_node_offset=self.src_node_offset,
             dst_node_offset=self.dst_node_offset,
             face_groups=tuple(group.to(device) for group in self.face_groups),
+            fact_layer=self.fact_layer,
         )
