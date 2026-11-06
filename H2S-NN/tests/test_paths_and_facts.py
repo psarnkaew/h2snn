@@ -657,5 +657,116 @@ class SectionPreservationTests(unittest.TestCase):
                         self.assertGreater(float(eigenvalues[kernel]), 1e3 * self.KERNEL_TOL, name)
 
 
+# ----------------------------------------------------------------------------- D7 (T10)
+def _acm_like(mode: str):
+    """paper(0-3), author(4-5): cite/ref mirror pair, paper->author / author->paper pair."""
+    cite = [(0, 1), (1, 2), (2, 0), (3, 1)]
+    writes = [(0, 4), (1, 4), (2, 5), (3, 5)]
+    edges = ([(u, 0, v) for u, v in cite] + [(v, 1, u) for u, v in cite]
+             + [(u, 2, v) for u, v in writes] + [(v, 3, u) for u, v in writes])
+    names = ("paper__cite__paper", "paper__ref__paper", "paper__to__author", "author__to__paper")
+    tuples = (("paper", "cite", "paper"), ("paper", "ref", "paper"),
+              ("paper", "to", "author"), ("author", "to", "paper"))
+    edge_index = torch.tensor([[u for u, _, _ in edges], [v for _, _, v in edges]])
+    edge_type = torch.tensor([r for _, r, _ in edges])
+    layer = build_fact_layer(edge_index, edge_type, names, 6, mode)
+    return layer, tuple(tuples[r] for r in layer.kept)
+
+
+class SchemaTests(unittest.TestCase):
+    """T10: schemas with direction."""
+
+    def test_T10_citation_chain_and_co_citation_are_distinct(self) -> None:
+        from src.configs.config import MetaPathConfig
+        from src.data.schemas import resolve_schemas
+
+        layer, tuples = _acm_like("tied")
+        chain = MetaPathConfig("chain", ("paper",) * 3,
+                               hops=(("paper__cite__paper", "+"), ("paper__cite__paper", "+")))
+        cocite = MetaPathConfig("cocite", ("paper",) * 3,
+                                hops=(("paper__cite__paper", "+"), ("paper__cite__paper", "-")))
+        schemas = resolve_schemas((chain, cocite), layer, tuples)
+        self.assertEqual([s.hops for s in schemas], [((0, 1), (0, 1)), ((0, 1), (0, -1))])
+        self.assertNotEqual(schemas[0].key, schemas[1].key)
+
+    def test_T10_ambiguous_transition_without_hops_raises(self) -> None:
+        from src.configs.config import MetaPathConfig
+        from src.data.schemas import resolve_schema
+
+        for mode in ("tied", "untied"):
+            layer, tuples = _acm_like(mode)
+            with self.subTest(mode=mode):
+                with self.assertRaisesRegex(ValueError, "'paper' -> 'paper'.*2 .*candidates"):
+                    resolve_schema(MetaPathConfig("PPP", ("paper",) * 3), layer, tuples)
+        layer, tuples = _acm_like("tied")  # PAP is unique: the tied paper-author fact both ways
+        pap = resolve_schema(MetaPathConfig("PAP", ("paper", "author", "paper")), layer, tuples)
+        self.assertEqual(pap.hops, ((1, 1), (1, -1)))
+
+    def test_T10_a_schema_and_its_reverse_share_one_group(self) -> None:
+        from src.configs.config import MetaPathConfig
+        from src.data.schemas import resolve_schemas, schema_key
+
+        layer, tuples = _acm_like("tied")
+        forward = MetaPathConfig("chain", ("paper",) * 3,
+                                 hops=(("paper__cite__paper", "+"), ("paper__cite__paper", "+")))
+        backward = MetaPathConfig("chain_rev", ("paper",) * 3,  # ref = cite reversed
+                                  hops=(("paper__ref__paper", "+"), ("paper__ref__paper", "+")))
+        apa = MetaPathConfig("APA", ("author", "paper", "author"))
+        pap = MetaPathConfig("PAP", ("paper", "author", "paper"))
+        schemas = resolve_schemas((forward, backward, pap, apa), layer, tuples)
+        self.assertEqual([s.name for s in schemas], ["chain", "PAP", "APA"])
+        mixed = ("paper", "author"), ((1, -1),)
+        self.assertEqual(schema_key(*mixed), schema_key(("author", "paper"), ((1, 1),)))
+
+    def test_T10_untied_rejects_minus_hops(self) -> None:
+        from src.configs.config import MetaPathConfig, TrainConfig
+        from src.data.schemas import resolve_schema
+
+        layer, tuples = _acm_like("untied")
+        with self.assertRaises(ValueError):
+            resolve_schema(MetaPathConfig("x", ("paper",) * 2,
+                                          hops=(("paper__cite__paper", "-"),)), layer, tuples)
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "metapath_templates": [
+                {"name": "x", "node_types": ["paper", "paper"],
+                 "hops": [["paper__cite__paper", "-"]]}]}})
+        with self.assertRaises(ValueError):  # malformed hop
+            MetaPathConfig("x", ("paper", "paper"), hops=(("paper__cite__paper", "?"),))
+
+    def test_T10_self_inverse_hops_have_no_direction(self) -> None:
+        from src.configs.config import MetaPathConfig
+        from src.data.schemas import resolve_schema
+
+        layer, _, _ = _layer([(0, 0, 1), (1, 0, 0), (1, 0, 2), (2, 0, 1)], 1, 3)
+        schema = resolve_schema(MetaPathConfig("NNN", ("node",) * 3), layer,
+                                (("node", "bond", "node"),))
+        self.assertEqual(schema.hops, ((0, 0), (0, 0)))
+        self.assertEqual(schema.key, (("node",) * 3, ((0, 0), (0, 0))))
+
+    @unittest.skipUnless((REPO_ROOT / "data" / "acm").exists(), "HGB data not present")
+    def test_T10_every_default_schema_resolves_on_real_data(self) -> None:
+        from src.configs.config import TrainConfig
+        from src.data.dataset import _load_hetero_data
+        from src.data.hetero_flatten import flatten_edges, stack_node_features
+        from src.data.schemas import resolve_schemas
+
+        for name in ("acm", "dblp", "imdb"):
+            if not (REPO_ROOT / "data" / name).exists():
+                continue
+            config = TrainConfig.from_dict(
+                {"data": {"dataset_name": name, "root": str(REPO_ROOT / "data")}})
+            data = _load_hetero_data(config)
+            x, _, _, slices, _ = stack_node_features(data)
+            edge_index, edge_type, names, tuples = flatten_edges(data, slices)
+            for mode in ("tied", "untied"):
+                with self.subTest(dataset=name, mode=mode):
+                    layer = build_fact_layer(edge_index, edge_type, names, x.size(0), mode)
+                    kept = tuple(tuples[r] for r in layer.kept)
+                    schemas = resolve_schemas(config.data.metapath_templates, layer, kept)
+                    self.assertEqual(len(schemas), len(config.data.metapath_templates))
+                    if mode == "untied":
+                        self.assertTrue(all(d == 1 for s in schemas for _, d in s.hops))
+
+
 if __name__ == "__main__":
     unittest.main()

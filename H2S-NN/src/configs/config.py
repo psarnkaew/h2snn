@@ -49,14 +49,35 @@ class MetaPathConfig:
     name: str
     node_types: tuple[str, ...]
     sample_per_anchor: int | None = None
+    # Optional explicit hops [(relation_name, "+" | "-"), ...], one per node-type
+    # transition (D7). Needed when a transition resolves to more than one (relation,
+    # direction) under the active fact layer, e.g. ACM paper -> paper (cite +, cite -).
+    hops: tuple[tuple[str, str], ...] | None = None
+
+    def __post_init__(self) -> None:
+        if self.hops is None:
+            return
+        hops = tuple((str(hop[0]), str(hop[1])) for hop in self.hops)
+        if any(len(hop) != 2 for hop in self.hops) or any(s not in {"+", "-"} for _, s in hops):
+            raise ValueError(
+                f"metapath {self.name!r}: hops must be [relation_name, '+' | '-'] pairs, "
+                f"got {self.hops!r}."
+            )
+        if len(hops) != len(self.node_types) - 1:
+            raise ValueError(
+                f"metapath {self.name!r}: {len(hops)} hops for {len(self.node_types)} node types."
+            )
+        self.hops = hops
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "MetaPathConfig":
         _reject_unknown_keys("data.metapath_templates[]", raw, cls)
+        hops = raw.get("hops")
         return cls(
             name=str(raw["name"]),
             node_types=tuple(str(value) for value in raw["node_types"]),
             sample_per_anchor=raw.get("sample_per_anchor"),
+            hops=None if hops is None else tuple(tuple(hop) for hop in hops),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,6 +85,7 @@ class MetaPathConfig:
             "name": self.name,
             "node_types": list(self.node_types),
             "sample_per_anchor": self.sample_per_anchor,
+            "hops": None if self.hops is None else [list(hop) for hop in self.hops],
         }
 
 
@@ -376,9 +398,16 @@ class DataConfig:
                     if template.sample_per_anchor is None
                     else template.sample_per_anchor
                 ),
+                hops=template.hops,
             )
             for template in templates
         )
+        if self.fact_layer == "untied" and any(
+            sign == "-" for template in templates for _, sign in (template.hops or ())
+        ):
+            raise ValueError(
+                "explicit '-' hops need fact_layer: tied; untied walks stored directions only."
+            )
 
         return replace(
             self,

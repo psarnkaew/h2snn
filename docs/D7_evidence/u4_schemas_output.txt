@@ -1,0 +1,7 @@
+acm tied   kept=4  PAP: paper__to__author+, paper__to__author-; PSP: paper__to__subject+, paper__to__subject-
+acm untied kept=8  PAP: paper__to__author+, author__to__paper+; PSP: paper__to__subject+, subject__to__paper+
+dblp tied   kept=3  APA: author__to__paper+, author__to__paper-; APTPA: author__to__paper+, paper__to__term+, paper__to__term-, author__to__paper-
+dblp untied kept=6  APA: author__to__paper+, paper__to__author+; APTPA: author__to__paper+, paper__to__term+, term__to__paper+, paper__to__author+
+imdb tied   kept=3  MAM: movie__>actorh__actor+, movie__>actorh__actor-; MDM: movie__to__director+, movie__to__director-
+imdb untied kept=6  MAM: movie__>actorh__actor+, actor__to__movie+; MDM: movie__to__director+, director__to__movie+
+
