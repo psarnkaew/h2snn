@@ -4,11 +4,10 @@ This file gives Codex and other coding agents the project-specific rules for thi
 `CLAUDE.md` holds the same rules in more detail (coding-style templates, architecture tables);
 when the two differ, report it and follow `CLAUDE.md`.
 
-> **H2S-NN is mid-revision.** The default code path in `src/` is **v1**, the submitted model. The
-> target is **v2**, defined in the planning documents in `../docs/`. As of 2026-11-06 the v2 code
-> is D1 (`model.map_family: factorized`), D1a (`model.map_scale: per_edge`) and D4
-> (`model.architecture: v2`, `src/models/h2snn_v2.py`), node classification only, all behind
-> non-default config values. Read "Revision Status" below before any task.
+> **H2S-NN is mid-revision.** `src/` holds one model (vertex-2-cell sheaf Laplacian, plan §4) with
+> node-classification, link-prediction and graph-classification heads; the submitted model (v1)
+> and AMPSS are on the git tag `v1-submitted`. The plan lives in `../docs/`. Read "Revision
+> Status" below before any task.
 
 ## Environment - Always Use `h2snn`
 
@@ -49,58 +48,55 @@ Sanity check:
 
 ## Revision Status
 
+`src/` holds one model: H2S-NN with the vertex-2-cell sheaf Laplacian (plan §4), shared by three task heads (node classification, link prediction, graph classification; plan §4.8, decision D6). The submitted model (v1) and AMPSS were deleted and are preserved on the git tag `v1-submitted`. No accuracy result exists yet for any task.
+
 ### Sources of truth, in this order
 
 The planning documents live in `../docs/` (from `H2S-NN/`).
 
 1. `CLAUDE.md` and this file - environment and coding conventions. Binding.
-2. `../docs/H2S-NN_v2_plan.md` - agreed decisions D1-D5. Do not reopen an agreed decision; if evidence contradicts one, stop and report.
+2. `../docs/H2S-NN_v2_plan.md` - agreed decisions D1-D6. Do not reopen an agreed decision; if evidence contradicts one, stop and report.
 3. `../docs/H2S-NN_fix_spec.md` - verified facts F1-F18, hypotheses H1-H12, protocol fixes (§6), writing decisions (§7). In force except where the v2 plan supersedes it (P2, P3, P5, P6).
 4. `../docs/H2S-NN_agent_prompt.md` - role, evidence rules, the mandatory self-correction loop, and task cards. Task cards D1 and D4 are done (reports `../docs/H2S-NN_D1_report.md`, `../docs/H2S-NN_D4_report.md`).
 5. The code. When a document and the code disagree, the code describes what runs; report the disagreement.
 
 Context: `../docs/critical_reviewer_reviews.md` (reviews); `../docs/h2snn_manuscript_paper.pdf` and `../docs/h2snn_manuscript_material.pdf` (submitted version); manuscript source in `paper/`.
 
-### v2 decisions
+### Decisions
 
 | ID | Decision | State |
 |---|---|---|
-| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c * R_{psi,side} * H_k(u)`; `model.map_family: dense \| factorized` (default `dense`), `model.householder_k` | Implemented for node classification, unit-tested; accuracy experiments (plan §1.6) not run. D1a (one scale per edge, `model.map_scale: per_edge`) implemented for v2 |
-| D2 | Redesign AMPSS; mechanism open. Interim: fixed literature schemas + uniform per-batch instance sampling | Open |
-| D3 | Scalability first: normalized Laplacians (full-graph degrees), `eta = sigmoid(theta)`, equivariant normalization, per-batch path cells, `NeighborLoader`. Scale v2, not v1 | Not started |
-| D4 | Path 2-cells couple to every boundary node through the vertex-2-cell sheaf Laplacian; edge-cochain machinery deleted | Implemented (`model.architecture: v2`, node classification) with plan §4.6 ablation switches, unit-tested; ACM memory and 20-epoch smoke run only; accuracy and ablation experiments not run |
+| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c * R_{psi,side} * H_k(u)`; `model.map_family: factorized \| dense` (dense = comparison family), `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
+| D2 | Redesign AMPSS; mechanism open. Interim: fixed literature schemas (the presets) | Open; v1 AMPSS deleted |
+| D3 | Scalability: normalized Laplacians (full-graph degrees), `eta = sigmoid(theta)`, per-batch path cells, `NeighborLoader` | Normalization and bounded step implemented (D4); mini-batching not started |
+| D4 | Path 2-cells couple to every boundary node through the vertex-2-cell sheaf Laplacian | Implemented with the plan §4.6 ablation switches; ACM memory and smoke run only |
 | D5 | Baseline provenance and IMDB heterophily fixes (parallel) | Not started |
+| D6 | One model; link prediction and graph classification ported to it (heads change only where forced) | Implemented; no accuracy run |
 
-### v1 components that v2 deletes - do not extend or scale them
+### Rejected - do not build (plan §4.8)
 
-Edge cochain `s` and `L1`; `EdgeInitializer`; the `delta1` face term in the dynamics; the `d^2`-output `A_f` head and `[F, l+1, d, d]` face maps; closure edges inside `Delta0` (ablation control only); edge `LayerNorm`; edge pooling in the readout; the operator ramp tied to the face term; the AMPSS Stage-I endpoint-proxy selector. Keep them working so v1 stays reachable for regression and ablations.
-
-### Out of scope for the current v2 work
-
-Graph classification, link prediction, `SheafCovPool`, S2Pool, THS-Pool. Keep their code and tests passing; do not extend them. If a v2 option reaches these paths, raise a clear `NotImplementedError` naming the decision.
+A sheaf-consistency link decoder; per-relation / per-schema energy features for graph classification; a disjoint message/supervision split for link prediction (the HGB protocol is kept).
 
 ### Evidence and conduct rules
 
 - Tag every non-trivial claim: `VERIFIED-CODE` (`file:line`), `VERIFIED-RUN` (command + output), `VERIFIED-SOURCE`, `DERIVED`, `UNVERIFIED`, or `PROPOSAL`. Never claim a test passes, a number improved, or a bug is fixed without showing the run output.
 - Never invent file paths, functions, APIs, config keys, numbers, citations or results. Confirm an API exists in the `h2snn` environment before using it.
 - No long training jobs, sweeps or multi-seed experiments without explicit approval. Short smoke tests and microbenchmarks are fine.
-- Results produced before the revision do not validate v2. Label every baseline number rerun / published / quoted and trace it to an artifact.
-- Keep v1 behaviour unchanged behind default config values unless a task card says otherwise.
+- Results produced before the revision do not validate the current model. Label every baseline number rerun / published / quoted and trace it to an artifact.
+- Config loading is strict: every section rejects unknown keys, so old v1/AMPSS configs and checkpoints fail loudly. Do not add compatibility shims.
 - Forbidden fixes: loosening tolerances, deleting or skipping tests, silencing exceptions, special-casing test inputs, editing the spec to fit the code.
 - Stay inside the task card's scope; list out-of-scope problems instead of fixing them. Do not commit or push unless asked.
 
 ## Codebase Map
 
-- `src/`, `scripts/`, `configs/experiments/`, `tests/` - H2S-NN (v1 today; all v2 work goes here).
+- `src/`, `scripts/`, `configs/experiments/`, `tests/` - H2S-NN.
 - `vendor/` - every external baseline: `vendor/csnn/` (legacy homogeneous CSNN: `models/`, `exp/`, `utils/`, `gnn_evaluation.py`), the committed `vendor/HINPool/` and `vendor/HINormer/`, and empty clone targets (`vendor/H2GB/`, `vendor/SeHGNN/`, `vendor/HGB/`, ...). Leave the empty folders in place. `src/baselines/runtime/vendor_paths.py` is the single place mapping each baseline to its folder; `src/baselines/` holds the adapters. Do not add H2S-NN features under `vendor/`.
 - `folds/` - TU graph-classification splits, read relative to the working directory: run from the repository root. Legacy CSNN runs also need `PYTHONPATH=vendor/csnn` (see `CLAUDE.md`).
 - `references/` - reference PDFs (`HETSHEAF.pdf`, `background/`, `metapath_search/`, `rl_and_search/`, `readout/`, `misc/`).
-- `docs/h2snn_current_model_documentation.html` - documents **v1** only. `docs/pyg_dataset_eda_homophily_report.html` - dataset homophily EDA cited by the v2 plan.
+- `docs/h2snn_current_model_documentation.html` and the `docs/sheafcovpool_*` notes - describe the deleted v1 model (tag `v1-submitted`); history, not `src/`. `docs/pyg_dataset_eda_homophily_report.html` - dataset homophily EDA cited by the plan.
 - `notebooks/` - Colab notebooks checked by `tests/test_baselines.py` and `tests/test_wandb_and_runs.py` (`baselines_*.ipynb`, `h2snn_*_colab.ipynb`, and `notebooks/baselines/`, generated by `scripts/generate_baseline_notebooks.py` - edit the generator, never those files). Keep them committed without outputs.
 
-v1 key files: `src/models/h2snn_model.py` (wiring), `sheaf_maps.py` (node-to-edge, edge initializer, edge-to-face maps), `coboundary_ops.py` (matrix-free `delta0`, `delta1`, `L0`, `L1`), `diffusion.py`, `readout.py`, `src/data/{node_stage1,schema_discovery,stage1_selector}.py` (AMPSS Stage I), `src/trainers/trainer.py`. For the v1 data flow, the fate of each module in v2, and the known v1 issues, see "Architecture" in `CLAUDE.md`.
-
-v2 key files: `src/models/h2snn_v2.py` (`H2SNNv2`, ablation switches), `vertex_path_laplacian.py` (path-cell operator, normalized `Delta_0 + gamma L_P`), `map_operators.py` (D1/D1a operators, `PathTransportOperator`); tests `tests/test_factorized_maps.py`, `tests/test_v2_model.py`.
+Key files: `src/models/h2snn_model.py` (`H2SNN`: encoder, ablation switches, node head; `ModelDims`), `vertex_path_laplacian.py` (path-cell operator, normalized `Delta_0 + gamma L_P`), `map_operators.py` (D1/D1a operators, `PathTransportOperator`), `sheaf_maps.py` (node-to-edge maps), `link_readout.py` (`dot` / `distmult` / `concat_mlp` on `[x_K, h0]`), `graph_readout.py` (sum of `[x_K, h0]` -> BatchNorm -> MLP); `src/trainers/{trainer,link_prediction_trainer,graph_classification_trainer}.py`; config `src/configs/config.py` (`data`, `model`, `ablation`, `optim`). Tests: `tests/test_factorized_maps.py`, `tests/test_v2_model.py`, `tests/test_task_heads.py`. The model's equations and the head table are under "Architecture" in `CLAUDE.md`.
 
 ## Coding Rules
 
@@ -120,28 +116,27 @@ Use `unittest`, not bare `pytest`:
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m unittest discover -s tests -v
 ```
 
-Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress.
+Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress. `tests/test_task_heads.py` compares node-classification outputs and gradients bit-for-bit with `../docs/heads_evidence/v2_golden.pt`.
 
 On this Windows machine, PyG-dependent tests can be blocked while importing `xxhash._xxhash` by Application Control. Treat that as an environment-policy blocker, not an H2S-NN defect; report it, run the complete suite in the clean Colab environment, and do not weaken the policy or add model workarounds.
 
 If a test writes trainer artifacts, close file handlers (`ExperimentLogger.close()`) before deleting temporary directories on Windows.
 
-## Training Commands (v1)
+## Training Commands
 
-These run v1 unless the config sets `model.architecture: v2` (node classification only; no committed config does). Respect the approval rule for anything longer than a smoke test.
+Respect the approval rule for anything longer than a smoke test. The task follows from `data.dataset_name`.
 
 ```powershell
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cpu --exp_name acm_smoke_cpu
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn_ampss.yaml --device cuda --exp_name acm_h2snn_ampss_test
 ```
 
-Node-classification configs: `acm`, `dblp`, `imdb` (`*_h2snn.yaml` manual schemas, `*_h2snn_ampss.yaml` AMPSS). Link-prediction (`lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon`) and graph-classification (`mutag`, `enzymes`, `nci1`, `proteins`) configs are out of scope for v2 work.
+Configs: node classification `acm`, `dblp`, `imdb`; link prediction `lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon` (decoder per dataset via `data.decoder_type`); graph classification `mutag`, `enzymes`, `nci1`, `proteins` (all `*_h2snn.yaml`). Ablations go in the `ablation:` block (all off by default).
 
 W&B tuning preflight (does not contact W&B or train):
 
 ```powershell
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\acm_h2snn_ampss.yaml --num_runs 5 --n_trials 30 --d_values 16 32 --validate_only
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\acm_h2snn.yaml --num_runs 5 --n_trials 30 --d_values 16 32 --validate_only
 ```
 
 W&B tuning state is versioned and fingerprinted; `--resume` continues compatible sweeps and creates numbered continuation sweeps for incompatible ones. To split a campaign across machines, keep `--num_runs` and `--base_seed` fixed and use `--run_start`/`--run_count`; never run the same run index concurrently.
@@ -149,8 +144,7 @@ W&B tuning state is versioned and fingerprinted; `--resume` continues compatible
 ## Documentation Updates
 
 - Update tests first or alongside the code.
-- When v1 behaviour changes, update `docs/h2snn_current_model_documentation.html`.
-- When a v2 component lands, record it in the task's final report (format in `../docs/H2S-NN_agent_prompt.md`) and update the "State" column of the decision tables in this file and `CLAUDE.md`.
+- When a planned component lands, record it in the task's final report (format in `../docs/H2S-NN_agent_prompt.md`) and update the "State" column of the decision tables in this file and `CLAUDE.md`.
 - Keep `requirements/` synchronized with actual imports, and `src/baselines/runtime/dependencies.py` with the baseline groups.
 - If command guidance changes, update this `AGENTS.md` and `CLAUDE.md` together so future agents do not fall back to `base`.
 
@@ -167,8 +161,8 @@ science reader who is not a specialist in heterogeneous sheaves or Hodge theory.
 - Read the surrounding manuscript section and the relevant entries in `paper/references.bib` before
   editing. Preserve the paper's established macros, notation, labels, terminology, and venue format
   unless the task explicitly changes them.
-- The manuscript describes **v1**. Ground any description of what v1 does in the implemented `src/`
-  code, tests, experiment configs and completed result artifacts, then in
+- The manuscript describes **v1**. Ground any description of what v1 does in the code on the git
+  tag `v1-submitted` (its `src/` code, tests, experiment configs and completed result artifacts), then in
   `docs/h2snn_current_model_documentation.html` (v1 only). Ground any description of the revised
   model in `../docs/H2S-NN_v2_plan.md` and `../docs/H2S-NN_fix_spec.md` (§7, Claims and writing), and describe
   a v2 component as implemented only once its code and tests exist. Treat the manuscript,
@@ -268,7 +262,7 @@ unless a specific component is technically solid and important for deciding what
   dataset/split, comparison scope, and variability or number of runs when available. Never manufacture
   missing values or use placeholders as completed evidence.
 - Keep the implementation boundary explicit.
-  - **v1 (submitted model, current code):** closure edges are first-class 1-cells inside `delta0`;
+  - **v1 (submitted model, git tag `v1-submitted`):** closure edges are first-class 1-cells inside `delta0`;
     `delta1` spans the full boundary cycle and `delta1 . delta0 = 0` holds by construction;
     edge-to-face maps are built by transport from one free per-instance map `A_f`; faces are simple
     paths; incidence signs are `+1` because enumeration is forward-only; schema preselection is

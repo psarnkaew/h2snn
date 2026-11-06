@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING
 
 import torch
 
@@ -11,10 +11,7 @@ from src.data.preprocessing import (
     compute_relation_diagnostics,
     deterministic_validation_split,
     enumerate_metapath_faces,
-    label_propagation,
 )
-from src.data.node_stage1 import build_node_amp_ss_faces
-from src.data.schema_structures import DiscoveryMetadata
 from src.data.structures import PreparedH2SData
 
 if TYPE_CHECKING:
@@ -123,11 +120,7 @@ def _prepare_target_labels(
     )
 
 
-def build_dataset(
-    config: TrainConfig,
-    *,
-    frozen_selector_manifest: Mapping[str, Any] | None = None,
-) -> PreparedH2SData:
+def build_dataset(config: TrainConfig) -> PreparedH2SData:
     data = _load_hetero_data(config)
     raw_x, node_type, node_type_names, node_slices, feature_dims = stack_node_features(data)
     edge_index, edge_type, relation_names, relation_tuples = flatten_edges(data, node_slices)
@@ -155,45 +148,15 @@ def build_dataset(
     train_indices = target_indices[target_train_mask]
     train_labels = target_y[target_train_mask]
 
-    discovery_metadata: DiscoveryMetadata | None = None
-    selector_report = None
-
-    if config.discovery.enabled and config.discovery.mode == "auto":
-        # Run label propagation once here for train-only Stage-I schema signals.
-        propagated_labels = label_propagation(
-            edge_index=edge_index,
-            train_indices=train_indices,
-            train_labels=train_labels,
-            num_nodes=raw_x.size(0),
-            num_classes=num_classes,
-            num_steps=config.data.num_label_prop_steps,
-        )
-        face_groups, discovery_metadata, closure_edge_index, selector_report = (
-            build_node_amp_ss_faces(
-                config=config,
-                node_slices=node_slices,
-                edge_index=edge_index,
-                edge_type=edge_type,
-                propagated_labels=propagated_labels,
-                target_node_type=config.data.target_node_type,
-                relation_tuples=relation_tuples,
-                target_indices=target_indices,
-                target_y=target_y,
-                target_train_mask=target_train_mask,
-                is_multilabel=is_multilabel,
-                frozen_manifest=frozen_selector_manifest,
-            )
-        )
-    else:
-        face_groups, closure_edge_index = enumerate_metapath_faces(
-            node_slices=node_slices,
-            edge_index=edge_index,
-            edge_type=edge_type,
-            relation_tuples=relation_tuples,
-            templates=config.data.metapath_templates,
-            exclude_identity_metapaths=config.data.exclude_identity_metapaths,
-            split_seed=config.data.acm_split_seed,
-        )
+    face_groups = enumerate_metapath_faces(
+        node_slices=node_slices,
+        edge_index=edge_index,
+        edge_type=edge_type,
+        relation_tuples=relation_tuples,
+        templates=config.data.metapath_templates,
+        exclude_identity_metapaths=config.data.exclude_identity_metapaths,
+        split_seed=config.data.acm_split_seed,
+    )
 
     # Reporting-only statistics; never concatenated onto node features. See
     # compute_relation_diagnostics for why appending a global vector to every node
@@ -237,8 +200,5 @@ def build_dataset(
         num_classes=num_classes,
         is_multilabel=is_multilabel,
         face_groups=face_groups,
-        closure_edge_index=closure_edge_index,
         metrics=metrics,
-        discovery=discovery_metadata,
-        selector_report=selector_report,
     )

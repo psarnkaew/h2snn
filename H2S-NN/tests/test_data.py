@@ -183,7 +183,7 @@ class DataPipelineTests(unittest.TestCase):
         self.assertEqual(metrics.dim(), 1)
         self.assertEqual(metrics.numel(), 2 * 4)
 
-    def test_flatten_and_face_enumeration_insert_closure_edges(self) -> None:
+    def test_flatten_and_face_enumeration_build_path_cells(self) -> None:
         torch = self._require_torch()
         from src.configs.config import MetaPathConfig
         from src.data.hetero_flatten import flatten_edges, stack_node_features
@@ -198,7 +198,7 @@ class DataPipelineTests(unittest.TestCase):
 
         _, _, _, node_slices, _ = stack_node_features(data)
         edge_index, edge_type, _, relation_tuples = flatten_edges(data, node_slices)
-        face_groups, closure_edge_index = enumerate_metapath_faces(
+        face_groups = enumerate_metapath_faces(
             node_slices=node_slices,
             edge_index=edge_index,
             edge_type=edge_type,
@@ -211,8 +211,7 @@ class DataPipelineTests(unittest.TestCase):
         self.assertEqual(len(face_groups), 1)
         self.assertEqual(face_groups[0].template_name, "PAP")
         self.assertEqual(face_groups[0].face_edge_index.shape[1], 2)
-        self.assertEqual(closure_edge_index.shape[0], 2)
-        self.assertEqual(closure_edge_index.shape[1], face_groups[0].num_faces)
+        self.assertEqual(tuple(face_groups[0].face_node_index.shape), (face_groups[0].num_faces, 3))
 
     def test_graph_face_builder_uses_typed_two_hop_paths(self) -> None:
         torch = self._require_torch()
@@ -230,7 +229,7 @@ class DataPipelineTests(unittest.TestCase):
         batch = torch.zeros(3, dtype=torch.long)
         graph_id = torch.tensor([7], dtype=torch.long)
 
-        face_groups, closure_edge_index = build_typed_path_face_groups(
+        face_groups = build_typed_path_face_groups(
             edge_index=edge_index,
             edge_type=edge_type,
             node_type=node_type,
@@ -242,7 +241,6 @@ class DataPipelineTests(unittest.TestCase):
         )
 
         self.assertEqual(sum(group.num_faces for group in face_groups), 3)
-        self.assertEqual(closure_edge_index.shape, (2, 3))
         for group in face_groups:
             self.assertEqual(group.length, 2)
             self.assertTrue(group.template_name.startswith("N"))
@@ -250,117 +248,6 @@ class DataPipelineTests(unittest.TestCase):
             self.assertTrue(torch.equal(group.face_edge_sign, torch.ones_like(group.face_edge_sign)))
             expected_relations = edge_type[group.face_edge_index]
             self.assertTrue(torch.equal(group.relation_index, expected_relations))
-
-    def test_graph_face_builder_supports_discovery_length_and_caps(self) -> None:
-        torch = self._require_torch()
-        from src.data.graph_faces import build_typed_path_face_groups
-
-        edge_index = torch.tensor(
-            [
-                [0, 1, 2, 0],
-                [1, 2, 3, 4],
-            ],
-            dtype=torch.long,
-        )
-        edge_type = torch.tensor([0, 1, 2, 3], dtype=torch.long)
-        node_type = torch.tensor([0, 1, 2, 3, 1], dtype=torch.long)
-
-        face_groups, closure_edge_index = build_typed_path_face_groups(
-            edge_index=edge_index,
-            edge_type=edge_type,
-            node_type=node_type,
-            batch=torch.zeros(5, dtype=torch.long),
-            graph_id=torch.tensor([11], dtype=torch.long),
-            max_paths_per_anchor=10,
-            exclude_identity_paths=True,
-            seed=5,
-            min_path_length=3,
-            max_path_length=3,
-            max_paths_per_schema=1,
-            max_total_paths=1,
-        )
-
-        self.assertEqual(sum(group.num_faces for group in face_groups), 1)
-        self.assertEqual(closure_edge_index.shape, (2, 1))
-        self.assertEqual(face_groups[0].length, 3)
-        self.assertEqual(face_groups[0].template_name, "N0_R0_N1_R1_N2_R2_N3")
-
-    def test_graph_face_builder_counts_closure_in_incidence_cap(self) -> None:
-        torch = self._require_torch()
-        from src.data.graph_faces import build_typed_path_face_groups
-
-        edge_index = torch.tensor(
-            [[0, 1, 2], [1, 2, 3]],
-            dtype=torch.long,
-        )
-        edge_type = torch.tensor([0, 1, 2], dtype=torch.long)
-        node_type = torch.tensor([0, 1, 2, 3], dtype=torch.long)
-        common = dict(
-            edge_index=edge_index,
-            edge_type=edge_type,
-            node_type=node_type,
-            batch=torch.zeros(4, dtype=torch.long),
-            graph_id=torch.tensor([17], dtype=torch.long),
-            max_paths_per_anchor=10,
-            exclude_identity_paths=True,
-            seed=9,
-            min_path_length=3,
-            max_path_length=3,
-        )
-
-        rejected, _ = build_typed_path_face_groups(
-            **common,
-            max_total_incidences=3,
-        )
-        accepted, closure = build_typed_path_face_groups(
-            **common,
-            max_total_incidences=4,
-        )
-
-        self.assertEqual(rejected, tuple())
-        self.assertEqual(sum(group.num_faces for group in accepted), 1)
-        self.assertEqual(closure.shape, (2, 1))
-
-    def test_selected_graph_templates_do_not_change_the_sampled_pool(self) -> None:
-        torch = self._require_torch()
-        from src.data.graph_faces import build_typed_path_face_groups
-
-        edge_index = torch.tensor(
-            [[0, 0, 1, 2], [1, 2, 3, 4]],
-            dtype=torch.long,
-        )
-        edge_type = torch.tensor([0, 1, 2, 3], dtype=torch.long)
-        node_type = torch.tensor([0, 1, 2, 3, 4], dtype=torch.long)
-        common = dict(
-            edge_index=edge_index,
-            edge_type=edge_type,
-            node_type=node_type,
-            batch=torch.zeros(5, dtype=torch.long),
-            graph_id=torch.tensor([29], dtype=torch.long),
-            exclude_identity_paths=True,
-            seed=11,
-            min_path_length=2,
-            max_path_length=2,
-        )
-        all_templates, _ = build_typed_path_face_groups(
-            **common,
-            max_paths_per_anchor=10,
-        )
-        capped_pool, _ = build_typed_path_face_groups(
-            **common,
-            max_paths_per_anchor=1,
-        )
-        all_names = {group.template_name for group in all_templates}
-        capped_names = {group.template_name for group in capped_pool}
-        omitted_name = next(iter(all_names - capped_names))
-
-        selected_only, _ = build_typed_path_face_groups(
-            **common,
-            max_paths_per_anchor=1,
-            selected_template_names=(omitted_name,),
-        )
-
-        self.assertEqual(selected_only, tuple())
 
     def test_graph_face_builder_excludes_identity_backtracking(self) -> None:
         torch = self._require_torch()
@@ -376,7 +263,7 @@ class DataPipelineTests(unittest.TestCase):
         edge_type = torch.zeros(2, dtype=torch.long)
         node_type = torch.zeros(2, dtype=torch.long)
 
-        face_groups, closure_edge_index = build_typed_path_face_groups(
+        face_groups = build_typed_path_face_groups(
             edge_index=edge_index,
             edge_type=edge_type,
             node_type=node_type,
@@ -388,7 +275,6 @@ class DataPipelineTests(unittest.TestCase):
         )
 
         self.assertEqual(face_groups, tuple())
-        self.assertEqual(closure_edge_index.shape, (2, 0))
 
     def test_hgb_link_split_uses_81_9_10_ratios(self) -> None:
         torch = self._require_torch()

@@ -5,9 +5,6 @@ from typing import Mapping
 
 import torch
 
-from src.data.schema_structures import DiscoveryMetadata
-from src.data.stage1_selector import SelectorReport
-
 
 @dataclass(slots=True)
 class FaceGroup:
@@ -17,7 +14,6 @@ class FaceGroup:
     face_edge_index: torch.Tensor
     relation_index: torch.Tensor
     face_edge_sign: torch.Tensor
-    closure_edge_index: torch.Tensor
 
     @property
     def num_faces(self) -> int:
@@ -35,7 +31,6 @@ class FaceGroup:
             face_edge_index=self.face_edge_index.to(device),
             relation_index=self.relation_index.to(device),
             face_edge_sign=self.face_edge_sign.to(device),
-            closure_edge_index=self.closure_edge_index.to(device),
         )
 
 
@@ -73,10 +68,7 @@ class PreparedH2SData:
     num_classes: int
     is_multilabel: bool
     face_groups: tuple[FaceGroup, ...]
-    closure_edge_index: torch.Tensor
     metrics: torch.Tensor
-    discovery: DiscoveryMetadata | None = None
-    selector_report: SelectorReport | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -110,8 +102,5 @@ class PreparedH2SData:
             num_classes=self.num_classes,
             is_multilabel=self.is_multilabel,
             face_groups=tuple(group.to(device) for group in self.face_groups),
-            closure_edge_index=self.closure_edge_index.to(device),
             metrics=self.metrics.to(device),
-            discovery=self.discovery.to(device) if self.discovery is not None else None,
-            selector_report=self.selector_report,
         )

@@ -7,17 +7,10 @@ data:
 model:
   d: 32
   d_r: 16
-  d_h: 64
-  face_chunk_size: 4096
   edge_mlp_hidden_dim: 128
-  edge_init_hidden_dim: 128
   face_mlp_hidden_dim: 128
   classifier_hidden_dim: 128
   K: 4
-  eta_0: 0.05
-  eta_1: 0.05
-  learnable_eta: true
-  use_orthogonal: true
   orthogonal_map: fasthpp
 optim:
   name: adamw

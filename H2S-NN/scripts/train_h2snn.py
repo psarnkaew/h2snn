@@ -64,8 +64,7 @@ def main() -> None:
             logger.info("Target relation: %s | Decoder: %s", cfg.data.target_relation, cfg.data.decoder_type)
         elif cfg.task_type == "graph_classification":
             logger.info(
-                "Pooling: %s | Split protocol: %s | Run: %d/%d | Fold: %d/%d",
-                cfg.data.pooling_type,
+                "Split protocol: %s | Run: %d/%d | Fold: %d/%d",
                 cfg.data.split_protocol,
                 cfg.data.run_index,
                 cfg.data.num_runs,

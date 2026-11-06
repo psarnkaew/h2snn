@@ -5,8 +5,6 @@ from typing import Mapping
 
 import torch
 
-from src.data.schema_structures import DiscoveryMetadata
-from src.data.stage1_selector import SelectorReport
 from src.data.structures import FaceGroup
 
 
@@ -14,7 +12,7 @@ from src.data.structures import FaceGroup
 class PreparedLinkPredData:
     """Single transductive heterogeneous graph prepared for link prediction.
 
-    Mirrors PreparedH2SData's shape/`.to(device)` pattern so H2SNN.encode() can be
+    Mirrors PreparedH2SData's shape/`.to(device)` pattern so `H2SNN.encode()` can be
     driven by either container. Edge indices are all in the global flattened index
     space (offset by node_slices), consistent with how flatten_edges already
     offsets message-passing edges.
@@ -65,10 +63,8 @@ class PreparedLinkPredData:
     src_node_offset: int
     dst_node_offset: int
 
+    # Path cells, enumerated on the train-only message graph `edge_index`.
     face_groups: tuple[FaceGroup, ...]
-    closure_edge_index: torch.Tensor
-    discovery: DiscoveryMetadata | None = None
-    selector_report: SelectorReport | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -114,7 +110,4 @@ class PreparedLinkPredData:
             src_node_offset=self.src_node_offset,
             dst_node_offset=self.dst_node_offset,
             face_groups=tuple(group.to(device) for group in self.face_groups),
-            closure_edge_index=self.closure_edge_index.to(device),
-            discovery=self.discovery.to(device) if self.discovery is not None else None,
-            selector_report=self.selector_report,
         )

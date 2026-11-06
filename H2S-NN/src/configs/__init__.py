@@ -1,6 +1,7 @@
 """Configuration helpers for H2S-NN."""
 
 from src.configs.config import (
+    AblationConfig,
     DataConfig,
     MetaPathConfig,
     ModelConfig,
@@ -9,6 +10,7 @@ from src.configs.config import (
 )
 
 __all__ = [
+    "AblationConfig",
     "DataConfig",
     "MetaPathConfig",
     "ModelConfig",

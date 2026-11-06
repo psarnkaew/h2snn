@@ -365,7 +365,7 @@ def enumerate_metapath_faces(
     templates: tuple[MetaPathConfig, ...],
     exclude_identity_metapaths: bool,
     split_seed: int,
-) -> tuple[tuple[FaceGroup, ...], torch.Tensor]:
+) -> tuple[FaceGroup, ...]:
     transition_lookup: dict[tuple[str, str], list[int]] = defaultdict(list)
     adjacency_by_transition: dict[tuple[str, str], dict[int, list[tuple[int, int]]]] = {}
 
@@ -383,7 +383,6 @@ def enumerate_metapath_faces(
         adjacency_by_transition[transition_key] = adjacency
 
     face_groups: list[FaceGroup] = []
-    closure_edges: list[list[int]] = []
 
     for template_index, template in enumerate(templates):
         path_nodes: list[list[int]] = []
@@ -418,9 +417,8 @@ def enumerate_metapath_faces(
                 if depth == len(relation_ids):
                     # The revisit guard below already rejects node_path[0] == node_path[-1],
                     # so `exclude_identity_metapaths` is subsumed and no longer consulted:
-                    # endpoint coincidence is excluded unconditionally because it degenerates
-                    # the closure edge into a self-loop, which the transport construction
-                    # cannot close (see src/data/face_geometry.py).
+                    # endpoint coincidence is excluded unconditionally because the transport
+                    # assigns one map per node position (see src/data/face_geometry.py).
                     sampled_node_paths.append(node_path.copy())
                     sampled_edge_paths.append(edge_path.copy())
                     return
@@ -466,11 +464,6 @@ def enumerate_metapath_faces(
             template_name=template.name,
         )
         face_edge_sign = torch.ones_like(face_edge_index, dtype=torch.float32)
-        closure_edge_index = torch.stack(
-            [face_node_index[:, -1], face_node_index[:, 0]],
-            dim=1,
-        )
-        closure_edges.extend(closure_edge_index.tolist())
         face_groups.append(
             FaceGroup(
                 template_name=template.name,
@@ -479,12 +472,6 @@ def enumerate_metapath_faces(
                 face_edge_index=face_edge_index,
                 relation_index=relation_index,
                 face_edge_sign=face_edge_sign,
-                closure_edge_index=closure_edge_index,
             )
         )
-
-    if closure_edges:
-        closure_edge_tensor = torch.tensor(closure_edges, dtype=torch.long).t().contiguous()
-    else:
-        closure_edge_tensor = torch.empty((2, 0), dtype=torch.long)
-    return tuple(face_groups), closure_edge_tensor
+    return tuple(face_groups)

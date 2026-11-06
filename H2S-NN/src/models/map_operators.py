@@ -1,19 +1,18 @@
-"""Matrix-free node->edge restriction-map operators (v2 decision D1).
+"""Matrix-free node->edge restriction-map operators (decision D1).
 
 A factorized restriction map is
 
-    F_{v<|e} = c_{v<|e} * R_{psi(e),side} * H_k(u_{v<|e}),
+    F_{v<|e} = c * R_{psi(e),side} * H_k(u_{v<|e}),
     H_k(u)   = H(u_1) H(u_2) ... H(u_k),   H(u) = I - 2 u u^T / ||u||^2,
 
-with one positive scalar `c` and `k` reflection vectors per incidence and one orthogonal
-`R` per (relation, side). The product is conformal-orthogonal, so the inverse is closed
-form, `F^-1 = c^-1 H_k^T R^T`, and the v1 transport construction (and with it
-`delta1 . delta0 = 0`) carries over unchanged.
+with `k` reflection vectors per incidence, one orthogonal `R` per (relation, side) and a
+positive scale `c` (one per edge, shared by both sides, under D1a; one per incidence under
+the per-side ablation). The product is conformal-orthogonal, so the inverse is closed form,
+`F^-1 = c^-1 H_k^T R^T`, and the path transport `PathTransportOperator` needs no solve.
 
-The operators below store only the factors -- `E*(k*d + 1)` numbers per side plus the
-shared `R` table -- and apply the maps to vectors. Nothing of shape `[E, d, d]` is built by
-`apply`, `apply_T`, `apply_inverse` or `apply_inverse_T`; `materialize` exists for tests
-and for small gathered subsets (the v1 face chunks) only.
+The operators below store only the factors and apply the maps to vectors. Nothing of shape
+`[E, d, d]` is built by `apply`, `apply_T`, `apply_inverse` or `apply_inverse_T`;
+`materialize` exists for tests only.
 """
 
 from __future__ import annotations
@@ -283,9 +282,7 @@ class FactorizedMapOperator:
 class DenseMapOperator:
     """Explicit `[E, d, d]` maps behind the operator interface.
 
-    Used for the v1 closure edges, whose maps (path holonomy and identity) are produced
-    by the face transport per face instance, not per observed edge, and for the v2 dense
-    map family. With `scale` (maps conformal-orthogonal, `F = c Q`) the inverse is the
+    Used by the dense map family. With `scale` (maps conformal-orthogonal, `F = c Q`) the inverse is the
     closed form `F^T / c^2`; no general solve is ever taken.
     """
 
@@ -350,41 +347,6 @@ class DenseMapOperator:
             self.maps.index_select(0, flat),
             None if self.scale is None else self.scale.index_select(0, flat),
         )
-
-
-class StackedMapOperator:
-    """Row-wise concatenation of operators (e.g. observed edges, then closure edges)."""
-
-    def __init__(self, parts: tuple[MapOperator, ...]) -> None:
-        if not parts:
-            raise ValueError("StackedMapOperator needs at least one part.")
-        self.parts = parts
-        self.sizes = [part.num_edges for part in parts]
-
-    @property
-    def num_edges(self) -> int:
-        return int(sum(self.sizes))
-
-    def stored_elements(self) -> int:
-        return int(sum(part.stored_elements() for part in self.parts))
-
-    def _map_parts(self, x: torch.Tensor, transpose: bool) -> torch.Tensor:
-        if x.size(0) != self.num_edges:
-            raise ValueError(f"expected {self.num_edges} rows, got {x.size(0)}.")
-        chunks = x.split(self.sizes, dim=0)
-        return torch.cat(
-            [
-                part.apply_T(chunk) if transpose else part.apply(chunk)
-                for part, chunk in zip(self.parts, chunks)
-            ],
-            dim=0,
-        )
-
-    def apply(self, x: torch.Tensor) -> torch.Tensor:
-        return self._map_parts(x, transpose=False)
-
-    def apply_T(self, y: torch.Tensor) -> torch.Tensor:
-        return self._map_parts(y, transpose=True)
 
 
 class PathTransportOperator:

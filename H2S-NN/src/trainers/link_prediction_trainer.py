@@ -8,8 +8,7 @@ from torch_geometric.utils import negative_sampling
 
 from src.configs.config import TrainConfig
 from src.data.link_pred_structures import PreparedLinkPredData
-from src.trainers.ampss_metrics import build_ampss_metrics
-from src.models.h2snn_model import H2SNN, H2SNNOutput
+from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
 from src.utils.misc import compute_link_prediction_metrics
@@ -75,16 +74,13 @@ class LinkPredictionTrainer:
                 metrics=val_metrics,
                 metadata={"test": test_metrics},
             )
-            is_best = False
-            checkpoint_eligible = self.cfg.is_full_operator_checkpoint_eligible(epoch)
-            if checkpoint_eligible:
-                is_best = self.checkpointer.save_if_best(
-                    model=self.model,
-                    optimizer=self.optimizer,
-                    epoch=epoch,
-                    metrics=val_metrics,
-                    metadata={"test": test_metrics},
-                )
+            is_best = self.checkpointer.save_if_best(
+                model=self.model,
+                optimizer=self.optimizer,
+                epoch=epoch,
+                metrics=val_metrics,
+                metadata={"test": test_metrics},
+            )
             if is_best:
                 self._best_epoch = epoch
                 bad_epochs = 0
@@ -94,7 +90,7 @@ class LinkPredictionTrainer:
                     **{f"val_{k}": v for k, v in val_metrics.items()},
                     **{f"test_{k}": v for k, v in test_metrics.items()},
                 }
-            elif checkpoint_eligible:
+            else:
                 bad_epochs += 1
 
             if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
@@ -201,26 +197,20 @@ class LinkPredictionTrainer:
         neg_edge_relation: torch.Tensor,
         epoch: int,
     ) -> tuple[torch.Tensor, dict[str, float]]:
+        # Message graph and path cells: `data.edge_index` / `data.face_groups`, built from
+        # training positives only (src/data/link_prediction_dataset.py).
         encoded = self.model.encode(
             x=data.x,
             node_type=data.node_type,
             edge_index=data.edge_index,
             edge_type=data.edge_type,
             face_groups=data.face_groups,
-            closure_edge_index=data.closure_edge_index,
             num_nodes=data.num_nodes,
-            num_edges=data.num_edges,
-            epoch=epoch,
-            discovery=data.discovery,
         )
         edge_label_index = torch.cat([pos_edge_index, neg_edge_index], dim=1)
         edge_label_relation = torch.cat([pos_edge_relation, neg_edge_relation], dim=0)
         scores = self.model.link_readout(  # type: ignore[misc]
-            x_star=encoded.x_star,
-            s_star=encoded.s_star,
-            edge_index=encoded.edge_index,
-            F_src=encoded.F_src,
-            F_tgt=encoded.F_tgt,
+            node_representation=encoded.representation,
             edge_label_index=edge_label_index,
             edge_relation=edge_label_relation,
         )
@@ -228,19 +218,6 @@ class LinkPredictionTrainer:
         labels = torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)])
         link_loss = self.criterion(scores, labels)
 
-        output_for_metrics = H2SNNOutput(
-            logits=scores,
-            delta0_x_star=encoded.delta0_x_star,
-            raw_face_curl=encoded.raw_face_curl,
-            delta1_delta0_h0=encoded.delta1_delta0_h0,
-            delta0_h0=encoded.delta0_h0,
-            x_star=encoded.x_star,
-            s_star=encoded.s_star,
-            instance_weight_means=encoded.instance_weight_means,
-            instance_weight_stds=encoded.instance_weight_stds,
-            instance_weight_nonempty_mask=encoded.instance_weight_nonempty_mask,
-            operator_ramp=encoded.operator_ramp,
-        )
         total_loss = link_loss
 
         computed_link_metrics = compute_link_prediction_metrics(
@@ -261,15 +238,6 @@ class LinkPredictionTrainer:
             "link_loss": float(link_loss.item()),
             **link_metrics,
         }
-        if data.discovery is not None:
-            metrics.update(
-                build_ampss_metrics(
-                    output_for_metrics,
-                    data.discovery,
-                    data.face_groups,
-                    self.cfg,
-                )
-            )
         return total_loss, metrics
 
     def _train_epoch(self, data: PreparedLinkPredData, epoch: int) -> dict[str, float]:
@@ -287,6 +255,8 @@ class LinkPredictionTrainer:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
         self.optimizer.step()
+        # Diffusion step and path-coupling strength after this epoch's update.
+        metrics.update(self.model.diffusion_scalars())
         return metrics
 
     def _eval_epoch(

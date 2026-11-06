@@ -1,0 +1,12 @@
+OK   configs/experiments\acm_h2snn.yaml
+OK   configs/experiments\amazon_h2snn.yaml
+OK   configs/experiments\amazonbook_h2snn.yaml
+OK   configs/experiments\dblp_h2snn.yaml
+OK   configs/experiments\enzymes_h2snn.yaml
+OK   configs/experiments\imdb_h2snn.yaml
+OK   configs/experiments\lastfm_h2snn.yaml
+OK   configs/experiments\mutag_h2snn.yaml
+OK   configs/experiments\nci1_h2snn.yaml
+OK   configs/experiments\proteins_h2snn.yaml
+OK   configs/experiments\pubmed_h2snn.yaml
+OK   configs/experiments\youtube_h2snn.yaml

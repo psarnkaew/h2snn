@@ -1,9 +1,9 @@
 """Geometric preconditions a face group must satisfy for the 2-complex construction.
 
-The transport construction in `src.models.sheaf_maps.compose_face_transport` assigns one
-transport `T_w` per node *position* along a face's boundary, and relies on every boundary
-edge being traversed in its stored `src -> tgt` direction (which is what makes the uniform
-`+1` incidence sign correct). Both preconditions are properties of enumeration, not of the
+The path transport (`src.models.map_operators.PathTransportOperator`) assigns one
+transport `T_w` per node *position* along a path, and relies on every path edge being
+traversed in its stored `src -> tgt` direction (so the transport step is
+`(F_src)^-1 F_tgt`, and the uniform `+1` incidence sign is correct). Both preconditions are properties of enumeration, not of the
 data, so they are checked here rather than assumed.
 """
 
@@ -24,7 +24,7 @@ def validate_face_orientation(
     enumerators walk forward through adjacency built from each relation's stored
     `src -> dst`. If reverse traversal is ever introduced (e.g. by symmetrising adjacency),
     the incidence signs must alternate; this check makes that fail loudly instead of
-    silently producing a wrong `delta1`.
+    silently producing a wrong transport.
 
     Args:
         face_node_index: [num_faces, L+1] node sequence per instance.
@@ -92,8 +92,8 @@ def validate_relation_sequence_constant(
 def is_simple(face_node_index: torch.Tensor) -> bool:
     """True when no instance repeats a node, endpoints included.
 
-    A repeat at the endpoints (`v_0 == v_L`) degenerates the closure edge into a self-loop;
-    an interior repeat over-determines the transport. Both are rejected.
+    Any repeat (endpoints included) would need two conflicting transports at one node.
+    Both endpoint and interior repeats are rejected.
     """
     if face_node_index.numel() == 0:
         return True

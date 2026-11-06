@@ -1,8 +1,8 @@
-"""Task card D4: v2 model with the vertex-2-cell sheaf Laplacian, and the D1a amendment.
+"""H2S-NN model (plan §4): vertex-2-cell sheaf Laplacian, D1a per-edge scale, ablations.
 
-Test ids follow the task card (T1-T14). D1's own tests (`tests/test_factorized_maps.py`)
-are not edited: they pin the per-side scales of `architecture: v1`. The per-edge versions
-of the D1 tests whose formulas change live here.
+Test ids follow task card D4 (T2-T14). D1's operator tests are in
+`tests/test_factorized_maps.py`; the task heads and the golden outputs are in
+`tests/test_task_heads.py`.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ try:
 except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
-from src.configs.config import ModelConfig, TrainConfig
+from src.configs.config import AblationConfig, ModelConfig, OptimConfig, TrainConfig
 from src.models.h2snn_model import H2SNN, ModelDims
 from src.models.map_operators import (
     EdgeMapPair,
@@ -121,12 +121,6 @@ def _orthogonality_error(matrices: torch.Tensor) -> float:
     d = matrices.size(-1)
     eye = torch.eye(d, dtype=matrices.dtype)
     return float((matrices.transpose(-2, -1) @ matrices - eye).abs().max())
-
-
-def _config(**model: object) -> TrainConfig:
-    base = {"d": 8, "d_r": 4, "d_h": 8, "K": 2, "classifier_hidden_dim": 16}
-    base.update(model)
-    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base})
 
 
 # ----------------------------------------------------------------------------- D1a (T12)
@@ -733,18 +727,19 @@ class ScaleGaugeTests(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------------- v2 model (T1, T6, T8-T10, T13)
-def _v2_config(**model: object) -> TrainConfig:
-    base = {"architecture": "v2", "map_family": "factorized", "d": 8, "d_r": 4, "K": 2,
+def _v2_config(ablation: dict | None = None, **model: object) -> TrainConfig:
+    base = {"map_family": "factorized", "d": 8, "d_r": 4, "K": 2,
             "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
     base.update(model)
-    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base})
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
+                                  "ablation": ablation or {}})
 
 
-def _v2_model(data, seed: int = 0, **model: object):
+def _v2_model(data, seed: int = 0, ablation: dict | None = None, **model: object):
     from src.models.h2snn_model import build_model
 
     torch.manual_seed(seed)
-    return build_model(_v2_config(**model), data)
+    return build_model(_v2_config(ablation, **model), data)
 
 
 def _a1_p_a2():
@@ -757,18 +752,18 @@ def _a1_p_a2():
     edges = torch.tensor([[0, 1]])
     group = FaceGroup(template_name="APA", node_type_sequence=("a", "p", "a"),
                       face_node_index=nodes, face_edge_index=edges,
-                      relation_index=edge_type[edges], face_edge_sign=torch.ones(1, 2),
-                      closure_edge_index=torch.tensor([[2, 0]]))
+                      relation_index=edge_type[edges], face_edge_sign=torch.ones(1, 2))
     return edge_index, edge_type, (group,)
 
 
 class V2ModelTests(unittest.TestCase):
-    def test_build_model_dispatches_on_architecture(self) -> None:
-        from src.models.h2snn_v2 import H2SNNv2
-
+    def test_build_model_builds_the_node_classification_head(self) -> None:
         data = _random_pap_data()
         model = _v2_model(data)
-        self.assertIsInstance(model, H2SNNv2)
+        self.assertIsInstance(model, H2SNN)
+        self.assertIsNotNone(model.readout)
+        self.assertIsNone(model.link_readout)
+        self.assertIsNone(model.graph_readout)
         output = model(data)
         self.assertEqual(tuple(output.logits.shape), (data.target_indices.numel(), 3))
         self.assertTrue(bool(torch.isfinite(output.logits).all()))
@@ -776,14 +771,13 @@ class V2ModelTests(unittest.TestCase):
     def test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node(self) -> None:
         """One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links
         A1 to A2 in one step), and d x1(A1)/d x0(P) changes with gamma."""
-        from src.models.h2snn_v2 import H2SNNv2
         from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
 
         edge_index, edge_type, groups = _a1_p_a2()
         dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
                          face_lengths=(2,))
         torch.manual_seed(0)
-        model = H2SNNv2(_v2_config(), dims).double()
+        model = H2SNN(_v2_config(), dims).double()
         h0 = torch.randn(4, 8, dtype=torch.float64)
         operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
         self.assertEqual(len(operator.laplacian.path_terms), 1)
@@ -816,7 +810,7 @@ class V2ModelTests(unittest.TestCase):
             lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
         self.assertGreater(float(jacobian[0, :, 2, :].abs().max()), 1e-8)
         torch.manual_seed(0)
-        ablated = H2SNNv2(_v2_config(ablate_no_path_cells=True), dims).double()
+        ablated = H2SNN(_v2_config({"no_path_cells": True}), dims).double()
         ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
         jacobian = torch.autograd.functional.jacobian(
             lambda x0: x0 - ablated_operator.eta
@@ -825,8 +819,7 @@ class V2ModelTests(unittest.TestCase):
 
     def test_T8_no_dense_map_tensor_in_v2_forward_or_backward(self) -> None:
         """Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4
-        elements. Dense control: v1 (dense and factorized) is flagged in both passes."""
-        from src.models.h2snn_model import build_model
+        elements. Control: the dense map family ([M, d, d] maps) is flagged in both passes."""
         from tests.test_factorized_maps import _ShapeRecorder
 
         data = _random_pap_data(num_papers=100, num_authors=50, max_faces=270)
@@ -859,16 +852,13 @@ class V2ModelTests(unittest.TestCase):
         self.assertEqual(hits(v2, "forward"), [])
         self.assertEqual(hits(v2, "backward"), [])
         self.assertTrue(any(p == "backward" for p, _ in v2.shapes))
-        for family in ("dense", "factorized"):
-            with self.subTest(v1=family):
-                torch.manual_seed(0)
-                v1 = record(build_model(_config(d=d, map_family=family), data))
-                self.assertTrue(hits(v1, "forward"))
-                self.assertTrue(hits(v1, "backward"))
+        dense = record(_v2_model(data, d=d, face_mlp_hidden_dim=128, edge_mlp_hidden_dim=128,
+                                 map_family="dense"))
+        self.assertTrue(hits(dense, "forward"))
+        self.assertTrue(hits(dense, "backward"))
 
     def test_T9_deleted_components_are_absent(self) -> None:
-        from src.models.h2snn_model import build_model
-        from src.models.sheaf_maps import EdgeInitializer, SequenceEdgeToFaceSheaf
+        import src.models.sheaf_maps as sheaf_maps
         from tests.test_factorized_maps import _ShapeRecorder
 
         data = _random_pap_data()
@@ -877,8 +867,9 @@ class V2ModelTests(unittest.TestCase):
             for deleted in ("edge_initializer", "edge_to_face", "map_head", "edge_norm",
                             "node_norm", "diffusion.eta_1"):
                 self.assertNotIn(deleted, name)
+        for deleted in ("EdgeInitializer", "SequenceEdgeToFaceSheaf", "NodeToEdgeSheaf"):
+            self.assertFalse(hasattr(sheaf_maps, deleted), deleted)
         for name, module in model.named_modules():
-            self.assertNotIsInstance(module, (EdgeInitializer, SequenceEdgeToFaceSheaf))
             if isinstance(module, torch.nn.LayerNorm):
                 self.assertTrue(name.startswith("node_encoder"), name)
         M = data.num_edges
@@ -897,8 +888,6 @@ class V2ModelTests(unittest.TestCase):
             return [s for _, s in recorder.shapes if len(s) == 2 and s[0] == extended]
 
         self.assertEqual(edge_cochains(model), [])
-        torch.manual_seed(0)
-        self.assertTrue(edge_cochains(build_model(_config(), data)))  # control: v1 has s
 
     def test_T10_gradients_reach_every_learned_component(self) -> None:
         data = _random_pap_data()
@@ -945,7 +934,9 @@ class V2ModelTests(unittest.TestCase):
         data = _as_float64(_random_pap_data())
         for map_scale in ("per_edge", "per_side"):
             with self.subTest(map_scale=map_scale):
-                factorized = _v2_model(data, map_scale=map_scale).double().eval()
+                factorized = _v2_model(
+                    data, ablation={"per_side_scale": map_scale == "per_side"}
+                ).double().eval()
                 dense = copy.deepcopy(factorized)
                 dense.node_to_edge = Materialized(dense.node_to_edge)
                 outputs = []
@@ -982,23 +973,11 @@ class V2ModelTests(unittest.TestCase):
         for name, grad in results[0][1].items():
             self.assertLess(_rel_err(results[1][1][name], grad), F64_TOL, name)
 
-    def test_v2_rejects_ampss_auto_discovery(self) -> None:
-        from src.models.h2snn_model import build_model
-        from tests.test_models import _make_prepared_data
-
-        data = _make_prepared_data("acm", with_discovery=True)
-        config = TrainConfig.from_dict({
-            "device": "cpu", "checkpoint_metric": "acc",
-            "model": {"architecture": "v2", "map_family": "factorized", "d": 4, "d_r": 2},
-            "discovery": {"enabled": True, "mode": "auto", "max_total_instances": 10,
-                          "max_total_incidences": 30}})
-        with self.assertRaisesRegex(NotImplementedError, "D2"):
-            build_model(config, data)
-
-    def test_trainer_runs_v2_unchanged_and_checkpoints_reload(self) -> None:
+    def test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload(self) -> None:
         import tempfile
         from pathlib import Path
 
+        from src.builders import build_optimizer
         from src.models.h2snn_model import build_model
         from src.trainers.trainer import build_trainer
         from src.utils.checkpointer import Checkpointer
@@ -1011,27 +990,47 @@ class V2ModelTests(unittest.TestCase):
             cfg = TrainConfig.from_dict({
                 "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
-                "model": {"architecture": "v2", "map_family": "factorized", "d": 8, "d_r": 4,
-                          "K": 2, "classifier_hidden_dim": 16}})
+                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16},
+                "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})
             torch.manual_seed(0)
             model = build_model(cfg, data)
             logger = ExperimentLogger(cfg.exp_dir)
             checkpointer = Checkpointer(cfg.exp_dir, metric="acc", mode="max")
             save_config(cfg, cfg.exp_dir / "config.yaml")
-            trainer = build_trainer(model=model,
-                                    optimizer=torch.optim.Adam(model.parameters(), lr=1e-3),
+            optimizer = build_optimizer(model, cfg)
+            # theta_eta, theta_gamma in their own group: lr x 10, no weight decay.
+            scalar_group = [g for g in optimizer.param_groups
+                            if any(p is model.theta_eta for p in g["params"])]
+            self.assertEqual(len(scalar_group), 1)
+            self.assertEqual(len(scalar_group[0]["params"]), 2)
+            self.assertAlmostEqual(scalar_group[0]["lr"], 1e-2)
+            self.assertEqual(scalar_group[0]["weight_decay"], 0.0)
+            other = [g for g in optimizer.param_groups if g is not scalar_group[0]]
+            self.assertEqual(len(other), 1)
+            self.assertAlmostEqual(other[0]["lr"], 1e-3)
+            self.assertAlmostEqual(other[0]["weight_decay"], 1e-4)
+            self.assertEqual(sum(len(g["params"]) for g in optimizer.param_groups),
+                             len(list(model.parameters())))
+            trainer = build_trainer(model=model, optimizer=optimizer,
                                     scheduler=None, cfg=cfg, logger=logger,
                                     checkpointer=checkpointer)
             try:
                 trainer.fit(data)
-                self.assertTrue((cfg.exp_dir / "metrics.jsonl").exists())
+                import json
+
+                records = [json.loads(line) for line in
+                           (cfg.exp_dir / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
+                self.assertEqual(len(records), 2)
+                for record in records:
+                    self.assertIn("eta", json.dumps(record))
+                    self.assertIn("gamma", json.dumps(record))
                 self.assertTrue((cfg.exp_dir / "checkpoints" / "best.pt").exists())
                 import yaml
 
                 with (cfg.exp_dir / "config.yaml").open(encoding="utf-8") as handle:
                     reloaded_cfg = TrainConfig.from_dict(yaml.safe_load(handle))
-                self.assertEqual(reloaded_cfg.model.architecture, "v2")
-                self.assertEqual(reloaded_cfg.model.map_scale, "per_edge")
+                self.assertEqual(reloaded_cfg.ablation, AblationConfig())
+                self.assertEqual(reloaded_cfg.optim.scalar_lr_scale, 10.0)
                 fresh = build_model(reloaded_cfg, data)
                 Checkpointer(cfg.exp_dir, metric="acc", mode="max").load(fresh, tag="best")
             finally:
@@ -1065,26 +1064,26 @@ class AblationTests(unittest.TestCase):
         self.author_noise = torch.randn(int(self.authors.sum()), 8, generator=generator,
                                         dtype=torch.float64)
 
-    def _model(self, **model):
-        return _v2_model(self.data, **model).double().eval()
+    def _model(self, ablation: dict | None = None, **model):
+        return _v2_model(self.data, ablation=ablation, **model).double().eval()
 
     def _logits(self, model, data=None) -> torch.Tensor:
         with torch.no_grad():
             return model(self.data if data is None else data).logits
 
     def test_T11_no_path_cells_makes_logits_independent_of_path_data(self) -> None:
-        model = self._model(ablate_no_path_cells=True)
+        model = self._model({"no_path_cells": True})
         self.assertIsNone(model.theta_gamma)
         self.assertIsNone(model.path_encoder)
         self.assertIsNone(model.path_gate)
-        no_faces = _with(self.data, face_groups=(), closure_edge_index=torch.zeros(2, 0).long())
+        no_faces = _with(self.data, face_groups=())
         self.assertTrue(torch.equal(self._logits(model), self._logits(model, no_faces)))
         control = self._model()
         self.assertGreater(float((self._logits(control) - self._logits(control, no_faces))
                                  .abs().max()), 1e-6)
 
     def test_T11_uniform_gate_gives_w_identically_one(self) -> None:
-        model = self._model(uniform_path_gate=True)
+        model = self._model({"uniform_path_gate": True})
         self.assertIsNone(model.path_gate)
         self.assertIsNone(model.path_encoder)
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
@@ -1101,7 +1100,7 @@ class AblationTests(unittest.TestCase):
     def test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term(self) -> None:
         for mode, expect_equal in (("endpoint_edges", True), ("cells", False)):
             with self.subTest(path_mode=mode):
-                model = self._model(path_mode=mode)
+                model = self._model({"endpoint_edges": mode == "endpoint_edges"})
                 h0 = model.encode_nodes(self.data.x, self.data.node_type)
                 maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
                                           model.relation_embedding.weight).maps
@@ -1136,7 +1135,8 @@ class AblationTests(unittest.TestCase):
 
         for map_scale in ("per_edge", "per_side"):
             with self.subTest(map_scale=map_scale):
-                model = self._model(path_mode="holonomy_edges", map_scale=map_scale)
+                model = self._model({"holonomy_edges": True,
+                                     "per_side_scale": map_scale == "per_side"})
                 h0 = model.encode_nodes(self.data.x, self.data.node_type)
                 with torch.no_grad():
                     operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1165,7 +1165,7 @@ class AblationTests(unittest.TestCase):
     def test_T11_free_maps_are_orthogonal_and_per_incidence(self) -> None:
         from src.models.vertex_path_laplacian import FreeIncidenceOperator
 
-        model = self._model(path_maps="free")
+        model = self._model({"free_path_maps": True})
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
         with torch.no_grad():
             operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1184,7 +1184,7 @@ class AblationTests(unittest.TestCase):
         self.assertGreater(float(model.free_maps.reflector_mlp[0].weight.grad.abs().sum()), 0.0)
 
     def test_T11_per_side_scales_reach_transports_and_degree(self) -> None:
-        model = self._model(map_scale="per_side")
+        model = self._model({"per_side_scale": True})
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
         with torch.no_grad():
             operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1209,8 +1209,8 @@ class AblationTests(unittest.TestCase):
         moved_x = self.data.x.clone()
         moved_x[self.authors] += 1.0
         variants = [_with(self.data, x=moved_x),
-                    _with(self.data, face_groups=(), closure_edge_index=torch.zeros(2, 0).long())]
-        model = self._model(readout="h0_only")
+                    _with(self.data, face_groups=())]
+        model = self._model({"h0_only_readout": True})
         self.assertEqual(model.readout[0].in_features, 8)
         for variant in variants:
             self.assertTrue(torch.equal(self._logits(model), self._logits(model, variant)))
@@ -1220,13 +1220,11 @@ class AblationTests(unittest.TestCase):
                                      .abs().max()), 1e-6)
 
     def test_every_ablation_trains_one_step(self) -> None:
-        switches = [{"ablate_no_path_cells": True}, {"uniform_path_gate": True},
-                    {"path_maps": "free"}, {"path_mode": "endpoint_edges"},
-                    {"path_mode": "holonomy_edges"}, {"map_scale": "per_side"},
-                    {"readout": "h0_only"}, {"map_family": "dense"}]
-        for switch in switches:
-            with self.subTest(switch=switch):
-                model = _v2_model(_random_pap_data(), **switch)
+        switches = [({name: True}, {}) for name in AblationConfig.__dataclass_fields__]
+        switches.append(({}, {"map_family": "dense"}))
+        for ablation, model_overrides in switches:
+            with self.subTest(ablation=ablation, model=model_overrides):
+                model = _v2_model(_random_pap_data(), ablation=ablation, **model_overrides)
                 output = model(_random_pap_data())
                 output.logits.square().sum().backward()
                 self.assertTrue(bool(torch.isfinite(output.logits).all()))
@@ -1235,79 +1233,58 @@ class AblationTests(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------------- config, scope
-class ArchitectureConfigTests(unittest.TestCase):
-    def test_map_scale_defaults_follow_the_architecture(self) -> None:
-        self.assertEqual(ModelConfig().architecture, "v1")
-        self.assertEqual(ModelConfig().map_scale, "per_side")
-        self.assertEqual(ModelConfig.from_dict({}).map_scale, "per_side")
-        self.assertEqual(ModelConfig.from_dict({"architecture": "v2"}).map_scale, "per_edge")
-        self.assertEqual(
-            ModelConfig.from_dict({"architecture": "v2", "map_scale": "per_side"}).map_scale,
-            "per_side",
-        )
+class ConfigTests(unittest.TestCase):
+    def test_defaults_are_the_full_model(self) -> None:
+        config = TrainConfig.from_dict({})
+        self.assertEqual(config.ablation, AblationConfig())
+        self.assertFalse(any(getattr(config.ablation, name)
+                             for name in AblationConfig.__dataclass_fields__))
+        self.assertEqual(config.ablation.map_scale, "per_edge")
+        self.assertEqual(config.ablation.path_mode, "cells")
+        self.assertEqual(config.model.map_family, "factorized")
+        self.assertEqual((config.model.gamma_init, config.model.eta_init), (1.0, 0.5))
+        self.assertEqual(config.optim.scalar_lr_scale, 10.0)
 
-    def test_invalid_architecture_and_scale_values_are_rejected(self) -> None:
-        for raw in ({"architecture": "v3"}, {"map_scale": "per_node"},
-                    {"architecture": "v2", "map_scale": "per_node"},
-                    {"map_scale": "per_edge"},  # v1 keeps D1's per-side scales
-                    {"architecture": "v1", "map_family": "factorized", "map_scale": "per_edge"}):
-            with self.subTest(raw=raw):
-                with self.assertRaises(ValueError):
-                    ModelConfig.from_dict(raw)
-
-    def test_v2_defaults_are_valid_and_documented(self) -> None:
-        config = ModelConfig.from_dict({"architecture": "v2", "map_family": "factorized"})
-        self.assertEqual((config.gamma_init, config.eta_init), (1.0, 0.5))
-        self.assertTrue(config.checkpointing)
-        self.assertEqual((config.path_maps, config.path_mode, config.readout),
-                         ("transport", "cells", "full"))
-        self.assertFalse(config.uniform_path_gate or config.ablate_no_path_cells)
-        ModelConfig.from_dict({"architecture": "v2", "map_family": "dense"})
-        for switch in ({"path_maps": "free"}, {"path_mode": "endpoint_edges"},
-                       {"path_mode": "holonomy_edges"}, {"uniform_path_gate": True},
-                       {"ablate_no_path_cells": True}, {"map_scale": "per_side"},
-                       {"readout": "h0_only"}, {"checkpointing": False}):
-            with self.subTest(switch=switch):
-                ModelConfig.from_dict({"architecture": "v2", **switch})
-
-    def test_no_v2_key_is_reachable_from_v1(self) -> None:
-        for raw in ({"gamma_init": 2.0}, {"eta_init": 0.3}, {"checkpointing": False},
-                    {"path_maps": "free"}, {"path_mode": "endpoint_edges"},
-                    {"path_mode": "holonomy_edges"}, {"uniform_path_gate": True},
-                    {"ablate_no_path_cells": True}, {"readout": "h0_only"}):
-            for family in ("dense", "factorized"):
-                with self.subTest(raw=raw, family=family):
-                    with self.assertRaisesRegex(ValueError, "v2"):
-                        ModelConfig.from_dict({"map_family": family, **raw})
-
-    def test_v2_rejects_v1_switches_bad_ranges_and_conflicts(self) -> None:
+    def test_unknown_keys_fail_loudly(self) -> None:
+        """Old (v1 / AMPSS) settings and typos are rejected in every section."""
         cases = [
-            {"ablate_no_faces": True}, {"ablate_no_delta1": True},
-            {"ablate_identity_maps": True}, {"use_orthogonal": False},
-            {"learnable_eta": False}, {"face_encoder": "lstm"},
-            {"face_map_param": "triangular"},
-            {"eta_init": 0.0}, {"eta_init": 1.0}, {"gamma_init": 0.0}, {"gamma_init": -1.0},
-            {"path_maps": "hypergraph"}, {"path_mode": "edges"}, {"readout": "x_only"},
-            {"checkpointing": "false"}, {"uniform_path_gate": 1},
-            {"path_maps": "free", "path_mode": "endpoint_edges"},
-            {"path_maps": "free", "map_scale": "per_side"},
-            {"ablate_no_path_cells": True, "path_maps": "free"},
-            {"ablate_no_path_cells": True, "path_mode": "holonomy_edges"},
-            {"ablate_no_path_cells": True, "uniform_path_gate": True},
+            {"discovery": {"enabled": False}},
+            {"model": {"architecture": "v2"}},
+            {"model": {"eta_0": 0.1}},
+            {"model": {"map_scale": "per_side"}},
+            {"model": {"ablate_no_path_cells": True}},
+            {"data": {"pooling_type": "sheafcov"}},
+            {"data": {"closure_scale": 1.0}},
+            {"ablation": {"no_path_cell": True}},
+            {"optim": {"scalar_lr": 10.0}},
+            {"epoch": 3},
+            {"data": {"dataset_name": "acm",
+                      "metapath_templates": [{"name": "PAP", "node_types": ["paper"],
+                                              "weight": 1}]}},
         ]
         for raw in cases:
             with self.subTest(raw=raw):
-                with self.assertRaises(ValueError):
-                    ModelConfig.from_dict({"architecture": "v2", **raw})
+                with self.assertRaisesRegex(ValueError, "Unknown"):
+                    TrainConfig.from_dict(raw)
 
-    def test_v1_model_class_refuses_v2_configs_for_every_task(self) -> None:
-        dims = ModelDims(in_channels=6, num_node_types=2, num_relations=2, num_classes=3)
-        for task in ("graph_classification", "link_prediction", "node_classification"):
-            with self.subTest(task=task):
-                config = _config(architecture="v2", map_family="factorized")
-                config.data.task_type = task
-                with self.assertRaisesRegex(NotImplementedError, "D4"):
-                    H2SNN(config, dims)
+    def test_invalid_values_and_conflicting_ablations_are_rejected(self) -> None:
+        for raw in ({"eta_init": 0.0}, {"eta_init": 1.0}, {"gamma_init": 0.0},
+                    {"checkpointing": "false"}, {"map_family": "lowrank"}):
+            with self.subTest(model=raw):
+                with self.assertRaises(ValueError):
+                    ModelConfig.from_dict(raw)
+        for raw in ({"no_path_cells": "true"}, {"endpoint_edges": True, "holonomy_edges": True},
+                    {"free_path_maps": True, "endpoint_edges": True},
+                    {"free_path_maps": True, "per_side_scale": True},
+                    {"no_path_cells": True, "uniform_path_gate": True},
+                    {"no_path_cells": True, "free_path_maps": True}):
+            with self.subTest(ablation=raw):
+                with self.assertRaises(ValueError):
+                    AblationConfig.from_dict(raw)
+        for value in (0.0, -1.0):
+            with self.subTest(scalar_lr_scale=value):
+                with self.assertRaises(ValueError):
+                    OptimConfig.from_dict({"scalar_lr_scale": value})
 
 
 if __name__ == "__main__":  # pragma: no cover

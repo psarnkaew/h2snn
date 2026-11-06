@@ -12,10 +12,6 @@ from src.configs.config import TrainConfig
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.link_pred_structures import PreparedLinkPredData
-from src.data.link_stage1 import build_link_amp_ss_faces
-from src.data.preprocessing import label_propagation
-from src.data.schema_structures import DiscoveryMetadata
-from src.data.stage1_selector import SelectorReport
 
 if TYPE_CHECKING:
     from torch_geometric.data import HeteroData
@@ -641,35 +637,6 @@ def _assert_no_leakage(
         raise ValueError("Val/test positive edges overlap.")
 
 
-def _build_link_role_signal(
-    edge_index: torch.Tensor,
-    train_pos_edge_index: torch.Tensor,
-    num_nodes: int,
-    num_steps: int,
-) -> torch.Tensor:
-    """Training-only two-channel endpoint role signal for AMPSS link schemas."""
-    roles = torch.zeros((num_nodes, 2), dtype=torch.float32, device=edge_index.device)
-    if train_pos_edge_index.numel() == 0:
-        return roles
-
-    ones = torch.ones(train_pos_edge_index.size(1), dtype=roles.dtype, device=roles.device)
-    roles[:, 0].index_add_(0, train_pos_edge_index[0], ones)
-    roles[:, 1].index_add_(0, train_pos_edge_index[1], ones)
-    role_mass = roles.sum(dim=-1)
-    train_indices = role_mass.nonzero(as_tuple=False).view(-1)
-    if train_indices.numel() == 0:
-        return roles
-    train_labels = roles[train_indices] / role_mass[train_indices].unsqueeze(-1).clamp_min(1.0)
-    return label_propagation(
-        edge_index=edge_index,
-        train_indices=train_indices,
-        train_labels=train_labels,
-        num_nodes=num_nodes,
-        num_classes=2,
-        num_steps=num_steps,
-    )
-
-
 def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
     dataset_name = config.data.dataset_name.lower()
     local_hgb_data: _LocalHGBLinkData | None = None
@@ -980,41 +947,18 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         # node pair connected by more than one pooled relation.
         _assert_no_leakage(train_pos_edge_index, val_pos_edge_index, test_pos_edge_index)
 
-    discovery_metadata: DiscoveryMetadata | None = None
-    selector_report: SelectorReport | None = None
-    if config.discovery.enabled and config.discovery.mode == "auto":
-        propagated_roles = _build_link_role_signal(
-            edge_index=edge_index,
-            train_pos_edge_index=train_pos_edge_index,
-            num_nodes=raw_x.size(0),
-            num_steps=config.data.num_label_prop_steps,
-        )
-        face_groups, discovery_metadata, closure_edge_index, selector_report = (
-            build_link_amp_ss_faces(
-                config=config,
-                node_slices=node_slices,
-                edge_index=edge_index,
-                edge_type=edge_type,
-                relation_tuples=relation_tuples,
-                source_node_type=src_type,
-                destination_node_type=dst_type,
-                train_pos_edge_index=train_pos_edge_index,
-                known_positive_edge_index=train_pos_edge_index,
-                dst_range=dst_range,
-                propagated_roles=propagated_roles,
-            )
-        )
-    else:
-        face_groups, closure_edge_index = build_typed_path_face_groups(
-            edge_index=edge_index,
-            edge_type=edge_type,
-            node_type=node_type,
-            batch=None,
-            graph_id=None,
-            max_paths_per_anchor=config.data.face_sample_k,
-            exclude_identity_paths=config.data.exclude_identity_metapaths,
-            seed=config.seed,
-        )
+    # Path cells on the message graph `edge_index`, which holds training positives only:
+    # validation and test positives were removed from it above (and checked).
+    face_groups = build_typed_path_face_groups(
+        edge_index=edge_index,
+        edge_type=edge_type,
+        node_type=node_type,
+        batch=None,
+        graph_id=None,
+        max_paths_per_anchor=config.data.face_sample_k,
+        exclude_identity_paths=config.data.exclude_identity_metapaths,
+        seed=config.seed,
+    )
 
     return PreparedLinkPredData(
         x=raw_x,
@@ -1047,7 +991,4 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         src_node_offset=src_offset,
         dst_node_offset=dst_offset,
         face_groups=face_groups,
-        closure_edge_index=closure_edge_index,
-        discovery=discovery_metadata,
-        selector_report=selector_report,
     )

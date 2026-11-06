@@ -18,9 +18,9 @@ class TrainerSmokeTests(unittest.TestCase):
         except ImportError as exc:  # pragma: no cover - environment specific
             self.skipTest(f"full model dependencies are required for this test: {exc}")
 
-        from tests.test_models import _make_prepared_data
+        from tests.test_factorized_maps import _random_pap_data
 
-        data = _make_prepared_data("acm")
+        data = _random_pap_data()
         tmp_parent = Path(__file__).resolve().parent.parent
         with tempfile.TemporaryDirectory(dir=tmp_parent) as tmpdir:
             cfg = TrainConfig.from_dict(
@@ -31,7 +31,7 @@ class TrainerSmokeTests(unittest.TestCase):
                     "output_dir": tmpdir,
                     "checkpoint_metric": "acc",
                     "checkpoint_mode": "max",
-                    "model": {"d": 4, "d_r": 2, "d_h": 8, "K": 1, "classifier_hidden_dim": 8},
+                    "model": {"d": 4, "d_r": 2, "K": 1, "classifier_hidden_dim": 8},
                 }
             )
             model = build_model(cfg, data)

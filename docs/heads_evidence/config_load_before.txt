@@ -1,0 +1,35 @@
+FAIL configs\baselines\csnn\graph_classification\enzymes.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\h2sgnn\node_classification\acm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\h2sgnn\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\h2sgnn\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\hetero2net\node_classification\acm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\hetero2net\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\hetero2net\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\hinormer\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\hinormer\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\latgrl\node_classification\acm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\latgrl\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\latgrl\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\pshgcn\link_prediction\amazon.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\pshgcn\link_prediction\lastfm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\pshgcn\node_classification\acm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\pshgcn\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\pshgcn\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\sehgnn\node_classification\acm.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\sehgnn\node_classification\dblp.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\baselines\sehgnn\node_classification\imdb.yaml -> Unknown top-level config key(s): dataset, notes, params, source, task. They are not settings of the current mo
+FAIL configs\experiments\acm_h2snn.yaml -> Unknown model key(s): d_h, edge_init_hidden_dim, eta_0, eta_1, face_chunk_size, learnable_eta, use_orthogonal.
+FAIL configs\experiments\acm_h2snn_ampss.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\amazon_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\amazonbook_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\dblp_h2snn.yaml -> Unknown model key(s): d_h, edge_init_hidden_dim, eta_0, eta_1, learnable_eta, use_orthogonal. They are not set
+FAIL configs\experiments\dblp_h2snn_ampss.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\enzymes_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\imdb_h2snn.yaml -> Unknown model key(s): d_h, edge_init_hidden_dim, eta_0, eta_1, learnable_eta, use_orthogonal. They are not set
+FAIL configs\experiments\imdb_h2snn_ampss.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\lastfm_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\mutag_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\nci1_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\proteins_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\pubmed_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM
+FAIL configs\experiments\youtube_h2snn.yaml -> Unknown top-level config key(s): discovery. They are not settings of the current model; remove them (v1 and AM

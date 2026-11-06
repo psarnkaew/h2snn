@@ -1,0 +1,21 @@
+2026-11-06 19:59:19,012 | INFO | Epoch 0000 | train_loss: 0.9712 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.2727 | train_micro_f1: 0.3750 | val_loss: 1.0318 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250
+2026-11-06 19:59:19,028 | INFO | Checkpoint metric acc: 0.5000
+2026-11-06 19:59:19,029 | INFO | Best epoch 0 | test_macro_f1: 0.0741 | test_micro_f1: 0.1250 | test_acc: 0.1250
+....C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-06 19:59:21,913 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-06 19:59:21,917 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-06 19:59:21,918 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-06 19:59:21,923 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-06 19:59:21,927 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-06 19:59:21,929 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-06 19:59:21,929 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-06 19:59:21,929 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+...................................W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+......2026-11-06 19:59:22,650 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-06 19:59:22,667 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+...
+----------------------------------------------------------------------
+Ran 49 tests in 11.533s
+
+OK

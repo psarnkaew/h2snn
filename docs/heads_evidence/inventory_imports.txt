@@ -1,0 +1,345 @@
+scripts/diagnose_ampss_candidates.py: from src.configs.config import TrainConfig
+scripts/diagnose_ampss_candidates.py: from src.data.dataset import build_dataset
+scripts/diagnose_ampss_candidates.py: from src.data.graph_classification_dataset import build_graph_classification_dataset
+scripts/diagnose_ampss_candidates.py: from src.data.link_prediction_dataset import build_link_prediction_dataset
+scripts/diagnose_stage1_selector.py: from src.configs.config import TrainConfig
+scripts/diagnose_stage1_selector.py: from src.data.dataset import _load_hetero_data, _prepare_target_labels
+scripts/diagnose_stage1_selector.py: from src.data.hetero_flatten import flatten_edges, stack_node_features
+scripts/diagnose_stage1_selector.py: from src.data.preprocessing import label_propagation
+scripts/diagnose_stage1_selector.py: from src.data.schema_discovery import allocate_face_quotas, generate_schema_candidates
+scripts/diagnose_stage1_selector.py: from src.data.schema_sampling import (
+scripts/generate_ampss_ablations.py: from src.configs.config import TrainConfig
+scripts/generate_ampss_ablations.py: from src.utils.ampss_ablation_protocol import (
+scripts/generate_baseline_notebooks.py: from src.baselines.budget import default_budget
+scripts/generate_baseline_notebooks.py: from src.baselines.protocol import (
+scripts/generate_baseline_notebooks.py: from src.baselines.registry import DATASETS, models_for_task, unsupported_reason
+scripts/generate_baseline_notebooks.py: from src.baselines.registry import get_adapter, unsupported_reason
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime import available_vendors
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import REQUIREMENT_GROUPS
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import REQUIREMENT_GROUPS, groups_for
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import REQUIREMENT_GROUPS, refresh
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import dgl_cuda_report
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import installed_groups
+scripts/generate_baseline_notebooks.py: from src.baselines.runtime.dependencies import models_missing_dependencies
+scripts/generate_baseline_notebooks.py: from src.utils.run_reports import report_metrics_for_task
+scripts/h2snn_paper_studies.py:  from src.data.dataset import build_dataset
+scripts/h2snn_paper_studies.py:  from src.utils.misc import seed_everything
+scripts/profile_model.py: from src.analysis.profiling import count_parameters_by_module, profile_time_and_memory
+scripts/profile_model.py: from src.builders import build_optimizer
+scripts/profile_model.py: from src.configs.config import TrainConfig
+scripts/profile_model.py: from src.data.dataset import build_dataset
+scripts/run_baseline_published.py: from src.baselines.campaign import (
+scripts/run_baseline_published.py: from src.baselines.registry import (
+scripts/run_baseline_tuning.py: from src.baselines.budget import SHARED_PATIENCE
+scripts/run_baseline_tuning.py: from src.baselines.campaign import (
+scripts/run_baseline_tuning.py: from src.baselines.progress import WandbEpochReport
+scripts/run_baseline_tuning.py: from src.baselines.registry import DATASETS, models_for_task, unsupported_reason
+scripts/run_baseline_tuning.py: from src.utils.wandb_campaign import (
+scripts/run_graph_classification_repeated_cv_wandb_tuning.py: from src.configs.config import TrainConfig
+scripts/run_graph_classification_repeated_cv_wandb_tuning.py: from src.utils.misc import dataclass_to_dict
+scripts/run_graph_classification_repeated_cv_wandb_tuning.py: from src.utils.run_reports import default_monitor_for_task, report_metrics_for_task
+scripts/run_h2snn_runs.py: from src.builders import build_experiment_components
+scripts/run_h2snn_runs.py: from src.configs.config import TrainConfig
+scripts/run_h2snn_runs.py: from src.utils.misc import save_config, seed_everything
+scripts/run_h2snn_runs.py: from src.utils.run_reports import (
+scripts/run_h2snn_wandb_tuning.py:  from src.builders import build_experiment_components
+scripts/run_h2snn_wandb_tuning.py: from src.configs.config import TrainConfig
+scripts/run_h2snn_wandb_tuning.py: from src.utils.misc import dataclass_to_dict, save_config, seed_everything
+scripts/run_h2snn_wandb_tuning.py: from src.utils.run_reports import (
+scripts/run_h2snn_wandb_tuning.py: from src.utils.wandb_campaign import (  # noqa
+scripts/train_h2snn.py:  from src.builders import build_experiment_components
+scripts/train_h2snn.py: from src.configs.config import TrainConfig
+scripts/train_h2snn.py: from src.utils.misc import save_config, seed_everything
+scripts/verify_ampss_manifests.py: from src.utils.ampss_ablation_protocol import assert_frozen_stage1_manifests
+src/analysis/diffusion_trajectory.py: from src.data.structures import PreparedH2SData
+src/analysis/model_loading.py: from src.configs.config import TrainConfig
+src/analysis/model_loading.py: from src.data.dataset import build_dataset
+src/analysis/model_loading.py: from src.data.structures import PreparedH2SData
+src/analysis/model_loading.py: from src.utils.checkpointer import Checkpointer
+src/analysis/model_loading.py: from src.utils.discovery_artifacts import load_selector_manifest
+src/analysis/profiling.py: from src.data.structures import PreparedH2SData
+src/analysis/training_separability.py: from src.configs.config import TrainConfig
+src/analysis/training_separability.py: from src.data.graph_faces import build_typed_path_face_groups
+src/analysis/training_separability.py: from src.data.hetero_flatten import flatten_edges, stack_node_features
+src/analysis/training_separability.py: from src.data.structures import PreparedH2SData
+src/builders.py: from src.configs.config import TrainConfig
+src/builders.py: from src.data.dataset import build_dataset
+src/builders.py: from src.data.graph_classification_dataset import (
+src/builders.py: from src.data.link_pred_structures import PreparedLinkPredData
+src/builders.py: from src.data.link_prediction_dataset import build_link_prediction_dataset
+src/builders.py: from src.data.structures import PreparedH2SData
+src/builders.py: from src.trainers.graph_classification_trainer import (
+src/builders.py: from src.trainers.link_prediction_trainer import LinkPredictionTrainer, build_link_prediction_trainer
+src/builders.py: from src.trainers.trainer import Trainer, build_trainer
+src/builders.py: from src.utils.checkpointer import Checkpointer
+src/builders.py: from src.utils.discovery_artifacts import persist_selector_artifacts
+src/builders.py: from src.utils.logger import ExperimentLogger
+src/builders.py: from src.utils.misc import dataclass_to_dict
+src/configs/__init__.py: from src.configs.config import (
+src/data/__init__.py: from src.data.dataset import build_dataset
+src/data/__init__.py: from src.data.structures import FaceGroup, PreparedH2SData
+src/data/dataset.py: from src.configs.config import TrainConfig
+src/data/dataset.py: from src.data.hetero_flatten import flatten_edges, stack_node_features
+src/data/dataset.py: from src.data.preprocessing import (
+src/data/dataset.py: from src.data.schema_structures import DiscoveryMetadata
+src/data/dataset.py: from src.data.structures import PreparedH2SData
+src/data/graph_classification_dataset.py: from src.configs.config import TrainConfig
+src/data/graph_classification_dataset.py: from src.data.graph_faces import build_typed_path_face_groups
+src/data/graph_classification_dataset.py: from src.data.schema_structures import DiscoveryMetadata, make_discovery_metadata
+src/data/graph_classification_dataset.py: from src.data.selector_reporting import (
+src/data/graph_faces.py: from src.data.face_geometry import (
+src/data/graph_faces.py: from src.data.structures import FaceGroup
+src/data/link_pred_structures.py: from src.data.schema_structures import DiscoveryMetadata
+src/data/link_pred_structures.py: from src.data.structures import FaceGroup
+src/data/link_prediction_dataset.py: from src.configs.config import TrainConfig
+src/data/link_prediction_dataset.py: from src.data.graph_faces import build_typed_path_face_groups
+src/data/link_prediction_dataset.py: from src.data.hetero_flatten import flatten_edges, stack_node_features
+src/data/link_prediction_dataset.py: from src.data.link_pred_structures import PreparedLinkPredData
+src/data/link_prediction_dataset.py: from src.data.preprocessing import label_propagation
+src/data/link_prediction_dataset.py: from src.data.schema_structures import DiscoveryMetadata
+src/data/link_stage1.py: from src.configs.config import TrainConfig
+src/data/link_stage1.py: from src.data.preprocessing import label_propagation
+src/data/link_stage1.py: from src.data.schema_discovery import (
+src/data/link_stage1.py: from src.data.schema_sampling import (
+src/data/link_stage1.py: from src.data.schema_structures import (
+src/data/link_stage1.py: from src.data.selector_reporting import (
+src/data/link_stage1.py: from src.data.structures import FaceGroup
+src/data/node_stage1.py: from src.configs.config import TrainConfig
+src/data/node_stage1.py: from src.data.preprocessing import label_propagation
+src/data/node_stage1.py: from src.data.schema_discovery import (
+src/data/node_stage1.py: from src.data.schema_sampling import (
+src/data/node_stage1.py: from src.data.schema_structures import DiscoveryMetadata, make_discovery_metadata
+src/data/node_stage1.py: from src.data.selector_reporting import (
+src/data/node_stage1.py: from src.data.structures import FaceGroup
+src/data/preprocessing.py: from src.configs.config import MetaPathConfig
+src/data/preprocessing.py: from src.data.face_geometry import (
+src/data/preprocessing.py: from src.data.structures import FaceGroup
+src/data/schema_discovery.py: from src.data.face_geometry import (
+src/data/schema_discovery.py: from src.data.schema_sampling import SchemaPathSample, canonical_schema_identity
+src/data/schema_discovery.py: from src.data.schema_structures import (
+src/data/schema_discovery.py: from src.data.structures import FaceGroup
+src/data/schema_sampling.py: from src.data.schema_structures import SchemaCandidate
+src/data/selector_reporting.py: from src.data.schema_sampling import (
+src/data/stage1_selector.py: from src.configs.config import AMPSS_PROTOCOL_VERSION
+src/data/structures.py: from src.data.schema_structures import DiscoveryMetadata
+src/models/coboundary_ops.py: from src.models.map_operators import EdgeMapPair, checkpoint_if_grad
+src/models/coboundary_ops.py: from src.models.sheaf_maps import FaceMapCache
+src/models/graph_pooling.py: from src.models.pooling_utils import pool_edge_stalks_to_nodes
+src/models/h2snn_model.py: from src.configs.config import TrainConfig
+src/models/h2snn_model.py: from src.data.link_pred_structures import PreparedLinkPredData
+src/models/h2snn_model.py: from src.data.schema_structures import DiscoveryMetadata
+src/models/h2snn_model.py: from src.data.structures import FaceGroup, PreparedH2SData, face_lengths_of
+src/models/h2snn_model.py: from src.models.coboundary_ops import CoboundaryOps
+src/models/h2snn_model.py: from src.models.diffusion import HodgeDiffusion
+src/models/h2snn_model.py: from src.models.graph_pooling import GraphPooling, build_graph_pooling
+src/models/h2snn_model.py: from src.models.instance_weights import InstanceWeightNetwork
+src/models/h2snn_model.py: from src.models.link_readout import LinkPredictionReadout
+src/models/h2snn_model.py: from src.models.map_operators import DenseMapOperator, EdgeMapPair, StackedMapOperator
+src/models/h2snn_model.py: from src.models.node_encoder import TypeSpecificNodeEncoder
+src/models/h2snn_model.py: from src.models.readout import NodeReadout
+src/models/h2snn_model.py: from src.models.sheaf_maps import (
+src/models/h2snn_v2.py: from src.configs.config import TrainConfig
+src/models/h2snn_v2.py: from src.data.structures import FaceGroup, PreparedH2SData
+src/models/h2snn_v2.py: from src.models.map_operators import (
+src/models/h2snn_v2.py: from src.models.node_encoder import TypeSpecificNodeEncoder
+src/models/h2snn_v2.py: from src.models.orthogonal import Orthogonal
+src/models/h2snn_v2.py: from src.models.sheaf_maps import (
+src/models/h2snn_v2.py: from src.models.vertex_path_laplacian import (
+src/models/link_readout.py: from src.models.pooling_utils import pool_edge_stalks_to_nodes
+src/models/map_operators.py: from src.data.face_geometry import validate_face_orientation
+src/models/orthogonal.py: from src.models.fasthpp import (
+src/models/pooling_utils.py: from src.models.map_operators import EdgeMapPair, checkpoint_if_grad
+src/models/readout.py: from src.models.map_operators import EdgeMapPair
+src/models/readout.py: from src.models.pooling_utils import (
+src/models/s2pool_h2.py: from src.models.coboundary_ops import CoboundaryOps
+src/models/sheaf_maps.py: from src.data.structures import FaceGroup
+src/models/sheaf_maps.py: from src.models.map_operators import (
+src/models/sheaf_maps.py: from src.models.orthogonal import Orthogonal
+src/models/sheaf_maps.py: from src.utils.memory_guard import validate_node_edge_memory_budget
+src/models/vertex_path_laplacian.py: from src.models.coboundary_ops import CoboundaryOps
+src/models/vertex_path_laplacian.py: from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, checkpoint_if_grad
+src/trainers/__init__.py: from src.trainers.trainer import Trainer, build_trainer
+src/trainers/ampss_metrics.py: from src.configs.config import TrainConfig
+src/trainers/graph_classification_trainer.py: from src.configs.config import TrainConfig
+src/trainers/graph_classification_trainer.py: from src.data.graph_classification_dataset import GraphClassificationFold
+src/trainers/graph_classification_trainer.py: from src.data.graph_faces import build_typed_path_face_groups
+src/trainers/graph_classification_trainer.py: from src.data.schema_structures import DiscoveryMetadata, make_discovery_metadata
+src/trainers/graph_classification_trainer.py: from src.trainers.ampss_metrics import build_ampss_metrics
+src/trainers/graph_classification_trainer.py: from src.utils.checkpointer import Checkpointer
+src/trainers/graph_classification_trainer.py: from src.utils.logger import ExperimentLogger
+src/trainers/graph_classification_trainer.py: from src.utils.misc import compute_graph_classification_metrics
+src/trainers/link_prediction_trainer.py: from src.configs.config import TrainConfig
+src/trainers/link_prediction_trainer.py: from src.data.link_pred_structures import PreparedLinkPredData
+src/trainers/link_prediction_trainer.py: from src.trainers.ampss_metrics import build_ampss_metrics
+src/trainers/link_prediction_trainer.py: from src.utils.checkpointer import Checkpointer
+src/trainers/link_prediction_trainer.py: from src.utils.logger import ExperimentLogger
+src/trainers/link_prediction_trainer.py: from src.utils.misc import compute_link_prediction_metrics
+src/trainers/trainer.py: from src.configs.config import TrainConfig
+src/trainers/trainer.py: from src.data.structures import PreparedH2SData
+src/trainers/trainer.py: from src.trainers.ampss_metrics import build_ampss_metrics
+src/trainers/trainer.py: from src.utils.checkpointer import Checkpointer
+src/trainers/trainer.py: from src.utils.logger import ExperimentLogger
+src/trainers/trainer.py: from src.utils.misc import (
+src/utils/__init__.py: from src.utils.checkpointer import Checkpointer
+src/utils/__init__.py: from src.utils.logger import ExperimentLogger
+src/utils/__init__.py: from src.utils.misc import dataclass_to_dict, save_config, seed_everything
+src/utils/ampss_ablation_protocol.py: from src.configs.config import AMPSS_PROTOCOL_VERSION
+src/utils/checkpointer.py: from src.configs.config import AMPSS_PROTOCOL_VERSION
+src/utils/discovery_artifacts.py: from src.data.selector_reporting import stable_hash
+src/utils/misc.py:  from src.baselines.metrics import binarize_multilabel
+src/utils/run_reports.py: from src.configs.config import TrainConfig
+src/utils/run_reports.py: from src.utils.misc import dataclass_to_dict
+src/utils/wandb_campaign.py:  from src.utils.run_reports import metric_score
+tests/test_baselines.py:  from src.baselines import training
+tests/test_baselines.py:  from src.baselines.adapters._polynomial_lp import (
+tests/test_baselines.py:  from src.baselines.adapters._polynomial_lp import build_relation_adjacencies
+tests/test_baselines.py:  from src.baselines.adapters._polynomial_lp import build_term_lists
+tests/test_baselines.py:  from src.baselines.budget import default_budget
+tests/test_baselines.py:  from src.baselines.budget import default_budget, resolve_budget
+tests/test_baselines.py:  from src.baselines.budget import resolve_budget
+tests/test_baselines.py:  from src.baselines.bundles import _symmetrize_with_self_loops
+tests/test_baselines.py:  from src.baselines.bundles import build_bundle
+tests/test_baselines.py:  from src.baselines.bundles import build_homogeneous_view
+tests/test_baselines.py:  from src.baselines.campaign import (
+tests/test_baselines.py:  from src.baselines.campaign import Cell, build_raw_base, build_units, bundle_overrides
+tests/test_baselines.py:  from src.baselines.campaign import Cell, build_sweep_config
+tests/test_baselines.py:  from src.baselines.campaign import Cell, build_sweep_config, monitor_for
+tests/test_baselines.py:  from src.baselines.campaign import DEFAULT_NUM_RUNS, build_units
+tests/test_baselines.py:  from src.baselines.campaign import build_units
+tests/test_baselines.py:  from src.baselines.campaign import default_epochs
+tests/test_baselines.py:  from src.baselines.campaign import summarize_cell
+tests/test_baselines.py:  from src.baselines.heads import SharedGraphHead
+tests/test_baselines.py:  from src.baselines.heads import SharedLinkHead
+tests/test_baselines.py:  from src.baselines.link_audit import link_split_overlap
+tests/test_baselines.py:  from src.baselines.metrics import binarize_multilabel
+tests/test_baselines.py:  from src.baselines.metrics import classification_metrics
+tests/test_baselines.py:  from src.baselines.progress import WandbEpochReport
+tests/test_baselines.py:  from src.baselines.protocol import (
+tests/test_baselines.py:  from src.baselines.protocol import NODE_CLASSIFICATION
+tests/test_baselines.py:  from src.baselines.protocol import NODE_CLASSIFICATION, BaselineParams
+tests/test_baselines.py:  from src.baselines.protocol import TASKS
+tests/test_baselines.py:  from src.baselines.protocol import TASKS, BaselineParams
+tests/test_baselines.py:  from src.baselines.protocol import UnsupportedCell
+tests/test_baselines.py:  from src.baselines.published import (
+tests/test_baselines.py:  from src.baselines.published import available_published_cells
+tests/test_baselines.py:  from src.baselines.published import load_published_params
+tests/test_baselines.py:  from src.baselines.registry import DATASETS, MODELS, get_adapter
+tests/test_baselines.py:  from src.baselines.registry import DATASETS, MODELS, get_adapter, iter_cells
+tests/test_baselines.py:  from src.baselines.registry import DATASETS, MODELS, get_adapter, unsupported_reason
+tests/test_baselines.py:  from src.baselines.registry import DATASETS, campaign_summary, iter_cells
+tests/test_baselines.py:  from src.baselines.registry import MODELS
+tests/test_baselines.py:  from src.baselines.registry import get_adapter, iter_cells
+tests/test_baselines.py:  from src.baselines.registry import iter_cells
+tests/test_baselines.py:  from src.baselines.registry import model_spec
+tests/test_baselines.py:  from src.baselines.registry import unsupported_reason
+tests/test_baselines.py:  from src.baselines.runtime import VENDOR_ROOTS
+tests/test_baselines.py:  from src.baselines.runtime import available_vendors
+tests/test_baselines.py:  from src.baselines.runtime import dependencies
+tests/test_baselines.py:  from src.baselines.runtime import pushd_sys_path
+tests/test_baselines.py:  from src.baselines.runtime import pushd_sys_path, vendor_path
+tests/test_baselines.py:  from src.baselines.runtime.dependencies import REQUIREMENT_GROUPS
+tests/test_baselines.py:  from src.baselines.runtime.dependencies import REQUIREMENT_GROUPS, groups_for
+tests/test_baselines.py:  from src.baselines.runtime.dependencies import dgl_cuda_report
+tests/test_baselines.py:  from src.baselines.runtime.dependencies import groups_for
+tests/test_baselines.py:  from src.baselines.runtime.dependencies import unavailable_reason
+tests/test_baselines.py:  from src.configs.config import DataConfig
+tests/test_baselines.py:  from src.configs.config import LINK_PREDICTION_PRESETS
+tests/test_baselines.py:  from src.utils.misc import compute_multilabel_classification_metrics
+tests/test_baselines.py:  from src.utils.misc import seed_everything
+tests/test_baselines.py:  from src.utils.run_reports import (
+tests/test_baselines.py:  from src.utils.wandb_campaign import is_sweep_prune
+tests/test_coboundary_chain.py:  from src.models.coboundary_ops import CoboundaryOps
+tests/test_coboundary_chain.py:  from src.models.sheaf_maps import FaceMapCache, compose_face_transport
+tests/test_coboundary_chain.py:  from src.models.sheaf_maps import compose_face_transport
+tests/test_cuda_hardening.py:  from src.configs.config import ModelConfig
+tests/test_cuda_hardening.py:  from src.models.fasthpp import householder_product_wy
+tests/test_cuda_hardening.py:  from src.utils.memory_guard import (
+tests/test_cuda_hardening.py:  from src.utils.misc import seed_everything
+tests/test_data.py:  from src.configs.config import MetaPathConfig
+tests/test_data.py:  from src.configs.config import TrainConfig
+tests/test_data.py:  from src.data.dataset import _prepare_target_labels
+tests/test_data.py:  from src.data.graph_classification_dataset import _load_tu_type_tensors
+tests/test_data.py:  from src.data.graph_classification_dataset import generate_repeated_kfold_splits
+tests/test_data.py:  from src.data.graph_classification_dataset import generate_stratified_holdout_split
+tests/test_data.py:  from src.data.graph_faces import build_typed_path_face_groups
+tests/test_data.py:  from src.data.hetero_flatten import flatten_edges, stack_node_features
+tests/test_data.py:  from src.data.hetero_flatten import stack_node_features
+tests/test_data.py:  from src.data.link_prediction_dataset import _sample_hgb_two_hop_negatives
+tests/test_data.py:  from src.data.link_prediction_dataset import _split_edge_index_hgb
+tests/test_data.py:  from src.data.link_prediction_dataset import _split_edge_index_hgb_by_head
+tests/test_data.py:  from src.data.preprocessing import compute_relation_diagnostics
+tests/test_data.py:  from src.data.preprocessing import deterministic_validation_split
+tests/test_data.py:  from src.data.preprocessing import enumerate_metapath_faces
+tests/test_data.py:  from src.data.preprocessing import label_propagation
+tests/test_data.py:  from src.models.node_encoder import TypeSpecificNodeEncoder
+tests/test_data.py:  from src.utils.misc import compute_graph_classification_metrics
+tests/test_data.py:  from src.utils.misc import compute_link_prediction_metrics
+tests/test_data.py:  from src.utils.misc import compute_multilabel_classification_metrics
+tests/test_factorized_maps.py: from src.configs.config import ModelConfig, TrainConfig
+tests/test_factorized_maps.py: from src.data.structures import FaceGroup, PreparedH2SData
+tests/test_factorized_maps.py: from src.models.coboundary_ops import CoboundaryOps
+tests/test_factorized_maps.py: from src.models.map_operators import (
+tests/test_factorized_maps.py: from src.models.pooling_utils import (
+tests/test_factorized_maps.py: from src.models.sheaf_maps import (
+tests/test_full_graph_early_stopping.py:  from src.configs.config import TrainConfig
+tests/test_graph_classification_trainer.py:  from src.configs.config import TrainConfig
+tests/test_graph_classification_trainer.py:  from src.data.graph_classification_dataset import GraphClassificationFold
+tests/test_graph_classification_trainer.py:  from src.data.graph_classification_dataset import _build_graph_discovery_template
+tests/test_graph_classification_trainer.py:  from src.data.schema_structures import DiscoveryMetadata
+tests/test_graph_classification_trainer.py:  from src.data.structures import FaceGroup
+tests/test_graph_classification_trainer.py:  from src.trainers.graph_classification_trainer import GraphClassificationTrainer
+tests/test_graph_classification_trainer.py:  from src.utils.checkpointer import Checkpointer
+tests/test_graph_classification_trainer.py:  from src.utils.logger import ExperimentLogger
+tests/test_graph_pooling.py:  from src.configs.config import ModelConfig
+tests/test_graph_pooling.py:  from src.configs.config import TrainConfig
+tests/test_graph_pooling.py:  from src.data.graph_faces import build_typed_path_face_groups
+tests/test_graph_pooling.py:  from src.models.graph_pooling import SheafCovPool
+tests/test_graph_pooling.py:  from src.models.graph_pooling import SheafCovPool, build_graph_pooling
+tests/test_graph_pooling.py:  from src.models.graph_pooling import build_graph_pooling
+tests/test_graph_pooling.py:  from src.models.link_readout import LinkPredictionReadout
+tests/test_graph_pooling.py:  from src.models.pooling_utils import pool_edge_stalks_to_nodes
+tests/test_graph_pooling.py:  from src.models.readout import NodeReadout
+tests/test_hierarchical_discovery_v1.py:  from src.configs.config import TrainConfig
+tests/test_hierarchical_discovery_v1.py:  from src.utils.ampss_ablation_protocol import (
+tests/test_hierarchical_discovery_v1.py:  from src.utils.checkpointer import Checkpointer
+tests/test_models.py:  from src.configs.config import TrainConfig
+tests/test_models.py:  from src.data.face_geometry import validate_relation_sequence_constant
+tests/test_models.py:  from src.data.link_pred_structures import PreparedLinkPredData
+tests/test_models.py:  from src.data.schema_structures import DiscoveryMetadata
+tests/test_models.py:  from src.data.structures import FaceGroup
+tests/test_models.py:  from src.data.structures import FaceGroup, PreparedH2SData
+tests/test_models.py:  from src.data.structures import face_lengths_of
+tests/test_models.py:  from src.models.coboundary_ops import CoboundaryOps
+tests/test_models.py:  from src.models.diffusion import HodgeDiffusion
+tests/test_models.py:  from src.models.sheaf_maps import FaceMapCache
+tests/test_models.py:  from src.models.sheaf_maps import SequenceEdgeToFaceSheaf
+tests/test_schema_discovery.py:  from src.configs.config import TrainConfig
+tests/test_schema_discovery.py:  from src.data.schema_discovery import enumerate_discovered_faces
+tests/test_schema_discovery.py:  from src.data.schema_discovery import generate_schema_candidates
+tests/test_schema_discovery.py:  from src.data.schema_discovery import select_schema_pool
+tests/test_schema_discovery.py:  from src.data.schema_structures import SchemaCandidate, SchemaStats
+tests/test_trainer.py:  from src.configs.config import TrainConfig
+tests/test_trainer.py:  from src.trainers.trainer import build_trainer
+tests/test_trainer.py:  from src.utils.checkpointer import Checkpointer
+tests/test_trainer.py:  from src.utils.logger import ExperimentLogger
+tests/test_trainer.py:  from src.utils.misc import save_config
+tests/test_v2_model.py:  from src.data.structures import FaceGroup
+tests/test_v2_model.py:  from src.data.structures import PreparedH2SData
+tests/test_v2_model.py:  from src.models.map_operators import DenseMapOperator
+tests/test_v2_model.py:  from src.models.sheaf_maps import EdgeInitializer, SequenceEdgeToFaceSheaf
+tests/test_v2_model.py:  from src.models.sheaf_maps import FactorizedNodeToEdgeSheafOutput
+tests/test_v2_model.py:  from src.models.vertex_path_laplacian import (
+tests/test_v2_model.py:  from src.models.vertex_path_laplacian import FreeIncidenceOperator
+tests/test_v2_model.py:  from src.models.vertex_path_laplacian import HolonomyEdgeTerm
+tests/test_v2_model.py:  from src.models.vertex_path_laplacian import PathCellTerm
+tests/test_v2_model.py:  from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
+tests/test_v2_model.py:  from src.trainers.trainer import build_trainer
+tests/test_v2_model.py:  from src.utils.checkpointer import Checkpointer
+tests/test_v2_model.py:  from src.utils.logger import ExperimentLogger
+tests/test_v2_model.py:  from src.utils.misc import save_config
+tests/test_v2_model.py: from src.configs.config import ModelConfig, TrainConfig
+tests/test_v2_model.py: from src.models.map_operators import (
+tests/test_v2_model.py: from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
+tests/test_wandb_and_runs.py:  from src.configs.config import TrainConfig
+tests/test_wandb_and_runs.py:  from src.utils.logger import ExperimentLogger
+tests/test_wandb_and_runs.py:  from src.utils.run_reports import (

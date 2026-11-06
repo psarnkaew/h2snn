@@ -129,11 +129,7 @@ class WandbAndRunReportingTests(unittest.TestCase):
             task_type="graph_classification",
             metric="auroc",
             epochs=200,
-            pooling_type="sheafcov",
             dataset_name="mutag",
-            auto_discovery=True,
-            include_pooling_type=True,
-            include_discovery=True,
             hyperband_min_iter=21,
             hyperband_eta=3,
         )
@@ -141,11 +137,17 @@ class WandbAndRunReportingTests(unittest.TestCase):
         self.assertEqual(sweep["method"], "bayes")
         self.assertEqual(sweep["metric"]["name"], "best/auroc")
         self.assertEqual(sweep["early_terminate"]["type"], "hyperband")
-        self.assertIn("pooling_type", sweep["parameters"])
         self.assertEqual(sweep["parameters"]["d"]["values"], [16, 32, 64])
-        self.assertNotIn("s2pool", sweep["parameters"]["pooling_type"]["values"])
-        self.assertNotIn("sheafcov_feat_dim", sweep["parameters"])
+        # Initial values of the learned diffusion scalars eta = sigmoid(.), gamma = softplus(.).
+        self.assertIn("eta_init", sweep["parameters"])
+        self.assertIn("gamma_init", sweep["parameters"])
         for legacy_parameter in (
+            "eta_0",
+            "eta_1",
+            "pooling_type",
+            "sheafcov_feat_dim",
+            "discovery_warmup_epochs",
+            "discovery_operator_anneal_epochs",
             "learnable_eta",
             "use_delta0_init",
             "orthogonal_map",
@@ -162,8 +164,6 @@ class WandbAndRunReportingTests(unittest.TestCase):
             "partial_schema_probability",
         ):
             self.assertNotIn(legacy_parameter, sweep["parameters"])
-        self.assertIn("discovery_warmup_epochs", sweep["parameters"])
-        self.assertIn("discovery_operator_anneal_epochs", sweep["parameters"])
         node_sweep = build_sweep_config(
             task_type="node_classification",
             metric="macro_f1",
@@ -173,14 +173,6 @@ class WandbAndRunReportingTests(unittest.TestCase):
         self.assertEqual(node_sweep["parameters"]["d"]["values"], [16, 32])
         self.assertIn("encoder_dropout", node_sweep["parameters"])
         self.assertIn("classifier_dropout", node_sweep["parameters"])
-        graph_sweep = build_sweep_config(
-            task_type="graph_classification",
-            metric="auroc",
-            epochs=30,
-            pooling_type="sheafcov",
-            dataset_name="mutag",
-        )
-        self.assertEqual(graph_sweep["parameters"]["sheafcov_feat_dim"]["values"], [4, 8, 16])
         featureless_link_sweep = build_sweep_config(
             task_type="link_prediction",
             metric="auroc",
@@ -231,7 +223,6 @@ class WandbAndRunReportingTests(unittest.TestCase):
             "model": {
                 "d": 16,
                 "d_r": 7,
-                "d_h": 11,
                 "edge_mlp_hidden_dim": 23,
                 "classifier_hidden_dim": 29,
             },
@@ -240,7 +231,6 @@ class WandbAndRunReportingTests(unittest.TestCase):
         tuned = apply_sweep_overrides(raw, {"d": 32, "layer_dropout": 0.2})
         self.assertAlmostEqual(tuned["model"]["layer_dropout"], 0.2)
         self.assertEqual(tuned["model"]["d_r"], 7)
-        self.assertEqual(tuned["model"]["d_h"], 11)
         self.assertEqual(tuned["model"]["edge_mlp_hidden_dim"], 23)
         self.assertEqual(tuned["model"]["classifier_hidden_dim"], 29)
 

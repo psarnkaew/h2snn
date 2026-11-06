@@ -7,4 +7,3 @@ __all__ = [
     "H2SNNOutput",
     "build_model",
 ]
-

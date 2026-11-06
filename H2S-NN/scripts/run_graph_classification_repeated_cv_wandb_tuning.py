@@ -53,20 +53,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split_seed", type=int, default=None)
     parser.add_argument("--n_trials", type=int, default=20)
     parser.add_argument("--d_values", type=int, nargs="+", default=None)
-    parser.add_argument("--sheafcov_feat_dims", type=int, nargs="+", default=None)
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
-    parser.add_argument(
-        "--pooling_type",
-        type=str,
-        default=None,
-        choices=["meanpool", "grampool", "s2pool", "sheafpool", "sheafcov", "sheafconv"],
-    )
     parser.add_argument("--decoder_type", type=str, default=None)
-    parser.add_argument("--include_pooling_type", action="store_true")
     parser.add_argument("--include_decoder_type", action="store_true")
-    parser.add_argument("--include_discovery", action="store_true")
     parser.add_argument("--wandb_project", type=str, default="h2snn")
     parser.add_argument("--wandb_entity", type=str, default="")
     parser.add_argument("--wandb_mode", type=str, default="online")

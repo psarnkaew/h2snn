@@ -35,12 +35,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--output_dir", type=Path, default=None)
-    parser.add_argument(
-        "--pooling_type",
-        type=str,
-        default=None,
-        choices=["meanpool", "grampool", "s2pool", "sheafpool", "sheafcov", "sheafconv"],
-    )
     parser.add_argument("--decoder_type", type=str, default=None, choices=["dot", "distmult", "concat_mlp"])
     parser.add_argument("--train_ratio", type=float, default=None)
     parser.add_argument("--val_ratio", type=float, default=None)
@@ -70,8 +64,6 @@ def _apply_common_overrides(cfg: TrainConfig, args: argparse.Namespace) -> Train
         cfg.device = args.device
     elif cfg.device == "cuda" and not torch.cuda.is_available():
         cfg.device = "cpu"
-    if args.pooling_type is not None:
-        cfg.data.pooling_type = args.pooling_type
     if args.decoder_type is not None:
         cfg.data.decoder_type = args.decoder_type
     if args.train_ratio is not None:
@@ -156,8 +148,7 @@ def run_single_experiment(
         )
         if cfg.task_type == "graph_classification":
             logger.info(
-                "Pooling: %s | Split: %.2f/%.2f/%.2f",
-                cfg.data.pooling_type,
+                "Split: %.2f/%.2f/%.2f",
                 cfg.data.train_ratio,
                 cfg.data.val_ratio,
                 cfg.data.test_ratio,

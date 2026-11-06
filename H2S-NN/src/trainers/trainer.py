@@ -9,7 +9,6 @@ import torch.nn as nn
 
 from src.configs.config import TrainConfig
 from src.data.structures import PreparedH2SData
-from src.trainers.ampss_metrics import build_ampss_metrics
 from src.models.h2snn_model import H2SNNOutput
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
@@ -68,16 +67,13 @@ class Trainer:
                 metrics=val_metrics,
                 metadata={"test": test_metrics},
             )
-            is_best = False
-            checkpoint_eligible = self.cfg.is_full_operator_checkpoint_eligible(epoch)
-            if checkpoint_eligible:
-                is_best = self.checkpointer.save_if_best(
-                    model=self.model,
-                    optimizer=self.optimizer,
-                    epoch=epoch,
-                    metrics=val_metrics,
-                    metadata={"test": test_metrics},
-                )
+            is_best = self.checkpointer.save_if_best(
+                model=self.model,
+                optimizer=self.optimizer,
+                epoch=epoch,
+                metrics=val_metrics,
+                metadata={"test": test_metrics},
+            )
             if is_best:
                 self._best_epoch = epoch
                 bad_epochs = 0
@@ -87,7 +83,7 @@ class Trainer:
                     **{f"val_{k}": v for k, v in val_metrics.items()},
                     **{f"test_{k}": v for k, v in test_metrics.items()},
                 }
-            elif checkpoint_eligible:
+            else:
                 bad_epochs += 1
 
             if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
@@ -135,6 +131,8 @@ class Trainer:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
         self.optimizer.step()
+        # Diffusion step and path-coupling strength after this epoch's update.
+        metrics.update(self.model.diffusion_scalars())  # type: ignore[operator]
         return metrics
 
     def _eval_epoch(
@@ -178,15 +176,6 @@ class Trainer:
             "micro_f1": cls_metrics["micro_f1"],
             "cls_loss": float(classification_loss.item()),
         }
-        if data.discovery is not None:
-            metrics.update(
-                build_ampss_metrics(
-                    output,
-                    data.discovery,
-                    data.face_groups,
-                    self.cfg,
-                )
-            )
         return total_loss, metrics
 
 

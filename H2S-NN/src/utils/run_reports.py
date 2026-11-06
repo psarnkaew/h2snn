@@ -65,7 +65,6 @@ def enrich_run_record(
     if "best_epoch" not in enriched and "epoch" in enriched:
         enriched["best_epoch"] = enriched["epoch"]
     if cfg.task_type == "graph_classification":
-        enriched["pooling_type"] = cfg.data.pooling_type
         enriched["split_protocol"] = cfg.data.split_protocol
         enriched["fold_index"] = cfg.data.fold_index
         enriched["num_folds"] = cfg.data.num_folds

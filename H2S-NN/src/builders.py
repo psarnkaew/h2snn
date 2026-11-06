@@ -24,7 +24,6 @@ from src.trainers.graph_classification_trainer import (
 from src.trainers.link_prediction_trainer import LinkPredictionTrainer, build_link_prediction_trainer
 from src.trainers.trainer import Trainer, build_trainer
 from src.utils.checkpointer import Checkpointer
-from src.utils.discovery_artifacts import persist_selector_artifacts
 from src.utils.logger import ExperimentLogger
 from src.utils.misc import dataclass_to_dict
 
@@ -44,22 +43,27 @@ def build_logger(cfg: TrainConfig) -> ExperimentLogger:
     )
 
 
+def build_parameter_groups(model: H2SNN, cfg: TrainConfig) -> list[dict[str, object]]:
+    """Two groups: the diffusion scalars `theta_eta`, `theta_gamma` (lr scaled by
+    `optim.scalar_lr_scale`, no weight decay) and every other parameter (base settings)."""
+    scalars = list(model.scalar_parameters())
+    scalar_ids = {id(parameter) for parameter in scalars}
+    others = [p for p in model.parameters() if id(p) not in scalar_ids]
+    return [
+        {"params": others, "lr": cfg.optim.lr, "weight_decay": cfg.optim.weight_decay},
+        {"params": scalars, "lr": cfg.optim.lr * cfg.optim.scalar_lr_scale, "weight_decay": 0.0},
+    ]
+
+
 def build_optimizer(
     model: H2SNN,
     cfg: TrainConfig,
 ) -> torch.optim.Optimizer:
+    groups = build_parameter_groups(model, cfg)
     if cfg.optim.name == "adam":
-        return torch.optim.Adam(
-            model.parameters(),
-            lr=cfg.optim.lr,
-            weight_decay=cfg.optim.weight_decay,
-        )
+        return torch.optim.Adam(groups, lr=cfg.optim.lr, weight_decay=cfg.optim.weight_decay)
     if cfg.optim.name == "adamw":
-        return torch.optim.AdamW(
-            model.parameters(),
-            lr=cfg.optim.lr,
-            weight_decay=cfg.optim.weight_decay,
-        )
+        return torch.optim.AdamW(groups, lr=cfg.optim.lr, weight_decay=cfg.optim.weight_decay)
     raise ValueError(f"Unsupported optimizer '{cfg.optim.name}'.")
 
 
@@ -83,6 +87,10 @@ def build_scheduler(
     raise ValueError(f"Unsupported scheduler '{cfg.optim.scheduler}'.")
 
 
+def _checkpointer(cfg: TrainConfig) -> Checkpointer:
+    return Checkpointer(exp_dir=cfg.exp_dir, metric=cfg.checkpoint_metric, mode=cfg.checkpoint_mode)
+
+
 def build_experiment_components(
     cfg: TrainConfig,
 ) -> tuple[
@@ -96,23 +104,11 @@ def build_experiment_components(
 ]:
     if cfg.task_type == "graph_classification":
         fold = build_graph_classification_dataset(cfg)
-        selector_manifest = persist_selector_artifacts(
-            cfg.exp_dir, fold.selector_report
-        )
         model = build_graph_classification_model(cfg, fold.dims)
         optimizer = build_optimizer(model, cfg)
         scheduler = build_scheduler(optimizer, cfg)
         logger = build_logger(cfg)
-        checkpointer = Checkpointer(
-            exp_dir=cfg.exp_dir,
-            metric=cfg.checkpoint_metric,
-            mode=cfg.checkpoint_mode,
-            protocol_version=cfg.discovery.protocol_version,
-            selector_manifest=selector_manifest,
-            require_selector_manifest=(
-                cfg.discovery.enabled and cfg.discovery.mode == "auto"
-            ),
-        )
+        checkpointer = _checkpointer(cfg)
         trainer = build_graph_classification_trainer(
             model=model,
             optimizer=optimizer,
@@ -125,23 +121,11 @@ def build_experiment_components(
 
     if cfg.task_type == "link_prediction":
         data = build_link_prediction_dataset(cfg)
-        selector_manifest = persist_selector_artifacts(
-            cfg.exp_dir, data.selector_report
-        )
         model = build_link_prediction_model(cfg, data)
         optimizer = build_optimizer(model, cfg)
         scheduler = build_scheduler(optimizer, cfg)
         logger = build_logger(cfg)
-        checkpointer = Checkpointer(
-            exp_dir=cfg.exp_dir,
-            metric=cfg.checkpoint_metric,
-            mode=cfg.checkpoint_mode,
-            protocol_version=cfg.discovery.protocol_version,
-            selector_manifest=selector_manifest,
-            require_selector_manifest=(
-                cfg.discovery.enabled and cfg.discovery.mode == "auto"
-            ),
-        )
+        checkpointer = _checkpointer(cfg)
         trainer = build_link_prediction_trainer(
             model=model,
             optimizer=optimizer,
@@ -153,21 +137,11 @@ def build_experiment_components(
         return data, model, optimizer, scheduler, logger, checkpointer, trainer
 
     data = build_dataset(cfg)
-    selector_manifest = persist_selector_artifacts(cfg.exp_dir, data.selector_report)
     model = build_model(cfg, data)
     optimizer = build_optimizer(model, cfg)
     scheduler = build_scheduler(optimizer, cfg)
     logger = build_logger(cfg)
-    checkpointer = Checkpointer(
-        exp_dir=cfg.exp_dir,
-        metric=cfg.checkpoint_metric,
-        mode=cfg.checkpoint_mode,
-        protocol_version=cfg.discovery.protocol_version,
-        selector_manifest=selector_manifest,
-        require_selector_manifest=(
-            cfg.discovery.enabled and cfg.discovery.mode == "auto"
-        ),
-    )
+    checkpointer = _checkpointer(cfg)
     trainer = build_trainer(
         model=model,
         optimizer=optimizer,

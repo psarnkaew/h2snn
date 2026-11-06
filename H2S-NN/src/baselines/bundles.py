@@ -321,18 +321,12 @@ def _base_config(
     seed: int,
     overrides: dict[str, Any] | None = None,
 ) -> TrainConfig:
-    """Build the canonical TrainConfig for one cell.
-
-    Discovery stays off: the baselines never consume AMPSS faces, and enumerating them
-    would cost minutes per bundle for nothing. Meta-path baselines that do need schemas
-    request them explicitly (see the graph-classification schema note in the plan).
-    """
+    """Build the canonical TrainConfig for one cell."""
 
     payload: dict[str, Any] = {
         "data": {"dataset_name": dataset, "run_index": run_index},
         "seed": seed,
         "device": "cuda" if torch.cuda.is_available() else "cpu",
-        "discovery": {"enabled": False},
     }
     if overrides:
         for key, value in overrides.items():

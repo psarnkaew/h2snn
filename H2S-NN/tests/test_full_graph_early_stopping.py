@@ -43,7 +43,7 @@ class _Checkpointer:
         return next(self.decisions)
 
 
-def _config(output_dir: str, *, eligible=lambda _epoch: True):
+def _config(output_dir: str):
     return SimpleNamespace(
         device="cpu",
         epochs=10,
@@ -51,7 +51,6 @@ def _config(output_dir: str, *, eligible=lambda _epoch: True):
         checkpoint_metric="acc",
         log_every=100,
         exp_dir=Path(output_dir),
-        is_full_operator_checkpoint_eligible=eligible,
     )
 
 
@@ -77,9 +76,6 @@ def _load_node_trainer():
     stubs = {
         "src.data.structures": _module("src.data.structures", PreparedH2SData=object),
         "src.models.h2snn_model": _module("src.models.h2snn_model", H2SNNOutput=object),
-        "src.trainers.ampss_metrics": _module(
-            "src.trainers.ampss_metrics", build_ampss_metrics=lambda *_args: {}
-        ),
     }
     sys.modules.pop("src.trainers.trainer", None)
     with patch.dict(sys.modules, stubs):
@@ -102,9 +98,6 @@ def _load_link_trainer():
         "src.models.h2snn_model": _module(
             "src.models.h2snn_model", H2SNN=object, H2SNNOutput=object
         ),
-        "src.trainers.ampss_metrics": _module(
-            "src.trainers.ampss_metrics", build_ampss_metrics=lambda *_args: {}
-        ),
     }
     sys.modules.pop("src.trainers.link_prediction_trainer", None)
     with patch.dict(sys.modules, stubs):
@@ -122,35 +115,6 @@ class FullGraphEarlyStoppingTests(unittest.TestCase):
                 ValueError, "early_stopping_patience must be positive"
             ):
                 TrainConfig.from_dict({"early_stopping_patience": invalid})
-
-    def test_node_patience_starts_at_first_operator_eligible_epoch(self) -> None:
-        import torch
-
-        Trainer = _load_node_trainer()
-        model = torch.nn.Linear(1, 1)
-        checkpointer = _Checkpointer()
-        trainer = Trainer(
-            model=model,
-            optimizer=torch.optim.SGD(model.parameters(), lr=0.1),
-            scheduler=None,
-            criterion=torch.nn.CrossEntropyLoss(),
-            cfg=_config(".", eligible=lambda epoch: epoch >= 2),
-            logger=_Logger(),
-            checkpointer=checkpointer,
-        )
-        trainer._train_epoch = lambda _data, _epoch: _metrics()  # type: ignore[method-assign]
-        trainer._eval_epoch = (  # type: ignore[method-assign]
-            lambda _data, _mask, _epoch=-1: _metrics()
-        )
-        seen_epochs: list[int] = []
-        with patch.object(Path, "open", mock_open()):
-            trainer.fit(
-                _Data(),
-                epoch_callback=lambda epoch, *_metrics_by_split: seen_epochs.append(epoch),
-            )
-
-        self.assertEqual(seen_epochs, [0, 1, 2, 3, 4])
-        self.assertEqual(checkpointer.best_calls, 3)
 
     def test_node_trainer_honors_patience(self) -> None:
         import torch

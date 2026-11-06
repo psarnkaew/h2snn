@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 
-AMPSS_PROTOCOL_VERSION = "schema_conditioned_v1"
+def _reject_unknown_keys(section: str, raw: Mapping[str, Any], config_class: type) -> None:
+    """Fail loudly on keys the dataclass does not define (e.g. removed v1 settings)."""
+    unknown = sorted(set(raw) - set(config_class.__dataclass_fields__))
+    if unknown:
+        raise ValueError(
+            f"Unknown {section} key(s): {', '.join(unknown)}. They are not settings of the "
+            "current model; remove them (v1 and AMPSS settings were deleted, see "
+            "docs/H2S-NN_v2_plan.md D6)."
+        )
 
 
 @dataclass(slots=True)
@@ -16,6 +24,7 @@ class MetaPathConfig:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "MetaPathConfig":
+        _reject_unknown_keys("data.metapath_templates[]", raw, cls)
         return cls(
             name=str(raw["name"]),
             node_types=tuple(str(value) for value in raw["node_types"]),
@@ -164,12 +173,6 @@ class DataConfig:
     # does not consume them, and computing the structural atoms costs a Python-level
     # per-node two-hop pass. scripts/h2snn_paper_studies.py turns it on.
     compute_relation_diagnostics: bool = False
-    # Scale on the synthetic closure 1-cell's restriction maps. 1.0 = a full first-class
-    # 1-cell (the honest 2-complex). The old 1e-6 default effectively disabled it, back when
-    # the closure edge sat outside delta0 and only fed a separate `closure_L0` correction.
-    # The face map absorbs a compensating 1/closure_scale, so delta1.delta0 = 0 holds for any
-    # positive value; only the closure edge's L0 contribution (quadratic in the scale) varies.
-    closure_scale: float = 1.0
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -180,7 +183,6 @@ class DataConfig:
     link_test_ratio: float = 0.10
 
     # --- graph classification ---
-    pooling_type: str = "meanpool"               # "meanpool" | "grampool" | "s2pool" | "sheafpool" | "sheafcov"
     split_protocol: str = "stratified_holdout"    # "stratified_holdout" | "precomputed_folds" | "stratified_kfold" | "repeated_kfold"
     num_folds: int = 10
     fold_index: int = 0
@@ -195,6 +197,7 @@ class DataConfig:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "DataConfig":
+        _reject_unknown_keys("data", raw, cls)
         config = cls(
             dataset_name=str(raw.get("dataset_name", "acm")).lower(),
             root=Path(raw.get("root", "data")),
@@ -214,14 +217,12 @@ class DataConfig:
             compute_relation_diagnostics=bool(
                 raw.get("compute_relation_diagnostics", False)
             ),
-            closure_scale=float(raw.get("closure_scale", 1.0)),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
             neg_sampling_ratio=int(raw.get("neg_sampling_ratio", 1)),
             link_val_ratio=float(raw.get("link_val_ratio", 0.09)),
             link_test_ratio=float(raw.get("link_test_ratio", 0.10)),
-            pooling_type=str(raw.get("pooling_type", "meanpool")),
             split_protocol=str(raw.get("split_protocol", "stratified_holdout")),
             num_folds=int(raw.get("num_folds", 10)),
             fold_index=int(raw.get("fold_index", 0)),
@@ -250,8 +251,6 @@ class DataConfig:
         the dataclass defaults.
         """
         dataset_name = self.dataset_name.lower()
-        if self.closure_scale <= 0.0:
-            raise ValueError("data.closure_scale must be positive.")
         if self.face_sample_k <= 0:
             raise ValueError("data.face_sample_k must be positive.")
         task_type = self.task_type or DATASET_TASK_TYPES.get(dataset_name, "")
@@ -287,19 +286,6 @@ class DataConfig:
                 raise ValueError(
                     f"Unsupported data.split_protocol '{self.split_protocol}'."
                 )
-            supported_pools = {
-                "meanpool",
-                "grampool",
-                "s2pool",
-                "sheafpool",
-                "sheafcov",
-                "sheafconv",
-                "ths_spectral",
-                "ths_galerkin",
-                "s2pool_h2",
-            }
-            if self.pooling_type not in supported_pools:
-                raise ValueError(f"Unsupported data.pooling_type '{self.pooling_type}'.")
             if min(self.train_ratio, self.val_ratio, self.test_ratio) <= 0.0:
                 raise ValueError("Graph train/validation/test ratios must be positive.")
             if abs(self.train_ratio + self.val_ratio + self.test_ratio - 1.0) > 1e-8:
@@ -437,482 +423,171 @@ class DataConfig:
 
 
 @dataclass(slots=True)
-class SchemaDiscoveryConfig:
-    enabled: bool = False
-    mode: str = "manual"                 # "manual" | "auto"
-    protocol_version: str = AMPSS_PROTOCOL_VERSION
-
-    max_schema_length: int = 4
-    min_schema_length: int = 2
-    max_schema_candidates: int = 128
-    selected_schema_k: int = 8
-
-    max_instances_per_schema: int = 20000
-    max_instances_per_anchor: int = 50
-    max_total_instances: int | None = None  # global cap across the whole selected pool; None = unbounded
-    max_total_incidences: int | None = None
-    max_schema_identities: int = 4096
-    selector_strategy: str = "probe"
-    selector_seed: int = 42
-    materialization_seed: int = 42
-    selector_max_examples: int = 4096
-    selector_holdout_ratio: float = 0.10
-    selector_num_attempts: int = 50
-    selector_probe_l2: float = 1e-3
-    selector_probe_max_iter: int = 50
-    selector_stop_tolerance: float = 1e-4
-    selector_tie_tolerance: float = 1e-8
-    selector_min_examples_per_label: int = 1
-
-    require_target_start: bool = True
-    require_target_end: bool = True
-    allow_repeated_node_types: bool = True
-    exclude_identity_metapaths: bool = True
-
-    instance_weight_mode: str = "schema_conditioned"
-    warmup_epochs: int = 0               # epochs before learned weights become active
-    operator_anneal_epochs: int = 5
-
-    def __post_init__(self) -> None:
-        if self.protocol_version != AMPSS_PROTOCOL_VERSION:
-            raise ValueError(
-                "Unsupported AMPSS protocol version "
-                f"{self.protocol_version!r}; expected {AMPSS_PROTOCOL_VERSION!r}."
-            )
-        if self.enabled and self.mode == "auto" and self.selector_strategy.lower() != "probe":
-            raise ValueError(
-                "Only discovery.selector_strategy='probe' is supported by "
-                f"{AMPSS_PROTOCOL_VERSION}; legacy DCV selectors are diagnostics-only."
-            )
-        if self.selector_seed < 0 or self.materialization_seed < 0:
-            raise ValueError("selector_seed and materialization_seed must be non-negative.")
-        if self.instance_weight_mode not in {
-            "schema_conditioned",
-            "schema_agnostic",
-            "uniform",
-        }:
-            raise ValueError(
-                "discovery.instance_weight_mode must be one of: "
-                "schema_conditioned, schema_agnostic, uniform."
-            )
-        if self.min_schema_length < 2 or self.max_schema_length < self.min_schema_length:
-            raise ValueError(
-                "Discovery face schemas require 2 <= min_schema_length <= max_schema_length."
-            )
-        if self.max_schema_identities <= 0 or self.max_schema_candidates <= 0:
-            raise ValueError("Schema identity and candidate safety guards must be positive.")
-        if self.selected_schema_k <= 0:
-            raise ValueError("selected_schema_k must be positive.")
-        if self.max_instances_per_schema <= 0 or self.max_instances_per_anchor <= 0:
-            raise ValueError("Discovery instance quotas must be positive.")
-        if self.max_total_instances is not None and self.max_total_instances <= 0:
-            raise ValueError("max_total_instances must be positive when provided.")
-        if self.max_total_incidences is not None and self.max_total_incidences <= 0:
-            raise ValueError("max_total_incidences must be positive when provided.")
-        if self.enabled and self.mode == "auto" and self.max_total_instances is None:
-            raise ValueError(
-                "Auto discovery requires max_total_instances so the selected cell pool is bounded."
-            )
-        if self.enabled and self.mode == "auto" and self.max_total_incidences is None:
-            raise ValueError(
-                "Auto discovery requires max_total_incidences; incidence-aware selection "
-                "must be active rather than reported as an unused objective."
-            )
-        if self.warmup_epochs < 0 or self.operator_anneal_epochs < 1:
-            raise ValueError(
-                "Discovery warmup must be non-negative and operator_anneal_epochs must be >= 1."
-            )
-        if not 0.0 < self.selector_holdout_ratio < 1.0:
-            raise ValueError("selector_holdout_ratio must be in (0, 1).")
-        if self.selector_max_examples < 2:
-            raise ValueError("selector_max_examples must be at least 2.")
-        if self.selector_num_attempts <= 0:
-            raise ValueError("selector_num_attempts must be positive.")
-        if self.selector_probe_l2 <= 0.0:
-            raise ValueError("selector_probe_l2 must be positive.")
-        if self.selector_probe_max_iter <= 0:
-            raise ValueError("selector_probe_max_iter must be positive.")
-        if self.selector_stop_tolerance <= 0.0 or self.selector_tie_tolerance <= 0.0:
-            raise ValueError("Selector stop/tie tolerances must be positive.")
-        if self.selector_min_examples_per_label <= 0:
-            raise ValueError("selector_min_examples_per_label must be positive.")
-        if self.selector_max_examples < 2 * self.selector_min_examples_per_label:
-            raise ValueError(
-                "selector_max_examples must permit nonempty fit and selection splits."
-            )
-    @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> "SchemaDiscoveryConfig":
-        legacy_keys = sorted(
-            key
-            for key in (
-                "objective_version",
-                "selector_coverage_weight",
-                "schema_gate_type",
-                "instance_gate_type",
-                "partial_schema_probability",
-                "schema_active_threshold",
-                "lambda_schema_sparse",
-                "lambda_instance_sparse",
-                "lambda_coverage",
-                "lambda_incidence_mass",
-                "lambda_gate_entropy",
-                "lambda_redundancy",
-                "lambda_cost",
-                "selector_incidence_budget",
-            )
-            if key in raw
-        )
-        if legacy_keys:
-            raise ValueError(
-                "Unsupported legacy discovery keys: "
-                f"{', '.join(legacy_keys)}. AMPSS now uses task-only "
-                "schema-conditioned instance weights; remove these keys and start "
-                "a fresh run/sweep."
-            )
-        max_total_instances = raw.get("max_total_instances")
-        max_total_incidences = raw.get("max_total_incidences")
-        max_instances_per_anchor = int(raw.get("max_instances_per_anchor", 50))
-        return cls(
-            enabled=bool(raw.get("enabled", False)),
-            mode=str(raw.get("mode", "manual")),
-            protocol_version=str(
-                raw.get("protocol_version", AMPSS_PROTOCOL_VERSION)
-            ),
-            max_schema_length=int(raw.get("max_schema_length", 4)),
-            min_schema_length=int(raw.get("min_schema_length", 2)),
-            max_schema_candidates=int(raw.get("max_schema_candidates", 128)),
-            selected_schema_k=int(raw.get("selected_schema_k", 8)),
-            max_instances_per_schema=int(raw.get("max_instances_per_schema", 20000)),
-            max_instances_per_anchor=max_instances_per_anchor,
-            max_total_instances=(
-                None if max_total_instances is None else int(max_total_instances)
-            ),
-            max_total_incidences=(
-                None
-                if max_total_incidences is None
-                else int(max_total_incidences)
-            ),
-            max_schema_identities=int(raw.get("max_schema_identities", 4096)),
-            selector_strategy=str(raw.get("selector_strategy", "probe")),
-            selector_seed=int(raw.get("selector_seed", 42)),
-            materialization_seed=int(raw.get("materialization_seed", 42)),
-            selector_max_examples=int(raw.get("selector_max_examples", 4096)),
-            selector_holdout_ratio=float(raw.get("selector_holdout_ratio", 0.10)),
-            selector_num_attempts=int(
-                raw.get("selector_num_attempts", max_instances_per_anchor)
-            ),
-            selector_probe_l2=float(raw.get("selector_probe_l2", 1e-3)),
-            selector_probe_max_iter=int(raw.get("selector_probe_max_iter", 50)),
-            selector_stop_tolerance=float(raw.get("selector_stop_tolerance", 1e-4)),
-            selector_tie_tolerance=float(raw.get("selector_tie_tolerance", 1e-8)),
-            selector_min_examples_per_label=int(
-                raw.get("selector_min_examples_per_label", 1)
-            ),
-            require_target_start=bool(raw.get("require_target_start", True)),
-            require_target_end=bool(raw.get("require_target_end", True)),
-            allow_repeated_node_types=bool(raw.get("allow_repeated_node_types", True)),
-            exclude_identity_metapaths=bool(raw.get("exclude_identity_metapaths", True)),
-            instance_weight_mode=str(
-                raw.get("instance_weight_mode", "schema_conditioned")
-            ),
-            warmup_epochs=int(raw.get("warmup_epochs", 0)),
-            operator_anneal_epochs=int(raw.get("operator_anneal_epochs", 5)),
-        )
-
-
-@dataclass(slots=True)
 class ModelConfig:
+    """H2S-NN (plan §4): node diffusion with the vertex-2-cell sheaf Laplacian.
+
+    The task heads (node, link, graph) are chosen by `data.task_type`; ablations live in
+    `AblationConfig`.
+    """
+
     d: int = 64
     d_r: int = 16
-    d_h: int = 64
-    face_chunk_size: int = 4096
     encoder_dropout: float = 0.1
+    # Hidden width of the node->edge map MLPs (and of the free-map ablation's MLP).
     edge_mlp_hidden_dim: int = 128
-    edge_init_hidden_dim: int = 128
+    # Hidden width of the positional path encoder that feeds the path gate w_f.
     face_mlp_hidden_dim: int = 128
     classifier_hidden_dim: int = 128
-    # Width of the learned descriptor after the fixed 3x3 SheafCov Gram matrix.
-    # This is a graph-readout capacity control, not the number of Gram views.
-    sheafcov_feat_dim: int = 8
+    classifier_dropout: float = 0.1
+    # Diffusion steps x <- x - eta D^{-1/2} (Delta_0 + gamma L_P) D^{-1/2} x.
     K: int = 5
-    eta_0: float = 0.1
-    eta_1: float = 0.1
-    learnable_eta: bool = True
     layer_dropout: float = 0.0
-    use_orthogonal: bool = True
     orthogonal_map: str = "fasthpp"
+    # CUDA allocation guard of the dense map family ([M, d, d] maps).
     node_edge_memory_guard_fraction: float = 0.20
-    # Node->edge restriction-map family (v2 decision D1). "dense" is v1: per-edge [M, d, d]
-    # FastHPP maps. "factorized" is F = c * R_{relation,side} * H_k(u), applied matrix-free
-    # (src/models/map_operators.py); node classification only.
-    map_family: str = "dense"
+    # Node->edge restriction maps (decision D1). "factorized": F = c R_{relation,side} H_k(u),
+    # matrix-free. "dense": explicit [M, d, d] FastHPP maps with the same scale law.
+    map_family: str = "factorized"
     # Householder reflections k per incidence in the factorized family, 1 <= k <= d.
     householder_k: int = 2
-    # Lower bound eps of the factorized conformal scale c = softplus(.) + eps. Bounds the
-    # closed-form inverse 1/c used by the face transport.
+    # Lower bound eps of the conformal scale c = softplus(.) + eps.
     map_scale_eps: float = 0.1
-    # Model generation (v2 decision D4). "v1" is the submitted model; "v2" is the vertex-2-cell
-    # sheaf Laplacian model (src/models/h2snn_v2.py), node classification only.
-    architecture: str = "v1"
-    # Conformal scale of the node->edge maps (v2 decision D1a). "per_edge": one c_e per edge,
-    # shared by both sides, so every edge transport is orthogonal. "per_side": D1's
-    # per-incidence scales (v1, and an ablation under v2). None resolves to "per_edge" under
-    # architecture "v2" and to "per_side" under "v1", which accepts nothing else.
-    map_scale: str | None = None
-    # --- v2 only (architecture "v2", decision D4); v1 rejects any non-default value. ---
-    # Initial path-coupling strength gamma = softplus(theta_gamma) and step eta = sigmoid(theta_eta).
+    # Initial gamma = softplus(theta_gamma) > 0 and eta = sigmoid(theta_eta) in (0, 1).
     gamma_init: float = 1.0
     eta_init: float = 0.5
-    # Activation checkpointing of the matrix-free map and Laplacian applications (D1).
+    # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
-    # Ablations (plan §4.6). path_maps "free": per-incidence maps instead of the transport.
-    path_maps: str = "transport"
-    # path_mode "endpoint_edges" / "holonomy_edges": one edge per path instead of the 2-cell.
-    path_mode: str = "cells"
-    uniform_path_gate: bool = False
-    ablate_no_path_cells: bool = False
-    # readout "h0_only": MLP([h0]) sanity control.
-    readout: str = "full"
-    use_delta0_init: bool = True
-    classifier_dropout: float = 0.1
-    # How the free per-instance face map A_f is produced. "concat" concatenates the path's
-    # node states in order with the schema's relation embeddings and applies one MLP per
-    # distinct path length; "lstm" is the superseded token-MLP + LSTM + attention-pool stack,
-    # retained only so the sequence-encoder ablation can be run.
-    face_encoder: str = "concat"
-    # Parameterisation of A_f. The model consumes A_f only through A_f^T A_f (it is a pure
-    # left factor of every edge-to-face map in a face), so a d x d output carries d(d-1)/2
-    # unidentifiable gauge directions. "triangular" emits d(d+1)/2 numbers into the upper
-    # triangle instead, which is lossless because every PSD matrix is R^T R for upper
-    # triangular R.
-    face_map_param: str = "full"
-    ablate_no_faces: bool = False
-    ablate_no_delta1: bool = False
-    ablate_identity_maps: bool = False
-    # Superseded historical hierarchy controls; SheafCovPool does not consume them.
-    pool_num_levels: int = 2
-    pool_ratio: float = 0.5
-    pool_inject_maps: bool = False
-    pool_clusters_per_type: int = 4
-    pool_coarse_steps: int = 4
-    pool_use_coarse: bool = True
-    pool_use_spectral: bool = True
 
     def __post_init__(self) -> None:
         if self.orthogonal_map != "fasthpp":
             raise ValueError(
                 f"Unsupported model.orthogonal_map '{self.orthogonal_map}'. "
-                "The current H2SNN supports only 'fasthpp' for learned orthogonal maps."
+                "Only 'fasthpp' is implemented."
             )
         if not 0.0 < self.node_edge_memory_guard_fraction <= 1.0:
             raise ValueError(
                 "model.node_edge_memory_guard_fraction must be in (0, 1], "
                 f"got {self.node_edge_memory_guard_fraction}."
             )
-        if self.sheafcov_feat_dim <= 0:
-            raise ValueError(
-                "model.sheafcov_feat_dim must be positive, "
-                f"got {self.sheafcov_feat_dim}."
-            )
-        supported_map_families = {"dense", "factorized"}
-        if self.map_family not in supported_map_families:
-            supported = ", ".join(sorted(supported_map_families))
+        if self.map_family not in {"dense", "factorized"}:
             raise ValueError(
                 f"Unsupported model.map_family '{self.map_family}'. "
-                f"Supported values: {supported}."
+                "Supported values: dense, factorized."
             )
         if isinstance(self.householder_k, bool) or not isinstance(self.householder_k, int):
             raise ValueError(
                 f"model.householder_k must be an integer, got {self.householder_k!r}."
             )
         if self.householder_k < 1:
+            raise ValueError(f"model.householder_k must be >= 1, got {self.householder_k}.")
+        if self.map_family == "factorized" and self.householder_k > self.d:
+            # d reflections already generate O(d), so k > d adds parameters, not reach.
             raise ValueError(
-                f"model.householder_k must be >= 1, got {self.householder_k}."
+                f"model.householder_k must be <= d={self.d} for map_family='factorized', "
+                f"got {self.householder_k}."
             )
         if not self.map_scale_eps > 0.0:
-            raise ValueError(
-                f"model.map_scale_eps must be positive, got {self.map_scale_eps}."
-            )
-        supported_architectures = {"v1", "v2"}
-        if self.architecture not in supported_architectures:
-            raise ValueError(
-                f"Unsupported model.architecture '{self.architecture}'. "
-                "Supported values: v1, v2."
-            )
-        if self.map_scale is None:
-            self.map_scale = "per_edge" if self.architecture == "v2" else "per_side"
-        if self.map_scale not in {"per_edge", "per_side"}:
-            raise ValueError(
-                f"Unsupported model.map_scale '{self.map_scale}'. "
-                "Supported values: per_edge, per_side."
-            )
-        if self.architecture == "v1" and self.map_scale != "per_side":
-            raise ValueError(
-                "model.map_scale='per_edge' (D1a) is a v2 setting; architecture 'v1' keeps "
-                "D1's per-side scales unchanged."
-            )
-        self._validate_v2_keys()
-        if self.map_family == "factorized":
-            # d reflections already generate O(d), so k > d adds parameters, not reach.
-            if self.householder_k > self.d:
-                raise ValueError(
-                    f"model.householder_k must be <= d={self.d} for map_family='factorized', "
-                    f"got {self.householder_k}."
-                )
-            # Factorized maps are conformal-orthogonal by construction, and the identity
-            # ablation would materialize [M, d, d]; neither v1 switch has a D1 meaning.
-            if not self.use_orthogonal:
-                raise ValueError(
-                    "model.use_orthogonal=false selects unconstrained dense maps and is "
-                    "incompatible with map_family='factorized' (always conformal-orthogonal)."
-                )
-            if self.ablate_identity_maps:
-                raise ValueError(
-                    "model.ablate_identity_maps is a dense-map (v1) ablation and is not "
-                    "implemented for map_family='factorized' (D1 scope)."
-                )
-        supported_encoders = {"concat", "lstm"}
-        if self.face_encoder not in supported_encoders:
-            supported = ", ".join(sorted(supported_encoders))
-            raise ValueError(
-                f"Unsupported model.face_encoder '{self.face_encoder}'. "
-                f"Supported values: {supported}."
-            )
-        supported_face_params = {"full", "triangular"}
-        if self.face_map_param not in supported_face_params:
-            supported = ", ".join(sorted(supported_face_params))
-            raise ValueError(
-                f"Unsupported model.face_map_param '{self.face_map_param}'. "
-                f"Supported values: {supported}."
-            )
-
-    def _validate_v2_keys(self) -> None:
-        """Ranges of the v2 keys; v1 must leave them at their defaults (nothing v2 reaches v1),
-        and v2 rejects the v1 switches that select machinery D4 deletes."""
+            raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
         if not 0.0 < self.eta_init < 1.0:
             raise ValueError(f"model.eta_init must be in (0, 1), got {self.eta_init}.")
         if not self.gamma_init > 0.0:
             raise ValueError(
                 f"model.gamma_init must be positive (gamma = softplus(theta)), got "
-                f"{self.gamma_init}; use model.ablate_no_path_cells for gamma = 0."
+                f"{self.gamma_init}; use ablation.no_path_cells for gamma = 0."
             )
-        choices = {
-            "path_maps": {"transport", "free"},
-            "path_mode": {"cells", "endpoint_edges", "holonomy_edges"},
-            "readout": {"full", "h0_only"},
-        }
-        for name, allowed in choices.items():
-            if getattr(self, name) not in allowed:
-                raise ValueError(
-                    f"Unsupported model.{name} '{getattr(self, name)}'. "
-                    f"Supported values: {', '.join(sorted(allowed))}."
-                )
-        for name in ("checkpointing", "uniform_path_gate", "ablate_no_path_cells"):
-            if not isinstance(getattr(self, name), bool):
-                raise ValueError(f"model.{name} must be a boolean, got {getattr(self, name)!r}.")
-        fields = type(self).__dataclass_fields__
-        if self.architecture == "v1":
-            v2_only = ("gamma_init", "eta_init", "checkpointing", "path_maps", "path_mode",
-                       "uniform_path_gate", "ablate_no_path_cells", "readout")
-            changed = [name for name in v2_only if getattr(self, name) != fields[name].default]
-            if changed:
-                raise ValueError(
-                    f"model.{', model.'.join(changed)} apply to architecture 'v2' only (D4); "
-                    "v1 keeps its behaviour unchanged."
-                )
-            return
-        v1_switches = ("ablate_no_faces", "ablate_no_delta1", "ablate_identity_maps",
-                       "use_orthogonal", "learnable_eta", "face_encoder", "face_map_param")
-        changed = [name for name in v1_switches if getattr(self, name) != fields[name].default]
-        if changed:
-            raise ValueError(
-                f"model.{', model.'.join(changed)} select v1 machinery that architecture 'v2' "
-                "does not have (D4 deletes faces, A_f and the edge cochain; v2 maps are always "
-                "conformal-orthogonal and eta = sigmoid(theta) is always learned)."
-            )
-        if self.path_maps == "free" and (
-            self.path_mode != "cells" or self.map_scale != "per_edge"
-        ):
-            raise ValueError(
-                "model.path_maps='free' is an ablation of the path cells under per-edge scales: "
-                "it needs path_mode='cells' and map_scale='per_edge'."
-            )
-        if self.ablate_no_path_cells and (
-            self.path_maps != "transport" or self.path_mode != "cells" or self.uniform_path_gate
-        ):
-            raise ValueError(
-                "model.ablate_no_path_cells removes the path term; it cannot be combined with "
-                "path_maps, path_mode or uniform_path_gate."
-            )
+        if not isinstance(self.checkpointing, bool):
+            raise ValueError(f"model.checkpointing must be a boolean, got {self.checkpointing!r}.")
+        if self.K < 0:
+            raise ValueError(f"model.K must be non-negative, got {self.K}.")
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
-        legacy_gate_flags = sorted(
-            key
-            for key in (
-                "ablate_uniform_gates",
-                "ablate_schema_gate_only",
-                "ablate_instance_gate_only",
-            )
-            if key in raw
-        )
-        if legacy_gate_flags:
-            raise ValueError(
-                "Unsupported legacy AMPSS model keys: "
-                f"{', '.join(legacy_gate_flags)}. Use "
-                "discovery.instance_weight_mode instead."
-            )
+        _reject_unknown_keys("model", raw, cls)
         return cls(
             d=int(raw.get("d", 64)),
             d_r=int(raw.get("d_r", 16)),
-            d_h=int(raw.get("d_h", 64)),
-            face_chunk_size=int(raw.get("face_chunk_size", 4096)),
             encoder_dropout=float(raw.get("encoder_dropout", 0.1)),
             edge_mlp_hidden_dim=int(raw.get("edge_mlp_hidden_dim", 128)),
-            edge_init_hidden_dim=int(raw.get("edge_init_hidden_dim", 128)),
             face_mlp_hidden_dim=int(raw.get("face_mlp_hidden_dim", 128)),
             classifier_hidden_dim=int(raw.get("classifier_hidden_dim", 128)),
-            sheafcov_feat_dim=int(raw.get("sheafcov_feat_dim", 8)),
+            classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
             K=int(raw.get("K", 5)),
-            eta_0=float(raw.get("eta_0", 0.1)),
-            eta_1=float(raw.get("eta_1", 0.1)),
-            learnable_eta=bool(raw.get("learnable_eta", True)),
             layer_dropout=float(raw.get("layer_dropout", 0.0)),
-            use_orthogonal=bool(raw.get("use_orthogonal", True)),
             orthogonal_map=str(raw.get("orthogonal_map", "fasthpp")),
             node_edge_memory_guard_fraction=float(
                 raw.get("node_edge_memory_guard_fraction", 0.20)
             ),
-            map_family=str(raw.get("map_family", "dense")),
+            map_family=str(raw.get("map_family", "factorized")),
             # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
             householder_k=raw.get("householder_k", 2),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
-            architecture=str(raw.get("architecture", "v1")),
-            map_scale=raw.get("map_scale"),
             gamma_init=float(raw.get("gamma_init", 1.0)),
             eta_init=float(raw.get("eta_init", 0.5)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
-            path_maps=str(raw.get("path_maps", "transport")),
-            path_mode=str(raw.get("path_mode", "cells")),
-            uniform_path_gate=raw.get("uniform_path_gate", False),
-            ablate_no_path_cells=raw.get("ablate_no_path_cells", False),
-            readout=str(raw.get("readout", "full")),
-            use_delta0_init=bool(raw.get("use_delta0_init", True)),
-            classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
-            face_encoder=str(raw.get("face_encoder", "concat")),
-            face_map_param=str(raw.get("face_map_param", "full")),
-            ablate_no_faces=bool(raw.get("ablate_no_faces", False)),
-            ablate_no_delta1=bool(raw.get("ablate_no_delta1", False)),
-            ablate_identity_maps=bool(raw.get("ablate_identity_maps", False)),
-            pool_num_levels=int(raw.get("pool_num_levels", 2)),
-            pool_ratio=float(raw.get("pool_ratio", 0.5)),
-            pool_inject_maps=bool(raw.get("pool_inject_maps", False)),
-            pool_clusters_per_type=int(raw.get("pool_clusters_per_type", 4)),
-            pool_coarse_steps=int(raw.get("pool_coarse_steps", 4)),
-            pool_use_coarse=bool(raw.get("pool_use_coarse", True)),
-            pool_use_spectral=bool(raw.get("pool_use_spectral", True)),
         )
+
+
+@dataclass(slots=True)
+class AblationConfig:
+    """Ablation switches of plan §4.6, all off by default (the full model)."""
+
+    # gamma = 0: no path coupling, path operator not built.
+    no_path_cells: bool = False
+    # Per-incidence orthogonal maps instead of the transport forced by functoriality.
+    free_path_maps: bool = False
+    # Each path replaced by one gated edge (v_0, v_L) with endpoint-only maps.
+    endpoint_edges: bool = False
+    # Each path replaced by a closure edge (v_L, v_0) whose relative map is the holonomy.
+    holonomy_edges: bool = False
+    # w_f = 1 for every path.
+    uniform_path_gate: bool = False
+    # D1's per-incidence conformal scales instead of one scale per edge (D1a).
+    per_side_scale: bool = False
+    # Read out from h0 only (sanity control: is diffusion used at all?).
+    h0_only_readout: bool = False
+
+    def __post_init__(self) -> None:
+        for name in type(self).__dataclass_fields__:
+            if not isinstance(getattr(self, name), bool):
+                raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
+        if self.endpoint_edges and self.holonomy_edges:
+            raise ValueError("ablation.endpoint_edges and ablation.holonomy_edges are exclusive.")
+        if self.free_path_maps and (
+            self.endpoint_edges or self.holonomy_edges or self.per_side_scale
+        ):
+            raise ValueError(
+                "ablation.free_path_maps ablates the path cells under per-edge scales: it "
+                "cannot be combined with endpoint_edges, holonomy_edges or per_side_scale."
+            )
+        if self.no_path_cells and (
+            self.free_path_maps or self.endpoint_edges or self.holonomy_edges
+            or self.uniform_path_gate
+        ):
+            raise ValueError(
+                "ablation.no_path_cells removes the path term; it cannot be combined with "
+                "free_path_maps, endpoint_edges, holonomy_edges or uniform_path_gate."
+            )
+
+    @property
+    def map_scale(self) -> str:
+        return "per_side" if self.per_side_scale else "per_edge"
+
+    @property
+    def path_mode(self) -> str:
+        if self.endpoint_edges:
+            return "endpoint_edges"
+        if self.holonomy_edges:
+            return "holonomy_edges"
+        return "cells"
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "AblationConfig":
+        _reject_unknown_keys("ablation", raw, cls)
+        defaults = cls()
+        # Not cast with bool(): a string such as "false" must fail validation.
+        return cls(**{name: raw.get(name, getattr(defaults, name))
+                      for name in cls.__dataclass_fields__})
 
 
 @dataclass(slots=True)
@@ -922,15 +597,27 @@ class OptimConfig:
     weight_decay: float = 1e-4
     scheduler: str = "cosine"
     grad_clip: float = 1.0
+    # Learning rate of the diffusion scalars theta_eta, theta_gamma, as a multiple of `lr`
+    # (own parameter group, no weight decay). Full-batch training takes one optimizer step
+    # per epoch, so at the base rate these scalars barely move (plan §4.7).
+    scalar_lr_scale: float = 10.0
+
+    def __post_init__(self) -> None:
+        if not self.scalar_lr_scale > 0.0:
+            raise ValueError(
+                f"optim.scalar_lr_scale must be positive, got {self.scalar_lr_scale}."
+            )
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "OptimConfig":
+        _reject_unknown_keys("optim", raw, cls)
         return cls(
             name=str(raw.get("name", "adamw")),
             lr=float(raw.get("lr", 1e-3)),
             weight_decay=float(raw.get("weight_decay", 1e-4)),
             scheduler=str(raw.get("scheduler", "cosine")),
             grad_clip=float(raw.get("grad_clip", 1.0)),
+            scalar_lr_scale=float(raw.get("scalar_lr_scale", 10.0)),
         )
 
 
@@ -938,8 +625,8 @@ class OptimConfig:
 class TrainConfig:
     data: DataConfig = field(default_factory=DataConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
+    ablation: AblationConfig = field(default_factory=AblationConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
-    discovery: SchemaDiscoveryConfig = field(default_factory=SchemaDiscoveryConfig)
     epochs: int = 200
     seed: int = 42
     device: str = "cuda"
@@ -965,20 +652,14 @@ class TrainConfig:
     def task_type(self) -> str:
         return self.data.task_type
 
-    def is_full_operator_checkpoint_eligible(self, epoch: int) -> bool:
-        if not (self.discovery.enabled and self.discovery.mode == "auto"):
-            return True
-        return epoch >= (
-            self.discovery.warmup_epochs + self.discovery.operator_anneal_epochs
-        )
-
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "TrainConfig":
+        _reject_unknown_keys("top-level config", raw, cls)
         config = cls(
             data=DataConfig.from_dict(raw.get("data", {})),
             model=ModelConfig.from_dict(raw.get("model", {})),
+            ablation=AblationConfig.from_dict(raw.get("ablation", {})),
             optim=OptimConfig.from_dict(raw.get("optim", {})),
-            discovery=SchemaDiscoveryConfig.from_dict(raw.get("discovery", {})),
             epochs=int(raw.get("epochs", 200)),
             seed=int(raw.get("seed", 42)),
             device=str(raw.get("device", "cuda")),
@@ -996,41 +677,9 @@ class TrainConfig:
             wandb_tags=tuple(str(item) for item in raw.get("wandb_tags", [])),
             wandb_log_artifacts=bool(raw.get("wandb_log_artifacts", False)),
         )
-        config._validate_cross_section_contracts()
-        return config
-
-    def _validate_cross_section_contracts(self) -> None:
-        if self.early_stopping_patience <= 0:
+        if config.early_stopping_patience <= 0:
             raise ValueError(
                 "early_stopping_patience must be positive, "
-                f"got {self.early_stopping_patience}."
+                f"got {config.early_stopping_patience}."
             )
-        if not (self.discovery.enabled and self.discovery.mode == "auto"):
-            return
-        if self.epochs <= (
-            self.discovery.warmup_epochs + self.discovery.operator_anneal_epochs
-        ):
-            raise ValueError(
-                "Auto-discovery training must continue beyond warmup_epochs + "
-                "operator_anneal_epochs so an eligible full-operator checkpoint exists."
-            )
-        if self.data.task_type == "graph_classification":
-            if self.data.pooling_type == "meanpool":
-                raise ValueError(
-                    "Auto AMPSS is incompatible with MeanPool: MeanPool ignores the edge "
-                    "cochain, so task gradients cannot train upper-Hodge gates. Use sheafcov."
-                )
-            if self.data.pooling_type in {"ths_spectral", "ths_galerkin", "s2pool_h2"}:
-                raise ValueError(
-                    "Auto AMPSS does not support graph readouts that consume face-curl "
-                    "descriptors directly. Use sheafcov, grampool, s2pool, or sheafpool."
-                )
-            if self.discovery.require_target_start or self.discovery.require_target_end:
-                raise ValueError(
-                    "require_target_start/end are node/link selector constraints and are "
-                    "not defined for graph classification. Set both to false."
-                )
-        if not self.discovery.exclude_identity_metapaths:
-            raise ValueError(
-                "Auto face discovery requires exclude_identity_metapaths=true."
-            )
+        return config

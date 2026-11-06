@@ -60,8 +60,8 @@ PRIMARY_PARAMETER_NAMES = frozenset(
     {
         "d",
         "K",
-        "eta_0",
-        "eta_1",
+        "eta_init",
+        "gamma_init",
         "layer_dropout",
         "lr",
         "weight_decay",
@@ -71,11 +71,7 @@ CONDITIONAL_PARAMETER_NAMES = frozenset(
     {
         "encoder_dropout",
         "classifier_dropout",
-        "pooling_type",
         "decoder_type",
-        "sheafcov_feat_dim",
-        "discovery_warmup_epochs",
-        "discovery_operator_anneal_epochs",
     }
 )
 KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
@@ -110,33 +106,11 @@ def parse_args() -> argparse.Namespace:
         help="Optional positive hidden dimensions. Defaults to 16/32 for full-graph tasks "
         "and 16/32/64 for graph classification.",
     )
-    parser.add_argument(
-        "--sheafcov_feat_dims",
-        type=int,
-        nargs="+",
-        default=None,
-        help="Optional positive post-Gram SheafCov feature widths. The default search "
-        "is 4/8/16, and it is active only for graph classification with a fixed "
-        "data.pooling_type=sheafcov.",
-    )
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
-    parser.add_argument(
-        "--pooling_type",
-        type=str,
-        default=None,
-        choices=["meanpool", "grampool", "s2pool", "sheafpool", "sheafcov", "sheafconv"],
-    )
     parser.add_argument("--decoder_type", type=str, default=None, choices=["dot", "distmult", "concat_mlp"])
-    parser.add_argument("--include_pooling_type", action="store_true")
     parser.add_argument("--include_decoder_type", action="store_true")
-    parser.add_argument(
-        "--include_discovery",
-        action="store_true",
-        help="Sweep AMPSS schema-discovery hyperparameters (requires the base config to "
-        "already have discovery.enabled=true and discovery.mode=auto).",
-    )
     parser.add_argument("--wandb_project", type=str, default="h2snn")
     parser.add_argument("--wandb_entity", type=str, default="")
     parser.add_argument("--wandb_mode", type=str, default="online")
@@ -243,12 +217,12 @@ def validate_trial_params(
         rendered = ", ".join(f"{key}={params[key]!r}" for key in unknown)
         raise ValueError(f"W&B proposed unsupported tuning parameter(s): {rendered}.")
 
-    for key in ("d", "K", "sheafcov_feat_dim"):
+    for key in ("d", "K"):
         if key in params and int(params[key]) <= 0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be positive."
             )
-    for key in ("eta_0", "eta_1", "lr"):
+    for key in ("gamma_init", "lr"):
         if key in params and float(params[key]) <= 0.0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be positive."
@@ -263,18 +237,10 @@ def validate_trial_params(
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be in [0, 1)."
             )
-    for key in ("discovery_warmup_epochs", "discovery_operator_anneal_epochs"):
-        if key in params and int(params[key]) < 0:
-            raise ValueError(
-                f"W&B proposed invalid {key}={params[key]!r}; {key} must be non-negative."
-            )
-    if "pooling_type" in params and str(params["pooling_type"]) not in {
-        "meanpool",
-        "grampool",
-        "s2pool",
-        "sheafcov",
-    }:
-        raise ValueError(f"W&B proposed invalid pooling_type={params['pooling_type']!r}.")
+    if "eta_init" in params and not 0.0 < float(params["eta_init"]) < 1.0:
+        raise ValueError(
+            f"W&B proposed invalid eta_init={params['eta_init']!r}; eta_init must be in (0, 1)."
+        )
     if "decoder_type" in params and str(params["decoder_type"]) not in {
         "dot",
         "distmult",
@@ -296,8 +262,6 @@ def _apply_base_cli(raw: dict[str, Any], args: argparse.Namespace) -> dict[str, 
     if args.epochs is not None:
         payload["epochs"] = args.epochs
     payload.setdefault("data", {})
-    if args.pooling_type is not None:
-        payload["data"]["pooling_type"] = args.pooling_type
     if args.decoder_type is not None:
         payload["data"]["decoder_type"] = args.decoder_type
     payload["use_wandb"] = True
@@ -309,17 +273,10 @@ def build_sweep_config(
     task_type: str,
     metric: str,
     epochs: int,
-    pooling_type: str | None = None,
     decoder_type: str | None = None,
     dataset_name: str = "",
-    auto_discovery: bool = False,
-    discovery_warmup_epochs: int = 0,
-    discovery_operator_anneal_epochs: int = 0,
-    include_pooling_type: bool = False,
     include_decoder_type: bool = False,
-    include_discovery: bool = False,
     d_values: list[int] | tuple[int, ...] | None = None,
-    sheafcov_feat_dims: list[int] | tuple[int, ...] | None = None,
     hyperband_min_iter: int = 20,
     hyperband_eta: int = 3,
 ) -> dict[str, Any]:
@@ -328,43 +285,8 @@ def build_sweep_config(
             "epochs must be greater than --hyperband_min_iter so Hyperband has a "
             f"valid stopping interval; got {epochs} <= {hyperband_min_iter}."
         )
-    if include_pooling_type and task_type != "graph_classification":
-        raise ValueError("--include_pooling_type is valid only for graph classification.")
     if include_decoder_type and task_type != "link_prediction":
         raise ValueError("--include_decoder_type is valid only for link prediction.")
-    if include_discovery and not auto_discovery:
-        raise ValueError(
-            "--include_discovery requires discovery.enabled=true and discovery.mode=auto "
-            "in the resolved base configuration."
-        )
-    if auto_discovery:
-        latest_eligible_epoch = (
-            20
-            if include_discovery
-            else discovery_warmup_epochs + discovery_operator_anneal_epochs
-        )
-        if hyperband_min_iter <= latest_eligible_epoch:
-            raise ValueError(
-                "--hyperband_min_iter must be strictly greater than the AMPSS "
-                "warmup_epochs + operator_anneal_epochs so Hyperband cannot stop a "
-                "trial before the full operator is checkpoint-eligible; got "
-                f"{hyperband_min_iter} <= {latest_eligible_epoch}."
-            )
-        if epochs <= latest_eligible_epoch:
-            raise ValueError(
-                "epochs must be greater than every searched AMPSS "
-                "warmup_epochs + operator_anneal_epochs; got "
-                f"{epochs} <= {latest_eligible_epoch}."
-            )
-    if sheafcov_feat_dims is not None and (
-        task_type != "graph_classification"
-        or pooling_type != "sheafcov"
-        or include_pooling_type
-    ):
-        raise ValueError(
-            "--sheafcov_feat_dims is valid only for graph classification with fixed "
-            "data.pooling_type=sheafcov and without --include_pooling_type."
-        )
 
     resolved_d_values = validate_d_values(
         d_values if d_values is not None else default_d_values(task_type)
@@ -372,8 +294,9 @@ def build_sweep_config(
     parameters: dict[str, Any] = {
         "d": {"values": resolved_d_values},
         "K": {"values": [2, 3, 4, 5, 6]},
-        "eta_0": {"distribution": "log_uniform_values", "min": 0.005, "max": 0.3},
-        "eta_1": {"distribution": "log_uniform_values", "min": 0.005, "max": 0.3},
+        # Initial values of the learned eta = sigmoid(theta) and gamma = softplus(theta).
+        "eta_init": {"values": [0.1, 0.3, 0.5, 0.7, 0.9]},
+        "gamma_init": {"distribution": "log_uniform_values", "min": 0.1, "max": 10.0},
         "layer_dropout": {"values": [0.0, 0.1, 0.2, 0.3]},
         "lr": {"values": [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2]},
         "weight_decay": {"values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3]},
@@ -392,34 +315,8 @@ def build_sweep_config(
     if classifier_dropout_active:
         parameters["classifier_dropout"] = {"values": [0.0, 0.1, 0.2, 0.3]}
 
-    if include_pooling_type:
-        parameters["pooling_type"] = {
-            "values": (
-                ["grampool", "sheafcov"]
-                if auto_discovery
-                else ["meanpool", "grampool", "sheafcov"]
-            )
-        }
-    elif task_type == "graph_classification" and pooling_type == "sheafcov":
-        parameters["sheafcov_feat_dim"] = {
-            "values": validate_positive_int_values(
-                sheafcov_feat_dims if sheafcov_feat_dims is not None else [4, 8, 16],
-                option_name="--sheafcov_feat_dims",
-            )
-        }
-
     if include_decoder_type:
         parameters["decoder_type"] = {"values": ["dot", "distmult", "concat_mlp"]}
-    if include_discovery:
-        # Stage-II tuning only. Candidate identities, guards, selection size,
-        # materialization quotas, and selector seeds are frozen protocol inputs and
-        # belong in a separate candidate-policy experiment.
-        parameters.update(
-            {
-                "discovery_warmup_epochs": {"values": [0, 5, 10]},
-                "discovery_operator_anneal_epochs": {"values": [3, 5, 10]},
-            }
-        )
 
     return {
         "method": "bayes",
@@ -448,12 +345,11 @@ def apply_sweep_overrides(
 
     for key in (
         "K",
-        "eta_0",
-        "eta_1",
+        "eta_init",
+        "gamma_init",
         "layer_dropout",
         "encoder_dropout",
         "classifier_dropout",
-        "sheafcov_feat_dim",
     ):
         if key in params:
             model[key] = params[key]
@@ -463,20 +359,8 @@ def apply_sweep_overrides(
     for key in ("lr", "weight_decay"):
         if key in params:
             optim[key] = params[key]
-    if "pooling_type" in params:
-        data["pooling_type"] = params["pooling_type"]
     if "decoder_type" in params:
         data["decoder_type"] = params["decoder_type"]
-
-    discovery = payload.setdefault("discovery", {})
-    for key in (
-        "warmup_epochs",
-        "operator_anneal_epochs",
-    ):
-        sweep_key = f"discovery_{key}"
-        if sweep_key in params:
-            discovery[key] = params[sweep_key]
-    # Field name already starts with "discovery_" — no double prefix.
     return payload
 
 
@@ -538,9 +422,7 @@ def train_trial(
             test_metrics: dict[str, float],
         ) -> None:
             nonlocal best_seen
-            checkpoint_eligible = cfg.is_full_operator_checkpoint_eligible(epoch)
-            if checkpoint_eligible:
-                best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
+            best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
             try:
                 import wandb  # type: ignore[import-not-found]
 
@@ -549,8 +431,7 @@ def train_trial(
                     **{f"val/{key}": value for key, value in val_metrics.items()},
                     **{f"test/{key}": value for key, value in test_metrics.items()},
                 }
-                if checkpoint_eligible:
-                    payload[f"best/{monitor_key}"] = best_seen
+                payload[f"best/{monitor_key}"] = best_seen
                 wandb.log(payload, step=epoch)
             except ImportError:
                 return
@@ -606,17 +487,10 @@ def _build_sweep_for_run(
         task_type=base_cfg.task_type,
         metric=monitor,
         epochs=base_cfg.epochs,
-        pooling_type=base_cfg.data.pooling_type,
         decoder_type=base_cfg.data.decoder_type,
         dataset_name=base_cfg.data.dataset_name,
-        auto_discovery=(base_cfg.discovery.enabled and base_cfg.discovery.mode == "auto"),
-        discovery_warmup_epochs=base_cfg.discovery.warmup_epochs,
-        discovery_operator_anneal_epochs=base_cfg.discovery.operator_anneal_epochs,
-        include_pooling_type=args.include_pooling_type,
         include_decoder_type=args.include_decoder_type,
-        include_discovery=args.include_discovery,
         d_values=args.d_values,
-        sheafcov_feat_dims=getattr(args, "sheafcov_feat_dims", None),
         hyperband_min_iter=args.hyperband_min_iter,
         hyperband_eta=args.hyperband_eta,
     )
@@ -689,8 +563,8 @@ def run_seed_sweep(
         unit_label=unit_label,
         unit_name=unit_name,
     )
-    # Fingerprint the fully resolved dataclass so defaults such as the AMPSS
-    # protocol version cannot disappear merely because a YAML key was omitted.
+    # Fingerprint the fully resolved dataclass so defaults cannot disappear merely
+    # because a YAML key was omitted.
     base_config_fingerprint = canonical_fingerprint(dataclass_to_dict(base_cfg))
 
     return run_unit_sweep(
