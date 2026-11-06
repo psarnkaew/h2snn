@@ -292,11 +292,13 @@ Valid because `T_iᵀT_i = s_i² I` for every map family in the code (DERIVED, p
 ```
 Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F_{v_j◁e}⁻¹`. `apply`, `apply_T`, `apply_holonomy(_T)`, the Horner sum and the prefix recursion must all use the signed step.
 
-**D7 — fact rule** (decided per dataset, from the data, never from relation names):
-1. Mirror pair `r ≠ r′` with `E(r′) = reverse(E(r))` exactly → keep `r` (lower relation id), drop `r′`.
-2. Symmetric relation `E(r) = reverse(E(r))` → one cell per unordered pair, stored `min → max`; maps orientation-invariant: one frame `R_ψ` for both sides, no side code, `c_e` symmetrized over both input orders.
-3. Directed relation (neither) → every stored edge is a fact; reciprocal facts stay two cells.
-4. Partial overlap between two relations → keep both untied; report.
+**D7 — fact layer (one definition, plan §9.1):**
+```
+ρ(r) = r′  iff  E(r′) = { (v, u) : (u, v) ∈ E(r) }      exact equality; r′ = r allowed; otherwise ρ(r) = ∅
+fact      = (u, r, v) ≡ (v, ρ(r), u);   1 fact = 1 oriented 1-cell, stored in the orientation of its lower relation id
+roles     = source and target role per relation; they coincide when ρ(r) = r (one frame, no side code, c_e symmetrized over both input orders)
+```
+`ρ` is computed from the data before training, with no threshold and no config key. Do **not** implement case-by-case rules, overlap thresholds, or a config entry for `ρ`. Unmatched edges are simply their own facts; report their count per relation.
 
 **D8 — estimator.** For each (anchor `a`, schema `π`): draw `r` walks; at hop `j` pick a uniform neighbour among the facts of relation `ψ_j` in direction `σ_j` (out-neighbours for +1, in-neighbours for −1); reject walks that revisit a node (they contribute 0). Each accepted walk gives a cell with weight `1/r`. Cells with the same identity are merged and their weights **summed** into `m_f`. Identity key: the tuple of fact ids in canonical orientation (the lexicographically smaller of the fact sequence and its reversal). Then `E[L̂_P] = L_P^target` (plan §9.2) and `m_f` enters both `L_P` and `D`.
 
@@ -304,8 +306,8 @@ Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F
 **In scope**
 1. **D9** in `PathCellTerm` / `PathTransportOperator` (new methods for the Horner sum and the prefix recursion); `HolonomyEdgeTerm` keeps using `apply_holonomy(_T)`.
 2. **Signed transport** (`face_edge_sign ∈ {+1, −1}`) in `PathTransportOperator`; `validate_face_orientation` accepts −1 hops whose fact is stored reversed, and still rejects anything else and non-simple paths.
-3. **Fact layer** as a data-preparation step shared by all three tasks, before path building. Config `data.fact_layer: "tied" | "untied"` (default `"tied"`; `"untied"` = current behaviour, the ablation). Record per relation its class (mirror kept / mirror dropped / symmetric / directed / partial) in the prepared data and log it.
-4. **Symmetric-relation maps** in `FactorizedNodeToEdgeSheaf` and `DenseConformalNodeToEdgeSheaf` (shared frame, no side code, symmetrized `c_e`), driven by the per-relation class.
+3. **Fact layer** as a data-preparation step shared by all three tasks, before path building, implementing the single definition above. Config `data.fact_layer: "tied" | "untied"` (default `"tied"`; `"untied"` = current behaviour). `untied` is an **ablation control only**: it must not appear in any tuning search space, sweep config or tuning notebook (add a check that rejects it there). Store `ρ`, the kept relations and the unmatched-edge counts in the prepared data and log them.
+4. **Shared roles** for relations with `ρ(r) = r` in `FactorizedNodeToEdgeSheaf` and `DenseConformalNodeToEdgeSheaf` (one frame, no side code, `c_e` symmetrized over both input orders).
 5. **Schemas with direction:** `MetaPathConfig` gains optional `hops: [[relation_name, "+" | "-"], …]`. Without `hops`, each node-type transition must resolve to exactly one (relation, direction) under the active fact layer; otherwise raise an error naming the transition and the candidates. A schema and its reverse form one face group.
 6. **Walk sampler + cell identity** (D8), vectorized (per-relation CSR/CSC index tensors, all anchors of a schema at once; no Python loop over nodes or anchors), replacing `enumerate_metapath_faces` and `build_typed_path_face_groups` for all three tasks. Config `data.path_sampler: "walk" | "dfs" | "uniform_instance"` (default `"walk"`; `"dfs"` = current behaviour; `"uniform_instance"` = ablation, implemented for schemas with L ≤ 2 only, error otherwise). `r` is the existing `face_sample_k` / `sample_per_anchor`. `FaceGroup` gains the merged weight `m_f`.
 7. **Protocol:** `data.resample_paths: bool` (default `true`). Training draws use seed `base_seed + epoch`; validation and test always use the draw with `base_seed`. Wire this into the node-classification, link-prediction and graph-classification trainers with the smallest explicit change.
@@ -322,7 +324,7 @@ Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F
 |---|---|---|
 | U1 | D9 O(L) path term | T1; golden re-capture rule below |
 | U2 | Signed transport + orientation check | T2, T3 |
-| U3 | Fact layer + symmetric-relation maps + `direction_blind_maps` | T4, T5, T6, T16 (part) |
+| U3 | Fact layer (one definition) + shared roles for `ρ(r) = r` + `direction_blind_maps` | T4, T5, T6, T16 (part) |
 | U4 | Schemas with direction | T10 |
 | U5 | Walk sampler, cell identity, `m_f`, `uniform_instance` | T7, T8, T9, T13, T15, T16 (part) |
 | U6 | Resampling protocol in the three trainers | T12 |
@@ -333,7 +335,7 @@ Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F
 
 ### Pre-step: inventory
 1. Every consumer of `FaceGroup`, `PathTransportOperator`, `enumerate_metapath_faces`, `build_typed_path_face_groups`, `validate_face_orientation`, `flatten_edges`, `edge_type`/`relation_names`/`relation_tuples` (heads, trainers, analysis, scripts, notebooks, tests), with `file:line`.
-2. **Per dataset** (ACM, DBLP, IMDB; every link-prediction dataset; every TU graph-classification dataset): the class of every relation under the D7 rule (count of mirror pairs, symmetric, directed, partial; reciprocal facts inside directed relations; self-loops). Expected for HGB (VERIFIED-RUN in the plan): all 10 pairs mirror; ACM `cite` directed with 25 reciprocal pairs and 8 self-loops; facts after merging ACM 273,936, DBLP 119,783, IMDB 43,321. TU graphs: expected symmetric (UNVERIFIED). Stop if a default schema needs a partial-overlap relation.
+2. **Per dataset** (ACM, DBLP, IMDB; every link-prediction dataset; every TU graph-classification dataset): the computed `ρ`, the number of facts before and after tying, unmatched edges per relation, reciprocal facts inside relations with `ρ(r) ≠ r`, and self-loops. Expected for HGB (VERIFIED-RUN in the plan): `ρ` pairs all 10 relation pairs with 0 unmatched edges; `ρ(cite) = ref`, so ACM's 25 reciprocal citations stay two facts each; 8 self-loops in `cite`; facts after tying ACM 273,936, DBLP 119,783, IMDB 43,321. TU graphs: expected `ρ(r) = r` (UNVERIFIED). Report any relation that has a near-but-not-exact partner (it stays untied by definition; do not add a threshold).
 3. Where each trainer builds or reuses face groups, so U6 can be minimal.
 
 ### Tests to add (`tests/test_paths_and_facts.py`, unittest)
@@ -342,8 +344,8 @@ Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F
 | T1 | O(L) `PathCellTerm.apply` equals a dense reference `Σ w m Bᵀ(I − 11ᵀ/n)B` built from materialized `T_v`; mixed L ∈ {2, 3, 4}; per-edge and per-side scales; signed hops | float64 ≤ 1e-10 |
 | T2 | Signed transport equals the dense product with `F_tgt⁻¹F_src` on −1 hops; functoriality holds on every boundary edge with mixed signs; `apply_T` is the exact adjoint | float64 ≤ 1e-10 |
 | T3 | Reversal invariance: building a cell from the reversed fact sequence (base vertex `v_L`) gives the same `L_f` under tied facts | float64 ≤ 1e-10 |
-| T4 | Fact rule on fixtures: mirror pair merged; symmetric relation one cell per unordered pair; directed relation keeps reciprocal facts; partial overlap kept and reported. Real HGB data: the expected counts of inventory item 2 | exact |
-| T5 | Symmetric relation: flipping the stored orientation of any subset of its cells leaves normalized `Δ₀` unchanged. **Negative control:** with side-specific frames it changes | ≤ 1e-10 vs > 1e-3 |
+| T4 | One definition on fixtures: exact mirror pair → one cell per fact; self-inverse relation → one cell per unordered pair; reciprocal facts of a relation with `ρ(r) ≠ r` stay two cells; a pair missing one reverse edge is not tied and its edges stay facts. Real HGB data: the expected counts of inventory item 2. `untied` is rejected by the tuning-config check | exact |
+| T5 | Self-inverse relation (`ρ(r) = r`): flipping the stored orientation of any subset of its cells leaves normalized `Δ₀` unchanged. **Negative control:** with separate source/target roles it changes | ≤ 1e-10 vs > 1e-3 |
 | T6 | Sections preserved with signed hops: on a tree with mixed-direction path hops, `L_P x = 0` for every section and `dim ker(Δ₀ + γL_P) = dim ker Δ₀` | eigenvalue threshold 1e-9, stated before running |
 | T7 | Sampler distribution: on the 3-author × 30-paper fixture and the 300-paper hub fixture, empirical intermediate frequencies over ≥ 2,000 draws match the walk probabilities (state the test and threshold before running). **Negative control:** `path_sampler: dfs` fails it | pre-registered |
 | T8 | Unbiasedness: on a small graph, the mean of `L̂_P x` over ≥ 2,000 draws approaches `L_P^target x` computed by exact enumeration with walk probabilities (pre-register the relative-error threshold). **Negative control:** merging by dropping duplicates instead of summing weights is biased | pre-registered |
@@ -359,7 +361,7 @@ Both follow from functoriality `T_{v_{j−1}} F_{v_{j−1}◁e}⁻¹ = T_{v_j} F
 **Mutation check** (show the targeted tests fail for each):
 - −1 hop uses `Q` instead of `Qᵀ`;
 - duplicates dropped instead of weights summed;
-- symmetric relation keeps the side code;
+- a self-inverse relation keeps separate roles (side code or two frames);
 - identity keyed by node sequence instead of facts;
 - evaluation draw reseeded per call;
 - O(L) term uses `x_i` instead of `s_i² x_i` (caught under per-side scales);
@@ -380,8 +382,9 @@ Pre-register the expected `Δ₀` ratio (≈ 0.5) and the transport-step ratio o
 ### Adversarial self-review checklist (D7–D9)
 - [ ] O(L) term equals the dense reference for every map family and both signs (T1); transport steps per path are 2L (show the count).
 - [ ] Every −1 hop uses the adjoint step, in `apply`, `apply_T`, holonomy, Horner and prefix (T2, mutation).
-- [ ] Fact classes come from edge-set equality on the data, never from names; partial overlaps are reported, not merged (T4).
-- [ ] Symmetric relations are orientation-invariant (T5 with its control).
+- [ ] `ρ` comes only from exact edge-set equality on the data: no names, no thresholds, no config key; near-partners are reported, not tied (T4).
+- [ ] `fact_layer: untied` cannot enter any tuning search space (T4).
+- [ ] Self-inverse relations are orientation-invariant (T5 with its control).
 - [ ] Theory still holds: sections preserved (T6), `λ_max ≤ 2` with `m_f` (T13), `m_f` in both `L_P` and `D`.
 - [ ] The sampler has a stated distribution and the estimator is unbiased for the stated target (T7, T8 with controls).
 - [ ] Identity is by facts; weights are summed, never dropped (T8, T9).
@@ -395,7 +398,7 @@ Pre-register the expected `Δ₀` ratio (≈ 0.5) and the transport-step ratio o
 Stop and report instead of continuing if:
 - the U1 golden difference exceeds 1e-5;
 - T2, T6 or T13 fails after 3 diagnosed attempts;
-- a default schema needs a partial-overlap relation;
+- a default schema needs a relation that the exact definition leaves untied;
 - the sampler cannot be vectorized without enumerating all instances;
 - leakage freedom (T11) cannot be guaranteed;
 - a needed change falls outside the scope above.
