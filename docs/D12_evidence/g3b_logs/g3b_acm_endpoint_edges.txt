@@ -1,0 +1,11 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d12_g3b\g3b_acm_endpoint_edges
+2026-11-08 07:58:10,101 | INFO | Dataset: acm | Task: node_classification
+2026-11-08 07:58:10,102 | INFO | Target node type: paper
+2026-11-08 07:58:10,102 | INFO | Metapaths: ['PAP', 'PSP']
+2026-11-08 07:58:10,102 | INFO | Model parameters: 518537
+2026-11-08 07:58:10,247 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-08 07:58:23,904 | INFO | Epoch 0000 | train_loss: 1.1132 | train_acc: 0.3347 | train_auroc: 0.0000 | train_macro_f1: 0.2432 | train_micro_f1: 0.3347 | val_loss: 1.0660 | val_acc: 0.4751 | val_auroc: 0.0000 | val_macro_f1: 0.4002 | val_micro_f1: 0.4751 | test_acc: 0.4603 | test_auroc: 0.0000 | test_macro_f1: 0.4088 | test_micro_f1: 0.4603
+2026-11-08 07:58:23,941 | INFO | Checkpoint metric macro_f1: 0.4002
+2026-11-08 07:58:34,840 | INFO | Epoch 0001 | train_loss: 1.0498 | train_acc: 0.5138 | train_auroc: 0.0000 | train_macro_f1: 0.4712 | train_micro_f1: 0.5138 | val_loss: 1.0453 | val_acc: 0.4862 | val_auroc: 0.0000 | val_macro_f1: 0.4107 | val_micro_f1: 0.4862 | test_acc: 0.4811 | test_auroc: 0.0000 | test_macro_f1: 0.4257 | test_micro_f1: 0.4811
+2026-11-08 07:58:34,879 | INFO | Checkpoint metric macro_f1: 0.4107
+2026-11-08 07:58:34,879 | INFO | Best epoch 1 | test_macro_f1: 0.4257 | test_micro_f1: 0.4811 | test_acc: 0.4811

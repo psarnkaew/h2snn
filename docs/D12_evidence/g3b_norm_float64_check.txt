@@ -1,0 +1,4 @@
+dtype torch.float32
+float32: sum||V|| 1.0666457414627075  sum||W|| (float32 norms) 1.0000001192092896
+float64 norms of the float32 W actually used: 1.0000000472468826
+float64 end to end: sum||V|| 1.0666457891752505  sum||W|| 1.0000000000000002

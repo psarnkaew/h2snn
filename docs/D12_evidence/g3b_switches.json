@@ -1,0 +1,223 @@
+{
+ "dblp_defaults": {
+  "rc": 0,
+  "minutes": 1.0957921107610067,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.4375872611999512,
+   1.3906630277633667
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.14373361999737067,
+   0.22885801579660572
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9497675895690918,
+   0.9384211897850037
+  ],
+  "path_lengths_in_model": [
+   2,
+   4
+  ],
+  "pass": true
+ },
+ "acm_first_order": {
+  "rc": 0,
+  "minutes": 0.5195611278216045,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.10125732421875,
+   1.044468879699707
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.2543466091853189,
+   0.3392166916830594
+  ],
+  "diagnostic_keys": [
+   "eta",
+   "eta_lambda_max"
+  ],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_geometry_context_false": {
+  "rc": 0,
+  "minutes": 0.7285029411315918,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.1091256141662598,
+   1.0441666841506958
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.3285707047676952,
+   0.4026307392644026
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9268263578414917,
+   0.9236051440238953
+  ],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_symmetric": {
+  "rc": 0,
+  "minutes": 0.7700587312380472,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.1156959533691406,
+   1.067334532737732
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.22246223463262002,
+   0.25098876084791577
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9296116232872009,
+   0.9252985119819641
+  ],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_no_path_cells": {
+  "rc": 0,
+  "minutes": 0.5697274168332418,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.124765157699585,
+   1.054972767829895
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.46706602254428337,
+   0.4915328534514581
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9374451637268066,
+   0.9310304522514343
+  ],
+  "path_lengths_in_model": [],
+  "pass": true
+ },
+ "acm_endpoint_edges": {
+  "rc": 0,
+  "minutes": 0.6436093131701152,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.11318039894104,
+   1.0498484373092651
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.400181478795736,
+   0.41066294605107395
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9320282936096191,
+   0.9270201325416565
+  ],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_h0_only": {
+  "rc": 0,
+  "minutes": 0.28665226697921753,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.1337993144989014,
+   1.0560839176177979
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.39103313840155945,
+   0.45673013368288196
+  ],
+  "diagnostic_keys": [],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_pair_attention": {
+  "rc": 0,
+  "minutes": 0.40406290292739866,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.1138042211532593,
+   1.0695085525512695
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.21176653385569846,
+   0.2867888518142399
+  ],
+  "diagnostic_keys": [
+   "filter_norm_sum"
+  ],
+  "path_lengths_in_model": [
+   2
+  ],
+  "pass": true
+ },
+ "acm_identity_maps": {
+  "rc": 0,
+  "minutes": 0.458445660273234,
+  "best_test_metrics_written": true,
+  "train_losses": [
+   1.1245909929275513,
+   1.053282380104065
+  ],
+  "all_finite": true,
+  "val_macro_f1_logged_only": [
+   0.4936404278725745,
+   0.49580127176957617
+  ],
+  "diagnostic_keys": [
+   "filter_gain",
+   "filter_norm_sum",
+   "lambda_max_A"
+  ],
+  "filter_gain": [
+   0.9854421019554138,
+   0.981096625328064
+  ],
+  "path_lengths_in_model": [],
+  "pass": true
+ }
+}

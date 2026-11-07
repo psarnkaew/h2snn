@@ -1,0 +1,11 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d12_g3b\g3b_dblp_defaults
+2026-11-08 07:54:35,331 | INFO | Dataset: dblp | Task: node_classification
+2026-11-08 07:54:35,333 | INFO | Target node type: author
+2026-11-08 07:54:35,333 | INFO | Metapaths: ['APA', 'APTPA']
+2026-11-08 07:54:35,334 | INFO | Model parameters: 535961
+2026-11-08 07:54:35,549 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 239566, 'facts_after': 119783}
+2026-11-08 07:54:59,200 | INFO | Epoch 0000 | train_loss: 1.4376 | train_acc: 0.1797 | train_auroc: 0.0000 | train_macro_f1: 0.1034 | train_micro_f1: 0.1797 | val_loss: 1.3941 | val_acc: 0.2099 | val_auroc: 0.0000 | val_macro_f1: 0.1437 | val_micro_f1: 0.2099 | test_acc: 0.1975 | test_auroc: 0.0000 | test_macro_f1: 0.1457 | test_micro_f1: 0.1975
+2026-11-08 07:54:59,256 | INFO | Checkpoint metric macro_f1: 0.1437
+2026-11-08 07:55:18,950 | INFO | Epoch 0001 | train_loss: 1.3907 | train_acc: 0.2269 | train_auroc: 0.0000 | train_macro_f1: 0.1815 | train_micro_f1: 0.2269 | val_loss: 1.3799 | val_acc: 0.2675 | val_auroc: 0.0000 | val_macro_f1: 0.2289 | val_micro_f1: 0.2675 | test_acc: 0.2433 | test_auroc: 0.0000 | test_macro_f1: 0.2110 | test_micro_f1: 0.2433
+2026-11-08 07:55:19,020 | INFO | Checkpoint metric macro_f1: 0.2289
+2026-11-08 07:55:19,020 | INFO | Best epoch 1 | test_macro_f1: 0.2110 | test_micro_f1: 0.2433 | test_acc: 0.2433

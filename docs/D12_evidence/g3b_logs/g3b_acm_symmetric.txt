@@ -1,0 +1,11 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d12_g3b\g3b_acm_symmetric
+2026-11-08 07:56:50,410 | INFO | Dataset: acm | Task: node_classification
+2026-11-08 07:56:50,410 | INFO | Target node type: paper
+2026-11-08 07:56:50,410 | INFO | Metapaths: ['PAP', 'PSP']
+2026-11-08 07:56:50,411 | INFO | Model parameters: 537190
+2026-11-08 07:56:50,531 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-08 07:57:07,774 | INFO | Epoch 0000 | train_loss: 1.1157 | train_acc: 0.2713 | train_auroc: 0.0000 | train_macro_f1: 0.2403 | train_micro_f1: 0.2713 | val_loss: 1.0798 | val_acc: 0.3757 | val_auroc: 0.0000 | val_macro_f1: 0.2225 | val_micro_f1: 0.3757 | test_acc: 0.3593 | test_auroc: 0.0000 | test_macro_f1: 0.2192 | test_micro_f1: 0.3593
+2026-11-08 07:57:07,833 | INFO | Checkpoint metric macro_f1: 0.2225
+2026-11-08 07:57:21,656 | INFO | Epoch 0001 | train_loss: 1.0673 | train_acc: 0.4160 | train_auroc: 0.0000 | train_macro_f1: 0.2922 | train_micro_f1: 0.4160 | val_loss: 1.0673 | val_acc: 0.3867 | val_auroc: 0.0000 | val_macro_f1: 0.2510 | val_micro_f1: 0.3867 | test_acc: 0.3947 | test_auroc: 0.0000 | test_macro_f1: 0.2813 | test_micro_f1: 0.3947
+2026-11-08 07:57:21,690 | INFO | Checkpoint metric macro_f1: 0.2510
+2026-11-08 07:57:21,690 | INFO | Best epoch 1 | test_macro_f1: 0.2813 | test_micro_f1: 0.3947 | test_acc: 0.3947

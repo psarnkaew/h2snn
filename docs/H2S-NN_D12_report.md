@@ -132,3 +132,109 @@ h1–h3 untested; the cause of GCN's DBLP deficit; IMDB not in the ladder (as ca
 ### 9. Decisions needed from the author
 1. **Rule (iii) points at propagation or training, not at the sheaf.** G2 (filter bank) addresses h2 only. Should I run a short, pre-registered check of h1–h3 on L3 before G1? For example: readout `x_K` only; K = 8; HetSheaf-like regularisation; 3 seeds each, ACM and DBLP, about 1 hour. Or start G1/G2 as planned?
 2. **Rule (i) did not fire,** so `feature_normalization` stays `none` for every model. Should the C7 baselines nonetheless get their original preprocessing (HetSheaf: constant column plus row normalisation)? Rule (iv) found the baseline feature path suspect on DBLP.
+
+**Author decision (2026-11-08):** proceed with G1–G3, then add G3b (functional check). The decisions above that were not addressed remain open.
+
+## G1–G3b — Relational context, filter-bank encoder, cost gate, functional check (2026-11-08)
+
+Pre-registrations: `D12_evidence/g1_g3_preregistration.md` and `g3b_preregistration.md`, both written before the code or runs they cover. Commits: G1 `cdd2fb8`, G2 `3760864`, G3 `e1e91ec`, G3b (this section).
+
+### 1. Summary
+- **G1:** `model.geometry_context` (default on). `c` is the per-(relation, role) mean of the neighbours' `h₀` over facts. `[h₀, c]` feeds the map MLPs, the gate heads and the path encoder. T-G7 passes exactly. With the switch off, the D11 golden outputs are reproduced bit for bit (13 cases, 844 comparisons).
+- **G2:** `model.encoder` (default `filter_bank`). T-G1…T-G6 and T-G8 pass, and the mutation check catches 3/3.
+- **G3 PASS:** the filter bank costs **+0.3 % time and +0.04 % peak memory** over `first_order` (gate: 25 % / 10 %).
+- **G3b (a):** a2, a3 and a4 pass. a1 passes 5 of its 6 checks. **Check 2 fails on its pre-registered tolerance:** `filter_norm_sum` reached 1.0000017 > 1 + 1e-6. The cause is float32 rounding in the diagnostic: the same weights give 1 + 4.7e-8 in float64. The gain stayed ≤ 0.951 throughout.
+- **G3b (b) PASS:** on the synthetic task the full model scores 0.992 on all 3 seeds; `h₀`-only scores 0.19–0.29 (chance is 0.25).
+
+### 2. Files changed
+- **G1:**
+  - `src/models/relational_context.py` (new).
+  - `src/models/sheaf_maps.py`: `input_dim`; an exact factored first layer (`gathered_linear`, `mlp_on_blocks`); shared-role symmetrisation passed as a callable.
+  - `src/models/h2snn_model.py`: `geometry_inputs`, and geometry widths for the maps, gates, path and endpoint encoders and free maps.
+  - `src/configs/config.py`: the switch and its tuning rejection.
+  - `tests/test_filter_bank.py` (new).
+  - D11 pins in `tests/test_cooperative.py` and `tests/test_v2_model.py`; `docs/heads_evidence/v2_golden.py` names `geometry_context: false` and `encoder: first_order`.
+- **G2:**
+  - `src/models/filter_bank.py` (new).
+  - `h2snn_model.py`: `apply_operator`, `propagate`, `operator_diagnostics`; θ_η exists only under `first_order`.
+  - `config.py`: the `encoder` switch. The rejection matches the exact key, so `encoder_dropout` stays tunable.
+  - `trainer.py` and `link_prediction_trainer.py` log `operator_diagnostics`.
+  - Tests: 9 D11-behaviour tests now name `encoder: first_order`; 2 task-head tests accept either encoder's scalar.
+- **G3 / G3b:** evidence scripts only (`D12_evidence/g3_*`, `g3b_*`).
+
+### 3. Deviations
+- **Clenshaw evaluation.** The filter uses Clenshaw's recurrence: the same polynomial as the card's forward recurrence, but with K applications of A instead of K(K+1)/2. T-G6 checks it against the dense forward-recurrence reference.
+- **Factored first layer (not in the card).** Concatenating `[h₀, c]` per incidence created tensors of width 2d(1+2R) per edge and per cell, which broke R7; the existing memory test T8 caught it. The first linear layer is now evaluated per node and then gathered. This is exact (≤ 1e-12, tested). The context-off path keeps D11's concatenation, so the goldens stay bit-identical.
+- **Layer dropout** is applied once to the filter output (default 0).
+- **`pair_attention` under `filter_bank`.** The filter is applied to A = I − P. At initialisation this equals D11's attention update with η = η₀. There is no gain guarantee for this arm, because P is not self-adjoint.
+- **`endpoint_edges` under context.** The endpoints' `c` contains the intermediates' `h₀` as neighbourhood means. This information is not path-specific, but it reaches the arm. T11 is pinned to context off; see decision 2.
+- **Lemma N premise (T-G5).** The lemma needs degree > 0, no self-loop fact, and no repeated node inside a cell.
+  - ACM has 8 self-loop facts (`cite`), on 8 papers; DBLP and IMDB have none.
+  - No evaluation-draw cell repeats a node (0 of about 370k).
+- **a1 was executed twice.** The first execution crashed in my post-processing after training finished (a device mismatch in the script). `metrics.jsonl` holds both runs, which agree to about 1e-6. The numbers below are from the second run.
+
+### 4–5. Verification and measurements
+**Tests and suites**
+- `tests/test_filter_bank.py`: 17 tests pass.
+- T-G1: 60 fixtures; imaginary part ≤ 1e-9; spectrum within [−1e-9, 2·max g b + 1e-9].
+- T-G2: 50 fixtures with Σ‖V‖ in [0.3, 5]; M-gain ≤ 1 + 1e-9. The control (no normalisation) exceeds 1.
+- T-G3: exact zero blocks; the control at gates 0.5 gives a non-zero block (> 1e-8).
+- T-G4: ≤ 1e-10 for η ∈ {0.25, 0.5, 0.9} and K ∈ {2, 5}.
+- T-G5: more than 100 nodes checked, within 1e-12.
+- T-G6: ≤ 1e-10.
+- T-G7: exact.
+- T-G8: non-zero gradients, including the map-MLP columns that read `c`.
+- The gain diagnostic matches the exact M-gain within 1e-4.
+- Mutations (`g2_mutation_output.txt`): without normalisation the gain is 2.91 (caught); the recurrence on A gives a T-G4 error of 1.53 (caught); swapped gates give a non-zero block u←j (caught).
+- Full suite: G1 300 tests, G2 311 tests. After the fixes, only the 24 pre-existing `test_baselines` failures remain. The first runs failed golden-output tests: a `per_side_scale` gradient-order change, fixed by keeping one shared input tensor. They also failed one T6 control (pinned).
+
+**G3 (ACM, RTX 4060; forward + backward; mean of 3 runs after a warm-up)**
+
+| Arm | Time | Peak memory | Parameters |
+|---|---|---|---|
+| first_order | 1.471 s | 1611.8 MiB | 532,649 |
+| filter_bank | 1.475 s | 1612.5 MiB | 537,768 |
+
+The extra parameters are (K+1)·d² − θ_η = 5,119. For information (not gated), the context itself costs +39 % time and +5.4 % memory over geometry from `h₀` alone.
+
+**G3b**
+- **a1 (ACM, 5 epochs, defaults):**
+  - Loss falls from 1.101 to 0.894. Filter gain is 0.936–0.950 and λ_max(A) is 0.51–0.72 at every epoch. `filter_norm_sum` reaches 1.0000017 (FAIL at 1e-6; see the summary).
+  - Every W_k moved: relative change 0.066–1.17, with the last term W₄ the largest. The cap became active: Σ‖V‖ ended at 1.067.
+  - γ moved from 1.000 to 1.0015. The gate heads changed by 0.84 and 0.61 (relative); mean g fell from 0.61 to 0.54.
+  - ‖∂L/∂c‖ = 1.4e-3. Reloaded logits are equal on CPU (`torch.equal`); on GPU the maximum difference is 1.5e-7.
+- **a2 (DBLP):** the model has path lengths 2 and 4; no errors.
+- **a3 (cap active from the start):** gradients finite; gain 0.988 → 0.962. The first loss equals a1's exactly, because W = V/2 is the D11 initialisation.
+- **a4:** all 8 comparison switches run 2 epochs without error, with finite losses.
+- **(b) synthetic task (test accuracy, seeds 42 / 43 / 44):**
+  - full: 0.992 / 0.992 / 0.992
+  - `h₀`-only: 0.19 / 0.23 / 0.29
+  - `first_order`: 1.00 / 0.99 / 0.90
+  - `no_path_cells`: 1.00 / 0.99 / 0.25 (seed 44 never learned: best epoch 3, stopped at epoch 104)
+  - Every test target lies on a PAPV cell.
+
+### 6. Self-review
+- PASS: every card test with its tolerance; mutation check 3/3; D11 bit-identity; both suites; G3.
+- FAIL: a1 check 2 (tolerance, diagnosed above).
+- Non-vacuity: every operator test has a control; T-G7 checks both directions.
+- **The synthetic task does not test the path cells:** `no_path_cells` solves it on 2 of 3 seeds, because the label is 3 hops away and K = 4. It shows that information reaches a node through a typed path; it does not show that cells add information (C2).
+- NOT CHECKED: link prediction and graph classification under the filter bank beyond one-step unit tests; IMDB smoke (not carded).
+
+### 7. Assumptions imposed for theory and reality checks
+- **THEORY-CONSTRAINT: the norm cap Σ‖W_k‖₂ ≤ 1 (Prop. 5).** It forbids any filter with gain above 1. Possible cost: the cap became active within the first epochs of a1 (Σ‖V‖ reached 1.067), so training pushes against it. Whether it costs accuracy is untested; C8 is the test.
+- **THEORY-CONSTRAINT: the frequency response needs the real spectrum of the gated self-adjoint operator (Prop. 4).** The attention arm has none, and it is reported without a bound.
+- Reality check: on ACM, the context accounts for most of the cost (+39 % time).
+
+### 8. Open items
+- The a1 check 2 tolerance.
+- `no_path_cells` seed 44 failing on the synthetic task (not diagnosed; not gated).
+- G0b's h1–h3 are still untested; the filter bank addresses h2 only.
+- No real-data accuracy for the D12 model yet (by design).
+- IMDB has a relation named `movie__>actorh__actor` (from HGB's `info.dat` via PyG): cosmetic, out of scope.
+- The stray `C:\c` folder.
+
+### 9. Decisions needed from the author
+1. **a1 check 2.** Should I accept the float32 diagnosis, or record the tolerance as wrong and re-check with a float64 diagnostic? I propose 1e-5 for float32 diagnostics, the same as the gain criterion; I did not change it.
+2. **C2 under context.** With `geometry_context` on, the `endpoint_edges` arm's maps see intermediates through the endpoints' neighbourhood means (not path-specific). Is that the intended C2 comparison, or should C2 run its two arms with context off?
+3. **A known-answer task that needs the cells.** Should I build one where the label depends on which intermediate a specific instance passes through, with the same endpoint relations? That would test H/C2 mechanistically, which the current task cannot.
+4. **Next step.** Choose between G4 (final report ≤ 2 pages) and the still-open G0b check of h1–h3.

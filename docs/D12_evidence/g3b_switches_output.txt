@@ -1,0 +1,9 @@
+dblp_defaults {"rc": 0, "pass": true, "minutes": 1.0957921107610067}
+acm_first_order {"rc": 0, "pass": true, "minutes": 0.5195611278216045}
+acm_geometry_context_false {"rc": 0, "pass": true, "minutes": 0.7285029411315918}
+acm_symmetric {"rc": 0, "pass": true, "minutes": 0.7700587312380472}
+acm_no_path_cells {"rc": 0, "pass": true, "minutes": 0.5697274168332418}
+acm_endpoint_edges {"rc": 0, "pass": true, "minutes": 0.6436093131701152}
+acm_h0_only {"rc": 0, "pass": true, "minutes": 0.28665226697921753}
+acm_pair_attention {"rc": 0, "pass": true, "minutes": 0.40406290292739866}
+acm_identity_maps {"rc": 0, "pass": true, "minutes": 0.458445660273234}
