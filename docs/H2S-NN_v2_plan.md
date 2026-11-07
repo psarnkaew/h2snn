@@ -20,6 +20,9 @@
 | D7 | **Fact layer (one definition):** `ρ(r) = r′` iff `E(r′)` is exactly the reversal of `E(r)` (parameter-free, deterministic, no config key); a fact is a stored edge up to inversion, `(u, r, v) ≡ (v, ρ(r), u)`; one fact = one oriented 1-cell; a relation's two roles coincide when `ρ(r) = r`. A backward hop applies the adjoint transport. `fact_layer: untied` is an ablation control only and is **never tuned**. See §9.1. | **Agreed (2026-11-06)** — task card Part D |
 | D8 | **Path-cell builder:** (i) a 2-cell is identified by its sequence of facts (canonical orientation); identical cells are merged by **summing** their sampling weights; (ii) instances are drawn by a relation- and direction-constrained random walk (uniform neighbour per hop, non-simple walks rejected), `r` walks per (anchor, schema), weight `1/r` per walk; (iii) vectorized; (iv) resampled every training epoch, one fixed draw for evaluation. Replaces the DFS-with-quota enumerators and is the interim sampler of §2.4 and the instance interface of D2. See §9.2. | **Agreed (2026-11-06)** — task card Part D |
 | D9 | **O(L) path term:** `(L_f x)_{v_i} = w_f (s_i² x_i − T_iᵀ z_f)`, with `Σ_i T_i x_i` by Horner and `T_iᵀ z_f` by a prefix recursion: 2L transport steps per path instead of L(L+1). Exact identity (DERIVED from `T_iᵀT_i = s_i²I`); supersedes the §4.2 "correction". See §9.3. | **Agreed (2026-11-06)** — task card Part D |
+| D10 | **Cooperative coupling with a real spectrum:** `x ← x − η G Δ̂ B x` with per-node listen gates `G = diag(g_v)` and broadcast gates `B = diag(b_v)` in (0, 1], computed from `h₀`. Influence becomes asymmetric (v → u has strength `g_u b_v`), while the operator stays similar to a PSD one, so stability and the fixed-point theory survive. Default `cooperative`; the symmetric operator (all gates 1) is the ablation, and the experiment decides. See §10. | **Implemented** (`16f6ad3` "D10 complete", `docs/H2S-NN_D10_report.md`); gates did not move in the smoke run (≈ 0.95) — fixed by D11 |
+| D11 | **Final model (agreed 2026-11-07):** one diffusion block, maps from `h₀` (one sheaf), D10 listen/broadcast gates **always on** and fixed so they can learn; the update is the gradient flow of the sheaf energy in a learned node metric. Design rationale (assumptions A1–A5, gap, properties, derivation) in §12.0; Prop. 4 shows the gate form is exactly the directional influence that keeps an objective (A4 ⇔ P1). Pair attention and multi-block structure are excluded by A4 and A5 and **tested** (`pair_attention` and `h0_only` screen rows, pre-registered consequences in §12.6). See §12. Supersedes the open asymmetry decision of §10.5 and §11 item 1. | **Agreed (2026-11-07)** — task card Part F |
+| — | **Reality-before-theory audit:** assumptions kept only because our propositions need them are listed and tested against data and outside evidence. See §11; binding rule in `H2S-NN_agent_prompt.md` Part A. | **Agreed (2026-11-07)** |
 | D6 | v2 is the only model. v1 is deleted (kept on git tag `v1-submitted`). Link prediction and graph classification are **ported** to the v2 encoder, not rewritten: task layer (datasets, splits, negative sampling, trainers, metrics) kept; only the heads change, and only where forced. See §4.8. | **Agreed (2026-11-06)** |
 
 ### What this plan supersedes in the fix spec
@@ -276,6 +279,8 @@ Principle: one encoder; a head changes only when it is forced to, and no compone
 | 1 | D1 implemented and verified (§1.7). D5 audit still open | Done for D1 |
 | 2 | **Done (§4.7).** D4 task card (`H2S-NN_agent_prompt.md` Part C): D1a per-edge scale, v2 model with normalized vertex–2-cell Laplacian, deletions, ablation hooks, ACM memory measurement | D4 card tests and stop conditions |
 | 2b | D7–D9 task card (`H2S-NN_agent_prompt.md` Part D) on branch `D1_add`: fact layer, path-cell builder, O(L) path term | Part D tests and stop conditions |
+| 2c | **Done.** D10 task card (Part E): cooperative gates, `ablation.coupling` (`16f6ad3`) | — |
+| 2d | Finish D7 (option A, tied+walk defaults, D7 report) → D11 task card (Part F): learning fix, gradient-flow and factorization tests, diagnostics, `pair_attention` test variant → core-claim screen | Part F tests; screen triggers (§12.6) |
 | 3 | Tier 0 experiments on v2: §4.6 ablations incl. dense vs factorized k ∈ {1, 2} (closes §1.6); decide D2 mechanism | §1.6, §3.5 Tier-0 and §4.6 criteria; D2 decision written here |
 | 4 | Tier 1 (Freebase, rewiring, IEEE-CIS-G) | Heterophily evidence; decide claim scope (fix spec §7 A/B) |
 | 5 | Mini-batch; Tier 2 (ogbn-mag, mag-year, H-Pokec) | §3.5 Tier-2 criteria |
@@ -286,9 +291,10 @@ Principle: one encoder; a head changes only when it is forced to, and no compone
 3. Default `k` if several pass.
 4. ~~Keep closure edges inside `Δ₀`?~~ Resolved by D4: closure edges are definitional only; the v1-style holonomy shortcut is kept as an ablation control (§4.6).
 5. Eq. 9 of the submitted paper (relation-wise neighbourhood context for the restriction maps) is not in the v2 code; the maps read `h₀`. Restore it, or delete it and its motivating sentence from the paper.
+6. Theory-driven assumptions to re-examine: see §11 (items 2–4 have no decision yet).
 
 ## 8. Agent prompt
-Implementation work is driven by `H2S-NN_agent_prompt.md` (role, evidence rules, self-correction loop, task cards). Task cards D1 (Part B) and D4 (Part C) are done; task card D7–D9 (Part D) is next.
+Implementation work is driven by `H2S-NN_agent_prompt.md` (role, evidence rules, reality-before-theory rule, self-correction loop, task cards). Task cards D1 (Part B) and D4 (Part C) are done; D7–D9 (Part D) is finishing; D10 (Part E) runs after it.
 
 ---
 
@@ -336,3 +342,140 @@ Consequences (not separate rules): mirror pairs collapse to one cell per fact; a
 
 ### 9.4 Not changed by D7–D9
 D1/D1a maps, D4 operator and normalization, Prop. 2–3, heads (D6), ablation switches of §4.6 (new rows added). Prior v1 results used the DFS sampler and untied relations; all Tier 0 numbers come after Part D.
+
+### 9.5 Decisions taken during the D7 run (2026-11-07; source: agent Phase-1 and U1–U7 reports on branch `D1_add`)
+- **Link prediction split by fact.** `ρ` is computed on `link.dat` before splitting; a held-out positive removes its fact in both orientations. The old per-relation split leaked: on a fixture with a mirror relation, the reverse orientation of 8 of 21 held-out facts stayed in the message graph (now 0). Every link-prediction adapter takes its split from the same bundle builder, so baselines get the same split. Earlier link-prediction numbers (all methods) may be inflated on datasets with mirror relations; LastFM, PubMed, Amazon, YouTube are not on disk yet (UNVERIFIED).
+- **MUTAG loader bug fixed (separate commit `2322d28`).** Labels were assigned by position while PyG reorders edges: 1,771 of 7,442 bonds had the wrong type, in 188/188 graphs. Every earlier MUTAG result (H2S-NN and the typed baselines h2gformer, hetero2net, h2sgnn, hgb_han) used corrupted bond types; rerun all.
+- **Schema-free walks** for link prediction and graph classification (no configured schemas): uniform over all facts at each hop; cells grouped by the realized (relation, direction) sequence. Its target distribution is stated in the D7 report.
+- **Baseline input format (option A, to confirm in the D7 reply).** Baselines keep their standard stored graph (`fact_layer: untied`, `path_sampler: dfs`, no resampling, set in `bundles.py::_base_config`). All methods receive the same facts; message-passing baselines need both stored directions. Paper sentence: "All methods receive the same facts; baselines receive them in their standard stored form with reverse relations, and H2S-NN receives them as tied facts."
+- **Limitation contrast (CSNN).** Cooperative Sheaf Neural Networks (Ribeiro et al., arXiv:2507.00647v3, VERIFIED-SOURCE in `references/`) treat each undirected edge as two directed edges with per-node send/receive maps and the composed operator `(Δ_in)ᵀΔ_out`, whose spectrum can be complex (their §5). D10 provides node-level directional strength while keeping a real spectrum.
+
+---
+
+## 10. D10 — Cooperative coupling with a real spectrum (agreed 2026-11-07)
+
+### 10.1 Why (reality, not theory)
+- The symmetric operator forces equal influence in both directions. In heterogeneous graphs influence is plausibly unequal: a hub (an ACM subject touches tens of thousands of papers through PSP) should be able to inform its papers without being dragged toward each of them; under heterophily a node should be able to stop listening.
+- Outside evidence points the same way (UNVERIFIED for H2S-NN): the strongest HGB models are directional attention models (HAN, HGT, Simple-HGN, SeHGNN); selective message passing is reported to help on heterophilic graphs (Co-GNN, Finkelshtein et al. 2024; CSNN, its authors' claim).
+- The earlier plan kept symmetry because Prop. 2–3 need it (§9.1 limitation). That was a theory-driven constraint; §11 now lists such constraints for testing.
+
+### 10.2 Operator
+```
+Δ̂   = D^{-1/2} (Δ₀ + γ L_P) D^{-1/2}                 # unchanged (D4, D7–D9)
+g_v = σ(a_gᵀ h₀_v + β_g),   b_v = σ(a_bᵀ h₀_v + β_b)   # listen / broadcast gates in (0, 1)
+x  ← x − η · G Δ̂ B x,   G = diag(g) ⊗ I_d,  B = diag(b) ⊗ I_d     # then layer dropout, as now
+```
+- Effective strength from v to u: `g_u b_v`; from u to v: `g_v b_u`. `g_u → 0`: u stops listening; `b_v → 0`: nobody hears v (CSNN's cooperative behaviours).
+- Gates start near 1 (initial value is a validated config key) so training starts close to the symmetric model.
+- Encoder-level: applies to edges and path cells, in all three tasks.
+
+### 10.3 Theory (DERIVED; numerically checked)
+- With `S = (G⁻¹B)^{1/2}`: `S (G Δ̂ B) S⁻¹ = (GB)^{1/2} Δ̂ (GB)^{1/2}`, which is PSD. So the eigenvalues are real and lie in `[0, 2·max_v g_v b_v] ⊂ [0, 2)`; `η = σ(θ) ∈ (0, 1)` keeps the explicit step stable. In `y = S x` the update is the gradient flow of a sheaf Dirichlet energy.
+- Fixed points: `G Δ̂ B x = 0 ⇔ B x ∈ ker Δ̂` (gates > 0) — the sections, seen through the broadcast gates. Prop. 2 is restated this way.
+- Check (200 random sheaves, gates in [0.01, 1]): max |Im λ| = 7e-17; max λ / (2·max g b) = 0.90. The CSNN-style composed operator on the same graphs had |Im λ| up to 2.6e4.
+
+### 10.4 Limits
+- **Node-level, not per-edge:** a node listens to all its neighbours with one gate. Per-edge directional strength breaks the similarity to a symmetric operator (complex spectrum possible). CSNN's directionality is node-level too.
+- Gates read `h₀` only and stay fixed through the K steps, like the maps (§11 item 2).
+- Novelty is modest: diagonal similarity scaling is standard, and learned node-wise diffusion rates exist in prior work (cite after a literature check). Pitch: cooperative sheaf diffusion that keeps a real spectrum and its stability guarantee.
+
+### 10.5 Ablation and decision rule
+`ablation.coupling: cooperative | listen_only | symmetric` (`listen_only`: `B = I`; `symmetric`: all gates 1, i.e. the current model). On Tier 0 and Tier 1, 10 seeds, paired tests with Holm correction: if `cooperative` is not significantly better than `symmetric`, the default reverts to `symmetric` and the gates leave the paper. `listen_only` shows which half matters. **Superseded by D11 (§12):** the gates are part of the model (always on); `symmetric` remains as a required ablation row.
+
+---
+
+## 11. Reality-before-theory audit (2026-11-07)
+Rule (binding for agents, `H2S-NN_agent_prompt.md` Part A): a constraint kept only because one of our propositions needs it is a hypothesis, not a fact; it is tested against the data and outside evidence, and theory never removes an ablation.
+
+| # | Assumption imposed for theory | Why we have it | Reality check | Test / status |
+|---|---|---|---|---|
+| 1 | Equal coupling strength in both directions | Prop. 2–3 need a symmetric operator | Directional attention models are strong on HGB; selective message passing helps under heterophily | **Resolved by D11 (§12):** per-node asymmetry as a metric gradient flow |
+| 2 | Linear K-step diffusion with maps (and gates) computed once from `h₀`: no nonlinearity, no channel mixing between steps; maps never see diffused states | Gradient-flow reading; batch independence (fix spec F5); memory | NSD (Bodnar et al. 2022) and CSNN recompute maps per layer from the current states and use weight matrices plus a nonlinearity per layer; our flow may be under-expressive | Open. Candidate ablation for Tier 0: "layered" variant (maps and gates from `x_t` each step, per-step channel mixing and nonlinearity) vs current. Cost: K× map computation; mini-batch receptive field grows |
+| 3 | One scale per edge (no scale holonomy) | Orthogonal transports, conditioning (D1a) | Unknown whether magnitude-changing cycles matter in real data | Existing ablation `map_scale: per_side` (§4.6) |
+| 4 | Equal weight of all path positions in `z_f` (mean) | `z_f` is the minimizer of the cell energy | Endpoints and intermediate nodes may matter differently; `w_f` and the maps only partly compensate | Open, low priority; decide after Tier 0 |
+
+---
+
+## 12. D11 — Final model (agreed 2026-11-07; design rationale added the same day)
+
+### 12.0 Design rationale (paper order: setting → assumptions → gap → properties → method)
+**Setting.** Nodes have a type and their own attributes; edges have a relation type; labels live on a target type; neighbouring nodes often disagree (heterophily); the meaning of a connection between two target nodes depends on the whole metapath between them.
+
+**Assumptions about the data** (each one is tested; §12.3):
+| # | Assumption | Statement |
+|---|---|---|
+| A1 | Structured disagreement | Connected nodes are related by a relation- and node-dependent transformation, not by equality. Heterophily is systematic difference, not noise. |
+| A2 | Path semantics | A metapath instance carries information its endpoints lack: its intermediate nodes and the order of its relations. |
+| A3 | Coherence | Path-level information must not contradict edge-level information: a state consistent on every edge is consistent on every path cell. |
+| A4 | Factorized trust | Influence of v on u = receptiveness of u × symmetric compatibility of the pair × reliability of v. Direction comes from node roles (attributes and type, through `h₀`); the pair contributes only symmetric compatibility. |
+| A5 | Geometry from attributes | Maps, gates and path weights can be read once from `h₀`; diffusion propagates over that fixed geometry. (Weakest assumption; stated as such in the paper.) |
+
+**Gap.** HAN/HGT/Simple-HGN/SeHGNN aggregate under a similarity assumption (no A1); MAGNN encodes intermediate nodes without coherence (no A3); NSD and HetSheaf are edge-only (no A2) and symmetric (no A4); sheaf hypergraph networks use free maps that destroy sections (no A3, Prop. 2); SheafAN/Res-SheafAN and CSNN are directional but have no objective (no P1) and no higher-order cells. (HetSheaf, SheafAN, CSNN, DNSD: VERIFIED-SOURCE; the HGNN characterisations: UNVERIFIED until each paper is opened.)
+
+**Properties pursued.** P1 the update minimises a stated objective (known fixed points); P2 stable for any step size; P3 coherent across edges and 2-cells; P4 directional influence; P5 cost linear in edges and incidences.
+
+**Derivation.**
+| Requirement | Component | Result |
+|---|---|---|
+| A1 | Cellular sheaf; maps from relation, side and both nodes (D1, D1a) | Transports in SO(d) (D1b) |
+| A2 + A3 | Path 2-cells with node→2-cell maps forced by functoriality | Prop. 1 (forced transport), Prop. 2 (sections preserved) |
+| 2-cell information must reach nodes | Vertex–2-cell sheaf Laplacian (D4) | Lemma A′ (Hodge flows cannot) |
+| A4 + P1 | Listen/broadcast gates on the symmetric Laplacian (D10) | **Prop. 4: A4 ⇔ P1** (§12.2) |
+| P2 | Degree normalisation, `η ∈ (0, 1)` | Prop. 3 |
+| P5 | Matrix-free maps (D1), O(L) path term (D9), walk sampler (D8), tied facts (D7) | Measured (D1, D4, D10 reports) |
+
+Reviewer-facing answers built on this section: `docs/possible_reviewer_qa.md`.
+
+### 12.1 Model
+```
+h₀ = TypeEncoder(x)                                   # tied facts (D7), walk-sampled path cells (D8)
+maps (D1/D1a), gates g_v, b_v, path weights w_f  ←  computed once from h₀           # one sheaf
+repeat K steps:   x ← x − η · G Δ̂ B x                 # Δ̂ = normalized edge + path-cell sheaf Laplacian (D4, D9)
+head([x_K, h₀])                                       # D6 heads
+```
+- **Asymmetry is part of the model:** strength(u ← v) ∝ g_u · c_e² · b_v. Each direction differs (node "personalities": how much a node listens, how much it broadcasts); edges differ through the symmetric weight `c_e²` and the direction-dependent rotation.
+- **One block.** Maps and gates are computed once from `h₀`, so the model diffuses over one sheaf and every mini-batch is a restriction of it.
+
+### 12.2 Theory (DERIVED; numerically checked)
+- **Metric gradient flow.** With `E(x) = ½⟨Bx, Δ̂ Bx⟩` (sheaf energy of the broadcast-weighted states) and the diagonal node metric `M = B G⁻¹`, the update direction `G Δ̂ B x` equals `M⁻¹∇E` exactly. So each step is a gradient step of a sheaf energy in a learned metric: asymmetric influence comes from geometry on the nodes, not from leaving the sheaf framework. Check: `|M⁻¹∇E − GΔ̂Bx| ≤ 9e-16`; `E` never increased over 100 random graphs × 50 steps with η ≤ 1 (largest change −4e-5).
+- **Stability:** `M^{-1/2}(BΔ̂B)M^{-1/2} = (GB)^{1/2} Δ̂ (GB)^{1/2}` has eigenvalues in `[0, 2·max g b]`, so `E` decreases for any η ≤ 1 (D10 check: real spectrum, λ_max = 0.93 of the bound).
+- **Fixed points:** `B x ∈ ker Δ̂` (global sections seen through the broadcast gates); path cells never contradict them (Prop. 2).
+- **What the model cannot express:** circular (non-reversible) asymmetry, e.g. A dominates B, B dominates C, C dominates A, and pair-specific direction beyond node roles. By Kolmogorov's reversibility criterion, any operator with that property loses the real spectrum and the energy theory.
+- **Prop. 4 (factorization; A4 ⇔ P1).** Let `w(u←v) > 0` be the total influence of v on u through edges and 2-cells, with transports `Q_vu = Q_uvᵀ`. The update `x ← x − ηAx` is the gradient flow of a quadratic sheaf energy in a positive per-node metric **iff** `w` satisfies detailed balance (`π_u w(u←v) = π_v w(v←u)`, some `π > 0`) **iff** `w(u←v) = g_u · s_uv · b_v` with `s` symmetric. *Proof (DERIVED):* `A = M⁻¹L` with `L` symmetric forces `m_u w(u←v) = m_v w(v←u)`; conversely set `s_uv = π_u w(u←v)`, `g = 1/π`, `b = 1`. Consequence: D11's form is the most general directional influence that keeps an objective. Check (VERIFIED-RUN, scratch script 2026-11-07; becomes Part F T-F3b): 100 random sheaves (d = 3, rotations, edges + 3-node path cells): D11-form weights give detailed-balance residual ≤ 1.6e-14, `‖MA − (MA)ᵀ‖/‖MA‖ ≤ 3e-15`, real spectrum; free per-direction weights give residual ≥ 0.78 (no metric exists) and max |Im λ| = 0.32.
+
+### 12.3 Alternatives and the assumption each one tests
+An alternative is not "rejected"; it is excluded by a stated assumption, and an experiment tests that assumption. If the test refutes the assumption, the model changes as pre-registered in §12.6, and the paper reports the refutation.
+| Alternative | Excluded by | Test (same sheaf, same 2-cells, one variable changed) |
+|---|---|---|
+| Pair attention (SheafAN/Res-SheafAN-type strength, free per direction) | A4 | `coupling: pair_attention` (Part F U4b) |
+| Multi-block (maps/gates recomputed from `x_t`, per-step channel mixing and nonlinearity) | A5 | `h0_only` row; trigger in §12.6 |
+| No path cells / endpoint edges / holonomy closure edges | A2 | `γ = 0`, `endpoint_edges`, `holonomy_edges` |
+| Free per-incidence maps (hypergraph) | A3 | `path_maps: free` |
+| Diagonal maps | A2 (relation order needs non-commuting maps) | diagonal-map row |
+| Per-side scales | D1a (no scale holonomy) | `map_scale: per_side` |
+
+Facts about pair attention used in the paper (VERIFIED-SOURCE):
+- SheafAN's adjacency includes self-loops (Eq. 3), so attention **can** stop listening by attending to itself. Do not claim otherwise.
+- HetSheaf Table 11: SheafAN (non-residual, their implementation) is far below the Laplacian-based sheaf families on IMDB (54–56 vs 61–63 Macro-F1), and not uniformly worst on ACM/DBLP (Bundle-Poly is lower on both). Res-SheafAN was never tested on heterogeneous graphs.
+- What we may claim: the two differ in assumption A4 and in what can be proved (P1: energy, real spectrum, characterised fixed points, readable gates — Prop. 4), plus SheafAN has no higher-order cells. What we may **not** claim: an accuracy advantage before the test; that an energy improves accuracy (with few steps fixed points are not reached); stability as a difference (with orthogonal maps and row-stochastic weights attention is non-expansive too); that only D11 combines edges and 2-cells in one rule (one softmax over self, edges and cells does it too and also preserves sections); exact mini-batches (neighbour sampling truncates the receptive field in both; D11 only avoids per-batch softmax renormalisation).
+- Outside evidence leans toward attention, not against it: attention-based models (e.g. Simple-HGN) are strong on HGB (UNVERIFIED here; open the HGB paper before citing). A4 is a hypothesis with a real chance of being refuted; that is why its consequence is pre-registered in §12.6.
+
+### 12.4 Learning fix (required; without it "learned" is false)
+Full-batch training takes one optimizer step per epoch, so parameters initialized in the flat region of a sigmoid barely move (D4 smoke: η, γ ≈ constant; D10 smoke: gates ≈ 0.95). Fix: gate heads, `θ_η`, `θ_γ` in their own optimizer group (lr = 10 × base, weight decay 0); gates initialized at 0.6 (`model.coupling_gate_init`).
+
+### 12.5 Known negatives (for the paper and the reviewers)
+- Node-wise learned diffusion rates exist in prior work: the novelty of the gates is modest; the claim is "listen/broadcast cooperation realized as a sheaf gradient flow with a stability guarantee" (literature check required before writing it).
+- One linear block may be under-expressive (resembles O(d)-NSD): measured by the `h0_only` row.
+- Orthogonal maps vs diagonal: HetSheaf and DNSD report diagonal ≥ orthogonal on real data; path cells need non-commuting maps. Diagonal maps are an ablation row; if diagonal wins, the relation-order claim falls.
+- Required ablation rows (evidence, not model options): symmetric (all gates 1), diagonal maps, no path cells (γ = 0), endpoint edges, h₀ only.
+
+### 12.6 Core-claim screen and pre-registered triggers
+ACM, DBLP, IMDB × {full D11, γ = 0, endpoint_edges, h0_only, pair_attention} × 3 seeds, one fixed config, no tuning, parameter count reported per row; reference baseline SeHGNN (or the strongest one that runs) and HetSheaf's published Table 11 numbers. Log per run: η, γ, gate means/mins and their trajectories; normalized energy after each step (edge and path-cell parts); for one ACM model per variant, `dim ker Δ̂` and a linear probe of the labels on the projection onto `ker Δ̂`.
+| Result | Then |
+|---|---|
+| Path cells don't beat γ = 0 or endpoint_edges | Stop; narrow the paper before anything else |
+| full ≈ h0_only (within 1 std) | Expressivity work (multi-block), with a parameter-matched comparison |
+| Path cells win and full > h0_only | Tier 0 with 10 seeds and the full ablation table |
+| Gates still do not move after the learning fix | Report it; the gates are then fixed hyperparameters and the paper says so |
+| `pair_attention` > full by > 1 std on ≥ 2 of 3 datasets | A4 is in doubt: confirm in Tier 0 (10 seeds, paired tests, Holm). If confirmed, A4 is refuted: the model becomes pair attention on the same sheaf, P1 and the energy reading are dropped, stability is stated as non-expansiveness, Prop. 4 explains what was given up, and the paper reports the refutation. Decided now, before any result |
+| `pair_attention` ≤ full + 1 std | A4 retained; the row is reported as the test of A4 |

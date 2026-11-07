@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done) or Part D (D7–D9, next). Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9), Part E (D10, done) or Part F (D11, next; includes the A4 test variant `pair_attention`). Part A is reusable for review, design and implementation work on H2S-NN.
 
 ---
 
@@ -13,7 +13,7 @@ Prioritize **correctness, falsifiability and feasibility** over sounding impress
 
 ### Sources of truth (read before acting, in this order)
 1. `CLAUDE.md` and `AGENTS.md` in the repo — environment and coding conventions are binding.
-2. `../docs/H2S-NN_v2_plan.md` — agreed decisions (D1–D9). Do not reopen an agreed decision; if evidence contradicts it, stop and report.
+2. `../docs/H2S-NN_v2_plan.md` — agreed decisions (D1–D11), the design rationale of the final model (§12.0: assumptions A1–A5, properties P1–P5) and the reality-before-theory audit (§11). Do not reopen an agreed decision; if evidence contradicts it — including evidence from the data or from published models — stop and report.
 3. `../docs/H2S-NN_fix_spec.md` — hypotheses, protocol fixes, status tags. Earlier task reports (e.g. `../docs/H2S-NN_D1_report.md`) are also inputs.
 4. The code itself. When a document and the code disagree, the code describes what runs; report the disagreement.
 
@@ -24,6 +24,14 @@ Prioritize **correctness, falsifiability and feasibility** over sounding impress
 4. If you do not know, write `UNVERIFIED` and state the exact check that would resolve it.
 5. Report negative results, failed checks and deviations from the spec plainly. Do not soften them.
 6. Distinguish what the code does from what the paper says it does.
+
+### Reality before theory (binding; added 2026-11-07)
+Our own results (Lemma A′, Prop. 1–3, the stability bound, section preservation) are tools, not goals. They have pulled designs toward what is provable instead of what the data needs: the operator was kept symmetric only because the propositions require it, although influence in heterogeneous graphs is plausibly unequal (plan §10, §11). Prevent this:
+1. **No theory veto.** Never reject, restrict or default away from a design only because it would break one of our propositions. Write every such constraint as `THEORY-CONSTRAINT: <what it forbids> — <what it may cost on real data>` and treat it as a hypothesis to test, not a fact.
+2. **Reality check first.** Before recommending a design choice, answer two questions: what do the data and the domain suggest without our theory (direction of influence, hubs, degree skew, heterophily patterns, relation semantics)? What do the strongest published models for this setting do? Cite only sources you actually opened (`VERIFIED-SOURCE`); otherwise mark the claim `UNVERIFIED`.
+3. **Steelman the alternative.** For every decision, state the strongest case for the option that breaks our theory. Then look for a variant that keeps that benefit and the guarantees (as D10's gates do). If none exists, say so plainly.
+4. **Experiments decide; theory never removes an ablation.** When theory and reality disagree, add the ablation that settles it. Intuition, including the author's and yours, is also a hypothesis: do not adopt the intuitive option without the same test.
+5. **Report it.** Every report has a section "Assumptions imposed for theory and reality checks": each `THEORY-CONSTRAINT` the work touched or added, and the reality checks done.
 
 ### Self-correction loop (mandatory for every work unit)
 A work unit is the smallest change that can be tested on its own.
@@ -53,8 +61,9 @@ A work unit is the smallest change that can be tested on its own.
 4. **Verification evidence** — commands and decisive output, per test.
 5. **Measurements** — numbers with the command that produced them and the hardware.
 6. **Self-review checklist** — every item with `PASS` / `FAIL` / `NOT CHECKED` and evidence.
-7. **Open items** — everything still `UNVERIFIED`, and out-of-scope problems noticed.
-8. **Decisions needed from the author.**
+7. **Assumptions imposed for theory and reality checks** — see "Reality before theory".
+8. **Open items** — everything still `UNVERIFIED`, and out-of-scope problems noticed.
+9. **Decisions needed from the author.**
 
 If the harness supports sub-agents, finish with an independent review: a fresh agent that receives only the diff, this prompt and the task card (not your reasoning) checks the work against the checklist. Report its findings unedited.
 
@@ -404,3 +413,121 @@ Stop and report instead of continuing if:
 - a needed change falls outside the scope above.
 
 Write the report to `docs/H2S-NN_D7_report.md` in the Part A format.
+
+---
+
+## Part E — Task card D10: cooperative coupling with a real spectrum
+
+### Goal
+Let influence be asymmetric (a node can listen without broadcasting, or broadcast without listening) while the diffusion operator keeps a real spectrum and its stability guarantee. Spec: `H2S-NN_v2_plan.md` §10 (operator, theory, limits, decision rule) and §11 item 1. Start only after Part D is committed; work on the same branch.
+
+Read first: plan §10, §11, §4.4; `docs/H2S-NN_D7_report.md`; `src/models/h2snn_v2.py` (diffusion loop, `η`, `γ`, readout inputs), `src/models/vertex_path_laplacian.py` (normalized operator, `D`), the power-iteration code used for `η·λ_max` in the D4/D7 smoke runs.
+
+### Mathematical specification
+```
+Δ̂   = D^{-1/2} (Δ₀ + γ L_P) D^{-1/2}                 # unchanged
+g_v = σ(a_gᵀ h₀_v + β_g),   b_v = σ(a_bᵀ h₀_v + β_b)   # listen / broadcast gates in (0, 1)
+x  ← x − η · G Δ̂ B x                                 # G = diag(g) ⊗ I_d, B = diag(b) ⊗ I_d; then layer dropout as now
+```
+- Two linear heads on `h₀` (computed once, like the maps). Initialize the biases so every gate starts at `model.coupling_gate_init` (new validated key, default 0.95) and the weights small, so training starts near the symmetric model; state the init.
+- Effective strength from v to u is `g_u b_v`. `g_u = 0` ⇒ u's state does not change; `b_v = 0` ⇒ no node's update depends on `x_v`.
+- **Theory the code must satisfy:** `G Δ̂ B` is similar to `(GB)^{1/2} Δ̂ (GB)^{1/2}` (PSD), so its eigenvalues are real and lie in `[0, 2·max g b]`; fixed points satisfy `B x ∈ ker Δ̂`. For `η·λ_max` logging, compute `λ_max` by power iteration on the symmetric similar form `(GB)^{1/2} Δ̂ (GB)^{1/2}`.
+
+### Scope
+**In scope**
+1. Gate heads and the gated update in the shared encoder, so all three tasks get it.
+2. `ablation.coupling: "cooperative" | "listen_only" | "symmetric"` (default `cooperative`). `listen_only`: `B = I`. `symmetric`: no gate heads instantiated, all gates 1 — exactly the current model.
+3. Logging per epoch: mean and min of `g` and `b`, and `η·λ_max`.
+4. Validation of the new keys; the gate init is the only new model hyperparameter. Neither `coupling` value nor `coupling_gate_init` enters a tuning search space.
+
+**Out of scope** (report, do not change)
+- Per-edge directional strength (breaks the real spectrum; plan §10.4).
+- Gates or maps recomputed from `x_t` at each step, per-step channel mixing or nonlinearity (plan §11 item 2; separate decision).
+- D2, mini-batching, new datasets, accuracy experiments.
+
+### Tests (`tests/test_cooperative.py`, unittest; keep them few)
+| ID | Check | Tolerance / rule |
+|---|---|---|
+| T1 | `coupling: symmetric` reproduces the current golden outputs of every task that has a golden test | bit-for-bit |
+| T2 | The gated operator equals a dense reference `G Δ̂ B` built independently, with mixed path lengths and signed hops | float64 ≤ 1e-10 |
+| T3 | Over ≥ 50 random fixtures with gates in [0.01, 1]: max \|Im λ\| ≤ 1e-9 relative to max \|λ\|, and `λ_max ≤ 2·max(g b) + 1e-9`. **Negative control:** a CSNN-style composed operator `(Δ_in)ᵀ Δ_out` on the same fixtures has \|Im λ\| > 1e-3 on at least one | — |
+| T4 | Cooperative behaviour, one step: `g_u = 0` ⇒ `x_u` unchanged exactly; `b_v = 0` ⇒ `∂x₁(w)/∂x₀(v) = 0` for every w ≠ v; with `g_u ≠ g_v` the Jacobian blocks u←v and (v←u)ᵀ differ. Control: all gates 0.5 gives non-zero blocks | exact zero vs > 1e-8 |
+| T5 | Fixed points: for sections `s` of `Δ̂`, `x = B⁻¹ s` gives `G Δ̂ B x = 0`, and nothing outside that set does (eigenvalue cut 1e-9, stated before running) | float64 |
+| T6 | Gradients reach both gate heads | non-zero |
+
+**Mutation check (3):** gates on swapped sides (`B Δ̂ G`) → T4 fails; gates without the sigmoid (unbounded) → T3's bound fails; `B` applied but `G` missing → T4 fails.
+
+### Measurements (allowed without approval)
+- ACM, d = 32, factorized k = 2, defaults after Part D: one forward + backward for `cooperative` vs `symmetric` — peak memory and wall time (3 repeats after 1 warm-up), parameter count. Pre-register: overhead ≤ 5% time, ≤ 2% memory.
+- Smoke run: ACM, single seed, ≤ 20 epochs, `cooperative`. Log loss, η, γ, mean/min `g` and `b`, mean `w_f`, `η·λ_max`. **No accuracy claims.**
+
+### Adversarial self-review checklist (D10)
+- [ ] `symmetric` is bit-identical to the current model (T1).
+- [ ] Spectrum real and bounded with gates; CSNN-style control complex (T3).
+- [ ] Listen and broadcast behaviours exact (T4); the swapped-sides mutation is caught.
+- [ ] No new tuning knob besides `coupling_gate_init`; `coupling` is not in any search space.
+- [ ] Report section "Assumptions imposed for theory and reality checks" (Part A) is filled in.
+- [ ] Each test would fail if its property were broken (3 mutations, 0 vacuous).
+
+### Stop conditions
+Stop and report instead of continuing if: `symmetric` is not bit-identical (T1); T3 or T5 fails after 3 diagnosed attempts; the smoke run diverges (`η·λ_max ≥ 2` or loss non-finite); a needed change falls outside the scope.
+
+Commit with the message "D10 complete" and push. Write the report to `docs/H2S-NN_D10_report.md` in the Part A format, at most two pages; long output goes to `docs/D10_evidence/`.
+
+---
+
+## Part F — Task card D11: final model, learning fix, assumption tests, core-claim screen
+
+### Goal
+Make D10's gates a learned part of the final model (plan §12), prove in code that the update is a metric gradient flow and that its gate form is exactly the reversible (energy-admitting) class (Prop. 4), finish D7, build the `pair_attention` variant that **tests assumption A4**, and run the core-claim screen with pre-registered triggers. Spec: `H2S-NN_v2_plan.md` §12.0 (design rationale: assumptions A1–A5, properties P1–P5), §12.2 (theory incl. Prop. 4), §12.3 (alternatives and the assumption each tests), §12.6 (screen, triggers) and §9.5 (D7 decisions). D10 is already implemented (`16f6ad3`, `docs/H2S-NN_D10_report.md`). Reviewer-facing context: `docs/possible_reviewer_qa.md` (read Part 1 and Q2.11–Q2.14; do not edit it).
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| U0 | Commit the uncommitted spec edits (plan, prompt, D2 card, `possible_reviewer_qa.md`) as "docs: specs for D7–D11". New branch `tier0-screen` off `D1_add` | — |
+| U1 | **Finish D7:** option A (baselines pinned to `untied` + `dfs` + no resampling in `bundles.py::_base_config`, with a test that bundle data stays bit-identical); flip the H2S-NN defaults to `tied` / `walk` / `resample_paths: true`; three-mutation check; write `docs/H2S-NN_D7_report.md` (short). First run the baseline path-builder check: any baseline that consumes path instances from our builders gets the walk sampler while keeping the stored untied graph | D7 tests; bundle bit-identity |
+| U2 | **Learning fix:** gate heads, `θ_η`, `θ_γ` in their own optimizer group (lr = 10 × base, weight decay 0; check whether a scalar group already exists and extend it); `model.coupling_gate_init` default 0.95 → 0.6; `coupling: cooperative` stays the default (gates always on) | T-F1 |
+| U3 | **Theory tests** (`tests/test_cooperative.py`): T-F2, T-F3, T-F3b | T-F2, T-F3, T-F3b |
+| U4 | **Diagnostics:** per step, normalized energy `⟨x, Δ̂x⟩/‖x‖²` (edge and path-cell parts); per epoch, η, γ, gate mean/min; offline script: `dim ker Δ̂` (cut 1e-6) and a linear probe of the labels on the projection onto `ker Δ̂` for a trained model | smoke run |
+| U4b | **`coupling: pair_attention`** — the A4 test variant, specification below (`tests/test_pair_attention.py`) | T-F4 … T-F7; 3 mutations |
+| U5 | **Core-claim screen** (approved): ACM, DBLP, IMDB × {full, `ablate_no_path_cells` (γ = 0), `endpoint_edges`, `h0_only`, `pair_attention`} × 3 seeds; one fixed config, no tuning; parameter count per row; + one reference baseline (SeHGNN if it runs; otherwise report the strongest that runs before starting). Report against **every** trigger of plan §12.6, including the A4 rows | triggers |
+
+### `pair_attention` specification (U4b)
+Purpose: change **one** thing relative to D11 — how influence strength is formed — so the comparison tests A4 and nothing else. Same `h₀`, same maps (D1/D1a), same tied facts and walk-sampled cells (D7–D8), same single block of K steps, same head, same η. Gate heads are not instantiated. **Do not** add per-step weight matrices, nonlinearities or attention recomputed from `x_t` (that would also change A5).
+```
+scores, computed once from h₀ (like the maps), GATv2-style:
+  s(u←e)  = aᵀ LeakyReLU(W [h₀_u ‖ h₀_v ‖ rel_emb(ψ_e) ‖ dir_emb(u's role on e)])   # e = fact joining u and v
+  s(u←f)  = aᵀ LeakyReLU(W [h₀_u ‖ path_latent_f ‖ pos_emb(u's position in f)]) + log m_f
+  s(u←u)  = aᵀ LeakyReLU(W [h₀_u ‖ h₀_u ‖ self_emb])
+α_u = softmax over {u} ∪ {facts at u} ∪ {cells containing u}                        # per receiving node; self-loop included, as SheafAN Eq. 3
+(P x)_u = α_uu x_u + Σ_e α_ue Q_{u←v} x_v + Σ_f α_uf T_uᵀ z_f                       # Q_{u←v}: the same signed orthogonal transport Δ₀ uses (no c_e); z_f as in D9
+x ← x − η (x − P x)
+```
+- Confirm the GATv2 scoring form against `references/GATv2.pdf` before implementing (VERIFIED-SOURCE in the report); single head; parameter count reported next to D11's.
+- `path_latent_f` is the existing path encoder used for `w_f`; `w_f`, `c_e²` and the gates do not enter this variant (attention replaces them).
+- The variant applies wherever the encoder runs, but U5 uses only node classification.
+
+### Tests
+| ID | Check | Tolerance |
+|---|---|---|
+| T-F1 | After 50 full-batch epochs on a toy fixture with a learnable signal, η and every gate head have moved by > 0.05 from their init (the old setting, 0.95 init without the group, is the control and moves < 0.05) | pre-registered |
+| T-F2 | Metric gradient identity: with `E(x) = ½⟨Bx, Δ̂Bx⟩` and `M = B G⁻¹`, `M⁻¹∇E` (autograd) equals `G Δ̂ B x` | float64 ≤ 1e-10 |
+| T-F3 | `E` nonincreasing over ≥ 50 random fixtures × 50 steps for η ≤ 1; **control:** η = 3 makes `E` increase on at least one fixture | exact sign |
+| T-F3b | **Prop. 4 (factorization):** from the D11 operator (edges + path cells, signed hops, random gates), extract the effective pairwise weights `w(u←v)` (scalar factor of each off-diagonal block); solve for a per-node metric by least squares on `log m_u − log m_v = log w(v←u) − log w(u←v)`; the residual is ≤ 1e-10 and `M·A` is symmetric to ≤ 1e-10. **Control:** the same check on `pair_attention`'s operator gives residual > 1e-3 on at least one fixture (also proves the A4 test is not vacuous) | float64 |
+| T-F4 | `pair_attention`: every row of α (self + facts + cells) is positive and sums to 1 | ≤ 1e-12 |
+| T-F5 | Sections preserved: for a global section `x` (consistent on all facts and cells; tree fixture with mixed-direction path hops), `P x = x` | float64 ≤ 1e-10 |
+| T-F6 | Non-expansive (default `map_scale: per_edge`, so every transport is orthogonal): `max_u ‖x_u‖` nonincreasing over ≥ 50 random fixtures × 50 steps for η ∈ (0, 1]. **Control:** replacing the softmax by unnormalized `exp(s)` increases it on at least one fixture | exact sign |
+| T-F7 | Dense reference: build `P` as an explicit matrix from α and materialized transports (`Q`, `T_v`, `z_f` written out); the operator equals it on fixtures with mixed path lengths and signed hops. The state dict differs from D11's only by the attention parameters added and the gate heads removed | float64 ≤ 1e-10; exact |
+
+**Mutation check (U4b, 3):** self-loop omitted from the softmax → T-F4 or T-F5 fails; `Q` used instead of `Qᵀ` on a −1 hop → T-F5 fails; `log m_f` omitted → a targeted test showing duplicate-merged cells get the wrong weight fails (write it).
+
+### Rules
+- Ablation and test rows (`symmetric`, `listen_only`, diagonal maps, `ablate_no_path_cells`, `endpoint_edges`, `h0_only`, `pair_attention`) are evidence for the paper, never tuned, never defaults. `pair_attention` must be rejected by the tuning-config check like the others.
+- `pair_attention` tests assumption A4; it is not a model option. Its consequence is fixed in plan §12.6 before any result: if it beats full by > 1 std on ≥ 2 of 3 datasets, report it and stop before Tier 0 so the author confirms with 10 seeds.
+- Do not implement multi-block structure (maps or attention recomputed from `x_t`, per-step mixing or nonlinearity); it returns only through the `h0_only` trigger in §12.6.
+- Save tokens: long output to `docs/D11_evidence/`; full suite once per unit; skip the independent sub-agent review.
+
+### Stop conditions
+T-F2, T-F3, T-F3b, T-F5 or T-F6 fails after 3 diagnosed attempts; the bundle bit-identity test fails; no strong baseline can run (report before the screen); the screen hits the "path cells don't beat γ = 0 or endpoint_edges" trigger or the `pair_attention` trigger (stop and report, do not continue to Tier 0).
+
+Commit per unit; push when the screen report is written. Report: `docs/H2S-NN_D11_report.md` (Part A format, at most two pages, including "Assumptions imposed for theory and reality checks", and one line per assumption A1–A5 saying which screen row tested it and the outcome).
