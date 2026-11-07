@@ -44,8 +44,8 @@ def build_logger(cfg: TrainConfig) -> ExperimentLogger:
 
 
 def build_parameter_groups(model: H2SNN, cfg: TrainConfig) -> list[dict[str, object]]:
-    """Two groups: the diffusion scalars `theta_eta`, `theta_gamma` (lr scaled by
-    `optim.scalar_lr_scale`, no weight decay) and every other parameter (base settings)."""
+    """Two groups: the diffusion scalars `theta_eta`, `theta_gamma` and the coupling-gate heads
+    (lr scaled by `optim.scalar_lr_scale`, no weight decay) and every other parameter."""
     scalars = list(model.scalar_parameters())
     scalar_ids = {id(parameter) for parameter in scalars}
     others = [p for p in model.parameters() if id(p) not in scalar_ids]

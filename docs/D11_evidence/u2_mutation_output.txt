@@ -1,0 +1,2 @@
+control: failures=0 errors=0
+mutation (gate heads not in the fast group): failures=2 errors=0 -> CAUGHT

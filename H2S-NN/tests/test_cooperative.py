@@ -479,5 +479,108 @@ class GateGradientTests(unittest.TestCase):
                 self.assertIn("g_mean", model.diffusion_scalars())
 
 
+# ----------------------------------------------------------------------------- T-F1 (D11 learning fix)
+def _signal_fixture():
+    """Paper/author toy graph whose labels need diffusion: a paper's class is the argmax of its
+    neighbour authors' mean features (first 3 columns), so the readout of h0 alone cannot
+    reach it and gradients flow into eta and the gate heads."""
+    from tests.test_factorized_maps import _random_pap_data
+    from tests.test_v2_model import _with
+
+    data = _random_pap_data()
+    papers = int(data.target_indices.numel())
+    mean = torch.zeros(papers, 3)
+    count = torch.zeros(papers, 1)
+    for u, v in data.edge_index.t().tolist():
+        if u < papers <= v:
+            mean[u] += data.x[v, :3]
+            count[u] += 1
+    labels = mean.div(count.clamp_min(1)).argmax(dim=1)
+    y = data.y.clone()
+    y[:papers] = labels
+    return _with(data, target_y=labels, y=y)
+
+
+def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: int = 50):
+    """`epochs` full-batch steps; returns the moves of eta, mean |dg| and mean |db| (per node, so
+    gates moving up and down do not cancel) and the losses."""
+    import torch.nn.functional as F
+
+    from src.builders import build_optimizer
+    from src.models.h2snn_model import build_model
+
+    data = _signal_fixture()
+    model_cfg = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
+                 "edge_mlp_hidden_dim": 16, "layer_dropout": 0.0, "classifier_dropout": 0.0}
+    if gate_init is not None:
+        model_cfg["coupling_gate_init"] = gate_init
+    cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": model_cfg,
+                                 "data": {"resample_paths": False}})
+    torch.manual_seed(seed)
+    model = build_model(cfg, data)
+    if grouped:
+        optimizer = build_optimizer(model, cfg)
+    else:  # the old setting: one group at the base rate for everything
+        optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.optim.lr,
+                                      weight_decay=cfg.optim.weight_decay)
+
+    def state() -> tuple[float, torch.Tensor, torch.Tensor]:
+        with torch.no_grad():
+            g, b = model.coupling_gates(model.encode_nodes(data.x, data.node_type))
+            return float(model.eta()), g.clone(), b.clone()
+
+    before = state()
+    losses = []
+    for _ in range(epochs):
+        optimizer.zero_grad()
+        logits = model(data).logits[data.target_train_mask]
+        loss = F.cross_entropy(logits, data.target_y[data.target_train_mask])
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.optim.grad_clip)
+        optimizer.step()
+        losses.append(float(loss))
+    after = state()
+    moves = [abs(after[0] - before[0]), float((after[1] - before[1]).abs().mean()),
+             float((after[2] - before[2]).abs().mean())]
+    return moves, losses
+
+
+class LearningFixTests(unittest.TestCase):
+    SEEDS = (0, 1, 2)
+
+    def test_TF1_the_scalar_group_moves_eta_and_both_gate_heads(self) -> None:
+        for seed in self.SEEDS:
+            moves, losses = _train_toy(gate_init=None, grouped=True, seed=seed)  # defaults
+            self.assertLess(losses[-1], 0.8 * losses[0], "the toy signal must be learnable")
+            for name, move in zip(("eta", "g", "b"), moves):
+                self.assertGreater(move, 0.05, f"{name} (seed {seed})")
+
+    def test_TF1_control_old_setting_does_not_move(self) -> None:
+        for seed in self.SEEDS:
+            moves, losses = _train_toy(gate_init=0.95, grouped=False, seed=seed)
+            self.assertLess(losses[-1], 0.8 * losses[0])  # it learns; the scalars cannot move
+            for name, move in zip(("eta", "g", "b"), moves):
+                self.assertLess(move, 0.05, f"{name} (seed {seed})")
+
+    def test_TF1_group_contents_and_defaults(self) -> None:
+        from src.builders import build_optimizer
+        from src.models.h2snn_model import build_model
+
+        data = _signal_fixture()
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2}})
+        self.assertEqual(cfg.model.coupling_gate_init, 0.6)
+        self.assertEqual(cfg.ablation.coupling, "cooperative")
+        model = build_model(cfg, data)
+        optimizer = build_optimizer(model, cfg)
+        fast = [g for g in optimizer.param_groups if g["lr"] > cfg.optim.lr]
+        self.assertEqual(len(fast), 1)
+        ids = {id(p) for p in fast[0]["params"]}
+        expected = [model.theta_eta, model.theta_gamma, *model.listen_gate.parameters(),
+                    *model.broadcast_gate.parameters()]
+        self.assertEqual(ids, {id(p) for p in expected})
+        self.assertEqual(fast[0]["weight_decay"], 0.0)
+        self.assertAlmostEqual(fast[0]["lr"], cfg.optim.lr * cfg.optim.scalar_lr_scale)
+
+
 if __name__ == "__main__":
     unittest.main()

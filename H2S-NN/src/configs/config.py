@@ -564,9 +564,9 @@ class ModelConfig:
     # Initial gamma = softplus(theta_gamma) > 0 and eta = sigmoid(theta_eta) in (0, 1).
     gamma_init: float = 1.0
     eta_init: float = 0.5
-    # D10: initial value of the listen / broadcast gates g, b in (0, 1) (plan §10.2); training
-    # starts near the symmetric model. The only new model hyperparameter of D10; never tuned.
-    coupling_gate_init: float = 0.95
+    # D10: initial value of the listen / broadcast gates g, b in (0, 1) (plan §10.2). 0.6 since
+    # D11 (plan §12.4): at 0.95 the sigmoid is flat and the gates did not move. Never tuned.
+    coupling_gate_init: float = 0.6
     # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
 
@@ -639,7 +639,7 @@ class ModelConfig:
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             gamma_init=float(raw.get("gamma_init", 1.0)),
             eta_init=float(raw.get("eta_init", 0.5)),
-            coupling_gate_init=float(raw.get("coupling_gate_init", 0.95)),
+            coupling_gate_init=float(raw.get("coupling_gate_init", 0.6)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
         )
@@ -725,8 +725,8 @@ class OptimConfig:
     weight_decay: float = 1e-4
     scheduler: str = "cosine"
     grad_clip: float = 1.0
-    # Learning rate of the diffusion scalars theta_eta, theta_gamma, as a multiple of `lr`
-    # (own parameter group, no weight decay). Full-batch training takes one optimizer step
+    # Learning rate of the diffusion scalars theta_eta, theta_gamma and the coupling-gate heads,
+    # as a multiple of `lr` (own parameter group, no weight decay). Full-batch training takes one optimizer step
     # per epoch, so at the base rate these scalars barely move (plan §4.7).
     scalar_lr_scale: float = 10.0
 

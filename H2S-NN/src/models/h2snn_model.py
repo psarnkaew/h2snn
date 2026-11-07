@@ -537,8 +537,14 @@ class H2SNN(nn.Module):
         return scalars
 
     def scalar_parameters(self) -> list[nn.Parameter]:
-        """`theta_eta`, `theta_gamma`: the optimizer gives them their own group."""
-        return [p for p in (self.theta_eta, self.theta_gamma) if p is not None]
+        """`theta_eta`, `theta_gamma` and the gate heads (weights and biases): the optimizer gives
+        them their own group (plan §12.4). Sigmoid-saturated scalars move too little per
+        full-batch step at the base rate."""
+        scalars = [p for p in (self.theta_eta, self.theta_gamma) if p is not None]
+        for head in (self.listen_gate, self.broadcast_gate):
+            if head is not None:
+                scalars.extend(head.parameters())
+        return scalars
 
     # ------------------------------------------------------------------ operator
     def encode_nodes(self, x: torch.Tensor, node_type: torch.Tensor) -> torch.Tensor:

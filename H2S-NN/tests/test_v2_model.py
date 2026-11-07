@@ -1000,11 +1000,12 @@ class V2ModelTests(unittest.TestCase):
             checkpointer = Checkpointer(cfg.exp_dir, metric="acc", mode="max")
             save_config(cfg, cfg.exp_dir / "config.yaml")
             optimizer = build_optimizer(model, cfg)
-            # theta_eta, theta_gamma in their own group: lr x 10, no weight decay.
+            # theta_eta, theta_gamma and the four gate-head tensors (plan §12.4) in their own
+            # group: lr x 10, no weight decay.
             scalar_group = [g for g in optimizer.param_groups
                             if any(p is model.theta_eta for p in g["params"])]
             self.assertEqual(len(scalar_group), 1)
-            self.assertEqual(len(scalar_group[0]["params"]), 2)
+            self.assertEqual(len(scalar_group[0]["params"]), 6)
             self.assertAlmostEqual(scalar_group[0]["lr"], 1e-2)
             self.assertEqual(scalar_group[0]["weight_decay"], 0.0)
             other = [g for g in optimizer.param_groups if g is not scalar_group[0]]
@@ -1247,7 +1248,7 @@ class ConfigTests(unittest.TestCase):
                              for name in AblationConfig.__dataclass_fields__
                              if name != "coupling"))  # every boolean switch is off
         self.assertEqual(config.ablation.coupling, "cooperative")  # D10 default
-        self.assertEqual(config.model.coupling_gate_init, 0.95)
+        self.assertEqual(config.model.coupling_gate_init, 0.6)
         self.assertEqual(config.ablation.map_scale, "per_edge")
         self.assertEqual(config.ablation.path_mode, "cells")
         self.assertEqual(config.model.map_family, "factorized")

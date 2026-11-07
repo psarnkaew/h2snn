@@ -39,3 +39,4 @@ T-F3: 50 fixtures x 50 steps, eta in {0.25, 0.7, 1.0}: largest one-step increase
 T-F3b: 30 fixtures (edges + signed mixed-length cells, random gates in [0.02, 1]); effective weight w(u<-v) = ||A_uv||_F / sqrt(d) (scalar factor of the block; A = (I - Phi)/eta from `diffuse`);
 least-squares metric from log m_u - log m_v = log w(v<-u) - log w(u<-v) (gelsd); residual <= 1e-10, ||MA - (MA)^T|| / ||MA|| <= 1e-10, and the metric equals b/g up to a constant (<= 1e-8 relative).
 Control available at U3: free per-direction block factors -> residual > 1e-3 on some fixture. The pair_attention control (required by the card) is added in U4b.
+(U2 outcome) T-F1 after attempt 2: fix moves every quantity by >= 0.088 on seeds 0-2; control <= 0.013; mutation (gate heads outside the group) caught 2/2 (`u2_mutation_output.txt`).
