@@ -1,0 +1,24 @@
+first_order/context=on {"seconds": [1.468767200014554, 1.4772784999804571, 1.465811499976553], "seconds_mean": 1.4706190666571881, "peak_mib_max": 1611.80078125, "resident_before_step_mib": 115.5810546875, "parameters": 532649}
+filter_bank/context=on {"seconds": [1.4790441000368446, 1.462607100023888, 1.4836359000764787], "seconds_mean": 1.4750957000457372, "peak_mib_max": 1612.49462890625, "resident_before_step_mib": 115.619140625, "parameters": 537768}
+first_order/context=off {"seconds": [1.0575454999925569, 1.0584380999207497, 1.0616786000318825], "seconds_mean": 1.059220733315063, "peak_mib_max": 1529.57373046875, "resident_before_step_mib": 113.8271484375, "parameters": 302761}
+filter_bank/context=off {"seconds": [1.0588316000066698, 1.057621999992989, 1.063982899999246], "seconds_mean": 1.060145499999635, "peak_mib_max": 1527.16357421875, "resident_before_step_mib": 113.865234375, "parameters": 307880}
+{
+ "overhead_context_on": {
+  "time_pct": 0.3044046884775442,
+  "peak_memory_pct": 0.04304797865353205,
+  "parameters_delta": 5119
+ },
+ "overhead_context_off": {
+  "time_pct": 0.08730632393096904,
+  "peak_memory_pct": -0.15757045260325064,
+  "parameters_delta": 5119
+ },
+ "gate": {
+  "time_le_25pct": true,
+  "memory_le_10pct": true
+ },
+ "context_cost_first_order": {
+  "time_pct": 38.839716822249514,
+  "peak_memory_pct": 5.375814787042055
+ }
+}
