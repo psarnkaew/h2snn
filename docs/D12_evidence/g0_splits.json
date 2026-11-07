@@ -1,0 +1,161 @@
+{
+  "acm": {
+    "target_type_is_hgb_type0": true,
+    "n_target": 3025,
+    "sizes_ours": {
+      "train": 726,
+      "val": 181,
+      "test": 2118
+    },
+    "sizes_hgb": {
+      "train_pool(label.dat)": 907,
+      "test(label.dat.test)": 2118,
+      "val=int(0.2 n)": 181,
+      "train": 726
+    },
+    "test_equal": true,
+    "train_union_val_equal_label_dat": true,
+    "train_val_disjoint": true,
+    "test_disjoint_from_train_val": true,
+    "label_mismatch_count": 0,
+    "labelled_checked": 3025,
+    "class_counts": {
+      "train": [
+        225,
+        233,
+        268
+      ],
+      "val": [
+        55,
+        60,
+        66
+      ],
+      "test": [
+        714,
+        677,
+        727
+      ],
+      "hgb_test": [
+        714,
+        677,
+        727
+      ]
+    },
+    "hetsheaf_split": {
+      "val": 90,
+      "train": 817,
+      "val_overlap_with_our_val": 17
+    },
+    "imdb_unlabelled_rows_in_pool": 0
+  },
+  "dblp": {
+    "target_type_is_hgb_type0": true,
+    "n_target": 4057,
+    "sizes_ours": {
+      "train": 974,
+      "val": 243,
+      "test": 2840
+    },
+    "sizes_hgb": {
+      "train_pool(label.dat)": 1217,
+      "test(label.dat.test)": 2840,
+      "val=int(0.2 n)": 243,
+      "train": 974
+    },
+    "test_equal": true,
+    "train_union_val_equal_label_dat": true,
+    "train_val_disjoint": true,
+    "test_disjoint_from_train_val": true,
+    "label_mismatch_count": 0,
+    "labelled_checked": 4057,
+    "class_counts": {
+      "train": [
+        301,
+        189,
+        251,
+        233
+      ],
+      "val": [
+        67,
+        49,
+        66,
+        61
+      ],
+      "test": [
+        829,
+        507,
+        792,
+        712
+      ],
+      "hgb_test": [
+        829,
+        507,
+        792,
+        712
+      ]
+    },
+    "hetsheaf_split": {
+      "val": 121,
+      "train": 1096,
+      "val_overlap_with_our_val": 21
+    },
+    "imdb_unlabelled_rows_in_pool": 0
+  },
+  "imdb": {
+    "target_type_is_hgb_type0": true,
+    "n_target": 4932,
+    "sizes_ours": {
+      "train": 1097,
+      "val": 274,
+      "test": 3202
+    },
+    "sizes_hgb": {
+      "train_pool(label.dat)": 1371,
+      "test(label.dat.test)": 3202,
+      "val=int(0.2 n)": 274,
+      "train": 1097
+    },
+    "test_equal": true,
+    "train_union_val_equal_label_dat": true,
+    "train_val_disjoint": true,
+    "test_disjoint_from_train_val": true,
+    "label_mismatch_count": 0,
+    "labelled_checked": 4573,
+    "class_counts": {
+      "train": [
+        287,
+        337,
+        433,
+        257,
+        618
+      ],
+      "val": [
+        70,
+        94,
+        108,
+        70,
+        152
+      ],
+      "test": [
+        733,
+        953,
+        1296,
+        808,
+        1747
+      ],
+      "hgb_test": [
+        733,
+        953,
+        1296,
+        808,
+        1747
+      ]
+    },
+    "hetsheaf_split": {
+      "val": 137,
+      "train": 1234,
+      "val_overlap_with_our_val": 25
+    },
+    "imdb_unlabelled_rows_in_pool": 0
+  }
+}
