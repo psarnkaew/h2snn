@@ -582,5 +582,125 @@ class LearningFixTests(unittest.TestCase):
         self.assertAlmostEqual(fast[0]["lr"], cfg.optim.lr * cfg.optim.scalar_lr_scale)
 
 
+# ----------------------------------------------------------------------------- T-F2, T-F3, T-F3b (Prop. 4)
+def _energy(system: System, x: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+    """`E(x) = 1/2 <Bx, Delta_hat Bx>` with the production normalized operator."""
+    y = b.unsqueeze(-1) * x
+    return 0.5 * (y * system.laplacian.apply_normalized(y)).sum()
+
+
+def _effective_weights(matrix: torch.Tensor, num_nodes: int, d: int) -> torch.Tensor:
+    """`w[u, v]` = the scalar gain of the off-diagonal block `A[u, v]` (u listens to v):
+    ||A_uv||_F / sqrt(d), which is the scalar factor when the block is a scalar times an
+    orthogonal matrix and the root-mean-square gain otherwise."""
+    blocks = matrix.view(num_nodes, d, num_nodes, d).permute(0, 2, 1, 3)
+    weights = blocks.flatten(2).norm(dim=-1) / d ** 0.5
+    weights.fill_diagonal_(0.0)
+    return weights
+
+
+def _balance_residual(weights: torch.Tensor) -> tuple[torch.Tensor, float]:
+    """Least-squares per-node metric from `log m_u - log m_v = log w(v<-u) - log w(u<-v)` over
+    all unordered pairs with a connection; returns `(m, max |equation residual|)`."""
+    n = weights.size(0)
+    rows, rhs = [], []
+    for u in range(n):
+        for v in range(u + 1, n):
+            if weights[u, v] > 0 and weights[v, u] > 0:
+                row = torch.zeros(n, dtype=weights.dtype)
+                row[u], row[v] = 1.0, -1.0
+                rows.append(row)
+                rhs.append(torch.log(weights[v, u]) - torch.log(weights[u, v]))
+    matrix, target = torch.stack(rows), torch.stack(rhs).unsqueeze(-1)
+    solution = torch.linalg.lstsq(matrix, target, driver="gelsd").solution
+    residual = float((matrix @ solution - target).abs().max())
+    return torch.exp(solution.squeeze(-1)), residual
+
+
+def _symmetry_defect(matrix: torch.Tensor, metric: torch.Tensor, d: int) -> float:
+    """`||M A - (M A)^T||_max / ||M A||_max` for the diagonal metric `M = diag(metric) x I_d`."""
+    ma = metric.repeat_interleave(d).unsqueeze(-1) * matrix
+    return float((ma - ma.T).abs().max() / ma.abs().max())
+
+
+class MetricGradientFlowTests(unittest.TestCase):
+    def test_TF2_metric_gradient_identity(self) -> None:
+        model = _gate_model("cooperative")
+        for shared in (True, False):
+            for seed in range(4):
+                with self.subTest(shared=shared, seed=seed):
+                    system = System(seed, shared=shared)
+                    g, b = _random_gates(system, low=0.05)
+                    x = torch.randn(system.num_nodes, system.d, generator=system.generator,
+                                    dtype=torch.float64, requires_grad=True)
+                    gradient, = torch.autograd.grad(_energy(system, x, b), x)
+                    lhs = (g / b).unsqueeze(-1) * gradient  # M^-1 grad E with M = B G^-1
+                    step = (x.detach() - model.diffuse(x.detach(), system.operator(g, b))) / ETA
+                    G = torch.diag(g.repeat_interleave(system.d))
+                    B = torch.diag(b.repeat_interleave(system.d))
+                    dense = (G @ system.dense_delta_hat() @ B @ x.detach().reshape(-1)).view_as(x)
+                    self.assertLess(_rel(lhs, step), F64_TOL)
+                    self.assertLess(_rel(lhs, dense), F64_TOL)
+                    # controls: the swapped metric G B^-1 and the identity metric are other flows
+                    self.assertGreater(_rel((b / g).unsqueeze(-1) * gradient, step), 1e-3)
+                    self.assertGreater(_rel(gradient, step), 1e-3)
+
+    def _energies(self, eta: float, fixtures: int, steps: int = 50) -> list[list[float]]:
+        model = _gate_model("cooperative")
+        histories = []
+        for seed in range(fixtures):
+            system = System(2000 + seed, shared=seed % 2 == 0)
+            g, b = _random_gates(system, low=0.01)
+            operator = system.operator(g, b)._replace(eta=torch.tensor(eta, dtype=torch.float64))
+            x = torch.randn(system.num_nodes, system.d, generator=system.generator,
+                            dtype=torch.float64)
+            history = [float(_energy(system, x, b))]
+            for _ in range(steps):
+                x = model.diffuse(x, operator)
+                history.append(float(_energy(system, x, b)))
+            histories.append(history)
+        return histories
+
+    def test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three(self) -> None:
+        for eta in (0.25, 0.7, 1.0):
+            worst = max(max(later - earlier for earlier, later in zip(h, h[1:]))
+                        for h in self._energies(eta, fixtures=50))
+            self.assertLessEqual(worst, 1e-12, f"eta={eta}: largest one-step energy increase")
+        increases = [max(later - earlier for earlier, later in zip(h, h[1:]))
+                     for h in self._energies(3.0, fixtures=50)]
+        self.assertGreater(max(increases), 1e-6, "control: eta = 3 must increase E somewhere")
+
+    def _step_matrices(self, fixtures: int):
+        model = _gate_model("cooperative")
+        for seed in range(fixtures):
+            system = System(3000 + seed, shared=seed % 2 == 0)
+            g, b = _random_gates(system, low=0.02)
+            yield system, g, b, _step_matrix(model, system.operator(g, b), system.num_nodes,
+                                             system.d)
+
+    def test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists(self) -> None:
+        worst_residual, worst_symmetry = 0.0, 0.0
+        for system, g, b, matrix in self._step_matrices(30):
+            weights = _effective_weights(matrix, system.num_nodes, system.d)
+            metric, residual = _balance_residual(weights)
+            worst_residual = max(worst_residual, residual)
+            worst_symmetry = max(worst_symmetry, _symmetry_defect(matrix, metric, system.d))
+            ratio = metric / (b / g)  # the metric is the one the theory names, up to a constant
+            self.assertLess(float((ratio / ratio[0] - 1).abs().max()), 1e-8)
+        self.assertLess(worst_residual, 1e-10)
+        self.assertLess(worst_symmetry, 1e-10)
+
+    def test_TF3b_control_free_per_direction_weights_have_no_metric(self) -> None:
+        """A free weight per direction breaks detailed balance, so the check is not vacuous."""
+        worst = 0.0
+        for system, g, b, matrix in self._step_matrices(30):
+            n, d = system.num_nodes, system.d
+            factors = 0.2 + 1.8 * torch.rand(n, n, generator=system.generator, dtype=torch.float64)
+            free = (matrix.view(n, d, n, d) * factors[:, None, :, None]).reshape(n * d, n * d)
+            _, residual = _balance_residual(_effective_weights(free, n, d))
+            worst = max(worst, residual)
+        self.assertGreater(worst, 1e-3)
+
+
 if __name__ == "__main__":
     unittest.main()
