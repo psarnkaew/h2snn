@@ -28,7 +28,8 @@ COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric", "p
 NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normalization")
 # D12 comparison arms (C8, C9): never a search-space parameter; the non-default values are refused
 # in a tuning base config (evidence rows, never tuned, never defaults).
-NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context",)
+NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context", "encoder")
+ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 
 
@@ -64,8 +65,13 @@ def reject_never_tuned_settings(
         raise ValueError(
             "model.geometry_context: false is the C9 comparison arm and must not be used in tuning."
         )
+    if str(model.get("encoder", "filter_bank")) != "filter_bank":
+        raise ValueError(
+            "model.encoder: first_order is the C8 comparison arm and must not be used in tuning."
+        )
     for name in search_parameters:
-        if any(key in str(name) for key in NEVER_TUNED_D12_KEYS):
+        # exact last component: `model.encoder_dropout` is an ordinary hyperparameter
+        if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the D12 comparison switches "
                 "(geometry_context, encoder) are never tuned."
@@ -619,8 +625,15 @@ class ModelConfig:
     # once from [h0, c], c = per-(relation, role) mean of the neighbours' h0 over facts. false =
     # geometry from h0 alone (the D11 model; comparison arm C9). Never tuned.
     geometry_context: bool = True
+    # D12 (spec v1.2 R9): "filter_bank" = x = sum_k T_k(A - I)(h0 W_k), the method;
+    # "first_order" = K steps x <- x - eta A x (the D11 update; nested arm C8, Prop. 7). eta exists
+    # only under first_order; filter_bank starts at the first-order update with eta = eta_init.
+    # Never tuned.
+    encoder: str = "filter_bank"
 
     def __post_init__(self) -> None:
+        if self.encoder not in ENCODERS:
+            raise ValueError(f"model.encoder must be one of {ENCODERS}, got {self.encoder!r}.")
         if not isinstance(self.geometry_context, bool):
             raise ValueError(
                 f"model.geometry_context must be a boolean, got {self.geometry_context!r}."
@@ -697,6 +710,7 @@ class ModelConfig:
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
             geometry_context=raw.get("geometry_context", True),
+            encoder=str(raw.get("encoder", "filter_bank")),
         )
 
 

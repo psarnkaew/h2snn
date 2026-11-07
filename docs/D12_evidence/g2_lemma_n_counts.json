@@ -1,0 +1,72 @@
+{
+ "acm": {
+  "facts": 273936,
+  "self_loop_facts": 8,
+  "nodes_with_self_loop_fact": 8,
+  "self_loop_facts_by_relation": {
+   "paper__cite__paper": 8,
+   "paper__to__author": 0,
+   "paper__to__subject": 0,
+   "paper__to__term": 0
+  },
+  "cells_with_repeated_node_by_schema [repeated, total]": {
+   "PAP": [
+    0,
+    12630
+   ],
+   "PSP": [
+    0,
+    121744
+   ]
+  },
+  "nodes_repeated_inside_a_cell": 0,
+  "nodes_outside_lemma_N": 8,
+  "num_nodes": 10942
+ },
+ "dblp": {
+  "facts": 119783,
+  "self_loop_facts": 0,
+  "nodes_with_self_loop_fact": 0,
+  "self_loop_facts_by_relation": {
+   "author__to__paper": 0,
+   "paper__to__term": 0,
+   "paper__to__venue": 0
+  },
+  "cells_with_repeated_node_by_schema [repeated, total]": {
+   "APA": [
+    0,
+    6016
+   ],
+   "APTPA": [
+    0,
+    168948
+   ]
+  },
+  "nodes_repeated_inside_a_cell": 0,
+  "nodes_outside_lemma_N": 0,
+  "num_nodes": 26128
+ },
+ "imdb": {
+  "facts": 43321,
+  "self_loop_facts": 0,
+  "nodes_with_self_loop_fact": 0,
+  "self_loop_facts_by_relation": {
+   "movie__to__director": 0,
+   "movie__>actorh__actor": 0,
+   "movie__to__keyword": 0
+  },
+  "cells_with_repeated_node_by_schema [repeated, total]": {
+   "MDM": [
+    0,
+    8165
+   ],
+   "MAM": [
+    0,
+    39519
+   ]
+  },
+  "nodes_repeated_inside_a_cell": 0,
+  "nodes_outside_lemma_N": 0,
+  "num_nodes": 21420
+ }
+}

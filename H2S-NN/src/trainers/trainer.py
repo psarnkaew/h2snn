@@ -161,11 +161,12 @@ class Trainer:
         # Diffusion step and path-coupling strength after this epoch's update.
         metrics.update(self.model.diffusion_scalars())  # type: ignore[operator]
         if epoch % self.cfg.log_every == 0 and self.model.diagnostics_available:  # type: ignore[attr-defined]
-            # eta * lambda_max of G Delta B (D10, power iteration, 30 steps: a lower bound).
-            metrics["eta_lambda_max"] = self.model.eta_lambda_max(  # type: ignore[operator]
+            # first_order: eta * lambda_max of G Delta B (D10, power iteration, 30 steps: a lower
+            # bound); filter_bank: lambda_max(A), sum_k ||W_k||_2 and the M-gain (D12).
+            metrics.update(self.model.operator_diagnostics(  # type: ignore[operator]
                 data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
                 data.num_nodes,
-            )
+            ))
             # Normalized energy per diffusion step, edge and path-cell parts (plan §12.6).
             metrics.update(self.model.energy_trace(  # type: ignore[operator]
                 data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,

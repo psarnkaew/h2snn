@@ -150,8 +150,11 @@ class LinkPredictionHeadTests(unittest.TestCase):
                                                 logger=None, checkpointer=None)
                 metrics = trainer._train_epoch(data, epoch=0)
                 self.assertTrue(torch.isfinite(torch.tensor(metrics["loss"])))
-                self.assertIn("eta", metrics)
-                for prefix in ("node_encoder", "node_to_edge", "path_gate", "theta_eta",
+                # the encoder's own scalar: eta (first_order) or sum_k ||W_k|| (filter_bank, D12)
+                self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum",
+                              metrics)
+                for prefix in ("node_encoder", "node_to_edge", "path_gate",
+                               "theta_eta" if model.encoder == "first_order" else "filter_bank",
                                "theta_gamma"):
                     grads = [p.grad for n, p in model.named_parameters() if n.startswith(prefix)]
                     self.assertTrue(grads and all(g is not None for g in grads), prefix)
@@ -237,7 +240,7 @@ class GraphClassificationHeadTests(unittest.TestCase):
         loader = DataLoader([_typed_graph(seed) for seed in range(6)], batch_size=3)
         metrics = trainer._run_epoch(loader, epoch=0, train=True)
         self.assertTrue(torch.isfinite(torch.tensor(metrics["loss"])))
-        self.assertIn("eta", metrics)
+        self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum", metrics)
         self.assertIn("gamma", metrics)
         for name, parameter in model.named_parameters():
             if parameter.grad is not None:

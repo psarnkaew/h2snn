@@ -777,7 +777,7 @@ class V2ModelTests(unittest.TestCase):
         dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
                          face_lengths=(2,))
         torch.manual_seed(0)
-        model = H2SNN(_v2_config(), dims).double()
+        model = H2SNN(_v2_config(encoder="first_order"), dims).double()  # one eta step (D11)
         h0 = torch.randn(4, 8, dtype=torch.float64)
         operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
         self.assertEqual(len(operator.laplacian.path_terms), 1)
@@ -810,7 +810,7 @@ class V2ModelTests(unittest.TestCase):
             lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
         self.assertGreater(float(jacobian[0, :, 2, :].abs().max()), 1e-8)
         torch.manual_seed(0)
-        ablated = H2SNN(_v2_config({"no_path_cells": True}), dims).double()
+        ablated = H2SNN(_v2_config({"no_path_cells": True}, encoder="first_order"), dims).double()
         ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
         jacobian = torch.autograd.functional.jacobian(
             lambda x0: x0 - ablated_operator.eta
@@ -893,7 +893,9 @@ class V2ModelTests(unittest.TestCase):
         data = _random_pap_data()
         model = _v2_model(data)
         model(data).logits.square().sum().backward()
-        groups = ["theta_eta", "theta_gamma", "path_gate", "path_encoder",
+        # the encoder's own parameters: theta_eta (first_order) or the filter bank V (D12 default)
+        groups = ["theta_eta" if model.encoder == "first_order" else "filter_bank",
+                  "theta_gamma", "path_gate", "path_encoder",
                   "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
                   "node_to_edge.rotation_params", "node_encoder", "relation_embedding",
                   "readout"]
@@ -990,7 +992,8 @@ class V2ModelTests(unittest.TestCase):
             cfg = TrainConfig.from_dict({
                 "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
-                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16},
+                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
+                          "encoder": "first_order"},  # eta logged, 6-tensor scalar group (D11)
                 # Hand-built fixture without a fact layer: nothing to resample.
                 "data": {"resample_paths": False},
                 "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})

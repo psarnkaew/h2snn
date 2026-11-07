@@ -1,0 +1,6 @@
+control (unmutated) T-G2: ran=1 failures=0 errors=0
+control (unmutated) T-G3: ran=1 failures=0 errors=0
+control (unmutated) T-G4: ran=1 failures=0 errors=0
+M1 normalization of V_k removed: T-G2 ran=1 failing=1 -> CAUGHT | AssertionError: 2.911605587999476 not less than or equal to 1.000000001
+M2 recurrence on A instead of A - I: T-G4 ran=1 failing=6 -> CAUGHT | AssertionError: 1.5264909535745954 not less than or equal to 1e-10
+M3 gates applied as B Delta_hat G: T-G3 ran=1 failing=1 -> CAUGHT | AssertionError: False is not true : g_u = 0: block 0<-1

@@ -43,6 +43,7 @@ from src.models.map_operators import (
     checkpoint_if_grad,
     normalize_reflectors,
 )
+from src.models.filter_bank import ChebyshevFilterBank
 from src.models.node_encoder import TypeSpecificNodeEncoder
 from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
@@ -166,7 +167,7 @@ class DiffusionOperator(NamedTuple):
     """Everything one forward pass diffuses with; `encode` and the tests share it."""
 
     laplacian: VertexPathSheafLaplacian
-    eta: torch.Tensor
+    eta: torch.Tensor | None  # None under encoder: filter_bank (eta exists only under first_order)
     gamma: torch.Tensor | None
     path_weights: tuple[torch.Tensor, ...]
     maps: EdgeMapPair
@@ -192,7 +193,7 @@ class H2SNNOutput(NamedTuple):
     x_star: torch.Tensor
     h0: torch.Tensor
     # Detached diagnostics for logging (no effect on optimization).
-    eta: torch.Tensor
+    eta: torch.Tensor | None
     gamma: torch.Tensor | None
     path_gate_mean: torch.Tensor | None
     path_gate_max: torch.Tensor | None
@@ -484,7 +485,12 @@ class H2SNN(nn.Module):
                 shared_role_relations=self.shared_role_relations,
                 input_dim=geometry_dim,
             )
-        self.theta_eta = nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
+        # eta exists only under encoder: first_order (D12); the filter bank absorbs the step size.
+        self.encoder = model_config.encoder
+        self.theta_eta: nn.Parameter | None = (
+            nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
+            if model_config.encoder == "first_order" else None
+        )
         self.use_path_cells = not ablation.no_path_cells
         self.path_mode = ablation.path_mode
         self.free_path_maps = ablation.free_path_maps
@@ -576,9 +582,17 @@ class H2SNN(nn.Module):
                 num_relations=dims.num_relations,
                 max_positions=max(dims.face_lengths, default=1) + 1,
             )
+        # D12 G2: the Chebyshev filter bank (spec v1.2 §3). Created last; its initialization is
+        # deterministic (V_k = theta_k I, no RNG), so every other parameter is as before.
+        self.filter_bank: ChebyshevFilterBank | None = None
+        if model_config.encoder == "filter_bank" and not self.h0_only:
+            self.filter_bank = ChebyshevFilterBank(d, model_config.K, model_config.eta_init)
 
     # ------------------------------------------------------------------ scalars
-    def eta(self) -> torch.Tensor:
+    def eta(self) -> torch.Tensor | None:
+        """`sigmoid(theta_eta)` under `encoder: first_order`; None under `filter_bank`."""
+        if self.theta_eta is None:
+            return None
         return torch.sigmoid(self.theta_eta)
 
     def gamma(self) -> torch.Tensor | None:
@@ -589,7 +603,13 @@ class H2SNN(nn.Module):
     def diffusion_scalars(self) -> dict[str, float]:
         """Current eta and gamma, for per-epoch logging."""
         with torch.no_grad():
-            scalars = {"eta": float(self.eta())}
+            scalars: dict[str, float] = {}
+            eta = self.eta()
+            if eta is not None:
+                scalars["eta"] = float(eta)
+            if self.filter_bank is not None:  # sum_k ||W_k||_2 (Prop. 5 bound), cheap
+                scalars["filter_norm_sum"] = float(
+                    torch.linalg.matrix_norm(self.filter_bank.weights(), ord=2).sum())
             gamma = self.gamma()
             if gamma is not None:
                 scalars["gamma"] = float(gamma)
@@ -772,23 +792,26 @@ class H2SNN(nn.Module):
 
     def diffuse(self, x0: torch.Tensor, operator: DiffusionOperator,
                 trace: list[torch.Tensor] | None = None) -> torch.Tensor:
-        """K steps of `x <- x - eta G Delta B x` (then layer dropout). G and B are skipped,
-        not multiplied by ones, when absent, so `symmetric` runs the pre-D10 operations.
-        `trace`, if given, receives the state after every step (diagnostics only)."""
+        """`encoder: first_order`: K steps of `x <- x - eta G Delta B x` (then layer dropout). G and
+        B are skipped, not multiplied by ones, when absent, so `symmetric` runs the pre-D10
+        operations. `trace`, if given, receives the state after every step (diagnostics only)."""
+        if operator.eta is None:
+            raise ValueError("diffuse is the first-order update; eta exists only under "
+                             "encoder: first_order (use propagate).")
         x = x0
         for _ in range(self.num_steps):
-            if isinstance(operator, AttentionOperator):  # x <- x - eta (x - P x)
-                y = x - operator.propagate(x)
-            else:
-                y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
-                y = operator.laplacian.apply_normalized(y)
-                if operator.listen is not None:
-                    y = operator.listen.unsqueeze(-1) * y
-            x = x - operator.eta * y
+            x = x - operator.eta * apply_operator(operator, x)
             x = self.layer_dropout(x)
             if trace is not None:
                 trace.append(x)
         return x
+
+    def propagate(self, h0: torch.Tensor, operator: DiffusionOperator) -> torch.Tensor:
+        """`x_K`: the filter bank `sum_k T_k(A - I)(h0 W_k)` (then layer dropout, once), or the
+        first-order update under `encoder: first_order`."""
+        if self.filter_bank is None:
+            return self.diffuse(h0, operator)
+        return self.layer_dropout(self.filter_bank(lambda x: apply_operator(operator, x), h0))
 
     @property
     def diagnostics_available(self) -> bool:
@@ -828,7 +851,7 @@ class H2SNN(nn.Module):
         `steps` steps: a lower bound of lambda_max that converges from below."""
         if isinstance(operator, AttentionOperator):
             raise ValueError("pair_attention has no Laplacian operator (use `diagnostics_available`).")
-        probe = operator.eta
+        probe = operator.maps.src.scale  # device and dtype only
         scale = self.coupling_scale(operator, probe.new_zeros(num_nodes)).unsqueeze(-1)
         generator = torch.Generator(device=probe.device).manual_seed(seed)
         x = torch.randn((num_nodes, self.d), generator=generator, device=probe.device,
@@ -861,10 +884,14 @@ class H2SNN(nn.Module):
         try:
             h0 = self.encode_nodes(x, node_type)
             operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
-            states = [h0]
-            self.diffuse(h0, operator, states)
+            if self.filter_bank is not None:  # no intermediate steps: input and filter output
+                states = {"0": h0, "out": self.propagate(h0, operator)}
+            else:
+                trajectory = [h0]
+                self.diffuse(h0, operator, trajectory)
+                states = {str(step): state for step, state in enumerate(trajectory)}
             trace: dict[str, float] = {}
-            for step, state in enumerate(states):
+            for step, state in states.items():
                 edge, path = operator.laplacian.energy_parts(state)
                 trace[f"energy_edge_{step}"] = float(edge)
                 trace[f"energy_path_{step}"] = float(path)
@@ -884,7 +911,41 @@ class H2SNN(nn.Module):
         try:
             h0 = self.encode_nodes(x, node_type)
             operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+            if operator.eta is None:
+                raise ValueError("eta exists only under encoder: first_order; use "
+                                 "operator_diagnostics.")
             return float(operator.eta) * self.lambda_max(operator, num_nodes, steps)
+        finally:
+            self.train(was_training)
+
+    @torch.no_grad()
+    def operator_diagnostics(self, x: torch.Tensor, node_type: torch.Tensor,
+                             edge_index: torch.Tensor, edge_type: torch.Tensor,
+                             face_groups: tuple[FaceGroup, ...], num_nodes: int,
+                             steps: int = 30) -> dict[str, float]:
+        """Spectral diagnostics of a fresh eval-mode operator (no grad; training state restored).
+        first_order: `{"eta_lambda_max"}` (D10). filter_bank: `lambda_max_A` (power iteration, a
+        lower bound), `filter_norm_sum = sum_k ||W_k||_2` (Prop. 5's bound when the spectrum of A
+        is in [0, 2]) and `filter_gain` (power iteration of F*F in M = B G^-1, a lower bound)."""
+        if self.filter_bank is None:
+            return {"eta_lambda_max": self.eta_lambda_max(x, node_type, edge_index, edge_type,
+                                                          face_groups, num_nodes, steps)}
+        was_training = self.training
+        self.eval()
+        try:
+            h0 = self.encode_nodes(x, node_type)
+            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+            ones = h0.new_ones(num_nodes)
+            listen = ones if operator.listen is None else operator.listen
+            broadcast = ones if operator.broadcast is None else operator.broadcast
+            gain = self.filter_bank.gain(lambda v: apply_operator(operator, v),
+                                         broadcast / listen, (num_nodes, self.d), steps)
+            return {
+                "lambda_max_A": self.lambda_max(operator, num_nodes, steps),
+                "filter_norm_sum": float(
+                    torch.linalg.matrix_norm(self.filter_bank.weights(), ord=2).sum()),
+                "filter_gain": gain,
+            }
         finally:
             self.train(was_training)
 
@@ -905,7 +966,7 @@ class H2SNN(nn.Module):
         operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
         if self.training:
             self.last_coupling_stats = self.coupling_stats(operator)  # logging only
-        x_star = self.diffuse(h0, operator)
+        x_star = self.propagate(h0, operator)
         return EncodedState(
             h0=h0,
             x_star=x_star,
@@ -928,8 +989,10 @@ class H2SNN(nn.Module):
         logits = self.readout(encoded.representation[data.target_indices])
         operator = encoded.operator
         if operator is None:
+            eta = self.eta()
             return H2SNNOutput(logits=logits, x_star=encoded.x_star, h0=encoded.h0,
-                               eta=self.eta().detach(), gamma=None, path_gate_mean=None,
+                               eta=None if eta is None else eta.detach(), gamma=None,
+                               path_gate_mean=None,
                                path_gate_max=None, max_edge_scale=None)
         gate_mean = gate_max = None
         if operator.path_weights:
@@ -940,12 +1003,25 @@ class H2SNN(nn.Module):
             logits=logits,
             x_star=encoded.x_star,
             h0=encoded.h0,
-            eta=operator.eta.detach(),
+            eta=None if operator.eta is None else operator.eta.detach(),
             gamma=None if operator.gamma is None else operator.gamma.detach(),
             path_gate_mean=gate_mean,
             path_gate_max=gate_max,
             max_edge_scale=max_scale.detach(),
         )
+
+
+def apply_operator(operator: "DiffusionOperator | AttentionOperator", x: torch.Tensor) -> torch.Tensor:
+    """`A x` with `A = G Delta_hat B` (gates skipped, not multiplied by ones, when absent), or
+    `A = I - P` for the pair-attention arm (its update `x - eta (x - P x)`). Shared by the
+    first-order update and the filter bank, so `first_order` is the D11 computation bit for bit."""
+    if isinstance(operator, AttentionOperator):
+        return x - operator.propagate(x)
+    y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
+    y = operator.laplacian.apply_normalized(y)
+    if operator.listen is not None:
+        y = operator.listen.unsqueeze(-1) * y
+    return y
 
 
 def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:

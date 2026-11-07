@@ -43,7 +43,8 @@ def _gate_model(coupling: str = "cooperative", d: int = 4) -> H2SNN:
         "device": "cpu",
         "model": {"d": d, "d_r": 2, "K": 1, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
                   "edge_mlp_hidden_dim": 8, "layer_dropout": 0.0,
-                  "geometry_context": False},  # D10/D11 gate heads read h0 (D12 default: [h0, c])
+                  "geometry_context": False,  # D10/D11 gate heads read h0 (D12 default: [h0, c])
+                  "encoder": "first_order"},  # the D11 update with eta (D12 default: filter_bank)
         "ablation": {"coupling": coupling},
     })
     dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
@@ -514,7 +515,7 @@ def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: in
     from src.models.h2snn_model import build_model
 
     data = _signal_fixture()
-    model_cfg = {"geometry_context": False,  # the D11 learning-fix setting (gates read h0)
+    model_cfg = {"geometry_context": False, "encoder": "first_order",  # the D11 learning fix
                  "d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
                  "edge_mlp_hidden_dim": 16, "layer_dropout": 0.0, "classifier_dropout": 0.0}
     if gate_init is not None:
@@ -572,7 +573,8 @@ class LearningFixTests(unittest.TestCase):
         from src.models.h2snn_model import build_model
 
         data = _signal_fixture()
-        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2}})
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2,
+                                                                 "encoder": "first_order"}})
         self.assertEqual(cfg.model.coupling_gate_init, 0.6)
         self.assertEqual(cfg.ablation.coupling, "cooperative")
         model = build_model(cfg, data)
@@ -734,7 +736,8 @@ class DiagnosticsTests(unittest.TestCase):
         data = _signal_fixture()
         cfg = TrainConfig.from_dict({"device": "cpu", "model": {
             "d": 8, "d_r": 4, "K": 3, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
-            "edge_mlp_hidden_dim": 16}, "data": {"resample_paths": False}})
+            "edge_mlp_hidden_dim": 16, "encoder": "first_order"},  # per-step trace (D11 update)
+            "data": {"resample_paths": False}})
         torch.manual_seed(0)
         model = build_model(cfg, data)
         model.train()
@@ -772,7 +775,8 @@ class DiagnosticsTests(unittest.TestCase):
             cfg = TrainConfig.from_dict({
                 "device": "cpu", "epochs": 2, "log_every": 1, "exp_name": "u4", "output_dir": tmp,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
-                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16},
+                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
+                          "encoder": "first_order"},  # logs eta and eta_lambda_max (D11 update)
                 "data": {"resample_paths": False}})
             torch.manual_seed(0)
             model = build_model(cfg, data)

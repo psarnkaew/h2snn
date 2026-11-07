@@ -149,5 +149,284 @@ class ContextModelTests(unittest.TestCase):
         self.assertEqual(sorted(off.state_dict()), sorted(on.state_dict()))  # parameter-free context
 
 
+# ----------------------------------------------------------------------------- G2: filter bank
+def _materialize(fn, n: int, d: int) -> torch.Tensor:
+    """Matrix of a linear map on `[n, d]` states, node-major vectorization (columns = basis)."""
+    basis = torch.eye(n * d, dtype=torch.float64).view(-1, n, d)
+    with torch.no_grad():
+        return torch.stack([fn(e).reshape(-1) for e in basis], dim=1)
+
+
+def _bank(d: int, K: int, V: torch.Tensor | None = None, eta0: float = 0.5):
+    from src.models.filter_bank import ChebyshevFilterBank
+
+    bank = ChebyshevFilterBank(d, K, eta0).double()
+    bank.reset_parameters()
+    if V is not None:
+        with torch.no_grad():
+            bank.V.copy_(V)
+    return bank
+
+
+def _filter_matrix(system, listen, broadcast, bank) -> torch.Tensor:
+    """The production filter (matrix-free, production `A`), materialized column by column."""
+    from src.models.h2snn_model import apply_operator
+
+    operator = system.operator(listen, broadcast)
+    return _materialize(lambda h: bank(lambda x: apply_operator(operator, x), h),
+                        system.num_nodes, system.d)
+
+
+def _production_a(system, listen, broadcast) -> torch.Tensor:
+    from src.models.h2snn_model import apply_operator
+
+    operator = system.operator(listen, broadcast)
+    return _materialize(lambda x: apply_operator(operator, x), system.num_nodes, system.d)
+
+
+def _dense_a(system, listen, broadcast) -> torch.Tensor:
+    """Independent `A = G Delta_hat B` from the dense reference `Delta_hat` (no production code)."""
+    rows = listen.repeat_interleave(system.d).view(-1, 1)
+    columns = broadcast.repeat_interleave(system.d).view(1, -1)
+    return rows * system.dense_delta_hat() * columns
+
+
+def _m_gain(matrix: torch.Tensor, metric: torch.Tensor, d: int) -> float:
+    root = metric.repeat_interleave(d).sqrt()
+    return float(torch.linalg.matrix_norm(root.view(-1, 1) * matrix / root.view(1, -1), ord=2))
+
+
+def _random_v(K: int, d: int, generator: torch.Generator) -> torch.Tensor:
+    """Random blocks with sum ||V_k||_2 spread over [0.3, 5] (normalization active above 1)."""
+    V = torch.randn(K + 1, d, d, generator=generator, dtype=torch.float64)
+    target = 0.3 + 4.7 * float(torch.rand(1, generator=generator, dtype=torch.float64))
+    return V * target / torch.linalg.matrix_norm(V, ord=2).sum()
+
+
+class _Unnormalized:
+    """Control: the same bank with `W_k = V_k` (normalization removed)."""
+
+    def __init__(self, bank) -> None:
+        self.bank = bank
+
+    def __call__(self, apply_a, h):
+        original = self.bank.weights
+        self.bank.weights = lambda: self.bank.V
+        try:
+            return self.bank(apply_a, h)
+        finally:
+            self.bank.weights = original
+
+
+class FilterBankOperatorTests(unittest.TestCase):
+    FIXTURES = 50
+
+    @staticmethod
+    def _system(seed: int):
+        from tests.test_cooperative import System, _random_gates
+
+        system = System(3000 + seed, shared=seed % 2 == 0)
+        listen, broadcast = _random_gates(system)
+        return system, listen, broadcast
+
+    def test_TG1_spectrum_of_A_is_real_and_in_0_2_max_gb(self) -> None:
+        worst_imag, worst_low, worst_high = 0.0, 0.0, 0.0
+        for seed in range(self.FIXTURES + 10):
+            system, g, b = self._system(seed)
+            eigenvalues = torch.linalg.eigvals(_production_a(system, g, b))
+            bound = 2 * float((g * b).max())
+            worst_imag = max(worst_imag, float(eigenvalues.imag.abs().max()))
+            worst_low = max(worst_low, float(-eigenvalues.real.min()))
+            worst_high = max(worst_high, float(eigenvalues.real.max()) - bound)
+        self.assertLessEqual(worst_imag, 1e-9)
+        self.assertLessEqual(worst_low, 1e-9)
+        self.assertLessEqual(worst_high, 1e-9)
+
+    def test_TG2_gain_in_metric_M_is_at_most_one_with_control(self) -> None:
+        generator = torch.Generator().manual_seed(11)
+        worst, control_exceeds = 0.0, 0
+        for seed in range(self.FIXTURES):
+            system, g, b = self._system(seed)
+            K = 2 + seed % 3
+            bank = _bank(system.d, K, _random_v(K, system.d, generator))
+            metric = b / g
+            worst = max(worst, _m_gain(_filter_matrix(system, g, b, bank), metric, system.d))
+            raw = _materialize(lambda h, o=system.operator(g, b): _Unnormalized(bank)(
+                lambda x: _apply(o, x), h), system.num_nodes, system.d)
+            control_exceeds += _m_gain(raw, metric, system.d) > 1.0 + 1e-9
+        self.assertLessEqual(worst, 1.0 + 1e-9)
+        self.assertGreater(control_exceeds, 0, "control: without normalization the gain exceeds 1")
+
+    def test_TG3_cooperation_through_the_filter_exact_zero_blocks(self) -> None:
+        generator = torch.Generator().manual_seed(5)
+        for seed in range(10):
+            system, g, b = self._system(seed)
+            n, d, K = system.num_nodes, system.d, 3
+            bank = _bank(d, K, _random_v(K, d, generator))
+            u = seed % n
+            listen = g.clone()
+            listen[u] = 0.0
+            F_listen = _filter_matrix(system, listen, b, bank)
+            broadcast = b.clone()
+            broadcast[u] = 0.0
+            F_broadcast = _filter_matrix(system, g, broadcast, bank)
+            half = torch.full_like(g, 0.5)
+            F_half = _filter_matrix(system, half, half, bank)
+            rows, cols = slice(u * d, (u + 1) * d), slice(u * d, (u + 1) * d)
+            others = [j for j in range(n) if j != u]
+            for j in others:
+                block = slice(j * d, (j + 1) * d)
+                self.assertTrue(bool((F_listen[rows, block] == 0).all()), f"g_u = 0: block {u}<-{j}")
+                self.assertTrue(bool((F_broadcast[block, cols] == 0).all()), f"b_v = 0: block {j}<-{u}")
+            control = max(float(F_half[rows, slice(j * d, (j + 1) * d)].abs().max()) for j in others)
+            self.assertGreater(control, 1e-8, "control: gates 0.5 couple u to the others")
+
+    def test_TG5_lemma_N_diagonal_blocks_are_identity(self) -> None:
+        checked = 0
+        for seed in range(self.FIXTURES):
+            system, _, _ = self._system(seed)
+            n, d = system.num_nodes, system.d
+            delta = system.production_delta_hat()
+            edge_index = system.paths.edge_index
+            excluded = set(edge_index[0][edge_index[0] == edge_index[1]].tolist())  # self-loop facts
+            for nodes in system.paths.nodes:  # a node repeated inside one cell
+                for row in nodes.tolist():
+                    excluded |= {v for v in row if row.count(v) > 1}
+            degree = system.laplacian.degree()
+            for v in range(n):
+                if v in excluded or float(degree[v]) == 0.0:
+                    continue
+                block = delta[v * d:(v + 1) * d, v * d:(v + 1) * d]
+                self.assertLessEqual(float((block - torch.eye(d, dtype=torch.float64)).abs().max()),
+                                     1e-12, f"fixture {seed}, node {v}")
+                checked += 1
+        self.assertGreater(checked, 100)
+
+    def test_TG6_matrix_free_filter_equals_the_dense_reference(self) -> None:
+        generator = torch.Generator().manual_seed(17)
+        for seed in range(20):
+            system, g, b = self._system(seed)
+            n, d, K = system.num_nodes, system.d, 1 + seed % 5
+            bank = _bank(d, K, _random_v(K, d, generator))
+            shift = _dense_a(system, g, b) - torch.eye(n * d, dtype=torch.float64)
+            weights = bank.weights().detach()
+            powers = [torch.eye(n * d, dtype=torch.float64), shift]
+            for _ in range(2, K + 1):
+                powers.append(2 * shift @ powers[-1] - powers[-2])
+            eye_n = torch.eye(n, dtype=torch.float64)
+            reference = sum(powers[k] @ torch.kron(eye_n, weights[k].T.contiguous())
+                            for k in range(K + 1))
+            error = float((_filter_matrix(system, g, b, bank) - reference).abs().max())
+            self.assertLessEqual(error, 1e-10, f"fixture {seed}, K = {K}")
+
+    def test_gain_diagnostic_matches_the_exact_M_gain(self) -> None:
+        from src.models.h2snn_model import apply_operator
+
+        generator = torch.Generator().manual_seed(23)
+        for seed in range(5):
+            system, g, b = self._system(seed)
+            bank = _bank(system.d, 3, _random_v(3, system.d, generator))
+            exact = _m_gain(_filter_matrix(system, g, b, bank), b / g, system.d)
+            operator = system.operator(g, b)
+            estimate = bank.gain(lambda x: apply_operator(operator, x), b / g,
+                                 (system.num_nodes, system.d), steps=500)
+            self.assertLessEqual(estimate, exact + 1e-9)
+            self.assertGreater(estimate, exact - 1e-4)
+
+
+def _apply(operator, x):
+    from src.models.h2snn_model import apply_operator
+
+    return apply_operator(operator, x)
+
+
+class FilterBankModelTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = _float64_pap()
+
+    def _x_star(self, model) -> torch.Tensor:
+        with torch.no_grad():
+            return model.encode(self.data.x, self.data.node_type, self.data.edge_index,
+                                self.data.edge_type, self.data.face_groups, self.data.num_nodes).x_star
+
+    def test_TG4_d11_initialization_equals_first_order(self) -> None:
+        import math
+
+        for eta in (0.25, 0.5, 0.9):
+            for K in (2, 5):
+                with self.subTest(eta=eta, K=K):
+                    bank = _v2_model(self.data, eta_init=eta, K=K).double().eval()
+                    bank.filter_bank.reset_parameters()  # theta_k in float64
+                    first = _v2_model(self.data, eta_init=eta, K=K,
+                                      encoder="first_order").double().eval()
+                    with torch.no_grad():
+                        first.theta_eta.copy_(torch.tensor(math.log(eta / (1 - eta)),
+                                                           dtype=torch.float64))
+                    shared = {k: v for k, v in bank.state_dict().items() if k in first.state_dict()}
+                    self.assertEqual(set(first.state_dict()) - set(shared), {"theta_eta"})
+                    first.load_state_dict(shared, strict=False)
+                    error = float((self._x_star(bank) - self._x_star(first)).abs().max())
+                    self.assertLessEqual(error, 1e-10)
+
+    def test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps(self) -> None:
+        model = _v2_model(self.data).double().train()
+        output = model(self.data)
+        output.logits.square().sum().backward()
+        V_grad = model.filter_bank.V.grad
+        for k in range(V_grad.size(0)):
+            self.assertGreater(float(V_grad[k].abs().sum()), 0.0, f"V_{k}")
+        for name, parameter in (("listen gate", model.listen_gate.weight),
+                                ("broadcast gate", model.broadcast_gate.weight),
+                                ("gamma", model.theta_gamma),
+                                ("reflector MLP", model.node_to_edge.reflector_mlp[0].weight),
+                                ("edge-scale MLP", model.node_to_edge.edge_scale_mlp[0].weight)):
+            self.assertIsNotNone(parameter.grad, name)
+            self.assertGreater(float(parameter.grad.abs().sum()), 0.0, name)
+        context_columns = model.node_to_edge.reflector_mlp[0].weight.grad[:, model.d:model.geometry_dim]
+        self.assertGreater(float(context_columns.abs().sum()), 0.0, "map MLP columns reading c")
+
+    def test_eta_only_under_first_order_and_V_in_the_normal_group(self) -> None:
+        from src.builders import build_optimizer
+        from tests.test_v2_model import _v2_config
+
+        bank = _v2_model(self.data)
+        self.assertIsNone(bank.theta_eta)
+        self.assertIsNone(bank.eta())
+        first = _v2_model(self.data, encoder="first_order")
+        self.assertIsNone(first.filter_bank)
+        optimizer = build_optimizer(bank, _v2_config())
+        scalar = [g for g in optimizer.param_groups if g["weight_decay"] == 0.0]
+        self.assertFalse(any(p is bank.filter_bank.V for g in scalar for p in g["params"]))
+        self.assertTrue(any(p is bank.theta_gamma for g in scalar for p in g["params"]))
+
+    def test_operator_diagnostics_under_the_filter_bank(self) -> None:
+        model = _v2_model(self.data).double()
+        with torch.no_grad():
+            model.filter_bank.V.mul_(3.0)  # normalization active
+        stats = model.operator_diagnostics(self.data.x, self.data.node_type, self.data.edge_index,
+                                           self.data.edge_type, self.data.face_groups,
+                                           self.data.num_nodes, steps=200)
+        self.assertEqual(set(stats), {"lambda_max_A", "filter_norm_sum", "filter_gain"})
+        self.assertLessEqual(stats["filter_norm_sum"], 1.0 + 1e-9)
+        self.assertLessEqual(stats["filter_gain"], stats["filter_norm_sum"] + 1e-9)
+        self.assertLessEqual(stats["lambda_max_A"], 2.0)
+        first = _v2_model(self.data, encoder="first_order")
+        self.assertEqual(set(first.operator_diagnostics(
+            self.data.x.float(), self.data.node_type, self.data.edge_index, self.data.edge_type,
+            self.data.face_groups, self.data.num_nodes)), {"eta_lambda_max"})
+
+    def test_switches_are_never_tuned(self) -> None:
+        from src.configs.config import reject_never_tuned_settings
+
+        for raw in ({"model": {"encoder": "first_order"}}, {"model": {"geometry_context": False}}):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                reject_never_tuned_settings(raw)
+        for name in ("model.encoder", "encoder", "model.geometry_context"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                reject_never_tuned_settings(None, {name: {"values": [1]}})
+        reject_never_tuned_settings(None, {"model.encoder_dropout": {"values": [0.1]}})  # allowed
+        reject_never_tuned_settings({"model": {"encoder": "filter_bank", "geometry_context": True}})
+
+
 if __name__ == "__main__":
     unittest.main()

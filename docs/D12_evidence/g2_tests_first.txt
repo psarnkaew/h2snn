@@ -1,0 +1,201 @@
+...............................F.E.....E.FFFF......F2026-11-08 07:31:33,973 | INFO | Epoch 0000 | train_loss: 1.1160 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2063 | train_micro_f1: 0.2500 | val_loss: 1.1450 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500
+2026-11-08 07:31:33,987 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:31:34,628 | INFO | Epoch 0001 | train_loss: 1.1188 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.1818 | train_micro_f1: 0.3750 | val_loss: 1.1433 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1333 | test_micro_f1: 0.2500
+2026-11-08 07:31:34,637 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:31:34,637 | INFO | Best epoch 0 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500 | test_acc: 0.2500
+F.....EFE.................F.............................2026-11-08 07:34:43,841 | INFO | Epoch 0000 | train_loss: 1.0243 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.3333 | train_micro_f1: 0.5000 | val_loss: 1.0760 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.5000
+2026-11-08 07:34:43,857 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:34:43,857 | INFO | Best epoch 0 | test_macro_f1: 0.2222 | test_micro_f1: 0.5000 | test_acc: 0.5000
+......................................................2026-11-08 07:36:12,858 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:36:12,870 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 07:36:12,872 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:36:12,886 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:36:12,893 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:36:12,895 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 07:36:12,895 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-08 07:36:12,895 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+...W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+......2026-11-08 07:36:13,127 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-08 07:36:13,144 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+...
+======================================================================
+ERROR: test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node (tests.test_v2_model.V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node)
+One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 796, in test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node
+    far_zero = block(0.0, 0, 2)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 793, in block
+    jacobian = torch.autograd.functional.jacobian(step, h0.detach().clone())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\autograd\functional.py", line 677, in jacobian
+    outputs = func(*inputs)
+              ^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 791, in step
+    return x0 - operator.eta * laplacian.apply_normalized(x0)
+                ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for *: 'NoneType' and 'Tensor'
+
+======================================================================
+ERROR: test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (tests.test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1007, in test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload
+    self.assertEqual(len(scalar_group), 1)
+AssertionError: 0 != 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\shutil.py", line 633, in _rmtree_unsafe
+    os.unlink(fullname)
+PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\Acer\\Desktop\\h2snn\\H2S-NN\\tmpdciqq_u1\\v2_smoke\\run.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 989, in test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload
+    with tempfile.TemporaryDirectory(dir=tmp_parent) as tmpdir:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\tempfile.py", line 950, in __exit__
+    self.cleanup()
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\tempfile.py", line 954, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\tempfile.py", line 934, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\shutil.py", line 781, in rmtree
+    return _rmtree_unsafe(path, onexc)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\shutil.py", line 635, in _rmtree_unsafe
+    onexc(os.unlink, fullname, err)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\tempfile.py", line 909, in onexc
+    _os.unlink(path)
+PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\Acer\\Desktop\\h2snn\\H2S-NN\\tmpdciqq_u1\\v2_smoke\\run.log'
+
+======================================================================
+ERROR: test_TF1_control_old_setting_does_not_move (tests.test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 565, in test_TF1_control_old_setting_does_not_move
+    moves, losses = _train_toy(gate_init=0.95, grouped=False, seed=seed)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 537, in _train_toy
+    before = state()
+             ^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 535, in state
+    return float(model.eta()), g.clone(), b.clone()
+           ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (tests.test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 558, in test_TF1_the_scalar_group_moves_eta_and_both_gate_heads
+    moves, losses = _train_toy(gate_init=None, grouped=True, seed=seed)  # defaults
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 537, in _train_toy
+    before = state()
+             ^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 535, in state
+    return float(model.eta()), g.clone(), b.clone()
+           ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+FAIL: test_T10_gradients_reach_every_learned_component (tests.test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) (prefix='theta_eta')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 904, in test_T10_gradients_reach_every_learned_component
+    self.assertTrue(grads)
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 240, in test_one_training_step_is_finite
+    self.assertIn("eta", metrics)
+AssertionError: 'eta' not found in {'loss': 0.7208442986011505, 'acc': 0.6666666666666666, 'macro_f1': 0.625, 'micro_f1': 0.6666666666666666, 'auroc': 0.4444444444444444, 'filter_norm_sum': 1.0, 'gamma': 1.0111103057861328, 'g_mean': 0.5810004472732544, 'g_min': 0.549328088760376, 'b_mean': 0.5775427222251892, 'b_min': 0.5351290702819824}
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='dot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 153, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertIn("eta", metrics)
+AssertionError: 'eta' not found in {'loss': 0.6937246918678284, 'link_loss': 0.6937246918678284, 'auroc': 0.5144175317185697, 'aupr': 0.5110225911294425, 'mrr': 0.7361111111111112, 'filter_norm_sum': 1.000000238418579, 'gamma': 0.993696391582489, 'g_mean': 0.6046852469444275, 'g_min': 0.5821208357810974, 'b_mean': 0.6129598021507263, 'b_min': 0.5928477644920349, 'lambda_max_A': 0.7666519284248352, 'filter_gain': 0.987644612789154, 'energy_edge_0': 1.0317429304122925, 'energy_path_0': 0.20641879737377167, 'energy_edge_out': 0.6045531034469604, 'energy_path_out': 0.13944613933563232}
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='distmult')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 153, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertIn("eta", metrics)
+AssertionError: 'eta' not found in {'loss': 0.6931107640266418, 'link_loss': 0.6931107640266418, 'auroc': 0.534794309880815, 'aupr': 0.5179610037847076, 'mrr': 0.75, 'filter_norm_sum': 1.000000238418579, 'gamma': 0.9936932325363159, 'g_mean': 0.6046852469444275, 'g_min': 0.5821208357810974, 'b_mean': 0.6129598021507263, 'b_min': 0.5928477644920349, 'lambda_max_A': 0.7710115313529968, 'filter_gain': 0.9887757301330566, 'energy_edge_0': 1.0371583700180054, 'energy_path_0': 0.2041771560907364, 'energy_edge_out': 0.6049935221672058, 'energy_path_out': 0.13761666417121887}
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='concat_mlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 153, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertIn("eta", metrics)
+AssertionError: 'eta' not found in {'loss': 0.695036768913269, 'link_loss': 0.695036768913269, 'auroc': 0.4671280276816609, 'aupr': 0.5337153006420917, 'mrr': 0.725, 'filter_norm_sum': 1.0000001192092896, 'gamma': 0.9936972260475159, 'g_mean': 0.6052750945091248, 'g_min': 0.5908651947975159, 'b_mean': 0.6119338274002075, 'b_min': 0.5913217663764954, 'lambda_max_A': 0.7062333822250366, 'filter_gain': 0.9750641584396362, 'energy_edge_0': 0.9845690131187439, 'energy_path_0': 0.19376349449157715, 'energy_edge_out': 0.5795043110847473, 'energy_path_out': 0.12953487038612366}
+
+======================================================================
+FAIL: test_energy_trace_has_every_step_and_does_not_change_the_model_state (tests.test_cooperative.DiagnosticsTests.test_energy_trace_has_every_step_and_does_not_change_the_model_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 745, in test_energy_trace_has_every_step_and_does_not_change_the_model_state
+    self.assertEqual(sorted(trace), sorted(
+AssertionError: Lists differ: ['ene[21 chars]edge_out', 'energy_path_0', 'energy_path_out'] != ['ene[21 chars]edge_1', 'energy_edge_2', 'energy_edge_3', 'en[59 chars]h_3']
+
+First differing element 1:
+'energy_edge_out'
+'energy_edge_1'
+
+Second list contains 4 additional elements.
+First extra element 4:
+'energy_path_0'
+
+- ['energy_edge_0', 'energy_edge_out', 'energy_path_0', 'energy_path_out']
++ ['energy_edge_0',
++  'energy_edge_1',
++  'energy_edge_2',
++  'energy_edge_3',
++  'energy_path_0',
++  'energy_path_1',
++  'energy_path_2',
++  'energy_path_3']
+
+======================================================================
+FAIL: test_the_trainer_logs_the_trace_and_the_gate_statistics (tests.test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 790, in test_the_trainer_logs_the_trace_and_the_gate_statistics
+    self.assertIn(f'"{key}"', text, key)
+AssertionError: '"eta"' not found in '{"epoch": 0, "train": {"loss": 1.1159579753875732, "acc": 0.25, "macro_f1": 0.20634920634920637, "micro_f1": 0.25, "cls_loss": 1.1159579753875732, "filter_norm_sum": 0.9999999403953552, "gamma": 1.006332516670227, "g_mean": 0.6034476161003113, "g_min": 0.5843555331230164, "b_mean": 0.5978259444236755, "b_min": 0.5803653001785278, "lambda_max_A": 0.5525310635566711, "filter_gain": 0.9264493584632874, "energy_edge_0": 0.6323515772819519, "energy_path_0": 0.37990498542785645, "energy_edge_out": 0.4833759069442749, "energy_path_out": 0.319358229637146}, "val": {"loss": 1.1450108289718628, "acc": 0.375, "macro_f1": 0.3333333333333333, "micro_f1": 0.375, "cls_loss": 1.1450108289718628}, "test": {"loss": 1.122422695159912, "acc": 0.25, "macro_f1": 0.14814814814814814, "micro_f1": 0.25, "cls_loss": 1.122422695159912}}\n{"epoch": 1, "train": {"loss": 1.1187666654586792, "acc": 0.375, "macro_f1": 0.1818181818181818, "micro_f1": 0.375, "cls_loss": 1.1187666654586792, "filter_norm_sum": 0.9999999403953552, "gamma": 1.012667179107666, "g_mean": 0.5853041410446167, "g_min": 0.5601193904876709, "b_mean": 0.573978066444397, "b_min": 0.5390738248825073, "lambda_max_A": 0.5220910906791687, "filter_gain": 0.9345656633377075, "energy_edge_0": 0.6231454014778137, "energy_path_0": 0.41179877519607544, "energy_edge_out": 0.5017754435539246, "energy_path_out": 0.36064016819000244}, "val": {"loss": 1.1432868242263794, "acc": 0.375, "macro_f1": 0.3333333333333333, "micro_f1": 0.375, "cls_loss": 1.1432868242263794}, "test": {"loss": 1.119093418121338, "acc": 0.25, "macro_f1": 0.13333333333333333, "micro_f1": 0.25, "cls_loss": 1.119093418121338}}\n' : eta
+
+======================================================================
+FAIL: test_TF1_group_contents_and_defaults (tests.test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 585, in test_TF1_group_contents_and_defaults
+    self.assertEqual(ids, {id(p) for p in expected})
+AssertionError: Items in the second set but not the first:
+140712291997792
+
+======================================================================
+FAIL: test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent (tests.test_pair_attention.MergedWeightTests.test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_pair_attention.py", line 375, in test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent
+    self.assertEqual(ids, {id(p) for p in expected})
+AssertionError: Items in the second set but not the first:
+140712291997792
+
+----------------------------------------------------------------------
+Ran 173 tests in 316.643s
+
+FAILED (failures=9, errors=4)

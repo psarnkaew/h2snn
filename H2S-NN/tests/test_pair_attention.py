@@ -363,7 +363,8 @@ class MergedWeightTests(unittest.TestCase):
         from tests.test_cooperative import _signal_fixture
 
         data = _signal_fixture()
-        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2},
+        cfg = TrainConfig.from_dict({"device": "cpu",  # the D11 arm: eta in the fast group
+                                     "model": {"d": 8, "d_r": 4, "K": 2, "encoder": "first_order"},
                                      "ablation": {"coupling": "pair_attention"},
                                      "data": {"resample_paths": False}})
         model = build_model(cfg, data)
