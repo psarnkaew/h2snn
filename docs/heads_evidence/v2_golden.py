@@ -65,6 +65,14 @@ def build_config(model: dict, ablations: tuple[str, ...]) -> TrainConfig:
         # cooperative, so the harness names the symmetric mode explicitly.
         if "coupling" in AblationConfig.__dataclass_fields__:
             raw["ablation"]["coupling"] = "symmetric"
+        # D12: the golden outputs are the D11 geometry (from h0 alone) and the first-order
+        # update; the defaults are now geometry_context and filter_bank, named explicitly here.
+        from src.configs.config import ModelConfig
+
+        if "geometry_context" in ModelConfig.__dataclass_fields__:
+            raw["model"]["geometry_context"] = False
+        if "encoder" in ModelConfig.__dataclass_fields__:
+            raw["model"]["encoder"] = "first_order"
     else:
         raw["model"]["architecture"] = "v2"
         for name in ablations:

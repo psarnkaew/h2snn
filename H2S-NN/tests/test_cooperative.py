@@ -42,7 +42,8 @@ def _gate_model(coupling: str = "cooperative", d: int = 4) -> H2SNN:
     config = TrainConfig.from_dict({
         "device": "cpu",
         "model": {"d": d, "d_r": 2, "K": 1, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
-                  "edge_mlp_hidden_dim": 8, "layer_dropout": 0.0},
+                  "edge_mlp_hidden_dim": 8, "layer_dropout": 0.0,
+                  "geometry_context": False},  # D10/D11 gate heads read h0 (D12 default: [h0, c])
         "ablation": {"coupling": coupling},
     })
     dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
@@ -218,7 +219,7 @@ class SymmetricIsThePreviousModelTests(unittest.TestCase):
 
     def test_gates_start_at_the_configured_init(self) -> None:
         config = TrainConfig.from_dict({"device": "cpu", "model": {
-            "d": 8, "coupling_gate_init": 0.9, "K": 1}})
+            "d": 8, "coupling_gate_init": 0.9, "K": 1, "geometry_context": False}})
         model = H2SNN(config, ModelDims(in_channels=5, num_node_types=2, num_relations=2,
                                         num_classes=2, face_lengths=(2,)))
         listen, broadcast = model.coupling_gates(torch.randn(50, 8))
@@ -513,7 +514,8 @@ def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: in
     from src.models.h2snn_model import build_model
 
     data = _signal_fixture()
-    model_cfg = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
+    model_cfg = {"geometry_context": False,  # the D11 learning-fix setting (gates read h0)
+                 "d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
                  "edge_mlp_hidden_dim": 16, "layer_dropout": 0.0, "classifier_dropout": 0.0}
     if gate_init is not None:
         model_cfg["coupling_gate_init"] = gate_init

@@ -1101,9 +1101,13 @@ class AblationTests(unittest.TestCase):
         self.assertGreater(float((torch.cat(weights) - 1).abs().min()), 0.1)
 
     def test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term(self) -> None:
+        # Geometry from h0 alone: under the D12 geometry_context the endpoints' context c is a
+        # per-node neighbourhood mean that includes intermediates (not path-specific), so moving
+        # an intermediate's h0 moves c by design; the path-specific claim is tested here.
         for mode, expect_equal in (("endpoint_edges", True), ("cells", False)):
             with self.subTest(path_mode=mode):
-                model = self._model({"endpoint_edges": mode == "endpoint_edges"})
+                model = self._model({"endpoint_edges": mode == "endpoint_edges"},
+                                    geometry_context=False)
                 h0 = model.encode_nodes(self.data.x, self.data.node_type)
                 maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
                                           model.relation_embedding.weight).maps

@@ -1,0 +1,275 @@
+EE.................................F....2026-11-08 07:09:30,158 | INFO | Epoch 0000 | train_loss: 1.1113 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.2000 | train_micro_f1: 0.3750 | val_loss: 1.1206 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.1481 | val_micro_f1: 0.2500 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500
+2026-11-08 07:09:30,173 | INFO | Checkpoint metric acc: 0.2500
+2026-11-08 07:09:30,372 | INFO | Epoch 0001 | train_loss: 1.1586 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2500 | val_loss: 1.1188 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.1481 | val_micro_f1: 0.2500 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500
+2026-11-08 07:09:30,380 | INFO | Checkpoint metric acc: 0.2500
+2026-11-08 07:09:30,380 | INFO | Best epoch 0 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500 | test_acc: 0.2500
+.....F.....2026-11-08 07:09:36,127 | INFO | Epoch 0000 | train_loss: 1.1160 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2063 | train_micro_f1: 0.2500 | val_loss: 1.1452 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500
+2026-11-08 07:09:36,144 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:09:36,384 | INFO | Epoch 0001 | train_loss: 1.1189 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.1818 | train_micro_f1: 0.3750 | val_loss: 1.1437 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1333 | test_micro_f1: 0.2500
+2026-11-08 07:09:36,391 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:09:36,391 | INFO | Best epoch 0 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500 | test_acc: 0.2500
+......E.E......E.FE.....................................2026-11-08 07:12:27,318 | INFO | Epoch 0000 | train_loss: 1.0243 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.3333 | train_micro_f1: 0.5000 | val_loss: 1.0761 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.5000
+2026-11-08 07:12:27,333 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 07:12:27,333 | INFO | Best epoch 0 | test_macro_f1: 0.2222 | test_micro_f1: 0.5000 | test_acc: 0.5000
+......................................................2026-11-08 07:13:49,198 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:13:49,207 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 07:13:49,208 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:13:49,212 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:13:49,215 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 07:13:49,217 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 07:13:49,217 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-08 07:13:49,217 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+.
+======================================================================
+ERROR: test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (tests.test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) (path_mode='endpoint_edges')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1108, in test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term
+    maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 250, in forward
+    return self._forward_per_edge(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 288, in _forward_per_edge
+    scale = checkpoint_if_grad(
+            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 46, in checkpoint_if_grad
+    return torch.utils.checkpoint.checkpoint(function, *inputs, use_reentrant=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_compile.py", line 32, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_dynamo\eval_frame.py", line 745, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\utils\checkpoint.py", line 496, in checkpoint
+    ret = function(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 289, in <lambda>
+    lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 233, in _edge_scale
+    raw = self.edge_scale_mlp(inputs).squeeze(-1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (144x20 and 84x16)
+
+======================================================================
+ERROR: test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (tests.test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) (path_mode='cells')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1108, in test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term
+    maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 250, in forward
+    return self._forward_per_edge(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 288, in _forward_per_edge
+    scale = checkpoint_if_grad(
+            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 46, in checkpoint_if_grad
+    return torch.utils.checkpoint.checkpoint(function, *inputs, use_reentrant=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_compile.py", line 32, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_dynamo\eval_frame.py", line 745, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\utils\checkpoint.py", line 496, in checkpoint
+    ret = function(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 289, in <lambda>
+    lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 233, in _edge_scale
+    raw = self.edge_scale_mlp(inputs).squeeze(-1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (144x20 and 84x16)
+
+======================================================================
+ERROR: test_TF1_control_old_setting_does_not_move (tests.test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 563, in test_TF1_control_old_setting_does_not_move
+    moves, losses = _train_toy(gate_init=0.95, grouped=False, seed=seed)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 535, in _train_toy
+    before = state()
+             ^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 532, in state
+    g, b = model.coupling_gates(model.encode_nodes(data.x, data.node_type))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 699, in coupling_gates
+    listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (40x8 and 40x1)
+
+======================================================================
+ERROR: test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (tests.test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 556, in test_TF1_the_scalar_group_moves_eta_and_both_gate_heads
+    moves, losses = _train_toy(gate_init=None, grouped=True, seed=seed)  # defaults
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 535, in _train_toy
+    before = state()
+             ^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 532, in state
+    g, b = model.coupling_gates(model.encode_nodes(data.x, data.node_type))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 699, in coupling_gates
+    listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (40x8 and 40x1)
+
+======================================================================
+ERROR: test_T3_real_spectrum_and_bound_with_gates (tests.test_cooperative.SpectrumTests.test_T3_real_spectrum_and_bound_with_gates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 333, in test_T3_real_spectrum_and_bound_with_gates
+    imag, margin, ratio, lowest, (gate_low, gate_high) = self._measure(model, self.FIXTURES)
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 316, in _measure
+    listen, broadcast = self._gates_through_the_heads(model, system)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 309, in _gates_through_the_heads
+    return model.coupling_gates(h0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 699, in coupling_gates
+    listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (9x4 and 20x1)
+
+======================================================================
+ERROR: test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 224, in test_gates_start_at_the_configured_init
+    listen, broadcast = model.coupling_gates(torch.randn(50, 8))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 699, in coupling_gates
+    listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (50x8 and 40x1)
+
+======================================================================
+FAIL: test_T8_no_dense_map_tensor_in_v2_forward_or_backward (tests.test_v2_model.V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward)
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 852, in test_T8_no_dense_map_tensor_in_v2_forward_or_backward
+    self.assertEqual(hits(v2, "forward"), [])
+AssertionError: Lists differ: [(600, 324), (600, 326), (600, 326), (270, 5, 160), (270, 800), (270, 816)] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+(600, 324)
+
+- [(600, 324), (600, 326), (600, 326), (270, 5, 160), (270, 800), (270, 816)]
++ []
+
+======================================================================
+FAIL: test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 40, in test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture
+    self.assertEqual(mismatches, 0, messages[:10])
+AssertionError: 636 != 0 : ['[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.weight', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.bias max|diff|=3.124e-01', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.weight max|diff|=5.337e-01', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.bias max|diff|=6.047e-01', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.weight', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.bias max|diff|=2.633e-01', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.2.weight max|diff|=4.671e-01', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.2.bias max|diff|=1.724e-01', '[toy_acm] MISMATCH init/path_encoder.input_proj.2.weight', '[toy_acm] MISMATCH init/path_encoder.input_proj.2.bias max|diff|=3.106e-01']
+
+======================================================================
+FAIL: test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 172, in test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit
+    self.assertEqual(mismatches, 0, messages[:5])
+AssertionError: 636 != 0 : ['[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.weight', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.bias max|diff|=3.124e-01', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.weight max|diff|=5.337e-01', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.bias max|diff|=6.047e-01', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.weight']
+
+----------------------------------------------------------------------
+Ran 161 tests in 310.305s
+
+FAILED (failures=3, errors=6)

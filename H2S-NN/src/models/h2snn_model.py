@@ -44,11 +44,13 @@ from src.models.map_operators import (
     normalize_reflectors,
 )
 from src.models.node_encoder import TypeSpecificNodeEncoder
+from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
 from src.models.sheaf_maps import (
     REFLECTOR_NORM_EPS,
     DenseConformalNodeToEdgeSheaf,
     FactorizedNodeToEdgeSheaf,
+    gathered_linear,
 )
 from src.models.vertex_path_laplacian import (
     EdgePairTerm,
@@ -201,7 +203,10 @@ class PathEncoder(nn.Module):
     """Positional `concat` encoder over the ordered `h0` of a path and its schema's relation
     embeddings: one `Linear + GELU` per path length; its output feeds the path gate."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
+                 factored_inputs: bool = False) -> None:
+        """`d`: width of the per-node input (`h0`, or `[h0, c]` under `geometry_context`).
+        `factored_inputs`: project per node, then gather (`gathered_linear`; D12, R7)."""
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {
@@ -211,6 +216,7 @@ class PathEncoder(nn.Module):
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
+        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -230,6 +236,10 @@ class PathEncoder(nn.Module):
             )
         num_paths = face_node_index.size(0)
         schema_token = relation_embeddings[schema_relations].reshape(1, -1)
+        if self.factored_inputs:
+            blocks = [(h0, face_node_index[:, j]) for j in range(length + 1)]
+            blocks.append((schema_token, face_node_index.new_zeros(num_paths)))
+            return self.activation(gathered_linear(self.input_proj[key], blocks))
         inputs = torch.cat(
             [h0[face_node_index].reshape(num_paths, -1), schema_token.expand(num_paths, -1)],
             dim=-1,
@@ -241,13 +251,15 @@ class EndpointEncoder(nn.Module):
     """Latent of a path from its endpoints and schema only, `[h_{v_0}, h_{v_L}, schema]`
     (ablation `path_mode: endpoint_edges`: no intermediate node enters)."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
+                 factored_inputs: bool = False) -> None:
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {str(length): nn.Linear(2 * d + length * d_r, hidden_dim) for length in face_lengths}
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
+        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -260,6 +272,10 @@ class EndpointEncoder(nn.Module):
         num_paths = face_node_index.size(0)
         schema_token = relation_embeddings[schema_relations].reshape(1, -1)
         endpoints = face_node_index[:, [0, length]]
+        if self.factored_inputs:
+            blocks = [(h0, endpoints[:, 0]), (h0, endpoints[:, 1]),
+                      (schema_token, face_node_index.new_zeros(num_paths))]
+            return self.activation(gathered_linear(self.input_proj[str(length)], blocks))
         inputs = torch.cat(
             [h0[endpoints].reshape(num_paths, -1), schema_token.expand(num_paths, -1)], dim=-1
         )
@@ -320,15 +336,18 @@ class FreeIncidenceMaps(nn.Module):
     the node->edge maps, but not forced by functoriality)."""
 
     def __init__(self, d: int, latent_dim: int, hidden_dim: int, householder_k: int,
-                 max_positions: int, orthogonal_map: str) -> None:
+                 max_positions: int, orthogonal_map: str, node_dim: int | None = None,
+                 factored_inputs: bool = False) -> None:
         super().__init__()
         self.d = d
+        self.factored_inputs = factored_inputs
+        node_dim = d if node_dim is None else node_dim
         self.householder_k = householder_k
         self.max_positions = max_positions
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
         self.rotation_params = _rotation_parameters(max_positions, self.orthogonal, d)
         self.reflector_mlp = nn.Sequential(
-            nn.Linear(d + latent_dim + max_positions, hidden_dim),
+            nn.Linear(node_dim + latent_dim + max_positions, hidden_dim),
             nn.GELU(),
             nn.Linear(hidden_dim, householder_k * d),
         )
@@ -338,16 +357,23 @@ class FreeIncidenceMaps(nn.Module):
         num_paths, size = face_node_index.shape
         positions = torch.arange(size, device=h0.device)
         onehot = nn.functional.one_hot(positions, self.max_positions).to(h0.dtype)
-        inputs = torch.cat(
-            [
-                h0[face_node_index],
-                latent.unsqueeze(1).expand(num_paths, size, -1),
-                onehot.unsqueeze(0).expand(num_paths, size, -1),
-            ],
-            dim=-1,
-        ).reshape(num_paths * size, -1)
+        if self.factored_inputs:
+            blocks = [(h0, face_node_index.reshape(-1)),
+                      (latent, torch.arange(num_paths, device=h0.device).repeat_interleave(size)),
+                      (onehot, positions.repeat(num_paths))]
+            raw = self.reflector_mlp[1:](gathered_linear(self.reflector_mlp[0], blocks))
+        else:
+            inputs = torch.cat(
+                [
+                    h0[face_node_index],
+                    latent.unsqueeze(1).expand(num_paths, size, -1),
+                    onehot.unsqueeze(0).expand(num_paths, size, -1),
+                ],
+                dim=-1,
+            ).reshape(num_paths * size, -1)
+            raw = self.reflector_mlp(inputs)
         reflectors = normalize_reflectors(
-            self.reflector_mlp(inputs).view(-1, self.householder_k, self.d), REFLECTOR_NORM_EPS
+            raw.view(-1, self.householder_k, self.d), REFLECTOR_NORM_EPS
         )
         return FactorizedMapOperator(
             scale=h0.new_ones(num_paths * size),  # unused: free maps are orthogonal
@@ -421,6 +447,14 @@ class H2SNN(nn.Module):
             tuple(range(dims.num_relations)) if ablation.direction_blind_maps
             else tuple(dims.self_inverse_relations)
         )
+        # D12 G1: geometry inputs [h0, c] (parameter-free context; false = the D11 model).
+        self.relational_context: RelationalContext | None = None
+        geometry_dim = d
+        if model_config.geometry_context:
+            self.relational_context = RelationalContext(dims.num_relations,
+                                                        self.shared_role_relations)
+            geometry_dim = d + self.relational_context.output_dim(d)
+        self.geometry_dim = geometry_dim
         self.node_to_edge: FactorizedNodeToEdgeSheaf | DenseConformalNodeToEdgeSheaf
         if model_config.map_family == "factorized":
             self.node_to_edge = FactorizedNodeToEdgeSheaf(
@@ -434,6 +468,8 @@ class H2SNN(nn.Module):
                 map_scale=self.map_scale,
                 checkpoint=model_config.checkpointing,
                 shared_role_relations=self.shared_role_relations,
+                input_dim=geometry_dim,
+                factored_inputs=model_config.geometry_context,
             )
         else:
             self.node_to_edge = DenseConformalNodeToEdgeSheaf(
@@ -446,6 +482,7 @@ class H2SNN(nn.Module):
                 map_scale=self.map_scale,
                 memory_guard_fraction=model_config.node_edge_memory_guard_fraction,
                 shared_role_relations=self.shared_role_relations,
+                input_dim=geometry_dim,
             )
         self.theta_eta = nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
         self.use_path_cells = not ablation.no_path_cells
@@ -463,20 +500,26 @@ class H2SNN(nn.Module):
             hidden = model_config.face_mlp_hidden_dim
             if self.path_mode == "endpoint_edges":
                 # No intermediate node enters: neither the maps nor the gate see them.
-                self.path_encoder = EndpointEncoder(d, model_config.d_r, hidden, dims.face_lengths)
+                self.path_encoder = EndpointEncoder(geometry_dim, model_config.d_r, hidden,
+                                                    dims.face_lengths,
+                                                    factored_inputs=model_config.geometry_context)
                 self.endpoint_maps = EndpointEdgeMaps(
                     d=d, latent_dim=hidden, householder_k=model_config.householder_k,
                     map_scale=self.map_scale, scale_eps=model_config.map_scale_eps,
                     orthogonal_map=model_config.orthogonal_map,
                 )
             elif self.free_path_maps or not ablation.uniform_path_gate:
-                self.path_encoder = PathEncoder(d, model_config.d_r, hidden, dims.face_lengths)
+                self.path_encoder = PathEncoder(geometry_dim, model_config.d_r, hidden,
+                                                dims.face_lengths,
+                                                factored_inputs=model_config.geometry_context)
             if self.free_path_maps:
                 self.free_maps = FreeIncidenceMaps(
                     d=d, latent_dim=hidden, hidden_dim=model_config.edge_mlp_hidden_dim,
                     householder_k=model_config.householder_k,
                     max_positions=max(dims.face_lengths, default=1) + 1,
                     orthogonal_map=model_config.orthogonal_map,
+                    node_dim=geometry_dim,
+                    factored_inputs=model_config.geometry_context,
                 )
             if not ablation.uniform_path_gate:
                 # Gate g: zero bias, default weight init, so w_f = sigmoid(g(.)) starts near
@@ -492,9 +535,9 @@ class H2SNN(nn.Module):
         # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
         # diffusion (`h0_only_readout`).
         if not self.h0_only and self.coupling in ("listen_only", "cooperative"):
-            self.listen_gate = _gate_head(d, model_config.coupling_gate_init)
+            self.listen_gate = _gate_head(geometry_dim, model_config.coupling_gate_init)
             if self.coupling == "cooperative":
-                self.broadcast_gate = _gate_head(d, model_config.coupling_gate_init)
+                self.broadcast_gate = _gate_head(geometry_dim, model_config.coupling_gate_init)
 
         # Task head on the node representation [x_K, h0] (h0 under h0_only_readout).
         representation_dim = d if self.h0_only else 2 * d
@@ -573,6 +616,14 @@ class H2SNN(nn.Module):
             return self.node_encoder(x, node_type)
         return self.identity_embedding.weight  # type: ignore[union-attr]
 
+    def geometry_inputs(self, h0: torch.Tensor, edge_index: torch.Tensor,
+                        edge_type: torch.Tensor) -> torch.Tensor:
+        """[h0, c] under geometry_context (D12 G1), else h0: the input of the map MLPs, the gate
+        heads and the path encoder. Computed once per forward, before any propagation."""
+        if self.relational_context is None:
+            return h0
+        return torch.cat([h0, self.relational_context(h0, edge_index, edge_type)], dim=-1)
+
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
         """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
         if self.path_encoder is None:
@@ -601,7 +652,8 @@ class H2SNN(nn.Module):
         edge_index: torch.Tensor,
         face_groups: tuple[FaceGroup, ...],
     ) -> tuple[tuple[PathTerm, ...], tuple[torch.Tensor, ...]]:
-        """One coupling term per face group, per the ablation switches, and its `w_f`."""
+        """One coupling term per face group, per the ablation switches, and its `w_f`. `h0` is the
+        per-node geometry input (`geometry_inputs`: `[h0, c]` under `geometry_context`)."""
         terms: list[PathTerm] = []
         weights: list[torch.Tensor] = []
         shared = self.map_scale == "per_edge"
@@ -640,6 +692,7 @@ class H2SNN(nn.Module):
         edge_index: torch.Tensor,
         edge_type: torch.Tensor,
         face_groups: tuple[FaceGroup, ...],
+        geometry: torch.Tensor | None = None,
     ) -> AttentionOperator:
         """Pair-attention operator on the same maps, facts and cells (A4 test, plan §12.3)."""
         transports: list[PathTransportOperator] = []
@@ -653,7 +706,7 @@ class H2SNN(nn.Module):
                     maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
                     shared_scale=True, face_edge_sign=group.face_edge_sign,
                 ))
-                latents.append(self._path_latent(h0, group))
+                latents.append(self._path_latent(h0 if geometry is None else geometry, group))
                 merged = group.path_weight
                 log_merged.append(h0.new_zeros(group.num_faces) if merged is None
                                   else merged.to(h0.dtype).clamp_min(1e-30).log())
@@ -684,23 +737,26 @@ class H2SNN(nn.Module):
         face_groups: tuple[FaceGroup, ...],
         num_nodes: int,
     ) -> DiffusionOperator:
+        geometry = self.geometry_inputs(h0, edge_index, edge_type)
         if self.identity_maps:
             identity = IdentityMapOperator.ones(edge_index.size(1), self.d, h0)
             maps = EdgeMapPair(src=identity, tgt=identity)
         else:
             maps = self.node_to_edge(
-                h=h0,
+                h=geometry,
                 edge_index=edge_index,
                 edge_type=edge_type,
                 relation_embeddings=self.relation_embedding.weight,
             ).maps
         if self.pair_attention is not None:
-            return self._build_attention_operator(h0, maps, edge_index, edge_type, face_groups)
+            # C4b arm unchanged: attention scores from h0; path latents from the shared encoder.
+            return self._build_attention_operator(h0, maps, edge_index, edge_type, face_groups,
+                                                  geometry)
         gamma = self.gamma()
         terms: tuple[PathTerm, ...] = ()
         weights: tuple[torch.Tensor, ...] = ()
         if self.use_path_cells:
-            terms, weights = self.path_terms(h0, maps, edge_index, face_groups)
+            terms, weights = self.path_terms(geometry, maps, edge_index, face_groups)
         laplacian = VertexPathSheafLaplacian(
             edge_maps=maps,
             edge_index=edge_index,
@@ -709,7 +765,7 @@ class H2SNN(nn.Module):
             gamma=gamma if terms else None,
             checkpoint=self.checkpointing,
         )
-        listen, broadcast = self.coupling_gates(h0)
+        listen, broadcast = self.coupling_gates(geometry)
         return DiffusionOperator(laplacian=laplacian, eta=self.eta(), gamma=gamma,
                                  path_weights=weights, maps=maps, listen=listen,
                                  broadcast=broadcast)

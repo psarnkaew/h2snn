@@ -26,6 +26,9 @@ COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric", "p
 # D12 G0b diagnostics (gap ladder): never a search-space parameter; identity_maps is also
 # refused in a tuning base config (it is a control, not a model option).
 NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normalization")
+# D12 comparison arms (C8, C9): never a search-space parameter; the non-default values are refused
+# in a tuning base config (evidence rows, never tuned, never defaults).
+NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context",)
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 
 
@@ -56,7 +59,17 @@ def reject_never_tuned_settings(
             "ablation.identity_maps is the sheaf-free diagnostic of the D12 gap ladder and must "
             "not be used in tuning."
         )
+    model = (raw_config or {}).get("model") or {}
+    if model.get("geometry_context", True) is not True:
+        raise ValueError(
+            "model.geometry_context: false is the C9 comparison arm and must not be used in tuning."
+        )
     for name in search_parameters:
+        if any(key in str(name) for key in NEVER_TUNED_D12_KEYS):
+            raise ValueError(
+                f"tuning search space contains {name!r}: the D12 comparison switches "
+                "(geometry_context, encoder) are never tuned."
+            )
         if any(key in str(name) for key in NEVER_TUNED_DIAGNOSTIC_KEYS):
             raise ValueError(
                 f"tuning search space contains {name!r}: identity_maps and feature_normalization "
@@ -602,8 +615,16 @@ class ModelConfig:
     coupling_gate_init: float = 0.6
     # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
+    # D12 (spec v1.2 R10, Eq. 9): the geometry (map MLPs, gate heads, path encoder) is computed
+    # once from [h0, c], c = per-(relation, role) mean of the neighbours' h0 over facts. false =
+    # geometry from h0 alone (the D11 model; comparison arm C9). Never tuned.
+    geometry_context: bool = True
 
     def __post_init__(self) -> None:
+        if not isinstance(self.geometry_context, bool):
+            raise ValueError(
+                f"model.geometry_context must be a boolean, got {self.geometry_context!r}."
+            )
         if self.orthogonal_map != "fasthpp":
             raise ValueError(
                 f"Unsupported model.orthogonal_map '{self.orthogonal_map}'. "
@@ -675,6 +696,7 @@ class ModelConfig:
             coupling_gate_init=float(raw.get("coupling_gate_init", 0.6)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
+            geometry_context=raw.get("geometry_context", True),
         )
 
 
