@@ -30,6 +30,11 @@ from src.data.link_pred_structures import PreparedLinkPredData
 from src.data.structures import FaceGroup, PreparedH2SData, face_lengths_of
 from src.models.graph_readout import GraphReadout
 from src.models.link_readout import LinkPredictionReadout
+from src.models.pair_attention import (
+    AttentionOperator,
+    PairAttention,
+    build_attention_operator,
+)
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
@@ -483,7 +488,7 @@ class H2SNN(nn.Module):
         # Gate heads are created last, so the other parameters initialise exactly as before
         # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
         # diffusion (`h0_only_readout`).
-        if not self.h0_only and self.coupling != "symmetric":
+        if not self.h0_only and self.coupling in ("listen_only", "cooperative"):
             self.listen_gate = _gate_head(d, model_config.coupling_gate_init)
             if self.coupling == "cooperative":
                 self.broadcast_gate = _gate_head(d, model_config.coupling_gate_init)
@@ -516,6 +521,15 @@ class H2SNN(nn.Module):
                 nn.Dropout(model_config.classifier_dropout),
                 nn.Linear(model_config.classifier_hidden_dim, dims.num_classes),
             )
+        # A4 test variant (plan §12.3): created last, so every other parameter initialises as in
+        # the gated model; gate heads are not instantiated for it.
+        self.pair_attention: PairAttention | None = None
+        if self.coupling == "pair_attention" and not self.h0_only:
+            self.pair_attention = PairAttention(
+                d=d, d_r=model_config.d_r, path_hidden=model_config.face_mlp_hidden_dim,
+                num_relations=dims.num_relations,
+                max_positions=max(dims.face_lengths, default=1) + 1,
+            )
 
     # ------------------------------------------------------------------ scalars
     def eta(self) -> torch.Tensor:
@@ -544,6 +558,10 @@ class H2SNN(nn.Module):
         for head in (self.listen_gate, self.broadcast_gate):
             if head is not None:
                 scalars.extend(head.parameters())
+        if self.pair_attention is not None:
+            # The strength-forming parameters of the A4 test get the same optimizer treatment as
+            # the gate heads they replace (a test of A4 must not handicap one arm).
+            scalars.extend(self.pair_attention.parameters())
         return scalars
 
     # ------------------------------------------------------------------ operator
@@ -612,6 +630,39 @@ class H2SNN(nn.Module):
             weights.append(gate_weights)
         return tuple(terms), tuple(weights)
 
+    def _build_attention_operator(
+        self,
+        h0: torch.Tensor,
+        maps: EdgeMapPair,
+        edge_index: torch.Tensor,
+        edge_type: torch.Tensor,
+        face_groups: tuple[FaceGroup, ...],
+    ) -> AttentionOperator:
+        """Pair-attention operator on the same maps, facts and cells (A4 test, plan §12.3)."""
+        transports: list[PathTransportOperator] = []
+        latents: list[torch.Tensor] = []
+        log_merged: list[torch.Tensor] = []
+        if self.use_path_cells:
+            for group in face_groups:
+                if group.num_faces == 0:
+                    continue
+                transports.append(PathTransportOperator(
+                    maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
+                    shared_scale=True, face_edge_sign=group.face_edge_sign,
+                ))
+                latents.append(self._path_latent(h0, group))
+                merged = group.path_weight
+                log_merged.append(h0.new_zeros(group.num_faces) if merged is None
+                                  else merged.to(h0.dtype).clamp_min(1e-30).log())
+        shared_roles = torch.zeros(self.relation_embedding.num_embeddings, dtype=torch.bool,
+                                   device=h0.device)
+        if self.shared_role_relations:
+            shared_roles[list(self.shared_role_relations)] = True
+        return build_attention_operator(
+            self.pair_attention, maps, self.eta(), h0, edge_index, edge_type, shared_roles,
+            transports, latents, log_merged, self.checkpointing,
+        )
+
     def coupling_gates(self, h0: torch.Tensor) -> tuple[torch.Tensor | None, torch.Tensor | None]:
         """`(g, b)`, each `[N]` in (0, 1) or None when absent: `sigmoid(a^T h0 + beta)`,
         computed once from h0 like the maps (plan §10.4)."""
@@ -636,6 +687,8 @@ class H2SNN(nn.Module):
             edge_type=edge_type,
             relation_embeddings=self.relation_embedding.weight,
         ).maps
+        if self.pair_attention is not None:
+            return self._build_attention_operator(h0, maps, edge_index, edge_type, face_groups)
         gamma = self.gamma()
         terms: tuple[PathTerm, ...] = ()
         weights: tuple[torch.Tensor, ...] = ()
@@ -661,15 +714,23 @@ class H2SNN(nn.Module):
         `trace`, if given, receives the state after every step (diagnostics only)."""
         x = x0
         for _ in range(self.num_steps):
-            y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
-            y = operator.laplacian.apply_normalized(y)
-            if operator.listen is not None:
-                y = operator.listen.unsqueeze(-1) * y
+            if isinstance(operator, AttentionOperator):  # x <- x - eta (x - P x)
+                y = x - operator.propagate(x)
+            else:
+                y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
+                y = operator.laplacian.apply_normalized(y)
+                if operator.listen is not None:
+                    y = operator.listen.unsqueeze(-1) * y
             x = x - operator.eta * y
             x = self.layer_dropout(x)
             if trace is not None:
                 trace.append(x)
         return x
+
+    @property
+    def diagnostics_available(self) -> bool:
+        """Whether `eta_lambda_max` and `energy_trace` are defined (a Laplacian operator exists)."""
+        return not self.h0_only and self.pair_attention is None
 
     # ------------------------------------------------------------------ D10 diagnostics
     @staticmethod
@@ -685,6 +746,10 @@ class H2SNN(nn.Module):
     def coupling_stats(self, operator: DiffusionOperator) -> dict[str, float]:
         """Mean and min of the gates present (detached floats, logging only)."""
         stats: dict[str, float] = {}
+        if isinstance(operator, AttentionOperator):  # self-attention mass of every node
+            stats["alpha_self_mean"] = float(operator.alpha_self.detach().mean())
+            stats["alpha_self_min"] = float(operator.alpha_self.detach().min())
+            return stats
         for name, gate in (("g", operator.listen), ("b", operator.broadcast)):
             if gate is not None and gate.numel():
                 values = gate.detach()
@@ -698,6 +763,8 @@ class H2SNN(nn.Module):
         """Largest eigenvalue of `G Delta B` by power iteration on its symmetric similar form
         `(GB)^{1/2} Delta (GB)^{1/2}` (plan §10.3). Returns the Rayleigh quotient after
         `steps` steps: a lower bound of lambda_max that converges from below."""
+        if isinstance(operator, AttentionOperator):
+            raise ValueError("pair_attention has no Laplacian operator (use `diagnostics_available`).")
         probe = operator.eta
         scale = self.coupling_scale(operator, probe.new_zeros(num_nodes)).unsqueeze(-1)
         generator = torch.Generator(device=probe.device).manual_seed(seed)

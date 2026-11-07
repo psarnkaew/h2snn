@@ -47,3 +47,31 @@ Smoke (ACM, 20 epochs, cuda, tied+walk, cooperative, defaults): `u4_smoke_metric
 eta 0.5025 -> 0.5087, gamma 1.006 -> 1.056, g mean 0.613 -> 0.431 (min 0.119), b mean 0.606 -> 0.670 (min 0.186): the gates move after the learning fix, eta barely.
 Kernel script on that checkpoint (`u4_kernel_smoke.json`, k = 16, 60 LOBPCG iterations, 3 min on the GPU): smallest Ritz eigenvalue 0.014, dim ker (cut 1e-6) = 0 as an estimate (residual-norm check added afterwards; the smoke JSON predates it).
 Scope notes: graph classification logs no per-step energy (per-batch operators); `pair_attention` has no Laplacian, so the trace is not defined for it.
+
+## U4b - coupling: pair_attention (T-F4 ... T-F7, 3 mutations)
+NOTE: this section was written into the file after the first test run of tests/test_pair_attention.py (the design and tolerances were taken from the card; nothing was changed after seeing results).
+Design (src/models/pair_attention.py): GATv2 score a^T LeakyReLU(W [.]) (Eq. 7 of references/GATv2.pdf, opened and read: VERIFIED-SOURCE; bias omitted as the card specifies); single head; one W per entry kind (inputs differ in width), one shared a; hidden width = d;
+LeakyReLU slope 0.2 (GAT default); embeddings rel_emb (num_relations x d_r), dir_emb (2 x d_r, shared-role relations use role 0 on both ends), pos_emb (max_len+1 x d_r), self_emb (d_r). Softmax per receiving node over {self} + {facts at u: 2 incidences per stored fact, a self-loop fact gives two} + {cell positions containing u}; log m_f added to cell scores.
+Q_{u<-v}: orthogonal parts of the maps (F_u^-1 F_v with per-edge scale), cells via D9 (transport_sum / adjoint_prefix). Requires map_scale per_edge; config rejects per_side_scale, free_path_maps, endpoint/holonomy edges, uniform_path_gate, h0_only_readout with pair_attention.
+DECISION (fairness of the A4 test): the attention parameters join the fast optimizer group (lr 10x, wd 0) exactly like the gate heads they replace; otherwise the test would handicap one arm. Flagged for the author.
+Pre-registered expectations = the card: T-F4 rows > 0 and sum to 1 within 1e-12; T-F5 section fixed point within 1e-10 (tree, mixed-direction hops); T-F6 max node norm nonincreasing for eta in (0, 1] on 50 fixtures x 50 steps, control (unnormalized exp) increases on some fixture;
+T-F7 operator equals the explicit matrix within 1e-10 (mixed lengths, signed hops, self-loops), state dict = D11's minus the 4 gate-head tensors plus the attention tensors exactly; T-F3b control: pair_attention residual > 1e-3 on some fixture.
+Extra: independent loop-based softmax reference (roles, positions, shared roles, self-loops); merged weight 2 == two duplicate unit cells.
+Mutations: M1 self outside the softmax -> T-F4/T-F5; M2 Q instead of Q^T on -1 hops -> T-F5; M3 log m_f omitted -> the duplicate-cell test.
+Outcome: 13 tests pass (165 s); mutations 3/3 caught (u4b_mutation_output.txt).
+
+## U5 - core-claim screen (written BEFORE any screen run, 2026-11-07)
+Baseline precondition (u5_baseline_probe_output.txt): SeHGNN cannot run (vendor/SeHGNN is empty; clones are left alone per CLAUDE.md); CSNN cannot run (needs a C compiler, `where cl` fails); every other vendor clone except HINormer and csnn is absent; DGL cannot be imported by itself (graphbolt DLL) but the HINormer adapter runs on CPU: DBLP seed 0, published parameters, test macro-F1 0.933. Strongest baseline that runs = HINormer (WWW 2023; its paper evaluates DBLP, IMDB, Freebase, AMiner, not ACM). Reported as such; not a stop condition.
+Runs: ACM, DBLP, IMDB x {full, ablation.no_path_cells (gamma = 0), ablation.endpoint_edges, ablation.h0_only_readout, ablation.coupling = pair_attention} x seeds 42, 43, 44; the fixed config configs/experiments/<dataset>_h2snn.yaml (identical across datasets except the name; d 32, K 4, 200 epochs, early stopping patience 100, tied + walk + resampling, cooperative gates init 0.6, scalar group 10x); nothing tuned; no early peeking at test metrics for any decision.
+Primary metric: test macro-F1 at the epoch of best validation macro-F1 (trainer's best_test_metrics.json); micro-F1 reported alongside. Per (dataset, row): mean and sample std (ddof = 1) over the 3 seeds. Parameter count per row from a built model.
+Comparison convention (fixed now): for rows a, b on a dataset, delta = mean_a - mean_b and s = max(std_a, std_b). "a beats b" iff delta > s; "a ~ b" iff |delta| <= s; "a loses" iff delta < -s.
+Triggers of plan 12.6, operationalised:
+ T1 "path cells do not beat gamma = 0 or endpoint_edges": full does NOT beat BOTH gamma = 0 and endpoint_edges on at least 2 of 3 datasets  -> STOP, report.
+ T2 "full ~ h0_only (within 1 std)": full ~ h0_only on at least 2 of 3 datasets (reported; it routes to expressivity work, not a stop).
+ T3 "path cells win and full > h0_only": not T1 and full beats h0_only on at least 2 of 3 datasets -> Tier 0 with 10 seeds (a recommendation to the author, not started here).
+ T4 "gates still do not move after the learning fix": the mean over runs of max over epochs of |g_mean - init| and |b_mean - init| stays below 0.05 -> report (expected NOT to hit: the smoke run moved g mean by 0.18 in 20 epochs).
+ T5 "pair_attention > full by > 1 std on >= 2 of 3 datasets": pair_attention beats full (convention above) on at least 2 of 3 datasets -> STOP, report (A4 in doubt; confirmation needs 10 seeds, the author decides).
+ T6 "pair_attention <= full + 1 std": otherwise A4 retained (the row is reported as the test of A4).
+Weakness stated up front: with 3 seeds a 1-std rule is weak evidence either way; the triggers decide what to do next (stop / confirm with 10 seeds), they do not establish the claims.
+Logged per run (already in metrics.jsonl): eta, gamma, g/b mean and min per epoch, eta*lambda_max and normalized energy per step (edge, path) every 10 epochs (not for pair_attention / h0_only). One ACM model per variant (seed 42): analyze_kernel.py (dim ker, probe) where defined.
+Expectations (not claims): the full model is above h0_only on ACM and DBLP (PAP/APA signal) and about level on IMDB (HGB IMDB is multilabel and heterophilic); pair_attention is competitive because outside evidence leans toward attention (UNVERIFIED here). I will be wrong if the screen contradicts these; the triggers above fix what that means.

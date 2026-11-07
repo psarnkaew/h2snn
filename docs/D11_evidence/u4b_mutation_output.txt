@@ -1,0 +1,4 @@
+control (unmutated): ran=10 failures=0 errors=0
+M1 self-loop omitted from the softmax: ran=4 failing=3 -> CAUGHT ['test_TF4_alpha_matches_an_independent_loop_based_softmax', 'test_TF4_every_row_is_positive_and_sums_to_one', 'test_TF5_a_global_section_is_a_fixed_point']
+M2 Q instead of Q^T on a -1 hop: ran=3 failing=2 -> CAUGHT ['test_TF5_a_global_section_is_a_fixed_point', 'test_TF7_operator_equals_the_explicit_matrix']
+M3 log m_f omitted: ran=3 failing=1 -> CAUGHT ['test_a_merged_cell_of_weight_two_equals_two_duplicate_unit_cells']

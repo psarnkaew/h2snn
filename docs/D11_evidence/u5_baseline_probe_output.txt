@@ -1,0 +1,6 @@
+hinormer published params: present
+hinormer RAN: {'val_macro_f1': 0.9389725900031707, 'val_micro_f1': 0.9423868312757202, 'val_acc': 0.9423868312757202, 'test_macro_f1': 0.9331607905313847, 'test_micro_f1': 0.9383802816901409, 'test_acc': 0.9383802816901409, 'best_epoch': 60.0, 'params_source': 'published', 'feats_type': 3.0, 'len_seq': 50.0, 'device': 'cpu', 'implementation': 'official (Ffffffffire/HINormer)'}
+csnn published params: None
+csnn DID NOT RUN: CalledProcessError Command '['where', 'cl']' returned non-zero exit status 1.
+sehgnn published params: present
+sehgnn DID NOT RUN: FileNotFoundError Baseline repository 'sehgnn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\SeHGNN\hgb. Clone it into the vendor/ directory before running this adapter.

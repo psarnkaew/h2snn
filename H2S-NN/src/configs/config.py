@@ -21,7 +21,8 @@ def _reject_unknown_keys(section: str, raw: Mapping[str, Any], config_class: typ
 NEVER_TUNED_DATA_KEYS: tuple[str, ...] = ("fact_layer",)
 # D10: neither the coupling mode nor the gate init is ever a search-space parameter.
 NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling", "coupling_gate_init")
-COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric")
+# "pair_attention" (plan §12.3, Part F U4b) is the test of assumption A4, not a model option.
+COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric", "pair_attention")
 
 
 def reject_never_tuned_settings(
@@ -35,6 +36,12 @@ def reject_never_tuned_settings(
     layer, so the untied control is reachable only by setting it explicitly.
     """
     data = (raw_config or {}).get("data") or {}
+    coupling = str(((raw_config or {}).get("ablation") or {}).get("coupling", "cooperative"))
+    if coupling != "cooperative":
+        raise ValueError(
+            f"ablation.coupling: {coupling} is an ablation / test row (plan §10.5, §12.3) and must "
+            "not be used in tuning; tune the cooperative model and report the row separately."
+        )
     if str(data.get("fact_layer", "")).lower() == "untied":
         raise ValueError(
             "data.fact_layer: untied is an ablation control and must not be used in tuning "
@@ -670,6 +677,8 @@ class AblationConfig:
     # "cooperative": both gates; "listen_only": B = I; "symmetric": no gate heads, all gates
     # 1 (the pre-D10 model). Never tuned (see `reject_never_tuned_settings`).
     coupling: str = "cooperative"
+    # (D11) "pair_attention" replaces the gates by GATv2-style pair attention on the same sheaf:
+    # the test of assumption A4 (plan §12.3). Evidence row only; never a default, never tuned.
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
@@ -678,6 +687,15 @@ class AblationConfig:
         if self.coupling not in COUPLING_MODES:
             raise ValueError(
                 f"ablation.coupling must be one of {COUPLING_MODES}, got {self.coupling!r}."
+            )
+        if self.coupling == "pair_attention" and (
+            self.per_side_scale or self.free_path_maps or self.endpoint_edges
+            or self.holonomy_edges or self.uniform_path_gate or self.h0_only_readout
+        ):
+            raise ValueError(
+                "ablation.coupling: pair_attention needs orthogonal transports and the path "
+                "encoder; it cannot be combined with per_side_scale, free_path_maps, "
+                "endpoint_edges, holonomy_edges, uniform_path_gate or h0_only_readout."
             )
         if self.endpoint_edges and self.holonomy_edges:
             raise ValueError("ablation.endpoint_edges and ablation.holonomy_edges are exclusive.")
