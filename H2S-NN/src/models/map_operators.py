@@ -279,6 +279,40 @@ class FactorizedMapOperator:
         return scale * orthogonal, orthogonal.transpose(-2, -1) / scale
 
 
+class IdentityMapOperator:
+    """`F_e = I` with unit scale for `E` edges (`ablation.identity_maps`, the D12 G0b sheaf-free
+    diagnostic): the edge term becomes the graph Laplacian over facts (x) `I_d`."""
+
+    def __init__(self, scale: torch.Tensor, d: int) -> None:
+        if scale.dim() != 1:
+            raise ValueError(f"scale must be [E], got {tuple(scale.shape)}.")
+        self.scale = scale
+        self._d = d
+
+    @classmethod
+    def ones(cls, num_edges: int, d: int, like: torch.Tensor) -> "IdentityMapOperator":
+        return cls(like.new_ones(num_edges), d)
+
+    @property
+    def num_edges(self) -> int:
+        return int(self.scale.numel())
+
+    @property
+    def d(self) -> int:
+        return self._d
+
+    def stored_elements(self) -> int:
+        return 0
+
+    def select(self, rows: torch.Tensor) -> "IdentityMapOperator":
+        return IdentityMapOperator(self.scale[rows], self._d)
+
+    def apply(self, x: torch.Tensor) -> torch.Tensor:
+        return x
+
+    apply_T = apply_inverse = apply_inverse_T = apply_orthogonal = apply_orthogonal_T = apply
+
+
 class DenseMapOperator:
     """Explicit `[E, d, d]` maps behind the operator interface.
 

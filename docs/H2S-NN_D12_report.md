@@ -61,3 +61,74 @@ No THEORY-CONSTRAINT was touched.
 1. Should G0 count as passed on the data leg (splits, labels, edges, metric verified exactly) with the reproduction leg recorded as "not achievable without the sweep winner"? If not, which route: (a) ask HetSheaf's authors for the selected configurations, (b) set up HGB's R-GCN/SimpleHGN, or (c) approve 5 seeds of arms O and P to measure noise?
 2. Should a feature-path check (one features-using baseline on our pipeline, plus `h₀`-only with row-normalised features) run before G1? R-GCN without features outscores every D11 variant on the same pipeline, so the deficit may be partly in how H2S-NN uses features and the graph rather than in the sheaf design.
 3. Which split should the protocol cite when comparing to HetSheaf's paper numbers (C7): HGB's 24/6/70, which we use, or HetSheaf's code split of 27/3/70?
+
+**Author decisions (2026-11-08):**
+1. G0 is passed on the data leg. Reproduction is recorded as not achievable, and the internal reference is R-GCN on our pipeline.
+2. The feature-path check runs as G0b (below).
+3. The protocol cites HGB's 24/6/70 split. HetSheaf is rerun as baseline C7; its published numbers appear only in a labelled note.
+
+## G0b — Gap localization ladder (2026-11-08)
+
+### 1. Summary
+- 34 runs, all first-attempt successes: L0 has 5 seeds and L1–L4 have 3 seeds each, on ACM and DBLP. The reading rules were fixed in `D12_evidence/g0b_preregistration.md` before any code change or run, and were evaluated by script (`g0b_summary.md`).
+- **(i) does not fire.** Row-normalised features change `h₀`-only by −0.2 on both datasets, so feature preprocessing is not the defect. **(ii) does not fire.** The learned sheaf does not hurt: L4 is 0.6 (ACM) and 1.3 (DBLP) above L3, within noise.
+- **(iii) fires on both datasets.** Sheaf-free H2S-NN is **5.3 (ACM) and 9.8 (DBLP) points below** R-GCN, with train macro-F1 about 100 (ACM) and 97.5 (DBLP). It is therefore not underfitting. ACM is labelled overfitting by the rule. DBLP is unlabelled (train 97.5 is under the 98 cut), although its validation score is 8.3 below L0's.
+- **(iv) fires on DBLP only.** GCN scores 80.2 on DBLP, below its band edge of 87.3. On ACM it scores 92.2, inside its band.
+- **Localization:** the gap sits in the propagation and training path shared by every H2S-NN variant, not in the sheaf and not in feature scaling. On identical data and raw features, GCN reaches 92.2 on ACM, while sheaf-free H2S-NN reaches 84.5, only 0.8 above its own `h₀`-only head.
+
+### 2. Files changed
+- `src/configs/config.py`: `ablation.identity_maps` (needs `no_path_cells`; rejected with `h0_only_readout` or `pair_attention`) and `data.feature_normalization` (`none` | `row`, node classification only). Both defaults are off. Both are rejected by `reject_never_tuned_settings`: `identity_maps` in a base config, and both in search spaces.
+- `src/models/map_operators.py`: `IdentityMapOperator`. `src/models/h2snn_model.py`: uses it when the switch is on; `node_to_edge` is still built (same state dict) but not called. `src/data/dataset.py`: applies PyG `NormalizeFeatures` per node type when `row`.
+- `tests/test_gap_ladder.py` (new, 10 tests) and `tests/test_v2_model.py` (the every-ablation test now gives `identity_maps` its required companion).
+- `D12_evidence/g0_rgcn.py`: eval-mode train F1, a GCN option and a file prefix. Its defaults still reproduce G0: L0 seed 42 = 89.04 / 92.08, unchanged.
+- `D12_evidence/g0b_*`: driver, logs, per-run JSON and summary.
+
+### 3. Deviations
+- **Train F1.** `trainer.py` logs training-mode train F1 (dropout on, before the step). The ladder instead reloads each run's `best.pt` and evaluates in eval mode. The reloaded validation and test F1 equal the logged ones exactly (difference 0, all 24 runs).
+- **Suite.** The full suite was run once (294 tests: 24 pre-existing `test_baselines` failures plus 1 new failure). The new failure was the every-ablation test setting `identity_maps` alone, which is invalid by design; it was fixed by passing the required companion switch. Only the affected tests were then rerun (14 OK), not the whole suite.
+- **Stray folder.** Deleting `C:\c` was refused by the harness (protected system path). It contains only empty folders and needs a manual `Remove-Item C:\c -Recurse`.
+
+### 4–5. Verification and measurements
+- **Hardware:** RTX 4060.
+- **Selection:** test macro-F1 at the best validation macro-F1 epoch, as mean ± sample std. Train F1 is eval mode at that epoch.
+
+| Rung | ACM test | ACM val / train | DBLP test | DBLP val / train |
+|---|---|---|---|---|
+| L0 R-GCN, feature-free (5 seeds) | **89.72 ± 0.52** | 90.2 / 99.8 | **91.56 ± 1.37** | 91.4 / 100 |
+| L1 GCN (HetSheaf code), raw features | 92.23 ± 0.16 (band 90.6–93.9) | 95.9 / 95.7 | 80.22 ± 0.18 (band 87.3–94.4) | 79.6 / 93.8 |
+| L2 `h₀`-only, raw | 83.63 ± 0.17 | 86.8 / 100 | 77.76 ± 0.86 | 78.5 / 94.3 |
+| L2 `h₀`-only, row-normalised | 83.46 ± 1.24 | 88.3 / 98.5 | 77.52 ± 0.56 | 78.7 / 96.8 |
+| L3 sheaf-free H2S-NN | 84.46 ± 0.54 | 87.6 / 99.95 | 81.73 ± 0.50 | 83.2 / 97.5 |
+| L4 full D11 | 85.09 ± 1.67 | 88.9 / 100 | 83.05 ± 0.78 | 84.2 / 99.5 |
+
+- **Reproducibility (VERIFIED-RUN):** L2-raw ACM seed 42 = 83.77, and L4 ACM = 85.09 ± 1.67, both identical to the D11 screen. `feature_normalization: row` gives unit row sums for every featured ACM type; the featureless type stays 0.
+
+**Evidence behind (iii)** (from `metrics.jsonl` at the selected epoch):
+- The selected epochs are early: L3 about 20 on ACM; L4 16–58. Train F1 is already about 100 there, so the `[x_K, h₀]` head fits the training nodes within roughly 20 epochs and validation peaks at that point.
+- Propagation adds only 0.8 (ACM) and 4.0 (DBLP) over `h₀`-only.
+- The learned step size is η = 0.35–0.46 (L3) with K = 4.
+- In L4, the listen-gate mean falls from its 0.6 initialisation to 0.34–0.45: the full model learns to propagate *less*.
+
+**Hypotheses** (UNVERIFIED; each can be tested by one switch on L3; not run because G0b stops here):
+- **h1 (ego shortcut):** the `h₀` half of the readout memorises from raw, high-dimensional features before propagation becomes useful.
+- **h2 (reach and strength):** four first-order steps with η ≈ 0.45 are a weak low-pass compared with GCN's two full aggregations. G2's filter bank targets this.
+- **h3 (trainer settings):** our training setup differs from L0/L1's: weight decay 1e-4 vs 5e-4 (VERIFIED from the configs); scheduler horizon and dropout settings were not compared.
+
+**DBLP (iv):** the feature-free R-GCN (91.6) beats both GCN (80.2) and `h₀`-only (77.8). DBLP's signal is mostly structural, and its author features are weak. HetSheaf's GCN number used constant-plus-row-normalised features and the 27/3/70 split. The cause of our GCN's DBLP deficit is UNVERIFIED: row normalisation did not help `h₀`-only, but it was not tried for GCN.
+
+### 6. Self-review
+- Pre-registration before code or runs: PASS. Rules applied by script: PASS. Determinism versus D11: PASS (identical values).
+- Checkpoint reload consistency: PASS (difference 0).
+- Identity maps equal the dense normalised graph Laplacian ⊗ I on 5 random multigraphs within 1e-12, with a control (learned maps differ by > 1e-3): PASS.
+- State dict unchanged: PASS. Sheaf-free logits ignore the map module, with a control: PASS. Sheaf-free model still propagates (non-vacuous): PASS.
+- With 3 seeds, differences under about 2 points (L4 vs L3, L2-row vs L2-raw) are not resolved. The rules use 2-point margins, so the four verdicts do not depend on them.
+
+### 7. Assumptions imposed for theory and reality checks
+No THEORY-CONSTRAINT was added or touched. `identity_maps` forbids path cells only because transports were not defined for it in this unit (scope, not theory). Reality check: on identical data, the strongest simple models (R-GCN without features, GCN with features) beat every H2S-NN variant. Both use full neighbourhood aggregation with no ego shortcut in the head.
+
+### 8. Open items
+h1–h3 untested; the cause of GCN's DBLP deficit; IMDB not in the ladder (as carded); the stray `C:\c` folder.
+
+### 9. Decisions needed from the author
+1. **Rule (iii) points at propagation or training, not at the sheaf.** G2 (filter bank) addresses h2 only. Should I run a short, pre-registered check of h1–h3 on L3 before G1? For example: readout `x_K` only; K = 8; HetSheaf-like regularisation; 3 seeds each, ACM and DBLP, about 1 hour. Or start G1/G2 as planned?
+2. **Rule (i) did not fire,** so `feature_normalization` stays `none` for every model. Should the C7 baselines nonetheless get their original preprocessing (HetSheaf: constant column plus row normalisation)? Rule (iv) found the baseline feature path suspect on DBLP.

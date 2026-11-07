@@ -38,6 +38,7 @@ from src.models.pair_attention import (
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
+    IdentityMapOperator,
     PathTransportOperator,
     checkpoint_if_grad,
     normalize_reflectors,
@@ -392,6 +393,8 @@ class H2SNN(nn.Module):
         self.checkpointing = model_config.checkpointing
         self.map_scale = ablation.map_scale
         self.h0_only = ablation.h0_only_readout
+        # D12 G0b sheaf-free diagnostic: node_to_edge is still built (same state dict) but not called.
+        self.identity_maps = ablation.identity_maps
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
         self.identity_embedding: nn.Embedding | None = None
@@ -681,12 +684,16 @@ class H2SNN(nn.Module):
         face_groups: tuple[FaceGroup, ...],
         num_nodes: int,
     ) -> DiffusionOperator:
-        maps = self.node_to_edge(
-            h=h0,
-            edge_index=edge_index,
-            edge_type=edge_type,
-            relation_embeddings=self.relation_embedding.weight,
-        ).maps
+        if self.identity_maps:
+            identity = IdentityMapOperator.ones(edge_index.size(1), self.d, h0)
+            maps = EdgeMapPair(src=identity, tgt=identity)
+        else:
+            maps = self.node_to_edge(
+                h=h0,
+                edge_index=edge_index,
+                edge_type=edge_type,
+                relation_embeddings=self.relation_embedding.weight,
+            ).maps
         if self.pair_attention is not None:
             return self._build_attention_operator(h0, maps, edge_index, edge_type, face_groups)
         gamma = self.gamma()

@@ -1224,8 +1224,10 @@ class AblationTests(unittest.TestCase):
 
     def test_every_ablation_trains_one_step(self) -> None:
         # boolean switches (D10's `coupling` is a mode, covered below)
-        switches = [({name: True}, {}) for name in AblationConfig.__dataclass_fields__
-                    if name != "coupling"]
+        # identity_maps (D12 G0b diagnostic) is defined only together with no_path_cells.
+        requires = {"identity_maps": {"no_path_cells": True}}
+        switches = [({name: True, **requires.get(name, {})}, {})
+                    for name in AblationConfig.__dataclass_fields__ if name != "coupling"]
         switches += [({"coupling": mode}, {}) for mode in ("cooperative", "listen_only",
                                                            "symmetric")]
         switches.append(({}, {"map_family": "dense"}))

@@ -109,7 +109,7 @@ def arm_o(dataset: str) -> dict:
 
     faithful = bool(torch.equal(keys(edge_index[:, keep_rev], recon_type[keep_rev]), keys(stored_ei, stored_et)))
     return {"edge_index": edge_index, "edge_type": edge_type, "num_nodes": int(ours.num_nodes),
-            "num_relations": 2 * R, "y": ours.y, "multilabel": ours.is_multilabel,
+            "x": ours.x, "num_relations": 2 * R, "y": ours.y, "multilabel": ours.is_multilabel,
             "train": ours.train_mask, "val": ours.val_mask, "test": ours.test_mask,
             "num_classes": ours.num_classes, "relations": list(ours.relation_names),
             "fact_layer": {"mode": layer.mode, "kept": list(layer.kept), "rho": list(layer.rho),
@@ -149,7 +149,8 @@ def swap(dataset: str, graph_from: str, split_from: str, p_drop: tuple[str, ...]
 
 
 def run(dataset: str, arm: str, seed: int, device: torch.device, graph_from: str | None = None,
-        split_from: str | None = None, p_drop: tuple[str, ...] = ()) -> dict:
+        split_from: str | None = None, p_drop: tuple[str, ...] = (), model_name: str = "rgcn",
+        prefix: str = "g0_rgcn") -> dict:
     setup_torch(seed)
     if graph_from or split_from:
         data = swap(dataset, graph_from or arm, split_from or arm, p_drop)
@@ -162,16 +163,24 @@ def run(dataset: str, arm: str, seed: int, device: torch.device, graph_from: str
     from torch_geometric.data import Data
     from torch_geometric.nn import Linear
 
-    model = rgcn.RGCN(hidden_channels=CONFIG["hidden_channels"], num_nodes=data["num_nodes"],
-                      num_relations=data["num_relations"], layers=CONFIG["layers"], dropout=CONFIG["dropout"],
-                      input_dropout=CONFIG["input_dropout"], initial_dropout=CONFIG["initial_dropout"],
-                      output_dim=CONFIG["output_dim"]).to(device)
+    common = dict(hidden_channels=CONFIG["hidden_channels"], layers=CONFIG["layers"], dropout=CONFIG["dropout"],
+                  input_dropout=CONFIG["input_dropout"], initial_dropout=CONFIG["initial_dropout"],
+                  output_dim=CONFIG["output_dim"])
+    if model_name == "rgcn":
+        model = rgcn.RGCN(num_nodes=data["num_nodes"], num_relations=data["num_relations"], **common).to(device)
+    elif model_name == "gcn":  # HetSheaf GCN.py + configs/model/gcn.yaml (same values as rgcn.yaml)
+        gcn = load_file("hetsheaf_gcn", HETSHEAF / "models" / "gnn_baselines" / "GCN.py")
+        model = gcn.GCN(in_channels=int(data["x"].size(1)), **common).to(device)
+    else:
+        raise ValueError(model_name)
     decoder = Linear(CONFIG["output_dim"], data["num_classes"]).to(device)
     params = list(model.parameters()) + list(decoder.parameters())
     optimizer = torch.optim.AdamW(params, lr=CONFIG["lr"], weight_decay=CONFIG["weight_decay"])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG["t_max"], eta_min=CONFIG["eta_min"])
     graph = Data(edge_index=data["edge_index"].to(device), edge_type=data["edge_type"].to(device),
                  num_nodes=data["num_nodes"])
+    if model_name == "gcn":
+        graph.x = data["x"].float().to(device)
     y = data["y"].to(device)
     masks = {k: data[k].to(device) for k in ("train", "val", "test")}
     multilabel = data["multilabel"]
@@ -191,7 +200,7 @@ def run(dataset: str, arm: str, seed: int, device: torch.device, graph_from: str
             logits = decoder(model(graph))
             row = {"epoch": epoch, "train_loss": float(loss),
                    "val_loss": float(loss_fn(logits[masks["val"]], y[masks["val"]]))}
-            for split in ("val", "test"):
+            for split in ("train", "val", "test"):
                 m = metrics_ours(logits[masks[split]], y[masks[split]], multilabel)
                 row[f"{split}_macro_f1"], row[f"{split}_micro_f1"] = m["macro_f1"], m["micro_f1"]
             tm = metrics_torchmetrics(logits[masks["test"]], y[masks["test"]], multilabel, data["num_classes"])
@@ -212,8 +221,11 @@ def run(dataset: str, arm: str, seed: int, device: torch.device, graph_from: str
         "sizes": {k: int(masks[k].sum()) for k in masks}, "num_relations": data["num_relations"],
         "num_edges": int(data["edge_index"].size(1)), "num_nodes": data["num_nodes"],
         "relations": data["relations"],
+        "model": model_name,
         "test_at_best_val_macro_f1": {"epoch": best_val["epoch"], "macro_f1": best_val["test_macro_f1"],
-                                      "micro_f1": best_val["test_micro_f1"]},
+                                      "micro_f1": best_val["test_micro_f1"],
+                                      "train_macro_f1": best_val["train_macro_f1"],
+                                      "val_macro_f1": best_val["val_macro_f1"]},
         "test_at_final_epoch": {"epoch": final["epoch"], "macro_f1": final["test_macro_f1"],
                                 "micro_f1": final["test_micro_f1"],
                                 "macro_f1_torchmetrics": final["test_macro_f1_torchmetrics"],
@@ -223,7 +235,7 @@ def run(dataset: str, arm: str, seed: int, device: torch.device, graph_from: str
     for key in ("fact_layer", "reconstructs_stored_edges", "stored_edges"):
         if key in data:
             summary[key] = data[key]
-    (OUT / f"g0_rgcn_{dataset}_{arm}.json").write_text(json.dumps({"summary": summary, "curve": curve}, indent=1),
+    (OUT / f"{prefix}_{dataset}_{arm}{'' if seed == 42 and prefix == 'g0_rgcn' else f'_s{seed}'}.json").write_text(json.dumps({"summary": summary, "curve": curve}, indent=1),
                                                        encoding="utf-8")
     return summary
 

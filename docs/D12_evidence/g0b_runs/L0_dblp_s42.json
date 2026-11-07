@@ -1,0 +1,11 @@
+{
+ "rung": "L0",
+ "dataset": "dblp",
+ "seed": 42,
+ "best_epoch": 80,
+ "train_macro_f1": 1.0,
+ "val_macro_f1": 0.9120673381904909,
+ "test_macro_f1": 0.9207820023742306,
+ "epochs_run": 200,
+ "minutes": 0.19379595518112183
+}

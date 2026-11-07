@@ -1,0 +1,11 @@
+{
+ "rung": "L1",
+ "dataset": "acm",
+ "seed": 42,
+ "best_epoch": 165,
+ "train_macro_f1": 0.954445294534437,
+ "val_macro_f1": 0.9552645376923876,
+ "test_macro_f1": 0.9232223434975412,
+ "epochs_run": 200,
+ "minutes": 0.12401608228683472
+}

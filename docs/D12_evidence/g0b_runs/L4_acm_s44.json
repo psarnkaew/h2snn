@@ -1,0 +1,13 @@
+{
+ "rung": "L4",
+ "dataset": "acm",
+ "seed": 44,
+ "best_epoch": 16,
+ "train_macro_f1": 1.0,
+ "val_macro_f1": 0.9000441068706002,
+ "test_macro_f1": 0.8424609355589204,
+ "epochs_run": 117,
+ "train_macro_f1_trainmode_logged": 0.9986368770382904,
+ "consistency_val_abs_diff": 0.0,
+ "consistency_test_abs_diff": 0.0
+}

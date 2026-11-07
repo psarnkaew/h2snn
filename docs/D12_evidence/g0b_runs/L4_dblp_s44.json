@@ -1,0 +1,13 @@
+{
+ "rung": "L4",
+ "dataset": "dblp",
+ "seed": 44,
+ "best_epoch": 18,
+ "train_macro_f1": 0.9968958331741191,
+ "val_macro_f1": 0.8582638164754953,
+ "test_macro_f1": 0.8326047390084655,
+ "epochs_run": 119,
+ "train_macro_f1_trainmode_logged": 0.9811710598802192,
+ "consistency_val_abs_diff": 0.0,
+ "consistency_test_abs_diff": 0.0
+}

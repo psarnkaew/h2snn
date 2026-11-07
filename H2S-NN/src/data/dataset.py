@@ -169,6 +169,11 @@ def build_node_classification_paths(
 
 def build_dataset(config: TrainConfig) -> PreparedH2SData:
     data = _load_hetero_data(config)
+    if config.data.feature_normalization == "row":
+        # D12 G0b diagnostic: PyG NormalizeFeatures per node type, before stacking (HetSheaf's transform).
+        from torch_geometric.transforms import NormalizeFeatures
+
+        data = NormalizeFeatures()(data)
     raw_x, node_type, node_type_names, node_slices, feature_dims = stack_node_features(data)
     edge_index, edge_type, relation_names, relation_tuples = flatten_edges(data, node_slices)
     # Fact layer (D7): rho from exact edge-set equality, one 1-cell per fact when tied.

@@ -1,0 +1,41 @@
+04:11:20 L0 acm s42: test 89.04
+04:11:31 L0 acm s43: test 89.76
+04:11:40 L0 acm s44: test 90.46
+04:11:50 L0 acm s45: test 89.84
+04:12:00 L0 acm s46: test 89.51
+04:12:08 L1 acm s42: test 92.32
+04:12:15 L1 acm s43: test 92.32
+04:12:22 L1 acm s44: test 92.05
+04:12:34 L0 dblp s42: test 92.08
+04:12:44 L0 dblp s43: test 92.40
+04:12:54 L0 dblp s44: test 92.31
+04:13:05 L0 dblp s45: test 89.14
+04:13:17 L0 dblp s46: test 91.86
+04:13:28 L1 dblp s42: test 80.23
+04:13:38 L1 dblp s43: test 80.03
+04:13:48 L1 dblp s44: test 80.40
+04:17:14 L2raw acm s42: rc=0 in 3.4 min (attempt 1)
+04:22:05 L2raw acm s43: rc=0 in 4.8 min (attempt 1)
+04:25:31 L2raw acm s44: rc=0 in 3.4 min (attempt 1)
+04:29:16 L2raw dblp s42: rc=0 in 3.8 min (attempt 1)
+04:33:41 L2raw dblp s43: rc=0 in 4.4 min (attempt 1)
+04:37:45 L2raw dblp s44: rc=0 in 4.1 min (attempt 1)
+04:40:57 L2row acm s42: rc=0 in 3.2 min (attempt 1)
+04:43:43 L2row acm s43: rc=0 in 2.8 min (attempt 1)
+04:47:03 L2row acm s44: rc=0 in 3.3 min (attempt 1)
+04:50:56 L2row dblp s42: rc=0 in 3.9 min (attempt 1)
+04:55:26 L2row dblp s43: rc=0 in 4.5 min (attempt 1)
+04:59:58 L2row dblp s44: rc=0 in 4.5 min (attempt 1)
+05:02:52 L3 acm s42: rc=0 in 2.9 min (attempt 1)
+05:05:51 L3 acm s43: rc=0 in 3.0 min (attempt 1)
+05:08:47 L3 acm s44: rc=0 in 2.9 min (attempt 1)
+05:12:42 L3 dblp s42: rc=0 in 3.9 min (attempt 1)
+05:16:30 L3 dblp s43: rc=0 in 3.8 min (attempt 1)
+05:22:08 L3 dblp s44: rc=0 in 5.6 min (attempt 1)
+05:33:45 L4 acm s42: rc=0 in 11.6 min (attempt 1)
+05:43:15 L4 acm s43: rc=0 in 9.5 min (attempt 1)
+05:50:15 L4 acm s44: rc=0 in 7.0 min (attempt 1)
+06:00:31 L4 dblp s42: rc=0 in 10.3 min (attempt 1)
+06:10:30 L4 dblp s43: rc=0 in 10.0 min (attempt 1)
+06:19:40 L4 dblp s44: rc=0 in 9.2 min (attempt 1)
+06:19:40 run done

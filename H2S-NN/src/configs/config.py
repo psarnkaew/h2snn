@@ -23,6 +23,10 @@ NEVER_TUNED_DATA_KEYS: tuple[str, ...] = ("fact_layer",)
 NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling", "coupling_gate_init")
 # "pair_attention" (plan §12.3, Part F U4b) is the test of assumption A4, not a model option.
 COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric", "pair_attention")
+# D12 G0b diagnostics (gap ladder): never a search-space parameter; identity_maps is also
+# refused in a tuning base config (it is a control, not a model option).
+NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normalization")
+FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 
 
 def reject_never_tuned_settings(
@@ -47,7 +51,17 @@ def reject_never_tuned_settings(
             "data.fact_layer: untied is an ablation control and must not be used in tuning "
             "(plan §9.1); tune the tied model and report untied separately."
         )
+    if ((raw_config or {}).get("ablation") or {}).get("identity_maps", False):
+        raise ValueError(
+            "ablation.identity_maps is the sheaf-free diagnostic of the D12 gap ladder and must "
+            "not be used in tuning."
+        )
     for name in search_parameters:
+        if any(key in str(name) for key in NEVER_TUNED_DIAGNOSTIC_KEYS):
+            raise ValueError(
+                f"tuning search space contains {name!r}: identity_maps and feature_normalization "
+                "are D12 diagnostics, never tuned."
+            )
         if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
             raise ValueError(
                 f"tuning search space contains {name!r}: fact_layer is never tuned (plan §9.1)."
@@ -238,6 +252,10 @@ class DataConfig:
     # does not consume them, and computing the structural atoms costs a Python-level
     # per-node two-hop pass. scripts/h2snn_paper_studies.py turns it on.
     compute_relation_diagnostics: bool = False
+    # Input-feature preprocessing (D12 G0b diagnostic): "none" = raw HGB features (default,
+    # unchanged behaviour); "row" = PyG NormalizeFeatures per node type before stacking (what
+    # HetSheaf applies). Node classification only; never tuned (`reject_never_tuned_settings`).
+    feature_normalization: str = "none"
 
     # --- all tasks: fact layer (plan §9.1) ---
     # "tied": one oriented 1-cell per fact, rho from exact edge-set equality (the model).
@@ -296,6 +314,7 @@ class DataConfig:
             compute_relation_diagnostics=bool(
                 raw.get("compute_relation_diagnostics", False)
             ),
+            feature_normalization=str(raw.get("feature_normalization", "none")),
             fact_layer=str(raw.get("fact_layer", "tied")),
             path_sampler=str(raw.get("path_sampler", "walk")),
             resample_paths=raw.get("resample_paths", True),
@@ -363,6 +382,13 @@ class DataConfig:
             raise ValueError(
                 f"Unknown dataset '{self.dataset_name}'; set data.task_type explicitly."
             )
+        if self.feature_normalization not in FEATURE_NORMALIZATIONS:
+            raise ValueError(
+                f"data.feature_normalization must be one of {FEATURE_NORMALIZATIONS}, "
+                f"got {self.feature_normalization!r}."
+            )
+        if self.feature_normalization != "none" and task_type != "node_classification":
+            raise ValueError("data.feature_normalization is implemented for node classification only.")
 
         if task_type == "node_classification":
             if not 0.0 < self.acm_val_ratio < 1.0:
@@ -679,6 +705,10 @@ class AblationConfig:
     coupling: str = "cooperative"
     # (D11) "pair_attention" replaces the gates by GATv2-style pair attention on the same sheaf:
     # the test of assumption A4 (plan §12.3). Evidence row only; never a default, never tuned.
+    # (D12 G0b) Every restriction map F = I with scale 1: Delta_0 becomes the graph Laplacian
+    # over facts (x) I_d, the sheaf-free control of the gap ladder. Diagnostic only; needs
+    # no_path_cells; never tuned (`reject_never_tuned_settings`).
+    identity_maps: bool = False
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
@@ -696,6 +726,13 @@ class AblationConfig:
                 "ablation.coupling: pair_attention needs orthogonal transports and the path "
                 "encoder; it cannot be combined with per_side_scale, free_path_maps, "
                 "endpoint_edges, holonomy_edges, uniform_path_gate or h0_only_readout."
+            )
+        if self.identity_maps and (
+            not self.no_path_cells or self.h0_only_readout or self.coupling == "pair_attention"
+        ):
+            raise ValueError(
+                "ablation.identity_maps (sheaf-free diagnostic) needs no_path_cells: true and "
+                "cannot be combined with h0_only_readout or coupling: pair_attention."
             )
         if self.endpoint_edges and self.holonomy_edges:
             raise ValueError("ablation.endpoint_edges and ablation.holonomy_edges are exclusive.")
