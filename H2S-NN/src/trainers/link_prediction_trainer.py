@@ -283,6 +283,11 @@ class LinkPredictionTrainer:
                 data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
                 data.num_nodes,
             )
+            # Normalized energy per diffusion step, edge and path-cell parts (plan §12.6).
+            metrics.update(self.model.energy_trace(
+                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
+                data.num_nodes,
+            ))
         return metrics
 
     def _eval_epoch(

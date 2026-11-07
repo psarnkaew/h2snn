@@ -654,9 +654,11 @@ class H2SNN(nn.Module):
                                  path_weights=weights, maps=maps, listen=listen,
                                  broadcast=broadcast)
 
-    def diffuse(self, x0: torch.Tensor, operator: DiffusionOperator) -> torch.Tensor:
+    def diffuse(self, x0: torch.Tensor, operator: DiffusionOperator,
+                trace: list[torch.Tensor] | None = None) -> torch.Tensor:
         """K steps of `x <- x - eta G Delta B x` (then layer dropout). G and B are skipped,
-        not multiplied by ones, when absent, so `symmetric` runs the pre-D10 operations."""
+        not multiplied by ones, when absent, so `symmetric` runs the pre-D10 operations.
+        `trace`, if given, receives the state after every step (diagnostics only)."""
         x = x0
         for _ in range(self.num_steps):
             y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
@@ -665,6 +667,8 @@ class H2SNN(nn.Module):
                 y = operator.listen.unsqueeze(-1) * y
             x = x - operator.eta * y
             x = self.layer_dropout(x)
+            if trace is not None:
+                trace.append(x)
         return x
 
     # ------------------------------------------------------------------ D10 diagnostics
@@ -711,6 +715,32 @@ class H2SNN(nn.Module):
                 return 0.0
             x = y / norm
         return float((x * apply(x)).sum())
+
+    @torch.no_grad()
+    def energy_trace(self, x: torch.Tensor, node_type: torch.Tensor,
+                     edge_index: torch.Tensor, edge_type: torch.Tensor,
+                     face_groups: tuple[FaceGroup, ...], num_nodes: int) -> dict[str, float]:
+        """Normalized energy `<x_t, Delta_hat x_t> / ||x_t||^2` after each diffusion step
+        t = 0..K, split into `energy_edge_t` and `energy_path_t` (plan §12.6 diagnostics; a fresh
+        eval-mode operator, no grad; the training state is restored). Empty under
+        `h0_only_readout`."""
+        if self.h0_only:
+            return {}
+        was_training = self.training
+        self.eval()
+        try:
+            h0 = self.encode_nodes(x, node_type)
+            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
+            states = [h0]
+            self.diffuse(h0, operator, states)
+            trace: dict[str, float] = {}
+            for step, state in enumerate(states):
+                edge, path = operator.laplacian.energy_parts(state)
+                trace[f"energy_edge_{step}"] = float(edge)
+                trace[f"energy_path_{step}"] = float(path)
+            return trace
+        finally:
+            self.train(was_training)
 
     @torch.no_grad()
     def eta_lambda_max(self, x: torch.Tensor, node_type: torch.Tensor,

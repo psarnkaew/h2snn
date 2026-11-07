@@ -287,3 +287,18 @@ class VertexPathSheafLaplacian:
         """`D^{-1/2} L D^{-1/2} x`; rows (and columns) of nodes with `D_v = 0` are zero."""
         scale = self.inverse_sqrt_degree().unsqueeze(-1)
         return scale * self.apply(scale * x)
+
+    def energy_parts(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """Normalized energy `<x, Delta_hat x> / ||x||^2` split into its edge part
+        `<x, D^-1/2 Delta_0 D^-1/2 x>` and its path-cell part `gamma <x, D^-1/2 L_P D^-1/2 x>`
+        (0 without path terms); the two sum to the Rayleigh quotient of `apply_normalized`."""
+        scale = self.inverse_sqrt_degree().unsqueeze(-1)
+        y = scale * x
+        norm = x.square().sum().clamp_min(1e-30)
+        edge = (y * CoboundaryOps.L0_matrix_free(
+            x=y, maps=self.edge_maps, src_idx=self.src_idx, tgt_idx=self.tgt_idx,
+            num_nodes=self.num_nodes, checkpoint=False)).sum() / norm
+        path = x.new_zeros(())
+        if self.path_terms:
+            path = self.gamma * (y * self.apply_path(y)).sum() / norm
+        return edge, path

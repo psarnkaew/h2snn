@@ -100,7 +100,7 @@ class System:
         self.generator = generator
 
     # -- independent dense reference (no production operator code)
-    def dense_delta_hat(self) -> torch.Tensor:
+    def dense_delta_hat(self, parts: bool = False):
         n, d = self.num_nodes, self.d
         F_src, F_tgt = self.maps.src.materialize(), self.maps.tgt.materialize()
         edge_index = self.paths.edge_index
@@ -125,7 +125,10 @@ class System:
             degree.index_add_(0, nodes.reshape(-1), part.reshape(-1))
         scale = torch.where(degree > 0, degree.clamp_min(1e-300).rsqrt(),
                             torch.zeros_like(degree)).repeat_interleave(d)
-        return scale.view(-1, 1) * (delta0 + self.gamma * l_p) * scale.view(1, -1)
+        rows, columns = scale.view(-1, 1), scale.view(1, -1)
+        if parts:  # (edge part, path-cell part), each normalized by the full degree
+            return rows * delta0 * columns, rows * (self.gamma * l_p) * columns
+        return rows * (delta0 + self.gamma * l_p) * columns
 
     def production_delta_hat(self) -> torch.Tensor:
         basis = torch.eye(self.num_nodes * self.d, dtype=torch.float64).view(-1, self.num_nodes,
@@ -700,6 +703,114 @@ class MetricGradientFlowTests(unittest.TestCase):
             _, residual = _balance_residual(_effective_weights(free, n, d))
             worst = max(worst, residual)
         self.assertGreater(worst, 1e-3)
+
+
+# ----------------------------------------------------------------------------- U4 diagnostics
+class DiagnosticsTests(unittest.TestCase):
+    def test_energy_parts_equal_the_dense_rayleigh_quotients(self) -> None:
+        for shared in (True, False):
+            for seed in range(3):
+                with self.subTest(shared=shared, seed=seed):
+                    system = System(seed, shared=shared)
+                    edge_dense, path_dense = system.dense_delta_hat(parts=True)
+                    x = torch.randn(system.num_nodes, system.d, generator=system.generator,
+                                    dtype=torch.float64)
+                    flat = x.reshape(-1)
+                    edge, path = system.laplacian.energy_parts(x)
+                    norm = float(flat @ flat)
+                    self.assertLess(abs(float(edge) - float(flat @ edge_dense @ flat) / norm),
+                                    F64_TOL)
+                    self.assertLess(abs(float(path) - float(flat @ path_dense @ flat) / norm),
+                                    F64_TOL)
+                    self.assertGreater(float(path), 1e-3)  # the path part is not vacuous
+                    total = float((x * system.laplacian.apply_normalized(x)).sum()) / norm
+                    self.assertLess(abs(float(edge) + float(path) - total), F64_TOL)
+
+    def test_energy_trace_has_every_step_and_does_not_change_the_model_state(self) -> None:
+        from src.models.h2snn_model import build_model
+
+        data = _signal_fixture()
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {
+            "d": 8, "d_r": 4, "K": 3, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
+            "edge_mlp_hidden_dim": 16}, "data": {"resample_paths": False}})
+        torch.manual_seed(0)
+        model = build_model(cfg, data)
+        model.train()
+        before = [p.clone() for p in model.parameters()]
+        trace = model.energy_trace(data.x, data.node_type, data.edge_index, data.edge_type,
+                                   data.face_groups, data.num_nodes)
+        self.assertTrue(model.training)
+        self.assertEqual(sorted(trace), sorted(
+            [f"energy_{part}_{step}" for part in ("edge", "path") for step in range(4)]))
+        self.assertTrue(all(torch.isfinite(torch.tensor(v)) for v in trace.values()))
+        self.assertTrue(all(torch.equal(a, b) for a, b in zip(before, model.parameters())))
+        # diffusion lowers the energy of the broadcast-free Rayleigh quotient on this fixture
+        total = [trace[f"energy_edge_{t}"] + trace[f"energy_path_{t}"] for t in range(4)]
+        self.assertLess(total[-1], total[0])
+        # no diffusion -> nothing to trace
+        off = TrainConfig.from_dict({"device": "cpu", "ablation": {"h0_only_readout": True},
+                                     "model": {"d": 8, "d_r": 4, "K": 2}})
+        self.assertEqual(build_model(off, data).energy_trace(
+            data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
+            data.num_nodes), {})
+
+    def test_the_trainer_logs_the_trace_and_the_gate_statistics(self) -> None:
+        import json
+        import tempfile
+
+        from src.builders import build_optimizer
+        from src.models.h2snn_model import build_model
+        from src.trainers.trainer import Trainer  # noqa: F401  (documents what is exercised)
+        from src.utils.checkpointer import Checkpointer
+        from src.utils.logger import ExperimentLogger
+        from src.builders import build_trainer
+
+        data = _signal_fixture()
+        with tempfile.TemporaryDirectory(dir=REPO) as tmp:
+            cfg = TrainConfig.from_dict({
+                "device": "cpu", "epochs": 2, "log_every": 1, "exp_name": "u4", "output_dir": tmp,
+                "checkpoint_metric": "acc", "checkpoint_mode": "max",
+                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16},
+                "data": {"resample_paths": False}})
+            torch.manual_seed(0)
+            model = build_model(cfg, data)
+            logger = ExperimentLogger(cfg.exp_dir)
+            trainer = build_trainer(model=model, optimizer=build_optimizer(model, cfg),
+                                    scheduler=None, cfg=cfg, logger=logger,
+                                    checkpointer=Checkpointer(cfg.exp_dir, metric="acc", mode="max"))
+            try:
+                trainer.fit(data)
+                text = (cfg.exp_dir / "metrics.jsonl").read_text(encoding="utf-8")
+            finally:
+                logger.close()
+        for key in ("eta", "gamma", "g_mean", "g_min", "b_mean", "b_min", "eta_lambda_max",
+                    "energy_edge_0", "energy_path_0", "energy_edge_2", "energy_path_2"):
+            self.assertIn(f'"{key}"', text, key)
+        self.assertEqual(len([json.loads(line) for line in text.splitlines()]), 2)
+
+
+class KernelScriptTests(unittest.TestCase):
+    def test_lobpcg_eigenvalues_match_the_dense_spectrum(self) -> None:
+        spec = importlib.util.spec_from_file_location("analyze_kernel", REPO / "scripts" / "analyze_kernel.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        from src.models.h2snn_model import build_model
+
+        data = _signal_fixture()
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {
+            "d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
+            "edge_mlp_hidden_dim": 8}, "data": {"resample_paths": False}})
+        torch.manual_seed(0)
+        model = build_model(cfg, data)
+        values, vectors, residuals, operator, h0 = module.kernel_basis(
+            model, data, k=6, cut=1e-6, maxiter=500)
+        n, d = data.num_nodes, model.d
+        basis = torch.eye(n * d, dtype=torch.float64).view(-1, n, d)
+        dense = torch.stack([operator.laplacian.apply_normalized(b).reshape(-1) for b in basis], 1)
+        self.assertLess(float((dense - dense.T).abs().max()), 1e-10)
+        exact = torch.linalg.eigvalsh(dense)[:6].numpy()
+        self.assertLess(float(abs(values - exact).max()), 1e-5)
+        self.assertLessEqual(float(residuals.max()), 1e-3)
 
 
 if __name__ == "__main__":

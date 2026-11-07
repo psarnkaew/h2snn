@@ -41,3 +41,9 @@ least-squares metric from log m_u - log m_v = log w(v<-u) - log w(u<-v) (gelsd);
 Control available at U3: free per-direction block factors -> residual > 1e-3 on some fixture. The pair_attention control (required by the card) is added in U4b.
 (U2 outcome) T-F1 after attempt 2: fix moves every quantity by >= 0.088 on seeds 0-2; control <= 0.013; mutation (gate heads outside the group) caught 2/2 (`u2_mutation_output.txt`).
 (U3 outcome) T-F2, T-F3, T-F3b and the free-weights control passed at first run (4 tests, 288 s). Full suite after U2+U3 (one run, U3 adds tests only): 267 tests, failure names identical to the 24 pre-existing (`u3_full_suite.txt`).
+
+## U4 - diagnostics (outcome; pre-registered expectation: logs contain per-step edge/path energy, eta, gamma, gate mean/min; kernel script runs on a trained model)
+Smoke (ACM, 20 epochs, cuda, tied+walk, cooperative, defaults): `u4_smoke_metrics_summary.txt` - energy edge/path logged for each of the K+1 = 5 steps every 5 epochs (edge 0.956 -> 0.549, path 0.022 -> 0.013 at epoch 0);
+eta 0.5025 -> 0.5087, gamma 1.006 -> 1.056, g mean 0.613 -> 0.431 (min 0.119), b mean 0.606 -> 0.670 (min 0.186): the gates move after the learning fix, eta barely.
+Kernel script on that checkpoint (`u4_kernel_smoke.json`, k = 16, 60 LOBPCG iterations, 3 min on the GPU): smallest Ritz eigenvalue 0.014, dim ker (cut 1e-6) = 0 as an estimate (residual-norm check added afterwards; the smoke JSON predates it).
+Scope notes: graph classification logs no per-step energy (per-batch operators); `pair_attention` has no Laplacian, so the trace is not defined for it.
