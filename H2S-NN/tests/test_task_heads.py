@@ -118,9 +118,13 @@ class LinkPredictionHeadTests(unittest.TestCase):
         self.assertGreater(sum(group.num_faces for group in data.face_groups), 0)
         # Path cells only use message-graph edges, stored along the path.
         for group in data.face_groups:
+            # (signed hops: a -1 hop's fact is stored against the path direction, D7)
             edges = data.edge_index[:, group.face_edge_index]
-            self.assertTrue(torch.equal(edges[0], group.face_node_index[:, :-1]))
-            self.assertTrue(torch.equal(edges[1], group.face_node_index[:, 1:]))
+            backward = group.face_edge_sign < 0
+            near = torch.where(backward, edges[1], edges[0])
+            far = torch.where(backward, edges[0], edges[1])
+            self.assertTrue(torch.equal(near, group.face_node_index[:, :-1]))
+            self.assertTrue(torch.equal(far, group.face_node_index[:, 1:]))
         self.assertEqual(_leaked_pairs(data), set())
         # Control: the same check catches a test positive placed in the message graph.
         from src.data.link_pred_structures import PreparedLinkPredData
@@ -186,12 +190,13 @@ def _permuted(graph, seed: int):
 
 
 class GraphClassificationHeadTests(unittest.TestCase):
-    def _setup(self):
+    def _setup(self, data: dict | None = None):
         from src.models.h2snn_model import ModelDims, build_graph_classification_model
         from src.trainers.graph_classification_trainer import GraphClassificationTrainer
 
         cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "auroc",
-                                     "model": SMALL_MODEL, "data": {"dataset_name": "mutag"}})
+                                     "model": SMALL_MODEL,
+                                     "data": {"dataset_name": "mutag", **(data or {})}})
         dims = ModelDims(in_channels=5, num_node_types=2, num_relations=4, num_classes=2,
                          face_lengths=(2,))
         torch.manual_seed(0)
@@ -205,7 +210,11 @@ class GraphClassificationHeadTests(unittest.TestCase):
     def test_logits_are_invariant_to_node_permutation_within_a_graph(self) -> None:
         from torch_geometric.data import Batch
 
-        _, model, trainer = self._setup()
+        # Walk sampling draws cells by node id, so permutation invariance of the logits holds
+        # only in distribution under the defaults (tied + walk); this exact check fixes the
+        # cells with the pre-D7 DFS builder (the operator and head are what is tested).
+        _, model, trainer = self._setup({"fact_layer": "untied", "path_sampler": "dfs",
+                                         "resample_paths": False})
         model.double().eval()
         graphs = [_typed_graph(seed) for seed in range(4)]
         for graph in graphs:

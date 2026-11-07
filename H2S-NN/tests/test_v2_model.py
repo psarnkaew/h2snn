@@ -991,6 +991,8 @@ class V2ModelTests(unittest.TestCase):
                 "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
                 "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16},
+                # Hand-built fixture without a fact layer: nothing to resample.
+                "data": {"resample_paths": False},
                 "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})
             torch.manual_seed(0)
             model = build_model(cfg, data)

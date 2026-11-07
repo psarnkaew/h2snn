@@ -1,0 +1,4 @@
+mutation: pin 'fact_layer' removed -> failures=0 errors=1 -> CAUGHT
+mutation: pin 'path_sampler' removed -> failures=1 errors=0 -> CAUGHT
+mutation: pin 'resample_paths' removed -> failures=0 errors=1 -> CAUGHT
+control (unmutated): failures=0 errors=0

@@ -51,6 +51,16 @@ HGB_DEFAULT_FEATS_TYPE: dict[str, int] = {
 # node.dat/link.dat/label.dat files directly through their own copy of HGB's data_loader
 # rather than through PyG. Those files are already on disk as the PyG HGBDataset raw
 # payload, so the adapters point at them instead of shipping a second copy.
+# Plan §9.5, option A: baselines keep their standard stored graph (every stored edge, reverse
+# relations included) and the pre-D7 DFS path builder; only H2S-NN uses tied facts, walk sampling and
+# per-epoch resampling (the DataConfig defaults). No baseline adapter reads `face_groups`
+# (grep over src/baselines), so no baseline consumes path instances from our builders.
+BASELINE_DATA_PINS: dict[str, Any] = {
+    "fact_layer": "untied",
+    "path_sampler": "dfs",
+    "resample_paths": False,
+}
+
 HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
 
 
@@ -323,8 +333,18 @@ def _base_config(
 ) -> TrainConfig:
     """Build the canonical TrainConfig for one cell."""
 
+    if overrides:
+        data_overrides = overrides.get("data")
+        pinned = [
+            key for key in BASELINE_DATA_PINS
+            if isinstance(data_overrides, dict) and key in data_overrides
+        ]
+        if pinned:
+            raise ValueError(
+                f"baseline bundles pin {pinned} (plan §9.5, option A); they cannot be overridden."
+            )
     payload: dict[str, Any] = {
-        "data": {"dataset_name": dataset, "run_index": run_index},
+        "data": {"dataset_name": dataset, "run_index": run_index, **BASELINE_DATA_PINS},
         "seed": seed,
         "device": "cuda" if torch.cuda.is_available() else "cpu",
     }

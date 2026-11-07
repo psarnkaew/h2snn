@@ -1,0 +1,6 @@
+fix   seed 0 eta, mean|dg|, mean|db| = [0.088, 0.1955, 0.2595]
+fix   seed 1 eta, mean|dg|, mean|db| = [0.1392, 0.2692, 0.2127]
+fix   seed 2 eta, mean|dg|, mean|db| = [0.1324, 0.2683, 0.2305]
+ctrl  seed 0 eta, mean|dg|, mean|db| = [0.0009, 0.0044, 0.0083]
+ctrl  seed 1 eta, mean|dg|, mean|db| = [0.013, 0.0074, 0.0094]
+ctrl  seed 2 eta, mean|dg|, mean|db| = [0.0132, 0.0087, 0.0077]

@@ -1,0 +1,4 @@
+control (unmutated): ran=18 failures=0 errors=0
+M1 -1 hop uses Q instead of Q^T: ran=8 failing=33 -> CAUGHT ['test_T1_matches_dense_reference_mixed_lengths_scales_families_and_signs', 'test_T2_every_method_is_consistent_and_apply_T_is_the_exact_adjoint', 'test_T2_functoriality_on_every_boundary_edge_with_mixed_signs', 'test_T2_holonomy_term_uses_the_signed_step']
+M2 duplicates dropped instead of summed: ran=5 failing=4 -> CAUGHT ['test_T8_mean_of_draws_matches_the_exact_target', 'test_T8_negative_control_dropping_duplicates_is_biased', 'test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight', 'test_T9_no_two_cells_share_a_key_in_real_draws']
+M3 reversed orientation of a held-out fact not removed: ran=5 failing=6 -> CAUGHT ['test_T11_no_held_out_fact_in_message_graph_or_paths', 'test_T11_split_is_by_fact', 'test_T11_tied_layer_on_link_prediction', 'test_T12_link_prediction_resampling']

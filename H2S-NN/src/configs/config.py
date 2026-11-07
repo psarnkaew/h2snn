@@ -235,18 +235,16 @@ class DataConfig:
     # --- all tasks: fact layer (plan §9.1) ---
     # "tied": one oriented 1-cell per fact, rho from exact edge-set equality (the model).
     # "untied": every stored edge is its own 1-cell (ablation control; never tuned, see
-    # `reject_never_tuned_settings`). Interim default "untied": see path_sampler below.
-    fact_layer: str = "untied"
+    # `reject_never_tuned_settings`).
+    fact_layer: str = "tied"
     # Path-cell builder (plan §9.2): "walk" (r walks per anchor and schema, merged weights,
     # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only), "uniform_instance"
-    # (ablation: draws uniform over instances, L <= 2). Interim defaults untied + dfs +
-    # no resampling: flipping them would also change the baselines' data, which come
-    # through the same builders with default configs (src/baselines/bundles.py).
-    path_sampler: str = "dfs"
+    # (ablation: draws uniform over instances, L <= 2). Baseline bundles pin untied + dfs +
+    # no resampling in src/baselines/bundles.py::_base_config (plan §9.5, option A).
+    path_sampler: str = "walk"
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
-    # epoch); validation and test always use the draw with seed `seed`. Interim default
-    # False with the interim dfs default (DFS keeps its fixed seed, decision 6).
-    resample_paths: bool = False
+    # epoch); validation and test always use the draw with seed `seed`.
+    resample_paths: bool = True
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -291,9 +289,9 @@ class DataConfig:
             compute_relation_diagnostics=bool(
                 raw.get("compute_relation_diagnostics", False)
             ),
-            fact_layer=str(raw.get("fact_layer", "untied")),
-            path_sampler=str(raw.get("path_sampler", "dfs")),
-            resample_paths=raw.get("resample_paths", False),
+            fact_layer=str(raw.get("fact_layer", "tied")),
+            path_sampler=str(raw.get("path_sampler", "walk")),
+            resample_paths=raw.get("resample_paths", True),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),

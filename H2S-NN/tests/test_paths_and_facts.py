@@ -727,7 +727,9 @@ class SchemaTests(unittest.TestCase):
             resolve_schema(MetaPathConfig("x", ("paper",) * 2,
                                           hops=(("paper__cite__paper", "-"),)), layer, tuples)
         with self.assertRaises(ValueError):
-            TrainConfig.from_dict({"data": {"dataset_name": "acm", "metapath_templates": [
+            TrainConfig.from_dict({"data": {
+                "dataset_name": "acm", "fact_layer": "untied", "path_sampler": "dfs",
+                "metapath_templates": [
                 {"name": "x", "node_types": ["paper", "paper"],
                  "hops": [["paper__cite__paper", "-"]]}]}})
         with self.assertRaises(ValueError):  # malformed hop
@@ -1139,7 +1141,8 @@ class ProtocolTests(unittest.TestCase):
         from src.configs.config import TrainConfig
 
         with self.assertRaises(ValueError):
-            TrainConfig.from_dict({"data": {"dataset_name": "acm", "resample_paths": True}})
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "untied",
+                                            "path_sampler": "dfs", "resample_paths": True}})
         with self.assertRaises(ValueError):
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
                                             "path_sampler": "walk", "resample_paths": "yes"}})
@@ -1287,6 +1290,61 @@ class LinkPredictionFactTests(unittest.TestCase):
     def test_T11_config(self) -> None:
         with self.assertRaises(ValueError):
             _lp_config(self.root, "tied", "uniform_instance")
+
+
+class BaselineBundleIdentityTests(unittest.TestCase):
+    """D7 option A (plan §9.5): baseline bundles keep the pre-D7 data whatever the H2S-NN defaults."""
+
+    @staticmethod
+    def _explicit_old_config(name: str):
+        from src.configs.config import TrainConfig
+
+        return TrainConfig.from_dict({"data": {
+            "dataset_name": name, "run_index": 0, "fact_layer": "untied",
+            "path_sampler": "dfs", "resample_paths": False}, "seed": 42,
+            "device": "cpu"})
+
+    def test_defaults_are_the_model(self) -> None:
+        from src.configs.config import DataConfig, TrainConfig
+
+        for data in (DataConfig(), TrainConfig.from_dict({"data": {"dataset_name": "acm"}}).data):
+            self.assertEqual((data.fact_layer, data.path_sampler, data.resample_paths),
+                             ("tied", "walk", True))
+
+    def test_node_bundle_equals_explicit_untied_dfs(self) -> None:
+        from src.baselines.bundles import build_bundle
+        from src.data.dataset import build_dataset
+
+        bundle = build_bundle("node_classification", "acm", overrides={"device": "cpu"}).data
+        old = build_dataset(self._explicit_old_config("acm"))
+        for field in ("x", "y", "edge_index", "edge_type", "target_y", "train_mask"):
+            self.assertTrue(torch.equal(getattr(bundle, field), getattr(old, field)), field)
+        self.assertEqual(bundle.relation_names, old.relation_names)
+        self.assertEqual(len(bundle.face_groups), len(old.face_groups))
+        for a, b in zip(bundle.face_groups, old.face_groups):
+            for field in ("face_node_index", "face_edge_index", "relation_index", "face_edge_sign"):
+                self.assertTrue(torch.equal(getattr(a, field), getattr(b, field)), field)
+        self.assertEqual(bundle.fact_layer.mode, "untied")
+
+    def test_graph_bundle_equals_explicit_untied(self) -> None:
+        from src.baselines.bundles import build_bundle
+        from src.data.graph_classification_dataset import build_graph_classification_dataset
+
+        fold = build_bundle("graph_classification", "mutag", overrides={"device": "cpu"}).fold
+        old = build_graph_classification_dataset(self._explicit_old_config("mutag"))
+        for split in ("train", "val", "test"):
+            a, b = getattr(fold, f"{split}_loader").dataset, getattr(old, f"{split}_loader").dataset
+            self.assertEqual(len(a), len(b))
+            for x, y in zip(a, b):
+                self.assertTrue(torch.equal(x.edge_index, y.edge_index))
+                self.assertTrue(torch.equal(x.edge_type, y.edge_type))
+
+    def test_pins_cannot_be_overridden(self) -> None:
+        from src.baselines.bundles import _base_config
+
+        for key, value in (("fact_layer", "tied"), ("path_sampler", "walk"), ("resample_paths", True)):
+            with self.assertRaises(ValueError):
+                _base_config("acm", run_index=0, seed=42, overrides={"data": {key: value}})
 
 
 def _pairs_of(edge_index: torch.Tensor) -> set[tuple[int, int]]:
