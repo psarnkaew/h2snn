@@ -157,3 +157,11 @@ Nothing here is a performance result. Misses are recorded with the pre-registere
 ## K4, K5
 - **K4:** the dated erratum (two items, as carded) appended to the Part I report; the D2-row default statement in AGENTS.md and CLAUDE.md (uncommitted).
 - **K5:** the report and the full suite once. Expected: only the 24 pre-existing `test_baselines` failures.
+
+## Addendum 2026-11-09 05:52 (before any gated K2 run): the n = 2000 memory check
+- `k2_capacity.py --n 2000 --fit-check`: one epoch at n = 2000 (162,000 nodes, 127,990 cells; oracle at
+  log 512) peaked at **1,946 MB** of GPU memory (8 GB card), 16.5 s including the epoch-0 diagnostics.
+- **Decision:** the gated runs use **n = 2000** (1,000 training targets), as carded.
+- Environment note: PyG warns that a Windows Application Control policy blocks the optional
+  `torch-scatter`/`torch-sparse` DLLs (already in Part I's final suite output); H2S-NN's model code does
+  not import them (only two baseline adapters do).
