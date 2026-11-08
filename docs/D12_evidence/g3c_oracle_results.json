@@ -1,0 +1,32 @@
+{
+ "v2/oracle_gate/s42": {
+  "test_acc": 1.0,
+  "val_acc": 1.0,
+  "best_epoch": 56,
+  "epochs_run": 157,
+  "train_acc_at_best_trainmode": 0.986,
+  "oracle_cells_on": 1000,
+  "cells_PAP": 272000,
+  "seconds": 440.7
+ },
+ "v2/oracle_gate/s43": {
+  "test_acc": 0.996,
+  "val_acc": 1.0,
+  "best_epoch": 61,
+  "epochs_run": 162,
+  "train_acc_at_best_trainmode": 0.988,
+  "oracle_cells_on": 1000,
+  "cells_PAP": 272000,
+  "seconds": 471.6
+ },
+ "v2/oracle_gate/s44": {
+  "test_acc": 1.0,
+  "val_acc": 1.0,
+  "best_epoch": 101,
+  "epochs_run": 200,
+  "train_acc_at_best_trainmode": 0.992,
+  "oracle_cells_on": 1000,
+  "cells_PAP": 272000,
+  "seconds": 558.5
+ }
+}

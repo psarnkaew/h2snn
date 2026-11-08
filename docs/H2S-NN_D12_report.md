@@ -1,6 +1,6 @@
 # H2S-NN — D12 report (task card Part G)
 
-**Status:** G0 only (2026-11-08). G1–G4 not started; they wait for the author's reply to this section.
+**Status (2026-11-08):** G0, G0b, G1–G3b, the G3b re-check and G3c are done (see their sections). G4 not started.
 Branch `d12-encoder` (off `tier0-screen-d11`). Evidence: `docs/D12_evidence/`. Hardware: RTX 4060 8 GB, Windows, env `h2snn` (torch 2.6, PyG 2.8.0, torchmetrics 1.9.0).
 
 ## G0 — Pipeline-correctness gate
@@ -238,3 +238,101 @@ The extra parameters are (K+1)·d² − θ_η = 5,119. For information (not gate
 2. **C2 under context.** With `geometry_context` on, the `endpoint_edges` arm's maps see intermediates through the endpoints' neighbourhood means (not path-specific). Is that the intended C2 comparison, or should C2 run its two arms with context off?
 3. **A known-answer task that needs the cells.** Should I build one where the label depends on which intermediate a specific instance passes through, with the same endpoint relations? That would test H/C2 mechanistically, which the current task cannot.
 4. **Next step.** Choose between G4 (final report ≤ 2 pages) and the still-open G0b check of h1–h3.
+
+**Author decisions (2026-11-08):**
+1. Keep the pre-registered tolerance 1 + 1e-6. Compute the norm-sum diagnostic in float64 (cast the d×d matrices before taking norms) and re-check the smoke run. Do not loosen any tolerance.
+2. Both C2 arms (full and `endpoint_edges`) keep `geometry_context` on: C2 tests path-specific information beyond neighbourhood averages. The arms are unchanged.
+3. Add unit G3c, a known-answer task for path-specific binding (below).
+4. Skip the G0b h1–h3 check; it is deferred to the cluster. G4 follows G3c.
+
+## G3b re-check and G3c — float64 norm-sum diagnostic; known-answer task for path-specific binding (2026-11-08)
+
+Pre-registrations: the dated addendum in `D12_evidence/g3b_preregistration.md` (before the re-check); `D12_evidence/g3c_preregistration.md` (before any G3c run), with a dated diagnosis addendum written after v2 full seed 42 and before D1/D2. Commits: re-check `f3f2907`, G3c (this section).
+
+### 1. Summary
+- **G3b a1 check 2: FAIL under the pre-registered float32 measurement; float64 re-check: PASS.** The largest `filter_norm_sum` over 5 epochs is 1 + 1.3e-7, within the unchanged tolerance 1 + 1e-6. All six a1 checks and a3 pass in the re-check.
+- **G3c v1 (your design, literal): LEAKED, so no result is reported for it.** The first control run, `no_path_cells` seed 42, scored 0.996, above the 0.60 gate. The cause was verified by intervention: zeroing the relational context drops the same checkpoint to 0.488. Author A's context is the mean of A's two papers, so it carries the co-paper's class marker into the (P, A) edge maps; no path cell is needed.
+- **G3c v2 (the pre-registered redesign): FAIL.** The task does not leak: all nine control runs are at chance (0.48–0.564). But the full model also stays at chance: **0.504 / 0.58 / 0.536**, against a criterion of ≥ 0.90.
+- **Diagnosis: not a bug downstream of w_f; w_f does not learn the key match.**
+  - **D2 (oracle gate):** with w_f fixed to the rule (1 on each target's relevant cell, 0 elsewhere) and everything else trained the same way, the model reaches **1.0 / 0.996 / 1.0**. So the transport, filter and readout carry the bound information when w_f selects the right cell.
+  - **D1:** the learned w_f separates lead from non-lead cells (in a seed-dependent direction) but never key-matched from unmatched cells.
+  - **Conclusion:** the per-instance weight *can* bind, but under the G3c budget the path encoder does not learn the 6-bit key equality from 500 training targets.
+- **What G3c establishes for C2:** a valid task exists on which the controls are at chance and an oracle w_f solves it. It does **not** show that the trained model learns path-specific binding: that part is a FAIL.
+
+### 2. Files changed
+- **Re-check (`f3f2907`):**
+  - `src/models/filter_bank.py`: `diagnostic_norm_sum()`, which takes the float64 norms of the float32 `W_k`. The cap is unchanged.
+  - `h2snn_model.py`: both logging paths use it.
+  - `tests/test_filter_bank.py`: one test, written first (`g3b_f64_tests_first.txt`), with a float32-vs-float64 control.
+  - `g3b_smoke.py`: `--tag`; it refuses to run if `metrics.jsonl` already exists.
+  - Evidence: `g3b_smoke_f64.json` / `_output.txt`, `g3b_f64_suite_output.txt`.
+- **G3c (evidence only, no `src/` change):**
+  - `g3c_preregistration.md`, `g3c_binding.py` (both designs, the arms, coverage and w_f statistics);
+  - `g3c_graph_check_v1/v2.json`, `g3c_results.json`, `g3c_logs/`;
+  - `g3c_v1_leak_mechanism.py/.json`;
+  - `g3c_v2_diagnosis.py/.json` (D1), `g3c_v2_oracle.py`, `g3c_oracle_results.json` (D2).
+
+### 3. Deviations
+- **A design you did not specify.** v1 is the design you gave, run literally. It leaked, as I predicted in writing beforehand, so v2 (fixed in the same pre-registration before any run) was run. v2 adds 6-bit keys and 16 class-balanced co-papers per author, each co-paper having one lead-type and one non-lead-type author. This makes the label depend on the (P, A, Q) triple only.
+- **Pre-registered setting changes, applied to every arm:** `face_sample_k` 400 (every relevant and distractor cell was drawn: coverage 1.0 in all runs); split 50/25/25 over 1000 targets.
+- **The `uniform_path_gate` arm was rerun.** The first v2 driver died with a segmentation fault (exit 139) while that arm was starting, before epoch 0. It coincided with my CPU diagnosis job building three copies of the 272k-cell graph at the same time, so the likely cause is host-memory pressure (UNVERIFIED). The arm was rerun alone with the same config; no completed run was repeated.
+- **Mechanism prediction for v1.** I listed three possible leak routes: (a) gates, (b) context into the edge maps, (c) the endpoint arm seeing the lead bit through Q's context. The run used (b), not (a): the authors' listen gates went to about 0.003–0.008, closing the two-hop diffusion route.
+- **Correction to G1–G3b §3.** The original a1 checks were evaluated over 10 metrics rows from both attempts, not just the second: the logger appends. Both values above 1 + 1e-6 came from the second attempt.
+
+### 4–5. Verification and measurements
+**G3b re-check** (ACM, seed 42, fresh experiment directory, 5 rows):
+- `filter_norm_sum` per epoch (float64): 1.00000013, 0.9999982, 0.9999995, 0.9999988, 0.9999983.
+- For the final weights, the float32 and float64 values are 0.99999839 and 0.99999835.
+- Losses are identical to the original run (1.101 → 0.894). Gain is 0.936–0.950.
+- a3: `filter_norm_sum` is 1.0, then 0.9999973 and 0.9999986; gain goes 0.988 → 0.962.
+- Full suite: 312 tests; the only failures are the 24 pre-existing `test_baselines` ones.
+
+**G3c v1** (2000 cells): `no_path_cells` seed 42 scored test 0.996 and train 0.988; the design stopped there under the leak rule.
+- Two-hop route strength (Q → A → P): about 2e-5. One-hop edge blocks: about 0.5.
+- The checkpoint scores 0.996; with the context zeroed it scores 0.488 (`g3c_v1_leak_mechanism.json`).
+
+**G3c v2** (17,000 papers, 2000 authors, 34,000 facts, 272,000 cells; the generator's invariants 1–5 hold). Test accuracy at the epoch selected on validation; chance is 0.5; gate ≤ 0.60 for controls and ≥ 0.90 for full:
+
+| Arm | s42 | s43 | s44 | Role |
+|---|---|---|---|---|
+| no_path_cells | 0.512 | 0.532 | 0.564 | control: pass |
+| endpoint_edges | 0.556 | 0.524 | 0.480 | control: pass |
+| h0_only | 0.532 | 0.544 | 0.532 | control: pass |
+| **full** | **0.504** | **0.580** | **0.536** | **FAIL** |
+| uniform_path_gate | 0.576 | 0.556 | 0.532 | reported |
+| *oracle gate (D2, diagnostic)* | *1.000* | *0.996* | *1.000* | *not a result* |
+
+- **Fitting without generalising:** the controls and full fit the training targets (train accuracy 0.71–0.94) without generalising. Even h0_only reaches 0.63–0.73 on train, from noise features.
+- **endpoint_edges w_f:** relevant cells equal distractor cells to 3 decimals in every seed (0.0066/0.0066, 0.530/0.530, 0.0125/0.0125). The endpoint gate cannot see the lead bit, as designed.
+- **D1, full arm w_f on test-target cells** (train cells are the same within 0.01):
+
+| Seed | relevant (lead, match) | lead, no match | distractor (non-lead, match) | non-lead, no match | rank of relevant / 32 | top-1 |
+|---|---|---|---|---|---|---|
+| 42 | 0.164 | 0.178 | 0.065 | 0.073 | 11.1 | 0.036 |
+| 43 | 0.110 | 0.120 | 0.170 | 0.184 | 19.3 | 0.008 |
+| 44 | 0.217 | 0.210 | 0.172 | 0.169 | 11.1 | 0.060 |
+
+  Reading:
+  - The lead effect has either sign: the distractor's class is always the opposite, so a readout can use either author.
+  - There is no key effect.
+  - There is no train/test gap, so the path gate is not memorising cells.
+
+### 6. Self-review
+- PASS: pre-registration before every run, including the diagnosis addendum; the leak rule applied by script; invariants asserted; coverage 1.0; the float64 re-check at an unchanged tolerance; the full suite.
+- FAIL: G3c v2 full (0.504–0.58).
+- Non-vacuity: the oracle shows that the task is solvable by the architecture. The controls are at chance, so the task does not leak.
+- **Limit (stated before running):** the separation from the edge route is empirical, not representational. The controls failing to learn bilinear key routing does not show that they cannot.
+- NOT CHECKED: longer budgets, other learning rates, and features without noise (none were run, to avoid tuning on the test task).
+
+### 7. Assumptions imposed for theory and reality checks
+- No THEORY-CONSTRAINT was added.
+- Reality check: per-instance cell weights that must learn an *equality* between endpoint features (rather than a single-node feature) were not learned within 200 epochs on 500 training targets. On real data, C2's path-specific advantage would need the gate to learn such relations; G3c gives no evidence that it does.
+
+### 8. Open items
+- Whether w_f learns the key match with a different budget or input (longer training, no noise features, fewer key bits). Untested.
+- Two of the three design attempts allowed by Part A are used (v1, v2).
+- G4 has not been started.
+
+### 9. Decisions needed from the author
+1. **G3c verdict.** Record G3c as FAIL (a valid task, the oracle solves it, the learned model does not), and go to G4? Or authorise one pre-registered follow-up, for example the same v2 task with (a) 1000 epochs, or (b) no noise features. Each needs 3 seeds of the full arm only, about 25 minutes. Note that this is tuning on the known-answer task; any pass would be labelled as such.
+2. **C2 framing.** Given v1, should the paper state that `geometry_context` gives 1-hop maps access to 2-hop information (v1 was solved by context alone), and therefore that endpoint_edges with context is a strong control?

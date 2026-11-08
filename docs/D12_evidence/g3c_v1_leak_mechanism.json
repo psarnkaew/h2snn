@@ -1,0 +1,27 @@
+{
+ "run": "v1/no_path_cells/s42, selected checkpoint",
+ "route_strength_mean": {
+  "through_lead_author": 1.8984346752404235e-05,
+  "through_non_lead": 4.5572152885142714e-05
+ },
+ "route_ratio_lead_over_non_lead": {
+  "median": 0.41657012701034546,
+  "min": 0.05844584479928017
+ },
+ "author_gates_mean": {
+  "lead": {
+   "listen_g": 0.0028365696780383587,
+   "broadcast_b": 0.9952567219734192
+  },
+  "non_lead": {
+   "listen_g": 0.008382698521018028,
+   "broadcast_b": 0.9939401149749756
+  }
+ },
+ "edge_block_mean": {
+  "P-lead": 0.5626872777938843,
+  "P-non_lead": 0.46985018253326416
+ },
+ "test_acc_checkpoint": 0.9959999918937683,
+ "test_acc_context_zeroed": 0.4880000054836273
+}

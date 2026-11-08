@@ -1,0 +1,9 @@
+{
+ "papers": 17000,
+ "authors": 2000,
+ "co_papers": 16000,
+ "fillers": 14000,
+ "facts": 34000,
+ "distinct_keys_on_targets": 64,
+ "invariants": "1-5 asserted"
+}
