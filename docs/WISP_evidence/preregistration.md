@@ -317,3 +317,18 @@ except for three deviations, each needed to avoid a leak that is certain or stru
 - 600 targets; `full`, 3 seeds; ≤ 100 epochs.
 - **Expectation:** primary (B) on every seed; secondary reported. Accuracy is reported as a
   functional check only.
+
+## Correction 2026-11-08 (approved by the author; written before any H5 run)
+- **S1′ decoy count:** "500 decoys" in addendum E is wrong. The rule there is one decoy co-author per
+  author, so the graph has 500 × 8 = **4,000 decoys**. The rule is unchanged; only the count is
+  corrected.
+- **Run size:** the author asks for each H5 run to stay under about 1 minute. If a graph above makes
+  a run take longer, its size is reduced (fewer targets; the per-target structure, the rules and
+  the criteria stay as written). The final sizes and the measured run times are stated in the
+  report.
+- **S2 σ\* identification:** σ\* is the canonical full-walk key of the cells that are exactly a
+  planted chain T_i–M1_i–M2_i–M3_i–C\*_i (either orientation). The script asserts that all such cells
+  share one key. Ranks are by strict count (rank 1 = no schema scores higher).
+- **Author override of the stop conditions (message of 2026-11-08):** a missed S1/S1′/S2
+  expectation is recorded with numbers and diagnosis (with the oracle arm for S1/S1′); it does not
+  stop the card. The leak rule for S1′ controls stays.
