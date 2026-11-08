@@ -1,0 +1,44 @@
+{
+ "oracle_weight/s42": {
+  "path_share_of_degree_median": 0.0004972057649865746,
+  "relevant_share_of_path_degree_median": 1.0,
+  "relevant_share_of_total_degree_median": 0.0004972057649865746,
+  "log_w_relevant_mean": null,
+  "log_w_irrelevant_mean": null
+ },
+ "oracle_weight/s43": {
+  "path_share_of_degree_median": 0.00013833354751113802,
+  "relevant_share_of_path_degree_median": 1.0,
+  "relevant_share_of_total_degree_median": 0.00013833354751113802,
+  "log_w_relevant_mean": null,
+  "log_w_irrelevant_mean": null
+ },
+ "oracle_weight/s44": {
+  "path_share_of_degree_median": 0.00031612065504305065,
+  "relevant_share_of_path_degree_median": 1.0,
+  "relevant_share_of_total_degree_median": 0.00031612065504305065,
+  "log_w_relevant_mean": null,
+  "log_w_irrelevant_mean": null
+ },
+ "full/s42": {
+  "path_share_of_degree_median": 0.5365633964538574,
+  "relevant_share_of_path_degree_median": 0.015038706362247467,
+  "relevant_share_of_total_degree_median": 0.008075207471847534,
+  "log_w_relevant_mean": 3.6765429973602295,
+  "log_w_irrelevant_mean": 3.6699674129486084
+ },
+ "full/s43": {
+  "path_share_of_degree_median": 0.9674367308616638,
+  "relevant_share_of_path_degree_median": 0.013910815119743347,
+  "relevant_share_of_total_degree_median": 0.013341318815946579,
+  "log_w_relevant_mean": 6.328251838684082,
+  "log_w_irrelevant_mean": 6.350697040557861
+ },
+ "full/s44": {
+  "path_share_of_degree_median": 0.9269413352012634,
+  "relevant_share_of_path_degree_median": 0.013866924680769444,
+  "relevant_share_of_total_degree_median": 0.013013012707233429,
+  "log_w_relevant_mean": 4.970773220062256,
+  "log_w_irrelevant_mean": 4.980957984924316
+ }
+}
