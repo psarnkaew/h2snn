@@ -89,13 +89,10 @@ class Trainer:
         device (plan §9.2)."""
         if not self.cfg.data.resample_paths:
             return prepared_data
-        start = time.perf_counter()
         groups = (self._draw_groups(data, epoch, self._draw_proposal(data)) if pending is None
                   else pending.result())
         self._previous_draw = groups
-        out = replace(prepared_data, face_groups=tuple(group.to(self.device) for group in groups))
-        self.draw_wait_seconds.append(time.perf_counter() - start)
-        return out
+        return replace(prepared_data, face_groups=tuple(group.to(self.device) for group in groups))
 
     def fit(
         self,
@@ -114,7 +111,7 @@ class Trainer:
         # sequential path, so cells, m_f and logits are bit-identical (test). The adaptive q needs
         # epoch e's training forward, so that draw starts after the step (overlaps evaluation).
         overlap = self.cfg.data.resample_paths and self.cfg.data.overlap_sampling
-        adaptive = self.cfg.data.wisp_proposal == "adaptive"
+        adaptive = overlap and self.cfg.data.wisp_proposal == "adaptive"
         executor = (ThreadPoolExecutor(max_workers=1, thread_name_prefix="h2snn-draw")
                     if overlap else None)
         try:
@@ -128,7 +125,9 @@ class Trainer:
         pending: Future | None = None
         last = self.cfg.epochs - 1
         for epoch in range(self.cfg.epochs):
+            start = time.perf_counter()
             train_data = self.training_draw(data, prepared_data, epoch, pending)
+            self.draw_wait_seconds.append(time.perf_counter() - start)
             pending = None
             if executor is not None and not adaptive and epoch < last:
                 pending = executor.submit(self._draw_groups, data, epoch + 1, None)
