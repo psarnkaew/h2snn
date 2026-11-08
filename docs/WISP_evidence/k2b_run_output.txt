@@ -1,0 +1,29 @@
+# K2b run summaries (stdout of k2b_s2_n2000.py; per-epoch logs and full read-outs in k2b_results.json)
+K2b full 42 {"r": 200, "coverage": 1.0, "test_acc": 1.0, "best_epoch": 24, "seconds": 113.4, "max_log_w_over_epochs": 9.576424598693848, "star_minus_abce_at_best": 0.13693240718305155} {"rank_mean_log_weight": 1, "rank_lift": 1, "rank_I_pi": 1, "primary_pass": true, "secondary_pass": true, "num_length4_schemas": 6, "planted_coverage": 1.0}
+    target-a+-m1-b+-m2-c+-m3-d+-carrier 6.954 12.345
+    target-a+-m1-b+-m2-c+-m3-e+-carrier 6.817 10.7
+    target-a+-m1-b+-m2-m+-n3-k+-carrier 4.118 0.729
+    target-a+-m1-b+-m2-m+-n3-h--n2 2.842 0.207
+    target-f+-n1-g+-n2-h+-n3-k+-carrier 1.264 0.043
+    target-a+-m1-b+-m2-c+-m3 1.028 0.032
+K2b full 43 {"r": 200, "coverage": 1.0, "test_acc": 1.0, "best_epoch": 19, "seconds": 103.1, "max_log_w_over_epochs": 9.981451988220215, "star_minus_abce_at_best": 0.2115870067605945} {"rank_mean_log_weight": 1, "rank_lift": 1, "rank_I_pi": 1, "primary_pass": true, "secondary_pass": true, "num_length4_schemas": 6, "planted_coverage": 1.0}
+    target-a+-m1-b+-m2-c+-m3-d+-carrier 5.909 12.926
+    target-a+-m1-b+-m2-c+-m3-e+-carrier 5.697 10.506
+    target-a+-m1-b+-m2-m+-n3-k+-carrier 1.965 0.254
+    target-a+-m1-b+-m2-m+-n3-h--n2 1.515 0.168
+    target-a+-m1-b+-m2-c+-m3 -0.287 0.026
+    target-f+-n1-g+-n2-h+-n3-k+-carrier -0.736 0.018
+K2b full 44 {"r": 200, "coverage": 1.0, "test_acc": 0.99, "best_epoch": 19, "seconds": 98.3, "max_log_w_over_epochs": 10.312544822692871, "star_minus_abce_at_best": 0.17006238475591573} {"rank_mean_log_weight": 1, "rank_lift": 1, "rank_I_pi": 1, "primary_pass": true, "secondary_pass": true, "num_length4_schemas": 6, "planted_coverage": 1.0}
+    target-a+-m1-b+-m2-c+-m3-d+-carrier 6.965 12.294
+    target-a+-m1-b+-m2-c+-m3-e+-carrier 6.795 10.432
+    target-a+-m1-b+-m2-m+-n3-k+-carrier 4.086 0.692
+    target-a+-m1-b+-m2-m+-n3-h--n2 3.016 0.241
+    target-a+-m1-b+-m2-c+-m3 1.57 0.053
+    target-a+-m1-b+-m2-m+-n3 0.816 0.025
+K2b uniform 42 {"r": 200, "coverage": 1.0, "test_acc": 0.996, "best_epoch": 30, "seconds": 100.5, "max_log_w_over_epochs": -0.3692367970943451, "star_minus_abce_at_best": 0.0} {"rank_mean_log_weight": 11, "rank_lift": 9, "rank_I_pi": 10, "primary_pass": false, "secondary_pass": false, "num_length4_schemas": 6, "planted_coverage": 1.0}
+    target-a+-m1-b+-m2 -0.427 1.0
+    target-f+-n1-g+-n2 -0.427 1.0
+    target-a+-m1-b+-m2-c+-m3 -0.427 1.0
+    target-a+-m1-b+-m2-m+-n3 -0.427 1.0
+    target-f+-n1-g+-n2-h+-n3 -0.427 1.0
+    target-a+-m1-b+-m2-c+-m3-d+-carrier -0.427 1.0
