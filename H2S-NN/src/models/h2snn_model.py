@@ -1172,6 +1172,11 @@ def apply_operator(operator: "DiffusionOperator | AttentionOperator", x: torch.T
 
 
 def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
+    if config.data.path_source not in ("schemas", "wisp"):
+        raise ValueError(
+            f"data.path_source {config.data.path_source!r} is unresolved; build the config with "
+            "TrainConfig.from_dict or DataConfig.resolved() (a directly built DataConfig resolves "
+            "nothing).")
     dims = ModelDims.from_prepared_data(data)
     if config.data.path_source == "wisp":
         # Every length of the support gets a projection, not only those in this draw: a later

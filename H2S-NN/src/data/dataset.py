@@ -140,6 +140,11 @@ def build_node_classification_paths(
     node of the target type, grouped by length), the walk sampler over the resolved schemas
     (D8; `seed` is the draw's seed), or the pre-D7 DFS (`path_sampler: dfs`, seeded by
     acm_split_seed)."""
+    if config.data.path_source not in ("schemas", "wisp"):
+        raise ValueError(
+            f"data.path_source {config.data.path_source!r} is unresolved; build the config with "
+            "TrainConfig.from_dict or DataConfig.resolved() (a directly built DataConfig resolves "
+            "nothing).")
     if config.data.path_source == "wisp":
         start, end = node_slices[config.data.target_node_type]
         return build_wisp_path_groups(

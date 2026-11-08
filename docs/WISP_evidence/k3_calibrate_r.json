@@ -1,0 +1,104 @@
+{
+ "budgets": {
+  "acm": 403122,
+  "dblp": 862788,
+  "imdb": 143052
+ },
+ "table": {
+  "acm": {
+   "2": {
+    "r": 64,
+    "incidences_at_r": 404061,
+    "incidences_at_r_minus_1": 398016,
+    "upper_bound": 560735691.0
+   },
+   "3": {
+    "r": 47,
+    "incidences_at_r": 406229,
+    "incidences_at_r_minus_1": 397404,
+    "upper_bound": 74947117591.0
+   },
+   "4": {
+    "r": 42,
+    "incidences_at_r": 411257,
+    "incidences_at_r_minus_1": 400694,
+    "upper_bound": 59848122662096.0
+   },
+   "5": {
+    "r": 38,
+    "incidences_at_r": 408682,
+    "incidences_at_r_minus_1": 397266,
+    "upper_bound": 7422875269262504.0
+   },
+   "6": {
+    "r": 36,
+    "incidences_at_r": 413760,
+    "incidences_at_r_minus_1": 401084,
+    "upper_bound": 5.36356495327462e+18
+   }
+  },
+  "dblp": {
+   "2": {
+    "r": null,
+    "reason": "unreachable",
+    "upper_bound": 511887.0
+   },
+   "3": {
+    "r": 93,
+    "incidences_at_r": 869086,
+    "incidences_at_r_minus_1": 861417,
+    "upper_bound": 211312515.0
+   },
+   "4": {
+    "r": 65,
+    "incidences_at_r": 867420,
+    "incidences_at_r_minus_1": 855200,
+    "upper_bound": 2515956695.0
+   },
+   "5": {
+    "r": 55,
+    "incidences_at_r": 875102,
+    "incidences_at_r_minus_1": 860192,
+    "upper_bound": 989001652097.0
+   },
+   "6": {
+    "r": 48,
+    "incidences_at_r": 868770,
+    "incidences_at_r_minus_1": 851423,
+    "upper_bound": 11095837001841.0
+   }
+  },
+  "imdb": {
+   "2": {
+    "r": 25,
+    "incidences_at_r": 144846,
+    "incidences_at_r_minus_1": 140790,
+    "upper_bound": 1698471.0
+   },
+   "3": {
+    "r": 13,
+    "incidences_at_r": 145952,
+    "incidences_at_r_minus_1": 136377,
+    "upper_bound": 22002887.0
+   },
+   "4": {
+    "r": 12,
+    "incidences_at_r": 149530,
+    "incidences_at_r_minus_1": 137939,
+    "upper_bound": 500935312.0
+   },
+   "5": {
+    "r": 11,
+    "incidences_at_r": 151635,
+    "incidences_at_r_minus_1": 138433,
+    "upper_bound": 5661990832.0
+   },
+   "6": {
+    "r": 11,
+    "incidences_at_r": 156317,
+    "incidences_at_r_minus_1": 142441,
+    "upper_bound": 135749816112.0
+   }
+  }
+ }
+}

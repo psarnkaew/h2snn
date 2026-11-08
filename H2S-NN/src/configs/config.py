@@ -35,7 +35,8 @@ ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
 NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length", "path_weight",
                                            "path_weight_init", "path_weight_input",
-                                           "wisp_proposal", "path_weight_context")
+                                           "wisp_proposal", "path_weight_context",
+                                           "wisp_walks_per_anchor")
 # Part H3: q = p ("uniform") or the adaptive defensive proposal (variance only; fixed by a gate).
 WISP_PROPOSALS: tuple[str, ...] = ("uniform", "adaptive")
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
@@ -93,13 +94,27 @@ def reject_never_tuned_settings(
             "tuning."
         )
     dataset = str(data.get("dataset_name", "acm")).lower()
-    if str(data.get("path_source", "")) == "schemas" and (
-            str(data.get("task_type", "")) or DATASET_TASK_TYPES.get(dataset, "")
-    ) == "node_classification":
+    node_classification = (str(data.get("task_type", "")) or DATASET_TASK_TYPES.get(dataset, "")
+                           ) == "node_classification"
+    if str(data.get("path_source", "")) == "schemas" and node_classification:
         raise ValueError(
             "data.path_source: schemas is the fixed-literature-schema comparison row for node "
             "classification (spec v1.4 E7) and must not be used in tuning."
         )
+    if node_classification:
+        # Spec v1.6 §6 / E11: l_max, the proposal and r are pre-registered, never tuned.
+        if int(data.get("wisp_max_length", 4)) != 4:
+            raise ValueError("data.wisp_max_length is pre-registered (4 on HGB, spec §6) and must "
+                             "not differ in a tuning base config (the U3 curve is analysis).")
+        if str(data.get("wisp_proposal", "uniform")) != "uniform":
+            raise ValueError("data.wisp_proposal: adaptive is not the pre-registered proposal "
+                             "(spec §6) and must not be used in a tuning base config.")
+        walks = int(data.get("wisp_walks_per_anchor", 0))
+        calibrated = WISP_WALKS_PER_ANCHOR.get(dataset, {}).get(4)
+        if walks not in (0, calibrated):
+            raise ValueError(
+                f"data.wisp_walks_per_anchor {walks} is neither 0 nor the calibrated value "
+                f"{calibrated} for {dataset!r} (spec v1.6 E11: r is never tuned).")
     if ((raw_config or {}).get("ablation") or {}).get("path_weight_context", False) is not False:
         raise ValueError(
             "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
@@ -182,7 +197,6 @@ class MetaPathConfig:
 NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     "acm": {
         "target_node_type": "paper",
-        "wisp_walks_per_anchor": 42,  # Part H H1: 411,257 incidences >= 403,122 (schemas run)
         "metapath_templates": (
             MetaPathConfig(name="PAP", node_types=("paper", "author", "paper")),
             MetaPathConfig(name="PSP", node_types=("paper", "subject", "paper")),
@@ -190,7 +204,6 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     },
     "dblp": {
         "target_node_type": "author",
-        "wisp_walks_per_anchor": 65,  # h6_calibrate_r.json: 867,420 >= 862,788
         "metapath_templates": (
             MetaPathConfig(name="APA", node_types=("author", "paper", "author")),
             MetaPathConfig(
@@ -202,7 +215,6 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     },
     "imdb": {
         "target_node_type": "movie",
-        "wisp_walks_per_anchor": 12,  # h6_calibrate_r.json: 149,530 >= 143,052
         "metapath_templates": (
             MetaPathConfig(name="MAM", node_types=("movie", "actor", "movie")),
             MetaPathConfig(name="MDM", node_types=("movie", "director", "movie")),
@@ -211,6 +223,16 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
 }
 
 # Backward-compatible alias — kept because it's the name older configs/tooling import.
+# r (walks per anchor) by dataset and l_max, by the H1/H6 incidence rule: the smallest r whose
+# evaluation-draw incidences (seed 42) reach the dataset's schemas-run budget (ACM 403,122, DBLP
+# 862,788, IMDB 143,052). docs/WISP_evidence/k3_calibrate_r.json (spec v1.6 E11). DBLP has no
+# entry at l_max 2: even every walk (revisits allowed) gives at most 511,887 incidences.
+WISP_WALKS_PER_ANCHOR: dict[str, dict[int, int]] = {
+    "acm": {2: 64, 3: 47, 4: 42, 5: 38, 6: 36},
+    "dblp": {3: 93, 4: 65, 5: 55, 6: 48},
+    "imdb": {2: 25, 3: 13, 4: 12, 5: 11, 6: 11},
+}
+
 DATASET_PRESETS = NODE_CLASSIFICATION_PRESETS
 
 LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
@@ -507,8 +529,13 @@ class DataConfig:
             )
         walks = self.wisp_walks_per_anchor
         if path_source == "wisp" and walks == 0:
-            walks = int(NODE_CLASSIFICATION_PRESETS.get(dataset_name, {})
-                        .get("wisp_walks_per_anchor", 0))
+            table = WISP_WALKS_PER_ANCHOR.get(dataset_name, {})
+            if self.wisp_max_length not in table:
+                raise ValueError(
+                    f"no calibrated data.wisp_walks_per_anchor for dataset {dataset_name!r} at "
+                    f"wisp_max_length {self.wisp_max_length} (calibrated: {sorted(table)}); set r "
+                    "explicitly (spec v1.6 E11).")
+            walks = table[self.wisp_max_length]
         if self.wisp_max_length < 2:
             raise ValueError(f"data.wisp_max_length must be >= 2, got {self.wisp_max_length}.")
         if walks < (1 if path_source == "wisp" else 0):
@@ -953,11 +980,13 @@ class AblationConfig:
             )
         if self.path_weight_context and (
             self.no_path_cells or self.path_weight_input not in ("full", "endpoints")
+            or self.endpoint_edges or self.free_path_maps or self.coupling == "pair_attention"
         ):
             raise ValueError(
                 "ablation.path_weight_context (g reads [h0, c], the spec v1.4 appendix pair) needs "
-                "path cells and path_weight_input full or endpoints; schema and uniform read no "
-                "node at all."
+                "path cells and path_weight_input full or endpoints, on the cell ladder (not "
+                "endpoint_edges, free_path_maps or pair_attention, spec v1.6); schema and uniform "
+                "read no node at all."
             )
         if self.identity_maps and (
             not self.no_path_cells or self.h0_only_readout or self.coupling == "pair_attention"

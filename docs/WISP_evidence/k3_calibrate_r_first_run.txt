@@ -1,0 +1,9 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-scatter'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+  import torch_geometric.typing
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+  import torch_geometric.typing
+acm l_max 2 r 64 incidences 404061 r-1: 398016
+acm l_max 3 r 47 incidences 406229 r-1: 397404
+acm l_max 4 r 42 incidences 411257 r-1: 400694
+acm l_max 5 r 38 incidences 408682 r-1: 397266
+acm l_max 6 r 36 incidences 413760 r-1: 401084

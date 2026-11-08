@@ -1,0 +1,10 @@
+r allowed in a search space: CAUGHT (FAILED (failures=2))
+base config: l_max not checked: CAUGHT (FAILED (failures=1))
+base config: adaptive proposal not checked: CAUGHT (FAILED (failures=1))
+base config: r not checked: CAUGHT (FAILED (failures=2))
+path_weight_context allowed off the ladder: CAUGHT (FAILED (failures=3))
+r table ignores l_max: CAUGHT (FAILED (failures=11))
+uncalibrated l_max does not raise: CAUGHT (FAILED (errors=2))
+build_model consumes an unresolved path source: CAUGHT (FAILED (failures=1))
+the path builder consumes an unresolved path source: CAUGHT (FAILED (failures=1))
+caught 9/9; clean after restore: OK

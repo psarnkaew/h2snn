@@ -1,0 +1,22 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-scatter'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+acm l_max 2 r 64 incidences 404061 r-1: 398016
+acm l_max 3 r 47 incidences 406229 r-1: 397404
+acm l_max 4 r 42 incidences 411257 r-1: 400694
+acm l_max 5 r 38 incidences 408682 r-1: 397266
+acm l_max 6 r 36 incidences 413760 r-1: 401084
+dblp l_max 2 UNREACHABLE: upper bound 511887 < budget 862788
+dblp l_max 3 r 93 incidences 869086 r-1: 861417
+dblp l_max 4 r 65 incidences 867420 r-1: 855200
+dblp l_max 5 r 55 incidences 875102 r-1: 860192
+dblp l_max 6 r 48 incidences 868770 r-1: 851423
+imdb l_max 2 r 25 incidences 144846 r-1: 140790
+imdb l_max 3 r 13 incidences 145952 r-1: 136377
+imdb l_max 4 r 12 incidences 149530 r-1: 137939
+imdb l_max 5 r 11 incidences 151635 r-1: 138433
+imdb l_max 6 r 11 incidences 156317 r-1: 142441
+acm l_max 2 r 64 incidences 404061 r-1: 398016
+acm l_max 3 r 47 incidences 406229 r-1: 397404
+acm l_max 4 r 42 incidences 411257 r-1: 400694
+acm l_max 5 r 38 incidences 408682 r-1: 397266
+acm l_max 6 r 36 incidences 413760 r-1: 401084

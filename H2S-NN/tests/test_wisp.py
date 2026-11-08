@@ -246,7 +246,8 @@ class WispSamplerTests(unittest.TestCase):
         for name in ("data.path_source", "data.wisp_max_length"):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 reject_never_tuned_settings(None, {name: {"values": [1]}})
-        reject_never_tuned_settings(None, {"data.wisp_walks_per_anchor": {"values": [16, 32]}})
+        with self.assertRaises(ValueError):  # spec v1.6 E11: r is never tuned (Part K, K3)
+            reject_never_tuned_settings(None, {"data.wisp_walks_per_anchor": {"values": [16, 32]}})
 
 
 
@@ -1191,7 +1192,8 @@ class WispConfigValidationTests(unittest.TestCase):
         from src.configs.config import NEVER_TUNED_WISP_KEYS, reject_never_tuned_settings
 
         expected = {"path_source", "wisp_max_length", "path_weight", "path_weight_init",
-                    "path_weight_input", "wisp_proposal", "path_weight_context"}
+                    "path_weight_input", "wisp_proposal", "path_weight_context",
+                    "wisp_walks_per_anchor"}  # r added by spec v1.6 E11 (Part K, K3)
         self.assertEqual(set(NEVER_TUNED_WISP_KEYS), expected)
         for key in sorted(expected):
             for name in (key, f"data.{key}", f"model.{key}", f"ablation.{key}"):
@@ -1199,7 +1201,7 @@ class WispConfigValidationTests(unittest.TestCase):
                     with self.assertRaises(ValueError) as caught:
                         reject_never_tuned_settings({}, [name])
                     self.assertIn("wisp_proposal", str(caught.exception))
-        reject_never_tuned_settings({}, ["data.wisp_walks_per_anchor", "model.d"])  # r is calibrated
+        reject_never_tuned_settings({}, ["model.d"])  # ordinary hyperparameters still pass
         for base in ({"model": {"path_weight": "sigmoid_gamma"}},
                      {"ablation": {"path_weight_input": "endpoints"}},
                      {"ablation": {"path_weight_context": True}},
@@ -1286,6 +1288,91 @@ class WispOverlapSamplingTests(unittest.TestCase):
         with self.assertRaises(ValueError):  # link prediction has its own trainer
             TrainConfig.from_dict({"data": {"dataset_name": "amazonbook", "overlap_sampling": False}})
         self.assertTrue(TrainConfig.from_dict({}).data.overlap_sampling)
+
+
+
+# ============================================================================= K3: guards
+class WispGuardTests(unittest.TestCase):
+    """Part K, K3 (spec v1.6 E11, I7 review m1 and NIT): r is never tuned; the tuning base config
+    carries the pre-registered WISP settings; path_weight_context is the ladder's appendix pair
+    only; r resolves from the per-l_max calibration table; an unresolved path source is refused."""
+
+    def test_r_is_never_in_a_search_space(self) -> None:
+        from src.configs.config import reject_never_tuned_settings
+
+        for name in ("data.wisp_walks_per_anchor", "wisp_walks_per_anchor"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                reject_never_tuned_settings({}, [name])
+
+    def test_tuning_base_config_carries_the_pre_registered_wisp_settings(self) -> None:
+        from src.configs.config import WISP_WALKS_PER_ANCHOR, reject_never_tuned_settings
+
+        for data in ({"dataset_name": "acm", "wisp_max_length": 5},
+                     {"dataset_name": "acm", "wisp_proposal": "adaptive"},
+                     {"dataset_name": "acm", "wisp_walks_per_anchor": 30},
+                     {"dataset_name": "dblp", "wisp_walks_per_anchor": 42}):
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                reject_never_tuned_settings({"data": data})
+        for dataset in ("acm", "dblp", "imdb"):
+            for r in (0, WISP_WALKS_PER_ANCHOR[dataset][4]):
+                with self.subTest(dataset=dataset, r=r):
+                    reject_never_tuned_settings({"data": {"dataset_name": dataset,
+                                                          "wisp_walks_per_anchor": r}})
+        # link prediction is not a WISP task: its base configs are not judged by these rules
+        reject_never_tuned_settings({"data": {"dataset_name": "amazonbook"}})
+
+    def test_path_weight_context_is_the_ladder_appendix_pair_only(self) -> None:
+        from src.configs.config import TrainConfig
+
+        for ablation in ({"endpoint_edges": True}, {"free_path_maps": True},
+                         {"coupling": "pair_attention"}):
+            with self.subTest(ablation=ablation), self.assertRaises(ValueError):
+                TrainConfig.from_dict({"ablation": {**ablation, "path_weight_context": True}})
+        for arm in ("full", "endpoints"):
+            TrainConfig.from_dict({"ablation": {"path_weight_input": arm,
+                                                "path_weight_context": True}})
+
+    def test_r_resolves_from_the_table_for_its_l_max(self) -> None:
+        from src.configs.config import WISP_WALKS_PER_ANCHOR, TrainConfig
+
+        self.assertEqual({d: WISP_WALKS_PER_ANCHOR[d][4] for d in ("acm", "dblp", "imdb")},
+                         {"acm": 42, "dblp": 65, "imdb": 12})
+        expected = {"acm": [2, 3, 4, 5, 6], "dblp": [3, 4, 5, 6], "imdb": [2, 3, 4, 5, 6]}
+        self.assertEqual({d: sorted(t) for d, t in WISP_WALKS_PER_ANCHOR.items()}, expected)
+        for dataset, table in WISP_WALKS_PER_ANCHOR.items():
+            for max_length, r in table.items():
+                with self.subTest(dataset=dataset, max_length=max_length):
+                    data = TrainConfig.from_dict({"data": {
+                        "dataset_name": dataset, "wisp_max_length": max_length}}).data
+                    self.assertEqual(data.wisp_walks_per_anchor, r)
+        for dataset, max_length in (("acm", 7), ("dblp", 2)):  # no calibrated r for this support
+            with self.subTest(dataset=dataset, max_length=max_length), self.assertRaises(ValueError):
+                TrainConfig.from_dict({"data": {"dataset_name": dataset,
+                                                "wisp_max_length": max_length}})
+        explicit = TrainConfig.from_dict({"data": {"dataset_name": "acm", "wisp_max_length": 7,
+                                                   "wisp_walks_per_anchor": 30}}).data
+        self.assertEqual(explicit.wisp_walks_per_anchor, 30)
+
+    def test_an_unresolved_path_source_is_refused_by_its_consumers(self) -> None:
+        from src.configs.config import DataConfig, TrainConfig
+        from src.data.dataset import build_node_classification_paths
+        from src.models.h2snn_model import build_model
+
+        from types import SimpleNamespace
+
+        from tests.test_v2_model import _float64_pap
+
+        config = TrainConfig()  # built directly: data.path_source is "" (unresolved)
+        self.assertEqual(DataConfig().path_source, "")
+        # real inputs, so a consumer without the check would silently build something
+        with self.assertRaises(ValueError):
+            build_model(config, _float64_pap())
+        with self.assertRaises(ValueError):
+            build_node_classification_paths(
+                config=config, fact_layer=SimpleNamespace(self_inverse=SELF_INVERSE, mode="tied"),
+                node_slices={"paper": (0, 4)}, node_type=NODE_TYPE,
+                node_type_names=("paper", "a", "s"), edge_index=EDGE_INDEX, edge_type=EDGE_TYPE,
+                relation_tuples=(), seed=0)
 
 
 if __name__ == "__main__":
