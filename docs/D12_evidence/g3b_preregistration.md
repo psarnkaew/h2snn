@@ -49,3 +49,22 @@ fraction of test targets with at least one PAPV cell; (3) reach without cells (n
 (4) gradient to the venue embeddings — classify as bug vs insufficient reach, with evidence.
 Expected: full ≥ 0.9, first_order ≥ 0.9 (same cells), h0_only ≈ 0.25, no_path_cells uncertain
 (3 hops within K = 4 applications, through degree normalisation).
+
+## Addendum 2026-11-08: float64 re-check of a1 check 2 (author decision 1 on G1–G3b)
+Written after the G3b results and before the re-check run. a1 check 2 failed under the
+pre-registered float32 measurement (`filter_norm_sum` up to 1.0000017 > 1 + 1e-6). Decision: the
+tolerance 1 + 1e-6 is kept. The logged norm-sum diagnostic now casts the d×d blocks `W_k` to
+float64 before taking the spectral norms (`ChebyshevFilterBank.diagnostic_norm_sum`, used by both
+logging paths). The cap in `weights()` is unchanged, so training is unchanged.
+Re-check: a1 and a3 are rerun exactly as pre-registered above (same config, seed 42, same script
+with `--tag f64`, fresh experiment directory `g3b_smoke_acm_f64`, output `g3b_smoke_f64.json`). Every
+criterion and tolerance is unchanged; check 2 now reads the float64 diagnostic. It is reported as
+"FAIL under the pre-registered float32 measurement; float64 re-check: <result>". The original a1
+result stays recorded as FAIL.
+Found while preparing the re-check: the original a1 checks were evaluated over 10 metrics rows, not
+5. The logger appends to `metrics.jsonl`, and the directory held the rows of both attempts: the
+first, which crashed with a device mismatch after training, and the second, completed one. Their
+losses are identical; `filter_norm_sum` differs in the 7th decimal. Both values above 1 + 1e-6
+(1.0000017, 1.0000013) are from the second attempt; the first attempt's maximum was 1.0000005.
+The re-check uses a fresh directory, and the script now refuses to run if `metrics.jsonl`
+already exists.

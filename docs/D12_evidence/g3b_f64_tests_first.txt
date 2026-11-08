@@ -1,0 +1,15 @@
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'ChebyshevFilterBank' object has no attribute 'diagnostic_norm_sum'
+
+..\..\..\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py:1928: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_filter_bank.py::FilterBankModelTests::test_norm_sum_diagnostic_casts_the_blocks_to_float64
+1 failed, 17 deselected in 22.77s

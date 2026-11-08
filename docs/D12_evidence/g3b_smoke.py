@@ -1,8 +1,10 @@
 """G3b (a1, a3): functional smoke checks of the D12 model (pre-registered in g3b_preregistration.md).
-Run from H2S-NN/:  python ../docs/D12_evidence/g3b_smoke.py
+Run from H2S-NN/:  python ../docs/D12_evidence/g3b_smoke.py [--tag f64]
 a1: ACM, seed 42, 5 epochs, defaults, production components (build_experiment_components + fit).
 a3: ACM, 2 epochs, every V_k at 2x its D11 value (norm cap active), manual loop, production optimizer.
-Writes docs/D12_evidence/g3b_smoke.json."""
+Writes docs/D12_evidence/g3b_smoke[_<tag>].json; experiment dir g3b_smoke_acm[_<tag>] (must be new:
+the logger appends to metrics.jsonl). Tag f64 = the float64 norm-sum re-check (addendum)."""
+import argparse
 import json
 import math
 import sys
@@ -19,11 +21,17 @@ from src.configs.config import TrainConfig  # noqa: E402
 from src.models.h2snn_model import build_model  # noqa: E402
 from src.utils.misc import seed_everything  # noqa: E402
 
-OUT = ROOT.parent / "docs" / "D12_evidence" / "g3b_smoke.json"
+parser = argparse.ArgumentParser()
+parser.add_argument("--tag", default="")
+TAG = parser.parse_args().tag
+SUFFIX = f"_{TAG}" if TAG else ""
+OUT = ROOT.parent / "docs" / "D12_evidence" / f"g3b_smoke{SUFFIX}.json"
 raw = yaml.safe_load((ROOT / "configs" / "experiments" / "acm_h2snn.yaml").read_text(encoding="utf-8"))
-raw.update(epochs=5, log_every=1, seed=42, device="cuda", exp_name="g3b_smoke_acm",
+raw.update(epochs=5, log_every=1, seed=42, device="cuda", exp_name=f"g3b_smoke_acm{SUFFIX}",
            output_dir="experiments/d12_g3b")
 cfg = TrainConfig.from_dict(raw)
+if (cfg.exp_dir / "metrics.jsonl").exists():
+    raise SystemExit(f"{cfg.exp_dir / 'metrics.jsonl'} exists; the logger would append to it.")
 cfg.exp_dir.mkdir(parents=True, exist_ok=True)
 seed_everything(cfg.seed, cfg.device)
 data, model, optimizer, _, logger, _, trainer = build_experiment_components(cfg)
@@ -94,6 +102,9 @@ report["a1"] = {
     "g_mean": [r["train"].get("g_mean") for r in rows], "b_mean": [r["train"].get("b_mean") for r in rows],
     "context_grad_norm": None if c_grad is None else float(c_grad.norm()),
     "reload_gpu_max_abs_diff": gpu_diff,
+    "final_norm_sum_float32_vs_float64": [float(torch.linalg.matrix_norm(end_W, ord=2).sum()),
+                                          float(torch.linalg.matrix_norm(end_W.double(), ord=2).sum())],
+    "metrics_rows": len(rows),
     "val_macro_f1_logged_only": [r["val"]["macro_f1"] for r in rows],
     "checks": checks, "pass": all(checks.values()),
 }

@@ -69,6 +69,13 @@ class ChebyshevFilterBank(nn.Module):
         """`W_k = V_k / max(1, sum_j ||V_j||_2)`, so `sum_k ||W_k||_2 <= 1`."""
         return self.V / torch.clamp(self.norm_sum(), min=1.0)
 
+    @torch.no_grad()
+    def diagnostic_norm_sum(self) -> float:
+        """Logged `sum_k ||W_k||_2`: the model's `W_k` (its own dtype) cast to float64 before the
+        spectral norms. A float32 SVD rounds an active cap to 1 +/- O(1e-6) (D12 G3b decision 1);
+        the cap itself (`weights`) is unchanged."""
+        return float(torch.linalg.matrix_norm(self.weights().double(), ord=2).sum())
+
     def forward(self, apply_a: ApplyA, h: torch.Tensor) -> torch.Tensor:
         weights = self.weights()
 

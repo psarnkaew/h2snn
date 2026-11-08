@@ -415,6 +415,27 @@ class FilterBankModelTests(unittest.TestCase):
             self.data.x.float(), self.data.node_type, self.data.edge_index, self.data.edge_type,
             self.data.face_groups, self.data.num_nodes)), {"eta_lambda_max"})
 
+    def test_norm_sum_diagnostic_casts_the_blocks_to_float64(self) -> None:
+        """D12 G3b decision 1: the logged `sum_k ||W_k||_2` takes the spectral norms of the float32
+        `W_k` blocks cast to float64; both logging paths report that value; the cap holds within
+        the pre-registered 1 + 1e-6 for an active cap (V = 2 x a random draw, float32 model)."""
+        model = _v2_model(self.data).train()  # float32, as in training
+        generator = torch.Generator().manual_seed(3)
+        with torch.no_grad():
+            model.filter_bank.V.copy_(_random_v(model.num_steps, model.d, generator).float() * 2.0)
+        weights = model.filter_bank.weights().detach()
+        reference = float(torch.linalg.matrix_norm(weights.double(), ord=2).sum())
+        float32_value = float(torch.linalg.matrix_norm(weights, ord=2).sum())
+        self.assertNotEqual(float32_value, reference, "control: float32 norms differ from float64")
+        self.assertEqual(model.filter_bank.diagnostic_norm_sum(), reference)
+        self.assertEqual(model.diffusion_scalars()["filter_norm_sum"], reference)
+        stats = model.operator_diagnostics(self.data.x.float(), self.data.node_type,
+                                           self.data.edge_index, self.data.edge_type,
+                                           self.data.face_groups, self.data.num_nodes)
+        self.assertEqual(stats["filter_norm_sum"], reference)
+        self.assertLessEqual(reference, 1.0 + 1e-6)
+        self.assertTrue(model.training, "training state restored")
+
     def test_switches_are_never_tuned(self) -> None:
         from src.configs.config import reject_never_tuned_settings
 

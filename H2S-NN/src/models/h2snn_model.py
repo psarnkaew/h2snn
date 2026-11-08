@@ -607,9 +607,8 @@ class H2SNN(nn.Module):
             eta = self.eta()
             if eta is not None:
                 scalars["eta"] = float(eta)
-            if self.filter_bank is not None:  # sum_k ||W_k||_2 (Prop. 5 bound), cheap
-                scalars["filter_norm_sum"] = float(
-                    torch.linalg.matrix_norm(self.filter_bank.weights(), ord=2).sum())
+            if self.filter_bank is not None:  # sum_k ||W_k||_2 (Prop. 5 bound), float64 norms
+                scalars["filter_norm_sum"] = self.filter_bank.diagnostic_norm_sum()
             gamma = self.gamma()
             if gamma is not None:
                 scalars["gamma"] = float(gamma)
@@ -942,8 +941,7 @@ class H2SNN(nn.Module):
                                          broadcast / listen, (num_nodes, self.d), steps)
             return {
                 "lambda_max_A": self.lambda_max(operator, num_nodes, steps),
-                "filter_norm_sum": float(
-                    torch.linalg.matrix_norm(self.filter_bank.weights(), ord=2).sum()),
+                "filter_norm_sum": self.filter_bank.diagnostic_norm_sum(),
                 "filter_gain": gain,
             }
         finally:
