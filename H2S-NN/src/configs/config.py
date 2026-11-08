@@ -33,7 +33,13 @@ ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
 # Part H (WISP, spec v1.3 §3.2): the path source and its support are never tuned; the walks per
 # anchor `r` (precision) is calibrated to an incidence budget, not tuned.
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
-NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length")
+NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length", "path_weight",
+                                           "path_weight_init", "path_weight_input")
+# Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
+# §3.2c); "sigmoid_gamma" = gamma * sigmoid(g) (the D11/D12 behaviour, comparison arm).
+PATH_WEIGHTS: tuple[str, ...] = ("exp", "sigmoid_gamma")
+# The C2 weight ladder (spec v1.3 §5): inputs of g, nested restrictions on identical cells.
+PATH_WEIGHT_INPUTS: tuple[str, ...] = ("full", "endpoints", "schema", "uniform")
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 
 
@@ -73,6 +79,16 @@ def reject_never_tuned_settings(
         raise ValueError(
             "model.encoder: first_order is the C8 comparison arm and must not be used in tuning."
         )
+    if str(model.get("path_weight", "exp")) != "exp":
+        raise ValueError(
+            "model.path_weight: sigmoid_gamma is a comparison arm (Part H) and must not be used in "
+            "tuning."
+        )
+    if str(((raw_config or {}).get("ablation") or {}).get("path_weight_input", "full")) != "full":
+        raise ValueError(
+            "ablation.path_weight_input other than full is a C2 ladder arm and must not be used in "
+            "tuning."
+        )
     for name in search_parameters:
         # exact last component: `model.encoder_dropout` is an ordinary hyperparameter
         if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
@@ -88,7 +104,8 @@ def reject_never_tuned_settings(
         if str(name).split(".")[-1] in NEVER_TUNED_WISP_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the WISP settings (path_source, "
-                "wisp_max_length) are pre-registered, never tuned (spec v1.3 §6)."
+                "wisp_max_length, path_weight, path_weight_init, path_weight_input) are "
+                "pre-registered or comparison arms, never tuned (spec v1.3 §6)."
             )
         if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
             raise ValueError(
@@ -671,8 +688,21 @@ class ModelConfig:
     # only under first_order; filter_bank starts at the first-order update with eta = eta_init.
     # Never tuned.
     encoder: str = "filter_bank"
+    # Part H (spec v1.3 §3.2c): "exp" = w_f = exp(g(xi_f)) with the bias b of g initialised to
+    # log(path_weight_init) and no gamma; "sigmoid_gamma" = gamma * sigmoid(g) (comparison arm,
+    # the D12 model bit for bit). Never tuned.
+    path_weight: str = "exp"
+    path_weight_init: float = 0.5
 
     def __post_init__(self) -> None:
+        if self.path_weight not in PATH_WEIGHTS:
+            raise ValueError(
+                f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
+            )
+        if not self.path_weight_init > 0.0:
+            raise ValueError(
+                f"model.path_weight_init must be positive, got {self.path_weight_init}."
+            )
         if self.encoder not in ENCODERS:
             raise ValueError(f"model.encoder must be one of {ENCODERS}, got {self.encoder!r}.")
         if not isinstance(self.geometry_context, bool):
@@ -727,6 +757,14 @@ class ModelConfig:
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
         _reject_unknown_keys("model", raw, cls)
+        path_weight = str(raw.get("path_weight", "exp"))
+        # A value that the chosen path weight would ignore is rejected; the default is accepted
+        # because saved configs (save_config) list every field.
+        if path_weight == "exp" and float(raw.get("gamma_init", 1.0)) != 1.0:
+            raise ValueError("model.gamma_init is rejected under model.path_weight: exp (there is "
+                             "no gamma; the scale is the bias of g, set by path_weight_init).")
+        if path_weight == "sigmoid_gamma" and float(raw.get("path_weight_init", 0.5)) != 0.5:
+            raise ValueError("model.path_weight_init exists only under model.path_weight: exp.")
         return cls(
             d=int(raw.get("d", 64)),
             d_r=int(raw.get("d_r", 16)),
@@ -752,6 +790,8 @@ class ModelConfig:
             checkpointing=raw.get("checkpointing", True),
             geometry_context=raw.get("geometry_context", True),
             encoder=str(raw.get("encoder", "filter_bank")),
+            path_weight=path_weight,
+            path_weight_init=float(raw.get("path_weight_init", 0.5)),
         )
 
 
@@ -767,8 +807,12 @@ class AblationConfig:
     endpoint_edges: bool = False
     # Each path replaced by a closure edge (v_L, v_0) whose relative map is the holonomy.
     holonomy_edges: bool = False
-    # w_f = 1 for every path.
-    uniform_path_gate: bool = False
+    # Part H, the C2 weight ladder (spec v1.3 §5): the inputs of g. "full" = all nodes' geometry
+    # and the actions; "endpoints" = v_0, v_L and the actions (hidden width matched to full's
+    # parameter count within 5 %); "schema" = the actions only; "uniform" = no input (w_f = exp(b),
+    # or 1 under sigmoid_gamma: the former `uniform_path_gate`). Same cells, same transports.
+    # Never tuned.
+    path_weight_input: str = "full"
     # D1's per-incidence conformal scales instead of one scale per edge (D1a).
     per_side_scale: bool = False
     # Read out from h0 only (sanity control: is diffusion used at all?).
@@ -789,20 +833,35 @@ class AblationConfig:
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
-            if name != "coupling" and not isinstance(getattr(self, name), bool):
+            if name not in ("coupling", "path_weight_input") and not isinstance(
+                    getattr(self, name), bool):
                 raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
         if self.coupling not in COUPLING_MODES:
             raise ValueError(
                 f"ablation.coupling must be one of {COUPLING_MODES}, got {self.coupling!r}."
             )
+        if self.path_weight_input not in PATH_WEIGHT_INPUTS:
+            raise ValueError(
+                f"ablation.path_weight_input must be one of {PATH_WEIGHT_INPUTS}, got "
+                f"{self.path_weight_input!r}."
+            )
         if self.coupling == "pair_attention" and (
             self.per_side_scale or self.free_path_maps or self.endpoint_edges
-            or self.holonomy_edges or self.uniform_path_gate or self.h0_only_readout
+            or self.holonomy_edges or self.path_weight_input != "full" or self.h0_only_readout
         ):
             raise ValueError(
                 "ablation.coupling: pair_attention needs orthogonal transports and the path "
                 "encoder; it cannot be combined with per_side_scale, free_path_maps, "
-                "endpoint_edges, holonomy_edges, uniform_path_gate or h0_only_readout."
+                "endpoint_edges, holonomy_edges, path_weight_input other than full or "
+                "h0_only_readout."
+            )
+        if self.path_weight_input != "full" and (
+            self.no_path_cells or self.free_path_maps or self.endpoint_edges or self.holonomy_edges
+        ):
+            raise ValueError(
+                "ablation.path_weight_input restricts g on identical cells (the C2 ladder); it "
+                "cannot be combined with no_path_cells, free_path_maps, endpoint_edges or "
+                "holonomy_edges."
             )
         if self.identity_maps and (
             not self.no_path_cells or self.h0_only_readout or self.coupling == "pair_attention"
@@ -822,11 +881,10 @@ class AblationConfig:
             )
         if self.no_path_cells and (
             self.free_path_maps or self.endpoint_edges or self.holonomy_edges
-            or self.uniform_path_gate
         ):
             raise ValueError(
                 "ablation.no_path_cells removes the path term; it cannot be combined with "
-                "free_path_maps, endpoint_edges, holonomy_edges or uniform_path_gate."
+                "free_path_maps, endpoint_edges or holonomy_edges."
             )
 
     @property

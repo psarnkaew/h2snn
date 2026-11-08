@@ -351,7 +351,7 @@ class MergedWeightTests(unittest.TestCase):
             reject_never_tuned_settings({}, search_parameters=["ablation.coupling"])
         reject_never_tuned_settings({"ablation": {"coupling": "cooperative"}})  # control
         for bad in ({"per_side_scale": True}, {"free_path_maps": True}, {"endpoint_edges": True},
-                    {"holonomy_edges": True}, {"uniform_path_gate": True},
+                    {"holonomy_edges": True}, {"path_weight_input": "uniform"},
                     {"h0_only_readout": True}):
             with self.assertRaises(ValueError, msg=str(bad)):
                 AblationConfig.from_dict({"coupling": "pair_attention", **bad})
@@ -364,7 +364,8 @@ class MergedWeightTests(unittest.TestCase):
 
         data = _signal_fixture()
         cfg = TrainConfig.from_dict({"device": "cpu",  # the D11 arm: eta in the fast group
-                                     "model": {"d": 8, "d_r": 4, "K": 2, "encoder": "first_order"},
+                                     "model": {"d": 8, "d_r": 4, "K": 2, "encoder": "first_order",
+                                               "path_weight": "sigmoid_gamma"},  # theta_gamma (Part H)
                                      "ablation": {"coupling": "pair_attention"},
                                      "data": {"resample_paths": False}})
         model = build_model(cfg, data)

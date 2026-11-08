@@ -40,11 +40,25 @@ def drop_summed_merge():
     return lambda: setattr(wisp, "merge_wisp_cells", original)
 
 
+def endpoints_sees_intermediate():
+    import src.models.h2snn_model as model_module
+    original = model_module.EndpointEncoder.forward
+
+    def with_intermediate(self, h0, face_node_index, hop_tokens):
+        mutated = face_node_index.clone()
+        mutated[:, 0] = face_node_index[:, 1]  # the first intermediate replaces v_0
+        return original(self, h0, mutated, hop_tokens)
+    model_module.EndpointEncoder.forward = with_intermediate
+    return lambda: setattr(model_module.EndpointEncoder, 'forward', original)
+
+
 MUTATIONS = {
     "allow_revisits": (allow_revisits,
                        "tests.test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass"),
     "drop_summed_merge": (drop_summed_merge,
                           "tests.test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p"),
+    "endpoints_sees_intermediate": (endpoints_sees_intermediate,
+                                    "tests.test_wisp.WispLadderTests.test_TH7_intermediate_perturbation"),
 }
 
 

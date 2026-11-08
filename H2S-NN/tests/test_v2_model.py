@@ -895,7 +895,8 @@ class V2ModelTests(unittest.TestCase):
         model(data).logits.square().sum().backward()
         # the encoder's own parameters: theta_eta (first_order) or the filter bank V (D12 default)
         groups = ["theta_eta" if model.encoder == "first_order" else "filter_bank",
-                  "theta_gamma", "path_gate", "path_encoder",
+                  *(["theta_gamma"] if model.path_weight == "sigmoid_gamma" else []),
+                  "path_gate", "path_encoder",
                   "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
                   "node_to_edge.rotation_params", "node_encoder", "relation_embedding",
                   "readout"]
@@ -910,7 +911,11 @@ class V2ModelTests(unittest.TestCase):
     def test_gate_initialization_is_near_one_half(self) -> None:
         data = _random_pap_data()
         model = _v2_model(data)
-        self.assertEqual(float(model.path_gate.bias.abs().max()), 0.0)
+        # bias 0 (sigmoid_gamma) or b = log(path_weight_init) = log 0.5 in float32 (exp, Part H):
+        # w_f starts near 0.5 either way.
+        expected = 0.0 if model.path_weight == "sigmoid_gamma" else float(
+            torch.tensor(math.log(0.5), dtype=torch.float32))
+        self.assertEqual(float(model.path_gate.bias.reshape(-1)[0]), expected)
         output = model(data)
         self.assertLess(abs(float(output.path_gate_mean) - 0.5), 0.1)
         self.assertLess(float(output.path_gate_max), 0.75)
@@ -993,7 +998,8 @@ class V2ModelTests(unittest.TestCase):
                 "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
                 "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
-                          "encoder": "first_order"},  # eta logged, 6-tensor scalar group (D11)
+                          "encoder": "first_order",  # eta logged, 6-tensor scalar group (D11)
+                          "path_weight": "sigmoid_gamma"},  # gamma logged (Part H default: exp)
                 # Hand-built fixture without a fact layer: nothing to resample.
                 "data": {"resample_paths": False},
                 "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})
@@ -1089,7 +1095,8 @@ class AblationTests(unittest.TestCase):
                                  .abs().max()), 1e-6)
 
     def test_T11_uniform_gate_gives_w_identically_one(self) -> None:
-        model = self._model({"uniform_path_gate": True})
+        # Part H: `uniform_path_gate` is `path_weight_input: uniform`; w = 1 under sigmoid_gamma
+        model = self._model({"path_weight_input": "uniform"}, path_weight="sigmoid_gamma")
         self.assertIsNone(model.path_gate)
         self.assertIsNone(model.path_encoder)
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
@@ -1097,7 +1104,7 @@ class AblationTests(unittest.TestCase):
                                         self.data.face_groups, self.data.num_nodes)
         for weights in operator.path_weights:
             self.assertTrue(torch.equal(weights, torch.ones_like(weights)))
-        learned = self._model()
+        learned = self._model(path_weight="sigmoid_gamma")
         h0 = learned.encode_nodes(self.data.x, self.data.node_type)
         weights = learned.build_operator(h0, self.data.edge_index, self.data.edge_type,
                                          self.data.face_groups, self.data.num_nodes).path_weights
@@ -1234,7 +1241,12 @@ class AblationTests(unittest.TestCase):
         # identity_maps (D12 G0b diagnostic) is defined only together with no_path_cells.
         requires = {"identity_maps": {"no_path_cells": True}}
         switches = [({name: True, **requires.get(name, {})}, {})
-                    for name in AblationConfig.__dataclass_fields__ if name != "coupling"]
+                    for name in AblationConfig.__dataclass_fields__
+                    if name not in ("coupling", "path_weight_input")]
+        # Part H: the C2 weight ladder (a mode) and the sigmoid_gamma comparison arm
+        switches += [({"path_weight_input": arm}, {}) for arm in ("endpoints", "schema", "uniform")]
+        switches += [({}, {"path_weight": "sigmoid_gamma"}),
+                     ({"path_weight_input": "uniform"}, {"path_weight": "sigmoid_gamma"})]
         switches += [({"coupling": mode}, {}) for mode in ("cooperative", "listen_only",
                                                            "symmetric")]
         switches.append(({}, {"map_family": "dense"}))
@@ -1255,7 +1267,10 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.ablation, AblationConfig())
         self.assertFalse(any(getattr(config.ablation, name)
                              for name in AblationConfig.__dataclass_fields__
-                             if name != "coupling"))  # every boolean switch is off
+                             if name not in ("coupling", "path_weight_input")))  # booleans off
+        self.assertEqual(config.ablation.path_weight_input, "full")  # Part H: the full g
+        self.assertEqual(config.model.path_weight, "exp")  # Part H: w_f = exp(g), no gamma
+        self.assertEqual(config.data.path_source, "schemas")  # until the H7 author decision
         self.assertEqual(config.ablation.coupling, "cooperative")  # D10 default
         self.assertEqual(config.model.coupling_gate_init, 0.6)
         self.assertEqual(config.ablation.map_scale, "per_edge")
@@ -1287,7 +1302,8 @@ class ConfigTests(unittest.TestCase):
                     TrainConfig.from_dict(raw)
 
     def test_invalid_values_and_conflicting_ablations_are_rejected(self) -> None:
-        for raw in ({"eta_init": 0.0}, {"eta_init": 1.0}, {"gamma_init": 0.0},
+        for raw in ({"eta_init": 0.0}, {"eta_init": 1.0},
+                    {"path_weight": "sigmoid_gamma", "gamma_init": 0.0}, {"gamma_init": 2.0},
                     {"checkpointing": "false"}, {"map_family": "lowrank"}):
             with self.subTest(model=raw):
                 with self.assertRaises(ValueError):
@@ -1295,7 +1311,9 @@ class ConfigTests(unittest.TestCase):
         for raw in ({"no_path_cells": "true"}, {"endpoint_edges": True, "holonomy_edges": True},
                     {"free_path_maps": True, "endpoint_edges": True},
                     {"free_path_maps": True, "per_side_scale": True},
-                    {"no_path_cells": True, "uniform_path_gate": True},
+                    {"no_path_cells": True, "path_weight_input": "uniform"},
+                    {"endpoint_edges": True, "path_weight_input": "endpoints"},
+                    {"path_weight_input": "nope"},
                     {"no_path_cells": True, "free_path_maps": True}):
             with self.subTest(ablation=raw):
                 with self.assertRaises(ValueError):

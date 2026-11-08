@@ -1,0 +1,2 @@
+endpoints_sees_intermediate: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH7_intermediate_perturbation)
+caught 1/1

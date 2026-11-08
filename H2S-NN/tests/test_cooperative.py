@@ -574,7 +574,9 @@ class LearningFixTests(unittest.TestCase):
 
         data = _signal_fixture()
         cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2,
-                                                                 "encoder": "first_order"}})
+                                                                 "encoder": "first_order",
+                                                                 # gamma in the group (Part H default: exp)
+                                                                 "path_weight": "sigmoid_gamma"}})
         self.assertEqual(cfg.model.coupling_gate_init, 0.6)
         self.assertEqual(cfg.ablation.coupling, "cooperative")
         model = build_model(cfg, data)
@@ -776,7 +778,8 @@ class DiagnosticsTests(unittest.TestCase):
                 "device": "cpu", "epochs": 2, "log_every": 1, "exp_name": "u4", "output_dir": tmp,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
                 "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
-                          "encoder": "first_order"},  # logs eta and eta_lambda_max (D11 update)
+                          "encoder": "first_order",  # logs eta and eta_lambda_max (D11 update)
+                          "path_weight": "sigmoid_gamma"},  # logs gamma (Part H default: exp)
                 "data": {"resample_paths": False}})
             torch.manual_seed(0)
             model = build_model(cfg, data)

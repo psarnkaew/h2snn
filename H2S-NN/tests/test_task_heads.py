@@ -153,9 +153,10 @@ class LinkPredictionHeadTests(unittest.TestCase):
                 # the encoder's own scalar: eta (first_order) or sum_k ||W_k|| (filter_bank, D12)
                 self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum",
                               metrics)
+                # gamma exists only under path_weight: sigmoid_gamma (Part H: exp's b is path_gate)
                 for prefix in ("node_encoder", "node_to_edge", "path_gate",
                                "theta_eta" if model.encoder == "first_order" else "filter_bank",
-                               "theta_gamma"):
+                               *(("theta_gamma",) if model.path_weight == "sigmoid_gamma" else ())):
                     grads = [p.grad for n, p in model.named_parameters() if n.startswith(prefix)]
                     self.assertTrue(grads and all(g is not None for g in grads), prefix)
                     self.assertTrue(all(bool(torch.isfinite(g).all()) for g in grads), prefix)
@@ -241,7 +242,8 @@ class GraphClassificationHeadTests(unittest.TestCase):
         metrics = trainer._run_epoch(loader, epoch=0, train=True)
         self.assertTrue(torch.isfinite(torch.tensor(metrics["loss"])))
         self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum", metrics)
-        self.assertIn("gamma", metrics)
+        self.assertIn("gamma" if model.path_weight == "sigmoid_gamma" else "path_log_w_max",
+                      metrics)
         for name, parameter in model.named_parameters():
             if parameter.grad is not None:
                 self.assertTrue(bool(torch.isfinite(parameter.grad).all()), name)

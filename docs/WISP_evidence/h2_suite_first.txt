@@ -1,0 +1,555 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+..F..............................FF......FFFFFFF....EE....EE.EEEEEEE......E.................FE......2026-11-08 19:16:54,571 | INFO | Epoch 0000 | train_loss: 1.1159 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2063 | train_micro_f1: 0.2500 | val_loss: 1.1453 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500
+2026-11-08 19:16:54,586 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 19:16:54,831 | INFO | Epoch 0001 | train_loss: 1.1188 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.1818 | train_micro_f1: 0.3750 | val_loss: 1.1438 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1333 | test_micro_f1: 0.2500
+2026-11-08 19:16:54,839 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 19:16:54,839 | INFO | Best epoch 0 | test_macro_f1: 0.1481 | test_micro_f1: 0.2500 | test_acc: 0.2500
+F......F..............................................................EF.........................2026-11-08 19:21:39,415 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 19:21:39,419 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 19:21:39,422 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 19:21:39,425 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 19:21:39,428 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-08 19:21:39,429 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-08 19:21:39,429 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-08 19:21:39,429 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+.......F.........................................................FFFF..2026-11-08 19:24:14,776 | INFO | Epoch 0000 | train_loss: 0.9222 | train_acc: 0.7500 | train_auroc: 0.0000 | train_macro_f1: 0.7333 | train_micro_f1: 0.7500 | val_loss: 1.0266 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.1818 | val_micro_f1: 0.3750 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750
+2026-11-08 19:24:14,788 | INFO | Checkpoint metric acc: 0.3750
+2026-11-08 19:24:14,790 | INFO | Best epoch 0 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750 | test_acc: 0.3750
+.......EEF......................F......F2026-11-08 19:24:35,861 | INFO | Epoch 0000 | train_loss: 1.1114 | train_acc: 0.3750 | train_auroc: 0.0000 | train_macro_f1: 0.2000 | train_micro_f1: 0.3750 | val_loss: 1.1205 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.1481 | val_micro_f1: 0.2500 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500
+2026-11-08 19:24:35,876 | INFO | Checkpoint metric acc: 0.2500
+2026-11-08 19:24:35,983 | INFO | Epoch 0001 | train_loss: 1.1586 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2500 | val_loss: 1.1186 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.1481 | val_micro_f1: 0.2500 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500
+2026-11-08 19:24:35,991 | INFO | Checkpoint metric acc: 0.2500
+2026-11-08 19:24:35,991 | INFO | Best epoch 0 | test_macro_f1: 0.1786 | test_micro_f1: 0.2500 | test_acc: 0.2500
+F..[coverage] 113/113 runnable cells have an adapter; no adapter yet: none
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+......2026-11-08 19:24:36,275 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-08 19:24:36,290 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+..........
+======================================================================
+ERROR: test_split_overlap_is_measured (tests.test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1206, in test_split_overlap_is_measured
+    overlap = link_split_overlap(cached_bundle("link_prediction", "lastfm").data)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_adapters_can_be_called_twice_in_one_process (tests.test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 773, in test_adapters_can_be_called_twice_in_one_process
+    import H2GB  # type: ignore[import-not-found]  # noqa: F401
+    ^^^^^^^^^^^
+ModuleNotFoundError: No module named 'H2GB'
+
+======================================================================
+ERROR: test_no_cell_reads_a_name_no_earlier_cell_defines (tests.test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1710, in test_no_cell_reads_a_name_no_earlier_cell_defines
+    visitor.visit(ast.parse("".join(cell["source"])))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_only_the_lanes_that_install_a_group_define_one (tests.test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1744, in test_only_the_lanes_that_install_a_group_define_one
+    for node in ast.walk(ast.parse("".join(cell["source"]))):
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_amazon_keeps_parallel_relations_apart (tests.test_baselines.PolynomialRelationKeyTests.test_amazon_keeps_parallel_relations_apart)
+Their Amazon branch emits PP and UU for two product-product relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 219, in test_amazon_keeps_parallel_relations_apart
+    adjacencies, chaining = self._keys("amazon")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_every_transposed_monomial_resolves_to_known_keys (tests.test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on all four datasets.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 259, in test_every_transposed_monomial_resolves_to_known_keys
+    adjacencies, chaining = self._keys(dataset)
+                            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_keys_are_exactly_two_characters (tests.test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 274, in test_keys_are_exactly_two_characters
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_lastfm_matches_the_authors_key_set (tests.test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 196, in test_lastfm_matches_the_authors_key_set
+    adjacencies, chaining = self._keys("lastfm")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LastFM'.
+
+======================================================================
+ERROR: test_pubmed_keys_encode_node_types (tests.test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 237, in test_pubmed_keys_encode_node_types
+    adjacencies, chaining = self._keys("pubmed")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\PubMed'.
+
+======================================================================
+ERROR: test_single_node_type_keys_are_palindromic (tests.test_baselines.PolynomialRelationKeyTests.test_single_node_type_keys_are_palindromic)
+lis_t reverses a key in place, so a symmetric operator needs a palindrome.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 249, in test_single_node_type_keys_are_palindromic
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_youtube_gets_one_operator_per_relation (tests.test_baselines.PolynomialRelationKeyTests.test_youtube_gets_one_operator_per_relation)
+Five user-user relations must stay five operators.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 230, in test_youtube_gets_one_operator_per_relation
+    adjacencies, chaining = self._keys("youtube")
+                            ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 387, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 768, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 333, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\youtube'.
+
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (tests.test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 664, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 658, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 111, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps (tests.test_filter_bank.FilterBankModelTests.test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_filter_bank.py", line 383, in test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps
+    self.assertIsNotNone(parameter.grad, name)
+                         ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'grad'
+
+======================================================================
+ERROR: test_T11_uniform_gate_gives_w_identically_one (tests.test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1092, in test_T11_uniform_gate_gives_w_identically_one
+    model = self._model({"uniform_path_gate": True})
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1074, in _model
+    return _v2_model(self.data, ablation=ablation, **model).double().eval()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 742, in _v2_model
+    return build_model(_v2_config(ablation, **model), data)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 734, in _v2_config
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 977, in from_dict
+    ablation=AblationConfig.from_dict(raw.get("ablation", {})),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 902, in from_dict
+    _reject_unknown_keys("ablation", raw, cls)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 12, in _reject_unknown_keys
+    raise ValueError(
+ValueError: Unknown ablation key(s): uniform_path_gate. They are not settings of the current model; remove them (v1 and AMPSS settings were deleted, see docs/H2S-NN_v2_plan.md D6).
+
+======================================================================
+ERROR: test_every_ablation_trains_one_step (tests.test_v2_model.AblationTests.test_every_ablation_trains_one_step) (ablation={'path_weight_input': True}, model={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1243, in test_every_ablation_trains_one_step
+    model = _v2_model(_random_pap_data(), ablation=ablation, **model_overrides)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 742, in _v2_model
+    return build_model(_v2_config(ablation, **model), data)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 734, in _v2_config
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 977, in from_dict
+    ablation=AblationConfig.from_dict(raw.get("ablation", {})),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 905, in from_dict
+    return cls(**{name: raw.get(name, getattr(defaults, name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 13, in __init__
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\configs\config.py", line 842, in __post_init__
+    raise ValueError(
+ValueError: ablation.path_weight_input must be one of ('full', 'endpoints', 'schema', 'uniform'), got True.
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (tests.test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 413, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (tests.test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_core')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[19832 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[21130 chars]n}\n'
+Diff is 40370 characters long. Set self.maxDiff to None to see it. : node_classification_core.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (tests.test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_dgl')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[33512 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[22273 chars]n}\n'
+Diff is 54511 characters long. Set self.maxDiff to None to see it. : node_classification_dgl.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1580, in test_notebooks_are_committed_clean_and_parse
+    self.assertFalse(cell.get("outputs"))
+AssertionError: [{'output_type': 'stream', 'name': 'stdout', 'text': ['installed torch distribution: 2.11.0+cu128\n']}] is not false
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 7 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 9 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 11 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 2 is not None
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (tests.test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 138, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl'] is not false : missing baseline clones: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl']
+
+======================================================================
+FAIL: test_the_trainer_logs_the_trace_and_the_gate_statistics (tests.test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 794, in test_the_trainer_logs_the_trace_and_the_gate_statistics
+    self.assertIn(f'"{key}"', text, key)
+AssertionError: '"gamma"' not found in '{"epoch": 0, "train": {"loss": 1.1159223318099976, "acc": 0.25, "macro_f1": 0.20634920634920637, "micro_f1": 0.25, "cls_loss": 1.1159223318099976, "eta": 0.4975000023841858, "g_mean": 0.6034476161003113, "g_min": 0.5843555331230164, "b_mean": 0.5978259444236755, "b_min": 0.5803653001785278, "path_log_w_max": -0.4209887981414795, "path_log_w_mean": -0.5520051121711731, "eta_lambda_max": 0.2705453033299676, "energy_edge_0": 0.59092116355896, "energy_path_0": 0.4179762303829193, "energy_edge_1": 0.5248579382896423, "energy_path_1": 0.38646799325942993, "energy_edge_2": 0.4574268162250519, "energy_path_2": 0.35361918807029724}, "val": {"loss": 1.145312786102295, "acc": 0.375, "macro_f1": 0.3333333333333333, "micro_f1": 0.375, "cls_loss": 1.145312786102295}, "test": {"loss": 1.1225945949554443, "acc": 0.25, "macro_f1": 0.14814814814814814, "micro_f1": 0.25, "cls_loss": 1.1225945949554443}}\n{"epoch": 1, "train": {"loss": 1.118757963180542, "acc": 0.375, "macro_f1": 0.1818181818181818, "micro_f1": 0.375, "cls_loss": 1.118757963180542, "eta": 0.49552324414253235, "g_mean": 0.5853047370910645, "g_min": 0.5601193904876709, "b_mean": 0.5739782452583313, "b_min": 0.5390738248825073, "path_log_w_max": -0.16705316305160522, "path_log_w_mean": -0.43791523575782776, "eta_lambda_max": 0.25210147791651316, "energy_edge_0": 0.5568076372146606, "energy_path_0": 0.47532975673675537, "energy_edge_1": 0.5074642300605774, "energy_path_1": 0.4486267566680908, "energy_edge_2": 0.4560255706310272, "energy_path_2": 0.4196513891220093}, "val": {"loss": 1.1438170671463013, "acc": 0.375, "macro_f1": 0.3333333333333333, "micro_f1": 0.375, "cls_loss": 1.1438170671463013}, "test": {"loss": 1.1194411516189575, "acc": 0.25, "macro_f1": 0.13333333333333333, "micro_f1": 0.25, "cls_loss": 1.1194411516189575}}\n' : gamma
+
+======================================================================
+FAIL: test_TF1_group_contents_and_defaults (tests.test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_cooperative.py", line 587, in test_TF1_group_contents_and_defaults
+    self.assertEqual(ids, {id(p) for p in expected})
+AssertionError: Items in the first set but not the second:
+2346788171168
+Items in the second set but not the first:
+140713953204320
+
+======================================================================
+FAIL: test_eta_only_under_first_order_and_V_in_the_normal_group (tests.test_filter_bank.FilterBankModelTests.test_eta_only_under_first_order_and_V_in_the_normal_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_filter_bank.py", line 400, in test_eta_only_under_first_order_and_V_in_the_normal_group
+    self.assertTrue(any(p is bank.theta_gamma for g in scalar for p in g["params"]))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent (tests.test_pair_attention.MergedWeightTests.test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_pair_attention.py", line 376, in test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent
+    self.assertEqual(ids, {id(p) for p in expected})
+AssertionError: Items in the first set but not the second:
+2346669874928
+Items in the second set but not the first:
+140713953204320
+
+======================================================================
+FAIL: test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 244, in test_one_training_step_is_finite
+    self.assertIn("gamma", metrics)
+AssertionError: 'gamma' not found in {'loss': 0.7206335663795471, 'acc': 0.6666666666666666, 'macro_f1': 0.625, 'micro_f1': 0.6666666666666666, 'auroc': 0.4444444444444444, 'filter_norm_sum': 0.99999985066788, 'g_mean': 0.5810004472732544, 'g_min': 0.549328088760376, 'b_mean': 0.5775427222251892, 'b_min': 0.5351290702819824, 'path_log_w_max': -0.44861656427383423, 'path_log_w_mean': -0.708098828792572}
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='dot')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 160, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertTrue(grads and all(g is not None for g in grads), prefix)
+AssertionError: [] is not true : theta_gamma
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='distmult')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 160, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertTrue(grads and all(g is not None for g in grads), prefix)
+AssertionError: [] is not true : theta_gamma
+
+======================================================================
+FAIL: test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) (decoder='concat_mlp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 160, in test_each_decoder_trains_one_step_and_reaches_the_encoder
+    self.assertTrue(grads and all(g is not None for g in grads), prefix)
+AssertionError: [] is not true : theta_gamma
+
+======================================================================
+FAIL: test_defaults_are_the_full_model (tests.test_v2_model.ConfigTests.test_defaults_are_the_full_model)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1256, in test_defaults_are_the_full_model
+    self.assertFalse(any(getattr(config.ablation, name)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_T10_gradients_reach_every_learned_component (tests.test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) (prefix='theta_gamma')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 906, in test_T10_gradients_reach_every_learned_component
+    self.assertTrue(grads)
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_gate_initialization_is_near_one_half (tests.test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 913, in test_gate_initialization_is_near_one_half
+    self.assertEqual(float(model.path_gate.bias.abs().max()), 0.0)
+AssertionError: 0.6931471824645996 != 0.0
+
+======================================================================
+FAIL: test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (tests.test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_v2_model.py", line 1032, in test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload
+    self.assertIn("gamma", json.dumps(record))
+AssertionError: 'gamma' not found in '{"epoch": 0, "train": {"loss": 1.1113520860671997, "acc": 0.375, "macro_f1": 0.19999999999999998, "micro_f1": 0.375, "cls_loss": 1.1113520860671997, "eta": 0.5024999976158142, "g_mean": 0.6034476161003113, "g_min": 0.5843555331230164, "b_mean": 0.5978259444236755, "b_min": 0.5803653001785278, "path_log_w_max": -0.4209887981414795, "path_log_w_mean": -0.5520051121711731, "eta_lambda_max": 0.31843985600182734, "energy_edge_0": 0.7754339575767517, "energy_path_0": 0.3738187253475189, "energy_edge_1": 0.6843826770782471, "energy_path_1": 0.34283721446990967, "energy_edge_2": 0.5860717296600342, "energy_path_2": 0.30976223945617676}, "val": {"loss": 1.1204826831817627, "acc": 0.25, "macro_f1": 0.14814814814814814, "micro_f1": 0.25, "cls_loss": 1.1204826831817627}, "test": {"loss": 1.099232792854309, "acc": 0.25, "macro_f1": 0.17857142857142858, "micro_f1": 0.25, "cls_loss": 1.099232792854309}}'
+
+----------------------------------------------------------------------
+Ran 319 tests in 501.851s
+
+FAILED (failures=23, errors=16)
+exit 1

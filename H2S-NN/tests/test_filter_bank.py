@@ -369,7 +369,7 @@ class FilterBankModelTests(unittest.TestCase):
                     self.assertLessEqual(error, 1e-10)
 
     def test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps(self) -> None:
-        model = _v2_model(self.data).double().train()
+        model = _v2_model(self.data, path_weight="sigmoid_gamma").double().train()  # gamma (H)
         output = model(self.data)
         output.logits.square().sum().backward()
         V_grad = model.filter_bank.V.grad
@@ -389,12 +389,12 @@ class FilterBankModelTests(unittest.TestCase):
         from src.builders import build_optimizer
         from tests.test_v2_model import _v2_config
 
-        bank = _v2_model(self.data)
+        bank = _v2_model(self.data, path_weight="sigmoid_gamma")  # theta_gamma exists (Part H)
         self.assertIsNone(bank.theta_eta)
         self.assertIsNone(bank.eta())
         first = _v2_model(self.data, encoder="first_order")
         self.assertIsNone(first.filter_bank)
-        optimizer = build_optimizer(bank, _v2_config())
+        optimizer = build_optimizer(bank, _v2_config(path_weight="sigmoid_gamma"))
         scalar = [g for g in optimizer.param_groups if g["weight_decay"] == 0.0]
         self.assertFalse(any(p is bank.filter_bank.V for g in scalar for p in g["params"]))
         self.assertTrue(any(p is bank.theta_gamma for g in scalar for p in g["params"]))

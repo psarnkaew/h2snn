@@ -214,7 +214,9 @@ class VertexPathSheafLaplacian:
         edge_index: `[2, M]` observed edges (no closure edges).
         num_nodes: number of nodes `N`.
         path_terms: one term per face group (may be empty: `gamma` is then unused).
-        gamma: scalar tensor `gamma >= 0`, or None when there are no path terms.
+        gamma: scalar tensor `gamma >= 0` (`path_weight: sigmoid_gamma`), or None: no scale on
+            the path part (`path_weight: exp`, where the scale is the bias of g; Part H), or no
+            path terms at all.
         checkpoint: run each matrix-free application under activation checkpointing.
     """
 
@@ -227,8 +229,6 @@ class VertexPathSheafLaplacian:
         gamma: torch.Tensor | None,
         checkpoint: bool,
     ) -> None:
-        if path_terms and gamma is None:
-            raise ValueError("gamma is required when path terms are present.")
         self.edge_maps = edge_maps
         self.src_idx = edge_index[0]
         self.tgt_idx = edge_index[1]
@@ -252,8 +252,12 @@ class VertexPathSheafLaplacian:
         output = self.edge_degree()
         if self.path_terms:
             path = sum(term.diagonal(self.num_nodes) for term in self.path_terms)
-            output = output + self.gamma * path
+            output = output + self._scaled(path)
         return output
+
+    def _scaled(self, path: torch.Tensor) -> torch.Tensor:
+        """`gamma * path`, or `path` when there is no gamma (`path_weight: exp`)."""
+        return path if self.gamma is None else self.gamma * path
 
     def inverse_sqrt_degree(self) -> torch.Tensor:
         if self._inverse_sqrt is None:
@@ -280,7 +284,7 @@ class VertexPathSheafLaplacian:
             checkpoint=self.checkpoint,
         )
         if self.path_terms:
-            output = output + self.gamma * self.apply_path(x)
+            output = output + self._scaled(self.apply_path(x))
         return output
 
     def apply_normalized(self, x: torch.Tensor) -> torch.Tensor:
@@ -300,5 +304,5 @@ class VertexPathSheafLaplacian:
             num_nodes=self.num_nodes, checkpoint=False)).sum() / norm
         path = x.new_zeros(())
         if self.path_terms:
-            path = self.gamma * (y * self.apply_path(y)).sum() / norm
+            path = self._scaled((y * self.apply_path(y)).sum()) / norm
         return edge, path

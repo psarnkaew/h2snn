@@ -114,6 +114,10 @@ class ModelDims(NamedTuple):
     # Relation ids (compact, after the fact layer) with rho(r) = r: their source and target
     # roles coincide (D7). Empty under `fact_layer: untied` and when no layer was built.
     self_inverse_relations: tuple[int, ...] = ()
+    # Part H (WISP): cells of one length group differ in relation sequence, so the path encoders
+    # read a per-cell action embedding (relation embedding + one-hot hop direction -1/0/+1) of
+    # width d_r + 3 per hop; False = one relation token per group (schema and DFS builders).
+    path_actions: bool = False
 
     @classmethod
     def from_prepared_data(cls, data: PreparedH2SData) -> "ModelDims":
@@ -200,13 +204,24 @@ class H2SNNOutput(NamedTuple):
     max_edge_scale: torch.Tensor | None
 
 
+def _hop_block(hop_tokens: torch.Tensor, num_paths: int, reference: torch.Tensor
+               ) -> tuple[torch.Tensor, torch.Tensor]:
+    """`(tokens, index)` for `gathered_linear`: one shared row (schema groups, index 0) or one
+    row per cell (WISP groups)."""
+    if hop_tokens.size(0) == 1:
+        return hop_tokens, reference.new_zeros(num_paths)
+    return hop_tokens, torch.arange(num_paths, device=reference.device)
+
+
 class PathEncoder(nn.Module):
-    """Positional `concat` encoder over the ordered `h0` of a path and its schema's relation
-    embeddings: one `Linear + GELU` per path length; its output feeds the path gate."""
+    """Positional `concat` encoder over the ordered `h0` of a path and its hop tokens (the schema's
+    relation embeddings, or per-cell action embeddings under WISP): one `Linear + GELU` per path
+    length; its output feeds the path gate."""
 
     def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
                  factored_inputs: bool = False) -> None:
         """`d`: width of the per-node input (`h0`, or `[h0, c]` under `geometry_context`).
+        `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions).
         `factored_inputs`: project per node, then gather (`gathered_linear`; D12, R7)."""
         super().__init__()
         self.input_proj = nn.ModuleDict(
@@ -223,10 +238,9 @@ class PathEncoder(nn.Module):
         self,
         h0: torch.Tensor,
         face_node_index: torch.Tensor,
-        schema_relations: torch.Tensor,
-        relation_embeddings: torch.Tensor,
+        hop_tokens: torch.Tensor,
     ) -> torch.Tensor:
-        """`[P, L+1]` paths with relation sequence `[L]` -> `[P, hidden]` latents."""
+        """`[P, L+1]` paths with hop tokens `[1 or P, L * d_r]` -> `[P, hidden]` latents."""
         length = int(face_node_index.size(1)) - 1
         key = str(length)
         if key not in self.input_proj:
@@ -236,21 +250,21 @@ class PathEncoder(nn.Module):
                 f"{available}). ModelDims.face_lengths must list every length in the data."
             )
         num_paths = face_node_index.size(0)
-        schema_token = relation_embeddings[schema_relations].reshape(1, -1)
         if self.factored_inputs:
             blocks = [(h0, face_node_index[:, j]) for j in range(length + 1)]
-            blocks.append((schema_token, face_node_index.new_zeros(num_paths)))
+            blocks.append(_hop_block(hop_tokens, num_paths, face_node_index))
             return self.activation(gathered_linear(self.input_proj[key], blocks))
         inputs = torch.cat(
-            [h0[face_node_index].reshape(num_paths, -1), schema_token.expand(num_paths, -1)],
+            [h0[face_node_index].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)],
             dim=-1,
         )
         return self.activation(self.input_proj[key](inputs))
 
 
 class EndpointEncoder(nn.Module):
-    """Latent of a path from its endpoints and schema only, `[h_{v_0}, h_{v_L}, schema]`
-    (ablation `path_mode: endpoint_edges`: no intermediate node enters)."""
+    """Latent of a path from its endpoints and hop tokens only, `[h_{v_0}, h_{v_L}, tokens]`
+    (ablation `path_mode: endpoint_edges`, and the `endpoints` arm of the C2 weight ladder: no
+    intermediate node enters)."""
 
     def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
                  factored_inputs: bool = False) -> None:
@@ -266,21 +280,51 @@ class EndpointEncoder(nn.Module):
         self,
         h0: torch.Tensor,
         face_node_index: torch.Tensor,
-        schema_relations: torch.Tensor,
-        relation_embeddings: torch.Tensor,
+        hop_tokens: torch.Tensor,
     ) -> torch.Tensor:
         length = int(face_node_index.size(1)) - 1
         num_paths = face_node_index.size(0)
-        schema_token = relation_embeddings[schema_relations].reshape(1, -1)
         endpoints = face_node_index[:, [0, length]]
         if self.factored_inputs:
             blocks = [(h0, endpoints[:, 0]), (h0, endpoints[:, 1]),
-                      (schema_token, face_node_index.new_zeros(num_paths))]
+                      _hop_block(hop_tokens, num_paths, face_node_index)]
             return self.activation(gathered_linear(self.input_proj[str(length)], blocks))
         inputs = torch.cat(
-            [h0[endpoints].reshape(num_paths, -1), schema_token.expand(num_paths, -1)], dim=-1
+            [h0[endpoints].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)], dim=-1
         )
         return self.activation(self.input_proj[str(length)](inputs))
+
+
+class SchemaEncoder(nn.Module):
+    """`schema` arm of the C2 weight ladder: the latent depends on the hop tokens (relation
+    sequence, and directions under WISP) and the length only, so cells with the same sequence
+    get the same weight whatever their nodes."""
+
+    def __init__(self, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
+        super().__init__()
+        self.input_proj = nn.ModuleDict(
+            {str(length): nn.Linear(length * d_r, hidden_dim) for length in face_lengths}
+        )
+        self.activation = nn.GELU()
+        self.latent_dim = hidden_dim
+
+    def forward(self, h0: torch.Tensor, face_node_index: torch.Tensor,
+                hop_tokens: torch.Tensor) -> torch.Tensor:
+        length = int(face_node_index.size(1)) - 1
+        latent = self.activation(self.input_proj[str(length)](hop_tokens))
+        return latent.expand(face_node_index.size(0), -1)
+
+
+def endpoint_hidden_width(full_hidden: int, node_dim: int, hop_dim: int,
+                          face_lengths: tuple[int, ...]) -> int:
+    """Hidden width of the `endpoints` arm whose g (per-length first layer + gate) has the
+    parameter count closest to `full`'s (Part H capacity rule; both counts are linear in the
+    width, so rounding gives the minimiser)."""
+    lengths = tuple(face_lengths) or (2,)
+    full_inputs = sum((length + 1) * node_dim + length * hop_dim + 1 for length in lengths)
+    endpoint_inputs = sum(2 * node_dim + length * hop_dim + 1 for length in lengths)
+    full_params = full_hidden * (full_inputs + 1) + 1
+    return max(1, round((full_params - 1) / (endpoint_inputs + 1)))
 
 
 def _rotation_parameters(count: int, orthogonal: Orthogonal, d: int) -> nn.Parameter:
@@ -495,18 +539,26 @@ class H2SNN(nn.Module):
         self.path_mode = ablation.path_mode
         self.free_path_maps = ablation.free_path_maps
         self.theta_gamma: nn.Parameter | None = None
-        self.path_encoder: PathEncoder | EndpointEncoder | None = None
+        self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
+        self.path_log_weight: nn.Parameter | None = None
         self.free_maps: FreeIncidenceMaps | None = None
         self.endpoint_maps: EndpointEdgeMaps | None = None
+        # Part H: w_f = exp(g) without gamma ("exp"), or gamma * sigmoid(g) ("sigmoid_gamma");
+        # the C2 ladder restricts the inputs of g on identical cells.
+        self.path_weight = model_config.path_weight
+        self.path_weight_input = ablation.path_weight_input
+        self.path_actions = dims.path_actions
+        hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
         if self.use_path_cells:
-            self.theta_gamma = nn.Parameter(
-                torch.tensor(_softplus_inverse(model_config.gamma_init))
-            )
+            if self.path_weight == "sigmoid_gamma":
+                self.theta_gamma = nn.Parameter(
+                    torch.tensor(_softplus_inverse(model_config.gamma_init))
+                )
             hidden = model_config.face_mlp_hidden_dim
             if self.path_mode == "endpoint_edges":
                 # No intermediate node enters: neither the maps nor the gate see them.
-                self.path_encoder = EndpointEncoder(geometry_dim, model_config.d_r, hidden,
+                self.path_encoder = EndpointEncoder(geometry_dim, hop_dim, hidden,
                                                     dims.face_lengths,
                                                     factored_inputs=model_config.geometry_context)
                 self.endpoint_maps = EndpointEdgeMaps(
@@ -514,10 +566,17 @@ class H2SNN(nn.Module):
                     map_scale=self.map_scale, scale_eps=model_config.map_scale_eps,
                     orthogonal_map=model_config.orthogonal_map,
                 )
-            elif self.free_path_maps or not ablation.uniform_path_gate:
-                self.path_encoder = PathEncoder(geometry_dim, model_config.d_r, hidden,
+            elif self.free_path_maps or self.path_weight_input == "full":
+                self.path_encoder = PathEncoder(geometry_dim, hop_dim, hidden,
                                                 dims.face_lengths,
                                                 factored_inputs=model_config.geometry_context)
+            elif self.path_weight_input == "endpoints":
+                hidden = endpoint_hidden_width(hidden, geometry_dim, hop_dim, dims.face_lengths)
+                self.path_encoder = EndpointEncoder(geometry_dim, hop_dim, hidden,
+                                                    dims.face_lengths,
+                                                    factored_inputs=model_config.geometry_context)
+            elif self.path_weight_input == "schema":
+                self.path_encoder = SchemaEncoder(hop_dim, hidden, dims.face_lengths)
             if self.free_path_maps:
                 self.free_maps = FreeIncidenceMaps(
                     d=d, latent_dim=hidden, hidden_dim=model_config.edge_mlp_hidden_dim,
@@ -527,16 +586,25 @@ class H2SNN(nn.Module):
                     node_dim=geometry_dim,
                     factored_inputs=model_config.geometry_context,
                 )
-            if not ablation.uniform_path_gate:
-                # Gate g: zero bias, default weight init, so w_f = sigmoid(g(.)) starts near
-                # 0.5 with a small spread and the path encoder gets gradients from step 0.
+            if self.path_weight_input != "uniform":
+                # Gate g, default weight init so the path encoder gets gradients from step 0.
+                # sigmoid_gamma: zero bias, w_f = sigmoid(g) starts near 0.5 with a small spread.
+                # exp: bias b = log(path_weight_init), w_f = exp(g) starts near path_weight_init.
                 self.path_gate = nn.Linear(hidden, 1)
-                nn.init.zeros_(self.path_gate.bias)
+                if self.path_weight == "exp":
+                    nn.init.constant_(self.path_gate.bias, math.log(model_config.path_weight_init))
+                else:
+                    nn.init.zeros_(self.path_gate.bias)
+            elif self.path_weight == "exp":
+                # uniform under exp: w_f = exp(b) for every cell (b alone; no g input).
+                self.path_log_weight = nn.Parameter(
+                    torch.tensor(math.log(model_config.path_weight_init)))
         self.layer_dropout = nn.Dropout(model_config.layer_dropout)
         self.coupling = ablation.coupling
         self.listen_gate: nn.Linear | None = None
         self.broadcast_gate: nn.Linear | None = None
         self.last_coupling_stats: dict[str, float] = {}
+        self.last_path_stats: dict[str, float] = {}
         # Gate heads are created last, so the other parameters initialise exactly as before
         # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
         # diffusion (`h0_only_readout`).
@@ -613,6 +681,7 @@ class H2SNN(nn.Module):
             if gamma is not None:
                 scalars["gamma"] = float(gamma)
         scalars.update(self.last_coupling_stats)  # gates of the last training forward
+        scalars.update(self.last_path_stats)      # log w_f of the last forward (Part H)
         return scalars
 
     def scalar_parameters(self) -> list[nn.Parameter]:
@@ -623,6 +692,12 @@ class H2SNN(nn.Module):
         for head in (self.listen_gate, self.broadcast_gate):
             if head is not None:
                 scalars.extend(head.parameters())
+        if self.path_weight == "exp":
+            # b, the bias of g (gamma's role under exp, spec v1.3 §3.2c), or the uniform arm's b.
+            if self.path_gate is not None:
+                scalars.append(self.path_gate.bias)
+            if self.path_log_weight is not None:
+                scalars.append(self.path_log_weight)
         if self.pair_attention is not None:
             # The strength-forming parameters of the A4 test get the same optimizer treatment as
             # the gate heads they replace (a test of A4 must not handicap one arm).
@@ -647,27 +722,44 @@ class H2SNN(nn.Module):
         """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
         if self.path_encoder is None:
             return None
-        if group.signature_index is not None and bool(
-                (group.relation_index != group.relation_index[:1]).any()):
-            raise NotImplementedError(
-                "WISP groups mix relation sequences; the per-cell relation encoder is Part H "
-                "unit H2 (the encoder below reads row 0).")
         encoder = self.path_encoder
         return checkpoint_if_grad(
-            lambda h_in, rel_in: encoder(
-                h_in, group.face_node_index, group.relation_index[0], rel_in
-            ),
+            lambda h_in, rel_in: encoder(h_in, group.face_node_index,
+                                         self._hop_tokens(group, rel_in)),
             h0,
             self.relation_embedding.weight,
             enabled=self.checkpointing,
         )
 
+    def _hop_tokens(self, group: FaceGroup, relation_weight: torch.Tensor) -> torch.Tensor:
+        """`[1, L d_r]` relation token of a one-schema group (schema and DFS builders), or, for a
+        WISP group, `[P, L (d_r + 3)]` per-cell action embeddings: the relation embedding and a
+        one-hot of the hop direction (-1 / 0 for a self-inverse relation / +1)."""
+        if group.signature_index is None:
+            return relation_weight[group.relation_index[0]].reshape(1, -1)
+        if not self.path_actions:
+            raise ValueError("a WISP face group needs ModelDims.path_actions (build the model "
+                             "with data.path_source: wisp).")
+        relations = group.relation_index
+        shared = torch.zeros(relation_weight.size(0), dtype=torch.bool, device=relations.device)
+        if self.self_inverse_relations:
+            shared[list(self.self_inverse_relations)] = True
+        direction = torch.where(shared[relations], torch.zeros_like(relations),
+                                group.face_edge_sign.sign().long())
+        onehot = nn.functional.one_hot(direction + 1, 3).to(relation_weight.dtype)
+        tokens = torch.cat([relation_weight[relations], onehot], dim=-1)
+        return tokens.reshape(relations.size(0), -1)
+
     def _path_weights(self, latent: torch.Tensor | None, group: FaceGroup,
                       like: torch.Tensor) -> torch.Tensor:
-        """`w_f = sigmoid(g(latent_f))`, or 1 under `uniform_path_gate`."""
+        """`w_f = exp(g(latent_f))` (`path_weight: exp`) or `sigmoid(g(latent_f))`
+        (`sigmoid_gamma`); under `path_weight_input: uniform`, `exp(b)` or 1."""
         if self.path_gate is None:
+            if self.path_log_weight is not None:
+                return torch.exp(self.path_log_weight).expand(group.num_faces)
             return like.new_ones(group.num_faces)
-        return torch.sigmoid(self.path_gate(latent).squeeze(-1))
+        logits = self.path_gate(latent).squeeze(-1)
+        return torch.exp(logits) if self.path_weight == "exp" else torch.sigmoid(logits)
 
     def path_terms(
         self,
@@ -781,6 +873,11 @@ class H2SNN(nn.Module):
         weights: tuple[torch.Tensor, ...] = ()
         if self.use_path_cells:
             terms, weights = self.path_terms(geometry, maps, edge_index, face_groups)
+        if weights:
+            with torch.no_grad():
+                log_w = torch.cat(weights).log()
+                self.last_path_stats = {"path_log_w_max": float(log_w.max()),
+                                        "path_log_w_mean": float(log_w.mean())}
         laplacian = VertexPathSheafLaplacian(
             edge_maps=maps,
             edge_index=edge_index,
@@ -1028,7 +1125,13 @@ def apply_operator(operator: "DiffusionOperator | AttentionOperator", x: torch.T
 
 
 def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
-    return H2SNN(config=config, dims=ModelDims.from_prepared_data(data))
+    dims = ModelDims.from_prepared_data(data)
+    if config.data.path_source == "wisp":
+        # Every length of the support gets a projection, not only those in this draw: a later
+        # training draw may contain a length the evaluation draw lacks.
+        dims = dims._replace(face_lengths=tuple(range(2, config.data.wisp_max_length + 1)),
+                             path_actions=True)
+    return H2SNN(config=config, dims=dims)
 
 
 def build_link_prediction_model(config: TrainConfig, data: PreparedLinkPredData) -> H2SNN:

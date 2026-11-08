@@ -61,6 +61,16 @@ def build_config(model: dict, ablations: tuple[str, ...]) -> TrainConfig:
                  "model": {"map_family": "factorized", **model}}
     if "ablation" in TrainConfig.__dataclass_fields__:  # after the move (Phase 2 step 2)
         raw["ablation"] = {name: True for name in ablations}
+        # Part H: `uniform_path_gate` became `path_weight_input: uniform`, and the default cell
+        # weight became exp; the goldens are the sigmoid_gamma model, named explicitly here.
+        if "uniform_path_gate" in ablations and \
+                "uniform_path_gate" not in AblationConfig.__dataclass_fields__:
+            del raw["ablation"]["uniform_path_gate"]
+            raw["ablation"]["path_weight_input"] = "uniform"
+        from src.configs.config import ModelConfig as _ModelConfig
+
+        if "path_weight" in _ModelConfig.__dataclass_fields__:
+            raw["model"]["path_weight"] = "sigmoid_gamma"
         # D10: the golden outputs are the pre-D10 (symmetric) model; the default is now
         # cooperative, so the harness names the symmetric mode explicitly.
         if "coupling" in AblationConfig.__dataclass_fields__:
