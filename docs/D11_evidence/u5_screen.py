@@ -65,6 +65,7 @@ def cmd_run(args: argparse.Namespace) -> None:
             if not (run_dir(d, v, s) / "best_test_metrics.json").exists()]
     print(f"{len(jobs)} runs to do", flush=True)
     running: list[tuple[subprocess.Popen, tuple, float]] = []
+    attempts: dict[tuple, int] = {}
     while jobs or running:
         while jobs and len(running) < args.workers:
             job = jobs.pop(0)
@@ -82,6 +83,11 @@ def cmd_run(args: argparse.Namespace) -> None:
                 running.remove(entry)
                 print(f"finished {job} rc={proc.returncode} in {(time.time() - started) / 60:.1f} min",
                       flush=True)
+                attempts[job] = attempts.get(job, 0) + 1
+                if proc.returncode != 0 and attempts[job] < 4:  # host memory pressure: same config, retry
+                    print(f"requeued {job} (attempt {attempts[job]} failed)", flush=True)
+                    jobs.append(job)
+                    time.sleep(60)
         time.sleep(5)
 
 

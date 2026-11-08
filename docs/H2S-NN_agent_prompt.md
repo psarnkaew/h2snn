@@ -1,6 +1,8 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9), Part E (D10, done) or Part F (D11, next; includes the A4 test variant `pair_attention`). Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, in progress) or **Part H (D2 → WISP, the replacement of AMPSS; starts after Part G is closed)**. Part A is reusable for review, design and implementation work on H2S-NN.
+
+**Naming (binding):** the meta-path mechanism of the current model is **WISP** (Walk-sampled, Instance-weighted Sheaf Paths; spec v1.3 §3.2). "AMPSS" means only the deleted v1 mechanism (tag `v1-submitted`). `../docs/H2S-NN_D2_task_card.md` (old "Part E: D2") is superseded by Part H; do not implement from it.
 
 ---
 
@@ -13,7 +15,7 @@ Prioritize **correctness, falsifiability and feasibility** over sounding impress
 
 ### Sources of truth (read before acting, in this order)
 1. `CLAUDE.md` and `AGENTS.md` in the repo — environment and coding conventions are binding.
-2. `../docs/H2S-NN_v2_plan.md` — agreed decisions (D1–D11), the design rationale of the final model (§12.0: assumptions A1–A5, properties P1–P5) and the reality-before-theory audit (§11). Do not reopen an agreed decision; if evidence contradicts it — including evidence from the data or from published models — stop and report.
+2. `../docs/H2S-NN_methodology_spec.md` (v1.3) — **the authority for design**: requirements R1–R12, components, theory, claims and protocol. Then `../docs/H2S-NN_v2_plan.md` — the decision log: agreed decisions (D1–D12), the design rationale of the final model (§12.0: assumptions A1–A5, properties P1–P5) and the reality-before-theory audit (§11). Do not reopen an agreed decision; if evidence contradicts it — including evidence from the data or from published models — stop and report.
 3. `../docs/H2S-NN_fix_spec.md` — hypotheses, protocol fixes, status tags. Earlier task reports (e.g. `../docs/H2S-NN_D1_report.md`) are also inputs.
 4. The code itself. When a document and the code disagree, the code describes what runs; report the disagreement.
 
@@ -531,3 +533,166 @@ x ← x − η (x − P x)
 T-F2, T-F3, T-F3b, T-F5 or T-F6 fails after 3 diagnosed attempts; the bundle bit-identity test fails; no strong baseline can run (report before the screen); the screen hits the "path cells don't beat γ = 0 or endpoint_edges" trigger or the `pair_attention` trigger (stop and report, do not continue to Tier 0).
 
 Commit per unit; push when the screen report is written. Report: `docs/H2S-NN_D11_report.md` (Part A format, at most two pages, including "Assumptions imposed for theory and reality checks", and one line per assumption A1–A5 saying which screen row tested it and the outcome).
+
+---
+
+## Part G — Task card D12: pipeline gate, relational context, filter-bank encoder
+
+### Goal
+Implement methodology spec v1.2 (§3, §4): one encoder (gated Chebyshev filter bank over the vertex–2-cell sheaf) and geometry computed once from typed neighbourhood context. **First** find why every variant, including the `h₀`-only MLP, scores 6–10 points below published simple models (spec §6 pipeline gate). Spec: `H2S-NN_methodology_spec.md` v1.2 (authority); plan D12 row. Work on a new branch `d12-encoder` off `tier0-screen-d11`.
+
+### Specification
+```
+c_v = concat over (relation, role) of mean_{u ∈ N_{ψ,role}(v)} h₀_u      # zeros if no neighbour; facts only (D7), both roles
+geometry inputs: [h₀_v, c_v] replace h₀_v in the map MLPs (reflector, scale), the gate heads, and the path encoder
+A   = G Δ̂ B                                                                 # existing operator (D4, D9, D10); no change
+T_0 = h,  T_1 = (A − I) h,  T_{k+1} = 2 (A − I) T_k − T_{k−1}               # applied to vectors, never materialized
+x   = Σ_{k=0..K} T_k(A − I) (h₀ W_k)                                        # W_k ∈ R^{d×d} acts on stalk coordinates (state is [N, d])
+W_k = V_k / max(1, Σ_j ‖V_j‖₂)                                              # exact spectral norm of d×d (torch.linalg.matrix_norm(ord=2))
+init: V_k = θ_k I with θ = Chebyshev coefficients of (1 − η₀(1 + ξ))^K, η₀ = model.eta_init  → starts exactly at D11 (Prop. 7)
+y   = head([x, h₀])
+```
+- Config: `model.encoder: "filter_bank" | "first_order"` (default `filter_bank`; `first_order` = current D11 `diffuse`, the nested C8 arm); `model.geometry_context: bool` (default `true`; `false` = C9 arm). `K` keeps its meaning as the number of applications of `A`. `η` exists only under `first_order`. `pair_attention` stays as the C4b arm, unchanged. None of these switches may enter a tuning search space (extend the existing rejection check).
+- `W_k` and the scalar group: `V_k` in the normal group; gates and `γ` stay in the scalar group (D11 learning fix).
+- Self-loop facts: Lemma N holds only for nodes without them; document the count per dataset and keep the operator as is.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| G0 | **Pipeline-correctness gate** (spec §6; done 2026-11-08, `20d9756`: data checks PASS, published-number reproduction not achievable without HetSheaf's unpublished sweep winner): (a) compare our train/val/test node ids with the official HGB splits for ACM, DBLP, IMDB; (b) run one reference baseline (R-GCN or SimpleHGN, whichever runs) on our pipeline, single seed, its published configuration; pre-register the tolerance (e.g. within 2 published std). If it fails, diagnose the cause (splits, features, label mapping, metric, early stopping, preprocessing) with evidence before any fix. **Stop and report** after G0 whatever the outcome | report |
+| G0b | **Gap localization ladder** (after G0, before G1; author-approved 2026-11-08). All on our pipeline, ACM and DBLP, metric and selection as in G0, logging train/val/test macro-F1 and best epoch. Rungs: **L0** R-GCN feature-free (G0 arm O), 5 seeds (noise level + internal reference); **L1** one features-using reference on our pipeline (HetSheaf's GCN code and committed config), 3 seeds; **L2** `h0_only` through `trainer.py`, raw vs row-normalised input features, 3 seeds each; **L3** sheaf-free H2S-NN through `trainer.py` (identity restriction maps, `γ = 0`, `coupling: symmetric`, D11 update; add an `ablation.identity_maps` diagnostic switch if none exists, never tuned), 3 seeds; **L4** full D11 through `trainer.py`, 3 seeds. Pre-registered reading (write it to `docs/D12_evidence/g0b_preregistration.md` before running): (i) L2 row-normalised > raw by > 2 points → feature-preprocessing defect: fix it for every model (pipeline fix, not a design change); (ii) L3 within 2 points of L0 but L4 more than 2 below L3 → the learned sheaf (maps, gates, 2-cells) hurts: design-level, stop; (iii) L3 more than 2 below L0 → propagation or training (trainer settings, reach of K steps, readout): diagnose with train-F1 (low = underfitting, high train / low val = overfitting); (iv) L1 well below its published band on our pipeline → feature path of the baselines also suspect. **Stop and report after G0b** | report |
+| G1 | Relational context `c` and `geometry_context` switch | T-G7 |
+| G2 | Filter-bank encoder and `encoder` switch | T-G1 … T-G6, T-G8 |
+| G3 | Cost gate: ACM at the default `d`, `filter_bank` vs `first_order`, one forward + backward, peak memory and time (3 repeats after 1 warm-up), parameter count; pre-registered overhead ≤ 25% time, ≤ 10% memory | measurement |
+| G4 | Report `docs/H2S-NN_D12_report.md` (Part A format, ≤ 2 pages) | — |
+
+### Tests (`tests/test_filter_bank.py`, unittest, float64 fixtures with path cells and signed hops)
+| ID | Check | Tolerance |
+|---|---|---|
+| T-G1 | Spectrum of `A` real and in `[0, 2·max g b]` on ≥ 50 random fixtures | ≤ 1e-9 |
+| T-G2 | Prop. 5: gain of the filter in the metric `M = BG⁻¹` (nodes with nonzero gates) ≤ 1 + 1e-9 for random `V_k`. **Control:** without the normalization the gain exceeds 1 on at least one fixture | — |
+| T-G3 | Prop. 6: with `g_u = 0`, every block of the filter `u ← j` (j ≠ u) is 0; with `b_v = 0`, every block `i ← v` (i ≠ v) is 0. **Control:** gates 0.5 give a non-zero block | exact 0 vs > 1e-8 |
+| T-G4 | Prop. 7: with the D11 initialization, `filter_bank` output equals `first_order` output for η ∈ {0.25, 0.5, 0.9}, K ∈ {2, 5} | ≤ 1e-10 |
+| T-G5 | Lemma N: diagonal blocks of `Δ̂` equal `I` for nodes without self-loop facts | ≤ 1e-12 |
+| T-G6 | Matrix-free filter equals a dense reference built from materialized `A` | ≤ 1e-10 |
+| T-G7 | Context: changing one neighbour's `h₀` changes that node's maps and gates under `geometry_context: true` and not under `false`; `c` uses facts only and respects roles | exact |
+| T-G8 | Gradients reach every `V_k`, the gate heads, `γ`, the map MLPs | non-zero |
+
+**Mutation check (3):** normalization of `V_k` removed → T-G2 fails; recurrence written with `A` instead of `A − I` → T-G4 fails; gates applied as `B Δ̂ G` → T-G3 fails.
+
+### Rules
+- No protocol runs, sweeps or multi-seed experiments (they need the frozen spec and approval). G0's single-seed baseline run and G3's measurements are allowed.
+- Comparison arms (`first_order`, `geometry_context: false`, `pair_attention`, `symmetric`, `ablate_no_path_cells`, `endpoint_edges`, `h0_only`) are evidence, never tuned, never defaults.
+- Save tokens: long output to `docs/D12_evidence/`; full suite once per unit.
+
+### Stop conditions
+G0 (always stop and report); T-G2, T-G3 or T-G4 fails after 3 diagnosed attempts; the cost gate is exceeded; a needed change falls outside this card.
+
+Commit per unit on `d12-encoder`; do not push until the author has read the G0 report.
+
+---
+
+## Part H — Task card D2: WISP (Walk-sampled, Instance-weighted Sheaf Paths), the replacement of AMPSS
+
+### Goal
+Implement the meta-path mechanism of methodology spec v1.3 §3.2: schema-free candidate instances, a stated target measure with an unbiased walk-level defensive importance-sampling estimator, instance-conditioned cell weights `w_f = exp(g(ξ_f))` with the C2 weight ladder, and evaluation-only schema read-outs. Remove nothing that the comparison rows need. Spec v1.3 (§2 R2, R8, R12; §3.2; §4 Props. S, K, R, E; §5 C2, C2b) is the authority; plan D2 row and §2.5 give the reasoning. This card replaces `../docs/H2S-NN_D2_task_card.md`.
+
+### Preconditions (check first; stop and report if any fails)
+1. **Part G is closed.** Another session works on Part G in this folder. Do not start while `git status` shows uncommitted changes in `src/` or `tests/` that are not yours, or while the Part G report has open units. Ask the author if unsure. Never edit, stash, reset or commit another session's changes.
+2. Branch `wisp` off the last Part G commit.
+3. **No real-data accuracy runs in this card.** The spec §6 WISP gate requires the G0b gap (h1–h3) to be explained first. Synthetic known-answer tasks (H5) and smoke/cost runs (H6) are allowed.
+
+### What changes, in one table
+| Part | v1 AMPSS | Interim (D8, now) | WISP (this card) |
+|---|---|---|---|
+| Candidates | Stage I schema scoring, ≥ 18 settings | fixed literature schema list per dataset | none needed: walk-first, schema-free |
+| Sampling | DFS with quota (no distribution) | `r` uniform-neighbour walks per (anchor, schema), rejection of non-simple walks | stated target `p` (uniform length, uniform action, uniform unvisited neighbour), walk-level mixture `½p + ½q`, weight ≤ 2 |
+| Weight | Stage II instance gate under Stage I | `γ · sigmoid(g(ξ_f))` | `exp(g(ξ_f))`, γ removed (it is `g`'s bias) |
+| Schemas | selected | given | read out (`I_π`, `I_σ`, `I_{v,σ}`, `ΔL_σ`, overlap ratio, Kendall τ) |
+| Knobs | ≥ 18 | `r`, the list | `ℓ_max` (support), `r` (precision) |
+
+### Specification
+```
+anchors        = all nodes of the target type (node classification)
+walk ω         : draw ℓ ~ Uniform{2..ℓ_max}; for j = 1..ℓ:
+                   A_j = {(relation, direction) with ≥ 1 unvisited neighbour of v_{j−1}}     # self-avoiding by exclusion
+                   if A_j = ∅: discard ω                                                     # sub-probability target
+                   a_j ~ Uniform(A_j)  [target]   or  ∝ q_act(type(v_{j−1}), a) on A_j  [proposal]
+                   v_j ~ Uniform(unvisited neighbours of v_{j−1} via a_j)
+p(ω)           = 1/(ℓ_max − 1) · Π_j 1/|A_j| · 1/|N_j|
+q(ω)           = q_len(ℓ) · Π_j q_act(t_j, a_j)/Σ_{a ∈ A_j} q_act(t_j, a) · 1/|N_j|
+coin per walk  : with prob ½ draw the whole walk from p, else from q        # walk level, NOT per step
+m_f            = Σ_{walks ω → cell f} (1/r) · p(ω) / (½p(ω) + ½q(ω))       # D8 identity and summed merge
+w_f            = exp(g(ξ_f)),  ξ_f = [geom(v_0), …, geom(v_ℓ), rel_emb(a_1), …, rel_emb(a_ℓ)]   # geom = [h₀, c] (D12)
+g              = Linear_ℓ → GELU → Linear(hidden, 1) with bias b;  b in the scalar optimizer group;  b₀ = log(path_weight_init)
+L_P            = Σ_f w_f m_f L_f   (D9 O(L) term);   Δ̂ = D^{-1/2}(Δ₀ + L_P)D^{-1/2}   (no γ)
+q update       : at epoch start, q_len and q_act ∝ previous epoch's Σ w_f m_f per length and per (type, action) used; detached
+evaluation     : one fixed draw from p only (q = p), base seed; identical cells for every comparison arm
+```
+**Ladder** (`ablation.path_weight_input`, restrictions of `g`, same cells, same transports):
+| Value | Input of `g` | Must hold |
+|---|---|---|
+| `uniform` | none (`w_f = exp(b)`) | replaces `ablation.uniform_path_gate` |
+| `schema` | relation sequence and length only | equal `w` for cells with the same relation sequence, whatever their nodes |
+| `endpoints` | `geom(v_0)`, `geom(v_ℓ)`, relation sequence | invariant to intermediate nodes; hidden width chosen by a fixed rule so its parameter count is within 5 % of `full` |
+| `full` | all nodes and the relation sequence | default |
+
+**Config (names are PROPOSALS; check collisions in `src/configs/config.py` first; strict loading, no shims):**
+- `data.path_source: "schemas" | "wisp"` — `schemas` = D8 interim sampler with the literature presets (the comparison row). Default stays `schemas` during this card; the default flip is an author decision after H6.
+- `data.wisp_max_length` (int ≥ 2, default 4), `data.wisp_walks_per_anchor` (int ≥ 1; default chosen in H1 so that the incidence count matches the `schemas` run on ACM; report the rule), `data.wisp_proposal: "uniform" | "adaptive"` (default `uniform` until the H3 gate).
+- `model.path_weight: "sigmoid_gamma" | "exp"` (`sigmoid_gamma` = current behaviour, bit-identical; under `exp` there is no `θ_γ` and `model.gamma_init` is rejected), `model.path_weight_init` (> 0, default 0.5, only under `exp`).
+- `ablation.path_weight_input: "full" | "endpoints" | "schema" | "uniform"`; `ablation.uniform_path_gate` is removed (its behaviour is `uniform`).
+- Every key above except `wisp_walks_per_anchor` goes into `reject_never_tuned_settings`. Reject invalid combinations loudly (e.g. `path_weight_input ≠ full` together with `endpoint_edges` or `free_path_maps`, `wisp` with link prediction or graph classification).
+- Link prediction and graph classification keep their schema-free fixed-length sampler (`build_free_path_groups`); WISP for them is out of scope. `path_weight: exp` must still run there (smoke).
+
+**Grouping.** Group cells by **length**, not by signature (signatures can number in the hundreds; one group each would loop in Python). `FaceGroup.relation_index` becomes genuinely per cell (today the encoder reads row 0, `h2snn_model.py` `_path_latent`); `PathEncoder` gathers relation embeddings per cell. Keep a per-cell signature id and a signature table for the read-outs.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| H0 | Preconditions; inventory of every consumer of `FaceGroup`, `build_schema_path_groups`, `PathEncoder`, `_path_weights`, `theta_gamma`/`gamma()`, `uniform_path_gate`, `face_lengths`, `path_weight` (with `file:line`); update the D2 rows of `AGENTS.md` and `CLAUDE.md` to "WISP (spec v1.3 §3.2)". Pre-register H1–H6 expectations in `../docs/WISP_evidence/preregistration.md` | inventory written before code |
+| H1 | Sampler with `q = p`: target measure, self-avoidance by exclusion with exact counts `|A_j|`, `|N_j|`, walk probabilities in float64, identity/merge (reuse D8), length grouping, per-cell relation sequences, `path_source` switch, determinism protocol | T-H1, T-H2 (q = p), T-H4, T-H9, T-H10 |
+| H2 | `path_weight: exp`, removal of γ under `exp`, ladder switch with the capacity rule, per-cell relation embeddings in `PathEncoder` | T-H5 … T-H8; D12 goldens pinned to `sigmoid_gamma` + `schemas` |
+| H3 | Adaptive defensive proposal (walk-level mixture, detached tables, epoch update) | T-H2 (biased q), T-H3; **variance gate:** on ACM with a fixed trained model, 50 training draws, `adaptive` must reduce `E‖(L̂_P − mean) z‖²` over random probe vectors `z` (matrix-free) by ≥ 20 % at equal `r`; otherwise the default stays `uniform` and the report says so |
+| H4 | Read-outs, evaluation only (no import from training code into them): `I_π`, `I_σ` (pair decomposition, Prop. K), `I_{v,σ}`, overlap ratio, `ΔL_σ` (`T` evaluation draws), Kendall τ across checkpoints with a permutation null | T-H11 |
+| H5 | Known-answer tasks (synthetic, 3 seeds each, pre-registered): **S1** label carried only by instances whose relevance is a non-factorising function of all three nodes of a PAP-like instance (e.g. parity of one bit on P, A, P′; a product of per-edge positive weights cannot express it by a rank argument — write it out), endpoint relation counts identical across classes. Expect `full` ≥ 0.9 and `endpoints` near chance; report `no_path_cells`, `uniform`, `schema` too. **S2** a rare planted length-4 schema among ≥ 6 relation types carries the label; expect `I_σ` to rank it first on every seed. This also answers D12 report decision 3 | pre-registered expectations; a miss is reported, not fixed by tuning |
+| H6 | Smoke and cost on ACM, DBLP, IMDB (`path_source: wisp`, each ladder value, 5 epochs; LP and GC 2 epochs with `path_weight: exp`). Report cells, incidences, distinct signatures, length histogram, max log-weight, sampling ms per epoch, forward + backward time and peak memory vs `schemas` at matched incidences. Pre-registered gates: sampling ≤ 25 % of epoch time; peak memory ≤ 1.25× the `schemas` run | measurement |
+| H7 | Report `../docs/H2S-NN_WISP_report.md` (Part A format, ≤ 2 pages); propose (do not make) the default flip | — |
+
+### Tests (`tests/test_wisp.py`, unittest, float64 fixtures; small typed graphs with ≥ 3 node types, a self-inverse relation, a reciprocal pair, a dead end and a hub)
+| ID | Check | Tolerance |
+|---|---|---|
+| T-H1 | Exact distribution: enumerate every simple walk from the anchors with its `p(ω)`; 200k draws; empirical frequencies match within 4 s.e. for every walk; no drawn walk repeats a node; discarded mass equals the enumerated dead-end mass | 4 s.e. |
+| T-H2 | Unbiasedness: Monte-Carlo mean of the assembled `L̂_P` (dense, small graph) equals the exact `L_P^target` for `q = p` and for a strongly biased `q`. **Control:** drop the IS ratio under the biased `q` → fails | 4 s.e. per entry |
+| T-H3 | Every IS ratio ≤ 2 (float64) for random and near-degenerate `q`. **Control:** a per-step mixture exceeds 2 on some walk | exact |
+| T-H4 | Identity and merge: a walk and its reversal give one cell with summed weight; walks through different reciprocal facts give different cells (reuse D8 cases) | exact |
+| T-H5 | Props. 2, 3, 5 with `exp` weights spanning `e^{−10}…e^{10}`: kernel preserved, `λ_max(Δ̂) ≤ 2`, filter gain ≤ 1 | 1e-9 |
+| T-H6 | Under `exp`: no `θ_γ` parameter; `b` is in the scalar optimizer group; `sigmoid_gamma` reproduces the D12 goldens bit for bit | exact |
+| T-H7 | Ladder invariances: perturb an intermediate node's `h₀` → `w` unchanged for `uniform`, `schema`, `endpoints`, changed for `full`; perturb an endpoint → changed for `endpoints`, `full` only; same relation sequence, different nodes → equal `w` under `schema`; parameter counts `endpoints` vs `full` within 5 % | exact / 5 % |
+| T-H8 | Length-neutral initialisation: with constant `g`, the expected total cell weight per anchor is equal across lengths on a fixture without dead ends | 4 s.e. |
+| T-H9 | Determinism: same seed → identical cells and `m_f`; training draws differ across epochs; the evaluation draw is identical across all ladder arms and both proposals | exact |
+| T-H10 | Cost shape: sampling time grows linearly in `r` (3 values, R² ≥ 0.98) and has no Python loop over anchors, walks or signatures (inspect; state the evidence) | — |
+| T-H11 | Read-outs: `Σ_π I_π = Σ_σ I_σ = 1`; the pair decomposition reproduces each cell's energy (Prop. K); `ΔL_σ` of a schema absent from the draw is 0 | 1e-10 |
+
+**Mutation check (5):** remove the IS ratio → T-H2 fails; allow revisits → T-H1 fails; per-step mixture → T-H3 fails; feed an intermediate to the `endpoints` arm → T-H7 fails; drop the summed merge (keep one weight per distinct cell) → T-H2 fails.
+
+### Rules
+- Comparison arms (`path_source: schemas`, every `path_weight_input` other than `full`, `no_path_cells`, `endpoint_edges`, `holonomy_edges`, `free_path_maps`, `sigmoid_gamma`) are evidence, never tuned, never defaults.
+- No clamping of `g` or `w_f`, no floors on `q`, no thresholds on schemas. If the max log-weight exceeds 30 in H6, stop and diagnose; do not clamp.
+- Nothing from labels, validation or a trained model may enter the target `p`. `q` may use the model's previous-epoch weights (variance only); the evaluation draw uses `p` only.
+- No schema list may filter candidates. A partial schema list as a prior inside `q` is out of scope.
+- Save long output to `../docs/WISP_evidence/`; full suite once per unit.
+
+### Adversarial self-review checklist (WISP)
+- [ ] `p(ω)` is computed from the exact available-action and unvisited-neighbour counts, not approximations, and matches enumeration (T-H1).
+- [ ] The mixture is per walk; the ratio uses `½p + ½q` of the realised walk (T-H3 control fails as expected).
+- [ ] The evaluation draw ignores `q` and the trained model; arms share it (T-H9).
+- [ ] γ is gone under `exp` and not silently re-introduced (e.g. via `gamma_init` or a constant multiplier).
+- [ ] `endpoints` sees no intermediate through any path other than the geometry context `c` (state what `c` contains).
+- [ ] Read-out code cannot change training (no shared mutable state; read-outs run on a frozen checkpoint).
+- [ ] Every test would fail if its property were broken (state how you know).
+
+### Stop conditions
+A precondition fails; T-H1, T-H2 or T-H3 fails after 3 diagnosed attempts; the H3 or H6 gate is missed (report, keep the safer default); max log-weight > 30; an S1/S2 expectation is missed (report with diagnosis; no redesign inside this card); a needed change falls outside this card.
+
+Commit per unit on `wisp`; do not push until the author has read the H7 report.

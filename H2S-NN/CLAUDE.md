@@ -712,6 +712,12 @@ Context documents in the same folder: `../docs/critical_reviewer_reviews.md` (th
 `../docs/h2snn_manuscript_paper.pdf` and `../docs/h2snn_manuscript_material.pdf` (the submitted
 version). The manuscript source is `paper/h2snn_manuscript.tex`.
 
+**Advisor report (`../docs/advisor_report/`).** A progress report written for the author's advisor,
+explaining the revision to a reader who does not work in the code. It is **not** a source of truth
+and **must not be edited, regenerated or refreshed unless the author explicitly asks for an update**.
+Code, plan or task-report changes are not a reason to touch it. When asked, follow
+`../docs/advisor_report/README.md` (audience, structure, number traceability, rendering).
+
 ### Evidence tags
 
 Tag every non-trivial claim with exactly one of: `VERIFIED-CODE` (give `file:line`),
@@ -747,6 +753,15 @@ kept: training positives are both in the message graph and supervised).
 - Results produced before the revision (v1 runs, old W&B sweeps, manuscript tables) do not
   validate the current model. Never quote them as its evidence.
 - Label every baseline number rerun / published† / quoted‡ and trace it to an artifact (D5).
+- No design conclusions from untuned cross-model comparisons. Our models are untuned until the
+  cluster protocol; baselines (R-GCN, GCN, SimpleHGN, HetSheaf, ...) use published or tuned
+  configurations. A gap between H2S-NN and another model (e.g. "feature-free R-GCN beats H2S-NN
+  by 5-10 points") is not evidence that any H2S-NN component, design choice or hypothesis is
+  wrong, and must not be presented as a deficit, a "real problem", a risk or a reason to change,
+  delay or gate the design. Report such numbers only as context, labelled "untuned vs tuned; not
+  a design signal". Design conclusions may come only from ablations of the same model under the
+  same settings and budget (switch one component on/off, everything else identical), from
+  known-answer tests, or from tuned comparisons under the frozen protocol.
 - Config loading is strict: every section rejects unknown keys, so old v1/AMPSS configs and
   checkpoints fail loudly. Do not add compatibility shims for them.
 - Forbidden fixes: loosening tolerances, deleting or skipping tests, catching and silencing

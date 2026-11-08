@@ -62,6 +62,8 @@ The planning documents live in `../docs/` (from `H2S-NN/`).
 
 Context: `../docs/critical_reviewer_reviews.md` (reviews); `../docs/h2snn_manuscript_paper.pdf` and `../docs/h2snn_manuscript_material.pdf` (submitted version); manuscript source in `paper/`.
 
+Advisor report (`../docs/advisor_report/`): a progress report written for the author's advisor, not a source of truth. Do not edit, regenerate or refresh it unless the author explicitly asks for an update; code, plan or task-report changes are not a reason to touch it. When asked, follow `../docs/advisor_report/README.md`.
+
 ### Decisions
 
 | ID | Decision | State |
@@ -83,6 +85,7 @@ A sheaf-consistency link decoder; per-relation / per-schema energy features for 
 - Never invent file paths, functions, APIs, config keys, numbers, citations or results. Confirm an API exists in the `h2snn` environment before using it.
 - No long training jobs, sweeps or multi-seed experiments without explicit approval. Short smoke tests and microbenchmarks are fine.
 - Results produced before the revision do not validate the current model. Label every baseline number rerun / published / quoted and trace it to an artifact.
+- **No design conclusions from untuned cross-model comparisons.** Our models are untuned until the cluster protocol; baselines (R-GCN, GCN, SimpleHGN, HetSheaf, ...) use published or tuned configurations. A gap between H2S-NN and another model (e.g. "feature-free R-GCN beats H2S-NN by 5-10 points") is not evidence that any H2S-NN component, design choice or hypothesis is wrong, and must not be presented as a deficit, a "real problem", a risk or a reason to change, delay or gate the design. Report such numbers only as context, labelled "untuned vs tuned; not a design signal". Design conclusions may come only from ablations of the same model under the same settings and budget (switch one component on/off, everything else identical), from known-answer tests, or from tuned comparisons under the frozen protocol.
 - Config loading is strict: every section rejects unknown keys, so old v1/AMPSS configs and checkpoints fail loudly. Do not add compatibility shims.
 - Forbidden fixes: loosening tolerances, deleting or skipping tests, silencing exceptions, special-casing test inputs, editing the spec to fit the code.
 - Stay inside the task card's scope; list out-of-scope problems instead of fixing them. Do not commit or push unless asked.

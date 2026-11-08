@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-08).** Do not implement from this card. The D2 mechanism is **WISP** (methodology spec v1.3 §3.2; task card Part H in `H2S-NN_agent_prompt.md`; plan D2 row and §2.5). This file is kept as history only.
+
 # H2S-NN Agent Prompt — Part E: task card D2 (meta-path discovery inside H2S-NN)
 
 Use with **Part A** of `H2S-NN_agent_prompt.md` (role, evidence rules, self-correction loop, report format). Part A's rules apply unchanged.
