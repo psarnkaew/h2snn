@@ -1,0 +1,29 @@
+# H6 LP smoke on amazonbook, path_weight exp, rerun with CUDA_LAUNCH_BLOCKING=1 (tail of the log)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 256, in forward
+    return self.activation(gathered_linear(self.input_proj[key], blocks))
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\sheaf_maps.py", line 56, in gathered_linear
+    output = projected if output is None else output + projected
+                                              ~~~~~~~^~~~~~~~~~~
+RuntimeError: CUDA error: out of memory
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+# Control: same run with path_weight sigmoid_gamma (pre-Part-H behaviour), CUDA_LAUNCH_BLOCKING=1
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 727, in _path_latent
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 728, in <lambda>
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 256, in forward
+RuntimeError: CUDA error: out of memory
+
+# CPU attempt (amazonbook_lp_exp_cpu, path_weight exp, device cpu)
+# The process ended with a segmentation fault (exit 139) after the fact layer
+# (facts_before 4,761,460, facts_after 2,380,730), before epoch 0 was logged.
+# Host memory right after: 15.7 GB physical, 1.3 GB available (psutil), commit 46.5 / 63.6 GB;
+# no process of this session alive. Diagnosis: host memory exhaustion (UNVERIFIED as the cause;
+# the segfault has no Python traceback). Not retried.
+# Test-level evidence that LP runs with path_weight exp (the default): tests/test_task_heads.py
+# LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder
+# (one training step, finite loss, gradients reach path_gate), run in the full suite.
