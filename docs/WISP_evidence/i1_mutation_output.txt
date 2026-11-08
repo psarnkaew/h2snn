@@ -1,0 +1,13 @@
+far-end off-by-one in the endpoints encoder (review MINOR-6): CAUGHT (FAILED (failures=5))
+    FAIL: test_TH7_intermediate_and_its_neighbourhood_under_the_default_context (tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourho
+    FAIL: test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately) (length=2, positio
+    FAIL: test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately) (length=2, positio
+    FAIL: test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately) (length=3, positio
+    FAIL: test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately) (length=3, positio
+g reads [h0, c] by default (the v1.3 input): CAUGHT (FAILED (failures=7))
+    FAIL: test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix (tests.test_wisp.WispLadderTests.test_TH7_a_node_outside_the_instance_reach
+    FAIL: test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix (tests.test_wisp.WispLadderTests.test_TH7_a_node_outside_the_instance_reach
+    FAIL: test_TH7_intermediate_and_its_neighbourhood_under_the_default_context (tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourho
+    FAIL: test_TH7_intermediate_and_its_neighbourhood_under_the_default_context (tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourho
+    FAIL: test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch (tests.test_wisp.WispLadderTests.test_TH7_intermediate_reaches_endpoints_
+    FAIL: test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately) (length=2, positio

@@ -76,7 +76,7 @@ MUTATIONS = {
     "per_step_mixture": (per_step_mixture,
                          "tests.test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control"),
     "endpoints_sees_intermediate": (endpoints_sees_intermediate,
-                                    "tests.test_wisp.WispLadderTests.test_TH7_intermediate_perturbation"),
+                                    "tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourhood_under_the_default_context"),
 }
 
 

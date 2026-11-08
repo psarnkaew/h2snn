@@ -35,7 +35,7 @@ ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
 NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length", "path_weight",
                                            "path_weight_init", "path_weight_input",
-                                           "wisp_proposal")
+                                           "wisp_proposal", "path_weight_context")
 # Part H3: q = p ("uniform") or the adaptive defensive proposal (variance only; fixed by a gate).
 WISP_PROPOSALS: tuple[str, ...] = ("uniform", "adaptive")
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
@@ -92,6 +92,11 @@ def reject_never_tuned_settings(
             "ablation.path_weight_input other than full is a C2 ladder arm and must not be used in "
             "tuning."
         )
+    if ((raw_config or {}).get("ablation") or {}).get("path_weight_context", False) is not False:
+        raise ValueError(
+            "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
+            "and must not be used in tuning."
+        )
     for name in search_parameters:
         # exact last component: `model.encoder_dropout` is an ordinary hyperparameter
         if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
@@ -106,9 +111,9 @@ def reject_never_tuned_settings(
             )
         if str(name).split(".")[-1] in NEVER_TUNED_WISP_KEYS:
             raise ValueError(
-                f"tuning search space contains {name!r}: the WISP settings (path_source, "
-                "wisp_max_length, path_weight, path_weight_init, path_weight_input) are "
-                "pre-registered or comparison arms, never tuned (spec v1.3 §6)."
+                f"tuning search space contains {name!r}: the WISP settings "
+                f"({', '.join(NEVER_TUNED_WISP_KEYS)}) are pre-registered or comparison arms, "
+                "never tuned (spec v1.4 §6)."
             )
         if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
             raise ValueError(
@@ -828,6 +833,10 @@ class AblationConfig:
     # or 1 under sigmoid_gamma: the former `uniform_path_gate`). Same cells, same transports.
     # Never tuned.
     path_weight_input: str = "full"
+    # Spec v1.4 (E1-E2, R12): g reads each instance node's own h0 (false, the model), or the
+    # v1.3 input [h0, c] (true: the appendix pair, full and endpoints only; needs
+    # geometry_context). Maps and gates read [h0, c] either way. Never tuned.
+    path_weight_context: bool = False
     # D1's per-incidence conformal scales instead of one scale per edge (D1a).
     per_side_scale: bool = False
     # Read out from h0 only (sanity control: is diffusion used at all?).
@@ -877,6 +886,14 @@ class AblationConfig:
                 "ablation.path_weight_input restricts g on identical cells (the C2 ladder); it "
                 "cannot be combined with no_path_cells, free_path_maps, endpoint_edges or "
                 "holonomy_edges."
+            )
+        if self.path_weight_context and (
+            self.no_path_cells or self.path_weight_input not in ("full", "endpoints")
+        ):
+            raise ValueError(
+                "ablation.path_weight_context (g reads [h0, c], the spec v1.4 appendix pair) needs "
+                "path cells and path_weight_input full or endpoints; schema and uniform read no "
+                "node at all."
             )
         if self.identity_maps and (
             not self.no_path_cells or self.h0_only_readout or self.coupling == "pair_attention"
@@ -976,6 +993,13 @@ class TrainConfig:
     wandb_group: str = ""
     wandb_tags: tuple[str, ...] = field(default_factory=tuple)
     wandb_log_artifacts: bool = False
+
+    def __post_init__(self) -> None:
+        if self.ablation.path_weight_context and not self.model.geometry_context:
+            raise ValueError(
+                "ablation.path_weight_context lets g read [h0, c]; c exists only under "
+                "model.geometry_context: true."
+            )
 
     @property
     def exp_dir(self) -> Path:

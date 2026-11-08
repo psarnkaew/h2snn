@@ -336,7 +336,7 @@ class WispWeightOperatorTests(unittest.TestCase):
 
 
 def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "exp",
-                  d: int = 4):
+                  d: int = 4, path_weight_context: bool = False):
     from src.configs.config import TrainConfig
     from src.models.h2snn_model import H2SNN, ModelDims
 
@@ -345,7 +345,7 @@ def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "e
         "model": {"d": d, "d_r": 2, "K": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
                   "edge_mlp_hidden_dim": 8, "geometry_context": geometry_context,
                   "path_weight": path_weight},
-        "ablation": {"path_weight_input": arm},
+        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context},
     })
     dims = ModelDims(in_channels=5, num_node_types=3, num_relations=4, num_classes=2,
                      face_lengths=(2, 3), self_inverse_relations=SELF_INVERSE, path_actions=True)
@@ -366,9 +366,36 @@ class WispLadderTests(unittest.TestCase):
         self.groups = _fixture_groups()
         self.group = next(g for g in self.groups if g.length == 3)
 
-    def _weights(self, model, geometry):
-        latent = model._path_latent(geometry, self.group)
-        return model._path_weights(latent, self.group, geometry)
+    def _weights(self, model, h0):
+        """w_f of `self.group` through the production path (build_operator) from node states h0."""
+        with torch.no_grad():
+            operator = model.build_operator(h0, EDGE_INDEX, EDGE_TYPE, self.groups, 8)
+        nonempty = [g for g in self.groups if g.num_faces]
+        return operator.path_weights[nonempty.index(self.group)]
+
+    def _weights_of(self, model, h0, group):
+        self.group, previous = group, self.group
+        try:
+            return self._weights(model, h0)
+        finally:
+            self.group = previous
+
+    @staticmethod
+    def _h0(model, seed):
+        return torch.randn(8, model.d, dtype=torch.float64,
+                           generator=torch.Generator().manual_seed(seed))
+
+    @staticmethod
+    def _outside_neighbours(of, cell):
+        """Neighbours of the nodes `of` that are not nodes of the cell."""
+        of, cell = set(of), set(cell)
+        out = set()
+        for u, v in EDGE_INDEX.t().tolist():
+            if u in of and v not in cell:
+                out.add(v)
+            if v in of and u not in cell:
+                out.add(u)
+        return out
 
     def test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter(self) -> None:
         from src.builders import build_parameter_groups
@@ -423,22 +450,67 @@ class WispLadderTests(unittest.TestCase):
         self.assertTrue(torch.equal(system.laplacian.degree(),
                                     system.laplacian.edge_degree() + path))
 
-    def test_TH7_intermediate_perturbation(self) -> None:
+    def test_TH7_intermediate_and_its_neighbourhood_under_the_default_context(self) -> None:
+        """Spec v1.4 (R12), under geometry_context: true (the default): perturbing an
+        intermediate's h0 and the h0 of all its neighbours outside the instance leaves the
+        endpoints, schema and uniform weights unchanged and changes full's."""
         cell = 0
-        middle = int(self.group.face_node_index[cell, 1])
+        nodes = self.group.face_node_index[cell].tolist()
+        for position in range(1, len(nodes) - 1):
+            moved_nodes = {nodes[position]} | self._outside_neighbours([nodes[position]], nodes)
+            for arm in ARMS:
+                with self.subTest(position=position, arm=arm):
+                    model = _ladder_model(arm)
+                    self.assertIsNotNone(model.relational_context, "the default context is on")
+                    h0 = self._h0(model, 2)
+                    moved = h0.clone()
+                    moved[sorted(moved_nodes)] += 1.0
+                    before = self._weights(model, h0)[cell]
+                    after = self._weights(model, moved)[cell]
+                    if arm == "full":
+                        self.assertNotEqual(float(before), float(after), "full sees the intermediate")
+                    else:
+                        self.assertEqual(float(before), float(after), f"{arm} must not see it")
+
+    def test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix(self) -> None:
+        """g reads instance nodes only: a neighbour of the endpoints outside the cell changes no
+        arm's weight. Control (spec v1.4 appendix pair, path_weight_context: true): it reaches
+        full and endpoints through the endpoints' context c."""
+        cell = 0
+        nodes = self.group.face_node_index[cell].tolist()
+        outside = sorted(self._outside_neighbours([nodes[0], nodes[-1]], nodes))
+        self.assertTrue(outside, "fixture: an endpoint has a neighbour outside the cell")
         for arm in ARMS:
-            with self.subTest(arm=arm):
-                model = _ladder_model(arm)
-                geometry = torch.randn(8, model.geometry_dim, dtype=torch.float64,
-                                       generator=torch.Generator().manual_seed(2))
-                before = self._weights(model, geometry)[cell]
-                moved = geometry.clone()
-                moved[middle] += 1.0
-                after = self._weights(model, moved)[cell]
-                if arm == "full":
-                    self.assertNotEqual(float(before), float(after), "full sees the intermediate")
-                else:
-                    self.assertEqual(float(before), float(after), f"{arm} must not see it")
+            for appendix in ((False, True) if arm in ("full", "endpoints") else (False,)):
+                with self.subTest(arm=arm, path_weight_context=appendix):
+                    model = _ladder_model(arm, path_weight_context=appendix)
+                    h0 = self._h0(model, 5)
+                    moved = h0.clone()
+                    moved[outside] += 1.0
+                    changed = float(self._weights(model, h0)[cell]) != float(
+                        self._weights(model, moved)[cell])
+                    self.assertEqual(changed, appendix, (arm, appendix))
+
+    def test_TH7_positions_l_minus_1_and_l_separately(self) -> None:
+        """Review MINOR-6: v_{l-1} (an intermediate) must not reach endpoints, v_l must; full sees
+        both; schema and uniform see neither. On length-2 and length-3 cells."""
+        for group in self.groups:
+            if group.num_faces == 0:
+                continue
+            nodes = group.face_node_index[0].tolist()
+            length = len(nodes) - 1
+            for position, endpoints_sees in ((length - 1, False), (length, True)):
+                for arm in ARMS:
+                    with self.subTest(length=length, position=position, arm=arm):
+                        model = _ladder_model(arm)
+                        h0 = self._h0(model, 7)
+                        moved = h0.clone()
+                        moved[nodes[position]] += 1.0
+                        changed = float(self._weights_of(model, h0, group)[0]) != float(
+                            self._weights_of(model, moved, group)[0])
+                        expected = {"full": True, "endpoints": endpoints_sees,
+                                    "schema": False, "uniform": False}[arm]
+                        self.assertEqual(changed, expected)
 
     def test_TH7_endpoint_perturbation_and_schema_equality(self) -> None:
         cell = 0
@@ -446,10 +518,9 @@ class WispLadderTests(unittest.TestCase):
         for arm in ARMS:
             with self.subTest(arm=arm):
                 model = _ladder_model(arm)
-                geometry = torch.randn(8, model.geometry_dim, dtype=torch.float64,
-                                       generator=torch.Generator().manual_seed(3))
-                before = self._weights(model, geometry)
-                moved = geometry.clone()
+                h0 = self._h0(model, 3)
+                before = self._weights(model, h0)
+                moved = h0.clone()
                 moved[start] += 1.0
                 after = self._weights(model, moved)
                 changed = float(before[cell]) != float(after[cell])
@@ -465,21 +536,23 @@ class WispLadderTests(unittest.TestCase):
                     for i, j in same:
                         self.assertEqual(float(before[i]), float(before[j]))
 
-    def test_TH7_context_off_h0_perturbation_and_context_on_control(self) -> None:
-        """(b) geometry_context false: perturbing an intermediate's h0 leaves the endpoints
-        weight unchanged. Control: with the context on it changes (c of the endpoints contains
-        the intermediate's h0: the only channel)."""
+    def test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch(self) -> None:
+        """The v1.3 behaviour is the appendix pair: with path_weight_context: true an
+        intermediate's h0 reaches the endpoints weight through c; with the context off entirely
+        (geometry_context: false) g reads h0 either way and it does not."""
         cell = 0
         middle = int(self.group.face_node_index[cell, 1])
-        for context, expect_change in ((False, False), (True, True)):
-            with self.subTest(context=context):
-                model = _ladder_model("endpoints", geometry_context=context)
-                h0 = torch.randn(8, model.d, dtype=torch.float64,
-                                 generator=torch.Generator().manual_seed(4))
+        for context, appendix, expect_change in ((True, True, True), (True, False, False),
+                                                 (False, False, False)):
+            with self.subTest(geometry_context=context, path_weight_context=appendix):
+                model = _ladder_model("endpoints", geometry_context=context,
+                                      path_weight_context=appendix)
+                self.assertEqual(model.path_input_dim,
+                                 model.geometry_dim if appendix else model.d)
+                h0 = self._h0(model, 4)
                 moved = h0.clone()
                 moved[middle] += 1.0
-                w = [self._weights(model, model.geometry_inputs(h, EDGE_INDEX, EDGE_TYPE))[cell]
-                     for h in (h0, moved)]
+                w = [self._weights(model, h)[cell] for h in (h0, moved)]
                 self.assertEqual(float(w[0]) != float(w[1]), expect_change)
 
     def test_TH7_capacity_rule_endpoints_vs_full_within_5_percent(self) -> None:
@@ -487,10 +560,34 @@ class WispLadderTests(unittest.TestCase):
             modules = [m for m in (model.path_encoder, model.path_gate) if m is not None]
             return sum(p.numel() for m in modules for p in m.parameters())
 
-        for context in (True, False):
-            full = g_params(_ladder_model("full", geometry_context=context))
-            endpoints = g_params(_ladder_model("endpoints", geometry_context=context))
-            self.assertLessEqual(abs(endpoints - full) / full, 0.05, (context, full, endpoints))
+        for context, appendix in ((True, False), (False, False), (True, True)):
+            full = g_params(_ladder_model("full", geometry_context=context,
+                                          path_weight_context=appendix))
+            endpoints = g_params(_ladder_model("endpoints", geometry_context=context,
+                                               path_weight_context=appendix))
+            self.assertLessEqual(abs(endpoints - full) / full, 0.05,
+                                 (context, appendix, full, endpoints))
+
+    def test_path_weight_context_is_an_appendix_arm_never_tuned(self) -> None:
+        from src.configs.config import TrainConfig, reject_never_tuned_settings
+
+        bad = [({"model": {"geometry_context": False}}, {"path_weight_context": True}),
+               ({}, {"path_weight_context": True, "path_weight_input": "schema"}),
+               ({}, {"path_weight_context": True, "path_weight_input": "uniform"}),
+               ({}, {"path_weight_context": True, "no_path_cells": True}),
+               ({}, {"path_weight_context": "true"})]
+        for extra, ablation in bad:
+            with self.subTest(extra=extra, ablation=ablation), self.assertRaises(ValueError):
+                TrainConfig.from_dict({**extra, "ablation": ablation})
+        for arm in ("full", "endpoints"):  # the appendix pair loads
+            TrainConfig.from_dict({"ablation": {"path_weight_context": True,
+                                                "path_weight_input": arm}})
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings({"ablation": {"path_weight_context": True}})
+        for name in ("ablation.path_weight_context", "path_weight_context"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                reject_never_tuned_settings({}, [name])
+        reject_never_tuned_settings({"ablation": {"path_weight_context": False}})
 
     def test_TH8_length_neutral_initialisation(self) -> None:
         """Constant g (`uniform`): the expected total cell weight per anchor is equal across

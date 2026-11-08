@@ -1130,9 +1130,11 @@ class AblationTests(unittest.TestCase):
                 N = self.data.num_nodes
                 with torch.no_grad():
                     terms, _ = model.path_terms(h0, maps, self.data.edge_index,
-                                                self.data.face_groups)
-                    terms_moved, _ = model.path_terms(h0_moved, maps, self.data.edge_index,
-                                                      self.data.face_groups)
+                                                self.data.face_groups,
+                                                path_input=model.path_inputs(h0, h0))
+                    terms_moved, _ = model.path_terms(
+                        h0_moved, maps, self.data.edge_index, self.data.face_groups,
+                        path_input=model.path_inputs(h0_moved, h0_moved))
                     base = sum(term.apply(x, N) for term in terms)
                     via_h0 = sum(term.apply(x, N) for term in terms_moved)
                     via_x = sum(term.apply(x_moved, N) for term in terms)

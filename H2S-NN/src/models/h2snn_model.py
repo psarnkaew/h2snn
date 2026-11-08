@@ -220,7 +220,8 @@ class PathEncoder(nn.Module):
 
     def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
                  factored_inputs: bool = False) -> None:
-        """`d`: width of the per-node input (`h0`, or `[h0, c]` under `geometry_context`).
+        """`d`: width of the per-node input (`h0`; `[h0, c]` only under the spec v1.4 appendix
+        switch `ablation.path_weight_context`).
         `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions).
         `factored_inputs`: project per node, then gather (`gathered_linear`; D12, R7)."""
         super().__init__()
@@ -548,6 +549,11 @@ class H2SNN(nn.Module):
         # the C2 ladder restricts the inputs of g on identical cells.
         self.path_weight = model_config.path_weight
         self.path_weight_input = ablation.path_weight_input
+        # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0;
+        # [h0, c] only under the appendix switch. Maps and gates keep geometry_dim.
+        self.path_weight_context = ablation.path_weight_context
+        path_input_dim = geometry_dim if self.path_weight_context else d
+        self.path_input_dim = path_input_dim
         self.path_actions = dims.path_actions
         hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
         if self.use_path_cells:
@@ -558,7 +564,7 @@ class H2SNN(nn.Module):
             hidden = model_config.face_mlp_hidden_dim
             if self.path_mode == "endpoint_edges":
                 # No intermediate node enters: neither the maps nor the gate see them.
-                self.path_encoder = EndpointEncoder(geometry_dim, hop_dim, hidden,
+                self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
                                                     dims.face_lengths,
                                                     factored_inputs=model_config.geometry_context)
                 self.endpoint_maps = EndpointEdgeMaps(
@@ -567,12 +573,12 @@ class H2SNN(nn.Module):
                     orthogonal_map=model_config.orthogonal_map,
                 )
             elif self.free_path_maps or self.path_weight_input == "full":
-                self.path_encoder = PathEncoder(geometry_dim, hop_dim, hidden,
+                self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden,
                                                 dims.face_lengths,
                                                 factored_inputs=model_config.geometry_context)
             elif self.path_weight_input == "endpoints":
-                hidden = endpoint_hidden_width(hidden, geometry_dim, hop_dim, dims.face_lengths)
-                self.path_encoder = EndpointEncoder(geometry_dim, hop_dim, hidden,
+                hidden = endpoint_hidden_width(hidden, path_input_dim, hop_dim, dims.face_lengths)
+                self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
                                                     dims.face_lengths,
                                                     factored_inputs=model_config.geometry_context)
             elif self.path_weight_input == "schema":
@@ -719,6 +725,11 @@ class H2SNN(nn.Module):
             return h0
         return torch.cat([h0, self.relational_context(h0, edge_index, edge_type)], dim=-1)
 
+    def path_inputs(self, h0: torch.Tensor, geometry: torch.Tensor) -> torch.Tensor:
+        """The per-node input of g (spec v1.4 R12): each node's own h0, or the v1.3 geometry
+        [h0, c] under `ablation.path_weight_context` (appendix pair)."""
+        return geometry if self.path_weight_context else h0
+
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
         """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
         if self.path_encoder is None:
@@ -768,16 +779,19 @@ class H2SNN(nn.Module):
         maps: EdgeMapPair,
         edge_index: torch.Tensor,
         face_groups: tuple[FaceGroup, ...],
+        *,
+        path_input: torch.Tensor,
     ) -> tuple[tuple[PathTerm, ...], tuple[torch.Tensor, ...]]:
         """One coupling term per face group, per the ablation switches, and its `w_f`. `h0` is the
-        per-node geometry input (`geometry_inputs`: `[h0, c]` under `geometry_context`)."""
+        per-node geometry input (`geometry_inputs`: `[h0, c]` under `geometry_context`; the free
+        maps' node input); `path_input` is g's per-node input (`path_inputs`, spec v1.4 R12)."""
         terms: list[PathTerm] = []
         weights: list[torch.Tensor] = []
         shared = self.map_scale == "per_edge"
         for group in face_groups:
             if group.num_faces == 0:
                 continue
-            latent = self._path_latent(h0, group)
+            latent = self._path_latent(path_input, group)
             group_weights = self._path_weights(latent, group, h0)
             gate_weights = group_weights
             if group.path_weight is not None:  # merged weight m_f, in both L_P and D (D8)
@@ -823,7 +837,8 @@ class H2SNN(nn.Module):
                     maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
                     shared_scale=True, face_edge_sign=group.face_edge_sign,
                 ))
-                latents.append(self._path_latent(h0 if geometry is None else geometry, group))
+                latents.append(self._path_latent(
+                    self.path_inputs(h0, h0 if geometry is None else geometry), group))
                 merged = group.path_weight
                 log_merged.append(h0.new_zeros(group.num_faces) if merged is None
                                   else merged.to(h0.dtype).clamp_min(1e-30).log())
@@ -873,7 +888,8 @@ class H2SNN(nn.Module):
         terms: tuple[PathTerm, ...] = ()
         weights: tuple[torch.Tensor, ...] = ()
         if self.use_path_cells:
-            terms, weights = self.path_terms(geometry, maps, edge_index, face_groups)
+            terms, weights = self.path_terms(geometry, maps, edge_index, face_groups,
+                                             path_input=self.path_inputs(h0, geometry))
         if weights:
             if self.training:  # the adaptive proposal's input for the next epoch (Part H3)
                 self.last_path_weights = tuple(w.detach() for w in weights)
