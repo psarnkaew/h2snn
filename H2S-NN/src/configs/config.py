@@ -347,6 +347,10 @@ class DataConfig:
     # Training draws from 1/2 p + 1/2 q with q from the previous epoch's path mass ("adaptive",
     # Part H3) or q = p ("uniform"); the evaluation draw always uses p. Never tuned.
     wisp_proposal: str = "uniform"
+    # Part I (I6): build epoch e+1's training draw in a worker thread while epoch e trains
+    # (node-classification trainer, resample_paths only). Changes no result: the seed schedule
+    # and the proposal inputs are those of the sequential path (bit-identity test).
+    overlap_sampling: bool = True
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -385,6 +389,9 @@ class DataConfig:
             raise ValueError(
                 f"data.wisp_proposal must be one of {WISP_PROPOSALS}, got {self.wisp_proposal!r}."
             )
+        if not isinstance(self.overlap_sampling, bool):
+            raise ValueError(
+                f"data.overlap_sampling must be a boolean, got {self.overlap_sampling!r}.")
         if self.path_source == "schemas" and (
             self.wisp_max_length != 4 or self.wisp_walks_per_anchor != 0
             or self.wisp_proposal != "uniform"
@@ -425,6 +432,8 @@ class DataConfig:
             wisp_max_length=int(raw.get("wisp_max_length", 4)),
             wisp_walks_per_anchor=int(raw.get("wisp_walks_per_anchor", 0)),
             wisp_proposal=str(raw.get("wisp_proposal", "uniform")),
+            # Not cast with bool(): a string such as "false" must fail validation.
+            overlap_sampling=raw.get("overlap_sampling", True),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -533,6 +542,9 @@ class DataConfig:
                 f"data.feature_normalization must be one of {FEATURE_NORMALIZATIONS}, "
                 f"got {self.feature_normalization!r}."
             )
+        if not self.overlap_sampling and task_type != "node_classification":
+            raise ValueError("data.overlap_sampling belongs to the node-classification trainer; "
+                             "link prediction and graph classification do not read it.")
         if self.feature_normalization != "none" and task_type != "node_classification":
             raise ValueError("data.feature_normalization is implemented for node classification only.")
 

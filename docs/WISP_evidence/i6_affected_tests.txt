@@ -1,0 +1,11 @@
+.......C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+....................................2026-11-09 03:51:32,229 | INFO | Epoch 0000 | train_loss: 1.2257 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1905 | train_micro_f1: 0.2500 | val_loss: 1.2049 | val_acc: 0.1250 | val_auroc: 0.0000 | val_macro_f1: 0.0741 | val_micro_f1: 0.1250 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750
+2026-11-09 03:51:32,240 | INFO | Checkpoint metric acc: 0.1250
+2026-11-09 03:51:32,240 | INFO | Best epoch 0 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750 | test_acc: 0.3750
+.
+----------------------------------------------------------------------
+Ran 44 tests in 95.994s
+
+OK
+exit 0

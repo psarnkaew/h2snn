@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import time
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import replace
 from collections.abc import Callable
 from typing import Any
@@ -43,27 +45,30 @@ class Trainer:
         self._best_test_metrics: dict[str, float] | None = None
         self._best_epoch: int = -1
         self._previous_draw = None  # the last training draw (CPU), for the adaptive proposal
+        # Part I (I6): seconds the main thread spent obtaining each epoch's training draw (the
+        # CPU build when not prefetched, else the wait for the prefetch, plus the device copy).
+        self.draw_wait_seconds: list[float] = []
 
-    def training_draw(self, data: PreparedH2SData, prepared_data: PreparedH2SData,
-                      epoch: int) -> PreparedH2SData:
-        """Data for one training epoch: the evaluation draw (seed `cfg.seed`, built with the
-        data) or, with `data.resample_paths`, a fresh draw with seed `cfg.seed + epoch`,
-        built on the CPU copy `data` and moved to the device (plan §9.2)."""
-        if not self.cfg.data.resample_paths:
-            return prepared_data
-        from src.data.dataset import build_node_classification_paths  # resampling only
-
-        proposal = None
+    def _draw_proposal(self, data: PreparedH2SData):
+        """The adaptive proposal for the next training draw, or None (q = p). Main thread only:
+        it reads the previous draw and the last training forward's w_f (Part H3)."""
         if (self.cfg.data.wisp_proposal == "adaptive" and self._previous_draw is not None
                 and getattr(self.model, "last_path_weights", ())):
-            # Part H3: q from the previous epoch's path mass w_f m_f (detached; variance only).
+            # q from the previous epoch's path mass w_f m_f (detached; variance only).
             from src.data.wisp_sampler import count_actions, proposal_from_mass
 
-            proposal = proposal_from_mass(
+            return proposal_from_mass(
                 self._previous_draw, self.model.last_path_weights, data.node_type,
                 len(data.node_type_names), count_actions(data.edge_type, data.fact_layer.self_inverse),
                 self.cfg.data.wisp_max_length, data.fact_layer.self_inverse)
-        groups = build_node_classification_paths(
+        return None
+
+    def _draw_groups(self, data: PreparedH2SData, epoch: int, proposal) -> tuple:
+        """CPU cells of epoch `epoch`'s training draw (seed `cfg.seed + epoch`). Pure: reads the
+        CPU data and the given proposal and changes no trainer state (it may run in the worker)."""
+        from src.data.dataset import build_node_classification_paths  # resampling only
+
+        return build_node_classification_paths(
             config=self.cfg,
             fact_layer=data.fact_layer,
             node_slices=data.node_slices,
@@ -75,9 +80,22 @@ class Trainer:
             seed=self.cfg.seed + epoch,
             proposal=proposal,
         )
+
+    def training_draw(self, data: PreparedH2SData, prepared_data: PreparedH2SData,
+                      epoch: int, pending: "Future | None" = None) -> PreparedH2SData:
+        """Data for one training epoch: the evaluation draw (seed `cfg.seed`, built with the
+        data) or, with `data.resample_paths`, a fresh draw with seed `cfg.seed + epoch` built on
+        the CPU copy `data` (now, or prefetched by the worker: `pending`) and moved to the
+        device (plan §9.2)."""
+        if not self.cfg.data.resample_paths:
+            return prepared_data
+        start = time.perf_counter()
+        groups = (self._draw_groups(data, epoch, self._draw_proposal(data)) if pending is None
+                  else pending.result())
         self._previous_draw = groups
-        return replace(prepared_data,
-                       face_groups=tuple(group.to(self.device) for group in groups))
+        out = replace(prepared_data, face_groups=tuple(group.to(self.device) for group in groups))
+        self.draw_wait_seconds.append(time.perf_counter() - start)
+        return out
 
     def fit(
         self,
@@ -91,10 +109,33 @@ class Trainer:
         prepared_data = data.to(self.device)
         if getattr(data, "fact_layer", None) is not None:
             self.logger.info("fact layer: %s", data.fact_layer.summary())
+        # Part I (I6): with resampling and `data.overlap_sampling`, one worker thread builds epoch
+        # e+1's CPU cells while epoch e trains. Seeds and proposal inputs are those of the
+        # sequential path, so cells, m_f and logits are bit-identical (test). The adaptive q needs
+        # epoch e's training forward, so that draw starts after the step (overlaps evaluation).
+        overlap = self.cfg.data.resample_paths and self.cfg.data.overlap_sampling
+        adaptive = self.cfg.data.wisp_proposal == "adaptive"
+        executor = (ThreadPoolExecutor(max_workers=1, thread_name_prefix="h2snn-draw")
+                    if overlap else None)
+        try:
+            self._run_epochs(data, prepared_data, epoch_callback, executor, adaptive)
+        finally:
+            if executor is not None:
+                executor.shutdown(wait=True, cancel_futures=True)
+
+    def _run_epochs(self, data, prepared_data, epoch_callback, executor, adaptive) -> None:
         bad_epochs = 0
+        pending: Future | None = None
+        last = self.cfg.epochs - 1
         for epoch in range(self.cfg.epochs):
-            train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
-                                              epoch)
+            train_data = self.training_draw(data, prepared_data, epoch, pending)
+            pending = None
+            if executor is not None and not adaptive and epoch < last:
+                pending = executor.submit(self._draw_groups, data, epoch + 1, None)
+            train_metrics = self._train_epoch(train_data, epoch)
+            if executor is not None and adaptive and epoch < last:
+                pending = executor.submit(self._draw_groups, data, epoch + 1,
+                                          self._draw_proposal(data))
             val_metrics = self._eval_epoch(prepared_data, prepared_data.target_val_mask, epoch)
             test_metrics = self._eval_epoch(prepared_data, prepared_data.target_test_mask, epoch)
 

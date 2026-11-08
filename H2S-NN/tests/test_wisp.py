@@ -1208,5 +1208,85 @@ class WispConfigValidationTests(unittest.TestCase):
                 reject_never_tuned_settings(base)
 
 
+
+# ============================================================================= I6: overlap
+class WispOverlapSamplingTests(unittest.TestCase):
+    """Part I (I6): drawing epoch e+1's cells in a worker while epoch e trains changes nothing.
+    For both proposals, every training draw's cells and m_f, every training logit and the final
+    parameters are bit-identical with and without overlap (a stop condition if not)."""
+
+    def _train(self, overlap: bool, proposal: str, epochs: int = 4):
+        from types import SimpleNamespace
+
+        from src.builders import build_optimizer
+        from src.configs.config import TrainConfig
+        from src.models.h2snn_model import build_model
+        from src.trainers.trainer import build_trainer
+        from tests.test_paths_and_facts import _prepared_small
+
+        cfg = TrainConfig.from_dict({
+            "device": "cpu", "seed": 7, "epochs": epochs, "log_every": 1000,
+            "model": {"d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8,
+                      "face_mlp_hidden_dim": 8, "edge_mlp_hidden_dim": 8},
+            "data": {"dataset_name": "acm", "path_source": "wisp", "wisp_max_length": 3,
+                     "wisp_walks_per_anchor": 10, "wisp_proposal": proposal,
+                     "overlap_sampling": overlap}})
+        torch.manual_seed(0)
+        data = _prepared_small(cfg)
+        torch.manual_seed(1)
+        model = build_model(cfg, data)
+        record = {"cells": [], "logits": []}
+
+        def hook(module, args, output):
+            if module.training:
+                record["cells"].append([(g.face_node_index.clone(), g.path_weight.clone())
+                                        for g in args[0].face_groups])
+                record["logits"].append(output.logits.detach().clone())
+
+        model.register_forward_hook(hook)
+        logger = SimpleNamespace(info=lambda *a, **k: None, log=lambda *a, **k: None,
+                                 log_summary=lambda *a, **k: None)
+        checkpointer = SimpleNamespace(save=lambda **k: None, save_if_best=lambda **k: False)
+        trainer = build_trainer(model=model, optimizer=build_optimizer(model, cfg), scheduler=None,
+                                cfg=cfg, logger=logger, checkpointer=checkpointer)
+        trainer.fit(data)
+        return record, {k: v.clone() for k, v in model.state_dict().items()}, trainer
+
+    def test_overlap_is_bit_identical_for_both_proposals(self) -> None:
+        for proposal in ("uniform", "adaptive"):
+            with self.subTest(proposal=proposal):
+                off, off_state, off_trainer = self._train(False, proposal)
+                on, on_state, on_trainer = self._train(True, proposal)
+                self.assertEqual(len(off["logits"]), 4)
+                self.assertEqual(len(on["logits"]), 4)
+                for epoch, (a, b) in enumerate(zip(off["cells"], on["cells"])):
+                    self.assertEqual(len(a), len(b))
+                    for (na, wa), (nb, wb) in zip(a, b):
+                        self.assertTrue(torch.equal(na, nb), (proposal, epoch))
+                        self.assertTrue(torch.equal(wa, wb), (proposal, epoch))
+                for epoch, (a, b) in enumerate(zip(off["logits"], on["logits"])):
+                    self.assertTrue(torch.equal(a, b), (proposal, epoch))
+                for name in off_state:
+                    self.assertTrue(torch.equal(off_state[name], on_state[name]), name)
+                # non-vacuity: the training draws differ across epochs, and (adaptive) q is used
+                self.assertFalse(torch.equal(off["cells"][1][0][1], off["cells"][2][0][1])
+                                 and torch.equal(off["cells"][1][0][0], off["cells"][2][0][0]))
+                self.assertEqual(len(on_trainer.draw_wait_seconds), 4)
+                if proposal == "adaptive":  # epochs >= 1 draw from 1/2 p + 1/2 q: ratios != 1
+                    scaled = torch.cat([w for _, w in on["cells"][2]]).double() * 10
+                    self.assertFalse(bool(torch.allclose(scaled, scaled.round())))
+        _, _, adaptive = self._train(True, "adaptive", epochs=2)
+        self.assertIsNotNone(adaptive._previous_draw)
+
+    def test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect(self) -> None:
+        from src.configs.config import TrainConfig
+
+        with self.assertRaises(ValueError):
+            TrainConfig.from_dict({"data": {"overlap_sampling": "yes"}})
+        with self.assertRaises(ValueError):  # link prediction has its own trainer
+            TrainConfig.from_dict({"data": {"dataset_name": "amazonbook", "overlap_sampling": False}})
+        self.assertTrue(TrainConfig.from_dict({}).data.overlap_sampling)
+
+
 if __name__ == "__main__":
     unittest.main()
