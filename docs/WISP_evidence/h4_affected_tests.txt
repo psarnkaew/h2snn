@@ -1,0 +1,41 @@
+test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter (tests.test_wisp.WispLadderTests.test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_TH6_exp_operator_has_no_gamma_multiplier (tests.test_wisp.WispLadderTests.test_TH6_exp_operator_has_no_gamma_multiplier)
+The path part of D enters with exactly sum w_f m_f (1 - 1/|f|) s^2: no gamma, no constant. ... ok
+test_TH7_capacity_rule_endpoints_vs_full_within_5_percent (tests.test_wisp.WispLadderTests.test_TH7_capacity_rule_endpoints_vs_full_within_5_percent) ... ok
+test_TH7_context_off_h0_perturbation_and_context_on_control (tests.test_wisp.WispLadderTests.test_TH7_context_off_h0_perturbation_and_context_on_control)
+(b) geometry_context false: perturbing an intermediate's h0 leaves the endpoints ... ok
+test_TH7_endpoint_perturbation_and_schema_equality (tests.test_wisp.WispLadderTests.test_TH7_endpoint_perturbation_and_schema_equality) ... ok
+test_TH7_intermediate_perturbation (tests.test_wisp.WispLadderTests.test_TH7_intermediate_perturbation) ... ok
+test_TH8_length_neutral_initialisation (tests.test_wisp.WispLadderTests.test_TH8_length_neutral_initialisation)
+Constant g (`uniform`): the expected total cell weight per anchor is equal across ... ok
+test_saved_configs_round_trip_under_both_path_weights (tests.test_wisp.WispLadderTests.test_saved_configs_round_trip_under_both_path_weights) ... ok
+test_TH2_unbiased_under_a_strongly_biased_q_with_control (tests.test_wisp.WispProposalTests.test_TH2_unbiased_under_a_strongly_biased_q_with_control) ... ok
+test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control (tests.test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control) ... ok
+test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms (tests.test_wisp.WispProposalTests.test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms) ... ok
+test_proposal_from_mass_tables (tests.test_wisp.WispProposalTests.test_proposal_from_mass_tables) ... ok
+test_TH11_delta_loss_of_an_absent_schema_is_zero (tests.test_wisp.WispReadoutTests.test_TH11_delta_loss_of_an_absent_schema_is_zero) ... ok
+test_TH11_pair_decomposition_reproduces_each_cell_energy (tests.test_wisp.WispReadoutTests.test_TH11_pair_decomposition_reproduces_each_cell_energy)
+Prop. K: 1/2 x^T L_f x (production PathCellTerm, one cell at a time) equals ... ok
+test_TH11_partial_pair_form_matches_its_kept_pair_energy (tests.test_wisp.WispReadoutTests.test_TH11_partial_pair_form_matches_its_kept_pair_energy)
+With a random symmetric pair mask, 1/2 x^T L_keep x equals the kept pairs' energy ... ok
+test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders (tests.test_wisp.WispReadoutTests.test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders) ... ok
+test_TH11_shares_sum_to_one (tests.test_wisp.WispReadoutTests.test_TH11_shares_sum_to_one) ... ok
+test_kendall_tau_and_permutation_null (tests.test_wisp.WispReadoutTests.test_kendall_tau_and_permutation_null) ... ok
+test_readouts_import_no_training_code (tests.test_wisp.WispReadoutTests.test_readouts_import_no_training_code) ... ok
+test_TH1_exact_distribution_no_revisits_and_dead_end_mass (tests.test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass) ... ok
+test_TH2_unbiased_path_laplacian_for_q_equal_p (tests.test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p) ... ok
+test_TH4_identity_and_summed_merge (tests.test_wisp.WispSamplerTests.test_TH4_identity_and_summed_merge) ... ok
+test_TH9_determinism_and_draw_seeds (tests.test_wisp.WispSamplerTests.test_TH9_determinism_and_draw_seeds) ... ok
+test_TH9_evaluation_draw_ignores_model_and_ablation_settings (tests.test_wisp.WispSamplerTests.test_TH9_evaluation_draw_ignores_model_and_ablation_settings) ... ok
+test_reference_fixture_has_the_required_structures (tests.test_wisp.WispSamplerTests.test_reference_fixture_has_the_required_structures) ... ok
+test_wisp_config_rejections (tests.test_wisp.WispSamplerTests.test_wisp_config_rejections) ... ok
+test_TH5_kernel_preserved_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_kernel_preserved_with_exp_weights)
+Prop. 2 on the D7 tree with sections: ker(Delta_0 + L_P) = ker Delta_0 for exp weights ... ok
+test_TH5_props_2_3_5_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_props_2_3_5_with_exp_weights) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 52.210s
+
+OK

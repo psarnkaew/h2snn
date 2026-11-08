@@ -1,0 +1,5 @@
+pair weight w/|f| instead of w/(2|f|): CAUGHT (FAILED (failures=1))
+pair-form degree ignores keep (counts all pairs): CAUGHT (FAILED (failures=1))
+I_sigma not normalised: CAUGHT (FAILED (failures=1))
+schema mask drops nothing: CAUGHT (FAILED (failures=2))
+schema mask drops one order only: CAUGHT (FAILED (failures=1))

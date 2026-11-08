@@ -673,5 +673,150 @@ class WispProposalTests(unittest.TestCase):
                         self.assertTrue(torch.equal(a.path_weight, b.path_weight))
 
 
+
+
+# ============================================================================= H4: read-outs
+def _fixture_transports(groups, shared: bool = True):
+    from src.models.map_operators import PathTransportOperator
+    from tests.test_v2_model import _chain_operators
+
+    maps = _chain_operators(EDGE_INDEX.size(1), k=2, d=3, seed=0, dtype=torch.float64,
+                            shared=shared)
+    return maps, [PathTransportOperator(maps.src, maps.tgt, g.face_node_index, g.face_edge_index,
+                                        EDGE_INDEX, shared_scale=shared,
+                                        face_edge_sign=g.face_edge_sign.double()) for g in groups]
+
+
+class WispReadoutTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.groups = _fixture_groups()
+        generator = torch.Generator().manual_seed(9)
+        self.weights = [torch.rand(g.num_faces, generator=generator, dtype=torch.float64) + 0.1
+                        for g in self.groups]
+
+    def test_TH11_shares_sum_to_one(self) -> None:
+        from src.analysis.wisp_readouts import i_pi, i_sigma, i_v_sigma, overlap_ratio
+
+        pi = i_pi(self.groups, self.weights, NODE_TYPE, SELF_INVERSE)
+        sigma = i_sigma(self.groups, self.weights, NODE_TYPE, SELF_INVERSE)
+        self.assertLessEqual(abs(sum(pi.values()) - 1.0), 1e-10)
+        self.assertLessEqual(abs(sum(sigma.values()) - 1.0), 1e-10)
+        for v, table in i_v_sigma(self.groups, self.weights, NODE_TYPE, SELF_INVERSE).items():
+            self.assertLessEqual(abs(sum(table.values()) - 1.0), 1e-10, v)
+        self.assertGreater(len(sigma), len(pi), "sub-path schemas outnumber full schemas")
+        ratio = overlap_ratio(self.groups, self.weights, NODE_TYPE, SELF_INVERSE)
+        self.assertTrue(0.0 < ratio < 1.0, ratio)
+
+    def test_TH11_pair_decomposition_reproduces_each_cell_energy(self) -> None:
+        """Prop. K: 1/2 x^T L_f x (production PathCellTerm, one cell at a time) equals
+        sum_{i<j} w_f / (2|f|) ||T_i x_i - T_j x_j||^2; the pair-form term with every pair kept
+        equals the production term (apply and diagonal)."""
+        from src.analysis.wisp_readouts import PairCellTerm, cell_energy_pairs
+        from src.models.vertex_path_laplacian import PathCellTerm
+
+        x = torch.randn(8, 3, dtype=torch.float64, generator=torch.Generator().manual_seed(1))
+        maps, transports = _fixture_transports(self.groups)
+        for group, transport, w in zip(self.groups, transports, self.weights):
+            pairs = cell_energy_pairs(transport, w, x)
+            for f in range(group.num_faces):
+                from src.models.map_operators import PathTransportOperator
+
+                one = PathTransportOperator(maps.src, maps.tgt,
+                                            group.face_node_index[f:f + 1],
+                                            group.face_edge_index[f:f + 1], EDGE_INDEX,
+                                            shared_scale=True,
+                                            face_edge_sign=group.face_edge_sign[f:f + 1].double())
+                energy = 0.5 * float((x * PathCellTerm(one, w[f:f + 1]).apply(x, 8)).sum())
+                self.assertLessEqual(abs(energy - float(pairs[f])), 1e-10 * max(1.0, abs(energy)))
+            size = group.face_node_index.size(1)
+            keep = torch.ones(group.num_faces, size, size, dtype=torch.float64) - torch.eye(
+                size, dtype=torch.float64)
+            pair_term = PairCellTerm(transport, w, keep)
+            production = PathCellTerm(transport, w)
+            self.assertLessEqual(float((pair_term.apply(x, 8) - production.apply(x, 8)).abs().max()),
+                                 1e-12)
+            self.assertLessEqual(float((pair_term.diagonal(8) - production.diagonal(8)).abs().max()),
+                                 1e-12)
+
+    def test_TH11_partial_pair_form_matches_its_kept_pair_energy(self) -> None:
+        """With a random symmetric pair mask, 1/2 x^T L_keep x equals the kept pairs' energy
+        sum_{kept i<j} w_f / (2|f|) ||T_i x_i - T_j x_j||^2, and the diagonal is
+        sum_j keep_ij (w_f / |f|) s_i^2 (the form `delta_loss` uses when it drops a schema)."""
+        from src.analysis.wisp_readouts import PairCellTerm
+
+        x = torch.randn(8, 3, dtype=torch.float64, generator=torch.Generator().manual_seed(3))
+        generator = torch.Generator().manual_seed(4)
+        _, transports = _fixture_transports(self.groups)
+        for group, transport, w in zip(self.groups, transports, self.weights):
+            size = group.face_node_index.size(1)
+            upper = (torch.rand(group.num_faces, size, size, generator=generator) < 0.5).double()
+            upper = torch.triu(upper, diagonal=1)
+            keep = upper + upper.transpose(1, 2)
+            self.assertGreater(float(keep.sum()), 0.0)
+            y = transport.apply(x)
+            expected = 0.0
+            for i in range(size):
+                for j in range(i + 1, size):
+                    expected += float((keep[:, i, j] * w / (2 * size)
+                                       * (y[:, i] - y[:, j]).square().sum(-1)).sum())
+            term = PairCellTerm(transport, w, keep)
+            energy = 0.5 * float((x * term.apply(x, 8)).sum())
+            self.assertLessEqual(abs(energy - expected), 1e-10 * max(1.0, abs(expected)))
+            per = (w / size).unsqueeze(1) * keep.sum(2) * transport.squared_scales()
+            diagonal = torch.zeros(8, dtype=torch.float64).index_add_(
+                0, group.face_node_index.reshape(-1), per.reshape(-1))
+            self.assertLessEqual(float((term.diagonal(8) - diagonal).abs().max()), 1e-12)
+
+    def test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders(self) -> None:
+        from src.analysis.wisp_readouts import pair_index, schema_keep
+
+        for group in self.groups:
+            pairs = pair_index(group, NODE_TYPE, SELF_INVERSE)
+            size = group.face_node_index.size(1)
+            for schema in sorted(set(pairs.schema))[:4]:
+                keep = schema_keep(group, NODE_TYPE, SELF_INVERSE, schema)
+                self.assertTrue(torch.equal(keep, keep.transpose(1, 2)), "symmetric")
+                self.assertEqual(float(keep.diagonal(dim1=1, dim2=2).abs().sum()), 0.0)
+                for c, i, j, key in zip(pairs.cell.tolist(), pairs.first.tolist(),
+                                        pairs.second.tolist(), pairs.schema):
+                    self.assertEqual(float(keep[c, i, j]), 0.0 if key == schema else 1.0)
+            full = schema_keep(group, NODE_TYPE, SELF_INVERSE, None)
+            self.assertEqual(float(full.sum()), group.num_faces * size * (size - 1))
+
+    def test_TH11_delta_loss_of_an_absent_schema_is_zero(self) -> None:
+        from src.analysis.wisp_readouts import delta_loss, pair_index
+
+        model = _ladder_model("full")
+        x = torch.randn(8, 5, dtype=torch.float64, generator=torch.Generator().manual_seed(2))
+        labels = torch.tensor([0, 1, 1, 0])
+        args = (model, x, NODE_TYPE, EDGE_INDEX, EDGE_TYPE, 8, [self.groups], ANCHORS, labels)
+        self.assertEqual(delta_loss(*args, schema=(99, 99, 99), self_inverse=SELF_INVERSE), 0.0)
+        present = pair_index(self.groups[0], NODE_TYPE, SELF_INVERSE).schema[0]
+        self.assertNotEqual(delta_loss(*args, schema=present, self_inverse=SELF_INVERSE), 0.0,
+                            "control: removing a present schema changes the loss")
+        self.assertFalse(model.training, "the frozen model's mode is restored")
+
+    def test_kendall_tau_and_permutation_null(self) -> None:
+        from src.analysis.wisp_readouts import kendall_tau
+
+        a = {i: float(i) for i in range(12)}
+        tau, p = kendall_tau(a, a, permutations=200)
+        self.assertAlmostEqual(tau, 1.0, places=12)
+        self.assertLess(p, 0.05)
+        tau, p = kendall_tau(a, {i: -float(i) for i in range(12)}, permutations=200)
+        self.assertAlmostEqual(tau, -1.0, places=12)
+        self.assertGreater(p, 0.9)
+
+    def test_readouts_import_no_training_code(self) -> None:
+        import subprocess
+        import sys
+
+        code = ("import sys; import src.analysis.wisp_readouts; "
+                "print(sorted(m for m in sys.modules if m.startswith(('src.trainers', 'src.builders'))))")
+        out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                             cwd=Path(__file__).resolve().parent.parent, check=True)
+        self.assertEqual(out.stdout.strip(), "[]")
+
+
 if __name__ == "__main__":
     unittest.main()
