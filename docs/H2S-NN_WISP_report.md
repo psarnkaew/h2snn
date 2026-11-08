@@ -1,6 +1,6 @@
 # H2S-NN — WISP report (task card Part H)
 
-**Status (2026-11-08):** H0 done; waiting for the author's reply before H1. Branch `wisp`, not pushed.
+**Status (2026-11-08):** H0–H3 done and committed. **Stopped at a Part H stop condition: the H3 variance gate was missed** (see H1–H3 below). H4–H7 not run. Branch `wisp`, not pushed.
 Evidence: `docs/WISP_evidence/`. Hardware: RTX 4060 8 GB, Windows, env `h2snn`.
 No number in this report is a performance result: H2S-NN is untuned and the baselines are tuned.
 
@@ -59,3 +59,35 @@ edits of yours. My D2-row edits to them are left uncommitted.
    weight, by Prop. K). The options are: I_π first; I_σ first among length-4 schemas; lift
    relative to initialisation; or a combination.
 3. **Branch base** `19a9d36` instead of `1c106d2`: OK?
+
+
+## H1–H3 — Sampler, weights and ladder, adaptive proposal (progress record, 2026-11-08)
+Your H0 decisions are recorded as a dated addendum in `WISP_evidence/preregistration.md`. That
+addendum covers the S1 expectation change, S1′, the S2 criteria, the note on what the C2 ladder
+isolates, and the branch base. Commits: H1 `683fe44`, H2 `027a58c`, H3 `5c39d1c`.
+
+- **H1 PASS** (`683fe44`): schema-free sampler with exact float64 counts and length grouping.
+  - T-H1, T-H2 (q = p), T-H4 and T-H9 pass; mutations allow-revisits and drop-summed-merge are both
+    caught. The test file is `tests/test_wisp.py`.
+  - **r = 42 on ACM** (411,257 incidences ≥ 403,122).
+  - **T-H10:** draw time is linear in r (R² = 0.9992). The only Python loops are over hops and
+    visited positions.
+- **H2 PASS** (`027a58c`): `path_weight: exp` (the default; γ removed, b in the scalar group),
+  the C2 ladder, and per-cell action embeddings for WISP groups (relation plus hop direction).
+  - The D12 goldens are bit-identical under `sigmoid_gamma` + `schemas`.
+  - T-H5…T-H8 pass; the endpoints mutation is caught.
+  - The suite found a real bug: a saved default made configs unreloadable. It is fixed.
+  - Full suite: 329 tests, only the 24 pre-existing failures.
+- **H3** (`5c39d1c`): the adaptive walk-level defensive proposal.
+  - T-H2 (biased q, plus the no-IS control) and T-H3 (an independent reference plus the per-step
+    control) pass. All 5 mutation checks are caught.
+  - **Variance gate MISSED:** V(adaptive) 963.7 vs V(uniform) 1013.8, a −4.9 % reduction against
+    the required −20 % (5-epoch ACM checkpoint, 20 draws, 16 probes; `h3_variance_gate.json`).
+    `wisp_proposal` stays `uniform`.
+  - This is a stop condition of Part H.
+
+**Prepared but not committed:** `src/analysis/wisp_readouts.py` (H4) and
+`WISP_evidence/h5_synthetic.py` (H5), with their tests in the session scratchpad.
+
+**Decision needed:** continue with H4–H7, with the default staying `uniform` as the card
+prescribes? Or stop here?
