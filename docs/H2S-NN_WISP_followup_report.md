@@ -131,3 +131,8 @@
 2. **M2:** keep the h₀-only latent for the `endpoint_edges` / `free_path_maps` maps (documented deviation), or implement the two-latent fix?
 3. Update the D2 rows (the default is now `wisp`). Resolve `r`'s tuning status (card vs spec).
 4. Push `wisp-followup` after reading?
+
+---
+## Erratum (2026-11-09, Part K, K4; the text above is unchanged)
+1. **Withdrawn:** "the readout without `h₀` memorises too, so G0b's H1 is not the mechanism" (§7) and its use in the I3 mechanism. The filter output contains `h₀W₀`: the `k = 0` coefficient is `h @ weights[k]` (`src/models/filter_bank.py:83`), and `coefficient(0)` is added to the output (`:91`). The diagonal of `A − I` is also non-zero. So that arm still read `h₀` through `x` and did not remove the ego route. G0b hypothesis H1 stays deferred to the cluster (spec v1.6).
+2. **"β ≈ 7–9 to dominate `D`"** (§5, §7) is a **sufficient** condition, not a requirement. The idealised one-application estimate (SNR ≈ e^β/√63) needs only e^β ≈ 10 for 0.9 accuracy. This was tested in Part K, K2 (`docs/H2S-NN_WISP_capacity_report.md`): with a fixed β, the model at n = 2000 reached ≥ 0.9 on 3/3 seeds at β = log 512, and on 2/3 at β = log 64.
