@@ -332,3 +332,13 @@ except for three deviations, each needed to avoid a leak that is certain or stru
 - **Author override of the stop conditions (message of 2026-11-08):** a missed S1/S1′/S2
   expectation is recorded with numbers and diagnosis (with the oracle arm for S1/S1′); it does not
   stop the card. The leak rule for S1′ controls stays.
+
+## Log 2026-11-09 (after results; recorded for the order of events)
+- **Stop conditions:** the work stopped at the missed H3 gate (`ffb7295`). The author then lifted
+  the H3/H6-gate stop conditions (message of 2026-11-08, after that commit) and asked for H4–H7 to
+  continue with the safer defaults. That is a change of stop conditions made after a result. The
+  gates, their thresholds and the default rule ("keep the safer default") are unchanged.
+- **H6 `r` for DBLP and IMDB:** the first H6 runs used ACM's r = 42, against the rule above
+  (lines 49–52). After the independent review (MAJOR-1), r was calibrated by the rule
+  (`h6_calibrate_r.json`: DBLP 65, IMDB 12) and both runs were repeated. The repeats are the H6
+  record; the r = 42 runs are kept in the JSON and marked as superseded in the report.

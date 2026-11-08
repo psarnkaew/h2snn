@@ -1,0 +1,37 @@
+# max over all epochs of train path_log_w_max, per run
+h5_s1_endpoints_ctx_off_s42              epochs 100  max log w 8.837423324584961
+h5_s1_endpoints_s42                      epochs 100  max log w 1.3992490768432617
+h5_s1_full_s42                           epochs 100  max log w 8.897879600524902
+h5_s1_full_s43                           epochs 100  max log w 5.136066436767578
+h5_s1_full_s44                           epochs 100  max log w 5.466373443603516
+h5_s1_no_path_cells_s42                  epochs 100  max log w None
+h5_s1_oracle_weight_s42                  epochs 100  max log w 0.0
+h5_s1_oracle_weight_s43                  epochs 100  max log w 0.0
+h5_s1_oracle_weight_s44                  epochs 100  max log w 0.0
+h5_s1_schema_s42                         epochs 100  max log w 3.0565133094787598
+h5_s1_uniform_s42                        epochs 100  max log w -0.39174243807792664
+h5_s1p_endpoints_s42                     epochs 100  max log w 6.587182998657227
+h5_s1p_full_s42                          epochs 100  max log w 5.310734748840332
+h5_s1p_full_s43                          epochs 100  max log w 8.688554763793945
+h5_s1p_full_s44                          epochs 100  max log w 7.298720836639404
+h5_s1p_no_path_cells_s42                 epochs 100  max log w None
+h5_s1p_oracle_weight_s42                 epochs 100  max log w 0.0
+h5_s1p_oracle_weight_s43                 epochs 100  max log w 0.0
+h5_s1p_oracle_weight_s44                 epochs 100  max log w 0.0
+h5_s1p_schema_s42                        epochs 100  max log w 3.1339523792266846
+h5_s1p_uniform_s42                       epochs 100  max log w -0.3627544343471527
+h5_s2_full_s42                           epochs 100  max log w 12.676450729370117
+h5_s2_full_s43                           epochs 100  max log w 12.126821517944336
+h5_s2_full_s44                           epochs 100  max log w 14.157073974609375
+h5_s2_probe_n600_full_s42                epochs 100  max log w 12.196025848388672
+# overall max: 14.157073974609375
+
+# train / val accuracy and loss at epochs 0, 10, 20, 40, 99 (functional checks only)
+h5_s1_full_s42 ep0: train 0.490/0.704 val 0.492/0.698 | ep10: train 0.580/0.671 val 0.436/0.739 | ep20: train 0.730/0.532 val 0.528/0.737 | ep40: train 0.986/0.054 val 0.996/0.025 | ep99: train 0.998/0.008 val 1.000/0.002
+h5_s1_oracle_weight_s42 ep0: train 0.484/0.705 val 0.492/0.697 | ep10: train 0.604/0.666 val 0.496/0.703 | ep20: train 0.950/0.254 val 0.980/0.212 | ep40: train 1.000/0.003 val 1.000/0.001 | ep99: train 1.000/0.000 val 1.000/0.000
+h5_s1p_full_s42 ep0: train 0.520/0.702 val 0.480/0.704 | ep10: train 0.700/0.558 val 0.456/0.865 | ep20: train 0.856/0.331 val 0.416/1.304 | ep40: train 0.948/0.136 val 0.424/2.164 | ep99: train 0.984/0.038 val 0.456/2.869
+h5_s1p_full_s43 ep0: train 0.452/0.707 val 0.360/0.708 | ep10: train 0.712/0.552 val 0.520/0.984 | ep20: train 0.812/0.383 val 0.448/1.592 | ep40: train 0.956/0.094 val 0.424/2.958 | ep99: train 0.988/0.036 val 0.448/3.373
+h5_s1p_full_s44 ep0: train 0.508/0.694 val 0.528/0.701 | ep10: train 0.672/0.629 val 0.472/0.738 | ep20: train 0.784/0.466 val 0.480/1.228 | ep40: train 0.928/0.192 val 0.472/2.190 | ep99: train 0.972/0.074 val 0.488/2.737
+h5_s1p_oracle_weight_s42 ep0: train 0.524/0.702 val 0.480/0.704 | ep10: train 0.700/0.549 val 0.472/0.858 | ep20: train 0.860/0.309 val 0.448/1.237 | ep40: train 0.928/0.162 val 0.408/1.955 | ep99: train 0.988/0.035 val 0.456/2.658
+h5_s1p_oracle_weight_s43 ep0: train 0.452/0.707 val 0.392/0.708 | ep10: train 0.700/0.540 val 0.464/0.907 | ep20: train 0.848/0.356 val 0.512/1.420 | ep40: train 0.952/0.117 val 0.456/2.917 | ep99: train 0.992/0.033 val 0.440/3.180
+h5_s1p_oracle_weight_s44 ep0: train 0.504/0.694 val 0.528/0.700 | ep10: train 0.672/0.626 val 0.472/0.743 | ep20: train 0.768/0.438 val 0.472/1.263 | ep40: train 0.936/0.170 val 0.488/1.965 | ep99: train 0.976/0.071 val 0.472/2.614

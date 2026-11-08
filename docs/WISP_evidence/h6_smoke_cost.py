@@ -42,6 +42,10 @@ RUNS = {
     "imdb_full": ("imdb", {"path_source": "wisp"}, {}, {}, 2),
     "amazonbook_lp_exp": ("amazonbook", {}, {"path_weight": "exp"}, {}, 1),
     "mutag_gc_exp": ("mutag", {}, {"path_weight": "exp"}, {}, 1),
+    # correction (independent review MAJOR-1): the pre-registered r rule (h6_calibrate_r.json),
+    # 4 epochs so that 3 epochs are timed (MINOR-12)
+    "dblp_full_r65": ("dblp", {"path_source": "wisp", "wisp_walks_per_anchor": 65}, {}, {}, 4),
+    "imdb_full_r12": ("imdb", {"path_source": "wisp", "wisp_walks_per_anchor": 12}, {}, {}, 4),
     # control for the amazonbook OOM: the pre-Part-H behaviour on the same data and GPU
     "amazonbook_lp_sigmoid_control": ("amazonbook", {}, {"path_weight": "sigmoid_gamma"}, {}, 1),
     # the LP smoke on the CPU (the 8 GB GPU runs out of memory; see the report)
