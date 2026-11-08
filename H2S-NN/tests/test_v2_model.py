@@ -1327,5 +1327,129 @@ class ConfigTests(unittest.TestCase):
                     OptimConfig.from_dict({"scalar_lr_scale": value})
 
 
+class TwoLatentContextTests(unittest.TestCase):
+    """T11-ctx (Part K, K1; spec v1.6 E10) under the default geometry_context: the path-specific
+    maps of endpoint_edges and free_path_maps and the pair-attention cell scores read [h0, c];
+    only g reads h0. Geometry rows are injected directly, because perturbing h0 moves the
+    neighbours' context c by design."""
+
+    def setUp(self) -> None:
+        self.data = _float64_pap()
+
+    def _model(self, ablation: dict | None = None, **model):
+        built = _v2_model(self.data, ablation=ablation, **model).double().eval()
+        self.assertIsNotNone(built.relational_context, "default geometry_context is on")
+        return built
+
+    def _inputs(self, model):
+        with torch.no_grad():
+            h0 = model.encode_nodes(self.data.x, self.data.node_type)
+            return h0, model.geometry_inputs(h0, self.data.edge_index, self.data.edge_type)
+
+    def _maps(self, model, geometry):
+        with torch.no_grad():
+            return model.node_to_edge(geometry, self.data.edge_index, self.data.edge_type,
+                                      model.relation_embedding.weight).maps
+
+    def _path_terms(self, model, h0, geometry, maps=None):
+        maps = self._maps(model, geometry) if maps is None else maps
+        with torch.no_grad():
+            return model.path_terms(geometry, maps, self.data.edge_index, self.data.face_groups,
+                                    path_input=model.path_inputs(h0, geometry))
+
+    @staticmethod
+    def _moved(model, geometry, nodes, c_only: bool = True):
+        moved = geometry.clone()
+        start = model.d if c_only else 0
+        generator = torch.Generator().manual_seed(11)
+        for node in nodes:
+            moved[node, start:] += torch.randn(moved.size(1) - start, generator=generator,
+                                               dtype=moved.dtype)
+        return moved
+
+    def test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates(self) -> None:
+        model = self._model({"endpoint_edges": True})
+        self.assertIsNotNone(model.map_encoder)
+        h0, geometry = self._inputs(model)
+        maps = self._maps(model, geometry)  # fact maps held fixed: only the path term is read
+        group = self.data.face_groups[0]
+        nodes = group.face_node_index[0].tolist()
+
+        def cell_maps(geom):
+            term = self._path_terms(model, h0, geom, maps)[0][0]
+            return term.maps.src.materialize()[0], term.maps.tgt.materialize()[0]
+
+        base = cell_maps(geometry)
+        for label, moved in (("endpoint c only", self._moved(model, geometry, [nodes[0]])),
+                             ("endpoint row", self._moved(model, geometry, [nodes[-1]], False))):
+            with self.subTest(label):
+                after = cell_maps(moved)
+                self.assertTrue(any(float((a - b).abs().max()) > 1e-12
+                                    for a, b in zip(base, after)), label)
+        intermediate = cell_maps(self._moved(model, geometry, nodes[1:-1], False))
+        for a, b in zip(base, intermediate):
+            self.assertTrue(torch.equal(a, b), "an intermediate must not reach the endpoint maps")
+
+    def test_b_g_reads_h0_only_unless_the_appendix_switch(self) -> None:
+        for ablation, appendix, expect_change in (({"endpoint_edges": True}, False, False),
+                                                  ({"free_path_maps": True}, False, False),
+                                                  ({}, False, False), ({}, True, True)):
+            with self.subTest(ablation=ablation, path_weight_context=appendix):
+                model = self._model({**ablation, "path_weight_context": appendix})
+                h0, geometry = self._inputs(model)
+                maps = self._maps(model, geometry)
+                cell_nodes = sorted({n for g in self.data.face_groups
+                                     for n in g.face_node_index[0].tolist()})
+                moved = self._moved(model, geometry, cell_nodes)  # c parts only
+                before = self._path_terms(model, h0, geometry, maps)[1]
+                after = self._path_terms(model, h0, moved, maps)[1]
+                changed = any(not torch.equal(a, b) for a, b in zip(before, after))
+                self.assertEqual(changed, expect_change)
+
+    def test_c_free_maps_read_every_instance_node_context_through_the_latent(self) -> None:
+        model = self._model({"free_path_maps": True})
+        self.assertIsNotNone(model.map_encoder)
+        h0, geometry = self._inputs(model)
+        maps = self._maps(model, geometry)
+        group = self.data.face_groups[0]
+        size = group.face_node_index.size(1)
+        nodes = group.face_node_index[0].tolist()
+
+        def rows(geom):
+            term = self._path_terms(model, h0, geom, maps)[0][0]
+            return term.incidence.maps.reflectors[:size]  # cell 0, every position
+
+        base = rows(geometry)
+        for i, node in enumerate(nodes):
+            with self.subTest(position=i):
+                after = rows(self._moved(model, geometry, [node]))
+                others = [j for j in range(size) if j != i]
+                # positions j != i see node i only through the map latent
+                self.assertGreater(float((after[others] - base[others]).abs().max()), 1e-12)
+
+    def test_d_pair_attention_cell_scores_read_the_context(self) -> None:
+        model = self._model({"coupling": "pair_attention"})
+        h0, geometry = self._inputs(model)
+        maps = self._maps(model, geometry)
+        nodes = self.data.face_groups[0].face_node_index[0].tolist()
+
+        def cell_scores(geom):
+            with torch.no_grad():
+                operator = model._build_attention_operator(
+                    h0, maps, self.data.edge_index, self.data.edge_type,
+                    self.data.face_groups, geom)
+            return torch.cat([a.reshape(-1) for a in operator.alpha_cells])
+
+        base = cell_scores(geometry)
+        after = cell_scores(self._moved(model, geometry, nodes))
+        self.assertGreater(float((after - base).abs().max()), 1e-12)
+
+    def test_context_off_keeps_one_encoder_per_arm(self) -> None:
+        for ablation in ({"endpoint_edges": True}, {"free_path_maps": True}):
+            with self.subTest(ablation=ablation):
+                model = _v2_model(self.data, ablation=ablation, geometry_context=False)
+                self.assertIsNone(model.map_encoder)
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

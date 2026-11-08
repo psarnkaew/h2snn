@@ -1,0 +1,44 @@
+{
+ "before": {
+  "full/context_True": {
+   "total": 5375,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  },
+  "endpoint_edges/context_True": {
+   "total": 5480,
+   "path_encoders": 928,
+   "num_path_encoders": 1
+  },
+  "free_path_maps/context_True": {
+   "total": 6779,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  },
+  "pair_attention/context_True": {
+   "total": 5917,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  },
+  "full/context_False": {
+   "total": 3263,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  },
+  "endpoint_edges/context_False": {
+   "total": 3368,
+   "path_encoders": 928,
+   "num_path_encoders": 1
+  },
+  "free_path_maps/context_False": {
+   "total": 4155,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  },
+  "pair_attention/context_False": {
+   "total": 3869,
+   "path_encoders": 1440,
+   "num_path_encoders": 1
+  }
+ }
+}

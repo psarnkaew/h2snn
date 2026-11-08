@@ -1,0 +1,9 @@
+map latent fed h0 (the D-I1a behaviour with two encoders): CAUGHT
+    test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates: fails (assertion; FAILED (failures=2))
+    test_c_free_maps_read_every_instance_node_context_through_the_latent: fails (assertion; FAILED (failures=3))
+g fed the geometry under the default: CAUGHT
+    test_b_g_reads_h0_only_unless_the_appendix_switch: fails (assertion; FAILED (failures=3))
+    test_TH7_intermediate_and_its_neighbourhood_under_the_default_context: fails (assertion; FAILED (failures=2))
+pair-attention latents fed h0 (extra): CAUGHT
+    test_d_pair_attention_cell_scores_read_the_context: fails (assertion; FAILED (failures=1))
+caught 3/3; clean after restore: OK

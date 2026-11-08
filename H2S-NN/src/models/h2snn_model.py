@@ -552,7 +552,9 @@ class H2SNN(nn.Module):
         # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0;
         # [h0, c] only under the appendix switch. Maps and gates keep geometry_dim.
         self.path_weight_context = ablation.path_weight_context
-        path_input_dim = geometry_dim if self.path_weight_context else d
+        # Spec v1.6 E10: pair attention has no g; its path latents are scores and read [h0, c].
+        path_input_dim = (geometry_dim if self.path_weight_context
+                          or ablation.coupling == "pair_attention" else d)
         self.path_input_dim = path_input_dim
         self.path_actions = dims.path_actions
         hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
@@ -662,6 +664,17 @@ class H2SNN(nn.Module):
         self.filter_bank: ChebyshevFilterBank | None = None
         if model_config.encoder == "filter_bank" and not self.h0_only:
             self.filter_bank = ChebyshevFilterBank(d, model_config.K, model_config.eta_init)
+        # Spec v1.6 E10: the path-specific maps of endpoint_edges and free_path_maps read the
+        # geometry [h0, c]; g reads h0. A second encoder (same class) exists only when the two
+        # inputs differ (geometry_context on, path_weight_context off), so the context-off model
+        # is unchanged; it is created last, so every other parameter initialises as before.
+        self.map_encoder: PathEncoder | EndpointEncoder | None = None
+        if (self.use_path_cells and (self.path_mode == "endpoint_edges" or self.free_path_maps)
+                and path_input_dim != geometry_dim):
+            encoder_class = EndpointEncoder if self.path_mode == "endpoint_edges" else PathEncoder
+            self.map_encoder = encoder_class(geometry_dim, hop_dim,
+                                             model_config.face_mlp_hidden_dim, dims.face_lengths,
+                                             factored_inputs=model_config.geometry_context)
 
     # ------------------------------------------------------------------ scalars
     def eta(self) -> torch.Tensor | None:
@@ -730,6 +743,18 @@ class H2SNN(nn.Module):
         [h0, c] under `ablation.path_weight_context` (appendix pair)."""
         return geometry if self.path_weight_context else h0
 
+    def _map_latent(self, geometry: torch.Tensor, group: FaceGroup) -> torch.Tensor:
+        """Latent of the path-specific maps (endpoint_edges, free_path_maps) from the geometry
+        `[h0, c]` (spec v1.6 E10), through the map encoder."""
+        encoder = self.map_encoder
+        return checkpoint_if_grad(
+            lambda h_in, rel_in: encoder(h_in, group.face_node_index,
+                                         self._hop_tokens(group, rel_in)),
+            geometry,
+            self.relation_embedding.weight,
+            enabled=self.checkpointing,
+        )
+
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
         """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
         if self.path_encoder is None:
@@ -792,6 +817,8 @@ class H2SNN(nn.Module):
             if group.num_faces == 0:
                 continue
             latent = self._path_latent(path_input, group)
+            # one latent when g's input is the geometry (context off, or the appendix switch)
+            map_latent = latent if self.map_encoder is None else self._map_latent(h0, group)
             group_weights = self._path_weights(latent, group, h0)
             gate_weights = group_weights
             if group.path_weight is not None:  # merged weight m_f, in both L_P and D (D8)
@@ -799,9 +826,10 @@ class H2SNN(nn.Module):
             nodes = group.face_node_index
             if self.path_mode == "endpoint_edges":
                 endpoints = torch.stack([nodes[:, 0], nodes[:, -1]])
-                term: PathTerm = EdgePairTerm(self.endpoint_maps(latent), endpoints, group_weights)
+                term: PathTerm = EdgePairTerm(self.endpoint_maps(map_latent), endpoints,
+                                              group_weights)
             elif self.free_path_maps:
-                incidence = FreeIncidenceOperator(self.free_maps(h0, nodes, latent), nodes)
+                incidence = FreeIncidenceOperator(self.free_maps(h0, nodes, map_latent), nodes)
                 term = PathCellTerm(incidence, group_weights)
             else:
                 transport = PathTransportOperator(
@@ -837,8 +865,8 @@ class H2SNN(nn.Module):
                     maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
                     shared_scale=True, face_edge_sign=group.face_edge_sign,
                 ))
-                latents.append(self._path_latent(
-                    self.path_inputs(h0, h0 if geometry is None else geometry), group))
+                # spec v1.6 E10: the cell scores' latents read the geometry [h0, c]
+                latents.append(self._path_latent(h0 if geometry is None else geometry, group))
                 merged = group.path_weight
                 log_merged.append(h0.new_zeros(group.num_faces) if merged is None
                                   else merged.to(h0.dtype).clamp_min(1e-30).log())
