@@ -134,6 +134,7 @@ def build_node_classification_paths(
     edge_type: torch.Tensor,
     relation_tuples: tuple[tuple[str, str, str], ...],
     seed: int,
+    proposal=None,
 ) -> tuple[FaceGroup, ...]:
     """Path cells of one draw: WISP (`path_source: wisp`, Part H: schema-free walks from every
     node of the target type, grouped by length), the walk sampler over the resolved schemas
@@ -150,6 +151,7 @@ def build_node_classification_paths(
             walks_per_anchor=config.data.wisp_walks_per_anchor,
             max_length=config.data.wisp_max_length,
             seed=seed,
+            proposal=proposal,  # training draws only (Part H3); the evaluation draw uses p
         )
     if config.data.path_sampler == "dfs":
         return enumerate_metapath_faces(

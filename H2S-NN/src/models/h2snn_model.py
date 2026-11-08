@@ -605,6 +605,7 @@ class H2SNN(nn.Module):
         self.broadcast_gate: nn.Linear | None = None
         self.last_coupling_stats: dict[str, float] = {}
         self.last_path_stats: dict[str, float] = {}
+        self.last_path_weights: tuple[torch.Tensor, ...] = ()
         # Gate heads are created last, so the other parameters initialise exactly as before
         # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
         # diffusion (`h0_only_readout`).
@@ -874,6 +875,8 @@ class H2SNN(nn.Module):
         if self.use_path_cells:
             terms, weights = self.path_terms(geometry, maps, edge_index, face_groups)
         if weights:
+            if self.training:  # the adaptive proposal's input for the next epoch (Part H3)
+                self.last_path_weights = tuple(w.detach() for w in weights)
             with torch.no_grad():
                 log_w = torch.cat(weights).log()
                 self.last_path_stats = {"path_log_w_max": float(log_w.max()),

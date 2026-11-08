@@ -62,12 +62,17 @@ class ActionGraph:
     max_multiplicity: int      # largest number of half-edges between one ordered node pair
 
 
+def count_actions(edge_type: torch.Tensor, self_inverse: tuple[int, ...]) -> int:
+    """Size of the dense action id space (3 directions per relation id)."""
+    num_relations = max([int(edge_type.max()) + 1 if edge_type.numel() else 0,
+                         *(r + 1 for r in self_inverse)])
+    return NUM_DIRECTIONS * max(num_relations, 1)
+
+
 def build_action_graph(edge_index: torch.Tensor, edge_type: torch.Tensor, num_nodes: int,
                        self_inverse: tuple[int, ...]) -> ActionGraph:
     half = build_half_edges(edge_index, edge_type, num_nodes, self_inverse, backward=True)
-    num_relations = max([int(edge_type.max()) + 1 if edge_type.numel() else 0,
-                         *(r + 1 for r in self_inverse)])
-    num_actions = NUM_DIRECTIONS * max(num_relations, 1)
+    num_actions = count_actions(edge_type, self_inverse)
     n = int(num_nodes)
     action = action_of(half.relation, half.direction)
     order = torch.argsort((half.node * num_actions + action) * n + half.other, stable=True)
@@ -158,6 +163,13 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
     signs, relations, directions = facts.clone(), facts.clone(), facts.clone()
     log_p = torch.full((num,), -math.log(max_length - 1), dtype=torch.float64)
     log_q = torch.zeros(num, dtype=torch.float64)
+    # Per-step mixture density prod_j (p_j/2 + q_j/2) (with the length term): computed for the
+    # T-H3 control only; the estimator uses the walk-level ratio (`_importance_ratio`).
+    log_mix_step = torch.zeros(num, dtype=torch.float64)
+    if proposal is not None:
+        log_mix_step = torch.logaddexp(
+            torch.full((num,), -math.log(max_length - 1), dtype=torch.float64),
+            torch.log(proposal.length[length])) - math.log(2.0)
     alive = torch.ones(num, dtype=torch.bool)
     current = anchor.clone()
     for hop in range(1, max_length + 1):
@@ -204,7 +216,10 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
             safe_unvisited.double())
         log_p = torch.where(active, log_p + log_step, log_p)
         if proposal is not None:
-            log_q = torch.where(active, log_q + step_q - torch.log(safe_unvisited.double()), log_q)
+            log_step_q = step_q - torch.log(safe_unvisited.double())
+            log_q = torch.where(active, log_q + log_step_q, log_q)
+            log_mix = torch.logaddexp(log_step, log_step_q) - math.log(2.0)
+            log_mix_step = torch.where(active, log_mix_step + log_mix, log_mix_step)
         nxt = graph.other[position] if graph.other.numel() else current
         current = torch.where(active, nxt, current)
         nodes[:, hop] = torch.where(active, nxt, nodes[:, hop])
@@ -216,11 +231,54 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
         ratio = torch.ones(num, dtype=torch.float64)
     else:
         log_q = log_q + torch.log(proposal.length[length])
-        ratio = 2.0 / (1.0 + torch.exp(log_q - log_p))
+        ratio = _importance_ratio(log_p, log_q, log_mix_step)
     keep = alive
     return WispDraw(nodes[keep], facts[keep], signs[keep], relations[keep], directions[keep],
                     length[keep], anchor[keep], log_p[keep], log_q[keep], ratio[keep],
                     anchor[~keep])
+
+
+def _importance_ratio(log_p: torch.Tensor, log_q: torch.Tensor,
+                      log_mix_step: torch.Tensor) -> torch.Tensor:
+    """Walk-level defensive ratio p / (p/2 + q/2) = 2 / (1 + q/p) <= 2 (Prop. S). `log_mix_step`
+    (the per-step mixture) is not used: it is the T-H3 control's density."""
+    return 2.0 / (1.0 + torch.exp(log_q - log_p))
+
+
+def proposal_from_mass(groups: tuple[FaceGroup, ...], weights: tuple[torch.Tensor, ...],
+                       node_type: torch.Tensor, num_node_types: int, num_actions: int,
+                       max_length: int, self_inverse: tuple[int, ...]) -> Proposal:
+    """q of task card H3 from the previous epoch's path mass w_f m_f (detached): q_len(l) is the
+    share of mass in length l; q_act(t, a) is the mass of the cells that take action a from a node
+    of type t, counted in both orientations of each cell (a cell is a walk from either end). No
+    floors: an action without mass has q = 0, and the walk-level mixture keeps the ratio <= 2."""
+    length = torch.zeros(max_length + 1, dtype=torch.float64)
+    action = torch.zeros(num_node_types, num_actions, dtype=torch.float64)
+    shared = torch.zeros(max(num_actions // NUM_DIRECTIONS, 1), dtype=torch.bool)
+    if self_inverse:
+        shared[list(self_inverse)] = True
+    nonempty = [g for g in groups if g.num_faces > 0]
+    if len(nonempty) != len(weights):
+        raise ValueError(f"{len(weights)} weight tensors for {len(nonempty)} non-empty groups.")
+    for group, w in zip(nonempty, weights):
+        mass = (w.detach().double().cpu() * group.path_weight.detach().double().cpu())
+        length[group.length] += mass.sum()
+        nodes = group.face_node_index.cpu()
+        relation = group.relation_index.cpu()
+        direction = torch.where(shared[relation], torch.zeros_like(relation),
+                                group.face_edge_sign.cpu().sign().long())
+        per_hop = mass.unsqueeze(1).expand(-1, group.length)
+        for types, hop_direction in ((node_type[nodes[:, :-1]], direction),
+                                     (node_type[nodes[:, 1:]], -direction)):
+            act = action_of(relation, hop_direction)
+            action.index_put_((types.reshape(-1), act.reshape(-1)), per_hop.reshape(-1),
+                              accumulate=True)
+    total = length[2:].sum()
+    if total > 0:
+        length = length / total
+    else:
+        length[2:] = 1.0 / (max_length - 1)
+    return Proposal(length=length, action=action)
 
 
 def merge_wisp_cells(draw: WispDraw, node_type: torch.Tensor, edge_index: torch.Tensor,
@@ -281,4 +339,5 @@ def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
 
 
 __all__ = ["ActionGraph", "Proposal", "WispDraw", "action_of", "build_action_graph",
-           "build_wisp_path_groups", "merge_wisp_cells", "sample_wisp_walks"]
+           "build_wisp_path_groups", "count_actions", "merge_wisp_cells", "proposal_from_mass",
+           "sample_wisp_walks"]

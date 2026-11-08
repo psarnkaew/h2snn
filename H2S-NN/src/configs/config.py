@@ -34,7 +34,10 @@ ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
 # anchor `r` (precision) is calibrated to an incidence budget, not tuned.
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
 NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length", "path_weight",
-                                           "path_weight_init", "path_weight_input")
+                                           "path_weight_init", "path_weight_input",
+                                           "wisp_proposal")
+# Part H3: q = p ("uniform") or the adaptive defensive proposal (variance only; fixed by a gate).
+WISP_PROPOSALS: tuple[str, ...] = ("uniform", "adaptive")
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
 # §3.2c); "sigmoid_gamma" = gamma * sigmoid(g) (the D11/D12 behaviour, comparison arm).
 PATH_WEIGHTS: tuple[str, ...] = ("exp", "sigmoid_gamma")
@@ -322,6 +325,9 @@ class DataConfig:
     path_source: str = "schemas"
     wisp_max_length: int = 4
     wisp_walks_per_anchor: int = 42  # ACM: smallest r with incidences >= the schemas run (H1)
+    # Training draws from 1/2 p + 1/2 q with q from the previous epoch's path mass ("adaptive",
+    # Part H3) or q = p ("uniform"); the evaluation draw always uses p. Never tuned.
+    wisp_proposal: str = "uniform"
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -373,6 +379,7 @@ class DataConfig:
             path_source=str(raw.get("path_source", "schemas")),
             wisp_max_length=int(raw.get("wisp_max_length", 4)),
             wisp_walks_per_anchor=int(raw.get("wisp_walks_per_anchor", 42)),
+            wisp_proposal=str(raw.get("wisp_proposal", "uniform")),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -447,6 +454,14 @@ class DataConfig:
             raise ValueError(
                 f"data.wisp_walks_per_anchor must be >= 1, got {self.wisp_walks_per_anchor}."
             )
+        if self.wisp_proposal not in WISP_PROPOSALS:
+            raise ValueError(
+                f"data.wisp_proposal must be one of {WISP_PROPOSALS}, got {self.wisp_proposal!r}."
+            )
+        if self.wisp_proposal == "adaptive" and (self.path_source != "wisp"
+                                                 or not self.resample_paths):
+            raise ValueError("data.wisp_proposal: adaptive changes the training draws of "
+                             "path_source: wisp; it needs resample_paths: true.")
         if self.path_source == "wisp":
             if task_type != "node_classification":
                 raise ValueError(

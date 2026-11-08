@@ -518,5 +518,160 @@ class WispLadderTests(unittest.TestCase):
             self.assertLessEqual(abs(float(mean[k]) - expected), 4 * float(se[k]) + 1e-12)
 
 
+
+# ============================================================================= H3: proposal
+def _biased_proposal(max_length: int, near_degenerate: bool = False, seed: int = 0):
+    """A strongly biased q: length mass mostly on the longest length; per-(type, action) weights
+    spanning orders of magnitude, with zeros (no floors) and, if `near_degenerate`, 1e-300."""
+    from src.data.wisp_sampler import Proposal, count_actions
+
+    generator = torch.Generator().manual_seed(seed)
+    length = torch.zeros(max_length + 1, dtype=torch.float64)
+    length[2:] = 0.05
+    length[max_length] = 1.0
+    length = length / length[2:].sum()
+    num_actions = count_actions(EDGE_TYPE, SELF_INVERSE)
+    action = torch.rand(3, num_actions, generator=generator, dtype=torch.float64) ** 4
+    action[action < 0.05] = 0.0
+    if near_degenerate:
+        action = torch.where(action > 0.5, torch.ones_like(action),
+                             torch.full_like(action, 1e-300))
+    return Proposal(length=length, action=action)
+
+
+def enumerate_with_proposal(max_length: int, proposal):
+    """Reference: for every simple walk, (anchor, nodes, facts) -> (p, q, per-step mixture), with
+    q_act renormalised over the available actions (independent of the sampler)."""
+    by_node = defaultdict(list)
+    for h in reference_half_edges():
+        by_node[h[0]].append(h)
+    types = NODE_TYPE.tolist()
+    out = {}
+
+    def extend(anchor, nodes, facts, p, q, mix, remaining):
+        if remaining == 0:
+            out[(anchor, tuple(nodes), tuple(facts))] = (p, q, mix)
+            return
+        v = nodes[-1]
+        options = defaultdict(list)
+        for (_, other, f, _, r, d) in by_node[v]:
+            if other not in nodes:
+                options[(r, d)].append((other, f))
+        if not options:
+            return
+        weights = {a: float(proposal.action[types[v], a[0] * 3 + a[1] + 1]) for a in options}
+        total = sum(weights.values())
+        for a, edges in options.items():
+            p_a = 1.0 / len(options)
+            q_a = weights[a] / total if total > 0 else 0.0
+            for other, f in edges:
+                p_step, q_step = p_a / len(edges), q_a / len(edges)
+                extend(anchor, nodes + [other], facts + [f], p * p_step, q * q_step,
+                       mix * (0.5 * p_step + 0.5 * q_step), remaining - 1)
+
+    for anchor in ANCHORS.tolist():
+        for length in range(2, max_length + 1):
+            p_len = 1.0 / (max_length - 1)
+            q_len = float(proposal.length[length])
+            extend(anchor, [anchor], [], p_len, q_len, 0.5 * p_len + 0.5 * q_len, length)
+    return out
+
+
+class WispProposalTests(unittest.TestCase):
+    MAX_LENGTH = 3
+
+    def setUp(self) -> None:
+        self.graph = build_action_graph(EDGE_INDEX, EDGE_TYPE, 8, SELF_INVERSE)
+
+    def _draws(self, proposal, seeds, per_anchor=50):
+        return [sample_wisp_walks(self.graph, NODE_TYPE, ANCHORS, per_anchor, self.MAX_LENGTH,
+                                  torch.Generator().manual_seed(seed), proposal) for seed in seeds]
+
+    def test_TH2_unbiased_under_a_strongly_biased_q_with_control(self) -> None:
+        import dataclasses
+
+        exact = exact_path_laplacian(self.MAX_LENGTH)
+        proposal = _biased_proposal(self.MAX_LENGTH)
+        draws = self._draws(proposal, range(300))
+        weighted, unweighted = [], []
+        for draw in draws:
+            weighted.append(dense_path_laplacian(
+                merge_wisp_cells(draw, NODE_TYPE, EDGE_INDEX, 50), 8))
+            ones = dataclasses.replace(draw, ratio=torch.ones_like(draw.ratio))
+            unweighted.append(dense_path_laplacian(
+                merge_wisp_cells(ones, NODE_TYPE, EDGE_INDEX, 50), 8))
+        for name, stack, should_pass in (("IS", weighted, True), ("no IS ratio", unweighted, False)):
+            stack = torch.stack(stack)
+            mean = stack.mean(0)
+            se = stack.std(0) / math.sqrt(stack.size(0))
+            excess = float(((mean - exact).abs() - 4 * se).max())
+            if should_pass:
+                self.assertLessEqual(excess, 1e-6, f"{name}: worst entry beyond 4 s.e.")
+            else:
+                self.assertGreater(excess, 0.0, "control: without the IS ratio the mean is biased")
+
+    def test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control(self) -> None:
+        worst_control = 0.0
+        for case, proposal in (("random", _biased_proposal(self.MAX_LENGTH, seed=1)),
+                               ("random2", _biased_proposal(self.MAX_LENGTH, seed=2)),
+                               ("near_degenerate", _biased_proposal(self.MAX_LENGTH, True, seed=3))):
+            with self.subTest(case=case):
+                reference = enumerate_with_proposal(self.MAX_LENGTH, proposal)
+                draw = self._draws(proposal, [11], per_anchor=20_000)[0]
+                self.assertTrue(bool((draw.ratio <= 2.0).all()), "every ratio <= 2 (exact)")
+                self.assertTrue(bool(torch.isfinite(draw.ratio).all()))
+                for i, key in enumerate(walk_keys(draw)):
+                    p, q, _ = reference[key]
+                    expected = p / (0.5 * p + 0.5 * q)
+                    self.assertLessEqual(abs(float(draw.ratio[i]) - expected), 1e-12 * expected,
+                                         key)
+                worst_control = max(worst_control,
+                                    max(p / mix for p, _, mix in reference.values()))
+        self.assertGreater(worst_control, 2.0, "control: a per-step mixture exceeds 2")
+
+    def test_proposal_from_mass_tables(self) -> None:
+        from src.data.wisp_sampler import count_actions, proposal_from_mass
+
+        groups = _fixture_groups()
+        weights = tuple(torch.full((g.num_faces,), 2.0, dtype=torch.float64) for g in groups)
+        q = proposal_from_mass(groups, weights, NODE_TYPE, 3, count_actions(EDGE_TYPE, SELF_INVERSE),
+                               3, SELF_INVERSE)
+        self.assertAlmostEqual(float(q.length[2:].sum()), 1.0, places=12)
+        mass = {g.length: float(2.0 * g.path_weight.double().sum()) for g in groups}
+        for length, value in mass.items():
+            self.assertAlmostEqual(float(q.length[length]), value / sum(mass.values()), places=12)
+        # every cell counted once per hop in each orientation
+        total_action_mass = sum(2 * g.length * 2.0 * float(g.path_weight.double().sum())
+                                for g in groups)
+        self.assertAlmostEqual(float(q.action.sum()), total_action_mass, places=9)
+
+    def test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms(self) -> None:
+        from types import SimpleNamespace
+
+        from src.configs.config import TrainConfig
+        from src.data.dataset import build_node_classification_paths
+
+        def groups(data_extra, ablation):
+            raw = {"data": {"dataset_name": "acm", "path_source": "wisp", "wisp_max_length": 3,
+                            "wisp_walks_per_anchor": 20, **data_extra},
+                   "ablation": ablation}
+            config = TrainConfig.from_dict(raw)
+            return build_node_classification_paths(
+                config=config, fact_layer=SimpleNamespace(self_inverse=SELF_INVERSE, mode="tied"),
+                node_slices={"paper": (0, 4)}, node_type=NODE_TYPE,
+                node_type_names=("paper", "a", "s"), edge_index=EDGE_INDEX, edge_type=EDGE_TYPE,
+                relation_tuples=(), seed=config.seed)
+
+        base = groups({}, {})
+        for data_extra in ({"wisp_proposal": "adaptive"}, {}):
+            for arm in ARMS:
+                with self.subTest(data=data_extra, arm=arm):
+                    other = groups(data_extra, {"path_weight_input": arm})
+                    self.assertEqual(len(base), len(other))
+                    for a, b in zip(base, other):
+                        self.assertTrue(torch.equal(a.face_node_index, b.face_node_index))
+                        self.assertTrue(torch.equal(a.path_weight, b.path_weight))
+
+
 if __name__ == "__main__":
     unittest.main()

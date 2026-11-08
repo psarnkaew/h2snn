@@ -1,0 +1,6 @@
+allow_revisits: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH1_exact_distribution_no_revisits_and_dead_end_mass)
+drop_summed_merge: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH2_unbiased_path_laplacian_for_q_equal_p)
+remove_is_ratio: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH2_unbiased_under_a_strongly_biased_q_with_control)
+per_step_mixture: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control)
+endpoints_sees_intermediate: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH7_intermediate_perturbation)
+caught 5/5

@@ -42,6 +42,7 @@ class Trainer:
         self.device = torch.device(cfg.device)
         self._best_test_metrics: dict[str, float] | None = None
         self._best_epoch: int = -1
+        self._previous_draw = None  # the last training draw (CPU), for the adaptive proposal
 
     def training_draw(self, data: PreparedH2SData, prepared_data: PreparedH2SData,
                       epoch: int) -> PreparedH2SData:
@@ -52,6 +53,16 @@ class Trainer:
             return prepared_data
         from src.data.dataset import build_node_classification_paths  # resampling only
 
+        proposal = None
+        if (self.cfg.data.wisp_proposal == "adaptive" and self._previous_draw is not None
+                and getattr(self.model, "last_path_weights", ())):
+            # Part H3: q from the previous epoch's path mass w_f m_f (detached; variance only).
+            from src.data.wisp_sampler import count_actions, proposal_from_mass
+
+            proposal = proposal_from_mass(
+                self._previous_draw, self.model.last_path_weights, data.node_type,
+                len(data.node_type_names), count_actions(data.edge_type, data.fact_layer.self_inverse),
+                self.cfg.data.wisp_max_length, data.fact_layer.self_inverse)
         groups = build_node_classification_paths(
             config=self.cfg,
             fact_layer=data.fact_layer,
@@ -62,7 +73,9 @@ class Trainer:
             edge_type=data.edge_type,
             relation_tuples=data.relation_tuples,
             seed=self.cfg.seed + epoch,
+            proposal=proposal,
         )
+        self._previous_draw = groups
         return replace(prepared_data,
                        face_groups=tuple(group.to(self.device) for group in groups))
 

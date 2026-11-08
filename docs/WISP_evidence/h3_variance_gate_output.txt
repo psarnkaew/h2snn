@@ -1,0 +1,21 @@
+2026-11-08 19:46:46,516 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-08 19:47:03,238 | INFO | Epoch 0000 | train_loss: 1.1177 | train_acc: 0.3333 | train_auroc: 0.0000 | train_macro_f1: 0.2649 | train_micro_f1: 0.3333 | val_loss: 1.0732 | val_acc: 0.4033 | val_auroc: 0.0000 | val_macro_f1: 0.2996 | val_micro_f1: 0.4033 | test_acc: 0.3725 | test_auroc: 0.0000 | test_macro_f1: 0.2841 | test_micro_f1: 0.3725
+2026-11-08 19:47:03,283 | INFO | Checkpoint metric macro_f1: 0.2996
+2026-11-08 19:47:06,051 | INFO | Epoch 0001 | train_loss: 1.0640 | train_acc: 0.4683 | train_auroc: 0.0000 | train_macro_f1: 0.4115 | train_micro_f1: 0.4683 | val_loss: 1.0488 | val_acc: 0.5249 | val_auroc: 0.0000 | val_macro_f1: 0.4370 | val_micro_f1: 0.5249 | test_acc: 0.4750 | test_auroc: 0.0000 | test_macro_f1: 0.4097 | test_micro_f1: 0.4750
+2026-11-08 19:47:08,865 | INFO | Epoch 0002 | train_loss: 1.0321 | train_acc: 0.5675 | train_auroc: 0.0000 | train_macro_f1: 0.5164 | train_micro_f1: 0.5675 | val_loss: 1.0232 | val_acc: 0.5746 | val_auroc: 0.0000 | val_macro_f1: 0.4950 | val_micro_f1: 0.5746 | test_acc: 0.5439 | test_auroc: 0.0000 | test_macro_f1: 0.4915 | test_micro_f1: 0.5439
+2026-11-08 19:47:11,625 | INFO | Epoch 0003 | train_loss: 0.9881 | train_acc: 0.6749 | train_auroc: 0.0000 | train_macro_f1: 0.6487 | train_micro_f1: 0.6749 | val_loss: 1.0048 | val_acc: 0.6243 | val_auroc: 0.0000 | val_macro_f1: 0.5739 | val_micro_f1: 0.6243 | test_acc: 0.5850 | test_auroc: 0.0000 | test_macro_f1: 0.5477 | test_micro_f1: 0.5850
+2026-11-08 19:47:14,515 | INFO | Epoch 0004 | train_loss: 0.9570 | train_acc: 0.7507 | train_auroc: 0.0000 | train_macro_f1: 0.7384 | train_micro_f1: 0.7507 | val_loss: 0.9984 | val_acc: 0.6243 | val_auroc: 0.0000 | val_macro_f1: 0.5735 | val_micro_f1: 0.6243 | test_acc: 0.5940 | test_auroc: 0.0000 | test_macro_f1: 0.5594 | test_micro_f1: 0.5940
+2026-11-08 19:47:14,563 | INFO | Checkpoint metric macro_f1: 0.5735
+2026-11-08 19:47:14,563 | INFO | Best epoch 3 | test_macro_f1: 0.5477 | test_micro_f1: 0.5850 | test_acc: 0.5850
+uniform {"V": 1013.7664184570312, "draw_seconds_median": 0.9181830999441445, "ratio_max": 1.0, "ratio_mean": 1.0, "accepted_walks": 106751}
+adaptive {"V": 963.6569946289062, "draw_seconds_median": 0.9318936000345275, "ratio_max": 1.6455093882391332, "ratio_mean": 0.9759839799723672, "accepted_walks": 109334}
+{
+ "reduction": 0.04942896402545316,
+ "gate_pass": false,
+ "q_len": [
+  0.4261729073339594,
+  0.3784764698373099,
+  0.1953506228287307
+ ]
+}
+exit 0

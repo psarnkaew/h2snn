@@ -40,6 +40,20 @@ def drop_summed_merge():
     return lambda: setattr(wisp, "merge_wisp_cells", original)
 
 
+def remove_is_ratio():
+    import torch
+    original = wisp._importance_ratio
+    wisp._importance_ratio = lambda log_p, log_q, log_mix_step: torch.ones_like(log_p)
+    return lambda: setattr(wisp, "_importance_ratio", original)
+
+
+def per_step_mixture():
+    import torch
+    original = wisp._importance_ratio
+    wisp._importance_ratio = lambda log_p, log_q, log_mix_step: torch.exp(log_p - log_mix_step)
+    return lambda: setattr(wisp, "_importance_ratio", original)
+
+
 def endpoints_sees_intermediate():
     import src.models.h2snn_model as model_module
     original = model_module.EndpointEncoder.forward
@@ -57,6 +71,10 @@ MUTATIONS = {
                        "tests.test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass"),
     "drop_summed_merge": (drop_summed_merge,
                           "tests.test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p"),
+    "remove_is_ratio": (remove_is_ratio,
+                        "tests.test_wisp.WispProposalTests.test_TH2_unbiased_under_a_strongly_biased_q_with_control"),
+    "per_step_mixture": (per_step_mixture,
+                         "tests.test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control"),
     "endpoints_sees_intermediate": (endpoints_sees_intermediate,
                                     "tests.test_wisp.WispLadderTests.test_TH7_intermediate_perturbation"),
 }
