@@ -164,7 +164,8 @@ def _module_maps(data: PreparedH2SData, d: int = 8, k: int = 2, seed: int = 0,
 def _config(**model: object) -> TrainConfig:
     base = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16}
     base.update(model)
-    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base})
+    return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
+                                  "data": {"path_source": "schemas"}})  # schema fixtures (I2)
 
 
 def _mv(matrices: torch.Tensor, vectors: torch.Tensor) -> torch.Tensor:

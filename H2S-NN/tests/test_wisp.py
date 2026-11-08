@@ -233,12 +233,16 @@ class WispSamplerTests(unittest.TestCase):
         from src.configs.config import TrainConfig, reject_never_tuned_settings
 
         for data in ({"path_source": "nope"}, {"path_source": "wisp", "wisp_max_length": 1},
-                     {"path_source": "wisp", "wisp_walks_per_anchor": 0},
+                     {"path_source": "wisp", "wisp_walks_per_anchor": -1},
                      {"path_source": "wisp", "fact_layer": "untied"},
                      {"path_source": "wisp", "path_sampler": "uniform_instance"},
                      {"dataset_name": "amazon", "path_source": "wisp"}):
             with self.subTest(data=data), self.assertRaises(ValueError):
                 TrainConfig.from_dict({"data": {"dataset_name": "acm", **data}})
+        # Part I (I2): r = 0 means "the dataset's calibrated r" (spec v1.4 §6)
+        self.assertEqual(TrainConfig.from_dict({"data": {
+            "dataset_name": "acm", "path_source": "wisp",
+            "wisp_walks_per_anchor": 0}}).data.wisp_walks_per_anchor, 42)
         for name in ("data.path_source", "data.wisp_max_length"):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 reject_never_tuned_settings(None, {name: {"values": [1]}})
@@ -614,6 +618,67 @@ class WispLadderTests(unittest.TestCase):
         for k in range(2):
             self.assertLessEqual(abs(float(mean[k]) - expected), 4 * float(se[k]) + 1e-12)
 
+
+
+# ============================================================================= I2: default flip
+class WispDefaultTests(unittest.TestCase):
+    """Spec v1.4 E7 (Part I, I2): node classification defaults to wisp with the dataset's
+    incidence-matching r; link prediction and graph classification are unchanged."""
+
+    def test_default_path_source_and_r_per_dataset(self) -> None:
+        from src.configs.config import TrainConfig
+
+        for dataset, r in (("acm", 42), ("dblp", 65), ("imdb", 12)):
+            with self.subTest(dataset=dataset):
+                data = TrainConfig.from_dict({"data": {"dataset_name": dataset}}).data
+                self.assertEqual((data.path_source, data.wisp_walks_per_anchor), ("wisp", r))
+        for dataset in ("amazonbook", "lastfm", "mutag", "nci1"):
+            with self.subTest(dataset=dataset):
+                data = TrainConfig.from_dict({"data": {"dataset_name": dataset}}).data
+                self.assertNotEqual(data.task_type, "node_classification")
+                self.assertEqual(data.path_source, "schemas")
+
+    def test_explicit_values_are_kept(self) -> None:
+        from src.configs.config import TrainConfig
+
+        schemas = TrainConfig.from_dict({"data": {"dataset_name": "dblp",
+                                                  "path_source": "schemas"}}).data
+        self.assertEqual(schemas.path_source, "schemas")
+        self.assertEqual([t.name for t in schemas.metapath_templates], ["APA", "APTPA"])
+        explicit_r = TrainConfig.from_dict({"data": {"dataset_name": "imdb",
+                                                     "wisp_walks_per_anchor": 30}}).data
+        self.assertEqual(explicit_r.wisp_walks_per_anchor, 30)
+        with self.assertRaises(ValueError):  # wisp is still node classification only
+            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "wisp"}})
+        with self.assertRaises(ValueError):  # an untied row must name the schema source
+            TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "untied",
+                                            "path_sampler": "dfs", "resample_paths": False}})
+
+    def test_resolved_configs_round_trip(self) -> None:
+        import tempfile
+
+        import yaml
+
+        from src.configs.config import TrainConfig
+        from src.utils.misc import save_config
+
+        for data in ({"dataset_name": "dblp"}, {"dataset_name": "acm", "path_source": "schemas"},
+                     {"dataset_name": "mutag"}):
+            with self.subTest(data=data), tempfile.TemporaryDirectory() as tmp:
+                config = TrainConfig.from_dict({"device": "cpu", "data": data})
+                path = Path(tmp) / "config.yaml"
+                save_config(config, path)
+                reloaded = TrainConfig.from_dict(yaml.safe_load(path.read_text(encoding="utf-8")))
+                self.assertEqual(reloaded.data, config.data)
+
+    def test_schemas_row_is_never_tuned_for_node_classification(self) -> None:
+        from src.configs.config import reject_never_tuned_settings
+
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings({"data": {"dataset_name": "acm", "path_source": "schemas"}})
+        reject_never_tuned_settings({"data": {"dataset_name": "acm"}})
+        reject_never_tuned_settings({"data": {"dataset_name": "amazonbook",
+                                              "path_source": "schemas"}})
 
 
 # ============================================================================= H3: proposal

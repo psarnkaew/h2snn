@@ -59,6 +59,9 @@ BASELINE_DATA_PINS: dict[str, Any] = {
     "fact_layer": "untied",
     "path_sampler": "dfs",
     "resample_paths": False,
+    # spec v1.4 E7 flipped the node-classification default to wisp, which needs tied facts;
+    # the baseline bundles keep the pinned D8/DFS schema row.
+    "path_source": "schemas",
 }
 
 HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}

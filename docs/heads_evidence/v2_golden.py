@@ -83,6 +83,12 @@ def build_config(model: dict, ablations: tuple[str, ...]) -> TrainConfig:
             raw["model"]["geometry_context"] = False
         if "encoder" in ModelConfig.__dataclass_fields__:
             raw["model"]["encoder"] = "first_order"
+        # Part I (spec v1.4 E7): the default node-classification path source became wisp; the
+        # goldens are schema-cell fixtures, named explicitly here.
+        from src.configs.config import DataConfig
+
+        if "path_source" in DataConfig.__dataclass_fields__:
+            raw["data"] = {"path_source": "schemas"}
     else:
         raw["model"]["architecture"] = "v2"
         for name in ablations:

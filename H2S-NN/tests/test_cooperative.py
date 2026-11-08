@@ -459,7 +459,7 @@ class GateGradientTests(unittest.TestCase):
             "device": "cpu", "model": {"d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8,
                                        "face_mlp_hidden_dim": 8, "edge_mlp_hidden_dim": 8},
             "data": {"dataset_name": "acm", "fact_layer": "tied", "path_sampler": "walk",
-                     "face_sample_k": 3,
+                     "path_source": "schemas", "face_sample_k": 3,
                      "metapath_templates": [{"name": "PAP",
                                              "node_types": ["paper", "author", "paper"]}]}})
         data = _prepared_small(config)
@@ -521,7 +521,7 @@ def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: in
     if gate_init is not None:
         model_cfg["coupling_gate_init"] = gate_init
     cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": model_cfg,
-                                 "data": {"resample_paths": False}})
+                                 "data": {"resample_paths": False, "path_source": "schemas"}})
     torch.manual_seed(seed)
     model = build_model(cfg, data)
     if grouped:
@@ -576,7 +576,8 @@ class LearningFixTests(unittest.TestCase):
         cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2,
                                                                  "encoder": "first_order",
                                                                  # gamma in the group (Part H default: exp)
-                                                                 "path_weight": "sigmoid_gamma"}})
+                                                                 "path_weight": "sigmoid_gamma"},
+                                     "data": {"path_source": "schemas"}})  # schema fixture (I2)
         self.assertEqual(cfg.model.coupling_gate_init, 0.6)
         self.assertEqual(cfg.ablation.coupling, "cooperative")
         model = build_model(cfg, data)
@@ -739,7 +740,7 @@ class DiagnosticsTests(unittest.TestCase):
         cfg = TrainConfig.from_dict({"device": "cpu", "model": {
             "d": 8, "d_r": 4, "K": 3, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
             "edge_mlp_hidden_dim": 16, "encoder": "first_order"},  # per-step trace (D11 update)
-            "data": {"resample_paths": False}})
+            "data": {"resample_paths": False, "path_source": "schemas"}})
         torch.manual_seed(0)
         model = build_model(cfg, data)
         model.train()
@@ -756,7 +757,8 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertLess(total[-1], total[0])
         # no diffusion -> nothing to trace
         off = TrainConfig.from_dict({"device": "cpu", "ablation": {"h0_only_readout": True},
-                                     "model": {"d": 8, "d_r": 4, "K": 2}})
+                                     "model": {"d": 8, "d_r": 4, "K": 2},
+                                     "data": {"path_source": "schemas"}})
         self.assertEqual(build_model(off, data).energy_trace(
             data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
             data.num_nodes), {})
@@ -780,7 +782,7 @@ class DiagnosticsTests(unittest.TestCase):
                 "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
                           "encoder": "first_order",  # logs eta and eta_lambda_max (D11 update)
                           "path_weight": "sigmoid_gamma"},  # logs gamma (Part H default: exp)
-                "data": {"resample_paths": False}})
+                "data": {"resample_paths": False, "path_source": "schemas"}})
             torch.manual_seed(0)
             model = build_model(cfg, data)
             logger = ExperimentLogger(cfg.exp_dir)
@@ -808,7 +810,7 @@ class KernelScriptTests(unittest.TestCase):
         data = _signal_fixture()
         cfg = TrainConfig.from_dict({"device": "cpu", "model": {
             "d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
-            "edge_mlp_hidden_dim": 8}, "data": {"resample_paths": False}})
+            "edge_mlp_hidden_dim": 8}, "data": {"resample_paths": False, "path_source": "schemas"}})
         torch.manual_seed(0)
         model = build_model(cfg, data)
         values, vectors, residuals, operator, h0 = module.kernel_basis(

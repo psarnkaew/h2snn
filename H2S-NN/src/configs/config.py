@@ -92,6 +92,14 @@ def reject_never_tuned_settings(
             "ablation.path_weight_input other than full is a C2 ladder arm and must not be used in "
             "tuning."
         )
+    dataset = str(data.get("dataset_name", "acm")).lower()
+    if str(data.get("path_source", "")) == "schemas" and (
+            str(data.get("task_type", "")) or DATASET_TASK_TYPES.get(dataset, "")
+    ) == "node_classification":
+        raise ValueError(
+            "data.path_source: schemas is the fixed-literature-schema comparison row for node "
+            "classification (spec v1.4 E7) and must not be used in tuning."
+        )
     if ((raw_config or {}).get("ablation") or {}).get("path_weight_context", False) is not False:
         raise ValueError(
             "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
@@ -174,6 +182,7 @@ class MetaPathConfig:
 NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     "acm": {
         "target_node_type": "paper",
+        "wisp_walks_per_anchor": 42,  # Part H H1: 411,257 incidences >= 403,122 (schemas run)
         "metapath_templates": (
             MetaPathConfig(name="PAP", node_types=("paper", "author", "paper")),
             MetaPathConfig(name="PSP", node_types=("paper", "subject", "paper")),
@@ -181,6 +190,7 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     },
     "dblp": {
         "target_node_type": "author",
+        "wisp_walks_per_anchor": 65,  # h6_calibrate_r.json: 867,420 >= 862,788
         "metapath_templates": (
             MetaPathConfig(name="APA", node_types=("author", "paper", "author")),
             MetaPathConfig(
@@ -192,6 +202,7 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     },
     "imdb": {
         "target_node_type": "movie",
+        "wisp_walks_per_anchor": 12,  # h6_calibrate_r.json: 149,530 >= 143,052
         "metapath_templates": (
             MetaPathConfig(name="MAM", node_types=("movie", "actor", "movie")),
             MetaPathConfig(name="MDM", node_types=("movie", "director", "movie")),
@@ -323,13 +334,16 @@ class DataConfig:
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
     # epoch); validation and test always use the draw with seed `seed`.
     resample_paths: bool = True
-    # Path source (Part H): "schemas" = the D8 walk sampler over the literature presets (the
-    # fixed-literature-schema row); "wisp" = schema-free walks from the stated target measure
-    # (spec v1.3 §3.2). Node classification only. `wisp_max_length` is the support l_max;
-    # `wisp_walks_per_anchor` is r (precision; default = the ACM incidence-matching rule, H1).
-    path_source: str = "schemas"
+    # Path source (Part H; default flipped by spec v1.4 E7): "wisp" = schema-free walks from the
+    # stated target measure (spec §3.2), node classification only; "schemas" = the D8 walk
+    # sampler over the literature presets (the fixed-literature-schema comparison row). "" (unset)
+    # resolves by task: wisp for node classification, schemas for link prediction and graph
+    # classification (their samplers do not read it). `wisp_max_length` is the support l_max;
+    # `wisp_walks_per_anchor` is r (precision): 0 (unset) resolves under wisp to the dataset's
+    # incidence-matching value (spec §6; NODE_CLASSIFICATION_PRESETS).
+    path_source: str = ""
     wisp_max_length: int = 4
-    wisp_walks_per_anchor: int = 42  # ACM: smallest r with incidences >= the schemas run (H1)
+    wisp_walks_per_anchor: int = 0
     # Training draws from 1/2 p + 1/2 q with q from the previous epoch's path mass ("adaptive",
     # Part H3) or q = p ("uniform"); the evaluation draw always uses p. Never tuned.
     wisp_proposal: str = "uniform"
@@ -381,9 +395,9 @@ class DataConfig:
             fact_layer=str(raw.get("fact_layer", "tied")),
             path_sampler=str(raw.get("path_sampler", "walk")),
             resample_paths=raw.get("resample_paths", True),
-            path_source=str(raw.get("path_source", "schemas")),
+            path_source=str(raw.get("path_source", "")),
             wisp_max_length=int(raw.get("wisp_max_length", 4)),
-            wisp_walks_per_anchor=int(raw.get("wisp_walks_per_anchor", 42)),
+            wisp_walks_per_anchor=int(raw.get("wisp_walks_per_anchor", 0)),
             wisp_proposal=str(raw.get("wisp_proposal", "uniform")),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
@@ -449,25 +463,33 @@ class DataConfig:
             raise ValueError(
                 f"Unknown dataset '{self.dataset_name}'; set data.task_type explicitly."
             )
-        if self.path_source not in PATH_SOURCES:
+        # Spec v1.4 E7: unset path_source resolves by task; unset r resolves to the preset.
+        path_source = self.path_source or (
+            "wisp" if task_type == "node_classification" else "schemas")
+        if path_source not in PATH_SOURCES:
             raise ValueError(
                 f"data.path_source must be one of {PATH_SOURCES}, got {self.path_source!r}."
             )
+        walks = self.wisp_walks_per_anchor
+        if path_source == "wisp" and walks == 0:
+            walks = int(NODE_CLASSIFICATION_PRESETS.get(dataset_name, {})
+                        .get("wisp_walks_per_anchor", 0))
         if self.wisp_max_length < 2:
             raise ValueError(f"data.wisp_max_length must be >= 2, got {self.wisp_max_length}.")
-        if self.wisp_walks_per_anchor < 1:
+        if walks < (1 if path_source == "wisp" else 0):
             raise ValueError(
-                f"data.wisp_walks_per_anchor must be >= 1, got {self.wisp_walks_per_anchor}."
+                f"data.wisp_walks_per_anchor must be >= 1 under path_source: wisp (0 = the "
+                f"dataset's calibrated r), got {walks} for dataset {self.dataset_name!r}."
             )
         if self.wisp_proposal not in WISP_PROPOSALS:
             raise ValueError(
                 f"data.wisp_proposal must be one of {WISP_PROPOSALS}, got {self.wisp_proposal!r}."
             )
-        if self.wisp_proposal == "adaptive" and (self.path_source != "wisp"
+        if self.wisp_proposal == "adaptive" and (path_source != "wisp"
                                                  or not self.resample_paths):
             raise ValueError("data.wisp_proposal: adaptive changes the training draws of "
                              "path_source: wisp; it needs resample_paths: true.")
-        if self.path_source == "wisp":
+        if path_source == "wisp":
             if task_type != "node_classification":
                 raise ValueError(
                     "data.path_source: wisp is implemented for node classification only; link "
@@ -475,7 +497,8 @@ class DataConfig:
                 )
             if self.fact_layer != "tied":
                 raise ValueError("data.path_source: wisp needs fact_layer: tied (it walks facts in "
-                                 "both directions).")
+                                 "both directions); the untied and dfs rows name "
+                                 "path_source: schemas.")
             if self.path_sampler != "walk":
                 raise ValueError("data.path_sampler selects the schema sampler's variant; it must stay "
                                  "'walk' under path_source: wisp.")
@@ -487,6 +510,9 @@ class DataConfig:
         if self.feature_normalization != "none" and task_type != "node_classification":
             raise ValueError("data.feature_normalization is implemented for node classification only.")
 
+        if (path_source, walks) != (self.path_source, self.wisp_walks_per_anchor):
+            return replace(self, path_source=path_source,
+                           wisp_walks_per_anchor=walks).resolved(explicit)
         if task_type == "node_classification":
             if not 0.0 < self.acm_val_ratio < 1.0:
                 raise ValueError("data.acm_val_ratio must be in (0, 1).")

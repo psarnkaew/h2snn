@@ -1006,9 +1006,9 @@ class SamplerConfigAndFreeWalkTests(unittest.TestCase):
                                             "path_sampler": "dfs"}})
         with self.assertRaises(ValueError):
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_sampler": "bfs"}})
-        for sampler in ("walk", "uniform_instance"):
+        for sampler in ("walk", "uniform_instance"):  # the schema sampler's variants
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
-                                            "path_sampler": sampler}})
+                                            "path_sampler": sampler, "path_source": "schemas"}})
 
     def test_batch_without_the_highest_self_inverse_relation(self) -> None:
         from src.data.path_sampler import build_free_path_groups
@@ -1301,7 +1301,8 @@ class BaselineBundleIdentityTests(unittest.TestCase):
 
         return TrainConfig.from_dict({"data": {
             "dataset_name": name, "run_index": 0, "fact_layer": "untied",
-            "path_sampler": "dfs", "resample_paths": False}, "seed": 42,
+            "path_sampler": "dfs", "resample_paths": False, "path_source": "schemas"},
+            "seed": 42,
             "device": "cpu"})
 
     def test_defaults_are_the_model(self) -> None:

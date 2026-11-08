@@ -367,7 +367,7 @@ class MergedWeightTests(unittest.TestCase):
                                      "model": {"d": 8, "d_r": 4, "K": 2, "encoder": "first_order",
                                                "path_weight": "sigmoid_gamma"},  # theta_gamma (Part H)
                                      "ablation": {"coupling": "pair_attention"},
-                                     "data": {"resample_paths": False}})
+                                     "data": {"resample_paths": False, "path_source": "schemas"}})
         model = build_model(cfg, data)
         optimizer = build_optimizer(model, cfg)
         fast = [g for g in optimizer.param_groups if g["lr"] > cfg.optim.lr]

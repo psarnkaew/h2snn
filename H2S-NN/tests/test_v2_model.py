@@ -732,7 +732,8 @@ def _v2_config(ablation: dict | None = None, **model: object) -> TrainConfig:
             "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
     base.update(model)
     return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
-                                  "ablation": ablation or {}})
+                                  "ablation": ablation or {},
+                                  "data": {"path_source": "schemas"}})  # schema fixtures (I2)
 
 
 def _v2_model(data, seed: int = 0, ablation: dict | None = None, **model: object):
@@ -1001,7 +1002,7 @@ class V2ModelTests(unittest.TestCase):
                           "encoder": "first_order",  # eta logged, 6-tensor scalar group (D11)
                           "path_weight": "sigmoid_gamma"},  # gamma logged (Part H default: exp)
                 # Hand-built fixture without a fact layer: nothing to resample.
-                "data": {"resample_paths": False},
+                "data": {"resample_paths": False, "path_source": "schemas"},
                 "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})
             torch.manual_seed(0)
             model = build_model(cfg, data)
@@ -1272,7 +1273,7 @@ class ConfigTests(unittest.TestCase):
                              if name not in ("coupling", "path_weight_input")))  # booleans off
         self.assertEqual(config.ablation.path_weight_input, "full")  # Part H: the full g
         self.assertEqual(config.model.path_weight, "exp")  # Part H: w_f = exp(g), no gamma
-        self.assertEqual(config.data.path_source, "schemas")  # until the H7 author decision
+        self.assertEqual(config.data.path_source, "wisp")  # spec v1.4 E7 (Part I, I2)
         self.assertEqual(config.ablation.coupling, "cooperative")  # D10 default
         self.assertEqual(config.model.coupling_gate_init, 0.6)
         self.assertEqual(config.ablation.map_scale, "per_edge")
