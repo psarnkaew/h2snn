@@ -165,3 +165,14 @@ Nothing here is a performance result. Misses are recorded with the pre-registere
 - Environment note: PyG warns that a Windows Application Control policy blocks the optional
   `torch-scatter`/`torch-sparse` DLLs (already in Part I's final suite output); H2S-NN's model code does
   not import them (only two baseline adapters do).
+
+## Addendum 2026-11-09 06:45 (before any K2b training run)
+- **K2b r (set-up from the draws only):** `k2b_s2_n2000.py --choose-r`: at r = 200 (I4's value) the
+  evaluation draws of seeds 42, 43, 44 at n = 2000 cover sigma* for every target (coverage 1.0 / 1.0 /
+  1.0; `k2b_results.json` "r_choice"). All four K2b runs use **r = 200**.
+- **K3 calibration finding (before the K3 code):** the incidence rule has **no solution for DBLP at
+  l_max = 2**: even counting every walk with revisits, length-2 walks from DBLP's authors give at most
+  511,887 incidences < the 862,788 budget (sparse adjacency powers; `k3_calibrate_r.py`). The first
+  calibration run doubled r without end there and segfaulted (`k3_calibrate_r_first_run.txt`). The
+  table therefore has no DBLP l_max 2 entry, and an unset r there raises (card: "an l_max without a
+  calibrated value raises"). Every other (dataset, l_max) has a value; l_max 4 reproduces 42 / 65 / 12.
