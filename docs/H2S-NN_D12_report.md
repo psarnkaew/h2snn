@@ -1,7 +1,85 @@
 # H2S-NN — D12 report (task card Part G)
 
-**Status (2026-11-08):** G0, G0b, G1–G3b, the G3b re-check and G3c are done (see their sections). G4 not started.
+**Status (2026-11-08):** D12 complete: G0, G0b, G1–G3b, the G3b re-check, G3c and G4 (summary below). Not pushed or merged.
 Branch `d12-encoder` (off `tier0-screen-d11`). Evidence: `docs/D12_evidence/`. Hardware: RTX 4060 8 GB, Windows, env `h2snn` (torch 2.6, PyG 2.8.0, torchmetrics 1.9.0).
+
+## G4 — D12 summary (2026-11-08)
+
+### 1. Summary
+- **G0, pipeline gate: PASS on the data leg.** Splits, labels, edges and the metric match HGB exactly on ACM, DBLP and IMDB. The published numbers could not be reproduced: HetSheaf's selected configuration is unpublished, and its code uses a 27/3/70 split and `ToUndirected`. The protocol cites HGB's 24/6/70 split. The internal reference is R-GCN on our pipeline.
+- **G0b, gap ladder: localized.** The 5–10-point deficit against R-GCN sits in the propagation and training path shared by every H2S-NN variant. It is not in the sheaf (learned maps vs identity maps: +0.6 / +1.3) and not in feature scaling (row normalisation: −0.2). Sheaf-free H2S-NN fits the training set (train F1 about 100) and is only 0.8 above its own `h₀`-only head on ACM.
+- **G1, relational context: done.** `geometry_context` is on by default. T-G7 is exact, and the D11 goldens are bit-identical with the switch off.
+- **G2, Chebyshev filter bank: done.** `encoder: filter_bank` is the default. T-G1…T-G6 and T-G8 pass, and the mutation check catches 3/3.
+- **G3, cost gate: PASS.** The filter bank costs +0.3 % time and +0.04 % memory over `first_order`.
+- **G3b, functional check: PASS after the float64 re-check.** a1 check 2 failed under the pre-registered float32 measurement and passed the float64 re-check (1 + 1.3e-7 against 1 + 1e-6). The other checks, a2–a4 and the synthetic reach task (full 0.992 ×3) pass.
+- **G3c, path-specific binding: FAIL, as pre-registered.**
+  - Capacity is shown: with the oracle w_f the model scores 1.0 / 0.996 / 1.0, and every control is at chance.
+  - Learning of w_f was not achieved at default settings: full scores 0.504 / 0.58 / 0.536. The gate learned the lead bit but not the key match.
+  - The redesigned task requires key matching, which is hard to learn and not representative of real data.
+  - Your literal design leaked through the relational context.
+- **No real-data accuracy for the D12 model exists yet; this is by design.** Tuning and the comparison runs happen on the cluster.
+
+### 2. Files changed (all on `d12-encoder`; not pushed or merged)
+- **Commits:** G0 `20d9756`, G0b `5bb05c1`, G1 `cdd2fb8`, G2 `3760864`, G3 `e1e91ec`, G3b `384668c`, G3b re-check `f3f2907`, G3c `a141431`, G4 (this commit).
+- **New source:** `src/models/relational_context.py`, `src/models/filter_bank.py`.
+- **Changed source:** `h2snn_model.py`, `sheaf_maps.py`, `map_operators.py`, `config.py`, `dataset.py` and both trainers.
+- **Tests:** `test_filter_bank.py` (18 tests) and `test_gap_ladder.py` (10 tests), plus D11 pins in four test files.
+- **Evidence:** `docs/D12_evidence/`.
+
+### 3. Deviations
+- **Additions beyond the card:**
+  - two diagnostic switches, `identity_maps` and `feature_normalization`, never tuned;
+  - an exact factored first layer, needed to keep R7's memory bound under the context;
+  - Clenshaw's recurrence for the filter;
+  - a float64 norm-sum diagnostic;
+  - two G3c designs, because the literal design leaked.
+- **SimpleHGN not run** (DGL is unavailable); R-GCN is the reference.
+- **One infrastructure rerun:** a segmentation fault before epoch 0 of a G3c arm.
+- **Correction:** the original a1 checks read both attempts' metrics rows. This is noted in the G3c section.
+
+### 4. Verification
+- **Pre-registration:** every unit was pre-registered before its code or runs. Reading rules were applied by script.
+- **Full suite:** 312 tests. The only failures are the 24 pre-existing `test_baselines` ones (notebooks, vendor clones).
+- **Goldens:** the D11 goldens are bit-identical with `geometry_context: false` and `encoder: first_order` (13 cases, 844 comparisons).
+
+### 5. Measurements
+Test macro-F1 (×100) where marked.
+
+| Item | Value |
+|---|---|
+| R-GCN on our pipeline (5 seeds; F1) | ACM 89.72 ± 0.52; DBLP 91.56 ± 1.37 |
+| Full D11 model (3 seeds; F1) | ACM 85.09 ± 1.67; DBLP 83.05 ± 0.78 |
+| Filter bank vs first_order (cost) | +0.3 % time; +0.04 % peak memory |
+| Context (cost, not gated) | +39 % time; +5.4 % memory on ACM |
+| Norm cap Σ‖V_k‖₂ during a1 | reached 1.067: the cap binds within 5 epochs |
+| G3c v2 test accuracy (chance 0.5): full / oracle w_f / controls | 0.50–0.58 / 0.996–1.0 / 0.48–0.564 |
+
+### 6. Self-review
+- PASS: G0 data leg, G1, G2, G3, G3b (after the float64 re-check).
+- FAIL: G3c (recorded as pre-registered).
+- NOT CHECKED:
+  - real-data accuracy of the D12 model;
+  - link prediction and graph classification under the filter bank beyond one-step tests;
+  - an IMDB smoke run;
+  - the independent sub-agent review that G0 planned for G4, which was not done.
+
+### 7. Assumptions imposed for theory and reality checks
+- **THEORY-CONSTRAINT: the norm cap Σ‖W_k‖₂ ≤ 1 (Prop. 5).** It binds early in training, and its accuracy cost is untested; C8 is the test.
+- **Real spectrum (Prop. 4).** The frequency response needs the gated operator's real spectrum; the pair-attention arm has none and is reported without a bound.
+- **Reality check (C2):** relational context gives single-hop maps two-hop information; it alone solved the literal G3c design. That is why both C2 arms keep the context on: C2 then tests path-specific information beyond neighbourhood averages.
+
+### 8. Deferred to the cluster
+1. **K and weight decay in the search space.** These are G0b's h2 (reach and strength) and h3 (trainer settings: weight decay 1e-4 here vs 5e-4 for the baselines).
+2. **A readout-without-`h₀` arm** (G0b h1, the ego shortcut) and **a per-node ID-embedding arm**. The feature-free R-GCN beats every H2S-NN variant, by 9.8 points on DBLP for the sheaf-free one.
+3. **Whether the norm cap binds and costs accuracy** (C8).
+4. **The context's cost:** +39 % time on ACM, against whatever it gains.
+5. **G3c, learning of w_f:** whether the path gate learns relational selections (key matching) under tuned settings.
+
+Also outside D12: the stray empty `C:\c` folder needs a manual `Remove-Item C:\c -Recurse`. The D11 screen is superseded and was not resumed.
+
+### 9. Decisions needed from the author
+- Review the D12 report before the branch is pushed or merged.
+- Nothing else is pending.
 
 ## G0 — Pipeline-correctness gate
 
@@ -336,3 +414,13 @@ Pre-registrations: the dated addendum in `D12_evidence/g3b_preregistration.md` (
 ### 9. Decisions needed from the author
 1. **G3c verdict.** Record G3c as FAIL (a valid task, the oracle solves it, the learned model does not), and go to G4? Or authorise one pre-registered follow-up, for example the same v2 task with (a) 1000 epochs, or (b) no noise features. Each needs 3 seeds of the full arm only, about 25 minutes. Note that this is tuning on the known-answer task; any pass would be labelled as such.
 2. **C2 framing.** Given v1, should the paper state that `geometry_context` gives 1-hop maps access to 2-hop information (v1 was solved by context alone), and therefore that endpoint_edges with context is a strong control?
+
+**Author decisions (2026-11-08):**
+1. G3c is recorded as FAIL, as pre-registered, with the diagnosis:
+   - capacity is shown (oracle w_f: 1.0 / 0.996 / 1.0);
+   - learning of w_f was not achieved at default settings;
+   - the redesigned task requires key matching, which is hard to learn and not representative of real data.
+
+   No follow-up runs: they would be tuning on the test task, and tuning happens on the cluster.
+2. **Note for C2.** Relational context gives single-hop maps two-hop information: it alone solved the literal G3c design. That is why both C2 arms, full and `endpoint_edges`, keep the context on.
+3. Proceed to G4 (the summary at the top of this report).
