@@ -19,6 +19,11 @@ class FaceGroup:
     # Merged weight m_f of each cell (D8: summed 1/r over the walks that drew it); None for
     # the DFS builders (every cell weight 1). Multiplies w_f in both L_P and D.
     path_weight: torch.Tensor | None = None
+    # WISP (Part H): groups are per length, so cells differ in relation sequence; per-cell id into
+    # `signature_table` (rows: t_0, r_1, d_1 + 1, t_1, ..., canonical orientation). None / () for
+    # the schema and DFS builders (one signature per group).
+    signature_index: torch.Tensor | None = None
+    signature_table: tuple[tuple[int, ...], ...] = ()
 
     @property
     def num_faces(self) -> int:
@@ -37,6 +42,9 @@ class FaceGroup:
             relation_index=self.relation_index.to(device),
             face_edge_sign=self.face_edge_sign.to(device),
             path_weight=None if self.path_weight is None else self.path_weight.to(device),
+            signature_index=(None if self.signature_index is None
+                             else self.signature_index.to(device)),
+            signature_table=self.signature_table,
         )
 
 

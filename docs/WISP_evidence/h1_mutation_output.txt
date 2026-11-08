@@ -1,0 +1,3 @@
+allow_revisits: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH1_exact_distribution_no_revisits_and_dead_end_mass)
+drop_summed_merge: clean=True mutated_passes=False clean_after=True -> CAUGHT  (test_TH2_unbiased_path_laplacian_for_q_equal_p)
+caught 2/2

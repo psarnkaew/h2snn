@@ -8,6 +8,7 @@ import torch
 from src.configs.config import TrainConfig
 from src.data.fact_layer import FactLayer, apply_fact_layer, build_fact_layer
 from src.data.path_sampler import build_schema_path_groups
+from src.data.wisp_sampler import build_wisp_path_groups
 from src.data.schemas import resolve_schemas
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.preprocessing import (
@@ -134,8 +135,22 @@ def build_node_classification_paths(
     relation_tuples: tuple[tuple[str, str, str], ...],
     seed: int,
 ) -> tuple[FaceGroup, ...]:
-    """Path cells of one draw: the walk sampler over the resolved schemas (D8; `seed` is
-    the draw's seed), or the pre-D7 DFS (`path_sampler: dfs`, seeded by acm_split_seed)."""
+    """Path cells of one draw: WISP (`path_source: wisp`, Part H: schema-free walks from every
+    node of the target type, grouped by length), the walk sampler over the resolved schemas
+    (D8; `seed` is the draw's seed), or the pre-D7 DFS (`path_sampler: dfs`, seeded by
+    acm_split_seed)."""
+    if config.data.path_source == "wisp":
+        start, end = node_slices[config.data.target_node_type]
+        return build_wisp_path_groups(
+            edge_index=edge_index,
+            edge_type=edge_type,
+            node_type=node_type,
+            self_inverse=fact_layer.self_inverse,
+            anchors=torch.arange(start, end),
+            walks_per_anchor=config.data.wisp_walks_per_anchor,
+            max_length=config.data.wisp_max_length,
+            seed=seed,
+        )
     if config.data.path_sampler == "dfs":
         return enumerate_metapath_faces(
             node_slices=node_slices,

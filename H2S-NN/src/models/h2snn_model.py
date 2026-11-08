@@ -647,6 +647,11 @@ class H2SNN(nn.Module):
         """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
         if self.path_encoder is None:
             return None
+        if group.signature_index is not None and bool(
+                (group.relation_index != group.relation_index[:1]).any()):
+            raise NotImplementedError(
+                "WISP groups mix relation sequences; the per-cell relation encoder is Part H "
+                "unit H2 (the encoder below reads row 0).")
         encoder = self.path_encoder
         return checkpoint_if_grad(
             lambda h_in, rel_in: encoder(

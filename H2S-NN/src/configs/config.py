@@ -30,6 +30,10 @@ NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normal
 # in a tuning base config (evidence rows, never tuned, never defaults).
 NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context", "encoder")
 ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
+# Part H (WISP, spec v1.3 §3.2): the path source and its support are never tuned; the walks per
+# anchor `r` (precision) is calibrated to an incidence budget, not tuned.
+PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
+NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length")
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 
 
@@ -80,6 +84,11 @@ def reject_never_tuned_settings(
             raise ValueError(
                 f"tuning search space contains {name!r}: identity_maps and feature_normalization "
                 "are D12 diagnostics, never tuned."
+            )
+        if str(name).split(".")[-1] in NEVER_TUNED_WISP_KEYS:
+            raise ValueError(
+                f"tuning search space contains {name!r}: the WISP settings (path_source, "
+                "wisp_max_length) are pre-registered, never tuned (spec v1.3 §6)."
             )
         if any(key in str(name) for key in NEVER_TUNED_DATA_KEYS):
             raise ValueError(
@@ -289,6 +298,13 @@ class DataConfig:
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
     # epoch); validation and test always use the draw with seed `seed`.
     resample_paths: bool = True
+    # Path source (Part H): "schemas" = the D8 walk sampler over the literature presets (the
+    # fixed-literature-schema row); "wisp" = schema-free walks from the stated target measure
+    # (spec v1.3 §3.2). Node classification only. `wisp_max_length` is the support l_max;
+    # `wisp_walks_per_anchor` is r (precision; default = the ACM incidence-matching rule, H1).
+    path_source: str = "schemas"
+    wisp_max_length: int = 4
+    wisp_walks_per_anchor: int = 42  # ACM: smallest r with incidences >= the schemas run (H1)
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -337,6 +353,9 @@ class DataConfig:
             fact_layer=str(raw.get("fact_layer", "tied")),
             path_sampler=str(raw.get("path_sampler", "walk")),
             resample_paths=raw.get("resample_paths", True),
+            path_source=str(raw.get("path_source", "schemas")),
+            wisp_max_length=int(raw.get("wisp_max_length", 4)),
+            wisp_walks_per_anchor=int(raw.get("wisp_walks_per_anchor", 42)),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
@@ -401,6 +420,28 @@ class DataConfig:
             raise ValueError(
                 f"Unknown dataset '{self.dataset_name}'; set data.task_type explicitly."
             )
+        if self.path_source not in PATH_SOURCES:
+            raise ValueError(
+                f"data.path_source must be one of {PATH_SOURCES}, got {self.path_source!r}."
+            )
+        if self.wisp_max_length < 2:
+            raise ValueError(f"data.wisp_max_length must be >= 2, got {self.wisp_max_length}.")
+        if self.wisp_walks_per_anchor < 1:
+            raise ValueError(
+                f"data.wisp_walks_per_anchor must be >= 1, got {self.wisp_walks_per_anchor}."
+            )
+        if self.path_source == "wisp":
+            if task_type != "node_classification":
+                raise ValueError(
+                    "data.path_source: wisp is implemented for node classification only; link "
+                    "prediction and graph classification keep their schema-free fixed-length sampler."
+                )
+            if self.fact_layer != "tied":
+                raise ValueError("data.path_source: wisp needs fact_layer: tied (it walks facts in "
+                                 "both directions).")
+            if self.path_sampler != "walk":
+                raise ValueError("data.path_sampler selects the schema sampler's variant; it must stay "
+                                 "'walk' under path_source: wisp.")
         if self.feature_normalization not in FEATURE_NORMALIZATIONS:
             raise ValueError(
                 f"data.feature_normalization must be one of {FEATURE_NORMALIZATIONS}, "

@@ -183,3 +183,137 @@ author's answers to the three H0 decisions at the end. S1/S2 are not run before 
      tree. Those two files are now committed, so my D2-row edits to them stay uncommitted, as
      instructed.
    - OK?
+
+
+## Addendum 2026-11-08: the author's H0 decisions (written before any H1 code and before H5)
+Decisions 1–3 of H0 are answered. H5 below replaces the H5 section above wherever they differ.
+
+**A. Branch base.** `19a9d36` is confirmed.
+
+**B. S2 criterion.** The read-outs run on the evaluation draw at the selected checkpoint.
+- **Primary:** σ\* has the highest *mean learned log-weight per cell*, mean_f g(ξ_f) over the cells
+  whose full-walk schema is π, among all full-walk schemas. This is frequency-free.
+- **Secondary:** σ\* has the highest lift I_π(trained) / I_π(initialisation), where the
+  initialisation has constant g, so I_π(init) is the share of Σ m_f.
+- Raw I_π and I_σ are reported as well.
+- The spec's C2b criterion "top I_σ" is impossible by Prop. K (H0 derivation). This is noted in the
+  report; the spec is not edited.
+
+**C. What the C2 ladder isolates (for the report).** The ladder isolates only the **weight
+channel**. Intermediates also act through:
+- **states:** the cell couples every node to the cell mean. The `endpoint_edges` arm (Theorem R)
+  tests this;
+- **transports:** a cell's transports are products of edge maps conditioned on intermediates. They
+  are present in every ladder arm.
+
+The spec is not edited.
+
+**D. S1, the card's parity task: expectation changed. Expected now: `full` ≥ 0.9 AND `endpoints`
+≥ 0.9.** It demonstrates the transport channel, not the weight channel.
+- **Derivation:**
+  - A cell's P←Q coupling is w_f · T_Pᵀ T_Q, and T_Pᵀ T_Q is a product of the orthogonal-times-scale
+    edge maps of (P, A) and (A, Q), each conditioned on its edge's two endpoints.
+  - A Householder reflection of the class coordinate, conditioned on b_P ⊕ b_A on (P, A) and on
+    b_A ⊕ b_Q on (A, Q), delivers Q's class to P multiplied by (−1)^{b_P⊕b_A⊕b_Q}.
+  - Relevant instances (class y) arrive with sign + and irrelevant ones (class 1 − y) with sign −,
+    so all of them vote for y.
+  - The card's rank argument concerns positive per-edge weights, and is right for those.
+- **Graph** (node types `paper`, `author`, `cpaper`; relations author→paper, author→cpaper;
+  ℓ_max = 2, so every cell is P–A–Q):
+  - 1000 targets P with bit b_P, label y (500/500), and 4 N(0, 1) noise features.
+  - Each P has 2 authors A of its own (feature: bit b_A).
+  - Each A writes P and two cpapers: Q (bit b_P ⊕ b_A, class y; relevant) and Q̄ (bit 1 ⊕ b_P ⊕ b_A,
+    class 1 − y; irrelevant). Class marker one-hot in 2 dims, plus 4 noise features.
+  - Each target therefore has 4 instances, 2 relevant and 2 irrelevant, and identical class
+    counts.
+  - Split 50/25/25, graph seed 0, split seed 1.
+- **Arms:**
+  - `full` and `oracle_weight` (w_f = 1 on relevant cells, 0 on the rest): 3 seeds each;
+  - `endpoints`, `schema`, `uniform`, `no_path_cells`: 1 seed each;
+  - diagnostic `endpoints` with `geometry_context: false`, 1 seed. Its weight sees only P and Q,
+    with no context; if it passes, the parity is carried by the transports.
+- **Budget:** ≤ 100 epochs; selection on validation accuracy; model block of `acm_h2snn.yaml` with
+  `path_source: wisp`, `path_weight: exp`, `wisp_max_length: 2`, and `r` large enough to draw every
+  instance (coverage reported).
+- **Wrong if** `full` or `endpoints` < 0.9 on any of its seeds.
+- Not gated: `schema`, `uniform` and `no_path_cells` are reported. I expect `schema` and `uniform` to
+  pass too, since they have the same transports, and `no_path_cells` likely as well, through the
+  2-hop fact route.
+
+**E. S1′, the selection task for the weight channel.** It follows the author's specification
+except for three deviations, each needed to avoid a leak that is certain or structural:
+- **(i) n = 64 instances per target, 1 relevant (author: ~10, 1–2 relevant).**
+  - With random classes on the irrelevant instances, the plain majority over all instances
+    already scores Φ-level 0.62 (k = 1, n = 10) or 0.75 (k = 2, n = 10), above chance + 0.1.
+    These are exact binomial values (H0 notes).
+  - More generally, any fixed statistic that weights the relevant instance coherently and the
+    irrelevant ones with class-independent signs has signal-to-noise ≈ k/√(n − k).
+  - At n = 64, k = 1 this is 0.126, so the counting baseline is ≈ 0.55.
+- **(ii) Relevance is parity over 6-bit vectors:** relevant iff b_P ⊕ b_A ⊕ b_Q = 0 in {0,1}⁶.
+  - A single bit cannot make 1 of 64 instances relevant without a tell. Random bits make half of
+    them relevant. Constrained bits make the relevant instance the odd one out among its author's
+    co-papers, which the author's context mean exposes to a single edge.
+  - With 6-bit vectors, the relevant instance is constructed and every irrelevant b_Q is uniform
+    over the 63 values with XOR ≠ 0.
+  - It is still a parity (per coordinate), and it does not factorise over edges.
+- **(iii) One decoy co-author D_A per author, with bits ¬b_A,** writing all of A's cpapers. Each
+  cpaper's context is then mean(h₀_A, h₀_D), whose pre-LayerNorm bit sum is constant. Without the
+  decoy, the context of Q is h₀_A, and the `endpoints` weight would see b_A.
+  - D is 3 hops from the target, outside ℓ_max = 2.
+  - Residual risk: LayerNorm is nonlinear, so the sum of two normalised vectors is not exactly
+    constant.
+
+**S1′ graph:**
+- 500 targets P with a 6-bit b_P (feature = the 6 bits as ±1) and 4 noise features.
+- 8 authors per target, its own (feature: the 6 bits of b_A).
+- 8 cpapers per author (features: class one-hot (2), the 6 bits of b_Q, 4 noise).
+- One relevant instance per target, at a uniformly chosen author and cpaper: b_Q = b_P ⊕ b_A,
+  class = y.
+- The 63 others: b_Q uniform with b_P ⊕ b_A ⊕ b_Q ≠ 0, class uniform in {0, 1}, independent of y.
+- 500 decoys. Split 50/25/25.
+
+**Signal-to-noise argument for the controls** (`endpoints`, `uniform`, `schema`, `no_path_cells`):
+- An instance's contribution to P is w_f · (product of positive per-edge scales) · (product of
+  orthogonal edge maps) · Q's state.
+- Orthogonal maps can rotate or flip, but they cannot suppress an instance. Positive per-edge
+  scale products can suppress only factorised patterns, and the 6-bit parity indicator is not
+  one: rank argument per coordinate.
+- So, without an instance-conditioned w_f, P sees all 64 instances with weights that do not single
+  out the relevant one.
+  - Any single fixed linear statistic then has SNR ≈ 1/√63, an accuracy of ≈ 0.55.
+  - Routing into orthogonal channels conditioned on bits (the transports' only selection
+    mechanism) would need one channel per pattern of the 64 to be exact; d = 32 < 64, so it would
+    carry crosstalk.
+- **Stated limitation:** this bounds the transports only up to the channel capacity. A d-channel
+  routing is not excluded representationally (as in D12 G3c). Whether the controls stay near
+  chance is therefore empirical.
+
+**S1′ criteria:**
+- `full` ≥ 0.9 on every seed, OR, if it misses, `oracle_weight` ≥ 0.9 on every seed (capacity
+  shown, learning not achieved at default settings).
+- Each control is expected to be "near chance": ≤ 0.65 (counting baseline 0.55 + 0.1).
+- A control "passes" if it reaches ≥ 0.9 (the pass level). Then 2 more seeds are run; if it still
+  passes, the task leaks. It is redesigned and not reported.
+- A control between 0.65 and 0.9 is reported as a miss of "near chance", with diagnosis.
+- **My prediction:** `full` misses, because learning a 3-way 6-bit parity in g from one relevant
+  instance in 64 is harder than D12 G3c's key match, which was not learned. The oracle passes, and
+  every control is ≤ 0.65.
+- **Budget:** ≤ 100 epochs, under 1 minute per run; `wisp_max_length: 2`; r large enough for full
+  coverage (reported).
+
+**F. S2 graph (fixed now).**
+- **Node types:** target T (label y, 4 noise features); carrier C (class one-hot + 4 noise);
+  intermediates M1, M2, M3 (4 noise each).
+- **Relations (7):**
+  - a: T–M1, b: M1–M2, c: M2–M3, d: M3–C;
+  - distractors e: T–C, g: M1–C, h: M2–C.
+- **Planted schema σ\* = a b c d (length 4).**
+  - Each T has its own chain T–M1–M2–M3–C\* with class(C\*) = y.
+  - Each T also has 4 e-edges to carriers of random class.
+  - Each M1 and each M2 has 2 g/h-edges to random-class carriers.
+- **Sampling:** `wisp_max_length: 4`, anchors T, r large enough to draw σ\* for every target
+  (coverage reported). Under p, σ\* is rare, about 1/48 of a target's walks: length 1/3, then
+  action choices.
+- 600 targets; `full`, 3 seeds; ≤ 100 epochs.
+- **Expectation:** primary (B) on every seed; secondary reported. Accuracy is reported as a
+  functional check only.
