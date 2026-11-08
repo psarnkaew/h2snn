@@ -980,5 +980,233 @@ class WispReadoutTests(unittest.TestCase):
         self.assertEqual(out.stdout.strip(), "[]")
 
 
+
+# ============================================================================= I5: review gaps
+def _transported_maps():
+    from tests.test_v2_model import _chain_operators
+
+    return _chain_operators(EDGE_INDEX.size(1), k=2, d=3, seed=0, dtype=torch.float64,
+                            shared=True)
+
+
+def _dense_transported(maps, nodes, facts, signs, weights, d=3):
+    """Dense [8d, 8d] sum_f w_f B_f^T (I - 11^T/|f| (x) I_d) B_f of one length's cells, through
+    the production PathCellTerm (O(L) form) applied to the 8d basis vectors."""
+    from src.models.map_operators import PathTransportOperator
+    from src.models.vertex_path_laplacian import PathCellTerm
+
+    transport = PathTransportOperator(maps.src, maps.tgt, nodes, facts, EDGE_INDEX,
+                                      shared_scale=True, face_edge_sign=signs.double())
+    term = PathCellTerm(transport, weights.double())
+    basis = torch.eye(8 * d, dtype=torch.float64).reshape(8 * d, 8, d)
+    return torch.stack([term.apply(e, 8).reshape(-1) for e in basis], dim=1)
+
+
+def dense_transported_laplacian(groups, maps) -> torch.Tensor:
+    out = torch.zeros(24, 24, dtype=torch.float64)
+    for g in groups:
+        if g.num_faces:
+            out += _dense_transported(maps, g.face_node_index, g.face_edge_index,
+                                      g.face_edge_sign, g.path_weight)
+    return out
+
+
+def exact_transported_laplacian(max_length: int, maps) -> torch.Tensor:
+    """sum_omega p(omega) L_f(omega) with the transports of the walk's own facts and signs
+    (independent enumeration; a hop's sign is +1 when the stored fact points along the walk)."""
+    walks, _ = enumerate_target(max_length)
+    by_length = defaultdict(list)
+    for (_, nodes, facts), prob in walks.items():
+        signs = [1 if (FACTS[f][0], FACTS[f][1]) == (nodes[j], nodes[j + 1]) else -1
+                 for j, f in enumerate(facts)]
+        by_length[len(facts)].append((nodes, facts, signs, prob))
+    out = torch.zeros(24, 24, dtype=torch.float64)
+    for rows in by_length.values():
+        out += _dense_transported(maps, torch.tensor([r[0] for r in rows]),
+                                  torch.tensor([r[1] for r in rows]),
+                                  torch.tensor([r[2] for r in rows]),
+                                  torch.tensor([r[3] for r in rows], dtype=torch.float64))
+    return out
+
+
+class WispTransportedUnbiasednessTests(unittest.TestCase):
+    """T-H2 on the transported operator (review MINOR-10): E[L_P_hat] = L_P^target with each
+    cell's own transports, for q = p and a strongly biased q; control: no IS ratio fails."""
+
+    MAX_LENGTH = 3
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.graph = build_action_graph(EDGE_INDEX, EDGE_TYPE, 8, SELF_INVERSE)
+        cls.maps = _transported_maps()
+        cls.exact = exact_transported_laplacian(cls.MAX_LENGTH, cls.maps)
+
+    def _excess(self, matrices):
+        stack = torch.stack(matrices)
+        mean, se = stack.mean(0), stack.std(0) / math.sqrt(stack.size(0))
+        return float(((mean - self.exact).abs() - 4 * se).max())
+
+    def test_transported_TH2_for_q_equal_p(self) -> None:
+        self.assertGreater(float(self.exact.abs().max()), 1e-3)
+        draws = [dense_transported_laplacian(build_wisp_path_groups(
+            EDGE_INDEX, EDGE_TYPE, NODE_TYPE, SELF_INVERSE, ANCHORS, 50, self.MAX_LENGTH, seed,
+            graph=self.graph), self.maps) for seed in range(200)]
+        self.assertLessEqual(self._excess(draws), 1e-6)
+
+    def test_transported_TH2_under_a_biased_q_with_control(self) -> None:
+        import dataclasses
+
+        proposal = _biased_proposal(self.MAX_LENGTH)
+        weighted, unweighted = [], []
+        for seed in range(300):
+            draw = sample_wisp_walks(self.graph, NODE_TYPE, ANCHORS, 50, self.MAX_LENGTH,
+                                     torch.Generator().manual_seed(seed), proposal)
+            weighted.append(dense_transported_laplacian(
+                merge_wisp_cells(draw, NODE_TYPE, EDGE_INDEX, 50), self.maps))
+            ones = dataclasses.replace(draw, ratio=torch.ones_like(draw.ratio))
+            unweighted.append(dense_transported_laplacian(
+                merge_wisp_cells(ones, NODE_TYPE, EDGE_INDEX, 50), self.maps))
+        self.assertLessEqual(self._excess(weighted), 1e-6)
+        self.assertGreater(self._excess(unweighted), 1e-3, "control: without IS the mean is biased")
+
+
+class WispTrainerDrawTests(unittest.TestCase):
+    """Review MINOR-5: under the adaptive proposal the training draws change, the evaluation cells
+    do not, and every evaluation epoch sees the evaluation cells (through Trainer.fit)."""
+
+    def _setup(self, overlap=None):
+        from dataclasses import dataclass
+        from types import SimpleNamespace
+
+        from src.configs.config import TrainConfig
+        from src.data.dataset import build_node_classification_paths
+        from src.trainers.trainer import Trainer
+
+        extra = {} if overlap is None else {"overlap_sampling": overlap}
+        cfg = TrainConfig.from_dict({"device": "cpu", "epochs": 3, "data": {
+            "dataset_name": "acm", "path_source": "wisp", "wisp_max_length": 3,
+            "wisp_walks_per_anchor": 20, "wisp_proposal": "adaptive", **extra}})
+        fact_layer = SimpleNamespace(self_inverse=SELF_INVERSE, mode="tied", summary=lambda: {})
+        common = dict(fact_layer=fact_layer, node_slices={"paper": (0, 4)}, node_type=NODE_TYPE,
+                      node_type_names=("paper", "a", "s"), edge_index=EDGE_INDEX,
+                      edge_type=EDGE_TYPE, relation_tuples=())
+        evaluation = build_node_classification_paths(config=cfg, seed=cfg.seed, **common)
+
+        @dataclass
+        class Prepared:
+            face_groups: tuple
+            target_val_mask: object = None
+            target_test_mask: object = None
+
+        prepared = Prepared(face_groups=evaluation)
+        data = SimpleNamespace(to=lambda device: prepared, **common)
+        snapshot = [(g.face_node_index.clone(), g.path_weight.clone()) for g in evaluation]
+
+        class Model:
+            last_path_weights = ()
+
+            def to(self, device):
+                return self
+
+        model = Model()
+        seen = {"train": [], "eval": []}
+
+        class Recorder(Trainer):
+            def _train_epoch(self, batch, epoch):
+                seen["train"].append(batch.face_groups)
+                generator = torch.Generator().manual_seed(epoch)
+                # what a training forward leaves for the next adaptive draw: positive w_f
+                model.last_path_weights = tuple(
+                    torch.rand(g.num_faces, generator=generator, dtype=torch.float64) * 5 + 0.01
+                    for g in batch.face_groups if g.num_faces)
+                return {"loss": 0.0}
+
+            def _eval_epoch(self, batch, mask, epoch=-1):
+                seen["eval"].append(batch.face_groups)
+                return {"loss": 0.0, "acc": 0.0}
+
+        logger = SimpleNamespace(info=lambda *a, **k: None, log=lambda *a, **k: None,
+                                 log_summary=lambda *a, **k: None)
+        checkpointer = SimpleNamespace(save=lambda **k: None, save_if_best=lambda **k: False)
+        trainer = Recorder(model=model, optimizer=None, scheduler=None, criterion=None, cfg=cfg,
+                           logger=logger, checkpointer=checkpointer)
+        return trainer, data, evaluation, snapshot, seen
+
+    def test_adaptive_training_draws_leave_the_evaluation_cells_unchanged(self) -> None:
+        trainer, data, evaluation, snapshot, seen = self._setup()
+        trainer.fit(data)
+        self.assertEqual(len(seen["train"]), 3)
+        self.assertEqual(len(seen["eval"]), 6)  # validation and test, per epoch
+        for groups in seen["eval"]:
+            self.assertIs(groups, evaluation)
+        for g, (nodes, weight) in zip(evaluation, snapshot):
+            self.assertTrue(torch.equal(g.face_node_index, nodes))
+            self.assertTrue(torch.equal(g.path_weight, weight))
+        later = seen["train"][2]  # an adaptive draw (q from epoch 1's weights)
+        self.assertFalse(all(a.face_node_index.shape == b.face_node_index.shape
+                             and torch.equal(a.path_weight, b.path_weight)
+                             for a, b in zip(later, evaluation)))
+        ratios = torch.cat([g.path_weight for g in later]) * 20
+        self.assertFalse(bool(torch.allclose(ratios, ratios.round())),
+                         "the adaptive draw carries IS ratios other than 1 (q differs from p)")
+
+
+class WispConfigValidationTests(unittest.TestCase):
+    """Review MINOR-7/8: validation in __post_init__ (direct construction cannot bypass it),
+    wisp_* keys rejected under schemas, and one rejection test per never-tuned key."""
+
+    def test_direct_construction_is_validated(self) -> None:
+        from src.configs.config import DataConfig, ModelConfig
+
+        bad_model = [{"path_weight": "exp", "gamma_init": 2.0},
+                     {"path_weight": "sigmoid_gamma", "path_weight_init": 0.3},
+                     {"path_weight": "nope"}, {"path_weight_init": 0.0}]
+        for kwargs in bad_model:
+            with self.subTest(model=kwargs), self.assertRaises(ValueError):
+                ModelConfig(**kwargs)
+        ModelConfig(path_weight="exp", gamma_init=1.0)  # the saved default round-trips
+        bad_data = [{"path_source": "nope"}, {"wisp_max_length": 1},
+                    {"wisp_walks_per_anchor": -1}, {"wisp_proposal": "nope"},
+                    {"path_source": "schemas", "wisp_max_length": 5},
+                    {"path_source": "schemas", "wisp_walks_per_anchor": 30},
+                    {"path_source": "schemas", "wisp_proposal": "adaptive"}]
+        for kwargs in bad_data:
+            with self.subTest(data=kwargs), self.assertRaises(ValueError):
+                DataConfig(**kwargs)
+        DataConfig(path_source="schemas")
+        DataConfig(path_source="wisp", wisp_max_length=5, wisp_walks_per_anchor=30)
+
+    def test_wisp_keys_are_rejected_under_schemas_through_from_dict(self) -> None:
+        from src.configs.config import TrainConfig
+
+        for extra in ({"wisp_max_length": 3}, {"wisp_walks_per_anchor": 30},
+                      {"wisp_proposal": "adaptive"}):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_source": "schemas",
+                                                **extra}})
+        with self.assertRaises(ValueError):  # a task whose default is schemas
+            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "wisp_max_length": 3}})
+
+    def test_every_never_tuned_wisp_key_is_rejected(self) -> None:
+        from src.configs.config import NEVER_TUNED_WISP_KEYS, reject_never_tuned_settings
+
+        expected = {"path_source", "wisp_max_length", "path_weight", "path_weight_init",
+                    "path_weight_input", "wisp_proposal", "path_weight_context"}
+        self.assertEqual(set(NEVER_TUNED_WISP_KEYS), expected)
+        for key in sorted(expected):
+            for name in (key, f"data.{key}", f"model.{key}", f"ablation.{key}"):
+                with self.subTest(name=name):
+                    with self.assertRaises(ValueError) as caught:
+                        reject_never_tuned_settings({}, [name])
+                    self.assertIn("wisp_proposal", str(caught.exception))
+        reject_never_tuned_settings({}, ["data.wisp_walks_per_anchor", "model.d"])  # r is calibrated
+        for base in ({"model": {"path_weight": "sigmoid_gamma"}},
+                     {"ablation": {"path_weight_input": "endpoints"}},
+                     {"ablation": {"path_weight_context": True}},
+                     {"data": {"dataset_name": "dblp", "path_source": "schemas"}}):
+            with self.subTest(base=base), self.assertRaises(ValueError):
+                reject_never_tuned_settings(base)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,7 @@
+evaluation sees the training draw (trainer mutates the evaluation cells): CAUGHT (FAILED (failures=1))
+adaptive proposal silently dropped (q = p): CAUGHT (FAILED (failures=1))
+gamma_init check only in from_dict (direct construction bypasses it): CAUGHT (FAILED (failures=1))
+wisp_* keys accepted under schemas: CAUGHT (FAILED (failures=6))
+a never-tuned key dropped (wisp_proposal): CAUGHT (FAILED (failures=1))
+IS ratio removed (transported T-H2 under a biased q): CAUGHT (FAILED (failures=1))
+caught 6/6; clean after restore: OK

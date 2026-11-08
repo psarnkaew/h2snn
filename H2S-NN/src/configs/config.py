@@ -369,6 +369,32 @@ class DataConfig:
     val_ratio: float = 0.1
     test_ratio: float = 0.1
 
+    def __post_init__(self) -> None:
+        """Value checks that need no task (review MINOR-7): direct construction cannot bypass
+        them. The task-dependent resolution of path_source and r stays in `resolved()`."""
+        if self.path_source not in ("",) + PATH_SOURCES:
+            raise ValueError(
+                f"data.path_source must be one of {PATH_SOURCES} (or unset), got {self.path_source!r}."
+            )
+        if self.wisp_max_length < 2:
+            raise ValueError(f"data.wisp_max_length must be >= 2, got {self.wisp_max_length}.")
+        if self.wisp_walks_per_anchor < 0:
+            raise ValueError("data.wisp_walks_per_anchor must be >= 1, or 0 for the dataset's "
+                             f"calibrated r; got {self.wisp_walks_per_anchor}.")
+        if self.wisp_proposal not in WISP_PROPOSALS:
+            raise ValueError(
+                f"data.wisp_proposal must be one of {WISP_PROPOSALS}, got {self.wisp_proposal!r}."
+            )
+        if self.path_source == "schemas" and (
+            self.wisp_max_length != 4 or self.wisp_walks_per_anchor != 0
+            or self.wisp_proposal != "uniform"
+        ):
+            raise ValueError(
+                "data.wisp_max_length, wisp_walks_per_anchor and wisp_proposal configure "
+                "path_source: wisp; they are rejected under path_source: schemas (got "
+                f"{self.wisp_max_length}, {self.wisp_walks_per_anchor}, {self.wisp_proposal!r})."
+            )
+
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "DataConfig":
         _reject_unknown_keys("data", raw, cls)
@@ -745,6 +771,13 @@ class ModelConfig:
             raise ValueError(
                 f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
             )
+        # A value the active weight mode would ignore is rejected (the saved defaults pass, so
+        # configs round-trip through save_config).
+        if self.path_weight == "exp" and self.gamma_init != 1.0:
+            raise ValueError("model.gamma_init is rejected under model.path_weight: exp (there is "
+                             "no gamma; the scale is the bias of g, set by path_weight_init).")
+        if self.path_weight == "sigmoid_gamma" and self.path_weight_init != 0.5:
+            raise ValueError("model.path_weight_init exists only under model.path_weight: exp.")
         if not self.path_weight_init > 0.0:
             raise ValueError(
                 f"model.path_weight_init must be positive, got {self.path_weight_init}."
@@ -804,13 +837,6 @@ class ModelConfig:
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
         _reject_unknown_keys("model", raw, cls)
         path_weight = str(raw.get("path_weight", "exp"))
-        # A value that the chosen path weight would ignore is rejected; the default is accepted
-        # because saved configs (save_config) list every field.
-        if path_weight == "exp" and float(raw.get("gamma_init", 1.0)) != 1.0:
-            raise ValueError("model.gamma_init is rejected under model.path_weight: exp (there is "
-                             "no gamma; the scale is the bias of g, set by path_weight_init).")
-        if path_weight == "sigmoid_gamma" and float(raw.get("path_weight_init", 0.5)) != 0.5:
-            raise ValueError("model.path_weight_init exists only under model.path_weight: exp.")
         return cls(
             d=int(raw.get("d", 64)),
             d_r=int(raw.get("d_r", 16)),
