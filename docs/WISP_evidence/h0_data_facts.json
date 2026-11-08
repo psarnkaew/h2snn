@@ -1,0 +1,93 @@
+{
+ "acm": {
+  "num_nodes": 10942,
+  "facts": 273936,
+  "parallel_facts_same_pair_same_relation": 25,
+  "self_loop_facts": 8,
+  "relations": [
+   "paper__cite__paper",
+   "paper__to__author",
+   "paper__to__subject",
+   "paper__to__term"
+  ],
+  "self_inverse": [],
+  "actions_per_node_type": {
+   "paper": 5,
+   "author": 1,
+   "subject": 1,
+   "term": 1
+  },
+  "anchors_target_type": "paper: 3025",
+  "schemas_eval_draw": {
+   "PAP": [
+    2,
+    12630
+   ],
+   "PSP": [
+    2,
+    121744
+   ]
+  },
+  "schemas_incidences": 403122
+ },
+ "dblp": {
+  "num_nodes": 26128,
+  "facts": 119783,
+  "parallel_facts_same_pair_same_relation": 0,
+  "self_loop_facts": 0,
+  "relations": [
+   "author__to__paper",
+   "paper__to__term",
+   "paper__to__venue"
+  ],
+  "self_inverse": [],
+  "actions_per_node_type": {
+   "author": 1,
+   "paper": 3,
+   "term": 1,
+   "venue": 1
+  },
+  "anchors_target_type": "author: 4057",
+  "schemas_eval_draw": {
+   "APA": [
+    2,
+    6016
+   ],
+   "APTPA": [
+    4,
+    168948
+   ]
+  },
+  "schemas_incidences": 862788
+ },
+ "imdb": {
+  "num_nodes": 21420,
+  "facts": 43321,
+  "parallel_facts_same_pair_same_relation": 0,
+  "self_loop_facts": 0,
+  "relations": [
+   "movie__to__director",
+   "movie__>actorh__actor",
+   "movie__to__keyword"
+  ],
+  "self_inverse": [],
+  "actions_per_node_type": {
+   "movie": 3,
+   "director": 1,
+   "actor": 1,
+   "keyword": 1
+  },
+  "anchors_target_type": "movie: 4932",
+  "schemas_eval_draw": {
+   "MDM": [
+    2,
+    8165
+   ],
+   "MAM": [
+    2,
+    39519
+   ]
+  },
+  "schemas_incidences": 143052
+ }
+}
