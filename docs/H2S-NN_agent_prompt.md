@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (+ J4, spec v1.8; evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (+ J4 done, J5 next, spec v1.9; evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
 
 **Naming (binding):** the meta-path mechanism of the current model is **WISP** (Walk-sampled, Instance-weighted Sheaf Paths; spec v1.3 §3.2). "AMPSS" means only the deleted v1 mechanism (tag `v1-submitted`). `../docs/H2S-NN_D2_task_card.md` (old "Part E: D2") is superseded by Part H; do not implement from it.
 
@@ -815,6 +815,40 @@ Apply the author's decisions on the Part J report (spec v1.8 F6–F11): heteroph
 A precondition fails; a HeaRT parameter or the L3 formula cannot be verified from its source (stop J4.4 only); the Freebase pair split cannot guarantee leak freedom; a candidate pool too small for C4; a needed change outside this card.
 
 Git: one commit per unit on `part-j`, staging by explicit path. Push `part-j` only at the end of J4.7, after the review; never merge.
+
+---
+
+## Part J (continued) — J5: link-prediction features, validation files and negatives (spec v1.9)
+
+### Goal
+Remove the feature leak found in the J4 review and apply the author's other link-prediction decisions (spec v1.9 F12–F16). **Link prediction only:** node-classification data, splits, labels, metrics and every heterophily value stay untouched. Authority: `H2S-NN_methodology_spec.md` v1.9 §6 (Link prediction). Evidence base: `docs/H2S-NN_partJ_report.md` §10, `docs/lp_evidence/j_independent_review.md`, `j_review_response.md`, `j44_record.md`.
+
+### Preconditions (stop and report if any fails)
+1. Continue on `part-j` (last commit `e238ea4`) in the main working tree; Part J's git rules hold (explicit-path staging; never commit, stash or reset others' changes; `docs/H2S-NN_v2_plan.md`, AGENTS.md, CLAUDE.md, `vendor/` stay uncommitted).
+2. CPU only; no training; no model or trainer code. The only `src/` file you may edit is `src/data/link_prediction_dataset.py`. Files under `H2S-NN/data/acm`, `data/dblp`, `data/imdb`, `data/freebase` (the node-classification releases) are never modified.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| J5-docs | Commit `docs/H2S-NN_methodology_spec.md`, `docs/H2S-NN_agent_prompt.md`, `docs/session_handoff.md` (explicit paths), message "docs: spec v1.9, agent prompt (J5), session handoff" | `git show --stat` lists exactly these three |
+| J5.0 | Pre-registration `docs/lp_evidence/j5_preregistration.md`: per unit the expected result and the result that would show it wrong; the candidate construction rules to test in J5.1 and the leak measure of J5.2, fixed before any computation | written before code |
+| J5.1 | **Identify which features encode the target relation.** For each derived task (acm_pa, dblp_ap, imdb_ma) and each node type with features, test whether its feature vector is an exact function of its neighbours' features **through the target relation** (candidates fixed in J5.0, at least: elementwise OR, sum, mean, of the other endpoint type's features or of a mapped vocabulary). Report per type: the rule and the number of nodes for which it holds exactly (ACM author = OR of its papers' features, 5,959/5,959, is the known case). A type whose features are its own (e.g. paper keywords) is not affected | table per task and type |
+| J5.2 | **Measure the leak before the fix** with a features-only scorer on the existing validation and test HeaRT lists of each derived task: for an affected type, score a candidate pair by how much of the candidate's contribution under the J5.1 rule is contained in the kept node's feature (for ACM also the reviewer's cosine). Report MRR and Hits@10 of that scorer (the reviewer: ACM 895/895 and 995/995 ranked first) | numbers recorded |
+| J5.3 | **Rebuild or drop** (author decision, spec v1.9 F12), in the LP task files only (`data/lp_derived/<task>/node.dat`): where J5.1 found an exact rule, recompute the affected type's features from that node's **training** facts of the target relation with the same rule (a node with no training fact gets the all-zero vector, as the rule gives); where no exact rule is found for an affected type, drop that type's features in the LP task (featureless, so every model gets a learned embedding). Every method, baselines included, reads these files. Record per task what was done | exact check: for every node of a rebuilt type, its feature equals the rule applied to its training neighbours (bitwise); re-run J5.2 → the features-only scorer is at the level of a feature-free control (pre-register the control and the tolerance in J5.0) |
+| J5.4 | **Validation files, target only** (F13): rewrite `link.dat.valid` of PubMed and LastFM to list only the target relation's validation facts (same facts as now for the target), so every non-target relation stays complete in the message graph, as in the derived tasks | loader test: non-target relations complete; target validation facts identical to before |
+| J5.5 | **Regenerate HeaRT negatives** wherever an input changed: acm_pa (features → cosine), PubMed and LastFM (message graph → CN/PPR/L3). Tasks whose inputs did not change (dblp_ap, imdb_ma, freebase_bb) keep their files: show their md5 unchanged. Same script, same parameters and seed. Report the random-fill share per task (F16) | the J4.4 negative tests on the new files; features-only scorer of J5.2 on the new acm_pa lists |
+| J5.6 | `freebase_bb` task-level `H_edge` without self-loops as the reported value (F15): 0.825 (labelled-only diagnostic 0.353); update `results.json/md` and chapter 3 of the advisor report if it shows the value; re-render | numbers traced |
+| J5.7 | Report §11 "J5" in `docs/H2S-NN_partJ_report.md` (≤ 1 page); full suite once; independent review by a fresh sub-agent (diff `e238ea4..HEAD`, Part A, Part J, J4, J5), filed unedited as `docs/lp_evidence/j5_independent_review.md` with responses in `j5_review_response.md`; then push `part-j` (no merge) | — |
+
+### Rules
+- No definition, rule or split changes to fit an expectation; a miss is recorded with a diagnosis.
+- The RA-variant files (`heart_variant_ra/`) stay on disk, unused (F14).
+- Affected tests after each unit; the full suite once at J5.7.
+
+### Stop conditions
+A precondition fails; a rebuilt feature fails the bitwise check after 3 diagnosed attempts; the features-only scorer still beats the control after the fix (report, do not tune); a change outside this card (in particular any edit to the node-classification data).
+
+Git: one commit per unit on `part-j`; stage by explicit path; push `part-j` only at the end of J5.7, after the review; never merge.
 
 ---
 
