@@ -1,0 +1,36 @@
+$ python ../docs/lp_evidence/j40_data_facts.py data
+PubMed node types Counter({2: 26522, 1: 20163, 0: 13561, 3: 2863})
+  rel 0 types 0->0 edges 16105 loops 389 reverse-stored-in-same-rel 15716 self_inverse True
+  rel 1 types 0->1 edges 25962 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 2 types 1->1 edges 34109 loops 565 reverse-stored-in-same-rel 33544 self_inverse True
+  rel 3 types 2->0 edges 31277 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 4 types 2->1 edges 51323 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 5 types 2->2 edges 62187 loops 767 reverse-stored-in-same-rel 61420 self_inverse True
+  rel 6 types 2->3 edges 6297 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 7 types 3->0 edges 3155 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 8 types 3->1 edges 5245 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 9 types 3->3 edges 798 loops 72 reverse-stored-in-same-rel 726 self_inverse True
+  test relations {2: 8528}
+  rel 2 test 8528; test whose reverse is in link.dat rel 2: 0; test loops 0; test pair also in link.dat 0; test with both orientations in test 8528
+LastFM node types Counter({1: 17632, 0: 1892, 2: 1088})
+  rel 0 types 0->1 edges 74267 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  rel 1 types 0->0 edges 25434 loops 0 reverse-stored-in-same-rel 25434 self_inverse True
+  rel 2 types 1->2 edges 23253 loops 0 reverse-stored-in-same-rel 0 self_inverse False
+  test relations {0: 18567}
+  rel 0 test 18567; test whose reverse is in link.dat rel 0: 0; test loops 0; test pair also in link.dat 0; test with both orientations in test 0
+Freebase rel0 edges 202674 loops 15036 non-loop 187638 with reverse stored 120206 (0.641) unordered pairs 127535
+
+$ python ../docs/lp_evidence/j40_acm_feature_vocab.py data/ACM/acm/raw/ACM
+paper feat values [0. 1.] nnz/row 84.50214876033058
+author feat values [0. 1.] nnz/row 117.12854505789562
+author == or of own papers: 5959/5959
+author == sum of own papers: 4404/5959
+author == mean of own papers: 4404/5959
+author support within own papers' support: 5959 / 5959
+control (random author vs other's papers): 3 / 5959
+
+$ python ../docs/lp_evidence/j40_feature_dependence.py data/DBLP/dblp/raw/DBLP 0 0 1   # DBLP authors vs papers
+pairs with identical neighbour sets: 150, identical features 150; random pairs 5000, identical features 2
+
+$ python ../docs/lp_evidence/j40_feature_dependence.py data/IMDB/imdb/raw/IMDB 2 2 0   # IMDB actors vs movies
+pairs with identical neighbour sets: 1563, identical features 1563; random pairs 5000, identical features 15
