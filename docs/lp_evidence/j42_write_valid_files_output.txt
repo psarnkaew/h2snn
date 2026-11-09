@@ -1,0 +1,2 @@
+{"dataset": "pubmed", "folder": "PubMed", "link_val_ratio": 0.1, "acm_split_seed": 42, "rows_per_relation": {"rel_0": 954, "rel_1": 1729, "rel_2": 1942, "rel_3": 2054, "rel_4": 3442, "rel_5": 4330, "rel_6": 297, "rel_7": 225, "rel_8": 340, "rel_9": 38}, "md5": "154fd2c5c88432369f20fa62f5c0d41d", "path": "data\\PubMed\\link.dat.valid"}
+{"dataset": "lastfm", "folder": "LastFM", "link_val_ratio": 0.1, "acm_split_seed": 42, "rows_per_relation": {"rel_0": 7301, "rel_1": 2174, "rel_2": 1721}, "md5": "24cee86e122aaa99cbc99d560004ce21", "path": "data\\LastFM\\link.dat.valid"}

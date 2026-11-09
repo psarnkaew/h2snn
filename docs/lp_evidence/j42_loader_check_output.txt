@@ -1,0 +1,6 @@
+$ python ../docs/lp_evidence/j42_loader_check.py <scratch>
+pubmed: with link.dat.valid == without (carve): True {'train_pos_edge_index': True, 'val_pos_edge_index': True, 'val_neg_edge_index': True, 'test_pos_edge_index': True, 'test_neg_edge_index': True, 'known_pos_edge_index': True, 'edge_index': True, 'edge_type': True}; train/val/test pos 32167/1942/8528 (30 s)
+lastfm: with link.dat.valid == without (carve): True {'train_pos_edge_index': True, 'val_pos_edge_index': True, 'val_neg_edge_index': True, 'test_pos_edge_index': True, 'test_neg_edge_index': True, 'known_pos_edge_index': True, 'edge_index': True, 'edge_type': True}; train/val/test pos 66966/7301/18567 (5 s)
+acm_pa: loaded with every leak check passing; train/val/test 8059/895/995 = 81.00/9.00/10.00 %; validation facts in the message graph: 0 as stored, 0 reversed; message-graph edges 272046 (10 s)
+dblp_ap: loaded with every leak check passing; train/val/test 15913/1768/1964 = 81.00/9.00/10.00 %; validation facts in the message graph: 0 as stored, 0 reversed; message-graph edges 116051 (13 s)
+imdb_ma: loaded with every leak check passing; train/val/test 11971/1330/1478 = 81.00/9.00/10.00 %; validation facts in the message graph: 0 as stored, 0 reversed; message-graph edges 40513 (12 s)

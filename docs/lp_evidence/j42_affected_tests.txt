@@ -1,0 +1,5 @@
+$ python -m unittest tests.test_lp_valid_files tests.test_lp_derived tests.test_paths_and_facts tests.test_data tests.test_task_heads
+----------------------------------------------------------------------
+Ran 114 tests in 143.542s
+
+OK

@@ -1,0 +1,4 @@
+(a) link.dat.valid ignored (the carve always runs): CAUGHT (FAILED (failures=1))
+(b) reverse-only guard removed: CAUGHT (FAILED (failures=1))
+(c) file facts not in the carve's sorted order: CAUGHT (FAILED (failures=1))
+caught 3/3; loader byte-identical after restore

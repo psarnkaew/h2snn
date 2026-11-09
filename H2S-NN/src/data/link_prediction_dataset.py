@@ -333,12 +333,125 @@ def _split_edge_index_hgb_by_head(
             train.remove(fallback)
         valid.append(fallback)
 
-    def _to_edge_index(rows: list[tuple[int, int]]) -> torch.Tensor:
-        if not rows:
-            return torch.empty((2, 0), dtype=torch.long)
-        return torch.tensor(rows, dtype=torch.long).t().contiguous()
+    return _pairs_to_edge_index(train), _pairs_to_edge_index(valid)
 
-    return _to_edge_index(train), _to_edge_index(valid)
+
+def _pairs_to_edge_index(rows: list[tuple[int, int]]) -> torch.Tensor:
+    if not rows:
+        return torch.empty((2, 0), dtype=torch.long)
+    return torch.tensor(rows, dtype=torch.long).t().contiguous()
+
+
+def _relation_id(relation: tuple[str, str, str]) -> int:
+    return int(relation[1].removeprefix("rel_"))
+
+
+def _file_validation_facts(
+    relation: tuple[str, str, str],
+    partner: tuple[str, str, str] | None,
+    file_valid: dict[tuple[str, str, str], torch.Tensor],
+) -> set[tuple[int, int]]:
+    """The validation facts of `relation` named by `link.dat.valid`, in `relation`'s
+    orientation: its own rows plus its rho-partner's rows flipped (both must agree when both
+    are listed); for a self-inverse relation, each unordered pair once as (min, max)."""
+    own = _edge_set(file_valid[relation]) if relation in file_valid else set()
+    if partner is not None and partner != relation and partner in file_valid:
+        flipped = {(v, u) for u, v in _edge_set(file_valid[partner])}
+        if own and own != flipped:
+            raise ValueError(
+                f"link.dat.valid lists different facts for {relation} and its inverse {partner}."
+            )
+        own = flipped
+    if partner == relation:
+        if any((v, u) not in own for u, v in own):
+            raise ValueError(
+                f"link.dat.valid lists a self-inverse relation {relation} in one orientation only."
+            )
+        own = {(min(u, v), max(u, v)) for u, v in own}
+    return own
+
+
+def _split_validation(
+    link_edges: dict[tuple[str, str, str], torch.Tensor],
+    rho: dict,
+    relations: list[tuple[str, str, str]],
+    file_valid: dict[tuple[str, str, str], torch.Tensor] | None,
+    val_ratio: float,
+    split_seed: int,
+) -> tuple[dict, dict]:
+    """(train, validation) facts of every relation, split by FACT (D7, decision 2).
+
+    rho comes from link.dat before splitting; a relation tied to a lower-id partner takes the
+    partner's split flipped; a self-inverse relation is split over unordered pairs and both
+    orientations go to the same side; a relation without a partner is split on its own rows.
+    Validation is `link.dat.valid` when the file exists (spec v1.8 F9: every relation listed in
+    it takes exactly those facts; a relation absent from it keeps all its facts in training),
+    otherwise the carve `_split_edge_index_hgb_by_head` (seed `split_seed + id * 9973`). Both
+    return their pairs in the same sorted order, so a file written from the carve reproduces it.
+    """
+    if file_valid is not None and set(file_valid) - set(relations):
+        raise ValueError(
+            f"link.dat.valid names relations absent from link.dat: "
+            f"{sorted(set(file_valid) - set(relations))}."
+        )
+    train_edges: dict[tuple[str, str, str], torch.Tensor] = {}
+    valid_edges: dict[tuple[str, str, str], torch.Tensor] = {}
+    for relation in sorted(relations, key=_relation_id):
+        partner = rho.get(relation)
+        if partner is not None and partner != relation \
+                and _relation_id(partner) < _relation_id(relation):
+            continue  # filled from its lower-id partner below
+        edges = link_edges.get(relation, torch.empty((2, 0), dtype=torch.long))
+        if partner == relation:
+            edges = edges[:, edges[0] <= edges[1]]
+        if file_valid is None:
+            train_edge_index, valid_edge_index = _split_edge_index_hgb_by_head(
+                edge_index=edges,
+                val_ratio=val_ratio,
+                seed=split_seed + _relation_id(relation) * 9973,
+            )
+        else:
+            facts = _file_validation_facts(relation, partner, file_valid)
+            pairs = [tuple(pair) for pair in edges.t().tolist()]
+            missing = facts - set(pairs)
+            if missing:
+                raise ValueError(
+                    f"{len(missing)} link.dat.valid fact(s) of {relation} are not in link.dat "
+                    "(HGB format: link.dat holds training and validation facts)."
+                )
+            train_edge_index = _pairs_to_edge_index([p for p in pairs if p not in facts])
+            valid_edge_index = _pairs_to_edge_index(sorted(facts))
+        if partner == relation:
+            train_edge_index = _with_reversed(train_edge_index)
+            valid_edge_index = _with_reversed(valid_edge_index)
+        train_edges[relation] = train_edge_index
+        valid_edges[relation] = valid_edge_index
+        if partner is not None and partner != relation:
+            train_edges[partner] = train_edge_index.flip(0)
+            valid_edges[partner] = valid_edge_index.flip(0)
+    return train_edges, valid_edges
+
+
+def _assert_reverse_partner_is_tied(
+    rho: dict,
+    relations: list[tuple[str, str, str]],
+    target_relations: list[tuple[str, str, str]],
+) -> None:
+    """Guard (spec v1.8 F9; Part J J1.3 finding 2): when a relation r' != target with the
+    target's endpoint types reversed exists, it may store the target's facts reversed; if rho
+    does not tie them (rho(target) is None), a held-out fact can survive as its r' row and no
+    fact-level check would see it. Raise instead of splitting r and r' independently."""
+    for target in target_relations:
+        src_type, _, dst_type = target
+        reverse_typed = [r for r in relations
+                         if r != target and r[0] == dst_type and r[2] == src_type]
+        if reverse_typed and rho.get(target) is None:
+            raise ValueError(
+                f"Target relation {target} has reverse-typed relation(s) {reverse_typed} but no "
+                "exact inverse (rho is None): a held-out fact could leak into the message graph "
+                "as its reverse row. Fix link.dat (every fact stored in both orientations, or "
+                "none) before splitting."
+            )
 
 
 def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
@@ -357,41 +470,23 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
     link_edges = _read_local_hgb_link_file(dataset_dir / "link.dat", nodes)
     test_edges = _read_local_hgb_link_file(dataset_dir / "link.dat.test", nodes)
 
-    train_edges: dict[tuple[str, str, str], torch.Tensor] = {}
-    valid_edges: dict[tuple[str, str, str], torch.Tensor] = {}
     all_relations = sorted(set(link_edges) | set(test_edges))
-    # Split by FACT (D7, decision 2): rho from link.dat before splitting; a relation tied
-    # to a lower-id partner takes the partner's split flipped, a self-inverse relation is
-    # split over unordered pairs and both orientations go to the same side. Relations
-    # without a partner are split exactly as before (same function, same seeds).
+    # Split by FACT (D7, decision 2): see `_split_validation`. Validation is the fixed
+    # link.dat.valid when the release has one (spec v1.8 F9), otherwise the carve.
     type_sizes = {name: int(nodes.data[name].num_nodes) for name in nodes.data.node_types}
     rho = inverse_relations_typed(link_edges, type_sizes)
-
-    def relation_id_of(relation: tuple[str, str, str]) -> int:
-        return int(relation[1].removeprefix("rel_"))
-
-    for relation in sorted(all_relations, key=relation_id_of):
-        partner = rho.get(relation)
-        if partner is not None and partner != relation \
-                and relation_id_of(partner) < relation_id_of(relation):
-            continue  # filled from its lower-id partner below
-        relation_id = relation_id_of(relation)
-        edges = link_edges.get(relation, torch.empty((2, 0), dtype=torch.long))
-        if partner == relation:
-            edges = edges[:, edges[0] <= edges[1]]
-        train_edge_index, valid_edge_index = _split_edge_index_hgb_by_head(
-            edge_index=edges,
-            val_ratio=config.data.link_val_ratio,
-            seed=config.data.acm_split_seed + relation_id * 9973,
-        )
-        if partner == relation:
-            train_edge_index = _with_reversed(train_edge_index)
-            valid_edge_index = _with_reversed(valid_edge_index)
-        train_edges[relation] = train_edge_index
-        valid_edges[relation] = valid_edge_index
-        if partner is not None and partner != relation:
-            train_edges[partner] = train_edge_index.flip(0)
-            valid_edges[partner] = valid_edge_index.flip(0)
+    target_relation = tuple(config.data.target_relation)
+    target_relations = [
+        (target_relation[0], _hgb_relation_name(rel_id), target_relation[2])
+        for rel_id in _resolve_target_relation_ids(spec, target_relation)
+    ]
+    _assert_reverse_partner_is_tied(rho, all_relations, target_relations)
+    valid_path = dataset_dir / "link.dat.valid"
+    file_valid = _read_local_hgb_link_file(valid_path, nodes) if valid_path.exists() else None
+    train_edges, valid_edges = _split_validation(
+        link_edges, rho, all_relations, file_valid,
+        val_ratio=config.data.link_val_ratio, split_seed=config.data.acm_split_seed,
+    )
     for relation in all_relations:
         nodes.data[relation].edge_index = train_edges[relation]
 
