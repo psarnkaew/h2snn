@@ -10,6 +10,12 @@ values in `split_meta.json`). See `../docs/lp_evidence/preregistration.md`.
 - `link.dat.test`: the release's `r` rows of the test facts.
 - `link.dat.valid`: the release's `r` rows of the validation facts. These facts stay in `link.dat`,
   as in HGB's format, where `link.dat` holds training and validation together.
+
+Freebase BOOK-and-BOOK (`freebase_bb`, spec v1.8 F10; task card J4.3) is split by **unordered
+pair** instead (`build_task_by_pair`): the relation has no stored reverse relation, yet 64 % of its
+non-loop rows have their reverse stored in the same relation, so a split by directed row would put
+(u, v) in test and (v, u) in training. Every stored row of a pair goes to the pair's part, the
+test rows leave `link.dat` together, and self-loops stay in `link.dat` in no part.
 """
 
 from __future__ import annotations
@@ -32,13 +38,16 @@ Pair = tuple[int, int]
 class DerivedTask:
     source: str  # release folder relative to the data root
     relation: int  # target relation id in the release's link.dat (stored orientation)
+    unit: str = "fact"  # "fact" (D7, rho-tied) or "unordered_pair" (spec v1.8 F10)
 
 
-#: The spec v1.7 §6 tasks: the relations of each dataset's standard meta-path (PAP, APA, MAM).
+#: The spec v1.7 §6 tasks: the relations of each dataset's standard meta-path (PAP, APA, MAM),
+#: and Freebase BOOK-and-BOOK (spec v1.8 F10, the author's choice after the J1.1 inventory).
 DERIVED_TASKS: dict[str, DerivedTask] = {
     "acm_pa": DerivedTask("acm/acm/raw/ACM", 2),     # paper -> author
     "dblp_ap": DerivedTask("dblp/dblp/raw/DBLP", 0),  # author -> paper
     "imdb_ma": DerivedTask("imdb/imdb/raw/IMDB", 2),  # movie -> actor
+    "freebase_bb": DerivedTask("freebase/freebase/raw/Freebase", 0, "unordered_pair"),  # book-book
 }
 
 
@@ -145,6 +154,61 @@ def build_task(source: Path, out_dir: Path, relation: int, seed: int, val_frac: 
     return meta
 
 
+def unordered(pair: Pair) -> Pair:
+    return (min(pair), max(pair))
+
+
+def build_task_by_pair(source: Path, out_dir: Path, relation: int, seed: int, val_frac: float,
+                       test_frac: float) -> dict[str, object]:
+    """Split `relation` by unordered pair (spec v1.8 F10): the non-loop pairs {u, v}, sorted, are
+    permuted exactly as `split_facts` permutes facts; each part holds every stored row of its pairs
+    (one or two per pair); test rows leave `link.dat` in both orientations; self-loops stay in
+    `link.dat` and are in no part (positives exclude them)."""
+    rows = read_link_rows(source / "link.dat")
+    pairs_by_relation: dict[int, set[Pair]] = {}
+    for row in rows:
+        pairs_by_relation.setdefault(row.relation, set()).add((row.src, row.dst))
+    target = pairs_by_relation[relation]
+    reversed_target = {(dst, src) for src, dst in target}
+    if any(edges == reversed_target for rel, edges in pairs_by_relation.items() if rel != relation):
+        raise ValueError(f"relation {relation} has a stored reverse relation: split it by fact.")
+    loops = {pair for pair in target if pair[0] == pair[1]}
+    pairs = sorted({unordered(pair) for pair in target - loops})
+    train, val, test = split_facts(pairs, seed, val_frac, test_frac)
+    test_set, val_set = set(test), set(val)
+    test_rows = {pair for pair in target if pair[0] != pair[1] and unordered(pair) in test_set}
+    val_rows = {pair for pair in target if pair[0] != pair[1] and unordered(pair) in val_set}
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("node.dat", "info.dat"):
+        shutil.copyfile(source / name, out_dir / name)
+    kept, removed = [], 0
+    for row in rows:
+        if row.relation == relation and (row.src, row.dst) in test_rows:
+            removed += 1
+            continue
+        kept.append(row.raw if row.raw.endswith(b"\n") else row.raw + b"\n")
+    (out_dir / "link.dat").write_bytes(b"".join(kept))
+    (out_dir / "link.dat.test").write_bytes(_rows_of(rows, relation, test_rows))
+    (out_dir / "link.dat.valid").write_bytes(_rows_of(rows, relation, val_rows))
+
+    meta: dict[str, object] = {
+        "source": str(source).replace("\\", "/"),
+        "source_md5": {name: md5(source / name) for name in ("node.dat", "link.dat", "info.dat")},
+        "target_relation": relation, "reverse_relation": relation, "split_unit": "unordered_pair",
+        "seed": seed, "val_frac": val_frac, "test_frac": test_frac,
+        "permutation": f"numpy {np.__version__} default_rng(seed).permutation over sorted pairs",
+        "facts": len(pairs), "train": len(train), "valid": len(val), "test": len(test),
+        "rows": {"train": len(target - loops) - len(test_rows) - len(val_rows),
+                 "valid": len(val_rows), "test": len(test_rows), "self_loops_in_link_dat": len(loops)},
+        "source_link_rows": len(rows), "link_rows_removed": removed,
+        "output_md5": {name: md5(out_dir / name) for name in
+                       ("node.dat", "info.dat", "link.dat", "link.dat.test", "link.dat.valid")},
+    }
+    (out_dir / "split_meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    return meta
+
+
 @dataclass(frozen=True, slots=True)
 class SplitFacts:
     train: set[Pair]
@@ -185,8 +249,9 @@ def main() -> None:
     args = parser.parse_args()
     for name in args.tasks:
         task = DERIVED_TASKS[name]
-        meta = build_task(args.data_root / task.source, args.out_root / name, task.relation,
-                          args.seed, args.val_frac, args.test_frac)
+        build = build_task if task.unit == "fact" else build_task_by_pair
+        meta = build(args.data_root / task.source, args.out_root / name, task.relation,
+                     args.seed, args.val_frac, args.test_frac)
         print(json.dumps({"task": name, **{k: meta[k] for k in (
             "target_relation", "reverse_relation", "facts", "train", "valid", "test",
             "source_link_rows", "link_rows_removed")}, "output_md5": meta["output_md5"]}))

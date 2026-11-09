@@ -1,0 +1,2 @@
+$ python scripts/lp/build_derived_lp.py --tasks freebase_bb
+{"task": "freebase_bb", "target_relation": 0, "reverse_relation": 0, "facts": 127535, "train": 103303, "valid": 11478, "test": 12754, "source_link_rows": 1057688, "link_rows_removed": 18723, "output_md5": {"node.dat": "a7d65c599a137c0ad2d48bba6adf207d", "info.dat": "5c1c8f793a41856d965e9b1fc0c95cbf", "link.dat": "c68908fb221f3c446306c6d93c43f05b", "link.dat.test": "3fc5363d002454e1c74af3861ed1bc3a", "link.dat.valid": "b420348c9964d2a2cc01ffed88409efa"}}

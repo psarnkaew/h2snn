@@ -84,6 +84,15 @@ _LOCAL_HGB_LINK_DATASETS = {
         "folder": "lp_derived/imdb_ma",
         "node_type_names": {0: "movie", 1: "director", 2: "actor", 3: "keyword"},
     },
+    # Freebase BOOK-and-BOOK (spec v1.8 F10; task card J4.3): target ("book", "rel_0", "book"),
+    # split 81/9/10 by unordered pair by scripts/lp/build_derived_lp.py. Self-loops stay in the
+    # message graph as stored facts but are never positives (nor negatives: they are known).
+    "freebase_bb": {
+        "folder": "lp_derived/freebase_bb",
+        "node_type_names": {0: "book", 1: "film", 2: "music", 3: "sports", 4: "people",
+                            5: "location", 6: "organization", 7: "business"},
+        "exclude_self_loop_positives": True,
+    },
 }
 
 
@@ -1000,6 +1009,10 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
             relation_train_pos = _offset_local_relation(
                 relation, local_hgb_data.train_edge_index_by_relation[relation]
             )
+            if spec.get("exclude_self_loop_positives", False):
+                relation_train_pos = relation_train_pos[
+                    :, relation_train_pos[0] != relation_train_pos[1]
+                ]
             relation_val_pos = _offset_local_relation(
                 relation,
                 local_hgb_data.valid_edge_index_by_relation.get(

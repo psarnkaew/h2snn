@@ -12,6 +12,8 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import torch
+
 from scripts.lp import build_derived_lp as bd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -202,6 +204,119 @@ class SyntheticLoaderTests(unittest.TestCase):
             self._load()
 
 
+N_BOOK, N_FILM = 50, 10
+N_BOOK_PAIRS, N_BOOK_LOOPS = 120, 5
+
+
+def write_freebase_like(folder: Path, seed: int = 0) -> None:
+    """A release laid out like HGB Freebase: type 0 book, 1 film, no features; relation 0 =
+    book-book with no stored reverse relation, 120 non-loop pairs of which about 60 % are stored in
+    both orientations, plus 5 self-loops; relation 1 = book->film."""
+    rng = random.Random(seed)
+    folder.mkdir(parents=True, exist_ok=True)
+    nodes = [f"{i}\tbook{i}\t0\n" for i in range(N_BOOK)]
+    nodes += [f"{N_BOOK + i}\tfilm{i}\t1\n" for i in range(N_FILM)]
+    (folder / "node.dat").write_bytes("".join(nodes).encode())
+    pairs = rng.sample([(a, b) for a in range(N_BOOK) for b in range(a + 1, N_BOOK)], N_BOOK_PAIRS)
+    links = []
+    for a, b in pairs:
+        r = rng.random()
+        if r < 0.6:
+            links += [f"{a}\t{b}\t0\t1.0\n", f"{b}\t{a}\t0\t1.0\n"]
+        else:
+            links.append(f"{a}\t{b}\t0\t1.0\n" if r < 0.8 else f"{b}\t{a}\t0\t1.0\n")
+    links += [f"{i}\t{i}\t0\t1.0\n" for i in range(N_BOOK_LOOPS)]
+    links += [f"{a}\t{N_BOOK + a % N_FILM}\t1\t1.0\n" for a in range(N_BOOK)]
+    (folder / "link.dat").write_bytes("".join(links).encode())
+    (folder / "info.dat").write_text(json.dumps({"synthetic": True}), encoding="utf-8")
+
+
+def canonical(rows: set[tuple[int, int]]) -> set[tuple[int, int]]:
+    """Own helper (not the build script's): each row as its unordered pair."""
+    return {(min(u, v), max(u, v)) for u, v in rows}
+
+
+class FreebasePairSplitTests(unittest.TestCase):
+    """J4.3 (spec v1.8 F10): BOOK-and-BOOK split 81/9/10 by unordered pair, self-loops in no part."""
+
+    TARGET = ("book", "rel_0", "book")
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        write_freebase_like(self.root / "release")
+        self.task_dir = self.root / "lp_derived" / "freebase_bb"
+        self.meta = bd.build_task_by_pair(self.root / "release", self.task_dir, 0, seed=42,
+                                          val_frac=0.09, test_frac=0.10)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _parts(self) -> dict[str, set[tuple[int, int]]]:
+        split = bd.read_split(self.task_dir, 0)
+        train = {p for p in split.train if p[0] != p[1]}
+        return {"train": train, "valid": split.valid, "test": split.test}
+
+    def test_no_unordered_pair_has_rows_in_two_parts(self) -> None:
+        parts = {name: canonical(rows) for name, rows in self._parts().items()}
+        self.assertFalse(parts["train"] & parts["valid"])
+        self.assertFalse(parts["train"] & parts["test"])
+        self.assertFalse(parts["valid"] & parts["test"])
+        self.assertEqual(sum(len(p) for p in parts.values()), N_BOOK_PAIRS)
+
+    def test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation(self) -> None:
+        link = bd.read_split(self.task_dir, 0).link_pairs_by_relation[0]
+        for u, v in bd.read_split(self.task_dir, 0).test:
+            self.assertNotIn((u, v), link)
+            self.assertNotIn((v, u), link)
+
+    def test_every_stored_row_of_a_held_out_pair_is_in_its_file(self) -> None:
+        source = {(r.src, r.dst) for r in bd.read_link_rows(self.root / "release" / "link.dat")
+                  if r.relation == 0}
+        split = bd.read_split(self.task_dir, 0)
+        for rows in (split.test, split.valid):
+            pairs = canonical(rows)
+            self.assertEqual({p for p in source if p[0] != p[1] and canonical({p}) <= pairs}, rows)
+
+    def test_self_loops_are_in_no_part_and_stay_in_link_dat(self) -> None:
+        split = bd.read_split(self.task_dir, 0)
+        self.assertFalse(any(u == v for u, v in split.valid | split.test))
+        loops = {(i, i) for i in range(N_BOOK_LOOPS)}
+        self.assertTrue(loops <= split.link_pairs_by_relation[0])
+        self.assertEqual(self.meta["rows"]["self_loops_in_link_dat"], N_BOOK_LOOPS)
+
+    def test_proportions_are_81_9_10_by_pair(self) -> None:
+        counts = (self.meta["train"], self.meta["valid"], self.meta["test"])
+        self.assertEqual(counts, (97, 11, 12))
+        for part, share in zip(counts, (81.0, 9.0, 10.0)):
+            self.assertLessEqual(abs(100.0 * part / N_BOOK_PAIRS - share), 0.5)
+
+    def test_same_seed_gives_byte_identical_files(self) -> None:
+        again = self.task_dir.parent / "again"
+        bd.build_task_by_pair(self.root / "release", again, 0, seed=42, val_frac=0.09,
+                              test_frac=0.10)
+        for name in ("node.dat", "info.dat", "link.dat", "link.dat.test", "link.dat.valid",
+                     "split_meta.json"):
+            self.assertEqual((self.task_dir / name).read_bytes(), (again / name).read_bytes(), name)
+
+    def test_loader_leak_checks_pass_and_positives_exclude_self_loops(self) -> None:
+        from src.data.link_prediction_dataset import build_link_prediction_dataset
+
+        data = build_link_prediction_dataset(derived_config(self.root, "freebase_bb",
+                                                            self.TARGET))
+        for name in ("train_pos_edge_index", "val_pos_edge_index", "test_pos_edge_index"):
+            index = getattr(data, name)
+            self.assertFalse(bool((index[0] == index[1]).any()), name)
+        message = {tuple(p) for p in data.edge_index.t().tolist()}
+        off = data.src_node_offset
+        self.assertTrue({(off + i, off + i) for i in range(N_BOOK_LOOPS)} <= message)
+        held = {tuple(p) for p in torch.cat([data.val_pos_edge_index,
+                                             data.test_pos_edge_index], 1).t().tolist()}
+        self.assertFalse(held & message)
+        self.assertFalse({(v, u) for u, v in held} & message)
+        self.assertEqual(data.train_pos_edge_index.size(1), self.meta["rows"]["train"])
+
+
 def _real_task(name: str) -> Path | None:
     task_dir = DERIVED_ROOT / name
     return task_dir if (task_dir / "split_meta.json").is_file() else None
@@ -222,6 +337,34 @@ def _real_split_case(name: str) -> type:
 
     RealSplitTests.__name__ = RealSplitTests.__qualname__ = f"RealSplitTests_{name}"
     return RealSplitTests
+
+
+@unittest.skipUnless(_real_task("freebase_bb") is not None, "data/lp_derived/freebase_bb not built")
+class RealFreebasePairTests(unittest.TestCase):
+    """The built freebase_bb: disjoint by unordered pair, no reciprocal leak, no self-loop held
+    out, 81/9/10 by pair."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.task_dir = DERIVED_ROOT / "freebase_bb"
+        cls.meta = json.loads((cls.task_dir / "split_meta.json").read_text(encoding="utf-8"))
+        cls.split = bd.read_split(cls.task_dir, 0)
+
+    def test_disjoint_by_unordered_pair(self) -> None:
+        train = canonical({p for p in self.split.train if p[0] != p[1]})
+        valid, test = canonical(self.split.valid), canonical(self.split.test)
+        self.assertFalse(train & valid or train & test or valid & test)
+        self.assertEqual((len(train), len(valid), len(test)),
+                         (self.meta["train"], self.meta["valid"], self.meta["test"]))
+
+    def test_no_reciprocal_leak_and_no_held_out_self_loop(self) -> None:
+        self.assertEqual(bd.test_fact_leaks(self.task_dir, 0, 0), 0)
+        self.assertFalse(any(u == v for u, v in self.split.valid | self.split.test))
+
+    def test_proportions_by_pair(self) -> None:
+        total = self.meta["facts"]
+        for key, share in (("train", 81.0), ("valid", 9.0), ("test", 10.0)):
+            self.assertLessEqual(abs(100.0 * self.meta[key] / total - share), 0.5)
 
 
 RealSplitTestsACM = _real_split_case("acm_pa")

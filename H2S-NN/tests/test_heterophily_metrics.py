@@ -317,6 +317,33 @@ class FillConventionTests(unittest.TestCase):
 
 
 @unittest.skipUnless(_CLONES_PRESENT, "H2GB / Hetero2Net clones not present under vendor/")
+class TaskLevelHEdgeTests(unittest.TestCase):
+    """J4.3: task-level H_edge of a same-type target relation (Freebase book-book)."""
+
+    def test_hand_values_fill_and_labeled_only(self) -> None:
+        from torch_geometric.data import HeteroData
+
+        from scripts.heterophily import compute_heterophily as ch
+
+        data = HeteroData()
+        data["book"].y = torch.tensor([0, 1, 0, -1])
+        data["book"].num_nodes = 4
+        # Stored (0,1), (1,2), (0,0), (2,3); symmetrised: 00, 01, 10, 12, 21, 23, 32 (7 edges).
+        data["book", "and", "book"].edge_index = torch.tensor([[0, 1, 0, 2], [1, 2, 0, 3]])
+        out = ch.task_level_h_edge(data, ("book", "and", "book"), seeds=[5, 6],
+                                   cross_check_tol=1e-6)
+        self.assertEqual((out["edges"], out["self_loops"], out["labeled_edges"]), (7, 1, 5))
+        # Labeled-only: of 00, 01, 10, 12, 21 only 00 agrees -> heterophily 4/5.
+        self.assertAlmostEqual(out["labeled_only_h_edge_heterophily"], 4 / 5, places=12)
+        filled = ch.h2gb_random_fill(data["book"].y, 5)
+        edges = [(0, 0), (0, 1), (1, 0), (1, 2), (2, 1), (2, 3), (3, 2)]
+        agree = sum(int(filled[u] == filled[v]) for u, v in edges)
+        self.assertAlmostEqual(out["h_edge_heterophily"], 1 - agree / 7, places=6)
+        self.assertEqual(len(out["h_edge_heterophily_over_seeds"]), 2)
+        self.assertTrue(torch.equal(data["book"].y, torch.tensor([0, 1, 0, -1])))
+
+
+@unittest.skipUnless(_CLONES_PRESENT, "H2GB / Hetero2Net clones not present under vendor/")
 class SymmetriseTests(unittest.TestCase):
     def test_same_type_undirected_cross_type_reversed(self) -> None:
         from torch_geometric.data import HeteroData

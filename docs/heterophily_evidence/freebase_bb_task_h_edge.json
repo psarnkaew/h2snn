@@ -1,0 +1,25 @@
+{
+  "relation": "book-and-book",
+  "graph": "symmetrised (to_undirected, self-loops kept)",
+  "edges": 270106,
+  "self_loops": 15036,
+  "labeled_edges": 15707,
+  "h_edge_heterophily": 0.7794125229120255,
+  "fill_seed": 0,
+  "fill_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "h_edge_heterophily_over_seeds": [
+    0.7794125229120255,
+    0.781545028090477,
+    0.7829074561595917,
+    0.7827741652727127,
+    0.7810193002223969
+  ],
+  "labeled_only_h_edge_heterophily": 0.3229133507353409,
+  "source": "Hetero2Net label_homophily on calcHomophily-filled labels (h2gb_random_fill)"
+}

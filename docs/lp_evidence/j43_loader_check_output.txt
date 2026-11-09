@@ -1,0 +1,7 @@
+$ python ../docs/lp_evidence/j43_loader_check.py
+train: 152021 positive rows, 103303 unordered pairs, self-loops 0
+val: 16894 positive rows, 11478 unordered pairs, self-loops 0
+test: 18723 positive rows, 12754 unordered pairs, self-loops 0
+pairs shared between parts: 0 0 0
+held-out rows in the message graph: as stored 0 reversed 0
+self-loops of books in the message graph: 15036; message-graph edges 834089; loaded with every leak check passing (62 s)

@@ -624,6 +624,45 @@ CITED_H2GB_TABLE2: dict[str, dict[str, float]] = {
 CITED_HETERO2NET_TABLE2: dict[str, float] = {"dblp": 0.87, "acm": 0.60, "imdb": 0.24}
 
 
+def task_level_h_edge(data, edge_type: EdgeType, seeds: list[int],
+                      cross_check_tol: float) -> dict:
+    """Task-level `H_edge` of one same-type target relation (spec v1.8 §1, §6: Freebase book-book,
+    task card J4.3), heterophily form, on the relation symmetrised as H2GB's loaders build it
+    (`to_undirected`: coalesced, self-loops kept). Value: Hetero^2Net `label_homophily` (the
+    reference edge-homophily function) on the labels after `calcHomophily`'s fill
+    (`h2gb_random_fill`, seed s; primary s = seeds[0]), cross-checked with own float64 code.
+    Diagnostic: edges whose two endpoints are labeled."""
+    from torch_geometric.utils import to_undirected
+
+    _, hetero2net = reference_modules()
+    src, _, dst = edge_type
+    if src != dst:
+        raise ValueError("task_level_h_edge is defined here for a same-type relation.")
+    y = data[src].y
+    keep = labeled_mask(y)
+    edge_index = to_undirected(data[edge_type].edge_index, num_nodes=data[src].num_nodes)
+    row, col = edge_index
+    per_seed = []
+    for seed in seeds:
+        filled = h2gb_random_fill(y, seed)
+        reference = float(hetero2net.label_homophily(edge_index, filled))
+        own = float((filled[row] == filled[col]).to(torch.float64).mean())
+        if abs(reference - own) > cross_check_tol:
+            raise AssertionError(f"Task-level h_edge cross-check failed (seed {seed}).")
+        per_seed.append(1.0 - reference)
+    labeled = keep[row] & keep[col]
+    labeled_h = float((y[row][labeled] == y[col][labeled]).to(torch.float64).mean())
+    return {
+        "relation": "-".join(edge_type), "graph": "symmetrised (to_undirected, self-loops kept)",
+        "edges": int(edge_index.size(1)), "self_loops": int((row == col).sum()),
+        "labeled_edges": int(labeled.sum()),
+        "h_edge_heterophily": per_seed[0], "fill_seed": seeds[0],
+        "fill_seeds": list(seeds), "h_edge_heterophily_over_seeds": per_seed,
+        "labeled_only_h_edge_heterophily": 1.0 - labeled_h,
+        "source": "Hetero2Net label_homophily on calcHomophily-filled labels (h2gb_random_fill)",
+    }
+
+
 def _fmt_spread(values: list[float]) -> str:
     return f" (fill seeds: {min(values):.4f}–{max(values):.4f})" if len(values) > 1 else ""
 
@@ -724,10 +763,20 @@ def main() -> None:
     parser.add_argument("--cross-check-tol", type=float, default=1e-6)
     parser.add_argument("--out-json", type=Path, required=True)
     parser.add_argument("--out-md", type=Path, default=None)
+    parser.add_argument("--task-h-edge-freebase", action="store_true",
+                        help="Only the task-level H_edge of Freebase book-book (J4.3), to "
+                             "--out-json.")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(message)s",
                         handlers=[logging.StreamHandler(sys.stdout)])
+    if args.task_h_edge_freebase:
+        data = load_hgb(args.data_root, "freebase")
+        out = task_level_h_edge(data, ("book", "and", "book"), args.fill_seeds,
+                                args.cross_check_tol)
+        LOGGER.info("freebase book-and-book task-level H_edge: %s", json.dumps(out))
+        args.out_json.write_text(json.dumps(out, indent=2), encoding="utf-8")
+        return
     results: list[DatasetResult] = []
     for dataset in args.datasets:
         data = load_hgb(args.data_root, dataset)
