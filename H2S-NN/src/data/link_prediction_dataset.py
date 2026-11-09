@@ -68,6 +68,22 @@ _LOCAL_HGB_LINK_DATASETS = {
         # target_relation instead of listed explicitly.
         "target_relation_ids": (0, 1),
     },
+    # Derived tasks (spec v1.7 §6; task card Part J, J1.2): the HGB node-classification releases
+    # with the target relation split by fact 81/9/10 by scripts/lp/build_derived_lp.py. Targets:
+    # acm_pa ("paper", "rel_2", "author"), dblp_ap ("author", "rel_0", "paper"), imdb_ma
+    # ("movie", "rel_2", "actor"); configs name them with data.task_type: link_prediction.
+    "acm_pa": {
+        "folder": "lp_derived/acm_pa",
+        "node_type_names": {0: "paper", 1: "author", 2: "subject", 3: "term"},
+    },
+    "dblp_ap": {
+        "folder": "lp_derived/dblp_ap",
+        "node_type_names": {0: "author", 1: "paper", 2: "term", 3: "venue"},
+    },
+    "imdb_ma": {
+        "folder": "lp_derived/imdb_ma",
+        "node_type_names": {0: "movie", 1: "director", 2: "actor", 3: "keyword"},
+    },
 }
 
 

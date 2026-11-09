@@ -142,6 +142,66 @@ class SyntheticSplitTests(SplitPropertyMixin, unittest.TestCase):
         self.assertEqual(bd.test_fact_leaks(self.task_dir, 2, 3), 1)
 
 
+def derived_config(root: Path, dataset: str, target: tuple[str, str, str], seed: int = 3):
+    from src.configs.config import TrainConfig
+
+    return TrainConfig.from_dict({"device": "cpu", "seed": seed, "data": {
+        "dataset_name": dataset, "task_type": "link_prediction", "root": str(root),
+        "target_relation": list(target), "fact_layer": "tied", "path_sampler": "walk",
+        "face_sample_k": 4}})
+
+
+class SyntheticLoaderTests(unittest.TestCase):
+    """J1.3: the registered derived task loads through the existing leak checks."""
+
+    TARGET = ("paper", "rel_2", "author")
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        write_release(self.root / "release")
+        self.task_dir = self.root / "lp_derived" / "acm_pa"
+        bd.build_task(self.root / "release", self.task_dir, 2, seed=42, val_frac=0.09,
+                      test_frac=0.10)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _load(self, seed: int = 3):
+        from src.data.link_prediction_dataset import build_link_prediction_dataset
+
+        return build_link_prediction_dataset(derived_config(self.root, "acm_pa", self.TARGET, seed))
+
+    def test_loads_and_its_test_set_is_link_dat_test(self) -> None:
+        data = self._load()
+        src0, dst0 = data.src_node_offset, data.dst_node_offset
+        loaded = {(int(u) - src0 + PAPER0, int(v) - dst0 + AUTHOR0)
+                  for u, v in data.test_pos_edge_index.t().tolist()}
+        self.assertEqual(loaded, bd.read_split(self.task_dir, 2).test)
+
+    def test_validation_split_does_not_depend_on_the_training_seed(self) -> None:
+        a, b = self._load(seed=3), self._load(seed=11)
+        for name in ("val_pos_edge_index", "val_neg_edge_index", "test_pos_edge_index",
+                     "test_neg_edge_index", "train_pos_edge_index"):
+            self.assertTrue(bool((getattr(a, name) == getattr(b, name)).all()), name)
+
+    def _append(self, rows: list[str]) -> None:
+        with (self.task_dir / "link.dat").open("ab") as handle:
+            handle.write("".join(rows).encode())
+
+    def test_mutation_a_test_fact_back_in_link_dat_is_caught(self) -> None:
+        u, v = sorted(bd.read_split(self.task_dir, 2).test)[0]
+        self._append([f"{u}\t{v}\t2\t1.0\n", f"{v}\t{u}\t3\t1.0\n"])  # as HGB stores a fact
+        with self.assertRaisesRegex(ValueError, "leak|overlap"):
+            self._load()
+
+    def test_mutation_a_test_fact_back_as_its_target_row_is_caught(self) -> None:
+        u, v = sorted(bd.read_split(self.task_dir, 2).test)[0]
+        self._append([f"{u}\t{v}\t2\t1.0\n"])
+        with self.assertRaisesRegex(ValueError, "leak|overlap"):
+            self._load()
+
+
 def _real_task(name: str) -> Path | None:
     task_dir = DERIVED_ROOT / name
     return task_dir if (task_dir / "split_meta.json").is_file() else None
