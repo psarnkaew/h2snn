@@ -1,0 +1,3 @@
+H2S-NN trainer metric: default protocol oracle_topk: CAUGHT (FAILED (failures=1))
+baseline metric: default protocol oracle_topk: CAUGHT (FAILED (failures=1))
+caught 2/2; files byte-identical after restore
