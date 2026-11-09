@@ -1,0 +1,3 @@
+matched columns 133/334 (ambiguous 0); nodes holding 491/4057; authors with no paper: 0; all-zero author rows: 39
+unmatched columns 201: author-1 cells 29553; with the best term column: author 1 / rule 0 = 1112, author 0 / rule 1 = 17884; per-column agreement median 0.9931, min 0.6847
+

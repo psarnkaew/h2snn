@@ -1,0 +1,58 @@
+== acm_pa (target relation 2)
+type 0: nodes 3025, dim 1902: not affected
+  identical-neighbourhood test: {'identical_set_pairs': 102, 'identical_features': 0, 'random_pairs': 5000, 'random_identical': 0}
+       V1/or   cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+       V1/mean cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+       V1/max  cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+      V1p/or   cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+      V1p/mean cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+      V1p/max  cols 0/1902 (zero 0, ambiguous 0) nodes 531/3025 max|diff| 1
+type 1: nodes 5959, dim 1902: affected, exact rule; exact: ['V1/or', 'V1/max', 'V1p/or', 'V1p/max', 'V2:r6/or', 'V2:r6/max']
+  identical-neighbourhood test: {'identical_set_pairs': 2365, 'identical_features': 2365, 'random_pairs': 5000, 'random_identical': 0}
+       V1/or   cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+       V1/max  cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+      V1p/or   cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+      V1p/max  cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+    V2:r6/or   cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+    V2:r6/max  cols 1902/1902 (zero 0, ambiguous 0) nodes 5959/5959 max|diff| 0 EXACT
+type 2: nodes 56, dim 1902: not on the target relation, not affected
+type 3: nodes 1902, dim None: no features
+== dblp_ap (target relation 0)
+type 0: nodes 4057, dim 334: affected, no exact rule (drop)
+  identical-neighbourhood test: {'identical_set_pairs': 150, 'identical_features': 150, 'random_pairs': 5000, 'random_identical': 2}
+    V2:r1/or   cols 133/334 (zero 0, ambiguous 0) nodes 491/4057 max|diff| 0
+    V2:r1/max  cols 133/334 (zero 0, ambiguous 0) nodes 491/4057 max|diff| 0
+    V2:r1/sum  cols 0/334 (zero 0, ambiguous 0) nodes 409/4057 max|diff| 0
+    V2:r1/mean cols 0/334 (zero 0, ambiguous 0) nodes 332/4057 max|diff| 0
+       V1/or   cols 48/334 (zero 0, ambiguous 0) nodes 252/4057 max|diff| 0
+      V1p/or   cols 48/334 (zero 0, ambiguous 0) nodes 252/4057 max|diff| 0
+type 1: nodes 14328, dim 4231: not affected
+  identical-neighbourhood test: {'identical_set_pairs': 8627, 'identical_features': 20, 'random_pairs': 5000, 'random_identical': 0}
+       V1/or   cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+       V1/sum  cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+       V1/mean cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+       V1/max  cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+      V1p/or   cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+      V1p/sum  cols 0/4231 (zero 0, ambiguous 0) nodes 0/14328 max|diff| 0
+type 2: nodes 7723, dim 50: not on the target relation, not affected
+type 3: nodes 20, dim None: no features
+== imdb_ma (target relation 2)
+type 0: nodes 4932, dim 3489: not affected
+  identical-neighbourhood test: {'identical_set_pairs': 151, 'identical_features': 43, 'random_pairs': 5000, 'random_identical': 0}
+       V1/or   cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+       V1/mean cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+       V1/max  cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+      V1p/or   cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+      V1p/mean cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+      V1p/max  cols 13/3489 (zero 0, ambiguous 0) nodes 0/4932 max|diff| 0
+type 1: nodes 2393, dim 3341: not on the target relation, not affected
+type 2: nodes 6124, dim 3341: affected, exact rule; exact: ['V1/mean']
+  identical-neighbourhood test: {'identical_set_pairs': 1563, 'identical_features': 1563, 'random_pairs': 5000, 'random_identical': 15}
+       V1/mean cols 3341/3341 (zero 0, ambiguous 0) nodes 6124/6124 max|diff| 2.22e-16 EXACT
+       V3/mean cols 3316/3341 (zero 0, ambiguous 0) nodes 5967/6124 max|diff| 2.22e-16
+     V3cf/mean cols 3316/3341 (zero 0, ambiguous 0) nodes 5967/6124 max|diff| 2.22e-16
+      V3p/mean cols 2657/3341 (zero 0, ambiguous 0) nodes 3485/6124 max|diff| 1.11e-16
+    V3pcf/mean cols 2657/3341 (zero 0, ambiguous 0) nodes 3485/6124 max|diff| 1.11e-16
+       V3/max  cols 13/3341 (zero 0, ambiguous 0) nodes 3477/6124 max|diff| 0
+type 3: nodes 7971, dim None: no features
+

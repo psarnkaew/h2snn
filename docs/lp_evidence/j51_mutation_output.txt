@@ -1,0 +1,6 @@
+OR computed as SUM: CAUGHT (FAILED (failures=1))
+MEAN divides by degree twice: CAUGHT (FAILED (failures=1))
+column matching disabled (identity only): CAUGHT (FAILED (failures=1))
+every candidate called exact: CAUGHT (FAILED (failures=1))
+caught 4/4; file byte-identical after restore
+
