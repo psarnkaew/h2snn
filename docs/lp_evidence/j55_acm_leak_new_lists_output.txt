@@ -1,0 +1,3 @@
+acm_pa type 1 V1/or valid: scorer MRR 0.0205 Hits@10 0.0547; Ctrl-G MRR 0.0205 Hits@10 0.0547; diff MRR +0.0000 Hits@10 +0.0000; cosine MRR 0.0671 Hits@10 0.1307
+acm_pa type 1 V1/or test: scorer MRR 0.0194 Hits@10 0.0472; Ctrl-G MRR 0.0194 Hits@10 0.0472; diff MRR +0.0000 Hits@10 +0.0000; cosine MRR 0.0534 Hits@10 0.1146
+

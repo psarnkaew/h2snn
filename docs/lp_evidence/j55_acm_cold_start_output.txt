@@ -1,0 +1,3 @@
+acm_pa valid: positives 895; kept author without a training fact 421; kept paper without a training fact 73; half-lists with random fill 421 (entries 105250 = 421 x 250)
+acm_pa test: positives 995; kept author without a training fact 461; kept paper without a training fact 73; half-lists with random fill 461 (entries 115250 = 461 x 250)
+

@@ -1,0 +1,6 @@
+$ python scripts/lp/build_heart_negatives.py --tasks acm_pa pubmed lastfm
+Tue Nov 10 02:46:22 TST 2026
+{"task": "acm_pa", "pair_heuristic": "L3 (Kovacs et al. 2019 Eq. 1) on target training facts", "valid": {"positives": 895, "lists_with_random_fill": 421, "random_fill_entries": 105250, "min_fill_pool": 3021, "min_eligible_candidates": 2975}, "test": {"positives": 995, "lists_with_random_fill": 461, "random_fill_entries": 115250, "min_fill_pool": 3021, "min_eligible_candidates": 2975}, "seconds": 20.0}
+{"task": "pubmed", "pair_heuristic": "HeaRT calc_CN_metric as coded: CN(a,v)/deg(v)", "valid": {"positives": 1942, "lists_with_random_fill": 0, "random_fill_entries": 0, "min_fill_pool": null, "min_eligible_candidates": 15206}, "test": {"positives": 8528, "lists_with_random_fill": 0, "random_fill_entries": 0, "min_fill_pool": null, "min_eligible_candidates": 15206}, "seconds": 67.2}
+{"task": "lastfm", "pair_heuristic": "L3 (Kovacs et al. 2019 Eq. 1) on target training facts", "valid": {"positives": 7301, "lists_with_random_fill": 1097, "random_fill_entries": 262083, "min_fill_pool": 1460, "min_eligible_candidates": 1281}, "test": {"positives": 18567, "lists_with_random_fill": 2597, "random_fill_entries": 617361, "min_fill_pool": 1459, "min_eligible_candidates": 1281}, "seconds": 52.3}
+

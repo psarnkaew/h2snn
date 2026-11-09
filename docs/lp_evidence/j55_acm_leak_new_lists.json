@@ -1,0 +1,50 @@
+[
+ {
+  "task": "acm_pa",
+  "type": 1,
+  "rule": "V1/or",
+  "rule_nodes_holding_on_release": 5959,
+  "ambiguous_columns": 0,
+  "stored_features": true,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "mrr": 0.02050094990207291,
+     "hits@10": 0.054748603351955305,
+     "lists": 895
+    },
+    "ctrl_g": {
+     "mrr": 0.02050094990207291,
+     "hits@10": 0.054748603351955305,
+     "lists": 895
+    },
+    "cosine": {
+     "mrr": 0.06707483859489267,
+     "hits@10": 0.13072625698324022,
+     "lists": 895
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   },
+   "test": {
+    "scorer": {
+     "mrr": 0.019437672342428162,
+     "hits@10": 0.04723618090452261,
+     "lists": 995
+    },
+    "ctrl_g": {
+     "mrr": 0.019437672342428162,
+     "hits@10": 0.04723618090452261,
+     "lists": 995
+    },
+    "cosine": {
+     "mrr": 0.053401639379909736,
+     "hits@10": 0.11457286432160804,
+     "lists": 995
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   }
+  }
+ }
+]

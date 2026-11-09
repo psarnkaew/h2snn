@@ -1,0 +1,7 @@
+acm_pa: valid 23.5 % (421 half-lists, min fill pool 3021, min eligible 2975); test 23.2 % (461 half-lists, min fill pool 3021, min eligible 2975)
+dblp_ap: valid 54.1 % (3064 half-lists, min fill pool 3813, min eligible 4051); test 53.5 % (3386 half-lists, min fill pool 3810, min eligible 4051)
+imdb_ma: valid 32.9 % (1890 half-lists, min fill pool 4444, min eligible 4878); test 32.7 % (2103 half-lists, min fill pool 4439, min eligible 4878)
+freebase_bb: valid 7.1 % (3489 half-lists, min fill pool 39911, min eligible 35275); test 7.5 % (4118 half-lists, min fill pool 39912, min eligible 35275)
+pubmed: valid 0.0 % (0 half-lists, min fill pool None, min eligible 15206); test 0.0 % (0 half-lists, min fill pool None, min eligible 15206)
+lastfm: valid 7.2 % (1097 half-lists, min fill pool 1460, min eligible 1281); test 6.7 % (2597 half-lists, min fill pool 1459, min eligible 1281)
+
