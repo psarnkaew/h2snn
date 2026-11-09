@@ -1,0 +1,5 @@
+[
+ {"task": "acm_pa", "type": 1, "source": "V1", "aggregator": "or", "why": "exact rule (J5.1)"},
+ {"task": "dblp_ap", "type": 0, "source": "V2:r1", "aggregator": "or", "why": "no exact rule; candidate with the most exact nodes (491/4,057), its 133 matched columns"},
+ {"task": "imdb_ma", "type": 2, "source": "V1", "aggregator": "mean", "why": "exact rule (J5.1)"}
+]
