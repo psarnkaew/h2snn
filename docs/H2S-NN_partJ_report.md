@@ -167,3 +167,66 @@
 - **Further decisions:**
   - the self-loop convention for the task-level `H_edge`;
   - the 1:1 secondary negatives on unordered-pair tasks must exclude reversed positives (LP card).
+
+## 11. J5: link-prediction features, validation files and negatives (spec v1.9 F12–F16)
+**Commits:** `acb0950` (J5-docs) … `c8b3b05` (J5.6) on `part-j`, plus this section. Evidence: `docs/lp_evidence/j5*`, `docs/heterophily_evidence/j56_record.md`. Link prediction only: node-classification data, splits, labels and heterophily values are untouched (41 release files md5-identical, `j53_*`).
+
+**Summary**
+1. **J5.1 rules (RUN; candidates fixed in J5.0).**
+   - **ACM author** = OR of its papers' features, 5,959/5,959.
+   - **IMDB actor** = MEAN of its movies' 3,341 token columns, 6,124/6,124 (|diff| ≤ 2.2e-16).
+   - **DBLP author:** affected (identical paper sets give identical features, 150/150), but **no pre-registered rule is exact** (best 491/4,057). The diagnosis points to a selected keyword set, not an OR.
+   - Paper and movie features are their own; ACM subject, DBLP term and IMDB director are not on the target relation.
+2. **J5.2 leak before (RUN).** Features-only scorer MRR:
+   - acm_pa **1.000** (the reviewer's 895/895, 995/995, reused);
+   - imdb_ma **0.91 / 0.92**;
+   - dblp_ap 0.086 (inexact rule; Hits@10 0.26 against the training-graph control's 0.04).
+3. **J5.3 fix (RUN), in `data/lp_derived/<task>/node.dat` only.**
+   - ACM author and IMDB actor are **rebuilt** from training facts. Bitwise equal on every node to an independent node-by-node computation, the loader's float32 tensor included; 847 and 773 cold nodes get zero vectors.
+   - DBLP author is **dropped** (learned embedding).
+   - The scorer now **equals the training-graph control exactly** (difference 0.0000): acm_pa MRR 0.02, imdb_ma 0.04–0.06. dblp_ap is at the all-tie level.
+4. **J5.4 (RUN).** PubMed and LastFM validation files list only the target. The target tensors are identical to before, and every non-target relation is complete: PubMed +13,409 facts (10,748 message edges, because self-inverse relations are tied), LastFM +3,895.
+5. **J5.5 (RUN).** HeaRT regenerated for acm_pa, PubMed and LastFM (same script, seed 42).
+   - J4.4 properties pass on all 12 files. dblp_ap, imdb_ma and freebase_bb are unchanged and reproduce md5-identical from today's inputs.
+   - On the new acm_pa lists the scorer equals the control. The random-fill shares follow under Reality checks.
+6. **J5.6.** The `freebase_bb` task-level `H_edge` is reported **without self-loops: 0.8254** (labelled-only 0.3529), from the stored review evidence, not recomputed. `results.json/md` are updated; chapter 3 does not show the value.
+
+**Files changed**
+- **No `src/` file.**
+- **New scripts:** `lp_feature_rules.py` (rule search), `lp_feature_leak.py` (scorer and Ctrl-G), `rebuild_lp_features.py`.
+- **Changed scripts:** `write_valid_files.py` (`--mode target`, default); `build_derived_lp.py` (docstring: the rebuild runs after the build).
+- **New tests:** `test_lp_feature_rules` (4), `test_lp_feature_leak` (4), `test_lp_feature_rebuild` (5).
+- **Changed tests:** `test_lp_valid_files`. Two J4.2 "file = carve" tests are replaced by target-only tests through the loader, and one toy test is added.
+
+**Deviations**
+- **DBLP author MISS against the pre-registered expectation** of an exact rule. A thresholded rule was not added after seeing the data, so the type is dropped as F12 says.
+- **dblp_ap before-fix MRR < 0.1** meets the pre-registered "wrong if" for the scorer. Diagnosis: the rule is inexact and the scorer sees only 133/334 columns.
+- **Two bugs found by my own checks and fixed before use.**
+  - A rule could count as "exact" with unmatched columns; caught by a mutation.
+  - The real-data validation-file tests read the file themselves, so a loader that ignored it would pass; they now go through the loader.
+- **J5.6** writes the loop-free values at the probe's 4-decimal precision. The section added to `results.md` is not produced by `compute_heterophily.py`.
+
+**Verification (RUN).** Mutations J5.1 4/4, J5.3 2/2 (a real-data copy: the scorer beats the control by 0.98 when rebuilt from all facts), J5.4 2/2. Every edited file was restored byte-identical. Full suite: 471 tests, the same 20 `test_baselines` failures as J4.7 (identical list), none new (`j57_suite_summary.txt`).
+
+**Checklist**
+- No rule, split or tolerance was changed to fit: **PASS**.
+- Rebuilt features are bitwise the rule on training facts: **PASS**.
+- The scorer is at the control after the fix: **PASS**.
+- Node-classification data untouched: **PASS**.
+- No `src/` edit; staging by explicit path; AGENTS, CLAUDE, `v2_plan` and `vendor` uncommitted: **PASS**.
+
+**Reality checks.** The random-fill share per task (F16):
+- DBLP 54 %, IMDB 33 %;
+- **ACM 23 % (was 0 %)**;
+- LastFM 7 %, Freebase 7 %, PubMed 0.
+
+ACM's new share is exactly its cold authors: 421/895 and 461/995 positives whose author has no training fact. The leaked features had hidden them.
+
+**Open items.**
+- The trainer does not yet read the HeaRT files.
+- The RA-variant files are stale for PubMed (old graph) and unused.
+- The rebuild must be re-run whenever `build_derived_lp.py` is.
+
+**Decisions needed from the author**
+1. **DBLP author features:** keep them dropped (F12 as applied), or pre-register a thresholded or top-k rule as a new unit.
+2. **ACM random fill 23 %** replaces "ACM 0" in F16: accept and report it.

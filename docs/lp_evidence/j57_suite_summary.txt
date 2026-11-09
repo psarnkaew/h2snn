@@ -1,0 +1,6 @@
+$ python -m unittest discover -s tests   (full suite, J5.7)
+Ran 471 tests in 793.159s
+FAILED (failures=11, errors=9)
+failure/error lines at J4.7: 20; at J5.7: 20; identical lists: yes
+outside test_baselines: 0
+test count: 455 (J4.7 run) + 2 (review-fix tests, e238ea4) + 13 (test_lp_feature_rules 4, test_lp_feature_leak 4, test_lp_feature_rebuild 5) + 1 (test_lp_valid_files: 2 replaced, 1 added) = 471
