@@ -316,6 +316,30 @@ class FreebasePairSplitTests(unittest.TestCase):
         self.assertFalse({(v, u) for u, v in held} & message)
         self.assertEqual(data.train_pos_edge_index.size(1), self.meta["rows"]["train"])
 
+    def _load(self):
+        from src.data.link_prediction_dataset import build_link_prediction_dataset
+
+        return build_link_prediction_dataset(derived_config(self.root, "freebase_bb", self.TARGET))
+
+    def test_loader_raises_on_a_reversed_test_pair_in_link_dat(self) -> None:
+        """Independent review, finding 3 (A): the reverse row of a one-row test pair put back."""
+        test = bd.read_split(self.task_dir, 0).test
+        u, v = next((u, v) for u, v in sorted(test) if (v, u) not in test)
+        with (self.task_dir / "link.dat").open("ab") as handle:
+            handle.write(f"{v}\t{u}\t0\t1.0\n".encode())
+        with self.assertRaisesRegex(ValueError, "leak"):
+            self._load()
+
+    def test_loader_raises_on_a_one_orientation_validation_file(self) -> None:
+        """Independent review, finding 3 (B): link.dat.valid lists one row of a two-row pair."""
+        lines = (self.task_dir / "link.dat.valid").read_bytes().splitlines(keepends=True)
+        rows = [tuple(map(int, line.split(b"\t")[:2])) for line in lines]
+        u, v = next((u, v) for u, v in rows if (v, u) in set(rows))
+        kept = [line for line, row in zip(lines, rows) if row != (v, u)]
+        (self.task_dir / "link.dat.valid").write_bytes(b"".join(kept))
+        with self.assertRaisesRegex(ValueError, "leak"):
+            self._load()
+
 
 def _real_task(name: str) -> Path | None:
     task_dir = DERIVED_ROOT / name

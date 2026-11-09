@@ -157,3 +157,13 @@
 3. **Non-target carve:** keep PubMed and LastFM as written, or list only the target in their files so every task keeps its full message graph. The latter changes PubMed and LastFM numerically.
 4. **`freebase_bb` scoring** of two-row pairs (one positive or two), and Hits@K for the LP card (HeaRT: Hits@10).
 5. **High random-fill share on DBLP and IMDB:** accept, as HeaRT's rule gives it, or revisit.
+
+**Independent review** (`docs/lp_evidence/j_independent_review.md`, unedited; responses in `j_review_response.md`)
+- **BLOCKER, acm_pa.** Features alone rank the true pair first in 895/895 validation and 995/995 test HeaRT lists, so no acm_pa LP number may be reported before decision 2.
+- **Correction.** "Heuristics read only training facts" is **FAIL for acm_pa**: the C2 cosine reads author features that include held-out papers. The acm_pa files must be regenerated after decision 2.
+- **Fixed.** The loader now raises when a held-out pair of an unordered-pair task stays in the message graph reversed (`_assert_no_reversed_held_out_pairs`; tests and mutation in `j_review_fix_output.txt`).
+- **Recorded:** the freebase_bb task-level `H_edge` without self-loops is 0.825 (labelled-only 0.353).
+- **Deviations.** The pre-registered behavioural test for training-only heuristics was not written. The mutation scripts temporarily edit `src/` files other than the loader; they are restored byte-identical and nothing is committed.
+- **Further decisions:**
+  - the self-loop convention for the task-level `H_edge`;
+  - the 1:1 secondary negatives on unordered-pair tasks must exclude reversed positives (LP card).

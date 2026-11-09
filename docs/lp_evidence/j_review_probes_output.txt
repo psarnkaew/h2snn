@@ -1,0 +1,11 @@
+$ python ../docs/lp_evidence/j_review_acm_leak_probe.py   (before the response fix)
+acm_pa valid: positives with paper-support within author-support 1.0000; HeaRT negatives (1/10 sample) 0.0000; positives ranked strictly first by the rule alone: 895/895
+acm_pa test: positives with paper-support within author-support 1.0000; HeaRT negatives (1/10 sample) 0.0000; positives ranked strictly first by the rule alone: 995/995
+$ python ../docs/lp_evidence/j_review_fb_loops_probe.py   (before the response fix)
+labelled, loops kept 15707 H_edge(heterophily) = 0.3229
+labelled, loops dropped 14372 H_edge(heterophily) = 0.3529
+labelled loops: 1335
+$ python ../docs/lp_evidence/j_review_reciprocal_probe.py   (before the response fix)
+baseline: LOADED, no error; held-out rows present reversed in message graph: 0
+(A) reverse of a test pair re-added to link.dat: LOADED, no error; held-out rows present reversed in message graph: 1
+(B) validation file lists one orientation of a two-row pair: LOADED, no error; held-out rows present reversed in message graph: 1

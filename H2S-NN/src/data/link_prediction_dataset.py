@@ -92,6 +92,9 @@ _LOCAL_HGB_LINK_DATASETS = {
         "node_type_names": {0: "book", 1: "film", 2: "music", 3: "sports", 4: "people",
                             5: "location", 6: "organization", 7: "business"},
         "exclude_self_loop_positives": True,
+        # rho(rel_0) is None, so no fact-level check sees (v, u) for a held-out (u, v): the
+        # loader checks the reversed pairs itself (independent review of Part J, finding 3).
+        "split_unit": "unordered_pair",
     },
 }
 
@@ -441,6 +444,29 @@ def _split_validation(
     return train_edges, valid_edges
 
 
+def _assert_no_reversed_held_out_pairs(
+    train_edges: dict,
+    valid_edges: dict,
+    test_edges: dict,
+    target_relations: list[tuple[str, str, str]],
+) -> None:
+    """A target split by unordered pair (spec v1.8 F10) holds both orientations of a pair in one
+    part. Its relation has no rho partner, so the fact-level checks see only the stored
+    orientation: raise if a validation or test pair stays in the training (message) edges
+    reversed, e.g. a reverse row back in link.dat or link.dat.valid listing one orientation of
+    a two-row pair."""
+    empty = torch.empty((2, 0), dtype=torch.long)
+    for relation in target_relations:
+        message = _edge_set(train_edges.get(relation, empty))
+        held = _edge_set(valid_edges.get(relation, empty)) | _edge_set(test_edges.get(relation, empty))
+        leaks = [(u, v) for u, v in held if u != v and (v, u) in message]
+        if leaks:
+            raise ValueError(
+                f"{len(leaks)} held-out pair(s) of {relation} leak into the message graph in the "
+                "reverse orientation (target split by unordered pair)."
+            )
+
+
 def _assert_reverse_partner_is_tied(
     rho: dict,
     relations: list[tuple[str, str, str]],
@@ -496,6 +522,8 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
         link_edges, rho, all_relations, file_valid,
         val_ratio=config.data.link_val_ratio, split_seed=config.data.acm_split_seed,
     )
+    if spec.get("split_unit") == "unordered_pair":
+        _assert_no_reversed_held_out_pairs(train_edges, valid_edges, test_edges, target_relations)
     for relation in all_relations:
         nodes.data[relation].edge_index = train_edges[relation]
 

@@ -1,0 +1,17 @@
+$ python -m unittest tests.test_lp_derived tests.test_lp_valid_files tests.test_heart_negatives
+Ran 68 tests in 110.699s
+
+OK
+$ python ../docs/lp_evidence/j_review_mutation_check.py
+reversed-pair check removed: CAUGHT (FAILED (failures=2)); loader byte-identical after restore
+$ python ../docs/lp_evidence/j_review_reciprocal_probe.py   (after the fix)
+baseline: LOADED, no error; held-out rows present reversed in message graph: 0
+(A) reverse of a test pair re-added to link.dat: RAISED ValueError: 1 held-out pair(s) of ('book', 'rel_0', 'book') leak into the message graph in the reverse orientation (target split by 
+(B) validation file lists one orientation of a two-row pair: RAISED ValueError: 1 held-out pair(s) of ('book', 'rel_0', 'book') leak into the message graph in the reverse orientation (target split by 
+$ python ../docs/lp_evidence/j43_loader_check.py   (real freebase_bb, after the fix)
+train: 152021 positive rows, 103303 unordered pairs, self-loops 0
+val: 16894 positive rows, 11478 unordered pairs, self-loops 0
+test: 18723 positive rows, 12754 unordered pairs, self-loops 0
+pairs shared between parts: 0 0 0
+held-out rows in the message graph: as stored 0 reversed 0
+self-loops of books in the message graph: 15036; message-graph edges 834089; loaded with every leak check passing (78 s)
