@@ -1,0 +1,46 @@
+<h1>H2S-NN Revision: Heterophily of the Evaluation Datasets</h1>
+<p class="subtitle">How heterophilic is each dataset we evaluate on, measured the way the source benchmarks define it</p>
+<div class="meta"><span>9 November 2026</span><span>Computed on CPU with the benchmarks' own published code</span></div>
+
+<h2>Why this chapter</h2>
+<p>The revised paper relates the model's gains to how heterophilic a dataset is. That comparison is only meaningful if every dataset is measured the same way. We therefore fixed two published measures and computed them with the reference code released by their authors, instead of writing our own versions. Before computing any new value, we checked that this pipeline reproduces a published number.</p>
+
+<h2>1. What the two measures capture</h2>
+<p>Both measures look at pairs of labelled nodes of the target type, for example two papers, that are linked through a <b>meta-path</b>: a short typed route such as paper–author–paper ("two papers share an author"). <b>MLH</b> (meta-path label homophily) is the share of such pairs whose two nodes carry the same label, averaged over all meta-paths of length two that start and end at the target type. We report it as <i>heterophily</i>, one minus that share. Higher means connected nodes disagree more often. The <b>ℋ² index</b> asks the same question but first subtracts the agreement that class sizes alone would produce if links ignored labels, and rescales the result (adjusted heterophily). A value near 0 means homophilic; near or above 1 means heterophilic. We use ℋ² as the primary measure because MLH can look homophilic merely because one class dominates.</p>
+
+<h3>A small example</h3>
+<p>Four papers P1–P4 have topics A, A, B, A. Two authors wrote them: author X wrote P1 and P2, author Y wrote P2, P3 and P4. Through "shares an author", including each paper with itself as the reference code does, there are 12 ordered paper pairs, and 8 of them agree on the topic. Agreement is 8/12 = 0.67, so MLH heterophily is 0.33, which looks homophilic. But topic A covers three of the four papers. When each paper is weighted by how many pairs it appears in, A accounts for 9 of 12 pair-ends and B for 3. Random pairing would agree with probability (9/12)² + (3/12)² = 0.625. The observed 0.67 is barely above that chance level: the adjusted homophily is (0.67 − 0.625)/(1 − 0.625) = 0.11, so ℋ² for this meta-path is 0.89, i.e. clearly heterophilic. The same links look homophilic to MLH and heterophilic to ℋ², because most of the agreement comes from class imbalance.</p>
+<p class="small">The values in the example are computed by hand. The reference code reproduces them exactly in our tests.</p>
+
+<h2>2. Check against a published value</h2>
+<p>Hetero²Net (Li et al., TPAMI 2025), which introduced MLH, reports for DBLP a homophily of 0.87 over its meta-path author–paper–author. Running the released code of ℋ²GB (Lin et al., KDD 2025), which defines ℋ², on the same public DBLP graph gives <b>0.872</b>. We had fixed a tolerance of ±0.01 before running. The match depends on a detail: each author also counts as paired with itself, as in the released code. Without these self-pairs the value would be 0.80. The same pipeline also reproduces the published ACM value (0.60; ours 0.596) and IMDB value (0.24; ours 0.237). That paper's own ablation table lists these two values with the datasets swapped. Its main table and our results agree with each other.</p>
+
+<h2>3. Heterophily of the node-classification datasets</h2>
+<table>
+<thead><tr><th>Dataset</th><th class="num">MLH (heterophily)</th><th class="num">ℋ² index</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>DBLP</td><td class="num">0.128</td><td class="num">0.173</td><td>Computed with the reference code</td></tr>
+<tr><td>ACM</td><td class="num">0.262</td><td class="num">0.399</td><td>Computed with the reference code</td></tr>
+<tr><td>IMDB</td><td class="num">0.763</td><td class="num">—</td><td>Computed. ℋ² is not defined for multi-label data (see note)</td></tr>
+<tr><td>Freebase</td><td class="num">pending</td><td class="num">pending</td><td>Measurement rule for unlabelled books to be decided (see note)</td></tr>
+<tr><td>ogbn-mag</td><td class="num">0.873</td><td class="num">0.877</td><td>Published (ℋ²GB, Table 2)</td></tr>
+<tr><td>mag-year</td><td class="num">0.772</td><td class="num">0.965</td><td>Published (ℋ²GB, Table 2)</td></tr>
+<tr><td>IEEE-CIS-G</td><td class="num">0.135</td><td class="num">0.985</td><td>Published (ℋ²GB, Table 2)</td></tr>
+<tr><td>H-Pokec</td><td class="num">0.392</td><td class="num">0.949</td><td>Published (ℋ²GB, Table 2)</td></tr>
+</tbody>
+</table>
+<p class="caption">Both measures are in heterophily form (higher = more heterophilic), averaged over all length-2 meta-paths from the target type back to itself, as the benchmark that defines ℋ² does. For ACM this set includes paths through citations. The three-path set of the MLH paper (section 2) gives a different value. IEEE-CIS-G shows why ℋ² is the primary measure: MLH 0.135 looks homophilic, ℋ² 0.985 does not.</p>
+
+<p><b>Notes.</b></p>
+<ul>
+<li><b>IMDB (multi-label).</b> A movie can have several genres. The MLH code treats two movies as agreeing only when their full genre sets are identical. The ℋ² code assumes one label per node, and neither benchmark defines a multi-label version. That choice (for example, genre sets as classes, or an average over genres) has not been made, so no value is reported yet.</li>
+<li><b>Freebase.</b> Only one book in five carries a label. The reference code assigns random labels to the unlabelled books, which pushes both measures towards "heterophilic" whatever the graph looks like. Its result for Freebase is close to 1, and it changes when only labelled books are counted. Because which rule applies is a decision, not a measurement, no value is reported yet.</li>
+</ul>
+
+<h2>4. Datasets without node labels: not measurable</h2>
+<p>Both measures compare the labels of linked nodes, so they need node labels.</p>
+<ul>
+<li><b>LastFM</b> (link prediction): users, artists and tags carry no labels, so the measures are not measurable.</li>
+<li><b>PubMed</b> (link prediction): the public release has no labels. The disease labels exist only in a separate release that is no longer publicly downloadable, so the measures are not measurable at present.</li>
+<li><b>Graph-classification datasets</b>: labels belong to whole graphs, not to nodes, so node-level heterophily does not apply. These datasets serve only to show that the model covers the task.</li>
+</ul>
