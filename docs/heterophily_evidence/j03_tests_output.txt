@@ -1,0 +1,17 @@
+ok
+test_own_equals_reference_on_a_random_graph (tests.test_heterophily_metrics.RandomGraphTests.test_own_equals_reference_on_a_random_graph) ... ok
+test_random_fill_matches_the_reference_and_labels_are_restored (tests.test_heterophily_metrics.RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored) ... ok
+test_unlabeled_target_without_fill_raises (tests.test_heterophily_metrics.RandomGraphTests.test_unlabeled_target_without_fill_raises) ... ok
+test_same_type_undirected_cross_type_reversed (tests.test_heterophily_metrics.SymmetriseTests.test_same_type_undirected_cross_type_reversed) ... ok
+test_adjusted_homophily_applies_the_class_imbalance_correction (tests.test_heterophily_metrics.ToyGraphTests.test_adjusted_homophily_applies_the_class_imbalance_correction) ... ok
+test_aggregates (tests.test_heterophily_metrics.ToyGraphTests.test_aggregates) ... ok
+test_metapath_sets (tests.test_heterophily_metrics.ToyGraphTests.test_metapath_sets) ... ok
+test_own_counts_equal_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_own_counts_equal_hand_values) ... ok
+test_reference_h2gb_equals_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_reference_h2gb_equals_hand_values) ... ok
+test_reference_hetero2net_equals_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 5.491s
+
+OK
+

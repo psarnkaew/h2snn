@@ -1,0 +1,5 @@
+H_adj: class-imbalance correction dropped: CAUGHT (FAILED (failures=1))
+G_P: self-loops dropped (H2GB keeps them): CAUGHT (FAILED (failures=1))
+random fill: not the reference's RNG state: CAUGHT (FAILED (failures=1))
+caught 3/3; clean after restore: OK
+
