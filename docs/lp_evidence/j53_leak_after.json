@@ -1,0 +1,126 @@
+[
+ {
+  "task": "acm_pa",
+  "type": 1,
+  "rule": "V1/or",
+  "rule_nodes_holding_on_release": 5959,
+  "ambiguous_columns": 0,
+  "stored_features": true,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "mrr": 0.020600146836134023,
+     "hits@10": 0.054748603351955305,
+     "lists": 895
+    },
+    "ctrl_g": {
+     "mrr": 0.020600146836134023,
+     "hits@10": 0.054748603351955305,
+     "lists": 895
+    },
+    "cosine": {
+     "mrr": 0.0721881109205992,
+     "hits@10": 0.13854748603351955,
+     "lists": 895
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   },
+   "test": {
+    "scorer": {
+     "mrr": 0.019515937166133417,
+     "hits@10": 0.04723618090452261,
+     "lists": 995
+    },
+    "ctrl_g": {
+     "mrr": 0.019515937166133417,
+     "hits@10": 0.04723618090452261,
+     "lists": 995
+    },
+    "cosine": {
+     "mrr": 0.05573841449397781,
+     "hits@10": 0.11758793969849246,
+     "lists": 995
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   }
+  }
+ },
+ {
+  "task": "dblp_ap",
+  "type": 0,
+  "rule": "V2:r1/or",
+  "rule_nodes_holding_on_release": 491,
+  "ambiguous_columns": 0,
+  "stored_features": false,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "mrr": 0.0039840637450199185,
+     "hits@10": 0.0,
+     "lists": 1768
+    },
+    "ctrl_g": {
+     "mrr": 0.023379961419182017,
+     "hits@10": 0.040158371040723985,
+     "lists": 1768
+    },
+    "diff_mrr": -0.019395897674162096,
+    "diff_hits@10": -0.040158371040723985
+   },
+   "test": {
+    "scorer": {
+     "mrr": 0.0039840637450199185,
+     "hits@10": 0.0,
+     "lists": 1964
+    },
+    "ctrl_g": {
+     "mrr": 0.02441760188004487,
+     "hits@10": 0.04226069246435845,
+     "lists": 1964
+    },
+    "diff_mrr": -0.02043353813502495,
+    "diff_hits@10": -0.04226069246435845
+   }
+  }
+ },
+ {
+  "task": "imdb_ma",
+  "type": 2,
+  "rule": "V1/mean",
+  "rule_nodes_holding_on_release": 6124,
+  "ambiguous_columns": 0,
+  "stored_features": true,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "mrr": 0.05658417005934019,
+     "hits@10": 0.06315789473684211,
+     "lists": 1330
+    },
+    "ctrl_g": {
+     "mrr": 0.05658417005934019,
+     "hits@10": 0.06315789473684211,
+     "lists": 1330
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   },
+   "test": {
+    "scorer": {
+     "mrr": 0.043913995114749964,
+     "hits@10": 0.05615696887686062,
+     "lists": 1478
+    },
+    "ctrl_g": {
+     "mrr": 0.043913995114749964,
+     "hits@10": 0.05615696887686062,
+     "lists": 1478
+    },
+    "diff_mrr": 0.0,
+    "diff_hits@10": 0.0
+   }
+  }
+ }
+]

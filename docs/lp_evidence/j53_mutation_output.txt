@@ -1,0 +1,4 @@
+rebuild from all release facts (test included): toy bitwise tests FAIL (CAUGHT); real acm_pa copy: scorer - Ctrl-G MRR {'valid': 0.9794, 'test': 0.9805} -> beats the control (CAUGHT)
+validation facts kept in the training neighbourhood: toy bitwise tests FAIL (CAUGHT)
+caught 2/2; rebuild script byte-identical after restore; real task files untouched (mutations ran on a scratch copy)
+

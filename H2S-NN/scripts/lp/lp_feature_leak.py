@@ -183,7 +183,8 @@ def measure(task: str, type_id: int, source: str, aggregator: str, node_dat_fold
         res["scorer"] = metrics(heart_rank(s[:, 0], s[:, 1:]))
         sc = containment(ctrl_pres, c, xi, yi).reshape(shape)
         res["ctrl_g"] = metrics(heart_rank(sc[:, 0], sc[:, 1:]))
-        if with_cosine and x_stored is not None and stored[other].x is not None:
+        if (with_cosine and x_stored is not None and stored[other].x is not None
+                and x_stored.shape[1] == stored[other].x.shape[1]):  # a shared feature space
             cs = cosine(x_stored, stored[other].x, xi, yi).reshape(shape)
             res["cosine"] = metrics(heart_rank(cs[:, 0], cs[:, 1:]))
         res["diff_mrr"] = res["scorer"]["mrr"] - res["ctrl_g"]["mrr"]

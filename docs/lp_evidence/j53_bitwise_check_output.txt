@@ -1,0 +1,9 @@
+acm_pa author: rebuilt by V1/or; mapping as recorded True; nodes bitwise equal 5959/5959; loader float32 tensor equal True; PASS
+acm_pa: rows 10942; rows of unchanged types byte-identical to the release: True (4983 rows)
+dblp_ap author: dropped; no stored feature and no loader x: PASS
+dblp_ap: rows 26128; rows of unchanged types byte-identical to the release: True (22071 rows)
+imdb_ma actor: rebuilt by V1/mean; mapping as recorded True; nodes bitwise equal 6124/6124; loader float32 tensor equal True; PASS
+imdb_ma: rows 21420; rows of unchanged types byte-identical to the release: True (15296 rows)
+node-classification releases (data/acm, dblp, imdb, freebase): 41 files, changed 0
+ALL PASS
+

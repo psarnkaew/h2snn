@@ -1,0 +1,7 @@
+acm_pa type 1 V1/or valid: scorer MRR 0.0206 Hits@10 0.0547; Ctrl-G MRR 0.0206 Hits@10 0.0547; diff MRR +0.0000 Hits@10 +0.0000; cosine MRR 0.0722 Hits@10 0.1385
+acm_pa type 1 V1/or test: scorer MRR 0.0195 Hits@10 0.0472; Ctrl-G MRR 0.0195 Hits@10 0.0472; diff MRR +0.0000 Hits@10 +0.0000; cosine MRR 0.0557 Hits@10 0.1176
+dblp_ap type 0 V2:r1/or valid: scorer MRR 0.0040 Hits@10 0.0000; Ctrl-G MRR 0.0234 Hits@10 0.0402; diff MRR -0.0194 Hits@10 -0.0402
+dblp_ap type 0 V2:r1/or test: scorer MRR 0.0040 Hits@10 0.0000; Ctrl-G MRR 0.0244 Hits@10 0.0423; diff MRR -0.0204 Hits@10 -0.0423
+imdb_ma type 2 V1/mean valid: scorer MRR 0.0566 Hits@10 0.0632; Ctrl-G MRR 0.0566 Hits@10 0.0632; diff MRR +0.0000 Hits@10 +0.0000
+imdb_ma type 2 V1/mean test: scorer MRR 0.0439 Hits@10 0.0562; Ctrl-G MRR 0.0439 Hits@10 0.0562; diff MRR +0.0000 Hits@10 +0.0000
+

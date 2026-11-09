@@ -4,7 +4,11 @@ Source: an HGB node-classification release (node.dat, link.dat, info.dat). The t
 is split by fact into 81/9/10 with a recorded seed. The fixed split is the files themselves (md5
 values in `split_meta.json`). See `../docs/lp_evidence/preregistration.md`.
 
-- `node.dat`, `info.dat`: byte copies of the release (ids and features unchanged).
+- `node.dat`, `info.dat`: byte copies of the release (ids and features unchanged). Then
+  `scripts/lp/rebuild_lp_features.py` (J5.3, spec v1.9 F12) must run on the built task: it
+  rewrites, in node.dat only, the features of a type that encodes the target relation (rebuilt
+  from training facts, or dropped). Re-running this build restores the release copy, so the
+  rebuild runs again after it.
 - `link.dat`: the release's rows in their original order and bytes, minus the rows of `r` whose pair
   is a test fact and the rows of `r' = rho(r)` whose reversed pair is a test fact.
 - `link.dat.test`: the release's `r` rows of the test facts.
