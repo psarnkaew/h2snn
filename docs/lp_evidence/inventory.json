@@ -1,0 +1,682 @@
+{
+  "acm": {
+    "folder": "data/acm/acm/raw/ACM",
+    "files_md5": {
+      "info.dat": "3375b0afb7f34f6546b0406f05f77f94",
+      "node.dat": "01b4942d8d1ca9b89232a0fdd93ebafc",
+      "link.dat": "b76ef4e97c4b81b0b0c00e0f46558955",
+      "label.dat": "591117e1f8c705b5b107f0ae72f0f3af",
+      "label.dat.test": "521f65d9258de61f18a9628af756f6b1"
+    },
+    "every_link_row_has_4_columns": true,
+    "node_types": {
+      "paper": 3025,
+      "author": 5959,
+      "subject": 56,
+      "term": 1902
+    },
+    "feature_dims": {
+      "paper": 1902,
+      "author": 1902,
+      "subject": 1902,
+      "term": 0
+    },
+    "relations": [
+      {
+        "relation_id": 0,
+        "meaning": "paper-cite-paper",
+        "src_type": "paper",
+        "dst_type": "paper",
+        "stored_distinct_edges": 5343,
+        "self_loops": 8,
+        "rho": 1,
+        "facts_after_tying": 5343
+      },
+      {
+        "relation_id": 1,
+        "meaning": "paper-ref-paper",
+        "src_type": "paper",
+        "dst_type": "paper",
+        "stored_distinct_edges": 5343,
+        "self_loops": 8,
+        "rho": 0,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 2,
+        "meaning": "paper-author",
+        "src_type": "paper",
+        "dst_type": "author",
+        "stored_distinct_edges": 9949,
+        "self_loops": 0,
+        "rho": 3,
+        "facts_after_tying": 9949
+      },
+      {
+        "relation_id": 3,
+        "meaning": "author-paper",
+        "src_type": "author",
+        "dst_type": "paper",
+        "stored_distinct_edges": 9949,
+        "self_loops": 0,
+        "rho": 2,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 4,
+        "meaning": "paper-subject",
+        "src_type": "paper",
+        "dst_type": "subject",
+        "stored_distinct_edges": 3025,
+        "self_loops": 0,
+        "rho": 5,
+        "facts_after_tying": 3025
+      },
+      {
+        "relation_id": 5,
+        "meaning": "subject-paper",
+        "src_type": "subject",
+        "dst_type": "paper",
+        "stored_distinct_edges": 3025,
+        "self_loops": 0,
+        "rho": 4,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 6,
+        "meaning": "paper-term",
+        "src_type": "paper",
+        "dst_type": "term",
+        "stored_distinct_edges": 255619,
+        "self_loops": 0,
+        "rho": 7,
+        "facts_after_tying": 255619
+      },
+      {
+        "relation_id": 7,
+        "meaning": "term-paper",
+        "src_type": "term",
+        "dst_type": "paper",
+        "stored_distinct_edges": 255619,
+        "self_loops": 0,
+        "rho": 6,
+        "facts_after_tying": 0
+      }
+    ],
+    "facts_before": 547872,
+    "facts_after": 273936,
+    "seconds": 17.5
+  },
+  "dblp": {
+    "folder": "data/dblp/dblp/raw/DBLP",
+    "files_md5": {
+      "info.dat": "8da9d4d7c092a63065a3358287dbaca7",
+      "node.dat": "efcf8247391da9e36a3aa8a1c7f8b81f",
+      "link.dat": "817bc1d282eabb915b37a010b5a45207",
+      "label.dat": "3e7b01ea63d6a24c2092e7dc2c32df19",
+      "label.dat.test": "5f62a7e456b02ebe5be875c743565cb3"
+    },
+    "every_link_row_has_4_columns": true,
+    "node_types": {
+      "author": 4057,
+      "paper": 14328,
+      "term": 7723,
+      "venue": 20
+    },
+    "feature_dims": {
+      "author": 334,
+      "paper": 4231,
+      "term": 50,
+      "venue": 0
+    },
+    "relations": [
+      {
+        "relation_id": 0,
+        "meaning": "author-paper",
+        "src_type": "author",
+        "dst_type": "paper",
+        "stored_distinct_edges": 19645,
+        "self_loops": 0,
+        "rho": 3,
+        "facts_after_tying": 19645
+      },
+      {
+        "relation_id": 1,
+        "meaning": "paper-term",
+        "src_type": "paper",
+        "dst_type": "term",
+        "stored_distinct_edges": 85810,
+        "self_loops": 0,
+        "rho": 4,
+        "facts_after_tying": 85810
+      },
+      {
+        "relation_id": 2,
+        "meaning": "paper-venue",
+        "src_type": "paper",
+        "dst_type": "venue",
+        "stored_distinct_edges": 14328,
+        "self_loops": 0,
+        "rho": 5,
+        "facts_after_tying": 14328
+      },
+      {
+        "relation_id": 3,
+        "meaning": "paper-author",
+        "src_type": "paper",
+        "dst_type": "author",
+        "stored_distinct_edges": 19645,
+        "self_loops": 0,
+        "rho": 0,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 4,
+        "meaning": "term-paper",
+        "src_type": "term",
+        "dst_type": "paper",
+        "stored_distinct_edges": 85810,
+        "self_loops": 0,
+        "rho": 1,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 5,
+        "meaning": "venue-paper",
+        "src_type": "venue",
+        "dst_type": "paper",
+        "stored_distinct_edges": 14328,
+        "self_loops": 0,
+        "rho": 2,
+        "facts_after_tying": 0
+      }
+    ],
+    "facts_before": 239566,
+    "facts_after": 119783,
+    "seconds": 20.1
+  },
+  "imdb": {
+    "folder": "data/imdb/imdb/raw/IMDB",
+    "files_md5": {
+      "info.dat": "734fa61762a3d993d34b37a714b51dfe",
+      "node.dat": "7954f97719c175f8476a4a31acf4dda6",
+      "link.dat": "e8882566a2200ab9e36722f6a2110b11",
+      "label.dat": "d33370ffd25b9a15c9a997bafcd74a2f",
+      "label.dat.test": "8711f7b30a429c2b0d8d15035889a756"
+    },
+    "every_link_row_has_4_columns": true,
+    "node_types": {
+      "movie": 4932,
+      "director": 2393,
+      "actor": 6124,
+      "keyword": 7971
+    },
+    "feature_dims": {
+      "movie": 3489,
+      "director": 3341,
+      "actor": 3341,
+      "keyword": 0
+    },
+    "relations": [
+      {
+        "relation_id": 0,
+        "meaning": "movie->director",
+        "src_type": "movie",
+        "dst_type": "director",
+        "stored_distinct_edges": 4932,
+        "self_loops": 0,
+        "rho": 1,
+        "facts_after_tying": 4932
+      },
+      {
+        "relation_id": 1,
+        "meaning": "director->movie",
+        "src_type": "director",
+        "dst_type": "movie",
+        "stored_distinct_edges": 4932,
+        "self_loops": 0,
+        "rho": 0,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 2,
+        "meaning": "movie->actorh",
+        "src_type": "movie",
+        "dst_type": "actor",
+        "stored_distinct_edges": 14779,
+        "self_loops": 0,
+        "rho": 3,
+        "facts_after_tying": 14779
+      },
+      {
+        "relation_id": 3,
+        "meaning": "actor->movie",
+        "src_type": "actor",
+        "dst_type": "movie",
+        "stored_distinct_edges": 14779,
+        "self_loops": 0,
+        "rho": 2,
+        "facts_after_tying": 0
+      },
+      {
+        "relation_id": 4,
+        "meaning": "movie->keyword",
+        "src_type": "movie",
+        "dst_type": "keyword",
+        "stored_distinct_edges": 23610,
+        "self_loops": 0,
+        "rho": 5,
+        "facts_after_tying": 23610
+      },
+      {
+        "relation_id": 5,
+        "meaning": "keyword->movie",
+        "src_type": "keyword",
+        "dst_type": "movie",
+        "stored_distinct_edges": 23610,
+        "self_loops": 0,
+        "rho": 4,
+        "facts_after_tying": 0
+      }
+    ],
+    "facts_before": 86642,
+    "facts_after": 43321,
+    "seconds": 10.3
+  },
+  "freebase": {
+    "folder": "data/freebase/freebase/raw/Freebase",
+    "files_md5": {
+      "info.dat": "5c1c8f793a41856d965e9b1fc0c95cbf",
+      "node.dat": "a7d65c599a137c0ad2d48bba6adf207d",
+      "link.dat": "90fbf2d19cbb3c6a0d7fe0dcacc2a7c3",
+      "label.dat": "2d5fe2588ea5b53c6a98e7c4929faf41",
+      "label.dat.test": "a5fbba2074358da6fd09f9851b0ddd82"
+    },
+    "every_link_row_has_4_columns": true,
+    "node_types": {
+      "book": 40402,
+      "film": 19427,
+      "music": 82351,
+      "sports": 1025,
+      "people": 17641,
+      "location": 9368,
+      "organization": 2731,
+      "business": 7153
+    },
+    "feature_dims": {
+      "book": 0,
+      "film": 0,
+      "music": 0,
+      "sports": 0,
+      "people": 0,
+      "location": 0,
+      "organization": 0,
+      "business": 0
+    },
+    "relations": [
+      {
+        "relation_id": 0,
+        "meaning": "BOOK-and-BOOK",
+        "src_type": "book",
+        "dst_type": "book",
+        "stored_distinct_edges": 202674,
+        "self_loops": 15036,
+        "rho": null,
+        "facts_after_tying": 202674
+      },
+      {
+        "relation_id": 1,
+        "meaning": "BOOK-to-FILM",
+        "src_type": "book",
+        "dst_type": "film",
+        "stored_distinct_edges": 38299,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 38299
+      },
+      {
+        "relation_id": 2,
+        "meaning": "BOOK-on-SPORTS",
+        "src_type": "book",
+        "dst_type": "sports",
+        "stored_distinct_edges": 6615,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 6615
+      },
+      {
+        "relation_id": 3,
+        "meaning": "BOOK-on-LOCATION",
+        "src_type": "book",
+        "dst_type": "location",
+        "stored_distinct_edges": 26921,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 26921
+      },
+      {
+        "relation_id": 4,
+        "meaning": "BOOK-about-ORGANIZATION",
+        "src_type": "book",
+        "dst_type": "organization",
+        "stored_distinct_edges": 21900,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 21900
+      },
+      {
+        "relation_id": 5,
+        "meaning": "FILM-and-FILM",
+        "src_type": "film",
+        "dst_type": "film",
+        "stored_distinct_edges": 87838,
+        "self_loops": 388,
+        "rho": 5,
+        "facts_after_tying": 44113
+      },
+      {
+        "relation_id": 6,
+        "meaning": "MUSIC-in-BOOK",
+        "src_type": "music",
+        "dst_type": "book",
+        "stored_distinct_edges": 31486,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 31486
+      },
+      {
+        "relation_id": 7,
+        "meaning": "MUSIC-in-FILM",
+        "src_type": "music",
+        "dst_type": "film",
+        "stored_distinct_edges": 11291,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 11291
+      },
+      {
+        "relation_id": 8,
+        "meaning": "MUSIC-and-MUSIC",
+        "src_type": "music",
+        "dst_type": "music",
+        "stored_distinct_edges": 283670,
+        "self_loops": 69126,
+        "rho": 8,
+        "facts_after_tying": 176398
+      },
+      {
+        "relation_id": 9,
+        "meaning": "MUSIC-for-SPORTS",
+        "src_type": "music",
+        "dst_type": "sports",
+        "stored_distinct_edges": 8975,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 8975
+      },
+      {
+        "relation_id": 10,
+        "meaning": "MUSIC-on-LOCATION",
+        "src_type": "music",
+        "dst_type": "location",
+        "stored_distinct_edges": 42915,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 42915
+      },
+      {
+        "relation_id": 11,
+        "meaning": "SPORTS-in-FILM",
+        "src_type": "sports",
+        "dst_type": "film",
+        "stored_distinct_edges": 6763,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 6763
+      },
+      {
+        "relation_id": 12,
+        "meaning": "SPORTS-and-SPORTS",
+        "src_type": "sports",
+        "dst_type": "sports",
+        "stored_distinct_edges": 1290,
+        "self_loops": 16,
+        "rho": 12,
+        "facts_after_tying": 653
+      },
+      {
+        "relation_id": 13,
+        "meaning": "SPORTS-on-LOCATION",
+        "src_type": "sports",
+        "dst_type": "location",
+        "stored_distinct_edges": 656,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 656
+      },
+      {
+        "relation_id": 14,
+        "meaning": "PEOPLE-to-BOOK",
+        "src_type": "people",
+        "dst_type": "book",
+        "stored_distinct_edges": 35587,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 35587
+      },
+      {
+        "relation_id": 15,
+        "meaning": "PEOPLE-to-FILM",
+        "src_type": "people",
+        "dst_type": "film",
+        "stored_distinct_edges": 17604,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 17604
+      },
+      {
+        "relation_id": 16,
+        "meaning": "PEOPLE-to-MUSIC",
+        "src_type": "people",
+        "dst_type": "music",
+        "stored_distinct_edges": 10948,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 10948
+      },
+      {
+        "relation_id": 17,
+        "meaning": "PEOPLE-to-SPORTS",
+        "src_type": "people",
+        "dst_type": "sports",
+        "stored_distinct_edges": 14850,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 14850
+      },
+      {
+        "relation_id": 18,
+        "meaning": "PEOPLE-and-PEOPLE",
+        "src_type": "people",
+        "dst_type": "people",
+        "stored_distinct_edges": 22813,
+        "self_loops": 191,
+        "rho": 18,
+        "facts_after_tying": 11502
+      },
+      {
+        "relation_id": 19,
+        "meaning": "PEOPLE-on-LOCATION",
+        "src_type": "people",
+        "dst_type": "location",
+        "stored_distinct_edges": 15134,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 15134
+      },
+      {
+        "relation_id": 20,
+        "meaning": "PEOPLE-in-ORGANIZATION",
+        "src_type": "people",
+        "dst_type": "organization",
+        "stored_distinct_edges": 2215,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 2215
+      },
+      {
+        "relation_id": 21,
+        "meaning": "PEOPLE-in-BUSINESS",
+        "src_type": "people",
+        "dst_type": "business",
+        "stored_distinct_edges": 5378,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 5378
+      },
+      {
+        "relation_id": 22,
+        "meaning": "LOCATION-in-FILM",
+        "src_type": "location",
+        "dst_type": "film",
+        "stored_distinct_edges": 21299,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 21299
+      },
+      {
+        "relation_id": 23,
+        "meaning": "LOCATION-and-LOCATION",
+        "src_type": "location",
+        "dst_type": "location",
+        "stored_distinct_edges": 47817,
+        "self_loops": 2475,
+        "rho": 23,
+        "facts_after_tying": 25146
+      },
+      {
+        "relation_id": 24,
+        "meaning": "ORGANIZATION-in-FILM",
+        "src_type": "organization",
+        "dst_type": "film",
+        "stored_distinct_edges": 13128,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 13128
+      },
+      {
+        "relation_id": 25,
+        "meaning": "ORGANIZATION-to-MUSIC",
+        "src_type": "organization",
+        "dst_type": "music",
+        "stored_distinct_edges": 10702,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 10702
+      },
+      {
+        "relation_id": 26,
+        "meaning": "ORGANIZATION-to-SPORTS",
+        "src_type": "organization",
+        "dst_type": "sports",
+        "stored_distinct_edges": 559,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 559
+      },
+      {
+        "relation_id": 27,
+        "meaning": "ORGANIZATION-on-LOCATION",
+        "src_type": "organization",
+        "dst_type": "location",
+        "stored_distinct_edges": 2696,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 2696
+      },
+      {
+        "relation_id": 28,
+        "meaning": "ORGANIZATION-and-ORGANIZATION",
+        "src_type": "organization",
+        "dst_type": "organization",
+        "stored_distinct_edges": 1101,
+        "self_loops": 431,
+        "rho": 28,
+        "facts_after_tying": 766
+      },
+      {
+        "relation_id": 29,
+        "meaning": "ORGANIZATION-for-BUSINESS",
+        "src_type": "organization",
+        "dst_type": "business",
+        "stored_distinct_edges": 1073,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 1073
+      },
+      {
+        "relation_id": 30,
+        "meaning": "BUSINESS-about-BOOK",
+        "src_type": "business",
+        "dst_type": "book",
+        "stored_distinct_edges": 18625,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 18625
+      },
+      {
+        "relation_id": 31,
+        "meaning": "BUSINESS-about-FILM",
+        "src_type": "business",
+        "dst_type": "film",
+        "stored_distinct_edges": 8397,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 8397
+      },
+      {
+        "relation_id": 32,
+        "meaning": "BUSINESS-about-MUSIC",
+        "src_type": "business",
+        "dst_type": "music",
+        "stored_distinct_edges": 24764,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 24764
+      },
+      {
+        "relation_id": 33,
+        "meaning": "BUSINESS-about-SPORTS",
+        "src_type": "business",
+        "dst_type": "sports",
+        "stored_distinct_edges": 610,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 610
+      },
+      {
+        "relation_id": 34,
+        "meaning": "BUSINESS-on-LOCATION",
+        "src_type": "business",
+        "dst_type": "location",
+        "stored_distinct_edges": 6647,
+        "self_loops": 0,
+        "rho": null,
+        "facts_after_tying": 6647
+      },
+      {
+        "relation_id": 35,
+        "meaning": "BUSINESS-and-BUSINESS",
+        "src_type": "business",
+        "dst_type": "business",
+        "stored_distinct_edges": 4448,
+        "self_loops": 386,
+        "rho": 35,
+        "facts_after_tying": 2417
+      }
+    ],
+    "facts_before": 1057688,
+    "facts_after": 869706,
+    "seconds": 6.7
+  }
+}
