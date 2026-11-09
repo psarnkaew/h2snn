@@ -125,3 +125,17 @@ Mean over M_2: **0.4703**
 | book -and-> book -and-> book | 49,275,062 | 0.8528 | 0.7730 | 0.9992 | 0.5500 / 0.8923 |
 
 - Note: 32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels.
+
+## Task-level H_edge of the link-prediction target (freebase_bb, book–book)
+
+Added in J5.6 by hand from stored evidence; `compute_heterophily.py` does not write this section, so a rerun of it would drop it.
+- **Source:** `../lp_evidence/j_review_task_h_edge_without_loops.txt`, the review probe re-run in J4.7. The loops-kept values are also in `freebase_bb_task_h_edge.json` (J4.3).
+- **Convention:** spec v1.9 F15.
+  - **Without self-loops**, consistent with the task's positives, which exclude self-loops.
+  - Symmetrised graph.
+  - Unlabeled books are random-filled as calcHomophily does (spec §1), with fill seed 0.
+
+| Convention | Edges | H_edge (heterophily), fill seed 0 | Fill seeds 0–4 | Labeled-only H_edge (diagnostic) | Labeled edges |
+|---|---|---|---|---|---|
+| **self-loops dropped (reported)** | 255,070 | **0.8254** | 0.8254–0.8291 | 0.3529 | 14,372 |
+| self-loops kept (J4.3; not reported) | 270,106 | 0.7794 | 0.7794–0.7829 | 0.3229 | 15,707 |

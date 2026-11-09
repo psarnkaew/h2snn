@@ -874,5 +874,34 @@
   "reference_commits": {
     "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a",
     "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a"
+  },
+  "task_level_h_edge": {
+    "freebase_bb": {
+      "relation": "book-and-book (link-prediction target, spec v1.8 F10)",
+      "graph": "symmetrised (to_undirected)",
+      "convention": "self-loops dropped (spec v1.9 F15; consistent with the task's positives, which exclude self-loops); unlabeled books random-filled as calcHomophily does (spec \u00a71), fill seed 0",
+      "reported": {
+        "h_edge_heterophily": 0.8254,
+        "fill_seed_range": [
+          0.8254,
+          0.8291
+        ],
+        "edges": 255070,
+        "labeled_only_h_edge_heterophily": 0.3529,
+        "labeled_edges": 14372
+      },
+      "self_loops_kept_not_reported": {
+        "h_edge_heterophily": 0.7794,
+        "fill_seed_range": [
+          0.7794,
+          0.7829
+        ],
+        "edges": 270106,
+        "labeled_only_h_edge_heterophily": 0.3229,
+        "labeled_edges": 15707
+      },
+      "source": "docs/lp_evidence/j_review_task_h_edge_without_loops.txt (review probe, re-run in J4.7; values at its printed precision); loops-kept values also in freebase_bb_task_h_edge.json (J4.3)",
+      "added": "J5.6 by hand from stored evidence; not written by compute_heterophily.py"
+    }
   }
 }
