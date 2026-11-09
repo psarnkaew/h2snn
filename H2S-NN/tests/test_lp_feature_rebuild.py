@@ -57,9 +57,12 @@ class FeatureRebuildTests(unittest.TestCase):
         expected = fl.rule_on_training(train, stored[type_id].ids, stored[other].ids,
                                        rel_types[spec.target][0] == type_id, g, mapping, agg)
         self.assertTrue(np.array_equal(stored[type_id].x.toarray(), expected))
-        # the loader's float32 tensor too
-        self.assertTrue(np.array_equal(stored[type_id].x.toarray().astype(np.float32),
-                                       expected.astype(np.float32)))
+        # the loader's float32 tensor too (through the loader's own node.dat reader; J5 review #4)
+        from src.data.link_prediction_dataset import _load_local_hgb_nodes
+
+        names = {0: "paper", 1: "author", 2: "keyword"}
+        loaded = _load_local_hgb_nodes(spec.folder, names).data[names[type_id]].x.numpy()
+        self.assertTrue(np.array_equal(loaded, expected.astype(np.float32)))
 
     def test_or_rule_is_rebuilt_from_training_facts_only(self) -> None:
         spec, ident = self.build("or")

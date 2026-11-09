@@ -1,0 +1,9 @@
+movies 4932 train facts 11971
+most common values: [('-0.3741333794615026', 435), ('-0.16536545134336522', 306), ('0.2859131785322769', 210), ('-0.3081287236621246', 195), ('-0.2421240678627467', 153)]
+cap 1000000000 valid: lists 1330 MRR 0.0989 Hits@10 0.1767; positives with score>0 0.565; warm actors 0.711; MRR on warm 0.1376; pos shape (1330, 2) neg shape (1330, 500, 2)
+cap 1000000000 test: lists 1478 MRR 0.0849 Hits@10 0.1576; positives with score>0 0.554; warm actors 0.710; MRR on warm 0.1180; pos shape (1478, 2) neg shape (1478, 500, 2)
+cap 50 valid: lists 1330 MRR 0.1153 Hits@10 0.2789; positives with score>0 0.420; warm actors 0.710; MRR on warm 0.1609; pos shape (1330, 2) neg shape (1330, 500, 2)
+cap 50 test: lists 1478 MRR 0.1015 Hits@10 0.2551; positives with score>0 0.407; warm actors 0.710; MRR on warm 0.1414; pos shape (1478, 2) neg shape (1478, 500, 2)
+cap 5 valid: lists 1330 MRR 0.0785 Hits@10 0.1293; positives with score>0 0.129; warm actors 0.671; MRR on warm 0.1150; pos shape (1330, 2) neg shape (1330, 500, 2)
+cap 5 test: lists 1478 MRR 0.0797 Hits@10 0.1340; positives with score>0 0.134; warm actors 0.674; MRR on warm 0.1164; pos shape (1478, 2) neg shape (1478, 500, 2)
+

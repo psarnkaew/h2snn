@@ -230,3 +230,19 @@ ACM's new share is exactly its cold authors: 421/895 and 461/995 positives whose
 **Decisions needed from the author**
 1. **DBLP author features:** keep them dropped (F12 as applied), or pre-register a thresholded or top-k rule as a new unit.
 2. **ACM random fill 23 %** replaces "ACM 0" in F16: accept and report it.
+
+**Independent review** (`docs/lp_evidence/j5_independent_review.md`, unedited; responses in `j5_review_response.md`)
+- **BLOCKER, imdb_ma (reproduced).** The kept movie features contain actor-like counts: attributes 3, 4, 7 and 12, `actor_1/3/2_facebook_likes` and `cast_total_facebook_likes`. Matching those values against an actor's **training** movies gives test MRR 0.085–0.102 and Hits@10 0.16–0.26, against the control's 0.044 / 0.056.
+  - This is the J5 stop condition for imdb_ma. **No imdb_ma LP number may be reported** until the author decides.
+  - J5.1 missed it because it only tested whether a type aggregates the other endpoint's features. Summary item 1's "movie features are their own" is wrong for these columns.
+- **Gate 2 is weaker than its name.** Ctrl-G is a training-graph control, not a feature-free one (pre-registered with reasons). Given the bitwise gate, equality with it is implied, and it cannot see a leak outside the rule's columns.
+- **Corrections:**
+  - the bitwise check shares the column map with the rebuild (only the per-node aggregation is independent; the reviewer's own reimplementation agrees on every node);
+  - the ACM cosine before the fix was not measured;
+  - about 47 % of acm_pa positives have an isolated author, which no method can rank.
+- **Fixed:** the toy bitwise test now reads the loader's tensor through the loader.
+- **Further decisions:**
+  3. **IMDB movie columns:** drop the actor-like columns (and `director_facebook_likes`) or all numeric attributes in the LP files; drop movie features for LP; or keep them and state it.
+  4. **A stronger leak gate** before LP numbers: a features-only scorer over all stored features of both endpoints.
+  5. **A loader guard** against a stale `node.dat` after rebuilding a split.
+  6. **C2 on IMDB** over the shared 3,341 columns.
