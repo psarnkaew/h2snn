@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (+ J4 done, J5 next, spec v1.9; evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (+ J4, J5 done, J6 next, spec v1.10; evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
 
 **Naming (binding):** the meta-path mechanism of the current model is **WISP** (Walk-sampled, Instance-weighted Sheaf Paths; spec v1.3 §3.2). "AMPSS" means only the deleted v1 mechanism (tag `v1-submitted`). `../docs/H2S-NN_D2_task_card.md` (old "Part E: D2") is superseded by Part H; do not implement from it.
 
@@ -849,6 +849,45 @@ Remove the feature leak found in the J4 review and apply the author's other link
 A precondition fails; a rebuilt feature fails the bitwise check after 3 diagnosed attempts; the features-only scorer still beats the control after the fix (report, do not tune); a change outside this card (in particular any edit to the node-classification data).
 
 Git: one commit per unit on `part-j`; stage by explicit path; push `part-j` only at the end of J5.7, after the review; never merge.
+
+---
+
+## Part J (continued) — J6: one feature rule for every link-prediction task, one leak audit (spec v1.10)
+
+### Goal
+Replace the per-dataset feature handling of J5 by **one rule for every link-prediction task** (author decision 2026-11-10, spec v1.10 F17), audit every task once for leaks (F18), count cold-start positives (F19), add the loader guard (F20) and regenerate only the negatives whose inputs change. **Link prediction only:** node-classification data, splits, metrics and heterophily values stay untouched. Do the least work that settles these points; no new rules, no re-measurement of earlier leaks.
+
+### Preconditions (stop and report if any fails)
+1. Continue on `part-j` (last commit `8b5eb18`) in the main working tree; Part J's git rules hold.
+2. CPU only; no training; no model or trainer code. The only `src/` file you may edit is `src/data/link_prediction_dataset.py`. Never modify `H2S-NN/data/acm`, `dblp`, `imdb`, `freebase` (node-classification releases).
+
+### The rule (F17), applied to the LP task files only
+A node feature is removed when it is (a) **computed from the target relation** (the whole feature block of that node type) or (b) **an attribute of the other endpoint** (individual columns). Nothing else is removed; nothing is rebuilt.
+- acm_pa: author features removed (J5.1: OR of its papers). Paper features kept.
+- dblp_ap: author features removed (already). Paper features kept.
+- imdb_ma: actor features removed (J5.1: mean of its movies); movie attribute columns 3, 4, 7, 12 removed (`actor_1_facebook_likes`, `actor_3_facebook_likes`, `cast_total_facebook_likes`, `actor_2_facebook_likes`, from `info.dat`). `director_facebook_likes` stays (directors are not on the target relation).
+- pubmed, lastfm, freebase_bb: nothing removed unless the J6.2 inventory finds a case of (a) or (b) — then stop and report.
+A type whose features are removed becomes featureless (learned embedding), as DBLP author already is.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| J6-docs | Commit `docs/H2S-NN_methodology_spec.md`, `docs/H2S-NN_agent_prompt.md`, `docs/session_handoff.md` (explicit paths), message "docs: spec v1.10, agent prompt (J6), session handoff" | exactly these three |
+| J6.0 | Pre-registration `docs/lp_evidence/j6_preregistration.md`: the audit design and its pass criterion (below), fixed before any computation | written before code |
+| J6.1 | **Apply the rule** to `data/lp_derived/{acm_pa,dblp_ap,imdb_ma}/node.dat` (from the HGB release, so the J5 rebuilt features disappear); record per task what was removed | the removed blocks/columns are absent; everything else bitwise equal to the release |
+| J6.2 | **One leak audit per task** (all six): (i) an **attribute inventory** — every named feature attribute of both endpoint types (from `info.dat` or the dataset documentation) classified as "own" or "about the other endpoint / computed from the target relation", with the source of each classification; (ii) a **fingerprint probe** on every non-binary column of both endpoint types, as the J5 reviewer's probe (rare exact values shared between a candidate and the kept node's **training** neighbours), on the stored HeaRT lists, against the training-graph control Ctrl-G. Pass: the inventory finds nothing left to remove, and no column family beats Ctrl-G by more than the tolerance fixed in J6.0 | pass, or **stop** and report the column(s) |
+| J6.3 | **Loader guard** (F20): the loader refuses a derived LP task whose `node.dat` does not match the recorded post-rule md5 (or still carries features for a removed type/column) | test + mutation (re-run the split builder → refused) |
+| J6.4 | **Negatives:** regenerate acm_pa only (its cosine read author features, which are now removed, so C2 no longer applies; PubMed is the only task with C2). Show md5-identical regeneration for the other five | J4.4 checks on the new acm_pa files |
+| J6.5 | **Cold-start count** (F19): per task and split, the number of positives whose endpoint (either side) has no training fact, and the random-fill share of the HeaRT lists; write `docs/lp_evidence/j6_cold_start.md` | table |
+| J6.6 | Report §12 "J6" in `docs/H2S-NN_partJ_report.md` (≤ 1 page); full suite once; independent review (fresh sub-agent: diff `8b5eb18..HEAD`, Part A, Part J, J4, J5, J6) filed unedited as `docs/lp_evidence/j6_independent_review.md` with responses; then push `part-j` (no merge) | — |
+
+### Not done (by design)
+No feature rebuilding, no new construction rules (DBLP stays dropped), no re-measurement of pre-fix leaks, no regeneration of the unused RA-variant files, no change to node-classification data.
+
+### Stop conditions
+A precondition fails; the audit fails (report the columns; do not remove anything beyond the rule without the author); a change outside this card.
+
+Git: one commit per unit on `part-j`; explicit-path staging; push `part-j` only at the end of J6.6, after the review; never merge.
 
 ---
 
