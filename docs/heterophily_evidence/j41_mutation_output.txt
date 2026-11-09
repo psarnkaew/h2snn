@@ -1,0 +1,8 @@
+H_adj: class-imbalance correction dropped: CAUGHT (FAILED (failures=1))
+G_P: self-loops dropped (H2GB keeps them): CAUGHT (FAILED (failures=1))
+random fill: not the reference's RNG state: CAUGHT (FAILED (failures=1))
+wrapper: caller's label tensor filled in place: CAUGHT (FAILED (failures=1))
+skip the fill, single label: labeled-only as primary: CAUGHT (FAILED (failures=1))
+skip the fill, per genre: labeled-only as primary: CAUGHT (FAILED (failures=1))
+exact match instead of per genre: CAUGHT (FAILED (failures=1))
+caught 7/7; file byte-identical after restore; clean run: OK

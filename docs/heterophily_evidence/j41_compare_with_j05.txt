@@ -1,0 +1,17 @@
+('acm', 'loaded') mlh_h2gb_heterophily_mean J0.5 0.262087805396 J4.1 0.262087805396 |diff| 0.0e+00
+('acm', 'loaded') h2_index J0.5 0.399406658686 J4.1 0.399406658686 |diff| 0.0e+00
+('acm', 'loaded') mlh_hetero2net_homophily J0.5 0.596210014110 J4.1 0.596210014110 |diff| 0.0e+00
+('dblp', 'loaded') mlh_h2gb_heterophily_mean J0.5 0.127778277693 J4.1 0.127778277693 |diff| 0.0e+00
+('dblp', 'loaded') h2_index J0.5 0.173236310482 J4.1 0.173236310482 |diff| 0.0e+00
+('dblp', 'loaded') mlh_hetero2net_homophily J0.5 0.872221722307 J4.1 0.872221722307 |diff| 0.0e+00
+('imdb', 'loaded') mlh_h2gb_heterophily_mean J0.5 0.763049120704 J4.1 0.324673652212 |diff| 4.4e-01
+('imdb', 'loaded') h2_index None 0.7372715150316556
+('imdb', 'loaded') mlh_hetero2net_homophily J0.5 0.236950879296 J4.1 0.236950879296 |diff| 0.0e+00
+('freebase', 'sym') mlh_h2gb_heterophily_mean J0.5 0.846441709562 J4.1 0.846441709562 |diff| 0.0e+00
+('freebase', 'sym') h2_index J0.5 0.995345717323 J4.1 0.995345717323 |diff| 0.0e+00
+('freebase', 'sym') mlh_hetero2net_homophily J0.5 0.154237596415 J4.1 0.154237596415 |diff| 0.0e+00
+('freebase', 'sym') seeds equal: True
+('freebase', 'loaded') mlh_h2gb_heterophily_mean J0.5 0.852842864003 J4.1 0.852842864003 |diff| 0.0e+00
+('freebase', 'loaded') h2_index J0.5 0.999203215237 J4.1 0.999203215237 |diff| 0.0e+00
+('freebase', 'loaded') mlh_hetero2net_homophily None None
+('freebase', 'loaded') seeds equal: True

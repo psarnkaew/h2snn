@@ -120,7 +120,14 @@
       ],
       "h2_index_over_seeds": [],
       "mlh_mean_over_seeds": [],
-      "notes": []
+      "notes": [],
+      "convention": "single label, fully labeled; H2GB calcHomophily on its own M_2, mean",
+      "mlh_labeled_only": null,
+      "h2_index_labeled_only": null,
+      "per_genre": [],
+      "exact_match_mlh_h2gb_heterophily_mean": null,
+      "jaccard_homophily_labeled_only": null,
+      "jaccard_rows": []
     },
     {
       "dataset": "dblp",
@@ -163,7 +170,14 @@
       ],
       "h2_index_over_seeds": [],
       "mlh_mean_over_seeds": [],
-      "notes": []
+      "notes": [],
+      "convention": "single label, fully labeled; H2GB calcHomophily on its own M_2, mean",
+      "mlh_labeled_only": null,
+      "h2_index_labeled_only": null,
+      "per_genre": [],
+      "exact_match_mlh_h2gb_heterophily_mean": null,
+      "jaccard_homophily_labeled_only": null,
+      "jaccard_rows": []
     },
     {
       "dataset": "imdb",
@@ -193,88 +207,44 @@
         {
           "metapath": "movie -to-> director -to-> movie",
           "num_edges": 21282,
-          "h_edge": 0.404379278421402,
-          "h_node": 0.6149346828460693,
-          "h_adj": null,
-          "source_h_edge": "Hetero2Net label_homophily",
-          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
-          "source_h_adj": "not computed",
-          "labeled_only_h_edge": 0.4158431210224039,
-          "labeled_only_h_adj": null
+          "h_edge": 0.7684616107508693,
+          "h_node": 0.853123050484758,
+          "h_adj": 0.4692294478416443,
+          "source_h_edge": "H2GB calcHomophily per genre, mean over genres",
+          "source_h_node": "own, per genre, mean over genres",
+          "source_h_adj": "H2GB calcHomophily per genre, mean over genres",
+          "labeled_only_h_edge": 0.7858953795208775,
+          "labeled_only_h_adj": 0.49918859236843993
         },
         {
           "metapath": "movie ->actorh-> actor -to-> movie",
           "num_edges": 99782,
-          "h_edge": 0.1725962609052658,
-          "h_node": 0.30479899048805237,
-          "h_adj": null,
-          "source_h_edge": "Hetero2Net label_homophily",
-          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
-          "source_h_adj": "not computed",
-          "labeled_only_h_edge": 0.17804361611797204,
-          "labeled_only_h_adj": null
+          "h_edge": 0.6327754504820509,
+          "h_node": 0.6938479921910489,
+          "h_adj": 0.16020849496126174,
+          "source_h_edge": "H2GB calcHomophily per genre, mean over genres",
+          "source_h_node": "own, per genre, mean over genres",
+          "source_h_adj": "H2GB calcHomophily per genre, mean over genres",
+          "labeled_only_h_edge": 0.6416341534195338,
+          "labeled_only_h_adj": 0.17050806311111572
         },
         {
           "metapath": "movie -to-> keyword -to-> movie",
           "num_edges": 403848,
-          "h_edge": 0.13387709856033325,
-          "h_node": 0.15856675803661346,
-          "h_adj": null,
-          "source_h_edge": "Hetero2Net label_homophily",
-          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
-          "source_h_adj": "not computed",
-          "labeled_only_h_edge": 0.14236826521339274,
-          "labeled_only_h_adj": null
+          "h_edge": 0.6247419821318912,
+          "h_node": 0.6161618869711787,
+          "h_adj": 0.15874751210212706,
+          "source_h_edge": "H2GB calcHomophily per genre, mean over genres",
+          "source_h_node": "own, per genre, mean over genres",
+          "source_h_adj": "H2GB calcHomophily per genre, mean over genres",
+          "labeled_only_h_edge": 0.6364515592039014,
+          "labeled_only_h_adj": 0.17607709063649227
         }
       ],
-      "mlh_h2gb_heterophily_mean": 0.763049120704333,
-      "mlh_h2gb_heterophily_max": 0.8661229014396667,
-      "h2_index": null,
+      "mlh_h2gb_heterophily_mean": 0.3246736522117296,
+      "mlh_h2gb_heterophily_max": 0.37525801786810875,
+      "h2_index": 0.7372715150316556,
       "mlh_hetero2net_homophily": 0.23695087929566702,
-      "fill_seeds": [],
-      "h2_index_over_seeds": [],
-      "mlh_mean_over_seeds": [],
-      "notes": [
-        "Multilabel: calcHomophily cannot run; h_edge and h_node from Hetero^2Net (exact label-vector match) on G_P built as calcHomophily builds it, with PyG's all-zero rows for unlabeled movies; H_adj and H^2 not computed (undefined in both codebases)."
-      ]
-    },
-    {
-      "dataset": "freebase",
-      "graph": "as loaded by PyG HGBDataset",
-      "target": "book",
-      "num_targets": 40402,
-      "num_labeled": 7954,
-      "class_counts": {
-        "class_0": 429,
-        "class_1": 3886,
-        "class_2": 1748,
-        "class_3": 185,
-        "class_4": 962,
-        "class_5": 359,
-        "class_6": 385
-      },
-      "h2gb_metapaths": [
-        "book -and-> book -and-> book"
-      ],
-      "hetero2net_metapaths": [],
-      "rows": [
-        {
-          "metapath": "book -and-> book -and-> book",
-          "num_edges": 49275062,
-          "h_edge": 0.14715713599710945,
-          "h_node": 0.2269802387878364,
-          "h_adj": 0.0007967847632244229,
-          "source_h_edge": "H2GB calcHomophily",
-          "source_h_node": "own (G_P has 49275062 > 30000000 pairs)",
-          "source_h_adj": "H2GB calcHomophily",
-          "labeled_only_h_edge": 0.4500322476910114,
-          "labeled_only_h_adj": 0.10767448650195759
-        }
-      ],
-      "mlh_h2gb_heterophily_mean": 0.8528428640028906,
-      "mlh_h2gb_heterophily_max": 0.8528428640028906,
-      "h2_index": 0.9992032152367756,
-      "mlh_hetero2net_homophily": null,
       "fill_seeds": [
         0,
         1,
@@ -283,26 +253,364 @@
         4
       ],
       "h2_index_over_seeds": [
-        0.9992032152367756,
-        0.9988784377928823,
-        0.9992635699454695,
-        0.998728928505443,
-        0.9988264527637511
+        0.7372715150316556,
+        0.7378680482506752,
+        0.7392975812156994,
+        0.7367963775992393,
+        0.7366129880150158
       ],
       "mlh_mean_over_seeds": [
-        0.8528428640028906,
-        0.852739322783602,
-        0.8531988047016562,
-        0.8533086371357584,
-        0.8528312759910885
+        0.3246736522117295,
+        0.32486300153412107,
+        0.3254779606024386,
+        0.3243939837345111,
+        0.3243418978059526
       ],
       "notes": [
-        "32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels."
+        "Per genre (spec v1.8 \u00a71): calcHomophily on 1(g in Y_v) for each of 5 genres; 359 unlabeled movies filled by calcHomophily with seed 100*s+g; primary s = 0; MLH and H^2 = means over genres and over M_2."
+      ],
+      "convention": "multilabel per genre (5 binary labels), H2GB calcHomophily per genre with its fill (seed 100*s+g, s = 0), mean over genres and over M_2",
+      "mlh_labeled_only": 0.31200630261856244,
+      "h2_index_labeled_only": 0.7180754179613174,
+      "per_genre": [
+        {
+          "genre": 0,
+          "positives_among_labeled": 1090,
+          "fill_seeds": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ],
+          "rows": [
+            {
+              "metapath": "movie -to-> director -to-> movie",
+              "num_edges": 21282,
+              "h_edge": 0.7628982238511418,
+              "h_adj": 0.3611546456813812,
+              "h_node": 0.8390069613779717,
+              "labeled_only_h_edge": 0.7792725203083769,
+              "labeled_only_h_adj": 0.3791529906701469
+            },
+            {
+              "metapath": "movie ->actorh-> actor -to-> movie",
+              "num_edges": 99782,
+              "h_edge": 0.671443747369265,
+              "h_adj": 0.09992604702711105,
+              "h_node": 0.7108684825620845,
+              "labeled_only_h_edge": 0.6842829351132321,
+              "labeled_only_h_adj": 0.10683128670005074
+            },
+            {
+              "metapath": "movie -to-> keyword -to-> movie",
+              "num_edges": 403848,
+              "h_edge": 0.6493284602127534,
+              "h_adj": 0.17771489918231964,
+              "h_node": 0.6477770579229115,
+              "labeled_only_h_edge": 0.6635929232037158,
+              "labeled_only_h_adj": 0.20033690149012054
+            }
+          ],
+          "mlh_heterophily": 0.30544318952228,
+          "h2_index": 0.787068136036396,
+          "mlh_over_seeds": [
+            0.30544318952228,
+            0.30452515386854084,
+            0.30782937252862796,
+            0.30831056798433865,
+            0.3054487704365646
+          ],
+          "h2_index_over_seeds": [
+            0.787068136036396,
+            0.7893668115139008,
+            0.7919135664900144,
+            0.791673315068086,
+            0.7894875829418501
+          ],
+          "mlh_labeled_only": 0.290950540458225,
+          "h2_index_labeled_only": 0.7712262737132273
+        },
+        {
+          "genre": 1,
+          "positives_among_labeled": 1384,
+          "fill_seeds": [
+            1,
+            101,
+            201,
+            301,
+            401
+          ],
+          "rows": [
+            {
+              "metapath": "movie -to-> director -to-> movie",
+              "num_edges": 21282,
+              "h_edge": 0.7531247063245936,
+              "h_adj": 0.45003631711006165,
+              "h_node": 0.8501993786074936,
+              "labeled_only_h_edge": 0.7697521601904072,
+              "labeled_only_h_adj": 0.4770088747009217
+            },
+            {
+              "metapath": "movie ->actorh-> actor -to-> movie",
+              "num_edges": 99782,
+              "h_edge": 0.616985027359644,
+              "h_adj": 0.13909879326820374,
+              "h_node": 0.6858080655240125,
+              "labeled_only_h_edge": 0.6255978675609153,
+              "labeled_only_h_adj": 0.14831114014776456
+            },
+            {
+              "metapath": "movie -to-> keyword -to-> movie",
+              "num_edges": 403848,
+              "h_edge": 0.6428705849725639,
+              "h_adj": 0.1972028762102127,
+              "h_node": 0.6288198721388484,
+              "labeled_only_h_edge": 0.6578074812314259,
+              "labeled_only_h_adj": 0.2186404324418968
+            }
+          ],
+          "mlh_heterophily": 0.3290065604477328,
+          "h2_index": 0.7378873378038406,
+          "mlh_over_seeds": [
+            0.3290065604477328,
+            0.3307626263915271,
+            0.3274477355278608,
+            0.32533170440935744,
+            0.32864149884737903
+          ],
+          "h2_index_over_seeds": [
+            0.7378873378038406,
+            0.7400819361209869,
+            0.7391678194204967,
+            0.7350190430879593,
+            0.7351166059573491
+          ],
+          "mlh_labeled_only": 0.31561416367241735,
+          "h2_index_labeled_only": 0.7186798509031389
+        },
+        {
+          "genre": 2,
+          "positives_among_labeled": 1837,
+          "fill_seeds": [
+            2,
+            102,
+            202,
+            302,
+            402
+          ],
+          "rows": [
+            {
+              "metapath": "movie -to-> director -to-> movie",
+              "num_edges": 21282,
+              "h_edge": 0.8082886946715534,
+              "h_adj": 0.5930808186531067,
+              "h_node": 0.8776126084502356,
+              "labeled_only_h_edge": 0.8273917317742019,
+              "labeled_only_h_adj": 0.6327199207413997
+            },
+            {
+              "metapath": "movie ->actorh-> actor -to-> movie",
+              "num_edges": 99782,
+              "h_edge": 0.6421799522960053,
+              "h_adj": 0.2521176338195801,
+              "h_node": 0.6987705924187234,
+              "labeled_only_h_edge": 0.6511140489472157,
+              "labeled_only_h_adj": 0.26817730150339436
+            },
+            {
+              "metapath": "movie -to-> keyword -to-> movie",
+              "num_edges": 403848,
+              "h_edge": 0.5687337810265248,
+              "h_adj": 0.1106845960021019,
+              "h_node": 0.5715088901836011,
+              "labeled_only_h_edge": 0.5753048955209218,
+              "labeled_only_h_adj": 0.12229058513211394
+            }
+          ],
+          "mlh_heterophily": 0.32693252400197215,
+          "h2_index": 0.6813723171750705,
+          "mlh_over_seeds": [
+            0.32693252400197215,
+            0.32715294124782257,
+            0.32854098794537057,
+            0.3277186756097219,
+            0.32741489887381425
+          ],
+          "h2_index_over_seeds": [
+            0.6813723171750705,
+            0.6813362836837769,
+            0.6840667972962062,
+            0.6817932625611622,
+            0.6825246289372444
+          ],
+          "mlh_labeled_only": 0.3153964412525535,
+          "h2_index_labeled_only": 0.6589373975410306
+        },
+        {
+          "genre": 3,
+          "positives_among_labeled": 1135,
+          "fill_seeds": [
+            3,
+            103,
+            203,
+            303,
+            403
+          ],
+          "rows": [
+            {
+              "metapath": "movie -to-> director -to-> movie",
+              "num_edges": 21282,
+              "h_edge": 0.7818814021238606,
+              "h_adj": 0.47305065393447876,
+              "h_node": 0.8619237659607274,
+              "labeled_only_h_edge": 0.8004863662234181,
+              "labeled_only_h_adj": 0.5053665913216807
+            },
+            {
+              "metapath": "movie ->actorh-> actor -to-> movie",
+              "num_edges": 99782,
+              "h_edge": 0.6570122867851917,
+              "h_adj": 0.16429218649864197,
+              "h_node": 0.7240304110575767,
+              "labeled_only_h_edge": 0.6662259912509808,
+              "labeled_only_h_adj": 0.17494702225109718
+            },
+            {
+              "metapath": "movie -to-> keyword -to-> movie",
+              "num_edges": 403848,
+              "h_edge": 0.7095887561656861,
+              "h_adj": 0.21747848391532898,
+              "h_node": 0.6800852665614099,
+              "labeled_only_h_edge": 0.726212145607567,
+              "labeled_only_h_adj": 0.23967710315306875
+            }
+          ],
+          "mlh_heterophily": 0.2838391849750872,
+          "h2_index": 0.7150595585505168,
+          "mlh_over_seeds": [
+            0.2838391849750872,
+            0.28466762149479674,
+            0.286559561920957,
+            0.2843409261458266,
+            0.2841500560471085
+          ],
+          "h2_index_over_seeds": [
+            0.7150595585505168,
+            0.7149434785048168,
+            0.7184379299481709,
+            0.7141978641351063,
+            0.7146420429150264
+          ],
+          "mlh_labeled_only": 0.26902516563934464,
+          "h2_index_labeled_only": 0.6933364277580512
+        },
+        {
+          "genre": 4,
+          "positives_among_labeled": 2517,
+          "fill_seeds": [
+            4,
+            104,
+            204,
+            304,
+            404
+          ],
+          "rows": [
+            {
+              "metapath": "movie -to-> director -to-> movie",
+              "num_edges": 21282,
+              "h_edge": 0.7361150267831971,
+              "h_adj": 0.4688248038291931,
+              "h_node": 0.8368725380273612,
+              "labeled_only_h_edge": 0.7525741191079837,
+              "labeled_only_h_adj": 0.5016945844080506
+            },
+            {
+              "metapath": "movie ->actorh-> actor -to-> movie",
+              "num_edges": 99782,
+              "h_edge": 0.5762562386001483,
+              "h_adj": 0.1456078141927719,
+              "h_node": 0.6497624093928474,
+              "labeled_only_h_edge": 0.5809499242253249,
+              "labeled_only_h_adj": 0.15427356495327166
+            },
+            {
+              "metapath": "movie -to-> keyword -to-> movie",
+              "num_edges": 403848,
+              "h_edge": 0.5531883282819279,
+              "h_adj": 0.09065670520067215,
+              "h_node": 0.5526183480491225,
+              "labeled_only_h_edge": 0.5593403504558765,
+              "labeled_only_h_adj": 0.09944043096526124
+            }
+          ],
+          "mlh_heterophily": 0.3781468021115756,
+          "h2_index": 0.7649702255924543,
+          "mlh_over_seeds": [
+            0.3781468021115756,
+            0.3772066646679183,
+            0.37701214508937675,
+            0.37626804452331086,
+            0.3760542648248967
+          ],
+          "h2_index_over_seeds": [
+            0.7649702255924543,
+            0.7636117314298948,
+            0.7629017929236094,
+            0.7612984031438828,
+            0.7612940793236097
+          ],
+          "mlh_labeled_only": 0.3690452020702716,
+          "h2_index_labeled_only": 0.7481971398911389
+        }
+      ],
+      "exact_match_mlh_h2gb_heterophily_mean": 0.763049120704333,
+      "jaccard_homophily_labeled_only": 0.47025454551434237,
+      "jaccard_rows": [
+        {
+          "metapath": "movie -to-> director -to-> movie",
+          "labeled_pairs": 19327,
+          "jaccard": 0.6190510684534588,
+          "exact_match": 0.4158431210224039,
+          "genre_agreement": [
+            0.7792725203083769,
+            0.7697521601904072,
+            0.8273917317742019,
+            0.8004863662234181,
+            0.7525741191079837
+          ]
+        },
+        {
+          "metapath": "movie ->actorh-> actor -to-> movie",
+          "labeled_pairs": 93039,
+          "jaccard": 0.4000562488132217,
+          "exact_match": 0.17804361611797204,
+          "genre_agreement": [
+            0.6842829351132321,
+            0.6255978675609153,
+            0.6511140489472157,
+            0.6662259912509808,
+            0.5809499242253249
+          ]
+        },
+        {
+          "metapath": "movie -to-> keyword -to-> movie",
+          "labeled_pairs": 366437,
+          "jaccard": 0.39165631927634664,
+          "exact_match": 0.14236826521339274,
+          "genre_agreement": [
+            0.6635929232037158,
+            0.6578074812314259,
+            0.5753048955209218,
+            0.726212145607567,
+            0.5593403504558765
+          ]
+        }
       ]
     },
     {
       "dataset": "freebase",
-      "graph": "symmetrised as H2GB's loaders do (flagged)",
+      "graph": "symmetrised as H2GB's loaders build it (primary)",
       "target": "book",
       "num_targets": 40402,
       "num_labeled": 7954,
@@ -459,7 +767,83 @@
       ],
       "notes": [
         "32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels."
-      ]
+      ],
+      "convention": "single label; H2GB calcHomophily on its own M_2, mean; unlabeled targets random-filled by calcHomophily (seed 0)",
+      "mlh_labeled_only": 0.47754839243242686,
+      "h2_index_labeled_only": 0.8821210206311958,
+      "per_genre": [],
+      "exact_match_mlh_h2gb_heterophily_mean": null,
+      "jaccard_homophily_labeled_only": null,
+      "jaccard_rows": []
+    },
+    {
+      "dataset": "freebase",
+      "graph": "as loaded by PyG HGBDataset (flagged comparison)",
+      "target": "book",
+      "num_targets": 40402,
+      "num_labeled": 7954,
+      "class_counts": {
+        "class_0": 429,
+        "class_1": 3886,
+        "class_2": 1748,
+        "class_3": 185,
+        "class_4": 962,
+        "class_5": 359,
+        "class_6": 385
+      },
+      "h2gb_metapaths": [
+        "book -and-> book -and-> book"
+      ],
+      "hetero2net_metapaths": [],
+      "rows": [
+        {
+          "metapath": "book -and-> book -and-> book",
+          "num_edges": 49275062,
+          "h_edge": 0.14715713599710945,
+          "h_node": 0.2269802387878364,
+          "h_adj": 0.0007967847632244229,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 49275062 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.4500322476910114,
+          "labeled_only_h_adj": 0.10767448650195759
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.8528428640028906,
+      "mlh_h2gb_heterophily_max": 0.8528428640028906,
+      "h2_index": 0.9992032152367756,
+      "mlh_hetero2net_homophily": null,
+      "fill_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "h2_index_over_seeds": [
+        0.9992032152367756,
+        0.9988784377928823,
+        0.9992635699454695,
+        0.998728928505443,
+        0.9988264527637511
+      ],
+      "mlh_mean_over_seeds": [
+        0.8528428640028906,
+        0.852739322783602,
+        0.8531988047016562,
+        0.8533086371357584,
+        0.8528312759910885
+      ],
+      "notes": [
+        "32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels."
+      ],
+      "convention": "single label; H2GB calcHomophily on its own M_2, mean; unlabeled targets random-filled by calcHomophily (seed 0)",
+      "mlh_labeled_only": 0.5499677523089885,
+      "h2_index_labeled_only": 0.8923255134980425,
+      "per_genre": [],
+      "exact_match_mlh_h2gb_heterophily_mean": null,
+      "jaccard_homophily_labeled_only": null,
+      "jaccard_rows": []
     }
   ],
   "cited": {
