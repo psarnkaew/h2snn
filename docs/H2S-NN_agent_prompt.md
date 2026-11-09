@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, in progress) or **Part H (D2 → WISP, the replacement of AMPSS; starts after Part G is closed)**. Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
 
 **Naming (binding):** the meta-path mechanism of the current model is **WISP** (Walk-sampled, Instance-weighted Sheaf Paths; spec v1.3 §3.2). "AMPSS" means only the deleted v1 mechanism (tag `v1-submitted`). `../docs/H2S-NN_D2_task_card.md` (old "Part E: D2") is superseded by Part H; do not implement from it.
 
@@ -15,7 +15,7 @@ Prioritize **correctness, falsifiability and feasibility** over sounding impress
 
 ### Sources of truth (read before acting, in this order)
 1. `CLAUDE.md` and `AGENTS.md` in the repo — environment and coding conventions are binding.
-2. `../docs/H2S-NN_methodology_spec.md` (v1.3) — **the authority for design**: requirements R1–R12, components, theory, claims and protocol. Then `../docs/H2S-NN_v2_plan.md` — the decision log: agreed decisions (D1–D12), the design rationale of the final model (§12.0: assumptions A1–A5, properties P1–P5) and the reality-before-theory audit (§11). Do not reopen an agreed decision; if evidence contradicts it — including evidence from the data or from published models — stop and report.
+2. `../docs/H2S-NN_methodology_spec.md` (v1.6) — **the authority for design**: requirements R1–R12, components, theory, claims and protocol. Then `../docs/H2S-NN_v2_plan.md` — the decision log: agreed decisions (D1–D12), the design rationale of the final model (§12.0: assumptions A1–A5, properties P1–P5) and the reality-before-theory audit (§11). Do not reopen an agreed decision; if evidence contradicts it — including evidence from the data or from published models — stop and report.
 3. `../docs/H2S-NN_fix_spec.md` — hypotheses, protocol fixes, status tags. Earlier task reports (e.g. `../docs/H2S-NN_D1_report.md`) are also inputs.
 4. The code itself. When a document and the code disagree, the code describes what runs; report the disagreement.
 
@@ -39,7 +39,7 @@ Our own results (Lemma A′, Prop. 1–3, the stability bound, section preservat
 A work unit is the smallest change that can be tested on its own.
 
 0. **Inventory.** Read the code you will touch and list every consumer of the interfaces you change, with `file:line`. Do not write code before this list exists.
-1. **Pre-register.** Before running anything, write: what you will change; the exact test or measurement; the expected result; and the result that would show you are wrong.
+1. **Pre-register.** Before running anything, write: what you will change; the exact test or measurement; the expected result; and the result that would show you are wrong. For a known-answer task, an oracle or a gate, also write (a) **reachability**: the parameter change the expected result needs and the change the run's optimizer and schedule can make (one scalar under Adam moves about Σ_t lr_t); an unreachable expectation is redesigned before running; and (b) an **information-route audit**: every route by which the label can reach a target within the receptive field, per arm, including memorisation routes (spec §0 rule 6).
 2. **Implement** the smallest change that can satisfy the pre-registration.
 3. **Verify.** Run the tests or checks in the `h2snn` environment. Paste the command and the decisive output lines.
 4. **Adversarial self-review.** Re-read your diff as a hostile reviewer who wants the paper rejected. Go through the task card's checklist item by item and mark each `PASS` / `FAIL` / `NOT CHECKED` with evidence. Also ask: does any test pass vacuously? Would it fail if the property were broken? Prove it with a negative control where possible.
@@ -696,3 +696,178 @@ evaluation     : one fixed draw from p only (q = p), base seed; identical cells 
 A precondition fails; T-H1, T-H2 or T-H3 fails after 3 diagnosed attempts; the H3 or H6 gate is missed (report, keep the safer default); max log-weight > 30; an S1/S2 expectation is missed (report with diagnosis; no redesign inside this card); a needed change falls outside this card.
 
 Commit per unit on `wisp`; do not push until the author has read the H7 report.
+
+---
+
+## Part I — Task card D2 follow-up: WISP after Part H (spec v1.4)
+
+### Goal
+Implement spec v1.4 (E1–E7) and close the gaps Part H left: test the **capacity** of the weight channel with a correct oracle, see **why** `full` does not learn selection (mechanism, not tuning), remove S2's length confound, add the test gaps the H7 review accepted, flip the default sampler, and make sampling overlap training. Authority: `H2S-NN_methodology_spec.md` v1.4 (§2 R12, §3.2, §5 C2/C2b, §6 WISP settings and gate). Evidence base: `docs/H2S-NN_WISP_report.md`, `docs/WISP_evidence/h7_review_response.md`.
+
+### Preconditions
+1. Part H is closed (`94fc397` on `wisp`). `src/` and `tests/` have no uncommitted changes that are not yours; never stash, reset or commit another session's changes. The author's uncommitted D2-row edits in `AGENTS.md`/`CLAUDE.md` stay uncommitted.
+2. Push `d12-encoder` and `wisp` to `origin` as backups (author approved). Do **not** merge either into another branch.
+3. Create branch `wisp-followup` off `wisp` (`94fc397`).
+4. No real-data accuracy runs; synthetic tasks are pass/fail functional checks; smoke and cost runs are allowed. H2S-NN is untuned while baselines are tuned: no number here is a performance result.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| I0 | Preconditions; inventory (`file:line`) of everything I1–I6 touch; pre-registration `../docs/WISP_evidence/followup_preregistration.md` with the expected result and the result that would show it wrong, per unit | written before code |
+| I1 | **`g` reads `h₀` only (spec E1–E2).** `ξ_f` = each instance node's `h₀` + relation embeddings; maps and gates keep `[h₀, c]`. Appendix switch `ablation.path_weight_context: false | true` (`true` = the v1.3 `[h₀, c]` input; appendix pair only; never tuned, rejected by the tuning check). T-H7 under the **default** context: perturbing an intermediate's `h₀` **and its neighbours' `h₀`** leaves `endpoints` (and `schema`, `uniform`) weights unchanged, changes `full`; perturb positions ℓ−1 and ℓ separately (review MINOR-6) | T-H7 (rewritten), T-H5/T-H6 still pass |
+| I2 | **Default flip (E7):** `data.path_source: wisp` for node classification; `schemas` stays as the comparison arm. Link prediction and graph classification are unchanged. Goldens stay pinned to their explicit settings | default-config test; goldens bit-identical |
+| I3 | **S1′ with a learnable-scale oracle + learning mechanism.** Oracle: `w_f = exp(b + β·o_f)`, `o_f ∈ {0, 1}` the known relevance, `b` and `β` learnable scalars (scalar group), everything else trained. Arms: `full`, oracle (3 seeds each); `endpoints`, `uniform`, `no_path_cells`, and `full` with the readout **without the `h₀` half** (G0b hypothesis H1; 1 seed each). Log per epoch: mean log-weight of relevant vs irrelevant cells, the relevant cells' share of their target's degree, train/val accuracy. Pass (capacity): oracle ≥ 0.9. If the oracle misses, diagnose structurally (the relevant cells' share of `D`; is the path part drowned by the edge part?) and report; do not redesign here | pre-registered; misses recorded, not stop conditions |
+| I4 | **S2 without the length confound (E4):** ≥ 3 schemas of the planted length (4) present in the draw, only the planted one carries the label; criterion: highest mean learned log-weight per cell among full-walk schemas (secondary: lift of `I_π`); 3 seeds | pre-registered |
+| I5 | **Test gaps accepted in the H7 review** (`h7_review_response.md`): a trainer-level test that an adaptive training draw leaves the evaluation face groups unchanged (MINOR-5); config validation in `__post_init__` so direct construction cannot bypass it, `wisp_*` keys rejected under `schemas`, a test per new key, `wisp_proposal` named in the error message; a transported-`L̂_P` version of T-H2 (MINOR-10) if it fits in float64 on the fixture | tests pass; each fails under a targeted mutation |
+| I6 | **Overlap sampling:** draw epoch e+1's cells on CPU in a background worker while the GPU trains epoch e. Semantics unchanged: the seed schedule is identical, so cells, `m_f` and the training logits for a fixed seed are bit-identical with and without overlap (test). Measure the exposed sampling share of epoch time on ACM, DBLP, IMDB (2 epochs each); pre-registered gate ≤ 25 % | bit-identity test; gate measured |
+| I7 | Report `../docs/H2S-NN_WISP_followup_report.md` (Part A format, ≤ 2 pages): per unit verdict, the oracle result and its meaning for the weight channel, the learning-mechanism logs, deviations, items for the cluster | — |
+
+### Settings (author decisions, as in Part H)
+H5-style runs sized under about 1 minute each, ≤ 100 epochs; full test suite once, at I7 (affected tests after each other unit); one commit per unit on `wisp-followup`.
+
+### Rules
+- Comparison arms (`path_source: schemas`, ladder values other than `full`, `path_weight_context: true`, the oracle, the readout without `h₀`) are evidence, never tuned, never defaults.
+- No clamping of `g`, `w_f`, `b` or `β`.
+- A missed gate or synthetic expectation is recorded with numbers and a diagnosis, and the run continues to I7.
+
+### Stop conditions
+A correctness test still failing after 3 diagnosed attempts; max log-weight > 30; a crash you cannot fix; the I6 bit-identity test fails (semantics changed); a change outside this card.
+
+Commit per unit on `wisp-followup`; do not push it until the author has read the I7 report.
+
+**Status (2026-11-09):** done (`bf7f333`, `docs/H2S-NN_WISP_followup_report.md`). Gate (ii) not met: the learnable-scale oracle could not move far enough, so capacity is untested (Part K).
+
+---
+
+## Part J — Evaluation scope (spec v1.5): heterophily measures, link-prediction datasets, cumulative advisor report
+
+### Goal
+Implement the data side of spec v1.5 (F2–F4) without touching the model: (J0) compute the ℋ² index and MLH exactly as their source papers define and implement them; (J1) build the redesigned link-prediction datasets and their evaluation files; (J2) assemble the cumulative advisor report. Authority: `H2S-NN_methodology_spec.md` v1.5 §1 (Heterophily, Tasks) and §6 (Node classification, Link prediction). Author decisions: `session_handoff.md`, "Scope decisions (author, 2026-11-09)".
+
+### Preconditions (stop and report if any fails)
+1. **Branch:** Parts I and K are closed (`bf7f333` on `wisp-followup`; `6ac401f` on `wisp-capacity`). In the main working tree run `git switch -c part-j` from `wisp-capacity` (`6ac401f`; updated 2026-11-09 after Part K so the history stays linear). Uncommitted changes already in the tree carry over (the author's `AGENTS.md`/`CLAUDE.md` edits, `docs/H2S-NN_v2_plan.md`, `references/`, untracked files): never commit, stash, reset or revert them, except the four documents of unit J-docs. Stage files **by explicit path only**; never `git add -A`, `git add .` or `git commit -a`. `docs/` is inside the repository.
+2. **Datasets (updated 2026-11-09 12:40 JST):** HGB Freebase (`data/freebase/freebase/raw/Freebase/`, PyG `HGBDataset` layout), HGB link-prediction `data/PubMed/` and `data/LastFM/` are on disk; provenance and md5 in `H2S-NN/data/PROVENANCE.md` (the heterogeneous HGB releases, not Planetoid PubMed). **PubMed node-classification labels are not available** (the HNE release is no longer downloadable): J1.5 reports this and computes nothing. Do not download anything else; if a file you need is missing, list the expected path, skip only the units that need it, and continue.
+3. **No model or trainer code changes.** The only `src/` file you may edit is `src/data/link_prediction_dataset.py`, and only to register the derived datasets (J1.3).
+4. CPU only; no training, no sweeps, no GPU runs.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| J-docs | Commit the author-approved documents as the first commit on `part-j`, message "docs: spec v1.5, agent prompt Part J, session handoff": `docs/H2S-NN_methodology_spec.md`, `docs/H2S-NN_agent_prompt.md`, `docs/session_handoff.md`, `docs/working_preferences.md` (explicit paths; nothing else) | `git show --stat` lists exactly these four |
+| J0.1 | Inventory + pre-registration `../docs/heterophily_evidence/preregistration.md`: published values to reproduce, tolerance, what would show the implementation wrong | written before code |
+| J0.2 | **Reference code.** Install `H2GB` from PyPI (or clone its GitHub repo) and get the Hetero²Net code (`vendor/H2GB`, `vendor/Hetero2Net` are empty). Locate the functions behind H2GB Table 2 and Hetero²Net Table 1 (`file:line`). From the code, not from memory, record: (a) the MLH aggregation used in H2GB Table 2 (mean or max); (b) de-duplication, symmetrisation and self-loop handling of meta-path-induced graphs; (c) the meta-path set (all length-2 target→target, or listed subsets as in Hetero²Net); (d) multilabel handling (IMDB). If (d) is in neither codebase: **stop J0** and report the candidates (Jaccard, per-label average) without choosing | report |
+| J0.3 | `scripts/heterophily/compute_heterophily.py` calls the reference functions wherever possible; own code only where they cannot be called. Tests `tests/test_heterophily_metrics.py` (unittest): hand-computed toy graph (two node types, two meta-paths, known `H_edge`, `H_adj`); ours equals the reference on the toy and on one random graph; mutation (drop the class-imbalance correction of `H_adj`) caught | tests |
+| J0.4 | **Validation gate** before any new number: reproduce Hetero²Net's DBLP MLH (homophily 0.87, APA) within ±0.01. On a miss, diagnose (dataset version, meta-path set, de-duplication); never adjust a definition to fit | gate |
+| J0.5 | Compute for ACM, DBLP, IMDB, Freebase (full graphs): per meta-path `H_edge`, `H_node`, `H_adj`; MLH (both aggregations, marking H2GB's); ℋ²; meta-path list, edges per `G_P`, class counts. Cite (do not recompute) H2GB Table 2 for ogbn-mag, mag-year, IEEE-CIS-G, H-Pokec. Output `../docs/heterophily_evidence/{results.json, results.md, run_log.txt}`; every value with its source (computed / H2GB Table 2 / Hetero²Net Table 1) and convention (homophily or heterophily) | outputs |
+| J1.1 | **Inventory for link prediction** `../docs/lp_evidence/inventory.md`: for ACM, DBLP, IMDB, Freebase — every relation with endpoint types, fact count after tying (D7), and `ρ`; the HGB raw files you read. **Freebase:** list its relations only; the author chooses the target relation, so do not build the Freebase task in this card. Confirm the HGB link-prediction file format our loader reads (`node.dat`: id, name, type, features; `link.dat` / `link.dat.test`: src, dst, relation, 4th column) with `file:line` | report |
+| J1.2 | **Derived tasks** ACM paper–author, DBLP author–paper, IMDB movie–actor, written in HGB link-prediction format to `H2S-NN/data/lp_derived/{acm_pa,dblp_ap,imdb_ma}/` (gitignored by `/data/`; confirm). One fixed split **by fact** of the target relation, 81/9/10, seed recorded: test facts go to `link.dat.test`; `link.dat` holds everything else. Node features and ids taken unchanged from the HGB node-classification release. Script `scripts/lp/build_derived_lp.py`, deterministic | J1 tests |
+| J1.3 | Register the derived datasets in `_LOCAL_HGB_LINK_DATASETS` (minimal diff) and load each through `build_link_prediction_dataset` with the existing leak checks (no held-out fact, either orientation, in the message graph or on a sampled path). **Check** whether the loader's validation split depends on the training seed; the spec requires one split for all 10 training seeds: if it varies, report it (it affects PubMed and LastFM too) and propose the smallest fix; do not apply it | load smoke + leak checks |
+| J1.4 | **Hard negatives.** Read HeaRT (Li et al., NeurIPS 2023 Datasets and Benchmarks: "Evaluating Graph Neural Networks for Link Prediction: Current Pitfalls and New Benchmarking") and its code; quote the number of negatives per positive, K of Hits@K and the heuristics. Adaptation (spec v1.5): the corrupted endpoint is drawn only from the target relation's type on that side; heuristics computed on the training message graph only. Write fixed validation and test negative files per derived task (and for PubMed, LastFM if present) under `data/lp_derived/<task>/heart/`, plus their generation script. If HeaRT's procedure cannot be adapted without a further choice, stop J1.4 and list the choices | J1 tests |
+| J1.5 | **PubMed labels.** Check whether HGB PubMed node-classification node ids/names map onto the link-prediction release (fraction matched, how matched). If all target-type (disease) nodes match, compute task-level `H_edge` of the disease–disease target relation with the J0 code; otherwise report the mismatch and compute nothing | report |
+| J2 | **Cumulative advisor report** (author decision: one document, a divider page per date): `../docs/advisor_report_cumulative/H2S-NN_progress_report_cumulative.html` + A4 PDF (Playwright, `printBackground: true`) + `README.md` (rules of `../docs/advisor_report/README.md` apply). Chapters 1–2: the existing reports of `../docs/advisor_report/` and `../docs/advisor_report_2026_11_08/`, content unchanged, each preceded by a full-page divider with its date (from their READMEs). Chapter 3 (9 November 2026): heterophily of the evaluation datasets — what MLH and ℋ² measure (one paragraph, one small example), one table for all node-classification datasets with the source of each value, and a note on datasets without node labels ("not measurable", with the reason). Only values that passed J0.4. Do not edit or delete the existing report folders. No internal codes, branch names, file paths, or accuracy numbers | PDF renders; every number traced |
+| J3 | Report `../docs/H2S-NN_partJ_report.md` (Part A format, at most two pages) | — |
+
+### J1 tests (`tests/test_lp_derived.py`, unittest)
+- Split: the three parts are disjoint by fact (either orientation); proportions 81/9/10 within ±0.5 %; same seed → byte-identical files; every node of a test fact exists in `node.dat`.
+- Negatives: none is a positive of any split (either orientation); every corrupted endpoint has the required type; the heuristics read only training facts (mutation: compute them on the full graph → a targeted test fails).
+- Loader: the existing leak checks pass on every derived task; mutation: put one test fact back into `link.dat` → caught.
+
+### Rules
+- Never change a definition, split ratio or negative scheme to fit an expectation; a miss is recorded with a diagnosis.
+- Long output to `../docs/heterophily_evidence/` and `../docs/lp_evidence/`; affected tests after each unit, full suite once at J3.
+
+### Stop conditions
+A precondition fails (except missing datasets: skip the units that need them); J0.2 (d) unresolved (stop J0 only); J0.4 missed after 3 diagnosed attempts; the reference code cannot be installed or located; memory blow-up materialising a `G_P` (report its size; no subsampling without approval); a needed change outside this card.
+
+Git: commit per unit on `part-j`, staging by explicit path (code, tests, and that unit's evidence files under `docs/`). Never push or merge.
+
+---
+
+## Part K — Weight-channel capacity, map latents and guards (spec v1.6)
+
+### Goal
+Settle WISP gate (ii) (spec v1.6 §6): **if a cell's weight is right, can the model use one decisive instance?** Part I's learnable-scale oracle could not answer this: one scalar moves only about 0.5 under the schedule. Also implement E10 (maps read `[h₀, c]` in every arm) and E11 (`r` never tuned), close the guard gaps of the I7 review, and correct the Part I report. Authority: `H2S-NN_methodology_spec.md` v1.6 (§0 rule 6, R12, §6 WISP settings and gate). Evidence base: `docs/H2S-NN_WISP_followup_report.md`, `docs/WISP_evidence/i7_independent_review.md`, `i7_review_response.md`, `i3_run_output.txt`.
+
+### Preconditions
+1. Part I is closed at `bf7f333` on `wisp-followup`. Push `wisp-followup` to `origin` as a backup (author approved). Do not merge anything.
+2. Part K runs in the main working tree **before Part J** (both use the main tree; Part J's first unit commits the docs on `part-j`, and switching from that branch to a branch off `bf7f333` would delete those then-tracked docs from the tree). Check that no other agent is working in the tree (current branch `wisp-followup`, no `part-j` branch in use); otherwise stop and ask the author. Create branch `wisp-capacity` off `bf7f333`. Do not edit `src/data/link_prediction_dataset.py` (Part J owns it).
+3. `src/` and `tests/` have no uncommitted changes that are not yours. Never commit, stash or reset the author's uncommitted edits (AGENTS.md, CLAUDE.md, `docs/*.md` specs, plan, prompt). K4 edits two statements in AGENTS.md/CLAUDE.md and leaves them uncommitted.
+4. No real-data accuracy runs. Synthetic runs are functional checks; H2S-NN is untuned, and no number here is a performance result.
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| K0 | Preconditions; inventory (`file:line`) of what K1–K3 touch; pre-registration `../docs/WISP_evidence/k_preregistration.md`: per unit the expected result and the result that would show it wrong; for K2 also the **reachability statement** and the **information-route audit** of spec §0 rule 6, written from the graph code (`h5_synthetic.py::graph_s1p`) and the actual optimizer settings (`builders.py`), not copied from this card | written before code |
+| K1 | Two latents (E10) | T11-ctx, goldens, 2 mutations |
+| K2 | Capacity dose-response on S1′ (gate (ii)) | pre-registered; a miss is recorded, not a stop condition |
+| K2b | S2 (I4 graph) with 1,000 training targets (author decision 2026-11-09, option A) | pre-registered; a miss is recorded, not a stop condition |
+| K3 | Guards (E11, review m1, NIT) | one test per rule; each fails under a targeted mutation |
+| K4 | Docs: erratum to the Part I report; D2 rows in AGENTS.md/CLAUDE.md (uncommitted) | — |
+| K5 | Report `../docs/H2S-NN_WISP_capacity_report.md` (Part A format, ≤ 2 pages; includes the K2b schema table per seed); full suite once | — |
+
+### K1 — two latents (spec v1.6 E10)
+- Under `path_mode: endpoint_edges` and under `free_path_maps`, the latent that feeds the **maps** (`endpoint_maps`, `free_maps`) is computed from the geometry input (`[h₀, c]` under `geometry_context`). `g`'s latent is computed from `path_inputs` (`h₀` by default). Use two encoder instances of the same class where an arm needs both. The `full` cell arms are unchanged (one latent, for `g`).
+- Pair attention (`coupling: pair_attention`): its path latents read the geometry input.
+- `path_weight_context: true` keeps its meaning (`g` reads `[h₀, c]`); the map latent always reads the geometry.
+- Report the parameter count of each affected arm before and after.
+
+Tests (default `geometry_context: true`; inject geometry rows directly, because perturbing `h₀` moves neighbours' `c` by design):
+- **T11-ctx (a):** the `endpoint_edges` maps change when an endpoint's geometry row changes, including a change of its `c` part only, and do not change when an intermediate's geometry row changes.
+- **(b):** `g`'s latent does not change when only `c` changes (default), and does change under `path_weight_context: true`.
+- **(c):** the `free_path_maps` maps change with the `c` part of any instance node.
+- **(d):** the pair-attention scores change with `c`.
+- Goldens stay bit-identical (they pin `geometry_context: false`; say so).
+- **Mutations (2):** map latent fed `h₀` → (a), (c) fail; `g` fed the geometry under the default → (b) and T-H7 fail.
+
+### K2 — capacity dose-response on S1′ (gate (ii))
+Evidence script `../docs/WISP_evidence/k2_capacity.py`; the oracle lives in the script, as in I3, not in `src/`. Graph: `h5_synthetic.graph_s1p` unchanged except `n`; same split rule (50/25/25); same config as I3 (`resample_paths: false`, r = 640, ≤ 100 epochs, selection on validation).
+- **Oracle:** `w_f = exp(b + β·o_f)`, `o_f ∈ {0, 1}` the known relevance. β is a **constant** (a buffer, not a parameter); `b` is learnable in the scalar group, `b₀ = log(path_weight_init)`; `g` is not used for weights; everything else trains; nothing is clamped.
+- **Grid:** n = 500: β ∈ {0, log 8, log 64, log 512} × 3 seeds; n = 2000 (1,000 training targets): β ∈ {0, log 64, log 512} × 3 seeds. If n = 2000 does not fit in 8 GB, use the largest n ≤ 2000 that fits, chosen and written down before the gated runs.
+- **Per-epoch log:** train/val accuracy; `b`; the median relevant-cell share and path share of the target's `D`; `∂L_train/∂β` at the run's β (β as a leaf tensor with `requires_grad`, never given to the optimizer).
+- **Operator probe** (at initialisation and at the selected checkpoint; the model is not trained by it): `u = (A − I) h₀` with the model's geometry. In S1′ a cpaper's class reaches its paper in one application of `A` only through a cell. Fit a logistic regression of `y` on `u` restricted to target papers, on the training targets, and report accuracy on the test targets. Fixed solver and L2 (e.g. LBFGS, L2 = 1e-3), written in the pre-registration and never tuned. Control: the same probe on `h₀`.
+- **Expected** (DERIVED, idealised: the head reads the one-application cell channel, transports keep the class direction, the 63 irrelevant cpaper classes are independent; SNR ≈ e^β/√63): accuracy ≈ 0.55 / 0.84 / ≥ 0.99 / ≥ 0.99 at β = 0 / log 8 / log 64 / log 512, for the probe and for the model at n = 2000. At n = 500 the model may fall short through memorisation (reported, not gated).
+- **Gate (ii) passes** iff at n = 2000 the model reaches ≥ 0.9 on 3/3 seeds at β = log 64 or at β = log 512, and β = 0 stays ≤ 0.65 on every seed. If β = 0 reaches ≥ 0.9, that is a leak: report it, give no gate verdict, the task is redesigned later.
+- **If the gate misses, read the probe** (fixed now):
+  - probe ≥ 0.9 at log 512 while the model is < 0.9 → the information arrives; the limit is learning in the filter or head;
+  - probe < 0.9 → the information does not arrive in one application: report the relevant share of `D` and the dispersion of the transported carrier states across relevant cells (define the measure in the pre-registration), and stop at the diagnosis. No redesign in this card.
+- **`∂L/∂β` sign:** report, per β, the fraction of epochs before the best epoch with `−∂L/∂β > 0`. Not a gate. Reading fixed now: consistently positive → a learnable scale would move the right way given enough reach; mixed or negative → learning β from the loss is unreliable at this size.
+- **Reachability (rule 6):** β is constant; `b` can move only about Σ_t lr_t (it shifts the total path mass only). State the actual scalar learning rate and schedule from the code.
+- **Context arm:** `full` at n = 2000, 1 seed: the relevant − irrelevant log-weight gap. Not gated.
+
+### K2b — S2 with more training targets (author decision 2026-11-09)
+Question: in I4, σ\* = `a b c d` was strictly first on 1 of 3 seeds; it and its sibling `a b c e` (same prefix, different last relation) were lifted together, and seed 42 lifted `f g h k` first. The length-3 prefix `a b c` (same M3) was **not** lifted, so a shared-node route does not explain the tie. Hypothesis tested here: with 200 training targets `g` cannot separate schemas that differ only in their last relation before memorisation stops learning; with 1,000 training targets it can.
+- Script `../docs/WISP_evidence/k2b_s2_n2000.py`: `i4_s2_unconfounded.graph_s2u(n=2000)` (1,000 training targets), otherwise I4's config and read-out code unchanged. Arms: `full` × seeds 42, 43, 44; `uniform` × seed 42 (non-vacuity control).
+- Set `r` **before training** so that σ\* is drawn for every target in the evaluation draw (coverage 1.0, checked on the draw; this is set-up, not result-dependent); report `r` and coverage.
+- Per-epoch log: train/val accuracy, mean log-weight of σ\* minus `a b c e`, best epoch.
+- Pre-registration (K0 file) includes reachability (I4 already reached log-weights ≈ 8, so the range exists; state the needed σ\* − sibling gap is only > 0) and the information-route audit of `graph_s2u` per arm (σ\* cells carry C\*'s class in one application; `a b c e` and `a b c` reach C\* only through the fact `d` from M3; `f g h k` and the other schemas have no route except through T), written from the code.
+- **Expected:** primary criterion (σ\* strictly highest mean learned log-weight per cell among full-walk schemas) met on 3/3 `full` seeds; `uniform` not strictly first.
+- **Wrong if** any `full` seed ranks another schema ≥ σ\*. Consequence fixed now: C2b's S2 is reported as "not shown at default settings" and moves to the cluster protocol with the same criterion; the criterion is not loosened (no "top set" reading).
+- Time: I4 runs at n = 400 took 109–139 s; n = 2000 is estimated at 5–10 min per run (UNVERIFIED).
+
+### K3 — guards (E11, review m1, NIT)
+- Search space: reject `data.wisp_walks_per_anchor`. `tests/test_wisp.py` (around `:1202`) asserts the opposite; changing that assertion is authorised by spec v1.6 E11.
+- Tuning base config (node classification): reject `wisp_max_length ≠ 4`, `wisp_proposal: adaptive`, and `wisp_walks_per_anchor` other than 0 or the dataset's calibrated value.
+- Reject `ablation.path_weight_context: true` together with `endpoint_edges`, `free_path_maps` or `coupling: pair_attention` (the appendix pair is the ladder only).
+- `r` for other `ℓ_max`: calibrate `r` per dataset (ACM, DBLP, IMDB) for `ℓ_max ∈ {2, 3, 5, 6}` with the H1/H6 incidence rule (`h6_calibrate_r.py`); store the table next to the presets; an unset `r` resolves from the table for its `ℓ_max`; an `ℓ_max` without a calibrated value raises. Report the table.
+- NIT: a directly built `DataConfig()` must not leave `path_source=""` consumable as `schemas`; either consumers raise on the unresolved value or it is resolved explicitly (state which).
+
+### K4 — docs
+- Append a dated **erratum** (not a rewrite) to `docs/H2S-NN_WISP_followup_report.md`:
+  1. Withdrawn: "the readout without `h₀` memorises too, so G0b's H1 is not the mechanism". `x` contains `h₀W₀` (`src/models/filter_bank.py:83,91`) and the diagonal of `A − I` is non-zero, so that arm did not remove the ego route; H1 stays deferred.
+  2. "β ≈ 7–9 to dominate `D`" is a sufficient condition, not a requirement; the idealised one-application estimate is e^β ≈ 10 for 0.9 accuracy (tested in K2).
+- AGENTS.md and CLAUDE.md: in the D2 rows, change the stated default to `path_source: wisp` for node classification (spec v1.4 E7). Edit only those statements; do not commit them.
+
+### Settings
+Synthetic runs ≤ 100 epochs; n = 500 runs take about 1 minute; n = 2000 runs are estimated at 3–4 minutes (UNVERIFIED). Affected tests after each unit; the full suite once, at K5. One commit per unit on `wisp-capacity`.
+
+### Rules
+- The oracle, the probe and every comparison arm are evidence, never tuned, never defaults. The probe's solver and L2 are fixed in the pre-registration.
+- No clamping of `g`, `w_f` or `b`.
+- A gate miss is recorded with numbers and the pre-registered reading; the run continues to K5.
+
+### Stop conditions
+A correctness test still failing after 3 diagnosed attempts; max log-weight > 30; a crash you cannot fix; goldens not bit-identical; a change outside this card (including anything on Part J's branch `part-j` or in `src/data/link_prediction_dataset.py`).
+
+Commit per unit on `wisp-capacity`; do not push it until the author has read the K5 report.
+
+**Status (2026-11-09):** done (`6ac401f`, `docs/H2S-NN_WISP_capacity_report.md`). Gate (ii) met; K2b not counted (leaking task). Spec v1.7 records the decisions.
