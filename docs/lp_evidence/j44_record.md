@@ -61,3 +61,18 @@ Pre-registration: `j4_preregistration.md` §J4.4 (HeaRT parameters with `file:li
 
 ## RA variant (textbook RA instead of HeaRT's CN as coded; same seed)
 See `j44_ra_variant_overlap.txt`.
+- **Overlap per list** (`j44_ra_variant_overlap.py` → `j44_ra_variant_overlap.txt`): the mean share of a list's 500 negatives that both variants contain is:
+  - PubMed: 0.444 (validation), 0.357 (test);
+  - Freebase: 0.544 (validation), 0.507 (test).
+- So the choice changes about half of every same-type list. The random-fill counts are the same for both variants, because both rank the same candidates as non-zero.
+- The variant files stay in `heart_variant_ra/` (gitignored data) for the author's choice.
+
+## Output files (gitignored `data/`; md5 from each `meta.json`)
+| Task | Folder | md5 of heart_valid_samples.npy / heart_test_samples.npy |
+|---|---|---|
+| acm_pa | `data/lp_derived/acm_pa/heart/` | `f19c421ae995dd979c4297414a061d8c` / `54d8c2c8afc160a49dffbfcdbc8c0bcb` |
+| dblp_ap | `data/lp_derived/dblp_ap/heart/` | `d3e4e333d74cb3df6f0ddabc3493d1e5` / `480d92396f50f4853e8d53b76b65d32f` |
+| imdb_ma | `data/lp_derived/imdb_ma/heart/` | `37f2b28a8fe7583791aa14909e94d820` / `7c39cb33a9e9032c60c735019da9f705` |
+| freebase_bb | `data/lp_derived/freebase_bb/heart/` | `4d3ccf682c0711031d56d176df6b3227` / `98fa969deb50236241f4948ca916f1a7` |
+| pubmed | `data/PubMed/heart/` | `fa7ec9b06ad08086ef3951dca55a0cc2` / `4fa3f40a1f44927e8b9f3af1fdcd4aa6` |
+| lastfm | `data/LastFM/heart/` | `7b96bb770d22c7745480a50fcdf8f437` / `d837202b71285f5092fc3bff2134f880` |
