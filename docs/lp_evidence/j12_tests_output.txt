@@ -1,0 +1,27 @@
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_acm_pa.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_acm_pa.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_acm_pa.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_acm_pa.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_dblp_ap.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_dblp_ap.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_dblp_ap.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_dblp_ap.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_imdb_ma.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_imdb_ma.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_imdb_ma.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_imdb_ma.test_proportions_are_81_9_10) ... ok
+test_a_reverse_only_leak_is_caught_at_file_level (tests.test_lp_derived.SyntheticSplitTests.test_a_reverse_only_leak_is_caught_at_file_level)
+Route 2 of the pre-registration: a test fact back in link.dat only as an r' row. ... ok
+test_counts_and_reverse_relation (tests.test_lp_derived.SyntheticSplitTests.test_counts_and_reverse_relation) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.SyntheticSplitTests.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_link_dat_is_the_release_minus_the_test_rows (tests.test_lp_derived.SyntheticSplitTests.test_link_dat_is_the_release_minus_the_test_rows) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.SyntheticSplitTests.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.SyntheticSplitTests.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.SyntheticSplitTests.test_proportions_are_81_9_10) ... ok
+test_same_seed_gives_byte_identical_files (tests.test_lp_derived.SyntheticSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 8.989s
+
+OK
+
