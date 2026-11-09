@@ -1,0 +1,5 @@
+$ python -m unittest discover -s tests   (full suite, J4.7)
+Ran 455 tests in 729.549s
+FAILED (failures=11, errors=9)
+failure/error lines at J3: 20; at J4.7: 20; identical lists: yes
+outside test_baselines: 0

@@ -104,3 +104,56 @@
 5. **Apply the two loader proposals?** And should PubMed and LastFM get fixed validation files?
 6. **The Freebase link-prediction target relation.**
 7. **Run an independent review of Part J? Push `part-j`?**
+
+## 10. J4: decisions of 2026-11-09 (spec v1.8 F6–F11)
+**Commits:** `3c63df0` (J4-docs) … `b58ba27` (J4.6) on `part-j`, plus this section. Evidence: `docs/heterophily_evidence/j4*`, `docs/lp_evidence/j4*`.
+
+**Summary**
+1. **J4.1 heterophily conventions (RUN).**
+   - IMDB per genre: MLH **0.325**, ℋ² **0.737** (fill seeds 0.737–0.739); labelled-only 0.312 / 0.718; exact-match reproduction 0.237; Jaccard appendix 0.470.
+   - Freebase symmetrised: **0.846 / 0.995**; labelled-only 0.478 / 0.882.
+   - ACM and DBLP are identical to J0.5.
+2. **J4.2 loader (RUN).** The loader reads `link.dat.valid` and guards the reverse-only leak.
+   - The derived tasks now evaluate **81.00/9.00/10.00**.
+   - The PubMed and LastFM files reproduce the carve exactly (every loaded tensor identical).
+3. **J4.3 `freebase_bb` (RUN).** 103,303 / 11,478 / 12,754 unordered pairs; 0 pairs shared; 0 held-out rows in the message graph in either orientation. Task-level `H_edge` 0.779 (labelled-only 0.323).
+4. **J4.4 HeaRT negatives for all six tasks (RUN).** No pool was too small (minimum eligible 1,281 ≥ 250), and every property passes on all 12 real files.
+   - **Finding:** HeaRT's "RA" is coded as CN(a,v)/deg(v).
+5. **J4.5:** IMDB protocol compliant in the trainer and all 12 adapters. **J4.6:** chapter 3 updated, 21-page PDF. **Suite:** 455 tests; the same 20 `test_baselines` failures as J3 (identical list), none new.
+
+**Files changed**
+- `src/data/link_prediction_dataset.py`, the only `src/` file: `_split_validation` (file or carve), `_assert_reverse_partner_is_tied`, the `freebase_bb` entry with `exclude_self_loop_positives`.
+- **Scripts:** `compute_heterophily.py` (per genre, diagnostics, Jaccard, task-level `H_edge`); `build_derived_lp.py` (`build_task_by_pair`); new `write_valid_files.py` and `build_heart_negatives.py`.
+- **New tests:** `test_lp_valid_files` (10), `test_heart_negatives` (22), `test_imdb_protocol` (6), plus 10 in `test_lp_derived` and 7 in `test_heterophily_metrics`.
+
+**Deviations**
+- **Same-type pair heuristic (J4.4).** It follows HeaRT's **code**, CN(a,v)/deg(v), verified verbatim at HeaRT's pinned `torch_sparse`, rather than textbook RA. The RA variant was built with the same seed and shares only 36–54 % of each list (`j44_record.md`).
+- **J4.4's record** was completed in a follow-up commit (`65b74e4`), because an append failed on console encoding.
+- **Choices not written in the card, fixed in J4.0 before any value:**
+  - IMDB fill seed is `100·s + g`;
+  - Jaccard is computed on labelled-only pairs (0/0 otherwise);
+  - `freebase_bb` positives are the stored rows (1–2 per pair);
+  - the fill excludes nodes already chosen, because HeaRT's top-k can take zero-score nodes on rank ties.
+- **J4.2 asymmetry.** The PubMed and LastFM files list every relation's carve ("no numeric change"), while the derived tasks' files list only the target. So about 10 % of each non-target relation stays out of the PubMed and LastFM message graphs; before J4, every task lost it, which was unrecorded.
+- **The J0.3 mutation script** no longer applies, because the wrapper line changed. Its 4 mutations are carried over in `j41_mutation_check.py`.
+
+**Verification (RUN).** Mutations: J4.1 7/7, J4.2 3/3, J4.3 2/2, J4.4 4/4, J4.5 2/2 caught; every file was restored byte-identical. Plus the pre-registered exactness checks (`j41_record.md`) and the real-data checks (`j42_*`, `j43_*`, `j44_real_checks_output.txt`).
+
+**Checklist** (each item is backed by a record):
+- every heterophily value carries its convention and source: **PASS**;
+- no definition, split or negative scheme was changed to fit: **PASS**;
+- only the allowed `src/` file edited, staging by explicit path, AGENTS/CLAUDE/v2_plan/`vendor` uncommitted: **PASS**;
+- HeaRT parameters and L3 quoted from source before code: **PASS** (`32ccfbf`).
+
+**Reality checks.**
+- **Features encode the target relation:** ACM author = OR of their papers' features, 5,959/5,959. DBLP and IMDB features are identical for identical neighbour sets, against near zero at random.
+- **Random-fill share:** DBLP 54 %, IMDB 33 %, LastFM and Freebase 7 %, ACM and PubMed 0.
+
+**Open items.** The trainer does not yet read the HeaRT files (later LP card). `config.py` has no presets for `freebase_bb` or the derived tasks. YouTube and Amazon are not on disk, so the guard is untested on them.
+
+**Decisions needed from the author**
+1. **Same-type pair heuristic:** HeaRT as coded (primary, files in `heart/`) or textbook RA (`heart_variant_ra/`).
+2. **Endpoint features encode held-out links** (ACM, DBLP, IMDB): recompute those features from training facts, drop them for link prediction, or keep them and state it.
+3. **Non-target carve:** keep PubMed and LastFM as written, or list only the target in their files so every task keeps its full message graph. The latter changes PubMed and LastFM numerically.
+4. **`freebase_bb` scoring** of two-row pairs (one positive or two), and Hits@K for the LP card (HeaRT: Hits@10).
+5. **High random-fill share on DBLP and IMDB:** accept, as HeaRT's rule gives it, or revisit.
