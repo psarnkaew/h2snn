@@ -46,10 +46,19 @@ To update a chapter, edit its source, then run `python build_cumulative.py` and 
 - 12 pairs, 8 agree, class shares 9/12 and 3/12, chance agreement 0.625, adjusted homophily 1/9, ℋ² 0.89.
 - The same graph is the toy fixture of `H2S-NN/tests/test_heterophily_metrics.py`, whose tests check the reference code against these values.
 
-**Pending and not-measurable entries:**
-- **Freebase pending:** `../heterophily_evidence/results.md`. 7,954 of 40,402 books are labeled ("one in five"). The reference code's random fill gives ℋ² 0.999; the labeled-only diagnostic gives 0.89. The rule awaits the author's decision.
-- **IMDB ℋ²:** not defined for multi-label data in either reference codebase (`../heterophily_evidence/j02_reference_code.md`, item d).
-- **PubMed:** `H2S-NN/data/PROVENANCE.md` (the label release returned a Drive 404).
+**IMDB and Freebase (updated 2026-11-09, spec v1.8 §1 conventions; `../heterophily_evidence/results.json`, `results.md`, `j41_record.md`):**
+- **IMDB:** per genre, averaged over the five genres; unlabelled movies get the reference code's random fill (fill seed 0).
+  - MLH 0.3247 → 0.325; ℋ² 0.7373 → 0.737.
+  - "359 of 4,932 movies": `num_labeled` 4,573 of `num_targets` 4,932.
+  - "less than 0.003": the spread over 5 fill seeds is 0.0027 (ℋ²) and 0.0011 (MLH).
+  - "0.763": the exact-match reproduction row on the same meta-paths, `exact_match_mlh_h2gb_heterophily_mean` 0.7630.
+- **Freebase:** symmetrised graph, random fill (fill seed 0).
+  - MLH 0.8464 → 0.846; ℋ² 0.9953 → 0.995.
+  - Labelled-only diagnostic: ℋ² 0.8821 → 0.882, MLH 0.47755 → 0.478.
+  - "about 0.001": the ℋ² spread over 5 fill seeds is 0.0012 (0.9944–0.9956).
+  - "one in five": 7,954 of 40,402 books labelled.
+
+**Not-measurable entries:** PubMed, `H2S-NN/data/PROVENANCE.md` (the label release returned a Drive 404).
 
 ## Rendering the PDF
 - Run `node render_pdf.js`. It loads the `playwright` library from the global `@playwright/cli` install, or from `PLAYWRIGHT_MODULE` if set, and drives the installed Chrome (`channel: 'chrome'`), so no browser download is needed.
@@ -61,3 +70,4 @@ To update a chapter, edit its source, then run `python build_cumulative.py` and 
 | Date | Change | Requested by |
 |---|---|---|
 | 2026-11-09 | First version. Chapters 1–2 are the reports of 8 November 2026, unchanged. Chapter 3 covers the heterophily of the evaluation datasets: what MLH and ℋ² measure with a small example, the check against a published value, one table of the node-classification datasets with sources, and the datasets without node labels. | Author (task card) |
+| 2026-11-09 | Chapter 3: IMDB and Freebase values computed under the author's conventions (IMDB per genre; unlabelled nodes randomly labelled as the reference code does; Freebase made two-way as the benchmark's loaders do), with one sentence per convention and Freebase's labelled-only diagnostic. Chapters 1–2 unchanged; PDF re-rendered. | Author (task card J4.6) |

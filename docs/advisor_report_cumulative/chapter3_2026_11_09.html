@@ -21,8 +21,8 @@
 <tbody>
 <tr><td>DBLP</td><td class="num">0.128</td><td class="num">0.173</td><td>Computed with the reference code</td></tr>
 <tr><td>ACM</td><td class="num">0.262</td><td class="num">0.399</td><td>Computed with the reference code</td></tr>
-<tr><td>IMDB</td><td class="num">0.763</td><td class="num">—</td><td>Computed. ℋ² is not defined for multi-label data (see note)</td></tr>
-<tr><td>Freebase</td><td class="num">pending</td><td class="num">pending</td><td>Measurement rule for unlabelled books to be decided (see note)</td></tr>
+<tr><td>IMDB</td><td class="num">0.325</td><td class="num">0.737</td><td>Computed with the reference code, per genre (see note)</td></tr>
+<tr><td>Freebase</td><td class="num">0.846</td><td class="num">0.995</td><td>Computed with the reference code, unlabelled books as the reference code treats them (see note)</td></tr>
 <tr><td>ogbn-mag</td><td class="num">0.873</td><td class="num">0.877</td><td>Published (ℋ²GB, Table 2)</td></tr>
 <tr><td>mag-year</td><td class="num">0.772</td><td class="num">0.965</td><td>Published (ℋ²GB, Table 2)</td></tr>
 <tr><td>IEEE-CIS-G</td><td class="num">0.135</td><td class="num">0.985</td><td>Published (ℋ²GB, Table 2)</td></tr>
@@ -33,8 +33,8 @@
 
 <p><b>Notes.</b></p>
 <ul>
-<li><b>IMDB (multi-label).</b> A movie can have several genres. The MLH code treats two movies as agreeing only when their full genre sets are identical. The ℋ² code assumes one label per node, and neither benchmark defines a multi-label version. That choice (for example, genre sets as classes, or an average over genres) has not been made, so no value is reported yet.</li>
-<li><b>Freebase.</b> Only one book in five carries a label. The reference code assigns random labels to the unlabelled books, which pushes both measures towards "heterophilic" whatever the graph looks like. Its result for Freebase is close to 1, and it changes when only labelled books are counted. Because which rule applies is a decision, not a measurement, no value is reported yet.</li>
+<li><b>IMDB (multi-label).</b> A movie can have several of five genres. We treat each genre as its own yes/no label, as the benchmark that released IMDB does. Both measures are computed per genre with the reference code and then averaged over the five genres. The whole-set comparison of section 2 (two movies agree only when their genre sets are identical) gives 0.763 and serves only as the check against the published value. The 359 of 4,932 movies without genres are handled as described for Freebase. Five different random labellings change the values by less than 0.003.</li>
+<li><b>Freebase.</b> Only one book in five carries a label. As in the reference code, every unlabelled book receives a random label, so our values are measured the same way as the published ones in this table. The graph is made two-way, as the benchmark's own loaders do. The random labels dominate the result. Counting only pairs of two labelled books gives an ℋ² index of 0.882 and an MLH of 0.478. That figure is a diagnostic, not the reported value. Five different random labellings change the ℋ² index by about 0.001.</li>
 </ul>
 
 <h2>4. Datasets without node labels: not measurable</h2>
