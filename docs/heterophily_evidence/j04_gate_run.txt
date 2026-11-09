@@ -1,0 +1,4 @@
+2026-11-09 12:57:36,065 | dblp, as loaded by PyG HGBDataset: start
+2026-11-09 12:57:36,224 | dblp, as loaded by PyG HGBDataset: MLH(H2GB, mean, heterophily) 0.127778, H2 0.173236, MLH(Hetero2Net, homophily) 0.872222
+2026-11-09 12:57:36,224 |   author -to-> paper -to-> author: |G_P| 11113, h_edge 0.872222, h_node 0.929465, h_adj 0.826764
+

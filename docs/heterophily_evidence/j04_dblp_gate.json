@@ -1,0 +1,45 @@
+[
+  {
+    "dataset": "dblp",
+    "graph": "as loaded by PyG HGBDataset",
+    "target": "author",
+    "num_targets": 4057,
+    "num_labeled": 4057,
+    "class_counts": {
+      "class_0": 1197,
+      "class_1": 745,
+      "class_2": 1109,
+      "class_3": 1006
+    },
+    "h2gb_metapaths": [
+      "author -to-> paper -to-> author"
+    ],
+    "hetero2net_metapaths": [
+      "author -to-> paper -to-> author"
+    ],
+    "rows": [
+      {
+        "metapath": "author -to-> paper -to-> author",
+        "num_edges": 11113,
+        "h_edge": 0.8722217223072077,
+        "h_node": 0.9294646382331848,
+        "h_adj": 0.8267636895179749,
+        "source_h_edge": "H2GB calcHomophily",
+        "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+        "source_h_adj": "H2GB calcHomophily",
+        "labeled_only_h_edge": null,
+        "labeled_only_h_adj": null
+      }
+    ],
+    "mlh_h2gb_heterophily_mean": 0.12777827769279226,
+    "mlh_h2gb_heterophily_max": 0.12777827769279226,
+    "h2_index": 0.17323631048202515,
+    "mlh_hetero2net_homophily": 0.8722217223072077,
+    "fill_seeds": [
+      0
+    ],
+    "h2_index_over_seeds": [],
+    "mlh_mean_over_seeds": [],
+    "notes": []
+  }
+]
