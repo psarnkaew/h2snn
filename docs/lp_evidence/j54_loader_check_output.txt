@@ -1,0 +1,27 @@
+pubmed train_pos_edge_index: identical to before True (32167)
+pubmed val_pos_edge_index: identical to before True (1942)
+pubmed test_pos_edge_index: identical to before True (8528)
+pubmed val_neg_edge_index: identical to before True (reported, not gated)
+pubmed test_neg_edge_index: identical to before True (reported, not gated)
+pubmed rel_0: train 16105 (before 15151 + valid 954), valid 0; link.dat rows 16105: complete
+pubmed rel_1: train 25962 (before 24233 + valid 1729), valid 0; link.dat rows 25962: complete
+pubmed rel_2 (target): train 32167, valid 1942; before 32167, 1942: same
+pubmed rel_3: train 31277 (before 29223 + valid 2054), valid 0; link.dat rows 31277: complete
+pubmed rel_4: train 51323 (before 47881 + valid 3442), valid 0; link.dat rows 51323: complete
+pubmed rel_5: train 62187 (before 57857 + valid 4330), valid 0; link.dat rows 62187: complete
+pubmed rel_6: train 6297 (before 6000 + valid 297), valid 0; link.dat rows 6297: complete
+pubmed rel_7: train 3155 (before 2930 + valid 225), valid 0; link.dat rows 3155: complete
+pubmed rel_8: train 5245 (before 4905 + valid 340), valid 0; link.dat rows 5245: complete
+pubmed rel_9: train 798 (before 760 + valid 38), valid 0; link.dat rows 798: complete
+pubmed message graph edges: before 169036, after 179784
+lastfm train_pos_edge_index: identical to before True (66966)
+lastfm val_pos_edge_index: identical to before True (7301)
+lastfm test_pos_edge_index: identical to before True (18567)
+lastfm val_neg_edge_index: identical to before True (reported, not gated)
+lastfm test_neg_edge_index: identical to before True (reported, not gated)
+lastfm rel_0 (target): train 66966, valid 7301; before 66966, 7301: same
+lastfm rel_1: train 25434 (before 23260 + valid 2174), valid 0; link.dat rows 25434: complete
+lastfm rel_2: train 23253 (before 21532 + valid 1721), valid 0; link.dat rows 23253: complete
+lastfm message graph edges: before 100128, after 102936
+ALL PASS
+

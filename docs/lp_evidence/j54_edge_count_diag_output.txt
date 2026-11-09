@@ -1,0 +1,16 @@
+pubmed: fact_layer tied; message edges 179784; edge_type counts [16366, 8247, 25962, 31277, 51323, 31477, 6297, 3155, 5245, 435]; relation names ('disease__rel_2__disease', 'pubmed_type_0__rel_0__pubmed_type_0', 'pubmed_type_0__rel_1__disease', 'pubmed_type_2__rel_3__pubmed_type_0', 'pubmed_type_2__rel_4__disease', 'pubmed_type_2__rel_5__pubmed_type_2', 'pubmed_type_2__rel_6__pubmed_type_3', 'pubmed_type_3__rel_7__pubmed_type_0', 'pubmed_type_3__rel_8__disease', 'pubmed_type_3__rel_9__pubmed_type_3')
+  ('pubmed_type_0', 'rel_0', 'pubmed_type_0'): training rows 16105, unique 16105, unordered 8247, loops 389
+  ('pubmed_type_0', 'rel_1', 'disease'): training rows 25962, unique 25962, unordered 25959, loops 2
+  ('disease', 'rel_2', 'disease'): training rows 32167, unique 32167, unordered 16366, loops 565
+  ('pubmed_type_2', 'rel_3', 'pubmed_type_0'): training rows 31277, unique 31277, unordered 31277, loops 1
+  ('pubmed_type_2', 'rel_4', 'disease'): training rows 51323, unique 51323, unordered 51323, loops 2
+  ('pubmed_type_2', 'rel_5', 'pubmed_type_2'): training rows 62187, unique 62187, unordered 31477, loops 767
+  ('pubmed_type_2', 'rel_6', 'pubmed_type_3'): training rows 6297, unique 6297, unordered 6297, loops 1
+  ('pubmed_type_3', 'rel_7', 'pubmed_type_0'): training rows 3155, unique 3155, unordered 3155, loops 0
+  ('pubmed_type_3', 'rel_8', 'disease'): training rows 5245, unique 5245, unordered 5245, loops 1
+  ('pubmed_type_3', 'rel_9', 'pubmed_type_3'): training rows 798, unique 798, unordered 435, loops 72
+lastfm: fact_layer tied; message edges 102936; edge_type counts [23253, 66966, 12717]; relation names ('artist__rel_2__tag', 'user__rel_0__artist', 'user__rel_1__user')
+  ('user', 'rel_0', 'artist'): training rows 66966, unique 66966, unordered 66767, loops 29
+  ('user', 'rel_1', 'user'): training rows 25434, unique 25434, unordered 12717, loops 0
+  ('artist', 'rel_2', 'tag'): training rows 23253, unique 23253, unordered 23224, loops 6
+

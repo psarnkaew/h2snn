@@ -1,0 +1,4 @@
+loader ignores link.dat.valid: CAUGHT (FAILED (failures=3))
+writer emits every relation: CAUGHT (FAILED (failures=1))
+caught 2/2; files byte-identical after restore
+

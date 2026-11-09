@@ -1,14 +1,19 @@
-"""Write `link.dat.valid` for HGB PubMed and LastFM equal to the loader's current carve
-(spec v1.8 F9; task card Part J, J4.2 (c)).
+"""Write `link.dat.valid` for HGB PubMed and LastFM: the target relation's rows of the loader's
+carve (spec v1.9 F13; task card Part J, J5.4), or every relation's (spec v1.8 F9, J4.2 (c)).
+
+F13 (default, `--mode target`): the file lists only the target relation's validation facts, the
+same facts the J4.2 file listed for it, so every non-target relation stays complete in the
+message graph, as in the derived tasks. `--mode carve` keeps the J4.2 file (every relation).
 
 The loader carves validation from `link.dat` for every relation (`_split_validation` without a
 file: `_split_edge_index_hgb_by_head`, ratio `link_val_ratio` of the dataset's preset, seed
 `acm_split_seed + relation_id * 9973`). This script runs exactly that carve and writes every
 relation's validation rows, in raw HGB ids with the row's own fourth column, so that the loader,
 which now reads the file, reproduces today's split with no numeric change (checked by
-`tests/test_lp_valid_files.py`). An existing file is never overwritten with different content.
+`tests/test_lp_valid_files.py`). An existing file is overwritten only when it is one of the two files this script writes (the
+J4.2 carve or the target-only file); anything else raises.
 
-Run from H2S-NN/: python scripts/lp/write_valid_files.py [--datasets pubmed lastfm]
+Run from H2S-NN/: python scripts/lp/write_valid_files.py [--datasets pubmed lastfm] [--mode target]
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ from src.data.fact_layer import inverse_relations_typed  # noqa: E402
 from src.data.link_prediction_dataset import (  # noqa: E402
     _LOCAL_HGB_LINK_DATASETS,
     _load_local_hgb_nodes,
+    _resolve_target_relation_ids,
     _read_local_hgb_link_file,
     _relation_id,
     _split_validation,
@@ -77,17 +83,41 @@ def carve_rows(data_root: Path, dataset: str) -> tuple[bytes, dict]:
     return "".join(rows).encode("utf-8"), summary
 
 
+def target_rows(data_root: Path, dataset: str) -> tuple[bytes, dict]:
+    """The target relation's rows of `carve_rows` (F13), byte-identical, and a summary."""
+    content, summary = carve_rows(data_root, dataset)
+    config = TrainConfig.from_dict({"device": "cpu", "data": {"dataset_name": dataset,
+                                                             "root": str(data_root)}})
+    targets = {str(r) for r in _resolve_target_relation_ids(
+        _LOCAL_HGB_LINK_DATASETS[dataset], tuple(config.data.target_relation))}
+    rows = [r for r in content.decode("utf-8").splitlines(keepends=True)
+            if r.split("\t")[2] in targets]
+    summary = {**summary, "mode": "target", "target_relation_ids": sorted(int(t) for t in targets),
+               "carve_md5": hashlib.md5(content).hexdigest(),
+               "rows_per_relation": {f"rel_{t}": summary["rows_per_relation"].get(f"rel_{t}", 0)
+                                     for t in sorted(targets)}}
+    return "".join(rows).encode("utf-8"), summary
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--data-root", type=Path, default=PROJECT_ROOT / "data")
     parser.add_argument("--datasets", nargs="+", default=["pubmed", "lastfm"],
                         choices=["pubmed", "lastfm"])
+    parser.add_argument("--mode", choices=["target", "carve"], default="target")
     args = parser.parse_args()
     for dataset in args.datasets:
-        content, summary = carve_rows(args.data_root, dataset)
+        carve, summary = carve_rows(args.data_root, dataset)
+        target, target_summary = target_rows(args.data_root, dataset)
+        content = target if args.mode == "target" else carve
+        if args.mode == "target":
+            summary = target_summary
         path = args.data_root / summary["folder"] / "link.dat.valid"
-        if path.exists() and path.read_bytes() != content:
-            raise FileExistsError(f"{path} exists with different content; not overwritten.")
+        if path.exists() and path.read_bytes() not in (carve, target):
+            raise FileExistsError(f"{path} is neither the carve nor the target-only file; "
+                                  "not overwritten.")
+        if path.exists():
+            summary["previous_md5"] = hashlib.md5(path.read_bytes()).hexdigest()
         path.write_bytes(content)
         summary["md5"] = hashlib.md5(content).hexdigest()
         summary["path"] = str(path.relative_to(args.data_root.parent))

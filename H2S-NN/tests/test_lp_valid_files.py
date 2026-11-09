@@ -1,5 +1,6 @@
-"""J4.2 (task card Part J, spec v1.8 F9): the loader reads `link.dat.valid`, guards the
-reverse-only leak, and the files written for PubMed and LastFM reproduce the current carve.
+"""J4.2 (task card Part J, spec v1.8 F9) and J5.4 (spec v1.9 F13): the loader reads `link.dat.valid`, guards the
+reverse-only leak; the files written for PubMed and LastFM list only the target relation, with the
+carve's target facts (J4.2 wrote every relation's carve; still reachable with --mode carve).
 
 Synthetic HGB-format releases in temporary folders carry every property; the real PubMed,
 LastFM and derived tasks are checked when they are on disk.
@@ -202,25 +203,91 @@ def _real(dataset_dir: Path) -> bool:
     return (dataset_dir / "link.dat").is_file() and (dataset_dir / "link.dat.valid").is_file()
 
 
-class RealValidFileTests(unittest.TestCase):
-    """The real files: PubMed and LastFM reproduce the carve; the derived tasks evaluate the
-    J1.2 split (validation = link.dat.valid)."""
+def assert_target_only(case: unittest.TestCase, with_file: tuple[dict, dict],
+                       carve: tuple[dict, dict], link: dict, target: str) -> None:
+    """Spec v1.9 F13: the target's split equals the carve's; every other relation keeps all its
+    link.dat facts (no validation)."""
+    (train_f, valid_f), (train_c, valid_c) = with_file, carve
+    case.assertEqual(sorted(train_f), sorted(train_c))
+    for relation in train_f:
+        if relation[1] == target:
+            case.assertTrue(torch.equal(train_f[relation], train_c[relation]), relation)
+            case.assertTrue(torch.equal(valid_f[relation], valid_c[relation]), relation)
+        else:
+            case.assertEqual(valid_f[relation].size(1), 0, relation)
+            case.assertEqual(train_f[relation].size(1),
+                             train_c[relation].size(1) + valid_c[relation].size(1), relation)
+            if relation in link:
+                case.assertEqual(train_f[relation].size(1), link[relation].size(1), relation)
 
-    def _check_carve(self, dataset: str, folder: str) -> None:
+
+def loaded_split(config) -> tuple[dict, dict]:
+    """(train, validation) per relation through the loader's own path (it reads the file)."""
+    from src.data.link_prediction_dataset import _load_local_hgb_link_data
+
+    split = _load_local_hgb_link_data(config)
+    return split.train_edge_index_by_relation, split.valid_edge_index_by_relation
+
+
+def link_edges_of(root: Path, dataset: str) -> dict:
+    from src.data.link_prediction_dataset import (_LOCAL_HGB_LINK_DATASETS,
+                                                  _load_local_hgb_nodes,
+                                                  _read_local_hgb_link_file)
+
+    spec = _LOCAL_HGB_LINK_DATASETS[dataset]
+    nodes = _load_local_hgb_nodes(root / spec["folder"], spec["node_type_names"])
+    return _read_local_hgb_link_file(root / spec["folder"] / "link.dat", nodes)
+
+
+class TargetOnlyFileTests(unittest.TestCase):
+    """J5.4 (spec v1.9 F13) on a PubMed-like release: the target-only file keeps the carve's
+    target split and leaves every other relation complete."""
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        write_pubmed_like(self.root / "PubMed")
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def test_target_only_file_keeps_the_target_split_and_completes_the_rest(self) -> None:
+        from scripts.lp.write_valid_files import carve_rows, target_rows
+
+        content, summary = target_rows(self.root, "pubmed")
+        carve, _ = carve_rows(self.root, "pubmed")
+        self.assertEqual(summary["target_relation_ids"], [2])
+        rows = content.decode().splitlines(keepends=True)
+        self.assertTrue(rows and all(r.split("\t")[2] == "2" for r in rows))
+        self.assertEqual(rows, [r for r in carve.decode().splitlines(keepends=True)
+                                if r.split("\t")[2] == "2"])  # the same bytes as the carve's
+        (self.root / "PubMed" / "link.dat.valid").write_bytes(content)
+        _, carve_split = split_of(self.root, "pubmed", pubmed_config(self.root))
+        assert_target_only(self, loaded_split(pubmed_config(self.root)), carve_split,
+                           link_edges_of(self.root, "pubmed"), "rel_2")
+
+
+class RealValidFileTests(unittest.TestCase):
+    """The real files: PubMed and LastFM list only the target relation, with the carve's target
+    facts (spec v1.9 F13); the derived tasks evaluate the J1.2 split (validation =
+    link.dat.valid)."""
+
+    def _check_target_only(self, dataset: str, folder: str, target: str) -> None:
         from src.configs.config import TrainConfig
 
         if not _real(DATA_ROOT / folder):
             self.skipTest(f"data/{folder} or its link.dat.valid is absent")
         config = TrainConfig.from_dict({"device": "cpu", "data": {"dataset_name": dataset,
                                                                  "root": str(DATA_ROOT)}})
-        with_file, carve = split_of(DATA_ROOT, dataset, config)
-        assert_same_split(self, with_file, carve)
+        _, carve = split_of(DATA_ROOT, dataset, config)
+        assert_target_only(self, loaded_split(config), carve, link_edges_of(DATA_ROOT, dataset),
+                           target)
 
-    def test_pubmed_file_equals_the_carve(self) -> None:
-        self._check_carve("pubmed", "PubMed")
+    def test_pubmed_file_is_target_only(self) -> None:
+        self._check_target_only("pubmed", "PubMed", "rel_2")
 
-    def test_lastfm_file_equals_the_carve(self) -> None:
-        self._check_carve("lastfm", "LastFM")
+    def test_lastfm_file_is_target_only(self) -> None:
+        self._check_target_only("lastfm", "LastFM", "rel_0")
 
     def test_derived_tasks_evaluate_81_9_10(self) -> None:
         from src.data.link_prediction_dataset import _load_local_hgb_link_data
