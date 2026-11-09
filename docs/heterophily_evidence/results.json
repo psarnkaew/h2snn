@@ -1,0 +1,494 @@
+{
+  "computed": [
+    {
+      "dataset": "acm",
+      "graph": "as loaded by PyG HGBDataset",
+      "target": "paper",
+      "num_targets": 3025,
+      "num_labeled": 3025,
+      "class_counts": {
+        "class_0": 994,
+        "class_1": 970,
+        "class_2": 1061
+      },
+      "h2gb_metapaths": [
+        "paper -cite-> paper -cite-> paper",
+        "paper -cite-> paper -ref-> paper",
+        "paper -ref-> paper -cite-> paper",
+        "paper -ref-> paper -ref-> paper",
+        "paper -to-> author -to-> paper",
+        "paper -to-> subject -to-> paper",
+        "paper -to-> term -to-> paper"
+      ],
+      "hetero2net_metapaths": [
+        "paper -to-> author -to-> paper",
+        "paper -to-> subject -to-> paper",
+        "paper -to-> term -to-> paper"
+      ],
+      "rows": [
+        {
+          "metapath": "paper -cite-> paper -cite-> paper",
+          "num_edges": 9402,
+          "h_edge": 0.8434375664752181,
+          "h_node": 0.2757105529308319,
+          "h_adj": 0.7526431679725647,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -cite-> paper -ref-> paper",
+          "num_edges": 44587,
+          "h_edge": 0.813263955861574,
+          "h_node": 0.5762806534767151,
+          "h_adj": 0.7152084112167358,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -ref-> paper -cite-> paper",
+          "num_edges": 14540,
+          "h_edge": 0.8766162310866575,
+          "h_node": 0.4303473234176636,
+          "h_adj": 0.8079737424850464,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -ref-> paper -ref-> paper",
+          "num_edges": 9402,
+          "h_edge": 0.8434375664752181,
+          "h_node": 0.43133991956710815,
+          "h_adj": 0.7534899115562439,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -to-> author -to-> paper",
+          "num_edges": 29767,
+          "h_edge": 0.8144925588739208,
+          "h_node": 0.8995165824890137,
+          "h_adj": 0.718071460723877,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -to-> subject -to-> paper",
+          "num_edges": 2217089,
+          "h_edge": 0.6403175515281525,
+          "h_node": 0.662667453289032,
+          "h_adj": 0.4567660689353943,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "paper -to-> term -to-> paper",
+          "num_edges": 9150595,
+          "h_edge": 0.3338199319279238,
+          "h_node": 0.3338199257850647,
+          "h_adj": 6.263055070121482e-07,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.26208780539590504,
+      "mlh_h2gb_heterophily_max": 0.6661800680720762,
+      "h2_index": 0.3994066586863758,
+      "mlh_hetero2net_homophily": 0.5962100141099991,
+      "fill_seeds": [
+        0
+      ],
+      "h2_index_over_seeds": [],
+      "mlh_mean_over_seeds": [],
+      "notes": []
+    },
+    {
+      "dataset": "dblp",
+      "graph": "as loaded by PyG HGBDataset",
+      "target": "author",
+      "num_targets": 4057,
+      "num_labeled": 4057,
+      "class_counts": {
+        "class_0": 1197,
+        "class_1": 745,
+        "class_2": 1109,
+        "class_3": 1006
+      },
+      "h2gb_metapaths": [
+        "author -to-> paper -to-> author"
+      ],
+      "hetero2net_metapaths": [
+        "author -to-> paper -to-> author"
+      ],
+      "rows": [
+        {
+          "metapath": "author -to-> paper -to-> author",
+          "num_edges": 11113,
+          "h_edge": 0.8722217223072077,
+          "h_node": 0.9294646382331848,
+          "h_adj": 0.8267636895179749,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": null,
+          "labeled_only_h_adj": null
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.12777827769279226,
+      "mlh_h2gb_heterophily_max": 0.12777827769279226,
+      "h2_index": 0.17323631048202515,
+      "mlh_hetero2net_homophily": 0.8722217223072077,
+      "fill_seeds": [
+        0
+      ],
+      "h2_index_over_seeds": [],
+      "mlh_mean_over_seeds": [],
+      "notes": []
+    },
+    {
+      "dataset": "imdb",
+      "graph": "as loaded by PyG HGBDataset",
+      "target": "movie",
+      "num_targets": 4932,
+      "num_labeled": 4573,
+      "class_counts": {
+        "label_0": 1090,
+        "label_1": 1384,
+        "label_2": 1837,
+        "label_3": 1135,
+        "label_4": 2517,
+        "distinct_label_sets": 30
+      },
+      "h2gb_metapaths": [
+        "movie -to-> director -to-> movie",
+        "movie ->actorh-> actor -to-> movie",
+        "movie -to-> keyword -to-> movie"
+      ],
+      "hetero2net_metapaths": [
+        "movie ->actorh-> actor -to-> movie",
+        "movie -to-> director -to-> movie",
+        "movie -to-> keyword -to-> movie"
+      ],
+      "rows": [
+        {
+          "metapath": "movie -to-> director -to-> movie",
+          "num_edges": 21282,
+          "h_edge": 0.404379278421402,
+          "h_node": 0.6149346828460693,
+          "h_adj": null,
+          "source_h_edge": "Hetero2Net label_homophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "not computed",
+          "labeled_only_h_edge": 0.4158431210224039,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "movie ->actorh-> actor -to-> movie",
+          "num_edges": 99782,
+          "h_edge": 0.1725962609052658,
+          "h_node": 0.30479899048805237,
+          "h_adj": null,
+          "source_h_edge": "Hetero2Net label_homophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "not computed",
+          "labeled_only_h_edge": 0.17804361611797204,
+          "labeled_only_h_adj": null
+        },
+        {
+          "metapath": "movie -to-> keyword -to-> movie",
+          "num_edges": 403848,
+          "h_edge": 0.13387709856033325,
+          "h_node": 0.15856675803661346,
+          "h_adj": null,
+          "source_h_edge": "Hetero2Net label_homophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "not computed",
+          "labeled_only_h_edge": 0.14236826521339274,
+          "labeled_only_h_adj": null
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.763049120704333,
+      "mlh_h2gb_heterophily_max": 0.8661229014396667,
+      "h2_index": null,
+      "mlh_hetero2net_homophily": 0.23695087929566702,
+      "fill_seeds": [],
+      "h2_index_over_seeds": [],
+      "mlh_mean_over_seeds": [],
+      "notes": [
+        "Multilabel: calcHomophily cannot run; h_edge and h_node from Hetero^2Net (exact label-vector match) on G_P built as calcHomophily builds it, with PyG's all-zero rows for unlabeled movies; H_adj and H^2 not computed (undefined in both codebases)."
+      ]
+    },
+    {
+      "dataset": "freebase",
+      "graph": "as loaded by PyG HGBDataset",
+      "target": "book",
+      "num_targets": 40402,
+      "num_labeled": 7954,
+      "class_counts": {
+        "class_0": 429,
+        "class_1": 3886,
+        "class_2": 1748,
+        "class_3": 185,
+        "class_4": 962,
+        "class_5": 359,
+        "class_6": 385
+      },
+      "h2gb_metapaths": [
+        "book -and-> book -and-> book"
+      ],
+      "hetero2net_metapaths": [],
+      "rows": [
+        {
+          "metapath": "book -and-> book -and-> book",
+          "num_edges": 49275062,
+          "h_edge": 0.14715713599710945,
+          "h_node": 0.2269802387878364,
+          "h_adj": 0.0007967847632244229,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 49275062 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.4500322476910114,
+          "labeled_only_h_adj": 0.10767448650195759
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.8528428640028906,
+      "mlh_h2gb_heterophily_max": 0.8528428640028906,
+      "h2_index": 0.9992032152367756,
+      "mlh_hetero2net_homophily": null,
+      "fill_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "h2_index_over_seeds": [
+        0.9992032152367756,
+        0.9988784377928823,
+        0.9992635699454695,
+        0.998728928505443,
+        0.9988264527637511
+      ],
+      "mlh_mean_over_seeds": [
+        0.8528428640028906,
+        0.852739322783602,
+        0.8531988047016562,
+        0.8533086371357584,
+        0.8528312759910885
+      ],
+      "notes": [
+        "32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels."
+      ]
+    },
+    {
+      "dataset": "freebase",
+      "graph": "symmetrised as H2GB's loaders do (flagged)",
+      "target": "book",
+      "num_targets": 40402,
+      "num_labeled": 7954,
+      "class_counts": {
+        "class_0": 429,
+        "class_1": 3886,
+        "class_2": 1748,
+        "class_3": 185,
+        "class_4": 962,
+        "class_5": 359,
+        "class_6": 385
+      },
+      "h2gb_metapaths": [
+        "book -and-> book -and-> book",
+        "book -to-> film -rev_to-> book",
+        "book -on-> sports -rev_on-> book",
+        "book -on-> location -rev_on-> book",
+        "book -about-> organization -rev_about-> book",
+        "book -rev_in-> music -in-> book",
+        "book -rev_to-> people -to-> book",
+        "book -rev_about-> business -about-> book"
+      ],
+      "hetero2net_metapaths": [
+        "book -about-> organization -rev_about-> book",
+        "book -on-> location -rev_on-> book",
+        "book -on-> sports -rev_on-> book",
+        "book -rev_about-> business -about-> book",
+        "book -rev_in-> music -in-> book",
+        "book -rev_to-> people -to-> book",
+        "book -to-> film -rev_to-> book"
+      ],
+      "rows": [
+        {
+          "metapath": "book -and-> book -and-> book",
+          "num_edges": 77209334,
+          "h_edge": 0.14880314859340713,
+          "h_node": 0.21046477716770018,
+          "h_adj": 0.0014887421857565641,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 77209334 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.4867048955265374,
+          "labeled_only_h_adj": 0.09390189140722748
+        },
+        {
+          "metapath": "book -to-> film -rev_to-> book",
+          "num_edges": 4193476,
+          "h_edge": 0.14827508253296312,
+          "h_node": 0.048826150596141815,
+          "h_adj": 0.0038667540065944195,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.47356746765249536,
+          "labeled_only_h_adj": 0.16164468277007313
+        },
+        {
+          "metapath": "book -on-> sports -rev_on-> book",
+          "num_edges": 14405128,
+          "h_edge": 0.16649681974363573,
+          "h_node": 0.022324413061141968,
+          "h_adj": 0.00028487227973528206,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.9531006669015196,
+          "labeled_only_h_adj": 0.007344359005017114
+        },
+        {
+          "metapath": "book -on-> location -rev_on-> book",
+          "num_edges": 37884185,
+          "h_edge": 0.14731537711580703,
+          "h_node": 0.05036128331548394,
+          "h_adj": 0.0003618058399297297,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 37884185 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.4112019112894752,
+          "labeled_only_h_adj": 0.02936667925494485
+        },
+        {
+          "metapath": "book -about-> organization -rev_about-> book",
+          "num_edges": 54932925,
+          "h_edge": 0.14540891459903146,
+          "h_node": 0.0541840186223494,
+          "h_adj": 0.0004535990592557937,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 54932925 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.2359716472871318,
+          "labeled_only_h_adj": 0.010421683287996312
+        },
+        {
+          "metapath": "book -rev_in-> music -in-> book",
+          "num_edges": 84404,
+          "h_edge": 0.18001516515804938,
+          "h_node": 0.011200345121324062,
+          "h_adj": 0.027222013100981712,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.5259352404904118,
+          "labeled_only_h_adj": 0.21478331705018236
+        },
+        {
+          "metapath": "book -rev_to-> people -to-> book",
+          "num_edges": 3145804,
+          "h_edge": 0.14757562772505853,
+          "h_node": 0.05915701016783714,
+          "h_adj": 0.003317256225273013,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "Hetero2Net label_homophily_matrix().mean()",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.7389591408781852,
+          "labeled_only_h_adj": 0.3949795001324728
+        },
+        {
+          "metapath": "book -rev_about-> business -about-> book",
+          "num_edges": 35046698,
+          "h_edge": 0.14457618803346323,
+          "h_node": 0.05036577966135541,
+          "h_adj": 0.00023921871616039425,
+          "source_h_edge": "H2GB calcHomophily",
+          "source_h_node": "own (G_P has 35046698 > 30000000 pairs)",
+          "source_h_adj": "H2GB calcHomophily",
+          "labeled_only_h_edge": 0.35417189051482906,
+          "labeled_only_h_adj": 0.03058972204251947
+        }
+      ],
+      "mlh_h2gb_heterophily_mean": 0.8464417095623231,
+      "mlh_h2gb_heterophily_max": 0.8554238119665367,
+      "h2_index": 0.9953457173232891,
+      "mlh_hetero2net_homophily": 0.1542375964154298,
+      "fill_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "h2_index_over_seeds": [
+        0.9953457173232891,
+        0.9948084104335067,
+        0.9947763568870869,
+        0.994402213502326,
+        0.9955789476989594
+      ],
+      "mlh_mean_over_seeds": [
+        0.8464417095623231,
+        0.8453311344444543,
+        0.8458356176771262,
+        0.8458765969049036,
+        0.8465930669689163
+      ],
+      "notes": [
+        "32448 unlabeled targets: H2GB fills them with random classes (calcHomophily.py:110-113); fill seeds [0, 1, 2, 3, 4]; reported values use seed 0; H_node uses the same filled labels."
+      ]
+    }
+  ],
+  "cited": {
+    "h2gb_table2_heterophily": {
+      "ogbn-mag": {
+        "mlh_heterophily": 0.8731,
+        "h2_index": 0.8773
+      },
+      "mag-year": {
+        "mlh_heterophily": 0.7718,
+        "h2_index": 0.9654
+      },
+      "IEEE-CIS-G": {
+        "mlh_heterophily": 0.1352,
+        "h2_index": 0.9846
+      },
+      "H-Pokec": {
+        "mlh_heterophily": 0.3922,
+        "h2_index": 0.9488
+      }
+    },
+    "hetero2net_table2_mlh_homophily": {
+      "dblp": 0.87,
+      "acm": 0.6,
+      "imdb": 0.24
+    }
+  },
+  "reference_commits": {
+    "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a",
+    "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a"
+  }
+}

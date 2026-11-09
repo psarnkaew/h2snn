@@ -168,9 +168,11 @@ class RandomGraphTests(unittest.TestCase):
 
     def test_random_fill_matches_the_reference_and_labels_are_restored(self) -> None:
         data = _random_graph(seed=1, unlabeled=10)
-        y_before = data["paper"].y.clone()
+        y_held = data["paper"].y  # a reference taken before the call (e.g. a shared graph's y)
+        y_before = y_held.clone()
         _, results = self.ch.run_calc_homophily(data, "paper", seed=3, chunk_size=200)
         self.assertTrue(torch.equal(data["paper"].y, y_before))
+        self.assertTrue(torch.equal(y_held, y_before))  # calcHomophily fills in place
         filled = self.ch.h2gb_random_fill(y_before, seed=3)
         self.assertTrue(bool((filled >= 0).all()))
         for result in results:

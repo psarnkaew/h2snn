@@ -11,7 +11,7 @@ test_reference_h2gb_equals_hand_values (tests.test_heterophily_metrics.ToyGraphT
 test_reference_hetero2net_equals_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 5.491s
+Ran 11 tests in 7.688s
 
 OK
 

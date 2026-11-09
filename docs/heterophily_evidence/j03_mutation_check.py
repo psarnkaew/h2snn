@@ -21,6 +21,11 @@ MUTATIONS = {
         "    label = y.clone()\n    torch.manual_seed(seed)",
         "    label = y.clone()\n    torch.manual_seed(seed + 1)",
         T + "RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored"),
+    # Added in J0.5: the original wrapper, which let calcHomophily fill the caller's tensor.
+    "wrapper: caller's label tensor filled in place": (SCRIPT,
+        "    y_original = data[target].y\n    data[target].y = y_original.clone()",
+        "    y_original = data[target].y.clone()",
+        T + "RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored"),
 }
 caught = 0
 for name, (path, old, new, test) in MUTATIONS.items():

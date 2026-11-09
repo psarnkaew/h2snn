@@ -1,0 +1,31 @@
+2026-11-09 13:07:34,625 | acm, as loaded by PyG HGBDataset: start
+2026-11-09 13:07:38,509 | acm, as loaded by PyG HGBDataset: MLH(H2GB, mean, heterophily) 0.262088, H2 0.399407, MLH(Hetero2Net, homophily) 0.596210
+2026-11-09 13:07:38,511 |   paper -cite-> paper -cite-> paper: |G_P| 9402, h_edge 0.843438, h_node 0.275711, h_adj 0.752643
+2026-11-09 13:07:38,511 |   paper -cite-> paper -ref-> paper: |G_P| 44587, h_edge 0.813264, h_node 0.576281, h_adj 0.715208
+2026-11-09 13:07:38,511 |   paper -ref-> paper -cite-> paper: |G_P| 14540, h_edge 0.876616, h_node 0.430347, h_adj 0.807974
+2026-11-09 13:07:38,511 |   paper -ref-> paper -ref-> paper: |G_P| 9402, h_edge 0.843438, h_node 0.431340, h_adj 0.753490
+2026-11-09 13:07:38,511 |   paper -to-> author -to-> paper: |G_P| 29767, h_edge 0.814493, h_node 0.899517, h_adj 0.718071
+2026-11-09 13:07:38,511 |   paper -to-> subject -to-> paper: |G_P| 2217089, h_edge 0.640318, h_node 0.662667, h_adj 0.456766
+2026-11-09 13:07:38,511 |   paper -to-> term -to-> paper: |G_P| 9150595, h_edge 0.333820, h_node 0.333820, h_adj 0.000001
+2026-11-09 13:07:39,093 | dblp, as loaded by PyG HGBDataset: start
+2026-11-09 13:07:39,199 | dblp, as loaded by PyG HGBDataset: MLH(H2GB, mean, heterophily) 0.127778, H2 0.173236, MLH(Hetero2Net, homophily) 0.872222
+2026-11-09 13:07:39,199 |   author -to-> paper -to-> author: |G_P| 11113, h_edge 0.872222, h_node 0.929465, h_adj 0.826764
+2026-11-09 13:07:39,354 | imdb, as loaded by PyG HGBDataset: start
+2026-11-09 13:07:39,810 | imdb, as loaded by PyG HGBDataset: MLH(H2GB, mean, heterophily) 0.763049, H2 n/a, MLH(Hetero2Net, homophily) 0.236951
+2026-11-09 13:07:39,810 |   movie -to-> director -to-> movie: |G_P| 21282, h_edge 0.404379, h_node 0.614935, h_adj n/a
+2026-11-09 13:07:39,810 |   movie ->actorh-> actor -to-> movie: |G_P| 99782, h_edge 0.172596, h_node 0.304799, h_adj n/a
+2026-11-09 13:07:39,810 |   movie -to-> keyword -to-> movie: |G_P| 403848, h_edge 0.133877, h_node 0.158567, h_adj n/a
+2026-11-09 13:07:39,887 | freebase, as loaded by PyG HGBDataset: start
+2026-11-09 13:08:15,961 | freebase, as loaded by PyG HGBDataset: MLH(H2GB, mean, heterophily) 0.852843, H2 0.999203, MLH(Hetero2Net, homophily) n/a
+2026-11-09 13:08:15,961 |   book -and-> book -and-> book: |G_P| 49275062, h_edge 0.147157, h_node 0.226980, h_adj 0.000797
+2026-11-09 13:08:15,961 | freebase, symmetrised as H2GB's loaders do (flagged): start
+2026-11-09 13:10:24,242 | freebase, symmetrised as H2GB's loaders do (flagged): MLH(H2GB, mean, heterophily) 0.846442, H2 0.995346, MLH(Hetero2Net, homophily) 0.154238
+2026-11-09 13:10:24,242 |   book -and-> book -and-> book: |G_P| 77209334, h_edge 0.148803, h_node 0.210465, h_adj 0.001489
+2026-11-09 13:10:24,242 |   book -to-> film -rev_to-> book: |G_P| 4193476, h_edge 0.148275, h_node 0.048826, h_adj 0.003867
+2026-11-09 13:10:24,242 |   book -on-> sports -rev_on-> book: |G_P| 14405128, h_edge 0.166497, h_node 0.022324, h_adj 0.000285
+2026-11-09 13:10:24,242 |   book -on-> location -rev_on-> book: |G_P| 37884185, h_edge 0.147315, h_node 0.050361, h_adj 0.000362
+2026-11-09 13:10:24,242 |   book -about-> organization -rev_about-> book: |G_P| 54932925, h_edge 0.145409, h_node 0.054184, h_adj 0.000454
+2026-11-09 13:10:24,242 |   book -rev_in-> music -in-> book: |G_P| 84404, h_edge 0.180015, h_node 0.011200, h_adj 0.027222
+2026-11-09 13:10:24,242 |   book -rev_to-> people -to-> book: |G_P| 3145804, h_edge 0.147576, h_node 0.059157, h_adj 0.003317
+2026-11-09 13:10:24,242 |   book -rev_about-> business -about-> book: |G_P| 35046698, h_edge 0.144576, h_node 0.050366, h_adj 0.000239
+

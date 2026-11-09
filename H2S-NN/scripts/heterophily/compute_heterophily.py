@@ -31,6 +31,7 @@ import importlib.util
 import io
 import json
 import logging
+import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -87,11 +88,13 @@ def run_calc_homophily(data, target: str, seed: int, chunk_size: int) -> tuple[l
 
     The function prints its meta-path list (`:106`) and one "Results for metapath ..." line per
     non-empty `G_P` (`:174`); both are parsed so the returned lists align with the reference's own
-    enumeration. It fills labels equal to -1 with random classes in place (`:110-113`, global RNG):
-    the RNG is seeded here and the labels are restored afterwards.
+    enumeration. It fills labels equal to -1 with random classes **in place** (`:110-113`, global
+    RNG): the RNG is seeded here and the function receives a clone, so the caller's label tensor
+    (and every other reference to it) is never modified.
     """
     h2gb, _ = reference_modules()
-    y_original = data[target].y.clone()
+    y_original = data[target].y
+    data[target].y = y_original.clone()
     stdout, stderr = io.StringIO(), io.StringIO()
     torch.manual_seed(seed)
     try:
@@ -433,10 +436,44 @@ def analyse(data, dataset: str, graph: str, seeds: list[int], chunk_size: int,
     return result
 
 
+#: Cited, never recomputed (spec v1.7 §1). H2GB Table 2 (KDD 2025), heterophily form; the MLH row's
+#: aggregation is the mean (calcHomophily.py:185). Hetero^2Net Table II (TPAMI 2025), MLH homophily
+#: form; its Table VII swaps the ACM and IMDB columns (j02 / preregistration).
+CITED_H2GB_TABLE2: dict[str, dict[str, float]] = {
+    "ogbn-mag": {"mlh_heterophily": 0.8731, "h2_index": 0.8773},
+    "mag-year": {"mlh_heterophily": 0.7718, "h2_index": 0.9654},
+    "IEEE-CIS-G": {"mlh_heterophily": 0.1352, "h2_index": 0.9846},
+    "H-Pokec": {"mlh_heterophily": 0.3922, "h2_index": 0.9488},
+}
+CITED_HETERO2NET_TABLE2: dict[str, float] = {"dblp": 0.87, "acm": 0.60, "imdb": 0.24}
+
+
 def write_markdown(results: list[DatasetResult], path: Path) -> None:
-    lines = ["# Heterophily of the HGB node-classification graphs (J0.5)", "",
-             "Heterophily form H = 1 - h unless marked. Conventions: "
-             "`j02_reference_code.md`. Produced by `scripts/heterophily/compute_heterophily.py`.", ""]
+    lines = ["# Heterophily of the node-classification graphs (J0.5)", "",
+             "Heterophily form H = 1 - h unless marked *homophily*. Conventions and their code "
+             "sources: `j02_reference_code.md`. Computed values: "
+             "`scripts/heterophily/compute_heterophily.py` (validated by the J0.4 gate). "
+             "H_node follows PyG / Hetero^2Net: a target without in-edges in G_P counts as "
+             "homophily 0, so H_node can exceed H_edge on sparse G_P.", "",
+             "## Summary", "",
+             "| Dataset | Graph | MLH, H2GB set, mean (H2GB) | MLH, max | H^2 index | "
+             "MLH, Hetero^2Net set, *homophily* (ours / published) | Source |",
+             "|---|---|---|---|---|---|---|"]
+    for res in results:
+        h2 = "not computed (multilabel)" if res.h2_index is None else f"{res.h2_index:.4f}"
+        if res.h2_index_over_seeds:
+            h2 += (f" (fill seeds: {min(res.h2_index_over_seeds):.4f}–"
+                   f"{max(res.h2_index_over_seeds):.4f})")
+        published = CITED_HETERO2NET_TABLE2.get(res.dataset)
+        het = "—" if res.mlh_hetero2net_homophily is None else f"{res.mlh_hetero2net_homophily:.4f}"
+        if published is not None:
+            het += f" / {published:.2f} (Hetero^2Net Table II)"
+        lines.append(f"| {res.dataset} | {res.graph} | {res.mlh_h2gb_heterophily_mean:.4f} | "
+                     f"{res.mlh_h2gb_heterophily_max:.4f} | {h2} | {het} | computed |")
+    for name, row in CITED_H2GB_TABLE2.items():
+        lines.append(f"| {name} | H2GB loader | {row['mlh_heterophily']:.4f} | — | "
+                     f"{row['h2_index']:.4f} | — | H2GB Table 2 (cited) |")
+    lines += [""]
     for res in results:
         lines += [f"## {res.dataset} ({res.graph}); target `{res.target}`, "
                   f"{res.num_labeled}/{res.num_targets} labeled", "",
@@ -503,7 +540,15 @@ def main() -> None:
                             "n/a" if row.h_adj is None else f"{row.h_adj:.6f}")
             results.append(res)
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
-    args.out_json.write_text(json.dumps([asdict(r) for r in results], indent=2), encoding="utf-8")
+    payload = {
+        "computed": [asdict(r) for r in results],
+        "cited": {"h2gb_table2_heterophily": CITED_H2GB_TABLE2,
+                  "hetero2net_table2_mlh_homophily": CITED_HETERO2NET_TABLE2},
+        "reference_commits": {name: subprocess.run(
+            ["git", "-C", str(vendor_path(name)), "rev-parse", "HEAD"], capture_output=True,
+            text=True, check=True).stdout.strip() for name in ("h2gb", "hetero2net")},
+    }
+    args.out_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     if args.out_md is not None:
         write_markdown(results, args.out_md)
 
