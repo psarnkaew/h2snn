@@ -1,0 +1,14 @@
+$ python ../docs/lp_evidence/j44_real_checks.py
+pubmed valid: 1942 lists, ALL PASS 
+pubmed test: 8528 lists, ALL PASS 
+freebase_bb valid: 16894 lists, ALL PASS 
+freebase_bb test: 18723 lists, ALL PASS 
+acm_pa valid: 895 lists, ALL PASS 
+acm_pa test: 995 lists, ALL PASS 
+dblp_ap valid: 1768 lists, ALL PASS 
+dblp_ap test: 1964 lists, ALL PASS 
+imdb_ma valid: 1330 lists, ALL PASS 
+imdb_ma test: 1478 lists, ALL PASS 
+lastfm valid: 7301 lists, ALL PASS 
+lastfm test: 18567 lists, ALL PASS 
+all tasks pass: True

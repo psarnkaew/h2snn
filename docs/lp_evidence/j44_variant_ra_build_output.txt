@@ -1,0 +1,4 @@
+$ python scripts/lp/build_heart_negatives.py --tasks pubmed freebase_bb --cn-metric ra --out-subdir heart_variant_ra
+{"task": "pubmed", "pair_heuristic": "textbook RA (variant)", "valid": {"positives": 1942, "lists_with_random_fill": 0, "random_fill_entries": 0, "min_fill_pool": null, "min_eligible_candidates": 15206}, "test": {"positives": 8528, "lists_with_random_fill": 0, "random_fill_entries": 0, "min_fill_pool": null, "min_eligible_candidates": 15206}, "seconds": 106.5}
+{"task": "freebase_bb", "pair_heuristic": "textbook RA (variant)", "valid": {"positives": 16894, "lists_with_random_fill": 3489, "random_fill_entries": 596420, "min_fill_pool": 39911, "min_eligible_candidates": 35275}, "test": {"positives": 18723, "lists_with_random_fill": 4118, "random_fill_entries": 699339, "min_fill_pool": 39910, "min_eligible_candidates": 35275}, "seconds": 198.2}
+exit 0

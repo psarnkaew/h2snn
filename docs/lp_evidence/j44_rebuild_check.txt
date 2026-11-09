@@ -1,0 +1,2 @@
+$ python -c "build_task(data, acm_pa, out_subdir=heart_rebuild)"; compare md5 with heart/meta.json
+rebuild md5 == primary md5: True {'heart_test_pos.npy': '36d3ea4180efab754c34e85a6e53e348', 'heart_test_samples.npy': '54d8c2c8afc160a49dffbfcdbc8c0bcb', 'heart_valid_pos.npy': '32cc4b20c610ae40619ebc519782da33', 'heart_valid_samples.npy': 'f19c421ae995dd979c4297414a061d8c'}

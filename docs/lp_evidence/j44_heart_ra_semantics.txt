@@ -1,0 +1,25 @@
+$ python ../docs/lp_evidence/j44_heart_ra_semantics.py   (torch_sparse 0.6.18; HeaRT pins 0.6.15/0.6.16)
+HeaRT code:
+ tensor([[1.0000, 0.0000, 0.5000, 0.5000],
+        [0.0000, 1.0000, 0.5000, 0.5000],
+        [1.0000, 0.3333, 1.0000, 0.5000],
+        [1.0000, 0.3333, 0.5000, 1.0000]])
+textbook RA:
+ tensor([[0.3333, 0.0000, 0.3333, 0.3333],
+        [0.0000, 2.0000, 0.5000, 0.5000],
+        [0.3333, 0.5000, 0.8333, 0.3333],
+        [0.3333, 0.5000, 0.3333, 0.8333]])
+CN/deg(v):
+ tensor([[1.0000, 0.0000, 0.5000, 0.5000],
+        [0.0000, 1.0000, 0.5000, 0.5000],
+        [1.0000, 0.3333, 1.0000, 0.5000],
+        [1.0000, 0.3333, 0.5000, 1.0000]])
+HeaRT == RA: False | HeaRT == CN/deg(v): True
+
+torch_sparse mul.py at HeaRT's pinned tags (raw.githubusercontent.com/rusty1s/pytorch_sparse/<tag>/torch_sparse/mul.py), col-wise branch:
+  0.6.15:
+    elif other.size(0) == 1 and other.size(1) == src.size(1):  # Col-wise...
+        other = other.squeeze(0)[col]
+  0.6.16:
+    elif other.size(0) == 1 and other.size(1) == src.size(1):  # Col-wise...
+        other = other.squeeze(0)[col]

@@ -1,0 +1,5 @@
+$ python ../docs/lp_evidence/j44_ra_variant_overlap.py
+pubmed valid: 1942 lists; share of negatives in both variants: mean 0.444, median 0.486, min 0.004, max 1.000
+pubmed test: 8528 lists; share of negatives in both variants: mean 0.357, median 0.298, min 0.002, max 1.000
+freebase_bb valid: 16894 lists; share of negatives in both variants: mean 0.544, median 0.542, min 0.008, max 1.000
+freebase_bb test: 18723 lists; share of negatives in both variants: mean 0.507, median 0.512, min 0.012, max 1.000

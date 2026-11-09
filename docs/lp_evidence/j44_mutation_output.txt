@@ -1,0 +1,5 @@
+heuristic graph on the full graph (train + validation + test facts): CAUGHT (FAILED (failures=2))
+L3 on every target fact (validation and test included): CAUGHT (FAILED (failures=1))
+mask only training positives (HeaRT's own filter): CAUGHT (FAILED (failures=3))
+random fill with replacement from all zero-score candidates (HeaRT's default): CAUGHT (FAILED (failures=1))
+caught 4/4; generator byte-identical after restore
