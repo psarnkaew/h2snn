@@ -5,10 +5,11 @@ is split by fact into 81/9/10 with a recorded seed. The fixed split is the files
 values in `split_meta.json`). See `../docs/lp_evidence/preregistration.md`.
 
 - `node.dat`, `info.dat`: byte copies of the release (ids and features unchanged). Then
-  `scripts/lp/rebuild_lp_features.py` (J5.3, spec v1.9 F12) must run on the built task: it
-  rewrites, in node.dat only, the features of a type that encodes the target relation (rebuilt
-  from training facts, or dropped). Re-running this build restores the release copy, so the
-  rebuild runs again after it.
+  `scripts/lp/apply_feature_rule.py` (J6.1, spec v1.10 F17) must run on the built task: it
+  removes, in node.dat only, features computed from the target relation (whole blocks) or
+  describing the other endpoint (columns), and records the result in feature_rule.json.
+  Re-running this build restores the release copy; the loader then refuses the task (F20)
+  until the rule is applied again.
 - `link.dat`: the release's rows in their original order and bytes, minus the rows of `r` whose pair
   is a test fact and the rows of `r' = rho(r)` whose reversed pair is a test fact.
 - `link.dat.test`: the release's `r` rows of the test facts.

@@ -1,6 +1,9 @@
 """Rebuild or drop link-prediction endpoint features that encode the target relation
 (spec v1.9 F12; task card Part J, J5.3). LP task files only: `data/lp_derived/<task>/node.dat`.
 
+SUPERSEDED by spec v1.10 F17 (J6.1, `apply_feature_rule.py`: remove, never rebuild). Kept for
+the J5 record; not part of the pipeline. Running it would make the loader refuse the task (F20).
+
 Input: the J5.1 identification (`lp_feature_rules.py --json-out`). Per affected type:
 - an exact rule exists -> its features are the rule applied to the node's **training** facts of
   the target relation (link.dat minus link.dat.valid; test facts are not in link.dat); a node with

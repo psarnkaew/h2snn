@@ -1,0 +1,7 @@
+acm_pa: rows 10942; removed-type rows featureless 5959 (yes); column-reduced rows 0 (kept values text-equal True); other rows byte-identical True; record md5 True; split_meta md5 True; stale feature_rebuild.json False: PASS
+dblp_ap: rows 26128; removed-type rows featureless 4057 (yes); column-reduced rows 0 (kept values text-equal True); other rows byte-identical True; record md5 True; split_meta md5 True; stale feature_rebuild.json False: PASS
+imdb_ma: rows 21420; removed-type rows featureless 6124 (yes); column-reduced rows 4932 (kept values text-equal True); other rows byte-identical True; record md5 True; split_meta md5 True; stale feature_rebuild.json False: PASS
+freebase_bb: rows 180098; removed-type rows featureless 0 (yes); column-reduced rows 0 (kept values text-equal True); other rows byte-identical True; record md5 True; split_meta md5 True; stale feature_rebuild.json False: PASS
+node-classification releases: 41 files, changed 0
+ALL PASS
+
