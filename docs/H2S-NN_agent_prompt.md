@@ -1,6 +1,6 @@
 # H2S-NN Agent Prompt
 
-Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
+Paste **Part A** once per session. Paste the relevant **task card** for the work at hand: Part B (D1, done), Part C (D4, done), Part D (D7–D9, done), Part E (D10, done), Part F (D11, done), Part G (D12, done), Part H (D2 → WISP, the replacement of AMPSS; done), Part I (WISP follow-up after spec v1.4; done, `bf7f333`), Part K (weight-channel capacity, map latents and guards; spec v1.6; done, `6ac401f`) or **Part J (+ J4, spec v1.8; evaluation scope of spec v1.5: heterophily measures, link-prediction datasets, cumulative advisor report; next)**. Part A is reusable for review, design and implementation work on H2S-NN.
 
 **Naming (binding):** the meta-path mechanism of the current model is **WISP** (Walk-sampled, Instance-weighted Sheaf Paths; spec v1.3 §3.2). "AMPSS" means only the deleted v1 mechanism (tag `v1-submitted`). `../docs/H2S-NN_D2_task_card.md` (old "Part E: D2") is superseded by Part H; do not implement from it.
 
@@ -780,6 +780,41 @@ Implement the data side of spec v1.5 (F2–F4) without touching the model: (J0) 
 A precondition fails (except missing datasets: skip the units that need them); J0.2 (d) unresolved (stop J0 only); J0.4 missed after 3 diagnosed attempts; the reference code cannot be installed or located; memory blow-up materialising a `G_P` (report its size; no subsampling without approval); a needed change outside this card.
 
 Git: commit per unit on `part-j`, staging by explicit path (code, tests, and that unit's evidence files under `docs/`). Never push or merge.
+
+---
+
+## Part J (continued) — J4: decisions of 2026-11-09 (spec v1.8), link-prediction completion, review
+
+### Goal
+Apply the author's decisions on the Part J report (spec v1.8 F6–F11): heterophily conventions, the loader fixes, the Freebase link-prediction task, HeaRT negatives for every task, the IMDB protocol checks; then the independent review and the push of `part-j`. Authority: `H2S-NN_methodology_spec.md` v1.8 §1 (Heterophily) and §6 (IMDB protocol, Link prediction). Evidence base: `docs/H2S-NN_partJ_report.md`, `docs/heterophily_evidence/`, `docs/lp_evidence/` (`inventory.md`, `j14_heart.md`).
+
+### Preconditions (stop and report if any fails)
+1. Continue on `part-j` (last commit `070c379`) in the main working tree. The preconditions and git rules of Part J still hold (stage by explicit path only; never commit, stash or reset others' changes; `docs/H2S-NN_v2_plan.md`, AGENTS.md, CLAUDE.md, `vendor/` clones stay uncommitted).
+2. No training, no GPU runs, no model or trainer code. `src/` files you may edit: `src/data/link_prediction_dataset.py` only (J4.2, J4.3). Baseline adapters are read, not changed (J4.5).
+3. Datasets are on disk (`H2S-NN/data/PROVENANCE.md`); download nothing except HeaRT's and the reference papers' sources needed to quote definitions (read in the scratchpad, outside the repo).
+
+### Units
+| Unit | Content | Gate |
+|---|---|---|
+| J4-docs | Commit the updated documents first, message "docs: spec v1.8, agent prompt (J4), session handoff": `docs/H2S-NN_methodology_spec.md`, `docs/H2S-NN_agent_prompt.md`, `docs/session_handoff.md` (explicit paths; nothing else) | `git show --stat` lists exactly these three |
+| J4.0 | Pre-registration `docs/heterophily_evidence/j4_preregistration.md` and `docs/lp_evidence/j4_preregistration.md`: per unit the expected result and the result that would show it wrong; the HeaRT parameters quoted from HeaRT's code with `file:line` (negatives per positive, K, PPR settings, how heuristics are combined) and the L3 formula quoted from its source | written before code |
+| J4.1 | **Heterophily conventions** (spec v1.8 §1). (a) IMDB per genre: for each of the 5 genres, `H_adj` and `H_edge` with H2GB `calcHomophily` on the binary label `1(g ∈ Y_v)`; IMDB ℋ² and MLH = means over genres and over `M₂`; report per-genre values. (b) Unlabelled target nodes: the reference fill exactly as `calcHomophily` applies it (on a clone, as fixed in J0.5), with a fixed recorded seed and the spread over 5 fill seeds; the labeled-only value as a diagnostic row for Freebase and IMDB (confirm ACM/DBLP are fully labelled, so the fill does not touch them). (c) Freebase on the symmetrised graph as H2GB's loaders build it. (d) H2GB's full `M₂` for every dataset; Hetero²Net sets and exact match stay as the reproduction rows. (e) Appendix: Zhao et al.'s Jaccard label homophily for IMDB (arXiv 2304.10398, Definition 1; quote it). Update `results.json`/`results.md` with the convention of every value | tests: hand toy with multi-label per-genre values; mutation "skip the fill" (labeled-only as the primary value) caught; mutation "exact match instead of per genre" caught |
+| J4.2 | **Loader fixes.** (a) When `link.dat.valid` exists, validation = that file; its facts are removed from the message graph in both orientations; otherwise the current carve. (b) Guard: raise when a reverse-typed partner relation exists but ρ(target) is `None` (the J1.3 reverse-only leak). (c) Write `link.dat.valid` for PubMed and LastFM equal to the loader's current carve (no numeric change) | tests: carve == file for PubMed/LastFM; derived tasks evaluate 81/9/10; reverse-only fixture raises; mutations of (a) and (b) caught |
+| J4.3 | **Freebase link prediction** `freebase_bb`: relation 0 (BOOK-and-BOOK). Positives exclude self-loops (they stay in the message graph as stored facts). Split 81/9/10 by **unordered pair**, seed recorded: both orientations of a pair fall in one part and are removed together from the message graph and from every sampled path. HGB link-prediction format under `data/lp_derived/freebase_bb/`; register in `_LOCAL_HGB_LINK_DATASETS`; task-level `H_edge` book–book with the J4.1 convention (fill; labeled-only diagnostic) | tests: no pair (either orientation) in two parts; self-loops absent from every split; mutation "split by directed fact" caught by a reciprocal-leak test; loader leak checks pass |
+| J4.4 | **HeaRT negatives** for acm_pa, dblp_ap, imdb_ma, freebase_bb, pubmed, lastfm (validation and test): C1 same-type targets (PubMed, Freebase) use RA exactly as HeaRT (training message graph); cross-type targets (ACM P–A, DBLP A–P, IMDB M–A, LastFM user–artist) use the degree-normalised length-3 path score of Kovács et al. 2019 (open the source and quote the formula; if it cannot be verified, stop J4.4) on the target relation's **training** facts; C2 feature cosine only where both endpoint types share one feature space (PubMed; ACM only if J4 verifies from the HGB release that paper and author features use one vocabulary, otherwise not); C3 negatives for the fixed validation file; C4 without replacement within each positive's list (if a pool is smaller than the required count, stop and report). The corrupted endpoint is drawn from the target relation's type on that side. Files under `data/lp_derived/<task>/heart/` (PubMed, LastFM: `data/<name>/heart/`) + the generation script | the J1 negative tests (none is a positive of any split in either orientation; type constraint; heuristics read only training facts, mutation caught; no duplicate in a list; same seed → identical files) |
+| J4.5 | **IMDB protocol checks** (spec v1.8 §6): a test that the 359 unlabelled movies enter neither loss nor metrics and that the threshold rule (logit > 0) is used; an inventory (`file:line`) of every baseline adapter's multilabel prediction rule and metric. Any adapter using top-k or its own metric is **reported**, not changed | test; inventory |
+| J4.6 | Update chapter 3 of the cumulative advisor report with the computed Freebase and IMDB values and one sentence per convention; chapters 1–2 unchanged; re-render the PDF | PDF renders; numbers traced |
+| J4.7 | Report: append §10 "J4" to `docs/H2S-NN_partJ_report.md` (Part A format, ≤ 1 page for J4); full suite once. Then an **independent review** by a fresh sub-agent given only the diff `6ac401f..HEAD`, Part A, Part J and J4; file it unedited as `docs/lp_evidence/j_independent_review.md` with your responses in `j_review_response.md`. Then **push `part-j`** to origin (author approved, after the review); no merge | — |
+
+### Rules
+- No definition, split ratio or negative scheme changes to fit an expectation; a miss is recorded with a diagnosis.
+- Every heterophily value carries its convention and source (computed / H2GB Table 2 / Hetero²Net Table II).
+- Affected tests after each unit; the full suite once at J4.7.
+
+### Stop conditions
+A precondition fails; a HeaRT parameter or the L3 formula cannot be verified from its source (stop J4.4 only); the Freebase pair split cannot guarantee leak freedom; a candidate pool too small for C4; a needed change outside this card.
+
+Git: one commit per unit on `part-j`, staging by explicit path. Push `part-j` only at the end of J4.7, after the review; never merge.
 
 ---
 
