@@ -221,3 +221,89 @@ Each JSON has its console output beside it (`*_log.txt`). The L5 JSON `v3b_cost_
   - (b) **Recommended:** before a time ratio goes into the paper, run one paired timing (the v2 H6 configuration and v3-B back to back in one session, 2 epochs each on ACM and DBLP; about 15 min of runs).
   - (c) Defer timing to the server.
 - **Decision 2:** merge of `v3b` (handoff §3 step 2). It was waiting for the ACM numbers, which are now available.
+
+## 8. L8: r never changed, theory checks, mutation tests, part-j fast-forward (2026-11-11)
+**Scope:** correctness only (author decision (3)). No training, no performance or timing runs, no accuracy numbers. Branch `v3b` from `948596a`. Commits: L8a `9fcd477`, L8b `164f7da`, L8c `38bf468`, and this report (`L8: report section 8`, the commit `part-j` points to after L8d). The spec on disk (v1.11, uncommitted, another session's) was read but not staged or edited.
+
+### 8.0 Author decisions recorded (2026-11-11)
+1. **§7.6 decision 1:** no paired v2/v3-B timing; v2 is no longer used. The C13 results from L7 are **memory** (1.51× / 1.71× / 1.85× v2 on IMDB / ACM / DBLP; 0.30× v1 on ACM) and **PCG iterations** (10 / 9 / 11 at tol 1e-4). Time against v1 and the baselines is measured later on the server. The time ratios in §7.3 are not C13 results.
+2. **§7.6 decision 2:** merge approved as a fast-forward of `part-j` (8.4).
+3. Only correctness tests in this unit.
+
+### 8.1 L8a: `scripts/v3b_cost_smoke.py` never changes r (spec E11, E14)
+**What changed (VERIFIED-CODE):**
+- Removed: the OOM fallback that halved `r`, and the `--walks_per_anchor` option.
+- `load_config` refuses a resolved `r` that is not the dataset's calibrated value when a table exists (`WISP_WALKS_PER_ANCHOR`).
+- On `torch.cuda.OutOfMemoryError` the script writes `{config, dataset, walks_per_anchor, stopped, error}` to the JSON and exits with status 1.
+
+**Checks (VERIFIED-RUN, `docs/v3B_evidence/l8a_checks.py`, from `H2S-NN/`; no GPU, no run):**
+
+| Check | Result | PASS |
+|---|---|---|
+| the three v3b configs load | r = 12 / 42 / 65 | PASS |
+| ACM config with r = 21 | rejected (`resolved r = 21 is not the calibrated value 42`) | PASS |
+| `--walks_per_anchor 21` | argparse exit 2 (option gone) | PASS |
+| simulated OOM (`run` raises `OutOfMemoryError`) | exit status 1, JSON written, `run` called once with r = 42 | PASS |
+| `python -m unittest tests.test_v3b_model -v` | 2 tests OK (5.5 s) | PASS |
+
+### 8.2 L8b: `tests/test_v3b_theory.py` (fp64, CPU, T2/T7 fixture)
+**Fixture:** 12 nodes, 20 facts incl. one self-loop, connected, cycle rank 8; 6 cells of lengths 2, 2, 3, 3, 4, 4 with reversed hops; d = 4.
+**Commands (VERIFIED-RUN):** `python -m unittest tests.test_v3b_theory -v` (5 tests OK, 25 s); numbers from `docs/v3B_evidence/l8b_numbers.py`.
+
+| Test | What | Tolerance | Result | PASS |
+|---|---|---|---|---|
+| K1 (Thm 3) | flat sheaf: every fact map I (k = 2 equal reflectors, identity frames), the fixture's a_e and β_f | kernel = eigenvalues ≤ 1e-10; structure ≤ 1e-8 | dim ker L̂ = dim ker L = **4 = d**; largest kernel eigenvalue 4.2e-16, **next eigenvalue 0.0839**. Kernel vectors are constant sections (x_v = s_e = z_f = c): max deviation 4.0e-14 for ker L, 3.3e-14 for D^{-1/2} ker L̂ | PASS |
+| K2 (Thm 3, control) | arm `free_cell_maps`: random orthogonal R_{e,f} per incidence on the same flat fact maps | dim ker = 0 | dim ker L̂ = **0**; smallest eigenvalue **0.0562** | PASS |
+| K3 (Thm 3) | dim ker L̂ vs dim ker Δ₀, Δ₀ built independently as δᵀδ from the dense maps | equal | (a) fixture's random factorized maps: **0 = 0** (next eigenvalues 0.0472 / 0.312); (b) gauge of the flat sheaf, F_{v◁e} = G_e O_vᵀ with dense random orthogonal G_e, O_v: **4 = 4** (next 0.0839 / 0.569) | PASS |
+| F1 (Thm 6 with Thm 4's maps) | 3 classes, random distinct unit vectors a_c; source role I, target role I or one reflection H(w) with H(w)a_q = a_p; **14 of 20 facts heterophilic**; τ = 3; all 6 cells | ‖x* − h₀‖/‖h₀‖ ≤ 1e-10 | unnormalised L, h₀ = a_y: dense 5.3e-15, PCG 4.4e-15 (48 iterations). L̂, h₀ = D_v^{1/2} a_y: dense 8.2e-16, PCG 7.5e-15 (31 iterations), PCG on the eliminated operator 1.2e-14 (21 iterations). ‖L Y_sec‖/‖Y_sec‖ = 8.6e-16 | PASS |
+| U1 (unroll vs implicit) | T10's loss and parameterisation; autograd through `pcg` (tol 1e-12) vs `AnchoredSolve` (tol 1e-12) | ‖g_u − g_i‖/‖g_i‖ ≤ 1e-6 per group | 30 iterations each (fwd, bwd, unrolled). Fact scales 1.6e-11, reflectors 3.7e-11, rotations 4.6e-11, cell weights 1.9e-11, **θ_τ 8.4e-12**, **h₀ 5.9e-12** | PASS |
+
+**DEVIATION L8b-a:** F1 uses `DenseMapOperator`, not `FactorizedMapOperator`, for its maps. With k = 2 the factorized family is a rotation times two reflections (det +1), so it cannot express a single reflection on some incidences next to I on others. The operator, transports and solver are the production code; only the map container differs. K3(b) uses dense maps for the same reason (arbitrary orthogonal G_e O_vᵀ).
+**DEVIATION L8b-b:** the card gives no tolerance for "kernel vectors have x constant, s = x, z = x". I used 1e-8 (eigenvector accuracy is about eps/gap with gap 0.084); the measured deviation is 4e-14. Under L̂ the kernel is D^{1/2} ker L, so the constant structure is checked on D^{-1/2} ker L̂ and on ker L directly.
+
+### 8.3 L8c: `tests/test_v3b_mutations.py`
+**Method:** each mutation is monkeypatched inside the test only. The named test runs in a nested `unittest` run: it must pass unpatched and fail under the mutation, and the failure message is recorded.
+**Commands (VERIFIED-RUN):** `docs/v3B_evidence/l8c_mutation_numbers.py` → 6 tests OK (196 s); output in `l8c_mutation_output.txt`. Unpatched: T1, K1, T2, U1 and T7 pass.
+
+| Mutation | Named test (tolerance) | Failing number under the mutation | Caught |
+|---|---|---|---|
+| m1 forward (stored source-role) map on a reversed hop in `FactCellTransport`, no adjoint | T1, IMDB draw (1e-5) | functoriality residual **8.11** on 242 incidences | yes |
+| m2 R_{e,f} → G_f R_{e,f}, G_f = exp(0.01·skew) per cell (UP, DOWN, apply consistent, so L stays symmetric) | T1 (1e-5); K1 (dim ker = d) | T1 **0.473**; flat kernel **dim 4 → 0** (smallest eigenvalue 3.8e-6) | yes |
+| m3 node–cell term dropped inside `full` (`node_cell` forced False after init) | T2 (1e-12) | max \|L_mf − L_ref\| **7.98** | yes |
+| m4 D_f = 2ℓ_f β_f (missing +1) | T2 (1e-12) | **2.00** (L and D vs the dense reference) | yes |
+| m5 implicit backward without the τ factor | U1 (1e-6) | relative error **0.350** (= τ − 1, τ = e^0.3) in fact scales, reflectors, rotations and cell weights; **θ_τ gradient exactly 0**; h₀ unchanged (5.9e-12, as it should: ∂/∂h₀ = Pλ has no τ) | yes |
+| m6 eliminated state weighted by D_e^{-1/2} instead of D_e^{-1} (wrong Schur weight) | T7 (1e-10) | **8.88** | yes |
+
+**DEVIATION L8c-a (m4):** the request names "T2/T3 diagonal-block check". T2 fails; **T3 passes under m4** (recorded in the test, not asserted).
+- **Reason (DERIVED, VERIFIED-CODE `sheaf_energy.py:434`):** `apply` takes the diagonal of L from the same `degree()`. A wrong D_f therefore enters L and its normalisation alike, and the diagonal blocks of L̂ stay I.
+- **Consequence:** T3's block check tests the normalisation, not the degree formula. Only T2's independent dense reference checks D. A degree error that is consistent between `degree()` and `apply` is caught by T2 alone.
+- Under m4 the operator is also no longer the Hessian of Eq. E, yet T3's PSD check passed on this fixture.
+
+### 8.4 Full suite and L8d
+**Full suite (VERIFIED-RUN):** `python -m unittest discover -s tests` after L8c, output in `docs/v3B_evidence/l8_final_suite_output.txt`.
+- **Result:** Ran **497 tests** (486 + 5 theory + 6 mutation), FAILED (failures=11, errors=9), 2,217 s.
+- **All 20 failures are in `test_baselines`,** and they are a subset of the 40 known environment failures (§5a): diffed against `final_suite_output.txt`, there is no failure that was not there before.
+- **Changed since L5:** the 17 `test_heterophily_metrics` errors and 3 of the `test_baselines` errors now pass. The WinError 4551 imports of some vendor clones succeed today, so the Application Control state has changed again. Nothing in this unit touches those modules.
+- **Run time:** 2,217 s vs 756 s at L5. It includes the 196 s mutation module and, presumably, the slow machine state of §7.4. No timing conclusions are drawn.
+
+**L8d:** `git branch -f part-j <this report's commit>`: no checkout, no merge commit, working tree untouched. `part-j` (`c41bf28`) is an ancestor of `v3b` (checked with `git merge-base --is-ancestor`), so this is a fast-forward. The verification (`git log --oneline -1 part-j`) is given in the reply to the author; it cannot be written into the commit it names.
+
+### 8.5 Decisions for the author
+1. **T3 and the degree formula (8.3, m4).** Options:
+   - (a) leave as is: T2 covers it;
+   - (b) add an independent check of `degree()` against incidence counts (D_v, D_e, D_f from the fixture's lists) to T3 or to a new test;
+   - (c) make `apply` compute its diagonal from the blocks it applies rather than from `degree()`. This would change the method's code, so it is not recommended without a reason beyond testing.
+
+   **Recommendation (a):** T2 already compares D with an independent construction.
+2. **Application Control state** changed between L5 and L8 (8.4). The heterophily-metric tests pass today, but the environment is not stable. Before computing heterophily metrics, rerun those tests on the day.
+
+### 8.6 Time per sub-unit (agent wall-clock, approximate)
+| Sub-unit | Time |
+|---|---|
+| Reading card, code, tests | ~4 min |
+| L8a | ~5 min |
+| L8b | ~5 min (tests 25 s) |
+| L8c | ~10 min (two mutation runs of ~200 s; the first showed m4/T3, 8.3) |
+| Full suite | 37 min |
+| Report | ~10 min |
+| **Total** | ≈ 1.2 h |
