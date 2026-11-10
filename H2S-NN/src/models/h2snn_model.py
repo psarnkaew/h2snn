@@ -15,6 +15,15 @@ One encoder, three task heads (plan §4.8), selected by `data.task_type`:
 - link prediction: the `dot` / `distmult` / `concat_mlp` decoders on `[x_K, h0]`;
 - graph classification: sum of `[x_K, h0]` per graph -> BatchNorm -> MLP.
 Ablation switches (plan §4.6) come from `config.ablation`.
+
+v3-B (spec v1.11 R13; `model.propagation: anchored`): the propagation above is replaced by one
+anchored quadratic solve on the three-level sheaf energy (`src/models/sheaf_energy.py`),
+
+    (P^T P + tau L_hat) Y* = P^T h0,   Y = (x, s, z),   tau = exp(theta_tau),
+
+solved by PCG with an implicit backward (`src/models/anchored_solve.py`); the arms of spec §6 are
+configurations of this one path (`model.arm`). The legacy propagation stays reachable under
+`model.propagation: chebyshev` (the default) and is unchanged.
 """
 
 from __future__ import annotations
@@ -44,6 +53,13 @@ from src.models.map_operators import (
     normalize_reflectors,
 )
 from src.models.filter_bank import ChebyshevFilterBank
+from src.models.anchored_solve import SolveStats, anchored_solve, solver_tolerance
+from src.models.sheaf_energy import (
+    EliminatedOperator,
+    IncidenceComplex,
+    SheafEnergyOperator,
+    build_cell_group,
+)
 from src.models.node_encoder import TypeSpecificNodeEncoder
 from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
@@ -181,13 +197,26 @@ class DiffusionOperator(NamedTuple):
     broadcast: torch.Tensor | None = None
 
 
+class AnchoredState(NamedTuple):
+    """What one anchored forward solved with (v3-B); `forward` reads the same four attributes as
+    from `DiffusionOperator` (eta and gamma do not exist: None)."""
+
+    maps: EdgeMapPair
+    path_weights: tuple[torch.Tensor, ...]  # w_f per face group (before m_f)
+    tau: torch.Tensor                        # detached
+    stats: SolveStats
+    layout_rows: tuple[int, int, int]        # (N, |fact states|, F) of the solved system
+    eta: torch.Tensor | None = None
+    gamma: torch.Tensor | None = None
+
+
 class EncodedState(NamedTuple):
     """Output of the shared encoder, before any task head."""
 
     h0: torch.Tensor
     x_star: torch.Tensor  # x_K (h0 under ablation.h0_only_readout)
     representation: torch.Tensor  # [x_K, h0] (h0 under ablation.h0_only_readout)
-    operator: DiffusionOperator | None  # None under ablation.h0_only_readout
+    operator: "DiffusionOperator | AnchoredState | None"  # None under ablation.h0_only_readout
 
 
 class H2SNNOutput(NamedTuple):
@@ -467,6 +496,11 @@ class H2SNN(nn.Module):
         self.h0_only = ablation.h0_only_readout
         # D12 G0b sheaf-free diagnostic: node_to_edge is still built (same state dict) but not called.
         self.identity_maps = ablation.identity_maps
+        # v3-B: the anchored solve replaces K, eta, gamma, the filter bank and the gates.
+        self.propagation = model_config.propagation
+        self.arm = model_config.arm
+        anchored = self.propagation == "anchored" and not self.h0_only
+        self.anchored = anchored
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
         self.identity_embedding: nn.Embedding | None = None
@@ -534,7 +568,7 @@ class H2SNN(nn.Module):
         self.encoder = model_config.encoder
         self.theta_eta: nn.Parameter | None = (
             nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
-            if model_config.encoder == "first_order" else None
+            if model_config.encoder == "first_order" and not anchored else None
         )
         self.use_path_cells = not ablation.no_path_cells
         self.path_mode = ablation.path_mode
@@ -622,8 +656,11 @@ class H2SNN(nn.Module):
             if self.coupling == "cooperative":
                 self.broadcast_gate = _gate_head(geometry_dim, model_config.coupling_gate_init)
 
-        # Task head on the node representation [x_K, h0] (h0 under h0_only_readout).
+        # Task head on the node representation [x_K, h0] (h0 under h0_only_readout); the v3-B arm
+        # `instance_features` adds the anchor's cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
         representation_dim = d if self.h0_only else 2 * d
+        if anchored and self.arm == "instance_features":
+            representation_dim = 3 * d
         self.readout: nn.Sequential | None = None
         self.link_readout: LinkPredictionReadout | None = None
         self.graph_readout: GraphReadout | None = None
@@ -662,7 +699,7 @@ class H2SNN(nn.Module):
         # D12 G2: the Chebyshev filter bank (spec v1.2 §3). Created last; its initialization is
         # deterministic (V_k = theta_k I, no RNG), so every other parameter is as before.
         self.filter_bank: ChebyshevFilterBank | None = None
-        if model_config.encoder == "filter_bank" and not self.h0_only:
+        if model_config.encoder == "filter_bank" and not self.h0_only and not anchored:
             self.filter_bank = ChebyshevFilterBank(d, model_config.K, model_config.eta_init)
         # Spec v1.6 E10: the path-specific maps of endpoint_edges and free_path_maps read the
         # geometry [h0, c]; g reads h0. A second encoder (same class) exists only when the two
@@ -675,6 +712,33 @@ class H2SNN(nn.Module):
             self.map_encoder = encoder_class(geometry_dim, hop_dim,
                                              model_config.face_mlp_hidden_dim, dims.face_lengths,
                                              factored_inputs=model_config.geometry_context)
+        # v3-B (created last: every legacy parameter initialises as before). tau = exp(theta_tau),
+        # theta_tau = log(tau_init), own optimizer group (D-B4). The arm `free_cell_maps` has one
+        # free orthogonal map per fact-cell incidence (hop positions 0..L_max-1; Thm 3 control).
+        self.theta_tau: nn.Parameter | None = None
+        self.free_cell_maps: FreeIncidenceMaps | None = None
+        self.solver_settings = (model_config.solver_warmup_epochs,
+                                model_config.solver_warmup_tolerance,
+                                model_config.solver_tolerance,
+                                model_config.solver_max_iterations)
+        # Statistics of the last anchored solve: the PCG counts live in `_last_solve` (the backward
+        # fills its half after `forward` returns), the layout numbers in `_last_solve_info`.
+        self._last_solve: SolveStats | None = None
+        self._last_solve_info: dict[str, float] = {}
+        self._warm_start: torch.Tensor | None = None
+        if anchored:
+            self.theta_tau = nn.Parameter(torch.tensor(math.log(model_config.tau_init)))
+            if self.arm == "free_cell_maps":
+                latent_dim = (self.path_encoder.latent_dim if self.path_encoder is not None
+                              else model_config.face_mlp_hidden_dim)
+                self.free_cell_maps = FreeIncidenceMaps(
+                    d=d, latent_dim=latent_dim, hidden_dim=model_config.edge_mlp_hidden_dim,
+                    householder_k=model_config.householder_k,
+                    max_positions=max(dims.face_lengths, default=1),
+                    orthogonal_map=model_config.orthogonal_map,
+                    node_dim=geometry_dim,
+                    factored_inputs=model_config.geometry_context,
+                )
 
     # ------------------------------------------------------------------ scalars
     def eta(self) -> torch.Tensor | None:
@@ -688,13 +752,24 @@ class H2SNN(nn.Module):
             return None
         return nn.functional.softplus(self.theta_gamma)
 
+    def tau(self) -> torch.Tensor | None:
+        """`exp(theta_tau)` under `propagation: anchored`; None otherwise."""
+        if self.theta_tau is None:
+            return None
+        return torch.exp(self.theta_tau)
+
     def diffusion_scalars(self) -> dict[str, float]:
-        """Current eta and gamma, for per-epoch logging."""
+        """Current eta and gamma (legacy) or tau and the last solve's PCG statistics (anchored),
+        for per-epoch logging."""
         with torch.no_grad():
             scalars: dict[str, float] = {}
             eta = self.eta()
             if eta is not None:
                 scalars["eta"] = float(eta)
+            tau = self.tau()
+            if tau is not None:
+                scalars["tau"] = float(tau)
+                scalars.update(self.last_solver_stats)
             if self.filter_bank is not None:  # sum_k ||W_k||_2 (Prop. 5 bound), float64 norms
                 scalars["filter_norm_sum"] = self.filter_bank.diagnostic_norm_sum()
             gamma = self.gamma()
@@ -704,11 +779,20 @@ class H2SNN(nn.Module):
         scalars.update(self.last_path_stats)      # log w_f of the last forward (Part H)
         return scalars
 
+    @property
+    def last_solver_stats(self) -> dict[str, float]:
+        """PCG iterations and residuals of the last solve (forward and, once run, backward), the
+        tolerance used, and the sizes of the solved system (`|E_P|`, `|E_shared|`, states, cells,
+        eliminated share)."""
+        if self._last_solve is None:
+            return {}
+        return {**self._last_solve.as_dict(), **self._last_solve_info}
+
     def scalar_parameters(self) -> list[nn.Parameter]:
-        """`theta_eta`, `theta_gamma` and the gate heads (weights and biases): the optimizer gives
-        them their own group (plan §12.4). Sigmoid-saturated scalars move too little per
-        full-batch step at the base rate."""
-        scalars = [p for p in (self.theta_eta, self.theta_gamma) if p is not None]
+        """`theta_eta`, `theta_gamma`, `theta_tau` (v3-B, D-B4) and the gate heads (weights and
+        biases): the optimizer gives them their own group (plan §12.4). Sigmoid-saturated scalars
+        move too little per full-batch step at the base rate."""
+        scalars = [p for p in (self.theta_eta, self.theta_gamma, self.theta_tau) if p is not None]
         for head in (self.listen_gate, self.broadcast_gate):
             if head is not None:
                 scalars.extend(head.parameters())
@@ -963,8 +1047,9 @@ class H2SNN(nn.Module):
 
     @property
     def diagnostics_available(self) -> bool:
-        """Whether `eta_lambda_max` and `energy_trace` are defined (a Laplacian operator exists)."""
-        return not self.h0_only and self.pair_attention is None
+        """Whether `eta_lambda_max` and `energy_trace` are defined (a Laplacian operator exists).
+        The anchored path logs tau and the PCG statistics through `diffusion_scalars` instead."""
+        return not self.h0_only and self.pair_attention is None and not self.anchored
 
     # ------------------------------------------------------------------ D10 diagnostics
     @staticmethod
@@ -1105,11 +1190,15 @@ class H2SNN(nn.Module):
         edge_type: torch.Tensor,
         face_groups: tuple[FaceGroup, ...],
         num_nodes: int,
+        epoch: int = -1,
     ) -> EncodedState:
-        """Shared encoder for all three tasks (a graph batch is one disjoint union)."""
+        """Shared encoder for all three tasks (a graph batch is one disjoint union). `epoch` sets
+        the anchored solver's tolerance (fixed schedule; -1 = the final tolerance)."""
         h0 = self.encode_nodes(x, node_type)
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
+        if self.anchored:
+            return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch)
         operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
         if self.training:
             self.last_coupling_stats = self.coupling_stats(operator)  # logging only
@@ -1121,6 +1210,142 @@ class H2SNN(nn.Module):
             operator=operator,
         )
 
+    # ------------------------------------------------------------------ v3-B anchored solve
+    def _cell_weights(self, h0: torch.Tensor, geometry: torch.Tensor,
+                      groups: tuple[FaceGroup, ...]
+                      ) -> tuple[list[torch.Tensor], list[torch.Tensor], list[torch.Tensor | None]]:
+        """Per group: `beta_f = w_f m_f`, `w_f = exp(g(xi_f))` and g's latent (spec §3.2c)."""
+        path_input = self.path_inputs(h0, geometry)
+        betas, weights, latents = [], [], []
+        for group in groups:
+            latent = self._path_latent(path_input, group)
+            w = self._path_weights(latent, group, h0)
+            beta = w * group.path_weight.to(w.dtype) if group.path_weight is not None else w
+            betas.append(beta)
+            weights.append(w)
+            latents.append(latent)
+        return betas, weights, latents
+
+    def _instance_features(self, h0: torch.Tensor, maps: EdgeMapPair, edge_index: torch.Tensor,
+                           groups: tuple[FaceGroup, ...], betas: list[torch.Tensor],
+                           num_nodes: int) -> torch.Tensor:
+        """Arm `instance_features` (C14, MAGNN-type): `sum_f beta_f mean_{u in f} T_{u,f} h0_u` at
+        both endpoints of every cell, each in its own frame (`T_{v_0} = I`; `T_{v_L}^T` for the
+        far end), concatenated to the head input; cells enter the solve with beta = 0."""
+        feature = h0.new_zeros((num_nodes, h0.size(-1)))
+        for group, beta in zip(groups, betas):
+            transport = PathTransportOperator(
+                maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
+                shared_scale=True, face_edge_sign=group.face_edge_sign)
+            mean = transport.transport_sum(h0) / float(group.length + 1)
+            feature.index_add_(0, group.face_node_index[:, 0], beta.unsqueeze(-1) * mean)
+            feature.index_add_(0, group.face_node_index[:, -1],
+                               beta.unsqueeze(-1) * transport.apply_holonomy_T(mean))
+        return feature
+
+    def _encode_anchored(self, h0: torch.Tensor, edge_index: torch.Tensor,
+                         edge_type: torch.Tensor, face_groups: tuple[FaceGroup, ...],
+                         num_nodes: int, epoch: int) -> EncodedState:
+        """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
+        geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
+        operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
+        geometry = self.geometry_inputs(h0, edge_index, edge_type)
+        maps = self.node_to_edge(
+            h=geometry, edge_index=edge_index, edge_type=edge_type,
+            relation_embeddings=self.relation_embedding.weight,
+        ).maps
+        groups = tuple(group for group in face_groups if group.num_faces > 0)
+        arm = self.arm
+        cells_in_solve = arm not in ("closure_only", "no_path_cells", "instance_features")
+        betas, weights, latents = self._cell_weights(h0, geometry, groups)
+        if weights:
+            if self.training:  # the adaptive proposal's input for the next epoch (Part H3)
+                self.last_path_weights = tuple(w.detach() for w in weights)
+            with torch.no_grad():
+                log_w = torch.cat(weights).log()
+                self.last_path_stats = {"path_log_w_max": float(log_w.max()),
+                                        "path_log_w_mean": float(log_w.mean())}
+        free_params: list[torch.Tensor] = []
+        if arm == "free_cell_maps" and self.free_cell_maps is not None:
+            for group, latent in zip(groups, latents):
+                map_latent = latent if self.map_encoder is None else self._map_latent(geometry, group)
+                # one free map per fact-cell incidence, indexed by the hop's near node and position
+                free = self.free_cell_maps(geometry, group.face_node_index[:, :-1], map_latent)
+                free_params.extend([free.reflectors, free.rotations])
+        num_groups = len(groups)
+        device = h0.device
+
+        def build(scale: torch.Tensor, refl_src: torch.Tensor, rot_src: torch.Tensor,
+                  refl_tgt: torch.Tensor, rot_tgt: torch.Tensor, *rest: torch.Tensor
+                  ) -> EliminatedOperator:
+            pair = EdgeMapPair(
+                src=FactorizedMapOperator(scale, refl_src, rot_src, edge_type),
+                tgt=FactorizedMapOperator(scale, refl_tgt, rot_tgt, edge_type),
+            )
+            group_betas, free_tensors = rest[:num_groups], rest[num_groups:]
+            cell_groups, node_terms = [], []
+            for i, (group, beta) in enumerate(zip(groups, group_betas)):
+                if cells_in_solve:
+                    free_maps = None
+                    if arm == "free_cell_maps":
+                        num_paths, length = group.face_edge_index.shape
+                        free_maps = FactorizedMapOperator(
+                            scale=beta.new_ones(num_paths * length),
+                            reflectors=free_tensors[2 * i], rotations=free_tensors[2 * i + 1],
+                            group_ids=torch.arange(length, device=device).repeat(num_paths),
+                        )
+                    cell_groups.append(build_cell_group(pair, group, edge_index, beta, free_maps))
+                elif arm == "closure_only":
+                    transport = PathTransportOperator(
+                        pair.src, pair.tgt, group.face_node_index, group.face_edge_index,
+                        edge_index, shared_scale=True, face_edge_sign=group.face_edge_sign)
+                    node_terms.append(HolonomyEdgeTerm(transport, beta))
+            operator = SheafEnergyOperator(
+                pair, edge_index, num_nodes, cell_groups,
+                node_cell=arm != "covering_only", fact_cell=arm != "hub_A",
+                node_terms=node_terms,
+            )
+            kept = (torch.zeros(0, dtype=torch.long, device=device) if arm == "hub_A" else None)
+            return EliminatedOperator(operator, kept)
+
+        params = (maps.src.scale, maps.src.reflectors, maps.src.rotations,
+                  maps.tgt.reflectors, maps.tgt.rotations, *betas, *free_params)
+        warmup_epochs, warmup_tolerance, final_tolerance, max_iterations = self.solver_settings
+        tolerance = solver_tolerance(epoch, warmup_epochs, warmup_tolerance, final_tolerance)
+        with torch.no_grad():  # layout of the solved system (for the warm start and the log)
+            complex_ = IncidenceComplex.from_face_groups(
+                edge_index, num_nodes, groups if cells_in_solve else ())
+            num_states = 0 if arm == "hub_A" else complex_.num_shared_facts
+            rows = num_nodes + num_states + complex_.num_cells
+        y0 = None
+        if (not self.training and self._warm_start is not None
+                and self._warm_start.shape == (rows, h0.size(-1))
+                and self._warm_start.device == device):
+            y0 = self._warm_start  # the evaluation draw is fixed: warm start from the last epoch
+        stats = SolveStats()
+        y_star = anchored_solve(build, h0, self.theta_tau, params, tolerance, max_iterations,
+                                stats, y0=y0)
+        if not self.training:
+            self._warm_start = y_star.detach()
+        x_star = y_star[:num_nodes]
+        parts = [x_star, h0]
+        if arm == "instance_features":
+            parts.append(self._instance_features(h0, maps, edge_index, groups, betas, num_nodes))
+        tau = self.tau().detach()  # type: ignore[union-attr]
+        self._last_solve = stats
+        self._last_solve_info = {
+            "solver_tolerance": tolerance,
+            "num_path_facts": float(complex_.num_path_facts),
+            "num_shared_facts": float(complex_.num_shared_facts),
+            "num_fact_states": float(num_states),
+            "num_cells": float(complex_.num_cells),
+            "eliminated_share": (1.0 - num_states / complex_.num_facts) if complex_.num_facts else 0.0,
+        }
+        state = AnchoredState(maps=maps, path_weights=tuple(weights), tau=tau, stats=stats,
+                              layout_rows=(num_nodes, num_states, complex_.num_cells))
+        return EncodedState(h0=h0, x_star=x_star, representation=torch.cat(parts, dim=-1),
+                            operator=state)
+
     # ------------------------------------------------------------------ node classification
     def forward(self, data: PreparedH2SData, epoch: int = -1) -> H2SNNOutput:
         """Node classification. `epoch` is accepted for trainer compatibility only."""
@@ -1131,7 +1356,7 @@ class H2SNN(nn.Module):
             )
         encoded = self.encode(
             data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-            data.num_nodes,
+            data.num_nodes, epoch=epoch,
         )
         logits = self.readout(encoded.representation[data.target_indices])
         operator = encoded.operator

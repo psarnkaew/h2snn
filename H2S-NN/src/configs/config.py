@@ -45,6 +45,20 @@ PATH_WEIGHTS: tuple[str, ...] = ("exp", "sigmoid_gamma")
 # The C2 weight ladder (spec v1.3 §5): inputs of g, nested restrictions on identical cells.
 PATH_WEIGHT_INPUTS: tuple[str, ...] = ("full", "endpoints", "schema", "uniform")
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
+# v3-B (spec v1.11 R13, §6; card Part L): "chebyshev" = the v1.2-1.10 propagation (gated
+# Chebyshev filter bank / first-order update; legacy, bit-identical); "anchored" = one anchored
+# quadratic solve `(P^T P + tau L_hat) Y* = P^T h0` on the three-level sheaf energy (PCG, implicit
+# backward). Never tuned.
+PROPAGATIONS: tuple[str, ...] = ("chebyshev", "anchored")
+# v3-B arms (spec §6): every arm is a configuration of the one model under `propagation: anchored`
+# (same WISP draw, maps, anchor, head). Comparison rows; "full" is the model; never tuned.
+V3B_ARMS: tuple[str, ...] = ("full", "covering_only", "hub_A", "closure_only", "no_path_cells",
+                             "instance_features", "free_cell_maps")
+# Card §3: the solver tolerance, its schedule, T_max and tau's initialisation are fixed, never in a
+# search space; the propagation and the arm are comparison switches.
+NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solver_tolerance",
+                                         "solver_warmup_tolerance", "solver_warmup_epochs",
+                                         "solver_max_iterations")
 
 
 def reject_never_tuned_settings(
@@ -87,6 +101,11 @@ def reject_never_tuned_settings(
         raise ValueError(
             "model.path_weight: sigmoid_gamma is a comparison arm (Part H) and must not be used in "
             "tuning."
+        )
+    if str(model.get("arm", "full")) != "full":
+        raise ValueError(
+            f"model.arm: {model.get('arm')} is a v3-B comparison arm (spec v1.11 §6) and must not be "
+            "used in tuning; tune the full model and report the arm separately."
         )
     if str(((raw_config or {}).get("ablation") or {}).get("path_weight_input", "full")) != "full":
         raise ValueError(
@@ -131,6 +150,12 @@ def reject_never_tuned_settings(
             raise ValueError(
                 f"tuning search space contains {name!r}: identity_maps and feature_normalization "
                 "are D12 diagnostics, never tuned."
+            )
+        if str(name).split(".")[-1] in NEVER_TUNED_V3B_KEYS:
+            raise ValueError(
+                f"tuning search space contains {name!r}: the v3-B propagation, arm, tau init and "
+                f"solver settings ({', '.join(NEVER_TUNED_V3B_KEYS)}) are fixed, never tuned "
+                "(card Part L §3)."
             )
         if str(name).split(".")[-1] in NEVER_TUNED_WISP_KEYS:
             raise ValueError(
@@ -804,8 +829,51 @@ class ModelConfig:
     # the D12 model bit for bit). Never tuned.
     path_weight: str = "exp"
     path_weight_init: float = 0.5
+    # v3-B (spec v1.11 R13; card Part L). "chebyshev": the legacy propagation above (K steps or the
+    # filter bank, gates, eta), unchanged. "anchored": Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
+    # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward; no
+    # K, eta, gamma or gates. Never tuned.
+    propagation: str = "chebyshev"
+    # v3-B arm under `propagation: anchored` (spec §6): full | covering_only (no node-cell term) |
+    # hub_A (fact states eliminated, no fact-cell term) | closure_only (holonomy edges, no cells) |
+    # no_path_cells (beta = 0) | instance_features (beta = 0 in the solve, cell features to the head)
+    # | free_cell_maps (free R_{e,f}; Thm 3 control). Comparison rows; never tuned.
+    arm: str = "full"
+    # tau = exp(theta), theta initialised to log(tau_init); own optimizer group (D-B4). Fixed.
+    tau_init: float = 1.0
+    # PCG relative tolerance (spec §6: 1e-3 for the first `solver_warmup_epochs` epochs, then 1e-4;
+    # a fixed schedule) and T_max (a stop condition: the solve raises when it is reached). Fixed,
+    # never tuned (card §3).
+    solver_tolerance: float = 1e-4
+    solver_warmup_tolerance: float = 1e-3
+    solver_warmup_epochs: int = 10
+    solver_max_iterations: int = 100
 
     def __post_init__(self) -> None:
+        if self.propagation not in PROPAGATIONS:
+            raise ValueError(
+                f"model.propagation must be one of {PROPAGATIONS}, got {self.propagation!r}."
+            )
+        if self.arm not in V3B_ARMS:
+            raise ValueError(f"model.arm must be one of {V3B_ARMS}, got {self.arm!r}.")
+        if self.propagation != "anchored" and self.arm != "full":
+            raise ValueError(
+                f"model.arm: {self.arm} is a v3-B arm and exists only under model.propagation: "
+                "anchored (the legacy propagation keeps its ablation switches)."
+            )
+        if not self.tau_init > 0.0:
+            raise ValueError(f"model.tau_init must be positive, got {self.tau_init}.")
+        for name in ("solver_tolerance", "solver_warmup_tolerance"):
+            value = getattr(self, name)
+            if not 0.0 < value < 1.0:
+                raise ValueError(f"model.{name} must be in (0, 1), got {value}.")
+        for name, lower in (("solver_warmup_epochs", 0), ("solver_max_iterations", 1)):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < lower:
+                raise ValueError(f"model.{name} must be an integer >= {lower}, got {value!r}.")
+        if self.propagation == "anchored" and self.path_weight != "exp":
+            raise ValueError("model.propagation: anchored needs model.path_weight: exp (beta_f = "
+                             "w_f m_f with w_f = exp(g); there is no gamma).")
         if self.path_weight not in PATH_WEIGHTS:
             raise ValueError(
                 f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
@@ -903,6 +971,14 @@ class ModelConfig:
             encoder=str(raw.get("encoder", "filter_bank")),
             path_weight=path_weight,
             path_weight_init=float(raw.get("path_weight_init", 0.5)),
+            propagation=str(raw.get("propagation", "chebyshev")),
+            arm=str(raw.get("arm", "full")),
+            tau_init=float(raw.get("tau_init", 1.0)),
+            solver_tolerance=float(raw.get("solver_tolerance", 1e-4)),
+            solver_warmup_tolerance=float(raw.get("solver_warmup_tolerance", 1e-3)),
+            # Not cast with int(): 2.9 or `true` must fail validation.
+            solver_warmup_epochs=raw.get("solver_warmup_epochs", 10),
+            solver_max_iterations=raw.get("solver_max_iterations", 100),
         )
 
 
@@ -1093,6 +1169,23 @@ class TrainConfig:
                 "ablation.path_weight_context lets g read [h0, c]; c exists only under "
                 "model.geometry_context: true."
             )
+        if self.model.propagation == "anchored":
+            # v3-B (D-B1): no gates; the arms replace the legacy path switches; orthogonal maps
+            # need one scale per fact (D1a); the sheaf-free diagnostic has no anchored form.
+            if self.ablation.coupling != "symmetric":
+                raise ValueError(
+                    "model.propagation: anchored has no listen / broadcast gates (spec v1.11 D-B1, "
+                    "L1'); set ablation.coupling: symmetric."
+                )
+            switched = [name for name in ("no_path_cells", "free_path_maps", "endpoint_edges",
+                                          "holonomy_edges", "identity_maps", "per_side_scale")
+                        if getattr(self.ablation, name)]
+            if switched:
+                raise ValueError(
+                    f"ablation.{', '.join(switched)} belong to the legacy propagation; under "
+                    "model.propagation: anchored use model.arm (no_path_cells, closure_only, "
+                    "free_cell_maps, ...) with per-edge scales."
+                )
 
     @property
     def exp_dir(self) -> Path:
