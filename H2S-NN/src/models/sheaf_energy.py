@@ -1,4 +1,4 @@
-"""Three-level sheaf energy operator (spec v1.11 §3 Eq. E; v3-B card U1).
+"""Three-level sheaf energy operator (spec v1.11 §3 Eq. E; v3-B card U1-U2).
 
 States live on nodes `x` (N), facts `s` (E) and path 2-cells `z` (F); `Y = (x, s, z)`. With the
 fact maps `F_{v<|e}` (orthogonal, `FactorizedMapOperator` without its scale), the fact weight
@@ -24,6 +24,10 @@ Arms (spec §6) are flags of the same operator: `covering_only` drops the node-c
 `no_path_cells` / `instance_features` have no cells (optionally an extra node-only term such as
 `HolonomyEdgeTerm`), `free_cell_maps` replaces `R_{e,f}` by free orthogonal maps per incidence.
 
+`EliminatedOperator` (Prop. 7, 7') applies the Schur complement of `M = P^T P + tau L_hat` over a
+set of eliminated fact states (default: facts on <= 1 cell) exactly and matrix-free: the
+eliminated `s_e` are filled with their optimal value given `(x, z)` (the fact block of `L_hat` is
+`I`) and the full operator is applied; `x*` and `z*` are unchanged (T7).
 """
 
 from __future__ import annotations
@@ -456,6 +460,122 @@ class SheafEnergyOperator:
         return self.layout.join(h0, s0, z0)
 
 
+class EliminatedOperator:
+    """Reduced `L_hat` on `(x, s_kept, z)` after eliminating the fact states `E_elim` exactly
+    (Prop. 7 for facts on no cell, Prop. 7' for facts on one cell; the same Schur complement is
+    exact for any set). Default `kept` = facts on >= 2 cells (`E_shared`).
+
+    `M_red = A - B (tau I)^{-1} B^T` applied to `Y_red` equals `M (Y_red, s_elim*)` restricted to
+    the kept rows, with `s_elim* = -(L_hat (Y_red, s_elim = 0))_elim` the optimal eliminated
+    states (the fact block of `L_hat` is `I`), so the reduced operator is the full one with the
+    eliminated states filled in; one extra fact gather per application.
+    """
+
+    def __init__(self, operator: SheafEnergyOperator, kept: torch.Tensor | None = None) -> None:
+        self.operator = operator
+        counts = operator.cells_per_fact()
+        if kept is None:
+            kept = (counts >= 2).nonzero(as_tuple=True)[0]
+        self.kept = kept
+        mask = torch.ones(operator.num_facts, dtype=torch.bool, device=kept.device)
+        mask[kept] = False
+        self.eliminated = mask.nonzero(as_tuple=True)[0]
+        self.layout = StateLayout(operator.num_nodes, int(kept.numel()), operator.num_cells)
+        self.num_path_facts = int((counts >= 1).sum())
+        self.num_shared_facts = int((counts >= 2).sum())
+
+    @property
+    def num_nodes(self) -> int:
+        return self.operator.num_nodes
+
+    def statistics(self) -> dict[str, float]:
+        e = self.operator.num_facts
+        return {
+            "num_facts": float(e),
+            "num_path_facts": float(self.num_path_facts),
+            "num_shared_facts": float(self.num_shared_facts),
+            "num_fact_states": float(self.layout.num_fact_states),
+            "num_cells": float(self.operator.num_cells),
+            "eliminated_share": 1.0 - self.layout.num_fact_states / e if e else 0.0,
+        }
+
+    def _scales(self) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return self.operator.inverse_sqrt_degree()
+
+    def _fact_gather(self, x_t: torch.Tensor, z_t: torch.Tensor) -> torch.Tensor:
+        """`[E, d]` `a_e (F_u x~_u + F_v x~_v) + sum_{f ni e} beta_f R_{e,f}^T z~_f` on the scaled
+        states `x~ = D^{-1/2} x`, `z~ = D^{-1/2} z`; the optimal eliminated state is
+        `s_e* = D_e^{-1/2} gather_e` (and `s~_e* = gather_e / D_e`)."""
+        gather = self.operator._facts_from_nodes(x_t).clone()
+        self.operator._facts_from_cells(z_t, gather)
+        return gather
+
+    def apply_normalized(self, y: torch.Tensor) -> torch.Tensor:
+        """Reduced `L_hat Y_red`."""
+        op = self.operator
+        x, s_kept, z = self.layout.split(y)
+        inv_v, inv_e, inv_f = self._scales()
+        x_t = inv_v.unsqueeze(-1) * x
+        z_t = inv_f.unsqueeze(-1) * z
+        gather = self._fact_gather(x_t, z_t)
+        s_t = inv_e.square().unsqueeze(-1) * gather                # s~* on the eliminated rows
+        if self.kept.numel():
+            s_t = s_t.index_copy(0, self.kept, inv_e[self.kept].unsqueeze(-1) * s_kept)
+        d_v, d_e, d_f = op.degree()
+        o_x, o_s, o_z = op.off_diagonal(x_t, s_t, z_t, o_s=gather)
+        l_x = d_v.unsqueeze(-1) * x_t - o_x
+        for term in op.node_terms:
+            l_x = l_x + term.apply(x_t, op.num_nodes)
+        l_s = (d_e.unsqueeze(-1) * s_t - o_s)[self.kept]
+        l_z = d_f.unsqueeze(-1) * z_t - o_z
+        return self.layout.join(inv_v.unsqueeze(-1) * l_x,
+                                inv_e[self.kept].unsqueeze(-1) * l_s,
+                                inv_f.unsqueeze(-1) * l_z)
+
+    def diagonal_scalars(self) -> torch.Tensor:
+        """`[rows]` scalar diagonal of the reduced `L_hat`: 1 minus the Schur corrections
+        `sum_{e in E_elim} w_{p,e}^2`, `w_{v,e} = a_e / sqrt(D_v D_e)`, `w_{f,e} = beta_f / sqrt(D_f D_e)`
+        (the cross term of an eliminated self-loop fact, `2 w_u w_v F_u^T F_v`, is not scalar and
+        is omitted; it is zero when no eliminated fact is a self-loop)."""
+        op = self.operator
+        inv_v, inv_e, inv_f = self._scales()
+        a, beta = op.a, op.beta
+        elim = torch.zeros(op.num_facts, dtype=a.dtype, device=a.device)
+        elim[self.eliminated] = 1.0
+        w2_e = (a * inv_e).square() * elim                        # a_e^2 / D_e per eliminated fact
+        corr_v = torch.zeros(op.num_nodes, dtype=a.dtype, device=a.device)
+        corr_v.index_add_(0, op.src_idx, w2_e)
+        corr_v.index_add_(0, op.tgt_idx, w2_e)
+        corr_v = corr_v * inv_v.square()
+        corr_f_parts = []
+        for g in op.groups:
+            if op.fact_cell:
+                e_terms = (inv_e.square() * elim)[g.face_edge_index].sum(dim=1)  # sum_e 1/D_e
+                corr_f_parts.append(g.beta.square() * e_terms)
+            else:
+                corr_f_parts.append(torch.zeros_like(g.beta))
+        corr_f = (torch.cat(corr_f_parts) if corr_f_parts else a.new_zeros(0)) * inv_f.square()
+        d_v, d_e, d_f = op.degree()
+        ones_v = (d_v > 0).to(a.dtype)
+        ones_f = (d_f > 0).to(a.dtype)
+        return torch.cat([ones_v - corr_v, torch.ones_like(self.kept, dtype=a.dtype), ones_f - corr_f])
+
+    def initial_guess(self, h0: torch.Tensor) -> torch.Tensor:
+        x0, s0, z0 = self.operator.layout.split(self.operator.initial_guess(h0))
+        return self.layout.join(x0, s0[self.kept], z0)
+
+    def fact_states(self, y: torch.Tensor) -> torch.Tensor:
+        """Every fact state `s*` of a reduced solution: the kept ones as given, the eliminated ones
+        at their optimum `D_e^{-1/2} gather_e` given `(x, z)`."""
+        x, s_kept, z = self.layout.split(y)
+        inv_v, inv_e, inv_f = self._scales()
+        gather = self._fact_gather(inv_v.unsqueeze(-1) * x, inv_f.unsqueeze(-1) * z)
+        s_full = inv_e.unsqueeze(-1) * gather
+        if self.kept.numel():
+            s_full = s_full.index_copy(0, self.kept, s_kept)
+        return s_full
+
+
 def materialize(apply, rows: int, d: int, dtype: torch.dtype, device: torch.device | None = None
                 ) -> torch.Tensor:
     """Dense `[rows*d, rows*d]` matrix of a linear map on `[rows, d]` states, column by column
@@ -469,6 +589,6 @@ def materialize(apply, rows: int, d: int, dtype: torch.dtype, device: torch.devi
     return torch.stack(columns, dim=1)
 
 
-__all__ = ["CellGroup", "FactCellTransport", "FreeFactCellMaps",
+__all__ = ["CellGroup", "EliminatedOperator", "FactCellTransport", "FreeFactCellMaps",
            "IncidenceComplex", "SheafEnergyOperator", "StateLayout", "build_cell_group",
            "materialize"]

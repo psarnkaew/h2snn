@@ -1,10 +1,12 @@
-"""v3-B card U1 (`docs/H2S-NN_v3B_card.md` §2): the three-level sheaf energy operator.
+"""v3-B card U1-U2 (`docs/H2S-NN_v3B_card.md` §2): the three-level sheaf energy operator.
 
 T1 functoriality `R_{e_i,f} F_{v<|e_i} = T_{v,f}` at both ends of every incidence on a real WISP
    draw (IMDB, r = 2, 50 anchors, fp32): max norm <= 1e-5.
 T2 matrix-free `L` and `L_hat` vs an independent dense construction (N = 12, E = 20, F = 6, d = 4,
    fp64): <= 1e-12.
 T3 symmetry `<Y1, L_hat Y2> = <L_hat Y1, Y2>` <= 1e-12 and PSD (min eig >= -1e-10).
+T7 (U2) `x*` and `z*` of the full-state solve vs the eliminated solve (dense, fp64) <= 1e-10 on a
+   fixture whose facts lie on 0, 1 and 2 cells.
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ except ImportError as exc:  # pragma: no cover - environment specific
 from src.data.structures import FaceGroup
 from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, normalize_reflectors
 from src.models.sheaf_energy import (
+    EliminatedOperator,
     IncidenceComplex,
     SheafEnergyOperator,
     build_cell_group,
@@ -32,6 +35,7 @@ T1_TOL = 1e-5
 T2_TOL = 1e-12
 T3_SYM_TOL = 1e-12
 T3_PSD_TOL = -1e-10
+T7_TOL = 1e-10
 
 
 # ----------------------------------------------------------------------------- fixture
@@ -227,6 +231,61 @@ class OperatorTests(unittest.TestCase):
         # every diagonal block of L_hat is I (D > 0 everywhere on this fixture)
         blocks = Lhat.view(rows, d, rows, d).diagonal(dim1=0, dim2=2).permute(2, 0, 1)
         self.assertLess(float((blocks - torch.eye(d, dtype=torch.float64)).abs().max()), T2_TOL)
+
+
+# ----------------------------------------------------------------------------- T7 (U2)
+def _anchored_dense_solve(Lhat: torch.Tensor, h: torch.Tensor, num_nodes: int, tau: float
+                          ) -> torch.Tensor:
+    """`(P^T P + tau L_hat) Y = P^T h` by a dense solve; returns the stacked `Y*`."""
+    rows_d = Lhat.size(0)
+    n_d = num_nodes * h.size(-1)
+    M = tau * Lhat
+    M[:n_d, :n_d] += torch.eye(n_d, dtype=Lhat.dtype)
+    b = torch.zeros(rows_d, dtype=Lhat.dtype)
+    b[:n_d] = h.reshape(-1)
+    return torch.linalg.solve(M, b)
+
+
+class EliminationTests(unittest.TestCase):
+    def test_T7_eliminated_solve_matches_the_full_state_solve(self) -> None:
+        fixture = Fixture()
+        d, n = fixture.d, fixture.num_nodes
+        g = torch.Generator().manual_seed(5)
+        h = torch.randn(n, d, generator=g, dtype=torch.float64)
+        for node_cell, fact_cell in ((True, True), (False, True), (True, False)):
+            with self.subTest(node_cell=node_cell, fact_cell=fact_cell):
+                full = fixture.operator(node_cell, fact_cell)
+                counts = full.cells_per_fact()
+                self.assertTrue(bool((counts == 0).any()) and bool((counts == 1).any())
+                                and bool((counts >= 2).any()))
+                for tau in (1.0, 7.5):
+                    Lhat_full = materialize(full.apply_normalized, full.layout.rows, d,
+                                            torch.float64)
+                    y_full = _anchored_dense_solve(Lhat_full, h, n, tau).view(-1, d)
+                    x_full, s_full, z_full = full.layout.split(y_full)
+                    for kept in (None, torch.zeros(0, dtype=torch.long)):  # E_shared; all facts
+                        reduced = EliminatedOperator(full, kept)
+                        Lhat_red = materialize(reduced.apply_normalized, reduced.layout.rows, d,
+                                               torch.float64)
+                        self.assertLess(float((Lhat_red - Lhat_red.T).abs().max()), T3_SYM_TOL)
+                        y_red = _anchored_dense_solve(Lhat_red, h, n, tau).view(-1, d)
+                        x_red, s_kept, z_red = reduced.layout.split(y_red)
+                        self.assertLess(float((x_red - x_full).abs().max()), T7_TOL)
+                        self.assertLess(float((z_red - z_full).abs().max()), T7_TOL)
+                        s_rec = reduced.fact_states(y_red)
+                        self.assertLess(float((s_rec - s_full).abs().max()), T7_TOL)
+                        # the reduced diagonal scalars are the diagonal of the reduced L_hat
+                        blocks = Lhat_red.view(reduced.layout.rows, d, reduced.layout.rows, d
+                                               ).diagonal(dim1=0, dim2=2).permute(2, 0, 1)
+                        scalar = blocks.diagonal(dim1=-2, dim2=-1).mean(dim=-1)
+                        if kept is None and not bool((counts[reduced.eliminated] >= 0).all()):
+                            continue  # pragma: no cover
+                        self_loop = (fixture.edge_index[0] == fixture.edge_index[1])
+                        if not bool(self_loop[reduced.eliminated].any()):
+                            self.assertLess(float((reduced.diagonal_scalars() - scalar).abs().max()),
+                                            T7_TOL)
+                self.assertEqual(EliminatedOperator(full).layout.num_fact_states,
+                                 int((counts >= 2).sum()))
 
 
 # ----------------------------------------------------------------------------- T1 (real draw)
