@@ -278,12 +278,17 @@ class EliminationTests(unittest.TestCase):
                         blocks = Lhat_red.view(reduced.layout.rows, d, reduced.layout.rows, d
                                                ).diagonal(dim1=0, dim2=2).permute(2, 0, 1)
                         scalar = blocks.diagonal(dim1=-2, dim2=-1).mean(dim=-1)
-                        if kept is None and not bool((counts[reduced.eliminated] >= 0).all()):
-                            continue  # pragma: no cover
-                        self_loop = (fixture.edge_index[0] == fixture.edge_index[1])
-                        if not bool(self_loop[reduced.eliminated].any()):
-                            self.assertLess(float((reduced.diagonal_scalars() - scalar).abs().max()),
-                                            T7_TOL)
+                        # (the scalar omits the cross term of an eliminated self-loop fact: its
+                        # node's row is excluded from the comparison)
+                        loops = fixture.edge_index[:, fixture.edge_index[0] == fixture.edge_index[1]]
+                        loop_nodes = loops[0][torch.isin(
+                            (fixture.edge_index[0] == fixture.edge_index[1]).nonzero().flatten(),
+                            reduced.eliminated)]
+                        rows_ok = torch.ones(reduced.layout.rows, dtype=torch.bool)
+                        rows_ok[loop_nodes] = False
+                        self.assertGreater(int(rows_ok.sum()), reduced.layout.rows - 2)
+                        self.assertLess(float((reduced.diagonal_scalars() - scalar)[rows_ok]
+                                              .abs().max()), T7_TOL)
                 self.assertEqual(EliminatedOperator(full).layout.num_fact_states,
                                  int((counts >= 2).sum()))
 
