@@ -246,3 +246,38 @@ ACM's new share is exactly its cold authors: 421/895 and 461/995 positives whose
   4. **A stronger leak gate** before LP numbers: a features-only scorer over all stored features of both endpoints.
   5. **A loader guard** against a stale `node.dat` after rebuilding a split.
   6. **C2 on IMDB** over the shared 3,341 columns.
+
+## 12. J6: one feature rule, inventory, loader guard, acm_pa negatives (spec v1.10 F17–F20)
+**Commits:** `fbe349c` (J6-docs), `9789d25` (J6.0), `53587be` (J6.1), `38739b9` (J6.2), `d77be87` (J6.3), `ff06854` (J6.4), plus this section. Evidence: `docs/lp_evidence/j6*`. Link prediction only: node-classification data, splits, metrics and heterophily values are untouched (J6.1 gate: 41 release files, 0 changed).
+
+**Summary**
+1. **J6.1 F17 rule (RUN, gate ALL PASS).** Applied from the release by `scripts/lp/apply_feature_rule.py`, nothing rebuilt.
+   - Removed: the ACM author, DBLP author and IMDB actor blocks; IMDB movie columns 3, 4, 7 and 12 (`actor_1/3/2_facebook_likes`, `cast_total_facebook_likes`).
+   - Kept: `director_facebook_likes`.
+   - Every other row and value is bitwise the release's.
+   - Each task records `feature_rule.json`. J5's rebuild script is superseded.
+2. **J6.2 inventory (design changed by author decision, 2026-11-10).**
+   - **What was pre-registered (J6.0):** an inventory, a fingerprint probe and a Ctrl-G comparison.
+   - **What was dropped, and why:** the author dropped the probe and Ctrl-G for all six tasks for cost. Their two-hop sparse products ran out of memory repeatedly on this machine, last on PubMed, and the running PubMed job was stopped. J6.2 is the attribute inventory only, `j62_inventory.md`; the change and its reason are in `j62_record.md`.
+   - **Partial probe outputs:** computed before the decision, not evidence and not committed. They are kept outside git in `Claude outputs/j62_dropped_probe/`.
+   - **Result:** no attribute beyond the J6.1 removals is computed from the target relation or about the other endpoint.
+   - **PubMed's 200-dim features** are documented in HNE §IV-A: "We compute word2vec on all PubMed papers and aggregate the word embeddings to get 200-dim features for all types of nodes". HGB §4.2.2 uses HNE's subset; quotes checked against the PDFs. They are classified own, with no removal.
+3. **J6.3 loader guard F20 (RUN).**
+   - **The guard:** a derived task loads only if `node.dat` matches `feature_rule.json` in md5, per-type widths and featureless removed types. A split-builder re-run is refused until the rule is applied again.
+   - **Tests:** 7 new, and toy builds now apply the rule; 76 tests OK. Mutations 3/3 caught.
+   - **Moved from J6.4:** acm_pa HeaRT `features=False`, because the toy HeaRT tests apply the rule. PubMed is now the only C2 task.
+4. **J6.4 (RUN).** acm_pa HeaRT lists regenerated with seed 42. Positives are md5-identical and negatives new. The other five tasks' `heart/` files are untouched (md5 in `j64_heart_md5_before.txt`, re-hashed equal).
+
+**Not done (author decision, 2026-11-10: "only build the link-prediction edges; no further experiments or tests"):**
+- the md5-identical rebuild of the other five HeaRT tasks, which was stopped before it wrote anything;
+- the J4.4 checks on the new acm_pa lists;
+- J6.5, the cold-start count (`j65_cold_start.py` is written but not run, and not committed);
+- the J6.6 full suite and the independent review.
+
+**Reality check.** The acm_pa random-fill share is **95.4 %** (valid 427,089 / 447,500; test 474,531 / 497,500), up from 23 %. Without feature cosine, L3 and PPR give fewer than 5 % of each list, so acm_pa's HeaRT negatives are close to uniform random. This is recorded, not acted on.
+
+**Decisions needed from the author**
+1. **acm_pa negatives at 95 % random fill:** accept and report, or choose another hard-negative source for this task.
+2. **PubMed features:** the aggregation operator and whether the embedding corpus is the one the links were mined from are not documented. They are classified own under F17, and no further check was run.
+3. **dblp_ap paper columns:** own by J5.1's test, but their meaning is UNVERIFIED.
+4. **The checks listed under Not done:** run them before LP numbers are reported, or leave them out.
