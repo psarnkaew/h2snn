@@ -1,0 +1,5 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+  import torch_geometric.typing
+
+{"task": "acm_pa", "pair_heuristic": "L3 (Kovacs et al. 2019 Eq. 1) on target training facts", "valid": {"positives": 895, "lists_with_random_fill": 1790, "random_fill_entries": 427089, "min_fill_pool": 2685, "min_eligible_candidates": 2975}, "test": {"positives": 995, "lists_with_random_fill": 1990, "random_fill_entries": 474531, "min_fill_pool": 2685, "min_eligible_candidates": 2975}, "seconds": 38.2}
+
