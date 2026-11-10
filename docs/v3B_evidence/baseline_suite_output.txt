@@ -1,0 +1,838 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: [WinError 4551] An Application Control policy has blocked this file
+  import torch_geometric.typing
+..F..............................FF......FFFFFFF.....E....EE.EEEEEEE......E.................FE......2026-11-11 01:39:53,882 | INFO | Epoch 0000 | train_loss: 1.1330 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.2500 | val_loss: 1.0966 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1905 | test_micro_f1: 0.2500
+2026-11-11 01:39:53,900 | INFO | Checkpoint metric acc: 0.3750
+2026-11-11 01:39:54,178 | INFO | Epoch 0001 | train_loss: 1.1166 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1481 | train_micro_f1: 0.2500 | val_loss: 1.0923 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1905 | test_micro_f1: 0.2500
+2026-11-11 01:39:54,185 | INFO | Checkpoint metric acc: 0.3750
+2026-11-11 01:39:54,185 | INFO | Best epoch 0 | test_macro_f1: 0.1905 | test_micro_f1: 0.2500 | test_acc: 0.2500
+.................................................................................................2026-11-11 01:46:35,881 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-11 01:46:35,895 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-11 01:46:35,896 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-11 01:46:35,902 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-11 01:46:35,905 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-11 01:46:35,908 | INFO | Epoch 0003 | val_auroc: 0.3900 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-11 01:46:35,908 | INFO | Early stopping at epoch 3 after 2 epochs without validation auroc improvement.
+2026-11-11 01:46:35,908 | INFO | Best epoch 1 (run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7100 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+.......................EEEEEEEEEE.EEEEEEE.............................................................................................................................................2026-11-11 01:51:25,155 | INFO | Epoch 0000 | train_loss: 0.8382 | train_acc: 1.0000 | train_auroc: 0.0000 | train_macro_f1: 1.0000 | train_micro_f1: 1.0000 | val_loss: 0.9588 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.1667 | test_micro_f1: 0.2500
+2026-11-11 01:51:25,170 | INFO | Checkpoint metric acc: 0.5000
+2026-11-11 01:51:25,170 | INFO | Best epoch 0 | test_macro_f1: 0.1667 | test_micro_f1: 0.2500 | test_acc: 0.2500
+.............................................2026-11-11 01:51:49,080 | INFO | Epoch 0000 | train_loss: 1.1474 | train_acc: 0.1250 | train_auroc: 0.0000 | train_macro_f1: 0.1111 | train_micro_f1: 0.1250 | val_loss: 1.1060 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3016 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250
+2026-11-11 01:51:49,092 | INFO | Checkpoint metric acc: 0.3750
+2026-11-11 01:51:49,205 | INFO | Epoch 0001 | train_loss: 1.1443 | train_acc: 0.1250 | train_auroc: 0.0000 | train_macro_f1: 0.1333 | train_micro_f1: 0.1250 | val_loss: 1.0992 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3016 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250
+2026-11-11 01:51:49,215 | INFO | Checkpoint metric acc: 0.3750
+2026-11-11 01:51:49,215 | INFO | Best epoch 0 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250 | test_acc: 0.1250
+.........2026-11-11 01:51:49,558 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-11 01:51:49,572 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+...................................................
+======================================================================
+ERROR: test_adapters_can_be_called_twice_in_one_process (test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 773, in test_adapters_can_be_called_twice_in_one_process
+    import H2GB  # type: ignore[import-not-found]  # noqa: F401
+    ^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\__init__.py", line 3, in <module>
+    from .datasets import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\datasets\__init__.py", line 1, in <module>
+    from .mag_dataset import MAGDataset
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\datasets\mag_dataset.py", line 11, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_no_cell_reads_a_name_no_earlier_cell_defines (test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1710, in test_no_cell_reads_a_name_no_earlier_cell_defines
+    visitor.visit(ast.parse("".join(cell["source"])))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_only_the_lanes_that_install_a_group_define_one (test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1744, in test_only_the_lanes_that_install_a_group_define_one
+    for node in ast.walk(ast.parse("".join(cell["source"]))):
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ast.py", line 52, in parse
+    return compile(source, filename, mode, flags,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<unknown>", line 1
+    pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+        ^^^^^^^
+SyntaxError: invalid syntax
+
+======================================================================
+ERROR: test_amazon_keeps_parallel_relations_apart (test_baselines.PolynomialRelationKeyTests.test_amazon_keeps_parallel_relations_apart)
+Their Amazon branch emits PP and UU for two product-product relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 219, in test_amazon_keeps_parallel_relations_apart
+    adjacencies, chaining = self._keys("amazon")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 960, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 539, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_every_transposed_monomial_resolves_to_known_keys (test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on all four datasets.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 259, in test_every_transposed_monomial_resolves_to_known_keys
+    adjacencies, chaining = self._keys(dataset)
+                            ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 184, in _keys
+    return build_relation_adjacencies(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\_polynomial_lp.py", line 154, in build_relation_adjacencies
+    from torch_sparse import SparseTensor, mul
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_keys_are_exactly_two_characters (test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 274, in test_keys_are_exactly_two_characters
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 184, in _keys
+    return build_relation_adjacencies(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\_polynomial_lp.py", line 154, in build_relation_adjacencies
+    from torch_sparse import SparseTensor, mul
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_lastfm_matches_the_authors_key_set (test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 196, in test_lastfm_matches_the_authors_key_set
+    adjacencies, chaining = self._keys("lastfm")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 184, in _keys
+    return build_relation_adjacencies(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\_polynomial_lp.py", line 154, in build_relation_adjacencies
+    from torch_sparse import SparseTensor, mul
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_pubmed_keys_encode_node_types (test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 237, in test_pubmed_keys_encode_node_types
+    adjacencies, chaining = self._keys("pubmed")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 184, in _keys
+    return build_relation_adjacencies(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\_polynomial_lp.py", line 154, in build_relation_adjacencies
+    from torch_sparse import SparseTensor, mul
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_single_node_type_keys_are_palindromic (test_baselines.PolynomialRelationKeyTests.test_single_node_type_keys_are_palindromic)
+lis_t reverses a key in place, so a symmetric operator needs a palindrome.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 249, in test_single_node_type_keys_are_palindromic
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 960, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 539, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\amazon'.
+
+======================================================================
+ERROR: test_youtube_gets_one_operator_per_relation (test_baselines.PolynomialRelationKeyTests.test_youtube_gets_one_operator_per_relation)
+Five user-user relations must stay five operators.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 230, in test_youtube_gets_one_operator_per_relation
+    adjacencies, chaining = self._keys("youtube")
+                            ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 185, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 960, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 539, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\youtube'.
+
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 664, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 658, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 111, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 130, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 69, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_fully_labeled_graph_has_no_diagnostic_and_one_seed (test_heterophily_metrics.FillConventionTests.test_fully_labeled_graph_has_no_diagnostic_and_one_seed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 313, in test_fully_labeled_graph_has_no_diagnostic_and_one_seed
+    res = ch.analyse(_toy(), "toy", "toy", seeds=[0, 1], chunk_size=200,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_primary_is_the_filled_reference_value (test_heterophily_metrics.FillConventionTests.test_primary_is_the_filled_reference_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 300, in test_primary_is_the_filled_reference_value
+    res = ch.analyse(data, "toy", "toy", seeds=[3, 4], chunk_size=200,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_jaccard_appendix_equals_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_jaccard_appendix_equals_hand_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 260, in test_jaccard_appendix_equals_hand_values
+    res = self._analyse(_toy_multilabel())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 233, in _analyse
+    return self.ch.analyse(data, "toy", "toy", seeds=[0], chunk_size=200,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_per_genre_reference_values_equal_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_per_genre_reference_values_equal_hand_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 243, in test_per_genre_reference_values_equal_hand_values
+    _, results = self.ch.run_calc_homophily(data, "paper", seed=0, chunk_size=200,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 102, in run_calc_homophily
+    h2gb, _ = reference_modules()
+              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_primary_values_are_per_genre_means_not_exact_match (test_heterophily_metrics.MultilabelPerGenreTests.test_primary_values_are_per_genre_means_not_exact_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 250, in test_primary_values_are_per_genre_means_not_exact_match
+    res = self._analyse(_toy_multilabel())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 233, in _analyse
+    return self.ch.analyse(data, "toy", "toy", seeds=[0], chunk_size=200,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic (test_heterophily_metrics.MultilabelPerGenreTests.test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 271, in test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic
+    res = self._analyse(data)
+          ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 233, in _analyse
+    return self.ch.analyse(data, "toy", "toy", seeds=[0], chunk_size=200,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_exact_match_reproduction_row_equals_hetero2net (test_heterophily_metrics.RandomGraphTests.test_exact_match_reproduction_row_equals_hetero2net)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 191, in test_exact_match_reproduction_row_equals_hetero2net
+    _, hetero2net = self.ch.reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_own_equals_reference_on_a_random_graph (test_heterophily_metrics.RandomGraphTests.test_own_equals_reference_on_a_random_graph)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 154, in test_own_equals_reference_on_a_random_graph
+    _, hetero2net = self.ch.reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_random_fill_matches_the_reference_and_labels_are_restored (test_heterophily_metrics.RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 173, in test_random_fill_matches_the_reference_and_labels_are_restored
+    _, results = self.ch.run_calc_homophily(data, "paper", seed=3, chunk_size=200)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 102, in run_calc_homophily
+    h2gb, _ = reference_modules()
+              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_unlabeled_target_without_fill_raises (test_heterophily_metrics.RandomGraphTests.test_unlabeled_target_without_fill_raises)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 186, in test_unlabeled_target_without_fill_raises
+    self.ch.homophily_counts(data, PAP, data["paper"].y, chunk_size=200)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 240, in homophily_counts
+    for chunk in iter_metapath_chunks(data, metapath, chunk_size):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 153, in iter_metapath_chunks
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_hand_values_fill_and_labeled_only (test_heterophily_metrics.TaskLevelHEdgeTests.test_hand_values_fill_and_labeled_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 333, in test_hand_values_fill_and_labeled_only
+    out = ch.task_level_h_edge(data, ("book", "and", "book"), seeds=[5, 6],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 637, in task_level_h_edge
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_adjusted_homophily_applies_the_class_imbalance_correction (test_heterophily_metrics.ToyGraphTests.test_adjusted_homophily_applies_the_class_imbalance_correction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 114, in test_adjusted_homophily_applies_the_class_imbalance_correction
+    pap = self.ch.homophily_counts(self.data, PAP, self.data["paper"].y, chunk_size=200)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 240, in homophily_counts
+    for chunk in iter_metapath_chunks(data, metapath, chunk_size):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 153, in iter_metapath_chunks
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_aggregates (test_heterophily_metrics.ToyGraphTests.test_aggregates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 136, in test_aggregates
+    res = self.ch.analyse(self.data, "toy", "toy", seeds=[0], chunk_size=200,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 413, in analyse
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_metapath_sets (test_heterophily_metrics.ToyGraphTests.test_metapath_sets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 133, in test_metapath_sets
+    self.assertEqual(self.ch.hetero2net_metapaths(self.data, "paper"), [PAP])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 135, in hetero2net_metapaths
+    _, hetero2net = reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_own_counts_equal_hand_values (test_heterophily_metrics.ToyGraphTests.test_own_counts_equal_hand_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 105, in test_own_counts_equal_hand_values
+    pap = self.ch.homophily_counts(self.data, PAP, self.data["paper"].y, chunk_size=200)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 240, in homophily_counts
+    for chunk in iter_metapath_chunks(data, metapath, chunk_size):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 153, in iter_metapath_chunks
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_reference_h2gb_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_h2gb_equals_hand_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 95, in test_reference_h2gb_equals_hand_values
+    paths, results = self.ch.run_calc_homophily(self.data, "paper", seed=0, chunk_size=200)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 102, in run_calc_homophily
+    h2gb, _ = reference_modules()
+              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+ERROR: test_reference_hetero2net_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_heterophily_metrics.py", line 120, in test_reference_hetero2net_equals_hand_values
+    _, hetero2net = self.ch.reference_modules()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 76, in reference_modules
+    h2gb = _load_module("_ref_h2gb_calcHomophily",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\heterophily\compute_heterophily.py", line 69, in _load_module
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\calcHomophily.py", line 5, in <module>
+    from torch_sparse import SparseTensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_sparse\__init__.py", line 18, in <module>
+    torch.ops.load_library(spec.origin)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_ops.py", line 1357, in load_library
+    ctypes.CDLL(path)
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\ctypes\__init__.py", line 379, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [WinError 4551] An Application Control policy has blocked this file
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 413, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_core')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[19832 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[21130 chars]n}\n'
+Diff is 40370 characters long. Set self.maxDiff to None to see it. : node_classification_core.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='node_classification_dgl')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1453, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{"cells":[{"cell_type":"markdown","metadat[33512 chars]":0}' != '{\n "cells": [\n  {\n   "cell_type": "mark[22273 chars]n}\n'
+Diff is 54511 characters long. Set self.maxDiff to None to see it. : node_classification_dgl.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_core', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1580, in test_notebooks_are_committed_clean_and_parse
+    self.assertFalse(cell.get("outputs"))
+AssertionError: [{'output_type': 'stream', 'name': 'stdout', 'text': ['installed torch distribution: 2.11.0+cu128\n']}] is not false
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 7 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 9 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 11 is not None
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) (lane='node_classification_dgl', cell=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1579, in test_notebooks_are_committed_clean_and_parse
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 2 is not None
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 138, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl'] is not false : missing baseline clones: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii', 'latgrl']
+
+----------------------------------------------------------------------
+Ran 478 tests in 890.922s
+
+FAILED (failures=11, errors=29)
+
+ERROR conda.cli.main_run:execute(127): `conda run python -m unittest discover -s tests` failed. (See above for error)
+[coverage] 113/113 runnable cells have an adapter; no adapter yet: none
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+
