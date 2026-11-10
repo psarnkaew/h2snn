@@ -1,0 +1,208 @@
+<title>v3-B Final Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f7f5f0; --fg:#1d1f22; --muted:#5b6068; --rule:#d9d4c8; --panel:#ffffff;
+  --accent:#1f5f8b; --warn:#9a4a12; --warn-bg:#fbeee0; --ok:#2f6b3a; --ok-bg:#e6f1e4; --math-bg:#f0ede6;
+  --font-body:"Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:2rem 4rem}
+main{max-width:78ch;margin:0 auto}
+h1{font-size:1.9rem;line-height:1.25;margin:0 0 .4rem;text-wrap:balance}
+h2{font-size:1.35rem;margin:3rem 0 .8rem;padding-top:1.2rem;border-top:2px solid var(--rule);text-wrap:balance}
+h3{font-size:1.08rem;margin:1.8rem 0 .5rem;color:var(--accent)}
+p{margin:.6rem 0}
+.meta{color:var(--muted);font-size:.92rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0;font-size:.92rem}
+th,td{border-bottom:1px solid var(--rule);padding:.45rem .55rem;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.85rem}
+.tbl{overflow-x:auto;min-width:0}
+.box{border:1px solid var(--rule);border-left:4px solid var(--accent);background:var(--panel);padding:.7rem 1rem;margin:1rem 0;border-radius:4px}
+.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+code,.mono{font-family:var(--font-mono);font-size:.9em}
+pre{font-family:var(--font-mono);font-size:.85em;background:var(--math-bg);padding:.7rem .9rem;border-radius:4px;overflow-x:auto;line-height:1.5}
+.math{background:var(--math-bg);padding:.4rem .8rem;border-radius:4px;overflow-x:auto;margin:.6rem 0}
+ul,ol{padding-left:1.4rem} li{margin:.25rem 0}
+.tag{display:inline-block;font-size:.75rem;padding:.05rem .45rem;border-radius:3px;border:1px solid var(--rule);color:var(--muted);margin-left:.3rem;vertical-align:middle}
+.num{font-variant-numeric:tabular-nums}
+mjx-container{overflow-x:auto;overflow-y:hidden}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<main>
+<h1>H2S-NN v3-B: โมเดลสุดท้าย ความครบถ้วน การตรวจรีวิว และต้นทุนเทียบ v1</h1>
+<p class="meta">11 พ.ย. 2026 00:30 JST · ต่อจาก <code>v3B_decisions.html</code> หลังผู้เขียนรับการตัดสินใจ D-B0(b), D-B1(a), D-B2(a), D-B3(b), D-B4(b), D-B5, D-B6, D-B7 (10 พ.ย. 23:43) · ป้าย: <span class="tag">พิสูจน์</span> <span class="tag">ตรวจ numpy</span> <span class="tag">อ่านโค้ด</span> (file:line ที่อ้าง) <span class="tag">วัดแล้ว</span> (ตัวเลขจากรายงานที่รันจริง) <span class="tag">ประมาณ</span> (คำนวณจากขนาดข้อมูล ยังไม่วัด) <span class="tag">ยังไม่ตอบ</span></p>
+
+<div class="box">สองข้อแก้จากรอบก่อนที่ยังใช้ (ตรวจเองแล้ว ไม่ขึ้นกับว่าใครเสนอ): (1) ขอบเขต $\|x^\star-h\|\le\frac{\tau}{1+\tau}\|h\|$ เป็นของเวกเตอร์รวมทั้งกราฟ ไม่ใช่ต่อโหนด ข้อความ "hub ไม่ถูกดึงแรงกว่าใคร" ถอน (2) PCG บน batch ของหลาย scope ต้องใช้ dot product และเกณฑ์หยุดแยกต่อ scope ไม่เช่นนั้นคำตอบของ target ขึ้นกับว่าใครอยู่ร่วม batch (ขัด M1) · ตัวเลขใหม่ที่หนุน D-B0(b) ด้าน solver: condition number ของระบบเต็มหลัง Jacobi ที่ β = 1/10/100/1000 คือ 9.9/46/406/4006 สำหรับ covering-only แต่ 6.4/9.8/11.1/11.2 เมื่อมีเทอมโหนด–cell (<code>cond_check.py</code>, ตรวจ numpy)</div>
+
+<h2>1. โมเดลสุดท้ายในหนึ่งหน้า</h2>
+<h3>1.1 ข้อมูลเข้า (ไม่เปลี่ยนจาก v2)</h3>
+<ul>
+<li>โหนด $v$ ชนิด $\phi(v)$, feature ตามชนิด (ชนิดไม่มี feature: embedding ตาม global id)</li>
+<li>fact $e$ (D7: สองทิศที่เก็บนับเป็นหนึ่ง) ชนิด $\psi(e)$, บทบาทต้น/ปลาย</li>
+<li>cell $f$ = path instance หนึ่งเส้นที่ WISP สุ่มได้ $f=(v_0,e_1,v_1,\dots,e_\ell,v_\ell)$ ไม่ซ้ำโหนด น้ำหนักสุ่ม $m_f$ (รวมต่อ anchor ใน mini-batch, M4)</li>
+</ul>
+<h3>1.2 ส่วนที่เรียนรู้ (คำนวณครั้งเดียวต่อ forward)</h3>
+<div class="tbl"><table>
+<tr><th>ส่วน</th><th>สูตร</th><th>พารามิเตอร์</th><th>ที่มา</th></tr>
+<tr><td>encoder ตามชนิด</td><td>$h_v=\mathrm{TypeEncoder}_{\phi(v)}(x^{\text{raw}}_v)\in\mathbb R^d$</td><td>ตามชนิด</td><td>v2</td></tr>
+<tr><td>context</td><td>$c_v$ = ค่าเฉลี่ย $h$ เพื่อนบ้าน แยกตาม (ชนิดเส้น, บทบาท)</td><td>0</td><td>v2 (R10)</td></tr>
+<tr><td>map ของเส้น</td><td>$F_{v\triangleleft e}=R_{\psi(e),\text{role}}H_2(u)H_1(u)$, $u=\mathrm{MLP}([g_v,g_{\text{other}},\mathrm{rel},\text{role}])$, $g=[h,c]$</td><td>MLP + frame ต่อ relation·role</td><td>v2 <code>sheaf_maps.py</code></td></tr>
+<tr><td>น้ำหนักเส้น</td><td>$a_e=c_e^2$, $c_e=\mathrm{softplus}(\mathrm{MLP}([g_u,g_v,\mathrm{rel}]))+0.1$</td><td>MLP</td><td>v2</td></tr>
+<tr><td>น้ำหนัก cell</td><td>$\beta_f=w_fm_f$, $w_f=\exp(g_\theta(\xi_f))$, $\xi_f=[h_{v_0},\dots,h_{v_\ell},\mathrm{rel}_1,\dots,\mathrm{rel}_\ell]$</td><td>encoder ต่อความยาว</td><td>WISP</td></tr>
+<tr><td>τ</td><td>$\tau=e^{\theta_\tau}$, เริ่ม $\theta_\tau=0$, optimizer group ของตัวเอง</td><td>1</td><td>D-B4</td></tr>
+<tr><td>หัวทำนาย</td><td>$\hat y_v=\mathrm{MLP}([h_v,x^\star_v])$</td><td>MLP</td><td>v2 (R11)</td></tr>
+</table></div>
+<p><strong>ถูกลบจาก v2:</strong> gate $g_v,b_v$ (D-B1), Chebyshev filter bank $W_0..W_K$ และ $K$ (D-B2), $\eta$ ไม่มีพารามิเตอร์ใหม่นอกจาก τ จำนวน hyperparameter ของการแพร่ = 0 (tolerance และ $T_{\max}$ ของตัวแก้เป็นค่าความแม่น ไม่ใช่ตัวเลือกของโมเดล)</p>
+<h3>1.3 เรขาคณิต (ไม่เปลี่ยน)</h3>
+<div class="math">$$T_{v_0,f}=I,\quad T_{v_i,f}=T_{v_{i-1},f}\,F_{v_{i-1}\triangleleft e_i}^\top F_{v_i\triangleleft e_i},\qquad R_{e_i,f}=T_{v_{i-1},f}F_{v_{i-1}\triangleleft e_i}^\top$$</div>
+<p>ทุกตัวเป็น orthogonal คำนวณแบบไม่สร้างเมทริกซ์ (Horner ตาม path) closure อยู่ในนิยามของ complex เท่านั้น (ทฤษฎีบท 1b)</p>
+<h3>1.4 energy (D-B0(b)) และ operator</h3>
+<div class="math">$$E(Y)=\tfrac12\sum_{e\in E}a_e\sum_{v\in e}\|F_{v\triangleleft e}x_v-s_e\|^2+\tfrac12\sum_f\beta_f\Big[\sum_{e_i\in f}\|R_{e_i,f}s_{e_i}-z_f\|^2+\sum_{v\in f}\|T_{v,f}x_v-z_f\|^2\Big],\qquad L=\nabla^2E$$</div>
+<p>แนวทแยงของ $L$ เป็นสเกลาร์คูณ $I$ เพราะทุก map เป็น orthogonal:</p>
+<div class="math">$$D_v=\sum_{e\ni v}a_e+\sum_{f\ni v}\beta_f,\qquad D_e=2a_e+\sum_{f\ni e}\beta_f,\qquad D_f=\beta_f(2\ell_f+1)$$</div>
+<p>normalization (D-B3): $\hat L=D^{-1/2}LD^{-1/2}$ ทุก block แนวทแยงของ $\hat L$ เป็น $I$</p>
+<h3>1.5 การแก้ (D-B5) และการกำจัดตัวแปร (ทฤษฎีบท 7′)</h3>
+<div class="math">$$Y^\star=\arg\min_Y\tfrac12\|x-h\|^2+\tfrac\tau2Y^\top\hat LY\iff MY^\star=P^\top h,\quad M=P^\top P+\tau\hat L\succ0$$</div>
+<ul>
+<li><strong>กำจัด</strong> (ทำบน $\hat L$ หลังนิยาม $D$ จากทุก fact): fact ที่อยู่บน cell 0 ตัว → เทอมตรงน้ำหนัก $\hat a_e/2$; fact ที่อยู่บน cell 1 ตัว → เทอมตรง $\frac{\hat a_e^2}{2\hat a_e+\hat\beta_f}$ + เทอมโหนด–cell เพิ่ม $\frac{\hat a_e\hat\beta_f}{2\hat a_e+\hat\beta_f}$ ที่ปลายทั้งสอง (น้ำหนักที่มีหมวกคือหลัง normalize) state บนเส้นเหลือเฉพาะ $E_{\text{shared}}$ = fact ที่อยู่บน cell ≥ 2 ตัว คำตอบ $x^\star,z^\star$ ไม่เปลี่ยน <span class="tag">พิสูจน์</span> <span class="tag">ตรวจ numpy 7e-16</span></li>
+<li><strong>PCG</strong> บน $M$ ที่กำจัดแล้ว preconditioner Jacobi $J=\mathrm{diag}(1+\tau$ ที่โหนด$,\ \tau$ ที่เส้นและ cell$)$ (หลัง normalize แนวทแยงเป็น $I$ จึงเป็นสเกลาร์คงที่) tolerance สัมพัทธ์ 1e-4, $T_{\max}=100$ เป็น stop condition (รายงาน ไม่ปรับ)</li>
+<li><strong>ค่าเริ่ม</strong> (D-B7): $x=h$, $s_e=\tfrac12(F_uh_u+F_vh_v)$, $z_f$ = ค่าเฉลี่ยของ $R_{e,f}s_e$ และ $T_vh_v$ บน f (ค่าดีที่สุดเมื่อ $x=h$; หนึ่ง UP)</li>
+<li><strong>batch</strong>: scope หลายตัวเป็น block-diagonal ⇒ dot product ($r^\top z$, $p^\top q$) และเกณฑ์หยุด**ต่อ scope** (segment-sum ตาม scope id; scope ที่ลู่เข้าแล้วถูก mask) จำเป็นต่อ M1 (prediction ของ target ไม่ขึ้นกับการจัด batch)</li>
+<li><strong>backward</strong>: $M\lambda=P^\top g$ แล้ว $\partial\mathcal L/\partial\theta=-\tau\,\lambda^\top(\partial\hat L/\partial\theta)Y^\star$ ผ่าน autograd ของสเกลาร์ $\lambda^\top\hat L(\theta)Y^\star$ ที่ตรึง $\lambda,Y^\star$ (รวม $\partial/\partial\tau=-\lambda^\top\hat LY^\star$) memory ไม่ขึ้นกับจำนวนรอบ <span class="tag">พิสูจน์ (มาตรฐาน)</span></li>
+</ul>
+<h3>1.6 แขนเปรียบเทียบ (ทุกแขน = config ของโมเดลเดียวกัน ไม่มีโค้ดแยก)</h3>
+<div class="tbl"><table>
+<tr><th>แขน</th><th>config</th><th>ตอบใคร</th></tr>
+<tr><td><code>full</code></td><td>ตาม §1.4</td><td>—</td></tr>
+<tr><td><code>covering_only</code></td><td>ตัดเทอมโหนด–cell</td><td>C12 (เพดานน้ำหนัก); เป็น v3-B ตามเอกสาร v3B_design เดิม</td></tr>
+<tr><td><code>hub_A</code></td><td>ตัด state บนเส้น (กำจัดทุก fact, β ของเทอมเส้น–cell = 0)</td><td>C11: state บนเส้นให้อะไร; = v2 hub + anchored solve</td></tr>
+<tr><td><code>closure_only</code></td><td>ไม่มี cell; path แทนด้วยเส้นปลาย-ปลายหมุนตาม path (HolonomyEdgeTerm) น้ำหนัก $\beta_f$</td><td>R2 comment 5, R4 "endpoint-collapsed views"</td></tr>
+<tr><td><code>no_path_cells</code></td><td>$\beta_f=0$</td><td>R4 "ไม่มี 2-cell"</td></tr>
+<tr><td><code>instance_features</code></td><td>$\beta_f=0$ ใน solve; ส่ง $\sum_f\beta_f\,\mathrm{mean}_vT_{v,f}h_v$ เข้าหัวทำนายของ anchor</td><td>R4 "path instances without 2-cell diffusion" (= MAGNN-like encoder)</td></tr>
+<tr><td><code>uniform / schema / endpoints</code></td><td>บันได input ของ $g$ (spec C2)</td><td>R4 "uniform weights", R3 S2</td></tr>
+<tr><td><code>free_cell_maps</code></td><td>$R_{e,f}$ อิสระ</td><td>ทฤษฎีบท 3 (kernel ยุบ)</td></tr>
+</table></div>
+
+<h2>2. ความครบถ้วน: สิ่งที่ต้องปิดก่อน implement</h2>
+<div class="tbl"><table>
+<tr><th>#</th><th>เรื่อง</th><th>สถานะ</th><th>การตัดสิน/สิ่งที่ต้องทำ</th></tr>
+<tr><td>1</td><td>ลำดับ normalization กับการกำจัด</td><td>ปิด</td><td>นิยาม $D$ จาก $L$ เต็ม (ทุก fact รวม $E_0$) แล้วกำจัดบน $\hat L$ ผลเท่ากันเพราะการกำจัดเป็นการแก้ปัญหาเดิมบางส่วน; $D_v$ ไม่เปลี่ยน</td></tr>
+<tr><td>2</td><td>batched PCG</td><td>ปิด (ใหม่)</td><td>dot product/stop ต่อ scope; test: batch = แก้ทีละ scope ที่ tol เดียวกัน (bit-identical ถ้าใช้ segment-sum แบบ deterministic)</td></tr>
+<tr><td>3</td><td>ขอบเขต hub</td><td>แก้</td><td>เหลือ cond ≤ 1+τ สำหรับระบบระดับโหนด; การขยับต่อโหนดตาม degree เป็นการวิเคราะห์หลังรัน ไม่ใช่ตัวตัดสิน</td></tr>
+<tr><td>4</td><td>τ ใหญ่</td><td>ปิด</td><td>log-param; บันทึก τ ทุก epoch; stop condition τ &gt; 50 (cond ของระบบโหนดเกิน 51) รายงาน ไม่ clamp</td></tr>
+<tr><td>5</td><td>cond ของระบบเต็มที่ PCG แก้</td><td><span class="tag">ยังไม่ตอบ</span></td><td>พิสูจน์ได้เฉพาะระบบระดับโหนด; toy ให้ 6–11 สำหรับ (b) ทุก β ต้องวัดบน operator จำลองขนาด ACM (CPU, scipy sparse) ก่อน card — งานครึ่งวัน</td></tr>
+<tr><td>6</td><td>$\beta_f$ ใน $D$ ทำให้ Prop. S (WISP ไม่ลำเอียง) เป็น consistency</td><td>ปิด (ข้อความ)</td><td>spec §4: Prop. S ใช้กับ $L$; $\hat L$ ลู่เข้าเมื่อ r → ∞; v2 เป็นเช่นนี้อยู่แล้ว</td></tr>
+<tr><td>7</td><td>self-loop fact ($u=v$)</td><td>ปิด</td><td>เทอม $a_e(\|F_ux_u-s_e\|^2+\|F_u'x_u-s_e\|^2)$ สองบทบาทของโหนดเดียว; สูตรทั่วไปใช้ได้ ไม่ต้องกรณีพิเศษ (เหมือน v2 D7)</td></tr>
+<tr><td>8</td><td>ทิศของเส้นในการเดิน</td><td>ปิด</td><td>ใช้ map ของ "โหนดที่เดินออก/เข้า" ไม่มีเครื่องหมาย (§6.1 ของ v3B_design) test "กลับทิศแล้ว $x^\star$ เท่าเดิม" คง</td></tr>
+<tr><td>9</td><td>gradient ผ่าน $m_f$</td><td>ปิด</td><td>$m_f$ เป็นค่าคงที่จากการสุ่ม ไม่มี gradient; $w_f$ มี (ผ่าน $\partial\hat L/\partial\theta$)</td></tr>
+<tr><td>10</td><td>link prediction</td><td>เปิด (card แยก, ไม่กระทบ method)</td><td>หัว $z_v=\mathrm{GELU}(W[h_v,x^\star_v])$ dot product ตามเดิม; WISP anchor บน message graph ยังเป็น card ค้าง</td></tr>
+<tr><td>11</td><td>graph classification readout</td><td><span class="tag">ยังไม่ตอบ</span></td><td>SheafCovPool ที่ R4 S5/R1 S5 ชม ไม่อยู่ใน v2/v3; ภาคผนวกเท่านั้น (spec 1.5) รอผู้เขียนสั่ง; v3-B มี state บนเส้นและ cell จึงมีวัตถุดิบให้ readout แบบเดิมถ้าต้องการ</td></tr>
+<tr><td>12</td><td>ทฤษฎี v2 ที่ต้องเขียนใหม่</td><td>งานเขียน</td><td>Props. 4–6 (gate) ลบ; Prop. 5, 7, Lemma N (filter) ลบ; Prop. 2 → ทฤษฎีบท 3; Prop. K, Theorem R, Prop. E ใช้ได้ตรง (เทอมโหนด–cell = $L_P$ เดิม); เพิ่มทฤษฎีบท 1–9, 7′, cond bound, high-pass ที่หัวทำนาย</td></tr>
+<tr><td>13</td><td>โค้ด v2 ที่ reuse ได้</td><td><span class="tag">อ่านโค้ด</span></td><td><code>sheaf_maps.py</code> (map, $c_e$), <code>vertex_path_laplacian.py</code> (เทอมโหนด–cell = $L_P$ รวม $D$ ส่วน cell), <code>map_operators.py:413</code> PathTransportOperator (ต้องเพิ่มเวอร์ชันรับ state ของเส้น), HolonomyEdgeTerm (closure_only), WISP sampler/merge ทั้งหมด, D7 fact layer · ต้องเขียนใหม่: operator 3 ระดับ (incidence lists + UP/DOWN), elimination, PCG ต่อ scope, implicit backward · ลบ: gates, Chebyshev, η</td></tr>
+<tr><td>14</td><td>ตัวอย่างสำหรับ R2 comment 1</td><td><span class="tag">ยังไม่ตอบ</span></td><td>งาน H11 (IMDB M–A–M แยกตาม actor; data-only, CPU) ควรทำก่อน paper; ไม่กระทบ method</td></tr>
+<tr><td>15</td><td>งานเก่าระดับสูตร (ขั้นที่ 3)</td><td><span class="tag">ยังไม่ตอบ</span></td><td>ตัดสินถ้อยคำ novelty; ทำต่อจากเอกสารนี้</td></tr>
+</table></div>
+<h3>2.1 test ที่เหลือ (ตัดที่ไม่จำเป็นออกแล้ว; ทุกข้อเป็นพีชคณิต ไม่ใช่ประสิทธิภาพ)</h3>
+<ol>
+<li>functoriality $R_{e_i,f}F_{v\triangleleft e_i}=T_{v,f}$ บน draw จริง</li>
+<li>matrix-free $\hat LY$ = dense บนกราฟเล็ก; สมมาตร; $\lambda_{\min}(M)&gt;0$</li>
+<li>kernel: dim ker $\hat L$ = dim ker $\Delta_0$; <code>free_cell_maps</code> ยุบ</li>
+<li>ทฤษฎีบท 7′: กำจัดแล้ว $x^\star$ เท่าเดิม (fact บน 0 และ 1 cell)</li>
+<li>PCG ลู่เข้าหา dense solve; batch = ทีละ scope</li>
+<li>implicit gradient = finite difference และ = unroll ที่ลู่เข้าแล้ว (รวม $\partial/\partial\tau$)</li>
+<li>ทางเข้าโหนด: รบกวน $z_f$ อย่างเดียว → A7 เปลี่ยน; ไม่มี block ตรง $v_0$–$v_\ell$ ใน $M$ นอกจากผ่าน $z_f$ หรือ $s_e$</li>
+<li>แขน: <code>hub_A</code> = v2 $L_P$ + anchored solve (เทียบกับโค้ด v2 โดยตรง); <code>no_path_cells</code> = solve บนกราฟ</li>
+<li><em>(ไม่อยู่ใน card ฉบับ minimal)</em> mutation: สลับ map ต้น/ปลาย, ลืม $\beta_f$ ใน $D$, local id กับชนิดไม่มี feature, dot product รวม batch แทนต่อ scope — ทุกข้อต้องมี test ที่ fail</li>
+</ol>
+<p class="meta"><strong>หมายเหตุ:</strong> รายการนี้คือรายการตรวจความสมบูรณ์ของดีไซน์ ไม่ใช่ชุดเทสต์ที่ agent รัน ชุด gate จริงใน card (ฉบับ minimal 11 พ.ย.) มีเฉพาะ T1–T3, T7, T9, T10, T14 และ smoke IMDB 2 epochs ข้อที่ไม่มีเทสต์ (zero-block ของทางเข้าโหนด, hub_A = v2, mutation, batch หลาย scope) ยังไม่ได้ตรวจ</p>
+<p>ตัดออก: gate zero-block, filter gain ≤ 1, Richardson, "K ที่ต้องใช้", hub dominance</p>
+
+<h2>3. ตรวจคำชม/คำติอีกครั้งกับโมเดลสุดท้าย</h2>
+<div class="tbl"><table>
+<tr><th>รีวิว</th><th>ข้อความ</th><th>v3-B สุดท้าย</th><th>สถานะ</th></tr>
+<tr><td>R1 S1, R3 S1, R4 S1, meta</td><td>2-cell เก็บโหนดกลางและลำดับ relation</td><td>cell ต่อ instance; $z_f$ ยึดกับทุกโหนดและทุกเส้นของ path; transport เรียงตามลำดับ</td><td>พิสูจน์ (ทฤษฎีบท 1, 8)</td></tr>
+<tr><td>R1 S2, R2 summary</td><td>นิยามชัด + พิสูจน์ความสอดคล้อง (cochain complex)</td><td>ทฤษฎีบท 1, 1b, 2 (δ₁δ₀ = 0 กับ closure ในนิยาม)</td><td>พิสูจน์ + ตรวจ</td></tr>
+<tr><td>R2 S1</td><td>map edge→face จาก transport "principled"</td><td>$R_{e,f}$ ใช้ในเทอมเส้น–cell จริง</td><td>พิสูจน์; คงไว้ด้วย (b) เพราะเทอมเส้น–cell ยังอยู่</td></tr>
+<tr><td>R2 S2</td><td>2-cell + sheaf-based edge diffusion</td><td>state $s_e$ บน $E_{\text{shared}}$ แพร่ผ่านโหนดและ cell</td><td>คง แต่เขียนซื่อ: ไม่มี edge feature; $s_e$ กำหนดจาก $x,z$; ความหมายจริงคือ cell ที่ใช้ fact ร่วมกันผูกกัน</td></tr>
+<tr><td>R3 summary</td><td>มากกว่า HGNN + sheaf layer</td><td>sheaf 3 ระดับ energy เดียว; hub view เป็นกรณีพิเศษที่พิสูจน์ได้</td><td>เหตุผล; รอขั้นที่ 3 ยืนยันถ้อยคำ</td></tr>
+<tr><td>R4 S2</td><td>ใส่ข้อมูล path ในการแพร่แบบ sheaf อย่างมีหลักการ</td><td>energy บนคู่ของ sheaf; kernel ไม่เปลี่ยน; คำตอบเดียวทุกพารามิเตอร์</td><td>พิสูจน์ (ห้ามเรียก "Hodge diffusion")</td></tr>
+<tr><td>R1 S4, R3 S2</td><td>budget และน้ำหนักต่อ instance</td><td>WISP r ตาม budget incidence; $\beta_f$ ต่อ instance ไม่มีเพดาน (D-B0(b))</td><td>พิสูจน์ว่าช่องน้ำหนักไม่มีเพดาน; การเรียนรู้ต้องทดสอบ (S2′/S3 บน cluster)</td></tr>
+<tr><td>R1 S5, R4 S4</td><td>ablation ละเอียด</td><td>แขน §1.6 ทุกตัวเป็น config</td><td>ออกแบบแล้ว; รัน cluster</td></tr>
+<tr><td>R4 S5, R1 S5</td><td>SheafCovPool</td><td>ไม่มี</td><td><span class="tag">ยังไม่ตอบ</span> (ภาคผนวก; รอผู้เขียน)</td></tr>
+<tr><td>R2 S4</td><td>วิเคราะห์ complexity + วัด</td><td>§4 ของเอกสารนี้ (เชิงวิเคราะห์) + C13</td><td>วิเคราะห์แล้ว; วัดบน cluster</td></tr>
+<tr><td><strong>R2 W3</strong>, meta</td><td>face ถึงโหนดผ่าน closure ปลาย-ปลายเท่านั้น</td><td>closure ไม่มี state; cell ถึงทุกโหนดของ path ตรง ($\beta_fT^\top$) และผ่านเส้น; ไม่มีเทอม $v_0$–$v_\ell$</td><td>พิสูจน์ (ทฤษฎีบท 1b, 8) — <strong>แก้ได้โดยโครงสร้าง</strong></td></tr>
+<tr><td>R2 comment 5</td><td>closure-only vs face</td><td><code>closure_only</code> vs <code>full</code> (C10)</td><td>ออกแบบ; รัน cluster</td></tr>
+<tr><td>meta, R4</td><td>แยกผล 2-cell จาก capacity/selection/weighting</td><td>แขนทุกตัวพารามิเตอร์เท่ากัน ($s,z,\tau$ ไม่เพิ่มพารามิเตอร์ของ cell) ต่างกันเฉพาะโครงสร้าง $\hat L$</td><td>ออกแบบ; รัน cluster</td></tr>
+<tr><td>R4 ablation 1–5</td><td>endpoint view / no 2-cell / uniform / same #paths / full</td><td><code>closure_only</code>, <code>instance_features</code> + <code>no_path_cells</code>, <code>uniform</code>, draw เดียวกันทุกแขน, <code>full</code></td><td>ครบ 5 ข้อ (ข้อ 2 ตอบด้วย <code>instance_features</code> ที่เพิ่มใหม่)</td></tr>
+<tr><td>R4 W</td><td>restriction maps ที่ยืดหยุ่นกว่าให้ผลหรือเปล่า</td><td>C3 (diagonal), C9 (context) ยังใช้ได้ภายใต้ $F^\top F=I$</td><td>ออกแบบ; รัน cluster</td></tr>
+<tr><td>R2 comment 1</td><td>ตัวอย่างที่ endpoint view ล้มเหลว</td><td>—</td><td><span class="tag">ยังไม่ตอบ</span> (H11)</td></tr>
+<tr><td>R2 summary</td><td>กลไกไม่ตรงแรงจูงใจ heterophily</td><td>ทฤษฎีบท 4 (map แยก class ที่ λ = 0), $\beta_f$ ต่อ instance, หัว $[h,x^\star]$ มี high-pass; gate/filter ถูกตัด จึงไม่มีกลไกที่อ้างเกินจริง</td><td>พิสูจน์ส่วนที่อ้าง; C6 รัน cluster</td></tr>
+<tr><td>R3 comment 3</td><td>sensitivity ของ budget/ความยาว</td><td>U3 ($\ell_{\max}$); r ผูกกับ budget ไม่ tune</td><td>ตอบบางส่วน (ไม่มีเส้นโค้งของ r)</td></tr>
+<tr><td>R1 W1, R3 W3, R4, meta</td><td>scalability</td><td>§4; state ลดด้วยทฤษฎีบท 7′; cond bound; mini-batch M0–M4</td><td>วิเคราะห์แล้ว; วัด cluster</td></tr>
+</table></div>
+<p>ข้อติที่เหลือ (heterophily datasets, HetSheaf rerun, std, tuning, formatting) อยู่ใน protocol spec v1.5–1.10 และ Part J ไม่เกี่ยวกับโมเดล</p>
+
+<h2>4. ต้นทุน: v1 (WSDM) เทียบ v2 เทียบ v3-B บน ACM</h2>
+<h3>4.1 ข้อเท็จจริงที่ตรวจจากโค้ดและรายงาน</h3>
+<div class="tbl"><table>
+<tr><th></th><th>v1 (commit 0172044, ส่ง WSDM)</th><th>v2 (<code>part-j</code>, Part H H6)</th><th>v3-B</th></tr>
+<tr><td>d</td><td>32 (<code>configs/experiments/acm_h2snn_ampss.yaml</code>)</td><td>32</td><td>32 (ไม่เปลี่ยน)</td></tr>
+<tr><td>เส้น</td><td>547,872 directed edges (ไม่ tie)</td><td>273,936 facts (D7)</td><td>273,936 facts</td></tr>
+<tr><td>path instances</td><td>≤ 48,000, incidence ≤ 144,000 (AMPSS budget)</td><td>103,103 cells, 411,257 incidence โหนด–cell (WISP r = 42)</td><td>เท่า v2 + incidence เส้น–cell 308,154</td></tr>
+<tr><td>map ต่อ incidence</td><td>dense $d\times d$: <code>F_src, F_tgt: [E, d, d]</code>, face maps <code>[faces, L+1, d, d]</code>, closure <code>[faces, d, d]</code>×2, $A_f$ <code>[faces, d, d]</code> (<code>sheaf_maps.py:28-54</code>, fasthpp Householder สร้าง dense)</td><td>factorized: $u$ <code>[2E, k, d]</code> + $c_e$ (k = 2); transport ไม่สร้างเมทริกซ์</td><td>เท่า v2</td></tr>
+<tr><td>การแพร่</td><td>K = 4 ก้าว บน $L_0$ และ $L_1$ แยกกัน (<code>diffusion.py:61</code>) edge state ทุกเส้น</td><td>K = 4 Chebyshev บน $\Delta_0+L_P$</td><td>PCG ~T รอบ ×2</td></tr>
+<tr><td><strong>วัดแล้ว</strong></td><td><strong>3.011 s/epoch, 9,260 MB</strong> (R1 W1 อ้างจาก paper)</td><td><strong>train 1.40 s + draw 0.94 s = 2.82 s/epoch, 1,661 MB</strong> (H6)</td><td>ยังไม่วัด</td></tr>
+</table></div>
+<h3>4.2 ที่มาของ 9,260 MB ของ v1 <span class="tag">ประมาณจากโค้ด</span></h3>
+<p>$d\times d$ float32 ที่ d = 32 = 4 KB ต่อ map</p>
+<div class="tbl"><table>
+<tr><th>ส่วน</th><th>จำนวน</th><th>MB</th></tr>
+<tr><td>$F_{\text{src}},F_{\text{tgt}}$ ต่อ directed edge</td><td>2 × 547,872</td><td class="num">4,490</td></tr>
+<tr><td>Householder intermediates ของ fasthpp (autograd เก็บ $d\times d$ ต่อ reflection ต่อ edge; สมมติ 2 ชั้น)</td><td>~2 × 2 × 547,872</td><td class="num">~4,000–9,000</td></tr>
+<tr><td>face maps $[faces, L+1, d, d]$</td><td>144,000</td><td class="num">590</td></tr>
+<tr><td>closure ×2 + $A_f$</td><td>3 × 48,000</td><td class="num">590</td></tr>
+<tr><td>edge cochain $s$ ×K ก้าว</td><td>4 × 547,872 × 32</td><td class="num">280</td></tr>
+<tr><td>bmm activations ของ δ₀, δ₁ ต่อก้าว × K</td><td>—</td><td class="num">~500</td></tr>
+</table></div>
+<p>แค่ map dense กับ intermediates ของมันก็อธิบาย 9 GB ได้ โดยไม่ต้องอ้างถึง cell เลย <strong>ต้นทุน memory ของ v1 มาจากการเก็บ $d\times d$ ต่อเส้น ไม่ใช่จาก 2-cell</strong> — ข้อนี้สำคัญต่อการตอบ R1 W1/R3 W3/R4 เพราะ reviewer สันนิษฐานว่า cell คือตัวแพง</p>
+<h3>4.3 ประมาณการ v3-B (ACM, d = 32, float32) <span class="tag">ประมาณ</span></h3>
+<div class="tbl"><table>
+<tr><th>ส่วน</th><th>ขนาด</th><th>MB</th><th>หมายเหตุ</th></tr>
+<tr><td>map factorized $u$, $c_e$</td><td>2 × 273,936 × (2×32+1) × 4 B</td><td class="num">142</td><td>เท่า v2</td></tr>
+<tr><td>incidence lists (int64)</td><td>โหนด–เส้น 2E×2, เส้น–cell 308k×5, โหนด–cell 411k×2</td><td class="num">~25</td><td></td></tr>
+<tr><td>state $Y$ หนึ่งชุด worst case ($E_{\text{shared}}=E$)</td><td>(10,942 + 273,936 + 103,103) × 128 B</td><td class="num">50</td><td>ถ้า $E_{\text{shared}}$ = 30 % ของ E: 26 MB</td></tr>
+<tr><td>PCG forward 5 ชุด + backward 5 ชุด</td><td>10 × 50</td><td class="num">≤ 500</td><td>ไม่ขึ้นกับจำนวนรอบ</td></tr>
+<tr><td>autograd graph ของ $\lambda^\top\hat L(\theta)Y^\star$ (หนึ่งการใช้ operator)</td><td>(2E + 308k + 411k) × 32 × 4 B × ~4 intermediates</td><td class="num">~650</td><td>v2 เก็บ K = 4 การใช้ (×4) จึงราว 2,000 → นี่คือที่ v2 ใช้ 1,661 MB ส่วนใหญ่</td></tr>
+<tr><td>encoder, context, $g$, head, WISP tables</td><td></td><td class="num">~200</td><td>เท่า v2</td></tr>
+<tr><td><strong>รวม</strong></td><td></td><td class="num"><strong>~1,300–1,600</strong></td><td>≈ v2; ≈ 1/6 ของ v1</td></tr>
+</table></div>
+<h3>4.4 เวลา <span class="tag">ประมาณ</span></h3>
+<ul>
+<li>หนึ่งการใช้ operator: v1 = bmm $d\times d$ ต่อ edge ⇒ $E_{\text{dir}}d^2$ = 548k × 1,024 ≈ 0.56 GFLOP (δ₀) + δ₁ v3-B = factorized $O(kd)$ ต่อ incidence ⇒ (548k + 308k + 411k) × ~200 flop ≈ 0.25 GFLOP ต่อการใช้ — ถูกกว่า v1 ต่อครั้งราว 2 เท่า แม้มี incidence มากกว่า 2 เท่า</li>
+<li>จำนวนการใช้: v1 = K·2 (L₀, L₁) ×2 (fwd+bwd) = 16; v2 = 4 × 2 = 8; v3-B = T × 2 โดย T จาก cond ของระบบเต็ม: toy (b) cond ≈ 11 ⇒ CG รัศมี $\frac{\sqrt{11}-1}{\sqrt{11}+1}=0.54$ ⇒ tol 1e-4 ใน ~15 รอบ ⇒ 30 การใช้</li>
+<li>ประมาณ train step: v2 1.40 s ที่ 8 การใช้ (รวม overhead map/WISP ~0.5 s) ⇒ ~0.11 s ต่อการใช้ ⇒ v3-B ≈ 0.5 + 30 × 0.11 ≈ <strong>3.8 s train + 0.94 s draw ≈ 4.7 s/epoch</strong> เทียบ v1 3.0 s (แต่ v1 มี instance แค่ 48k และ reviewer ก็ว่าช้า)</li>
+<li>ทางลด (ไม่เปลี่ยน method): warm start จาก $Y^\star$ ของ epoch ก่อน (map เปลี่ยนช้า); tol 1e-3 ใน epoch แรก ๆ แล้วลดเป็น 1e-4 (บันทึกใน card เป็น schedule คงที่ ไม่ tune); และถ้ายังเกิน cost gate ใช้รูปตัด T คงที่ (= polynomial ดีกรี T ของ v2)</li>
+</ul>
+<div class="box warn"><strong>สรุปต้นทุนอย่างซื่อ</strong>: v3-B น่าจะใช้ memory ราว 1/6 ของ v1 และเท่า v2 (เพราะเก็บ graph ของการใช้ operator ครั้งเดียวแทน K ครั้ง) แต่ <strong>เวลาต่อ epoch น่าจะช้ากว่า v2 ราว 1.7 เท่า และอาจไม่เร็วกว่า v1</strong> ตัวแปรที่ยังไม่ทราบคือจำนวนรอบ PCG บนกราฟจริง สิ่งที่ตอบ reviewer ได้โดยไม่ต้องรอ: (1) memory ของ v1 มาจาก $d\times d$ ต่อเส้น ไม่ใช่จาก cell (อ่านโค้ด) (2) v3-B มี memory ไม่ขึ้นกับความลึก (implicit) และ cond ของระบบโหนดไม่ขึ้นกับ N (พิสูจน์) (3) ตัวเลขจริงรอ C13</div>
+
+<h2>5. สิ่งที่ต้องทำต่อ (ลำดับ)</h2>
+<ol>
+<li>ขั้นที่ 3: งานเก่าระดับสูตร → ถ้อยคำ novelty สำหรับสไลด์ (ก่อน 15:00)</li>
+<li>spec v1.11: §2 (R1 เขียนใหม่, R4/R9 ลบ→L1′/L13, R12 คง, R13 anchored solve), §3 ตาราง, §4 ทฤษฎีบท, §5 C10–C14, §6 แขน + cost gate, §7 ปิด OPEN-4</li>
+<li>card (minimal): U1 operator + incidence (T1–T3); U2 elimination (T7); U3 PCG ต่อ scope + implicit gradient (T9, T10); U4 แขน (config, T14); U5 smoke IMDB 2 epochs; U6 addendum M2 → tol/T_max + report · เลื่อนไว้: cost เทียบ v1 บน ACM (ต้องมีก่อนเขียน C13 เป็นผล)</li>
+<li>CPU ก่อน cluster: นับ $|E_{\text{shared}}|$ บน IMDB (ACM/DBLP เลื่อนไว้); H11 สำหรับ R2 comment 1</li>
+</ol>
+<p class="meta">หลักฐาน: <code>docs/v3_evidence/{proofs_check,v3b_elim,hasse2,b_vs_a,cond_check}.py</code> · โค้ด v1 ที่อ่าน: commit 0172044 <code>H2S-NN/src/models/{sheaf_maps,coboundary_ops,diffusion}.py</code>, <code>configs/experiments/acm_h2snn_ampss.yaml</code> · v2: <code>docs/H2S-NN_WISP_report.md</code> H6, <code>configs/experiments/acm_h2snn.yaml</code></p>
+</main>

@@ -1,0 +1,37 @@
+15 runs to do
+started ('acm', 'full', 42)
+started ('acm', 'gamma0', 42)
+started ('acm', 'endpoint_edges', 42)
+finished ('acm', 'gamma0', 42) rc=0 in 9.7 min
+started ('acm', 'h0_only', 42)
+finished ('acm', 'endpoint_edges', 42) rc=0 in 14.4 min
+started ('acm', 'pair_attention', 42)
+finished ('acm', 'full', 42) rc=0 in 14.6 min
+started ('acm', 'full', 43)
+finished ('acm', 'pair_attention', 42) rc=3221225477 in 0.7 min
+started ('acm', 'gamma0', 43)
+finished ('acm', 'h0_only', 42) rc=0 in 6.6 min
+started ('acm', 'endpoint_edges', 43)
+11 runs to do
+started ('acm', 'pair_attention', 42)
+started ('acm', 'full', 43)
+finished ('acm', 'pair_attention', 42) rc=0 in 10.1 min
+started ('acm', 'gamma0', 43)
+finished ('acm', 'full', 43) rc=0 in 14.3 min
+started ('acm', 'endpoint_edges', 43)
+finished ('acm', 'gamma0', 43) rc=0 in 8.6 min
+started ('acm', 'h0_only', 43)
+finished ('acm', 'endpoint_edges', 43) rc=0 in 10.3 min
+started ('acm', 'pair_attention', 43)
+finished ('acm', 'h0_only', 43) rc=0 in 9.2 min
+started ('acm', 'full', 44)
+finished ('acm', 'pair_attention', 43) rc=0 in 11.6 min
+started ('acm', 'gamma0', 44)
+finished ('acm', 'full', 44) rc=0 in 12.8 min
+started ('acm', 'endpoint_edges', 44)
+finished ('acm', 'gamma0', 44) rc=0 in 12.4 min
+started ('acm', 'h0_only', 44)
+finished ('acm', 'endpoint_edges', 44) rc=0 in 9.2 min
+started ('acm', 'pair_attention', 44)
+finished ('acm', 'h0_only', 44) rc=0 in 6.8 min
+finished ('acm', 'pair_attention', 44) rc=0 in 8.9 min

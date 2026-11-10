@@ -1,0 +1,22 @@
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric}
+\usepackage{amsmath,amssymb}
+\usepackage{times}
+\definecolor{ink}{HTML}{243447}
+\definecolor{cA}{HTML}{4477AA}
+\definecolor{cB}{HTML}{CC6677}
+\definecolor{cAu}{HTML}{44AA99}
+\definecolor{cS}{HTML}{CCAA33}
+\definecolor{grn}{HTML}{228833}
+\definecolor{rose}{HTML}{AA3377}
+\definecolor{inst}{HTML}{F2E3B3}
+\tikzset{
+ pap/.style={circle,draw=ink,line width=.6pt,minimum size=15pt,inner sep=0pt,font=\scriptsize\bfseries,text=white},
+ aut/.style={rectangle,draw=ink,line width=.6pt,minimum size=13pt,inner sep=0pt,fill=cAu,font=\scriptsize\bfseries,text=white},
+ sub/.style={diamond,draw=ink,line width=.6pt,minimum size=17pt,inner sep=0pt,fill=cS,font=\scriptsize\bfseries,text=white},
+ gone/.style={draw=ink!35,fill=ink!8,text=ink!40,dashed},
+ ed/.style={draw=ink,line width=.7pt},
+ msg/.style={-{Stealth[length=4pt]},line width=.9pt,draw=rose},
+ ptitle/.style={font=\footnotesize\bfseries,text=ink,anchor=west},
+ note/.style={font=\scriptsize,text=ink,align=center},
+}

@@ -1,0 +1,47 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d11_screen\d11_dblp_gamma0_s44
+2026-11-07 22:56:35,685 | INFO | Dataset: dblp | Task: node_classification
+2026-11-07 22:56:35,690 | INFO | Target node type: author
+2026-11-07 22:56:35,694 | INFO | Metapaths: ['APA', 'APTPA']
+2026-11-07 22:56:35,695 | INFO | Model parameters: 190104
+2026-11-07 22:56:39,736 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 239566, 'facts_after': 119783}
+fatal   : Memory allocation failure
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 81, in <module>
+    main()
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 75, in main
+    trainer.fit(data)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 83, in fit
+    train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 156, in _train_epoch
+    output = self.model(data, epoch=epoch)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 861, in forward
+    encoded = self.encode(
+              ^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 839, in encode
+    h0 = self.encode_nodes(x, node_type)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 570, in encode_nodes
+    return self.node_encoder(x, node_type)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\node_encoder.py", line 93, in forward
+    mask = node_type == node_type_id
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: unknown error
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+

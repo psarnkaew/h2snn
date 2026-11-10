@@ -1,0 +1,14 @@
+[
+ {
+  "task": "lastfm",
+  "target": 0,
+  "endpoint_types": [
+   0,
+   1
+  ],
+  "families": [],
+  "ctrl_g": {},
+  "family_count": 0,
+  "note": "no non-binary feature column on either endpoint type"
+ }
+]

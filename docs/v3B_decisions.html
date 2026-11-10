@@ -1,0 +1,298 @@
+<title>v3-B Decision Report</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: one reading column, 72ch, section bands; numbered only where the content is a sequence (the 8 decisions are a decision list, so numbered) */
+:root{
+  --bg:#f7f5f0; --fg:#1d1f22; --muted:#5b6068; --rule:#d9d4c8; --panel:#ffffff;
+  --accent:#1f5f8b; --warn:#9a4a12; --warn-bg:#fbeee0; --ok:#2f6b3a; --ok-bg:#e6f1e4; --math-bg:#f0ede6;
+  --font-body:"Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:2rem 4rem}
+main{max-width:76ch;margin:0 auto}
+h1{font-size:1.9rem;line-height:1.25;margin:0 0 .4rem;text-wrap:balance}
+h2{font-size:1.35rem;margin:3rem 0 .8rem;padding-top:1.2rem;border-top:2px solid var(--rule);text-wrap:balance}
+h3{font-size:1.08rem;margin:1.8rem 0 .5rem;color:var(--accent)}
+h4{font-size:1rem;margin:1.2rem 0 .3rem}
+p{margin:.6rem 0}
+.meta{color:var(--muted);font-size:.92rem}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:1.6rem 0 .2rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0;font-size:.93rem}
+th,td{border-bottom:1px solid var(--rule);padding:.45rem .55rem;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.85rem}
+.tbl{overflow-x:auto;min-width:0}
+.box{border:1px solid var(--rule);border-left:4px solid var(--accent);background:var(--panel);padding:.7rem 1rem;margin:1rem 0;border-radius:4px}
+.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.def dt{font-weight:600;margin-top:.6rem}
+.def dd{margin:0 0 .2rem 0;color:var(--fg)}
+code,.mono{font-family:var(--font-mono);font-size:.9em}
+.math{background:var(--math-bg);padding:.4rem .8rem;border-radius:4px;overflow-x:auto;margin:.6rem 0}
+ul,ol{padding-left:1.4rem}
+li{margin:.25rem 0}
+.tag{display:inline-block;font-size:.75rem;padding:.05rem .45rem;border-radius:3px;border:1px solid var(--rule);color:var(--muted);margin-left:.3rem;vertical-align:middle}
+.pro{color:var(--ok);font-weight:600}.con{color:var(--warn);font-weight:600}
+a{color:var(--accent)}
+mjx-container{overflow-x:auto;overflow-y:hidden}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<main>
+<h1>H2S-NN v3-B: รายงานการตัดสินใจเชิงวิธีวิทยา</h1>
+<p class="meta">เขียน 10 พ.ย. 2026 23:30 JST สำหรับผู้เขียน (Peeradon) ก่อนการนำเสนอ 11 พ.ย. 15:00 · เอกสารนี้อธิบายการตัดสินใจ 8 ข้อที่เหลืออยู่ของโมเดล v3-B ทีละข้อ: ปัญหาคืออะไร ทำไมเป็นปัญหา แก้ด้วยอะไร อย่างไร และราคาที่จ่าย ทุกข้อปิดด้วยบทพิสูจน์หรือเหตุผล ไม่ใช้ผลรันบน dataset · ป้าย: <span class="tag">พิสูจน์</span> มีบทพิสูจน์ในเอกสารนี้หรือในไฟล์ที่อ้าง · <span class="tag">ตรวจ numpy</span> รันซ้ำวันนี้บนกราฟเล็ก (ตรวจพีชคณิต ไม่ใช่ประสิทธิภาพ) · <span class="tag">เหตุผล</span> ข้อโต้แย้งที่ไม่ใช่ทฤษฎีบท · <span class="tag">ยังไม่ตอบ</span> ซื่อ ๆ ว่าไม่มีคำตอบ</p>
+
+<div class="box warn"><strong>สิ่งที่เอกสารนี้ไม่อ้าง</strong> ไม่อ้างว่า v3-B จะชนะ baseline ไม่อ้างว่า state บนเส้นให้ประโยชน์เชิงประสิทธิภาพ ไม่อ้างว่าต้นทุนรับได้บน ogbn-mag ทั้งสามข้อต้องวัดบน cluster และถูกเขียนไว้เป็น claim ที่ล้มได้ (ข้อ 11) สิ่งที่เอกสารนี้อ้างคือ: โมเดลนิยามครบ มีคำตอบเดียวสำหรับทุกค่าพารามิเตอร์ แก้ข้อติ R2 W3 ได้โดยโครงสร้าง รักษาคำชมทุกข้อไว้ได้โดยไม่เล่าเกินกลไก และมีจำนวน hyperparameter ที่เพิ่มจาก v2 เท่ากับศูนย์</div>
+
+<h2>0. คำศัพท์ (อ่านก่อน ทุกคำถูกใช้ด้านล่าง)</h2>
+<dl class="def">
+<dt>โหนด (node), เส้นจริง (fact), cell</dt><dd>โหนดคือสิ่งของในกราฟ (paper P1, author A7) เส้นจริงคือความสัมพันธ์หนึ่งรายการที่มีในข้อมูล (A7 เขียน P1) ข้อมูลที่เก็บสองทิศนับเป็นหนึ่ง cell (หรือ 2-cell, path cell) คือหน่วยหนึ่งหน่วยที่แทน path instance หนึ่งเส้นทั้งเส้น เช่น P1–A7–P9</dd>
+<dt>meta-path กับ path instance</dt><dd>meta-path คือ "ชนิด" ของเส้นทาง เช่น PAP (paper–author–paper) path instance คือเส้นทางจริง เช่น P1–A7–P9 โมเดลของเรามี cell ต่อ instance ไม่ใช่ต่อชนิด</dd>
+<dt>state</dt><dd>เวกเตอร์ $d$ ตัวเลขที่เก็บไว้ที่สิ่งหนึ่ง: $x_v$ ที่โหนด, $s_e$ ที่เส้น, $z_f$ ที่ cell รวมเป็น $Y=(x,s,z)$</dd>
+<dt>map $F_{v\triangleleft e}$ (restriction map)</dt><dd>เมทริกซ์หมุนหรือสะท้อน ($F^\top F=I$ ความยาวไม่เปลี่ยน) ที่แปล state ของโหนด v ให้อยู่ใน "ภาษา" ของเส้น e เรียนรู้จากข้อมูล ขึ้นกับทั้งสองปลาย ชนิดเส้น และบทบาท (ต้น/ปลาย)</dd>
+<dt>transport $T_{v,f}$</dt><dd>การหมุนต่อกันตามเส้นทาง ทำให้ state ของทุกโหนดใน path อยู่ในพิกัดของโหนดต้น $T_{v_0}=I$, $T_{v_i}=T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^\top F_{v_i\triangleleft e_i}$ ไม่มีพารามิเตอร์ของตัวเอง map จากเส้นไป cell คือ $R_{e_i,f}=T_{v_{i-1},f}F_{v_{i-1}\triangleleft e_i}^\top$</dd>
+<dt>sheaf, คู่ที่เทียบกันได้, Hasse diagram, covering pair</dt><dd>sheaf คือการติด state และ map ให้กับโครงสร้าง (โหนด ⊂ เส้น ⊂ cell) อย่างสอดคล้องกัน "σ อยู่ใต้ τ" (σ&lt;τ) หมายถึง σ เป็นส่วนของ τ เช่น โหนด&lt;เส้น, เส้น&lt;cell, และโหนด&lt;cell ด้วย Hasse diagram คือแผนภาพที่วาดเฉพาะคู่ที่ติดกันโดยไม่มีอะไรคั่น (covering pair: โหนด–เส้น, เส้น–cell) คู่โหนด–cell เทียบกันได้แต่ไม่ใช่ covering pair เพราะมีเส้นคั่น</dd>
+<dt>energy, global section, kernel</dt><dd>energy คือตัวเลขเดียวที่วัดว่าสิ่งที่อยู่ติดกัน "ไม่เข้ากัน" เท่าไรหลังแปลด้วย map global section คือชุด state ที่ทุกคู่เข้ากันพอดี (energy = 0) kernel ของ operator $L=\nabla^2E$ คือชุดนั้นเอง ถ้า kernel เล็กลงเมื่อเพิ่ม cell แปลว่า cell "บังคับ" ข้อมูลให้ยุบ</dd>
+<dt>กำจัดตัวแปร (Schur complement)</dt><dd>ถ้าให้ตัวแปรบางตัว (เช่น $s_e$) เป็นค่าดีที่สุดทันทีจากเพื่อนบ้าน แล้วแทนกลับ จะเหลือ energy บนตัวแปรที่เหลือซึ่งมีค่าต่ำสุดเท่าเดิม สูตรที่ใช้ซ้ำทั้งเอกสาร: สำหรับดาวที่มีจุดกลาง σ และเพื่อนบ้าน $y_i$ น้ำหนัก $w_i$
+<div class="math">$$\min_\sigma \tfrac12\sum_i w_i\|y_i-\sigma\|^2=\tfrac{1}{2W}\sum_{i&lt;j}w_iw_j\|y_i-y_j\|^2,\qquad W=\sum_i w_i$$</div></dd>
+<dt>hub (ทาง A ของ v2)</dt><dd>วิธีคำนวณ cell ของ v2: ไม่มี state ที่เส้นและ cell cell ถูกแทนด้วยค่าเฉลี่ย $\bar z_f=\frac1{|f|}\sum_{v\in f}T_vx_v$ ที่คำนวณใหม่จากโหนดทุกครั้ง ตามสูตรข้างบนนี่คือการกำจัด $z_f$ ออกจากเทอม $\tfrac12\beta_f\sum_{v\in f}\|T_vx_v-z_f\|^2$</dd>
+<dt>anchored solve</dt><dd>แทนการแพร่ทีละก้าว ด้วยการแก้ปัญหาเดียว: หา $Y$ ที่ทุกระดับสอดคล้องกันมากที่สุดโดยโหนดไม่หลุดจาก encoding $h$: $\min_Y \tfrac12\|x-h\|^2+\tfrac\tau2 Y^\top LY$ คำตอบคือ $MY^\star=P^\top h$, $M=P^\top P+\tau L$ ($P$ ดึงส่วนโหนด)</dd>
+<dt>ความถี่ (frequency) ของ sheaf</dt><dd>eigenvector ของ operator โหนด $S$ ที่มี eigenvalue λ เล็ก = รูปแบบที่สอดคล้องกับ map (ความถี่ต่ำ) λ ใหญ่ = รูปแบบที่ขัดกันหลังแปล (ความถี่สูง) low-pass เก็บ λ เล็ก high-pass เก็บ λ ใหญ่ band-pass เก็บช่วงกลาง</dd>
+<dt>gate, filter bank (ของ v2)</dt><dd>gate: ตัวคูณต่อโหนด $g_v$ (ฟังมากน้อย) $b_v$ (ส่งออกมากน้อย) ทำให้อิทธิพลไม่เท่ากันสองทิศ filter bank: ผสมผลการแพร่ 0…K รอบด้วยเมทริกซ์ $W_k$ ที่เรียนรู้ เพื่อเลือกความถี่ต่อพิกัด</dd>
+<dt>normalization, degree $D$</dt><dd>$D_v=\sum_{e\ni v}a_e$ (+ส่วนจาก cell) คือ "น้ำหนักรวม" ของโหนด normalization คือการหารด้วย $\sqrt{D}$ ทั้งสองข้าง $\hat L=D^{-1/2}LD^{-1/2}$ เพื่อให้โหนดที่มีเพื่อนบ้านมาก (hub) ไม่ครอบงำ</dd>
+<dt>condition number, PCG, implicit gradient</dt><dd>condition number ของ $M$ = eigenvalue สูงสุด/ต่ำสุด ยิ่งสูง ตัวแก้เชิงวนซ้ำยิ่งใช้รอบมาก PCG (preconditioned conjugate gradient) คือตัวแก้ระบบสมมาตรบวกแน่นอนที่ใช้แค่การคูณ $M$ กับเวกเตอร์ จำนวนรอบประมาณ $\sqrt{\text{cond}}$ implicit gradient คือการหา gradient ของ loss ผ่าน $Y^\star$ โดยแก้ระบบเดียวกันอีกครั้ง แทนการเก็บทุกรอบไว้</dd>
+<dt>R2 W3</dt><dd>คำติด้าน method ข้อเดียวใน review: ใน v1 ข้อมูลจาก cell (face) ถึงโหนดผ่าน closure edge ซึ่งเป็นเส้นสมมติปลาย-ปลาย (P1–P9) จึง "ไม่ต่างจากวิธีที่ intro วิจารณ์" meta-review ยกซ้ำ</dd>
+</dl>
+
+<h2>1. โมเดลที่กำลังตัดสิน และตัวอย่างกลาง</h2>
+<p>กราฟเล็ก: paper P1, P9, P4, author A7, subject S3 เส้นจริง $e_0$=(P1,A7), $e_1$=(A7,P9), $e_2$=(A7,P4), $e_3$=(P1,S3) WISP เดินสุ่มจาก P1 ได้ cell $f_1$=P1–A7–P9 (ผ่าน $e_0,e_1$) และ $f_2$=P1–A7–P4 (ผ่าน $e_0,e_2$) เส้น $e_3$ ไม่อยู่บน cell ใด</p>
+<p>v3-B ตามเอกสาร v3B_design (ก่อนการตัดสินใจในเอกสารนี้): state ที่โหนด เส้น และ cell energy เป็นผลรวมบน covering pairs เท่านั้น</p>
+<div class="math">$$E_{\text{cov}}(Y)=\tfrac12\sum_{e}a_e\sum_{v\in e}\|F_{v\triangleleft e}x_v-s_e\|^2+\tfrac12\sum_f\beta_f\sum_{e_i\in f}\|R_{e_i,f}s_{e_i}-z_f\|^2$$</div>
+<p>แล้วแก้ anchored solve อ่านผล $x^\star_v$ เข้าหัวทำนาย $\mathrm{MLP}([h_v,x^\star_v])$ น้ำหนัก $a_e=c_e^2$ (ต่อเส้น เรียนรู้จากสองปลาย) และ $\beta_f=w_fm_f$ (ต่อ cell: $w_f$ เรียนรู้จากทั้ง instance, $m_f$ จากการสุ่ม)</p>
+
+<h3>ข้อเท็จจริงที่พบวันนี้และเป็นต้นเหตุของการตัดสินใจครึ่งหนึ่ง <span class="tag">พิสูจน์</span> <span class="tag">ตรวจ numpy 7e-16</span></h3>
+<p>ถ้าเส้น $e$ อยู่บน cell $f$ เพียงตัวเดียว state $s_e$ ปรากฏในเทอมที่มีเพื่อนบ้านแค่ 3 ตัว คือ $F_ux_u$, $F_vx_v$ (น้ำหนัก $a_e$ ทั้งคู่) และ $z_f$ (น้ำหนัก $\beta_f$ หลังแปลง $R_{e,f}$ ซึ่งเป็น orthogonal จึงไม่เปลี่ยนความยาว) ใช้สูตรดาวในข้อ 0 โดยเขียนทุกอย่างในพิกัดของ cell ($R_{e,f}F_{v\triangleleft e}=T_{v,f}$):</p>
+<div class="math">$$\min_{s_e}(\cdots)=\tfrac12\frac{a_e^2}{2a_e+\beta_f}\|F_{u\triangleleft e}x_u-F_{v\triangleleft e}x_v\|^2+\tfrac12\frac{a_e\beta_f}{2a_e+\beta_f}\Big(\|T_{u,f}x_u-z_f\|^2+\|T_{v,f}x_v-z_f\|^2\Big)$$</div>
+<p>ความหมาย: หลังกำจัด $s_e$ จะเหลือ (ก) เทอมเส้นตรงแบบ v2 แต่น้ำหนักลดจาก $a_e/2$ เป็น $a_e^2/(2a_e+\beta_f)$ และ (ข) เทอมโหนด–cell แบบ hub ของ v2 ที่มีน้ำหนักต่อโหนด $\kappa_v=\sum_{e\in f,e\ni v}\frac{a_e\beta_f}{2a_e+\beta_f}$ ดังนั้น <strong>บน fact ที่ไม่ถูก cell ใดใช้ร่วมกัน v3-B เท่ากับ hub ของ v2 บวก participation κ ทุกประการ</strong> (สคริปต์ <code>b_vs_a.py</code>: ต่าง 6.7e-16) สิ่งที่ B ทำได้แต่ hub ทำไม่ได้เหลือข้อเดียว: fact ที่ cell ≥ 2 ตัวใช้ร่วมกัน (เช่น $e_0$ ใน $f_1,f_2$) เป็นที่ที่ cell เหล่านั้นเขียนลง state เดียวกัน ทำให้เกิดการเชื่อมระหว่าง cell ที่ hub แยกกันไม่มี (ตรวจ: block P9–P4 ของ operator โหนดเท่ากับ 0.0029 ไม่เป็นศูนย์ แต่เล็ก)</p>
+<p>สองผลที่ตามมาคือ D-B0 (เพดานน้ำหนัก) และทฤษฎีบท 7′ (กำจัดได้ → ลดต้นทุน) ด้านล่าง</p>
+
+<h2>2. ภาพรวม 8 การตัดสินใจ</h2>
+<div class="tbl"><table>
+<tr><th>#</th><th>เรื่อง</th><th>ข้อเสนอ</th><th>ปิดด้วย</th><th>แตะคำชม/คำติ</th></tr>
+<tr><td>D-B0</td><td>รูปของ energy (ใหม่)</td><td>ขยายเป็นทุกคู่ที่เทียบกันได้ (เพิ่มเทอมโหนด–cell น้ำหนัก $\beta_f$)</td><td>พิสูจน์ + ตรวจ</td><td>R12, L11, R2 S2, meta "แยกจาก capacity"</td></tr>
+<tr><td>D-B1</td><td>gate</td><td>ไม่ใช้</td><td>พิสูจน์ (ขัดกับ energy)</td><td>R4 ของ spec → ข้อจำกัด</td></tr>
+<tr><td>D-B2</td><td>เลือกความถี่</td><td>solve เดียว; high-pass มีอยู่แล้วที่หัวทำนาย</td><td>พิสูจน์</td><td>R9 แคบลง; C8 ลบ</td></tr>
+<tr><td>D-B3</td><td>normalization</td><td>symmetric $D^{-1/2}LD^{-1/2}$</td><td>พิสูจน์ (cond ≤ 1+τ)</td><td>scalability (R1 W1, R3 W3, R4), hub</td></tr>
+<tr><td>D-B4</td><td>τ</td><td>สเกลาร์เรียนรู้ (log) เริ่ม 1</td><td>เหตุผล</td><td>—</td></tr>
+<tr><td>D-B5</td><td>solver</td><td>PCG + implicit gradient</td><td>พิสูจน์ (มาตรฐาน)</td><td>scalability</td></tr>
+<tr><td>D-B6</td><td>householder_k</td><td>คง 2; ลบข้อจำกัดที่เขียนผิด</td><td>พิสูจน์</td><td>ทฤษฎีบท 4</td></tr>
+<tr><td>D-B7</td><td>ค่าเริ่ม PCG</td><td>$P^\top h$</td><td>ไม่กระทบคำตอบ</td><td>—</td></tr>
+</table></div>
+
+<h2>3. D-B0 รูปของ energy: covering pairs เท่านั้น หรือทุกคู่ที่เทียบกันได้</h2>
+<h3>ปัญหา</h3>
+<p>จากข้อ 1: น้ำหนักที่ cell ดึงโหนดได้ใน $E_{\text{cov}}$ คือ $\kappa_v=\sum_{e\in f,e\ni v}\frac{a_e\beta_f}{2a_e+\beta_f}$ ซึ่งเป็นฟังก์ชันเพิ่มของ $\beta_f$ แต่ <strong>มีเพดาน</strong>: $\lim_{\beta_f\to\infty}\kappa_v=\sum_{e\in f,e\ni v}a_e$ ขณะเดียวกันเทอมเส้นตรงลดเป็น $a_e^2/(2a_e+\beta_f)\to0$ ตัวอย่างตัวเลข ($a=1$ ทุกเส้น): $\beta=100$ ให้ $\kappa_{P1}=100/102\approx0.98$ และเทอมตรงของ $e_0$ เหลือ $1/102$ กล่าวคือ β ใหญ่ไม่ได้ "ขยาย" cell แต่ "ย้าย" fact จากการอ่านตรงไปอ่านผ่าน cell</p>
+<h3>ทำไมเป็นปัญหา</h3>
+<ul>
+<li><strong>ขัดกับ R12 ของ spec</strong> ("ความแรงที่ instance ส่งถึงโหนดเป็นฟังก์ชันของทั้ง instance") ใน $E_{\text{cov}}$ ความแรงถูกจำกัดโดย $a_e$ ซึ่งเป็นฟังก์ชันของ <em>คู่</em> (สองปลายของ fact) และใช้ร่วมโดยทุก cell บน fact นั้นและโดยเทอมตรง ดังนั้น $\beta_f$ เลือก <em>ว่า</em> fact ถูกอ่านผ่าน cell ไหน แต่ไม่กำหนด <em>ขนาด</em> ต่อ instance</li>
+<li><strong>ขัดกับ L11 ที่ Part K วัดไว้</strong>: หลักฐานชี้ขาดหนึ่ง cell ท่ามกลาง 64 ต้องได้ส่วนแบ่ง 0.45–0.87 ของ $D_v$ จึงถูกใช้ ใน $E_{\text{cov}}$ ส่วนแบ่งสูงสุดของ cell หนึ่งตัวใน $D_v$ คือส่วนแบ่งของ fact ของ v ที่อยู่บน path นั้น สำหรับ hub (subject ใน ACM ที่มี fact หลายพัน) ส่วนแบ่งนี้เล็กมากโดยโครงสร้าง ทางเดียวที่โมเดลหลบได้คือยก $a_e$ ของ fact นั้นให้สูงกว่า fact อื่นมาก ซึ่งกระทบทุก cell บน fact นั้นพร้อมกัน</li>
+<li><strong>กระทบ thesis H</strong> ("path instance ถือข้อมูลที่หายไปเมื่อยุบเป็นความสัมพันธ์ปลาย-ปลาย") และ C2 ladder ที่ทดสอบ H ผ่านช่องน้ำหนัก: ถ้าช่องน้ำหนักมีเพดานโดยโครงสร้าง การล้มของ C2 จะอธิบายไม่ได้ว่าเพราะ H ผิดหรือเพราะโมเดลพูดไม่ได้</li>
+<li>ข้อนี้คือ "ราคา" ของการตัดสินใจ V3 (ไม่มีเทอมโหนด–cell ตรง) ซึ่งตอนตัดสินยังไม่มีใครคำนวณ</li>
+</ul>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>คืออะไร</th><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+<tr><td>(a) คง covering pairs</td><td>$E_{\text{cov}}$ ตามเดิม เขียน R12 ใหม่เป็น "cell กำหนดเส้นทางการอ่าน fact ไม่ใช่เพิ่มหลักฐาน"</td><td>energy สะอาดที่สุด (Hasse diagram ล้วน) ไม่มี incidence เพิ่ม; เรื่องเล่า "sheaf บน Hasse diagram" ตรงตัว</td><td>H ต้องถอย; L11 บอกว่าความจุไม่พอใน regime hub; C2 ตีความไม่ได้ถ้าล้ม; ต้องรับว่าเป็นข้อจำกัดเชิงโครงสร้าง</td></tr>
+<tr><td><strong>(b) ทุกคู่ที่เทียบกันได้</strong></td><td>เพิ่ม $\tfrac12\sum_f\beta_f\sum_{v\in f}\|T_{v,f}x_v-z_f\|^2$ โดยใช้ map $F_{v\triangleleft f}=T_{v,f}$ ที่ทฤษฎีบท 1 นิยามไว้แล้ว</td><td>R12 กลับมาเป็นจริง ($\kappa_v\ge\beta_f$ ไม่มีเพดาน); hub ของ v2 และ $E_{\text{cov}}$ เป็นกรณีพิเศษที่ตั้งพารามิเตอร์; incidence เพิ่ม $\sum_f(\ell_f+1)$ เท่ากับที่ v2 มีอยู่แล้วและวัดแล้ว</td><td>cell→โหนดมีสองทางซ้อน (ตรง และผ่านเส้น) ความหมายของ $\beta_f$ ไม่คมเท่า (a); state บนเส้นมีบทบาทแคบลงอีก (เหลือเฉพาะ fact ที่ใช้ร่วม); เรื่องเล่าต้องเป็น "energy บนโพเซตของ sheaf" ไม่ใช่ "บน Hasse diagram"</td></tr>
+<tr><td>(c) น้ำหนักโหนด–เส้นแยกต่อ cell</td><td>ให้เทอมโหนด–เส้นมีน้ำหนักขึ้นกับ cell</td><td>—</td><td>ทำลายหลัก "fact หนึ่งรายการ state หนึ่งตัว" (R6) และทำให้ $s_e$ ไม่มีความหมายเดียว; ตัดทิ้ง</td></tr>
+</table></div>
+<h3>ข้อเสนอ: (b) โดยค่าเริ่มต้น และ (a) เป็นแขนเปรียบเทียบ <code>covering_only</code></h3>
+<p>energy ของโมเดลหลัก:</p>
+<div class="math">$$E(Y)=\underbrace{\tfrac12\sum_{e}a_e\sum_{v\in e}\|F_{v\triangleleft e}x_v-s_e\|^2}_{\text{โหนด–เส้น}}+\tfrac12\sum_f\beta_f\Big[\underbrace{\sum_{e_i\in f}\|R_{e_i,f}s_{e_i}-z_f\|^2}_{\text{เส้น–cell}}+\underbrace{\sum_{v\in f}\|T_{v,f}x_v-z_f\|^2}_{\text{โหนด–cell}}\Big]$$</div>
+<h4>พิสูจน์ว่าทฤษฎีบททั้งหมดคงอยู่ <span class="tag">พิสูจน์</span></h4>
+<ul>
+<li>ทุกเทอมมีรูป $\|F_{\sigma\triangleleft\tau}y_\sigma-y_\tau\|^2$ สำหรับคู่ σ&lt;τ ของ sheaf เดียวกัน (ทฤษฎีบท 1 ให้ $F_{v\triangleleft f}=T_{v,f}$ และ functoriality $F_{e\triangleleft f}F_{v\triangleleft e}=F_{v\triangleleft f}$)</li>
+<li>$E=0$ ก็ต่อเมื่อทุกเทอมเป็นศูนย์ เทอมโหนด–เส้นเป็นศูนย์ ⇒ $\delta_0x=0$ และ $s_e=F_{v\triangleleft e}x_v$ จากขั้นที่ 3 ของบทพิสูจน์ทฤษฎีบท 3 (A_vs_B §9.3) ได้ $T_{v,f}x_v$ เท่ากันทุก v ใน f และ $R_{e,f}s_e=T_{v,f}x_v$ จึงมี $z_f$ หนึ่งค่าที่ทำให้ทั้งเทอมเส้น–cell และโหนด–cell เป็นศูนย์พร้อมกัน ⇒ $\ker L\cong\ker\Delta_0$ (ทฤษฎีบท 3 คงอยู่)</li>
+<li>$M\succ0$ (ทฤษฎีบท 5) ใช้แค่ $L\succeq0$ และ $\ker L\cap\{x=0\}=\{0\}$ ซึ่งตามจากข้อบน ⇒ คำตอบเดียว ลู่เข้า</li>
+<li>ทฤษฎีบท 8 (cell ถึงโหนดกลาง) แรงขึ้น: มีทางตรง $\beta_fT_{A7,f}^\top$ และทางผ่านเส้น; ไม่มีทางผ่าน closure (closure ไม่มี state)</li>
+<li>ทฤษฎีบท 9 (WISP ไม่ลำเอียง): $L$ ยังเป็นเชิงเส้นใน $\beta_f$ ✓</li>
+</ul>
+<h4>การลดรูป <span class="tag">พิสูจน์</span></h4>
+<ul>
+<li>ตัดเทอมโหนด–cell ⇒ $E_{\text{cov}}$ (แขน <code>covering_only</code>)</li>
+<li>ตัด state บนเส้น (กำจัด $s_e$ ทุกตัวแล้วให้ β ของเทอมเส้น–cell เป็นศูนย์) ⇒ $\tfrac14\sum_ea_e\|F_ux_u-F_vx_v\|^2+\tfrac12\sum_f\beta_f\sum_v\|T_vx_v-z_f\|^2$ และกำจัด $z_f$ ด้วยสูตรดาวได้ค่าเฉลี่ย $\bar z_f$ พอดี ⇒ <strong>hub ของ v2 ทุกตัวอักษร</strong> (แขน <code>hub_A</code> จึงเป็น config ไม่ใช่โค้ดแยก) นี่ตอบ meta-review ข้อ "แยกผลของ 2-cell จาก capacity" ได้ตรง: แขนต่างกันเฉพาะโครงสร้างของ $L$ ไม่มีพารามิเตอร์ต่างกันเลย ($s,z$ ไม่มีพารามิเตอร์)</li>
+</ul>
+<h4>น้ำหนักเดียว $\beta_f$ สำหรับสองเทอม</h4>
+<p>ทั้งสองเทอมตอบคำถามเดียว "เชื่อ cell นี้มากแค่ไหน" การแยกเป็น $\beta_f,\gamma_f$ เพิ่ม encoder อีกตัวโดยไม่มีคำถามวิจัยรองรับ (กติกา §0 ข้อ 1 ของ spec: ส่วนประกอบที่ไม่มี requirement ถูกตัด) ถ้าภายหลังต้องการแยก ทำเป็น ablation ได้โดยไม่เปลี่ยนทฤษฎี</p>
+<h4>ผลต่อคำชม/คำติ</h4>
+<ul>
+<li>R2 S1 (map edge→face จาก transport ใช้คำนวณจริง) คงอยู่: เทอมเส้น–cell ยังอยู่</li>
+<li>R2 S2 (2-cell + sheaf-based edge diffusion) คงอยู่ แต่ต้องเขียนซื่อ: ข้อมูล HGB ไม่มี feature บนเส้น $s_e$ จึงถูกกำหนดจาก $x,z$ ทั้งหมด และเนื้อหาที่ state บนเส้นเพิ่มจริง ๆ คือการเชื่อม cell ที่ใช้ fact ร่วมกัน ถ้าเล่าเกินนี้จะเจอ R2 W3 แบบที่สอง</li>
+<li>R2 W3: ตอบได้แรงกว่า (สองทางถึงโหนดกลาง ไม่มีทางปลาย-ปลาย) และตรงกับ R1 ของ spec ที่เขียนไว้ตั้งแต่ v2 ("direct node–2-cell coupling") แต่ตอนนี้มีเหตุผลเชิงปริมาณ (เพดาน κ) ไม่ใช่แค่ Lemma A′</li>
+<li>V3 ของ handoff แก้จาก "ไม่ใช้เทอมโหนด–cell" เป็น "ใช้ร่วมกับเทอมเส้น–cell" เหตุผลเดิมของ V3 ("R2 W3 เรื่องทางเข้าผ่าน closure") ไม่ได้ห้ามเทอมนี้ เพราะเทอมนี้เข้าทุกโหนดของ path ไม่ใช่ปลาย-ปลาย</li>
+</ul>
+<h4>ผลต่อ scalability</h4>
+<p>incidence โหนด–cell $\sum_f(\ell_f+1)$ = ของ v2 (ACM 411,257 วัดแล้ว) การคูณ $T_{v,f}$ ใช้ PathTransportOperator ที่มีอยู่ state ไม่เพิ่ม ต้นทุนต่อการใช้ $M$ หนึ่งครั้งเพิ่มราว 1 ใน 3 เทียบกับ $E_{\text{cov}}$</p>
+<div class="box warn"><strong>สิ่งที่ยังไม่ตอบ</strong> ตัวอย่างงานทำนายที่ "cell ใช้ fact ร่วมกัน" ชี้ขาดผล ผมหาไม่ได้ และ hub ก็ให้ $f_1,f_2$ คุยกันผ่านโหนด P1, A7 อยู่แล้ว ผลเพิ่มจึงเป็นลำดับที่สอง ดังนั้นห้ามเขียน state บนเส้นเป็น contribution หลัก ให้เป็น claim C11 ที่ล้มได้ (ข้อ 11)</div>
+
+<h2>4. D-B1 listen/broadcast gate</h2>
+<h3>ปัญหา</h3>
+<p>v2 มี gate $\mathcal A=G\hat\Delta B$ เพื่อ R4 ของ spec ("โหนดฟังได้โดยไม่ส่ง ส่งได้โดยไม่ฟัง" ตัวอย่าง: subject ที่มี paper หลายพันควรบอก paper โดยไม่ถูกดึงไปหา paper แต่ละใบ") anchored solve ต้องการ $L$ สมมาตรและ PSD คำถาม: gate อยู่ร่วมกับ anchored solve ได้ไหม</p>
+<h3>ทำไมเป็นปัญหา <span class="tag">พิสูจน์</span></h3>
+<p>$G\hat\Delta B$ ไม่สมมาตรเมื่อ $G\ne B$ จึง (i) ไม่ใช่ Hessian ของ energy ใด (Hessian สมมาตรเสมอ) ⇒ ปัญหา "หา $Y$ ที่ลด energy" ไม่มีนิยาม; (ii) บทพิสูจน์คำตอบเดียวใช้ $Y^\top MY=\|x\|^2+\tau Y^\top LY$ ซึ่งต้องการ $L\succeq0$ สมมาตร; (iii) PCG ต้องการ SPD; (iv) implicit gradient ใช้ $M=M^\top$ ไม่สมมาตรต้องแก้ $M^\top\lambda$ แยก (ทำได้แต่แพงสองเท่าและเสีย (ii)) spec Prop. 4 ของ v2 แก้เรื่องนี้ด้วย metric $BG^{-1}$ แต่ anchor term $\tfrac12\|x-h\|^2$ อยู่ใน metric มาตรฐาน สองเทอมจึงอยู่ใน metric ต่างกัน และผลรวมไม่เป็น energy ในทั้งสอง</p>
+<p>สิ่งที่ยังทำได้: energy แบบมี gate ส่งออกอย่างเดียว $E_B(x)=\tfrac12(Bx)^\top L(Bx)$ สมมาตร (Prop. 4 เขียนไว้) แต่ (1) มันคือการคูณ map ของโหนด v ทุกตัวด้วยสเกลาร์ $b_v$ ซึ่งหลัง normalization (D-B3) ถูกดูดซับส่วนใหญ่ และ (2) ความไม่สมมาตร "ฟังโดยไม่ส่ง" ที่ R4 ต้องการจริงหายไปอยู่ดี (Prop. 4: detailed balance คือราคาของ energy)</p>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+<tr><td><strong>(a) ไม่ใช้ gate</strong> ย้าย R4 เป็นข้อจำกัด L1′</td><td>ทฤษฎี 5, 8, implicit gradient ใช้ได้ตรง; ลบพารามิเตอร์ $2N$ ตัว; ไม่มี reviewer คนใดขอ gate (R4 เป็นข้อกำหนดที่ v2 ตั้งเอง); ปัญหา hub ที่ R4 ห่วงถูกตอบบางส่วนด้วย D-B3 (cond ของระบบโหนดไม่ขึ้นกับ hub; ขอบเขตระยะห่างเป็นแบบรวมทั้งกราฟ ไม่ใช่ต่อโหนด จึงต้องวิเคราะห์ผลต่อ hub รายตัวหลังรัน)</td><td>เสียความสามารถ "ฟังโดยไม่ส่ง"; Props. 4–6 ของ spec หายไป (ย้ายไป hub_A ไม่ได้ด้วย เพราะ hub_A ก็ใช้ anchored solve); C4, C4b ลบ</td></tr>
+<tr><td>(b) gate ส่งออก $b_v$ ใน energy</td><td>สมมาตร ทฤษฎีคงอยู่</td><td>เพิ่ม $N$ พารามิเตอร์เพื่อสเกลาร์ที่ normalization ดูดซับเกือบหมด; ไม่ให้ความไม่สมมาตร; ไม่มี requirement รองรับ</td></tr>
+<tr><td>(c) gate เต็ม + แก้ปัญหาไม่สมมาตร</td><td>รักษา R4</td><td>ไม่มีคำตอบเดียวโดยทั่วไป (ต้องพิสูจน์ใหม่ต่อค่าของ gate); เสีย implicit gradient สมมาตร</td></tr>
+</table></div>
+<h3>ข้อเสนอ: (a)</h3>
+<p>ข้อความ L1′ ใน spec: "อิทธิพลระหว่างโหนดสมมาตรในแง่น้ำหนัก ($a_e$, $\beta_f$) ความไม่สมมาตรมีเฉพาะผ่านเรขาคณิต (frame ต่อบทบาท $R_{\psi,\text{src}}\ne R_{\psi,\text{tgt}}$ และ adjoint ขากลับ) นี่คือราคาของ energy ตัวเดียวและคำตอบเดียวสำหรับทุกค่าพารามิเตอร์" ความกังวลเรื่อง hub ตอบใน D-B3</p>
+
+<h2>5. D-B2 เลือกความถี่ได้ (filter bank ของ v2)</h2>
+<h3>ปัญหา</h3>
+<p>spec R9: "การแพร่ต้องเลือกความถี่ต่ำ กลาง สูง ได้ต่อพิกัด เพราะใน heterophily ส่วนหนึ่งของสัญญาณอยู่ที่ความไม่ลงรอยหลังแปล (ความถี่สูง/กลาง)" v2 ทำด้วย Chebyshev filter bank $K$ ชั้น anchored solve ให้ response เดียว $1/(1+\tau\lambda)$ (low-pass) คำถาม: เสียอะไร</p>
+<h3>วิเคราะห์ <span class="tag">พิสูจน์</span></h3>
+<p>ให้ $S$ คือ operator ระดับโหนดหลังกำจัด $s,z$ (PSD) แล้ว $x^\star=(I+\tau S)^{-1}h$ หัวทำนายอ่าน $[h,x^\star]$ ดังนั้นชั้น linear แรกของหัวทำนายคำนวณได้ทุก $Ah+Bx^\star$ โดยเฉพาะ</p>
+<div class="math">$$h-x^\star=(I+\tau S)^{-1}\big((I+\tau S)-I\big)h=\tau S(I+\tau S)^{-1}h\quad\Rightarrow\quad\text{response }\frac{\tau\lambda}{1+\tau\lambda}\ \text{(high-pass)}$$</div>
+<p>ดังนั้น <strong>low-pass และ high-pass ต่อพิกัด มีอยู่แล้ว</strong> ที่หัวทำนายโดยไม่ต้องมี filter bank และต่อพิกัดจริงเพราะ $A,B$ เป็นเมทริกซ์ $d\times d$ สิ่งที่หายคือ band-pass (เก็บเฉพาะ λ ช่วงกลาง) ซึ่งต้องการ τ สองค่า: $(I+\tau_1S)^{-1}-(I+\tau_2S)^{-1}$</p>
+<h3>ทำไม band-pass ไม่จำเป็นต้องมีในรุ่นนี้ <span class="tag">เหตุผล</span></h3>
+<ul>
+<li>R9 อ้าง PolyNSD §3 ว่า first-order update "$(I-\eta A)^K$ damps high frequencies" ข้อนี้จริงสำหรับการแพร่ทีละก้าวที่หัวทำนายอ่านแค่ $x$ แต่ไม่จริงเมื่อหัวทำนายอ่าน $[h,x^\star]$ (R11 ego/neighbour separation ที่ v2 มีอยู่แล้ว) การอ้างนี้จึงใช้ไม่ได้กับโมเดลเรา</li>
+<li>ไม่มีบทพิสูจน์หรือหลักฐานใน spec ว่า heterophily ต้องการช่วงกลางโดยเฉพาะ ทฤษฎีบท 4 แสดงว่าการแยก class ภายใต้ heterophily ทำได้ที่ λ = 0 (global section) ผ่าน map ไม่ใช่ผ่านความถี่</li>
+<li>filter bank มี $K$ เป็น hyperparameter (OPEN-4 ยังเปิดอยู่ตั้งแต่ v1.2) และ $W_0..W_K$ อีก $(K+1)d^2$ พารามิเตอร์ ตรงกับสิ่งที่คุณขอให้หลีกเลี่ยง</li>
+</ul>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+<tr><td><strong>(a) solve เดียว</strong></td><td>ไม่มี $K$, ไม่มี $W_k$; low/high พิสูจน์ได้ที่หัวทำนาย; ทฤษฎีบท 6 (ไม่ทำลาย h) ตรงตัว</td><td>ไม่มี band-pass; R9 ต้องแคบลง; claim C8 ลบ (ต้องรันอยู่ดี); เวลา: PCG ~30 รอบ × 2 (forward+backward) เทียบกับ $K=4$ การใช้ operator ของ v2 คือราว 15 เท่าถ้าไม่ normalize; หลัง normalize ประมาณ 2.5–7× (CG ~15 รอบที่ cond ≈ 11 บน toy) เป็นการประมาณ ยังไม่ได้วัดบนกราฟจริง (ดู D-B5)</td></tr>
+<tr><td>(b) หลาย τ: $x=\sum_j(I+\tau_jS)^{-1}hW_j$</td><td>มี band-pass</td><td>จำนวน τ เป็น hyperparameter ใหม่; solve $J$ ครั้ง; ไม่มีเหตุผลรองรับว่าจำเป็น</td></tr>
+</table></div>
+<h3>ข้อเสนอ: (a) และเขียน R9 ใหม่</h3>
+<p>R9′: "การแพร่ให้ low-pass $1/(1+\tau\lambda)$ และหัวทำนายได้ high-pass $\tau\lambda/(1+\tau\lambda)$ ต่อพิกัดโดยการพิสูจน์; band-pass ไม่อยู่ในรุ่นนี้ (ข้อจำกัด L13)" (b) เก็บเป็นส่วนขยายที่ระบุไว้ ไม่ใช่แขน</p>
+
+<h2>6. D-B3 normalization</h2>
+<h3>ปัญหา</h3>
+<p>energy ไม่ normalize: โหนดที่มี fact มาก (hub: subject ใน ACM, หนังสือใน Freebase ที่มี 5,548 fact) มี $D_v=\sum_ea_e$ ใหญ่มาก คำถามสองข้อ: (1) hub ถูกดึงไปที่ค่าเฉลี่ยของเพื่อนบ้านแรงเกินไปไหม (ความกังวลจริงของ R4 เดิม) (2) จำนวนรอบ PCG ขึ้นกับอะไร (scalability ที่ R1, R3, R4, meta ถามทั้งหมด)</p>
+<h3>วิเคราะห์ <span class="tag">พิสูจน์</span></h3>
+<p>หลังกำจัด $s,z$ ทั้งหมด ระบบระดับโหนดคือ $(I+\tau S)x^\star=h$ โดย $S$ คือ Schur complement ของ $L$ ต่อโหนด สมบัติมาตรฐานของเมทริกซ์ PSD แบบ block $\begin{bmatrix}A&B\\B^\top&C\end{bmatrix}$: $0\preceq A-BC^{-1}B^\top\preceq A$ ดังนั้น $0\preceq S\preceq L_{xx}$ และ $L_{xx}=\mathrm{diag}(D_vI)$ เพราะ $F^\top F=I$ (block แนวทแยงของ $L$ ที่โหนดคือ $\sum_ea_eF^\top F+\sum_f\beta_fT^\top T=D_vI$)</p>
+<ul>
+<li><strong>ไม่ normalize</strong>: eigenvalue ของ $I+\tau S$ อยู่ใน $[1,\,1+\tau\max_vD_v]$ ⇒ cond ≤ $1+\tau\max_vD_v$ ขึ้นกับ hub และสำหรับ hub เอง $x^\star_v$ ถูกดึงเข้าหาค่าเฉลี่ยเพื่อนบ้านด้วยน้ำหนัก $\tau D_v$ เทียบกับ 1 ของ anchor ⇒ hub สูญเสีย $h_v$ แทบหมด นี่คือสิ่งที่ R4 ห่วง</li>
+<li><strong>normalize แบบสมมาตร</strong> $\hat L=D^{-1/2}LD^{-1/2}$ กับ $D=\mathrm{diag}(D_v,D_e,D_f)$ (ทุกระดับ): block โหนดของ $\hat L$ เป็น $I$ พอดี ⇒ $0\preceq\hat S\preceq I$ ⇒ <strong>eigenvalue ของ $I+\tau\hat S$ อยู่ใน $[1,1+\tau]$, cond ≤ $1+\tau$ ไม่ขึ้นกับขนาดกราฟและไม่ขึ้นกับ hub</strong> และ $\|x^\star-h\|\le\tfrac{\tau}{1+\tau}\|h\|$ ในนอร์มรวมทั้งกราฟ (<strong>ไม่ใช่ขอบเขตต่อโหนด</strong>: ผลต่อ hub รายตัวยังไม่ได้พิสูจน์ ต้องวิเคราะห์หลังรัน)</li>
+</ul>
+<p>ขอบเขตนี้พิสูจน์สำหรับระบบระดับโหนดหลังกำจัด สำหรับระบบเต็ม $M=P^\top P+\tau\hat L$ ที่ PCG แก้จริง ผมยังไม่มีขอบเขต (Jacobi preconditioner บน toy ให้ cond 27.5 ไม่ normalize) ต้องวัดบน operator จำลองขนาด ACM แต่เป็นงานบน CPU ไม่ใช่ dataset run</p>
+<h3>ผลต่อทฤษฎีบท</h3>
+<ul>
+<li>ทฤษฎีบท 3: $\ker\hat L=D^{1/2}\ker L$ มิติเท่าเดิม ✓</li>
+<li>ทฤษฎีบท 4: section ที่แยก class กลายเป็น $x^\star_v=D_v^{1/2}a_{y(v)}$ ทิศทางเดิม ขนาดต่างกันเป็นสเกลาร์บวก ตัวแบ่งเชิงเส้นแบบ homogeneous ($\mathrm{sign}(w^\top x)$) แยกได้เหมือนเดิม เพราะเครื่องหมายไม่เปลี่ยนเมื่อคูณสเกลาร์บวก ✓ (ต้องระบุใน spec; หัวทำนายที่มี bias ทำลายสมบัตินี้ในทางทฤษฎี แต่ไม่ใช่ปัญหาจริงเพราะ MLP แยกชุดที่แยกได้แบบ homogeneous ได้แน่)</li>
+<li>ทฤษฎีบท 9 (WISP ไม่ลำเอียง): $\hat L$ <strong>ไม่</strong>เป็นเชิงเส้นใน $\beta_f$ เพราะ $D$ มี β อยู่ ⇒ $\mathbb E[\hat L]\ne\hat L(\mathbb E L)$ ข้อนี้ v2 ก็มีอยู่แล้ว (Δ̂ ของ v2 normalize หลังสุ่ม) spec Prop. S จึงต้องเขียนว่าใช้กับ $L$ ไม่ใช่ $\hat L$ และผลของ normalization เป็น bias ที่ลดลงเมื่อ r เพิ่ม (consistency ไม่ใช่ unbiasedness) ซื่อกว่าที่เขียนอยู่</li>
+</ul>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+<tr><td>(a) ไม่ normalize</td><td>ทฤษฎีบท 9 ตรงตัว; ทฤษฎีบท 4 ตรงตัว; สเกลของ $a_e,\beta_f$ มีความหมายสัมบูรณ์</td><td>cond ∝ hub degree; hub สูญเสีย ego; R4 ไม่มีคำตอบ; ต้องวัด hub dominance (งานเพิ่มที่ตัดทิ้งไม่ได้)</td></tr>
+<tr><td><strong>(b) symmetric ทุกระดับ</strong></td><td>cond ≤ 1+τ พิสูจน์ได้; hub bounded; ไม่มี hyperparameter; เหมือน v2 (Δ̂) และ GCN/APPNP ที่ reviewer คุ้นเคย</td><td>Prop. S กลายเป็น consistency; ทฤษฎีบท 4 ต้องใช้ homogeneous separator; ขนาดของ $x^\star$ ปนข้อมูล degree (เหมือน GCN)</td></tr>
+<tr><td>(c) normalize เฉพาะส่วน fact ($D^{\text{fact}}_v=\sum_ea_e$ ไม่มี β)</td><td>Prop. S ตรงตัว (D ไม่ขึ้นกับการสุ่ม)</td><td>block โหนดของ $\hat L$ เป็น $(1+D^{\text{cell}}_v/D^{\text{fact}}_v)I\ge I$ ⇒ cond ขึ้นกับสัดส่วน cell/fact ซึ่ง β ไม่จำกัด ⇒ เสียขอบเขต</td></tr>
+</table></div>
+<h3>ข้อเสนอ: (b)</h3>
+<p>และตัด "วัด hub dominance" ออกจากรายการงาน เพราะขอบเขตพิสูจน์แล้ว</p>
+
+<h2>7. D-B4 τ</h2>
+<h3>ปัญหา</h3>
+<p>v3B_design เสนอ τ = 1 คงที่ด้วยเหตุผลว่า "สเกลของ $a_e,\beta_f$ เรียนรู้ได้อยู่แล้ว" เหตุผลนี้ <strong>ใช้ไม่ได้หลัง D-B3</strong>: ถ้าคูณ $a_e,\beta_f$ ทุกตัวด้วย $c&gt;0$ ทั้ง $L$ และ $D$ ถูกคูณ $c$ จึง $\hat L$ ไม่เปลี่ยน สเกลรวมถูกตัดทิ้ง τ กลายเป็นปุ่มสเกลเดียวที่เหลือ และคำตอบขึ้นกับมันจริง: response $1/(1+\tau\lambda)$ บน $\lambda\in[0,2]$ ที่ τ = 1 ความถี่สูงสุดถูกลดเหลือ 1/3 เท่านั้น</p>
+<h3>ข้อสังเกตที่ควรใส่ใน paper <span class="tag">พิสูจน์</span></h3>
+<p>$(I+\tau\hat S)^{-1}$ คือ personalized PageRank บน sheaf: APPNP (Klicpera et al. 2019) ใช้ $\alpha(I-(1-\alpha)\hat A)^{-1}$ กับ $\hat A=I-\hat L_{\text{graph}}$ ซึ่งเท่ากับ $(I+\tfrac{1-\alpha}{\alpha}\hat L)^{-1}$ ดังนั้น $\tau=(1-\alpha)/\alpha$ และ τ = 1 คือ α = 0.5 (APPNP ใช้ α ≈ 0.1 คือ τ ≈ 9) การวางตำแหน่งนี้ซื่อและมีประโยชน์: การแพร่ระดับโหนดของเราคือ PPR บน sheaf สามระดับที่กำจัดแล้ว สิ่งที่เป็นของเราคือ $\hat S$ ไม่ใช่รูปของ solve</p>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+<tr><td>(a) τ = 1 คงที่</td><td>ไม่มีพารามิเตอร์; cond ≤ 2</td><td>ค่าตามอำเภอใจ; ไม่มีเหตุผลว่า α = 0.5 เหมาะ</td></tr>
+<tr><td><strong>(b) เรียนรู้ $\tau=e^{\theta}$ หนึ่งสเกลาร์, optimizer group ของตัวเอง, เริ่ม 1</td><td>พารามิเตอร์เดียว ไม่ใช่ hyperparameter; gradient ได้ฟรีจาก implicit gradient ($\partial\mathcal L/\partial\tau=-\lambda^\top\hat LY^\star$); cond ≤ 1+τ ยังเป็นขอบเขต (บันทึก τ เป็น stop condition ถ้าเกิน 50)</td><td>Part I พบว่าสเกลาร์เดินได้ ~Σlr ≈ 0.5 ต่อ 100 epoch ใน log-space คือ ×1.65 — อาจไม่พอถ้าค่าดีคือ τ ≈ 9; ต้องตั้ง lr ของ group นี้สูงกว่า (เป็นการตั้งค่าหนึ่งครั้ง ไม่ใช่ search)</td></tr>
+<tr><td>(c) τ ใน search space</td><td>—</td><td>hyperparameter; ขัดกับที่คุณต้องการ</td></tr>
+</table></div>
+<h3>ข้อเสนอ: (b)</h3>
+
+<h2>8. D-B5 solver</h2>
+<h3>ปัญหา</h3>
+<p>ต้องแก้ $MY=P^\top h$ (SPD) ทุก forward และหา gradient ทุก backward บนกราฟที่ state มีขนาด $(N+|E_{\text{shared}}|+F)d$</p>
+<h3>ทางเลือก</h3>
+<div class="tbl"><table>
+<tr><th>ทาง</th><th>memory</th><th>เวลา</th><th>ความถูกต้องของ gradient</th></tr>
+<tr><td><strong>PCG forward + implicit gradient backward</strong></td><td>$O(\text{state})$ ไม่ขึ้นกับจำนวนรอบ (เก็บ $Y^\star$ กับเวกเตอร์ของ PCG ~5 ชุด)</td><td>$2\times$ จำนวนรอบ × การใช้ $M$</td><td>แม่นเท่ากับ tolerance ของ solve; gradient ไม่แม่นถ้า solve ไม่ลู่เข้า (ปัญหาที่รู้กันของ implicit layers: Bai et al. 2019 DEQ; Gu et al. 2020 IGNN)</td></tr>
+<tr><td>unroll T รอบ + autograd</td><td>$O(T\cdot\text{state})$</td><td>เท่ากัน</td><td>gradient ของ "สิ่งที่คำนวณจริง" แม่นเสมอ แต่ของ $Y^\star$ ก็ต่อเมื่อ T พอ</td></tr>
+</table></div>
+<h3>พิสูจน์ของ implicit gradient <span class="tag">พิสูจน์ (มาตรฐาน)</span></h3>
+<p>จาก $M(\theta)Y^\star(\theta)=P^\top h$ หาอนุพันธ์: $\partial_\theta M\,Y^\star+M\,\partial_\theta Y^\star=0$ ⇒ $\partial_\theta Y^\star=-M^{-1}\partial_\theta M\,Y^\star$ สำหรับ loss $\mathcal L(x^\star)$, $g=\partial\mathcal L/\partial x^\star$: $\partial_\theta\mathcal L=g^\top P\,\partial_\theta Y^\star=-(M^{-1}P^\top g)^\top\partial_\theta M\,Y^\star=-\lambda^\top(\partial_\theta M)Y^\star$ โดย $M\lambda=P^\top g$ (ใช้ $M=M^\top$ นี่คือจุดที่ D-B1 สำคัญ) เทอมขวาสุดได้จาก autograd ของสเกลาร์ $\lambda^\top M(\theta)Y^\star$ ที่ตรึง $\lambda,Y^\star$ จึงใช้โค้ด operator เดิมโดยไม่เขียน backward มือ</p>
+<h3>ข้อเสนอ: PCG + implicit; unroll เป็น test อ้างอิงเท่านั้น</h3>
+<p>Preconditioner: Jacobi แบบ block = สเกลาร์ต่อ cell (หลัง normalize แนวทแยงของ $\hat L$ เป็น $I$ ทุก block ⇒ $J=\mathrm{diag}(1+\tau,\tau,\tau)$ ง่ายมาก) tolerance 1e-4 สัมพัทธ์ $T_{\max}$ = 100 เป็น stop condition (ไม่ใช่ hyperparameter: ถ้าชน ให้หยุดและรายงาน)</p>
+<h3>scalability: ซื่อ ๆ</h3>
+<ul>
+<li><strong>เวลา</strong>: v2 ใช้ operator $K=4$ ครั้งต่อ forward v3-B บน toy ที่ไม่ normalize ใช้ ~30 รอบ ×2 ⇒ ราว 15 เท่า แต่หลัง normalize (cond ระบบเต็ม ≈ 11 บน toy ที่ตรวจ) ใช้ ~15 รอบ ⇒ ประมาณ 2.5–7× ของ v2 ตัวเลขนี้เป็นการประมาณ ยังไม่ได้วัดบนกราฟจริง: card ฉบับ minimal วัดแค่ IMDB 2 epochs ส่วน ACM (ที่มีตัวเลข v1) เลื่อนไว้</li>
+<li><strong>memory</strong>: ทฤษฎีบท 7′ (ข้อ 9) ทำให้ state บนเส้นเหลือเฉพาะ fact ที่ cell ≥ 2 ตัวใช้ร่วม ตัวเลข $|E_{\text{shared}}|$ ยังไม่ได้นับ (นับได้จาก WISP draw ที่มีอยู่ CPU) worst case = ทุก fact: ACM ≈ 99 MB ต่อชุดเวกเตอร์ × ~10 ชุด ≈ 1 GB เทียบ v2 1,661 MB รวมทุกอย่าง</li>
+<li><strong>mini-batch</strong>: scope ต่อ target (M1) มี fact 24–242 (median–max บน HGB) การ solve ต่อ scope จึงเล็กมาก และ batch เป็น block-diagonal ⇒ PCG บน batch = PCG บนแต่ละ scope พร้อมกัน ขอบเขต cond ใช้ได้ต่อ scope</li>
+</ul>
+
+<h2>9. ทฤษฎีบท 7′: กำจัด fact ที่อยู่บน cell เดียวโดยไม่เปลี่ยนคำตอบ <span class="tag">พิสูจน์</span> <span class="tag">ตรวจ numpy 7e-16</span></h2>
+<p>ขยายทฤษฎีบท 7 (fact บนศูนย์ cell) ไปยัง fact บน cell เดียว: ใช้สูตรในข้อ 1 ตรง ๆ ผลคือเทอมตรงน้ำหนัก $a_e^2/(2a_e+\beta_f)$ และเทอมโหนด–cell น้ำหนัก $a_e\beta_f/(2a_e+\beta_f)$ ที่ปลายทั้งสอง (ซึ่งใน D-B0(b) รวมกับเทอมโหนด–cell ที่มีอยู่แล้วเป็น $\beta_f+\frac{a_e\beta_f}{2a_e+\beta_f}$) เพราะ $s_e$ ไม่ปรากฏในเทอมอื่น การกำจัดจึงไม่เปลี่ยน $x^\star$ และ $z^\star$ (คำตอบของปัญหาเดิมฉายลงตัวแปรที่เหลือ) <strong>ผล: state บนเส้นต้องเก็บเฉพาะ $E_{\text{shared}}$</strong> และตำแหน่งที่ (ค) ในข้อ 1 ทำงานก็คือตรงนี้พอดี — โค้ดจึงเก็บ state ตรงที่มันมีความหมายเท่านั้น</p>
+<p>ข้อควรระวัง: การกำจัดทำก่อน normalization (D-B3) หรือหลัง? เพื่อให้ $\hat L$ นิยามเดียว ให้ normalization ทำบน $L$ เต็ม (รวม $s_e$ ทุกตัวในนิยาม $D_e$) แล้วกำจัด — ผลลัพธ์เท่ากันเพราะการกำจัดเป็นการแก้ปัญหาเดียวกันบางส่วน ส่วน $D_v$ ไม่เปลี่ยน</p>
+
+<h2>10. D-B6 และ D-B7</h2>
+<h3>D-B6 householder_k = 2</h3>
+<p>v3B_design §15 เขียนว่า "ทฤษฎีบท 4 อาจต้องการการสะท้อนถึง d ครั้ง (Cartan–Dieudonné)" <strong>ข้อนี้ผิด</strong>: บทพิสูจน์ทฤษฎีบท 4 สร้าง map จาก $F_{u\triangleleft e}=I$ และ $F_{v\triangleleft e}=H(a_{y(v)}\to a_{y(u)})$ คือการสะท้อน <em>หนึ่งครั้ง</em> ต่อ incidence (frame $R=I$) k = 1 ก็เพียงพอ Cartan–Dieudonné เกี่ยวกับการแทน rotation <em>ที่กำหนดให้</em> ใด ๆ ซึ่งทฤษฎีบท 4 ไม่ต้องการ ข้อเสนอ: คง k = 2, ลบข้อจำกัด, เขียนแทนว่า "ทฤษฎีบท 4 ต้องการ k ≥ 1 และ frame ที่เป็น I ได้" (frame เรียนรู้ได้จึงเป็นจริง) สิ่งที่ k = 2 จำกัดจริงคือ <em>ชุดของ map ที่โมเดลพูดได้</em> (ไม่ครอบคลุม O(d) ทั้งหมด) ซึ่งเป็น L4 ที่มีอยู่แล้ว</p>
+<h3>D-B7 ค่าเริ่มของ PCG</h3>
+<p>$Y_0=P^\top h$ ($s,z$ = 0) ไม่กระทบคำตอบ (ระบบ SPD มีคำตอบเดียว) กระทบแค่จำนวนรอบ ทางเลือก "เริ่มจาก $s_e=\tfrac12(F_uh_u+F_vh_v)$, $z_f$ = ค่าเฉลี่ย" คือค่าดีที่สุดของ $s,z$ เมื่อ $x=h$ จึงเริ่มใกล้กว่าแน่ และคำนวณได้ด้วย UP ครั้งเดียว ข้อเสนอ: ใช้ค่าหลังนี้ (ฟรี ไม่มีพารามิเตอร์) ต่างจาก v3B_design เล็กน้อย</p>
+
+<h2>11. สิ่งที่ตัดออกจากขั้น design และ claim ที่เหลือ</h2>
+<h3>ตัดออก (ไม่ตัดสินอะไรที่พิสูจน์ไม่ได้อยู่แล้ว หรือต้องรันบน dataset)</h3>
+<ul>
+<li>C8 filter bank vs first-order (D-B2 ทำให้ไม่มีอะไรให้เทียบ)</li>
+<li>C4, C4b gate (D-B1)</li>
+<li>วัด hub dominance (D-B3 ให้ขอบเขต)</li>
+<li>"วัด K ที่ต้องใช้ให้ไปไกลเท่า A" (ไม่มี K แล้ว)</li>
+<li>OPEN-4 (K) ปิดโดยปริยาย</li>
+</ul>
+<h3>ย้ายไป protocol §6 (ต้องมีใน paper เพราะ reviewer ขอ แต่ไม่ตัดสิน design)</h3>
+<div class="tbl"><table>
+<tr><th>Claim</th><th>เทียบ</th><th>ตอบใคร</th><th>falsified ถ้า</th><th>paper ถ้า falsified</th></tr>
+<tr><td>C10 face ≠ closure</td><td><code>full</code> vs <code>closure_only</code></td><td>R2 comment 5, R4 "endpoint-collapsed"</td><td>ไม่ต่างใน ≥ 2/3 HGB</td><td>cell = holonomy edge; ถอน claim ว่าแก้ W3 มีผลเชิงประจักษ์</td></tr>
+<tr><td>C11 state บนเส้นให้มากกว่า hub</td><td><code>full</code> vs <code>hub_A</code> (config เดียวกัน ตัด $s$)</td><td>meta "capacity", R4</td><td>ไม่ต่าง</td><td>เขียนว่า state บนเส้นคือรูปคำนวณที่รักษาโครงสร้าง ไม่ใช่ที่มาของผล</td></tr>
+<tr><td>C12 เพดานน้ำหนัก</td><td><code>full</code> vs <code>covering_only</code> + S1′ ภายใต้ B (oracle β)</td><td>R12, L11</td><td>covering_only ไม่แพ้</td><td>เทอมโหนด–cell ไม่จำเป็น; กลับไป (a)</td></tr>
+<tr><td>C13 cost</td><td>memory/time vs facts, incidences, $|E_{\text{shared}}|$; รอบ PCG vs N</td><td>R1 W1, R3 W3, R4, meta</td><td>super-linear หรือรอบ PCG โตตาม N</td><td>รายงานขีดจำกัด; ใช้รูปกำจัดเต็ม</td></tr>
+<tr><td>C14 R4 "instance ที่ไม่มี 2-cell diffusion"</td><td>แขน <code>instance_features</code>: β = 0 ใน solve, ส่ง $\sum_f\beta_f\,\mathrm{mean}_vT_vh_v$ เข้าหัวทำนาย</td><td>R4 ablation ข้อ 2</td><td>ไม่ต่างจาก full</td><td>2-cell diffusion ไม่จำเป็น; cell เป็น feature encoder (= MAGNN)</td></tr>
+<tr><td>C2 ladder, C6 heterophily, C7, C9</td><td>ตามเดิม</td><td>R2 W4, R3 W1, R4</td><td>ตามเดิม</td><td>ตามเดิม</td></tr>
+</table></div>
+
+<h2>12. สิ่งที่ยังไม่ตอบ (ต้องพูดในที่นำเสนอด้วยความซื่อ)</h2>
+<ol>
+<li><strong>R2 comment 1</strong>: ตัวอย่างข้อมูลจริงที่มุมมองปลาย-ปลายล้มเหลว ทฤษฎีบท R และ 4 บอกว่า "มีอยู่" แต่ไม่ได้ชี้ว่า "อยู่ที่ไหนในข้อมูล" งาน H11 (IMDB M–A–M แยกตาม actor) ยังไม่เริ่ม</li>
+<li><strong>ตัวอย่างที่ state บนเส้น (fact ร่วม) ชี้ขาด</strong>: ไม่มี ดังนั้น novelty ของ v3-B ต้องพูดเป็น: 2-cell ที่มี state จริงใน sheaf เดียว; map บังคับโดย fact (ไม่มีพารามิเตอร์ของ cell); ทางเข้าโหนดกลางที่พิสูจน์ได้ (แก้ W3); hub view และ covering-only เป็นกรณีพิเศษที่ตั้งพารามิเตอร์ (ทฤษฎีบท 7′) ไม่ใช่ "edge state ให้ข้อมูลใหม่"</li>
+<li><strong>งานเก่าระดับสูตร</strong> (CWN, CCNN, sheaf บน cell complex, Sheaf Hypergraph, SGAT, arXiv 2606.00937, MAGNN) ยังไม่ได้ตรวจ ถ้อยคำ "ใหม่" ทุกคำรอขั้นนี้ สิ่งที่รู้แล้ว: ระดับโหนดคือ PPR บน sheaf (ข้อ 7) และ hub ลดรูปเป็น MAGNN เมื่อ map ขึ้นกับชนิดเส้นอย่างเดียว</li>
+<li><strong>ต้นทุนจริง</strong>: $|E_{\text{shared}}|$, รอบ PCG บนกราฟใหญ่, cond ของระบบเต็ม ทั้งหมดนับ/วัดได้บน CPU แต่ยังไม่ได้ทำ</li>
+<li><strong>Prop. S หลัง normalization</strong> เป็น consistency ไม่ใช่ unbiasedness (ข้อ 6) — v2 ก็เป็นเช่นนี้แต่ไม่ได้เขียน</li>
+</ol>
+
+<h2>13. สรุปสำหรับตอบ (ตอบเป็นชุดเดียว)</h2>
+<div class="tbl"><table>
+<tr><th>#</th><th>ข้อเสนอ</th><th>ตอบ</th></tr>
+<tr><td>D-B0</td><td>(b) energy บนทุกคู่ที่เทียบกันได้ น้ำหนัก $\beta_f$ เดียว; <code>covering_only</code> และ <code>hub_A</code> เป็นแขน</td><td></td></tr>
+<tr><td>D-B1</td><td>(a) ไม่ใช้ gate; R4 → L1′</td><td></td></tr>
+<tr><td>D-B2</td><td>(a) solve เดียว; R9 → R9′ (low/high พิสูจน์ได้, band-pass เป็น L13)</td><td></td></tr>
+<tr><td>D-B3</td><td>(b) symmetric normalization ทุกระดับ; Prop. S → consistency</td><td></td></tr>
+<tr><td>D-B4</td><td>(b) τ เรียนรู้ (log) เริ่ม 1, group ของตัวเอง</td><td></td></tr>
+<tr><td>D-B5</td><td>PCG + implicit gradient; Jacobi $J=\mathrm{diag}(1+\tau,\tau,\tau)$; unroll เป็น test</td><td></td></tr>
+<tr><td>D-B6</td><td>คง k = 2; ลบข้อจำกัดที่เขียนผิด</td><td></td></tr>
+<tr><td>D-B7</td><td>เริ่มจาก $x=h$ และ $s,z$ ดีที่สุดเมื่อ $x=h$</td><td></td></tr>
+</table></div>
+<p class="meta">ไฟล์หลักฐาน: <code>docs/v3_evidence/proofs_check.py</code>, <code>v3b_elim.py</code>, <code>hasse2.py</code> (รันซ้ำ 10 พ.ย. 23:10 ตรงกับเอกสาร), <code>b_vs_a.py</code> (ใหม่ วันนี้; จะวางใน <code>docs/v3_evidence/</code> เมื่ออนุมัติ) · อ้างอิง: Klicpera, Bojchevski, Günnemann (2019) APPNP; Bai, Kolter, Koltun (2019) DEQ; Gu et al. (2020) IGNN; Hansen &amp; Ghrist (2019) Toward a spectral theory of cellular sheaves; Part K report (L11)</p>
+</main>

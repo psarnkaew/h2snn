@@ -1,0 +1,6 @@
+== imdb_ma: families 1
+  Ctrl-G type 0 valid: best r4 (via type 3) MRR 0.0584 Hits@10 0.0669
+  Ctrl-G type 0 test: best r4 (via type 3) MRR 0.0448 Hits@10 0.0528
+  FAIL type 0 POSITIVE CONTROL: release columns 3,4,7,12: worst cap 50 valid MRR 0.1231 (diff +0.0647) Hits@10 0.2820 (diff +0.2150)
+  task FAIL
+

@@ -101,7 +101,7 @@ Status: `DERIVED` (plan §12). A5 is the weakest assumption; say so.
 > | Family | Missing |
 > |---|---|
 > | HAN, HGT, Simple-HGN, SeHGNN | Aggregation assumes similarity (no A1) |
-> | MAGNN | Intermediate nodes encoded, but nothing makes paths consistent with edges (no A3) |
+> | MAGNN | Intermediate nodes encoded with a relational rotation encoder; **its instance encoding equals our cell state `z_f` when our maps depend only on the relation type** (see Q2.3b). Differences: per-relation commuting rotations, separate from the edge geometry; writes to the target only |
 > | NSD, HetSheaf | Structured disagreement on edges only (no A2); symmetric influence (no A4) |
 > | Sheaf hypergraph networks | Higher-order cells with free maps, which destroy global sections (no A3) |
 > | SheafAN / Res-SheafAN | Directional attention on edges; no objective (no P1); no higher-order cells |
@@ -111,12 +111,35 @@ Status: `DERIVED` (plan §12). A5 is the weakest assumption; say so.
 
 Status: HetSheaf, SheafAN, CSNN, DNSD `VERIFIED-SOURCE` (`references/`). HAN/HGT/Simple-HGN/SeHGNN/MAGNN characterisations — `UNVERIFIED` until each paper is opened and cited.
 
+**Correction (2026-11-10).** The MAGNN row was `UNVERIFIED` and too weak. MAGNN (arXiv 2002.01680, Eq. 10, method read 2026-11-10) is `VERIFIED-SOURCE`; the equality with `z_f` is `VERIFIED-RUN` (max difference 1.2e-16, scratch script). "No previous model combines A1–A4 with P1–P2" is true but is a combination claim; do not use it as the novelty statement.
+
 ### 2-cells and sheaf theory
 
 **Q2.3 Isn't a path 2-cell just a hyperedge?**
 > The computation has the form of a hyperedge with a hub, but (i) its maps are determined by the boundary edges, not learned freely, (ii) they depend on the order of relations along the path, and (iii) they preserve every global section of the edge sheaf. With free per-incidence maps the kernel generically collapses (Prop. 2), so a sheaf-hypergraph model can contradict the graph sheaf; ours cannot. The "free maps" ablation measures the difference.
 
 Status: `DERIVED`; numerical check (dim ker 3 / 3 / 0) and D4 T4 with negative control — `VERIFIED-RUN`.
+
+**Q2.3b Isn't your path cell MAGNN's instance encoder in sheaf language?** (added 2026-11-10)
+> Partly, and we say so. MAGNN's relational rotation encoder averages the states of an instance after rotating each by the relation rotations along the path; our cell state `z_f` is the same average when our transports depend only on the relation type. Our transports are (i) node-pair conditioned and (ii) the same maps as the edge terms (so adding instances never contradicts the edges, Prop. 2); (iii) the instance writes back to every node on it, not only the target; (iv) the whole operator is stable for all parameters. **Not a difference:** relation order. MAGNN aggregates each meta-path separately, so PAPV and PVPA are already distinguished; the commuting rotations matter only inside one meta-path.
+
+Status: equality `VERIFIED-RUN`; that any of (i)–(iii) improves prediction — `PENDING` (no evidence yet). Computationally the cell term is a hub node per instance (Prop. 2), so do not claim a 2D computation (see Q2.4 and Lemma A′; v1's 2-cell reached nodes only through the closure edge, R2 W3).
+
+**Q2.3c Isn't the method just HetSheaf + MAGNN? One paper handles heterophily with sheaves on the original heterogeneous graph, the other uses meta-path instances with their intermediate nodes; you put the two together.** (added 2026-11-10; the most likely novelty objection)
+
+What the reviewer sees: A = HetSheaf (arXiv 2409.08036, NeurIPS 2026): sheaf diffusion on the original heterogeneous graph, edges only. B = MAGNN (arXiv 2002.01680): instance-level meta-path aggregation with intermediate nodes and per-instance attention, one subgraph per meta-path, fused at the end. H2S-NN puts B's instances into A's operator. Without further evidence the novelty reads as "A + B" (incremental).
+
+Draft answer (usable only when the results below exist):
+> The two parts are not stacked; the way they are joined changes what each part can do. (i) Instances live in the original graph instead of one subgraph per meta-path, so every node of an instance receives its message: in P1–A7–P9, the author A7 receives evidence about the pair (P1, P9) and passes it to its other paper P4 in the next application of the operator. MAGNN writes only to the target, and its meta-paths meet only in the final fusion. (ii) An instance transforms messages with the same edge maps the graph uses, so instance evidence and edge evidence are expressed in one geometry; a separately learned instance encoder (MAGNN) or free hyperedge maps (sheaf hypergraph networks) do not share it. (iii) No meta-path list and no per-meta-path parameters. We test the join directly against the naive combination: HetSheaf-style diffusion with MAGNN instance embeddings as extra features, on the same instances and budget [result]. The ablations isolate each choice: write-back to all nodes (`full` vs `holonomy_edges`), shared edge rules (`full` vs `free_path_maps`), intermediates through the weights (`full` vs `endpoints`), instances at all (`full` vs `no_path_cells`) [results].
+
+What must be true before this answer can be used:
+1. A **naive-combination baseline** is run under the protocol: the same WISP instances encoded MAGNN-style (rotation encoder + instance attention), fed as node features to the edge-only sheaf model (`no_path_cells`), same budget. Not in the current §6 table; to be added by the author's decision at the §5–§6 audit.
+2. `full` beats the naive combination and `no_path_cells`; and at least one of `holonomy_edges` / `free_path_maps` is beaten, so a specific joining choice is shown to matter.
+3. A mechanism example on real data (e.g. intermediate nodes whose prediction-relevant state changes because of write-back), not only accuracy.
+
+If 2 fails, the honest statement is that the contribution is the combination (A + B) plus the schema-free sampler; do not claim more. A stronger answer exists only if the joined model has a capability neither part has alone (e.g. comparing different routes between the same pair, or a learned choice of which channels an instance's nodes must agree on); those are design options, not in the current method.
+
+Status: `PENDING` (no result exists). The equality of the instance summary with MAGNN in the relation-only case is `VERIFIED-RUN` (Q2.3b). Answering this question removes the main novelty objection only if the results in 1–2 hold; it does not cover the tuned-baseline objection (arXiv 2510.05750: tuned RGCN matches or beats 20 HGNNs).
 
 **Q2.4 Why not use the Hodge Laplacian of the 2-complex?**
 > Lemma A′: under any linear Hodge flow, face information never reaches nodes. The node operator we use is the vertex–2-cell sheaf Laplacian, which is the 0-Laplacian of the pullback sheaf on the star expansion (Prop. 2); we do not call it the Hodge Laplacian.

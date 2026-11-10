@@ -1,0 +1,57 @@
+== acm_pa: families 0 (no non-binary feature column on either endpoint type)
+
+== dblp_ap: families 1
+  Ctrl-G type 1 valid: best r1 (via type 2) MRR 0.0957 Hits@10 0.2189
+  Ctrl-G type 1 test: best r1 (via type 2) MRR 0.0915 Hits@10 0.2138
+  PASS type 1 type 1 block (297 non-binary columns): worst cap inf test MRR 0.0618 (diff -0.0297) Hits@10 0.1365 (diff -0.0774)
+  task PASS
+
+== imdb_ma: families 13
+  Ctrl-G type 0 valid: best r4 (via type 3) MRR 0.0584 Hits@10 0.0669
+  Ctrl-G type 0 test: best r4 (via type 3) MRR 0.0448 Hits@10 0.0528
+  PASS type 0 col 0 num_critic_for_reviews: worst cap 50 test MRR 0.0242 (diff -0.0205) Hits@10 0.0514 (diff -0.0014)
+  PASS type 0 col 1 duration: worst cap inf test MRR 0.0105 (diff -0.0342) Hits@10 0.0169 (diff -0.0359)
+  PASS type 0 col 2 director_facebook_likes: worst cap 50 test MRR 0.0225 (diff -0.0223) Hits@10 0.0413 (diff -0.0115)
+  PASS type 0 col 5 gross: worst cap 5 valid MRR 0.0497 (diff -0.0088) Hits@10 0.0459 (diff -0.0211)
+  PASS type 0 col 6 num_voted_users: worst cap 5 test MRR 0.0188 (diff -0.0259) Hits@10 0.0149 (diff -0.0379)
+  PASS type 0 col 8 facenumber_in_poster: worst cap inf test MRR 0.0053 (diff -0.0394) Hits@10 0.0007 (diff -0.0521)
+  PASS type 0 col 9 num_user_for_reviews: worst cap 50 test MRR 0.0278 (diff -0.0170) Hits@10 0.0480 (diff -0.0047)
+  PASS type 0 col 10 budget: worst cap inf test MRR 0.0149 (diff -0.0299) Hits@10 0.0311 (diff -0.0217)
+  PASS type 0 col 11 title_year: worst cap inf test MRR 0.0103 (diff -0.0345) Hits@10 0.0081 (diff -0.0447)
+  PASS type 0 col 13 imdb_score: worst cap inf test MRR 0.0085 (diff -0.0363) Hits@10 0.0041 (diff -0.0487)
+  PASS type 0 col 14 aspect_ration: worst cap inf test MRR 0.0056 (diff -0.0392) Hits@10 0.0034 (diff -0.0494)
+  PASS type 0 col 15 movie_facebook_likes: worst cap 50 test MRR 0.0105 (diff -0.0342) Hits@10 0.0223 (diff -0.0304)
+  PASS type 0 keyword-token counts (674 non-binary columns): worst cap inf test MRR 0.0269 (diff -0.0179) Hits@10 0.0332 (diff -0.0196)
+  task PASS
+
+== freebase_bb: families 0 (no non-binary feature column on either endpoint type)
+
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\lp\lp_leak_audit.py", line 360, in <module>
+    main()
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\lp\lp_leak_audit.py", line 337, in main
+    res = audit_task(name, args.data_root, args.positive_control)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\lp\lp_leak_audit.py", line 287, in audit_task
+    g = path_scores(a_m, tm, u, v) + path_scores(a_m, tm, v, u)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\lp\lp_leak_audit.py", line 96, in path_scores
+    return _rowdot_lazy(a, t, a, xi, yi, binary=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\lp\lp_leak_audit.py", line 82, in _rowdot_lazy
+    out[sl] = np.asarray(a[ai[sl]].multiply(b[inv]).sum(axis=1)).ravel()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\scipy\sparse\_base.py", line 529, in multiply
+    return self._multiply_2d_with_broadcasting(other)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\scipy\sparse\_compressed.py", line 269, in _multiply_2d_with_broadcasting
+    return self._binopt(other, '_elmul_')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\scipy\sparse\_compressed.py", line 1221, in _binopt
+    data = np.empty(maxnnz, dtype=upcast(self.dtype, other.dtype))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 188. MiB for an array with shape (24655276,) and data type float64
+
+ERROR conda.cli.main_run:execute(127): `conda run python scripts/lp/lp_leak_audit.py --tasks pubmed --json-out ../docs/lp_evidence/j62_audit_pubmed.json` failed. (See above for error)
+== lastfm: families 0 (no non-binary feature column on either endpoint type)
+

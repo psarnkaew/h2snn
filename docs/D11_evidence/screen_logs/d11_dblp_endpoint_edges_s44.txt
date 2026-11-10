@@ -1,0 +1,1 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d11_screen\d11_dblp_endpoint_edges_s44

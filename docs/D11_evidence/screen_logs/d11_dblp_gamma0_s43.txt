@@ -1,0 +1,24 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d11_screen\d11_dblp_gamma0_s43
+2026-11-07 22:49:47,361 | INFO | Dataset: dblp | Task: node_classification
+2026-11-07 22:49:47,361 | INFO | Target node type: author
+2026-11-07 22:49:47,362 | INFO | Metapaths: ['APA', 'APTPA']
+2026-11-07 22:49:47,362 | INFO | Model parameters: 190104
+2026-11-07 22:49:48,047 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 239566, 'facts_after': 119783}
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 81, in <module>
+    main()
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 75, in main
+    trainer.fit(data)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 83, in fit
+    train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 158, in _train_epoch
+    loss.backward()
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_tensor.py", line 626, in backward
+    torch.autograd.backward(
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\autograd\__init__.py", line 347, in backward
+    _engine_run_backward(
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\autograd\graph.py", line 823, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: CUBLAS_STATUS_ALLOC_FAILED when calling `cublasCreate(handle)`

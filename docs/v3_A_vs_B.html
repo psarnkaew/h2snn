@@ -1,0 +1,618 @@
+<title>H2S-NN v3: ทาง A กับทาง B</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+/* Layout: one reading column (~72ch), wide tables scroll in their own box; A = blue-slate, B = copper, used only to tag the two designs */
+:root {
+  --bg: #f7f8f9;
+  --paper: #ffffff;
+  --fg: #1d2329;
+  --muted: #5a6570;
+  --rule: #d9dee3;
+  --a: #2f5d8a;
+  --a-soft: #e6eef6;
+  --b: #9a5a1f;
+  --b-soft: #f6ece2;
+  --ok: #2c7a4b;
+  --warn: #a36a00;
+  --bad: #a3322b;
+  --code-bg: #eef1f4;
+  --font-body: "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181c; --paper: #1b2026; --fg: #e3e7eb; --muted: #9aa5b0; --rule: #313a43;
+    --a: #8fb4dd; --a-soft: #1e2b39; --b: #e0a46b; --b-soft: #33261a;
+    --ok: #6fcf97; --warn: #f2c14e; --bad: #f08a80; --code-bg: #232a31; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181c; --paper: #1b2026; --fg: #e3e7eb; --muted: #9aa5b0; --rule: #313a43;
+  --a: #8fb4dd; --a-soft: #1e2b39; --b: #e0a46b; --b-soft: #33261a;
+  --ok: #6fcf97; --warn: #f2c14e; --bad: #f08a80; --code-bg: #232a31; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.75;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+main { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+header { display: flex; flex-direction: column; gap: 10px; border-bottom: 2px solid var(--fg); padding-bottom: 20px; }
+.meta { font-size: 13px; color: var(--muted); letter-spacing: .02em; }
+h1 { font-size: 30px; line-height: 1.3; margin: 0; text-wrap: balance; }
+h2 { font-size: 22px; line-height: 1.35; margin: 0 0 12px; text-wrap: balance; padding-top: 8px; border-top: 1px solid var(--rule); }
+h3 { font-size: 17px; margin: 22px 0 8px; }
+p { margin: 0 0 12px; max-width: 72ch; }
+ul, ol { margin: 0 0 12px; padding-left: 22px; max-width: 72ch; }
+li { margin-bottom: 4px; }
+section { display: flex; flex-direction: column; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 4px; letter-spacing: .03em; }
+.tag.a { background: var(--a-soft); color: var(--a); }
+.tag.b { background: var(--b-soft); color: var(--b); }
+.box { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; margin: 4px 0 14px; }
+.box.a { border-left: 4px solid var(--a); }
+.box.b { border-left: 4px solid var(--b); }
+.box > :last-child { margin-bottom: 0; }
+.quote { font-size: 14.5px; color: var(--muted); border-left: 3px solid var(--rule); padding: 2px 0 2px 12px; margin: 6px 0 10px; font-style: italic; }
+.scroll { overflow-x: auto; margin: 4px 0 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.55; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: none; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 13px; }
+.ok { color: var(--ok); font-weight: 600; }
+.part { color: var(--warn); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+code { font-family: var(--font-mono); font-size: 13.5px; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { font-family: var(--font-mono); font-size: 13px; background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.55; margin: 4px 0 14px; }
+.math { overflow-x: auto; overflow-y: hidden; margin: 6px 0 12px; padding: 4px 0; }
+.note { font-size: 14px; color: var(--muted); }
+dl { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 6px 16px; margin: 0 0 12px; }
+dt { font-weight: 600; }
+dd { margin: 0; min-width: 0; }
+@media (max-width: 560px) { dl { grid-template-columns: 1fr; } dd { margin-bottom: 8px; } h1 { font-size: 25px; } }
+nav ol { columns: 2; column-gap: 32px; font-size: 14.5px; }
+@media (max-width: 560px) { nav ol { columns: 1; } }
+a { color: var(--a); }
+a:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+</style>
+
+<main>
+<header>
+  <div class="meta">H2S-NN · เอกสารออกแบบสำหรับให้ผู้วิเคราะห์อีกคนตรวจ · 10 พ.ย. 2026 · สถานะ: ยังไม่ตัดสิน</div>
+  <h1>H2S-NN v3: ทาง A (v2 + เขียนใหม่) กับทาง B (v2 + ชั้น edge)</h1>
+  <p>เอกสารนี้เทียบสองทางเลือกสำหรับเวอร์ชันถัดไปของ H2S-NN ทั้งในแง่สมการ ทฤษฎี ต้นทุน และในแง่ว่าแต่ละทางยังเล่าเรื่องแบบ paper เดิมได้ไหม ยังรักษาคำชมของ reviewer 4 คนได้ไหม และแก้ข้อติด้าน method ข้อเดียวได้ไหม</p>
+  <p class="note">ป้ายสถานะที่ใช้ทั้งเอกสาร: <b>ตรวจแล้ว (ตัวเลข)</b> = รันสคริปต์ numpy แล้ว, <b>พิสูจน์</b> = มีบทพิสูจน์บนกระดาษ, <b>จาก spec</b> = อ้างจาก <code>H2S-NN_methodology_spec.md</code> v1.7 ซึ่งระบุว่าทดสอบแล้ว, <b>ยังไม่ตรวจ</b> = ข้อสันนิษฐาน ไม่มีการทดลองข้อมูลจริงใดในเอกสารนี้</p>
+</header>
+
+<nav aria-label="สารบัญ">
+  <ol>
+    <li><a href="#summary">สรุปหนึ่งหน้า</a></li>
+    <li><a href="#words">คำศัพท์ที่ใช้</a></li>
+    <li><a href="#example">ตัวอย่างกลางที่ใช้ทั้งเอกสาร</a></li>
+    <li><a href="#reviews">คำชมและคำติของ reviewer</a></li>
+    <li><a href="#history">v1 → v2 → v3: เกิดอะไรขึ้น</a></li>
+    <li><a href="#shared">ส่วนที่ A และ B ใช้ร่วมกัน</a></li>
+    <li><a href="#pathA">ทาง A: สมการ</a></li>
+    <li><a href="#pathB">ทาง B: สมการ</a></li>
+    <li><a href="#theory">พิสูจน์</a></li>
+    <li><a href="#diff">A กับ B ต่างกันจริงตรงไหน</a></li>
+    <li><a href="#cost">ต้นทุน</a></li>
+    <li><a href="#story">เล่าเรื่องแบบ paper เดิมได้ไหม</a></li>
+    <li><a href="#verdict">คำชม คำติ: ทีละข้อ</a></li>
+    <li><a href="#risks">จุดอ่อนที่ reviewer จะยก</a></li>
+    <li><a href="#questions">คำถามถึงผู้วิเคราะห์</a></li>
+    <li><a href="#evidence">หลักฐานและไฟล์</a></li>
+  </ol>
+</nav>
+
+<section id="summary">
+  <h2>1. สรุปหนึ่งหน้า</h2>
+  <p><span class="tag a">ทาง A</span> ใช้การคำนวณของ v2 ทุกอย่าง ไม่แก้โค้ดโมเดล สิ่งที่เปลี่ยนคือวิธีเขียน paper: เรียก path cell ของ v2 ว่า 2-cell ที่มีการหมุนพิกัดถูกบังคับโดยเส้นจริง และบอกตรง ๆ ว่าคำนวณผ่าน "ศูนย์กลาง" (hub) ของแต่ละ path</p>
+  <p><span class="tag b">ทาง B</span> เพิ่ม state ให้เส้นจริงทุกเส้น ข้อมูลระหว่างโหนดกับ path cell ต้องวิ่งผ่านเส้นเสมอ ทั้งหมดมาจาก energy ตัวเดียว: "แต่ละสิ่งควรตรงกับ state ของชิ้นส่วนที่อยู่ติดกับมันหลังหมุนพิกัดแล้ว" ทาง B ยังไม่มีโค้ด</p>
+  <div class="scroll"><table>
+    <thead><tr><th>คำถาม</th><th><span class="tag a">A</span></th><th><span class="tag b">B</span></th></tr></thead>
+    <tbody>
+      <tr><td>แก้ข้อติ R2 W3 (ข้อมูลจาก cell ถึงโหนดผ่านเส้นลัดปลาย-ปลายเท่านั้น)</td><td class="ok">แก้ได้ ทุกโหนดของ path ได้ข้อมูลทุกรอบ ไม่มีเส้นลัด</td><td class="ok">แก้ได้ ผ่านเส้นจริงทุกรอบ ไม่มีเส้นลัด</td></tr>
+      <tr><td>คำชมเรื่อง 2-cell เก็บโหนดกลางและลำดับ relation</td><td class="ok">อยู่</td><td class="ok">อยู่</td></tr>
+      <tr><td>คำชมเรื่อง map edge→face สร้างจากการ transport + proof</td><td class="part">อยู่ แต่ map นี้อยู่ในบทพิสูจน์ ไม่ถูกคำนวณออกมาตรง ๆ</td><td class="ok">อยู่ และถูกใช้ในการคำนวณ</td></tr>
+      <tr><td>คำชมเรื่องใช้ร่วมกับการแพร่บนเส้น (edge diffusion)</td><td class="no">ไม่อยู่ เส้นไม่มี state ของตัวเอง</td><td class="ok">อยู่</td></tr>
+      <tr><td>มีเหตุผลว่าส่วนที่เพิ่มทำอะไรได้ที่อีกทางทำไม่ได้</td><td>ไม่มีส่วนที่เพิ่ม</td><td class="no">ยังไม่มีตัวอย่าง</td></tr>
+      <tr><td>ทฤษฎี</td><td class="ok">ครบใน spec (Prop. 1–7) ทดสอบแล้ว</td><td class="part">ข้อหลักตรวจเป็นตัวเลขแล้ว ยังไม่เขียนบทพิสูจน์เต็ม</td></tr>
+      <tr><td>ต้นทุน</td><td class="ok">วัดแล้ว ACM 1,661 MB (v2 + WISP)</td><td class="part">ยังไม่วัด state เพิ่ม E·d และต้องแพร่หลายรอบกว่าจะข้าม cell ได้</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>คำแนะนำของผู้เขียนเอกสาร (Claude):</b> เลือก A ถ้ายังหาตัวอย่างไม่ได้ว่า state บนเส้นทำอะไรได้ที่ state บนโหนดทำไม่ได้ เลือก B ถ้าหาได้ เหตุผลคือทุกเรื่องที่ v3 ตั้งใจแก้ (R2 W3, การหมุนพิกัดถูกบังคับ, ไม่มีเส้นลัด) v2 ทำไว้แล้ว ส่วนที่ B เพิ่มยังไม่มีเหตุผลรองรับ</p>
+</section>
+
+<section id="words">
+  <h2>2. คำศัพท์ที่ใช้</h2>
+  <dl>
+    <dt>โหนด</dt><dd>สิ่งของหนึ่งชิ้นในกราฟ เช่น paper P1, author A7</dd>
+    <dt>เส้นจริง (fact)</dt><dd>ความสัมพันธ์หนึ่งรายการที่มีในข้อมูล เช่น "A7 เขียน P1" ถ้าข้อมูลเก็บไว้สองทิศ (เขียน และ ถูกเขียนโดย) นับเป็นเส้นเดียว</dd>
+    <dt>meta-path (schema)</dt><dd>ชนิดของเส้นทาง เช่น PAP = paper–author–paper</dd>
+    <dt>path instance</dt><dd>เส้นทางจริงหนึ่งเส้น เช่น P1–A7–P9 ไม่เดินซ้ำโหนด</dd>
+    <dt>path cell (2-cell)</dt><dd>หน่วยหนึ่งหน่วยที่แทน path instance หนึ่งเส้นทั้งเส้น</dd>
+    <dt>closure edge</dt><dd>เส้นสมมติจากปลายกลับไปต้น (P9→P1) เพื่อให้ path เป็นวงปิด ใน v1 เส้นนี้ถูกใช้คำนวณด้วย</dd>
+    <dt>state</dt><dd>เวกเตอร์ d ตัวเลขที่เก็บไว้ที่โหนด (ทุกทาง) ที่เส้น (เฉพาะ B) และที่ path cell</dd>
+    <dt>map F</dt><dd>เมทริกซ์หมุนพิกัด (ความยาวไม่เปลี่ยน) ที่แปลง state ของโหนดไปเป็นภาษาของเส้น เช่น $F_{P1\triangleleft e_0}$ แปลง state ของ P1 สำหรับเส้น e0 เรียนรู้จากข้อมูล</dd>
+    <dt>transport T</dt><dd>การหมุนพิกัดต่อกันตามเส้นทาง ทำให้ state ของทุกโหนดใน path อยู่ในพิกัดเดียวกับโหนดต้น (anchor)</dd>
+    <dt>energy</dt><dd>ตัวเลขเดียวที่วัดว่าสิ่งที่อยู่ติดกัน "ไม่เข้ากัน" มากแค่ไหนหลังหมุนพิกัด การแพร่ข้อมูลคือการลดค่านี้ทีละน้อย</dd>
+    <dt>global section</dt><dd>การกำหนด state ที่ทุกเส้นเห็นสองปลายตรงกันพอดี energy เป็นศูนย์</dd>
+    <dt>gate</dt><dd>ตัวคูณต่อสิ่ง: g = ฟังมากน้อย, b = ส่งออกมากน้อย ทำให้อิทธิพลไม่ต้องเท่ากันสองทิศ</dd>
+    <dt>filter bank</dt><dd>สูตรที่ผสมผลจากการแพร่ 0, 1, …, K รอบ แต่ละพิกัดของ state เลือกได้ว่าจะเก็บส่วนที่เรียบหรือส่วนที่ขัดแย้ง</dd>
+    <dt>แก้ค่าทันที (กำจัดตัวแปร)</dt><dd>ถ้าให้ state ของเส้นหรือ cell เป็นค่าที่ดีที่สุดทันทีจากโหนดรอบ ๆ แล้วเหลือแต่สมการของโหนด ในคณิตศาสตร์เรียกว่า Schur complement</dd>
+    <dt>WISP</dt><dd>ตัวสุ่ม path instance ที่ใช้แทน AMPSS เดินสุ่มจากโหนดเป้าหมาย ไม่ต้องมีรายการ meta-path และให้น้ำหนักต่อ instance</dd>
+  </dl>
+</section>
+
+<section id="example">
+  <h2>3. ตัวอย่างกลางที่ใช้ทั้งเอกสาร</h2>
+  <p>กราฟเล็ก: paper P1, P9, P4 และ author A7 เส้นจริง: e0 = A7 เขียน P1, e1 = A7 เขียน P9, e2 = A7 เขียน P4 WISP เดินสุ่มจาก P1 ได้ 2 path:</p>
+  <ul>
+    <li>f1 = P1–A7–P9 ผ่าน e0, e1</li>
+    <li>f2 = P1–A7–P4 ผ่าน e0, e2</li>
+  </ul>
+  <p>คำถามวิจัยในภาษาง่าย: "P1 กับ P9 มีผู้เขียนร่วมคือ A7 ข้อเท็จจริงว่า A7 เป็นใครมีผลต่อการทำนาย P1 ไหม" วิธีที่ยุบ path เป็นความสัมพันธ์ P1–P9 ตรง ๆ (เช่น HAN, SeHGNN) ทิ้ง A7 ไป</p>
+</section>
+
+<section id="reviews">
+  <h2>4. คำชมและคำติของ reviewer (WSDM 2027, paper 850)</h2>
+  <p>มี reviewer 4 คน ทุกคนชมแนวคิดเดียวกัน ข้อติด้าน method มีข้อเดียวจาก R2 และ meta-review ยกไปซ้ำ ข้อติอื่นทั้งหมดเป็นเรื่องการทดลอง (heterophily, scalability, baseline) ซึ่งเอกสารนี้ไม่ได้พูดถึง</p>
+
+  <h3>คำชม: แต่ละข้อหมายความว่าอะไร</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>รหัส</th><th>ข้อความ (ย่อ)</th><th>ความหมายในภาษาง่าย</th></tr></thead>
+    <tbody>
+      <tr><td>R1 S1</td><td>"path-supported 2-cell … retains the intermediate nodes and relation sequence … instead of reducing it to a direct endpoint relation"</td><td>การเก็บ path ทั้งเส้นเป็นหนึ่งหน่วย โดยไม่ทิ้ง A7 และลำดับชนิดของความสัมพันธ์ เป็นแนวคิดใหม่</td></tr>
+      <tr><td>R1 S2</td><td>"mathematical construction is well defined … proof of the required consistency condition"</td><td>สูตรนิยามชัด และมีบทพิสูจน์ว่าโครงสร้างเข้ากันได้ทางคณิตศาสตร์ (ใน v1 คือ δ₁δ₀ = 0)</td></tr>
+      <tr><td>R2 S1</td><td>"edge-to-face maps through the transport of the node-to-edge restrictions has a principled background … proof concise"</td><td>map จากเส้นไป cell ไม่ได้ตั้งขึ้นลอย ๆ แต่ได้จากการหมุนพิกัดของเส้นจริงต่อกันตามเส้นทาง จึงมีหลักการ</td></tr>
+      <tr><td>R2 S2</td><td>"lift meta-path instances to 2-cells … combine them with sheaf-based edge diffusion is an appropriate direction"</td><td>การยก path ขึ้นเป็น cell แล้วใช้ร่วมกับการแพร่ข้อมูลบนเส้น เป็นทิศทางที่ถูกต้อง</td></tr>
+      <tr><td>R3 S1</td><td>"original and well motivated … preserves the intermediate nodes and relations … meaningful … when the usefulness depends on the relation sequence"</td><td>แนวคิดใหม่และมีเหตุผล มีประโยชน์เมื่อความหมายของ path ขึ้นกับลำดับความสัมพันธ์</td></tr>
+      <tr><td>R4 S1</td><td>"addresses an important limitation … reducing concrete path instances to endpoint-level views can discard intermediate relational structure"</td><td>แก้ข้อจำกัดสำคัญ: การยุบ path เหลือแค่ปลายสองข้างทิ้งข้อมูลระหว่างทาง</td></tr>
+      <tr><td>R4 S2</td><td>"principled way to incorporate higher-order path information into a sheaf/Hodge-style propagation framework"</td><td>ใส่ข้อมูลระดับ path เข้าไปในการแพร่แบบ sheaf ได้อย่างมีหลักการ</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>คำติด้าน method ข้อเดียว</h3>
+  <p class="quote">R2 W3: "The paper claims that it retains the internal path structure in propagation, but the face-induced term acts only on the edge cochain and is reflected in the node representations only through the closure edge, which is an endpoint-level connection. This is not essentially different from the approach that the authors criticize in the introduction."</p>
+  <p class="quote">Meta-review: "The face term reaches node representations only through the closure edges, and the ablations do not separate it from schema selection, instance weighting and added capacity."</p>
+  <p><b>ความหมายในภาษาง่าย:</b> paper อ้างว่าเก็บโครงสร้างภายใน path ไว้ระหว่างการแพร่ แต่ในทางปฏิบัติข้อมูลจาก cell ไปถึงโหนดผ่านเส้นสมมติ P1–P9 ซึ่งเป็นการเชื่อมปลายกับปลายตรง ๆ แบบเดียวกับที่ intro วิจารณ์วิธีอื่น</p>
+  <div class="box">
+    <p><b>R2 พูดถูกตรงไหน และคลาดตรงไหน</b> (ตรวจกับสมการ v1 ใน manuscript)</p>
+    <ul>
+      <li><b>ถูก:</b> ใน v1 state ของโหนดกับ state ของเส้นไม่แลกกันเลยระหว่างการแพร่ (manuscript เขียนเองว่า "not exchanged between diffusion steps") ข้อมูลจาก cell จึงไม่เคยเข้าไปในการแพร่ของโหนด</li>
+      <li><b>ถูก:</b> closure edge อยู่ใน operator ของโหนด จึงเป็นเส้นลัด P1–P9 จริง (ขนาด block P1–P9 = 0.386 ตรวจแล้ว)</li>
+      <li><b>คลาด:</b> readout ของ v1 รวม state ของทุกเส้นที่ติดโหนด ไม่ใช่แค่ closure ข้อมูลจาก cell จึงถึง P1 ผ่าน e0 ด้วย และถึง P9 ผ่าน e1 แต่ถึงแค่ครั้งเดียวที่ readout</li>
+    </ul>
+  </div>
+  <p class="note">R2 ขอการทดลองเพิ่มให้แยกผลของ cell ออกจากผลของ closure อย่างเดียว (Detailed comment 5) เอกสารนี้ไม่พูดเรื่องการทดลอง</p>
+</section>
+
+<section id="history">
+  <h2>5. v1 → v2 → v3: เกิดอะไรขึ้น</h2>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th>v1 (ส่ง WSDM)</th><th>v2 (โค้ดปัจจุบัน)</th></tr></thead>
+    <tbody>
+      <tr><td>path cell</td><td>2-cell ปิดด้วย closure edge</td><td>2-cell คำนวณผ่าน hub (closure ใช้เฉพาะในบทพิสูจน์)</td></tr>
+      <tr><td>state ของเส้น</td><td>มี แพร่ด้วย $L_1$</td><td>ไม่มี (spec: "edge cochains and $L_1$" ไม่อยู่ใน method)</td></tr>
+      <tr><td>cell → โหนด</td><td>ครั้งเดียวที่ readout</td><td>ทุกรอบ ทุกโหนดของ path (ผ่าน $L_P$)</td></tr>
+      <tr><td>เส้นลัดปลาย-ปลาย</td><td>มี (closure อยู่ใน $L_0$)</td><td>ไม่มี</td></tr>
+      <tr><td>เลือก path</td><td>AMPSS (เลือก schema + quota)</td><td>WISP (สุ่มเดิน + น้ำหนักต่อ instance)</td></tr>
+      <tr><td>map ต่อ cell</td><td>$A_f$ ขนาด d×d จาก MLP</td><td>ไม่มี (transport ถูกบังคับ)</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>ทำไม v1 แก้ R2 W3 ด้วยการเพิ่มทางจากเส้นไปโหนดเฉย ๆ ไม่ได้:</b> spec มี Lemma A′ (ตรวจซ้ำแล้ว 2e-16) ถ้าใช้การแพร่แบบ "ผลต่าง" ทั้งขาขึ้นและขาลง ข้อมูลจาก cell ไปถึงโหนดไม่ได้เลยในทางคณิตศาสตร์</p>
+  <div class="math">$$\delta_1\delta_0 = 0 \;\Rightarrow\; \delta_0^{\top}\delta_1^{\top} = (\delta_1\delta_0)^{\top} = 0$$</div>
+  <p>เงื่อนไขที่ reviewer ชมใน v1 คือตัวที่ปิดทางนี้ v2 จึงผูกโหนดเข้ากับ cell ตรง ๆ (spec R1)</p>
+  <p><b>ข้อสรุปเดิมใน brief ว่า "v2 ตัดทุกอย่างที่ reviewer ชม" จริงแค่บางส่วน:</b> v2 ตัด closure ในการคำนวณ, ตัด state ของเส้น และไม่ใช้ $A_f$ แต่การหมุนพิกัดที่ถูกบังคับ (R2 S1) และการเก็บโหนดกลาง (R1 S1) ยังอยู่</p>
+  <p><b>ทางที่ทดลองไว้ระหว่างทางแล้วไม่ใช้</b> (ตรวจแล้วทั้งหมด):</p>
+  <ul>
+    <li><b>v3 ตาม brief</b> (ขึ้นแบบผลต่าง ลงแบบไม่มีเครื่องหมาย): คู่ขึ้นกับลงไม่ใช่ตัวกลับของกัน operator จึงไม่สมมาตร (3.32) ไม่มี energy รองรับ และค่าของ cell ไม่ขึ้นกับ state ของโหนดเลยถ้าเป็นเชิงเส้น (ต่างกัน 1e-15)</li>
+    <li><b>ขึ้นแบบด้านเดียว:</b> cell เท่ากับ hub ของ v2 (4e-16)</li>
+  </ul>
+</section>
+
+<section id="shared">
+  <h2>6. ส่วนที่ A และ B ใช้ร่วมกัน (มาจาก v2 / spec v1.7)</h2>
+
+  <h3>6.1 แปลง feature ของโหนด</h3>
+  <p>แต่ละชนิดโหนดมีตัวแปลงของตัวเอง เพื่อให้ทุกโหนดอยู่ในพื้นที่ d มิติเดียวกัน:</p>
+  <div class="math">$$h_0(v) = \mathrm{TypeEncoder}_{\phi(v)}(x_v), \qquad c(v) = \text{ค่าเฉลี่ยของ } h_0 \text{ เพื่อนบ้านแยกตาม (relation, บทบาท)}$$</div>
+
+  <h3>6.2 map ของเส้น (หมุนพิกัด)</h3>
+  <p>สำหรับเส้น e ที่มีชนิด ψ(e) และโหนด v ในบทบาท role ∈ {ต้น, ปลาย}:</p>
+  <div class="math">$$F_{v\triangleleft e} = R_{\psi(e),\,\mathrm{role}}\; H_k(u)\cdots H_1(u), \qquad H_i(u) = I - 2\frac{u_i u_i^{\top}}{\lVert u_i\rVert^2}, \qquad u = \mathrm{MLP}\big([h_v, h_{\text{other}}, \mathrm{rel}_{\psi(e)}, \mathrm{role}]\big)$$</div>
+  <p>$F$ เป็นการหมุนหรือสะท้อน ความยาวไม่เปลี่ยน ($F^{-1} = F^{\top}$) ขึ้นกับทั้งสองปลายและชนิดเส้น และคำนวณ<b>ครั้งเดียว</b> ไม่คำนวณใหม่ทุกรอบ แต่ละเส้นมี scale หนึ่งค่าคือ $c_e$ เก็บ $k\cdot d$ ตัวเลขต่อ incidence แทน $d^2$</p>
+
+  <h3>6.3 transport (บังคับโดยเส้นจริง)</h3>
+  <p>สำหรับ path $f = (v_0, e_1, v_1, \dots, e_\ell, v_\ell)$ โดย $v_0$ คือโหนดต้นที่ WISP เริ่มเดิน:</p>
+  <div class="math">$$T_{v_0} = I, \qquad T_{v_i} = T_{v_{i-1}}\, F_{v_{i-1}\triangleleft e_i}^{\top}\, F_{v_i\triangleleft e_i}$$</div>
+  <p>บนตัวอย่าง:</p>
+  <div class="math">$$T_{P1} = I, \qquad T_{A7} = F_{P1\triangleleft e_0}^{\top}F_{A7\triangleleft e_0}, \qquad T_{P9} = T_{A7}\,F_{A7\triangleleft e_1}^{\top}F_{P9\triangleleft e_1}$$</div>
+  <p>$T_{A7}$ ขึ้นกับ map ของ e0 ซึ่งคำนวณจาก $h_{A7}$ นี่คือช่องทางที่ "A7 เป็นใคร" เข้าไปในเรขาคณิตของ cell transport ไม่มีพารามิเตอร์ของตัวเอง</p>
+  <p>map จากเส้นไป cell ที่ซ่อนอยู่คือ $F_{e_i\triangleleft f} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top}$ ซึ่งทำให้</p>
+  <div class="math">$$F_{e_i\triangleleft f}F_{v_{i-1}\triangleleft e_i} = T_{v_{i-1}}, \qquad F_{e_i\triangleleft f}F_{v_i\triangleleft e_i} = T_{v_i}$$</div>
+  <p>A7 ส่งเข้า f1 ผ่าน e0 หรือ e1 ก็ได้พิกัดเดียวกัน (ตรวจแล้ว 2e-16)</p>
+
+  <h3>6.4 WISP: path ไหนเข้า และหนักเท่าไร</h3>
+  <p>เดินสุ่มจากโหนดเป้าหมาย: สุ่มความยาว ℓ ∈ {2,…,ℓ_max} แล้วแต่ละก้าวสุ่มชนิดเส้นที่ยังไปโหนดที่ไม่เคยเดินได้ แล้วสุ่มโหนดถัดไป ได้ 1 walk = 1 cell</p>
+  <div class="math">$$p(\omega) = \frac{1}{\ell_{\max}-1}\prod_{j=1}^{\ell}\frac{1}{|A_j|}\cdot\frac{1}{|N_j^{\text{unvisited}}|}, \qquad m_f = \sum_{\omega\to f}\frac{1}{r}\cdot\frac{p(\omega)}{\tfrac12 p(\omega)+\tfrac12 q(\omega)} \le \frac{2}{r}\ \text{ต่อ walk}$$</div>
+  <div class="math">$$w_f = \exp\!\big(g(\xi_f)\big), \qquad \xi_f = [h_0(v_0),\dots,h_0(v_\ell),\ \mathrm{rel}(a_1),\dots,\mathrm{rel}(a_\ell)]$$</div>
+  <p>น้ำหนักรวมของ cell คือ $w_f m_f$ โดย $m_f$ มาจากการสุ่ม (ไม่ลำเอียง, spec Prop. S) และ $w_f$ เรียนรู้จาก path ทั้งเส้น walk ไม่ซ้ำโหนด (ตรวจในโค้ด <code>wisp_sampler.py</code> ใช้ <code>unvisited</code>)</p>
+
+  <h3>6.5 gate, filter, หัวทำนาย</h3>
+  <p>ทั้งสองทางใช้รูปแบบเดียวกัน ต่างกันแค่ $\hat\Delta$ (ข้อ 7 และ 8):</p>
+  <div class="math">$$\mathcal{A} = G\,\hat\Delta\,B, \qquad G = \mathrm{diag}(g), \; B = \mathrm{diag}(b), \qquad Y = \sum_{k=0}^{K} \mathcal{T}_k(\mathcal{A} - I)\,(I\otimes W_k)\,Y_0, \qquad \sum_k \lVert W_k\rVert_2 \le 1$$</div>
+  <div class="math">$$\hat y_v = \mathrm{MLP}\big([\,x_v,\ h_0(v)\,]\big)$$</div>
+  <p>$\mathcal{T}_k$ คือ Chebyshev polynomial การแพร่เป็นเชิงเส้นทั้งหมด ส่วนที่ไม่เป็นเชิงเส้นอยู่ที่หัวทำนาย (spec L3) gate และ map คำนวณครั้งเดียว (spec R10)</p>
+</section>
+
+<section id="pathA">
+  <h2>7. <span class="tag a">ทาง A</span> v2 + เขียนใหม่: สมการ</h2>
+  <p>state มีเฉพาะที่โหนด: $Y = x \in \mathbb{R}^{Nd}$ และ $Y_0 = h_0$</p>
+
+  <h3>7.1 energy</h3>
+  <div class="math">$$E_A(x) = \underbrace{\frac12\sum_{e=(u,v)} c_e^2\,\big\lVert F_{u\triangleleft e}x_u - F_{v\triangleleft e}x_v\big\rVert^2}_{\text{เส้นจริง: สองปลายควรตรงกันหลังหมุน}} \;+\; \underbrace{\frac12\sum_{f} w_f m_f \sum_{v\in f}\big\lVert T_v x_v - \bar z_f\big\rVert^2}_{\text{path: ทุกโหนดควรตรงกับค่าเฉลี่ยของ path}}, \qquad \bar z_f = \frac{1}{|f|}\sum_{v\in f}T_v x_v$$</div>
+  <p>เทอมที่สองคือ $L_P$ ของ v2 ค่า $\bar z_f$ คือ "hub" ของ path ซึ่งคำนวณใหม่ทันทีทุกครั้งจากโหนด ไม่ได้เก็บไว้ (ตามรูปของ spec Prop. K เมื่อ κ = 1)</p>
+  <div class="math">$$\frac{1}{2|f|}\sum_{u \lt v \in f}\lVert T_u x_u - T_v x_v\rVert^2 = \frac12\sum_{v\in f}\lVert T_v x_v - \bar z_f\rVert^2$$</div>
+
+  <h3>7.2 operator</h3>
+  <div class="math">$$\Delta_0 + L_P = \nabla^2 E_A, \qquad \hat\Delta_A = D^{-1/2}(\Delta_0 + L_P)D^{-1/2}, \qquad \sigma(\hat\Delta_A)\subset[0,2]$$</div>
+  <p>ผลของ $L_P$ ที่โหนด v ในหนึ่งรอบคือ $w_f m_f\,T_v^{\top}(T_v x_v - \bar z_f)$ ทุกโหนดของ path ได้รับ รวมโหนดกลาง</p>
+
+  <h3>7.3 บนตัวอย่าง (หนึ่งรอบของการแพร่)</h3>
+  <pre>z̄_f1 = ( x_P1 + T_A7 x_A7 + T_P9 x_P9 ) / 3          ค่าเฉลี่ยของ f1 ในพิกัดของ P1
+P1   รับ  w·(x_P1 − z̄_f1)            และจาก f2 แบบเดียวกัน
+A7   รับ  w·T_A7ᵀ(T_A7 x_A7 − z̄_f1)  และจาก f2
+P9   รับ  w·T_P9ᵀ(T_P9 x_P9 − z̄_f1)
+P4   ไม่ได้จาก f1 แต่ได้จาก f2 และได้จาก A7 ผ่านเส้น e2 ในรอบถัดไป
+ไม่มีเทอมใดเชื่อม P1 กับ P9 ตรง ๆ นอกจากผ่าน z̄ ซึ่งมี A7 อยู่ด้วยเสมอ</pre>
+
+  <h3>7.4 "เขียนใหม่" หมายถึงอะไร</h3>
+  <ol>
+    <li>นิยามโครงสร้างเป็น โหนด + เส้นจริง + 2-cell หนึ่งตัวต่อ path ที่ WISP สุ่มได้</li>
+    <li>ใช้บทพิสูจน์ของ spec Prop. 1: ถ้าให้ map ผ่านเส้นแล้วต่อเข้า cell ตรงกันทุกทาง (หรือเขียนแบบเดิมว่า δ₁δ₀ = 0 โดยมี closure ใช้แค่ในบทพิสูจน์) map จาก node ไป cell <b>ต้องเป็น</b> transport ข้อนี้เป็นทฤษฎีบทที่ reviewer ชม</li>
+    <li>เขียนตรง ๆ ว่าการคำนวณใช้ hub $\bar z_f$ (spec Prop. 2: เป็น Hodge 0-Laplacian ของ sheaf บนกราฟดาว) และไม่มี state บนเส้น</li>
+    <li>แก้ intro ให้ตรงกับ MAGNN (ดูข้อ 14)</li>
+  </ol>
+</section>
+
+<section id="pathB">
+  <h2>8. <span class="tag b">ทาง B</span> v2 + ชั้น edge: สมการ</h2>
+  <p>state มี 3 ระดับ: $Y = (x, s, z)$ โดย $x \in \mathbb{R}^{Nd}$ อยู่ที่โหนด, $s \in \mathbb{R}^{Ed}$ อยู่ที่เส้นจริงทุกเส้น และ $z \in \mathbb{R}^{Id}$ อยู่ที่ cell ทุกตัวที่ WISP สุ่มได้ closure edge อยู่ในนิยามของ complex (ทำให้ path เป็น 2-cell จริงและใช้ในบทพิสูจน์) แต่ไม่มี state และไม่อยู่ใน energy (ทฤษฎีบท 1b) เหมือนทาง A</p>
+
+  <h3>8.1 energy ตัวเดียว: "แต่ละสิ่งควรตรงกับชิ้นส่วนที่ติดกับมันหลังหมุน"</h3>
+  <div class="math">$$E_B(x,s,z) = \underbrace{\frac12\sum_{e=(u,v)} c_e^2\Big(\big\lVert F_{u\triangleleft e}x_u - s_e\big\rVert^2 + \big\lVert F_{v\triangleleft e}x_v - s_e\big\rVert^2\Big)}_{\text{โหนด–เส้น}} \;+\; \underbrace{\frac12\sum_{f} w_f m_f\sum_{e\in\partial f}\big\lVert F_{e\triangleleft f}s_e - z_f\big\rVert^2}_{\text{เส้น–cell}}$$</div>
+  <p>$F_{e\triangleleft f} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top}$ มาจากข้อ 6.3 ทุกคู่ที่ติดกัน (โหนดกับเส้น, เส้นกับ cell) มีเทอมรูปเดียวกัน แผนภาพที่เชื่อมแต่ละสิ่งกับสิ่งที่อยู่ติดกันในทางคณิตศาสตร์เรียกว่า Hasse diagram</p>
+
+  <h3>8.2 operator (block)</h3>
+  <div class="math">$$L_B = \nabla^2 E_B = \begin{bmatrix} D_x & -S^{\top} & 0 \\ -S & D_s & -C^{\top} \\ 0 & -C & D_z \end{bmatrix}$$</div>
+  <ul>
+    <li><b>block โหนด–เส้น:</b> $S_{e,v} = c_e^2 F_{v\triangleleft e}$</li>
+    <li><b>block เส้น–cell:</b> $C_{f,e} = w_f m_f F_{e\triangleleft f}$</li>
+    <li><b>ค่าบนแนวทแยง:</b> $D_x(v) = \sum_{e\ni v}c_e^2$, $D_s(e) = 2c_e^2 + \sum_{f\ni e}w_f m_f$, $D_z(f) = w_f m_f\,\ell_f$</li>
+  </ul>
+  <div class="math">$$\hat\Delta_B = D^{-1/2}L_B D^{-1/2}, \qquad \sigma(\hat\Delta_B) \subset [0,2]$$</div>
+
+  <h3>8.3 ค่าเริ่มต้น และสิ่งที่หัวทำนายอ่าน</h3>
+  <div class="math">$$x^{(0)} = h_0, \qquad s_e^{(0)} = \tfrac12\big(F_{u\triangleleft e}h_0(u) + F_{v\triangleleft e}h_0(v)\big), \qquad z_f^{(0)} = \frac{1}{\ell_f}\sum_{e\in\partial f}F_{e\triangleleft f}\,s_e^{(0)}$$</div>
+  <p>gate ใส่ได้ทุกสิ่ง ($g, b$ ต่อโหนด ต่อเส้น ต่อ cell) แต่ยังไม่ได้นิยามว่า gate ของเส้นและของ cell คำนวณจากอะไร หัวทำนายอ่านเฉพาะ $x$</p>
+
+  <h3>8.4 บนตัวอย่าง: การแพร่หนึ่งรอบเลื่อนข้อมูลไปได้แค่หนึ่งระดับ</h3>
+  <pre>รอบที่ 1   s_e0 ← จาก x_P1, x_A7 และจาก z_f1, z_f2
+           z_f1 ← จาก s_e0, s_e1
+รอบที่ 2   x_A7 ← จาก s_e0, s_e1, s_e2   (ข้อมูลของ f1 ถึง A7 แล้ว)
+รอบที่ 3   s_e2 ← จาก x_A7
+รอบที่ 4   x_P4 ← จาก s_e2               (ข้อมูลของ f1 ถึง P4)
+s_e0 คือที่ที่ f1 และ f2 เขียนลงร่วมกัน; ไม่มีเทอมใดเชื่อม P1 กับ P9 ตรง ๆ</pre>
+</section>
+
+<section id="theory">
+  <h2>9. พิสูจน์: โครงสร้างนี้ทำได้ตามที่ต้องการจริงหรือไม่</h2>
+  <p>หัวข้อนี้ตอบ 6 คำถามตามลำดับ: (1) โครงสร้างของเราเป็น sheaf จริงไหม (2) path cell เพิ่มข้อบังคับที่ขัดกับกราฟไหม (3) การเพิ่ม cell ทำให้ข้อมูลยุบไหม (4) เก็บตัวตนของโหนดภายใต้ heterophily ได้ไหม (5) ถ้าแพร่ไปจนนิ่ง แต่ละโหนดได้ภาพรวมของทั้งกราฟไหม (6) ใช้โหนดกลางจริงหรือแค่ปลาย ทุกข้อใช้ได้กับทั้ง A และ B และไม่ใช้การแพร่แบบ Hodge ของ complex</p>
+  <div class="box">
+    <p><b>เงื่อนไขที่ใช้ทั้งหัวข้อ</b></p>
+    <ul>
+      <li>กราฟเชื่อมกัน ถ้าไม่เชื่อม ทุกข้อใช้กับแต่ละส่วนแยกกัน</li>
+      <li>path ไม่ซ้ำโหนด (WISP รับประกัน)</li>
+      <li>map ของเส้นเป็นการหมุนหรือสะท้อน ($F^{\top}F = I$)</li>
+      <li>น้ำหนัก $c_e \gt 0$ และ $w_f m_f \gt 0$</li>
+      <li>$A_f = I$</li>
+    </ul>
+    <p>ตัวเลขทุกตัวในหัวข้อนี้มาจาก <code>proofs_check.py</code> ซึ่งใช้กราฟสุ่มที่เชื่อมกัน 24 โหนด 48 เส้น มีวง มี cell 14 ตัว และ 60 % ของเส้นเชื่อมโหนดต่าง class กัน</p>
+  </div>
+
+  <h3>9.1 ทฤษฎีบท 1: โครงสร้างของเราเป็น cellular sheaf บน 2-cell complex</h3>
+  <p><b>complex $X$:</b></p>
+  <ul>
+    <li>ระดับ 0 คือโหนด</li>
+    <li>ระดับ 1 คือเส้นจริง $E$ และ closure edge หนึ่งเส้นต่อ path $c_f = (v_\ell \to v_0)$</li>
+    <li>ระดับ 2 คือ path ที่ WISP สุ่มได้ ขอบของแต่ละ path คือ $\partial f = (e_1,\dots,e_\ell,c_f)$ ซึ่งเป็นวงปิด จึงเป็น 2-cell จริงในความหมายของ cell complex</li>
+  </ul>
+  <p><b>sheaf $\mathcal{F}$:</b> ทุกสิ่งมีพื้นที่ $\mathbb{R}^d$ และทุกคู่ "อยู่ติดกัน" $\sigma \triangleleft \tau$ มี map หนึ่งตัว:</p>
+  <div class="math">$$F_{v\triangleleft e}\ \text{(เรียนรู้)},\quad F_{e_i\triangleleft f} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top},\quad F_{v_0\triangleleft c_f} = I,\quad F_{v_\ell\triangleleft c_f} = T_{v_\ell},\quad F_{c_f\triangleleft f} = I,\quad F_{v\triangleleft f} := T_v$$</div>
+  <p><b>ข้อความ:</b> map เหล่านี้ประกอบกันได้โดยไม่ขัดกัน (functoriality) คือทุกลำดับ $v \triangleleft e \triangleleft f$ ให้ผลเดียวกับการไปตรง $v \triangleleft f$:</p>
+  <div class="math">$$F_{e\triangleleft f}\,F_{v\triangleleft e} = F_{v\triangleleft f}\qquad \text{สำหรับทุก } v\in e\in\partial f$$</div>
+  <p><b>พิสูจน์:</b></p>
+  <ul>
+    <li><b>เส้นจริง $e_i$ ที่ปลายต้น:</b> $F_{e_i\triangleleft f}F_{v_{i-1}\triangleleft e_i} = T_{v_{i-1}}F^{\top}F = T_{v_{i-1}}$</li>
+    <li><b>ปลายท้าย:</b> $F_{e_i\triangleleft f}F_{v_i\triangleleft e_i} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top}F_{v_i\triangleleft e_i} = T_{v_i}$ ตามนิยามของ transport</li>
+    <li><b>closure:</b> $I\cdot I = T_{v_0}$ และ $I\cdot T_{v_\ell} = T_{v_\ell}$</li>
+    <li><b>โหนดกลาง $v_i$</b> อยู่บนสองเส้น ($e_i$, $e_{i+1}$) ทั้งสองทางให้ $T_{v_i}$ เหมือนกัน และเพราะ path ไม่ซ้ำโหนด แต่ละโหนดจึงมี $T_v$ เพียงค่าเดียว ∎</li>
+  </ul>
+  <p><b>ตัวอย่าง:</b> A7 เข้า f1 ผ่าน e0 ได้ $F_{e_0\triangleleft f_1}F_{A7\triangleleft e_0} = T_{A7}$ และผ่าน e1 ได้ $F_{e_1\triangleleft f_1}F_{A7\triangleleft e_1} = T_{A7}$ ค่าเดียวกัน</p>
+  <p><b>ตรวจ:</b> residual สูงสุดบนทุกลำดับ รวม closure = 7e-16</p>
+  <p class="note">map ไม่มีทางเลือกอื่น: ถ้ากำหนดกรอบของ cell ที่ $v_0$ แล้ว เงื่อนไขข้างบนบังคับ $F_{e_i\triangleleft f}$ ทีละก้าว (spec Prop. 1) cell จึงไม่มีพารามิเตอร์ของตัวเอง</p>
+
+  <p><b>ทฤษฎีบท 1b (ตัด closure ออกจากการคำนวณได้โดยไม่เสียอะไร):</b> ให้ $X'$ คือ $X$ ที่ไม่มี closure global section (state ที่ทุกคู่ติดกันตรงกันหลังแปลง) บน $X$ กับบน $X'$ จับคู่กันได้หนึ่งต่อหนึ่ง</p>
+  <p><b>พิสูจน์:</b></p>
+  <ul>
+    <li><b>จาก $X$ ไป $X'$:</b> ตัดค่าของ closure ทิ้ง</li>
+    <li><b>จาก $X'$ ไป $X$:</b> ให้ $s_{c_f} := x_{v_0}$ ค่านี้ตรงกับปลาย $v_0$ เพราะ $F_{v_0\triangleleft c_f} = I$ ตรงกับปลาย $v_\ell$ เพราะ $T_{v_\ell}x_{v_\ell} = T_{v_0}x_{v_0} = x_{v_0}$ (cell ตรงกันทุกโหนด) และตรงกับ cell เพราะ $F_{c_f\triangleleft f}s_{c_f} = x_{v_0} = z_f$</li>
+    <li>ค่านี้ถูกบังคับให้เป็นค่าเดียว ∎</li>
+  </ul>
+  <p>ดังนั้น closure อยู่ในนิยามเพื่อให้ path เป็น 2-cell จริงและเพื่อบังคับ map แต่การแพร่ไม่ต้องให้ closure มี state และไม่มีเส้นปลาย-ปลายให้ข้อมูลเดิน</p>
+
+  <h3>9.2 ทฤษฎีบท 2: วงรอบ cell ไม่หมุน (holonomy = I)</h3>
+  <p><b>ข้อความ:</b> เดินจาก $v_0$ ไปตาม path ถึง $v_\ell$ แล้วกลับทาง closure การหมุนรวมคือ</p>
+  <div class="math">$$\underbrace{T_{v_0}^{-1}T_{v_\ell}}_{\text{ตาม path}}\cdot\underbrace{\big(F_{v_\ell\triangleleft c_f}\big)^{-1}F_{v_0\triangleleft c_f}}_{\text{กลับทาง closure}} = T_{v_\ell}\,T_{v_\ell}^{-1} = I$$</div>
+  <p><b>พิสูจน์:</b> แทนค่าจากนิยามใน 9.1 ∎</p>
+  <p><b>ความหมาย:</b> cell ไม่ได้เพิ่มข้อบังคับใหม่ให้กราฟ ต่างจากวงจริงในกราฟ (เช่น P1–A7–P9–A8–P1) ซึ่ง holonomy ไม่เป็น I ได้ตามที่ map เรียนรู้ เหมือน NSD</p>
+  <p><b>ตรวจ:</b> $\lvert H - I\rvert$ = 2e-16</p>
+
+  <h3>9.3 ทฤษฎีบท 3: cell ไม่ทำให้ข้อมูลยุบ</h3>
+  <p>ให้ $\mathcal{L}_A = \Delta_0 + L_P$ (ทาง A) และ $L_B$ (ทาง B) "ข้อมูลยุบ" หมายถึงชุดของ state ที่การแพร่ไม่ทำลาย (kernel) เล็กลง</p>
+  <p><b>ข้อความ:</b></p>
+  <div class="math">$$\ker\mathcal{L}_A = \ker\Delta_0, \qquad \ker L_B = \big\{(x,\,s,\,z)\;:\; x\in\ker\Delta_0,\ s_e = F_{u\triangleleft e}x_u,\ z_f = T_v x_v\big\} \cong \ker\Delta_0$$</div>
+  <p><b>พิสูจน์ (A):</b></p>
+  <ol>
+    <li>$E_A$ เป็นผลรวมของกำลังสอง จึงเป็นศูนย์ก็ต่อเมื่อทุกเทอมเป็นศูนย์</li>
+    <li>เทอมของเส้นเป็นศูนย์ทุกเส้น หมายความว่า $\delta_0x = 0$</li>
+    <li>เมื่อ $\delta_0x = 0$ บนเส้น $e_i$ ของ path จะได้ $T_{v_i}x_{v_i} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top}F_{v_i\triangleleft e_i}x_{v_i} = T_{v_{i-1}}F_{v_{i-1}\triangleleft e_i}^{\top}F_{v_{i-1}\triangleleft e_i}x_{v_{i-1}} = T_{v_{i-1}}x_{v_{i-1}}$</li>
+    <li>ทุกโหนดของ path จึงมี $T_vx_v$ เท่ากัน เทอมของ cell เป็นศูนย์เอง</li>
+    <li>สรุป: cell ไม่เพิ่มเงื่อนไขใด ∎</li>
+  </ol>
+  <p><b>พิสูจน์ (B):</b></p>
+  <ol>
+    <li>$E_B = 0$ ก็ต่อเมื่อ $s_e = F_{u\triangleleft e}x_u = F_{v\triangleleft e}x_v$ ทุกเส้น ซึ่งคือ $\delta_0x = 0$ และ $s$ ถูกกำหนด</li>
+    <li>และ $z_f = F_{e\triangleleft f}s_e$ ทุก $e\in\partial f$ จากทฤษฎีบท 1 ค่า $F_{e_i\triangleleft f}s_{e_i} = T_{v_i}x_{v_i}$ ซึ่งเท่ากันทุก $i$ (ขั้น 3 ของ A) จึงมี $z_f$ ที่ตรงกับทุกเส้นได้พอดีหนึ่งค่า ∎</li>
+  </ol>
+  <p><b>ทำไมต้องใช้ transport:</b> ถ้าให้ map เส้น→cell เป็นอิสระ ค่า $F_{e\triangleleft f}s_e$ ของเส้นต่าง ๆ ในวงเดียวกันจะไม่เท่ากัน แต่ละ cell จึงกลายเป็นข้อบังคับใหม่ และ kernel ยุบ</p>
+  <div class="scroll"><table>
+    <thead><tr><th>sheaf ที่ทดสอบ</th><th>dim ker $\Delta_0$</th><th>dim ker A</th><th>dim ker B</th></tr></thead>
+    <tbody>
+      <tr><td>map สุ่ม (วงในกราฟหมุน)</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+      <tr><td>map ที่สร้างตามทฤษฎีบท 4</td><td class="num">3</td><td class="num">3</td><td class="num">3</td></tr>
+      <tr><td>map แบบไม่หมุนทั้งกราฟ ($F_{v\triangleleft e} = R_eQ_v$)</td><td class="num">4 = d</td><td class="num">4</td><td class="num">4</td></tr>
+      <tr><td>แบบเดียวกัน แต่ map เส้น→cell อิสระ</td><td class="num">4</td><td class="num">—</td><td class="num no">0 (ยุบ)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">หลัง normalize ด้วย $D^{-1/2}$ kernel คือ $D^{1/2}$ คูณชุดเดิม และเมื่อมี gate ($g, b \gt 0$) kernel ของ $G\hat\Delta B$ คือ $B^{-1}$ คูณชุดเดิม เป็น global section ชุดเดิมที่ถูกปรับขนาดต่อสิ่ง</p>
+
+  <h3>9.4 ทฤษฎีบท 4: มี state ที่แยก class ได้สมบูรณ์ และไม่ถูกการแพร่ทำลาย แม้เพื่อนบ้านต่าง class</h3>
+  <p><b>ข้อความ:</b> สำหรับการแบ่ง class $y: V\to\{1,\dots,C\}$ แบบใดก็ได้ และ vector หนึ่งหน่วย $a_1,\dots,a_C$ ที่ต่างกันใน $\mathbb{R}^d$ ($d \ge 2$) มี map ของเส้น (แต่ละตัวเป็น $I$ หรือการสะท้อนหนึ่งครั้ง) ที่ทำให้</p>
+  <div class="math">$$x^{\star}_v = a_{y(v)}$$</div>
+  <p>เป็น global section และอยู่ใน kernel ของทั้ง A และ B ข้อนี้เป็นจริงบนกราฟใดก็ได้ ไม่ว่าจะมีวงหรือมี heterophily มากแค่ไหน</p>
+  <p><b>พิสูจน์:</b></p>
+  <ol>
+    <li>สำหรับเส้น $e = (u,v)$ ให้ $F_{u\triangleleft e} = I$ และ $F_{v\triangleleft e} = H(a_{y(v)}\to a_{y(u)})$ โดย $H(a\to b) = I - 2\frac{(a-b)(a-b)^{\top}}{\lVert a-b\rVert^2}$ ซึ่งเป็นการสะท้อนที่ส่ง $a$ ไป $b$</li>
+    <li>จะได้ $F_{v\triangleleft e}x^{\star}_v = a_{y(u)} = F_{u\triangleleft e}x^{\star}_u$ ทุกเส้น จึงได้ $\delta_0x^{\star} = 0$</li>
+    <li>จากทฤษฎีบท 3 $x^{\star}$ อยู่ใน kernel ของ A และ B ด้วย</li>
+    <li>class ต่างกันได้ vector ต่างกัน และจุดบนทรงกลมหนึ่งหน่วยแต่ละจุดแยกจากจุดอื่นได้ด้วยระนาบ (เป็นจุดยอดของ convex hull) แต่ละ class จึงแยกออกด้วยตัวแบ่งเชิงเส้นได้ ∎</li>
+  </ol>
+  <p><b>ตัวอย่าง:</b> P1 อยู่ class X ($a_X$) และ P9 อยู่ class Y ($a_Y$) ส่วน A7 (author ไม่มี label) ได้ vector ใดก็ได้ เช่น $a_X$ ให้ $F_{A7\triangleleft e_0} = I$, $F_{P1\triangleleft e_0} = I$ และบน $e_1$ ให้ map ของ P9 สะท้อน $a_Y$ ไป $a_X$ ผลคือทุกเส้น "ตรงกัน" แต่ P1 กับ P9 ยังต่างกันชัดเจน และ cell f1 ก็ตรงกันด้วย ($T_vx^{\star}_v$ เท่ากันทั้งสามโหนด)</p>
+  <p><b>ตรวจ:</b> $\lvert\delta_0x^{\star}\rvert$ = 2e-16, $\lvert\mathcal{L}_Ax^{\star}\rvert$ = 2e-15, $\lvert L_B(x^{\star}, Fx^{\star}, Tx^{\star})\rvert$ = 2e-15 บนกราฟที่ 29 จาก 48 เส้นเชื่อมโหนดต่าง class</p>
+  <p><b>ความหมาย:</b> การแพร่บน sheaf ผลักให้ "ค่าหลังแปลงเข้าภาษาของเส้น" ตรงกัน ไม่ได้ผลักให้ค่าของโหนดเท่ากัน จุดนิ่งจึงรวม state ที่แยก class ได้สมบูรณ์ ต่างจาก graph Laplacian ธรรมดา ($F = I$) ที่จุดนิ่งมีแต่ค่าคงที่</p>
+  <div class="box">
+    <p><b>เงื่อนไขเพิ่มเมื่อใช้ map ของเราจริง</b> ($F = R_{\psi,\mathrm{role}}H_k\cdots H_1(u)$)</p>
+    <ol>
+      <li><b>จำนวนการสะท้อน k ต้องพอ:</b> การหมุนหรือสะท้อนใด ๆ ใน $\mathbb{R}^d$ เขียนเป็นการสะท้อนไม่เกิน d ครั้งได้ (Cartan–Dieudonné) ถ้า k น้อยกว่า d บาง map จะสร้างไม่ได้</li>
+      <li><b>class ต้องอ่านได้จาก input ของ MLP</b> ($h_v$, $h_{\text{other}}$, ชนิดเส้น, บทบาท) ถ้าโหนดสองตัว input เหมือนกันทุกอย่างแต่ class ต่างกัน ก็ได้ map เดียวกัน ข้อจำกัดนี้มีในทุก GNN</li>
+    </ol>
+    <p><b>สิ่งที่ไม่ได้พิสูจน์:</b> การเทรนจะหา map เหล่านี้เจอ ทฤษฎีบทนี้บอกว่ามีอยู่ในชุดของโมเดล เหมือนที่ NSD พิสูจน์ได้เพียงว่ามีอยู่</p>
+  </div>
+
+  <h3>9.5 ทฤษฎีบท 5: ถ้าแพร่จนนิ่ง ทุกโหนดได้ภาพรวมของทั้งกราฟในพิกัดของตัวเอง</h3>
+  <p>ให้การแพร่แบบความร้อน $\dot x = -\mathcal{L}x$ จะได้ $x(t) = e^{-t\mathcal{L}}x(0) \to P_{\ker\mathcal{L}}\,x(0)$ เมื่อ $t\to\infty$ (การฉายตั้งฉากลง kernel) เพราะ $\mathcal{L}$ สมมาตรและไม่ติดลบ</p>
+  <p><b>ข้อความ:</b> สำหรับ sheaf ที่ไม่หมุนทั้งกราฟ $F_{v\triangleleft e} = R_eQ_v$ บนกราฟที่เชื่อมกัน ไม่ว่าจะมี cell หรือไม่ (ทาง A)</p>
+  <div class="math">$$x_v(\infty) = Q_v^{\top}\,\bar y, \qquad \bar y = \frac{1}{N}\sum_{u\in V}Q_u\,x_u(0)$$</div>
+  <p><b>พิสูจน์:</b></p>
+  <ol>
+    <li>$\ker\Delta_0 = \{x : x_v = Q_v^{\top}y,\ y\in\mathbb{R}^d\}$ เพราะ $F_{u\triangleleft e}x_u = R_eQ_uQ_u^{\top}y = R_ey = F_{v\triangleleft e}x_v$ และมิติเท่ากับ $d$ บนกราฟที่เชื่อมกัน</li>
+    <li>ฐาน $b_i = \frac{1}{\sqrt N}(Q_v^{\top}e_i)_{v\in V}$, $i = 1..d$ ตั้งฉากกันและยาวหนึ่ง เพราะ $Q_v$ เป็นการหมุน</li>
+    <li>$P x = \sum_i b_ib_i^{\top}x = \big(Q_v^{\top}\tfrac{1}{N}\sum_u Q_ux_u\big)_v$</li>
+    <li>จากทฤษฎีบท 3 cell ไม่เปลี่ยน kernel ลิมิตจึงเหมือนเดิม ∎</li>
+  </ol>
+  <p><b>ความหมาย:</b> ทุกโหนดได้ค่าเฉลี่ยของ<b>ทั้งกราฟ</b> ($\bar y$ ใช้ทุกโหนด) แต่แสดงในพิกัดของตัวเอง ($Q_v^{\top}$) ตัวตนของโหนดจึงไม่หายไป ทั้งที่ได้ข้อมูลจากทั้งกราฟ</p>
+  <p><b>ตรวจ:</b> ลิมิตจริงต่างจากสูตร 0 ทั้งแบบไม่มีและมี cell ส่วนทาง B ส่วนโหนดของลิมิตเป็น global section ($\lvert\delta_0x\rvert$ = 0, ขนาด 0.53) แต่จุดที่ได้ขึ้นกับค่าเริ่มของเส้นและ cell ด้วย ยังไม่มีสูตรปิด</p>
+  <p><b>ทฤษฎีบท 5b (ทาง A: cell ทำให้ไปถึงภาพรวมเร็วขึ้น):</b></p>
+  <div class="math">$$\lambda^{+}_{\min}(\Delta_0 + L_P) \;\ge\; \lambda^{+}_{\min}(\Delta_0)$$</div>
+  <p><b>พิสูจน์:</b> kernel เท่ากัน (ทฤษฎีบท 3) สำหรับ $x$ ที่ตั้งฉากกับ kernel จะได้ $x^{\top}(\Delta_0+L_P)x \ge x^{\top}\Delta_0x \ge \lambda^{+}_{\min}(\Delta_0)\lVert x\rVert^2$ เพราะ $L_P \succeq 0$ ∎</p>
+  <p><b>ตรวจ:</b> 0.763 → 0.865</p>
+  <p class="note">โมเดลไม่ได้แพร่จนถึงลิมิต ใช้ filter ดีกรี K ซึ่งรวมการแพร่ทีละก้าวไว้เป็นกรณีพิเศษ (spec Prop. 7) ทฤษฎีบท 5 จึงบอกว่าโมเดล "ทำได้" ถ้าต้องการภาพรวม ไม่ได้บอกว่าโมเดลทำแบบนั้นเสมอ filter ยังเลือกเก็บส่วนที่ยังไม่ตรงกันไว้ได้ ซึ่งช่วยเมื่อข้อมูลเป็น heterophily</p>
+
+  <h3>9.6 ทฤษฎีบท 6: cell ใช้โหนดกลางจริง ไม่ใช่แค่ปลาย</h3>
+  <p><b>ทาง A:</b> เทอมของ cell ที่โหนด $v$ คือ</p>
+  <div class="math">$$(L_Px)_v = w_fm_f\,T_v^{\top}\big(T_vx_v - \bar z_f\big), \qquad \bar z_f = \frac{1}{|f|}\sum_{u\in f}T_ux_u$$</div>
+  <ul>
+    <li><b>โหนดกลางได้รับ:</b> $(L_Px)_{A7} \ne 0$ เมื่อ A7 ไม่ตรงกับ cell (ตรวจได้ 9.6)</li>
+    <li><b>ปลายเห็นโหนดกลาง:</b> $\bar z_f$ มีโหนดกลางทุกตัว เปลี่ยนเฉพาะ $x_{A7}$ แล้วสิ่งที่ P1 ได้รับเปลี่ยน 2.60</li>
+    <li><b>มุมมองปลาย-ปลายไม่เห็น A7:</b> ถ้าแทน path ด้วยเส้น P1–P9 ที่หมุนตาม path (spec Theorem R) การเปลี่ยน A7 ทำให้ได้ 0 เพราะเส้นนั้นไม่มี A7 อยู่</li>
+    <li><b>คู่ปลายเป็นส่วนน้อย:</b> ใน cell คู่ปลาย (P1, P9) เป็นคู่เดียวจาก $|f|(|f|-1)/2$ คู่ (spec Prop. K)</li>
+  </ul>
+  <p><b>ทาง B:</b> ถ้าแก้ค่าเส้นและ cell ทันที เทอมที่เหลือจะครอบทุกโหนดของ cell และไม่ใช่เส้นปลาย-ปลาย (<code>hasse2.py</code>: ครอบ 4 จาก 4 โหนดของ path, residual เทียบกับ hub 0.18) ในการแพร่ ข้อมูลของ cell ถึงโหนดกลางหลังผ่านเส้น 2 ก้าว (ข้อ 8.4)</p>
+
+  <h3>9.7 สิ่งที่หัวข้อนี้ไม่ได้พิสูจน์</h3>
+  <ul>
+    <li>การเทรนจะลู่เข้า sheaf ที่แยก class ได้ ข้อนี้พิสูจน์ไม่ได้สำหรับ neural network ทั่วไป สิ่งที่พิสูจน์ได้คือ sheaf นั้นมีอยู่ (ทฤษฎีบท 4) และเมื่อได้มาแล้ว cell ไม่ทำลายมัน (ทฤษฎีบท 3)</li>
+    <li>path ที่ WISP สุ่มได้เป็น path ที่มีประโยชน์ ข้อนี้เป็นเรื่องของน้ำหนัก $w_f$ และต้องทดสอบ</li>
+    <li>พฤติกรรมเมื่อ K จำกัด และประโยชน์บนข้อมูลจริง</li>
+    <li>B ไม่มีสูตรปิดของลิมิต และไม่ได้พิสูจน์ว่าไปถึงภาพรวมเร็วขึ้นแบบทฤษฎีบท 5b</li>
+  </ul>
+
+  <h3>9.8 สรุปทฤษฎีบทเทียบสองทาง</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>ทฤษฎีบท</th><th><span class="tag a">A</span></th><th><span class="tag b">B</span></th></tr></thead>
+    <tbody>
+      <tr><td>1 เป็น sheaf บน 2-cell complex / 1b ตัด closure ได้</td><td class="ok">ได้</td><td class="ok">ได้</td></tr>
+      <tr><td>2 cell ไม่หมุน</td><td class="ok">ได้</td><td class="ok">ได้</td></tr>
+      <tr><td>3 cell ไม่ทำให้ยุบ</td><td class="ok">ได้ (spec Prop. 2)</td><td class="ok">ได้</td></tr>
+      <tr><td>4 มี state แยก class ได้ภายใต้ heterophily</td><td class="ok">ได้</td><td class="ok">ได้</td></tr>
+      <tr><td>5 ลิมิตให้ภาพรวมในพิกัดของตัวเอง</td><td class="ok">ได้ มีสูตรปิด และ cell ทำให้เร็วขึ้น</td><td class="part">ลิมิตอยู่ในชุดเดียวกัน ไม่มีสูตรปิด และไม่มีผลเรื่องความเร็ว</td></tr>
+      <tr><td>6 ใช้โหนดกลาง</td><td class="ok">ได้ ภายในการแพร่หนึ่งก้าว</td><td class="ok">ได้ ผ่านเส้น 2 ก้าว</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.9 ตารางทฤษฎีเดิม (ก่อนเพิ่มบทพิสูจน์)</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>ข้อความ</th><th>ใช้กับ</th><th>สถานะ</th></tr></thead>
+    <tbody>
+      <tr><td><b>การหมุนถูกบังคับ:</b> ถ้า map node→cell ต้องได้ค่าเดียวไม่ว่าผ่านเส้นไหน และ map ของเส้นกลับด้านได้ จะเหลือทางเลือกเดียวคือ transport ในข้อ 6.3 (ไล่ทีละก้าว: เงื่อนไขที่ $v_{i-1}$ บังคับ $F_{e_i\triangleleft f}$ แล้วเงื่อนไขที่ $v_i$ บังคับ $T_{v_i}$; path ไม่ซ้ำโหนดจึงไม่ขัดกัน)</td><td>A, B</td><td>พิสูจน์ (spec Prop. 1) + ตรวจแล้ว 2e-16</td></tr>
+      <tr><td><b>ไม่ลบความสอดคล้องเดิมของกราฟ:</b> state ที่ทุกเส้นเห็นสองปลายตรงกัน ยังมี energy เป็นศูนย์หลังเพิ่ม path</td><td>A</td><td>จาก spec Prop. 2</td></tr>
+      <tr><td><b>เหมือนข้างบนสำหรับ B:</b> ชุดที่ทำให้ $E_B = 0$ คือ global section ของโหนดพอดี ขยายไปเส้นด้วย $s_e = F_{v\triangleleft e}x_v$ และไป cell ด้วย $z_f = T_v x_v$ (ได้ค่าเดียวเพราะข้อแรก)</td><td>B</td><td>ตรวจแล้ว: มิติของ kernel = d = จำนวน global section; ส่วนโหนดของ kernel มี $\lvert\delta_0 x\rvert$ = 2e-15</td></tr>
+      <tr><td><b>ขอบเขตของ spectrum:</b> $\sigma(\hat\Delta)\subset[0,2]$</td><td>A, B</td><td>A: spec Prop. 3 / B: ตรวจแล้ว (ค่าสูงสุด 2.0)</td></tr>
+      <tr><td><b>gate:</b> $\mathcal{A} = G\hat\Delta B$ สมมาตรเมื่อวัดด้วย metric $BG^{-1}$ (เพราะ $\langle x, \mathcal{A}y\rangle_{BG^{-1}} = x^{\top}B\hat\Delta By$) จึงมี spectrum เป็นจำนวนจริงแม้อิทธิพลไม่เท่ากันสองทิศ; ถ้า g = 0 สิ่งนั้นไม่ฟังใคร ถ้า b = 0 ไม่มีใครได้ยินมัน</td><td>A, B</td><td>A: spec Prop. 4–6 / B: บทพิสูจน์เดียวกัน (ใช้แค่ $\hat\Delta$ สมมาตรและอยู่ใน [0,2]); ตรวจแล้วบนกราฟสุ่ม: ไม่สมมาตร 0.30, ส่วนจินตภาพ 2e-17, row/column ที่ gate = 0 เป็นศูนย์ทุกกำลัง</td></tr>
+      <tr><td><b>filter มีขอบเขตสำหรับทุกค่าพารามิเตอร์:</b> gain ≤ 1</td><td>A, B</td><td>A: spec Prop. 5 / B: ตามมาจากสองข้อบน ยังไม่ได้ตรวจเป็นตัวเลขแยก</td></tr>
+      <tr><td><b>B ครอบคลุมส่วนเส้นของ v2:</b> ถ้าไม่มี cell และแก้ค่า state ของเส้นทันที จะได้ operator ของโหนด = $\tfrac12\Delta_0$ ของ v2 พอดี</td><td>B</td><td>ตรวจแล้ว 1.8e-15</td></tr>
+      <tr><td><b>B ไม่ใช่ A ที่เขียนอีกแบบ:</b> ถ้ามี cell แล้วแก้ค่าเส้นและ cell ทันที เทอมที่ได้อยู่บนโหนดของ cell เท่านั้น แต่ไม่เท่ากับ $L_P$ (hub) ของ v2 เพราะเส้นถูกใช้ร่วมทั้งเทอมโหนด–เส้นและเส้น–cell</td><td>A vs B</td><td>ตรวจแล้ว: fit ดีที่สุดยังเหลือ residual 0.18 จากขนาด 0.23; ยังไม่มีสูตรปิด</td></tr>
+      <tr><td><b>ทำไม B ใช้ energy แบบ "ตรงกับชิ้นส่วนที่ติดกัน" ไม่ใช่แบบผลต่างของ v1:</b> แบบผลต่างตัดทางจาก cell ไปโหนด (Lemma A′)</td><td>B</td><td>พิสูจน์ (หนึ่งบรรทัด ข้อ 5) + ตรวจแล้ว</td></tr>
+      <tr><td><b>กรณีเสื่อม:</b> ถ้า map ขึ้นกับชนิดเส้นอย่างเดียว ค่า $\bar z_f$ ของ A คือ instance encoder แบบหมุนของ MAGNN</td><td>A (และ B เมื่อแก้ค่าเส้นทันที)</td><td>จาก <code>possible_reviewer_qa.md</code> Q2.3b</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="diff">
+  <h2>10. A กับ B ต่างกันจริงตรงไหน</h2>
+  <p>ทั้งสองทางใช้ map ชุดเดียวกัน transport เดียวกัน WISP เดียวกัน gate และ filter แบบเดียวกัน ต่างกันข้อเดียว:</p>
+  <div class="box a"><p><span class="tag a">A</span> state ของเส้นและของ cell ไม่มีอยู่จริง ทุกครั้งที่ต้องใช้จะคำนวณใหม่ทันทีจากโหนด (เส้น = ค่ากลางของสองปลาย, cell = ค่าเฉลี่ยของทุกโหนดใน path)</p></div>
+  <div class="box b"><p><span class="tag b">B</span> state ของเส้นและของ cell เป็นตัวแปรที่เคลื่อนไปพร้อมโหนดในการแพร่ จึงอาจต่างจากค่าที่คำนวณทันที และ cell ที่ใช้เส้นร่วมกัน (f1, f2 ผ่าน e0) เขียนข้อมูลลงที่เดียวกัน</p></div>
+  <p><b>คำถามที่ตัดสินระหว่าง A กับ B:</b> มีงานทำนายใดที่ต้องเก็บข้อมูลเฉพาะของคู่ (P1, A7) ไว้ระหว่างรอบการแพร่ และ $x_{P1}$, $x_{A7}$ ทำแทนไม่ได้หรือไม่</p>
+  <ul>
+    <li>ตัวอย่าง "P1 มีผู้เขียน A7 กับ A8 กลุ่ม paper ผ่าน A7 คือ {X, X} ผ่าน A8 คือ {Y, Y}" <b>ใช้ไม่ได้</b> เพราะใน A โหนด A7 รวม paper ของตัวเองผ่านเส้นอยู่แล้ว P1 จึงได้ข้อมูลที่แยกตามผู้เขียนอยู่แล้ว</li>
+    <li>เหตุผลที่เหลือคือ <b>พื้นที่เก็บ</b>: โหนดที่มีเพื่อนบ้านหลายพัน (เช่น subject ใน ACM) มี state d ตัวเลขสำหรับทุกคน ส่วนเส้นแต่ละเส้นมี d ตัวเลขของตัวเอง กลไกนี้มีในงานเก่าแล้ว (D-MPNN, CWN) จึงใช้เป็นเหตุผลว่ามีประโยชน์ได้ แต่ใช้อ้างว่าเป็นของใหม่ไม่ได้</li>
+    <li>การแพร่เป็นเชิงเส้นทั้งคู่ "หน่วยความจำ" ของ B จึงไม่ใช่หน่วยความจำแบบ RNN แต่เป็นตัวแปรเพิ่มในระบบเชิงเส้น ผลต่อโหนดของ B เป็น polynomial ของ operator สามระดับ ส่วนของ A เป็น polynomial ของ operator บนโหนด ยังไม่รู้ว่าแบบไหนกว้างกว่า</li>
+  </ul>
+</section>
+
+<section id="cost">
+  <h2>11. ต้นทุน</h2>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th><span class="tag a">A</span></th><th><span class="tag b">B</span></th></tr></thead>
+    <tbody>
+      <tr><td>state ที่เก็บระหว่างแพร่</td><td>N·d (hub I·d ชั่วคราว)</td><td>(N + E + I)·d</td></tr>
+      <tr><td>คู่ที่ต้องคำนวณต่อการแพร่หนึ่งครั้ง</td><td>E (เส้น) + Σ(ℓ_f+1) (โหนด–cell)</td><td>2E (โหนด–เส้น) + Σℓ_f (เส้น–cell)</td></tr>
+      <tr><td>การแพร่หนึ่งครั้งไปถึง</td><td>เพื่อนบ้านหนึ่งเส้น และ<b>ทั้ง path</b></td><td>แค่ระดับติดกัน: โหนด→โหนด ใช้ 2 ครั้ง, ข้าม path หนึ่งเส้นใช้ 4 ครั้ง</td></tr>
+      <tr><td>K ที่ต้องใช้ให้ไปได้ไกลเท่ากัน</td><td>K</td><td>ประมาณ 2K–4K (ยังไม่ตรวจ)</td></tr>
+      <tr><td>map</td><td colspan="2">เหมือนกัน: คำนวณครั้งเดียว แบบแยกตัวประกอบ (k·d ต่อ incidence) transport คำนวณโดยไม่สร้างเมทริกซ์</td></tr>
+      <tr><td>ตัวเลขที่วัดแล้ว</td><td class="num">ACM 1,661 MB · DBLP 2,705 MB · IMDB 889 MB<br>(v2 + WISP, Part H H6; ACM: 103,103 cell, 411,257 incidence)</td><td>ยังไม่มี</td></tr>
+      <tr><td>mini-batch (M0–M4)</td><td>ใช้ได้ (spec Lemma R)</td><td>ต้องดึงเส้นทุกเส้นของ cell ใน batch มาด้วย Lemma R น่าจะยังใช้ได้เพราะเป็นการตัดเฉพาะส่วน แต่ยังไม่ตรวจ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">v1 ใช้ 9,260 MB บน ACM ข้อสันนิษฐาน (ยังไม่ตรวจกับโค้ด tag <code>v1-submitted</code>): v1 สร้าง map ขนาด d×d ต่อ incidence ถ้าใช้ 411k incidence และ d = 64 จะได้ประมาณ 6.7 GB</p>
+</section>
+
+<section id="story">
+  <h2>12. เล่าเรื่องแบบ paper เดิมได้ไหม</h2>
+  <p>เรื่องใน paper เดิม (abstract, intro, contribution) แยกเป็นข้อความหลักได้ 6 ข้อ:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>ข้อความใน paper เดิม</th><th><span class="tag a">A</span></th><th><span class="tag b">B</span></th></tr></thead>
+    <tbody>
+      <tr><td>S-a ปัญหา: กราฟที่มีหลายชนิดและเพื่อนบ้านมักต่างกลุ่มกัน (heterogeneous heterophilic)</td><td class="ok">ใช้ได้เหมือนเดิม</td><td class="ok">ใช้ได้เหมือนเดิม</td></tr>
+      <tr><td>S-b ช่องว่าง: วิธีที่ใช้ meta-path ยุบ path เหลือความสัมพันธ์ปลาย-ปลาย ทิ้งโหนดกลาง</td><td class="part">ต้องแก้: จริงสำหรับ HAN, SeHGNN แต่ MAGNN เก็บโหนดกลางอยู่แล้ว ต้องเปลี่ยนเป็น "MAGNN สรุป path เป็น feature ของปลาย โหนดกลางไม่ได้รับอะไรกลับ และ path ไม่ได้เป็นส่วนหนึ่งของเรขาคณิตของกราฟ"</td><td class="part">ต้องแก้แบบเดียวกัน</td></tr>
+      <tr><td>S-c แนวคิด: เก็บแต่ละ path เป็น 2-cell</td><td class="ok">ใช้ได้ (ต้องบอกว่าคำนวณผ่าน hub)</td><td class="ok">ใช้ได้ตรงตัว</td></tr>
+      <tr><td>S-d map node→edge และ edge→face เข้ากันผ่าน transport พร้อมบทพิสูจน์</td><td class="part">ใช้ได้ในบทพิสูจน์ ไม่มี edge→face ในการคำนวณ</td><td class="ok">ใช้ได้และใช้คำนวณจริง</td></tr>
+      <tr><td>S-e "sheaf-Hodge diffusion over node and edge cochains"</td><td class="no">ใช้ไม่ได้ ไม่มี state บนเส้น และ operator ไม่ใช่ Hodge Laplacian ของ complex (Lemma A′ ทำให้ใช้ไม่ได้) operator คือ sheaf Laplacian ของ star expansion</td><td class="no">ใช้ไม่ได้ มี state บนโหนด เส้น cell แต่ operator ไม่ใช่ Hodge Laplacian ของ complex (เหตุผลเดียวกัน) operator คือ sheaf Laplacian ของ incidence graph ต้องเลิกใช้ชื่อ "Sheaf-Hodge diffusion"</td></tr>
+      <tr><td>S-f ส่วนประกอบเสริม: AMPSS, SheafCovPool</td><td colspan="2">ทั้งสองทาง: WISP แทน AMPSS (เรื่องใหม่: ไม่ต้องมีรายการ meta-path, สุ่มอย่างไม่ลำเอียง, schema อ่านออกจากน้ำหนัก) / SheafCovPool ไม่อยู่ใน v2 (spec §3) graph classification อยู่ในภาคผนวก</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>สรุปเรื่องการเล่า:</b> B เล่าใกล้ paper เดิมมากกว่า (มีโหนด เส้น cell และ map ทั้งสองระดับในการคำนวณจริง) A เล่าโครงหลักเดิมได้ แต่ต้องเลิกพูดถึง "edge cochain" และต้องอธิบายว่า 2-cell คำนวณผ่าน hub ทั้งสองทางต้องแก้ช่องว่างใน intro เรื่อง MAGNN ถ้าเล่าเกินกลไกจริงจะเจอปัญหาแบบ R2 W3 อีกรอบ คือข้อความใน paper ไม่ตรงกับสิ่งที่โมเดลคำนวณ</p>
+</section>
+
+<section id="verdict">
+  <h2>13. คำชม คำติ: ทีละข้อ</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>ข้อ</th><th><span class="tag a">A</span></th><th><span class="tag b">B</span></th></tr></thead>
+    <tbody>
+      <tr><td>R1 S1 · 2-cell เก็บโหนดกลางและลำดับ</td><td class="ok">อยู่: ทุกโหนดของ path อยู่ใน cell, transport เรียงตามลำดับ</td><td class="ok">อยู่</td></tr>
+      <tr><td>R1 S2 · นิยามชัด + บทพิสูจน์ความสอดคล้อง</td><td class="ok">อยู่: spec Prop. 1 (δ₁δ₀ = 0 บังคับ transport, closure ใช้ในบทพิสูจน์) + Prop. 2</td><td class="ok">อยู่: ทฤษฎีบทการหมุนถูกบังคับ + kernel ไม่เปลี่ยน (ยังต้องเขียนบทพิสูจน์เต็ม)</td></tr>
+      <tr><td>R2 S1 · edge→face จาก transport</td><td class="part">อยู่ในบทพิสูจน์ ต้องอธิบายว่า node→cell = (edge→cell)∘(node→edge)</td><td class="ok">อยู่ ใช้คำนวณจริง</td></tr>
+      <tr><td>R2 S2 · 2-cell + edge diffusion</td><td class="no">ครึ่งเดียว: 2-cell อยู่ แต่ไม่มี edge diffusion</td><td class="ok">อยู่</td></tr>
+      <tr><td>R3 S1 · แนวคิดใหม่ มีเหตุผล</td><td class="ok">อยู่ ถ้าแก้ intro เรื่อง MAGNN</td><td class="ok">อยู่ ถ้าแก้ intro เรื่อง MAGNN</td></tr>
+      <tr><td>R4 S1 · แก้ข้อจำกัดของการยุบ path</td><td class="ok">อยู่ (เทียบกับ HAN, SeHGNN)</td><td class="ok">อยู่</td></tr>
+      <tr><td>R4 S2 · ใส่ข้อมูล path ในการแพร่แบบ sheaf อย่างมีหลักการ</td><td class="ok">อยู่: $L_P$ คือ Laplacian ของ sheaf บนกราฟดาว</td><td class="ok">อยู่: energy เดียวบนทุกคู่ที่ติดกัน</td></tr>
+      <tr><td><b>R2 W3 / meta-review · cell ถึงโหนดผ่าน closure เท่านั้น</b></td><td class="ok">แก้: ทุกโหนดของ path ได้รับทุกรอบผ่าน $\bar z_f$ ไม่มี closure ในการคำนวณ</td><td class="ok">แก้: ผ่านเส้นจริงทุกรอบ ไม่มี closure</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="risks">
+  <h2>14. จุดอ่อนที่ reviewer จะยก</h2>
+  <h3><span class="tag a">A</span></h3>
+  <ol>
+    <li><b>"hub นี้คือ MAGNN":</b> ถ้า map ขึ้นกับชนิดเส้นอย่างเดียว $\bar z_f$ เท่ากับ instance encoder ของ MAGNN คำตอบที่มี: map ของเราขึ้นกับทั้งสองโหนดและเพื่อนบ้าน, โหนดกลางได้รับข้อมูลกลับ (MAGNN ส่งให้ปลายอย่างเดียว), path ไม่ลบความสอดคล้องเดิม (Prop. 2) และน้ำหนักต่อ instance มาจาก path ทั้งเส้น ต้องเขียนเทียบระดับสูตร</li>
+    <li><b>"2-cell ที่ไม่มี edge":</b> reviewer อาจมองว่าการเรียก hub ว่า 2-cell เป็นการตั้งชื่อ ไม่ใช่กลไก ต้องชี้ว่ามันคือ 2-cell ของ sheaf ที่ map ถูกบังคับ และ hub เป็นวิธีคำนวณที่ได้ผลเท่ากัน</li>
+    <li><b>คำชม R2 S2 หาย</b></li>
+  </ol>
+  <h3><span class="tag b">B</span></h3>
+  <ol>
+    <li><b>ข้อหนักที่สุด:</b> ยังตอบไม่ได้ว่า state บนเส้นทำอะไรได้ที่ A ทำไม่ได้ (ข้อ 10) ข้อมูล HGB ไม่มี feature บนเส้น state ของเส้นจึงมาจากโหนดทั้งหมด</li>
+    <li><b>"นี่คือ CWN + sheaf map + การยก meta-path":</b> CWN (Bodnar et al. 2021) มี state ที่ทุกระดับ ใช้ MLP อิสระ ไม่มี transport ส่วนเรามี map ที่ถูกบังคับและมีขอบเขตของ operator ต้องเขียนเทียบระดับสูตร และต้องค้นว่า energy บน Hasse diagram ของ sheaf มีงานเก่าหรือไม่</li>
+    <li><b>ต้องแพร่หลายรอบกว่าจะข้าม path</b> ต้นทุนเพิ่ม และ K ของ v2 ใช้ตรง ๆ ไม่ได้</li>
+    <li><b>ยังไม่ได้นิยาม gate ของเส้นและของ cell</b> และยังไม่ได้ตัดสินว่าจะซ้ำกับ $w_f$ หรือไม่</li>
+    <li><b>ทฤษฎีของ B</b> ตรวจเป็นตัวเลขแล้ว แต่ยังไม่ได้เขียนบทพิสูจน์ฉบับเต็ม</li>
+  </ol>
+  <h3>ทั้งสองทาง</h3>
+  <ul>
+    <li><b>SGAT (IJCAI 2022) ต้องอ้าง:</b> SGAT สร้าง simplex จากโหนดเป้าหมายเท่านั้น และรวม feature ของโหนดกลางเป็น feature ของเส้น ส่วนเราเก็บโหนดกลางเป็นโหนดที่มี state ของตัวเอง</li>
+    <li><b>CTNN (NeurIPS 2025):</b> จะถูกยกว่า "เป็นกรณีพิเศษ" ซึ่งจริงกับเกือบทุกวิธีแบบส่งข้อความเชิงเส้น สิ่งที่ต้องชี้คือข้อจำกัดของเราซื้ออะไรมา: map ถูกบังคับ, kernel ไม่เปลี่ยน, spectrum จริงและมีขอบเขตสำหรับทุกค่าพารามิเตอร์</li>
+    <li><b>ความไม่สมมาตรของอิทธิพลกำหนดได้แค่ต่อสิ่ง ไม่ใช่ต่อคู่</b> (spec L1) นี่คือราคาของ spectrum ที่เป็นจำนวนจริง</li>
+  </ul>
+</section>
+
+<section id="questions">
+  <h2>15. คำถามถึงผู้วิเคราะห์</h2>
+  <ol>
+    <li>มีตัวอย่างงานทำนาย (กราฟเล็กพร้อม label) ที่ B ทำได้แต่ A ทำไม่ได้หรือไม่ ภายใต้เงื่อนไขว่าการแพร่เป็นเชิงเส้นทั้งคู่ และหัวทำนายอ่านเฉพาะโหนด</li>
+    <li>energy ของ B ในข้อ 8.1 (sheaf บน Hasse diagram ของ complex โดยที่ map เส้น→cell ได้จาก transport) มีงานเก่าในระดับสูตรหรือไม่ เช่น CWN, sheaf บน simplicial/cell complex, Sheaf Hypergraph Networks, CTNN</li>
+    <li>ข้อความช่องว่างที่แก้แล้วใน intro (ข้อ 12, S-b) ยืนได้ไหมเมื่อเทียบกับ MAGNN, MECCH และ SGAT</li>
+    <li>การให้คะแนนคำชมแต่ละข้อในข้อ 13 ถูกต้องไหม มีข้อไหนที่ประเมินดีเกินไป</li>
+    <li>สมการหรือข้อสรุปในข้อ 9 มีจุดผิดหรือไม่ โดยเฉพาะ: B ไม่ลด rank (kernel = global section), gate ใช้บทพิสูจน์เดิมของ spec ได้, และข้อสรุปว่าแก้ค่าเส้นและ cell ของ B ทันทีแล้วไม่ได้ $L_P$ ของ v2</li>
+    <li>ถ้าต้องเลือกระหว่าง A กับ B โดยเกณฑ์ด้าน method อย่างเดียว (ไม่สนผลการทดลอง) จะเลือกอะไร เพราะอะไร</li>
+  </ol>
+</section>
+
+<section id="evidence">
+  <h2>16. หลักฐานและไฟล์</h2>
+  <p>สคริปต์ numpy ทั้งหมดอยู่ที่ <code>docs/v3_evidence/</code> ในเครื่องผู้เขียน รันด้วย <code>python3 &lt;ไฟล์&gt;</code></p>
+  <div class="scroll"><table>
+    <thead><tr><th>ไฟล์</th><th>ตรวจอะไร</th><th>ผล</th></tr></thead>
+    <tbody>
+      <tr><td><code>check_face.py</code></td><td>v1: δ₁δ₀, Lemma A′, A_f มีผลผ่าน A_fᵀA_f เท่านั้น</td><td class="num">2e-16 · 2e-16 · 2e-15</td></tr>
+      <tr><td><code>check_noclosure.py</code></td><td>v1: เส้นลัด P1–P9 ใน operator ของโหนด</td><td class="num">0.386 (มี closure) · 0 (ไม่มี)</td></tr>
+      <tr><td><code>check_dnsd_face.py</code></td><td>ขึ้นแบบด้านเดียวแล้ว cell = hub ของ v2</td><td class="num">4e-16</td></tr>
+      <tr><td><code>check_v3_dynamics.py</code></td><td>v3 ตาม brief: ค่าของ cell ไม่ขึ้นกับโหนดเมื่อเชิงเส้น; ตัด closure ออกจาก δ₀ แล้วเงื่อนไขพัง</td><td class="num">1e-15 · 2.204</td></tr>
+      <tr><td><code>v3_closure_phi.py</code></td><td>ใส่ฟังก์ชันไม่เชิงเส้นที่ closure แล้วเส้นลัดกลับมาผ่าน cell</td><td class="num">P9 เปลี่ยน 2.64 เมื่อรบกวน P1</td></tr>
+      <tr><td><code>v3_family.py</code></td><td>transport ได้ค่าเดียวทุกทาง; เส้นไม่มี state แล้ว cell = 2×hub; คู่ผสมใน brief ไม่สมมาตร</td><td class="num">2e-16 · 3.6e-15 · 3.32</td></tr>
+      <tr><td><code>v3a_norm.py</code>, <code>v3a_gates.py</code></td><td>operator สามระดับ: สมมาตร, norm ≤ 1, gate ให้ความไม่สมมาตรแต่ spectrum จริง</td><td class="num">6e-17 · 0.964 · 0.30 / 2e-17</td></tr>
+      <tr><td><code>hasse.py</code></td><td>B: kernel = global section, ไม่มี cell แล้วได้ Δ₀/2, spectrum ≤ 2</td><td class="num">มิติ 4 = d · 1.8e-15 · 2.0</td></tr>
+      <tr><td><code>proofs_check.py</code></td><td>ทฤษฎีบท 1–6 ในข้อ 9 บนกราฟที่เชื่อมกัน มีวง heterophily 0.60</td><td class="num">ทุกค่าตามที่ระบุในข้อ 9</td></tr>
+      <tr><td><code>hasse2.py</code></td><td>B แก้ค่าทันทีแล้วไม่ได้ hub ของ v2</td><td class="num">residual 0.18 / 0.23</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">แหล่งที่อ่าน: manuscript v1 (Intro, Method ทั้งหมด, Appendix readout), reviews WSDM ทั้ง 4 + meta-review, spec v1.7 §1–4, รายงาน WISP Part H/I/K, DNSD (arXiv 2605.19021) ส่วนสมการ, SGAT ส่วน method, บันทึก CTNN ใน project สิ่งที่ยังไม่ได้อ่านในรอบนี้: ตัว paper CWN, CSNN (ใช้สรุปใน spec), โค้ด v1</p>
+</section>
+</main>

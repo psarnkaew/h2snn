@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>H2S-NN Progress Report</title>
+<style>
+  @page { size: A4; margin: 20mm 19mm 20mm 19mm; }
+  :root { --ink:#1c1f24; --muted:#5b6270; --rule:#d5d9e0; --accent:#1f4e8c; --soft:#f3f6fa; --old:#a33a2b; --new:#1d6b3a; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family:"Bitstream Charter","DejaVu Serif",serif; font-size:10.6pt; line-height:1.5; color:var(--ink); background:#fff; margin:0; }
+  h1,h2,h3,th,.meta,.kpi .n,.lbl,.fig text { font-family:"Inter","DejaVu Sans",sans-serif; }
+  h1 { font-size:19pt; line-height:1.2; margin:0 0 4pt; font-weight:700; }
+  .subtitle { font-size:11.5pt; color:var(--muted); margin:0 0 10pt; }
+  .meta { font-size:8.6pt; color:var(--muted); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:5pt 0; margin-bottom:12pt; }
+  .meta span { margin-right:16pt; }
+  h2 { font-size:13.5pt; margin:18pt 0 6pt; color:var(--accent); font-weight:650; break-after:avoid; }
+  h3 { font-size:10.8pt; margin:11pt 0 3pt; font-weight:650; break-after:avoid; }
+  h3.old { color:var(--old); } h3.new { color:var(--new); }
+  p { margin:0 0 6pt; }
+  ul,ol { margin:0 0 7pt; padding-left:15pt; } li { margin:0 0 3pt; }
+  .m { font-family:"DejaVu Sans Mono",monospace; font-size:9pt; }
+  .math { font-family:"DejaVu Serif",serif; }
+  pre { font-family:"DejaVu Sans Mono",monospace; font-size:8.9pt; background:var(--soft); border-left:3px solid var(--accent); padding:6pt 9pt; margin:4pt 0 8pt; white-space:pre-wrap; line-height:1.45; break-inside:avoid; }
+  table { border-collapse:collapse; width:100%; margin:4pt 0 9pt; font-size:9.3pt; break-inside:avoid; }
+  th { text-align:left; font-size:8.5pt; font-weight:600; color:var(--muted); border-bottom:1.2px solid var(--ink); padding:3pt 5pt; }
+  td { border-bottom:1px solid var(--rule); padding:3.5pt 5pt; vertical-align:top; }
+  td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.hl td { background:var(--soft); font-weight:600; }
+  .caption { font-size:8.5pt; color:var(--muted); margin:-4pt 0 10pt; }
+  .fig + .caption { break-before:avoid; break-inside:avoid; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:7pt; margin:8pt 0 10pt; }
+  .kpi { border:1px solid var(--rule); border-radius:4pt; padding:7pt 8pt; }
+  .kpi .n { font-size:15pt; font-weight:700; color:var(--accent); line-height:1.1; }
+  .kpi .t { font-size:8.4pt; color:var(--muted); line-height:1.3; margin-top:2pt; }
+  .fig { margin:6pt 0 4pt; break-inside:avoid; }
+  .fig svg { width:100%; height:auto; display:block; }
+  .small { font-size:8.8pt; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>H2S-NN Revision: Progress Report</h1>
+<p class="subtitle">Letting the model keep disagreement, giving it a view of each node's neighbourhood, and testing the path mechanism directly</p>
+<div class="meta"><span>8 November 2026 (second report)</span><span>Measurements: ACM dataset, NVIDIA RTX 4060 Laptop GPU (8 GB)</span></div>
+
+<h2>Overview</h2>
+<p>The previous report made the model fit in memory and coupled each meta-path face directly to every node on it. This stage asked what the model does with that information once it reaches a node, and whether the path mechanism does what the thesis claims. Two changes and two checks came out of it:</p>
+<ol>
+  <li><b>A frequency-selective encoder.</b> The diffusion step could only smooth. A learned filter now lets each feature channel keep, damp or sharpen the disagreement between neighbours.</li>
+  <li><b>Geometry that sees the neighbourhood.</b> The restriction maps, gates and path weights now read a summary of each node's typed neighbours, not only the node's own features. The submitted paper describes this term, but the code did not implement it.</li>
+</ol>
+<p>Two checks support these changes (Section 3): the data pipeline against the official benchmark, and a synthetic test of the path mechanism in which we know which path instance holds the answer.</p>
+<div class="kpis">
+  <div class="kpi"><div class="n">+0.3%</div><div class="t">time for the new filter (memory +0.04%)</div></div>
+  <div class="kpi"><div class="n">+39%</div><div class="t">time for the neighbourhood summary</div></div>
+  <div class="kpi"><div class="n">Exact</div><div class="t">match of our splits, labels and edges with the official benchmark</div></div>
+  <div class="kpi"><div class="n">1.0 vs 0.54</div><div class="t">path test accuracy with correct vs learned path weights (chance 0.5)</div></div>
+</div>
+<p class="small">No benchmark accuracy is reported. All runs so far use untuned default settings. Accuracy comparisons will run on the cluster under one protocol, with the same tuning budget for every method.</p>
+
+<h2>1. A frequency-selective encoder</h2>
+
+<h3 class="old">Before</h3>
+<p>Propagation was K small diffusion steps. Each step pulled every node toward its neighbours, after transporting the neighbours with the restriction maps:</p>
+<pre>x  ←  (I − η A)<sup>K</sup> h₀          A = gated, normalised sheaf Laplacian of edges and path faces</pre>
+<p>A signal on the graph can be read as a mix of frequencies. A low-frequency signal is one where each node agrees with its transported neighbours. A high-frequency signal is one where it disagrees. The operator <span class="math">A</span> measures this, with eigenvalues from 0 (full agreement) to 2 (strong disagreement). Each step multiplies a component at frequency <span class="math">λ</span> by <span class="math">(1 − ηλ)</span>, so K steps multiply it by <span class="math">(1 − ηλ)<sup>K</sup></span>.</p>
+
+<h3 class="old">Why it is a problem</h3>
+<p>The old update can only smooth, and it smooths every feature channel in the same way. With the step size the model learned (η ≈ 0.45) and K = 4:<!-- DERIVED from the formula: 0.55^4 = 0.092; 0.325^4 = 0.011. Learned eta 0.35–0.46 with K = 4 is recorded in the gap-ladder runs. --></p>
+<ul>
+  <li>a component at λ = 1 keeps about 9% of its size;</li>
+  <li>a component at λ = 1.5 keeps about 1%.</li>
+</ul>
+<p>Under heterophily, the disagreement itself can carry the label. A paper whose subject is shared mostly by papers on a different topic is informative <i>because</i> it differs from them. The old update erases exactly this signal.</p>
+
+<h3 class="new">After</h3>
+<p>The output is a learned polynomial filter of the same operator:</p>
+<pre>x  =  Σ<sub>k=0..K</sub>  T<sub>k</sub>(A − I) · W<sub>k</sub> h₀          with   Σ<sub>k</sub> ‖W<sub>k</sub>‖ ≤ 1</pre>
+<ul>
+  <li><span class="m">T<sub>k</sub></span> are the Chebyshev polynomials, a standard, numerically well-behaved basis.</li>
+  <li><span class="m">W<sub>k</sub></span> are small d×d matrices, one per degree, that mix the feature channels.</li>
+</ul>
+<p>Each channel therefore gets its own frequency response (Figure 1). The filter applies <span class="math">A</span> K times, as the old K steps did, and adds only small per-node matrix products, so the memory savings of the previous report are kept.</p>
+
+<div class="fig">
+<svg viewBox="0 0 660 178" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <text x="10" y="16" font-size="11" font-weight="700" fill="#a33a2b">BEFORE: one response for every channel</text>
+  <line x1="50" y1="140" x2="272" y2="140" stroke="#333"/><line x1="50" y1="140" x2="50" y2="34" stroke="#333"/>
+  <text x="44" y="43" font-size="8.5" text-anchor="end" fill="#555">1</text><text x="44" y="143" font-size="8.5" text-anchor="end" fill="#555">0</text>
+  <text x="50" y="153" font-size="8.5" text-anchor="middle" fill="#555">0</text><text x="160" y="153" font-size="8.5" text-anchor="middle" fill="#555">1</text><text x="270" y="153" font-size="8.5" text-anchor="middle" fill="#555">2</text>
+  <text x="160" y="168" font-size="8.5" text-anchor="middle" fill="#555">frequency λ: agreement → disagreement</text>
+  <path d="M50.0,40.0 L55.5,48.7 L61.0,56.8 L66.5,64.4 L72.0,71.4 L77.5,78.0 L83.0,84.0 L88.5,89.6 L94.0,94.8 L99.5,99.5 L105.0,103.9 L110.5,107.9 L116.0,111.6 L121.5,114.9 L127.0,118.0 L132.5,120.7 L138.0,123.2 L143.5,125.5 L149.0,127.5 L154.5,129.3 L160.0,130.8 L165.5,132.3 L171.0,133.5 L176.5,134.6 L182.0,135.5 L187.5,136.3 L193.0,137.0 L198.5,137.6 L204.0,138.1 L209.5,138.5 L215.0,138.9 L220.5,139.2 L226.0,139.4 L231.5,139.6 L237.0,139.7 L242.5,139.8 L248.0,139.9 L253.5,139.9 L259.0,140.0 L264.5,140.0 L270.0,140.0" fill="none" stroke="#a33a2b" stroke-width="2"/>
+  <text x="120" y="76" font-size="9" fill="#a33a2b">(1 − 0.45λ)⁴</text>
+  <text x="178" y="118" font-size="8.5" fill="#a33a2b">disagreement erased</text>
+  <line x1="320" y1="20" x2="320" y2="170" stroke="#d5d9e0"/>
+  <text x="340" y="16" font-size="11" font-weight="700" fill="#1d6b3a">AFTER: a learned response per channel</text>
+  <line x1="390" y1="140" x2="562" y2="140" stroke="#333"/><line x1="390" y1="140" x2="390" y2="34" stroke="#333"/>
+  <text x="384" y="43" font-size="8.5" text-anchor="end" fill="#555">1</text><text x="384" y="143" font-size="8.5" text-anchor="end" fill="#555">0</text>
+  <text x="390" y="153" font-size="8.5" text-anchor="middle" fill="#555">0</text><text x="475" y="153" font-size="8.5" text-anchor="middle" fill="#555">1</text><text x="560" y="153" font-size="8.5" text-anchor="middle" fill="#555">2</text>
+  <text x="475" y="168" font-size="8.5" text-anchor="middle" fill="#555">frequency λ: agreement → disagreement</text>
+  <path d="M390.0,40.0 L394.2,44.9 L398.5,49.8 L402.8,54.4 L407.0,59.0 L411.2,63.4 L415.5,67.8 L419.8,71.9 L424.0,76.0 L428.2,79.9 L432.5,83.8 L436.8,87.4 L441.0,91.0 L445.2,94.4 L449.5,97.8 L453.8,100.9 L458.0,104.0 L462.2,106.9 L466.5,109.8 L470.8,112.4 L475.0,115.0 L479.2,117.4 L483.5,119.8 L487.8,121.9 L492.0,124.0 L496.2,125.9 L500.5,127.8 L504.8,129.4 L509.0,131.0 L513.2,132.4 L517.5,133.8 L521.8,134.9 L526.0,136.0 L530.2,136.9 L534.5,137.8 L538.8,138.4 L543.0,139.0 L547.2,139.4 L551.5,139.8 L555.8,139.9 L560.0,140.0" fill="none" stroke="#1f4e8c" stroke-width="2"/>
+  <path d="M390.0,140.0 L394.2,130.2 L398.5,121.0 L402.8,112.2 L407.0,104.0 L411.2,96.2 L415.5,89.0 L419.8,82.2 L424.0,76.0 L428.2,70.2 L432.5,65.0 L436.8,60.2 L441.0,56.0 L445.2,52.2 L449.5,49.0 L453.8,46.2 L458.0,44.0 L462.2,42.2 L466.5,41.0 L470.8,40.2 L475.0,40.0 L479.2,40.2 L483.5,41.0 L487.8,42.2 L492.0,44.0 L496.2,46.2 L500.5,49.0 L504.8,52.2 L509.0,56.0 L513.2,60.2 L517.5,65.0 L521.8,70.2 L526.0,76.0 L530.2,82.2 L534.5,89.0 L538.8,96.2 L543.0,104.0 L547.2,112.3 L551.5,121.0 L555.8,130.2 L560.0,140.0" fill="none" stroke="#8a5a00" stroke-width="2" stroke-dasharray="5 3"/>
+  <path d="M390.0,140.0 L394.2,139.9 L398.5,139.8 L402.8,139.4 L407.0,139.0 L411.2,138.4 L415.5,137.8 L419.8,136.9 L424.0,136.0 L428.2,134.9 L432.5,133.8 L436.8,132.4 L441.0,131.0 L445.2,129.4 L449.5,127.8 L453.8,125.9 L458.0,124.0 L462.2,121.9 L466.5,119.8 L470.8,117.4 L475.0,115.0 L479.2,112.4 L483.5,109.8 L487.8,106.9 L492.0,104.0 L496.2,100.9 L500.5,97.8 L504.8,94.4 L509.0,91.0 L513.2,87.4 L517.5,83.8 L521.8,79.9 L526.0,76.0 L530.2,71.9 L534.5,67.8 L538.8,63.4 L543.0,59.0 L547.2,54.4 L551.5,49.8 L555.8,44.9 L560.0,40.0" fill="none" stroke="#1d6b3a" stroke-width="2.4"/>
+  <line x1="572" y1="56" x2="588" y2="56" stroke="#1f4e8c" stroke-width="2"/><text x="592" y="53" font-size="8.5" fill="#1f4e8c">channel 1:</text><text x="592" y="64" font-size="8.5" fill="#1f4e8c">smooth</text>
+  <line x1="572" y1="86" x2="588" y2="86" stroke="#8a5a00" stroke-width="2" stroke-dasharray="5 3"/><text x="592" y="83" font-size="8.5" fill="#8a5a00">channel 2:</text><text x="592" y="94" font-size="8.5" fill="#8a5a00">middle band</text>
+  <line x1="572" y1="116" x2="588" y2="116" stroke="#1d6b3a" stroke-width="2.4"/><text x="592" y="113" font-size="8.5" fill="#1d6b3a">channel 3: keep</text><text x="592" y="124" font-size="8.5" fill="#1d6b3a">disagreement</text>
+</svg>
+</div>
+<p class="caption">Figure 1. How strongly each frequency survives propagation. Before: one fixed curve for all channels, shown with the learned η ≈ 0.45 and K = 4. After: each channel has its own curve. The three curves on the right are example shapes the filter can represent, not learned values.</p>
+
+<p><b>Example.</b> One channel can carry a paper's topic with a smoothing response, so papers that share authors move toward agreement. A second channel can use a high-pass response. A paper whose topic differs from the other papers on its subject then keeps that difference, instead of losing 99% of it as in the old update.</p>
+
+<h3>Properties we proved and checked numerically</h3>
+<ul>
+  <li><b>It is stable for every parameter value.</b> The gated operator has a real spectrum in [0, 2), as the previous report showed. With the bound on the <span class="m">W<sub>k</sub></span>, the filter's gain is at most 1, whatever values are learned.</li>
+  <li><b>The old update is a special case.</b> Setting every <span class="m">W<sub>k</sub></span> to a fixed multiple of the identity gives <span class="m">(I − ηA)<sup>K</sup></span> exactly. At initialisation the new model computes the same output as the old one, to within 10<sup>−10</sup>.</li>
+  <li><b>The listen and broadcast gates keep their meaning through the whole filter.</b> A node whose listen gate is closed receives nothing from any other node, and a node whose broadcast gate is closed sends nothing. The corresponding blocks are exactly zero.</li>
+  <li><b>The node's own signal is never washed out.</b> The degree-0 term keeps the input, so adding degrees cannot make the output vanish. Deep sheaf diffusion models are known to suffer from that problem.</li>
+</ul>
+
+<h3>What this change gives up, and what it keeps</h3>
+<ul>
+  <li><b>The energy reading is lost.</b> The old update could be read as a flow that lowers the sheaf energy at every step. The filter can favour disagreement, so this reading no longer holds and the paper will not claim it. Stability and the real spectrum are kept.</li>
+  <li><b>The stability bound limits what can be learned.</b> In a short smoke run, the unconstrained filter weights exceeded the bound within five epochs (sum 1.067) and were scaled back. Training pushes against the guarantee. That is the price of a guarantee that holds for every parameter value, and we will measure it rather than assume it is free.</li>
+</ul>
+
+<h3>Result</h3>
+<table>
+  <tr><th>ACM, d = 32, one training step</th><th class="num">Peak GPU memory</th><th class="num">Time</th><th class="num">Parameters</th></tr>
+  <tr><td>Old update</td><td class="num">1.57 GB</td><td class="num">1.47 s</td><td class="num">532,649</td></tr>
+  <tr class="hl"><td>Frequency-selective filter</td><td class="num">1.57 GB</td><td class="num">1.48 s</td><td class="num">537,768</td></tr>
+</table>
+<p class="caption">Both with the neighbourhood summary of Section 2. Mean of 3 runs after a warm-up. The cost limit set in advance was 25% time and 10% memory; the measured cost is 0.3% and 0.04%.</p>
+<p><b>Status.</b> That frequency selectivity helps under heterophily is a hypothesis we have not yet observed. On the cluster the filter will be compared with the old update, which is nested inside it, on the heterophilic datasets (Freebase, IMDB and the H2GB sets).</p>
+
+<h2>2. Geometry that sees the neighbourhood</h2>
+
+<h3 class="old">Before</h3>
+<p>The restriction maps, the listen and broadcast gates and the path weights were all computed from a node's own input features <span class="math">h₀</span>. The submitted paper includes a neighbourhood-context term for the maps, but the code did not implement it, so paper and code disagreed.</p>
+
+<h3 class="old">Why it is a problem</h3>
+<p>Two nodes with similar features can play different roles in the graph. If the geometry sees only the node itself, it cannot tell them apart, and both receive the same maps and gates.</p>
+
+<h3 class="new">After</h3>
+<p>Each node gets a typed neighbourhood summary: for each relation type, the average input features of its neighbours through that relation. The geometry reads both parts:</p>
+<pre>c<sub>v</sub>  =  [ mean of h₀ over v's authors ,  mean over v's subjects ,  … ]        (one average per relation type)
+maps, gates, path weights  =  functions of  [ h₀<sub>v</sub> , c<sub>v</sub> ]</pre>
+<p>The summary is computed <b>once</b>, before propagation. Other sheaf models (NSD, CSNN, DNSD) recompute their maps from the propagated states at every layer, which creates a new sheaf at each layer. Computing the summary once keeps a single fixed sheaf. The guarantees of Section 1 and the mini-batch argument of the previous report therefore still hold.</p>
+
+<div class="fig">
+<svg viewBox="0 0 640 132" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs><marker id="b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#555"/></marker></defs>
+  <text x="10" y="16" font-size="11" font-weight="700" fill="#a33a2b">BEFORE: geometry from the node alone</text>
+  <circle cx="60" cy="52" r="15" fill="#fff" stroke="#333"/><text x="60" y="56" font-size="10" text-anchor="middle">P₁</text>
+  <circle cx="60" cy="100" r="15" fill="#fff" stroke="#333"/><text x="60" y="104" font-size="10" text-anchor="middle">P₂</text>
+  <text x="84" y="80" font-size="9" fill="#555">similar abstracts</text>
+  <line x1="170" y1="76" x2="200" y2="76" stroke="#555" marker-end="url(#b)"/>
+  <rect x="206" y="62" width="92" height="28" rx="4" fill="#f6dcd8" stroke="#a33a2b"/>
+  <text x="252" y="74" font-size="9" text-anchor="middle" fill="#a33a2b">same maps</text>
+  <text x="252" y="85" font-size="9" text-anchor="middle" fill="#a33a2b">and gates</text>
+  <line x1="320" y1="20" x2="320" y2="125" stroke="#d5d9e0"/>
+  <text x="340" y="16" font-size="11" font-weight="700" fill="#1d6b3a">AFTER: geometry from node + neighbourhood</text>
+  <circle cx="380" cy="52" r="15" fill="#fff" stroke="#333"/><text x="380" y="56" font-size="10" text-anchor="middle">P₁</text>
+  <circle cx="380" cy="100" r="15" fill="#fff" stroke="#333"/><text x="380" y="104" font-size="10" text-anchor="middle">P₂</text>
+  <circle cx="440" cy="40" r="8" fill="#e6ecf5" stroke="#1f4e8c"/><circle cx="458" cy="58" r="8" fill="#e6ecf5" stroke="#1f4e8c"/>
+  <line x1="395" y1="50" x2="432" y2="41" stroke="#555"/><line x1="395" y1="55" x2="450" y2="58" stroke="#555"/>
+  <circle cx="440" cy="94" r="8" fill="#fbf0d9" stroke="#8a5a00"/><circle cx="458" cy="112" r="8" fill="#fbf0d9" stroke="#8a5a00"/>
+  <line x1="395" y1="98" x2="432" y2="95" stroke="#555"/><line x1="395" y1="103" x2="450" y2="111" stroke="#555"/>
+  <text x="472" y="46" font-size="8.5" fill="#1f4e8c">authors in databases</text>
+  <text x="472" y="104" font-size="8.5" fill="#8a5a00">authors in machine learning</text>
+  <line x1="565" y1="76" x2="585" y2="76" stroke="#555" marker-end="url(#b)"/>
+  <text x="560" y="72" font-size="9" text-anchor="end" fill="#1d6b3a">c differs</text>
+  <rect x="588" y="58" width="48" height="36" rx="4" fill="#d5ecdc" stroke="#1d6b3a"/>
+  <text x="612" y="73" font-size="8.5" text-anchor="middle" fill="#1d6b3a">different</text>
+  <text x="612" y="85" font-size="8.5" text-anchor="middle" fill="#1d6b3a">geometry</text>
+</svg>
+</div>
+<p class="caption">Figure 2. Two papers with similar abstracts. Before, they receive the same maps and gates. After, the summary of their authors separates them.</p>
+
+<p><b>Example.</b> P₁ and P₂ have nearly identical abstracts. P₁'s authors publish mostly in databases and P₂'s mostly in machine learning, so their summaries differ. P₂ can then learn, for instance, to listen less to a subject node that is shared mainly with database papers.</p>
+
+<h3>Properties we proved and checked numerically</h3>
+<ul>
+  <li><b>Nothing else changes when the summary is switched off.</b> The model then reproduces the previous model's outputs exactly.</li>
+  <li><b>The summary reaches the geometry, and only where it should.</b> Changing one neighbour's features changes that node's maps and gates when the summary is on, and changes nothing when it is off. The summary uses only the stored facts and respects each relation's direction.</li>
+</ul>
+
+<h3>What this change gives up, and what it keeps</h3>
+<ul>
+  <li><b>The geometry does not follow the propagated states.</b> It is fixed before propagation, by design: this keeps one sheaf and all its guarantees. Models that recompute their maps at every layer can adapt their geometry during propagation; ours cannot.</li>
+  <li><b>It is the most expensive change of this stage</b> (Result, below).</li>
+  <li><b>It overlaps partly with the path faces.</b> The summary gives each node a view two hops away: an author's summary contains its papers, and a paper reads that summary through its author. Section 3.2 shows that this alone solved a task we had designed to test path faces. This is not a defect, but it raises the bar for the thesis. Path faces must add information beyond edges <i>plus</i> neighbourhood summaries. We therefore keep the summary on in every arm of the path comparison, which is the stricter test, and the paper will say why.</li>
+</ul>
+
+<h3>Result</h3>
+<table>
+  <tr><th>ACM, d = 32, one training step</th><th class="num">Peak GPU memory</th><th class="num">Time</th><th class="num">Parameters</th></tr>
+  <tr><td>Geometry from the node alone</td><td class="num">1.49 GB</td><td class="num">1.06 s</td><td class="num">307,880</td></tr>
+  <tr class="hl"><td>Geometry from node and neighbourhood</td><td class="num">1.57 GB</td><td class="num">1.48 s</td><td class="num">537,768</td></tr>
+</table>
+<p class="caption">Both with the filter of Section 1. Mean of 3 runs after a warm-up.</p>
+<p>The summary costs +39% time, +5.4% memory and about 230,000 parameters. The parameters grow because every network that computes the geometry now reads a wider input.</p>
+<p><b>Status.</b> Whether the summary improves accuracy, and whether that is worth 39% more time, will be tested on the cluster: geometry from the node alone vs node and neighbourhood.</p>
+
+<h2>3. Further checks: the data pipeline and the path mechanism</h2>
+
+<h3>3.1 The data pipeline matches the benchmark</h3>
+<p>Before changing the model, we checked that our data matches the HGB benchmark (ACM, DBLP, IMDB) exactly. We read the official files with HGB's own loader and compared them item by item:</p>
+<ul>
+  <li><b>Splits:</b> our test nodes are exactly HGB's test nodes. Our training and validation nodes together are exactly HGB's labelled set, with HGB's 20% held out for validation.</li>
+  <li><b>Labels:</b> all 3,025, 4,057 and 4,573 labels agree, including IMDB's multi-label vectors.</li>
+  <li><b>Edges:</b> our graph stores one edge per fact. Expanded back to both directions, it reproduces HGB's stored edge list exactly.</li>
+</ul>
+<p>We could not reproduce HetSheaf's published rerun of R-GCN, for three reasons:</p>
+<ul>
+  <li>their selected configuration came from a 150-run search that is not published;</li>
+  <li>their paper states HGB's 24/6/70 split, but their code uses 27/3/70;</li>
+  <li>their code duplicates every relation, giving ACM 14 relation types instead of 8 and twice the edges.</li>
+</ul>
+<p>Their own pipeline also misses the published number with the configuration in their repository.</p>
+<p><b>Decision.</b> We use HGB's official split. Every baseline, HetSheaf included, will be rerun under our protocol. Published numbers will appear only in a clearly labelled note, not in the comparison tables.</p>
+
+<h3>3.2 A test of the path mechanism with a known answer</h3>
+<p>Our thesis is that a meta-path instance carries information through its intermediate node and the order of its relations, and that this information is lost when the instance is reduced to a relation between its two endpoints. Before running large comparisons, we wanted to see the mechanism do this on a graph where we know which instance holds the answer.</p>
+
+<h3 class="old">First design: the label is a co-paper's class, reached through the lead author</h3>
+<p>Each paper has a lead author and a second author, and each author has one other paper, a co-paper. The paper's label is the class of the co-paper reached through its lead author.</p>
+<p>A model <i>without</i> path faces scored 0.996, so the task leaked. The cause was the neighbourhood summary. The lead author's summary already contains its co-paper's class, and the paper reads that summary through an ordinary edge. With the summary set to zero, the same trained model fell to chance (0.488). This is the overlap described in Section 2.</p>
+
+<h3 class="new">Second design: only the whole instance determines the label</h3>
+<div class="fig">
+<svg viewBox="0 0 640 178" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#555"/></marker></defs>
+  <circle cx="70" cy="90" r="22" fill="#fff" stroke="#1c1f24" stroke-width="1.4"/>
+  <text x="70" y="94" font-size="12" font-weight="700" text-anchor="middle">P</text>
+  <text x="70" y="128" font-size="9" text-anchor="middle" fill="#5b6270">code 101101</text>
+  <text x="70" y="142" font-size="9" text-anchor="middle" fill="#5b6270">label = ?</text>
+  <circle cx="230" cy="45" r="18" fill="#e4f2e8" stroke="#1d6b3a"/>
+  <text x="230" y="49" font-size="10" text-anchor="middle">lead</text>
+  <circle cx="230" cy="140" r="18" fill="#f3f3f3" stroke="#777"/>
+  <text x="230" y="144" font-size="9.5" text-anchor="middle">2nd</text>
+  <line x1="90" y1="80" x2="212" y2="50" stroke="#555"/>
+  <line x1="90" y1="100" x2="212" y2="135" stroke="#555"/>
+  <rect x="370" y="18" width="172" height="26" rx="4" fill="#d5ecdc" stroke="#1d6b3a" stroke-width="1.4"/>
+  <text x="456" y="35" font-size="9.5" text-anchor="middle">code 101101 · class y</text>
+  <rect x="370" y="50" width="172" height="22" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="456" y="65" font-size="9" text-anchor="middle" fill="#5b6270">15 others: other codes, mixed classes</text>
+  <line x1="248" y1="42" x2="368" y2="31" stroke="#1d6b3a" stroke-width="1.6" marker-end="url(#ar)"/>
+  <line x1="248" y1="48" x2="368" y2="61" stroke="#bbb"/>
+  <rect x="370" y="112" width="172" height="26" rx="4" fill="#f6dcd8" stroke="#a33a2b"/>
+  <text x="456" y="129" font-size="9.5" text-anchor="middle">code 101101 · class 1 − y</text>
+  <rect x="370" y="144" width="172" height="22" rx="4" fill="#fff" stroke="#bbb"/>
+  <text x="456" y="159" font-size="9" text-anchor="middle" fill="#5b6270">15 others: other codes, mixed classes</text>
+  <line x1="248" y1="137" x2="368" y2="125" stroke="#a33a2b"/>
+  <line x1="248" y1="143" x2="368" y2="155" stroke="#bbb"/>
+  <text x="550" y="35" font-size="9" fill="#1d6b3a">the answer</text>
+  <text x="550" y="129" font-size="9" fill="#a33a2b">a decoy</text>
+  <text x="300" y="98" font-size="9" text-anchor="middle" fill="#5b6270">each author: 16 co-papers, 8 of each class</text>
+</svg>
+</div>
+<p class="caption">Figure 3. The second test. P's label is the class of the co-paper that is reached through the <b>lead</b> author <b>and</b> carries P's code. The second author also has a co-paper with P's code, of the opposite class. Neither the author alone, nor the code alone, nor the two endpoints alone give the answer; only the whole instance P – lead author – co-paper does.</p>
+<p>The graph has 17,000 papers, 2,000 authors and 272,000 path instances. Each paper carries a 6-bit code, and each author has 16 co-papers, balanced by class. Of the 1,000 labelled papers, 500 are used for training. We fixed the pass criteria before any run:</p>
+<ul>
+  <li>the full model must reach at least 0.90 on every seed;</li>
+  <li>every control must stay at or below 0.60 (chance is 0.5).</li>
+</ul>
+<table>
+  <tr><th>Model (3 seeds)</th><th class="num">Test accuracy</th><th>Reading</th></tr>
+  <tr><td>Controls: edges only (no path faces), endpoint relations only, own features only</td><td class="num">0.48 – 0.56</td><td>at chance: the task does not leak</td></tr>
+  <tr class="hl"><td>Full model, path weights learned</td><td class="num">0.50 / 0.58 / 0.54</td><td>at chance: fails the criterion</td></tr>
+  <tr><td>Path faces with equal weights</td><td class="num">0.58 / 0.56 / 0.53</td><td>at chance, as expected</td></tr>
+  <tr><td>Full model, correct path weights given (diagnostic)</td><td class="num">1.00 / 0.996 / 1.00</td><td>solved</td></tr>
+</table>
+
+<h3>What the result shows</h3>
+<ul>
+  <li><b>The rest of the model is not the bottleneck.</b> When we set the path weights to the correct answer and train everything else as usual, the model solves the task. The transports along the path, the filter and the classifier carry the information.</li>
+  <li><b>Learning the path weight is the bottleneck.</b>
+    <ul>
+      <li>The learned weights did separate lead-author instances from second-author ones. That depends on a property of a single node.</li>
+      <li>They never separated instances whose codes match from those whose codes do not. That needs a comparison between two nodes on the path.</li>
+      <li>The weight network sees all three nodes and has a hidden layer, so it can represent this rule in principle. It did not learn it from 500 papers in 200 epochs at default settings.</li>
+      <li>Its weights did not differ between training and test papers, so it was not memorising instances.</li>
+    </ul>
+  </li>
+</ul>
+<p><b>Status.</b> The test neither confirms nor refutes the thesis on real data. The task is deliberately hard (an exact 6-bit match learned from 500 examples), and we did not tune for it, because tuning on a known-answer task would make a pass meaningless. It does show where the risk sits. Path instances add information beyond graph diffusion only when they are weighted by their content, and part of that content is a relationship between nodes on the path. The weight function's ability to learn such comparisons is therefore central to the thesis. We carry this question, and both test tasks, into the next stage.</p>
+
+<h2>4. Cost</h2>
+<table>
+  <tr><th>ACM, d = 32, one training step</th><th class="num">Peak GPU memory</th><th class="num">Time</th><th class="num">Parameters</th></tr>
+  <tr><td>Submitted model</td><td class="num">does not fit in 8 GB</td><td class="num">—</td><td class="num">1.62M</td></tr>
+  <tr><td>After lighter maps and direct path coupling (previous report)</td><td class="num">2.5 GB</td><td class="num">1.77 s</td><td class="num">0.31M</td></tr>
+  <tr><td>After fact storage, path sampling and gates (previous report)</td><td class="num">1.49 GB</td><td class="num">1.06 s</td><td class="num">0.30M</td></tr>
+  <tr><td>+ frequency-selective filter (Section 1)</td><td class="num">1.49 GB</td><td class="num">1.06 s</td><td class="num">0.31M</td></tr>
+  <tr class="hl"><td>+ neighbourhood summary (Section 2): current model</td><td class="num">1.57 GB</td><td class="num">1.48 s</td><td class="num">0.54M</td></tr>
+</table>
+<p class="caption">Peak GPU memory and time for one training step (forward and backward). The last three rows come from one measurement session (3 runs after a warm-up), the second row from the earlier session (5 runs).</p>
+<!-- Sources: rows 1–2 from the D1/D4 reports; rows 3–5 from D12_evidence/g3_cost_output.txt (1529.6 / 1527.2 / 1612.5 MiB; 1.059 / 1.060 / 1.475 s; 302,761 / 307,880 / 537,768 parameters). 4.8x = 7.60 GiB process cap / 1.575 GiB, a lower bound. -->
+<table>
+  <tr><th></th><th>Previous model</th><th>Current model</th></tr>
+  <tr><td>Propagation</td><td>K diffusion steps: <span class="m">O(K·(M + F·L)·d²)</span></td><td>same K applications of A, plus channel mixing <span class="m">O(N·K·d²)</span></td></tr>
+  <tr><td>Neighbourhood summary</td><td>—</td><td>one pass over the facts: <span class="m">O(M·d)</span></td></tr>
+  <tr><td>Input to the geometry networks</td><td>d numbers per node</td><td>grows with the number of relation types; the first layer is evaluated once per node, not once per edge</td></tr>
+</table>
+<p class="caption">N = number of nodes, M = number of facts, F = number of path instances, L = path length, K = filter degree.</p>
+<p>The current model fits where the submitted one did not fit at all, and has about three times fewer parameters. On this GPU the memory saving can only be bounded from below, at 4.8× or more. Confirming the 10× target of the revision plan needs a measurement of the submitted model on a larger GPU. Almost all of this stage's added cost comes from the neighbourhood summary, not from the filter. Neither change alters how cost grows with graph size.</p>
+
+<h2>5. Next steps</h2>
+<ol>
+  <li><b>The new path mechanism.</b> It samples walks without a fixed meta-path list, gives each instance a learned weight, and reports meta-path importance afterwards instead of selecting meta-paths in advance. Before building it we will decide whether the weight function needs an explicit comparison between nodes on the path. Both known-answer tasks will be rerun on it. The first will run with the neighbourhood summary switched off, so that it tests the path weights rather than the summary.</li>
+  <li><b>Comparisons on the cluster.</b> Each is fixed before running and uses the same tuning budget, with 10 seeds and paired tests:
+    <ul>
+      <li>the filter vs the old update, on the heterophilic datasets;</li>
+      <li>geometry with vs without the neighbourhood summary;</li>
+      <li>learned path weights vs endpoint-only weights vs no path faces, with the summary on in every arm.</li>
+    </ul>
+  </li>
+  <li><b>All baselines rerun</b> under the same protocol and split.</li>
+</ol>
+
+</body>
+</html>

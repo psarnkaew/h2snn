@@ -1,0 +1,14 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d11_screen\d11_dblp_endpoint_edges_s43
+2026-11-07 22:50:21,416 | INFO | Dataset: dblp | Task: node_classification
+2026-11-07 22:50:21,417 | INFO | Target node type: author
+2026-11-07 22:50:21,418 | INFO | Metapaths: ['APA', 'APTPA']
+2026-11-07 22:50:21,418 | INFO | Model parameters: 236795
+2026-11-07 22:50:21,977 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 239566, 'facts_after': 119783}
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.
+OpenBLAS error: Memory allocation still failed after 10 retries, giving up.

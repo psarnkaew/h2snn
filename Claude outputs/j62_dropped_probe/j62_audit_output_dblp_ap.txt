@@ -1,0 +1,6 @@
+== dblp_ap: families 1
+  Ctrl-G type 1 valid: best r1 (via type 2) MRR 0.0957 Hits@10 0.2189
+  Ctrl-G type 1 test: best r1 (via type 2) MRR 0.0915 Hits@10 0.2138
+  PASS type 1 type 1 block (297 non-binary columns): worst cap inf test MRR 0.0618 (diff -0.0297) Hits@10 0.1365 (diff -0.0774)
+  task PASS
+

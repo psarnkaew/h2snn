@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>H2S-NN Experiment Settings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column (max ~72ch) with a sticky section index on wide screens; tables scroll in their own boxes. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#1d232b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#2f5d8a; --accent-soft:#e6eef6;
+  --ok:#2e7d4f; --ok-soft:#e5f3ea; --warn:#9a6300; --warn-soft:#fbf0dc; --bad:#a83232; --bad-soft:#f8e4e4;
+  --font-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --font-head:"Space Grotesk","IBM Plex Sans Thai",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14181d; --surface:#1c2228; --fg:#e3e7ec; --muted:#9aa5b1; --line:#2f3741;
+  --accent:#8fb6dd; --accent-soft:#1f2c3a;
+  --ok:#7fc99c; --ok-soft:#1b2e23; --warn:#e3b45c; --warn-soft:#33281a; --bad:#ee8f8f; --bad-soft:#3a2020; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181d; --surface:#1c2228; --fg:#e3e7ec; --muted:#9aa5b1; --line:#2f3741;
+  --accent:#8fb6dd; --accent-soft:#1f2c3a;
+  --ok:#7fc99c; --ok-soft:#1b2e23; --warn:#e3b45c; --warn-soft:#33281a; --bad:#ee8f8f; --bad-soft:#3a2020; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px}
+nav{position:sticky;top:max(16px,env(safe-area-inset-top,0px));align-self:start;font-size:13px}
+nav ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+nav a{color:var(--muted);text-decoration:none}
+nav a:hover,nav a:focus-visible{color:var(--accent)}
+main{min-width:0;max-width:78ch}
+h1,h2,h3{font-family:var(--font-head);text-wrap:balance;line-height:1.3}
+h1{font-size:30px;margin:0 0 4px}
+h2{font-size:22px;margin:48px 0 12px;padding-top:12px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 8px}
+p{margin:0 0 12px}
+.meta{color:var(--muted);font-size:13px;margin-bottom:24px}
+code,.mono{font-family:var(--font-mono);font-size:13px}
+code{background:var(--accent-soft);padding:1px 5px;border-radius:4px;word-break:break-word}
+.tbl{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;vertical-align:top;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{font-family:var(--font-head);font-weight:600;font-size:12.5px;letter-spacing:.02em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:var(--font-mono);font-size:11px;padding:0 6px;border-radius:3px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.bad{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.answer{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);padding:12px 16px;margin:12px 0 18px;border-radius:0 6px 6px 0}
+.answer p:last-child{margin:0}
+.decision{background:var(--warn-soft);padding:12px 16px;border-radius:6px;margin:12px 0 18px}
+.decision strong{color:var(--warn)}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;font:13px/1.55 var(--font-mono);margin:12px 0}
+ul,ol.body{margin:0 0 12px;padding-left:22px}
+li{margin:3px 0}
+a{color:var(--accent)}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}nav{position:static}nav ol{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Sections"><ol>
+  <li><a href="#summary">มติและสิ่งที่ยังเปิด</a></li>
+  <li><a href="#minibatch">1 · Mini-batch</a></li>
+  <li><a href="#hetero">2 · Heterophily metrics</a></li>
+  <li><a href="#datasets">3 · Datasets ต่อ task</a></li>
+  <li><a href="#hparams">4 · Hyperparameters</a></li>
+  <li><a href="#protocol">5 · HGB vs HetSheaf (node/link)</a></li>
+  <li><a href="#gc">6 · Graph classification แบบ HetSheaf</a></li>
+  <li><a href="#sources">แหล่งที่อ่านและความลึก</a></li>
+</ol></nav>
+<main>
+<h1>H2S-NN Experiment Settings</h1>
+<div class="meta">2026-11-11 · อัปเดตหลังผู้เขียนตอบ D1–D8 · สถานะ: เอกสารประกอบการตัดสินใจ ยังไม่ใช่ spec (ยังไม่มีอะไรถูกเขียนลง spec หรือ decisions log). ข้อความเดิมที่ถูกมติแทนที่ยังอยู่ใน section ของมัน ติดป้าย "ถูกแทนที่" หรือขีดฆ่า. มติที่ตัดสินแล้วจะบันทึกใน <code>docs/experiment_settings_decisions.md</code> แล้วรวมเข้า spec v1.12 หลังผู้เขียนอนุมัติ.<br>
+ป้ายสถานะ: <span class="tag">VERIFIED-CODE</span> อ่านโค้ดแล้ว (file:line) · <span class="tag">VERIFIED-SOURCE</span> อ่านจาก paper · <span class="tag">VERIFIED-RUN</span> นับจากไฟล์ข้อมูลในเครื่อง · <span class="tag">DERIVED</span> อนุมานจากข้อข้างต้น · <span class="tag">UNVERIFIED</span> ยังไม่ได้ตรวจ · <span class="tag">PROPOSAL</span> ข้อเสนอของผม</div>
+
+<h2 id="summary">มติของผู้เขียนและสิ่งที่ยังเปิด</h2>
+<div class="answer"><p><b>ขอบเขต</b>: เอกสารนี้ครอบคลุมเฉพาะส่วน experiment (dataset, heterophily stat, protocol, baseline, tuning, seed, สถิติ). Discussion, model analysis และ ablation อยู่นอกขอบเขต (ผู้เขียน 2026-11-11) จึงไม่ถูกตัดสินที่นี่ แม้บางแถวเดิมยังพูดถึง arm ของ ablation</p></div>
+
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>หัวข้อ</th><th>มติ (ผู้เขียน 2026-11-11)</th><th>ผลที่ตามมา / หมายเหตุ</th><th>§</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Mini-batch</td><td>ต้องหาวิธี design ก่อน ยังไม่ implement</td><td><span class="tag warn">เปิด</span> ogbn-mag, mag-year, H-Pokec (และ IEEE-CIS-G ถ้า full batch ไม่พอ) ขึ้นกับข้อนี้</td><td>1</td></tr>
+<tr><td>2</td><td>กฎเลือก dataset</td><td>หลีกเลี่ยง dataset ที่ไม่มีทั้ง node attribute และ target node class พร้อมกัน</td><td>LastFM ไม่มีทั้งสองอย่าง <span class="tag">VERIFIED-RUN</span> <b>เก็บเป็นข้อยกเว้น ค่า heterophily เป็น "–"</b> (การตั้ง label เป็น type หรือเป็นตัวโหนดคำนวณได้แต่ค่าถูกกำหนดโดยวิธีตั้ง ไม่ใช่โดยข้อมูล §3.2). TU หลัง preprocessing ของ HetSheaf ก็ไม่มีทั้งสองอย่างตามตัวอักษร แต่ผู้เขียนสั่งตาม HetSheaf (ดูแถว D3)</td><td>2, 3</td></tr>
+<tr><td>3</td><td>ชุด meta-path</td><td>ใช้รายการ predefined ของ Hetero²Net เมื่อมี; ถ้าไม่มี ใช้ <code>get_metapaths</code> ของ Hetero²Net; ตรวจแค่ว่า reproduce ค่าของเขาได้</td><td>ขัดกับ spec F7 (ชุดของ H2GB) ต้องแก้ spec. ℋ² และรายการของ MAG/RCDD ยังเปิด (§2.2)</td><td>2.2</td></tr>
+<tr><td>4</td><td>Seeds (NC, LP)</td><td>5 seeds เลข 0–4 ตาม HGB</td><td>ไม่ยึด spec (10 seeds) เพราะเวลาน้อย</td><td>5.3</td></tr>
+<tr><td>5</td><td>Search space</td><td>เอาที่ไม่ใช้ออก</td><td><span class="tag ok">ตัดสินแล้ว</span> <code>K</code> และ <code>layer_dropout</code> (§4.2)</td><td>4.2</td></tr>
+<tr><td>6</td><td>Graph classification</td><td>ตาม HetSheaf ทุกจุด (D7), 5 seeds เลข 0–4</td><td>v3-B ยังไม่มี GC readout; test set เล็กและ split เดียว (§6)</td><td>6</td></tr>
+<tr><td>D1</td><td>MDE ของ LP</td><td>วัดบนกราฟที่ตัด feature ตาม F17 (ผมตีความคำว่า "จัดที่กราฟตัด" แบบนี้ ถ้าผิดแจ้งได้)</td><td>MDE ของ type ที่ feature ถูกตัดเป็น "–" (เช่น DBLP LP: author)</td><td>2.3</td></tr>
+<tr><td>D2</td><td>Heterophily stat ของ GC</td><td>เปลี่ยนจาก MDE เป็น MLH (ผู้เขียนยอมรับว่า node ไม่มี attribute)</td><td>MLH แบบ meta-path ได้ 1 เสมอเมื่อใช้ type เป็น label จึงใช้ H_edge 1 hop (ส่วนประกอบของ MLH, <code>label_homophily</code> ของ Hetero²Net) บน edge เดิม โดย label = atom type ไม่ตั้งชื่อใหม่ (ผู้เขียนยืนยัน)</td><td>2.5</td></tr>
+<tr><td>D3</td><td>TU / HSB-GDL</td><td>ยอมรับว่ายังไม่มี GC dataset ที่ heterogeneous จริง; ไม่ใส่ HSB-GDL ตอนนี้ ลิสต์ไว้รอ author ตอบ</td><td>TU ใช้ต่อแบบ typed-by-label (ผมตีความ). HSB-GDL: <code>vendor/HSB-GDL</code> ไม่มีไฟล์ข้อมูลกราฟ</td><td>3.3</td></tr>
+<tr><td>D4</td><td>เพิ่ม H2GB dataset</td><td>ไม่เพิ่ม</td><td>NC คงเดิม 8 ชุด (HGB 4 + H2GB 4)</td><td>3.1</td></tr>
+<tr><td>D5</td><td>งบ tuning</td><td>Bayes ธรรมดา 100 trials ไม่ใช้ Hyperband; จูนที่ seed 0 seed เดียว แล้วรัน config ที่ดีที่สุดนั้นบน seed 0–4</td><td>N เท่ากันทุก method. ประมาณการต้นทุนอยู่ใน §4.4</td><td>4.4</td></tr>
+<tr><td>D6</td><td>ที่มา protocol / baseline</td><td>NC และ LP ตาม HGB/H2GB, GC ตาม HetSheaf; rerun baseline ทั้งหมด (วางแผนก่อน ยังไม่ทำ)</td><td>HetSheaf ต้องมี adapter; <code>registry.py:107</code> ยังเขียนว่า cited-only (§5.4)</td><td>5.4</td></tr>
+<tr><td>D7</td><td>GC protocol</td><td>ตาม HetSheaf ทุกจุด</td><td>§6</td><td>6</td></tr>
+<tr><td>D8</td><td>Seeds</td><td>5 (ไม่สนใจ spec)</td><td>เหมือนข้อ 4</td><td>5.3</td></tr>
+<tr><td>LP</td><td>Protocol หลักของ LP</td><td>ใช้ HGB กับทุก LP task รวม task ที่สร้างจาก NC; ไม่ใช้ HeaRT ทั้ง primary และ secondary</td><td>เหตุผลของผู้เขียน: protocol ต้องตรงกับ dataset อื่น ไม่งั้นต้องตอบ reviewer เรื่อง bias. Spec F8/F14/F16/F21 ถูกแทนที่</td><td>5.2</td></tr>
+<tr><td>Test</td><td>นัยสำคัญที่ 5 seeds</td><td>Welch's t-test ทุก task; ทดสอบบน test metric ทุกตัวที่รายงาน ไม่เลือก metric ล่วงหน้า</td><td>ต้องกำหนดล่วงหน้าแค่ validation metric ที่ใช้เลือก config/checkpoint (§5.5)</td><td>5.5</td></tr>
+<tr><td>Readout</td><td>NC/LP/GC</td><td>ไม่ออกแบบ readout ใหม่: NC/LP ตาม HGB, GC ตาม HetSheaf ("แบบปกติ")</td><td>ไม่มี component ใหม่ จึงไม่ต้องมี ablation, model analysis หรือ motivation เพิ่ม (ซึ่ง reviewer ติ). GC อาจแพ้ HetSheaf ที่ใช้ SheafPool เอง ต้องรายงานตามจริง (§6)</td><td>6</td></tr>
+<tr><td>p-value</td><td>การปรับเมื่อทดสอบหลายครั้ง</td><td>เลื่อนไปดูผลก่อน</td><td>ผูกมัดไว้ตอนนี้: รายงาน p ดิบทุกรายการ จำนวนการทดสอบ และทั้งค่าดิบกับค่าที่ปรับ (§5.5)</td><td>5.5</td></tr>
+<tr><td>Budget</td><td>epoch/patience ของ HGB และ H2GB</td><td>ตัดสินตอนเทรนจริง</td><td>รวม GC 200 หรือ 500 epoch (§4.1, §6)</td><td>4.1</td></tr>
+<tr><td>Cost</td><td>cost table ที่ reviewer ขอ</td><td>ทำในอนาคต</td><td>ยังไม่มี section</td><td>—</td></tr>
+</tbody></table></div>
+
+<div class="decision"><strong>ที่ยังเปิดอยู่</strong>
+<ol class="body">
+<li><b>ตาราง metrics ต่อ task</b> (validation และ test, §5.5): ผมเสนอให้ตาม protocol ต้นทาง รอผู้เขียนยืนยัน; threshold ของ F1 บน IEEE-CIS-G ยังไม่ได้อ่านจากโค้ด H2GB <span class="tag">UNVERIFIED</span></li>
+<li><b>Meta-path</b>: รายการ predefined ของ MAG และ RCDD ใน Hetero²Net ยังไม่ได้เปิดดู; ℋ² (มีเฉพาะโค้ด H2GB) จะป้อนชุดเดียวกับ MLH/MDE หรือไม่ (§2.2)</li>
+<li><b>HSB-GDL</b>: รอ author ตอบ (ผู้เขียนยืนยัน §3.3)</li>
+<li><b>Mini-batch design</b> (§1) และ <b>per-scope PCG ต่อกราฟ</b> ที่ยังไม่มีเทส (ต้องมีก่อนรัน GC ด้วย v3-B แบบ batch หลายกราฟ)</li>
+<li><b>ต้นทุน plain Bayes 100</b>: เวลาต่อ trial เต็มยังไม่วัด ถ้า dataset ใหญ่รันไม่ไหวต้องกลับมาตัดสิน (§4.4)</li>
+<li><b>แก้ spec</b> (รอผู้เขียนอนุมัติ): seeds 10→5 และ Wilcoxon→Welch; ชุด meta-path (F7); LP primary HeaRT→HGB (F8, F14, F16, F21); GC stratified 10-fold→split เดียวตาม HetSheaf; กติกา tuning (OPEN-5); และ <code>possible_reviewer_qa.md</code> ที่ตอบว่า GC ใช้ sum pooling ให้ตรงกับมติ readout</li>
+</ol></div>
+<div class="answer"><p><b>เลื่อนโดยผู้เขียน</b>: budget ของ HGB/H2GB (ตัดสินตอนเทรนจริง), การปรับ p-value (ดูผลก่อน), cost table (อนาคต)</p></div>
+
+<h3>ข้อติของ reviewers ที่อยู่ในขอบเขต experiment</h3>
+<div class="tbl"><table>
+<thead><tr><th>ข้อติ</th><th>ผู้ติ</th><th>ตอบที่</th><th>สถานะ</th></tr></thead>
+<tbody>
+<tr><td>ยังไม่แสดงว่า dataset มี heterophily จริง</td><td>MR, R2 W4, R3 W1/W2, R4</td><td>§2, §3.1</td><td><span class="tag warn">ขึ้นกับ mini-batch</span> (dataset ใหญ่) และชุด meta-path</td></tr>
+<tr><td>GC/LP ไม่มี heterophily stat; TU ไม่ใช่ heterogeneous จริง</td><td>R3 W2, R4</td><td>§2.3, §2.5, §3.3</td><td>ใส่ค่าที่วัดได้ ที่เหลือ "–" และจำกัด claim; HSB-GDL รอ author</td></tr>
+<tr><td>Baseline tuning และ protocol ไม่ชัด</td><td>R1 W2/Q2, R2 W2, R4</td><td>§4, §5.4</td><td>กติกา tuning ตัดสินแล้ว; ตาราง space ต่อ baseline ยังไม่ได้ทำ</td></tr>
+<tr><td>HetSheaf ไม่ได้รันใน protocol เดียวกัน</td><td>R1 W3, R2 W2, R4</td><td>§5.4</td><td>จะ rerun; ยังไม่มี adapter</td></tr>
+<tr><td>std, seeds, significance</td><td>R1 Q3, R2 W1, R4</td><td>§5.3, §5.5, §6</td><td>Welch ที่ 5 seeds; GC ที่ split เดียวยังเสี่ยงโดนยกซ้ำ</td></tr>
+<tr><td>Scalability / cost</td><td>MR, R1 W1/Q1, R3 W3, R4</td><td>§1 (mini-batch), cost table</td><td><span class="tag warn">เปิด</span></td></tr>
+</tbody></table></div>
+
+<details><summary>สรุปเดิมก่อนมติ (บางแถวถูกแทนที่แล้ว ดูตารางมติด้านบน)</summary>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>คำถาม</th><th>คำตอบสั้น</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>โมเดลทำ mini-batch ได้ไหม</td><td><span class="tag bad">ยังไม่ได้</span> สำหรับ node classification และ link prediction: มีแค่ design (M0–M4 + v3-B addendum) และ PCG แบบ per-scope ที่ยังไม่มีเทส ไม่มี scope builder, batch trainer หรือ stored evaluation draw. Graph classification เป็น mini-batch ของกราฟเล็กอยู่แล้ว</td></tr>
+<tr><td>2</td><td>MLH, ℋ², MDE ทุก dataset</td><td>ทำได้ แต่ MDE ไม่ได้ช่วย dataset ที่ไม่มี feature: <b>LastFM และ Freebase ไม่มี node feature เลย</b> จึงเป็น "–" ทั้งสามค่า. ใน graph classification แบบ HetSheaf feature กลายเป็นค่าคงที่ 1 ทุกโหนด MDE จึงวัดแค่ความต่างของ degree ไม่ใช่ attribute heterophily. ชุด meta-path: ใช้กฎของ H2GB code (ทุก type sequence ยาว 2 hop จาก target กลับ target) ทุก dataset ทั้งสามค่า</td></tr>
+<tr><td>3</td><td>Datasets ที่ไม่ใช่ single node type</td><td>NC 8 ชุด และ LP 8 task ผ่านกฎทั้งหมด. ตัดออก: HGB Amazon, YouTube, DrugBank-DDI, String-PPI. Graph classification (MUTAG, PROTEINS, ENZYMES, NCI1) เป็นกราฟ type เดียวโดยธรรมชาติ ที่ถูกแปลง atom label เป็น node type ต้องให้คุณตัดสินว่านับว่าผ่านกฎหรือไม่. HSB-GDL ยังใช้เป็น benchmark ไม่ได้ (ไม่มี license, paper, label scheme, split)</td></tr>
+<tr><td>4</td><td>Search spaces</td><td>มีรายการครบใน §4. โค้ด tuning ปัจจุบันยังค้นหา <code>K</code> (ไม่มีแล้วใน v3-B) และ <code>layer_dropout</code> (ไม่ถูกใช้ใน path anchored) ต้องเอาออก</td></tr>
+<tr><td>5</td><td>เอาค่า baseline จาก HetSheaf มาใช้ได้ไหม</td><td><span class="tag bad">ไม่แนะนำ</span> HetSheaf ไม่ได้ใช้ setting ของ HGB จริง: NC split 27/3/70 (HGB 24/6/70), LP เป็น random split 70/15/15 กับ random negatives ทุก dataset, PubMed ในโค้ดทำนาย gene–gene แต่ paper เขียน disease–disease, test ด้วย weights สุดท้ายไม่ใช่ checkpoint ที่ดีที่สุด, 5 seeds</td></tr>
+<tr><td>6</td><td>Graph classification ตาม HetSheaf</td><td>ทำได้ รายละเอียดครบใน §6: TU 4 ชุด, type จาก one-hot label, feature = 1, split สุ่มครั้งเดียว 80/10/10 seed 42 ใช้ทุก seed, batch size 1, 5 seeds (42–46), early stop ที่ valid loss patience 50. มีข้อน่ากังวลที่ต้องตัดสิน (test set MUTAG มี 20 กราฟ, test ที่ weights สุดท้าย)</td></tr>
+</tbody></table></div>
+</details>
+
+<h2 id="minibatch">1 · Mini-batch training</h2>
+<div class="answer"><p><b>มติ (ผู้เขียน)</b>: ต้องหาวิธี design ก่อน ยังไม่ implement. Design เดิม (M0–M4 + addendum) ด้านล่างเป็นข้อมูลอ้างอิง ผู้เขียนยังไม่ได้ยืนยันว่าใช้ต่อ. Dataset ที่ขึ้นกับข้อนี้: ogbn-mag, mag-year, H-Pokec (และ IEEE-CIS-G ถ้า full batch ไม่พอ)</p></div>
+<div class="answer"><p><b>ตอนนี้ทำไม่ได้</b> สำหรับ node classification และ link prediction. Trainer ทั้งสองเป็น full batch (หนึ่ง optimizer step ต่อ epoch). Graph classification วน DataLoader ของกราฟเล็กหลายกราฟอยู่แล้ว ซึ่งเป็น mini-batch โดยธรรมชาติ</p></div>
+<div class="tbl"><table>
+<thead><tr><th>ส่วน</th><th>สถานะ</th><th>หลักฐาน</th></tr></thead>
+<tbody>
+<tr><td>Design (scope ต่อ target, degree และ context จาก scope, evaluation draw เก็บครั้งเดียว)</td><td><span class="tag ok">ตัดสินแล้ว</span> M0–M4</td><td><code>docs/minibatch_design_decisions.md</code> §3–§7, §13</td></tr>
+<tr><td>ปรับสำหรับ v3-B (ไม่มี K, PCG ต่อ scope)</td><td><span class="tag ok">เขียนแล้ว</span></td><td><code>docs/minibatch_v3B_addendum.md</code> §1–§4</td></tr>
+<tr><td>PCG ที่แยก inner product และการหยุดต่อ scope</td><td><span class="tag warn">มีโค้ด ไม่มีเทส</span></td><td><code>src/models/anchored_solve.py:73-80</code> <code>segment_dot</code>, <code>pcg(scope_rows, num_scopes)</code> · addendum §2 "UNVERIFIED by a test"</td></tr>
+<tr><td>Scope builder (ตัด target + facts + cells เป็นกราฟย่อย, relabel id)</td><td><span class="tag bad">ยังไม่มี</span></td><td>ไม่มีใน <code>src/</code> (grep "scope" พบแค่ใน solver) <span class="tag">VERIFIED-CODE</span></td></tr>
+<tr><td>Encoder ต้องรับ global node id สำหรับ type ที่ไม่มี feature</td><td><span class="tag bad">ยังไม่ได้แก้</span></td><td>decisions §11: <code>node_encoder.py:101-104</code></td></tr>
+<tr><td>WISP merge ต่อ anchor + evaluation draw เก็บต่อ walk</td><td><span class="tag bad">ยังไม่มี</span></td><td>decisions §6, §11: <code>merge_wisp_cells</code> merge ข้าม anchor ทั้ง draw</td></tr>
+<tr><td>Batch trainer (หลาย scope ต่อ step, memory budget)</td><td><span class="tag bad">ยังไม่มี</span></td><td><code>src/trainers/trainer.py</code> full batch</td></tr>
+<tr><td>Graph classification</td><td><span class="tag ok">mini-batch ของกราฟ</span></td><td><code>graph_classification_trainer.py:20-27</code>; batch size 32 hardcode ที่ <code>graph_classification_dataset.py:407</code></td></tr>
+</tbody></table></div>
+<p><b>ข้อสังเกตเรื่อง graph classification กับ v3-B</b> <span class="tag">DERIVED</span>: batch ของหลายกราฟคือกราฟที่มีหลาย component. ถ้าใช้ PCG ที่มี inner product รวมทั้ง batch คำตอบของแต่ละกราฟยังถูกในระดับ tolerance แต่ iterate ขึ้นกับกราฟอื่นใน batch. ถ้าต้องการให้ prediction ของกราฟหนึ่งไม่ขึ้นกับ batch ต้องส่ง <code>scope_rows</code> เป็นหนึ่ง scope ต่อกราฟ ซึ่งเป็นการใช้งาน per-scope PCG ครั้งแรก และต้องมีเทส bit-identity (addendum §4 ข้อ 2) ก่อน. ยังไม่ได้ตรวจว่า path anchored รันใน graph classification trainer ได้แล้วหรือไม่ <span class="tag">UNVERIFIED</span></p>
+<p><b>ต้องใช้ mini-batch กับ dataset ไหน</b>: ตาม spec F3 คือ ogbn-mag, mag-year, H-Pokec และ IEEE-CIS-G ถ้า full batch ไม่พอ. ตัวเลข L7 บน RTX 4060 (DBLP 5.0 GB ที่ d = 32) บอกว่า HGB ทั้งสามชุดเป็น full batch ได้ ส่วน Freebase (180k nodes, 1.06M links) ยังไม่ได้วัด</p>
+<p><b>งานที่ต้องทำ</b>: task card mini-batch ตาม decisions §8 + addendum §4 (unit แรกคือ E14 ซึ่งทำแล้วใน config). เทสหลัก: batch = รวม scope ที่แยกกัน → prediction เท่ากับรันทีละ scope แบบ bit-identical, prediction ตอน evaluation ไม่ขึ้นกับ batch size, harness ที่ใช้ทั้งกราฟต้องได้ logits เท่ากับ full batch</p>
+
+<h2 id="hetero">2 · Heterophily metrics: MLH, ℋ², MDE</h2>
+<h3>2.1 นิยาม (ตามแหล่งที่มา)</h3>
+<div class="tbl"><table>
+<thead><tr><th>ค่า</th><th>สูตร</th><th>แหล่ง</th><th>ต้องการอะไร</th></tr></thead>
+<tbody>
+<tr><td>MLH</td><td><code>Agg_{P∈M₂} H_edge(G_P)</code>, mean</td><td>Hetero²Net Eq. 4; H2GB Eq. 1 <span class="tag">VERIFIED-SOURCE</span></td><td>label ของ target type</td></tr>
+<tr><td>ℋ²</td><td><code>mean_{P∈M₂} H_adj(G_P)</code>, H_adj = adjusted heterophily (แก้ class imbalance)</td><td>H2GB Eq. 2 <span class="tag">VERIFIED-SOURCE</span>; code <code>vendor/H2GB/H2GB/calcHomophily.py:105-180</code></td><td>label ของ target type</td></tr>
+<tr><td>MDE (Metapath-based Dirichlet Energy)</td><td><code>(1/|P|) Σ_P E(G_P)</code>, <code>E(G) = ¼ Σ_{(u,v)∈E} ‖x_u/√|N_u| − x_v/√|N_v|‖²</code>; code หารด้วยจำนวน edge (mean)</td><td>Hetero²Net Eq. 3, 4 <span class="tag">VERIFIED-SOURCE</span>; code <code>vendor/Hetero2Net/hetero2net/homophily.py:4-14</code> <span class="tag">VERIFIED-CODE</span></td><td>node feature ของ target type (ไม่ต้องใช้ label)</td></tr>
+</tbody></table></div>
+<p>ค่าอ้างอิงของ Hetero²Net Table 1 (คำนวณบน target type ด้วยรายการ meta-path ที่เลือกเอง): MDE DBLP 0.80, ACM 0.74, IMDB 0.59, MAG 0.04, RCDD 0.16; MLH 0.87 / 0.60 / 0.24 / 0.21 / 0.45 <span class="tag">VERIFIED-SOURCE</span>. ค่า MDE สูง = feature ของ node ที่เชื่อมกันผ่าน meta-path ต่างกันมาก (attribute heterophily มาก)</p>
+
+<h3>2.2 ชุด meta-path เมื่อไม่มีรายการให้ (สิ่งที่โค้ดทำจริง)</h3>
+<div class="tbl"><table>
+<thead><tr><th></th><th>H2GB <code>calcHomophily.extract_metapath</code></th><th>Hetero²Net <code>get_metapaths</code></th><th>Hetero²Net paper</th></tr></thead>
+<tbody>
+<tr><td>ความยาว</td><td>ต้อง 2 hop พอดี (<code>hop = 2</code>, บรรทัด 105)</td><td>พารามิเตอร์ <code>hop</code></td><td>"only length-2 metapaths"</td></tr>
+<tr><td>เริ่มและจบ</td><td>เริ่มที่ target type และต้องจบที่ target type (บรรทัด 92-96)</td><td>ต้องจบที่ <code>first_start</code> ถ้าให้</td><td>เริ่มและจบที่ type A</td></tr>
+<tr><td>relation ที่ type เดียวกัน (เช่น P–cite–P)</td><td><b>รวม</b> (บรรทัดกรอง <code>src != dst</code> ถูก comment ออก, บรรทัด 99)</td><td><b>ไม่รวม</b> (<code>if src == dst: continue</code>, บรรทัด 60)</td><td>ใช้รายการที่เลือกเอง: DBLP APA; IMDB MDM, MAM, MKM; ACM PAP, PSP, PTP</td></tr>
+<tr><td>ทิศทาง</td><td>ใช้ทุก edge type ที่เก็บใน HeteroData (reverse เป็นอีก type)</td><td>เหมือนกัน</td><td>—</td></tr>
+<tr><td>ถูกเรียกใช้จริงไหม</td><td>ใช่ (H2GB Table 2)</td><td>ไม่ถูกเรียกที่ไหนใน repo (grep) <span class="tag">VERIFIED-CODE</span></td><td>—</td></tr>
+</tbody></table></div>
+<p>ความเข้าใจที่ว่า "ดูทุก meta-path ที่มีขนาดสูงสุด 2" ใกล้เคียงแต่ไม่ตรงทีเดียว: H2GB ใช้<b>ยาว 2 hop พอดี</b> จาก target กลับ target ไม่รวม relation ตรงยาว 1 (เช่น P–cite–P เดี่ยว ๆ ไม่นับ แต่ P–cite–P–cite–P นับ). Spec 1.8 เลือกกฎนี้แล้วสำหรับ MLH และ ℋ² ทุก dataset (graph ที่ symmetrise ตาม loader ของ H2GB, Freebase ต้อง symmetrise เพราะไม่มี reverse relation)</p>
+<div class="answer"><p><b>มติ (ผู้เขียน)</b>: ใช้รายการ predefined ของ Hetero²Net ถ้า dataset นั้นมี (DBLP: APA; ACM: PAP, PSP, PTP; IMDB: MDM, MAM, MKM <span class="tag">VERIFIED-SOURCE</span>; MAG และ RCDD: ยังไม่ได้เปิดดู <span class="tag">UNVERIFIED</span>). ถ้าไม่มี ใช้ <code>get_metapaths</code> ของ Hetero²Net (ยาว 2 hop, เริ่มและจบที่ target type, ข้าม relation ที่ type เดียวกัน). งานตรวจมีแค่ว่า reproduce ค่า Table 1 ของเขาได้ (DBLP/ACM/IMDB: MDE 0.80/0.74/0.59, MLH 0.87/0.60/0.24 ภายใน tolerance ที่กำหนดก่อนรัน). ต้องแก้ spec F7 ที่เคยเลือกกฎของ H2GB</p>
+<p><b>ผลที่ตามมา</b> <span class="tag">DERIVED</span>: (1) <code>get_metapaths</code> ไม่ถูกเรียกที่ไหนใน repo จึงต้องเขียน harness เรียกมันเอง. (2) มันข้าม relation ที่ type เดียวกัน ดังนั้น meta-path อย่าง P–cite–P–cite–P (ogbn-mag, mag-year) และ U–friend–U–friend–U (H-Pokec) ไม่ถูกนับ ต่างจากกฎของ H2GB. (3) ℋ² มีเฉพาะในโค้ด H2GB: เสนอให้ป้อน meta-path ชุดเดียวกับ MLH ของ dataset นั้น <span class="tag">PROPOSAL</span> รอผู้เขียนยืนยัน</p></div>
+<div class="answer"><p><b>ข้อเสนอเดิม (ถูกแทนที่ด้วยมติด้านบน)</b> <span class="tag">PROPOSAL</span>: ใช้ชุดเดียวกันนี้กับ MDE ด้วย ทุก dataset ทั้งสามค่า. รายการของ Hetero²Net (APA, PAP/PSP/PTP, MDM/MAM/MKM) ใช้แค่เป็น reproduction check: คำนวณ MDE ด้วยรายการของเขาแล้วต้องได้ DBLP 0.80, ACM 0.74, IMDB 0.59 ภายใน tolerance ที่กำหนดก่อนรัน ก่อนจะรายงานค่าจากกฎของเรา</p></div>
+
+<h3>2.3 ค่าไหนวัดได้บ้าง</h3>
+<p>Feature ต่อ type นับจาก <code>node.dat</code> ในเครื่อง <span class="tag">VERIFIED-RUN</span> (H2GB จาก paper <span class="tag">VERIFIED-SOURCE</span>)</p>
+<div class="tbl"><table>
+<thead><tr><th>Task / dataset</th><th>type ที่ใช้</th><th>label</th><th>feature (มิติ)</th><th>MLH</th><th>ℋ²</th><th>MDE</th></tr></thead>
+<tbody>
+<tr><td>NC ACM</td><td>paper</td><td>3 class</td><td>1,902 (binary)</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>NC DBLP</td><td>author</td><td>4</td><td>334</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>NC IMDB</td><td>movie</td><td>5 (multi-label)</td><td>3,489</td><td>✓ ต่อ genre</td><td>✓ ต่อ genre</td><td>✓</td></tr>
+<tr><td>NC Freebase</td><td>book</td><td>7</td><td><b>ไม่มี feature ทุก type</b></td><td>✓</td><td>✓</td><td>–</td></tr>
+<tr><td>NC ogbn-mag / mag-year</td><td>paper</td><td>349 / 5</td><td>128</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>NC IEEE-CIS-G</td><td>transaction</td><td>2</td><td>4,823</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>NC H-Pokec</td><td>user</td><td>2</td><td>66</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>LP ACM P–A</td><td>paper / author</td><td>paper เท่านั้น</td><td>paper 1,902; author 1,902 (ถูกตัดในไฟล์ LP ตาม F17)</td><td>paper</td><td>paper</td><td>ดู D1</td></tr>
+<tr><td>LP DBLP A–P</td><td>author / paper</td><td>author เท่านั้น</td><td>author 334 (ถูกตัดใน LP); paper 4,231</td><td>author</td><td>author</td><td>ดู D1</td></tr>
+<tr><td>LP IMDB M–A</td><td>movie / actor</td><td>movie เท่านั้น</td><td>movie 3,489 (ตัด 4 คอลัมน์ใน LP); actor 3,341 (ถูกตัดใน LP)</td><td>movie</td><td>movie</td><td>ดู D1</td></tr>
+<tr><td>LP Freebase B–B</td><td>book</td><td>✓</td><td>ไม่มี</td><td>✓ + task H_edge</td><td>✓</td><td>–</td></tr>
+<tr><td>LP PubMed D–D</td><td>disease</td><td>ไม่มี (HNE release หาย)</td><td>200 ทุก type</td><td>–</td><td>–</td><td><b>✓ (ได้ประโยชน์จาก MDE)</b></td></tr>
+<tr><td>LP LastFM U–A</td><td>user / artist</td><td>ไม่มี</td><td><b>ไม่มี feature ทุก type</b></td><td>–</td><td>–</td><td>–</td></tr>
+<tr><td>LP ogbn-mag P–P</td><td>paper</td><td>✓</td><td>128</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>LP H-Pokec U–U</td><td>user</td><td>✓</td><td>66</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>GC (TU, แบบ HetSheaf)</td><td>ไม่มี target type</td><td>label ระดับกราฟ</td><td>ค่าคงที่ 1 (§6)</td><td>–</td><td>–</td><td>ดู D2</td></tr>
+</tbody></table></div>
+
+<div class="answer"><p><b>มติ D1</b>: วัดบนกราฟที่ตัด feature ตาม F17 (การตีความของผม). ผล: acm_pa MDE ของ paper ✓ (feature ของ paper ยังอยู่); dblp_ap MDE ของ author เป็น "–" (ถูกตัด); imdb_ma MDE ของ movie ✓ บนคอลัมน์ที่เหลือหลังตัด 4 คอลัมน์. MLH และ ℋ² ใช้ label จึงไม่กระทบ. กราฟที่ใช้วัดคือกราฟ train ของ LP ไม่รวม held-out facts <span class="tag">PROPOSAL</span>. คำแนะนำ (a) ใน §2.4 ถูกแทนที่</p></div>
+<h3>2.4 ข้อควรระวังของ MDE</h3>
+<ul>
+<li><b>ขึ้นกับสเกลของ feature.</b> Hetero²Net ใช้ x ดิบ (footnote 1 บอกว่าสเกลควบคุมได้เฉพาะเมื่อ normalise feature). Bag-of-words binary กับ embedding 128 มิติให้ค่าคนละช่วง (MAG 0.04 กับ DBLP 0.80). จึงเทียบ MDE ข้าม dataset เป็น "ระดับ heterophily" ไม่ได้ ใช้ได้แค่เป็นค่าบรรยาย dataset. ตัวแปรที่ใช้แบ่งผลใน C6 ยังเป็น ℋ² ตาม spec <span class="tag">DERIVED</span></li>
+<li><b>Link prediction ที่ endpoint ต่าง type</b> (P–A, A–P, M–A): MDE ต้องเลือก type A. ข้อเสนอ: รายงานต่อ endpoint type ที่มี feature</li>
+<li><b>D1</b>: กฎ F17 ตัด feature ของ author (ACM, DBLP) และ actor (IMDB) ในไฟล์ LP. (a) วัดบนกราฟต้นฉบับ: เป็นค่าบรรยาย dataset และเทียบกับ NC ได้. (b) วัดบนไฟล์ LP: ตรงกับสิ่งที่โมเดลเห็น แต่ type ที่ถูกตัดเป็น "–". <s>ผมแนะนำ (a) และระบุในตารางว่าวัดบนกราฟเต็ม</s> (ถูกแทนที่ด้วยมติ D1: เลือก (b))</li>
+</ul>
+
+<h3>2.5 Graph classification</h3>
+<p>ภายใต้ preprocessing ของ HetSheaf (§6) ทั้งสามค่านิยามไม่ได้ตามแหล่งที่มา <span class="tag">DERIVED</span>:</p>
+<ul>
+<li>MLH และ ℋ² ต้องใช้ node label ของ target type แต่ graph classification มีแค่ label ระดับกราฟ</li>
+<li>H2GB และ Hetero²Net ต้องมี target type เพื่อสร้าง meta-path; กราฟโมเลกุลไม่มี</li>
+<li>หลังแปลง type แล้ว HetSheaf แทน feature ด้วย 1 ทุกโหนด (<code>graph_classification.py</code> <code>ExtractTypes</code>, <code>node_feature_type: constant</code>). เมื่อ x = 1 ทุกโหนด <code>E = ¼ Σ (1/√d_u − 1/√d_v)²</code> เป็นการวัดความต่างของ degree ไม่ใช่ attribute. และถึงจะใช้ one-hot atom label เป็น feature โหนดใน type เดียวกันก็มี feature เหมือนกันหมด จึงเหลือแค่ degree อีกเช่นกัน</li>
+</ul>
+<div class="answer"><p><b>มติ D2</b>: เปลี่ยนจาก MDE เป็น MLH เพราะ node ไม่มี attribute จริง (ผู้เขียนระบุว่าดูผิดเรื่อง attribute). ข้อจำกัดที่ต้องรู้ <span class="tag">DERIVED</span>: MLH ตามนิยามของ Hetero²Net เริ่มและจบที่ type เดียวกัน ถ้าใช้ type เป็น label ปลายทั้งสองของ meta-path จะมี label เท่ากันเสมอ ค่า MLH จึง = 1 ทุก dataset และไม่บอกอะไร. ทางที่ยังได้ข้อมูล (มติ): ใช้ <b>H_edge 1 hop</b> บน edge เดิมของกราฟ โดย label = atom type (สัดส่วน edge ที่ปลายทั้งสองเป็น type เดียวกัน, pooled ทั้ง dataset) ซึ่งคือสูตร <code>label_homophily</code> ตัวเดียวกับที่ MLH ใช้ แต่ไม่ผ่าน meta-path. ผมเคยเสนอให้ตั้งชื่อ "type homophily" ผู้เขียนเห็นว่าไม่จำเป็นเพราะเป็น MLH ปกติ จึงไม่ตั้งชื่อใหม่ แต่ในตารางต้องระบุว่าเป็น 1 hop เพื่อไม่ให้สับสนกับ MLH 2 hop ของ dataset อื่น. MDE และ ℋ² ของ GC เป็น "–" (feature คงที่ = degree เท่านั้น)</p></div>
+<p><b>ข้อเสนอเดิม D2</b> (ถูกแทนที่): (a) ใส่ "–" สำหรับ graph classification (สอดคล้องกับ spec 1.5 ที่บอกว่า graph classification ไม่มี heterophily claim) หรือ (b) นิยาม MDE ใหม่ที่ใช้ attribute จริงของ PROTEINS (1 มิติ) และ ENZYMES (18 มิติ) โดยรวมทุก type pair. (b) เป็นนิยามของเราเอง ไม่ใช่ของ Hetero²Net และขัดกับ HetSheaf ที่ทิ้ง attribute เหล่านี้. ผมแนะนำ (a)</p>
+
+<h2 id="datasets">3 · Datasets ต่อ task</h2>
+<p>นิยาม heterogeneous ที่ใช้: |T_V| ≥ 2 node types (ตามกฎข้อ 3 ของคุณ). ตัวเลข HGB นับจากไฟล์ในเครื่อง <span class="tag">VERIFIED-RUN</span> โดยนับ link.dat ทั้งสองทิศ (HGB เก็บ reverse เป็น relation แยก)</p>
+<h3>3.1 Node classification</h3>
+<div class="tbl"><table>
+<thead><tr><th>Dataset</th><th>แหล่ง</th><th>โดเมน</th><th>Nodes</th><th>Node types</th><th>Edges</th><th>Edge types</th><th>Target</th><th>Classes</th><th>Feature</th><th>Split</th><th>Metric</th><th>Training</th></tr></thead>
+<tbody>
+<tr><td>ACM</td><td>HGB</td><td>citation</td><td>10,942</td><td>4 (paper 3,025 · author 5,959 · subject 56 · term 1,902)</td><td>547,872 (273,936 facts)</td><td>8</td><td>paper</td><td>3</td><td>paper/author/subject 1,902; term ไม่มี</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>full batch</td></tr>
+<tr><td>DBLP</td><td>HGB</td><td>bibliographic</td><td>26,128</td><td>4 (author 4,057 · paper 14,328 · term 7,723 · venue 20)</td><td>239,566</td><td>6</td><td>author</td><td>4</td><td>author 334 · paper 4,231 · term 50 · venue ไม่มี</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>full batch</td></tr>
+<tr><td>IMDB</td><td>HGB</td><td>movie</td><td>21,420</td><td>4 (movie 4,932 · director 2,393 · actor 6,124 · keyword 7,971)</td><td>86,642</td><td>6</td><td>movie</td><td>5 multi-label (4,573 มี label)</td><td>3,489 / 3,341 / 3,341 / ไม่มี</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>full batch</td></tr>
+<tr><td>Freebase</td><td>HGB</td><td>knowledge graph</td><td>180,098</td><td>8</td><td>1,057,688</td><td>36</td><td>book</td><td>7 (7,954 มี label)</td><td>ไม่มีทุก type</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>ยังไม่ได้วัด memory</td></tr>
+<tr><td>ogbn-mag</td><td>H2GB</td><td>academia</td><td>1,939,743</td><td>4</td><td>42,182,144</td><td>7</td><td>paper</td><td>349 (venue)</td><td>paper 128</td><td>time 85/9/6</td><td>Accuracy</td><td>mini-batch</td></tr>
+<tr><td>mag-year</td><td>H2GB</td><td>academia</td><td>1,939,743</td><td>4</td><td>42,182,144</td><td>7</td><td>paper</td><td>5 (year)</td><td>paper 128</td><td>random 50/25/25</td><td>Accuracy</td><td>mini-batch</td></tr>
+<tr><td>IEEE-CIS-G</td><td>H2GB</td><td>finance (fraud)</td><td>153,880</td><td>12</td><td>2,873,472</td><td>22</td><td>transaction</td><td>2 (ไม่สมดุล)</td><td>transaction 4,823; บาง type ไม่มี</td><td>time 80/10/10</td><td>F1</td><td>full หรือ mini-batch</td></tr>
+<tr><td>H-Pokec</td><td>H2GB</td><td>social</td><td>1,731,977</td><td>16</td><td>51,774,836</td><td>31</td><td>user</td><td>2</td><td>user 66; บาง type ไม่มี</td><td>random 50/25/25</td><td>Accuracy</td><td>mini-batch</td></tr>
+</tbody></table></div>
+<p><b>D4 — มติ: ไม่เพิ่ม</b> (ผู้เขียน). ข้อมูลประกอบ: H2GB มีอีก 5 ชุดที่ผ่านกฎ (≥ 2 types) แต่ spec F3 ไม่ได้เลือก: oag-cs (1.1M nodes, 4 types, 3,514 classes), oag-eng, oag-chem, RCDD (13.8M nodes, 7 types, binary), PDNS (1.17M nodes, 2 types, binary). เหตุผลที่ไม่เลือกไม่อยู่ในเอกสารที่ผมอ่าน <span class="tag">UNVERIFIED</span>. ชุดใหญ่อย่าง RCDD ใช้ทรัพยากรมาก ถ้าต้องการช่วง ℋ² เพิ่มสำหรับ C6 ค่อยพิจารณา</p>
+
+<h3>3.2 Link prediction</h3>
+<div class="tbl"><table>
+<thead><tr><th>Task</th><th>แหล่งกราฟ</th><th>Node types</th><th>Target relation</th><th>Target facts / split</th><th>Endpoint labels</th><th>Feature</th><th>สถานะ</th></tr></thead>
+<tbody>
+<tr><td>acm_pa</td><td>HGB ACM</td><td>4</td><td>paper–author</td><td>9,949 → 8,059 / 895 / 995</td><td>paper</td><td>author ถูกตัด (F17)</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>dblp_ap</td><td>HGB DBLP</td><td>4</td><td>author–paper</td><td>19,645 → 15,913 / 1,768 / 1,964</td><td>author</td><td>author ถูกตัด</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>imdb_ma</td><td>HGB IMDB</td><td>4</td><td>movie–actor</td><td>14,779 → 11,971 / 1,330 / 1,478</td><td>movie</td><td>actor ถูกตัด, movie ตัด 4 คอลัมน์</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>freebase_bb</td><td>HGB Freebase</td><td>8</td><td>book–book (unordered pair)</td><td>127,535 → 103,303 / 11,478 / 12,754</td><td>book (ทั้งสองข้าง)</td><td>ไม่มี</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>PubMed</td><td>HGB LP</td><td>4 (gene 13,561 · disease 20,163 · chemical 26,522 · species 2,863)</td><td>disease–disease (relation 2 ใน <code>link.dat.test</code>)</td><td>HGB test file; validation แยกจาก <code>link.dat</code></td><td>ไม่มี</td><td>200 ทุก type</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>LastFM</td><td>HGB LP</td><td>3 (user 1,892 · artist 17,632 · tag 1,088)</td><td>user–artist (relation 0)</td><td>HGB test file</td><td>ไม่มี</td><td>ไม่มี</td><td>ไฟล์พร้อม</td></tr>
+<tr><td>ogbn-mag P–P</td><td>OGB / H2GB</td><td>4</td><td>paper–paper citation</td><td>81/9/10 ตาม unordered pair, <s>HeaRT บน subsample</s> (ถูกแทนที่: ใช้ negatives แบบ HGB)</td><td>paper</td><td>paper 128</td><td>สร้างบน TSUBAME</td></tr>
+<tr><td>H-Pokec U–U</td><td>H2GB</td><td>16</td><td>user–user friendship</td><td>เหมือนข้างบน</td><td>user</td><td>user 66</td><td>สร้างบน TSUBAME</td></tr>
+</tbody></table></div>
+<p>ตัดออกตามกฎ: HGB Amazon (1 type), HGB YouTube (1 type), DrugBank-DDI และ String-PPI (1 type, ใน HetSheaf appendix). ไม่ใช้ตาม spec: MovieLens (2 types แต่หลังรวม fact เหลือกราฟ bipartite relation เดียว). CTD-DDA, NDFRT-DDA มี 2 types แต่มี edge type เดียว (HetSheaf Table 7) จึงไม่ได้ทดสอบ path instance</p>
+
+<div class="answer"><p><b>มติ LP</b>: ใช้ protocol ของ HGB กับทุก task ในตารางนี้ รวม 4 task ที่สร้างจาก NC และ ogbn-mag, H-Pokec; ไม่ใช้ HeaRT (ไฟล์ <code>heart/</code> ใน <code>data/lp_derived/*</code>, <code>data/PubMed</code>, <code>data/LastFM</code> ยังอยู่บนดิสก์แต่ไม่ถูกใช้). รายละเอียดอยู่ใน §5.2</p>
+<p><b>ผลต่อ ogbn-mag P–P และ H-Pokec U–U</b> <span class="tag">DERIVED</span>: negatives แบบ HGB ต้องหา 2-hop neighbour ของ head บนกราฟขนาด 1.7–1.9M node ต้นทุนยังไม่ได้วัด และขึ้นกับ design mini-batch (§1)</p></div>
+<div class="answer"><p><b>LastFM — มติ: เก็บเป็นข้อยกเว้น ค่า MLH/ℋ²/MDE เป็น "–"</b> (ผมสรุปจากคำตอบของผู้เขียนที่ว่าเก็บถ้าคำนวณได้ และพบว่าคำนวณเป็นข้อมูลไม่ได้ ถ้าต้องการตัดแจ้งได้). ข้อมูลที่นับจาก <code>link.dat</code> <span class="tag">VERIFIED-RUN</span>: relation user–artist (74,267 train), user–user (25,434), artist–tag (23,253); ไม่มี feature และไม่มี label ทุก type</p>
+<p>ผู้เขียนเสนอให้ตั้ง label จาก type เพื่อคำนวณ MLH. คำนวณได้ แต่ค่าถูกกำหนดโดยวิธีตั้ง label ไม่ใช่โดยข้อมูล: (A) label = type ที่มีอยู่ (user/artist/tag): ปลายทั้งสองของ meta-path เป็น type เดียวกันเสมอ MLH = 1. (B) label = ตัวโหนดเอง (แต่ละโหนดเป็นคนละ type): สองปลายตรงกันเฉพาะคู่ที่เป็นโหนดเดียวกัน; U–A–U บน train มี 1,736,292 คู่ ตรงกัน 1,890 คู่ = 0.0011 (เป็น 0 ถ้าตัด self-loop) ซึ่งขึ้นกับจำนวนโหนดไม่ใช่โครงสร้าง. ใส่ในตารางจะทำให้ reviewer ที่ติเรื่อง heterophily อ่านเป็นการวัดจริง จึงใส่ "–" พร้อมเหตุผล. ถ้าผู้เขียนต้องการใส่ตัวเลขก็ต้องเรียกว่า "type-label (trivial)" และไม่ใช้ใน C6. ทางที่ได้ค่าจริงคือสร้าง feature artist จาก artist–tag แล้ววัด MDE บน A–U–A เป็นนิยามที่เราสร้างเอง ไม่แนะนำถ้าไม่จำเป็น</p></div>
+
+<h3>3.3 Graph classification</h3>
+<div class="tbl"><table>
+<thead><tr><th>Dataset</th><th>Graphs</th><th>Nodes (รวม)</th><th>Edge rows (รวมสองทิศ)</th><th>Node types (จาก label)</th><th>Edge types</th><th>Classes</th><th>Attribute จริง</th><th>ใน HetSheaf</th></tr></thead>
+<tbody>
+<tr><td>MUTAG</td><td>188</td><td>3,371</td><td>7,442</td><td>7 atoms</td><td>4 bonds</td><td>2</td><td>ไม่มี</td><td>✓</td></tr>
+<tr><td>PROTEINS</td><td>1,113</td><td>43,471</td><td>162,088</td><td>3 SSE</td><td>1</td><td>2</td><td>1 มิติ (HetSheaf ไม่ใช้)</td><td>✓</td></tr>
+<tr><td>ENZYMES</td><td>600</td><td>19,580</td><td>74,564</td><td>3</td><td>1</td><td>6</td><td>18 มิติ (HetSheaf ไม่ใช้)</td><td>✓</td></tr>
+<tr><td>NCI1</td><td>4,110</td><td>122,747</td><td>265,506</td><td>37 atoms</td><td>1</td><td>2</td><td>ไม่มี</td><td>✓</td></tr>
+<tr><td>PTC_MR</td><td>344</td><td>—</td><td>—</td><td>~18 atoms</td><td>4 bonds</td><td>2</td><td>ไม่มี</td><td><b>ไม่มี</b></td></tr>
+</tbody></table></div>
+<p>ตัวเลขสี่ชุดแรกนับจาก raw TU files ในเครื่อง <span class="tag">VERIFIED-RUN</span>. PTC_MR ไม่ได้อยู่ในเครื่องและไม่อยู่ใน HetSheaf ค่าในตารางมาจากความจำ <span class="tag">UNVERIFIED</span>. HetSheaf Table 6 มีตัวเลขผิดสองจุด: ENZYMES edges 19,580 (เท่ากับจำนวน node) และ NCI1 49,205 (ไฟล์มี 265,506 rows)</p>
+<div class="answer"><p><b>มติ D3</b>: ผู้เขียนยอมรับว่ายังไม่มี GC dataset ที่ heterogeneous จริง และสั่งให้ GC ตาม HetSheaf จึงใช้ TU 4 ชุดต่อ (ผมตีความว่ารับเป็นข้อยกเว้น). หมายเหตุ: ตามตัวอักษร TU หลัง preprocessing ของ HetSheaf (feature คงที่ 1, label ระดับกราฟ) ไม่ผ่านกฎข้อ 2 และ type มาจาก atom label; ในเอกสารผลต้องเรียกว่า "typed-by-label" และไม่ claim ว่า heterogeneous โดยธรรมชาติ. PTC_MR ไม่เพิ่ม (ไม่อยู่ใน HetSheaf)</p></div>
+<p><b>ตัวเลือกเดิม D3</b>: ทุกชุดเป็นกราฟ type เดียวโดยธรรมชาติ ที่ type มาจากการแปลง atom/SSE label (HetSheaf และ HINPool ทำแบบเดียวกัน). ถ้านับว่าผ่านกฎข้อ 3 ก็ใช้ได้ทั้งหมด ถ้าไม่นับ จะไม่เหลือ graph classification dataset ที่เป็นมาตรฐาน. PTC_MR: ถ้าต้องการ ต้องรัน baseline เองทั้งหมดเพราะ HetSheaf ไม่มี</p>
+<p><b>HSB-GDL</b> (github.com/mr49online/HSB-GDL, อ่าน README หน้าเว็บ <span class="tag">VERIFIED-SOURCE</span>): เป็น benchmark ของ <i>subgraph</i> classification และ query spotting ที่สร้างบน ogbn-mag (real subgraph patterns + synthetic motifs) เก็บเป็น NetworkX pickle และ JSONL. ไม่มี license, ไม่มี paper, ไม่บอกจำนวนกราฟ, label scheme, split หรือ loader; repo มี 0 stars. ข้อดีคือ heterogeneous โดยธรรมชาติ. ข้อเสียคือ reviewer ตรวจสอบไม่ได้ ไม่มี baseline ให้เทียบ และงานเป็น subgraph classification ไม่ใช่ graph classification. ผมแนะนำว่าไม่ใช้ในตารางหลัก ถ้าสนใจจะเปิดดูไฟล์ <code>labeled_subgraphs.jsonl</code> ก่อนตัดสิน (ผมยังไม่ได้ดาวน์โหลด)</p>
+<div class="decision"><strong>HSB-GDL: ไม่ใส่ในตาราง รอ author ตอบ</strong> (มติ). ตรวจ <code>H2S-NN/vendor/HSB-GDL</code> ในเครื่อง <span class="tag">VERIFIED-RUN</span>: มีแค่ README, ไฟล์สถิติ CSV และ query log; ไม่มีไฟล์ข้อมูลกราฟ, สคริปต์ หรือ LICENSE จึงรันหรือตรวจ benchmark ไม่ได้ตอนนี้ ถึงผู้เขียนตัดสินใจใช้ก็ต้องได้ข้อมูลจาก author ก่อน. สิ่งที่ต้องถาม: ไฟล์ข้อมูลกราฟ, label scheme, split, license, paper อ้างอิง</div>
+
+<h2 id="hparams">4 · Hyperparameters และ search spaces</h2>
+<p>รายการทั้งหมดจาก <code>src/configs/config.py</code> (DataConfig :347, ModelConfig :781, AblationConfig :986, OptimConfig :1113, TrainConfig :1144) และ <code>src/baselines/budget.py</code> <span class="tag">VERIFIED-CODE</span></p>
+<h3>4.1 ห้าม tune (fixed โดย spec หรือ protocol)</h3>
+<div class="tbl"><table>
+<thead><tr><th>กลุ่ม</th><th>Key (ค่า)</th><th>เหตุผล</th></tr></thead>
+<tbody>
+<tr><td>Solver v3-B</td><td><code>propagation</code> anchored · <code>tau_init</code> 1 · <code>solver_tolerance</code> 1e-4 · <code>solver_warmup_tolerance</code> 1e-3 · <code>solver_warmup_epochs</code> 10 · <code>solver_max_iterations</code> 100</td><td>spec §6 solver settings; <code>NEVER_TUNED_V3B_KEYS</code></td></tr>
+<tr><td>Arm</td><td><code>arm</code> (full, covering_only, hub_A, closure_only, no_path_cells, instance_features, free_cell_maps)</td><td>เป็นแถวเปรียบเทียบ ไม่ใช่ค่า tune</td></tr>
+<tr><td>WISP</td><td><code>path_source</code> wisp · <code>wisp_max_length</code> 4 (HGB) · <code>wisp_walks_per_anchor</code> ค่าที่ calibrate · <code>wisp_proposal</code> uniform · <code>path_weight</code> exp · <code>path_weight_init</code> 0.5 · <code>path_weight_input</code> (ladder) · <code>path_weight_context</code> false · defensive mix ½</td><td>R8, E11/E14; <code>NEVER_TUNED_WISP_KEYS</code></td></tr>
+<tr><td>Geometry</td><td><code>geometry_context</code> true · <code>map_family</code> factorized · <code>householder_k</code> 2 · <code>orthogonal_map</code> fasthpp · <code>map_scale_eps</code> 0.1 · <code>coupling</code> symmetric · <code>fact_layer</code> tied</td><td>ส่วนหนึ่งของ method (D1, D1a, D7)</td></tr>
+<tr><td>Training budget</td><td>epochs NC 300 · LP 200 · GC 300; patience 100 (ทุก task และทุก method)</td><td><code>budget.py</code> TASK_EPOCHS; ใช้เท่ากันทุก method. ของ HGB/H2GB/GC (200 หรือ 500): ผู้เขียนให้ตัดสินตอนเทรนจริง</td></tr>
+<tr><td>Optimiser</td><td>AdamW · cosine · <code>grad_clip</code> 1.0 · <code>scalar_lr_scale</code> 10 (θ_τ และ b)</td><td>card Part L; เสนอให้ fixed <span class="tag">PROPOSAL</span></td></tr>
+<tr><td>Data</td><td><code>feature_normalization</code> (none หรือ row) · <code>resample_paths</code> true · <code>overlap_sampling</code></td><td>ต้องกำหนดหนึ่งค่าและใช้กับทุก method <span class="tag">PROPOSAL</span>; HetSheaf ใช้ row normalise (<code>T.NormalizeFeatures</code>)</td></tr>
+<tr><td>Mini-batch</td><td>memory budget ต่อ batch</td><td>decisions M0, §7: ตั้งจากการวัด phase 0 ไม่ใช่ค่า tune</td></tr>
+<tr><td>Selection</td><td><s>validation macro-F1 (NC, GC), validation MRR (LP); 10 seeds</s> ถูกแทนที่: <b>5 seeds เลข 0–4</b>; validation metric ต่อ task ดู §5.5 (LP ยังเป็น PROPOSAL)</td><td>spec §6 (ถูกแทนที่บางส่วนโดยมติ)</td></tr>
+</tbody></table></div>
+
+<h3>4.2 ที่ tune ได้ สำหรับ H2S-NN v3-B</h3>
+<div class="tbl"><table>
+<thead><tr><th>Hyperparameter</th><th>Default</th><th>Search space ปัจจุบัน (<code>run_h2snn_wandb_tuning.py:290-310</code>)</th><th>ข้อเสนอ <span class="tag">PROPOSAL</span></th></tr></thead>
+<tbody>
+<tr><td><code>d</code> (stalk dim)</td><td>64 (configs ใช้ 32)</td><td>{16, 32}; GC {16, 32, 64}</td><td>{16, 32, 64}; 64 ทำให้ state ใหญ่ขึ้นราว 2 เท่า (DBLP 5.0 GB ที่ 32 บน GPU 8 GB) บน server ไม่มีปัญหา</td></tr>
+<tr><td><code>lr</code></td><td>1e-3</td><td>{1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2}</td><td>คงไว้ (ตรงกับ HetSheaf Table 5)</td></tr>
+<tr><td><code>weight_decay</code></td><td>1e-4</td><td>{0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3}</td><td>คงไว้</td></tr>
+<tr><td><code>encoder_dropout</code></td><td>0.1</td><td>{0, 0.1, 0.2, 0.3} (ข้ามเมื่อ dataset ไม่มี feature)</td><td>{0, 0.1, 0.3, 0.5}</td></tr>
+<tr><td><code>classifier_dropout</code></td><td>0.1</td><td>{0, 0.1, 0.2, 0.3}</td><td>{0, 0.1, 0.3, 0.5}</td></tr>
+<tr><td><code>classifier_hidden_dim</code></td><td>128</td><td>ไม่อยู่ใน space</td><td>fixed 128 หรือ {64, 128, 256}</td></tr>
+<tr><td><code>d_r</code>, <code>edge_mlp_hidden_dim</code>, <code>face_mlp_hidden_dim</code></td><td>16, 128, 128</td><td>ไม่อยู่ใน space</td><td>fixed (เพิ่มขนาด space โดยไม่มีเหตุผลจาก requirement)</td></tr>
+<tr><td><b><code>K</code></b></td><td>—</td><td>{2, …, 6}</td><td><span class="tag bad">เอาออก</span> (มติ 2026-11-11) v3-B ไม่มี K (addendum §1)</td></tr>
+<tr><td><b><code>layer_dropout</code></b></td><td>0</td><td>{0, 0.1, 0.2, 0.3}</td><td><span class="tag bad">เอาออก</span> (มติ 2026-11-11) ใช้แค่ใน path chebyshev (<code>h2snn_model.py:1036, 1046</code>); ใน anchored ไม่ถูกเรียก ทำให้เกิด trial ซ้ำ</td></tr>
+<tr><td>LP: <code>decoder_type</code></td><td>dot</td><td>{dot, distmult, concat_mlp} เมื่อเปิด flag</td><td>ตาม decoder ที่ protocol ของ HGB ใช้ ตัวเดียวกันทุก method (มติ: readout ปกติ). decoder ของ HGB ยังไม่ยืนยันเพราะ <code>vendor/HGB</code> ว่างเปล่า <span class="tag">UNVERIFIED</span></td></tr>
+<tr><td>LP: training negatives (<code>neg_sampling_ratio</code>, <code>neg_sampling_mode</code>)</td><td>1, fixed</td><td>ไม่อยู่ใน space</td><td>fixed (protocol)</td></tr>
+<tr><td>GC: pooling</td><td>—</td><td>baseline ของ HetSheaf: {mean, max, add, attention}; sheaf model ของเขาเพิ่ม <code>late_token</code> (SheafPool) เป็น default <span class="tag">VERIFIED-CODE</span></td><td>tune ใน {mean, max, add, attention} <span class="tag">PROPOSAL</span>; SheafPool ยังไม่ใส่ (มติผู้เขียน: ใส่ทีหลังถ้าผล GC ไม่ดี, §6)</td></tr>
+<tr><td>GC: batch size</td><td>32 (hardcode)</td><td>ไม่อยู่ใน space</td><td>ตาม D7: HetSheaf ใช้ 1</td></tr>
+</tbody></table></div>
+
+<h3>4.3 Baselines</h3>
+<p>แต่ละ adapter มี search space ของตัวเองใน <code>src/baselines/search_grids.py</code> ซึ่งออกแบบให้ค่าที่ผู้เขียนแต่ละงานตีพิมพ์อยู่ใน space เสมอ. Epoch และ patience มาจาก <code>budget.py</code> เท่ากันทุก method. ยกเว้นการรันด้วยพารามิเตอร์ที่ตีพิมพ์ (reproduction) ซึ่งใช้ budget ของผู้เขียนเดิม <span class="tag">VERIFIED-CODE</span></p>
+
+<h3>4.4 งบ tuning (OPEN-5, D5)</h3>
+<div class="answer"><p><b>มติ</b> (ผู้เขียน):</p>
+<ol class="body">
+<li><b>Bayes ธรรมดา 100 trials ต่อ (method, dataset) ไม่ใช้ Hyperband</b>. เหตุผล: Hyperband ตัด trial ที่ดูแย่ทิ้งกลางทาง ทำให้ 100 trial จริงเหลือ trial ที่รันครบน้อยกว่านั้น และค่า <code>best/&lt;metric&gt;</code> ของ trial ที่ถูกตัดซึ่งเป็นค่าที่ยังไม่ converge ถูกป้อนเข้า surrogate ของ Bayes ทำให้การค้นหาเอนเอียง. (โค้ดปัจจุบัน Hyperband min_iter 20, eta 3 ที่ <code>scripts/run_h2snn_wandb_tuning.py:316-322</code> และ <code>src/baselines/campaign.py:188</code> ต้องปิด)</li>
+<li><b>จูนที่ seed 0 seed เดียว</b> โดยใช้ validation metric เท่านั้น แล้วเอา config ที่ดีที่สุดไปรันซ้ำบน seed 0–4 (ห้ามจูนแยกต่อ seed)</li>
+<li><b>N = 100 เท่ากันทุก method</b> รวม H2S-NN, baseline ทุกตัว และ HetSheaf. Space ของ H2S-NN เอา <code>K</code> และ <code>layer_dropout</code> ออก</li>
+</ol></div>
+<div class="tbl"><table>
+<thead><tr><th>ประเด็นที่ตามมา</th><th>รายละเอียด</th><th>สถานะ</th></tr></thead>
+<tbody>
+<tr><td>ผล seed 0 เอนเอียงเล็กน้อย</td><td>config ถูกเลือกจากการรันที่ seed 0 (validation) ผล test ของ seed 0 จึงมีโอกาสดีกว่า seed 1–4 เล็กน้อย. รายงานทั้ง 5 seed รวมกัน และใช้กติกาเดียวกันกับทุก method ทำให้ไม่เอนเอียงเข้าข้างใคร <span class="tag">DERIVED</span></td><td>ยอมรับได้ ระบุใน caption</td></tr>
+<tr><td>ต้นทุนรวม</td><td>ประมาณ 250 cell (method × dataset) × 100 trial ≈ 25,000 trial เป็นค่าสูงสุด <span class="tag">DERIVED</span> จากประมาณการ ยังไม่ได้นับ cell จริง (ไม่ใช่ทุก baseline รันได้ทุก dataset). เวลาต่อ trial เต็มยังไม่วัด <span class="tag">UNVERIFIED</span></td><td><span class="tag warn">เปิด</span> ต้องทำ coverage matrix ก่อน</td></tr>
+<tr><td>ผูกกับ mini-batch</td><td>dataset ใหญ่ (ogbn-mag, mag-year, H-Pokec) 100 trial เต็มอาจแพงมาก ขึ้นกับ design §1</td><td><span class="tag warn">เปิด</span></td></tr>
+<tr><td>Arm ของ ablation</td><td>แถว "Arm ของ ablation" และตัวเลือก Hyperband ในตารางด้านล่าง</td><td>นอกขอบเขต ไม่ตัดสิน</td></tr>
+</tbody></table></div>
+<p><b>ตารางตัวเลือกเดิม</b> (ถูกแทนที่ด้วยมติด้านบน: ไม่ใช้ (a) 150 trials และไม่ใช้ Hyperband ใน (b)):</p>
+<div class="tbl"><table>
+<thead><tr><th>ตัวเลือก</th><th>รายละเอียด</th><th>ข้อดี</th><th>ข้อเสีย</th></tr></thead>
+<tbody>
+<tr><td>(a) 150 Bayes trials ต่อ (method, dataset)</td><td>เหมือน HetSheaf</td><td>เทียบกับ HetSheaf ได้ตรง ๆ</td><td>แพงมาก: 8 NC + 8 LP + 4 GC datasets × (H2S-NN + arms + baselines ~10)</td></tr>
+<tr><td>(b) N trials เท่ากันทุก method, Bayes + Hyperband</td><td>โค้ดปัจจุบันใช้ Hyperband min_iter 20, eta 3</td><td>ยุติธรรม ปรับตามงบ cluster ได้</td><td>ต้องกำหนด N ก่อน freeze</td></tr>
+<tr><td>Arm ของ ablation</td><td>(i) tune ทุก arm เท่ากับ full หรือ (ii) ใช้ config ที่ดีที่สุดของ full</td><td>(i) ยุติธรรมกับ arm ที่ต้องการค่าอื่น</td><td>(i) ค่าใช้จ่ายคูณจำนวน arm; (ii) ได้เปรียบ full</td></tr>
+</tbody></table></div>
+<p><s>ผมแนะนำ (b) กับ (i) สำหรับ arm ที่ใช้ตัดสิน claim</s> (ถูกแทนที่: ดูมติ) — ข้อความเดิม: ผมแนะนำ (b) กับ (i) สำหรับ arm ที่ใช้ตัดสิน claim (C2 ladder, C10–C14) และกำหนด N หลังรู้ quota ของ TSUBAME. Spec §6 เขียนไว้แล้วว่า "identical budget for every method and every comparison arm" ซึ่งตรงกับ (i)</p>
+
+<h2 id="protocol">5 · HGB protocol เทียบกับ HetSheaf (node และ link)</h2>
+<h3>5.1 Node classification</h3>
+<div class="tbl"><table>
+<thead><tr><th></th><th>HGB (paper)</th><th>HetSheaf (code, commit 6964e1e)</th><th>H2S-NN (spec)</th></tr></thead>
+<tbody>
+<tr><td>Split</td><td>24 / 6 / 70</td><td><b>27 / 3 / 70</b>: <code>SubsetTrainSplit(val_ratio=0.1)</code> ตัด 10 % ของ label.dat (<code>datasets/hgb.py</code> prepare_data; <code>utils.py</code>). Generator ไม่ได้ seed จึงใช้ seed ค่า default ของ torch → split เดียวกันทุก run <span class="tag">DERIVED</span></td><td>24 / 6 / 70, split seed fixed (<code>acm_val_ratio</code> 0.2, <code>acm_split_seed</code> 42)</td></tr>
+<tr><td>Edge</td><td>เก็บทั้งสองทิศเป็น relation แยก</td><td><code>T.ToUndirected()</code> เพิ่ม reverse ซ้ำกับที่ HGB มีอยู่แล้ว, <code>RemoveSelfLoops</code>, <code>RemoveDuplicatedEdges</code> (ACM เหลือ 547,806 edges, 7 types)</td><td>facts (D7): หนึ่ง fact ต่อคู่ relation/reverse</td></tr>
+<tr><td>Feature</td><td>ตามไฟล์</td><td><code>T.NormalizeFeatures()</code> (row-sum), <code>T.Constant</code> ให้ type ที่ไม่มี feature</td><td><code>feature_normalization</code> none (default) ต้องกำหนด</td></tr>
+<tr><td>Graph ที่ baseline เห็น</td><td>—</td><td><code>dataset.homogeneous: true</code> เป็นค่า default ใน <code>nc_config.yaml</code>; HAN, HGT ต้องสั่ง <code>homogeneous=false</code></td><td>แต่ละ adapter</td></tr>
+<tr><td>Training</td><td>—</td><td>full batch, max_epochs 200 (trainer default), early stop ที่ <code>valid/loss</code> patience 100, เก็บ checkpoint ที่ดีที่สุดตาม <code>valid/accuracy</code></td><td>300 epochs, patience 100</td></tr>
+<tr><td>Test</td><td>label test ซ่อนไว้ (ส่งผลที่ biendata); ตอนนี้ปล่อยแล้ว</td><td><code>trainer.test(model, datamodule)</code> ไม่ระบุ <code>ckpt_path</code> → <b>ใช้ weights สุดท้าย</b>หลัง early stop ไม่ใช่ checkpoint ที่ดีที่สุด (<code>scripts/run_sheaf_nc.py:73</code>, <code>run_gnn_nc.py:101</code>; Lightning 2.6)</td><td>checkpoint ที่ดีที่สุดตาม validation</td></tr>
+<tr><td>IMDB</td><td>multi-label</td><td><code>multilabel_soft_margin_loss</code>, F1 แบบ multilabel (threshold 0.5)</td><td>BCE ต่อ genre, logit &gt; 0</td></tr>
+<tr><td>Tuning</td><td>—</td><td>Bayes 150 runs ต่อ model type (paper §C.1). ไฟล์ sweep ของ NC ไม่อยู่ใน repo (มีแค่ <code>sweeps/gc</code>, <code>sweeps/lp</code>) <span class="tag">VERIFIED-CODE</span></td><td>OPEN-5</td></tr>
+<tr><td>Seeds</td><td>5</td><td>5 (42–46), mean ± std</td><td><s>10</s> → <b>5 (seed 0–4)</b> (มติ D8)</td></tr>
+<tr><td>Metric</td><td>Macro/Micro-F1</td><td>Macro/Micro-F1 (torchmetrics)</td><td>Macro/Micro-F1</td></tr>
+</tbody></table></div>
+
+<h3>5.2 Link prediction</h3>
+<div class="tbl"><table>
+<thead><tr><th></th><th>HGB (paper)</th><th>HetSheaf (code)</th><th>H2S-NN (spec 1.5–1.10)</th></tr></thead>
+<tbody>
+<tr><td>Datasets</td><td>Amazon (P–P), LastFM (U–A), PubMed (D–D)</td><td>LastFM จาก PyG <code>LastFM</code> (HetRec 2011) ไม่ใช่ไฟล์ HGB, ลบ split ที่ PyG ให้มา; MovieLens จาก PyG; HGB Amazon, PubMed, YouTube จากไฟล์ HGB</td><td>derived 4 task + PubMed + LastFM (ไฟล์ HGB) + ogbn-mag, H-Pokec</td></tr>
+<tr><td>PubMed target</td><td>disease–disease</td><td><b>gene–gene</b> (<code>datasets/hgb.py</code> <code>HGBPubMedLPDataModule.target</code>) ทั้งที่ paper Table 6 เขียน disease–disease; <code>link.dat.test</code> ถูก parse แต่ไม่ถูกใช้ใน <code>_build_hetero_data</code></td><td>disease–disease (relation 2) จาก <code>link.dat.test</code></td></tr>
+<tr><td>Split</td><td>81 / 9 / 10 ตาม edge, สร้างกราฟใหม่จาก training edges</td><td><code>RandomLinkSplit</code> 70 / 15 / 15 ทุก dataset, ไม่มี seed ของ split แยก → ขึ้นกับ global seed จึง<b>เปลี่ยนตาม training seed</b> <span class="tag">DERIVED</span></td><td>81 / 9 / 10 fixed split ตาม fact, เอา held-out ออกทั้งสองทิศและจาก path</td></tr>
+<tr><td>Test negatives</td><td>2-hop neighbours 1:1 (random negatives อยู่ใน appendix)</td><td>random negatives, <code>neg_sampling_ratio=0.6</code></td><td><s>HeaRT hard negatives ต่อ positive (primary); HGB 1:1 (secondary)</s> → <b>HGB 2-hop 1:1 ทุก task</b> (มติ)</td></tr>
+<tr><td>Metric</td><td>ROC-AUC, MRR</td><td>AUPR, AUROC</td><td><s>MRR, Hits@10 (primary); AUROC, AUPR</s> → <b>ROC-AUC, MRR ตาม HGB</b> (มติ LP)</td></tr>
+<tr><td>Runs</td><td>5</td><td>5 (42–46)</td><td><s>10</s> → <b>5 (seed 0–4)</b></td></tr>
+</tbody></table></div>
+
+<div class="answer"><p><b>มติ LP</b> (ผู้เขียน): ใช้ protocol ของ HGB กับทุก LP task รวม task ที่สร้างจาก NC ไม่ใช้ HeaRT ทั้ง primary และ secondary. เหตุผลที่ผู้เขียนให้: ถ้า protocol ไม่ตรงกับ dataset อื่นต้องตอบ reviewer ว่าทำไมไม่ทำเหมือนกัน และอาจ bias; และสุดท้ายก็ต้องรันเทียบบน LP ที่สร้างจาก NC ด้วย protocol เดียวกันอยู่ดี</p>
+<p>สิ่งที่โค้ดใน repo มีอยู่แล้ว <span class="tag">VERIFIED-CODE</span> (<code>src/data/link_prediction_dataset.py</code>, <code>src/baselines/bundles.py</code>): <code>_sample_hgb_two_hop_negatives</code> สุ่ม negative จาก 2-hop ของ head จำกัดอยู่ใน range ของ destination type ตัด positive ที่รู้ออก และ fallback เป็นสุ่มเมื่อไม่มี candidate; validation ใช้ <code>_sample_random_tail_negatives</code>; ทุก baseline ใช้ชุด negatives เดียวกันผ่าน bundles. ที่ยังไม่รู้: (1) <code>vendor/HGB</code> ว่างเปล่า จึงยังไม่ได้เทียบว่าโค้ดตรงกับของ HGB จริงหรือแค่ตรงกับคำอธิบายใน paper <span class="tag">UNVERIFIED</span>; (2) สัดส่วนที่ต้อง fallback เป็นสุ่มบน task ที่ head กับ tail คนละ type ยังไม่ได้วัด; (3) <code>metrics.py</code> ที่อ่านเห็น AUROC/AUPR เท่านั้น ต้องตรวจว่ามี MRR ที่ตรงกับ HGB หรือไม่ <span class="tag">UNVERIFIED</span></p></div>
+
+<h3>5.3 จำนวน seed ของ HetSheaf</h3>
+<p>ทุก baseline และ HetSheaf เอง: sweep 150 runs แล้วนำ config ที่ดีที่สุดตาม validation มา retrain ที่ <b>5 seeds (42–46)</b> รายงาน mean ± std (paper §5 และ §C; <code>scripts/run_best_seeds.py:75</code>). HGB ใช้ 5 seeds เช่นกัน.</p>
+<p><b>D8 — มติ: 5 seeds เลข 0–4 ทุก task</b> (ผู้เขียน ไม่ยึด spec เพราะเวลาน้อย; ใช้ Welch แทน Wilcoxon ดู §5.5). ข้อมูลประกอบเดิม <span class="tag">DERIVED</span>: paired Wilcoxon two-sided ที่ n = 5 มี p ต่ำสุดคือ 2/32 = 0.0625 จึงไม่มีทางถึง p &lt; 0.05 ไม่ว่าผลจะต่างกันเท่าไร. ถ้าลดเหลือ 5 seeds การทดสอบ claim C2, C10–C14 ใน spec §5 จะใช้ไม่ได้ ผมแนะนำให้คง 10</p>
+
+<h3>5.4 เอาค่า baseline จาก HetSheaf มาใช้ได้ไหม (D6)</h3>
+<div class="answer"><p><b>มติ D6</b> (ผู้เขียน): rerun baseline ทั้งหมด (ไม่ใช้ตัวเลขที่อ้างจาก paper); node และ edge ใช้ protocol ของ HGB/H2GB, graph ใช้ของ HetSheaf. ยังไม่รัน แค่วางแผน. ผู้เขียนไม่แน่ใจว่า HGB กับ H2GB เหมือนกันหรือไม่: <b>ไม่เหมือน</b> (ตารางด้านล่าง)</p></div>
+<div class="tbl"><table>
+<thead><tr><th>Task</th><th>Dataset</th><th>Protocol จาก</th><th>Split</th><th>Metric</th><th>สถานะ</th></tr></thead>
+<tbody>
+<tr><td>NC</td><td>ACM, DBLP, IMDB, Freebase</td><td>HGB</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>epoch/patience ของ HGB ยังไม่ยืนยัน <span class="tag">UNVERIFIED</span></td></tr>
+<tr><td>NC</td><td>ogbn-mag</td><td>H2GB</td><td>time 85/9/6</td><td>Accuracy</td><td>seeds/budget ของ H2GB <span class="tag">UNVERIFIED</span></td></tr>
+<tr><td>NC</td><td>mag-year, H-Pokec</td><td>H2GB</td><td>random 50/25/25</td><td>Accuracy</td><td>เหมือนข้างบน</td></tr>
+<tr><td>NC</td><td>IEEE-CIS-G</td><td>H2GB</td><td>time 80/10/10</td><td>F1</td><td>เหมือนข้างบน</td></tr>
+<tr><td>LP</td><td>acm_pa, dblp_ap, imdb_ma, freebase_bb, PubMed, LastFM, ogbn-mag P–P, H-Pokec U–U</td><td>HGB (ทุก task ตามมติ LP)</td><td>81/9/10, test negatives 2-hop 1:1</td><td>ROC-AUC, MRR</td><td>§5.2</td></tr>
+<tr><td>GC</td><td>MUTAG, PROTEINS, ENZYMES, NCI1</td><td>HetSheaf</td><td>random 80/10/10, seed 42, split เดียวทุก seed</td><td>Macro/Micro-F1</td><td>§6</td></tr>
+</tbody></table></div>
+<p>ผลต่อ HetSheaf เอง <span class="tag">VERIFIED-CODE</span>: ใน NC และ LP ต้อง rerun HetSheaf ภายใต้ split และ negatives ของ HGB (โค้ดเดิมใช้ split 27/3/70 และ random negatives) ต้องเขียน adapter; <code>src/baselines/registry.py:107-110</code> ยังเขียนว่า "no public implementation; values cited" ซึ่งล้าสมัย (มี repo ใน <code>vendor/Heterogeneous-Sheaf-Neural-Networks</code> commit 6964e1e). ใน GC ใช้โค้ดของ HetSheaf ได้ตรง ๆ</p>
+<div class="tbl"><table>
+<thead><tr><th>แผน rerun baseline (ยังไม่ทำ) <span class="tag">PROPOSAL</span></th><th>รายละเอียด</th></tr></thead>
+<tbody>
+<tr><td>1. ตรึงตาราง protocol</td><td>ตารางด้านบนพร้อม epoch/patience ที่ยืนยันจากต้นฉบับแล้ว</td></tr>
+<tr><td>2. Coverage matrix</td><td>baseline ใด (13 adapter + HetSheaf) รัน dataset ใดได้ (scale, ชนิด feature, ต้องการ meta-path ฯลฯ) เพื่อนับ cell จริงแทน ~250</td></tr>
+<tr><td>3. Search space ต่อ baseline</td><td>ตารางเดียวต่อ baseline (ค่าที่ผู้เขียนเดิมตีพิมพ์ต้องอยู่ใน space), N = 100 เท่ากัน, จูน seed 0</td></tr>
+<tr><td>4. Sanity gate</td><td>ก่อนรันเต็ม ให้ reproduce ตัวเลขที่ตีพิมพ์ของ baseline หนึ่งตัวบน dataset เล็ก ภายใน tolerance ที่กำหนดก่อนรัน</td></tr>
+<tr><td>5. ลำดับการรัน</td><td>dataset เล็กก่อน (HGB 4, TU 4) แล้วค่อยชุดใหญ่หลัง design mini-batch เสร็จ</td></tr>
+</tbody></table></div>
+<p><b>ข้อความเดิมของ §5.4 ด้านล่าง</b> เป็นคำแนะนำก่อนมติ: ส่วนที่ตรงกับมติ (rerun ทั้งหมด) คงไว้ ส่วนที่บอกให้ใช้ "protocol ของเรา" แทน protocol ของ HGB/H2GB ถูกแทนที่</p>
+<div class="answer"><p><b>ผมไม่แนะนำ</b> เหตุผล:</p>
+<ol class="body">
+<li>HetSheaf ไม่ได้ใช้ setting ของ HGB: NC split 27/3/70, LP split และ negatives คนละแบบทั้งหมด, PubMed ทำนายคนละ relation กับที่ paper เขียน</li>
+<li>Test ที่ weights สุดท้ายหลัง early stop ไม่ใช่ที่ checkpoint ดีที่สุด ซึ่งต่างจากของเรา</li>
+<li>5 seeds ทำ paired test กับ 10 seeds ของเราไม่ได้ และ seed ไม่ได้จับคู่กับของเรา</li>
+<li>Spec G0 (D12 report) พบแล้วว่าตัวเลข R-GCN ของ HetSheaf reproduce ไม่ได้ด้วย config ที่ commit ไว้ และไฟล์ sweep ของ NC ไม่อยู่ใน repo</li>
+<li>Spec F1 (1.5): ทุกตัวเลขในตารางผลต้องรันใหม่ภายใต้ protocol เดียว</li>
+</ol>
+<p>ทางเลือก: (a) rerun baseline ทุกตัวภายใต้ protocol ของเรา และอ้างตัวเลข HetSheaf แค่ในหมายเหตุว่าเทียบกันตรง ๆ ไม่ได้ (ตาม spec G0) <b>แนะนำ</b>. (b) รับ protocol ของ HetSheaf ทั้งชุดเพื่อใช้ตัวเลขเขา: ต้องรับ split 27/3/70, random LP negatives, test ที่ weights สุดท้าย, 5 seeds และเลิก HeaRT/MRR และยังต้องรัน HetSheaf เองเพื่อตรวจว่าได้ตัวเลขตรงกันอยู่ดี</p></div>
+
+<h3>5.5 การเลือกโมเดลและการทดสอบนัยสำคัญ (Welch's t-test)</h3>
+<div class="answer"><p><b>มติ</b> (ผู้เขียน): ใช้ Welch's t-test กับทุก task และทดสอบบน test metric <b>ทุกตัวที่รายงาน</b> ไม่ต้องเลือก metric สำหรับการทดสอบล่วงหน้า เพราะค่าเหล่านี้คำนวณจาก test evaluation หลังได้ผล ไม่ใช่จาก validation. เหตุผลที่ใช้ได้: การทดสอบไม่ได้ถูกใช้เลือกโมเดล จึงไม่มี leakage จาก test เข้าการเลือก. สิ่งที่ <b>ยังต้องกำหนดก่อนรัน</b> คือ validation metric ที่ใช้เลือก hyperparameter และ checkpoint (ถ้าไม่กำหนดก่อน จะกลายเป็นเลือกจากผล)</p></div>
+<div class="tbl"><table>
+<thead><tr><th>เรื่อง</th><th>กำหนด</th><th>เมื่อไร</th></tr></thead>
+<tbody>
+<tr><td>Validation metric (เลือก trial, early stopping, checkpoint)</td><td>หนึ่งตัวต่อ dataset ตามตาราง metrics ด้านล่าง <span class="tag">PROPOSAL</span> รอผู้เขียนยืนยัน</td><td><b>ก่อนรัน</b></td></tr>
+<tr><td>Test metric ที่รายงาน</td><td>ตามตาราง metrics ด้านล่าง (= metric ของ protocol ต้นทาง); mean ± sample std (ddof=1) ของ 5 seeds</td><td>ประกาศก่อนรัน คำนวณหลังรัน</td></tr>
+<tr><td>การทดสอบ</td><td><code>scipy.stats.ttest_ind(a, b, equal_var=False)</code> two-sided, unpaired; เทียบ H2S-NN กับวิธีอื่นที่ mean test ดีที่สุดใน dataset และ metric นั้น. ถ้ามีวิธีอื่นดีกว่า H2S-NN อย่างมีนัยสำคัญ ต้องรายงานด้วย ไม่ซ่อน</td><td>หลังรัน</td></tr>
+<tr><td>Variance เป็นศูนย์ในกลุ่มใดกลุ่มหนึ่ง</td><td>รายงาน "n/a" ไม่เติมค่า p</td><td>หลังรัน</td></tr>
+</tbody></table></div>
+<h4>ตาราง metrics ต่อ task <span class="tag">PROPOSAL</span></h4>
+<div class="tbl"><table>
+<thead><tr><th>Task / dataset</th><th>ลักษณะข้อมูลที่เกี่ยว</th><th>Validation (เลือก config/checkpoint)</th><th>Test (รายงานและทดสอบ)</th><th>ที่มา</th></tr></thead>
+<tbody>
+<tr><td>NC: ACM, DBLP, Freebase</td><td>หลาย class (3, 4, 7) ไม่สมดุล</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HGB; sweep ของ HetSheaf ใช้ <code>valid/macro-f1</code></td></tr>
+<tr><td>NC: IMDB</td><td>multi-label 5 genre</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HGB</td></tr>
+<tr><td>NC: ogbn-mag, mag-year, H-Pokec</td><td>349 / 5 / 2 class; H-Pokec ค่อนข้างสมดุล</td><td>Accuracy</td><td>Accuracy</td><td>H2GB <span class="tag">VERIFIED-SOURCE</span> (จากตาราง §3.1)</td></tr>
+<tr><td>NC: IEEE-CIS-G</td><td>fraud, binary ไม่สมดุลมาก (Accuracy ใช้ไม่ได้)</td><td>F1</td><td>F1</td><td>H2GB; threshold ของ F1 ยังไม่ยืนยัน <span class="tag">UNVERIFIED</span></td></tr>
+<tr><td>LP: ทั้ง 8 task</td><td>test negatives 1:1 (HGB) จึงสมดุล</td><td>ROC-AUC</td><td>ROC-AUC, MRR</td><td>HGB. AUPR ที่ HetSheaf รายงานให้ใส่ใน appendix ได้ แต่ไม่ทดสอบ</td></tr>
+<tr><td>GC: MUTAG, PROTEINS, NCI1</td><td>2 class, MUTAG/PROTEINS ไม่สมดุลเล็กน้อย</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HetSheaf (sweep <code>valid/macro-f1</code>)</td></tr>
+<tr><td>GC: ENZYMES</td><td>6 class สมดุล</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HetSheaf</td></tr>
+</tbody></table></div>
+<p><b>เหตุผลที่ตามต้นทางแทนการเลือก metric ที่เหมาะกับ dataset เอง</b> <span class="tag">DERIVED</span>: (1) มติ D6 ให้ rerun ภายใต้ protocol ของ HGB/H2GB/HetSheaf และ sanity gate ต้องเทียบกับตัวเลขที่เขาตีพิมพ์ ซึ่งทำได้เฉพาะ metric เดียวกัน; (2) การเลือก metric เองเป็นอิสระเพิ่ม reviewer อาจตั้งคำถามว่าเลือกให้ผลดูดี; (3) metric ของต้นทางก็สอดคล้องกับลักษณะข้อมูลอยู่แล้ว: Macro-F1 สำหรับ class ไม่สมดุล, F1 สำหรับ fraud, ROC-AUC สำหรับ LP ที่ negatives 1:1; (4) AUPR ให้ข้อมูลเพิ่มน้อยเมื่อ negatives 1:1 และการเพิ่มจะทำให้จำนวนการทดสอบเพิ่ม. หมายเหตุ: บน task single-label Micro-F1 = Accuracy. ROC-AUC เลือกเป็น validation ของ LP เพราะไม่ขึ้นกับ threshold และ validation negatives ในโค้ดเป็นแบบสุ่ม (spec §6 เดิมเขียน MRR). เหตุผลของ MRR ที่ไม่ใช้เลือก: ยังไม่ได้ตรวจว่า HGB คำนวณเทียบ negative กี่ตัวต่อ positive <span class="tag">UNVERIFIED</span></p>
+<p><b>Welch's t-test คืออะไร และทำไมไม่ใช้ t-test ปกติ</b>: เปรียบเทียบ mean ของสองกลุ่มโดยไม่สมมติว่า variance เท่ากัน (t-test ปกติสมมติเท่ากัน) และปรับ degrees of freedom ตามขนาด variance ของแต่ละกลุ่ม. เหมาะกับกรณีที่ H2S-NN กับ baseline มี std ต่างกันมาก ซึ่งเกิดบ่อย. การรายงาน mean ± std ของ 5 seeds เป็นแค่การบรรยาย ส่วน test ใช้ตอบว่า "ผลต่างนี้เกินความแปรปรวนจาก seed หรือไม่". ที่ n = 5 เทียบกับ Wilcoxon แบบ exact ซึ่งมี p ต่ำสุด 0.0625 (ไม่มีทางถึง 0.05) Welch ยังให้ p ต่ำกว่า 0.05 ได้ จึงเลือกใช้</p>
+<div class="tbl"><table>
+<thead><tr><th>ข้อจำกัดที่ต้องบอกใน paper</th><th>รายละเอียด</th></tr></thead>
+<tbody>
+<tr><td>สมมติฐาน normality</td><td>ตรวจไม่ได้ที่ n = 5 ต่อกลุ่ม; ผล p ควรอ่านเป็นแนวทางไม่ใช่ค่าที่แน่นอน <span class="tag">DERIVED</span></td></tr>
+<tr><td>Variance มาจากอะไร</td><td>NC และ LP ใช้ split คงที่ seed แปรเฉพาะ initialization/การสุ่มของ training; GC ใช้ split เดียว seed 42 ทุก seed. จึงบอกได้แค่ความมั่นคงต่อ seed ไม่ใช่ต่อการเปลี่ยน split</td></tr>
+<tr><td>จำนวนการทดสอบ</td><td>ถ้ารายงานทุก metric ราว 36 การทดสอบ (NC 12 + LP 16 + GC 8) <span class="tag">DERIVED</span> นับจากตาราง §5.4; ที่ α = 0.05 คาดว่ามีผลบวกลวงได้ราว 1–2 รายการแม้ไม่มีผลจริง. การไม่เลือก metric ล่วงหน้าทำให้จำนวนนี้มากขึ้น. ต้องรายงานจำนวนการทดสอบ; จะปรับ p หรือไม่: <b>เลื่อนไปดูผลก่อน</b> (ผู้เขียน). ข้อผูกมัดที่ต้องมีตั้งแต่ตอนนี้: รายงาน p ดิบและจำนวนการทดสอบทุกรายการ ไม่ทิ้งรายการใด และรายงานทั้งค่าดิบกับค่าที่ปรับ (Holm/Bonferroni คำนวณจาก p ดิบได้ทุกเมื่อ)</td></tr>
+<tr><td>เลือกคู่เทียบจาก test</td><td>"วิธีอื่นที่ดีที่สุด" เลือกจาก mean ของ test เอง ซึ่งเอนเอียงไปทางทำให้ผลต่างเล็กลง (เข้าข้าง baseline) จึงเป็นการทดสอบที่ไม่หลวมสำหรับ H2S-NN</td></tr>
+</tbody></table></div>
+
+<h2 id="gc">6 · Graph classification แบบ HetSheaf</h2>
+<div class="answer"><p><b>มติ D7</b> (ผู้เขียน): ทำตาม HetSheaf ทุกจุด (dataset, type จาก one-hot label, feature คงที่ 1, split สุ่มครั้งเดียว 80/10/10 seed 42, batch size 1, test ที่ weights สุดท้าย) แต่ใช้ <b>5 seeds เลข 0–4</b> แทน 42–46. ผู้เขียนบอกไม่ต้องคิดมาก ผมจึงบันทึกข้อสังเกตเดียวพอ: seed 0–4 เปลี่ยนแค่ initialization ส่วน split ยังเป็นของ seed 42 เหมือนเดิม และ test MUTAG มีแค่ 20 กราฟ std และ Welch จึงสะท้อนความแปรปรวนเฉพาะจาก seed ไม่ใช่จาก split (§5.5). Spec 1.5 (stratified 10-fold) ต้องแก้</p>
+<p><b>มติ readout</b> (ผู้เขียน): ไม่ออกแบบใหม่ ใช้แบบปกติ เพราะ component ใหม่ต้องตามด้วย ablation, model analysis และ motivation ซึ่งเป็นสิ่งที่ reviewer ติ. NC/LP ตาม HGB, GC ตาม HetSheaf. วิธีที่ผมตีความ <span class="tag">PROPOSAL</span>: ใช้ readout <code>[x*, h₀]</code> ที่ NC ใช้อยู่แล้ว (spec แถว Readout) แล้ว pooling ข้ามโหนดในกราฟ (ชนิด pooling เป็น hyperparameter ในชุดเดียวกับที่ baseline ของ HetSheaf ได้ใน sweep: mean, max, add, attention) แล้ว MLP classifier. ไม่ใช้ SheafCovPool (spec §ส่วนขยาย ยังคงเป็น designated extension ที่ไม่ถูกดึงเข้า). ข้อควรรู้: ผล GC ของเราอาจต่ำกว่า HetSheaf ซึ่งต้องรายงานตามจริงและไม่ claim ว่าชนะบน GC</p>
+<p><b>SheafPool (ของ HetSheaf, <code>late_token</code>, class <code>LateTokenSheafReadoutTransport</code>): ไม่ใส่ตอนนี้</b> (มติผู้เขียน: ใส่ทีหลังถ้าผล GC ไม่ดี). บันทึกไว้สำหรับตอนนั้น: การทดลองเดิมของเรา (backbone v1, <code>H2S-NN/docs/sheafcovpool_design_log.md</code>) พบว่า SheafPool ยุบบน stalk แบบ single-channel (MUTAG macro-F1 ≈ 0.26 ใกล้ majority baseline) <span class="tag">VERIFIED-SOURCE</span>; ที่ v3-B ยังไม่รู้ <span class="tag">UNVERIFIED</span> จึงควร smoke test บน MUTAG (3 seeds, เทียบ majority baseline และ mean pooling, เกณฑ์ตัวเลขกำหนดก่อนรัน) และเขียน adapter ก่อนเข้า search space</p>
+<p><b>ที่ยังเปิด</b>: per-scope PCG ต่อกราฟยังไม่มีเทส (§1); epoch 200 หรือ 500 เลื่อนไปตัดสินตอนเทรนจริง</p></div>
+<h3>6.1 ขั้นตอนที่โค้ดทำจริง <span class="tag">VERIFIED-CODE</span></h3>
+<p>จาก <code>hetsheaf/datasets/graph_classification.py</code>, <code>configs/gc_config.yaml</code>, <code>configs/dataset/*.yaml</code>, <code>configs/callbacks/sheaf_gc.yaml</code>, <code>sweeps/gc/*</code>, <code>scripts/run_*_gc.py</code></p>
+<ol class="body">
+<li><b>Data</b>: PyG <code>TUDataset</code> (<code>use_node_attr</code> ค่า default False → attribute จริงของ PROTEINS และ ENZYMES ไม่ถูกโหลด)</li>
+<li><b>Node type</b>: argmax ของคอลัมน์ one-hot label (MUTAG [0,7] = 7 atoms, PROTEINS [0,3], ENZYMES [0,3], NCI1 [0,37])</li>
+<li><b>Edge type</b>: MUTAG จาก one-hot bond [0,4] = 4 types; ชุดอื่นมี type เดียว (0)</li>
+<li><b>Feature หลังแปลง</b>: เมื่อคอลัมน์ทั้งหมดเป็น type ถูกแทนด้วย <code>torch.ones(n,1)</code> (<code>node_feature_type: constant</code> ทุก dataset; ตัวเลือก <code>degree</code> มีแต่ไม่ได้ใช้)</li>
+<li><b>Split</b>: สุ่มครั้งเดียว <code>randperm</code> ด้วย seed 42, 80 / 10 / 10 ไม่ stratify ไม่ใช่ cross-validation. Config ของ dataset ไม่ได้ส่ง run seed เข้าไป จึงใช้ split เดียวกันทุก seed. ขนาด test: MUTAG 20, PROTEINS 112, ENZYMES 60, NCI1 411 กราฟ <span class="tag">DERIVED</span></li>
+<li><b>Batch size 1</b> ทั้ง train, val, test (<code>DataLoader(batch_size=1)</code>)</li>
+<li><b>Training</b>: max_epochs 200 (<code>gc_config.yaml</code>; sweep ของ baseline ตั้ง 500), early stop ที่ <code>valid/loss</code> patience 50, เก็บ checkpoint ตาม <code>valid/accuracy</code></li>
+<li><b>Test</b>: <code>trainer.test(model, datamodule)</code> → weights สุดท้าย</li>
+<li><b>Tuning</b>: Bayes 150 runs ต่อ (model, dataset), metric <code>valid/macro-f1</code>, Hyperband (max_iter 27, s 2). Space ของ sheaf: <code>sheaf_learner</code> 16 แบบ, d 2–5, layers 2–8, hidden {8,16,32,64}, dropout ทั้งสามชนิด [0, 0.9], output_dim {32,64,128}, lr {1e-5 … 5e-2}, wd {1e-5 … 5e-3}. Baseline: layers, hidden, dropout, output_dim, pooling {mean, max, add, attention}</li>
+<li><b>Readout</b>: sheaf models ใช้ SheafPool (<code>late_token</code>); baselines เลือก pooling ใน sweep</li>
+<li><b>Seeds และ metric</b>: retrain config ที่ดีที่สุด 5 seeds (42–46), Macro/Micro-F1</li>
+<li><b>Baselines ในตาราง</b>: GCN, GAT, GIN, SAGE (homogeneous), R-GCN, HAN, HGT (typed), Sheaf-NSD</li>
+</ol>
+<h3>6.2 เทียบกับโค้ดของเราตอนนี้</h3>
+<div class="tbl"><table>
+<thead><tr><th></th><th>HetSheaf</th><th>H2S-NN ตอนนี้</th></tr></thead>
+<tbody>
+<tr><td>Split</td><td>สุ่มครั้งเดียว 80/10/10 seed 42</td><td><code>split_protocol</code>: stratified_holdout (default), stratified_kfold, repeated_kfold, precomputed_folds; spec 1.5 เขียน stratified 10-fold CV</td></tr>
+<tr><td>Batch size</td><td>1</td><td>32 (hardcode)</td></tr>
+<tr><td>Type</td><td>จาก one-hot label</td><td>จากไฟล์ label ของ TU (<code>_load_tu_type_tensors</code>) แนวเดียวกัน</td></tr>
+<tr><td>Path cells</td><td>—</td><td>two-hop typed paths ต่อ batch (<code>graph_classification_trainer.py:195</code>)</td></tr>
+<tr><td>Epoch, patience</td><td>200 (500 ใน sweep), patience 50</td><td>300, patience 100 (<code>budget.py</code>)</td></tr>
+</tbody></table></div>
+<h3>6.3 จุดที่ต้องตัดสินถ้าทำตาม HetSheaf (D7)</h3>
+<ul>
+<li><b>Test set เล็กมาก</b>: MUTAG test 20 กราฟ หนึ่งกราฟเท่ากับ 5 คะแนน accuracy. ใช้ split เดียวทุก seed ทำให้ std สะท้อนแค่ initialization ไม่รวมความแปรปรวนของ split <span class="tag">DERIVED</span></li>
+<li><b>Test ที่ weights สุดท้าย</b>: ถ้าเรา rerun baseline ทุกตัวเองอยู่แล้ว จะเลือกใช้ checkpoint ที่ดีที่สุดตาม validation กับทุก method ก็ได้ ซึ่งยุติธรรมกว่าและไม่เสียความเทียบเคียงระหว่าง method ในตารางของเรา</li>
+<li><b>Batch size 1</b>: ช้ามาก (NCI1 3,288 step ต่อ epoch) แต่เป็นสิ่งที่เขาใช้</li>
+<li><b>ขัดกับ spec 1.5</b> (stratified 10-fold CV): ถ้าตาม HetSheaf ต้องแก้ spec</li>
+</ul>
+<p>ตัวเลือก: (a) ตาม HetSheaf ทุกจุด. (b) ตามเรื่อง data (dataset, type, feature, split 80/10/10 seed 42) แต่ใช้ budget, checkpoint selection และ 10 seeds ของเราเหมือน task อื่น. <b>(ถูกแทนที่: ผู้เขียนเลือก (a) ตาม HetSheaf ทุกจุด)</b> เดิมผมแนะนำ (b) เพราะตารางของเรารันใหม่ทุก method อยู่แล้ว และ (b) ทำให้ graph classification ใช้กฎเดียวกับ task อื่น (economy rule ของ spec 1.10)</p>
+
+<h2 id="sources">แหล่งที่อ่านและความลึก</h2>
+<div class="tbl"><table>
+<thead><tr><th>แหล่ง</th><th>อ่านอะไร</th><th>ความลึก</th></tr></thead>
+<tbody>
+<tr><td><code>docs/minibatch_design_decisions.md</code>, <code>docs/minibatch_v3B_addendum.md</code></td><td>ทั้งไฟล์</td><td>ครบ</td></tr>
+<tr><td><code>vendor/Hetero2Net/hetero2net/homophily.py</code></td><td>ทั้งไฟล์</td><td>ครบ</td></tr>
+<tr><td><code>vendor/H2GB/H2GB/calcHomophily.py</code></td><td>บรรทัด 85–200</td><td>ส่วนที่คำนวณครบ</td></tr>
+<tr><td>Hetero²Net paper (arXiv 2310.11664)</td><td>§3.3, §4.1, Eq. 3–4, Appendix B.1, D, Table 1</td><td>เฉพาะส่วนนิยามผ่าน WebFetch ไม่ได้อ่านทั้งเล่ม</td></tr>
+<tr><td>H2GB paper (arXiv 2407.10916)</td><td>Eq. 1–2, Table 1–2, การเทรนกราฟใหญ่</td><td>เฉพาะส่วนนิยามและสถิติผ่าน WebFetch</td></tr>
+<tr><td>HGB paper (arXiv 2112.14936v1)</td><td>protocol NC/LP, Table 2</td><td>เฉพาะส่วน protocol ผ่าน WebFetch</td></tr>
+<tr><td>HetSheaf code (<code>vendor/Heterogeneous-Sheaf-Neural-Networks</code>, commit 6964e1e)</td><td>README, <code>datasets/hgb.py</code>, <code>link_pred.py</code>, <code>graph_classification.py</code>, <code>utils.py</code>, configs (nc, lp, gc, dataset, callbacks, trainer), <code>sweeps/gc/mutag</code>, scripts run_*</td><td>ไฟล์ data และ config ครบ; model code ไม่ได้อ่าน</td></tr>
+<tr><td>HetSheaf paper (<code>references/HETSHEAF.pdf</code>, arXiv 2409.08036v4)</td><td>§5 (Tables 2–4), Appendix C.1–C.2.2 (Tables 5–7)</td><td>ส่วน experiment; ไม่ได้อ่าน method และ appendix อื่น</td></tr>
+<tr><td>HSB-GDL (GitHub README และ <code>H2S-NN/vendor/HSB-GDL</code> ในเครื่อง)</td><td>README, ไฟล์สถิติ CSV, query log</td><td>ครบเท่าที่มีในเครื่อง; ไม่มีไฟล์ข้อมูลกราฟ สคริปต์ หรือ LICENSE <span class="tag">VERIFIED-RUN</span></td></tr>
+<tr><td><code>src/configs/config.py</code>, <code>scripts/run_h2snn_wandb_tuning.py</code>, <code>src/baselines/budget.py</code>, trainers, <code>graph_classification_dataset.py</code></td><td>ส่วนที่อ้าง (field และ search space)</td><td>เฉพาะส่วน</td></tr>
+<tr><td><code>src/data/link_prediction_dataset.py</code>, <code>src/baselines/bundles.py</code>, <code>src/baselines/metrics.py</code></td><td>การสุ่ม negative แบบ HGB (test) และแบบสุ่ม (validation), การแชร์ negatives ให้ baseline, metric ที่มี</td><td>เฉพาะส่วนที่อ้าง; ยังไม่ได้ตรวจ MRR และสัดส่วน fallback</td></tr>
+<tr><td><code>src/baselines/registry.py</code>, <code>src/baselines/campaign.py</code></td><td>รายชื่อ 13 adapter, รายการ cited-only ของ HetSheaf (:107-110), ค่า Hyperband (:188)</td><td>เฉพาะส่วนที่อ้าง</td></tr>
+<tr><td><code>data/PROVENANCE.md</code>, <code>data/LastFM</code>, <code>data/PubMed</code>, <code>data/lp_derived/*</code></td><td>type, feature, label ของ LastFM/PubMed; ไฟล์ HeaRT ที่มี (ไม่ใช้แล้ว)</td><td>ตรวจโครงไฟล์ และนับ relation กับคู่ U–A–U ของ LastFM จาก <code>link.dat</code>; <span class="tag">VERIFIED-RUN</span></td></tr>
+<tr><td><code>docs/MetaReviewer_review.pdf</code>, <code>docs/Reviewer_review.pdf</code></td><td>ข้อติของ reviewer ที่ใช้เป็นฐานของตารางใน §สรุป</td><td>อ่านทั้งไฟล์ (session ก่อนหน้า)</td></tr>
+<tr><td><code>docs/H2S-NN_methodology_spec.md</code> (แถว Readout, designated extensions), <code>docs/possible_reviewer_qa.md</code>, <code>H2S-NN/docs/sheafcovpool_*.md</code>, <code>vendor/Hetero2Net/hetero2net/homophily.py</code></td><td>นิยาม readout ของ v3-B, เหตุผลที่ตัด SheafCovPool, ผลเดิมที่เสมอ GramPool บน MUTAG/ENZYMES (backbone v1, 3 seed), นิยาม label homophily</td><td>เฉพาะส่วนที่อ้าง</td></tr>
+<tr><td>HGB และ TU raw files ในเครื่อง</td><td>นับ node, type, relation, feature dim, label, split</td><td>ครบตามตาราง</td></tr>
+</tbody></table></div>
+<p>Links: <a href="https://arxiv.org/abs/2310.11664">Hetero²Net</a> · <a href="https://arxiv.org/abs/2407.10916">H2GB</a> · <a href="https://arxiv.org/abs/2112.14936">HGB</a> · <a href="https://arxiv.org/abs/2409.08036">HetSheaf</a> · <a href="https://github.com/mr49online/HSB-GDL">HSB-GDL</a></p>
+</main>
+</div>
+</body>
+</html>

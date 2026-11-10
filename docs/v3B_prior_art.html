@@ -1,0 +1,190 @@
+<title>v3-B Prior Art at Formula Level</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f7f5f0; --fg:#1d1f22; --muted:#5b6068; --rule:#d9d4c8; --panel:#ffffff;
+  --accent:#1f5f8b; --warn:#9a4a12; --warn-bg:#fbeee0; --ok:#2f6b3a; --ok-bg:#e6f1e4; --math-bg:#f0ede6;
+  --font-body:"Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#17191c; --fg:#e7e4dc; --muted:#a3a7ae; --rule:#34383e; --panel:#1f2226;
+  --accent:#7fb3d9; --warn:#e0a26b; --warn-bg:#2d2219; --ok:#8dc897; --ok-bg:#1c2a1e; --math-bg:#22262b; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:2rem 4rem}
+main{max-width:78ch;margin:0 auto}
+h1{font-size:1.9rem;line-height:1.25;margin:0 0 .4rem;text-wrap:balance}
+h2{font-size:1.35rem;margin:3rem 0 .8rem;padding-top:1.2rem;border-top:2px solid var(--rule);text-wrap:balance}
+h3{font-size:1.08rem;margin:1.8rem 0 .5rem;color:var(--accent)}
+p{margin:.6rem 0}
+.meta{color:var(--muted);font-size:.92rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0;font-size:.92rem}
+th,td{border-bottom:1px solid var(--rule);padding:.45rem .55rem;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.85rem}
+.tbl{overflow-x:auto;min-width:0}
+.box{border:1px solid var(--rule);border-left:4px solid var(--accent);background:var(--panel);padding:.7rem 1rem;margin:1rem 0;border-radius:4px}
+.warn{border-left-color:var(--warn);background:var(--warn-bg)}
+.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+code{font-family:var(--font-mono);font-size:.9em}
+.math{background:var(--math-bg);padding:.4rem .8rem;border-radius:4px;overflow-x:auto;margin:.6rem 0}
+ul,ol{padding-left:1.4rem} li{margin:.25rem 0}
+.tag{display:inline-block;font-size:.75rem;padding:.05rem .45rem;border-radius:3px;border:1px solid var(--rule);color:var(--muted);margin-left:.3rem;vertical-align:middle}
+mjx-container{overflow-x:auto;overflow-y:hidden}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<main>
+<h1>v3-B เทียบงานเก่าระดับสูตร: แต่ละวิธีทำอะไรกับ P1–A7–P9 / P1–A7–P4 และ v3-B ลดรูปเป็นมันเมื่อไร</h1>
+<p class="meta">11 พ.ย. 2026 01:40 JST · ขั้นที่ 3 ของแผน · จุดประสงค์: ทุกคำว่า "ใหม่" ในสไลด์และ paper ต้องชี้ไปที่สมการที่ต่างกันจริง · ความลึกการอ่านต่อแหล่งอยู่ท้ายเอกสาร (ข้อ 10) ซึ่งสำคัญ: บางแหล่งอ่านแค่ abstract</p>
+
+<h2>0. ตัวอย่างกลางและสมการของ v3-B ที่จะใช้เทียบ</h2>
+<p>โหนด P1, A7, P9, P4 fact $e_0$=(P1,A7), $e_1$=(A7,P9), $e_2$=(A7,P4) cell $f_1$ = P1–A7–P9 (ผ่าน $e_0,e_1$), $f_2$ = P1–A7–P4 (ผ่าน $e_0,e_2$) WISP สุ่มจาก P1</p>
+<p>v3-B (โมเดลสุดท้าย): energy บนทุกคู่ของ sheaf แล้วแก้ปัญหาเดียว</p>
+<div class="math">$$E=\tfrac12\sum_e a_e\sum_{v\in e}\|F_{v\triangleleft e}x_v-s_e\|^2+\tfrac12\sum_f\beta_f\Big[\sum_{e\in f}\|R_{e,f}s_e-z_f\|^2+\sum_{v\in f}\|T_{v,f}x_v-z_f\|^2\Big],\qquad Y^\star=\arg\min\tfrac12\|x-h\|^2+\tfrac\tau2Y^\top\hat LY$$</div>
+<p>สิ่งที่ P1 "เห็น" จาก $f_1$ หลังกำจัด $s,z$: เทอม hub $\kappa\,\|x_{P1}-\bar z_{f_1}\|^2$ กับ $\bar z_{f_1}=\tfrac13(x_{P1}+T_{A7}x_{A7}+T_{P9}x_{P9})$ โดย $T_{A7}=F_{P1\triangleleft e_0}^\top F_{A7\triangleleft e_0}$ ขึ้นกับ $h_{A7}$ และ $h_{P1}$ (map เป็น pair-conditioned)</p>
+<p>สี่คุณสมบัติที่ใช้เป็นเกณฑ์เทียบ (แต่ละข้อมีสมการรองรับในเอกสารก่อน):</p>
+<ol>
+<li><strong>cell ของ instance มี state</strong> $z_f$ ที่เป็นตัวแปรใน solve (ไม่ใช่ feature ที่คำนวณครั้งเดียว)</li>
+<li><strong>map ของ cell ถูกบังคับ</strong> จาก map ของ fact (functoriality ทฤษฎีบท 1) ไม่มีพารามิเตอร์ที่ cell นอกจาก $\beta_f$</li>
+<li><strong>ทุกโหนดของ instance ถูกอัปเดต</strong> รวมโหนดกลาง A7 (ทฤษฎีบท 8)</li>
+<li><strong>identity ของโหนดกลางอยู่ในเรขาคณิต</strong>: $T_{A7}$ ขึ้นกับ $h_{A7}$ ไม่ใช่แค่ชนิด</li>
+</ol>
+
+<h2>1. CWN — CW Networks (Bodnar et al., NeurIPS 2021) <span class="tag">อ่าน §3–4 + สมการ (1)–(2) จาก PDF</span></h2>
+<p><strong>โครงสร้าง:</strong> 2-cell ติดกับ <em>induced cycle</em> (วงปิดไม่มีคอร์ด) ของกราฟ ไม่ใช่ path ⇒ บนตัวอย่างเรา CWN <strong>ไม่มี 2-cell เลย</strong> (P1–A7–P9 ไม่ใช่วง) จะมีก็ต่อเมื่อเพิ่มเส้น P1–P9 เข้าไปจริง ซึ่งคือ closure ของ v1 ที่ R2 W3 ติ</p>
+<p><strong>สมการ (ฉบับ molecular ที่ใช้จริง; ใช้แค่ boundary และ upper adjacency ตาม Theorem 7 ของเขา):</strong></p>
+<div class="math">$$m_B^{t+1}(\sigma)=\mathrm{AGG}_{\tau\in B(\sigma)}M_B(h_\sigma^t,h_\tau^t),\qquad m_\uparrow^{t+1}(\sigma)=\mathrm{AGG}_{\tau\in N_\uparrow(\sigma),\,\delta\in C(\sigma,\tau)}M_\uparrow(h_\sigma^t,h_\tau^t,h_\delta^t),\qquad h_\sigma^{t+1}=U(h_\sigma^t,m_B,m_\uparrow)$$</div>
+<p>สมมติเราบังคับให้มี cell $f_1$ (ปิดด้วย closure): bond→ring: $m_B(f_1)=\mathrm{AGG}(M_B(h_{f_1},h_{e_0}),M_B(h_{f_1},h_{e_1}),M_B(h_{f_1},h_{c_1}))$; bond↔bond ผ่าน ring: $m_\uparrow(e_0)=M_\uparrow(h_{e_0},h_{e_1},h_{f_1})+M_\uparrow(h_{e_0},h_{e_2},h_{f_2})$; atom↔atom ผ่าน bond: $m_\uparrow(P1)=M_\uparrow(h_{P1},h_{A7},h_{e_0})$ โดย $M_B,M_\uparrow,U$ เป็น MLP อิสระ <strong>ไม่มี coboundary message</strong> (ring → bond, bond → atom) ข้อมูลของ ring ถึง atom ใน 2 ชั้นผ่าน feature ของ bond ในข้อความ upper</p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>CWN</th><th>v3-B</th></tr>
+<tr><td>1 cell มี state</td><td>มี ($h_f$)</td><td>มี</td></tr>
+<tr><td>2 map บังคับ</td><td>ไม่: MLP อิสระต่อชนิดข้อความ ไม่มีเรขาคณิต</td><td>บังคับ</td></tr>
+<tr><td>3 ทุกโหนดอัปเดต</td><td>ใช่ (เป็น message passing ทั่วไป)</td><td>ใช่</td></tr>
+<tr><td>4 identity โหนดกลางในเรขาคณิต</td><td>ไม่มีเรขาคณิต (feature ของ bond เข้าใน MLP)</td><td>ใช่</td></tr>
+<tr><td>cell บน path เปิด</td><td>ไม่ (ต้องเป็นวง)</td><td>ใช่ (closure definitional)</td></tr>
+<tr><td>ตัวแก้</td><td>L ชั้น nonlinear</td><td>solve เดียว</td></tr>
+</table></div>
+<p><strong>v3-B ลดรูปเป็น CWN เมื่อ:</strong> unroll ตัวแก้เป็น T ก้าว (Richardson) แล้วมองหนึ่งก้าวเป็นชั้น: $Y^{t+1}=Y^t-\eta J^{-1}(MY^t-P^\top h)$ คือ CWN layer ที่ (i) $M_B,M_\uparrow,U$ เป็น<strong>เชิงเส้น</strong>และ<strong>ใช้ map ร่วมกัน</strong> ($F_{v\triangleleft e}$, $R_{e,f}$, $T_{v,f}$) (ii) เพิ่ม coboundary message (iii) 2-cell อยู่บน path ดังนั้น "v3-B ⊂ สถาปัตยกรรม CWN" จริงในแง่ว่า CWN กว้างกว่า แต่ CWN ไม่มีสิ่งที่ (i)–(iii) ให้: kernel ไม่ยุบ (ทฤษฎีบท 3) ต้องการ (i); ทางเข้าโหนดกลางในก้าวเดียว ต้องการ (ii); cell บน meta-path instance ต้องการ (iii)</p>
+<p><strong>คำที่พูดได้:</strong> "CWN attaches cells to cycles and learns free message functions; we attach cells to observed path instances, and the cell maps are forced by the edge maps, which is what keeps the graph's global sections (Thm 3)."</p>
+
+<h2>2. CCNN และ CTNN (Hajij et al.) <span class="tag">CCNN: อ่าน Def. 16–29 จาก arXiv 2206.00606 ส่วนแรก; CTNN: บันทึก CTNN_copresheaf_notes.md ของโปรเจกต์ (อ่าน §3.2–5, App. B, C, E ไว้ 8 พ.ย.)</span></h2>
+<p><strong>CCNN</strong>: ข้อความวิ่งตามเมทริกซ์เพื่อนบ้าน (incidence $B_{r,k}$, adjacency $A_{r,k}$, coadjacency) ด้วย push-forward แบบ convolution $K^j=GH^iW_G$ โดย $W_G$ เป็นพารามิเตอร์อิสระ<strong>ต่อชนิดเพื่อนบ้าน</strong> (ไม่ใช่ต่อ incidence) ไม่มีข้อบังคับความสอดคล้องใด ๆ ระหว่าง $W$ ของเพื่อนบ้านต่างชนิด บนตัวอย่าง: $h_{P1}\leftarrow\sum_{e\ni P1}W_{01}h_e+\sum_{f\ni P1}W_{02}h_f+\dots$</p>
+<p><strong>CTNN</strong> (copresheaf): เพิ่ม map $\rho_{y\to x}$ <strong>อิสระต่อ incidence และต่อทิศ</strong> ไม่มีข้อบังคับ ("without imposing sheaf consistency constraints") ชั้น (14) ใช้ขาเข้าเท่านั้น ⇒ operator ไม่สมมาตรโดยทั่วไป (บันทึก: eigenvalue เชิงซ้อน |Im λ| = 2.68 ในการตรวจ) และเป็น gradient step ก็ต่อเมื่อ $\rho_{x\to y}=\rho_{y\to x}^\top$ orthogonal</p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>CCNN</th><th>CTNN</th><th>v3-B</th></tr>
+<tr><td>1 cell มี state</td><td>มี</td><td>มี</td><td>มี</td></tr>
+<tr><td>2 map บังคับ</td><td>ไม่มี map ต่อ incidence</td><td>มี แต่อิสระ (= แขน <code>free_cell_maps</code> ของเรา ซึ่ง kernel ยุบ 4 → 0)</td><td>บังคับ</td></tr>
+<tr><td>3 ทุกโหนดอัปเดต</td><td>ใช่</td><td>ใช่</td><td>ใช่</td></tr>
+<tr><td>4 identity ในเรขาคณิต</td><td>ไม่</td><td>ได้ ถ้า MLP ของ ρ อ่าน feature</td><td>ใช่</td></tr>
+<tr><td>energy / คำตอบเดียว</td><td>ไม่</td><td>เฉพาะ subclass reciprocal</td><td>ใช่ ทุกพารามิเตอร์</td></tr>
+</table></div>
+<p><strong>v3-B ลดรูปเป็น:</strong> (ก) CCNN เชิงเส้น เมื่อ $F=I$ ทุกตัว, $a=\beta=1$: หนึ่งการใช้ $L$ = push-forward ผ่าน $B_{01},B_{01}^\top,B_{12},B_{12}^\top,B_{02},B_{02}^\top$ กับ $W$ = สเกลาร์ (ข) CTNN เมื่อปลด functoriality: v3-B คือ CTNN บน incidence digraph ของ complex ที่ ρ ถูกบังคับให้ (i) orthogonal (ii) reciprocal $\rho_{x\to y}=\rho_{y\to x}^\top$ (iii) functorial ⇒ อยู่ใน subclass ที่ Thm 3 ของ CTNN รองรับพอดี และคือ subclass ที่มี energy</p>
+<p><strong>คำที่พูดได้:</strong> "Every linear message-passing model on a complex is a CTNN; ours is the functorial, reciprocal, orthogonal subclass. The constraints buy a unique fixed point for all parameters, preserved global sections, and k·d storage per incidence. The free alternative is our <code>free_cell_maps</code> arm."</p>
+
+<h2>3. Sheaf บน cell complex แบบ Hodge (Hansen–Ghrist 2019; v1 ของเราใช้) <span class="tag">สูตรจาก spec Lemma A′ + manuscript v1; ตรวจแล้ว</span></h2>
+<div class="math">$$L_0=\delta_0^\top\delta_0,\qquad L_1=\delta_0\delta_0^\top+\delta_1^\top\delta_1,\qquad L_2=\delta_1\delta_1^\top,\qquad(\delta_0x)_{e_0}=F_{A7\triangleleft e_0}x_{A7}-F_{P1\triangleleft e_0}x_{P1},\quad(\delta_1s)_{f_1}=\pm R_{e_0,f_1}s_{e_0}\pm R_{e_1,f_1}s_{e_1}\pm s_{c_1}$$</div>
+<p>$\delta_1$ ต้องการ closure $c_1$ เป็นเส้น<strong>จริง</strong>ที่มี state (เพื่อให้ $\delta_1\delta_0=0$) และ Lemma A′: $\delta_0^\top\delta_1^\top=(\delta_1\delta_0)^\top=0$ ⇒ block $C^2\to C^0$ ของทุก polynomial/heat flow เป็นศูนย์ ⇒ face ไม่ถึงโหนดเลยในการแพร่ และ closure อยู่ใน $L_0$ เป็นเส้นลัดปลาย-ปลาย — นี่คือ R2 W3</p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>Hodge sheaf (v1)</th><th>v3-B</th></tr>
+<tr><td>1</td><td>มี state ทุกระดับ แต่ไม่คุยกันข้ามระดับในการแพร่</td><td>มี และคุยกัน</td></tr>
+<tr><td>2</td><td>บังคับ (ชมโดย R2 S1) — v3-B สืบทอดข้อนี้ตรง ๆ</td><td>บังคับ</td></tr>
+<tr><td>3</td><td>ไม่ (Lemma A′)</td><td>ใช่</td></tr>
+<tr><td>4</td><td>ใช่</td><td>ใช่</td></tr>
+</table></div>
+<p><strong>ความสัมพันธ์ที่พิสูจน์ได้:</strong> $L$ ของ v3-B <strong>ไม่ใช่</strong> Hodge Laplacian ของ complex แต่เป็น <em>sheaf Laplacian ของกราฟ</em> (ในความหมายของ Hansen–Ghrist บนกราฟ) ที่กราฟนั้นคือ comparability graph ของโพเซตของ complex (จุด = โหนด, เส้น, cell; เส้นเชื่อม = ทุกคู่ σ&lt;τ) และ map คือ $F_{\sigma\triangleleft\tau}$ ของ sheaf เดิม กรณีพิเศษ: ไม่มี cell และกำจัด $s$ ⇒ $\tfrac12L_0$ ของ Hodge พอดี (ทฤษฎีบท 7, ตรวจ 1.8e-15) ⇒ v3-B ⊃ sheaf diffusion บนกราฟ (NSD/HetSheaf-type) เป็นกรณีพิเศษ</p>
+<p><strong>ค้นแล้วไม่พบ (ยังไม่ใช่ข้อยืนยัน):</strong> งานที่ใช้ sheaf Laplacian ของ comparability graph แทน Hodge Laplacian เพื่อให้ face ถึง node สองการค้นเว็บ (11 พ.ย.) คืน DSNN, PolyNSD-type (2512.00242), DSHN (2510.04727), 2601.21207, 2602.00159 ซึ่งทั้งหมดอยู่บนกราฟหรือ hypergraph ไม่มี 1-cell กับ 2-cell พร้อมกัน <strong>แต่ผมอ่านแค่ abstract</strong> ของสี่ฉบับหลัง ต้องอ่านเต็มก่อนเขียนว่า "ไม่มีงานเก่า"</p>
+
+<h2>4. Sheaf Hypergraph Networks (Duta et al., NeurIPS 2023) <span class="tag">อ่าน Def. 2, 4, 6 + layer + parameterization ผ่าน WebFetch ของ PDF</span></h2>
+<p><strong>โครงสร้าง:</strong> hyperedge $e$ = <em>เซต</em>ของโหนด (ไม่มีลำดับ) stalk ที่โหนดและ hyperedge map $F_{v\triangleleft e}=\mathrm{MLP}(x_v\|h_e)$ อิสระ (diagonal ดีสุด) <strong>ไม่มี state ของ hyperedge ที่วิวัฒน์</strong> ไม่มี 1-cell</p>
+<div class="math">$$\mathcal L_{\mathcal F}(x)_v=\sum_{e\ni v}\frac1{\delta_e}F_{v\triangleleft e}^\top\sum_{u\in e,u\ne v}\big(F_{v\triangleleft e}x_v-F_{u\triangleleft e}x_u\big),\qquad Y=\sigma\big((I-\Delta^{\mathcal F})(I\otimes W_1)XW_2\big)$$</div>
+<p>บนตัวอย่าง ให้ hyperedge $e_{f_1}=\{P1,A7,P9\}$: $\mathcal L(x)_{P1}=\tfrac13F_{P1}^\top\big[(F_{P1}x_{P1}-F_{A7}x_{A7})+(F_{P1}x_{P1}-F_{P9}x_{P9})\big]$ ด้วยสูตรดาว นี่คือ gradient ของ $\tfrac{1}{2\delta_e}\sum_{u&lt;v}\|F_ux_u-F_vx_v\|^2=\tfrac12\sum_v\|F_vx_v-\overline{Fx}\|^2$ — <strong>คือ hub Laplacian พอดี</strong></p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>SHN</th><th>v3-B</th></tr>
+<tr><td>1 cell มี state</td><td>ไม่ (กำจัดโดยปริยาย)</td><td>มี</td></tr>
+<tr><td>2 map บังคับ</td><td>ไม่: MLP อิสระต่อ (โหนด, hyperedge); ไม่มี 1-cell ให้บังคับจาก</td><td>บังคับจาก fact</td></tr>
+<tr><td>3 ทุกโหนดอัปเดต</td><td>ใช่</td><td>ใช่</td></tr>
+<tr><td>4 identity โหนดกลาง</td><td>ได้ผ่าน MLP(x_v)</td><td>ใช่ ผ่าน transport</td></tr>
+<tr><td>ลำดับของ relation</td><td>ไม่มี (เซต)</td><td>มี ($T$ เป็นผลคูณตามลำดับ ไม่สลับที่)</td></tr>
+<tr><td>น้ำหนักต่อ hyperedge</td><td>$1/\delta_e$ คงที่</td><td>$\beta_f$ เรียนรู้จากทั้ง instance</td></tr>
+</table></div>
+<p><strong>v3-B ลดรูปเป็น SHN เมื่อ:</strong> ใช้แขน <code>hub_A</code> (ตัด state บนเส้น) และแทน $T_{v,f}$ ด้วย map อิสระ, $\beta_f\to1/\delta_e$, และแทน anchored solve ด้วยชั้น $(I-\Delta)$ ⇒ <strong>ข้อนี้สำคัญที่สุดในเอกสารนี้:</strong> hub ของ v2 คือ SHN (linear) บน hyperedge = เซตโหนดของ path บวก (i) transport บังคับ (ii) น้ำหนักต่อ instance (iii) ลำดับ สิ่งที่ v3-B เพิ่มเหนือทั้งคู่คือ 1-cell (fact) ที่มี state และ map edge→cell ซึ่ง SHN ไม่มีเลย</p>
+<p><strong>คำที่พูดได้:</strong> "A path instance as an unordered hyperedge with free maps is Sheaf Hypergraph Networks; our cells are ordered, their maps are forced by the facts they traverse, and the facts themselves are cells with states. The <code>hub_A</code> arm is the SHN-like control." และต้องอ้าง DSHN (2510.04727, directed sheaf hypergraph, complex-valued) เป็นงานที่ใส่ทิศใน hypergraph sheaf — เราใส่ทิศผ่าน role frame แทน</p>
+
+<h2>5. SGAT (Lee et al., IJCAI 2022) <span class="tag">อ่าน §3.1–3.3 สมการ (1)–(11) ผ่าน WebFetch ของ PDF</span></h2>
+<p><strong>โครงสร้าง:</strong> simplex สร้างจาก<strong>โหนดเป้าหมายเท่านั้น</strong>: 0-simplex = target node, 1-simplex {P1,P9} ถ้ามีโหนดกลางร่วม ≥ ε ตัวที่ η hop; feature ของ 1-simplex = ผลรวม feature โหนดกลางบน path ($\Theta=\sum_{u\in\theta}h_u$) แล้วเฉลี่ยข้าม path attention บน upper adjacency โดยคะแนนใช้ feature ของ simplex ที่สูงกว่า</p>
+<div class="math">$$\zeta^k_{ij}=\mathrm{LeakyReLU}\big(a^\top[W^kh_{\sigma_i}\|W^kh_{\sigma_j}\|W^{k+1}h_{\sigma_{ij}}]\big),\qquad z_{\sigma_i}=\mu\Big(\sum_{j\in N(\sigma_i)}\alpha_{ij}W^kh_{\sigma_j}\Big)$$</div>
+<p>บนตัวอย่าง: $h_{\{P1,P9\}}=h_{A7}$, $h_{\{P1,P4\}}=h_{A7}$; P1 ได้ $z_{P1}=\mu(\alpha_{19}Wh_{P9}+\alpha_{14}Wh_{P4}+\alpha_{11}Wh_{P1})$ โดย α ใช้ $h_{A7}$ ในคะแนน <strong>A7 ไม่มี state ที่ถูกอัปเดต</strong> และข้อความวิ่ง P9 → P1 ตรง (endpoint view)</p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>SGAT</th><th>v3-B</th></tr>
+<tr><td>1</td><td>simplex มี feature คงที่ (ไม่ใช่ state ใน propagation สำหรับ k ≥ 1 ที่ไม่ใช่ target)</td><td>มี state</td></tr>
+<tr><td>2</td><td>ไม่มี map; attention</td><td>บังคับ</td></tr>
+<tr><td>3</td><td><strong>ไม่</strong>: เฉพาะ target</td><td>ใช่</td></tr>
+<tr><td>4</td><td>ใช่ แต่เป็น feature ในคะแนน ไม่ใช่เรขาคณิต</td><td>ใช่</td></tr>
+</table></div>
+<p><strong>v3-B ลดรูปเป็น SGAT:</strong> ไม่ลดรูปตรง ๆ (SGAT nonlinear, attention, target-only) โครงสร้างที่ใกล้สุดคือแขน <code>closure_only</code> (เส้น P1–P9 หมุนตาม path น้ำหนัก $\beta_f$ ที่อ่าน $h_{A7}$) — SGAT คือ "endpoint-collapsed view ที่โหนดกลางเป็น feature" ซึ่ง R4 ขอให้เป็นตัวควบคุมพอดี</p>
+
+<h2>6. MAGNN (Fu et al., WWW 2020) <span class="tag">อ่าน §4 สมการ (2)–(7), (10) ผ่าน WebFetch ของ PDF; ตรวจ numpy ไว้ 10 พ.ย. (1.2e-16)</span></h2>
+<div class="math">$$o_0=h'_u,\quad o_i=h'_{t_i}+o_{i-1}\odot r_i,\quad h_{P(v,u)}=\frac{o_n}{n+1};\qquad h_v^P=\sigma\Big(\sum_{u\in N_v^P}\alpha^P_{vu}h_{P(v,u)}\Big),\quad h_v=\sigma\Big(W_o\sum_P\beta_Ph_v^P\Big)$$</div>
+<p>$\odot r_i$ คือการหมุนเชิงซ้อนต่อพิกัด (RotatE) = การหมุน 2 มิติแบบ block-diagonal ที่ขึ้นกับ<strong>ชนิด relation เท่านั้น</strong> บนตัวอย่าง ($u$ = P9, $v$ = P1): $h_{P(P1,P9)}=\tfrac13\big(h_{P1}+r_2\odot h_{A7}+r_2\odot r_1\odot h_{P9}\big)$ เทียบกับ hub ของเรา $\bar z_{f_1}=\tfrac13(x_{P1}+T_{A7}x_{A7}+T_{P9}x_{P9})$ กับ $T_{P9}=T_{A7}F_{A7\triangleleft e_1}^\top F_{P9\triangleleft e_1}$</p>
+<div class="tbl"><table>
+<tr><th>เกณฑ์</th><th>MAGNN</th><th>v3-B</th></tr>
+<tr><td>1 cell มี state</td><td>ไม่: $h_{P(v,u)}$ เป็น feature คำนวณครั้งเดียวจาก $h'$</td><td>มี</td></tr>
+<tr><td>2 map</td><td>$r_i$ ต่อ relation เรียนรู้อิสระ (ไม่ผูกกับเส้นจริง)</td><td>บังคับจาก map ของ fact ซึ่งเรียนที่ระดับคู่</td></tr>
+<tr><td>3 ทุกโหนดอัปเดต</td><td><strong>ไม่</strong>: target $v$ เท่านั้น</td><td>ใช่</td></tr>
+<tr><td>4 identity โหนดกลางในเรขาคณิต</td><td><strong>ไม่</strong>: $r_i$ ขึ้นกับชนิด; A7 เข้าเป็น feature เท่านั้น</td><td>ใช่: $T_{A7}$ ขึ้นกับ $h_{A7}$</td></tr>
+<tr><td>น้ำหนักต่อ instance</td><td>attention $\alpha_{vu}$ จาก $[h_v\|h_P]$ (ใช้ทั้ง instance ผ่าน $h_P$)</td><td>$\beta_f$ จาก $\xi_f$ ทั้ง instance</td></tr>
+<tr><td>schema</td><td>attention ข้าม metapath (ต้องมีรายการ)</td><td>ไม่มีรายการ; อ่านออก</td></tr>
+</table></div>
+<p><strong>v3-B ลดรูปเป็น MAGNN เมื่อ:</strong> ใช้แขน <code>instance_features</code> ($\beta_f=0$ ใน solve, ส่ง $\sum_f\beta_f\bar z_f$ เข้าหัวทำนายของ anchor) <strong>และ</strong> map ขึ้นกับชนิดเส้นอย่างเดียว ($u$ ไม่อ่าน $h$) ⇒ $\bar z_f$ = instance encoder ของ MAGNN ทุกตัวอักษร (ตรวจแล้ว 1.2e-16) และ $\beta_f$ แทน softmax attention <strong>v3-B เต็มต่างตรง:</strong> (i) map อ่าน $h$ ของสองปลาย ⇒ "A7 เป็นใคร" อยู่ในการหมุน ไม่ใช่แค่ใน feature (ii) $z_f$ เป็นตัวแปรที่ถูกบังคับให้ตรงกับทุกโหนดและทุก fact พร้อมกัน (iii) A7 ถูกอัปเดต (iv) โหนดอ่าน cell ผ่าน fact ที่แชร์กับ cell อื่น ข้อ (ii)–(iii) ถูกทดสอบโดย C14 (<code>full</code> vs <code>instance_features</code>) ข้อ (i) โดย C9/ map-input ablation</p>
+<div class="box warn"><strong>ซื่อ:</strong> ถ้า C14 ไม่ต่าง paper ต้องเขียนว่า "ในทางปฏิบัติ MAGNN-style instance features ให้ผลเท่ากัน" และ contribution เหลือ (i) + ทฤษฎี ซึ่งเป็นสิ่งที่ working_preferences เตือนไว้ (10 พ.ย.) ว่า "ถ้าคำตอบของ 'อะไรใหม่' มีแค่ guarantee ก็ยังไม่ใหม่พอ"</div>
+
+<h2>7. arXiv 2606.00937 — Cellular Sheaf Neural Operators (Shikhman &amp; Gilbertie, 2026) <span class="tag">อ่าน abstract เท่านั้น (WebFetch คืนแค่ abstract; ไม่พบสมการ)</span></h2>
+<p>sheaf บน oriented cell complex ของ <em>mesh</em> สำหรับ PDE (MHD): state บนจุด เส้น หน้า cell; "learned restriction maps coupling local feature spaces"; message passing ตาม incidence และ Hodge structure; update head ผ่าน coboundary/flux map เพื่อให้ divergence-free โดยโครงสร้าง</p>
+<p><strong>สิ่งที่พูดได้จาก abstract:</strong> ใช้ sheaf หลายระดับบน cell complex ที่<strong>ปิด</strong>จริง (mesh) และ map ระหว่างระดับ<strong>เรียนรู้อิสระ</strong> (ไม่พบคำว่า functorial/transport) โดเมนต่างกัน (ฟิลด์ฟิสิกส์ ไม่ใช่ path ของข้อมูล) <strong>สิ่งที่พูดไม่ได้จนกว่าจะอ่านเต็ม:</strong> ว่าเขาใช้ Hodge Laplacian (ซึ่งจะเจอ Lemma A′) หรือ incidence graph แบบเรา และว่ามี energy/solve ไหม <strong>ต้องอ่าน PDF ก่อนอ้างใน paper</strong></p>
+
+<h2>8. ตารางสรุป: v3-B ลดรูปเป็นอะไรเมื่อตั้งค่าอะไร</h2>
+<div class="tbl"><table>
+<tr><th>วิธี</th><th>v3-B ลดรูปเป็นมันเมื่อ</th><th>สิ่งที่วิธีนั้นไม่มี (มีสมการรองรับ)</th></tr>
+<tr><td>Hodge sheaf บนกราฟ (NSD, HetSheaf, PolyNSD, DNSD)</td><td>$\beta_f=0$ + กำจัด $s$ ⇒ $\tfrac12\Delta_0$; solve = PPR บน sheaf</td><td>cell; ทางเข้าโหนดกลางจาก instance</td></tr>
+<tr><td>Hodge sheaf บน 2-complex (v1)</td><td>ไม่ลดรูป (operator คนละตัว) แต่ sheaf เดียวกัน (map เดียวกัน)</td><td>face → node (Lemma A′); ไม่มี closure ลัด</td></tr>
+<tr><td>Sheaf Hypergraph Networks</td><td><code>hub_A</code> + map อิสระ + $\beta_f=1/\delta_e$ + ชั้น $(I-\Delta)$</td><td>1-cell ที่มี state; map บังคับ; ลำดับ; น้ำหนักต่อ instance</td></tr>
+<tr><td>MAGNN</td><td><code>instance_features</code> + map ขึ้นกับชนิดเท่านั้น</td><td>cell เป็นตัวแปร; อัปเดตโหนดกลาง; identity ในเรขาคณิต</td></tr>
+<tr><td>SGAT</td><td>≈ <code>closure_only</code> (ไม่ตรงเพราะ attention/nonlinear)</td><td>state ของโหนดกลาง; cell</td></tr>
+<tr><td>CWN</td><td>unroll T ก้าว + ข้อความเชิงเส้นผูก map + coboundary</td><td>cell บน path เปิด; map บังคับ; energy</td></tr>
+<tr><td>CCNN / CTNN</td><td>CTNN บน incidence digraph ที่ ρ orthogonal-reciprocal-functorial (= subclass ที่ Thm 3 ของ CTNN รองรับ)</td><td>คำตอบเดียวทุกพารามิเตอร์; kernel ไม่ยุบ; $kd$ ต่อ incidence</td></tr>
+<tr><td>APPNP / PPR</td><td>ระดับโหนดหลังกำจัด: $(I+\tau\hat S)^{-1}h$ กับ $\tau=(1-\alpha)/\alpha$ — <strong>ตัวแก้ของเราคือ PPR</strong></td><td>operator $\hat S$ บน sheaf 3 ระดับ (ไม่ใช่ adjacency)</td></tr>
+</table></div>
+
+<h2>9. ถ้อยคำ novelty ที่ยืนได้ (สำหรับสไลด์)</h2>
+<div class="box ok">
+<p><strong>พูดได้ (ทุกข้อชี้สมการได้):</strong></p>
+<ol>
+<li>Path instances are cells of <em>one</em> sheaf with the graph: states on facts and on instances, maps on instances forced by the facts they traverse (Thm 1), so adding instances never destroys a consistent state of the graph (Thm 3). — ต่างจาก CWN/CTNN/SHN (map อิสระ) และ MAGNN/SGAT (instance เป็น feature)</li>
+<li>Instance information reaches <em>every</em> node of the instance, including intermediates, through its own facts and directly, with no endpoint shortcut (Thm 8; answers R2 W3) — ต่างจาก Hodge (Lemma A′), MAGNN, SGAT (target only)</li>
+<li>Who the intermediate node is enters the <em>geometry</em> (pair-conditioned maps ⇒ $T_{A7}$ depends on $h_{A7}$), not only the features — ต่างจาก MAGNN (relation-only rotations)</li>
+<li>One quadratic problem, unique solution for all parameter values, no propagation hyperparameter; the hub view (v2, SHN-like) and the covering-only view are configurations of the same model (Thm 7′) — ทำให้ ablation ที่ meta-review ขอเป็นการตั้งค่า ไม่ใช่โมเดลคนละตัว</li>
+</ol>
+<p><strong>ห้ามพูด:</strong> "first to use intermediate nodes" (MAGNN, SGAT ใช้); "sheaf-Hodge diffusion" (ไม่ใช่); "edge states carry new information" (ไม่มี edge feature; ต้องรอ C11); "novel solver" (คือ PPR); "no prior sheaf on cell complexes with learned maps" (2606.00937 มี — ต่างที่ map บังคับ/โดเมน แต่ต้องอ่านเต็มก่อน)</p>
+</div>
+
+<h2>10. ความลึกการอ่านต่อแหล่ง (ซื่อ)</h2>
+<div class="tbl"><table>
+<tr><th>แหล่ง</th><th>อ่านอะไร</th><th>พอสำหรับ</th></tr>
+<tr><td>CWN (PDF ในเครื่อง)</td><td>§3 นิยาม adjacency, §4 สมการ (1)–(2), Thm 7, 18 (ข้อความ)</td><td>ระดับสูตร ✓</td></tr>
+<tr><td>CTNN (PDF ในเครื่อง)</td><td>บันทึกโปรเจกต์ 8 พ.ย. (§3.2–5, App. B, C, E) ไม่ได้อ่านซ้ำวันนี้</td><td>ระดับสูตร ✓ (Eq. 13 เคยดึงไม่ได้)</td></tr>
+<tr><td>CCNN (arXiv 2206.00606)</td><td>Def. 16–29 ส่วนแรก 100k ตัวอักษร; ไม่ถึงส่วนทดลอง</td><td>ระดับนิยาม ✓ สมการที่ใช้ทดลองไม่ได้อ่าน</td></tr>
+<tr><td>Hodge sheaf (Hansen–Ghrist)</td><td>ใช้สูตรจาก spec/manuscript v1 ที่ตรวจแล้ว ไม่ได้เปิด paper ต้นฉบับวันนี้</td><td>✓</td></tr>
+<tr><td>Sheaf Hypergraph Networks</td><td>Def. 2, 4, 6, layer, parameterization (ดึงจาก PDF)</td><td>ระดับสูตร ✓</td></tr>
+<tr><td>SGAT</td><td>§3.1–3.3 สมการ (1)–(11) (ดึงจาก PDF)</td><td>ระดับสูตร ✓</td></tr>
+<tr><td>MAGNN</td><td>§4 สมการ (2)–(7), (10) (ดึงจาก PDF) + ตรวจ numpy 10 พ.ย.</td><td>ระดับสูตร ✓</td></tr>
+<tr><td>arXiv 2606.00937</td><td><strong>abstract เท่านั้น</strong></td><td>ไม่พอ — ต้องอ่านก่อนอ้าง</td></tr>
+<tr><td>2601.21207, 2602.00159, 2512.00242, 2510.04727 (DSHN)</td><td><strong>abstract เท่านั้น</strong> จากการค้น</td><td>พอแค่บอกว่าอยู่บนกราฟ/hypergraph; DSHN ควรอ้างในส่วนทิศทาง</td></tr>
+</table></div>
+<p class="meta"><strong>ข้อห้ามใน paper:</strong> ข้อความเกี่ยวกับ arXiv 2606.00937, DSHN และเอกสารที่อ่านแค่ abstract ห้ามเกินระดับ abstract จนกว่าจะอ่านเต็ม · ตรวจ 11 พ.ย.: ไม่พบข้อความอื่นในไฟล์นี้ที่ขัดกับ spec v1.11</p>
+<p class="meta">แหล่ง: <a href="https://arxiv.org/abs/2309.17116">Sheaf Hypergraph Networks</a> · <a href="https://arxiv.org/abs/2207.11761">SGAT</a> · <a href="https://arxiv.org/abs/2002.01680">MAGNN</a> · <a href="https://arxiv.org/abs/2206.00606">Topological Deep Learning (CCNN)</a> · <a href="https://arxiv.org/abs/2606.00937">Cellular Sheaf Neural Operators</a> · <a href="https://arxiv.org/abs/2510.04727">DSHN</a> · <a href="https://arxiv.org/abs/2512.00242">polynomial sheaf (2512.00242)</a> · <a href="https://arxiv.org/abs/2601.21207">2601.21207</a> · <a href="https://arxiv.org/abs/2602.00159">2602.00159</a> · <a href="https://arxiv.org/abs/2506.02842">DSNN</a> · CWN, CTNN: PDF ใน <code>H2S-NN/references/</code></p>
+</main>

@@ -1,0 +1,407 @@
+<title>Meta-path Landscape 2025–2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Bai+Jamjuree:wght@600;700&display=swap">
+<style>
+/* Layout: one reading column (~72ch) with wide tables allowed to scroll inside their own frame; sections separated by a hairline and a small mono eyebrow. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18212b; --muted:#5a6573; --line:#d9dee5;
+  --accent:#1f5f8b; --accent-soft:#e3eef6; --warn:#9a5b00; --warn-soft:#fbf1df; --risk:#a33b3b; --risk-soft:#f8e6e6; --ok:#2f6f4f; --ok-soft:#e3f1e9;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --surface:#171e26; --ink:#e4e9ef; --muted:#9aa6b4; --line:#2a3440;
+  --accent:#7db7e0; --accent-soft:#1c2c3a; --warn:#e3b25c; --warn-soft:#2e2615; --risk:#ec8f8f; --risk-soft:#331d1f; --ok:#7fcaa2; --ok-soft:#18291f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --surface:#171e26; --ink:#e4e9ef; --muted:#9aa6b4; --line:#2a3440;
+  --accent:#7db7e0; --accent-soft:#1c2c3a; --warn:#e3b25c; --warn-soft:#2e2615; --risk:#ec8f8f; --risk-soft:#331d1f; --ok:#7fcaa2; --ok-soft:#18291f; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 72px;display:flex;flex-direction:column;gap:48px}
+.prose{max-width:72ch}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4.4vw,40px);letter-spacing:-.01em}
+h2{font-size:24px}
+h3{font-size:18px}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--line);padding-top:28px}
+header{display:flex;flex-direction:column;gap:14px}
+.lede{font-size:18px;color:var(--muted);max-width:68ch}
+.meta{font-family:var(--f-mono);font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+code,.mono{font-family:var(--f-mono);font-size:.9em}
+.findings{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;padding:0;margin:0;list-style:none}
+.findings li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.findings b{font-family:var(--f-display);font-size:16px}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;padding:1px 7px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
+.t-risk{background:var(--risk-soft);color:var(--risk)}
+.t-warn{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)}
+.t-info{background:var(--accent-soft);color:var(--accent)}
+dl.gloss{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:8px 20px;margin:0}
+dl.gloss dt{font-weight:600}
+dl.gloss dd{margin:0;color:var(--ink)}
+@media (max-width:560px){dl.gloss{grid-template-columns:1fr}dl.gloss dd{margin-bottom:8px}}
+.example{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.example svg{width:100%;max-width:560px;height:auto}
+.fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.fam article{border-left:3px solid var(--accent);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.fam article p{color:var(--muted);font-size:15px}
+.fam .who{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:inherit;font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:14px;line-height:1.55}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--bg);position:sticky;top:0}
+tbody tr:last-child td{border-bottom:none}
+td.name b{display:block;font-family:var(--f-display);font-size:15px}
+td.name span{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.y{color:var(--ok);font-weight:600}.n{color:var(--muted)}.p{color:var(--warn);font-weight:600}
+.callout{border:1px solid var(--line);border-left:4px solid var(--risk);background:var(--surface);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.callout.info{border-left-color:var(--accent)}
+.callout.ok{border-left-color:var(--ok)}
+pre{font-family:var(--f-mono);font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;margin:0;line-height:1.5}
+ol.steps,ul.plain{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.sources{columns:2 320px;column-gap:28px;font-size:14px;padding-left:1.2em;margin:0}
+.sources li{break-inside:avoid;margin-bottom:6px}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">H2S-NN · literature review · 10 พฤศจิกายน 2026</span>
+  <h1>งาน Meta-path บน Heterogeneous Graph ปี 2025–2026 และตำแหน่งของ H2S-NN</h1>
+  <p class="lede">สรุปจากการเปิดอ่านเปเปอร์ 30 ชิ้น (ส่วนใหญ่ปี 2025–2026) ว่าแต่ละงานใช้ meta-path อย่างไร ใช้โหนดกลางของเส้นทางหรือไม่ และมีอะไรที่ทับกับ H2S-NN บ้าง เขียนจากมุมของ reviewer ที่ไม่เข้าข้างงานเรา</p>
+  <div class="meta"><span>ขอบเขต: node classification เป็นหลัก</span><span>ระดับการอ่านระบุทุกแถว</span><span>ยังไม่มีผลการทดลองของ H2S-NN ในหน้านี้</span></div>
+</header>
+
+<section>
+  <span class="eyebrow">สรุปสั้น</span>
+  <h2>สิ่งที่ต้องรู้ก่อนอ่านตาราง</h2>
+  <ul class="findings">
+    <li><span class="tag t-risk">ความเสี่ยงสูง</span><b>ตัวเข้ารหัส instance ของ MAGNN มีสูตรเดียวกับสถานะ cell ของเรา</b><span>เมื่อการหมุนขึ้นกับชนิดความสัมพันธ์อย่างเดียว ผลต่างที่ตรวจด้วยตัวเลขคือ 1.2×10⁻¹⁶ reviewer จะเห็นสิ่งนี้</span></li>
+    <li><span class="tag t-risk">ความเสี่ยงสูง</span><b>RGCN ที่ tune ดี ๆ ชนะ HGNN ส่วนใหญ่</b><span>งานปี 2025 ทำซ้ำ 20 โมเดลบน 21 ชุดข้อมูล สรุปว่าข้อมูลหลายชนิดช่วย แต่สถาปัตยกรรมไม่ช่วย</span></li>
+    <li><span class="tag t-warn">ต้องลดข้ออ้าง</span><b>การใช้โหนดกลางต่อ instance ไม่ใหม่</b><span>MAGNN, MECCH, MPRW-HGNN, HAN-ME, MF2Vec และ MHCL ทำแล้ว ทุกงานส่งข้อมูลเข้าโหนดเป้าหมายเพียงทางเดียว</span></li>
+    <li><span class="tag t-warn">ต้องลดข้ออ้าง</span><b>การไม่ใช้รายการ meta-path ก็ไม่ใหม่</b><span>MF2Vec สุ่ม walk โดยไม่แยกตาม schema, MHCL ใช้ BFS ทุก instance, AHGNN นับทุก meta-path จนถึงความยาวที่กำหนด</span></li>
+    <li><span class="tag t-warn">กระทบ C2b</span><b>น้ำหนัก attention ของ meta-path ไม่ใช่คำอธิบายเสมอไป</b><span>KDD 2026: HAN บน DBLP มี Kendall τ = 0.053 (p = 0.43) ระหว่าง attention กับความสำคัญจริง</span></li>
+    <li><span class="tag t-ok">ยังว่าง</span><b>ไม่พบงานที่ใส่ instance ของ meta-path เป็น cell ใน sheaf</b><span>และไม่พบงานที่ให้เหตุผลเชิงทฤษฎีว่า instance ให้ข้อมูลอะไรเกินกว่าปลายทั้งสอง ช่องนี้คือที่ยืนจริงของเรา</span></li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">คำศัพท์</span>
+  <h2>คำที่ใช้ในหน้านี้</h2>
+  <dl class="gloss">
+    <dt>Meta-path (schema)</dt><dd>แบบแผนของเส้นทางตามชนิดโหนด เช่น Paper–Author–Paper (PAP) ยังไม่บอกว่าเป็นโหนดตัวไหน</dd>
+    <dt>Instance</dt><dd>เส้นทางจริงหนึ่งเส้นที่ตรงแบบแผน เช่น P1–A7–P9</dd>
+    <dt>โหนดกลาง</dt><dd>โหนดระหว่างปลายทั้งสองของ instance เช่น A7</dd>
+    <dt>Induced graph</dt><dd>กราฟใหม่ที่ลากเส้นตรงระหว่างปลายทั้งสองของทุก instance (P1–P9) แล้วทิ้งโหนดกลาง</dd>
+    <dt>Precompute</dt><dd>คำนวณค่าเฉลี่ยของเพื่อนบ้านตาม meta-path ไว้ก่อนฝึกครั้งเดียว แล้วใช้เป็น feature (SeHGNN)</dd>
+    <dt>Schema-free</dt><dd>ไม่ต้องมีรายการ meta-path จากผู้เชี่ยวชาญ โมเดลค้นหรือสุ่มเส้นทางเอง</dd>
+    <dt>Heterophily</dt><dd>โหนดที่เชื่อมกันมักมี label ต่างกัน</dd>
+    <dt>Sheaf</dt><dd>กติกาที่บอกว่าก่อนเทียบข้อมูลของสองโหนดที่เชื่อมกัน ต้องแปลง (หมุน) ข้อมูลของแต่ละข้างอย่างไร</dd>
+    <dt>Write-back</dt><dd>หลังรวมข้อมูลของ instance แล้ว ส่งผลกลับไปให้ใครบ้าง: เฉพาะเป้าหมาย หรือทุกโหนดใน instance</dd>
+  </dl>
+</section>
+
+<section>
+  <span class="eyebrow">ตัวอย่างเดียวใช้ทั้งหน้า</span>
+  <h2>บทความ P1 กับ P9 มีผู้เขียนร่วม A7</h2>
+  <div class="example">
+    <svg viewBox="0 0 560 150" role="img" aria-label="P1 เชื่อม A7 เชื่อม P9; เส้นประคือ induced edge P1–P9">
+      <path d="M90 95 Q280 0 470 95" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="280" y="30" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">induced edge (ทิ้ง A7)</text>
+      <line x1="90" y1="105" x2="280" y2="105" stroke="var(--ink)" stroke-width="2"/>
+      <line x1="280" y1="105" x2="470" y2="105" stroke="var(--ink)" stroke-width="2"/>
+      <circle cx="90" cy="105" r="22" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+      <circle cx="280" cy="105" r="22" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="2"/>
+      <circle cx="470" cy="105" r="22" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="90" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)" font-family="IBM Plex Sans Thai, sans-serif">P1</text>
+      <text x="280" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)" font-family="IBM Plex Sans Thai, sans-serif">A7</text>
+      <text x="470" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)" font-family="IBM Plex Sans Thai, sans-serif">P9</text>
+      <text x="185" y="140" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">writes</text>
+      <text x="375" y="140" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">writes</text>
+    </svg>
+    <p class="prose">โจทย์: ทำนายสาขาของ P1 แต่ละตระกูลข้างล่างใช้เส้นทางนี้ต่างกัน ความต่างอยู่ที่สามคำถาม: (1) A7 ถูกใช้หรือถูกทิ้ง (2) น้ำหนักของเส้นทางนี้ขึ้นกับอะไร (3) ผลส่งกลับไปที่ใคร</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">หกตระกูล</span>
+  <h2>งานปี 2025–2026 ใช้ meta-path แบบไหน</h2>
+  <div class="fam">
+    <article><h3>1 · Precompute ระดับ schema</h3><p>เฉลี่ย feature ของเพื่อนบ้านตามแต่ละ meta-path ไว้ก่อนฝึก P1 ได้ค่าเฉลี่ยของ P ทุกตัวที่ผ่าน PAP A7 หายไปในค่าเฉลี่ย เร็วมากและขยายไปกราฟใหญ่ได้</p><span class="who">SeHGNN · HetTree · AHGNN · Echoless-LP · RpHGNN</span></article>
+    <article><h3>2 · Induced graph ต่อ meta-path + attention</h3><p>สร้างกราฟ P–P ต่อ meta-path แล้ว GNN ต่อกราฟ รวมด้วย attention ระดับ schema เส้น P1–P9 ไม่รู้ว่าผ่าน A7</p><span class="who">HAN · HGOT · HGMS · MUG · HGEN · MHCL (ส่วน view)</span></article>
+    <article><h3>3 · เข้ารหัส instance พร้อมโหนดกลาง</h3><p>เข้ารหัส P1–A7–P9 ทั้งเส้น (เฉลี่ย หมุน LSTM หรือ attention ตามลำดับ) แล้วให้น้ำหนักต่อ instance ส่งผลเข้า P1 เพียงโหนดเดียว</p><span class="who">MAGNN · MECCH · MPRW-HGNN · HAN-ME · MF2Vec · MHCL</span></article>
+    <article><h3>4 · ไม่ใช้ meta-path เลย</h3><p>ใช้ชนิดความสัมพันธ์ ชนิดโหนด หรือโหนดเสมือนแทน เป็นกลุ่มที่โตเร็วที่สุดและมักได้คะแนนสูงสุดบน HGB</p><span class="who">HeSRN · HypHGT · VN-HGCN · HGUL · RGCN (tuned)</span></article>
+    <article><h3>5 · ค้นหาหรือสร้าง meta-path</h3><p>หา meta-path ที่ดีที่สุดด้วย search, RL หรือ LLM แล้วส่งให้โมเดลอื่น</p><span class="who">LMSPS · AutoGNR · EvoPath · HetGCoT · FHGE</span></article>
+    <article><h3>6 · งานวิเคราะห์ที่ตั้งคำถามกับทั้งสาขา</h3><p>ตรวจว่าสถาปัตยกรรมช่วยจริงไหม และน้ำหนัก attention อธิบายการทำนายได้จริงไหม</p><span class="who">Causal perspective (2025) · Meta-path attention as explanation (KDD 2026)</span></article>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">ตารางหลัก</span>
+  <h2>เปรียบเทียบทีละงาน</h2>
+  <div class="legend"><span><b class="y">✓</b> ใช่</span><span><b class="p">△</b> บางส่วน</span><span><b class="n">✗</b> ไม่</span><span>ระดับการอ่าน: <b>วิธีการ</b> = เปิดอ่านส่วนวิธีการและผล · <b>บันทึก</b> = จากบันทึกการอ่านใน project · <b>บทคัดย่อ</b> = หน้า abstract หรือหน้าเว็บ</span></div>
+  <div class="filters" role="group" aria-label="กรองตามตระกูล">
+    <button type="button" id="f-all" data-f="all" aria-pressed="true">ทั้งหมด</button>
+    <button type="button" id="f-1" data-f="1">1 · Precompute</button>
+    <button type="button" id="f-2" data-f="2">2 · Induced graph</button>
+    <button type="button" id="f-3" data-f="3">3 · Instance</button>
+    <button type="button" id="f-4" data-f="4">4 · ไม่ใช้ meta-path</button>
+    <button type="button" id="f-5" data-f="5">5 · ค้นหา</button>
+    <button type="button" id="f-6" data-f="6">6 · วิเคราะห์</button>
+    <button type="button" id="f-s" data-f="s">Sheaf</button>
+  </div>
+  <div class="tablebox">
+  <table id="papers">
+    <thead><tr><th>งาน</th><th>ต้องมีรายการ meta-path</th><th>โหนดกลางระดับ instance</th><th>น้ำหนักขึ้นกับ</th><th>Write-back</th><th>Heterophily / สเกล</th><th>ทับกับ H2S-NN ตรงไหน</th><th>อ่าน</th></tr></thead>
+    <tbody>
+      <tr data-f="1"><td class="name"><b>HetTree</b><span>ACM manuscript, 2025</span></td><td class="n">✗ ทุก meta-path ถึง k hop</td><td class="n">✗ เฉลี่ยล่วงหน้า</td><td>subtree ของ meta-path (ระดับ schema)</td><td>เป้าหมาย</td><td>ogbn-mag 55.54 %</td><td>schema-free แบบนับทั้งหมด; ใช้ label ของเพื่อนบ้าน</td><td>วิธีการ</td></tr>
+      <tr data-f="1"><td class="name"><b>AHGNN</b><span>CIKM 2025</span></td><td class="n">✗ ทุก meta-path ถึง L₁</td><td class="p">△ ค่าเฉลี่ยรายช่วง hop</td><td>attention ต่อโหนด (หยาบ→ละเอียด)</td><td>เป้าหมาย</td><td>Actor, FB-MIT, FB-American, ogbn-mag</td><td>ตัวกรองต่อ hop และต่อ meta-path ชนกับ R9; baseline ที่ต้องมี</td><td>วิธีการ</td></tr>
+      <tr data-f="1"><td class="name"><b>Echoless-LP</b><span>AAAI 2026</span></td><td>ตาม backbone</td><td class="n">✗</td><td>—</td><td>—</td><td>ogbn-mag, OAG; ~90 GB ที่ K = 5</td><td>label ของโหนดย้อนกลับเข้าตัวเองผ่าน walk (echo) ต้องเช็กกับ baseline ที่ใช้ label</td><td>วิธีการ</td></tr>
+      <tr data-f="2"><td class="name"><b>HGOT</b><span>ICML 2025</span></td><td class="y">✓</td><td class="n">✗</td><td>attention ระดับ view</td><td>เป้าหมาย</td><td>DBLP, ACM, IMDB, Yelp</td><td>self-supervised; ไม่ทับโดยตรง</td><td>วิธีการ</td></tr>
+      <tr data-f="2"><td class="name"><b>HGMS</b> (homophily-aware contrastive)<span>SIGIR 2025</span></td><td class="y">✓</td><td class="n">✗</td><td>ความคล้ายระดับคู่โหนด</td><td>เป้าหมาย</td><td>วัด homophily ต่อ meta-path; IMDB</td><td>ยืนยันว่า homophily ต่อ meta-path ต่างกัน สอดคล้องกับเหตุผลของ w<sub>f</sub></td><td>วิธีการ</td></tr>
+      <tr data-f="2"><td class="name"><b>MUG</b><span>AAAI 2026</span></td><td class="y">✓</td><td class="p">△ walk ตาม meta-path สำหรับ skip-gram</td><td>attention ระดับ meta-path</td><td>—</td><td>4 ชุดเล็ก</td><td>pre-training ข้ามชุดข้อมูล; ไม่ทับ</td><td>วิธีการ</td></tr>
+      <tr data-f="2"><td class="name"><b>HGEN</b><span>IJCAI 2025</span></td><td class="y">✓</td><td class="n">✗</td><td>residual attention ข้าม meta-path</td><td>เป้าหมาย</td><td>5 เครือข่าย</td><td>ensemble; ไม่ทับ</td><td>บทคัดย่อ</td></tr>
+      <tr data-f="3"><td class="name"><b>MAGNN</b><span>WWW 2020 (อ้างอิงหลัก)</span></td><td class="y">✓</td><td class="y">✓ rotation ตามลำดับ</td><td>attention ต่อ instance (ผ่านตัวเข้ารหัส)</td><td><b>เป้าหมายเท่านั้น</b></td><td>HGB</td><td><b>สูตรเดียวกับ z<sub>f</sub></b> เมื่อการหมุนขึ้นกับชนิดความสัมพันธ์อย่างเดียว</td><td>วิธีการ</td></tr>
+      <tr data-f="3"><td class="name"><b>MECCH</b><span>Neural Networks 2024</span></td><td class="n">✗ ทุก meta-path ยาว K</td><td class="y">✓ เฉลี่ย context</td><td>ระดับ meta-path</td><td>เป้าหมาย</td><td>≤ 63K โหนด</td><td>ใช้โหนดกลางโดยไม่ต้องมีรายการ</td><td>บันทึก</td></tr>
+      <tr data-f="3"><td class="name"><b>MPRW-HGNN</b><span>Research Square, พ.ย. 2025</span></td><td class="y">✓</td><td class="y">✓ LSTM/GRU บน walk</td><td>attention ต่อ instance</td><td>เป้าหมาย</td><td>IMDB, DBLP</td><td>walk + โหนดกลาง แต่ไม่ระบุการกระจายของการสุ่ม</td><td>วิธีการ</td></tr>
+      <tr data-f="3"><td class="name"><b>HAN-ME</b><span>arXiv ธ.ค. 2024</span></td><td class="y">✓</td><td class="y">✓ attention หลาย hop ตามลำดับ</td><td>ต่อโหนดในเส้นทาง</td><td>เป้าหมาย</td><td>IMDB</td><td>เก็บโหนดกลางไว้เข้ารหัส</td><td>วิธีการ</td></tr>
+      <tr data-f="3"><td class="name"><b>MF2Vec</b><span>arXiv 2024 (v2)</span></td><td class="n">✗ walk โดยไม่แยก schema</td><td class="y">✓ facet ของโหนดกลาง</td><td>ต่อเส้นทาง (Gumbel-Softmax)</td><td>เป็นน้ำหนักเส้นใน GCN</td><td>HGB 4 ชุด</td><td><b>schema-free walk + โหนดกลาง</b> ใกล้ WISP ที่สุดในกลุ่มนี้</td><td>วิธีการ</td></tr>
+      <tr data-f="3"><td class="name"><b>MHCL</b><span>arXiv มิ.ย. 2025</span></td><td class="n">✗ BFS ทุก instance ถึง l</td><td class="y">✓</td><td>ต่อ meta-path (hyperbolic แยก)</td><td>เป้าหมาย</td><td>ผู้เขียนยอมรับว่าจำนวนเส้นทางโตเร็วตาม l</td><td>นับทุก instance; WISP ต่างที่สุ่มจากการกระจายที่ระบุ</td><td>วิธีการ</td></tr>
+      <tr data-f="4"><td class="name"><b>HeSRN</b><span>arXiv ต.ค. 2025</span></td><td class="n">✗</td><td class="n">✗</td><td>slot ต่อชนิดโหนด</td><td>—</td><td>HGB 4 ชุด, O(E+N)</td><td>แนวโน้ม path-free</td><td>วิธีการ</td></tr>
+      <tr data-f="4"><td class="name"><b>HypHGT</b><span>arXiv ม.ค. 2026</span></td><td class="n">✗</td><td class="n">✗</td><td>ความสัมพันธ์ (hyperbolic ต่อชนิด)</td><td>—</td><td>กราฟสังเคราะห์ถึง 5M โหนด</td><td>แนวโน้ม path-free</td><td>วิธีการ</td></tr>
+      <tr data-f="4"><td class="name"><b>VN-HGCN</b><span>ICANN</span></td><td class="n">✗</td><td class="n">✗</td><td>—</td><td>ผ่านโหนดเสมือน</td><td>ACM, DBLP, IMDB</td><td>ใช้โหนดเสมือนต่อชนิด (ไม่ใช่ต่อ instance)</td><td>วิธีการ</td></tr>
+      <tr data-f="4"><td class="name"><b>HGUL</b><span>arXiv 2026</span></td><td class="n">✗</td><td class="n">✗</td><td>น้ำหนักต่อเส้น + gate ต่อโหนด</td><td>—</td><td>H2GB 7 ชุด</td><td>baseline ธรรมชาติบน H2GB</td><td>บันทึก</td></tr>
+      <tr data-f="5"><td class="name"><b>LMSPS</b><span>NeurIPS 2024</span></td><td class="n">✗ ค้นหา</td><td class="n">✗</td><td>top-30 ทั่วทั้งกราฟ</td><td>เป้าหมาย</td><td>ogbn-mag; ยาวถึง 6–12 hop</td><td>baseline ที่ต้องมี</td><td>บันทึก (เต็ม)</td></tr>
+      <tr data-f="5"><td class="name"><b>AutoGNR</b><span>arXiv ม.ค. 2025</span></td><td class="p">△</td><td class="n">✗ ตั้งใจไม่ผ่านโหนดกลาง</td><td>search</td><td>เป้าหมาย</td><td>276M เส้น</td><td>ตัวอย่างสเกล</td><td>บันทึก</td></tr>
+      <tr data-f="5"><td class="name"><b>EvoPath</b><span>arXiv ม.ค. 2025</span></td><td class="n">✗ LLM สร้าง</td><td class="p">△</td><td>coverage/confidence</td><td>—</td><td>NELL 827 ความสัมพันธ์</td><td>link prediction; ไม่ทับ</td><td>บันทึก</td></tr>
+      <tr data-f="5"><td class="name"><b>HetGCoT</b><span>EMNLP Findings 2025</span></td><td class="y">✓ 4 แบบแผน</td><td class="y">✓ แปลงเป็นข้อความ</td><td>คะแนนต่อ instance → LLM</td><td>—</td><td>QA วิชาการ</td><td>meta-path เป็น context ของ LLM; ไม่ทับ</td><td>วิธีการ</td></tr>
+      <tr data-f="5"><td class="name"><b>FHGE</b><span>arXiv ก.พ. 2025</span></td><td class="y">✓ ผู้ใช้กำหนดตอน query</td><td class="n">✗ ต่อ unit ยาว 1</td><td>—</td><td>—</td><td>7 ชุด</td><td>ไม่ทับ</td><td>วิธีการ</td></tr>
+      <tr data-f="6"><td class="name"><b>Are HGNNs Truly Effective? A Causal Perspective</b><span>arXiv ต.ค. 2025</span></td><td colspan="5">ทำซ้ำ 20 HGNN บน 21 ชุดข้อมูล: เมื่อ tune เท่ากัน ไม่มีตัวไหนชนะ RGCN อย่างสม่ำเสมอ; RGCN ชนะทั้งสามชุด heterophilic; ข้อมูลหลายชนิดช่วยผ่าน homophily (48 %) และความต่างระหว่างการกระจายท้องถิ่นกับทั้งกราฟ (33 %)</td><td>reviewer จะใช้ถามว่าทำไมต้องซับซ้อน; สอดคล้องกับ G0b</td><td>วิธีการ</td></tr>
+      <tr data-f="6"><td class="name"><b>Is Meta-Path Attention an Explanation?</b><span>KDD 2026</span></td><td colspan="5">HAN และ HAN-GCN บน ACM, DBLP, IMDB, 100 seeds: attention กับความสำคัญจริงสอดคล้องบน IMDB (τ 0.70–0.86) แต่ HAN บน DBLP ไม่สัมพันธ์ (τ 0.053, p 0.43)</td><td>กระทบการอ่าน I<sub>σ</sub> (C2b); แผน τ + permutation null ของเราไปทางเดียวกัน</td><td>วิธีการ</td></tr>
+      <tr data-f="s"><td class="name"><b>HetSheaf</b><span>NeurIPS 2026</span></td><td class="n">✗</td><td class="n">✗ มีแต่เส้นเชื่อม</td><td>map ตามชนิด</td><td>—</td><td>HGB</td><td>baseline บังคับ ตอนนี้ตีพิมพ์แล้ว</td><td>บันทึก + หน้า NeurIPS</td></tr>
+      <tr data-f="s"><td class="name"><b>Knowledge Sheaves</b><span>AISTATS 2023</span></td><td>—</td><td class="p">△ ตัดตัวแปรกลางด้วย Schur complement</td><td>map ตามชนิดความสัมพันธ์</td><td>—</td><td>KG completion</td><td><b>แก่นของ Theorem R</b> ต้องอ้างและลดข้ออ้าง</td><td>วิธีการ</td></tr>
+      <tr data-f="s"><td class="name"><b>Sheafification of Higher-Order MP</b><span>essay, 2025</span></td><td>—</td><td class="p">△ map โหนด→สามเหลี่ยมจากการต่อกัน</td><td>—</td><td>สามเหลี่ยมไปถึงเส้นเท่านั้น</td><td>สังเคราะห์</td><td>แนวเดียวกับ Prop. 1; สอดคล้องกับ Lemma A′</td><td>วิธีการ</td></tr>
+      <tr data-f="s"><td class="name"><b>Sheaf Hypergraph Networks</b><span>NeurIPS 2023</span></td><td>—</td><td class="n">✗ hyperedge ไม่มีลำดับ</td><td>MLP ต่อ (โหนด, hyperedge)</td><td>ทุกโหนดใน hyperedge</td><td>กราฟชนิดเดียว</td><td>ตรงกับแถว <code>free_path_maps</code></td><td>วิธีการ</td></tr>
+      <tr data-f="s"><td class="name"><b>HyperSheafets</b><span>AAAI 2026</span></td><td>—</td><td class="n">✗</td><td>—</td><td>—</td><td>hypergraph heterophilic</td><td>ชนกับข้ออ้าง R9 (high-pass)</td><td>บทคัดย่อ</td></tr>
+      <tr data-f="s"><td class="name"><b>Copresheaf TNN</b><span>NeurIPS 2025</span></td><td>—</td><td class="p">△ cell ทุกระดับ map อิสระ</td><td>—</td><td>ทุกทิศ</td><td>เล็ก</td><td>กรอบที่ครอบเรา reviewer อาจถามว่าเราเป็นกรณีพิเศษ</td><td>บันทึก</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">ข้อสังเกตที่หนักที่สุด</span>
+  <h2>MAGNN กับ cell ของเรา คำนวณสิ่งเดียวกันในกรณีหนึ่ง</h2>
+  <div class="callout">
+    <p class="prose">ตัวเข้ารหัส "relational rotation" ของ MAGNN (สมการ 10) หมุนสถานะของแต่ละโหนดตามความสัมพันธ์ที่ผ่าน แล้วเฉลี่ย สถานะ cell ของเรา <code>z<sub>f</sub></code> ทำแบบเดียวกัน ถ้าการหมุนของเราขึ้นกับชนิดความสัมพันธ์อย่างเดียว ทั้งสองสูตรจะเท่ากันทุกตัวเลข</p>
+<pre>MAGNN:  o₀ = h(P1);  o₁ = h(A7) + o₀ ⊙ r₁;  o₂ = h(P9) + o₁ ⊙ r₂;  ผล = o₂ / 3
+H2S-NN: z_f = ( T_P1·x_P1 + T_A7·x_A7 + x_P9 ) / 3     (T = การหมุนต่อกันไปที่กรอบของ P9)
+ตรวจตัวเลข: max |MAGNN − z_f| = 1.2 × 10⁻¹⁶</pre>
+    <p class="prose"><b>ความเท่ากันนี้เกิดเฉพาะกรณีพิเศษที่ H2S-NN ไม่ได้ใช้ ส่วนที่ต่างจริงเหลือสี่ข้อ ข้อแรกที่เคยเขียนไว้ถูกถอน (ยังไม่มีหลักฐานว่าข้อใดช่วยความแม่นยำ):</b></p>
+    <ol class="steps prose">
+      <li><s>ลำดับของความสัมพันธ์</s> <span class="tag t-risk">ถอน</span> ใช้เป็นความต่างจาก MAGNN ไม่ได้ เพราะ MAGNN แยกประมวลผลทีละ meta-path อยู่แล้ว PAPV กับ PVPA จึงแยกกันตั้งแต่ต้น การหมุนที่สลับลำดับได้มีผลเฉพาะภายใน meta-path เดียว ซึ่งลำดับของชนิดถูกกำหนดแล้ว (ตัวเลขที่เคยใส่ไว้: การหมุนของ MAGNN เป็นการคูณทีละตัวเลขเชิงซ้อน จึงสลับลำดับได้: |r<sub>a</sub>r<sub>b</sub> − r<sub>b</sub>r<sub>a</sub>| = 1.1×10⁻¹⁶ ของเราเป็นเมทริกซ์หมุนที่สลับลำดับไม่ได้: |Q<sub>a</sub>Q<sub>b</sub> − Q<sub>b</sub>Q<sub>a</sub>| = 1.14 (ตรวจด้วยตัวเลข) ดังนั้นใน MAGNN เส้นทางที่ผ่านความสัมพันธ์ชุดเดียวกันแต่ลำดับต่างกันจะหมุนสถานะเท่ากัน ของเราไม่เท่ากัน เป็นจริงทางคณิตศาสตร์ แต่ไม่ทำให้แยกอะไรได้เกิน MAGNN)</li>
+      <li><b>การหมุนขึ้นกับคู่โหนด</b> ของเราอ่านจาก <code>[h₀, c]</code> ของทั้งสองปลายของแต่ละเส้น ของ MAGNN มีเวกเตอร์เดียวต่อชนิดความสัมพันธ์</li>
+      <li><b>Write-back</b> ผลส่งกลับไปทุกโหนดใน instance รวม A7 และ P9 ส่วน MAGNN ส่งเข้า P1 อย่างเดียว</li>
+      <li><b>เรขาคณิตชุดเดียวกับเส้นเชื่อม</b> การหมุนในเส้นทางคือ map ของเส้นเชื่อมตัวเดียวกับที่ใช้ใน Δ₀ (Prop. 1) จึงพิสูจน์ได้ว่าเพิ่ม instance แล้วไม่ขัดกับข้อมูลที่เส้นเชื่อมยืนยัน (Prop. 2) ใน MAGNN เวกเตอร์หมุนเป็นพารามิเตอร์แยก ไม่ผูกกับอะไร</li>
+      <li><b>การประกอบทั้งโมเดล</b> ของเราเป็น operator เชิงเส้นตัวเดียว ใช้ K รอบผ่าน filter bank ที่พิสูจน์ได้ว่าเสถียรทุกค่าพารามิเตอร์ (Props. 3, 5) น้ำหนัก instance เป็น exp(g) ไม่ normalise ด้วย softmax ส่วน MAGNN มี attention softmax ต่อเป้าหมาย, attention ระดับ meta-path ที่ใช้ร่วมทั้งกราฟ และ nonlinearity ต่อชั้น</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">แนวโน้ม</span>
+  <h2>สาขากำลังไปทางไหน</h2>
+  <ol class="steps prose">
+    <li><b>งานใหม่ส่วนใหญ่เลิกใช้ meta-path</b> HeSRN, HypHGT, VN-HGCN และ HGUL ใช้ชนิดความสัมพันธ์หรือโหนดเสมือนแทน และอ้างว่าได้คะแนนสูงสุดบน HGB งานที่ยังใช้ meta-path ส่วนใหญ่ย้ายไปที่ self-supervised หรือ pre-training (HGOT, HGMS, MUG)</li>
+    <li><b>งานที่ใช้ instance พร้อมโหนดกลางยังเป็นกลุ่มเล็ก</b> และทุกงานส่งผลเข้าโหนดเป้าหมายทางเดียว ไม่มีงานใดพิสูจน์ว่าโหนดกลางให้ข้อมูลอะไรเกินกว่าปลายทั้งสอง</li>
+    <li><b>การไม่ต้องมีรายการ meta-path กลายเป็นเรื่องปกติ</b> แต่ทำได้สองแบบ: นับทั้งหมดจนถึงความยาวที่กำหนด (HetTree, AHGNN, MHCL ซึ่งต้นทุนโตตามจำนวนเส้นทาง) หรือสุ่ม walk (MF2Vec ซึ่งไม่ระบุการกระจาย) ยังไม่พบงานที่สุ่มจากการกระจายที่ระบุพร้อมตัวประมาณที่ไม่ลำเอียงอย่าง WISP</li>
+    <li><b>ความน่าเชื่อถือถูกตั้งคำถามมากขึ้น</b> ทั้งเรื่องสถาปัตยกรรม (causal 2025) และเรื่องการอ่านความสำคัญของ meta-path (KDD 2026) reviewer ปี 2026 จะคาดหวัง baseline ที่ tune ดีและการตรวจข้าม seed</li>
+    <li><b>การรั่วของ label เป็นประเด็นเปิด</b> Echoless-LP แสดงว่าการเอา label ของเพื่อนบ้านมาเป็น feature ทำให้ label ของตัวเองย้อนกลับมาผ่าน walk H2S-NN ไม่ใช้ label เป็น input แต่ baseline บน ogbn-mag หลายตัวใช้ ต้องระบุใน protocol ว่าใช้แบบไหน</li>
+  </ol>
+</section>
+
+<section>
+  <span class="eyebrow">ผลต่อ H2S-NN</span>
+  <h2>ข้ออ้างใดยังยืน ข้อใดต้องลด</h2>
+  <div class="tablebox">
+  <table style="min-width:720px">
+    <thead><tr><th>ข้ออ้าง</th><th>สถานะหลังอ่าน</th><th>สิ่งที่ต้องทำ</th></tr></thead>
+    <tbody>
+      <tr><td>ใช้โหนดกลางของ instance</td><td><span class="tag t-risk">ไม่ใหม่</span></td><td>อ้าง MAGNN, MECCH, MF2Vec, MHCL; ห้ามเขียนว่า "เป็นงานแรก"</td></tr>
+      <tr><td>ไม่ต้องมีรายการ meta-path</td><td><span class="tag t-warn">ใหม่บางส่วน</span></td><td>ข้ออ้างที่เหลือคือ "สุ่มจากการกระจายที่ระบุ ไม่ลำเอียง ต้นทุนไม่โตตามจำนวน schema"; เทียบกับ MHCL และ MF2Vec</td></tr>
+      <tr><td>น้ำหนักต่อ instance ขึ้นกับโหนดกลาง</td><td><span class="tag t-warn">ใหม่บางส่วน</span></td><td>MAGNN ทำผ่านตัวเข้ารหัสแล้ว; ส่วนที่ยังใหม่คือ ladder ที่แยกช่องทางน้ำหนักออกได้ (C2)</td></tr>
+      <tr><td>Theorem R</td><td><span class="tag t-warn">ต้องลดข้ออ้าง</span></td><td>อ้าง Knowledge Sheaves (Schur complement); ส่วนใหม่คือน้ำหนักไม่ขึ้นกับโหนดกลาง</td></tr>
+      <tr><td>Prop. E (cell น้ำหนักเท่ากันแทบไม่เพิ่มอะไร)</td><td><span class="tag t-ok">ไม่พบงานซ้ำ</span></td><td>ใช้เป็นข้อค้นพบเชิงวิเคราะห์หลัก</td></tr>
+      <tr><td>Instance เป็น cell ใน sheaf, map ถูกบังคับ, ไม่ขัดกับเส้นเชื่อม</td><td><span class="tag t-ok">ไม่พบงานซ้ำ</span></td><td>ต้องมีหลักฐานจากแถว <code>free_path_maps</code> และ <code>endpoint_edges</code> ไม่อย่างนั้นจะถูกมองว่าเป็นการตกแต่ง</td></tr>
+      <tr><td>อ่านความสำคัญของ schema จาก I<sub>σ</sub></td><td><span class="tag t-warn">ต้องระวัง</span></td><td>อ้าง KDD 2026; รายงาน τ ข้าม seed เทียบ permutation null ตามแผน</td></tr>
+      <tr><td>Filter bank ช่วยใต้ heterophily (R9)</td><td><span class="tag t-warn">มีคู่แข่งใหม่</span></td><td>อ้าง HyperSheafets, PolyNSD, AHGNN</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout info">
+    <h3>Baseline ที่ควรมี (ข้อเสนอ ยังไม่ได้ตัดสิน)</h3>
+    <p class="prose">RGCN ที่ tune แล้ว · MAGNN · HetSheaf · AHGNN · LMSPS · MECCH · SGAT · HGUL หรือ H2G-former บน H2GB · HetTree หรือ RpHGNN บน ogbn-mag (ระบุว่าใช้ label เป็น feature หรือไม่) รายการนี้ต้องผ่านการ audit ตาราง §5–§6 ก่อน freeze</p>
+  </div>
+  <div class="callout ok">
+    <h3>ตำแหน่งที่แนะนำ</h3>
+    <p class="prose">ตั้งงานเป็นคำถาม: instance ให้ข้อมูลอะไรที่ความสัมพันธ์ระหว่างปลายทั้งสองไม่มี และจะใช้มันโดยไม่ขัดกับเรขาคณิตของเส้นเชื่อมได้อย่างไร ให้ Prop. E, Theorem R (อ้าง Knowledge Sheaves), Prop. 2 และ C2 ladder เป็นคำตอบ และเขียนเองในเปเปอร์ว่า cell เท่ากับ hub node และเท่ากับตัวเข้ารหัสของ MAGNN ในกรณีพิเศษ</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">บันทึก session 10 พ.ย. 2026 · คำตอบที่ 1</span>
+  <h2>สถานะงานและการวิจารณ์ mini-batch (M0–M4)</h2>
+  <ul class="plain prose">
+    <li>spec ปัจจุบันเป็น v1.10 (ไม่ใช่ v1.8); R5, R7, Lemma R, Props. 3, 5 ไม่เปลี่ยนจาก v1.8</li>
+    <li>Claude Code อยู่ที่ J6 บน <code>part-j</code> (<code>53587be</code>, J6.1 เสร็จ) ไม่ใช่ J4</li>
+    <li>design brief ของ mini-batch ตัดสินแล้วใน <code>minibatch_design_decisions.md</code> (M0 full batch ถ้าพอดี ไม่พอดีใช้ local scope; M1 หนึ่ง scope ต่อ target; M2 K ≥ 2 tune ได้; M3 D และ context จาก scope; M4 evaluation draw เก็บครั้งเดียว) ที่ค้างคือ §12</li>
+  </ul>
+  <div class="tablebox">
+  <table style="min-width:720px">
+    <thead><tr><th>ประเด็น</th><th>ปัญหา</th><th>ข้อเสนอ (รอผู้เขียนตัดสิน)</th></tr></thead>
+    <tbody>
+      <tr><td>(ก) scope ขึ้นกับ arm</td><td>scope สร้างจาก cells ของ t ทำให้ <code>no_path_cells</code> เห็นแค่ facts 1 hop และ <code>endpoint_edges</code> ไม่มีโหนดกลาง จึงเปลี่ยนสองตัวแปรพร้อมกันบนชุดข้อมูลใหญ่ ladder สี่ arm ไม่กระทบ</td><td><b>A</b>: scope สร้างจาก walks ของ t เสมอ arm เปลี่ยนเฉพาะ operator · B: แยก scope ต่อ arm · C: รัน ablation เฉพาะชุด full batch</td></tr>
+      <tr><td>(ข) C5 ขัดกับ M0</td><td>spec ให้ C5 ล้มถ้า mini-batch ต่างจาก full batch เกิน 1 std แต่ M0 ให้ช่องว่างเป็นตัวเลขรายงาน และ M3 ทำให้ hub มีน้ำหนักเพิ่ม ~7–18 เท่า</td><td>เขียน C5 ใหม่: รายงานช่องว่างพร้อม CI บน ACM/DBLP; ล้มเฉพาะเมื่อต้นทุนโตเร็วกว่าเชิงเส้น</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">บันทึก session 10 พ.ย. 2026 · คำตอบที่ 2</span>
+  <h2>Novelty: meta-path ใน sheaf</h2>
+  <h3>สิ่งที่โมเดลทำกับ P1–A7–P9 ในหนึ่งรอบ</h3>
+  <ol class="steps prose">
+    <li>หมุนเวกเตอร์ของทั้งสามโหนดเข้ากรอบเดียวกันแล้วเฉลี่ย: <code>z_f = (x_P1 + T_A7·x_A7 + T_P9·x_P9) / 3</code> โดย T มาจาก map ของเส้น P1–A7 และ A7–P9 (Prop. 1 ไม่มีพารามิเตอร์ใหม่)</li>
+    <li>ทุกโหนดใน instance ถูกดึงเข้าหา z<sub>f</sub> ด้วยความแรง <code>w_f = exp(g(…))</code>; g เป็น MLP ที่ให้ตัวเลขเดียว</li>
+    <li>ทำซ้ำ K รอบผ่าน filter bank Prop. 2 พิสูจน์ว่าเทอมนี้เท่ากับ hub node หนึ่งตัวต่อ instance (D4 T2 ต่างกัน 2.6×10⁻¹⁵)</li>
+  </ol>
+  <h3>คำตอบสี่ข้อ</h3>
+  <ul class="plain prose">
+    <li><b>"งานแรกที่รวม meta-path เข้าใน sheaf"</b> จริงเท่าที่ค้นได้ แต่เป็น novelty แบบประกอบสองอย่าง reviewer จะถามว่าการรวมนี้ให้อะไรที่ MAGNN หรือ HetSheaf ให้ไม่ได้</li>
+    <li><b>"แค่ MLP(meta-path) ใส่โหนดเป็น feature"</b> ไม่ตรง MLP (g) ให้แค่น้ำหนัก สิ่งที่เข้าโหนดคือสถานะที่หมุนแล้ว คำวิจารณ์ที่แรงกว่าคือความเหมือน MAGNN (ส่วนด้านบน)</li>
+    <li><b>"meta-path ขึ้นกับ instance"</b> มีแล้วตั้งแต่ MCRec (2018), MAGNN (2020), ConCH, MECCH, HAN-ME</li>
+    <li><b>ดีไซน์เก่าไม่ได้ป้องกันตัวได้ดีกว่า</b> reviewer WSDM R2 W3 ชี้ว่า face term ของ v1 ไปถึงโหนดผ่าน closure edge เท่านั้น และ Lemma A′ พิสูจน์ว่าการดำเนินการเชิงเส้นแบบ Hodge บน 2D ส่งข้อมูลจาก 2-cell ไปไม่ถึงโหนดเลย</li>
+  </ul>
+  <h3>สามทางเลือกในการวางตำแหน่ง</h3>
+  <div class="tablebox">
+  <table style="min-width:720px">
+    <thead><tr><th></th><th>วิธี</th><th>ข้อดี</th><th>ข้อเสีย</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>"งานแรกที่รวม meta-path เข้าใน sheaf"</td><td>เขียนง่าย</td><td>novelty แบบประกอบ; ความเหมือน MAGNN ทำลายได้ในย่อหน้าเดียว</td></tr>
+      <tr><td><b>B (แนะนำ)</b></td><td>ตั้งเป็นคำถาม: instance ให้ข้อมูลอะไรที่ปลายทั้งสองไม่มี และใช้มันโดยไม่ขัดกับเรขาคณิตของเส้นเชื่อมอย่างไร; ตอบด้วย Prop. E, Theorem R, Prop. 2, C2 ladder; ระบุเองว่า MAGNN เป็นกรณีพิเศษ</td><td>ข้อวิจารณ์กลายเป็นข้อสนับสนุน; ทุกข้ออ้างล้มได้ด้วยการทดลอง</td><td>ข้ออ้างฟังเล็กลง; ขึ้นกับผล C2</td></tr>
+      <tr><td>C</td><td>ตัดภาษา 2-cell เรียกว่า instance hub ที่ transport ถูกบังคับ</td><td>ตรงที่สุด</td><td>เสียกรอบที่ใช้พิสูจน์ Props. 1–7</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">บันทึก session 10 พ.ย. 2026 · คำตอบที่ 3–7</span>
+  <h2>ความจริงหลังถูกท้าทาย</h2>
+  <div class="callout">
+    <h3>1 · เหมือน MAGNN ตรงไหน</h3>
+    <p class="prose">เหมือนสูตรเดียว: เฉลี่ยสถานะของโหนดในเส้นทางหลังหมุนตามเส้นทาง เท่ากันทุกตัวเลขเมื่อการหมุนขึ้นกับชนิดความสัมพันธ์อย่างเดียว ไม่ได้ลอก: สูตรของเรามาจาก D4 (6 พ.ย.) ที่หาสถานะที่ทำให้พลังงานของ cell ต่ำที่สุด ส่วน MAGNN มาจาก RotatE ทั้งคู่ได้สูตรเดียวกันเพราะทำสิ่งเดียวกัน: รวม instance เข้าจุดกลางจุดเดียว <b>ความผิดฝั่ง Claude:</b> session ที่ออกแบบ D4 ไม่ได้เทียบกับ MAGNN ในระดับสูตร และเขียนข้อแตกต่างไว้หลวม ๆ ว่า "no consistency" โดยไม่มีใครตรวจ</p>
+  </div>
+  <div class="callout">
+    <h3>2 · กราฟเรายังเป็น 2D ไหม</h3>
+    <p class="prose"><b>ในการคำนวณ ไม่ใช่</b> Prop. 2 พิสูจน์ว่าเทอม path cell เท่ากับกราฟธรรมดาที่เพิ่ม hub หนึ่งตัวต่อ instance แล้วตัด hub ออก (D4 T2: 2.6×10⁻¹⁵) ไม่มีสถานะบนเส้นเชื่อม ไม่มีการวัดรอบวง closure edge มีแค่ในนิยาม ส่วนเดียวของ 2D ที่ยังทำงานคือ<b>ข้อบังคับ</b>ว่าการหมุนของ hub ต้องมาจาก map ของเส้นเชื่อม ซึ่งเขียนเป็นภาษากราฟได้ทั้งหมด</p>
+    <p class="prose"><b>v1 ก็ไม่ได้เป็น 2D ที่มีผลจริง</b> Lemma A′: การคำนวณเชิงเส้นแบบ Hodge ส่งข้อมูลจาก 2-cell ไปโหนดไม่ได้ ใน v1 ข้อมูลไปถึงโหนดผ่าน closure edge เท่านั้น ซึ่งเท่ากับเส้นตรงระหว่างปลาย (reviewer WSDM R2 W3: "endpoint relation in disguise") คำอ้าง "2D เชิงโครงสร้าง" จึงเกินจริงตั้งแต่ v1</p>
+  </div>
+  <div class="callout">
+    <h3>3 · Meta-path เป็นข้อมูลเสริมหรือโครงสร้าง</h3>
+    <p class="prose">เป็นโครงสร้างในความหมายของกราฟ (เพิ่มการเชื่อมต่อใน operator) ระดับเดียวกับ hyperedge ไม่ใช่โครงสร้าง 2D และ Prop. E ของเราเองบอกว่าถ้าน้ำหนักเท่ากันทุก cell สิ่งที่เพิ่มแทบไม่ให้อะไรเกินการแพร่ผ่านเส้นเชื่อม ส่วนเดียวที่ให้ข้อมูลใหม่คือน้ำหนัก w<sub>f</sub> <b>หลักฐาน:</b> ยังไม่มีงาน known-answer ที่ cells ชนะ no cells (S1: <code>no_path_cells</code> ได้ 0.996); บน S1′ <code>full</code> ไม่เรียนรู้การเลือก; oracle พิสูจน์แค่ความจุ</p>
+  </div>
+  <div class="callout">
+    <h3>4 · Novelty เมื่อเล่าด้วยภาษาคนทั่วไป</h3>
+    <p class="prose">ใช้คนกลางของเส้นทาง: มีแล้ว · ให้น้ำหนักตามคนบนเส้น: MAGNN ทำแล้ว · ไม่ต้องกำหนดแบบแผน: มีแล้ว · heterophily: มีแล้ว สิ่งที่เหลือคือทฤษฎีความเสถียร ซึ่ง reviewer ส่วนใหญ่ไม่นับเป็น novelty ของงาน คำวิจารณ์ที่คาดได้: "MAGNN ที่เขียนใหม่ด้วยคณิตศาสตร์ยาก"</p>
+  </div>
+  <h3>v1 เทียบ v2</h3>
+  <div class="tablebox">
+  <table style="min-width:720px">
+    <thead><tr><th></th><th>v1 (ส่ง WSDM)</th><th>v2 (ปัจจุบัน)</th></tr></thead>
+    <tbody>
+      <tr><td>เล่าเรื่อง 2D</td><td>ง่าย: มีสถานะบนเส้นเชื่อมและ δ₁ จริง</td><td>ยาก: คำนวณเท่ากับ hub ต่อ instance</td></tr>
+      <tr><td>ข้อมูลจาก cell ไปถึงโหนด</td><td>ผ่าน closure edge = เส้นตรงระหว่างปลาย ไม่เห็นคนกลาง</td><td>ทุกโหนดใน instance เห็นคนกลาง (เหมือน MAGNN)</td></tr>
+      <tr><td>หน่วยความจำ</td><td>6 GB ที่ d = 8; d = 32 รันไม่ได้</td><td>1.1 GB ที่ d = 8; 2.5 GB ที่ d = 32</td></tr>
+      <tr><td>การเลือกเส้นทาง</td><td>AMPSS ค่าตั้ง ≥ 18; สุ่มไม่มีการกระจายที่ระบุ</td><td>WISP: สองค่าตั้ง, การกระจายระบุได้</td></tr>
+      <tr><td>Novelty ที่ป้องกันได้</td><td>ไม่มี (ถูก reviewer จับแล้ว)</td><td>ไม่มี (ทับ MAGNN)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>กระบวนการทำงานที่พลาด (ฝั่ง Claude)</h3>
+  <ol class="steps prose">
+    <li>ไม่เคยทดสอบคำถามหลัก (คนกลางช่วยไหม) ก่อนลงแรงสร้างความเสถียร ความเร็ว และทฤษฎี</li>
+    <li>สัญญาณเตือนถูกเก็บไว้ ไม่ถูกใช้: D11 screen (7 พ.ย.) cells ไม่ชนะ "ไม่มี cell" และ "เส้นตรงระหว่างปลาย" แต่งานเดินต่อ</li>
+    <li>ไม่เช็กงานก่อนหน้าในระดับสูตร (MAGNN)</li>
+    <li>ทฤษฎีดึงดีไซน์ ทั้งที่กฎ reality-before-theory บันทึกปัญหานี้ไว้แล้ว</li>
+    <li>ข้อสรุปสำคัญมาช้า และกระจายหลายคำตอบ</li>
+    <li>เขียน novelty ด้วยศัพท์ยาก แทนที่จะตอบคำถามที่คนทั่วไปเข้าใจ</li>
+  </ol>
+  <p class="prose"><b>ที่ไม่เสียเปล่า:</b> ตรวจ split ของ HGB · บั๊ก MUTAG (1,771/7,442 bond) · การรั่วของ link prediction (ความสัมพันธ์ย้อนกลับ, feature ของ ACM author 995/995) · ค่า heterophily ที่ทำซ้ำได้ · หน่วยความจำที่ลดลง</p>
+</section>
+
+<section>
+  <span class="eyebrow">ที่มา</span>
+  <h2>เปเปอร์ที่อ่าน</h2>
+  <ol class="sources">
+    <li><a href="https://arxiv.org/html/2510.05750" target="_blank" rel="noopener">Are HGNNs Truly Effective? A Causal Perspective</a></li>
+    <li><a href="https://arxiv.org/html/2602.08500v1" target="_blank" rel="noopener">Is Meta-Path Attention an Explanation? (KDD 2026)</a></li>
+    <li><a href="https://arxiv.org/pdf/2402.13496" target="_blank" rel="noopener">HetTree</a></li>
+    <li><a href="https://arxiv.org/html/2508.06034v1" target="_blank" rel="noopener">AHGNN (CIKM 2025)</a></li>
+    <li><a href="https://arxiv.org/pdf/2511.11081" target="_blank" rel="noopener">Echoless-LP (AAAI 2026)</a></li>
+    <li><a href="https://arxiv.org/pdf/2506.02619" target="_blank" rel="noopener">HGOT (ICML 2025)</a></li>
+    <li><a href="https://arxiv.org/pdf/2501.08538" target="_blank" rel="noopener">Homophily-aware HG Contrastive (SIGIR 2025)</a></li>
+    <li><a href="https://arxiv.org/pdf/2602.22645" target="_blank" rel="noopener">MUG (AAAI 2026)</a></li>
+    <li><a href="https://ijcai.org/proceedings/2025/685" target="_blank" rel="noopener">HGEN (IJCAI 2025)</a></li>
+    <li><a href="https://arxiv.org/pdf/2002.01680" target="_blank" rel="noopener">MAGNN</a></li>
+    <li><a href="https://arxiv.org/html/2211.12792" target="_blank" rel="noopener">MECCH</a></li>
+    <li><a href="https://assets-eu.researchsquare.com/files/rs-7782563/v1_covered_a35c2fd8-2137-4386-a3cb-9a22b3d27549.pdf" target="_blank" rel="noopener">MPRW-HGNN</a></li>
+    <li><a href="https://arxiv.org/html/2412.20678" target="_blank" rel="noopener">HAN-ME</a></li>
+    <li><a href="https://arxiv.org/html/2407.20648v2" target="_blank" rel="noopener">MF2Vec</a></li>
+    <li><a href="https://arxiv.org/abs/2506.16754" target="_blank" rel="noopener">MHCL</a></li>
+    <li><a href="https://arxiv.org/pdf/2510.09767v2" target="_blank" rel="noopener">HeSRN</a></li>
+    <li><a href="https://www.alphaxiv.org/abs/2601.08251.md" target="_blank" rel="noopener">HypHGT</a></li>
+    <li><a href="https://arxiv.org/html/2509.23660" target="_blank" rel="noopener">VN-HGCN</a></li>
+    <li><a href="https://arxiv.org/pdf/2502.16281" target="_blank" rel="noopener">FHGE</a></li>
+    <li><a href="https://preview.aclanthology.org/anlp-naacl/2025.findings-emnlp.864.pdf" target="_blank" rel="noopener">HetGCoT (EMNLP Findings 2025)</a></li>
+    <li><a href="https://arxiv.org/abs/2409.08036" target="_blank" rel="noopener">HetSheaf</a> · <a href="https://neurips.cc/virtual/2026/157469" target="_blank" rel="noopener">NeurIPS 2026</a></li>
+    <li><a href="https://arxiv.org/pdf/2110.03789" target="_blank" rel="noopener">Knowledge Sheaves</a></li>
+    <li><a href="https://arxiv.org/pdf/2509.23020" target="_blank" rel="noopener">On the Sheafification of Higher-Order Message Passing</a></li>
+    <li><a href="https://arxiv.org/pdf/2505.23993" target="_blank" rel="noopener">Cellular Sheaves on Higher-Dimensional Structures</a></li>
+    <li><a href="https://arxiv.org/pdf/2309.17116" target="_blank" rel="noopener">Sheaf Hypergraph Networks</a></li>
+    <li><a href="https://hyper.ai/de/papers/aaai__2026__39469" target="_blank" rel="noopener">HyperSheafets (AAAI 2026)</a></li>
+    <li><a href="https://arxiv.org/html/2505.21251v1" target="_blank" rel="noopener">Copresheaf TNN</a></li>
+    <li>LMSPS, AutoGNR, EvoPath, HGUL, SGAT: บันทึกการอ่านใน project (<code>metapath_methods_comparison*.md</code>)</li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.filters button');
+  var rows=document.querySelectorAll('#papers tbody tr');
+  function apply(f){
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.f===f));});
+    rows.forEach(function(r){r.hidden=!(f==='all'||r.dataset.f===f);});
+    try{localStorage.setItem('mp-filter',f);}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.f);});});
+  var saved='all';
+  try{saved=localStorage.getItem('mp-filter')||'all';}catch(e){}
+  apply(saved);
+})();
+</script>

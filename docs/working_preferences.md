@@ -30,3 +30,18 @@
 - Design conclusions come only from ablations of the same model under identical settings and budget, from known-answer tests, or from tuned comparisons under the frozen protocol.
 - Before any known-answer run, oracle or gate, the pre-registration states reachability (can the optimizer and schedule move the parameter far enough?) and an information-route audit (every route by which the label reaches a target, including memorisation). Spec §0 rule 6; added 2026-11-09 after the H5 and I3 oracles failed for want of it.
 - Local runs check that things work (tests, smoke, known-answer synthetic tasks), never performance. A synthetic miss means "not shown at default settings"; use an oracle arm to separate capacity from learning.
+
+## How to think (author, 2026-11-10; added after the design review that found the path cell equals MAGNN's instance encoder in a special case)
+- **The goal is methodological novelty.** Theory (stability, spectra, kernels) supports a method; it is never the contribution and never the reason for a design choice. If the only answer to "what is new?" is a guarantee, the design is not novel yet.
+- **Say the research question and the novelty in plain words first.** One sentence a non-specialist understands plus one concrete example (e.g. "P1 and P9 share author A7: does it matter who A7 is?"). If it cannot be said simply, it is not ready. No jargon in the claim; define every technical word.
+- **Check the closest prior methods at the formula level before proposing a design.** Write their update on the same toy example as ours, compute both, and state the special case where ours reduces to theirs. "X does not have property P" in a gap table needs the formula, not a summary (MAGNN's rotation encoder equals our cell state when maps depend only on the relation type: missed from D4 until 2026-11-10).
+- **For every component ask: what can it do on a concrete example that MAGNN / HAN / SeHGNN / a hypergraph cannot?** Answer with the example before any maths.
+- **A warning signal stops the work for a discussion with the author.** An exploratory ablation in which the core component does not beat its own control (e.g. D11 screen: path cells vs no cells / endpoint edges) is not just logged under rule 5; it triggers a rethink of the thesis before more engineering.
+- **Test the core hypothesis before building around it.** Guarantees, scaling and tooling come after the central claim has a design that can win on a known-answer task.
+- **Generate alternatives from the data's structure** (what the data contains that current models ignore), not variations of the current model.
+- **Give the conclusion that matters first, in one place.** No scattering a key finding across several answers, no flattery of the author's model or of earlier answers, no comfort language. Correct errors explicitly and at once (e.g. the withdrawn "order" difference from MAGNN, 2026-11-10).
+- **Read sources deeply** (method, equations, what is updated and what is not) before relying on them, and state the depth of reading per source.
+
+
+## How to explain to the author (author, 2026-11-11; "I like this style a lot, remember it")
+- No jargon. Use everyday words and show the reasoning step by step; add a concrete example (small table, everyday analogy) when needed. Example of the liked style: the S3/S2′ explanation of 2026-11-11 — (1) the two parts of the model that can "choose", in plain words; (2) what the test wants; (3) the problem, with a concrete example; (4) the proposal; (5) how to read the result; (6) cost; (7) recommendation and reason.

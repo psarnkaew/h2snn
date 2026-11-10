@@ -69,7 +69,7 @@ Advisor report (`../docs/advisor_report/`): a progress report written for the au
 | ID | Decision | State |
 |---|---|---|
 | D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c * R_{psi,side} * H_k(u)`; `model.map_family: factorized \| dense` (dense = comparison family), `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
-| D2 | Redesign AMPSS; mechanism open. Interim: fixed literature schemas (the presets) | Open; v1 AMPSS deleted |
+| D2 | WISP (spec v1.3 §3.2): Walk-sampled, Instance-weighted Sheaf Paths replace AMPSS — schema-free self-avoiding walks from a stated target, walk-level defensive IS, `w_f = exp(g(ξ_f))`, schemas read out. Default (spec v1.4 E7): `path_source: wisp` for node classification; `path_source: schemas` (fixed literature presets) is the comparison row | Agreed 2026-11-08; implementation: task card Part H, branch `wisp`. "AMPSS" = deleted v1 only |
 | D3 | Scalability: normalized Laplacians (full-graph degrees), `eta = sigmoid(theta)`, per-batch path cells, `NeighborLoader` | Normalization and bounded step implemented (D4); mini-batching not started |
 | D4 | Path 2-cells couple to every boundary node through the vertex-2-cell sheaf Laplacian | Implemented with the plan §4.6 ablation switches; ACM memory and smoke run only |
 | D5 | Baseline provenance and IMDB heterophily fixes (parallel) | Not started |

@@ -1,0 +1,407 @@
+<title>H2S-NN v3-B design</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+/* Layout: one reading column (~72ch), wide tables scroll in their own box; A = blue-slate, B = copper, used only to tag the two designs */
+:root {
+  --bg: #f7f8f9;
+  --paper: #ffffff;
+  --fg: #1d2329;
+  --muted: #5a6570;
+  --rule: #d9dee3;
+  --a: #2f5d8a;
+  --a-soft: #e6eef6;
+  --b: #9a5a1f;
+  --b-soft: #f6ece2;
+  --ok: #2c7a4b;
+  --warn: #a36a00;
+  --bad: #a3322b;
+  --code-bg: #eef1f4;
+  --font-body: "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181c; --paper: #1b2026; --fg: #e3e7eb; --muted: #9aa5b0; --rule: #313a43;
+    --a: #8fb4dd; --a-soft: #1e2b39; --b: #e0a46b; --b-soft: #33261a;
+    --ok: #6fcf97; --warn: #f2c14e; --bad: #f08a80; --code-bg: #232a31; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181c; --paper: #1b2026; --fg: #e3e7eb; --muted: #9aa5b0; --rule: #313a43;
+  --a: #8fb4dd; --a-soft: #1e2b39; --b: #e0a46b; --b-soft: #33261a;
+  --ok: #6fcf97; --warn: #f2c14e; --bad: #f08a80; --code-bg: #232a31; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.75;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+main { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+header { display: flex; flex-direction: column; gap: 10px; border-bottom: 2px solid var(--fg); padding-bottom: 20px; }
+.meta { font-size: 13px; color: var(--muted); letter-spacing: .02em; }
+h1 { font-size: 30px; line-height: 1.3; margin: 0; text-wrap: balance; }
+h2 { font-size: 22px; line-height: 1.35; margin: 0 0 12px; text-wrap: balance; padding-top: 8px; border-top: 1px solid var(--rule); }
+h3 { font-size: 17px; margin: 22px 0 8px; }
+p { margin: 0 0 12px; max-width: 72ch; }
+ul, ol { margin: 0 0 12px; padding-left: 22px; max-width: 72ch; }
+li { margin-bottom: 4px; }
+section { display: flex; flex-direction: column; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 4px; letter-spacing: .03em; }
+.tag.a { background: var(--a-soft); color: var(--a); }
+.tag.b { background: var(--b-soft); color: var(--b); }
+.box { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; margin: 4px 0 14px; }
+.box.a { border-left: 4px solid var(--a); }
+.box.b { border-left: 4px solid var(--b); }
+.box > :last-child { margin-bottom: 0; }
+.quote { font-size: 14.5px; color: var(--muted); border-left: 3px solid var(--rule); padding: 2px 0 2px 12px; margin: 6px 0 10px; font-style: italic; }
+.scroll { overflow-x: auto; margin: 4px 0 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.55; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+th { font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: none; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 13px; }
+.ok { color: var(--ok); font-weight: 600; }
+.part { color: var(--warn); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+code { font-family: var(--font-mono); font-size: 13.5px; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { font-family: var(--font-mono); font-size: 13px; background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.55; margin: 4px 0 14px; }
+.math { overflow-x: auto; overflow-y: hidden; margin: 6px 0 12px; padding: 4px 0; }
+.note { font-size: 14px; color: var(--muted); }
+dl { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 6px 16px; margin: 0 0 12px; }
+dt { font-weight: 600; }
+dd { margin: 0; min-width: 0; }
+@media (max-width: 560px) { dl { grid-template-columns: 1fr; } dd { margin-bottom: 8px; } h1 { font-size: 25px; } }
+nav ol { columns: 2; column-gap: 32px; font-size: 14.5px; }
+@media (max-width: 560px) { nav ol { columns: 1; } }
+a { color: var(--a); }
+a:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+</style>
+
+<main>
+<header>
+  <div class="meta">H2S-NN · เอกสารออกแบบสำหรับ implement · 10 พ.ย. 2026 · สถานะ: ทิศทางตกลงแล้ว (ผู้เขียน 21:37) / รายละเอียดในข้อ 15 ยังต้องตัดสิน · ยังไม่มีโค้ด</div>
+  <h1>H2S-NN v3-B: 2-cell ที่ส่งผลเข้าโหนดผ่านเส้นจริง</h1>
+  <p>เอกสารนี้นิยามโมเดล v3-B ให้ครบพอสำหรับเขียนโค้ด ทุกสมการมาพร้อมคำอธิบายในภาษาง่ายและตัวอย่าง P1–A7–P9 บทพิสูจน์ฉบับเต็มอยู่ใน <code>docs/v3_A_vs_B.html</code> ข้อ 9 (เรขาคณิต) และไฟล์ของ ChatGPT ข้อ 20 (การลู่เข้า) เอกสารนี้สรุปผลและระบุที่มาของแต่ละข้อ</p>
+  <p class="note">ป้ายสถานะ: <b>พิสูจน์</b> = มีบทพิสูจน์บนกระดาษ · <b>ตรวจแล้ว</b> = numpy บนกราฟเล็ก (เป็นการตรวจพีชคณิต ไม่ใช่ผลการทำนาย) · <b>ตัดสินแล้ว</b> = ผู้เขียนตกลง · <b>เปิด</b> = ต้องตัดสิน · <b>ประมาณ</b> = ตัวเลขคาดการณ์ ยังไม่ได้วัด</p>
+</header>
+
+<nav aria-label="สารบัญ"><ol>
+  <li><a href="#decided">สิ่งที่ตัดสินแล้ว</a></li>
+  <li><a href="#why">เป้าหมายเทียบกับรีวิว</a></li>
+  <li><a href="#words">คำศัพท์และสัญลักษณ์</a></li>
+  <li><a href="#inputs">ข้อมูลเข้า</a></li>
+  <li><a href="#params">ส่วนที่เรียนรู้</a></li>
+  <li><a href="#geometry">เรขาคณิต: map และ transport</a></li>
+  <li><a href="#energy">energy และ operator</a></li>
+  <li><a href="#solve">การแก้ (forward / backward)</a></li>
+  <li><a href="#readout">หัวทำนายและ loss</a></li>
+  <li><a href="#minibatch">mini-batch</a></li>
+  <li><a href="#arms">แขนเปรียบเทียบ</a></li>
+  <li><a href="#theory">ทฤษฎีบท</a></li>
+  <li><a href="#cost">ต้นทุน</a></li>
+  <li><a href="#tests">test ที่ต้องเขียน</a></li>
+  <li><a href="#open">เรื่องที่ยังต้องตัดสิน</a></li>
+  <li><a href="#spec">ส่วนของ spec ที่ต้องแก้</a></li>
+</ol></nav>
+
+<section id="decided">
+  <h2>1. สิ่งที่ตัดสินแล้ว (ผู้เขียน 10 พ.ย. 2026)</h2>
+  <ol>
+    <li><b>ใช้ B เป็นโมเดลหลัก:</b> state อยู่ที่ 3 ระดับ (โหนด, เส้นจริง, 2-cell) ข้อมูลระหว่างโหนดกับ cell วิ่งผ่านเส้นจริงของ path เท่านั้น</li>
+    <li><b>closure edge อยู่ในนิยามของ complex เท่านั้น:</b> ทำให้ path เป็น 2-cell จริงและใช้ในบทพิสูจน์ แต่ไม่มี state และไม่อยู่ใน energy ไม่มีทางลัดปลาย-ปลาย</li>
+    <li><b>ไม่ใช้ C:</b> ไม่มีเทอมโหนด–cell ตรง เพราะข้อติ R2 W3 อยู่ที่ "ทางเข้าโหนดผ่าน closure" ส่วน face ทำงานบนเส้นเป็นสิ่งที่ R2 ชม</li>
+    <li><b>การแพร่ใช้ตัวแก้ที่ยึด encoding:</b> ปัญหา quadratic เดียว (ข้อ 8) ตามข้อ 20 ของไฟล์ ChatGPT</li>
+    <li><b>ไม่ใช้ Hodge Laplacian ของ complex เป็นตัวแพร่:</b> เพราะ Lemma A′ ทำให้ face ส่งข้อมูลถึงโหนดไม่ได้ และ<b>ห้ามใช้ชื่อ "Sheaf-Hodge diffusion"</b></li>
+    <li><b>ตัวควบคุมใช้ anchor และ readout เดียวกัน:</b> ได้แก่ A (v2 hub), แขน closure-only และแขนที่ไม่มี cell (ข้อ 11)</li>
+    <li><b>ส่วนที่คงจาก v2:</b> WISP, map แบบแยกตัวประกอบที่คำนวณครั้งเดียว, การแปลงพิกัดแบบไม่สร้างเมทริกซ์, fact layer (D7), local-scope mini-batch (M0–M4), การแก้ข้อมูลและ protocol ทั้งหมด (Part J)</li>
+  </ol>
+</section>
+
+<section id="why">
+  <h2>2. เป้าหมายเทียบกับรีวิว (ต้นฉบับ WSDM 2027 #850)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>รีวิว</th><th>ข้อความ</th><th>v3-B ตอบอย่างไร</th></tr></thead>
+    <tbody>
+      <tr><td>R1 S1, R3 S1, R4 S1</td><td>2-cell เก็บโหนดกลางและลำดับ relation ไม่ยุบเป็นความสัมพันธ์ปลาย-ปลาย</td><td>หนึ่ง cell ต่อ path ที่ WISP สุ่ม โหนดกลางมี state ของตัวเอง และ transport เรียงตามลำดับ</td></tr>
+      <tr><td>R1 S2, R2 S1, R2 summary</td><td>นิยามชัด, map edge→face จาก transport, พิสูจน์ cochain complex</td><td>closure อยู่ในนิยาม, ทฤษฎีบท 1–2 (ข้อ 12), map edge→face ใช้ในการคำนวณจริง</td></tr>
+      <tr><td>R2 S2</td><td>2-cell + sheaf-based edge diffusion</td><td>เส้นจริงมี state และแพร่ผ่านเทอมโหนด–เส้นกับเส้น–cell</td></tr>
+      <tr><td>R3 summary</td><td>มากกว่า heterogeneous GNN + sheaf layer</td><td>2-cell เป็นระดับที่สามของ sheaf ไม่ใช่ feature ที่ต่อเพิ่ม</td></tr>
+      <tr><td>R4 S2</td><td>ใส่ข้อมูล path ในการแพร่แบบ sheaf อย่างมีหลักการ</td><td>energy เดียว และ kernel ไม่เปลี่ยน (ทฤษฎีบท 3)</td></tr>
+      <tr><td><b>R2 W3 + meta-review</b></td><td>face ถึงโหนดผ่าน closure ปลาย-ปลายเท่านั้น</td><td>face ถึงทุกโหนดของ path (รวมโหนดกลาง) ผ่านเส้นจริงในการแก้ปัญหาเดียว closure ไม่มี state จึงไม่มีทาง</td></tr>
+      <tr><td>R2 detailed comment 5</td><td>ablation แบบมีแค่ closure เทียบกับแบบมี face</td><td>แขน <code>closure_only</code> (ข้อ 11)</td></tr>
+      <tr><td>R4 (ablation ที่ขอ)</td><td>endpoint view, path ที่ไม่มี 2-cell, น้ำหนักเท่ากัน, ความจุเท่ากัน</td><td>แขนในข้อ 11</td></tr>
+      <tr><td>R1 W1, R3 W3, R4 (scalability)</td><td>ต้นทุนตามขนาดกราฟและจำนวน instance</td><td>ข้อ 13: เส้นที่ไม่อยู่บน cell ถูกกำจัดได้แบบไม่เปลี่ยนคำตอบ, PCG + implicit gradient, mini-batch ต้องวัดจริง</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="words">
+  <h2>3. คำศัพท์และสัญลักษณ์</h2>
+  <dl>
+    <dt>โหนด $v\in V$</dt><dd>สิ่งของในกราฟ จำนวน $N$</dd>
+    <dt>เส้นจริง (fact) $e\in E$</dt><dd>ความสัมพันธ์หนึ่งรายการ ข้อมูลที่เก็บสองทิศนับเป็นหนึ่ง (D7) มีชนิด $\psi(e)$</dd>
+    <dt>cell $f\in\mathcal{P}$</dt><dd>path ที่ WISP สุ่มได้ ไม่ซ้ำโหนด $f=(v_0,e_1,v_1,\dots,e_\ell,v_\ell)$ โดย $v_0$ คือ anchor ที่ walk เริ่ม จำนวนรวม $F$</dd>
+    <dt>$E_P$, $E_0$</dt><dd>$E_P$ คือเส้นที่อยู่บน cell อย่างน้อยหนึ่งตัว $E_0 = E\setminus E_P$</dd>
+    <dt>stalk</dt><dd>พื้นที่ $\mathbb{R}^d$ ที่ทุกโหนด เส้น และ cell</dd>
+    <dt>state</dt><dd>$x_v$ (โหนด), $s_e$ (เส้นใน $E_P$), $z_f$ (cell) รวมกันเป็น $Y=(x,s,z)$</dd>
+    <dt>map $F_{v\triangleleft e}$</dt><dd>การหมุนหรือสะท้อน ($F^{\top}F = I$) ที่แปลง state ของโหนด v ไปเป็นภาษาของเส้น e</dd>
+    <dt>น้ำหนักเส้น $a_e$</dt><dd>$a_e = c_e^2 > 0$ แยกจาก map</dd>
+    <dt>น้ำหนัก cell $\beta_f$</dt><dd>$\beta_f = w_f\,m_f$ โดย $m_f$ มาจากการสุ่มและ $w_f$ เรียนรู้</dd>
+    <dt>transport $T_{v,f}$</dt><dd>การหมุนพิกัดต่อกันตาม path ที่ทำให้ state ของโหนดใน f อยู่ในพิกัดของ anchor</dd>
+    <dt>$h_v$</dt><dd>encoding เริ่มต้นของโหนด (ข้อ 5) และเป็นค่าที่ตัวแก้ยึดไว้</dd>
+  </dl>
+</section>
+
+<section id="inputs">
+  <h2>4. ข้อมูลเข้า</h2>
+  <ol>
+    <li><b>กราฟ:</b> ชนิดโหนด $\phi(v)$, feature ตามชนิด (ชนิดที่ไม่มี feature ใช้ embedding ตาม <b>global id</b>, mini-batch doc §11), เส้นจริงตาม D7 พร้อมชนิดและบทบาท (ต้น/ปลาย)</li>
+    <li><b>WISP draw:</b> เก็บต่อ walk ว่า (anchor, ลำดับโหนด, ลำดับเส้น, น้ำหนัก IS) แล้วรวม walk ที่ได้ path เดียวกันเป็น cell เดียว:
+      <div class="math">$$m_f = \sum_{\omega\to f}\frac{1}{r}\cdot\frac{p(\omega)}{\tfrac12p(\omega)+\tfrac12q(\omega)}$$</div>
+      ตอนเทรนสุ่มใหม่ทุก epoch ตอนประเมินใช้ draw คงที่ (E1) walk เป็น simple path (โค้ดใช้ <code>unvisited</code>)</li>
+    <li><b>ตารางที่สร้างครั้งเดียวต่อ draw:</b>
+      <ul>
+        <li>$E_P$ และตำแหน่งของแต่ละเส้นใน state $s$</li>
+        <li>รายการ incidence ของ cell คือ (f, i, e_i, v_{i−1}, v_i)</li>
+        <li>รายการ incidence โหนด–เส้นของ $E_P$</li>
+        <li>รายการเส้นใน $E_0$ (ใช้เทอมตรง ข้อ 7.2)</li>
+      </ul>
+    </li>
+  </ol>
+  <p class="note">ตัวอย่าง: เส้น e0 = (P1, A7), e1 = (A7, P9), e2 = (A7, P4), e3 = (P1, S3) ได้ cell f1 = P1–A7–P9 และ f2 = P1–A7–P4 ดังนั้น $E_P = \{e_0,e_1,e_2\}$ และ $E_0 = \{e_3\}$</p>
+</section>
+
+<section id="params">
+  <h2>5. ส่วนที่เรียนรู้ (คำนวณครั้งเดียวต่อ forward ใช้ร่วมกันทั้งการแก้)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>ส่วน</th><th>สูตร</th><th>มาจาก</th></tr></thead>
+    <tbody>
+      <tr><td>encoder ตามชนิด</td><td>$h_v = \mathrm{TypeEncoder}_{\phi(v)}(x^{\mathrm{raw}}_v)\in\mathbb{R}^d$</td><td>v2 เดิม</td></tr>
+      <tr><td>context</td><td>$c_v$ = ค่าเฉลี่ยของ $h$ เพื่อนบ้าน แยกตาม (ชนิดเส้น, บทบาท)</td><td>v2 (D12, R10)</td></tr>
+      <tr><td>map ของเส้น</td><td>$F_{v\triangleleft e} = R_{\psi(e),\mathrm{role}}\,H_k(u)\cdots H_1(u)$, $u = \mathrm{MLP}([g_v, g_{\text{other}}, \mathrm{rel}_{\psi(e)}, \mathrm{role}])$, $g = [h, c]$</td><td>v2 <code>sheaf_maps.py</code> (<code>householder_k</code> = 2 ในปัจจุบัน)</td></tr>
+      <tr><td>น้ำหนักเส้น</td><td>$a_e = c_e^2$, $c_e = \mathrm{softplus}(\mathrm{MLP}([g_u, g_v, \mathrm{rel}])) + 0.1$</td><td>v2 <code>_edge_scale</code></td></tr>
+      <tr><td>น้ำหนัก cell</td><td>$w_f = \exp(g_\theta(\xi_f))$, $\xi_f = [h_{v_0},\dots,h_{v_\ell},\mathrm{rel}_1,\dots,\mathrm{rel}_\ell]$ (encoder หนึ่งตัวต่อความยาว)</td><td>WISP (spec R12)</td></tr>
+      <tr><td>map ของ cell $A_f$</td><td>$A_f = I$ ไม่มีพารามิเตอร์ (ถ้าใช้ scalar จะซ้ำกับ $w_f$)</td><td>ตัดสินแล้ว</td></tr>
+      <tr><td>τ</td><td>ค่าคงที่ 1 ไม่ tune (ซ้ำกับขนาดของ $a_e$ และ $\beta_f$ ที่เรียนรู้ได้)</td><td><b>เปิด</b> D-B4</td></tr>
+      <tr><td>หัวทำนาย</td><td>$\mathrm{MLP}([h_v, x^{\star}_v])$</td><td>v2 (R11)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="geometry">
+  <h2>6. เรขาคณิต: map และ transport</h2>
+  <h3>6.1 transport ตาม cell (ไม่สนทิศที่เก็บของเส้น)</h3>
+  <div class="math">$$T_{v_0,f} = I,\qquad Q_i = F_{v_{i-1}\triangleleft e_i}^{\top}F_{v_i\triangleleft e_i},\qquad T_{v_i,f} = T_{v_{i-1},f}\,Q_i$$</div>
+  <div class="math">$$R_{e_i,f} := F_{e_i\triangleleft f} = T_{v_{i-1},f}\,F_{v_{i-1}\triangleleft e_i}^{\top}$$</div>
+  <p>$R_{e_i,f}$ แปลง state ของเส้น $e_i$ ไปเป็นภาษาของ cell ทุกตัวเป็นการหมุนหรือสะท้อน เพราะ F เป็นแบบนั้น ถ้า walk เดินย้อนทิศที่เก็บของเส้น สูตรนี้ใช้ได้เหมือนเดิม เพราะใช้ map ของ "โหนดที่เดินออก" กับ "โหนดที่เดินเข้า" และ energy ไม่มีเครื่องหมาย จึงไม่ต้องมี η</p>
+  <p><b>ตัวอย่าง f1:</b></p>
+  <div class="math">$$R_{e_0,f_1} = F_{P1\triangleleft e_0}^{\top},\qquad T_{A7} = F_{P1\triangleleft e_0}^{\top}F_{A7\triangleleft e_0},\qquad R_{e_1,f_1} = T_{A7}F_{A7\triangleleft e_1}^{\top}$$</div>
+
+  <h3>6.2 คำนวณแบบไม่สร้างเมทริกซ์</h3>
+  <p>ทุกครั้งที่ต้องใช้ ให้คูณ map เข้ากับ vector ตามลำดับ ต้นทุนเท่ากับการใช้ map ประมาณ ℓ ครั้งต่อ cell</p>
+  <pre>UP (เส้น → cell):  m_f = Σ_i R_{e_i,f} s_{e_i}
+  u ← 0
+  for i = ℓ … 1:                       # Horner, from the end of the path
+      u ← Q_i u + F_{v_{i-1}◁e_i}ᵀ s_{e_i}       # Q_i u = F_{v_{i-1}◁e_i}ᵀ (F_{v_i◁e_i} u)
+  m_f = u                              # T_{v_0} = I
+
+DOWN (cell → เส้น):  r_{e_i} += R_{e_i,f}ᵀ z_f = F_{v_{i-1}◁e_i} T_{v_{i-1}}ᵀ z_f
+  t ← z_f                              # T_{v_0}ᵀ z_f
+  for i = 1 … ℓ:
+      r_{e_i} += F_{v_{i-1}◁e_i} t
+      t ← Q_iᵀ t                       # T_{v_i}ᵀ z_f</pre>
+  <p class="note">v2 มี <code>PathTransportOperator</code> (<code>map_operators.py:413</code>) ซึ่งทำ $T_v x_v$ ตาม path อยู่แล้ว ต้องเพิ่มเวอร์ชันที่รับ state ของเส้นแทน state ของโหนด</p>
+
+  <h3>6.3 closure</h3>
+  <p>closure $c_f$ มี map ในนิยามคือ $F_{v_0\triangleleft c_f} = I$, $F_{v_\ell\triangleleft c_f} = T_{v_\ell,f}$, $F_{c_f\triangleleft f} = I$ ใช้ในบทพิสูจน์ (ทฤษฎีบท 1–2) <b>ไม่มีในโค้ด</b> ไม่มี state ไม่มี incidence และไม่มีเทอมใน energy (ทฤษฎีบท 1b)</p>
+</section>
+
+<section id="energy">
+  <h2>7. energy และ operator</h2>
+  <h3>7.1 energy ของการแพร่</h3>
+  <div class="math">$$E(Y) = \underbrace{\frac12\sum_{e\in E_P}a_e\sum_{v\in e}\big\lVert F_{v\triangleleft e}x_v - s_e\big\rVert^2}_{\text{โหนด–เส้น (เส้นบน cell)}} + \underbrace{\frac14\sum_{e=(u,v)\in E_0}a_e\big\lVert F_{u\triangleleft e}x_u - F_{v\triangleleft e}x_v\big\rVert^2}_{\text{เส้นที่ไม่อยู่บน cell}} + \underbrace{\frac12\sum_{f}\beta_f\sum_{i=1}^{\ell_f}\big\lVert R_{e_i,f}\,s_{e_i} - z_f\big\rVert^2}_{\text{เส้น–cell}}$$</div>
+  <ul>
+    <li><b>เทอมแรก:</b> state ของเส้นควรตรงกับทั้งสองปลายหลังแปลง</li>
+    <li><b>เทอมที่สอง:</b> คือเทอมแรกหลังแก้ค่า $s_e$ ทันที (ได้ $\tfrac12 a_e\cdot\tfrac12\lVert\cdot\rVert^2$, ทฤษฎีบท 7) จึงไม่ต้องเก็บ state ของเส้นที่ไม่มี cell ผ่าน</li>
+    <li><b>เทอมที่สาม:</b> state ของ cell ควรตรงกับเส้นทุกเส้นบน path หลังแปลง</li>
+  </ul>
+  <p><b>ตัวอย่าง:</b> พจน์ของ f1 คือ $\tfrac{\beta_{f_1}}{2}\big(\lVert F_{P1\triangleleft e_0}^{\top}s_{e_0} - z_{f_1}\rVert^2 + \lVert T_{A7}F_{A7\triangleleft e_1}^{\top}s_{e_1} - z_{f_1}\rVert^2\big)$ ส่วน $e_3$ (P1–S3) ใช้เทอมที่สอง</p>
+
+  <h3>7.2 operator $L = \nabla^2E$ (สมมาตร, ไม่ติดลบ)</h3>
+  <p>ผลของ $L$ ต่อ $Y$ คำนวณจาก incidence โดยไม่สร้างเมทริกซ์</p>
+  <div class="math">$$(LY)_v = \sum_{e\in E_P,\,e\ni v}a_e\,F_{v\triangleleft e}^{\top}\big(F_{v\triangleleft e}x_v - s_e\big) + \sum_{e\in E_0,\,e\ni v}\tfrac{a_e}{2}\,F_{v\triangleleft e}^{\top}\big(F_{v\triangleleft e}x_v - F_{u\triangleleft e}x_u\big)$$</div>
+  <div class="math">$$(LY)_e = \sum_{v\in e}a_e\big(s_e - F_{v\triangleleft e}x_v\big) + \sum_{f\ni e}\beta_f\,R_{e,f}^{\top}\big(R_{e,f}s_e - z_f\big)$$</div>
+  <div class="math">$$(LY)_f = \beta_f\sum_{i}\big(z_f - R_{e_i,f}s_{e_i}\big)$$</div>
+  <p>ใช้ $F^{\top}F = I$ และ $R^{\top}R = I$ ได้ค่าบนแนวทแยงเป็นสเกลาร์คูณ I:</p>
+  <div class="math">$$D_v = \sum_{e\in E_P\ni v}a_e + \sum_{e\in E_0\ni v}\tfrac{a_e}{2},\qquad D_e = 2a_e + \sum_{f\ni e}\beta_f,\qquad D_f = \beta_f\,\ell_f$$</div>
+  <p>ใช้เป็น preconditioner (ข้อ 8)</p>
+</section>
+
+<section id="solve">
+  <h2>8. การแก้ปัญหา</h2>
+  <h3>8.1 ปัญหาเดียวที่ยึด encoding</h3>
+  <div class="math">$$Y^{\star} = \arg\min_Y\ \tfrac12\lVert x - h\rVert^2 + \tfrac{\tau}{2}\,Y^{\top}LY \quad\Longleftrightarrow\quad M\,Y^{\star} = P^{\top}h,\qquad M = P^{\top}P + \tau L$$</div>
+  <p>$P$ ดึงเฉพาะส่วนโหนด ความหมาย: ให้ทุกระดับสอดคล้องกันมากที่สุด โดยโหนดไม่หลุดจาก encoding เดิม</p>
+  <p><b>มีคำตอบเดียว (พิสูจน์, ChatGPT ข้อ 20):</b> $Y^{\top}MY = \lVert x\rVert^2 + \tau Y^{\top}LY = 0$ บังคับ $x = 0$ และ $Y\in\ker L$ จากทฤษฎีบท 3 เส้นและ cell จึงเป็นศูนย์ด้วย ดังนั้น $M \succ 0$ (ตรวจแล้ว: ค่าเฉพาะต่ำสุด 0.37 บนกราฟทดสอบ)</p>
+  <p><b>ความหมายที่ระดับโหนด:</b> แก้ค่า s, z ทันทีจะได้ $x^{\star} = (I + \tau S)^{-1}h$ โดย $S \succeq 0$ คือ operator ของโหนดหลังกำจัดตัวแปร น้ำหนักต่อความถี่ λ ของ S คือ $1/(1+\tau\lambda)$ ส่วนที่สอดคล้องกันอยู่แล้ว (λ = 0) ผ่านเต็ม</p>
+
+  <h3>8.2 forward: preconditioned conjugate gradient (PCG)</h3>
+  <pre>input: h, operator Y ↦ M Y (ข้อ 7.2), preconditioner J = blockdiag(Pᵀ P + τ D)  # scalar per cell
+Y ← Pᵀ h ; r ← Pᵀh − M Y ; z ← J⁻¹ r ; p ← z
+repeat t = 1 … T_max:
+    q ← M p ;  α ← (rᵀz)/(pᵀq) ;  Y ← Y + α p ;  r_new ← r − α q
+    stop if ‖r_new‖ / ‖Pᵀh‖ ≤ tol
+    z_new ← J⁻¹ r_new ; p ← z_new + ((r_newᵀ z_new)/(rᵀ z)) p ; r, z ← r_new, z_new
+return x* = P Y</pre>
+  <p><b>ตรวจแล้ว (กราฟ 24 โหนด):</b></p>
+  <ul>
+    <li>PCG: 30 รอบได้ error 9e-6</li>
+    <li>Richardson ตามข้อ 20 ของ ChatGPT: 200 รอบได้ 1.6e-4 และ 400 รอบได้ 1e-7</li>
+    <li>condition number หลัง precondition = 27.5 บนกราฟใหญ่น่าจะสูงกว่านี้ ต้องวัด</li>
+  </ul>
+
+  <h3>8.3 backward: implicit gradient (ไม่ต้องเก็บทุกรอบ)</h3>
+  <p>ให้ $\mathcal{L}$ เป็น loss และ $g = \partial\mathcal{L}/\partial x^{\star}$ แก้ระบบเดียวกันอีกครั้ง (M สมมาตร):</p>
+  <div class="math">$$M\lambda = P^{\top}g,\qquad \frac{\partial\mathcal{L}}{\partial h} = P\lambda + (\text{ทางตรงผ่านหัวทำนาย}),\qquad \frac{\partial\mathcal{L}}{\partial\theta} = -\tau\,\lambda^{\top}\frac{\partial L}{\partial\theta}Y^{\star}$$</div>
+  <p>$\theta$ คือพารามิเตอร์ของ map, $a_e$ และ $\beta_f$ เทอมขวาสุดคำนวณได้โดยให้ autograd หาค่าของ $\lambda^{\top}L(\theta)Y^{\star}$ ที่ $Y^{\star}$ และ $\lambda$ คงที่ memory จึงเป็น O(state) ไม่ขึ้นกับจำนวนรอบ</p>
+  <p class="note"><b>ทางสำรอง:</b> unroll T รอบแบบ Richardson หรือ PCG พร้อม checkpointing ง่ายกว่าแต่ memory ∝ T ข้อนี้ยังเปิดอยู่ใน D-B5</p>
+</section>
+
+<section id="readout">
+  <h2>9. หัวทำนายและ loss</h2>
+  <ul>
+    <li><b>node classification:</b> $\hat y_v = \mathrm{MLP}([h_v, x^{\star}_v])$ cross-entropy สำหรับ IMDB ใช้ BCE ต่อ genre และ threshold logit &gt; 0 (spec F6)</li>
+    <li><b>link prediction:</b> $z_v = \mathrm{GELU}(W[h_v, x^{\star}_v])$ แล้วใช้ dot product WISP สำหรับ LP (anchor บน message graph) ยังเป็น card ที่ค้างอยู่</li>
+    <li><b>graph classification (ภาคผนวก):</b> ยังไม่ออกแบบ readout ไม่ต้องทำจนกว่าผู้เขียนสั่ง (spec 1.5)</li>
+  </ul>
+  <p class="note">การต่อ $h_v$ รับประกันแค่ว่า encoding เดิมยังอยู่ถึงหัวทำนาย ข้อนี้ใช้กับ A ได้เหมือนกัน จึงไม่ใช่เหตุผลว่า B ดีกว่า</p>
+</section>
+
+<section id="minibatch">
+  <h2>10. mini-batch (ใช้การตัดสินใจ M0–M4 เดิม)</h2>
+  <ul>
+    <li><b>scope ของ target t (M1):</b> t, เส้นทุกเส้นของ t และ cell ที่สุ่มจาก t พร้อมโหนดและเส้นบน cell ปัญหาในข้อ 8 ถูกแก้บน scope นี้ (ปัญหาเล็กหนึ่งปัญหาต่อ target แล้วต่อกันเป็น batch แบบไม่เชื่อมกัน)</li>
+    <li><b>degree และ context ของ scope (M3):</b> เหมือนเดิม</li>
+    <li><b>$m_f$ ต่อ anchor (M4):</b> ตามเดิม</li>
+    <li><b>ต้องแก้ใน mini-batch doc:</b> M2 (K ≥ 2 สำหรับ filter) ไม่ใช้แล้ว แทนด้วย tolerance และ T_max ของ PCG</li>
+    <li><b>ทฤษฎีบท 1–7 ใช้กับ scope ได้ทันที</b> เพราะ scope เป็น complex ที่ปิด</li>
+  </ul>
+</section>
+
+<section id="arms">
+  <h2>11. แขนเปรียบเทียบ (ใช้ WISP draw, map, anchor, readout และงบเดียวกัน)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>แขน (config)</th><th>เปลี่ยนอะไร</th><th>ตอบคำถาม / รีวิว</th></tr></thead>
+    <tbody>
+      <tr><td><code>full</code></td><td>v3-B ตามเอกสารนี้</td><td>—</td></tr>
+      <tr><td><code>closure_only</code></td><td>ไม่มี cell แต่ละ path แทนด้วยเส้นปลาย-ปลายที่หมุนตาม path ($T_{v_\ell}$, น้ำหนัก $\beta_f$; spec Theorem R, <code>HolonomyEdgeTerm</code> มีในโค้ดแล้ว)</td><td>R2 comment 5, R4 "endpoint-collapsed views"</td></tr>
+      <tr><td><code>no_path_cells</code></td><td>$\beta_f = 0$ (เหลือเส้นจริงอย่างเดียว)</td><td>R4 "without 2-cell"</td></tr>
+      <tr><td><code>hub_A</code></td><td>แทนเทอมเส้น–cell ด้วย $L_P$ ของ v2 (โหนด–hub) ใน solve เดียวกัน</td><td>state บนเส้นให้อะไรเพิ่ม (คำถามที่ยังไม่มีคำตอบ)</td></tr>
+      <tr><td><code>uniform</code> / <code>endpoints</code> / <code>schema</code></td><td>บันได weight ของ WISP (spec C2)</td><td>R4 "uniform instance weights", R3 S2</td></tr>
+      <tr><td><code>free_cell_maps</code></td><td>$R_{e,f}$ เป็นอิสระ (ไม่ใช่ transport)</td><td>ทฤษฎีบท 3: ถ้า map ไม่ถูกบังคับ kernel ยุบ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">ต้องตรวจเส้นทางข้อมูลของทุกแขนก่อนรัน (spec §0 rule 6) โดยเฉพาะ <code>hub_A</code> ต้องมีจำนวนพารามิเตอร์ใกล้เคียงกัน</p>
+</section>
+
+<section id="theory">
+  <h2>12. ทฤษฎีบท (สรุป; บทพิสูจน์อยู่ในไฟล์ที่อ้าง)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>ข้อความ</th><th>สถานะ / ที่มา</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>โครงสร้าง (โหนด, เส้น + closure, cell) พร้อม map ในข้อ 6 เป็น cellular sheaf บน 2-cell complex (functorial ทุกลำดับ v ≤ e ≤ f)</td><td>พิสูจน์ + ตรวจแล้ว 7e-16 · A_vs_B §9.1</td></tr>
+      <tr><td>1b</td><td>global section บน complex ที่มี closure กับที่ไม่มี closure จับคู่กันหนึ่งต่อหนึ่ง จึงตัด closure ออกจากการคำนวณได้</td><td>พิสูจน์ · §9.1</td></tr>
+      <tr><td>2</td><td>วงรอบ cell (path + closure) หมุนรวมเป็น I</td><td>พิสูจน์ + ตรวจแล้ว 2e-16 · §9.2</td></tr>
+      <tr><td>3</td><td>$\ker L$ ≅ global section ของกราฟ: cell ไม่ทำให้ข้อมูลยุบ ถ้าใช้ map อิสระจะยุบ (4 → 0)</td><td>พิสูจน์ + ตรวจแล้ว · §9.3</td></tr>
+      <tr><td>4</td><td>สำหรับการแบ่ง class แบบใดก็ได้ มี map (I หรือการสะท้อน 1 ครั้ง) ที่ทำให้ "vector ของ class" เป็น global section ภายใต้ heterophily ใดก็ได้ <b>แต่</b> map ที่ให้มาไม่รับประกัน (วงที่หมุนเป็น −I, โหนดที่สลับกันได้)</td><td>พิสูจน์ · §9.4 + ChatGPT §19</td></tr>
+      <tr><td>5</td><td>M ≻ 0 จึงได้คำตอบเดียว Richardson ลู่เข้าเชิงเส้น และ PCG ลู่เข้า</td><td>พิสูจน์ · ChatGPT §20 / ตรวจแล้ว</td></tr>
+      <tr><td>6</td><td>ถ้า h สอดคล้องอยู่แล้ว ($h\in$ global section) คำตอบคือ h เอง (ไม่ถูกทำลาย) และ $\lVert x^{\star}(h) - x^{\star}(h')\rVert \ge \lVert h - h'\rVert/(1+\tau\lambda_{\max})$</td><td>พิสูจน์ · ChatGPT §20</td></tr>
+      <tr><td>7</td><td><b>(ใหม่) กำจัดเส้นที่ไม่อยู่บน cell ได้แบบไม่เปลี่ยนคำตอบ:</b> สำหรับเส้น $e\notin E_P$ เทอม $\tfrac12a_e\sum_{v\in e}\lVert F_{v\triangleleft e}x_v - s_e\rVert^2$ ที่ค่าต่ำสุดเหนือ $s_e$ (คือ $s_e = \tfrac12(F_ux_u + F_vx_v)$) เท่ากับ $\tfrac14a_e\lVert F_ux_u - F_vx_v\rVert^2$ และเพราะ $s_e$ ไม่อยู่ในเทอมอื่น การแก้ค่าทันทีจึงไม่เปลี่ยน $x^{\star}$</td><td>พิสูจน์ (หาค่าต่ำสุดของกำลังสองสองตัว) + ตรวจแล้ว: ต่างกัน 7e-16 (<code>v3b_elim.py</code>)</td></tr>
+      <tr><td>8</td><td>ข้อมูลของ cell ถึงทุกโหนดของ path ผ่านเส้นจริง: $(L^2)_{v,f} = (\sum_{e\in f, v\in e}a_e\beta_f)\,T_{v,f}^{\top}$ ซึ่งไม่เป็นศูนย์ที่ A7 ส่วน closure ไม่มี state</td><td>พิสูจน์ · ChatGPT §21</td></tr>
+      <tr><td>9</td><td>WISP ยังไม่ลำเอียง: $L$ เป็นเชิงเส้นใน $\beta_f = w_fm_f$ จึงได้ $\mathbb{E}[\hat L] = L^{\text{target}}$ (spec Prop. S ใช้ได้ตรง)</td><td>ได้จาก Prop. S</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note"><b>ที่ไม่ได้พิสูจน์:</b> การเทรนจะหา map ที่แยก class ได้, cell ที่ WISP สุ่มเป็น cell ที่มีประโยชน์, state บนเส้นให้ผลเหนือ hub (A) และผลบนข้อมูลจริง ส่วนทฤษฎีของ v2 ที่ใช้ไม่ได้แล้วโดยตรง: Prop. 4–6 (gate) และ Prop. 5, 7 (filter) ใช้ไม่ได้ถ้าไม่มี gate และ filter (D-B1, D-B2) ส่วน Prop. E, K และ Theorem R เขียนไว้สำหรับรูป hub ต้องเขียนใหม่</p>
+</section>
+
+<section id="cost">
+  <h2>13. ต้นทุน</h2>
+  <ul>
+    <li><b>การใช้ M หนึ่งครั้ง:</b> incidence โหนด–เส้น $2|E_P|$, เทอมตรง $|E_0|$, เส้น–cell $I_{ef} = \sum_f\ell_f$ แต่ละ incidence ใช้ map 1–3 ครั้ง ต้นทุนต่อครั้ง $O(kd + d^2)$ (frame ของ relation เป็น dense d×d ใช้ร่วมกัน) รวม $O\big((|E| + I_{ef})(kd + d^2)\big)$</li>
+    <li><b>state:</b> $(N + |E_P| + F)\,d$ PCG ใช้ vector ราว 5 ชุด และ backward แบบ implicit ใช้อีกเท่ากัน memory ไม่ขึ้นกับจำนวนรอบ</li>
+    <li><b>เวลา:</b> จำนวนรอบ PCG × การใช้ M หนึ่งครั้ง (forward) และอีกเท่ากัน (backward)</li>
+  </ul>
+  <div class="box">
+    <p><b>ACM โดยประมาณ</b> (d = 64, float32; N = 10,942, facts 273,936, WISP cells 103,103, edge–cell incidences ≈ 411,257 − 103,103 = 308,154 จาก Part H H6):</p>
+    <ul>
+      <li>ถ้า $E_P$ คือทุก fact state หนึ่งชุดมีขนาด (10,942 + 273,936 + 103,103) × 64 × 4 B ≈ 99 MB และ 10 ชุดประมาณ 1 GB</li>
+      <li>จำนวนเส้นจริงใน $E_P$ ยังไม่ได้นับ ทฤษฎีบท 7 ทำให้เส้นที่เหลือไม่ต้องมี state</li>
+      <li>เทียบกับ v2: state ของโหนด 2.8 MB ต่อชุด v3-B มี state ต่อชุดใหญ่กว่าราว 10–35 เท่า ขึ้นกับ $|E_P|$ (<b>ประมาณ</b>)</li>
+      <li>v1 ใช้ 9,260 MB ซึ่งน่าจะมาจาก map d×d ต่อ incidence (ยังไม่ตรวจ)</li>
+    </ul>
+  </div>
+  <p>ต้องวัด: $|E_P|$ ต่อ dataset, จำนวนรอบ PCG ที่ tol = 1e-4, peak memory และเวลาต่อ epoch บน ACM, DBLP, IMDB ทั้งตอนรัน full batch และ mini-batch</p>
+</section>
+
+<section id="tests">
+  <h2>14. test ที่ต้องเขียน (ค่า tolerance กำหนดใน card)</h2>
+  <ol>
+    <li><b>functoriality:</b> $R_{e_i,f}F_{v\triangleleft e_i} = T_{v,f}$ ทั้งสองปลายของทุก incidence บน draw จริง</li>
+    <li><b>ไม่มีทิศ:</b> กลับทิศที่เก็บของเส้นแล้ว $x^{\star}$ เท่าเดิม</li>
+    <li><b>matrix-free เท่ากับ dense:</b> ผลของ M Y จากข้อ 7.2 เท่ากับเมทริกซ์ dense บนกราฟเล็ก</li>
+    <li><b>สมมาตรและไม่ติดลบ:</b> $\langle Y_1, MY_2\rangle = \langle MY_1, Y_2\rangle$ และค่าเฉพาะต่ำสุดเป็นบวก</li>
+    <li><b>kernel:</b> map แบบ $R_eQ_v$ ทำให้ dim ker L = dim ker Δ₀ และแขน <code>free_cell_maps</code> ทำให้ยุบ</li>
+    <li><b>ทฤษฎีบท 7:</b> state ทุกเส้นกับ state เฉพาะ $E_P$ ให้ $x^{\star}$ เดียวกัน</li>
+    <li><b>PCG:</b> ลู่เข้าหาคำตอบ dense; residual ลดลงทุกรอบ</li>
+    <li><b>implicit gradient:</b> เทียบ finite difference และเทียบกับการ unroll</li>
+    <li><b>ทางเข้าโหนด:</b> รบกวน $z_f$ อย่างเดียว แล้ว A7 ต้องเปลี่ยน ส่วนโหนดนอก cell ที่ไม่ติดเส้นของ cell เปลี่ยนเฉพาะผ่านการแพร่ต่อ</li>
+    <li><b>ไม่มี closure:</b> ไม่มีเทอมใดของ M ที่เชื่อม $v_0$ กับ $v_\ell$ ตรง ๆ</li>
+    <li><b>บาร์ ablation:</b> แต่ละแขนในข้อ 11 รันได้ และ <code>no_path_cells</code> = ผลของ solve ที่ไม่มี cell</li>
+    <li><b>mini-batch:</b> batch ที่ไม่เชื่อมกันให้ผลเท่ากับรันทีละ scope; scope ทั้งกราฟให้ผลเท่ากับ full batch</li>
+    <li><b>mutation:</b> สลับ map ต้น/ปลาย, ลืม $\beta_f$, ใช้ local id กับชนิดที่ไม่มี feature ทุกข้อต้องมี test ที่ fail</li>
+  </ol>
+</section>
+
+<section id="open">
+  <h2>15. เรื่องที่ยังต้องตัดสิน (ก่อนเขียน card)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>เรื่อง</th><th>ทางเลือก</th><th>ข้อเสนอของ Claude</th></tr></thead>
+    <tbody>
+      <tr><td>D-B1</td><td>listen/broadcast gate (spec R4, C4)</td><td>(a) ไม่ใช้ แล้วย้าย R4 เป็นข้อจำกัด (b) ใช้ gate โดยแก้ในพื้นที่ที่มี metric ซึ่งต้องพิสูจน์ใหม่ว่ายังมีคำตอบเดียวเมื่อ anchor อยู่ที่โหนดอย่างเดียว</td><td>(a) สำหรับรุ่นแรก ไม่มี reviewer คนไหนขอ gate และ R4 เป็นข้อกำหนดของ v2 เอง</td></tr>
+      <tr><td>D-B2</td><td>เลือกความถี่ได้ (spec R9, C8)</td><td>(a) solve เดียว: น้ำหนัก $1/(1+\tau\lambda)$ ส่วนการแยก class อยู่ที่ map (ทฤษฎีบท 4) (b) หลาย τ: $x = \sum_j (I+\tau_jS)^{-1}hW_j$ ผลต่างของสองตัวเป็น band-pass และ $h - (I+\tau S)^{-1}h$ เป็น high-pass</td><td>(a) ก่อน และใช้ (b) เป็นแขนของ C8 ถ้าต้องการพิสูจน์ R9 ข้อเรียกร้องที่ว่า heterophily ต้องใช้ความถี่สูงยังไม่ได้พิสูจน์</td></tr>
+      <tr><td>D-B3</td><td>normalization</td><td>(a) energy ไม่ normalize (ตามเอกสารนี้) (b) normalize ตาม degree</td><td>(a) แต่ต้องวัดว่า hub (subject ใน ACM, หนังสือใน Freebase) ถูกดึงไปที่ค่าเฉลี่ยมากเกินไปหรือไม่</td></tr>
+      <tr><td>D-B4</td><td>τ</td><td>คงที่ 1 หรือเรียนรู้</td><td>คงที่ 1 เพราะขนาดของ $a_e$, $\beta_f$ เรียนรู้ได้อยู่แล้ว</td></tr>
+      <tr><td>D-B5</td><td>solver</td><td>PCG + implicit gradient (tol, T_max) หรือ unroll T รอบ</td><td>PCG + implicit สำหรับ memory; unroll ใช้เป็น test อ้างอิง</td></tr>
+      <tr><td>D-B6</td><td><code>householder_k</code></td><td>ตอนนี้ = 2 แต่ทฤษฎีบท 4 อาจต้องการการสะท้อนถึง d ครั้ง (Cartan–Dieudonné)</td><td>ไม่เปลี่ยน แต่เขียนเป็นข้อจำกัดของทฤษฎีบท 4</td></tr>
+      <tr><td>D-B7</td><td>state เริ่มต้นของ PCG</td><td>$Y_0 = P^{\top}h$ (เส้นและ cell = 0) หรือเริ่มจากค่าเฉลี่ยของปลาย</td><td>$P^{\top}h$ ไม่มีผลต่อคำตอบ มีผลแค่จำนวนรอบ</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="spec">
+  <h2>16. ส่วนของ spec (v1.10) ที่ต้องแก้เมื่อยอมรับเอกสารนี้</h2>
+  <ul>
+    <li><b>§2 R1:</b> "direct node–2-cell coupling is required" เปลี่ยนเป็น "2-cell เชื่อมกับโหนดผ่านเส้นจริงใน energy ที่ไม่ใช่ Hodge (Lemma A′ ยังเป็นเหตุผล)"</li>
+    <li><b>§2 R4, R9:</b> ตาม D-B1, D-B2</li>
+    <li><b>§3 ตารางส่วนประกอบ:</b> เพิ่ม state ของเส้นและ cell, ตัวแก้ที่ยึด encoding และ PCG แล้วเอา filter bank, gate, $L_P$ ออกไปเป็นแขน <code>hub_A</code> และย้าย "edge cochains" ออกจาก "Not part of the method"</li>
+    <li><b>§4:</b> เพิ่มทฤษฎีบท 1–9 ของเอกสารนี้ ส่วน Prop. 2, 4–7, E, K, Lemma N ต้องเขียนใหม่สำหรับ B หรือย้ายไปเป็นของแขน A</li>
+    <li><b>§5:</b> C2 ยังใช้ได้ (บันได weight), C4, C4b, C8 ตาม D-B1, D-B2 เพิ่ม C10 = <code>full</code> เทียบ <code>closure_only</code> (R2) และ C11 = <code>full</code> เทียบ <code>hub_A</code> (state บนเส้น)</li>
+    <li><b>§6:</b> เพิ่มแขนในข้อ 11 และ cost gate ใหม่ (PCG, memory ของ $E_P$)</li>
+    <li><b>mini-batch doc M2:</b> K ≥ 2 เปลี่ยนเป็น tolerance และ T_max ของ PCG</li>
+    <li><b><code>paper_rewrite_brief.md</code> §5, §7:</b> การตัดสินใจ "เลิกใช้ 2D, 2-cell, face" (6:45 น.) <b>ถูกยกเลิก</b> เพราะ v3-B มี 2-cell จริง และ cell มี state ของตัวเอง ส่วนข้อห้าม "Sheaf-Hodge diffusion" ยังคงอยู่</li>
+  </ul>
+</section>
+</main>

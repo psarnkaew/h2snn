@@ -1,0 +1,31 @@
+30 runs to do
+started ('dblp', 'full', 42)
+started ('dblp', 'gamma0', 42)
+finished ('dblp', 'gamma0', 42) rc=0 in 7.9 min
+started ('dblp', 'endpoint_edges', 42)
+finished ('dblp', 'full', 42) rc=0 in 12.1 min
+started ('dblp', 'h0_only', 42)
+finished ('dblp', 'endpoint_edges', 42) rc=0 in 9.5 min
+started ('dblp', 'pair_attention', 42)
+finished ('dblp', 'h0_only', 42) rc=0 in 7.0 min
+started ('dblp', 'full', 43)
+finished ('dblp', 'full', 43) rc=1 in 0.5 min
+started ('dblp', 'gamma0', 43)
+finished ('dblp', 'gamma0', 43) rc=1 in 0.5 min
+started ('dblp', 'endpoint_edges', 43)
+finished ('dblp', 'endpoint_edges', 43) rc=1 in 0.5 min
+started ('dblp', 'h0_only', 43)
+finished ('dblp', 'h0_only', 43) rc=1 in 3.9 min
+started ('dblp', 'pair_attention', 43)
+finished ('dblp', 'pair_attention', 43) rc=1 in 0.8 min
+started ('dblp', 'full', 44)
+finished ('dblp', 'full', 44) rc=1 in 0.7 min
+started ('dblp', 'gamma0', 44)
+finished ('dblp', 'gamma0', 44) rc=1 in 0.7 min
+started ('dblp', 'endpoint_edges', 44)
+finished ('dblp', 'endpoint_edges', 44) rc=3221225477 in 0.4 min
+started ('dblp', 'h0_only', 44)
+finished ('dblp', 'pair_attention', 42) rc=1 in 10.3 min
+started ('dblp', 'pair_attention', 44)
+finished ('dblp', 'pair_attention', 44) rc=1 in 0.5 min
+started ('imdb', 'full', 42)

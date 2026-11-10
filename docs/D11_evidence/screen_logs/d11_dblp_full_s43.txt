@@ -1,0 +1,73 @@
+Resolved run: device=cuda orthogonal_map=fasthpp d=32 exp_dir=experiments\d11_screen\d11_dblp_full_s43
+2026-11-07 22:49:12,866 | INFO | Dataset: dblp | Task: node_classification
+2026-11-07 22:49:12,868 | INFO | Target node type: author
+2026-11-07 22:49:12,870 | INFO | Metapaths: ['APA', 'APTPA']
+2026-11-07 22:49:12,870 | INFO | Model parameters: 235546
+2026-11-07 22:49:13,527 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 239566, 'facts_after': 119783}
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 81, in <module>
+    main()
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\train_h2snn.py", line 75, in main
+    trainer.fit(data)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 83, in fit
+    train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\trainer.py", line 156, in _train_epoch
+    output = self.model(data, epoch=epoch)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 861, in forward
+    encoded = self.encode(
+              ^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 845, in encode
+    x_star = self.diffuse(h0, operator)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\h2snn_model.py", line 721, in diffuse
+    y = operator.laplacian.apply_normalized(y)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\vertex_path_laplacian.py", line 289, in apply_normalized
+    return scale * self.apply(scale * x)
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\vertex_path_laplacian.py", line 274, in apply
+    output = CoboundaryOps.L0_matrix_free(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\coboundary_ops.py", line 79, in L0_matrix_free
+    return checkpoint_if_grad(l0, x, enabled=checkpoint)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 46, in checkpoint_if_grad
+    return torch.utils.checkpoint.checkpoint(function, *inputs, use_reentrant=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_compile.py", line 32, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\_dynamo\eval_frame.py", line 745, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\utils\checkpoint.py", line 496, in checkpoint
+    ret = function(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\coboundary_ops.py", line 76, in l0
+    edge_values = CoboundaryOps._delta0_mf(x_in, maps, src_idx, tgt_idx)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\coboundary_ops.py", line 24, in _delta0_mf
+    return maps.tgt.apply(x[tgt_idx]) - maps.src.apply(x[src_idx])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 225, in apply
+    return _broadcast_rows(self.scale, x) * self._rotate(self._reflect(x, False), False)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 195, in _rotate
+    perm, inverse, sizes = self._group_layout()
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\models\map_operators.py", line 184, in _group_layout
+    sizes = torch.bincount(self.group_ids, minlength=num_groups).tolist()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
