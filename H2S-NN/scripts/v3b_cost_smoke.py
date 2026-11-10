@@ -4,8 +4,9 @@ Runs `epochs` normal training steps (forward + backward + optimizer step, full b
 training draw per epoch as the trainer does) of the config, then one evaluation forward per epoch
 (the fixed evaluation draw; warm start from the previous epoch). Records per epoch: loss, the
 gradient norm of every parameter group (incl. theta_tau), PCG iterations forward / backward,
-convergence, tau, max log-weight, |E_P|, |E_shared|, eliminated share, time and peak memory. If the
-GPU runs out of memory, `r` is halved and the run restarts (recorded). Writes JSON.
+convergence, tau, max log-weight, |E_P|, |E_shared|, eliminated share, time and peak memory.
+Writes JSON. `r` is the config's (the calibrated value; never overridden or halved, spec E11/E14):
+on CUDA out-of-memory the error is written to the JSON and the script exits with status 1 (L8a).
 
     conda run -n h2snn python scripts/v3b_cost_smoke.py --config configs/experiments/imdb_h2snn_v3b.yaml \
         --device cuda --epochs 2 --out ../docs/v3B_evidence/v3b_cost_smoke_imdb.json
@@ -30,7 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.configs.config import TrainConfig  # noqa: E402
+from src.configs.config import WISP_WALKS_PER_ANCHOR, TrainConfig  # noqa: E402
 from src.utils.misc import seed_everything  # noqa: E402
 
 
@@ -40,21 +41,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--epochs", type=int, default=2)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--walks_per_anchor", type=int, default=0,
-                        help="override r (0 = the config's resolved value); the OOM fallback halves it")
     parser.add_argument("--final_tolerance_step", action="store_true",
                         help="after the epochs, one extra training forward + backward (fresh draw, "
                              "no optimizer step) at the final solver tolerance, recorded separately")
     return parser.parse_args()
 
 
-def load_config(path: Path, device: str, walks: int) -> TrainConfig:
+def load_config(path: Path, device: str) -> TrainConfig:
+    """The config as written (only the device is set). `r` comes from the config and must be the
+    dataset's calibrated value when a table exists (spec v1.6 E11, v1.7 E14); it is never
+    overridden or halved here."""
     with path.open("r", encoding="utf-8") as handle:
         payload = yaml.safe_load(handle)
     payload["device"] = device
-    if walks:
-        payload.setdefault("data", {})["wisp_walks_per_anchor"] = walks
-    return TrainConfig.from_dict(payload)
+    cfg = TrainConfig.from_dict(payload)
+    table = WISP_WALKS_PER_ANCHOR.get(cfg.data.dataset_name, {})
+    calibrated = table.get(cfg.data.wisp_max_length)
+    if table and cfg.data.wisp_walks_per_anchor != calibrated:
+        raise ValueError(
+            f"resolved r = {cfg.data.wisp_walks_per_anchor} is not the calibrated value "
+            f"{calibrated} for {cfg.data.dataset_name!r} at l_max {cfg.data.wisp_max_length} "
+            "(spec E11/E14: r is never changed).")
+    return cfg
 
 
 def group_gradient_norms(model) -> dict[str, float]:
@@ -202,31 +210,29 @@ def final_tolerance_probe(model, trainer, data, prepared, cfg: TrainConfig, epoc
     }
 
 
-def main() -> None:
-    args = parse_args()
-    walks = args.walks_per_anchor
-    attempts = []
-    while True:
-        cfg = load_config(args.config, args.device, walks)
-        try:
-            record = run(cfg, args.epochs, args.final_tolerance_step)
-            break
-        except torch.cuda.OutOfMemoryError as exc:  # card: halve r until it fits, record it
-            r = cfg.data.wisp_walks_per_anchor
-            attempts.append({"walks_per_anchor": r, "error": str(exc)[:200]})
-            print(f"OOM at r = {r}; halving", flush=True)
-            torch.cuda.empty_cache()
-            if r <= 4:
-                record = {"stopped": f"OOM on {cfg.data.dataset_name} at r <= 4 (card stop condition)",
-                          "attempts": attempts}
-                break
-            walks = max(r // 2, 1)
-    record["oom_attempts"] = attempts
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    with args.out.open("w", encoding="utf-8") as handle:
+def write_record(path: Path, record: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=2)
-    print(f"wrote {args.out}", flush=True)
+    print(f"wrote {path}", flush=True)
+
+
+def main() -> int:
+    args = parse_args()
+    cfg = load_config(args.config, args.device)
+    try:
+        record = run(cfg, args.epochs, args.final_tolerance_step)
+    except torch.cuda.OutOfMemoryError as exc:  # r is never changed (spec E11/E14): record, fail
+        write_record(args.out, {
+            "config": str(cfg.exp_name), "dataset": cfg.data.dataset_name,
+            "walks_per_anchor": cfg.data.wisp_walks_per_anchor,
+            "stopped": "CUDA out of memory (r is never changed; spec v1.6 E11, v1.7 E14)",
+            "error": str(exc)[:500],
+        })
+        return 1
+    write_record(args.out, record)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
