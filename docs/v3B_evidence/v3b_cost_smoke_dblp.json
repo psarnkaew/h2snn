@@ -1,0 +1,151 @@
+{
+  "config": "dblp_h2snn_v3b",
+  "device": "cuda",
+  "dataset": "dblp",
+  "d": 32,
+  "arm": "full",
+  "walks_per_anchor": 65,
+  "l_max": 4,
+  "solver": {
+    "tolerance": 0.0001,
+    "warmup_tolerance": 0.001,
+    "warmup_epochs": 10,
+    "max_iterations": 100
+  },
+  "num_nodes": 26128,
+  "num_facts": 119783,
+  "num_parameters": 359895,
+  "optimizer_groups": [
+    {
+      "lr": 0.001,
+      "num_params": 359893
+    },
+    {
+      "lr": 0.01,
+      "num_params": 2
+    }
+  ],
+  "load_seconds": 5.59,
+  "epochs": [
+    {
+      "epoch": 0,
+      "loss": 1.4055571556091309,
+      "loss_finite": true,
+      "gradient_norms": {
+        "node_encoder": 0.3418790722229979,
+        "relation_embedding": 0.0005257993470877409,
+        "fact_maps": 0.07073693851036081,
+        "g_path_encoder": 0.0003160283719814107,
+        "g_path_gate": 0.00028517772549685477,
+        "readout": 0.34399564912378006,
+        "theta_tau": 0.0010951291769742966
+      },
+      "all_groups_nonzero": true,
+      "tau_after_step": 1.0100500583648682,
+      "path_log_w_max": -0.015643851831555367,
+      "path_log_w_mean": -0.6364017128944397,
+      "train_solve": {
+        "pcg_fwd_iters": 8.0,
+        "pcg_bwd_iters": 7.0,
+        "pcg_fwd_rel_residual": 0.0008435926283709705,
+        "pcg_bwd_rel_residual": 0.0008252619882114232,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.001,
+        "num_path_facts": 106414.0,
+        "num_shared_facts": 85121.0,
+        "num_fact_states": 85121.0,
+        "num_cells": 206698.0,
+        "eliminated_share": 0.2893732833540653
+      },
+      "eval_solve": {
+        "pcg_fwd_iters": 11.0,
+        "pcg_bwd_iters": 0.0,
+        "pcg_fwd_rel_residual": 5.158055864740163e-05,
+        "pcg_bwd_rel_residual": 0.0,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.0001,
+        "num_path_facts": 106414.0,
+        "num_shared_facts": 85121.0,
+        "num_fact_states": 85121.0,
+        "num_cells": 206698.0,
+        "eliminated_share": 0.2893732833540653
+      },
+      "draw_seconds": 3.784,
+      "train_step_seconds": 8.154,
+      "eval_forward_seconds": 1.285,
+      "epoch_seconds": 11.939,
+      "peak_memory_mb": 4910.6
+    },
+    {
+      "epoch": 1,
+      "loss": 1.3703937530517578,
+      "loss_finite": true,
+      "gradient_norms": {
+        "node_encoder": 0.30393329847023176,
+        "relation_embedding": 0.00042265423689968884,
+        "fact_maps": 0.05973827605758954,
+        "g_path_encoder": 0.0010587541536095826,
+        "g_path_gate": 0.0012622988478217818,
+        "readout": 0.2741225758800854,
+        "theta_tau": 0.0030897308606654406
+      },
+      "all_groups_nonzero": true,
+      "tau_after_step": 1.0194381475448608,
+      "path_log_w_max": 0.24212369322776794,
+      "path_log_w_mean": -0.4333967864513397,
+      "train_solve": {
+        "pcg_fwd_iters": 8.0,
+        "pcg_bwd_iters": 7.0,
+        "pcg_fwd_rel_residual": 0.0008805032121017575,
+        "pcg_bwd_rel_residual": 0.0007455419399775565,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.001,
+        "num_path_facts": 106406.0,
+        "num_shared_facts": 84956.0,
+        "num_fact_states": 84956.0,
+        "num_cells": 206584.0,
+        "eliminated_share": 0.29075077431688967
+      },
+      "eval_solve": {
+        "pcg_fwd_iters": 8.0,
+        "pcg_bwd_iters": 0.0,
+        "pcg_fwd_rel_residual": 9.691093146102503e-05,
+        "pcg_bwd_rel_residual": 0.0,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.0001,
+        "num_path_facts": 106414.0,
+        "num_shared_facts": 85121.0,
+        "num_fact_states": 85121.0,
+        "num_cells": 206698.0,
+        "eliminated_share": 0.2893732833540653
+      },
+      "draw_seconds": 3.764,
+      "train_step_seconds": 2.433,
+      "eval_forward_seconds": 0.853,
+      "epoch_seconds": 6.197,
+      "peak_memory_mb": 4941.9
+    }
+  ],
+  "final_tolerance_step": {
+    "draw_seed_offset": 2,
+    "model_epoch": 10,
+    "loss_finite": true,
+    "train_solve": {
+      "pcg_fwd_iters": 11.0,
+      "pcg_bwd_iters": 10.0,
+      "pcg_fwd_rel_residual": 5.956484528724104e-05,
+      "pcg_bwd_rel_residual": 5.5001404689392075e-05,
+      "pcg_converged": 1.0,
+      "solver_tolerance": 0.0001,
+      "num_path_facts": 106177.0,
+      "num_shared_facts": 85063.0,
+      "num_fact_states": 85063.0,
+      "num_cells": 206459.0,
+      "eliminated_share": 0.28985749229857327
+    },
+    "draw_seconds": 4.199,
+    "forward_backward_seconds": 3.142,
+    "peak_memory_mb_this_step": 5008.8
+  },
+  "oom_attempts": []
+}

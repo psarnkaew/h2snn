@@ -140,3 +140,84 @@ Reading (DERIVED, not a gate): memory 1.49× v2, epoch time 0.86× v2 at the war
 
 ## 6. Time spent per unit (agent wall-clock, approximate)
 Reading the card, spec, decisions and code: ~35 min. U1 ~40 min · U2 ~10 min (written with U1, committed separately) · U3 ~30 min (T10's FD references dominate the test's 144 s) · U4 ~50 min (incl. one indentation defect of my own found by the test run and fixed) · U5 ~10 min · U6 ~35 min. Total ≈ 3.5 h against the card's 7–9 h estimate. Nothing in the card's §5 risk list (refactoring `PathTransportOperator`, OOM) materialised.
+
+## 7. L7: ACM / DBLP cost smoke and PCG at tolerance 1e-4 (2026-11-11; author decision (b): ACM + DBLP)
+**Scope:** the spec §6 cost gate (C13) on ACM, DBLP and IMDB. This follows the handoff prompt (`docs/v3B_handoff_2026-11-11b.md` §5), with DBLP added on the author's order. No accuracy numbers, no tuning, no other runs. Machine and environment as in §2.5: RTX 4060 Laptop 8 GB, torch 2.6.0+cu124, fp32, seed 42, arm `full`, d = 32, ℓ_max = 4, AdamW lr 1e-3, scalar group 1e-2, grad clip 1.0. The spec on disk (v1.11) differs from the `v3b` HEAD; it is another session's uncommitted edit, was read but not edited or staged here.
+
+### 7.1 What was added (VERIFIED-CODE)
+- **Configs** `H2S-NN/configs/experiments/acm_h2snn_v3b.yaml` (r = 42) and `dblp_h2snn_v3b.yaml` (r = 65). `r` is the calibrated value at ℓ_max = 4 (`WISP_WALKS_PER_ANCHOR`, `src/configs/config.py:255-259`), written explicitly. Every `model`, `ablation` and `optim` key equals `imdb_h2snn_v3b.yaml` (checked with diff). ACM keeps `acm_val_ratio: 0.2` and `acm_split_seed: 42` from `acm_h2snn.yaml`.
+- **Script** `scripts/v3b_cost_smoke.py`: new opt-in flag `--final_tolerance_step`. It is off by default, so the §2.5 command is unchanged. After the epochs it runs `final_tolerance_probe`: one training forward + backward on a fresh draw (seed 42 + `epochs`), with the model's epoch set to `solver_warmup_epochs` (= 10, the first epoch at tolerance 1e-4). There is no optimizer step. Peak memory is reset before the step and measured for that step alone.
+
+### 7.2 Commands (VERIFIED-RUN; run from `H2S-NN/`; all exit 0; no OOM, so `r` was never halved)
+```
+conda run -n h2snn python scripts/v3b_cost_smoke.py --config configs/experiments/acm_h2snn_v3b.yaml  --device cuda --epochs 2 --final_tolerance_step --out ../docs/v3B_evidence/v3b_cost_smoke_acm.json
+conda run -n h2snn python scripts/v3b_cost_smoke.py --config configs/experiments/dblp_h2snn_v3b.yaml --device cuda --epochs 2 --final_tolerance_step --out ../docs/v3B_evidence/v3b_cost_smoke_dblp.json
+conda run -n h2snn python scripts/v3b_cost_smoke.py --config configs/experiments/imdb_h2snn_v3b.yaml --device cuda --epochs 2 --final_tolerance_step --out ../docs/v3B_evidence/v3b_cost_smoke_imdb_l7.json
+```
+Each JSON has its console output beside it (`*_log.txt`). The L5 JSON `v3b_cost_smoke_imdb.json` is untouched. The ratios come from `docs/v3B_evidence/l7_ratios.py`, run from the repository root.
+
+### 7.3 Numbers (VERIFIED-RUN; epoch 1 is the steady state, epoch 0 includes CUDA warm-up)
+- **v2 reference:** `docs/H2S-NN_WISP_report.md` H6. Its evaluation draws are the same as ours: 103,103 / 206,698 / 37,614 cells.
+- **v1 reference:** ACM 9,260 MB / 3.0 s (spec C13).
+
+| Quantity | ACM | DBLP | IMDB (this session) |
+|---|---|---|---|
+| N, facts `|E|`, parameters | 10,942 / 273,936 / 488,678 | 26,128 / 119,783 / 359,895 | 21,420 / 43,321 / 792,248 |
+| r, cells (eval draw) | 42, 103,103 | 65, 206,698 | 12, 37,614 |
+| `|E_P|` / `|E_shared|` / ratio | 100,902 / 31,459 / 0.312 | 106,414 / 85,121 / 0.800 | 33,356 / 25,427 / 0.762 |
+| eliminated share (facts without a state) | 88.5 % | 28.9 % | 41.3 % |
+| state rows `N + |E_shared| + F` | 145,504 | 317,947 | 84,461 |
+| loss epoch 0 → 1 (finite, different) | 1.1192 → 1.0572 | 1.4056 → 1.3704 | 0.7124 → 0.6773 (= L5) |
+| nonzero gradient in every group incl. θ_τ (epochs 0, 1) | yes, yes | yes, yes | yes, yes |
+| τ after epoch 1; max log w_f | 1.0103; 0.089 | 1.0194; 0.242 | 1.0202; −0.319 |
+| PCG train fwd/bwd at tol 1e-3 (epochs 0, 1) | 7/6, 7/6 | 8/7, 8/7 | 8/8, 8/7 |
+| PCG eval fwd at tol 1e-4 (cold, warm) | 9, 7 | 11, 8 | 10, 8 |
+| **PCG train fwd/bwd at tol 1e-4** (§7.1 step) | **9 / 8** | **11 / 10** | **10 / 10** |
+| peak MB, epoch 1 (× v2) | 2,801 (1.69×) | 4,942 (1.83×) | 1,324 (1.49×) |
+| peak MB, tol-1e-4 step (× v2) | 2,833 (1.71×) | 5,009 (1.85×) | 1,340 (1.51×) |
+| epoch s = draw + train, epoch 1 (× v2) | 4.32 (1.53×) | 6.20 (1.60×) | 3.12 (2.35×) |
+| draw s (× v2) | 1.76 (1.87×) | 3.76 (1.88×) | 0.88 (2.19×) |
+| train step s (× v2) | 2.56 (1.83×) | 2.43 (1.79×) | 2.25 (3.57×) |
+| draw + fwd/bwd at tol 1e-4, s (× v2 epoch) | 5.05 (1.79×) | 7.34 (1.90×) | 3.51 (2.64×) |
+| vs v1 (ACM) | memory 0.30×; time 1.44× (caveat in 7.4) | — | — |
+
+### 7.4 Timing is not reliable in this session (VERIFIED-RUN; cause UNVERIFIED)
+- **Finding:** the machine ran slower in this session than during H6 and L5.
+  - The IMDB rerun reproduces L5 exactly in every deterministic quantity: losses, gradient norms, PCG iterations and residuals, `|E_shared|`, and peak memory (1,324.0 MB).
+  - Its wall-clock is about 2–3× L5's. Epoch 1: 3.12 s vs 1.15 s; train 2.25 s vs 0.74 s; draw 0.88 s vs 0.41 s.
+  - The WISP draw runs on the CPU only and does not depend on the model. It is also about 1.9× slower than in H6 on ACM and DBLP.
+- **Checked after the runs:** the laptop was on AC power (battery 100 %), the GPU was idle (P8, 0 %), and other desktop processes were running (iCloud, Steam, …).
+- **Cause:** not established; thermal or power state, or CPU contention, are possible. Settling it needs v2 and v3-B timed back to back in one session.
+- **Reading (DERIVED):**
+  - Memory and PCG iterations are exact.
+  - The time ratios compare this session against H6 numbers taken in a faster machine state, so they are likely overstated. On ACM and DBLP the train-step ratios (1.8×) are about the same as the 1.9× slowdown of the model-independent draw.
+  - The ratios still meet the gate, so the pass does not depend on the slowdown; only the size of the ratio does.
+  - The v1 time comparison (1.44×) carries the same caveat, and v1's definition of "time" was not checked.
+
+### 7.5 Cost gate (spec §6: memory ≤ 3× v2, PCG ≤ 40 at tol 1e-4, time ≤ 4× v2)
+| | ACM | DBLP | IMDB |
+|---|---|---|---|
+| memory (tol-1e-4 step) | 1.71× ✓ | 1.85× ✓ | 1.51× ✓ |
+| PCG at tol 1e-4 (max of fwd, bwd, eval) | 9 ✓ | 11 ✓ | 10 ✓ |
+| time (worse of the two epoch definitions in 7.3) | 1.79× ✓ | 1.90× ✓ | 2.64× ✓ (L5: 0.86×) |
+| **gate** | **met** | **met** | **met** |
+
+**Stop conditions:** none hit. PCG stayed far below T_max = 100, τ ≤ 1.02, max log-weight ≤ 0.25, and there was no OOM at r = 42 / 65 / 12.
+
+**What C13 can say now:** memory and PCG iterations can be written as results. Time can be written as "within the gate" with the 7.4 caveat, or as a measured ratio after the paired timing of 7.6 (decision 1(b)).
+
+**Observations (DERIVED, not gates):**
+- **PCG iterations barely change across datasets:** 9–11 at tol 1e-4 and 6–8 at tol 1e-3, while the state grows from 84k to 318k rows. This is consistent with Prop. 10's size-free bound for the node system. It is only two points per tolerance, not the C5 slope test.
+- **The eliminated share depends strongly on the dataset.** On ACM only 31 % of path facts keep a state, because at r = 42 most of them lie on a single cell; on DBLP 80 % do. DBLP's 85k fact states and 207k cells explain its higher memory ratio (1.85×).
+  - Under author decision 4(a) the kept set stays `E_shared`.
+  - Eliminating every fact would cut DBLP's state to 233k rows (DERIVED: 317,947 − 85,121). The memory saving was ~16 MB on IMDB (§4 item 4) and was not measured on DBLP.
+- **Memory:** about 1.5–1.85× v2, and 0.30× v1 on ACM. At this `d`, this answers the reviewers' scalability concern on ACM (v1 used 9.3 GB).
+
+### 7.6 DEVIATIONs and decisions for the author
+- **DEVIATION L7-a:** the tol-1e-4 measurement is one forward + backward on a fresh draw (seed + 2) without an optimizer step, as the handoff prompt asked ("one extra forward + backward"); it is not a full epoch at tol 1e-4. Because the flag lives in the smoke script, the IMDB measurement also reran the 2 epochs. This gave IMDB a second, independent timing, which is what exposed 7.4.
+- **DEVIATION L7-b:** this report's per-epoch peak memory includes the evaluation forward, as in L5; H6's peak covers the training step only. The evaluation runs without gradients and does not set the peak. The gate uses the tol-1e-4 step's peak, which covers the training step alone.
+- **Decision 1 (timing):**
+  - (a) Accept the gate on these numbers, with the 7.4 caveat in the report.
+  - (b) **Recommended:** before a time ratio goes into the paper, run one paired timing (the v2 H6 configuration and v3-B back to back in one session, 2 epochs each on ACM and DBLP; about 15 min of runs).
+  - (c) Defer timing to the server.
+- **Decision 2:** merge of `v3b` (handoff §3 step 2). It was waiting for the ACM numbers, which are now available.

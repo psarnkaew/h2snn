@@ -9,6 +9,9 @@ GPU runs out of memory, `r` is halved and the run restarts (recorded). Writes JS
 
     conda run -n h2snn python scripts/v3b_cost_smoke.py --config configs/experiments/imdb_h2snn_v3b.yaml \
         --device cuda --epochs 2 --out ../docs/v3B_evidence/v3b_cost_smoke_imdb.json
+
+L7 (ACM / DBLP / IMDB cost gate): add `--final_tolerance_step` for one extra training forward +
+backward at the final tolerance 1e-4 (PCG iterations of the spec §6 gate), recorded separately.
 """
 
 from __future__ import annotations
@@ -39,6 +42,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--walks_per_anchor", type=int, default=0,
                         help="override r (0 = the config's resolved value); the OOM fallback halves it")
+    parser.add_argument("--final_tolerance_step", action="store_true",
+                        help="after the epochs, one extra training forward + backward (fresh draw, "
+                             "no optimizer step) at the final solver tolerance, recorded separately")
     return parser.parse_args()
 
 
@@ -75,7 +81,7 @@ def group_gradient_norms(model) -> dict[str, float]:
     return norms
 
 
-def run(cfg: TrainConfig, epochs: int) -> dict:
+def run(cfg: TrainConfig, epochs: int, final_tolerance_step: bool = False) -> dict:
     from src.builders import build_dataset, build_model, build_optimizer
     from src.trainers.trainer import Trainer
 
@@ -154,7 +160,46 @@ def run(cfg: TrainConfig, epochs: int) -> dict:
             "peak_memory_mb": round(peak_mb, 1),
         })
         print(json.dumps(record["epochs"][-1], indent=None), flush=True)
+    if final_tolerance_step:
+        record["final_tolerance_step"] = final_tolerance_probe(model, trainer, data, prepared,
+                                                               cfg, epochs, device)
+        print(json.dumps(record["final_tolerance_step"], indent=None), flush=True)
     return record
+
+
+def final_tolerance_probe(model, trainer, data, prepared, cfg: TrainConfig, epochs: int,
+                          device: torch.device) -> dict:
+    """One training forward + backward at the final tolerance (spec §6 cost gate: PCG iterations
+    at tol 1e-4). Fresh training draw (seed + `epochs`, as the next epoch would get); the epoch
+    passed to the model is `solver_warmup_epochs`, the first epoch of the final tolerance. No
+    optimizer step, no clipping. Peak memory is measured for this step alone."""
+    t_draw = time.perf_counter()
+    train_data = trainer.training_draw(data, prepared, epochs)
+    draw_seconds = time.perf_counter() - t_draw
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+        torch.cuda.reset_peak_memory_stats(device)
+    t_step = time.perf_counter()
+    model.train()
+    model.zero_grad(set_to_none=True)
+    output = model(train_data, epoch=cfg.model.solver_warmup_epochs)
+    loss, _ = trainer._compute_metrics(output, train_data, train_data.target_train_mask,
+                                       cfg.model.solver_warmup_epochs)
+    loss.backward()
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    step_seconds = time.perf_counter() - t_step
+    peak_mb = (torch.cuda.max_memory_allocated(device) / 2 ** 20 if device.type == "cuda"
+               else float("nan"))
+    return {
+        "draw_seed_offset": epochs,
+        "model_epoch": cfg.model.solver_warmup_epochs,
+        "loss_finite": bool(torch.isfinite(loss)),
+        "train_solve": dict(model.last_solver_stats),
+        "draw_seconds": round(draw_seconds, 3),
+        "forward_backward_seconds": round(step_seconds, 3),
+        "peak_memory_mb_this_step": round(peak_mb, 1),
+    }
 
 
 def main() -> None:
@@ -164,7 +209,7 @@ def main() -> None:
     while True:
         cfg = load_config(args.config, args.device, walks)
         try:
-            record = run(cfg, args.epochs)
+            record = run(cfg, args.epochs, args.final_tolerance_step)
             break
         except torch.cuda.OutOfMemoryError as exc:  # card: halve r until it fits, record it
             r = cfg.data.wisp_walks_per_anchor
@@ -172,7 +217,7 @@ def main() -> None:
             print(f"OOM at r = {r}; halving", flush=True)
             torch.cuda.empty_cache()
             if r <= 4:
-                record = {"stopped": "OOM on IMDB at r <= 4 (card stop condition)",
+                record = {"stopped": f"OOM on {cfg.data.dataset_name} at r <= 4 (card stop condition)",
                           "attempts": attempts}
                 break
             walks = max(r // 2, 1)

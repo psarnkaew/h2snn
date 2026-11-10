@@ -1,0 +1,41 @@
+# v3-B (spec v1.11; Part L L7 cost smoke): ACM, anchored solve, arm `full`, d = 32, r = 42
+# (calibrated value for l_max = 4, WISP_WALKS_PER_ANCHOR; 0 resolves to it), l_max = 4. Solver
+# settings are the fixed card values (never tuned), identical to imdb_h2snn_v3b.yaml. The cost smoke
+# (`scripts/v3b_cost_smoke.py`) runs 2 epochs of this configuration; it is not a training run.
+data:
+  dataset_name: acm
+  root: data
+  acm_val_ratio: 0.2
+  acm_split_seed: 42
+  face_sample_k: 50
+  wisp_walks_per_anchor: 42
+model:
+  d: 32
+  d_r: 16
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  orthogonal_map: fasthpp
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+ablation:
+  coupling: symmetric
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.0001
+  scheduler: cosine
+  grad_clip: 1.0
+epochs: 200
+seed: 42
+device: cuda
+exp_name: acm_h2snn_v3b
+output_dir: experiments
+log_every: 10
+checkpoint_metric: macro_f1
+checkpoint_mode: max
