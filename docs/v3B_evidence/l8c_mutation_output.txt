@@ -1,0 +1,24 @@
+test_m1_forward_map_on_reversed_hop_breaks_T1 (tests.test_v3b_mutations.MutationTests.test_m1_forward_map_on_reversed_hop_breaks_T1) ... ok
+test_m2_perturbed_fact_cell_map_breaks_T1_and_the_flat_kernel (tests.test_v3b_mutations.MutationTests.test_m2_perturbed_fact_cell_map_breaks_T1_and_the_flat_kernel) ... ok
+test_m3_dropped_node_cell_term_breaks_T2 (tests.test_v3b_mutations.MutationTests.test_m3_dropped_node_cell_term_breaks_T2) ... ok
+test_m4_missing_plus_one_in_cell_degree_breaks_T2 (tests.test_v3b_mutations.MutationTests.test_m4_missing_plus_one_in_cell_degree_breaks_T2) ... ok
+test_m5_backward_without_tau_breaks_the_unroll_check (tests.test_v3b_mutations.MutationTests.test_m5_backward_without_tau_breaks_the_unroll_check) ... ok
+test_m6_wrong_schur_weight_breaks_T7 (tests.test_v3b_mutations.MutationTests.test_m6_wrong_schur_weight_breaks_T7) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 196.286s
+
+OK
+
+
+unpatched runs: {'test_T1_fact_to_cell_maps_are_functorial_on_imdb': 'pass', 'test_K1_flat_sheaf_kernel_is_the_constant_sections': 'pass', 'test_T2_matrix_free_equals_dense': 'pass', 'test_U1_unrolled_gradient_equals_the_implicit_gradient': 'pass', 'test_T7_eliminated_solve_matches_the_full_state_solve': 'pass'}
+m1 | test_T1_fact_to_cell_maps_are_functorial_on_imdb | fail: AssertionError: 8.110068321228027 not less than 1e-05 : functoriality residual 8.110068321228027 on 242 incidences
+m2 | test_T1_fact_to_cell_maps_are_functorial_on_imdb | fail: AssertionError: 0.47271788120269775 not less than 1e-05 : functoriality residual 0.47271788120269775 on 242 incidences
+m2 | test_K1_flat_sheaf_kernel_is_the_constant_sections | fail: AssertionError: 0 != 4 : {'dim_ker_L_hat': 0, 'dim_ker_L': 0, 'max_kernel_eigenvalue': nan, 'next_eigenvalue': 3.7713821484240684e-06, 'structure_L': 0.0, 'structure_L_hat': 0.0}
+m2 | flat kernel | dim ker L_hat = 0 (d = 4); smallest eigenvalue 3.771e-06
+m3 | test_T2_matrix_free_equals_dense | fail: AssertionError: 7.98388741648364 not less than 1e-12
+m4 | test_T3_normalized_operator_is_symmetric_and_psd | pass (recorded, not required): 
+m4 | test_T2_matrix_free_equals_dense | fail: AssertionError: 1.9959718541209082 not less than 1e-12
+m5 | test_U1_unrolled_gradient_equals_the_implicit_gradient | fail: AssertionError: 0.3498588075846928 not less than 1e-06 : fact_scales: {'forward_iterations': 30.0, 'backward_iterations': 30.0, 'unrolled_iterations': 30.0, 'unrolled_converged': 1.0, 'fact_scales': 0.3498588075846928, 'fact_scales_norm': 0.30811870040354344, 'reflectors': 0.3498588075891474, 'reflectors_norm': 2.8498705402204383, 'rotations': 0.34985880758915744, 'rotations_norm': 2.72383435522812, 'cell_weights': 0.3498588075843478, 'cell_weights_norm': 0.25543492435255627, 'theta_tau': 2.33216865084594e+300, 'theta_tau_norm': 0.0, 'h0': 5.944317322336289e-12, 'h0_norm': 6.642184492719394}
+m6 | test_T7_eliminated_solve_matches_the_full_state_solve | fail: AssertionError: 8.87869566500225 not less than 1e-10
+
