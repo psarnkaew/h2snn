@@ -1,0 +1,5 @@
+guard removed: CAUGHT (FAILED (failures=1))
+md5 check removed: CAUGHT (FAILED (failures=1))
+width check removed: CAUGHT (FAILED (failures=1))
+caught 3/3; loader byte-identical after restore
+

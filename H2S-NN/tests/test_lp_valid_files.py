@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 import torch
 
 from scripts.lp import build_derived_lp as bd
+from scripts.lp.apply_feature_rule import apply_rule
 from tests.test_lp_derived import AUTHOR0, PAPER0, derived_config, write_release
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -144,6 +145,7 @@ class DerivedTaskValidFileTests(unittest.TestCase):
         self.task_dir = self.root / "lp_derived" / "acm_pa"
         bd.build_task(self.root / "release", self.task_dir, 2, seed=42, val_frac=0.09,
                       test_frac=0.10)
+        apply_rule("acm_pa", self.task_dir)  # F17/F20
 
     def tearDown(self) -> None:
         self._tmp.cleanup()

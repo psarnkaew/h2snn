@@ -80,7 +80,8 @@ class HeartTask:
 HEART_TASKS: dict[str, HeartTask] = {
     "pubmed": HeartTask("pubmed", ("disease", "rel_2", "disease"), "cn", True),
     "freebase_bb": HeartTask("freebase_bb", ("book", "rel_0", "book"), "cn", False),
-    "acm_pa": HeartTask("acm_pa", ("paper", "rel_2", "author"), "l3", True),
+    # F17 (J6): author features are removed, so C2 (cosine in one shared space) no longer applies.
+    "acm_pa": HeartTask("acm_pa", ("paper", "rel_2", "author"), "l3", False),
     "dblp_ap": HeartTask("dblp_ap", ("author", "rel_0", "paper"), "l3", False),
     "imdb_ma": HeartTask("imdb_ma", ("movie", "rel_2", "actor"), "l3", False),
     "lastfm": HeartTask("lastfm", ("user", "rel_0", "artist"), "l3", False),

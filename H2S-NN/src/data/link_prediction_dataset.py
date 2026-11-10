@@ -72,17 +72,22 @@ _LOCAL_HGB_LINK_DATASETS = {
     # with the target relation split by fact 81/9/10 by scripts/lp/build_derived_lp.py. Targets:
     # acm_pa ("paper", "rel_2", "author"), dblp_ap ("author", "rel_0", "paper"), imdb_ma
     # ("movie", "rel_2", "actor"); configs name them with data.task_type: link_prediction.
+    # Every derived task carries feature_rule.json (spec v1.10 F17/F20): the loader refuses a
+    # node.dat that does not match it (`_assert_feature_rule`).
     "acm_pa": {
         "folder": "lp_derived/acm_pa",
         "node_type_names": {0: "paper", 1: "author", 2: "subject", 3: "term"},
+        "feature_rule": True,
     },
     "dblp_ap": {
         "folder": "lp_derived/dblp_ap",
         "node_type_names": {0: "author", 1: "paper", 2: "term", 3: "venue"},
+        "feature_rule": True,
     },
     "imdb_ma": {
         "folder": "lp_derived/imdb_ma",
         "node_type_names": {0: "movie", 1: "director", 2: "actor", 3: "keyword"},
+        "feature_rule": True,
     },
     # Freebase BOOK-and-BOOK (spec v1.8 F10; task card J4.3): target ("book", "rel_0", "book"),
     # split 81/9/10 by unordered pair by scripts/lp/build_derived_lp.py. Self-loops stay in the
@@ -92,6 +97,7 @@ _LOCAL_HGB_LINK_DATASETS = {
         "node_type_names": {0: "book", 1: "film", 2: "music", 3: "sports", 4: "people",
                             5: "location", 6: "organization", 7: "business"},
         "exclude_self_loop_positives": True,
+        "feature_rule": True,
         # rho(rel_0) is None, so no fact-level check sees (v, u) for a held-out (u, v): the
         # loader checks the reversed pairs itself (independent review of Part J, finding 3).
         "split_unit": "unordered_pair",
@@ -489,6 +495,42 @@ def _assert_reverse_partner_is_tied(
             )
 
 
+def _assert_feature_rule(dataset_dir: Path) -> None:
+    """Spec v1.10 F20: a derived task loads only if its node.dat is the one the F17 feature rule
+    wrote (scripts/lp/apply_feature_rule.py, recorded in feature_rule.json): same md5, removed
+    types featureless, every type at its recorded width. A re-run of the split builder restores
+    the release's node.dat (leaky features) and is refused until the rule is applied again."""
+    import hashlib
+    import json
+
+    record_path = dataset_dir / "feature_rule.json"
+    if not record_path.exists():
+        raise ValueError(
+            f"{dataset_dir}: no feature_rule.json; apply the F17 feature rule "
+            "(scripts/lp/apply_feature_rule.py) before loading a derived link-prediction task."
+        )
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    node_bytes = (dataset_dir / "node.dat").read_bytes()
+    if hashlib.md5(node_bytes).hexdigest() != record["node_dat_md5"]:
+        raise ValueError(
+            f"{dataset_dir}: node.dat does not match feature_rule.json (md5); the F17 feature "
+            "rule was not applied to this node.dat."
+        )
+    widths: dict[int, int] = {}
+    for line in node_bytes.decode("utf-8").splitlines():
+        parts = line.split("\t")
+        width = len(parts[3].split(",")) if len(parts) == 4 and parts[3] else 0
+        if widths.setdefault(int(parts[2]), width) != width:
+            raise ValueError(f"{dataset_dir}: node type {parts[2]} has rows of different widths.")
+    removed = {int(t) for t in record["removed_types"]}
+    recorded = {int(t): int(w) for t, w in record["widths"].items()}
+    if any(widths.get(t, 0) != 0 for t in removed) or widths != recorded:
+        raise ValueError(
+            f"{dataset_dir}: node feature widths {widths} differ from the F17 record {recorded} "
+            f"(removed types {sorted(removed)} must be featureless)."
+        )
+
+
 def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
     dataset_name = config.data.dataset_name.lower()
     spec = _LOCAL_HGB_LINK_DATASETS[dataset_name]
@@ -497,6 +539,8 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
         raise FileNotFoundError(
             f"Expected local HGB link-prediction data at '{dataset_dir}'."
         )
+    if spec.get("feature_rule"):
+        _assert_feature_rule(dataset_dir)
 
     nodes = _load_local_hgb_nodes(
         dataset_dir=dataset_dir,

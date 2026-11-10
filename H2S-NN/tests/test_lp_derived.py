@@ -15,6 +15,7 @@ from tempfile import TemporaryDirectory
 import torch
 
 from scripts.lp import build_derived_lp as bd
+from scripts.lp.apply_feature_rule import apply_rule
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DERIVED_ROOT = PROJECT_ROOT / "data" / "lp_derived"
@@ -165,6 +166,7 @@ class SyntheticLoaderTests(unittest.TestCase):
         self.task_dir = self.root / "lp_derived" / "acm_pa"
         bd.build_task(self.root / "release", self.task_dir, 2, seed=42, val_frac=0.09,
                       test_frac=0.10)
+        apply_rule("acm_pa", self.task_dir)  # F17/F20: the loader needs the rule applied
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -248,6 +250,7 @@ class FreebasePairSplitTests(unittest.TestCase):
         self.task_dir = self.root / "lp_derived" / "freebase_bb"
         self.meta = bd.build_task_by_pair(self.root / "release", self.task_dir, 0, seed=42,
                                           val_frac=0.09, test_frac=0.10)
+        apply_rule("freebase_bb", self.task_dir)  # F17/F20
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -295,6 +298,7 @@ class FreebasePairSplitTests(unittest.TestCase):
         again = self.task_dir.parent / "again"
         bd.build_task_by_pair(self.root / "release", again, 0, seed=42, val_frac=0.09,
                               test_frac=0.10)
+        apply_rule("freebase_bb", again)
         for name in ("node.dat", "info.dat", "link.dat", "link.dat.test", "link.dat.valid",
                      "split_meta.json"):
             self.assertEqual((self.task_dir / name).read_bytes(), (again / name).read_bytes(), name)
