@@ -18,7 +18,7 @@ Files: `j64_build_acm_pa_output.txt`, `j64_heart_md5_before.txt` (all six tasks 
 - acm_pa's HeaRT lists are therefore close to random negatives. This should be read with that in mind when acm_pa results are reported.
 - It is for the author to decide.
 
-**Not done (author decision, 2026-11-10: "only build the link-prediction edges; no further experiments or tests"):**
+**Not done, and not required now (author decision, 2026-11-10: "only build the link-prediction edges; no further experiments or tests"):**
 - the md5-identical rebuild of the other five tasks. It was stopped before it started and wrote no file.
 - the J4.4 real-file checks on the new acm_pa lists.
 

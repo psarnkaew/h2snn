@@ -268,10 +268,10 @@ ACM's new share is exactly its cold authors: 421/895 and 461/995 positives whose
    - **Moved from J6.4:** acm_pa HeaRT `features=False`, because the toy HeaRT tests apply the rule. PubMed is now the only C2 task.
 4. **J6.4 (RUN).** acm_pa HeaRT lists regenerated with seed 42. Positives are md5-identical and negatives new. The other five tasks' `heart/` files are untouched (md5 in `j64_heart_md5_before.txt`, re-hashed equal).
 
-**Not done (author decision, 2026-11-10: "only build the link-prediction edges; no further experiments or tests"):**
+**Not done, and not required now (author decision, 2026-11-10: "only build the link-prediction edges; no further experiments or tests"; the items are listed so they are not mistaken for done):**
 - the md5-identical rebuild of the other five HeaRT tasks, which was stopped before it wrote anything;
 - the J4.4 checks on the new acm_pa lists;
-- J6.5, the cold-start count (`j65_cold_start.py` is written but not run, and not committed);
+- J6.5, the cold-start count (`docs/lp_evidence/j65_cold_start.py` is committed but has not been run, so it has no output);
 - the J6.6 full suite and the independent review.
 
 **Reality check.** The acm_pa random-fill share is **95.4 %** (valid 427,089 / 447,500; test 474,531 / 497,500), up from 23 %. Without feature cosine, L3 and PPR give fewer than 5 % of each list, so acm_pa's HeaRT negatives are close to uniform random. This is recorded, not acted on.
@@ -280,4 +280,3 @@ ACM's new share is exactly its cold authors: 421/895 and 461/995 positives whose
 1. **acm_pa negatives at 95 % random fill:** accept and report, or choose another hard-negative source for this task.
 2. **PubMed features:** the aggregation operator and whether the embedding corpus is the one the links were mined from are not documented. They are classified own under F17, and no further check was run.
 3. **dblp_ap paper columns:** own by J5.1's test, but their meaning is UNVERIFIED.
-4. **The checks listed under Not done:** run them before LP numbers are reported, or leave them out.
