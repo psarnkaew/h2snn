@@ -6,8 +6,10 @@ comparison requires to be identical across models lives here: the stopping rule,
 selection criterion, and which epoch's metrics get reported.
 
 Selection criteria follow ``src/utils/run_reports.py: default_monitor_for_task``:
-validation macro-F1 for node classification *and graph classification*, validation AUROC
-for link prediction. Each is the metric that task's table leads with, because selecting
+validation macro-F1 for node classification, validation AUROC for link prediction (spec
+v1.15 §6, J4). Graph classification follows HetSheaf's protocol (card Part M, M5/M9): early
+stopping on the validation loss, test with the final weights; the validation macro-F1 of those
+weights selects configurations. Each is the metric that task's table leads with, because selecting
 on one metric and reporting another is how a model ends up tuned for something the paper
 never shows. On a multi-relation link target the monitor is the per-relation macro
 average, which is what every HGB link-prediction runner reports.
@@ -340,7 +342,10 @@ def train_graph_classification(
     aux_loss: Callable[[], torch.Tensor] | None = None,
     report: EpochReport | None = None,
 ) -> dict[str, float]:
-    """Train an encoder plus the shared mean-pool head, selecting on validation macro-F1.
+    """Train an encoder plus the shared head under HetSheaf's protocol (spec v1.15 §6 GC): early
+    stopping on the validation loss (patience from the budget, strict improvement), and the
+    reported record is the final weights' (validation macro-F1 of those weights selects
+    configurations).
 
     ``embed_batch`` maps one PyG batch to per-node embeddings; the head pools them per
     graph. Minibatched over the fold's loaders, which carry one (repetition, fold) of
@@ -355,10 +360,10 @@ def train_graph_classification(
 
     train_loader, val_loader, test_loader = loaders
     criterion = torch.nn.CrossEntropyLoss()
-    best_monitor = float("-inf")
-    best_epoch = 0
-    best_val: dict[str, float] = {}
-    best_test: dict[str, float] = {}
+    best_loss = float("inf")
+    final_epoch = -1
+    final_val: dict[str, float] = {}
+    final_test: dict[str, float] = {}
     stale = 0
 
     def run_split(loader: Any) -> dict[str, float]:
@@ -369,9 +374,9 @@ def train_graph_classification(
                 batch = batch.to(device)
                 logits_all.append(head(embed_batch(batch), batch.batch))
                 labels_all.append(batch.y.view(-1))
-        return compute_graph_classification_metrics(
-            torch.cat(logits_all), torch.cat(labels_all)
-        )
+        logits, labels = torch.cat(logits_all), torch.cat(labels_all)
+        return {"loss": float(criterion(logits, labels)),
+                **compute_graph_classification_metrics(logits, labels)}
 
     for epoch in range(epochs):
         model.train()
@@ -390,35 +395,31 @@ def train_graph_classification(
         val_metrics = run_split(val_loader)
         test_metrics = run_split(test_loader)
 
-        # Macro-F1, matching what the graph-classification table reports. Selecting on
-        # a different metric than the one reported is how a model ends up tuned for
-        # something the paper never shows.
-        monitor = val_metrics["macro_f1"]
-        if monitor > best_monitor:
-            best_monitor = monitor
-            best_epoch = epoch
-            best_val = val_metrics
-            best_test = test_metrics
+        # HetSheaf: early stopping on the validation loss; the final weights are reported.
+        if val_metrics["loss"] < best_loss:
+            best_loss = val_metrics["loss"]
             stale = 0
         else:
             stale += 1
+        final_epoch, final_val, final_test = epoch, val_metrics, test_metrics
 
         report_epoch(
             report,
             epoch=epoch,
-            monitor=monitor,
-            running_best=best_monitor,
+            monitor=val_metrics["macro_f1"],
+            running_best=val_metrics["macro_f1"],
             metrics=val_metrics,
         )
         if stale >= patience:
             break
 
-    if not best_val:
+    if not final_val:
         raise RuntimeError("Graph-classification training produced no evaluated epoch.")
     record: dict[str, float] = {}
-    record.update(prefixed(best_val, "val"))
-    record.update(prefixed(best_test, "test"))
-    record["best_epoch"] = float(best_epoch)
+    record.update(prefixed(final_val, "val"))
+    record.update(prefixed(final_test, "test"))
+    record["best_epoch"] = float(final_epoch)  # the reported (final) weights' epoch
+    record["final_epoch"] = float(final_epoch)
     return record
 
 

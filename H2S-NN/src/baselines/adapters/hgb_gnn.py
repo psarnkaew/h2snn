@@ -226,7 +226,7 @@ class HGBHomogeneousAdapter:
                 )
             model = model.to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 5e-4)),
             weight_decay=float(params.get("weight_decay", 1e-4)),
@@ -331,7 +331,7 @@ class HGBHomogeneousAdapter:
             dim=embed_dim,
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 5e-4)),
             weight_decay=float(params.get("weight_decay", 1e-4)),
@@ -409,7 +409,7 @@ class HGBHomogeneousAdapter:
         model = Encoder(bundle.in_channels, self.model_type).to(device)
         head = SharedGraphHead(model.out_dim, bundle.num_classes, dropout=dropout).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 1e-3)),
             weight_decay=float(params.get("weight_decay", 0.0)),

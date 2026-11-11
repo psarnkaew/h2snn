@@ -339,6 +339,46 @@ GRAPH_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     "nci1": _GRAPH_HETSHEAF_PRESET,
 }
 
+# Spec v1.15 §6, J4 (card Part M, M9): epochs, early stopping and the selection metric per task
+# and source protocol, shared by H2S-NN and every baseline (src/baselines/budget.py reads this
+# table). `patience: None` = no early stopping (the best validation epoch is selected).
+# HGB NC: run_new.py, max 300 epochs, patience 30; HGB LP: 40 epochs, patience 40; H2GB NC: 500
+# epochs, no early stopping; GC: HetSheaf (early stopping on validation LOSS, patience 50, test
+# with the final weights; epochs 200 = HetSheaf's gc_config.yaml, 500 = its sweep: open O4).
+# NC/LP monitor the validation metric (NC Macro-F1, LP ROC-AUC), not the validation loss.
+@dataclass(frozen=True, slots=True)
+class ProtocolBudget:
+    source: str
+    epochs: int
+    patience: int | None
+    monitor: str
+    mode: str
+
+
+PROTOCOL_BUDGETS: dict[tuple[str, str], ProtocolBudget] = {
+    ("node_classification", "hgb"): ProtocolBudget("hgb", 300, 30, "macro_f1", "max"),
+    ("node_classification", "h2gb"): ProtocolBudget("h2gb", 500, None, "macro_f1", "max"),
+    ("link_prediction", "hgb"): ProtocolBudget("hgb", 40, 40, "auroc", "max"),
+    ("graph_classification", "hetsheaf"): ProtocolBudget("hetsheaf", 200, 50, "loss", "min"),
+}
+# H2GB node-classification datasets (spec v1.15 §6; data pending, M11).
+H2GB_NC_DATASETS: tuple[str, ...] = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
+                                     "ieee-cis-g", "h-pokec", "pdns")
+
+
+def protocol_budget(task_type: str, dataset_name: str = "") -> ProtocolBudget:
+    """The budget of `task_type` under its source protocol (H2GB for the H2GB NC datasets)."""
+    if task_type == "node_classification":
+        source = "h2gb" if dataset_name.lower() in H2GB_NC_DATASETS else "hgb"
+    elif task_type == "link_prediction":
+        source = "hgb"
+    elif task_type == "graph_classification":
+        source = "hetsheaf"
+    else:
+        raise ValueError(f"Unsupported task {task_type!r}.")
+    return PROTOCOL_BUDGETS[(task_type, source)]
+
+
 DATASET_TASK_TYPES: dict[str, str] = {
     "acm": "node_classification",
     "dblp": "node_classification",
@@ -1160,8 +1200,10 @@ class OptimConfig:
     name: str = "adamw"
     lr: float = 1e-3
     weight_decay: float = 1e-4
-    scheduler: str = "cosine"
-    grad_clip: float = 1.0
+    # Spec v1.15 §6 (J4): no learning-rate scheduler and no gradient clipping for any method.
+    # `grad_clip <= 0` means no clipping.
+    scheduler: str = "none"
+    grad_clip: float = 0.0
     # Learning rate of the diffusion scalars theta_eta, theta_gamma and the coupling-gate heads,
     # as a multiple of `lr` (own parameter group, no weight decay). Full-batch training takes one optimizer step
     # per epoch, so at the base rate these scalars barely move (plan §4.7).
@@ -1180,8 +1222,8 @@ class OptimConfig:
             name=str(raw.get("name", "adamw")),
             lr=float(raw.get("lr", 1e-3)),
             weight_decay=float(raw.get("weight_decay", 1e-4)),
-            scheduler=str(raw.get("scheduler", "cosine")),
-            grad_clip=float(raw.get("grad_clip", 1.0)),
+            scheduler=str(raw.get("scheduler", "none")),
+            grad_clip=float(raw.get("grad_clip", 0.0)),
             scalar_lr_scale=float(raw.get("scalar_lr_scale", 10.0)),
         )
 
@@ -1244,20 +1286,32 @@ class TrainConfig:
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "TrainConfig":
         _reject_unknown_keys("top-level config", raw, cls)
+        data = DataConfig.from_dict(raw.get("data", {}))
+        # Spec v1.15 §6 (J4, M9): unset epochs, patience and selection metric come from the
+        # task's source protocol; an explicit value is kept (smoke runs, tests).
+        budget = protocol_budget(data.task_type, data.dataset_name)
+        default_patience = budget.patience if budget.patience is not None else budget.epochs
+        default_epochs = budget.epochs
         config = cls(
-            data=DataConfig.from_dict(raw.get("data", {})),
+            data=data,
             model=ModelConfig.from_dict(raw.get("model", {})),
             ablation=AblationConfig.from_dict(raw.get("ablation", {})),
             optim=OptimConfig.from_dict(raw.get("optim", {})),
-            epochs=int(raw.get("epochs", 200)),
+            epochs=int(raw.get("epochs", default_epochs)),
             seed=int(raw.get("seed", 42)),
             device=str(raw.get("device", "cuda")),
             exp_name=str(raw.get("exp_name", "h2snn")),
             output_dir=Path(raw.get("output_dir", "experiments")),
             log_every=int(raw.get("log_every", 10)),
-            checkpoint_metric=str(raw.get("checkpoint_metric", "acc")),
+            # GC selects configurations by validation Macro-F1 (its best.pt artifact too); its
+            # early stopping on validation loss is the trainer's (M5).
+            checkpoint_metric=str(raw.get("checkpoint_metric", budget.monitor
+                                          if budget.monitor != "loss" else "macro_f1")),
             checkpoint_mode=str(raw.get("checkpoint_mode", "max")),
-            early_stopping_patience=int(raw.get("early_stopping_patience", 100)),
+            early_stopping_patience=int(raw.get(
+                "early_stopping_patience",
+                default_patience if "epochs" not in raw or budget.patience is not None
+                else int(raw["epochs"]))),
             use_wandb=bool(raw.get("use_wandb", False)),
             wandb_project=str(raw.get("wandb_project", "h2snn")),
             wandb_entity=str(raw.get("wandb_entity", "")),

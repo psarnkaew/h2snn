@@ -247,7 +247,7 @@ class CSNNAdapter:
         )
         model = _CSNNEncoder(view.in_dims, edge_index, args).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 1e-2)),
             weight_decay=float(params.get("weight_decay", 5e-4)),
@@ -315,7 +315,7 @@ class CSNNAdapter:
             dropout=float(params.get("dropout", 0.0)),
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 2e-3)),
             weight_decay=float(params.get("weight_decay", 1e-4)),

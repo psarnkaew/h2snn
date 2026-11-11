@@ -300,7 +300,7 @@ class NSDAdapter:
         )
         model = _NSDEncoder(view.in_dims, edge_index, args, model_name).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 1e-2)),
             weight_decay=float(params.get("weight_decay", 5e-4)),
@@ -380,7 +380,7 @@ class NSDAdapter:
             dropout=float(params.get("dropout", 0.0)),
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(sheaf.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 1e-2)),
             weight_decay=float(params.get("weight_decay", 5e-4)),

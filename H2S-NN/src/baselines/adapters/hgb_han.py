@@ -191,7 +191,7 @@ class HANAdapter:
                 dropout=float(params.get("dropout", 0.5)),
             ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 5e-3)),
             weight_decay=float(params.get("weight_decay", 1e-3)),
@@ -250,7 +250,7 @@ class HANAdapter:
             dim=embed_dim,
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 5e-3)),
             weight_decay=float(params.get("weight_decay", 1e-3)),
@@ -313,7 +313,7 @@ class HANAdapter:
             dropout=float(params.get("dropout", 0.0)),
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 5e-3)),
             weight_decay=float(params.get("weight_decay", 1e-3)),

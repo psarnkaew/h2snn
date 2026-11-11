@@ -152,7 +152,7 @@ def _fit_probe(
 
     train_idx, val_idx, test_idx = splits
     probe = torch.nn.Linear(embeddings.size(1), num_classes).to(device)
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
         probe.parameters(), lr=learning_rate, weight_decay=weight_decay
     )
     criterion = (
@@ -282,7 +282,7 @@ class LatGRLAdapter:
                 int(params.get("nlayer", 2)),
             ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 5e-4)),
             weight_decay=float(params.get("weight_decay", 1e-4)),
@@ -378,7 +378,7 @@ class LatGRLAdapter:
             num_relations=max(int(data.num_target_relations), 1),
             dim=embed_dim,
         ).to(device)
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             head.parameters(),
             lr=float(params.get("eva_lr", 0.05)),
             weight_decay=float(params.get("eva_wd", 1e-3)),

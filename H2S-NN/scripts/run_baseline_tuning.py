@@ -49,7 +49,7 @@ from src.baselines.campaign import (
     state_path_for,
     summarize_cell,
 )
-from src.baselines.budget import SHARED_PATIENCE
+from src.baselines.budget import default_budget
 from src.baselines.progress import WandbEpochReport
 from src.baselines.registry import DATASETS, models_for_task, unsupported_reason
 from src.utils.wandb_campaign import (
@@ -204,7 +204,7 @@ def main() -> None:
     )
     print(
         f"monitor {monitor} | epochs {epochs} | "
-        f"patience {args.patience or SHARED_PATIENCE} | device {args.device or 'auto'} | "
+        f"patience {args.patience or default_budget(args.task).patience} | device {args.device or 'auto'} | "
         f"project {args.wandb_project}"
     )
 

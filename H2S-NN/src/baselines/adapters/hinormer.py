@@ -181,7 +181,7 @@ class HINormerAdapter:
                 beta=float(params.get("beta", 1.0)),
             ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=float(params.get("lr", 1e-4)),
             weight_decay=float(params.get("weight_decay", 0.0)),

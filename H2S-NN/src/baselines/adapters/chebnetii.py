@@ -160,7 +160,7 @@ class ChebNetIIAdapter:
         # learning rate and weight decay, separate from the linear layers.
         learning_rate = float(params.get("lr", 1e-2))
         weight_decay = float(params.get("weight_decay", 0.0))
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             [
                 {
                     "params": list(model.input_projection.parameters())

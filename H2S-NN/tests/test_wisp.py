@@ -1130,7 +1130,8 @@ class WispTrainerDrawTests(unittest.TestCase):
 
             def _eval_epoch(self, batch, mask, epoch=-1):
                 seen["eval"].append(batch.face_groups)
-                return {"loss": 0.0, "acc": 0.0}
+                # macro_f1: the NC selection metric of spec v1.15 §6 (default since M9)
+                return {"loss": 0.0, "acc": 0.0, "macro_f1": 0.0}
 
         logger = SimpleNamespace(info=lambda *a, **k: None, log=lambda *a, **k: None,
                                  log_summary=lambda *a, **k: None)

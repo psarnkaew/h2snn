@@ -211,7 +211,8 @@ class Trainer:
         output = self.model(data, epoch=epoch)
         loss, metrics = self._compute_metrics(output, data, data.target_train_mask, epoch)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
+        if self.cfg.optim.grad_clip > 0:  # spec v1.15 §6: no clipping by default
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
         self.optimizer.step()
         # Diffusion step and path-coupling strength after this epoch's update.
         metrics.update(self.model.diffusion_scalars())  # type: ignore[operator]

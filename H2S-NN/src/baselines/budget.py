@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from src.configs.config import protocol_budget
 from src.baselines.protocol import (
     GRAPH_CLASSIFICATION,
     LINK_PREDICTION,
@@ -33,17 +34,16 @@ from src.baselines.protocol import (
     BaselineParams,
 )
 
-#: Epoch budget per task, shared by every model in that task's table.
+#: Spec v1.15 §6 (J4; card Part M, M9): the budget of each task under its source protocol, from
+#: the table H2S-NN uses too (`src/configs/config.py: PROTOCOL_BUDGETS`): HGB NC at most 300
+#: epochs with patience 30, LP 40 epochs with patience 40, H2GB NC 500 epochs without early
+#: stopping (patience = epochs; the best validation epoch is selected), GC as HetSheaf (patience
+#: 50 on validation loss, test with the final weights; 200 vs 500 epochs open, O4).
 TASK_EPOCHS: dict[str, int] = {
-    NODE_CLASSIFICATION: 300,
-    LINK_PREDICTION: 200,
-    GRAPH_CLASSIFICATION: 300,
+    NODE_CLASSIFICATION: protocol_budget(NODE_CLASSIFICATION).epochs,
+    LINK_PREDICTION: protocol_budget(LINK_PREDICTION).epochs,
+    GRAPH_CLASSIFICATION: protocol_budget(GRAPH_CLASSIFICATION).epochs,
 }
-
-#: Early-stopping patience, shared by every model and every task. The manuscript's
-#: experimental protocol states a patience of 100 epochs; this is that number, in the one
-#: place that can make the statement true.
-SHARED_PATIENCE = 100
 
 
 @dataclass(frozen=True, slots=True)
@@ -60,12 +60,15 @@ class TrainingBudget:
             raise ValueError(f"patience must be positive, got {self.patience}.")
 
 
-def default_budget(task: str) -> TrainingBudget:
-    """The shared budget for ``task``, before any published-parameter override."""
+def default_budget(task: str, dataset: str = "") -> TrainingBudget:
+    """The shared budget for ``task`` (and ``dataset``'s source protocol: H2GB for the H2GB
+    node-classification datasets), before any published-parameter override."""
 
     if task not in TASK_EPOCHS:
         raise ValueError(f"Unsupported task {task!r}.")
-    return TrainingBudget(epochs=TASK_EPOCHS[task], patience=SHARED_PATIENCE)
+    budget = protocol_budget(task, dataset)
+    patience = budget.patience if budget.patience is not None else budget.epochs
+    return TrainingBudget(epochs=budget.epochs, patience=patience)
 
 
 def resolve_budget(task: str, params: BaselineParams) -> TrainingBudget:
@@ -122,7 +125,6 @@ def record_budget(record: dict[str, float], task: str, params: BaselineParams) -
 
 
 __all__ = [
-    "SHARED_PATIENCE",
     "TASK_EPOCHS",
     "TrainingBudget",
     "budget_kwargs",

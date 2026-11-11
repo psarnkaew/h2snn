@@ -78,7 +78,7 @@ def fit_homogeneous_link_prediction(
         dim=embed_dim,
     ).to(device)
 
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
         list(model.parameters()) + list(head.parameters()),
         lr=float(params.get("lr", 1e-3)),
         weight_decay=float(params.get("weight_decay", 0.0)),

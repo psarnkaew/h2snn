@@ -520,7 +520,11 @@ def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: in
                  "edge_mlp_hidden_dim": 16, "layer_dropout": 0.0, "classifier_dropout": 0.0}
     if gate_init is not None:
         model_cfg["coupling_gate_init"] = gate_init
+    # This D11 fixture clips gradients itself at cfg.optim.grad_clip; it pins the clipping of
+    # its time (1.0). Spec v1.15 (M9) made "no clipping" (0) the default, which would zero the
+    # gradients through clip_grad_norm_(max_norm=0) here.
     cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": model_cfg,
+                                 "optim": {"grad_clip": 1.0},
                                  "data": {"resample_paths": False, "path_source": "schemas"}})
     torch.manual_seed(seed)
     model = build_model(cfg, data)

@@ -1273,7 +1273,11 @@ class SelectionMetricTests(unittest.TestCase):
         link = inspect.getsource(training.train_link_prediction)
 
         self.assertIn('monitor = val_metrics["macro_f1"]', node)
-        self.assertIn('monitor = val_metrics["macro_f1"]', graph)
+        # Spec v1.15 §6 GC (HetSheaf; Part M M9): early stopping on the validation loss, final
+        # weights reported.
+        self.assertIn('if val_metrics["loss"] < best_loss:', graph)
+        self.assertIn("final_epoch, final_val, final_test = epoch, val_metrics, test_metrics",
+                      graph)
         self.assertNotIn('val_metrics["auroc"]', graph)
         self.assertIn('val_metrics.get("auroc_macro", val_metrics["auroc"])', link)
 

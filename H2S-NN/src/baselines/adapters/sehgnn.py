@@ -263,7 +263,7 @@ class SeHGNNAdapter:
             if bundle.is_multilabel
             else torch.nn.CrossEntropyLoss()
         )
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             model.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
 

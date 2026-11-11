@@ -248,7 +248,7 @@ class Hetero2NetAdapter:
             ).to(device)
             model.node_type = node_type
 
-            optimizer = torch.optim.Adam(
+            optimizer = torch.optim.AdamW(
                 model.parameters(),
                 lr=float(params.get("lr", 5e-3)),
                 weight_decay=float(params.get("weight_decay", 0.0)),
@@ -357,7 +357,7 @@ class Hetero2NetAdapter:
             dim=embed_dim,
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 1e-3)),
             weight_decay=float(params.get("weight_decay", 0.0)),
@@ -423,7 +423,7 @@ class Hetero2NetAdapter:
             dropout=float(params.get("dropout", 0.0)),
         ).to(device)
 
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 1e-3)),
             weight_decay=float(params.get("weight_decay", 0.0)),

@@ -149,7 +149,7 @@ def train_unsupervised(
             int(params.get("nlayer", 2)),
         ).to(device)
 
-    optimizer = torch.optim.Adam(
+    optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=float(params.get("lr", 5e-4)),
         weight_decay=float(params.get("weight_decay", 1e-4)),

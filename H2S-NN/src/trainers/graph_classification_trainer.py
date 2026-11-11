@@ -192,7 +192,9 @@ class GraphClassificationTrainer:
 
             if train:
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
+                if self.cfg.optim.grad_clip > 0:  # spec v1.15 §6: no clipping by default
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(),
+                                                   self.cfg.optim.grad_clip)
                 self.optimizer.step()
 
             all_logits.append(logits.detach())
