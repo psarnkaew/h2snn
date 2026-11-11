@@ -24,7 +24,9 @@ class GraphClassificationTrainerTests(unittest.TestCase):
             self.skipTest(f"torch_geometric is required for this test: {exc}")
         return Data, DataLoader
 
-    def test_early_stopping_tracks_validation_auroc(self) -> None:
+    def test_early_stopping_on_validation_loss_reports_final_weights(self) -> None:
+        """Spec v1.15 §6 GC (HetSheaf, Part M M5): early stopping on the validation loss; the
+        reported record is the final weights'; best.pt still follows checkpoint_metric."""
         torch = self._require_torch()
 
         from src.configs.config import TrainConfig
@@ -43,10 +45,11 @@ class GraphClassificationTrainerTests(unittest.TestCase):
                 if train:
                     return {"loss": 1.0, "acc": 0.0, "macro_f1": 0.0, "micro_f1": 0.0, "auroc": 0.0}
                 if loader == "val":
-                    aurocs = [0.20, 0.50, 0.40, 0.39]
+                    aurocs = [0.20, 0.50, 0.40, 0.39, 0.30]
+                    losses = [1.0, 0.9, 0.95, 0.96, 0.5]
                     self.seen_epochs.append(epoch)
                     return {
-                        "loss": 1.0,
+                        "loss": losses[epoch],
                         "acc": 0.0,
                         "macro_f1": 0.0,
                         "micro_f1": 0.0,
@@ -70,7 +73,7 @@ class GraphClassificationTrainerTests(unittest.TestCase):
                         "run_index": 2,
                         "num_runs": 5,
                     },
-                    "epochs": 4,
+                    "epochs": 5,
                     "device": "cpu",
                     "output_dir": tmpdir,
                     "exp_name": "trainer_test",
@@ -114,10 +117,12 @@ class GraphClassificationTrainerTests(unittest.TestCase):
             metrics_path = Path(tmpdir) / "trainer_test" / "best_test_metrics_run2.json"
             record = json.loads(metrics_path.read_text(encoding="utf-8"))
 
+        # loss 1.0, 0.9 (best), 0.95, 0.96: patience 2 stops after epoch 3 (epoch 4 never runs)
         self.assertEqual(trainer.seen_epochs, [0, 1, 2, 3])
-        self.assertEqual(record["epoch"], 1)
-        self.assertAlmostEqual(record["val_auroc"], 0.50)
-        self.assertAlmostEqual(record["test_auroc"], 0.71)
+        self.assertEqual(record["epoch"], 3)  # final weights
+        self.assertAlmostEqual(record["val_auroc"], 0.39)
+        self.assertAlmostEqual(record["test_auroc"], 0.73)
+        self.assertEqual(record["best_checkpoint_epoch"], 1)  # best.pt by validation AUROC
 
 if __name__ == "__main__":
     unittest.main()

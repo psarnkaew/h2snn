@@ -50,6 +50,8 @@ FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
 # quadratic solve `(P^T P + tau L_hat) Y* = P^T h0` on the three-level sheaf energy (PCG, implicit
 # backward). Never tuned.
 PROPAGATIONS: tuple[str, ...] = ("chebyshev", "anchored")
+# Spec v1.15 §6 GC (J6): pooling before the one Linear layer of the graph readout; tuned (M10).
+GRAPH_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention")
 # v3-B arms (spec §6): every arm is a configuration of the one model under `propagation: anchored`
 # (same WISP draw, maps, anchor, head). Comparison rows; "full" is the model; never tuned.
 V3B_ARMS: tuple[str, ...] = ("full", "covering_only", "hub_A", "closure_only", "no_path_cells",
@@ -321,11 +323,19 @@ _GRAPH_HOLDOUT_PRESET: dict[str, Any] = {
     "num_runs": 5,
 }
 
+# Spec v1.15 §6 GC (HetSheaf's protocol in every point, author D7): one random 80/10/10 split
+# (`torch.randperm` with seed 42; not stratified, not CV), the same for every training seed;
+# hetsheaf/datasets/graph_classification.py:240-251 (commit 6964e1e).
+_GRAPH_HETSHEAF_PRESET: dict[str, Any] = {
+    "split_protocol": "hetsheaf_random",
+    "split_seed": 42,
+}
+
 GRAPH_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
-    "mutag": _GRAPH_HOLDOUT_PRESET,
-    "proteins": _GRAPH_HOLDOUT_PRESET,
-    "enzymes": _GRAPH_HOLDOUT_PRESET,
-    "nci1": _GRAPH_HOLDOUT_PRESET,
+    "mutag": _GRAPH_HETSHEAF_PRESET,
+    "proteins": _GRAPH_HETSHEAF_PRESET,
+    "enzymes": _GRAPH_HETSHEAF_PRESET,
+    "nci1": _GRAPH_HETSHEAF_PRESET,
 }
 
 DATASET_TASK_TYPES: dict[str, str] = {
@@ -407,7 +417,9 @@ class DataConfig:
     link_test_ratio: float = 0.10
 
     # --- graph classification ---
-    split_protocol: str = "stratified_holdout"    # "stratified_holdout" | "precomputed_folds" | "stratified_kfold" | "repeated_kfold"
+    # "hetsheaf_random" (the protocol, spec v1.15 §6) | legacy: "stratified_holdout" |
+    # "precomputed_folds" | "stratified_kfold" | "repeated_kfold"
+    split_protocol: str = "stratified_holdout"
     num_folds: int = 10
     fold_index: int = 0
     num_repetitions: int = 1
@@ -418,6 +430,8 @@ class DataConfig:
     train_ratio: float = 0.8
     val_ratio: float = 0.1
     test_ratio: float = 0.1
+    # Graphs per batch (spec v1.15 §6: batch size 1 as HetSheaf; not tuned).
+    graph_batch_size: int = 1
 
     def __post_init__(self) -> None:
         """Value checks that need no task (review MINOR-7): direct construction cannot bypass
@@ -497,6 +511,7 @@ class DataConfig:
             train_ratio=float(raw.get("train_ratio", 0.8)),
             val_ratio=float(raw.get("val_ratio", 0.1)),
             test_ratio=float(raw.get("test_ratio", 0.1)),
+            graph_batch_size=int(raw.get("graph_batch_size", 1)),
         )
         # The raw keys travel as an argument rather than a field: a dataset preset
         # may only fill in what the caller left unset, and persisting that on the
@@ -624,7 +639,10 @@ class DataConfig:
                 )
             return self._resolved_link_prediction(dataset_name, task_type, explicit)
         if task_type == "graph_classification":
+            if self.graph_batch_size < 1:
+                raise ValueError("data.graph_batch_size must be >= 1.")
             supported_split_protocols = {
+                "hetsheaf_random",
                 "stratified_holdout",
                 "precomputed_folds",
                 "stratified_kfold",
@@ -638,7 +656,7 @@ class DataConfig:
                 raise ValueError("Graph train/validation/test ratios must be positive.")
             if abs(self.train_ratio + self.val_ratio + self.test_ratio - 1.0) > 1e-8:
                 raise ValueError("Graph train/validation/test ratios must sum to 1.")
-            if self.split_protocol != "stratified_holdout":
+            if self.split_protocol not in ("stratified_holdout", "hetsheaf_random"):
                 if self.num_folds < 2:
                     raise ValueError("data.num_folds must be at least 2 for K-fold protocols.")
                 if not 0 <= self.fold_index < self.num_folds:
@@ -762,6 +780,7 @@ class DataConfig:
             task_type=task_type,
             split_protocol=str(resolve("split_protocol", self.split_protocol)),
             num_runs=int(resolve("num_runs", self.num_runs)),
+            split_seed=int(resolve("split_seed", self.split_seed)),
             metapath_templates=(),
         )
         num_folds = self.num_folds if self.num_folds != 10 else preset.get("num_folds", 10)
@@ -798,6 +817,9 @@ class ModelConfig:
     face_mlp_hidden_dim: int = 128
     classifier_hidden_dim: int = 128
     classifier_dropout: float = 0.1
+    # Graph classification readout (spec v1.15 §6, J6): pooling before one Linear layer
+    # ("mean" | "max" | "add" | "attention" = HetSheaf's AttentionPooling); tuned (M10).
+    graph_pooling: str = "mean"
     # Diffusion steps x <- x - eta D^{-1/2} (Delta_0 + gamma L_P) D^{-1/2} x.
     K: int = 5
     layer_dropout: float = 0.0
@@ -854,6 +876,9 @@ class ModelConfig:
     solver_max_iterations: int = 100
 
     def __post_init__(self) -> None:
+        if self.graph_pooling not in GRAPH_POOLINGS:
+            raise ValueError(
+                f"model.graph_pooling must be one of {GRAPH_POOLINGS}, got {self.graph_pooling!r}.")
         if self.propagation not in PROPAGATIONS:
             raise ValueError(
                 f"model.propagation must be one of {PROPAGATIONS}, got {self.propagation!r}."
@@ -956,6 +981,7 @@ class ModelConfig:
             face_mlp_hidden_dim=int(raw.get("face_mlp_hidden_dim", 128)),
             classifier_hidden_dim=int(raw.get("classifier_hidden_dim", 128)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
+            graph_pooling=str(raw.get("graph_pooling", "mean")),
             K=int(raw.get("K", 5)),
             layer_dropout=float(raw.get("layer_dropout", 0.0)),
             orthogonal_map=str(raw.get("orthogonal_map", "fasthpp")),

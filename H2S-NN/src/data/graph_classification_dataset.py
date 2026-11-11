@@ -327,6 +327,26 @@ def generate_stratified_holdout_split(
     }
 
 
+def hetsheaf_random_split(num_graphs: int, train_ratio: float, val_ratio: float,
+                          seed: int) -> dict[str, list[int]]:
+    """HetSheaf's split (hetsheaf/datasets/graph_classification.py:240-251, commit 6964e1e):
+    `perm = torch.randperm(n, generator=Generator().manual_seed(seed))`; train = perm[:int(n *
+    train)], validation = the next int(n * val), test = the rest. Not stratified; one split for
+    every training seed (spec v1.15 §6)."""
+    n_train = int(num_graphs * train_ratio)
+    n_val = int(num_graphs * val_ratio)
+    perm = torch.randperm(num_graphs, generator=torch.Generator().manual_seed(int(seed))).tolist()
+    return {"train": perm[:n_train], "validation": perm[n_train:n_train + n_val],
+            "test": perm[n_train + n_val:]}
+
+
+def constant_node_features(data: Data) -> Data:
+    """HetSheaf's `node_feature_type: constant`: every node's feature is the scalar 1 (the label
+    columns become node types; spec v1.15 §6)."""
+    data.x = torch.ones(int(data.num_nodes), 1, dtype=torch.float)
+    return data
+
+
 def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificationFold:
     dataset_name = config.data.dataset_name.lower()
     tud_name = _TUD_NAMES.get(dataset_name)
@@ -352,13 +372,26 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         )
     ]
 
+    # Spec v1.15 §6: node types are the one-hot label columns (equal to their argmax on all four
+    # TU datasets, tests/test_gc_protocol.py), and the features are the constant 1.
+    data_list = [constant_node_features(data) for data in data_list]
     labels = [int(item.y.item()) for item in data_list]
     num_classes = int(max(labels) + 1)
 
     repetition_index = config.data.repetition_index
     num_repetitions = config.data.num_repetitions
     split_seed = config.data.split_seed
-    if config.data.split_protocol == "stratified_holdout":
+    if config.data.split_protocol == "hetsheaf_random":
+        split = hetsheaf_random_split(len(data_list), config.data.train_ratio,
+                                      config.data.val_ratio, config.data.split_seed)
+        train_indices = split["train"]
+        val_indices = split["validation"]
+        test_indices = split["test"]
+        fold_index = config.data.run_index
+        num_folds = config.data.num_runs
+        repetition_index = 0
+        num_repetitions = 1
+    elif config.data.split_protocol == "stratified_holdout":
         split = generate_stratified_holdout_split(
             labels=labels,
             train_ratio=config.data.train_ratio,
@@ -405,7 +438,7 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
     train_list = [data_list[i] for i in train_indices]
     val_list = [data_list[i] for i in val_indices]
     test_list = [data_list[i] for i in test_indices]
-    batch_size = 32
+    batch_size = config.data.graph_batch_size  # 1 (spec v1.15 §6, HetSheaf)
     train_loader = DataLoader(train_list, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_list, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_list, batch_size=batch_size, shuffle=False)

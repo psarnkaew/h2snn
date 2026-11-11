@@ -57,7 +57,14 @@ class GraphClassificationTrainer:
         self.model.to(self.device)
         if getattr(fold, "fact_layer", None) is not None:
             self.logger.info("fact layer: %s", fold.fact_layer.summary())
+        # Spec v1.15 §6 GC (HetSheaf's protocol): early stopping on the validation loss (patience
+        # `early_stopping_patience`, strict improvement, as Lightning's EarlyStopping with
+        # min_delta 0), and the reported test metrics are those of the final weights; the
+        # validation Macro-F1 of those weights is what selects configurations. `best.pt` is still
+        # written by `checkpoint_metric` (an artifact, not what is reported).
         bad_epochs = 0
+        best_val_loss = float("inf")
+        final_epoch = -1
         for epoch in range(self.cfg.epochs):
             train_metrics = self._run_epoch(fold.train_loader, epoch, train=True)
             val_metrics = self._run_epoch(fold.val_loader, epoch, train=False)
@@ -81,22 +88,27 @@ class GraphClassificationTrainer:
             )
             if is_best:
                 self._best_epoch = epoch
+            if val_metrics["loss"] < best_val_loss:
+                best_val_loss = val_metrics["loss"]
                 bad_epochs = 0
-                self._best_test_metrics = {
-                    "epoch": epoch,
-                    "best_epoch": epoch,
-                    "run_index": fold.run_index,
-                    "num_runs": fold.num_runs,
-                    "fold_index": fold.fold_index,
-                    "num_folds": fold.num_folds,
-                    "repetition_index": fold.repetition_index,
-                    "num_repetitions": fold.num_repetitions,
-                    "split_seed": fold.split_seed,
-                    **{f"val_{k}": v for k, v in val_metrics.items()},
-                    **{f"test_{k}": v for k, v in test_metrics.items()},
-                }
             else:
                 bad_epochs += 1
+            final_epoch = epoch
+            # the record of the final weights (overwritten every epoch)
+            self._best_test_metrics = {
+                "epoch": epoch,
+                "final_epoch": epoch,
+                "best_checkpoint_epoch": self._best_epoch,
+                "run_index": fold.run_index,
+                "num_runs": fold.num_runs,
+                "fold_index": fold.fold_index,
+                "num_folds": fold.num_folds,
+                "repetition_index": fold.repetition_index,
+                "num_repetitions": fold.num_repetitions,
+                "split_seed": fold.split_seed,
+                **{f"val_{k}": v for k, v in val_metrics.items()},
+                **{f"test_{k}": v for k, v in test_metrics.items()},
+            }
 
             if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 self.scheduler.step(val_metrics["loss"])
@@ -120,17 +132,17 @@ class GraphClassificationTrainer:
 
             if bad_epochs >= self.cfg.early_stopping_patience:
                 self.logger.info(
-                    "Early stopping at epoch %d after %d epochs without validation %s improvement.",
+                    "Early stopping at epoch %d after %d epochs without validation loss "
+                    "improvement.",
                     epoch,
                     bad_epochs,
-                    self.cfg.checkpoint_metric,
                 )
                 break
 
         if self._best_test_metrics is not None:
             self.logger.info(
-                "Best epoch %d (run %d/%d, repetition %d/%d, fold %d/%d) | test_auroc: %.4f | test_acc: %.4f | test_macro_f1: %.4f | test_micro_f1: %.4f",
-                self._best_epoch,
+                "Final epoch %d (final weights; run %d/%d, repetition %d/%d, fold %d/%d) | test_auroc: %.4f | test_acc: %.4f | test_macro_f1: %.4f | test_micro_f1: %.4f",
+                final_epoch,
                 fold.run_index,
                 fold.num_runs,
                 fold.repetition_index,
@@ -142,7 +154,7 @@ class GraphClassificationTrainer:
                 self._best_test_metrics.get("test_macro_f1", 0.0),
                 self._best_test_metrics.get("test_micro_f1", 0.0),
             )
-            if self.cfg.data.split_protocol == "stratified_holdout":
+            if self.cfg.data.split_protocol in ("stratified_holdout", "hetsheaf_random"):
                 out_path = self.cfg.exp_dir / f"best_test_metrics_run{fold.run_index}.json"
             else:
                 out_path = self.cfg.exp_dir / f"best_test_metrics_fold{fold.fold_index}.json"

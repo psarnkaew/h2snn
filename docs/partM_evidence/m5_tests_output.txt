@@ -1,0 +1,33 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+.............2026-11-12 04:50:10,314 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-12 04:50:10,321 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-12 04:50:10,323 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-12 04:50:10,331 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-12 04:50:10,333 | INFO | Early stopping at epoch 2 after 2 epochs without validation loss improvement.
+2026-11-12 04:50:10,333 | INFO | Final epoch 2 (final weights; run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7200 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+F...........................W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+......2026-11-12 04:50:10,771 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-12 04:50:10,783 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+..............................................................
+======================================================================
+FAIL: test_early_stopping_tracks_validation_auroc (tests.test_graph_classification_trainer.GraphClassificationTrainerTests.test_early_stopping_tracks_validation_auroc)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_graph_classification_trainer.py", line 117, in test_early_stopping_tracks_validation_auroc
+    self.assertEqual(trainer.seen_epochs, [0, 1, 2, 3])
+AssertionError: Lists differ: [0, 1, 2] != [0, 1, 2, 3]
+
+Second list contains 1 additional elements.
+First extra element 3:
+3
+
+- [0, 1, 2]
++ [0, 1, 2, 3]
+?         +++
+
+
+----------------------------------------------------------------------
+Ran 110 tests in 87.604s
+
+FAILED (failures=1)

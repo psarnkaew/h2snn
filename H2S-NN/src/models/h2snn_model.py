@@ -676,9 +676,8 @@ class H2SNN(nn.Module):
         elif self.task_type == _GRAPH_CLASSIFICATION:
             self.graph_readout = GraphReadout(
                 input_dim=representation_dim,
-                hidden_dim=model_config.classifier_hidden_dim,
                 num_classes=dims.num_classes,
-                dropout=model_config.classifier_dropout,
+                pooling=model_config.graph_pooling,
             )
         else:
             self.readout = nn.Sequential(

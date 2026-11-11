@@ -1,0 +1,3 @@
+MUTATION BatchNorm re-inserted: ran 4, failed 2: ['test_mean_max_add_by_hand', 'test_readout_is_pooling_then_one_linear']
+restored: ran 4, failed 0: []
+mutation caught
