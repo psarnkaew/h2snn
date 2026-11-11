@@ -77,7 +77,7 @@ a{color:var(--accent)}
 </ol></nav>
 <main>
 <h1>H2S-NN Experiment Settings</h1>
-<div class="meta">2026-11-11 · อัปเดตหลังผู้เขียนตอบ D1–D8 · สถานะ: เอกสารประกอบการตัดสินใจ ยังไม่ใช่ spec (ยังไม่มีอะไรถูกเขียนลง spec หรือ decisions log). ข้อความเดิมที่ถูกมติแทนที่ยังอยู่ใน section ของมัน ติดป้าย "ถูกแทนที่" หรือขีดฆ่า. มติที่ตัดสินแล้วจะบันทึกใน <code>docs/experiment_settings_decisions.md</code> แล้วรวมเข้า spec v1.12 หลังผู้เขียนอนุมัติ.<br>
+<div class="meta">2026-11-11 · อัปเดตรอบ 2 (search space, ค่ากลางทุก method, WISP ใน LP/GC, negatives ของ HGB) · สถานะ: เอกสารประกอบการตัดสินใจ ไม่ใช่ spec. มติบันทึกใน <code>docs/experiment_settings_decisions.md</code> ทันที แล้วรวมเข้า spec หลังผู้เขียนอนุมัติ (รอบแรกอยู่ใน spec v1.14 แล้ว; รอบนี้จะเป็น draft v1.15). ตารางเก่าที่ถูกแทนที่ใน §4 ถูกลบออกเพื่อไม่ให้รก (ฉบับก่อนหน้าอยู่ใน git <code>e8fdfe5</code>)<br>
 ป้ายสถานะ: <span class="tag">VERIFIED-CODE</span> อ่านโค้ดแล้ว (file:line) · <span class="tag">VERIFIED-SOURCE</span> อ่านจาก paper · <span class="tag">VERIFIED-RUN</span> นับจากไฟล์ข้อมูลในเครื่อง · <span class="tag">DERIVED</span> อนุมานจากข้อข้างต้น · <span class="tag">UNVERIFIED</span> ยังไม่ได้ตรวจ · <span class="tag">PROPOSAL</span> ข้อเสนอของผม</div>
 
 <h2 id="summary">มติของผู้เขียนและสิ่งที่ยังเปิด</h2>
@@ -105,21 +105,33 @@ a{color:var(--accent)}
 <tr><td>Metrics</td><td>test metric</td><td>NC ทั้ง 8: Macro/Micro-F1; LP: ROC-AUC + MRR; GC: Macro/Micro-F1</td><td>NC ของ H2GB ต่างจากต้นทาง (Accuracy/F1) ดูผลที่ตามมาใน §5.5. validation: NC/GC Macro-F1, LP ROC-AUC</td><td>5.5</td></tr>
 <tr><td>Readout</td><td>NC/LP/GC</td><td>ไม่ออกแบบ readout ใหม่: NC/LP ตาม HGB, GC ตาม HetSheaf ("แบบปกติ")</td><td>ไม่มี component ใหม่ จึงไม่ต้องมี ablation, model analysis หรือ motivation เพิ่ม (ซึ่ง reviewer ติ). GC อาจแพ้ HetSheaf ที่ใช้ SheafPool เอง ต้องรายงานตามจริง (§6)</td><td>6</td></tr>
 <tr><td>p-value</td><td>การปรับเมื่อทดสอบหลายครั้ง</td><td>เลื่อนไปดูผลก่อน</td><td>ผูกมัดไว้ตอนนี้: รายงาน p ดิบทุกรายการ จำนวนการทดสอบ และทั้งค่าดิบกับค่าที่ปรับ (§5.5)</td><td>5.5</td></tr>
-<tr><td>Budget</td><td>epoch/patience ของ HGB และ H2GB</td><td>ตัดสินตอนเทรนจริง</td><td>รวม GC 200 หรือ 500 epoch (§4.1, §6)</td><td>4.1</td></tr>
+<tr><td>Budget</td><td>epoch/patience ของ HGB และ H2GB</td><td>ตาม protocol ต้นทางของแต่ละ task (รอบ 2)</td><td>HGB NC 300 + patience 30; LP 40 epoch, batch 8,192 link; H2GB 500 ไม่มี early stop; GC ยังเปิด 200 หรือ 500 (§4.3)</td><td>4.3</td></tr>
 <tr><td>Cost</td><td>cost table ที่ reviewer ขอ</td><td>ทำในอนาคต</td><td>ยังไม่มี section</td><td>—</td></tr>
 </tbody></table></div>
 
 <div class="answer"><p><b>อัปเดต 2026-11-11 (หลังเอกสารนี้):</b> ปิดแล้ว 3 ข้อ — (1) ℋ² ใช้ชุด meta-path เดียวกับ MLH และ MDE; (2) Macro-F1 ทุก dataset NC: เฉลี่ยเฉพาะ class ที่มีอยู่ใน label จริงของ split นั้น (กำหนดรายการ class ครั้งเดียวต่อ split แล้วส่ง <code>labels=L</code> ทุก method); (3) F1 ของ IEEE-CIS-G ใน H2GB คือ Macro-F1 (ผู้เขียน). เพิ่มเติม: เก็บทั้ง ogbn-mag และ mag-year (ogbn-mag ใช้ PFP, PAP ของ Hetero²Net); การเตรียม feature ตามโค้ดต้นฉบับของแต่ละ method (H2S-NN ไม่ normalise, HetSheaf ใช้ NormalizeFeatures); งบ compute ไม่เป็นข้อจำกัด. มติทั้งหมดเขียนลง spec v1.14 แล้ว (<code>docs/H2S-NN_methodology_spec.md</code>, changelog H1–H10).</p></div>
+<div class="answer"><p><b>อัปเดตรอบ 2 (2026-11-11, มติผู้เขียน):</b></p>
+<ol class="body">
+<li><b>WISP ทุก task</b>: LP และ GC เลิกใช้ตัวสุ่มเดิมแบบ 2 ก้าว (<code>build_free_path_groups(length=2)</code>, <code>link_prediction_dataset.py:914</code>, <code>graph_classification_trainer.py:203</code> <span class="tag">VERIFIED-CODE</span>) แล้วใช้ WISP ของ spec §3.2. จุดเริ่มเดิน: NC = โหนด target; LP = ทุกโหนดของสอง type ที่เป็นปลาย link บน message graph (ตัด link ที่ซ่อนไว้แล้ว); GC = ทุกโหนดในกราฟ</li>
+<li><b><code>ℓ_max</code> และ <code>r</code> ถูกจูน</b> ทุก task: <code>ℓ_max</code> ∈ {2, 3, 4, 5}, <code>r</code> ∈ {8, 16, 32, 64} (แทน spec E11/E14 ที่ให้ calibrate <code>r</code> และ <code>ℓ_max</code> ที่ pre-register ไว้)</li>
+<li><b>Search space ของ H2S-NN</b> มีเฉพาะค่าที่อยู่ใน methodology; ค่าของ methodology ที่ไม่จูนเขียนเป็นค่าคงที่ใน §4.2; ค่าที่ไม่อยู่ใน methodology ไม่อยู่ใน space (§4.1–4.2)</li>
+<li><b>ค่ากลางทุก method</b> (§4.3): AdamW; lr, weight decay, dropout ช่วงเดียวกัน; ไม่มี scheduler; ไม่มี grad clip; batch size ไม่จูน; epoch และ early stopping ตาม protocol ต้นทางของแต่ละ task; เลือก checkpoint ด้วย validation metric (NC/LP)</li>
+<li><b>LP test negatives ตาม <code>get_test_neigh</code> ของ HGB ทุกจุด</b> (§5.2): head ที่ไม่มีเพื่อนบ้าน 2 ก้าวไม่ได้ negative (ไม่สุ่มแทน) และรายงานจำนวน; validation negatives สุ่ม tail ของ type ที่ถูก (ตรงกับ HGB อยู่แล้ว)</li>
+<li><b>LatGRL ถูกตัดออก</b>: เป็น baseline แบบ unsupervised ตัวเดียว (เทรน encoder โดยไม่ใช้ label แล้ว probe; <code>adapters/latgrl.py:1-8</code>). Hetero²Net เก็บไว้ (supervised; loss แบบ masked เป็นแค่ loss เสริม)</li>
+<li><b>NC เพิ่มเป็น 12 ชุด</b> (2026-11-12): HGB 4 + H2GB 8 (ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, IEEE-CIS-G, H-Pokec, PDNS). เงื่อนไข: ตรวจว่าไฟล์ OAG ไม่สลับกัน (<code>oag_dataset.py:55-57</code>) เทียบ Table 1 ของ H2GB, ตรวจ edge ของ venue ไม่รั่ว, PDNS เป็น inductive ตามช่วงเวลา. Welch tests ≈ 48</li>
+<li><b>Heterophily คำนวณใหม่ทั้งหมด</b> (2026-11-12): MLH และ MDE ด้วยโค้ดและชุด meta-path ของ Hetero²Net; ℋ² ด้วยโค้ดและกฎเลือก meta-path ของ H2GB (แทนมติ "ชุดเดียวกัน"); ไม่ใช้ค่าเดิมใด ๆ ไม่มีเกณฑ์ tolerance</li>
+<li><b><code>part-j</code></b> ไม่ใช้แล้ว (เป็น ancestor ของ <code>v3b</code>); ทำงานบน <code>v3b</code></li>
+</ol></div>
 <div class="decision"><strong>ที่ยังเปิดอยู่</strong>
 <ol class="body">
-<li><b>Metrics (§5.5)</b>: test ตัดสินแล้ว; validation (NC/GC Macro-F1, LP ROC-AUC) ผมถือว่าผู้เขียนรับตามที่เสนอ ถ้าไม่เห็นด้วยแจ้งได้. ต้องกำหนดก่อนรัน: วิธีเฉลี่ย Macro-F1 ของ ogbn-mag (349 class) และความหมายของ F1 บน IEEE-CIS-G เทียบกับ H2GB <span class="tag">UNVERIFIED</span></li>
-<li><b>Meta-path</b>: รายการ predefined ของ MAG และ RCDD ใน Hetero²Net ยังไม่ได้เปิดดู; ℋ² (มีเฉพาะโค้ด H2GB) จะป้อนชุดเดียวกับ MLH/MDE หรือไม่ (§2.2)</li>
-<li><b>HSB-GDL</b>: รอ author ตอบ (ผู้เขียนยืนยัน §3.3)</li>
-<li><b>Mini-batch design</b> (§1) และ <b>per-scope PCG ต่อกราฟ</b> ที่ยังไม่มีเทส (ต้องมีก่อนรัน GC ด้วย v3-B แบบ batch หลายกราฟ)</li>
-<li><b>ต้นทุน plain Bayes 100</b>: เวลาต่อ trial เต็มยังไม่วัด ถ้า dataset ใหญ่รันไม่ไหวต้องกลับมาตัดสิน (§4.4)</li>
-<li><b>แก้ spec</b> (รอผู้เขียนอนุมัติ): seeds 10→5 และ Wilcoxon→Welch; ชุด meta-path (F7); LP primary HeaRT→HGB (F8, F14, F16, F21); GC stratified 10-fold→split เดียวตาม HetSheaf; กติกา tuning (OPEN-5); และ <code>possible_reviewer_qa.md</code> ที่ตอบว่า GC ใช้ sum pooling ให้ตรงกับมติ readout</li>
+<li><b>รอผู้เขียน</b>: <code>feats_type</code> ใน search space ของ 5 baseline (ChebNetII, CSNN, HGB-GNN, HINormer, NSD) และ <code>concat_mlp</code> ใน decoder ของ LP (HGB ใช้ dot/DistMult) — ผู้เขียนขอคิดอีกครั้งเพราะ HGB ใช้ preprocessing ต่างกันต่อ dataset</li>
+<li><b>Mini-batch design</b> (§1): ผูกกับ ogbn-mag, mag-year, H-Pokec (และ IEEE-CIS-G ถ้า full batch ไม่พอ), LP ขนาดใหญ่ 2 task, batch size ของ H2GB และขอบบนของ <code>r</code> บนกราฟใหญ่</li>
+<li><b>GC epoch</b>: 200 (config ของ HetSheaf) หรือ 500 (sweep ของ HetSheaf) — ตัดสินตอนเทรนจริง</li>
+<li><b>HSB-GDL</b>: รอ author ตอบ (§3.3)</li>
+<li><b>ต้นทุน Bayes 100</b>: เวลาต่อ trial ยังไม่วัด; coverage matrix ของ baseline ยังไม่ทำ (§4.4, §5.4)</li>
+<li><b>Spec</b>: มติรอบ 2 จะเข้า draft v1.15 (รอผู้เขียนอนุมัติ); spec §6 ย่อหน้า IMDB ยังเขียน "statistic of the paired tests" ต้องแก้เป็น Welch; Macro-F1 ของ IMDB: genre นับเมื่อมีหนังอย่างน้อย 1 เรื่องใน split นั้น</li>
 </ol></div>
-<div class="answer"><p><b>เลื่อนโดยผู้เขียน</b>: budget ของ HGB/H2GB (ตัดสินตอนเทรนจริง), การปรับ p-value (ดูผลก่อน), cost table (อนาคต)</p></div>
+<div class="answer"><p><b>เลื่อนโดยผู้เขียน</b>: epoch ของ GC (200 หรือ 500), การปรับ p-value (ดูผลก่อน), cost table (อนาคต). Budget ของ HGB/H2GB ตัดสินแล้วในรอบ 2 (§4.3)</p></div>
 
 <h3>ข้อติของ reviewers ที่อยู่ในขอบเขต experiment</h3>
 <div class="tbl"><table>
@@ -288,43 +300,84 @@ a{color:var(--accent)}
 
 <h2 id="hparams">4 · Hyperparameters และ search spaces</h2>
 <p>รายการทั้งหมดจาก <code>src/configs/config.py</code> (DataConfig :347, ModelConfig :781, AblationConfig :986, OptimConfig :1113, TrainConfig :1144) และ <code>src/baselines/budget.py</code> <span class="tag">VERIFIED-CODE</span></p>
-<h3>4.1 ห้าม tune (fixed โดย spec หรือ protocol)</h3>
+<h3>4.1 Search space ของ H2S-NN v3-B (ตัดสินแล้ว, รอบ 2)</h3>
+<p>กติกา (ผู้เขียน): ใน space มีเฉพาะค่าที่เป็นส่วนของ methodology (spec §3) และมีมติให้จูน. ค่าของ methodology ที่ไม่จูนอยู่ใน §4.2 ตารางแรก; ค่าที่ไม่อยู่ใน methodology ไม่อยู่ใน space (§4.2 ตารางที่สอง). จูนด้วย Bayes ธรรมดา 100 trials ที่ seed 0 ไม่มี Hyperband (§4.4)</p>
 <div class="tbl"><table>
-<thead><tr><th>กลุ่ม</th><th>Key (ค่า)</th><th>เหตุผล</th></tr></thead>
+<thead><tr><th>Hyperparameter</th><th>ส่วนของ method</th><th>Space</th><th>ที่มา</th></tr></thead>
 <tbody>
-<tr><td>Solver v3-B</td><td><code>propagation</code> anchored · <code>tau_init</code> 1 · <code>solver_tolerance</code> 1e-4 · <code>solver_warmup_tolerance</code> 1e-3 · <code>solver_warmup_epochs</code> 10 · <code>solver_max_iterations</code> 100</td><td>spec §6 solver settings; <code>NEVER_TUNED_V3B_KEYS</code></td></tr>
-<tr><td>Arm</td><td><code>arm</code> (full, covering_only, hub_A, closure_only, no_path_cells, instance_features, free_cell_maps)</td><td>เป็นแถวเปรียบเทียบ ไม่ใช่ค่า tune</td></tr>
-<tr><td>WISP</td><td><code>path_source</code> wisp · <code>wisp_max_length</code> 4 (HGB) · <code>wisp_walks_per_anchor</code> ค่าที่ calibrate · <code>wisp_proposal</code> uniform · <code>path_weight</code> exp · <code>path_weight_init</code> 0.5 · <code>path_weight_input</code> (ladder) · <code>path_weight_context</code> false · defensive mix ½</td><td>R8, E11/E14; <code>NEVER_TUNED_WISP_KEYS</code></td></tr>
-<tr><td>Geometry</td><td><code>geometry_context</code> true · <code>map_family</code> factorized · <code>householder_k</code> 2 · <code>orthogonal_map</code> fasthpp · <code>map_scale_eps</code> 0.1 · <code>coupling</code> symmetric · <code>fact_layer</code> tied</td><td>ส่วนหนึ่งของ method (D1, D1a, D7)</td></tr>
-<tr><td>Training budget</td><td>epochs NC 300 · LP 200 · GC 300; patience 100 (ทุก task และทุก method)</td><td><code>budget.py</code> TASK_EPOCHS; ใช้เท่ากันทุก method. ของ HGB/H2GB/GC (200 หรือ 500): ผู้เขียนให้ตัดสินตอนเทรนจริง</td></tr>
-<tr><td>Optimiser</td><td>AdamW · cosine · <code>grad_clip</code> 1.0 · <code>scalar_lr_scale</code> 10 (θ_τ และ b)</td><td>card Part L; เสนอให้ fixed <span class="tag">PROPOSAL</span></td></tr>
-<tr><td>Data</td><td><code>feature_normalization</code> (none หรือ row) · <code>resample_paths</code> true · <code>overlap_sampling</code></td><td>ต้องกำหนดหนึ่งค่าและใช้กับทุก method <span class="tag">PROPOSAL</span>; HetSheaf ใช้ row normalise (<code>T.NormalizeFeatures</code>)</td></tr>
-<tr><td>Mini-batch</td><td>memory budget ต่อ batch</td><td>decisions M0, §7: ตั้งจากการวัด phase 0 ไม่ใช่ค่า tune</td></tr>
-<tr><td>Selection</td><td><s>validation macro-F1 (NC, GC), validation MRR (LP); 10 seeds</s> ถูกแทนที่: <b>5 seeds เลข 0–4</b>; validation metric ต่อ task ดู §5.5 (LP ยังเป็น PROPOSAL)</td><td>spec §6 (ถูกแทนที่บางส่วนโดยมติ)</td></tr>
+<tr><td><code>d</code></td><td>ขนาด stalk (§3)</td><td>{16, 32, 64}</td><td>มติรอบ 1</td></tr>
+<tr><td><code>lr</code></td><td>ค่ากลางทุก method (§4.3)</td><td>log-uniform [1e-4, 1e-2]</td><td>มติรอบ 2</td></tr>
+<tr><td><code>weight_decay</code></td><td>ค่ากลางทุก method</td><td>{0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 1e-2, 0.1, 0.8}</td><td>มติรอบ 2 (a): ขยายให้ถึงค่าที่ PSHGCN ตีพิมพ์ (0.1, 0.8) ช่วงเดียวใช้ทุก method</td></tr>
+<tr><td><code>encoder_dropout</code></td><td>TypeEncoder (dropout ของ input)</td><td>uniform [0, 0.9]; ไม่มีเมื่อ dataset ไม่มี feature (Freebase, LastFM, GC)</td><td>มติรอบ 2 (b)</td></tr>
+<tr><td><code>classifier_dropout</code></td><td>head MLP</td><td>uniform [0, 0.9]</td><td>มติรอบ 2 (b)</td></tr>
+<tr><td><code>wisp_max_length</code> (<code>ℓ_max</code>)</td><td>WISP: ความยาวสูงสุดของทางเดิน (§3.2)</td><td>{2, 3, 4, 5}</td><td>มติรอบ 2 (แทน E11/E14 และค่าที่ pre-register ใน §6)</td></tr>
+<tr><td><code>wisp_walks_per_anchor</code> (<code>r</code>)</td><td>WISP: จำนวนทางเดินต่อโหนดเริ่มในหนึ่งการสุ่ม</td><td>{8, 16, 32, 64}; กราฟใหญ่อาจต้องตัดขอบบนตาม mini-batch design</td><td>มติรอบ 2</td></tr>
+<tr><td>GC: pooling</td><td>readout ของ GC (spec §6, H6)</td><td>{mean, max, add, attention}</td><td>spec 1.14; หลัง pool เป็น Linear ชั้นเดียว ไม่มี BatchNorm ตาม HetSheaf (มติ 2026-11-12)</td></tr>
+<tr><td>LP: <code>decoder_type</code></td><td>readout ของ LP</td><td>ตอนนี้ {dot, distmult, concat_mlp}</td><td><span class="tag warn">รอผู้เขียน</span> <code>concat_mlp</code> ไม่อยู่ใน HGB</td></tr>
+</tbody></table></div>
+<p><b><code>r</code> คืออะไร</b>: จำนวนครั้งที่สุ่มเดินจากโหนดเริ่มหนึ่งโหนดในหนึ่งการสุ่ม. ตัวอย่าง ACM, P1, <code>ℓ_max</code> = 4, <code>r</code> = 3: ได้ P1–A7–P9, P1–S2–P5–A3–P8, P1–A7–P9 (ซ้ำ รวมเป็นชิ้นเดียว น้ำหนักบวกกัน) จึงได้ 2 cell. <code>r</code> มากขึ้น = ภาพนิ่งขึ้นระหว่าง epoch แต่หน่วยความจำและเวลาโตเกือบเป็นเส้นตรง; <code>r</code> ไม่เปลี่ยนว่าเห็นทางแบบไหนได้ (นั่นคือ <code>ℓ_max</code>). ผลที่ตามมาของการจูน <code>r</code> <span class="tag">DERIVED</span>: Bayes มักเลือกขอบบนเว้นแต่ความแกว่งช่วยลด overfit; แถวเปรียบเทียบกับรายการ meta-path ของวรรณกรรม (ablation, ส่วน discussion) ไม่มีกฎงบเท่ากันแล้ว ต้องคิดใหม่ตอนออกแบบส่วนนั้น</p>
+
+<h3>4.2 ค่าคงที่ของ methodology และค่าที่ไม่อยู่ใน methodology</h3>
+<p><b>ค่าของ methodology ที่ไม่จูน</b> (เขียนไว้ที่นี่ที่เดียว; ทุก task):</p>
+<div class="tbl"><table>
+<thead><tr><th>กลุ่ม</th><th>Key = ค่า</th><th>ที่มาใน spec</th></tr></thead>
+<tbody>
+<tr><td>ความกว้างภายใน</td><td><code>d_r</code> 16 (embedding ของ relation) · <code>edge_mlp_hidden_dim</code> 128 (MLP ของ map) · <code>face_mlp_hidden_dim</code> 128 (ความกว้างของตัวให้น้ำหนัก <code>g</code>) · <code>classifier_hidden_dim</code> 128</td><td>§3 (D1, §3.2c, head); ไม่มี requirement ให้จูน <span class="tag">VERIFIED-CODE</span> <code>h2snn_model.py:521-600</code></td></tr>
+<tr><td>Geometry</td><td><code>geometry_context</code> true · <code>map_family</code> factorized · <code>householder_k</code> 2 · <code>orthogonal_map</code> fasthpp · <code>map_scale_eps</code> 0.1 · <code>fact_layer</code> tied</td><td>D1, D1a, D7, L4′</td></tr>
+<tr><td>WISP</td><td><code>path_source</code> wisp (NC, LP, GC) · จุดเริ่ม: NC target type, LP สอง type ปลาย link บน message graph, GC ทุกโหนด · <code>path_weight</code> exp · <code>path_weight_init</code> 0.5 · <code>path_weight_input</code> full · <code>path_weight_context</code> false · <code>wisp_proposal</code> uniform · defensive mix ½ · <code>resample_paths</code> true (evaluation ใช้ draw คงที่ seed ของ run)</td><td>§3.2; มติรอบ 2</td></tr>
+<tr><td>Solver</td><td><code>propagation</code> anchored · <code>arm</code> full · <code>tau_init</code> 1 · tol 1e-3 ใน 10 epoch แรกแล้ว 1e-4 · <code>T_max</code> 100 (หยุดเมื่อถึง)</td><td>§6 solver settings</td></tr>
+<tr><td>กลุ่ม scalar ของ method</td><td>θ_τ และ bias <code>b</code> ของ <code>g</code>: lr ×10 (<code>scalar_lr_scale</code> 10), ไม่มี weight decay; τ > 50 หยุด</td><td>G6</td></tr>
+<tr><td>Encoder (<code>h₀</code>)</td><td>type ที่มี feature: Linear → LayerNorm · type ที่ไม่มี feature: vector ที่เรียนรู้ต่อโหนด → LayerNorm · บวก type embedding → GELU → dropout (<code>encoder_dropout</code>)</td><td>§3 TypeEncoder; <code>node_encoder.py:55-85</code></td></tr>
+<tr><td>บริบทเพื่อนบ้าน <code>c</code></td><td>ค่าเฉลี่ย <code>h₀</code> ของเพื่อนบ้านแยกตาม (relation, ฝั่งของ fact); คำนวณครั้งเดียวต่อ forward</td><td>§3 RelCtx, R10</td></tr>
+<tr><td>Map ของ fact</td><td>input <code>[h_v, c_v, h_other, c_other, relation, role]</code> → MLP (GELU) → reflection 2 ตัว; frame แยกต่อ role (<code>R_{ψ,src} ≠ R_{ψ,tgt}</code>); น้ำหนัก fact <code>a_e = c_e²</code></td><td>§3 D1, D1a, §3.1; <code>h2snn_model.py:424</code></td></tr>
+<tr><td>โครงของ <code>g</code></td><td>projection ต่อความยาวทาง → GELU → linear ที่มี bias <code>b</code> (init <code>log 0.5</code>); อ่าน <code>h₀</code> ของทุกโหนดในทาง + embedding ของ relation</td><td>§3.2c</td></tr>
+<tr><td>กติกาการสุ่ม WISP</td><td>ทางไม่วนกลับโหนดเดิม · ความยาว, ชนิดก้าว และโหนดถัดไปสุ่มเท่ากัน · ชนทางตันก่อนถึงความยาวที่สุ่มได้ = ทิ้ง · 1 ทาง = 1 cell, ทางซ้ำรวมกันและบวกน้ำหนัก · ไม่สุ่ม prefix แยก · evaluation ใช้การสุ่มชุดเดียวจาก <code>p</code> (seed ของ run)</td><td>§3.2 (a)–(b), D8</td></tr>
+<tr><td>Energy และ solver</td><td>energy ทุกคู่ที่เปรียบเทียบได้ (โหนด–fact, fact–cell, โหนด–cell) · normalise แบบสมมาตร <code>D^{-1/2} L D^{-1/2}</code> · fact ที่อยู่บน cell ≤ 1 อันถูกกำจัดออกจากระบบ (state คงไว้เฉพาะ <code>E_shared</code>) · PCG + Jacobi (diagonal scalar ที่แท้จริงของระบบ) · backward แบบ implicit (ถึง <code>T_max</code> หยุดเหมือน forward) · evaluation เริ่มจากคำตอบของ epoch ก่อน และใช้ tol 1e-4 ตั้งแต่ epoch แรก</td><td>§3, §6 solver; <code>h2snn_model.py:1308-1329</code></td></tr>
+<tr><td>เงื่อนไขหยุด</td><td><code>T_max</code> 100 · τ > 50 · ช่วง log-weight ของ <code>g</code> > 30</td><td>§3 (G6, WISP weight) <span class="tag warn">τ > 50 และ log-weight 30 ยังไม่มีในโค้ด</span> (grep <code>src/</code> ไม่พบ) → task card</td></tr>
+<tr><td>Readout และ loss</td><td><b>NC</b>: <code>[x*, h₀]</code> → Linear(2d, 128) → GELU → Dropout → Linear; cross-entropy (IMDB: BCE ต่อ genre, ทายเมื่อ logit > 0)<br><b>LP</b>: แต่ละปลาย Linear(2d, d) → GELU → decoder; BCE กับ negative สำหรับเทรน 1:1<br><b>GC</b>: <code>[x*, h₀]</code> ของทุกโหนด → pool (จูน: mean, max, add, attention แบบ HetSheaf: Linear → Tanh → Linear, 2 head เฉลี่ย) → <b>Linear ชั้นเดียว</b>; ไม่มี BatchNorm; cross-entropy</td><td>NC <code>h2snn_model.py:684-689</code>; LP <code>link_readout.py:38-41</code>; GC ตาม HetSheaf <code>graph_classifier.py:24-50, 98-110</code> (มติ 2026-11-12) <span class="tag warn">โค้ดเรา <code>graph_readout.py:10-30</code> ยังเป็น sum + BatchNorm + MLP</span></td></tr>
+</tbody></table></div>
+<p><b>ไม่อยู่ใน methodology</b> จึงไม่อยู่ใน space และไม่ใช้ในตารางหลัก (โค้ด legacy ที่ยังใช้กับ arm ของ ablation ยังไม่ลบจนกว่าผู้เขียนตัดสิน):</p>
+<div class="tbl"><table>
+<thead><tr><th>Key</th><th>คืออะไร</th><th>สถานะในโค้ด</th></tr></thead>
+<tbody>
+<tr><td><code>K</code>, <code>layer_dropout</code></td><td>propagation แบบ Chebyshev (v1.2–1.10)</td><td>อยู่ใน space ตอนนี้ (<code>run_h2snn_wandb_tuning.py:290-310</code>) → เอาออก</td></tr>
+<tr><td><code>eta_init</code>, <code>gamma_init</code>, <code>coupling_gate_init</code>, <code>encoder</code>, <code>coupling</code></td><td>gate และ filter bank ที่ถูกถอดใน 1.11</td><td>ไม่อยู่ใน space; tuner ต้องปฏิเสธ</td></tr>
+<tr><td><code>path_sampler</code>, <code>face_sample_k</code>, <code>exclude_identity_metapaths</code></td><td>ตัวสุ่มเดิมของ LP/GC ที่ WISP แทน</td><td>เลิกใช้ใน H2S-NN; bundles ของ baseline ยังอ่าน</td></tr>
+<tr><td><code>metapath_templates</code></td><td>รายการ meta-path ของวรรณกรรม</td><td>ใช้เฉพาะแถวเปรียบเทียบ (ablation, ส่วน discussion)</td></tr>
+<tr><td><code>feature_normalization</code></td><td>การเตรียม feature</td><td>H2S-NN = none (ตามโค้ดต้นฉบับของแต่ละ method); ค่า row เป็น diagnostic</td></tr>
+<tr><td><code>per_side_scale</code>, <code>identity_maps</code>, <code>h0_only_readout</code>, <code>direction_blind_maps</code>, <code>free_path_maps</code>, <code>endpoint_edges</code>, <code>holonomy_edges</code>, arm อื่นนอกจาก full</td><td>ablation และ diagnostic</td><td>ไม่จูน; ใช้ในส่วน discussion</td></tr>
+<tr><td><code>num_label_prop_steps</code>, <code>compute_relation_diagnostics</code></td><td>สถิติสำหรับรายงาน ไม่ใช่ input ของโมเดล (<code>preprocessing.py:320-326</code>)</td><td>ไม่เกี่ยวกับการจูน</td></tr>
+<tr><td><code>checkpointing</code>, <code>node_edge_memory_guard_fraction</code>, <code>overlap_sampling</code></td><td>engineering ไม่เปลี่ยนผล</td><td>ไม่เกี่ยวกับการจูน</td></tr>
 </tbody></table></div>
 
-<h3>4.2 ที่ tune ได้ สำหรับ H2S-NN v3-B</h3>
+<h3>4.3 ค่ากลางที่ทุก method ใช้ร่วมกัน และ baselines</h3>
+<p>ที่มาที่ตรวจ <span class="tag">VERIFIED-SOURCE</span>: HGB <code>NC/benchmark/methods/baseline/run_new.py</code> และ <code>LP/.../run_new.py</code>, <code>LP/benchmark/scripts/data_loader.py</code> (GitHub, ผ่าน WebFetch); H2GB <code>configs/*/*.yaml</code> และ <code>H2GB/train/custom_train.py</code> (ในเครื่อง) <span class="tag">VERIFIED-CODE</span></p>
 <div class="tbl"><table>
-<thead><tr><th>Hyperparameter</th><th>Default</th><th>Search space ปัจจุบัน (<code>run_h2snn_wandb_tuning.py:290-310</code>)</th><th>ข้อเสนอ <span class="tag">PROPOSAL</span></th></tr></thead>
+<thead><tr><th></th><th>HGB NC</th><th>HGB LP</th><th>H2GB (4 ชุด)</th><th>ก่อนรอบ 2: H2S-NN / baselines ของเรา</th></tr></thead>
 <tbody>
-<tr><td><code>d</code> (stalk dim)</td><td>64 (configs ใช้ 32)</td><td>{16, 32}; GC {16, 32, 64}</td><td>{16, 32, 64}; 64 ทำให้ state ใหญ่ขึ้นราว 2 เท่า (DBLP 5.0 GB ที่ 32 บน GPU 8 GB) บน server ไม่มีปัญหา</td></tr>
-<tr><td><code>lr</code></td><td>1e-3</td><td>{1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2}</td><td>คงไว้ (ตรงกับ HetSheaf Table 5)</td></tr>
-<tr><td><code>weight_decay</code></td><td>1e-4</td><td>{0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3}</td><td>คงไว้</td></tr>
-<tr><td><code>encoder_dropout</code></td><td>0.1</td><td>{0, 0.1, 0.2, 0.3} (ข้ามเมื่อ dataset ไม่มี feature)</td><td>{0, 0.1, 0.3, 0.5}</td></tr>
-<tr><td><code>classifier_dropout</code></td><td>0.1</td><td>{0, 0.1, 0.2, 0.3}</td><td>{0, 0.1, 0.3, 0.5}</td></tr>
-<tr><td><code>classifier_hidden_dim</code></td><td>128</td><td>ไม่อยู่ใน space</td><td>fixed 128 หรือ {64, 128, 256}</td></tr>
-<tr><td><code>d_r</code>, <code>edge_mlp_hidden_dim</code>, <code>face_mlp_hidden_dim</code></td><td>16, 128, 128</td><td>ไม่อยู่ใน space</td><td>fixed (เพิ่มขนาด space โดยไม่มีเหตุผลจาก requirement)</td></tr>
-<tr><td><b><code>K</code></b></td><td>—</td><td>{2, …, 6}</td><td><span class="tag bad">เอาออก</span> (มติ 2026-11-11) v3-B ไม่มี K (addendum §1)</td></tr>
-<tr><td><b><code>layer_dropout</code></b></td><td>0</td><td>{0, 0.1, 0.2, 0.3}</td><td><span class="tag bad">เอาออก</span> (มติ 2026-11-11) ใช้แค่ใน path chebyshev (<code>h2snn_model.py:1036, 1046</code>); ใน anchored ไม่ถูกเรียก ทำให้เกิด trial ซ้ำ</td></tr>
-<tr><td>LP: <code>decoder_type</code></td><td>dot</td><td>{dot, distmult, concat_mlp} เมื่อเปิด flag</td><td>ตาม decoder ที่ protocol ของ HGB ใช้ ตัวเดียวกันทุก method (มติ: readout ปกติ). decoder ของ HGB ยังไม่ยืนยันเพราะ <code>vendor/HGB</code> ว่างเปล่า <span class="tag">UNVERIFIED</span></td></tr>
-<tr><td>LP: training negatives (<code>neg_sampling_ratio</code>, <code>neg_sampling_mode</code>)</td><td>1, fixed</td><td>ไม่อยู่ใน space</td><td>fixed (protocol)</td></tr>
-<tr><td>GC: pooling</td><td>—</td><td>baseline ของ HetSheaf: {mean, max, add, attention}; sheaf model ของเขาเพิ่ม <code>late_token</code> (SheafPool) เป็น default <span class="tag">VERIFIED-CODE</span></td><td>tune ใน {mean, max, add, attention} <span class="tag">PROPOSAL</span>; SheafPool ยังไม่ใส่ (มติผู้เขียน: ใส่ทีหลังถ้าผล GC ไม่ดี, §6)</td></tr>
-<tr><td>GC: batch size</td><td>32 (hardcode)</td><td>ไม่อยู่ใน space</td><td>ตาม D7: HetSheaf ใช้ 1</td></tr>
+<tr><td>Optimizer</td><td>Adam</td><td>Adam</td><td>AdamW</td><td>AdamW / Adam 21 จุด, AdamW 9 จุด</td></tr>
+<tr><td>Scheduler</td><td>ไม่มี</td><td>ไม่มี</td><td>cosine + warmup 5</td><td>cosine / ไม่มี</td></tr>
+<tr><td>Epoch</td><td>สูงสุด 300, early stop val loss patience 30</td><td>สูงสุด 40, patience 40</td><td>500 คงที่ ไม่มี early stop, เลือก epoch ที่ val ดีที่สุด</td><td>300 / 200 / 300, patience 100 (<code>budget.py</code>)</td></tr>
+<tr><td>Test</td><td>checkpoint ดีที่สุด</td><td>checkpoint ดีที่สุด</td><td>epoch ที่ val ดีที่สุด</td><td>checkpoint ดีที่สุด</td></tr>
+<tr><td>Grad clip</td><td>ไม่มี</td><td>ไม่มี</td><td>มี</td><td>1.0 / ไม่มี</td></tr>
+<tr><td>Batch</td><td>ทั้งกราฟ</td><td>8,192 link</td><td>32 + sampler</td><td>ทั้งกราฟ</td></tr>
 </tbody></table></div>
-
-<h3>4.3 Baselines</h3>
-<p>แต่ละ adapter มี search space ของตัวเองใน <code>src/baselines/search_grids.py</code> ซึ่งออกแบบให้ค่าที่ผู้เขียนแต่ละงานตีพิมพ์อยู่ใน space เสมอ. Epoch และ patience มาจาก <code>budget.py</code> เท่ากันทุก method. ยกเว้นการรันด้วยพารามิเตอร์ที่ตีพิมพ์ (reproduction) ซึ่งใช้ budget ของผู้เขียนเดิม <span class="tag">VERIFIED-CODE</span></p>
-
+<p><b>มติรอบ 2 (ทุก method เหมือนกันภายใน task):</b></p>
+<div class="tbl"><table>
+<thead><tr><th>เรื่อง</th><th>ค่า</th><th>หมายเหตุ</th></tr></thead>
+<tbody>
+<tr><td>Optimizer</td><td>AdamW</td><td>baseline ที่ต้นฉบับใช้ Adam เปลี่ยนเป็น AdamW (weight decay แบบ decoupled) ระบุใน paper</td></tr>
+<tr><td><code>lr</code></td><td>log-uniform [1e-4, 1e-2]</td><td>ครอบค่าที่ตีพิมพ์ของทุก baseline (<code>search_grids.py</code>)</td></tr>
+<tr><td><code>weight_decay</code></td><td>{0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 1e-2, 0.1, 0.8}</td><td>(a) ช่วงเดียว ครอบ PSHGCN LP 0.1, 0.8</td></tr>
+<tr><td>Dropout</td><td>uniform [0, 0.9]</td><td>(b) ทุก dropout ที่เป็นของ hidden/input; axis เฉพาะตัว (เช่น attention dropout) คงของแต่ละ baseline</td></tr>
+<tr><td>Scheduler</td><td>ไม่มี</td><td>(c) ทุก task; H2GB ใช้ cosine + warmup จึงต่างจากต้นทาง ระบุใน paper</td></tr>
+<tr><td>Grad clip</td><td>ไม่มี</td><td>(d) H2S-NN เอา 1.0 ออก; H2GB ใช้ clip จึงต่างจากต้นทาง</td></tr>
+<tr><td>Batch size</td><td>ไม่จูน</td><td>HGB NC ทั้งกราฟ; LP 8,192 positive link ต่อ step (e); GC 1 (HetSheaf); H2GB ตาม mini-batch design</td></tr>
+<tr><td>Epoch / early stop / checkpoint</td><td>HGB NC: สูงสุด 300, patience 30<br>LP: 40 epoch, patience 40<br>H2GB NC: 500 ไม่มี early stop<br>GC: ตาม HetSheaf (val loss patience 50, test ที่ weights สุดท้าย; 200 หรือ 500 ยังเปิด)</td><td>(e)(f) NC/LP: early stop และ checkpoint ใช้ validation metric (NC Macro-F1, LP ROC-AUC) ไม่ใช่ val loss แบบ HGB เพราะ loss ของ IMDB (multi-label) กับ LP วัดคนละแบบ. สำหรับ H2S-NN ใน LP หนึ่ง step = หนึ่ง solve บน message graph ทั้งกราฟ (loss แบ่งตาม batch ของ link)</td></tr>
+<tr><td>Baseline axes เฉพาะตัว</td><td>คงของแต่ละ adapter</td><td>กติกาเดิม: ค่าที่ต้นฉบับตีพิมพ์ต้องอยู่ใน space. <code>feats_type</code> ใน 5 adapter: <span class="tag warn">รอผู้เขียน</span></td></tr>
+<tr><td>รายชื่อ baseline</td><td>13 ตัว (ตัด LatGRL)</td><td>GCN, GAT, ChebNetII, NSD, CSNN, HAN, SeHGNN, HINormer, PSHGCN, H2G-former, Hetero²Net, H2SGNN, HetSheaf</td></tr>
+</tbody></table></div>
+<p>แต่ละ adapter มี search space ของตัวเองใน <code>src/baselines/search_grids.py</code> และ adapter เอง ซึ่งออกแบบให้ค่าที่ผู้เขียนแต่ละงานตีพิมพ์อยู่ใน space เสมอ. การรันด้วยพารามิเตอร์ที่ตีพิมพ์ (reproduction) ใช้ budget ของผู้เขียนเดิม <span class="tag">VERIFIED-CODE</span></p>
 <h3>4.4 งบ tuning (OPEN-5, D5)</h3>
 <div class="answer"><p><b>มติ</b> (ผู้เขียน):</p>
 <ol class="body">
@@ -379,6 +432,7 @@ a{color:var(--accent)}
 <tr><td>Runs</td><td>5</td><td>5 (42–46)</td><td><s>10</s> → <b>5 (seed 0–4)</b></td></tr>
 </tbody></table></div>
 
+<div class="answer"><p><b>รอบ 2: negatives ตาม HGB ทุกจุด</b> (<code>LP/benchmark/scripts/data_loader.py</code> <span class="tag">VERIFIED-SOURCE</span> ผ่าน WebFetch): test = <code>get_test_neigh</code>: หาคู่ 2 ก้าวจาก adjacency ของ train + valid + test (symmetric) ตัดคู่ที่เชื่อมตรงและ self-loop, กรอง type ตาม relation, สุ่มแบบซ้ำได้ (<code>random.choices</code>) จำนวนเท่ากับ positive ของ head นั้น, seed 1; head ที่ไม่มีคู่ 2 ก้าวไม่ได้ negative (ไม่สุ่มแทน) และเรารายงานจำนวน head เหล่านี้. Validation = <code>get_valid_neg</code>: tail สุ่มของ type ที่ถูกหนึ่งตัวต่อ positive (ไม่ตรวจว่าเป็น link จริงหรือไม่). โค้ดเราตอนนี้สุ่มแทนเมื่อไม่มีคู่ (<code>link_prediction_dataset.py:720, 751</code>) ต้องแก้</p></div>
 <div class="answer"><p><b>มติ LP</b> (ผู้เขียน): ใช้ protocol ของ HGB กับทุก LP task รวม task ที่สร้างจาก NC ไม่ใช้ HeaRT ทั้ง primary และ secondary. เหตุผลที่ผู้เขียนให้: ถ้า protocol ไม่ตรงกับ dataset อื่นต้องตอบ reviewer ว่าทำไมไม่ทำเหมือนกัน และอาจ bias; และสุดท้ายก็ต้องรันเทียบบน LP ที่สร้างจาก NC ด้วย protocol เดียวกันอยู่ดี</p>
 <p>สิ่งที่โค้ดใน repo มีอยู่แล้ว <span class="tag">VERIFIED-CODE</span> (<code>src/data/link_prediction_dataset.py</code>, <code>src/baselines/bundles.py</code>): <code>_sample_hgb_two_hop_negatives</code> สุ่ม negative จาก 2-hop ของ head จำกัดอยู่ใน range ของ destination type ตัด positive ที่รู้ออก และ fallback เป็นสุ่มเมื่อไม่มี candidate; validation ใช้ <code>_sample_random_tail_negatives</code>; ทุก baseline ใช้ชุด negatives เดียวกันผ่าน bundles. ที่ยังไม่รู้: (1) <code>vendor/HGB</code> ว่างเปล่า จึงยังไม่ได้เทียบว่าโค้ดตรงกับของ HGB จริงหรือแค่ตรงกับคำอธิบายใน paper <span class="tag">UNVERIFIED</span>; (2) สัดส่วนที่ต้อง fallback เป็นสุ่มบน task ที่ head กับ tail คนละ type ยังไม่ได้วัด; (3) <code>metrics.py</code> ที่อ่านเห็น AUROC/AUPR เท่านั้น ต้องตรวจว่ามี MRR ที่ตรงกับ HGB หรือไม่ <span class="tag">UNVERIFIED</span></p></div>
 
@@ -503,6 +557,9 @@ a{color:var(--accent)}
 <tr><td><code>docs/minibatch_design_decisions.md</code>, <code>docs/minibatch_v3B_addendum.md</code></td><td>ทั้งไฟล์</td><td>ครบ</td></tr>
 <tr><td><code>vendor/Hetero2Net/hetero2net/homophily.py</code></td><td>ทั้งไฟล์</td><td>ครบ</td></tr>
 <tr><td><code>vendor/H2GB/H2GB/calcHomophily.py</code></td><td>บรรทัด 85–200</td><td>ส่วนที่คำนวณครบ</td></tr>
+<tr><td>HGB code (GitHub THUDM/HGB): <code>NC/.../baseline/run_new.py</code>, <code>LP/.../baseline/run_new.py</code>, <code>LP/benchmark/scripts/data_loader.py</code></td><td>argparse defaults, optimizer, scheduler, early stopping, checkpoint; <code>get_valid_neg</code>, <code>get_test_neigh</code></td><td>ผ่าน WebFetch (สรุปโดยโมเดลช่วยอ่าน ไม่ได้อ่านไฟล์เต็มเอง; <code>utils/pytorchtools</code> ไม่ได้เปิด) — รอบ 2</td></tr>
+<tr><td>H2GB <code>configs/*/*.yaml</code>, <code>H2GB/train/custom_train.py</code> (ในเครื่อง)</td><td>optim (optimizer, scheduler, max_epoch, clip), batch, การเลือก epoch ที่ดีที่สุด</td><td>grep ทุก config + อ่าน <code>custom_train.py</code> บรรทัด 240–345 — รอบ 2</td></tr>
+<tr><td><code>src/configs/config.py</code> (ทุก field), <code>src/models/h2snn_model.py:521-735</code>, trainers ของ LP/GC, <code>src/baselines/adapters/*</code>, <code>registry.py</code></td><td>แบ่ง key เป็น จูน / ค่าคงที่ของ method / ไม่อยู่ใน method; ตัวสุ่มเส้นทางของ LP/GC; optimizer ของ baseline</td><td>ครบตามที่อ้าง — รอบ 2</td></tr>
 <tr><td>Hetero²Net paper (arXiv 2310.11664)</td><td>§3.3, §4.1, Eq. 3–4, Appendix B.1, D, Table 1</td><td>เฉพาะส่วนนิยามผ่าน WebFetch ไม่ได้อ่านทั้งเล่ม</td></tr>
 <tr><td>H2GB paper (arXiv 2407.10916)</td><td>Eq. 1–2, Table 1–2, การเทรนกราฟใหญ่</td><td>เฉพาะส่วนนิยามและสถิติผ่าน WebFetch</td></tr>
 <tr><td>HGB paper (arXiv 2112.14936v1)</td><td>protocol NC/LP, Table 2</td><td>เฉพาะส่วน protocol ผ่าน WebFetch</td></tr>
