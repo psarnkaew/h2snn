@@ -236,7 +236,9 @@ class WispSamplerTests(unittest.TestCase):
                      {"path_source": "wisp", "wisp_walks_per_anchor": -1},
                      {"path_source": "wisp", "fact_layer": "untied"},
                      {"path_source": "wisp", "path_sampler": "uniform_instance"},
-                     {"dataset_name": "amazon", "path_source": "wisp"}):
+                     # spec v1.15 J1: the LP/GC length-2 walks were replaced by WISP
+                     {"dataset_name": "lastfm", "path_source": "schemas"},
+                     {"dataset_name": "mutag", "path_source": "schemas", "path_sampler": "walk"}):
             with self.subTest(data=data), self.assertRaises(ValueError):
                 TrainConfig.from_dict({"data": {"dataset_name": "acm", **data}})
         # Part I (I2): r = 0 means "the dataset's calibrated r" (spec v1.4 §6)
@@ -624,7 +626,8 @@ class WispLadderTests(unittest.TestCase):
 # ============================================================================= I2: default flip
 class WispDefaultTests(unittest.TestCase):
     """Spec v1.4 E7 (Part I, I2): node classification defaults to wisp with the dataset's
-    incidence-matching r; link prediction and graph classification are unchanged."""
+    incidence-matching r. Spec v1.15 J1 (Part M, M4): link prediction and graph classification
+    default to wisp too, with r unset (no calibrated table; a draw needs it set)."""
 
     def test_default_path_source_and_r_per_dataset(self) -> None:
         from src.configs.config import TrainConfig
@@ -637,7 +640,7 @@ class WispDefaultTests(unittest.TestCase):
             with self.subTest(dataset=dataset):
                 data = TrainConfig.from_dict({"data": {"dataset_name": dataset}}).data
                 self.assertNotEqual(data.task_type, "node_classification")
-                self.assertEqual(data.path_source, "schemas")
+                self.assertEqual((data.path_source, data.wisp_walks_per_anchor), ("wisp", 0))
 
     def test_explicit_values_are_kept(self) -> None:
         from src.configs.config import TrainConfig
@@ -649,8 +652,11 @@ class WispDefaultTests(unittest.TestCase):
         explicit_r = TrainConfig.from_dict({"data": {"dataset_name": "imdb",
                                                      "wisp_walks_per_anchor": 30}}).data
         self.assertEqual(explicit_r.wisp_walks_per_anchor, 30)
-        with self.assertRaises(ValueError):  # wisp is still node classification only
-            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "wisp"}})
+        gc = TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "wisp",
+                                             "wisp_walks_per_anchor": 16}}).data
+        self.assertEqual((gc.path_source, gc.wisp_walks_per_anchor), ("wisp", 16))
+        with self.assertRaises(ValueError):  # spec v1.15 J1: the GC length-2 walk is gone
+            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "schemas"}})
         with self.assertRaises(ValueError):  # an untied row must name the schema source
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "untied",
                                             "path_sampler": "dfs", "resample_paths": False}})
@@ -1185,8 +1191,10 @@ class WispConfigValidationTests(unittest.TestCase):
             with self.subTest(extra=extra), self.assertRaises(ValueError):
                 TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_source": "schemas",
                                                 **extra}})
-        with self.assertRaises(ValueError):  # a task whose default is schemas
-            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "wisp_max_length": 3}})
+        with self.assertRaises(ValueError):  # the pinned GC DFS row is a schema row
+            TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "schemas",
+                                            "path_sampler": "dfs", "fact_layer": "untied",
+                                            "resample_paths": False, "wisp_max_length": 3}})
 
     def test_every_never_tuned_wisp_key_is_rejected(self) -> None:
         from src.configs.config import NEVER_TUNED_WISP_KEYS, reject_never_tuned_settings

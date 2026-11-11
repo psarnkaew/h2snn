@@ -381,13 +381,12 @@ class DataConfig:
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
     # epoch); validation and test always use the draw with seed `seed`.
     resample_paths: bool = True
-    # Path source (Part H; default flipped by spec v1.4 E7): "wisp" = schema-free walks from the
-    # stated target measure (spec §3.2), node classification only; "schemas" = the D8 walk
-    # sampler over the literature presets (the fixed-literature-schema comparison row). "" (unset)
-    # resolves by task: wisp for node classification, schemas for link prediction and graph
-    # classification (their samplers do not read it). `wisp_max_length` is the support l_max;
-    # `wisp_walks_per_anchor` is r (precision): 0 (unset) resolves under wisp to the dataset's
-    # incidence-matching value (spec §6; NODE_CLASSIFICATION_PRESETS).
+    # Path source (Part H; spec v1.15 J1): "wisp" = schema-free walks from the stated target
+    # measure (spec §3.2), the path source of every task (anchors: NC target type, LP both
+    # endpoint types on the message graph, GC every node); "schemas" = the D8 walk sampler over the
+    # literature presets (NC comparison row) or, for LP/GC, the baseline bundles' pinned DFS row.
+    # "" (unset) resolves to wisp. `wisp_max_length` is the support l_max; `wisp_walks_per_anchor`
+    # is r (precision): 0 (unset) resolves for NC to the calibrated table; LP and GC must set it.
     path_source: str = ""
     wisp_max_length: int = 4
     wisp_walks_per_anchor: int = 0
@@ -545,15 +544,18 @@ class DataConfig:
             raise ValueError(
                 f"Unknown dataset '{self.dataset_name}'; set data.task_type explicitly."
             )
-        # Spec v1.4 E7: unset path_source resolves by task; unset r resolves to the preset.
-        path_source = self.path_source or (
-            "wisp" if task_type == "node_classification" else "schemas")
+        # Spec v1.15 J1: WISP is the path source of every task; unset path_source resolves to
+        # wisp. Unset r resolves to the calibrated table for node classification only; link
+        # prediction and graph classification have no table and must name r (it is tuned, J2).
+        path_source = self.path_source or "wisp"
         if path_source not in PATH_SOURCES:
             raise ValueError(
                 f"data.path_source must be one of {PATH_SOURCES}, got {self.path_source!r}."
             )
         walks = self.wisp_walks_per_anchor
-        if path_source == "wisp" and walks == 0:
+        # LP/GC: r stays 0 (unset) here, so data-only uses (negatives, validation files) load;
+        # building a WISP draw with r unset raises (`src/data/wisp_tasks.py`).
+        if path_source == "wisp" and walks == 0 and task_type == "node_classification":
             table = WISP_WALKS_PER_ANCHOR.get(dataset_name, {})
             if self.wisp_max_length not in table:
                 raise ValueError(
@@ -563,7 +565,7 @@ class DataConfig:
             walks = table[self.wisp_max_length]
         if self.wisp_max_length < 2:
             raise ValueError(f"data.wisp_max_length must be >= 2, got {self.wisp_max_length}.")
-        if walks < (1 if path_source == "wisp" else 0):
+        if walks < (1 if path_source == "wisp" and task_type == "node_classification" else 0):
             raise ValueError(
                 f"data.wisp_walks_per_anchor must be >= 1 under path_source: wisp (0 = the "
                 f"dataset's calibrated r), got {walks} for dataset {self.dataset_name!r}."
@@ -576,12 +578,14 @@ class DataConfig:
                                                  or not self.resample_paths):
             raise ValueError("data.wisp_proposal: adaptive changes the training draws of "
                              "path_source: wisp; it needs resample_paths: true.")
+        if path_source == "schemas" and task_type != "node_classification" and (
+                self.path_sampler != "dfs"):
+            raise ValueError(
+                "data.path_source: schemas for link prediction and graph classification exists "
+                "only as the baseline bundles' pinned pre-D7 DFS row (path_sampler: dfs; their "
+                "adapters never read path cells). The length-2 schema-free walks were replaced by "
+                "WISP (spec v1.15 J1): use path_source: wisp.")
         if path_source == "wisp":
-            if task_type != "node_classification":
-                raise ValueError(
-                    "data.path_source: wisp is implemented for node classification only; link "
-                    "prediction and graph classification keep their schema-free fixed-length sampler."
-                )
             if self.fact_layer != "tied":
                 raise ValueError("data.path_source: wisp needs fact_layer: tied (it walks facts in "
                                  "both directions); the untied and dfs rows name "

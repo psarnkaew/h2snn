@@ -1412,7 +1412,13 @@ def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
 
 
 def build_link_prediction_model(config: TrainConfig, data: PreparedLinkPredData) -> H2SNN:
-    return H2SNN(config=config, dims=ModelDims.from_link_pred_data(data))
+    dims = ModelDims.from_link_pred_data(data)
+    if config.data.path_source == "wisp":
+        # spec v1.15 J1: every length of the support (a training draw may hold a length the
+        # evaluation draw lacks), as for node classification.
+        dims = dims._replace(face_lengths=tuple(range(2, config.data.wisp_max_length + 1)),
+                             path_actions=True)
+    return H2SNN(config=config, dims=dims)
 
 
 def build_graph_classification_model(config: TrainConfig, dims: ModelDims) -> H2SNN:

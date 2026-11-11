@@ -1,0 +1,37 @@
+# Part M smoke (card M4): graph classification on MUTAG (typed by label), v3-B anchored solve, arm
+# `full`, WISP from every node of each graph (spec v1.15 J1). l_max 4 and r 8 (the lowest r of the
+# tuned range; a smoke value, not a tuned one). Solver settings are the fixed card values.
+# Not a training configuration: no performance runs.
+data:
+  dataset_name: mutag
+  root: data
+  wisp_max_length: 4
+  wisp_walks_per_anchor: 8
+model:
+  d: 32
+  d_r: 16
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  orthogonal_map: fasthpp
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+ablation:
+  coupling: symmetric
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.0001
+epochs: 200
+seed: 0
+device: cuda
+exp_name: mutag_h2snn_v3b
+output_dir: experiments
+log_every: 1
+checkpoint_metric: macro_f1
+checkpoint_mode: max

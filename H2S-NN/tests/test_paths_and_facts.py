@@ -1088,6 +1088,14 @@ def _small_config(resample: bool):
                                          ["paper__cite__paper", "-"]]}]}})
 
 
+def _small_gc_config(resample: bool):
+    from src.configs.config import TrainConfig
+
+    return TrainConfig.from_dict({"device": "cpu", "seed": 7, "data": {
+        "dataset_name": "mutag", "fact_layer": "tied", "resample_paths": resample,
+        "wisp_walks_per_anchor": 3, "wisp_max_length": 3}})
+
+
 class ProtocolTests(unittest.TestCase):
     """T12: evaluation draw fixed; training draws differ between epochs; seeds reproduce."""
 
@@ -1119,7 +1127,7 @@ class ProtocolTests(unittest.TestCase):
 
         from src.trainers.graph_classification_trainer import GraphClassificationTrainer
 
-        config = _small_config(True)
+        config = _small_gc_config(True)
         trainer = GraphClassificationTrainer.__new__(GraphClassificationTrainer)
         trainer.cfg = config
         trainer.model = type("M", (), {"self_inverse_relations": (0,)})()
@@ -1128,13 +1136,16 @@ class ProtocolTests(unittest.TestCase):
                          [config.seed, config.seed + 1, config.seed + 2])
         graph = Data(edge_index=torch.tensor([[0, 1, 2, 3, 0, 1], [1, 2, 3, 4, 2, 4]]),
                      edge_type=torch.zeros(6, dtype=torch.long),
-                     node_type=torch.zeros(5, dtype=torch.long), num_nodes=5)
-        batch = Batch.from_data_list([graph, graph.clone()])
+                     node_type=torch.zeros(5, dtype=torch.long), num_nodes=5,
+                     graph_id=torch.tensor([0]))
+        twin = graph.clone()
+        twin.graph_id = torch.tensor([1])
+        batch = Batch.from_data_list([graph, twin])
         same = [trainer.batch_path_groups(batch, seed=config.seed) for _ in range(2)]
         self.assertTrue(_groups_equal(*same))
         other = trainer.batch_path_groups(batch, seed=config.seed + 1)
         self.assertFalse(_groups_equal(same[0], other))
-        no_resample = _small_config(False)
+        no_resample = _small_gc_config(False)
         trainer.cfg = no_resample
         self.assertEqual({trainer.draw_seed(e, True) for e in range(5)}, {no_resample.seed})
 
@@ -1184,11 +1195,17 @@ def _write_tied_lastfm(root: Path) -> None:
 
 
 def _lp_config(root: Path, mode: str, sampler: str, resample: bool = False):
+    """`sampler`: "wisp" (the path source of link prediction, spec v1.15 J1) or a schema-row
+    sampler (`path_source: schemas`; only the baseline bundles' pinned `dfs` is accepted)."""
     from src.configs.config import TrainConfig
 
-    return TrainConfig.from_dict({"device": "cpu", "seed": 3, "data": {
-        "dataset_name": "lastfm", "root": str(root), "fact_layer": mode,
-        "path_sampler": sampler, "resample_paths": resample, "face_sample_k": 4}})
+    data = {"dataset_name": "lastfm", "root": str(root), "fact_layer": mode,
+            "resample_paths": resample}
+    if sampler == "wisp":
+        data.update(path_source="wisp", wisp_walks_per_anchor=4, wisp_max_length=3)
+    else:
+        data.update(path_source="schemas", path_sampler=sampler, face_sample_k=4)
+    return TrainConfig.from_dict({"device": "cpu", "seed": 3, "data": data})
 
 
 class LinkPredictionFactTests(unittest.TestCase):
@@ -1225,7 +1242,7 @@ class LinkPredictionFactTests(unittest.TestCase):
     def test_T11_no_held_out_fact_in_message_graph_or_paths(self) -> None:
         from src.data.fact_layer import held_out_fact_leaks
 
-        for mode, sampler in (("tied", "walk"), ("untied", "dfs"), ("untied", "walk")):
+        for mode, sampler in (("tied", "wisp"), ("untied", "dfs")):
             with self.subTest(mode=mode, sampler=sampler):
                 data = self._build(mode, sampler)
                 layer = data.fact_layer
@@ -1261,7 +1278,7 @@ class LinkPredictionFactTests(unittest.TestCase):
                                                      held, relation), 1)
 
     def test_T11_tied_layer_on_link_prediction(self) -> None:
-        data = self._build("tied", "walk")
+        data = self._build("tied", "wisp")
         summary = data.fact_layer.summary()
         self.assertEqual(summary["rho"]["user__rel_0__artist"], "artist__rel_3__user")
         self.assertEqual(summary["self_inverse_relations"], ["user__rel_1__user"])
@@ -1275,9 +1292,9 @@ class LinkPredictionFactTests(unittest.TestCase):
     def test_T12_link_prediction_resampling(self) -> None:
         from src.trainers.link_prediction_trainer import LinkPredictionTrainer
 
-        data = self._build("tied", "walk", resample=True)
+        data = self._build("tied", "wisp", resample=True)
         trainer = LinkPredictionTrainer.__new__(LinkPredictionTrainer)
-        trainer.cfg = _lp_config(self.root, "tied", "walk", True)
+        trainer.cfg = _lp_config(self.root, "tied", "wisp", True)
         trainer.device = torch.device("cpu")
         draws = [trainer.training_draw(data, data, e).face_groups for e in range(3)]
         again = [trainer.training_draw(data, data, e).face_groups for e in range(3)]
@@ -1285,12 +1302,14 @@ class LinkPredictionFactTests(unittest.TestCase):
             self.assertTrue(_groups_equal(first, second))
         self.assertTrue(_groups_equal(draws[0], data.face_groups))  # seed + 0 = eval draw
         self.assertFalse(_groups_equal(draws[1], draws[2]))
-        trainer.cfg = _lp_config(self.root, "tied", "walk", False)
+        trainer.cfg = _lp_config(self.root, "tied", "wisp", False)
         self.assertIs(trainer.training_draw(data, data, 5), data)
 
     def test_T11_config(self) -> None:
         with self.assertRaises(ValueError):
             _lp_config(self.root, "tied", "uniform_instance")
+        with self.assertRaises(ValueError):  # the length-2 walks were replaced by WISP (J1)
+            _lp_config(self.root, "tied", "walk")
 
 
 class BaselineBundleIdentityTests(unittest.TestCase):

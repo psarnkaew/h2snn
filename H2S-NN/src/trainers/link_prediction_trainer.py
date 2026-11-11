@@ -64,7 +64,7 @@ class LinkPredictionTrainer:
         from src.data.link_prediction_dataset import build_link_path_groups  # resampling only
 
         groups = build_link_path_groups(self.cfg, data.fact_layer, data.edge_index,
-                                        data.edge_type, data.node_type,
+                                        data.edge_type, data.node_type, data.node_slices,
                                         seed=self.cfg.seed + epoch)
         return replace(prepared_data,
                        face_groups=tuple(group.to(self.device) for group in groups))
@@ -226,6 +226,7 @@ class LinkPredictionTrainer:
             edge_type=data.edge_type,
             face_groups=data.face_groups,
             num_nodes=data.num_nodes,
+            epoch=epoch,  # the anchored solver's fixed tolerance schedule; -1 = evaluation
         )
         edge_label_index = torch.cat([pos_edge_index, neg_edge_index], dim=1)
         edge_label_relation = torch.cat([pos_edge_relation, neg_edge_relation], dim=0)

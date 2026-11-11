@@ -8,7 +8,7 @@ from torch_geometric.loader import DataLoader
 
 from src.configs.config import TrainConfig
 from src.data.graph_faces import build_typed_path_face_groups
-from src.data.path_sampler import build_free_path_groups
+from src.data.wisp_tasks import build_graph_wisp_path_groups
 from src.data.graph_classification_dataset import GraphClassificationFold
 from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
@@ -163,7 +163,8 @@ class GraphClassificationTrainer:
                 self.optimizer.zero_grad()
 
             with torch.set_grad_enabled(train):
-                logits = self.forward_batch(batch, seed=self.draw_seed(epoch, train))
+                logits = self.forward_batch(batch, seed=self.draw_seed(epoch, train),
+                                            epoch=epoch if train else -1)
                 labels = batch.y.view(-1)
                 loss = self.criterion(logits, labels)
 
@@ -189,8 +190,25 @@ class GraphClassificationTrainer:
         return metrics
 
     def batch_path_groups(self, batch, seed: int):
-        """Two-hop path cells of one batch: schema-free walks (D8, decision 4) from every
-        node of the batch, or the pre-D7 DFS (`path_sampler: dfs`)."""
+        """Path cells of one batch: WISP (spec v1.15 J1; every node of each graph is an anchor;
+        each graph drawn alone, so its cells do not depend on the other graphs of the batch), or,
+        under `path_source: schemas`, the pinned pre-D7 DFS (`path_sampler: dfs`)."""
+        if self.cfg.data.path_source == "wisp":
+            graph_id = getattr(batch, "graph_id", None)
+            if graph_id is None:
+                raise ValueError("WISP graph-classification draws need each graph's `graph_id`.")
+            return tuple(group.to(batch.edge_index.device) for group in
+                         build_graph_wisp_path_groups(
+                             edge_index=batch.edge_index,
+                             edge_type=batch.edge_type,
+                             node_type=batch.node_type,
+                             batch=batch.batch,
+                             graph_id=graph_id.view(-1),
+                             self_inverse=self.model.self_inverse_relations,
+                             walks_per_anchor=self.cfg.data.wisp_walks_per_anchor,
+                             max_length=self.cfg.data.wisp_max_length,
+                             draw_seed=seed,
+                         ))
         if self.cfg.data.path_sampler == "dfs":
             return build_typed_path_face_groups(
                 edge_index=batch.edge_index,
@@ -202,19 +220,9 @@ class GraphClassificationTrainer:
                 exclude_identity_paths=self.cfg.data.exclude_identity_metapaths,
                 seed=seed,
             )
-        if self.cfg.data.path_sampler != "walk":
-            raise ValueError("graph classification supports path_sampler walk or dfs.")
-        return build_free_path_groups(
-            edge_index=batch.edge_index,
-            edge_type=batch.edge_type,
-            node_type=batch.node_type,
-            relation_names=None,
-            self_inverse=self.model.self_inverse_relations,
-            tied=self.cfg.data.fact_layer == "tied",
-            walks_per_anchor=self.cfg.data.face_sample_k,
-            seed=seed,
-            length=2,
-        )
+        raise ValueError(
+            "graph classification path cells: path_source wisp, or path_source schemas with "
+            "path_sampler dfs (baseline bundles); the length-2 walks were replaced by WISP (J1).")
 
     def draw_seed(self, epoch: int, train: bool) -> int:
         """Path-draw seed (plan §9.2): `seed + epoch` for training batches under
@@ -225,8 +233,9 @@ class GraphClassificationTrainer:
             return self.cfg.seed + epoch
         return self.cfg.seed
 
-    def forward_batch(self, batch, seed: int | None = None) -> torch.Tensor:
-        """Logits of one PyG batch: two-hop typed path cells, encoder, graph readout."""
+    def forward_batch(self, batch, seed: int | None = None, epoch: int = -1) -> torch.Tensor:
+        """Logits of one PyG batch: path cells, encoder, graph readout. `epoch` sets the anchored
+        solver's fixed tolerance schedule (-1 = evaluation, the final tolerance)."""
         face_groups = self.batch_path_groups(batch, seed=self.cfg.seed if seed is None else seed)
         encoded = self.model.encode(
             x=batch.x,
@@ -235,6 +244,7 @@ class GraphClassificationTrainer:
             edge_type=batch.edge_type,
             face_groups=face_groups,
             num_nodes=batch.num_nodes,
+            epoch=epoch,
         )
         return self.model.graph_readout(  # type: ignore[misc]
             encoded.representation, batch.batch, batch.num_graphs

@@ -77,7 +77,8 @@ def _write_tiny_lastfm(root: Path) -> None:
 def _link_config(root: Path, decoder_type: str = "dot") -> TrainConfig:
     return TrainConfig.from_dict({
         "device": "cpu", "checkpoint_metric": "auroc", "model": SMALL_MODEL,
-        "data": {"dataset_name": "lastfm", "root": str(root), "decoder_type": decoder_type},
+        "data": {"dataset_name": "lastfm", "root": str(root), "decoder_type": decoder_type,
+                 "wisp_walks_per_anchor": 4, "wisp_max_length": 3},  # WISP (spec v1.15 J1)
     })
 
 
@@ -181,7 +182,8 @@ def _typed_graph(seed: int, num_nodes: int = 7):
     edge_type = 2 * node_type[edge_index[0]] + node_type[edge_index[1]]
     return Data(x=torch.randn(num_nodes, 5, generator=generator), edge_index=edge_index,
                 edge_type=edge_type, node_type=node_type,
-                y=torch.randint(2, (1,), generator=generator))
+                y=torch.randint(2, (1,), generator=generator),
+                graph_id=torch.tensor([seed]))  # as the TU loader sets it (per-graph WISP draws)
 
 
 def _permuted(graph, seed: int):
@@ -201,9 +203,11 @@ class GraphClassificationHeadTests(unittest.TestCase):
 
         cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "auroc",
                                      "model": SMALL_MODEL,
-                                     "data": {"dataset_name": "mutag", **(data or {})}})
+                                     "data": {"dataset_name": "mutag", "wisp_walks_per_anchor": 3,
+                                              "wisp_max_length": 3, **(data or {})}})
+        wisp = cfg.data.path_source == "wisp"
         dims = ModelDims(in_channels=5, num_node_types=2, num_relations=4, num_classes=2,
-                         face_lengths=(2,))
+                         face_lengths=(2, 3) if wisp else (2,), path_actions=wisp)
         torch.manual_seed(0)
         model = build_graph_classification_model(cfg, dims)
         from src.builders import build_optimizer
@@ -215,11 +219,12 @@ class GraphClassificationHeadTests(unittest.TestCase):
     def test_logits_are_invariant_to_node_permutation_within_a_graph(self) -> None:
         from torch_geometric.data import Batch
 
-        # Walk sampling draws cells by node id, so permutation invariance of the logits holds
-        # only in distribution under the defaults (tied + walk); this exact check fixes the
-        # cells with the pre-D7 DFS builder (the operator and head are what is tested).
-        _, model, trainer = self._setup({"fact_layer": "untied", "path_sampler": "dfs",
-                                         "resample_paths": False})
+        # Walk sampling (WISP) draws cells by node id, so permutation invariance of the logits
+        # holds only in distribution under the defaults; this exact check fixes the cells with
+        # the pinned pre-D7 DFS row (the operator and head are what is tested).
+        _, model, trainer = self._setup({"fact_layer": "untied", "path_source": "schemas",
+                                         "path_sampler": "dfs", "resample_paths": False,
+                                         "wisp_walks_per_anchor": 0, "wisp_max_length": 4})
         model.double().eval()
         graphs = [_typed_graph(seed) for seed in range(4)]
         for graph in graphs:

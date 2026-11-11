@@ -417,9 +417,11 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         num_relations=num_relations,
         num_classes=num_classes,
         num_nodes=None,
-        # GraphClassificationTrainer enumerates two-hop typed paths per batch
-        # (build_typed_path_face_groups defaults), so the only path length is 2.
-        face_lengths=(2,),
+        # WISP (spec v1.15 J1): every length of the support; the pinned DFS row (baseline
+        # bundles, path_source: schemas) enumerates two-hop typed paths only.
+        face_lengths=(tuple(range(2, config.data.wisp_max_length + 1))
+                      if config.data.path_source == "wisp" else (2,)),
+        path_actions=config.data.path_source == "wisp",
         self_inverse_relations=fact_layer.self_inverse,
     )
 

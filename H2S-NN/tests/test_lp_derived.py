@@ -151,8 +151,8 @@ def derived_config(root: Path, dataset: str, target: tuple[str, str, str], seed:
 
     return TrainConfig.from_dict({"device": "cpu", "seed": seed, "data": {
         "dataset_name": dataset, "task_type": "link_prediction", "root": str(root),
-        "target_relation": list(target), "fact_layer": "tied", "path_sampler": "walk",
-        "face_sample_k": 4}})
+        "target_relation": list(target), "fact_layer": "tied",
+        "wisp_walks_per_anchor": 4, "wisp_max_length": 3}})  # WISP (spec v1.15 J1)
 
 
 class SyntheticLoaderTests(unittest.TestCase):

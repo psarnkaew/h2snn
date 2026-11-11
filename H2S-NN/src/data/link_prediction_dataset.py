@@ -20,7 +20,7 @@ from src.data.fact_layer import (
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.link_pred_structures import PreparedLinkPredData
-from src.data.path_sampler import build_free_path_groups
+from src.data.wisp_tasks import build_link_wisp_path_groups
 
 if TYPE_CHECKING:
     from torch_geometric.data import HeteroData
@@ -900,10 +900,25 @@ def build_link_path_groups(
     edge_index: torch.Tensor,
     edge_type: torch.Tensor,
     node_type: torch.Tensor,
+    node_slices: dict[str, tuple[int, int]],
     seed: int,
 ) -> tuple:
-    """Path cells on the message graph: schema-free walks (D8, decision 4; `seed` is the
-    draw's seed) or the pre-D7 DFS (`path_sampler: dfs`)."""
+    """Path cells on the message graph `edge_index` (held-out facts already removed in both
+    orientations): WISP (spec v1.15 J1; anchors = every node of the two endpoint types of the
+    target relation; `seed` is the draw's seed), or, under `path_source: schemas`, the baseline
+    bundles' pinned pre-D7 DFS (`path_sampler: dfs`; no baseline reads the cells)."""
+    if config.data.path_source == "wisp":
+        return build_link_wisp_path_groups(
+            edge_index=edge_index,
+            edge_type=edge_type,
+            node_type=node_type,
+            self_inverse=fact_layer.self_inverse,
+            node_slices=node_slices,
+            target_relation=tuple(config.data.target_relation),
+            walks_per_anchor=config.data.wisp_walks_per_anchor,
+            max_length=config.data.wisp_max_length,
+            seed=seed,
+        )
     if config.data.path_sampler == "dfs":
         return build_typed_path_face_groups(
             edge_index=edge_index,
@@ -915,19 +930,9 @@ def build_link_path_groups(
             exclude_identity_paths=config.data.exclude_identity_metapaths,
             seed=seed,
         )
-    if config.data.path_sampler != "walk":
-        raise ValueError("link prediction supports path_sampler walk or dfs.")
-    return build_free_path_groups(
-        edge_index=edge_index,
-        edge_type=edge_type,
-        node_type=node_type,
-        relation_names=fact_layer.kept_names,
-        self_inverse=fact_layer.self_inverse,
-        tied=fact_layer.mode == "tied",
-        walks_per_anchor=config.data.face_sample_k,
-        seed=seed,
-        length=2,
-    )
+    raise ValueError(
+        "link prediction path cells: path_source wisp, or path_source schemas with "
+        "path_sampler dfs (baseline bundles); the length-2 walks were replaced by WISP (J1).")
 
 
 def assert_no_held_out_facts(
@@ -1296,7 +1301,7 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
 
     # Path cells on the message graph `edge_index`, which holds training positives only.
     face_groups = build_link_path_groups(config, fact_layer, edge_index, edge_type, node_type,
-                                         seed=config.seed)
+                                         node_slices, seed=config.seed)
     held_out_edge_index = torch.cat([val_pos_edge_index, test_pos_edge_index], dim=1)
     held_out_relation = target_original_ids[
         torch.cat([val_pos_edge_relation, test_pos_edge_relation])

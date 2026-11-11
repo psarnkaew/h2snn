@@ -1,0 +1,3 @@
+MUTATION anchors = head type only: ran 9, failed 2: ['test_anchor_set_is_both_endpoint_types', 'test_evaluation_cells_are_the_wisp_draw_from_both_endpoint_types']
+restored: ran 9, failed 0: []
+mutation caught

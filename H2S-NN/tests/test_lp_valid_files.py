@@ -58,7 +58,7 @@ def pubmed_config(root: Path, seed: int = 3):
 
     return TrainConfig.from_dict({"device": "cpu", "seed": seed, "data": {
         "dataset_name": "pubmed", "root": str(root), "fact_layer": "tied",
-        "path_sampler": "walk", "face_sample_k": 4}})
+        "wisp_walks_per_anchor": 4, "wisp_max_length": 3}})  # WISP (spec v1.15 J1)
 
 
 def split_of(root: Path, dataset: str, config) -> tuple[dict, dict]:
