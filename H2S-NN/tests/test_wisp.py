@@ -245,11 +245,11 @@ class WispSamplerTests(unittest.TestCase):
         self.assertEqual(TrainConfig.from_dict({"data": {
             "dataset_name": "acm", "path_source": "wisp",
             "wisp_walks_per_anchor": 0}}).data.wisp_walks_per_anchor, 42)
-        for name in ("data.path_source", "data.wisp_max_length"):
-            with self.subTest(name=name), self.assertRaises(ValueError):
-                reject_never_tuned_settings(None, {name: {"values": [1]}})
-        with self.assertRaises(ValueError):  # spec v1.6 E11: r is never tuned (Part K, K3)
-            reject_never_tuned_settings(None, {"data.wisp_walks_per_anchor": {"values": [16, 32]}})
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings(None, {"data.path_source": {"values": [1]}})
+        # spec v1.15 J2 (supersedes E11): l_max and r are tuned
+        reject_never_tuned_settings(None, {"data.wisp_max_length": {"values": [2, 3, 4, 5]},
+                                           "data.wisp_walks_per_anchor": {"values": [16, 32]}})
 
 
 
@@ -1200,10 +1200,12 @@ class WispConfigValidationTests(unittest.TestCase):
     def test_every_never_tuned_wisp_key_is_rejected(self) -> None:
         from src.configs.config import NEVER_TUNED_WISP_KEYS, reject_never_tuned_settings
 
-        expected = {"path_source", "wisp_max_length", "path_weight", "path_weight_init",
-                    "path_weight_input", "wisp_proposal", "path_weight_context",
-                    "wisp_walks_per_anchor"}  # r added by spec v1.6 E11 (Part K, K3)
+        # spec v1.15 J2 (Part M, M10): l_max and r are tuned; the rest stays fixed
+        expected = {"path_source", "path_weight", "path_weight_init",
+                    "path_weight_input", "wisp_proposal", "path_weight_context"}
         self.assertEqual(set(NEVER_TUNED_WISP_KEYS), expected)
+        for name in ("data.wisp_max_length", "data.wisp_walks_per_anchor"):
+            reject_never_tuned_settings({}, [name])
         for key in sorted(expected):
             for name in (key, f"data.{key}", f"model.{key}", f"ablation.{key}"):
                 with self.subTest(name=name):
@@ -1306,21 +1308,26 @@ class WispGuardTests(unittest.TestCase):
     carries the pre-registered WISP settings; path_weight_context is the ladder's appendix pair
     only; r resolves from the per-l_max calibration table; an unresolved path source is refused."""
 
-    def test_r_is_never_in_a_search_space(self) -> None:
+    def test_r_is_in_the_search_space(self) -> None:
+        """Spec v1.15 J2 supersedes E11 (r never tuned): r in {8, 16, 32, 64} is tuned."""
         from src.configs.config import reject_never_tuned_settings
 
         for name in ("data.wisp_walks_per_anchor", "wisp_walks_per_anchor"):
-            with self.subTest(name=name), self.assertRaises(ValueError):
+            with self.subTest(name=name):
                 reject_never_tuned_settings({}, [name])
 
     def test_tuning_base_config_carries_the_pre_registered_wisp_settings(self) -> None:
         from src.configs.config import WISP_WALKS_PER_ANCHOR, reject_never_tuned_settings
 
+        # spec v1.15 J2: l_max and r are tuned, so a base config may carry any value; the
+        # proposal stays fixed (uniform).
+        with self.assertRaises(ValueError):
+            reject_never_tuned_settings({"data": {"dataset_name": "acm",
+                                                  "wisp_proposal": "adaptive"}})
         for data in ({"dataset_name": "acm", "wisp_max_length": 5},
-                     {"dataset_name": "acm", "wisp_proposal": "adaptive"},
                      {"dataset_name": "acm", "wisp_walks_per_anchor": 30},
                      {"dataset_name": "dblp", "wisp_walks_per_anchor": 42}):
-            with self.subTest(data=data), self.assertRaises(ValueError):
+            with self.subTest(data=data):
                 reject_never_tuned_settings({"data": data})
         for dataset in ("acm", "dblp", "imdb"):
             for r in (0, WISP_WALKS_PER_ANCHOR[dataset][4]):

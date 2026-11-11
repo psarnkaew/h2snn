@@ -30,13 +30,23 @@ NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normal
 # in a tuning base config (evidence rows, never tuned, never defaults).
 NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context", "encoder")
 ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
-# Part H (WISP, spec v1.3 §3.2): the path source and its support are never tuned; the walks per
-# anchor `r` (precision) is calibrated to an incidence budget, not tuned.
+# Part H (WISP, spec v1.3 §3.2): the path source and the WISP method constants are never tuned.
+# Spec v1.15 J2 (card Part M, M10): the support `wisp_max_length` (l_max in {2, 3, 4, 5}) and the
+# precision `wisp_walks_per_anchor` (r in {8, 16, 32, 64}) ARE tuned; they left this list.
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
-NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "wisp_max_length", "path_weight",
-                                           "path_weight_init", "path_weight_input",
-                                           "wisp_proposal", "path_weight_context",
-                                           "wisp_walks_per_anchor")
+NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "path_weight", "path_weight_init",
+                                           "path_weight_input", "wisp_proposal",
+                                           "path_weight_context")
+# Spec v1.15 J3 / experiment_settings.html §4.2 (second table): keys that are not components of
+# the method are never in H2S-NN's search space (the tuner refuses them by exact name).
+NEVER_TUNED_LEGACY_KEYS: tuple[str, ...] = (
+    "K", "layer_dropout", "eta_init", "gamma_init", "coupling_gate_init", "encoder", "coupling",
+    "path_sampler", "face_sample_k", "exclude_identity_metapaths", "metapath_templates",
+    "feature_normalization", "per_side_scale", "identity_maps", "h0_only_readout",
+    "direction_blind_maps", "free_path_maps", "endpoint_edges", "holonomy_edges",
+    "no_path_cells", "uniform_path_gate", "num_label_prop_steps",
+    "compute_relation_diagnostics", "checkpointing", "node_edge_memory_guard_fraction",
+    "overlap_sampling", "resample_paths")
 # Part H3: q = p ("uniform") or the adaptive defensive proposal (variance only; fixed by a gate).
 WISP_PROPOSALS: tuple[str, ...] = ("uniform", "adaptive")
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
@@ -76,11 +86,23 @@ def reject_never_tuned_settings(
     """
     data = (raw_config or {}).get("data") or {}
     coupling = str(((raw_config or {}).get("ablation") or {}).get("coupling", "cooperative"))
-    if coupling != "cooperative":
+    propagation = str(((raw_config or {}).get("model") or {}).get("propagation", "chebyshev"))
+    # v3-B (spec v1.11 G4, D-B1): the anchored model has no gates, so `symmetric` is the model's
+    # own coupling there (ModelConfig refuses any other); the rule below is the legacy one.
+    if propagation == "anchored" and coupling == "symmetric":
+        pass
+    elif coupling != "cooperative":
         raise ValueError(
             f"ablation.coupling: {coupling} is an ablation / test row (plan §10.5, §12.3) and must "
             "not be used in tuning; tune the cooperative model and report the row separately."
         )
+    optim = (raw_config or {}).get("optim") or {}
+    # Spec v1.15 §6 (J4): no learning-rate scheduler and no gradient clipping for any method.
+    if str(optim.get("scheduler", "none")) != "none" or float(optim.get("grad_clip", 0.0)) > 0:
+        raise ValueError(
+            f"optim.scheduler {optim.get('scheduler')!r} / optim.grad_clip {optim.get('grad_clip')!r}: "
+            "the shared protocol has no scheduler and no gradient clipping (spec v1.15 §6); "
+            "remove them from a tuning base config.")
     if str(data.get("fact_layer", "")).lower() == "untied":
         raise ValueError(
             "data.fact_layer: untied is an ablation control and must not be used in tuning "
@@ -123,20 +145,11 @@ def reject_never_tuned_settings(
             "data.path_source: schemas is the fixed-literature-schema comparison row for node "
             "classification (spec v1.4 E7) and must not be used in tuning."
         )
-    if node_classification:
-        # Spec v1.6 §6 / E11: l_max, the proposal and r are pre-registered, never tuned.
-        if int(data.get("wisp_max_length", 4)) != 4:
-            raise ValueError("data.wisp_max_length is pre-registered (4 on HGB, spec §6) and must "
-                             "not differ in a tuning base config (the U3 curve is analysis).")
-        if str(data.get("wisp_proposal", "uniform")) != "uniform":
-            raise ValueError("data.wisp_proposal: adaptive is not the pre-registered proposal "
-                             "(spec §6) and must not be used in a tuning base config.")
-        walks = int(data.get("wisp_walks_per_anchor", 0))
-        calibrated = WISP_WALKS_PER_ANCHOR.get(dataset, {}).get(4)
-        if walks not in (0, calibrated):
-            raise ValueError(
-                f"data.wisp_walks_per_anchor {walks} is neither 0 nor the calibrated value "
-                f"{calibrated} for {dataset!r} (spec v1.6 E11: r is never tuned).")
+    # Spec v1.15 J2: l_max and r are tuned (no pre-registered value, no calibrated-r rule in a
+    # tuning base config); the proposal stays fixed (spec §6 WISP settings).
+    if str(data.get("wisp_proposal", "uniform")) != "uniform":
+        raise ValueError("data.wisp_proposal: adaptive is not the pre-registered proposal "
+                         "(spec §6) and must not be used in a tuning base config.")
     if ((raw_config or {}).get("ablation") or {}).get("path_weight_context", False) is not False:
         raise ValueError(
             "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
@@ -160,6 +173,10 @@ def reject_never_tuned_settings(
                 f"solver settings ({', '.join(NEVER_TUNED_V3B_KEYS)}) are fixed, never tuned "
                 "(card Part L §3)."
             )
+        if str(name).split(".")[-1] in NEVER_TUNED_LEGACY_KEYS:
+            raise ValueError(
+                f"tuning search space contains {name!r}: not a component of the method (spec "
+                "v1.15 J3; experiment_settings.html §4.2); never in H2S-NN's search space.")
         if str(name).split(".")[-1] in NEVER_TUNED_WISP_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the WISP settings "

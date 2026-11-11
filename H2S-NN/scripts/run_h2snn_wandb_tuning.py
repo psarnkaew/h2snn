@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.configs.config import TrainConfig, reject_never_tuned_settings
+from src.baselines import search_grids as shared_grids
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
     default_monitor_for_task,
@@ -54,21 +55,41 @@ from src.utils.wandb_campaign import (  # noqa: F401  (canonical_fingerprint and
 # Verified against the resolved loaders rather than assumed: youtube (2000, 0) and
 # lastfm (20612, 0) carry no node features, while pubmed (200) and amazon (1156) do.
 # youtube was missing here, so its sweeps were searching a dead encoder_dropout axis.
-FEATURELESS_DATASETS = frozenset({"lastfm", "amazonbook", "youtube"})
+# Spec v1.15 §4.1 (experiment_settings.html): encoder dropout is absent where the dataset has no
+# features: Freebase (NC; LP freebase_bb, every type featureless after F17), LastFM, and graph
+# classification (constant feature 1).
+FEATURELESS_DATASETS = frozenset({"lastfm", "amazonbook", "youtube", "freebase", "freebase_bb",
+                                  "mutag", "proteins", "enzymes", "nci1"})
+
+# Spec v1.15 §6 Tuning (J2, J3; card Part M, M10): H2S-NN's space holds only components of the
+# method, with the shared lr / weight-decay / dropout ranges of every method.
+# The shared axes are those of every baseline (src/baselines/search_grids.py: LR, WEIGHT_DECAY,
+# DROPOUT), one definition for every method.
+SPACE_D: list[int] = [16, 32, 64]
+SPACE_LR: dict[str, Any] = shared_grids.LR
+SPACE_WEIGHT_DECAY: dict[str, Any] = shared_grids.WEIGHT_DECAY
+SPACE_DROPOUT: dict[str, Any] = shared_grids.DROPOUT
+SPACE_WISP_MAX_LENGTH: dict[str, Any] = {"values": [2, 3, 4, 5]}
+SPACE_WISP_WALKS_PER_ANCHOR: dict[str, Any] = {"values": [8, 16, 32, 64]}
+SPACE_GRAPH_POOLING: dict[str, Any] = {"values": ["mean", "max", "add", "attention"]}
+# Tuning on seed 0 only, then the best configuration on seeds 0-4 (spec §6).
+TUNING_SEED = 0
+FINAL_SEEDS: tuple[int, ...] = (0, 1, 2, 3, 4)
 
 PRIMARY_PARAMETER_NAMES = frozenset(
     {
         "d",
-        "K",
-        "layer_dropout",
         "lr",
         "weight_decay",
+        "wisp_max_length",
+        "wisp_walks_per_anchor",
     }
 )
 CONDITIONAL_PARAMETER_NAMES = frozenset(
     {
         "encoder_dropout",
         "classifier_dropout",
+        "graph_pooling",
         "decoder_type",
     }
 )
@@ -76,7 +97,9 @@ KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Per-seed W&B Bayesian+Hyperband tuning for H2SNN")
+    parser = argparse.ArgumentParser(
+        description="W&B plain Bayesian tuning of H2SNN on seed 0 (spec v1.15 §6), then the best "
+                    "configuration on seeds 0-4 with --final_seeds")
     parser.add_argument("--config", type=Path, default=None)
     parser.add_argument("--exp_name", type=str, default=None)
     parser.add_argument("--output_dir", type=Path, default=None)
@@ -95,14 +118,13 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Number of campaign run indices to execute; defaults to --num_runs.",
     )
-    parser.add_argument("--n_trials", type=int, default=20)
+    parser.add_argument("--n_trials", type=int, default=100)  # spec §6: 100 trials
     parser.add_argument(
         "--d_values",
         type=int,
         nargs="+",
         default=None,
-        help="Optional positive hidden dimensions. Defaults to 16/32 for full-graph tasks "
-        "and 16/32/64 for graph classification.",
+        help="Optional positive stalk dimensions; default 16/32/64 (spec v1.15 §6).",
     )
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--monitor", type=str, default=None)
@@ -114,8 +136,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wandb_mode", type=str, default="online")
     parser.add_argument("--wandb_group", type=str, default=None)
     parser.add_argument("--wandb_tags", nargs="*", default=None)
-    parser.add_argument("--hyperband_min_iter", type=int, default=20)
-    parser.add_argument("--hyperband_eta", type=int, default=3)
+    parser.add_argument(
+        "--final_seeds",
+        type=int,
+        nargs="+",
+        default=None,
+        help="Instead of tuning: train the best configuration of the seed-0 sweep "
+        "(best_tuned_run0.json) on these seeds (spec §6: 0 1 2 3 4).",
+    )
     parser.add_argument(
         "--resume",
         action="store_true",
@@ -155,9 +183,8 @@ def load_config(path: Path) -> TrainConfig:
 
 
 def default_d_values(task_type: str) -> list[int]:
-    if task_type == "graph_classification":
-        return [16, 32, 64]
-    return [16, 32]
+    """`d` in {16, 32, 64} for every task (spec v1.15 §6)."""
+    return list(SPACE_D)
 
 
 def validate_d_values(values: list[int] | tuple[int, ...]) -> list[int]:
@@ -217,7 +244,7 @@ def validate_trial_params(
         rendered = ", ".join(f"{key}={params[key]!r}" for key in unknown)
         raise ValueError(f"W&B proposed unsupported tuning parameter(s): {rendered}.")
 
-    for key in ("d", "K"):
+    for key in ("d", "wisp_max_length", "wisp_walks_per_anchor"):
         if key in params and int(params[key]) <= 0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be positive."
@@ -232,7 +259,10 @@ def validate_trial_params(
             "W&B proposed invalid weight_decay="
             f"{params['weight_decay']!r}; weight_decay must be non-negative."
         )
-    for key in ("layer_dropout", "encoder_dropout", "classifier_dropout"):
+    if "graph_pooling" in params and str(params["graph_pooling"]) not in {
+            "mean", "max", "add", "attention"}:
+        raise ValueError(f"W&B proposed invalid graph_pooling={params['graph_pooling']!r}.")
+    for key in ("encoder_dropout", "classifier_dropout"):
         if key in params and not 0.0 <= float(params[key]) < 1.0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be in [0, 1)."
@@ -273,14 +303,12 @@ def build_sweep_config(
     dataset_name: str = "",
     include_decoder_type: bool = False,
     d_values: list[int] | tuple[int, ...] | None = None,
-    hyperband_min_iter: int = 20,
-    hyperband_eta: int = 3,
 ) -> dict[str, Any]:
-    if epochs <= hyperband_min_iter:
-        raise ValueError(
-            "epochs must be greater than --hyperband_min_iter so Hyperband has a "
-            f"valid stopping interval; got {epochs} <= {hyperband_min_iter}."
-        )
+    """The W&B sweep of H2S-NN (spec v1.15 §6 Tuning; card Part M, M10): plain Bayes, no
+    Hyperband or other early termination; the space holds only components of the method:
+    d, lr, weight_decay, encoder/classifier dropout (shared ranges), l_max, r, and GC pooling;
+    LP's decoder_type only with --include_decoder_type (open). `epochs` is not used by the
+    sweep (no early termination); it is kept for the callers' signature."""
     if include_decoder_type and task_type != "link_prediction":
         raise ValueError("--include_decoder_type is valid only for link prediction.")
 
@@ -289,24 +317,26 @@ def build_sweep_config(
     )
     parameters: dict[str, Any] = {
         "d": {"values": resolved_d_values},
-        "K": {"values": [2, 3, 4, 5, 6]},
-        "layer_dropout": {"values": [0.0, 0.1, 0.2, 0.3]},
-        "lr": {"values": [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2]},
-        "weight_decay": {"values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3]},
+        "lr": dict(SPACE_LR),
+        "weight_decay": {"values": list(SPACE_WEIGHT_DECAY["values"])},
+        "wisp_max_length": {"values": list(SPACE_WISP_MAX_LENGTH["values"])},
+        "wisp_walks_per_anchor": {"values": list(SPACE_WISP_WALKS_PER_ANCHOR["values"])},
     }
-    # encoder_dropout is unconsumed by the all-featureless identity-embedding
-    # fallback, so omit it rather than generating duplicate trials.
+    # encoder_dropout is unconsumed without node features (spec §4.1: absent for featureless
+    # datasets), so it is omitted rather than generating duplicate trials.
     if dataset_name.lower() not in FEATURELESS_DATASETS:
-        parameters["encoder_dropout"] = {"values": [0.0, 0.1, 0.2, 0.3]}
+        parameters["encoder_dropout"] = dict(SPACE_DROPOUT)
 
-    # Dot and DistMult do not instantiate a dropout module. When the decoder is
-    # itself swept, keep classifier dropout fixed instead of mixing an inactive
-    # parameter into two of the three decoder branches.
-    classifier_dropout_active = task_type != "link_prediction" or (
-        not include_decoder_type and decoder_type == "concat_mlp"
+    # The classifier dropout exists in the NC head and in LP's concat_mlp decoder; dot and
+    # DistMult have none, and the GC readout is pooling + one Linear (no dropout, M5).
+    classifier_dropout_active = task_type == "node_classification" or (
+        task_type == "link_prediction" and not include_decoder_type
+        and decoder_type == "concat_mlp"
     )
     if classifier_dropout_active:
-        parameters["classifier_dropout"] = {"values": [0.0, 0.1, 0.2, 0.3]}
+        parameters["classifier_dropout"] = dict(SPACE_DROPOUT)
+    if task_type == "graph_classification":
+        parameters["graph_pooling"] = {"values": list(SPACE_GRAPH_POOLING["values"])}
 
     if include_decoder_type:
         parameters["decoder_type"] = {"values": ["dot", "distmult", "concat_mlp"]}
@@ -316,12 +346,6 @@ def build_sweep_config(
         "method": "bayes",
         "metric": {"name": f"best/{metric.removeprefix('val_')}", "goal": "maximize"},
         "parameters": parameters,
-        "early_terminate": {
-            "type": "hyperband",
-            "min_iter": hyperband_min_iter,
-            "eta": hyperband_eta,
-            "max_iter": epochs,
-        },
     }
 
 
@@ -338,16 +362,16 @@ def apply_sweep_overrides(
     optim = payload.setdefault("optim", {})
     data = payload.setdefault("data", {})
 
-    for key in (
-        "K",
-        "layer_dropout",
-        "encoder_dropout",
-        "classifier_dropout",
-    ):
+    for key in ("encoder_dropout", "classifier_dropout"):
         if key in params:
             model[key] = params[key]
     if "d" in params:
         model["d"] = int(params["d"])
+    if "graph_pooling" in params:
+        model["graph_pooling"] = str(params["graph_pooling"])
+    for key in ("wisp_max_length", "wisp_walks_per_anchor"):
+        if key in params:
+            data[key] = int(params[key])
 
     for key in ("lr", "weight_decay"):
         if key in params:
@@ -484,8 +508,6 @@ def _build_sweep_for_run(
         dataset_name=base_cfg.data.dataset_name,
         include_decoder_type=args.include_decoder_type,
         d_values=args.d_values,
-        hyperband_min_iter=args.hyperband_min_iter,
-        hyperband_eta=args.hyperband_eta,
     )
     unit_token = unit_name or f"{unit_label}{run_index}"
     sweep_config["name"] = f"{base_exp_name}_{unit_token}_sweep"
@@ -665,6 +687,42 @@ def validate_tuning_setup(
         )
 
 
+def run_final_seeds(
+    raw_config: dict[str, Any],
+    *,
+    args: argparse.Namespace,
+    base_cfg: TrainConfig,
+    base_exp_name: str,
+) -> list[dict[str, Any]]:
+    """Spec v1.15 §6: the best configuration of the seed-0 sweep (`best_tuned_run0.json`, its
+    `sweep_params`) trained on each of `args.final_seeds` (0-4), one record per seed, then a
+    summary. No W&B sweep; the configuration is not re-tuned per seed."""
+    summary_dir = base_cfg.output_dir / base_exp_name
+    best_path = summary_dir / "best_tuned_run0.json"
+    if not best_path.exists():
+        raise FileNotFoundError(f"{best_path} is missing: run the seed-0 sweep first.")
+    with best_path.open("r", encoding="utf-8") as handle:
+        best = json.load(handle)
+    params = dict(best["sweep_params"])
+    monitor = (args.monitor or default_monitor_for_task(base_cfg.task_type)).removeprefix("val_")
+    seeds = list(args.final_seeds)
+    records: list[dict[str, Any]] = []
+    for index, seed in enumerate(seeds):
+        record = train_trial(
+            raw_config, params=params, run_index=index, num_runs=len(seeds), seed=seed,
+            base_exp_name=base_exp_name, output_dir=summary_dir / "final_seeds",
+            monitor=monitor, trial_name=f"final_seed{seed}", unit_name=f"final_seed{seed}",
+            record_extra={"selected_from": str(best_path), "final_seed": seed},
+        )
+        write_run_record(summary_dir / f"final_seed{seed}.json", record)
+        records.append(record)
+    write_summary_files(
+        summary_dir, records=records, metric_names=report_metrics_for_task(base_cfg.task_type),
+        config=base_cfg, filename_prefix="final_seeds_summary",
+        extra_summary={"monitor": f"val_{monitor}", "seeds": seeds, "sweep_params": params})
+    return records
+
+
 def main() -> None:
     args = parse_args()
     if args.worker_context is not None:
@@ -687,7 +745,11 @@ def main() -> None:
         raw_config["device"] = "cpu"
         base_cfg = TrainConfig.from_dict(raw_config)
     base_exp_name = base_cfg.exp_name
-    num_runs = args.num_runs or base_cfg.data.num_runs
+    if args.final_seeds is not None:
+        run_final_seeds(raw_config, args=args, base_cfg=base_cfg, base_exp_name=base_exp_name)
+        return
+    # Spec v1.15 §6: tuning on seed 0 only (one run index, seed 0) unless named explicitly.
+    num_runs = args.num_runs or 1
     run_count = num_runs if args.run_count is None else args.run_count
     if run_count <= 0:
         raise ValueError(f"--run_count must be positive, got {run_count}.")
@@ -698,7 +760,7 @@ def main() -> None:
         )
     if args.sweep_id and run_count != 1:
         raise ValueError("--sweep_id is only unambiguous when --run_count 1 is used.")
-    base_seed = args.base_seed if args.base_seed is not None else base_cfg.seed
+    base_seed = args.base_seed if args.base_seed is not None else TUNING_SEED
     monitor = (args.monitor or default_monitor_for_task(base_cfg.task_type)).removeprefix("val_")
     state_dir = args.state_dir or (base_cfg.output_dir / base_exp_name)
 
@@ -754,7 +816,7 @@ def main() -> None:
         filename_prefix="tuning_summary",
         extra_summary={
             "monitor": f"val_{monitor}",
-            "tuning": "wandb_bayes_hyperband_per_seed",
+            "tuning": "wandb_plain_bayes_seed0",
             "run_partition": {
                 "start": args.run_start,
                 "count": run_count,

@@ -2,6 +2,7 @@
 # (calibrated value for l_max = 4, WISP_WALKS_PER_ANCHOR; 0 resolves to it), l_max = 4. Solver
 # settings are the fixed card values (never tuned), identical to imdb_h2snn_v3b.yaml. The cost smoke
 # (`scripts/v3b_cost_smoke.py`) runs 2 epochs of this configuration; it is not a training run.
+# Part M (M10): no scheduler, no clipping, epochs and patience from the protocol budget (spec v1.15 §6).
 data:
   dataset_name: acm
   root: data
@@ -29,9 +30,6 @@ optim:
   name: adamw
   lr: 0.001
   weight_decay: 0.0001
-  scheduler: cosine
-  grad_clip: 1.0
-epochs: 200
 seed: 42
 device: cuda
 exp_name: acm_h2snn_v3b

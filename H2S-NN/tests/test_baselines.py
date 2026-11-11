@@ -342,17 +342,20 @@ class CampaignSweepTests(unittest.TestCase):
                 epochs=default_epochs(task),
             )
             self.assertEqual(sweep["method"], "bayes")
-            self.assertEqual(sweep["early_terminate"]["type"], "hyperband")
+            # spec v1.15 §6 (Part M, M10): plain Bayes for every method, no early termination
+            self.assertNotIn("early_terminate", sweep)
             self.assertTrue(
                 sweep["parameters"],
                 f"{cell.token} produced an empty search space",
             )
 
-    def test_hyperband_window_must_be_valid(self) -> None:
+    def test_no_hyperband_option_remains(self) -> None:
+        """Spec v1.15 §6: no Hyperband (it feeds unconverged scores to the surrogate); the
+        option is gone rather than defaulted off."""
         from src.baselines.campaign import Cell, build_sweep_config
 
         cell = Cell(model="gcn", task="link_prediction", dataset="lastfm")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             build_sweep_config(cell, monitor="auroc", n_trials=5, epochs=20,
                                hyperband_min_iter=20)
 

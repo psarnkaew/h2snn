@@ -161,20 +161,14 @@ def build_sweep_config(
     monitor: str,
     n_trials: int,
     epochs: int,
-    hyperband_min_iter: int = 20,
-    hyperband_eta: int = 3,
 ) -> dict[str, Any]:
-    """Bayes + Hyperband over the adapter's own search space.
+    """Plain Bayes over the adapter's own search space (spec v1.15 §6 Tuning: no Hyperband or
+    other early termination, the same N trials for every method; card Part M, M10).
 
     Same shape as the H2SNN campaign's sweeps, so the two sets of results are produced
-    under the same optimiser and pruning rules.
+    under the same optimiser. `epochs` is not used by the sweep (no early termination).
     """
 
-    if epochs <= hyperband_min_iter:
-        raise ValueError(
-            "epochs must exceed hyperband_min_iter so Hyperband has a valid stopping "
-            f"interval; got {epochs} <= {hyperband_min_iter}."
-        )
     adapter = get_adapter(cell.model)
     parameters = copy.deepcopy(adapter.search_space(cell.task, cell.dataset))
     if not parameters:
@@ -185,12 +179,6 @@ def build_sweep_config(
         "method": "bayes",
         "metric": {"name": f"best/{monitor.removeprefix('val_')}", "goal": "maximize"},
         "parameters": parameters,
-        "early_terminate": {
-            "type": "hyperband",
-            "min_iter": hyperband_min_iter,
-            "eta": hyperband_eta,
-            "max_iter": epochs,
-        },
     }
 
 
@@ -274,10 +262,9 @@ def monitor_for(task: str) -> str:
 def default_epochs(task: str) -> int:
     """Epoch budget per task, from the single budget table every adapter also reads.
 
-    Used here only to give Hyperband its ``max_iter``; the value that actually reaches a
-    training loop comes from :func:`src.baselines.budget.resolve_budget`. Reading both
-    from :data:`src.baselines.budget.TASK_EPOCHS` is what keeps the pruning bracket and
-    the real epoch count from drifting apart.
+    The value that actually reaches a training loop comes from
+    :func:`src.baselines.budget.resolve_budget`; both read the protocol table (spec v1.15 §6).
+    Sweeps no longer use it (plain Bayes, no Hyperband; Part M, M10).
     """
 
     if task not in TASK_EPOCHS:

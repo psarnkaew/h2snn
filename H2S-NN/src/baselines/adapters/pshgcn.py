@@ -143,12 +143,12 @@ class PSHGCNAdapter:
             # already expands to 4,369 monomials applied twice per forward.
             return {
                 "lr": grids.LR,
-                "weight_decay": {"values": [5e-5, 1e-3, 0.1, 0.8]},
+                "weight_decay": grids.WEIGHT_DECAY,  # shared axis (spec v1.15 §6)
                 "emb_dim": {"values": [128, 256]},
                 "hidden": {"values": [128, 256]},
                 "embed_dim": {"values": [16, 64, 256]},
                 "input_drop": grids.INPUT_DROP,
-                "dropout": {"values": [0.1, 0.3, 0.6]},
+                "dropout": grids.DROPOUT,  # shared axis (spec v1.15 §6)
                 "K": {"values": [1, 2, 3]},
                 "prop_lr": grids.PROP_LR,
                 "prop_wd": {"values": [5e-5, 1e-3]},

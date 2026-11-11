@@ -76,8 +76,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--base_seed", type=int, default=42)
     parser.add_argument("--unit_start", type=int, default=0)
     parser.add_argument("--unit_count", type=int, default=None)
-    parser.add_argument("--hyperband_min_iter", type=int, default=20)
-    parser.add_argument("--hyperband_eta", type=int, default=3)
     parser.add_argument("--wandb_project", type=str, default="h2snn_baseline")
     parser.add_argument("--wandb_entity", type=str, default="")
     parser.add_argument("--wandb_mode", type=str, default="online")
@@ -215,8 +213,6 @@ def main() -> None:
                 monitor=monitor,
                 n_trials=args.n_trials,
                 epochs=epochs,
-                hyperband_min_iter=args.hyperband_min_iter,
-                hyperband_eta=args.hyperband_eta,
             )
             print(f"  {cell.token}: {len(sweep['parameters'])} tunable parameters")
         print("validate_only: nothing was run.")
@@ -228,8 +224,6 @@ def main() -> None:
             monitor=monitor,
             n_trials=args.n_trials,
             epochs=epochs,
-            hyperband_min_iter=args.hyperband_min_iter,
-            hyperband_eta=args.hyperband_eta,
         )
         records: list[dict[str, Any]] = []
         for unit in units:

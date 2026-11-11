@@ -130,13 +130,12 @@ class WandbAndRunReportingTests(unittest.TestCase):
             metric="auroc",
             epochs=200,
             dataset_name="mutag",
-            hyperband_min_iter=21,
-            hyperband_eta=3,
         )
 
+        # spec v1.15 §6 (Part M, M10): plain Bayes, no Hyperband
         self.assertEqual(sweep["method"], "bayes")
         self.assertEqual(sweep["metric"]["name"], "best/auroc")
-        self.assertEqual(sweep["early_terminate"]["type"], "hyperband")
+        self.assertNotIn("early_terminate", sweep)
         self.assertEqual(sweep["parameters"]["d"]["values"], [16, 32, 64])
         # eta = sigmoid(theta), gamma = softplus(theta) are learned; their initial values
         # stay at the config defaults (0.5, 1.0) and are not searched.
@@ -171,7 +170,7 @@ class WandbAndRunReportingTests(unittest.TestCase):
             epochs=30,
             dataset_name="acm",
         )
-        self.assertEqual(node_sweep["parameters"]["d"]["values"], [16, 32])
+        self.assertEqual(node_sweep["parameters"]["d"]["values"], [16, 32, 64])
         self.assertIn("encoder_dropout", node_sweep["parameters"])
         self.assertIn("classifier_dropout", node_sweep["parameters"])
         featureless_link_sweep = build_sweep_config(
@@ -209,14 +208,15 @@ class WandbAndRunReportingTests(unittest.TestCase):
                 {"decoder_type": "dot"},
                 allowed_parameters=set(node_sweep["parameters"]),
             )
-        self.assertEqual(sweep["parameters"]["layer_dropout"]["values"], [0.0, 0.1, 0.2, 0.3])
+        self.assertNotIn("layer_dropout", sweep["parameters"])  # not a method component
+        self.assertNotIn("K", sweep["parameters"])
         self.assertEqual(
-            sweep["parameters"]["lr"]["values"],
-            [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2],
+            sweep["parameters"]["lr"],
+            {"distribution": "log_uniform_values", "min": 1e-4, "max": 1e-2},
         )
         self.assertEqual(
             sweep["parameters"]["weight_decay"]["values"],
-            [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3],
+            [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 1e-2, 0.1, 0.8],
         )
 
         raw = {
@@ -229,8 +229,10 @@ class WandbAndRunReportingTests(unittest.TestCase):
             },
             "optim": {},
         }
-        tuned = apply_sweep_overrides(raw, {"d": 32, "layer_dropout": 0.2})
-        self.assertAlmostEqual(tuned["model"]["layer_dropout"], 0.2)
+        tuned = apply_sweep_overrides(raw, {"d": 32, "graph_pooling": "max"})
+        self.assertEqual(tuned["model"]["graph_pooling"], "max")
+        with self.assertRaises(ValueError):  # layer_dropout is no longer a tuning parameter
+            apply_sweep_overrides(raw, {"d": 32, "layer_dropout": 0.2})
         self.assertEqual(tuned["model"]["d_r"], 7)
         self.assertEqual(tuned["model"]["edge_mlp_hidden_dim"], 23)
         self.assertEqual(tuned["model"]["classifier_hidden_dim"], 29)

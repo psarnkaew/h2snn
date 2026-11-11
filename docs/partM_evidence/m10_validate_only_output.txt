@@ -1,0 +1,216 @@
+{
+  "run_index": 0,
+  "state_path": "C:\\Users\\Acer\\AppData\\Local\\Temp\\claude\\c7cc368768f7bbeb\\0f654588-b93e-4b6e-b4d8-2efd3e5f9744\\scratchpad\\tune_validate\\acm_h2snn_v3b\\tuning_state_run0.json",
+  "resume": false,
+  "resume_action": "fresh",
+  "base_config_fingerprint": "624550593ede618ac39ea7085e9951474c15e9c85677ad8b42a7195f5ece11f5",
+  "sweep_config_fingerprint": "22d92de92e27e5efc8dcaa5e1edc0918fedeaf55ec4ff3b19e95eb1063d3023e",
+  "parameter_names": [
+    "classifier_dropout",
+    "d",
+    "encoder_dropout",
+    "lr",
+    "weight_decay",
+    "wisp_max_length",
+    "wisp_walks_per_anchor"
+  ],
+  "search_space": {
+    "d": {
+      "values": [
+        16,
+        32,
+        64
+      ]
+    },
+    "lr": {
+      "distribution": "log_uniform_values",
+      "min": 0.0001,
+      "max": 0.01
+    },
+    "weight_decay": {
+      "values": [
+        0.0,
+        1e-05,
+        5e-05,
+        0.0001,
+        0.0005,
+        0.001,
+        0.01,
+        0.1,
+        0.8
+      ]
+    },
+    "wisp_max_length": {
+      "values": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "wisp_walks_per_anchor": {
+      "values": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "encoder_dropout": {
+      "distribution": "uniform",
+      "min": 0.0,
+      "max": 0.9
+    },
+    "classifier_dropout": {
+      "distribution": "uniform",
+      "min": 0.0,
+      "max": 0.9
+    }
+  },
+  "d_values": [
+    16,
+    32,
+    64
+  ]
+}
+{
+  "run_index": 0,
+  "state_path": "C:\\Users\\Acer\\AppData\\Local\\Temp\\claude\\c7cc368768f7bbeb\\0f654588-b93e-4b6e-b4d8-2efd3e5f9744\\scratchpad\\tune_validate\\acm_pa_h2snn_v3b\\tuning_state_run0.json",
+  "resume": false,
+  "resume_action": "fresh",
+  "base_config_fingerprint": "b766f50f555fdacc0ebda8d90e4cc833e6394a22de75b658304f9c711aeaaa9b",
+  "sweep_config_fingerprint": "aa8005daff02aa033c61ade2d84894895d6f4092c93ded9b922f44bc3082ba12",
+  "parameter_names": [
+    "d",
+    "encoder_dropout",
+    "lr",
+    "weight_decay",
+    "wisp_max_length",
+    "wisp_walks_per_anchor"
+  ],
+  "search_space": {
+    "d": {
+      "values": [
+        16,
+        32,
+        64
+      ]
+    },
+    "lr": {
+      "distribution": "log_uniform_values",
+      "min": 0.0001,
+      "max": 0.01
+    },
+    "weight_decay": {
+      "values": [
+        0.0,
+        1e-05,
+        5e-05,
+        0.0001,
+        0.0005,
+        0.001,
+        0.01,
+        0.1,
+        0.8
+      ]
+    },
+    "wisp_max_length": {
+      "values": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "wisp_walks_per_anchor": {
+      "values": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "encoder_dropout": {
+      "distribution": "uniform",
+      "min": 0.0,
+      "max": 0.9
+    }
+  },
+  "d_values": [
+    16,
+    32,
+    64
+  ]
+}
+{
+  "run_index": 0,
+  "state_path": "C:\\Users\\Acer\\AppData\\Local\\Temp\\claude\\c7cc368768f7bbeb\\0f654588-b93e-4b6e-b4d8-2efd3e5f9744\\scratchpad\\tune_validate\\mutag_h2snn_v3b\\tuning_state_run0.json",
+  "resume": false,
+  "resume_action": "fresh",
+  "base_config_fingerprint": "27452472c970c97a516c4201fc9f4472d5a6c2773af418a63ec31d09f20cfcb0",
+  "sweep_config_fingerprint": "184d5d5d28a6683b1ea23b5c7fad6b66f43dcff714f68936b3cac8c5c2210b93",
+  "parameter_names": [
+    "d",
+    "graph_pooling",
+    "lr",
+    "weight_decay",
+    "wisp_max_length",
+    "wisp_walks_per_anchor"
+  ],
+  "search_space": {
+    "d": {
+      "values": [
+        16,
+        32,
+        64
+      ]
+    },
+    "lr": {
+      "distribution": "log_uniform_values",
+      "min": 0.0001,
+      "max": 0.01
+    },
+    "weight_decay": {
+      "values": [
+        0.0,
+        1e-05,
+        5e-05,
+        0.0001,
+        0.0005,
+        0.001,
+        0.01,
+        0.1,
+        0.8
+      ]
+    },
+    "wisp_max_length": {
+      "values": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "wisp_walks_per_anchor": {
+      "values": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "graph_pooling": {
+      "values": [
+        "mean",
+        "max",
+        "add",
+        "attention"
+      ]
+    }
+  },
+  "d_values": [
+    16,
+    32,
+    64
+  ]
+}

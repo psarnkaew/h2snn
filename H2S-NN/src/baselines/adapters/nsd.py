@@ -210,7 +210,7 @@ class NSDAdapter:
             "weight_decay": grids.WEIGHT_DECAY,
             "hidden_channels": {"values": [32, 64]},
             "dropout": grids.DROPOUT,
-            "input_dropout": {"values": [0.0, 0.2, 0.5]},
+            "input_dropout": grids.INPUT_DROP,  # shared axis (spec v1.15 §6)
             "d": {"values": [2, 3, 4, 5]},
             "layers": grids.SHEAF_LAYERS,
             "sheaf_model": {"values": list(SHEAF_MODELS)},

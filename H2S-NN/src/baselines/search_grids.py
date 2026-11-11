@@ -41,8 +41,10 @@ DROPOUT: dict[str, Any] = {"distribution": "uniform", "min": 0.0, "max": 0.9}
 INPUT_DROP: dict[str, Any] = {"distribution": "uniform", "min": 0.0, "max": 0.9}
 
 #: Weight decay. Categorical rather than log-uniform because 0.0 is a value several of
-#: these models publish, and a log scale cannot produce it.
-WEIGHT_DECAY: dict[str, Any] = {"values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]}
+#: these models publish, and a log scale cannot produce it. Spec v1.15 §6 (author decision
+#: (a), round 2; card Part M, M10): one range for every method, H2S-NN included, extended to
+#: PSHGCN's published link-prediction values 0.1 and 0.8.
+WEIGHT_DECAY: dict[str, Any] = {"values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 1e-2, 0.1, 0.8]}
 
 #: Hidden width. Extended downward to 16 and 32, which is where H2SGNN reports its ACM
 #: and DBLP results.
