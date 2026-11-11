@@ -102,15 +102,17 @@ a{color:var(--accent)}
 <tr><td>D8</td><td>Seeds</td><td>5 (ไม่สนใจ spec)</td><td>เหมือนข้อ 4</td><td>5.3</td></tr>
 <tr><td>LP</td><td>Protocol หลักของ LP</td><td>ใช้ HGB กับทุก LP task รวม task ที่สร้างจาก NC; ไม่ใช้ HeaRT ทั้ง primary และ secondary</td><td>เหตุผลของผู้เขียน: protocol ต้องตรงกับ dataset อื่น ไม่งั้นต้องตอบ reviewer เรื่อง bias. Spec F8/F14/F16/F21 ถูกแทนที่</td><td>5.2</td></tr>
 <tr><td>Test</td><td>นัยสำคัญที่ 5 seeds</td><td>Welch's t-test ทุก task; ทดสอบบน test metric ทุกตัวที่รายงาน ไม่เลือก metric ล่วงหน้า</td><td>ต้องกำหนดล่วงหน้าแค่ validation metric ที่ใช้เลือก config/checkpoint (§5.5)</td><td>5.5</td></tr>
+<tr><td>Metrics</td><td>test metric</td><td>NC ทั้ง 8: Macro/Micro-F1; LP: ROC-AUC + MRR; GC: Macro/Micro-F1</td><td>NC ของ H2GB ต่างจากต้นทาง (Accuracy/F1) ดูผลที่ตามมาใน §5.5. validation: NC/GC Macro-F1, LP ROC-AUC</td><td>5.5</td></tr>
 <tr><td>Readout</td><td>NC/LP/GC</td><td>ไม่ออกแบบ readout ใหม่: NC/LP ตาม HGB, GC ตาม HetSheaf ("แบบปกติ")</td><td>ไม่มี component ใหม่ จึงไม่ต้องมี ablation, model analysis หรือ motivation เพิ่ม (ซึ่ง reviewer ติ). GC อาจแพ้ HetSheaf ที่ใช้ SheafPool เอง ต้องรายงานตามจริง (§6)</td><td>6</td></tr>
 <tr><td>p-value</td><td>การปรับเมื่อทดสอบหลายครั้ง</td><td>เลื่อนไปดูผลก่อน</td><td>ผูกมัดไว้ตอนนี้: รายงาน p ดิบทุกรายการ จำนวนการทดสอบ และทั้งค่าดิบกับค่าที่ปรับ (§5.5)</td><td>5.5</td></tr>
 <tr><td>Budget</td><td>epoch/patience ของ HGB และ H2GB</td><td>ตัดสินตอนเทรนจริง</td><td>รวม GC 200 หรือ 500 epoch (§4.1, §6)</td><td>4.1</td></tr>
 <tr><td>Cost</td><td>cost table ที่ reviewer ขอ</td><td>ทำในอนาคต</td><td>ยังไม่มี section</td><td>—</td></tr>
 </tbody></table></div>
 
+<div class="answer"><p><b>อัปเดต 2026-11-11 (หลังเอกสารนี้):</b> ปิดแล้ว 3 ข้อ — (1) ℋ² ใช้ชุด meta-path เดียวกับ MLH และ MDE; (2) Macro-F1 ทุก dataset NC: เฉลี่ยเฉพาะ class ที่มีอยู่ใน label จริงของ split นั้น (กำหนดรายการ class ครั้งเดียวต่อ split แล้วส่ง <code>labels=L</code> ทุก method); (3) F1 ของ IEEE-CIS-G ใน H2GB คือ Macro-F1 (ผู้เขียน). เพิ่มเติม: เก็บทั้ง ogbn-mag และ mag-year (ogbn-mag ใช้ PFP, PAP ของ Hetero²Net); การเตรียม feature ตามโค้ดต้นฉบับของแต่ละ method (H2S-NN ไม่ normalise, HetSheaf ใช้ NormalizeFeatures); งบ compute ไม่เป็นข้อจำกัด. มติทั้งหมดเขียนลง spec v1.14 แล้ว (<code>docs/H2S-NN_methodology_spec.md</code>, changelog H1–H10).</p></div>
 <div class="decision"><strong>ที่ยังเปิดอยู่</strong>
 <ol class="body">
-<li><b>ตาราง metrics ต่อ task</b> (validation และ test, §5.5): ผมเสนอให้ตาม protocol ต้นทาง รอผู้เขียนยืนยัน; threshold ของ F1 บน IEEE-CIS-G ยังไม่ได้อ่านจากโค้ด H2GB <span class="tag">UNVERIFIED</span></li>
+<li><b>Metrics (§5.5)</b>: test ตัดสินแล้ว; validation (NC/GC Macro-F1, LP ROC-AUC) ผมถือว่าผู้เขียนรับตามที่เสนอ ถ้าไม่เห็นด้วยแจ้งได้. ต้องกำหนดก่อนรัน: วิธีเฉลี่ย Macro-F1 ของ ogbn-mag (349 class) และความหมายของ F1 บน IEEE-CIS-G เทียบกับ H2GB <span class="tag">UNVERIFIED</span></li>
 <li><b>Meta-path</b>: รายการ predefined ของ MAG และ RCDD ใน Hetero²Net ยังไม่ได้เปิดดู; ℋ² (มีเฉพาะโค้ด H2GB) จะป้อนชุดเดียวกับ MLH/MDE หรือไม่ (§2.2)</li>
 <li><b>HSB-GDL</b>: รอ author ตอบ (ผู้เขียนยืนยัน §3.3)</li>
 <li><b>Mini-batch design</b> (§1) และ <b>per-scope PCG ต่อกราฟ</b> ที่ยังไม่มีเทส (ต้องมีก่อนรัน GC ด้วย v3-B แบบ batch หลายกราฟ)</li>
@@ -245,6 +247,7 @@ a{color:var(--accent)}
 <tr><td>IEEE-CIS-G</td><td>H2GB</td><td>finance (fraud)</td><td>153,880</td><td>12</td><td>2,873,472</td><td>22</td><td>transaction</td><td>2 (ไม่สมดุล)</td><td>transaction 4,823; บาง type ไม่มี</td><td>time 80/10/10</td><td>F1</td><td>full หรือ mini-batch</td></tr>
 <tr><td>H-Pokec</td><td>H2GB</td><td>social</td><td>1,731,977</td><td>16</td><td>51,774,836</td><td>31</td><td>user</td><td>2</td><td>user 66; บาง type ไม่มี</td><td>random 50/25/25</td><td>Accuracy</td><td>mini-batch</td></tr>
 </tbody></table></div>
+<p><b>Metric ของ NC</b>: ตามมติใช้ Macro/Micro-F1 ทุก dataset แทน Accuracy/F1 ในคอลัมน์ Metric ของ 4 ชุด H2GB (§5.5)</p>
 <p><b>D4 — มติ: ไม่เพิ่ม</b> (ผู้เขียน). ข้อมูลประกอบ: H2GB มีอีก 5 ชุดที่ผ่านกฎ (≥ 2 types) แต่ spec F3 ไม่ได้เลือก: oag-cs (1.1M nodes, 4 types, 3,514 classes), oag-eng, oag-chem, RCDD (13.8M nodes, 7 types, binary), PDNS (1.17M nodes, 2 types, binary). เหตุผลที่ไม่เลือกไม่อยู่ในเอกสารที่ผมอ่าน <span class="tag">UNVERIFIED</span>. ชุดใหญ่อย่าง RCDD ใช้ทรัพยากรมาก ถ้าต้องการช่วง ℋ² เพิ่มสำหรับ C6 ค่อยพิจารณา</p>
 
 <h3>3.2 Link prediction</h3>
@@ -389,9 +392,9 @@ a{color:var(--accent)}
 <thead><tr><th>Task</th><th>Dataset</th><th>Protocol จาก</th><th>Split</th><th>Metric</th><th>สถานะ</th></tr></thead>
 <tbody>
 <tr><td>NC</td><td>ACM, DBLP, IMDB, Freebase</td><td>HGB</td><td>24/6/70</td><td>Macro/Micro-F1</td><td>epoch/patience ของ HGB ยังไม่ยืนยัน <span class="tag">UNVERIFIED</span></td></tr>
-<tr><td>NC</td><td>ogbn-mag</td><td>H2GB</td><td>time 85/9/6</td><td>Accuracy</td><td>seeds/budget ของ H2GB <span class="tag">UNVERIFIED</span></td></tr>
-<tr><td>NC</td><td>mag-year, H-Pokec</td><td>H2GB</td><td>random 50/25/25</td><td>Accuracy</td><td>เหมือนข้างบน</td></tr>
-<tr><td>NC</td><td>IEEE-CIS-G</td><td>H2GB</td><td>time 80/10/10</td><td>F1</td><td>เหมือนข้างบน</td></tr>
+<tr><td>NC</td><td>ogbn-mag</td><td>H2GB</td><td>time 85/9/6</td><td><s>Accuracy</s> → <b>Macro/Micro-F1</b> (มติ)</td><td>seeds/budget ของ H2GB <span class="tag">UNVERIFIED</span></td></tr>
+<tr><td>NC</td><td>mag-year, H-Pokec</td><td>H2GB</td><td>random 50/25/25</td><td><s>Accuracy</s> → <b>Macro/Micro-F1</b> (มติ)</td><td>เหมือนข้างบน</td></tr>
+<tr><td>NC</td><td>IEEE-CIS-G</td><td>H2GB</td><td>time 80/10/10</td><td><s>F1</s> → <b>Macro/Micro-F1</b> (มติ)</td><td>เหมือนข้างบน</td></tr>
 <tr><td>LP</td><td>acm_pa, dblp_ap, imdb_ma, freebase_bb, PubMed, LastFM, ogbn-mag P–P, H-Pokec U–U</td><td>HGB (ทุก task ตามมติ LP)</td><td>81/9/10, test negatives 2-hop 1:1</td><td>ROC-AUC, MRR</td><td>§5.2</td></tr>
 <tr><td>GC</td><td>MUTAG, PROTEINS, ENZYMES, NCI1</td><td>HetSheaf</td><td>random 80/10/10, seed 42, split เดียวทุก seed</td><td>Macro/Micro-F1</td><td>§6</td></tr>
 </tbody></table></div>
@@ -426,26 +429,30 @@ a{color:var(--accent)}
 <tr><td>การทดสอบ</td><td><code>scipy.stats.ttest_ind(a, b, equal_var=False)</code> two-sided, unpaired; เทียบ H2S-NN กับวิธีอื่นที่ mean test ดีที่สุดใน dataset และ metric นั้น. ถ้ามีวิธีอื่นดีกว่า H2S-NN อย่างมีนัยสำคัญ ต้องรายงานด้วย ไม่ซ่อน</td><td>หลังรัน</td></tr>
 <tr><td>Variance เป็นศูนย์ในกลุ่มใดกลุ่มหนึ่ง</td><td>รายงาน "n/a" ไม่เติมค่า p</td><td>หลังรัน</td></tr>
 </tbody></table></div>
-<h4>ตาราง metrics ต่อ task <span class="tag">PROPOSAL</span></h4>
+<h4>ตาราง metrics ต่อ task</h4>
+<div class="answer"><p><b>มติ test metric</b> (ผู้เขียน): NC ทุก dataset ใช้ Macro-F1 และ Micro-F1; LP ใช้ ROC-AUC และ MRR; GC ใช้ Macro-F1 และ Micro-F1. NC ของ H2GB จึงเปลี่ยนจาก Accuracy/F1 ของต้นทางเป็น Macro/Micro-F1 เหมือน HGB</p></div>
 <div class="tbl"><table>
-<thead><tr><th>Task / dataset</th><th>ลักษณะข้อมูลที่เกี่ยว</th><th>Validation (เลือก config/checkpoint)</th><th>Test (รายงานและทดสอบ)</th><th>ที่มา</th></tr></thead>
+<thead><tr><th>Task</th><th>Validation (เลือก config/checkpoint)</th><th>Test (รายงานและทดสอบ)</th><th>ที่มา</th></tr></thead>
 <tbody>
-<tr><td>NC: ACM, DBLP, Freebase</td><td>หลาย class (3, 4, 7) ไม่สมดุล</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HGB; sweep ของ HetSheaf ใช้ <code>valid/macro-f1</code></td></tr>
-<tr><td>NC: IMDB</td><td>multi-label 5 genre</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HGB</td></tr>
-<tr><td>NC: ogbn-mag, mag-year, H-Pokec</td><td>349 / 5 / 2 class; H-Pokec ค่อนข้างสมดุล</td><td>Accuracy</td><td>Accuracy</td><td>H2GB <span class="tag">VERIFIED-SOURCE</span> (จากตาราง §3.1)</td></tr>
-<tr><td>NC: IEEE-CIS-G</td><td>fraud, binary ไม่สมดุลมาก (Accuracy ใช้ไม่ได้)</td><td>F1</td><td>F1</td><td>H2GB; threshold ของ F1 ยังไม่ยืนยัน <span class="tag">UNVERIFIED</span></td></tr>
-<tr><td>LP: ทั้ง 8 task</td><td>test negatives 1:1 (HGB) จึงสมดุล</td><td>ROC-AUC</td><td>ROC-AUC, MRR</td><td>HGB. AUPR ที่ HetSheaf รายงานให้ใส่ใน appendix ได้ แต่ไม่ทดสอบ</td></tr>
-<tr><td>GC: MUTAG, PROTEINS, NCI1</td><td>2 class, MUTAG/PROTEINS ไม่สมดุลเล็กน้อย</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HetSheaf (sweep <code>valid/macro-f1</code>)</td></tr>
-<tr><td>GC: ENZYMES</td><td>6 class สมดุล</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HetSheaf</td></tr>
+<tr><td>NC ทั้ง 8 (HGB 4 + H2GB 4)</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HGB; H2GB 4 ชุดปรับตามมติ</td></tr>
+<tr><td>LP ทั้ง 8 task</td><td>ROC-AUC <span class="tag">PROPOSAL</span> (ผมถือว่าผู้เขียนรับตามที่เสนอ)</td><td>ROC-AUC, MRR</td><td>HGB</td></tr>
+<tr><td>GC ทั้ง 4 ชุด</td><td>Macro-F1</td><td>Macro-F1, Micro-F1</td><td>HetSheaf (sweep <code>valid/macro-f1</code>)</td></tr>
 </tbody></table></div>
-<p><b>เหตุผลที่ตามต้นทางแทนการเลือก metric ที่เหมาะกับ dataset เอง</b> <span class="tag">DERIVED</span>: (1) มติ D6 ให้ rerun ภายใต้ protocol ของ HGB/H2GB/HetSheaf และ sanity gate ต้องเทียบกับตัวเลขที่เขาตีพิมพ์ ซึ่งทำได้เฉพาะ metric เดียวกัน; (2) การเลือก metric เองเป็นอิสระเพิ่ม reviewer อาจตั้งคำถามว่าเลือกให้ผลดูดี; (3) metric ของต้นทางก็สอดคล้องกับลักษณะข้อมูลอยู่แล้ว: Macro-F1 สำหรับ class ไม่สมดุล, F1 สำหรับ fraud, ROC-AUC สำหรับ LP ที่ negatives 1:1; (4) AUPR ให้ข้อมูลเพิ่มน้อยเมื่อ negatives 1:1 และการเพิ่มจะทำให้จำนวนการทดสอบเพิ่ม. หมายเหตุ: บน task single-label Micro-F1 = Accuracy. ROC-AUC เลือกเป็น validation ของ LP เพราะไม่ขึ้นกับ threshold และ validation negatives ในโค้ดเป็นแบบสุ่ม (spec §6 เดิมเขียน MRR). เหตุผลของ MRR ที่ไม่ใช้เลือก: ยังไม่ได้ตรวจว่า HGB คำนวณเทียบ negative กี่ตัวต่อ positive <span class="tag">UNVERIFIED</span></p>
+<p><b>ผลที่ตามมาของ NC แบบ Macro/Micro-F1 กับ H2GB</b> <span class="tag">DERIVED</span>:</p>
+<ol class="body">
+<li>บน single-label Micro-F1 = Accuracy จึงเทียบ Accuracy ที่ H2GB ตีพิมพ์ของ ogbn-mag, mag-year, H-Pokec ได้ผ่าน Micro-F1 (ใช้เป็น sanity gate ได้)</li>
+<li>IEEE-CIS-G: H2GB รายงาน F1 ซึ่งผมยังไม่ได้ตรวจว่าเป็น positive-class หรือ macro <span class="tag">UNVERIFIED</span> จึงเทียบกับตัวเลขที่เขาตีพิมพ์ไม่ได้ตรง ๆ จนกว่าจะตรวจ. ที่ fraud ไม่สมดุลมาก Micro-F1 (= accuracy) สูงได้จากการทายคลาสส่วนใหญ่ ควรอ่าน Macro-F1 เป็นหลักบน dataset นี้และบอกใน caption</li>
+<li>ogbn-mag มี 349 class: Macro-F1 เฉลี่ยทุก class จะต่ำกว่า Accuracy มาก และต้องกำหนดก่อนรันว่าเฉลี่ยเฉพาะ class ที่มีใน test หรือทุก class (ใช้วิธีเดียวกันทุก method)</li>
+<li>จำนวนการทดสอบ: NC 16 + LP 16 + GC 8 = 40 (ดู §5.5 ตารางข้อจำกัด)</li>
+</ol>
+<p><b>เหตุผลเดิมของ LP</b>: validation ใช้ ROC-AUC เพราะไม่ขึ้นกับ threshold และ validation negatives ในโค้ดเป็นแบบสุ่ม (spec §6 เดิมเขียน MRR); ไม่ใช้ MRR เลือกเพราะยังไม่ได้ตรวจว่า HGB คำนวณเทียบ negative กี่ตัวต่อ positive <span class="tag">UNVERIFIED</span>. AUPR ที่ HetSheaf รายงานใส่ใน appendix ได้โดยไม่ทดสอบ</p>
 <p><b>Welch's t-test คืออะไร และทำไมไม่ใช้ t-test ปกติ</b>: เปรียบเทียบ mean ของสองกลุ่มโดยไม่สมมติว่า variance เท่ากัน (t-test ปกติสมมติเท่ากัน) และปรับ degrees of freedom ตามขนาด variance ของแต่ละกลุ่ม. เหมาะกับกรณีที่ H2S-NN กับ baseline มี std ต่างกันมาก ซึ่งเกิดบ่อย. การรายงาน mean ± std ของ 5 seeds เป็นแค่การบรรยาย ส่วน test ใช้ตอบว่า "ผลต่างนี้เกินความแปรปรวนจาก seed หรือไม่". ที่ n = 5 เทียบกับ Wilcoxon แบบ exact ซึ่งมี p ต่ำสุด 0.0625 (ไม่มีทางถึง 0.05) Welch ยังให้ p ต่ำกว่า 0.05 ได้ จึงเลือกใช้</p>
 <div class="tbl"><table>
 <thead><tr><th>ข้อจำกัดที่ต้องบอกใน paper</th><th>รายละเอียด</th></tr></thead>
 <tbody>
 <tr><td>สมมติฐาน normality</td><td>ตรวจไม่ได้ที่ n = 5 ต่อกลุ่ม; ผล p ควรอ่านเป็นแนวทางไม่ใช่ค่าที่แน่นอน <span class="tag">DERIVED</span></td></tr>
 <tr><td>Variance มาจากอะไร</td><td>NC และ LP ใช้ split คงที่ seed แปรเฉพาะ initialization/การสุ่มของ training; GC ใช้ split เดียว seed 42 ทุก seed. จึงบอกได้แค่ความมั่นคงต่อ seed ไม่ใช่ต่อการเปลี่ยน split</td></tr>
-<tr><td>จำนวนการทดสอบ</td><td>ถ้ารายงานทุก metric ราว 36 การทดสอบ (NC 12 + LP 16 + GC 8) <span class="tag">DERIVED</span> นับจากตาราง §5.4; ที่ α = 0.05 คาดว่ามีผลบวกลวงได้ราว 1–2 รายการแม้ไม่มีผลจริง. การไม่เลือก metric ล่วงหน้าทำให้จำนวนนี้มากขึ้น. ต้องรายงานจำนวนการทดสอบ; จะปรับ p หรือไม่: <b>เลื่อนไปดูผลก่อน</b> (ผู้เขียน). ข้อผูกมัดที่ต้องมีตั้งแต่ตอนนี้: รายงาน p ดิบและจำนวนการทดสอบทุกรายการ ไม่ทิ้งรายการใด และรายงานทั้งค่าดิบกับค่าที่ปรับ (Holm/Bonferroni คำนวณจาก p ดิบได้ทุกเมื่อ)</td></tr>
+<tr><td>จำนวนการทดสอบ</td><td>ถ้ารายงานทุก metric ตามตาราง metrics ราว 40 การทดสอบ (NC 16 + LP 16 + GC 8) <span class="tag">DERIVED</span>; ที่ α = 0.05 คาดว่ามีผลบวกลวงได้ราว 2 รายการแม้ไม่มีผลจริง. การไม่เลือก metric ล่วงหน้าทำให้จำนวนนี้มากขึ้น. ต้องรายงานจำนวนการทดสอบ; จะปรับ p หรือไม่: <b>เลื่อนไปดูผลก่อน</b> (ผู้เขียน). ข้อผูกมัดที่ต้องมีตั้งแต่ตอนนี้: รายงาน p ดิบและจำนวนการทดสอบทุกรายการ ไม่ทิ้งรายการใด และรายงานทั้งค่าดิบกับค่าที่ปรับ (Holm/Bonferroni คำนวณจาก p ดิบได้ทุกเมื่อ)</td></tr>
 <tr><td>เลือกคู่เทียบจาก test</td><td>"วิธีอื่นที่ดีที่สุด" เลือกจาก mean ของ test เอง ซึ่งเอนเอียงไปทางทำให้ผลต่างเล็กลง (เข้าข้าง baseline) จึงเป็นการทดสอบที่ไม่หลวมสำหรับ H2S-NN</td></tr>
 </tbody></table></div>
 
