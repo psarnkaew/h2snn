@@ -50,6 +50,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.baselines.runtime.vendor_paths import vendor_path  # noqa: E402
+from src.data.data_layout import REPO_DATA_ROOT, nc_root  # noqa: E402
 
 EdgeType = tuple[str, str, str]
 MetaPath = tuple[EdgeType, EdgeType]
@@ -379,7 +380,7 @@ def metapath_name(metapath: MetaPath) -> str:
 def load_hgb(data_root: Path, dataset: str):
     from torch_geometric.datasets import HGBDataset
 
-    return HGBDataset(root=str(data_root / dataset), name=HGB_DATASETS[dataset])[0]
+    return HGBDataset(root=str(nc_root(data_root)), name=HGB_DATASETS[dataset])[0]
 
 
 def target_type(data) -> str:
@@ -751,7 +752,7 @@ def write_markdown(results: list[DatasetResult], path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data-root", type=Path, default=PROJECT_ROOT / "data")
+    parser.add_argument("--data-root", type=Path, default=REPO_DATA_ROOT)
     parser.add_argument("--datasets", nargs="+", default=list(HGB_DATASETS),
                         choices=list(HGB_DATASETS))
     parser.add_argument("--freebase-as-loaded", action="store_true",

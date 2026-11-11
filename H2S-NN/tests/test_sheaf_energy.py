@@ -20,6 +20,7 @@ try:
 except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
+from src.data.data_layout import REPO_DATA_ROOT, nc_root
 from src.data.structures import FaceGroup
 from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, normalize_reflectors
 from src.models.sheaf_energy import (
@@ -294,7 +295,7 @@ class EliminationTests(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------------- T1 (real draw)
-@unittest.skipUnless((REPO_ROOT / "data" / "imdb").exists(), "HGB IMDB data not present")
+@unittest.skipUnless((nc_root(REPO_DATA_ROOT) / "imdb").exists(), "HGB IMDB data not present")
 class FunctorialityOnRealDrawTests(unittest.TestCase):
     """T1 on one real WISP draw: IMDB, r = 2, 50 anchors, fp32, d = 32."""
 
@@ -305,7 +306,7 @@ class FunctorialityOnRealDrawTests(unittest.TestCase):
         from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
 
         config = TrainConfig.from_dict({
-            "data": {"dataset_name": "imdb", "root": str(REPO_ROOT / "data"),
+            "data": {"dataset_name": "imdb", "root": str(REPO_DATA_ROOT),
                      "wisp_walks_per_anchor": 2, "wisp_max_length": 4},
             "model": {"d": 32}, "device": "cpu",
         })

@@ -12,6 +12,7 @@ from tempfile import TemporaryDirectory
 from scripts.lp import build_derived_lp as bd
 from scripts.lp.apply_feature_rule import apply_rule
 from tests.test_lp_derived import derived_config, write_release
+from src.data.data_layout import lp_derived_root
 
 TARGET = ("paper", "rel_2", "author")
 
@@ -21,7 +22,7 @@ class FeatureRuleAndGuardTests(unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_release(self.root / "release")
-        self.task_dir = self.root / "lp_derived" / "acm_pa"
+        self.task_dir = lp_derived_root(self.root) / "acm_pa"
         self.build()
         self.record = apply_rule("acm_pa", self.task_dir)
 

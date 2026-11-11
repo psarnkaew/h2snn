@@ -262,7 +262,7 @@ DATASET_PRESETS = NODE_CLASSIFICATION_PRESETS
 
 LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
     "lastfm": {
-        # HGB local-format LastFM (data/LastFM): node.dat/link.dat/link.dat.test,
+        # HGB local-format LastFM (data/LP/LastFM): node.dat/link.dat/link.dat.test,
         # relation 0 is "user-artist" — the sole relation in link.dat.test.
         "target_relation": ("user", "rel_0", "artist"),
         "neg_sampling_mode": "resample_each_epoch",

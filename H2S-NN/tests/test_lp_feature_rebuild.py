@@ -21,6 +21,7 @@ import lp_feature_rules as fr  # noqa: E402
 import rebuild_lp_features as rb  # noqa: E402
 from scripts.lp import build_derived_lp as bd  # noqa: E402
 from tests.test_lp_feature_rules import write_release  # noqa: E402
+from src.data.data_layout import lp_derived_root  # noqa: E402
 
 TARGET = 0  # paper -> author in the toy release
 
@@ -33,7 +34,7 @@ class FeatureRebuildTests(unittest.TestCase):
     def build(self, rule: str, keyword_type: int | None = None) -> tuple[fr.TaskSpec, dict]:
         release = self.root / f"release_{rule}"
         write_release(release, rule)
-        task = self.root / "lp_derived" / rule
+        task = lp_derived_root(self.root) / rule
         bd.build_task(release, task, TARGET, seed=42, val_frac=0.09, test_frac=0.10)
         spec = fr.TaskSpec(rule, task, release, TARGET, keyword_type)
         self.release_md5 = {n: md5(release / n) for n in ("node.dat", "link.dat", "info.dat")}

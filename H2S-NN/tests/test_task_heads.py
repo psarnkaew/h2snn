@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
 from src.configs.config import TrainConfig
+from src.data.data_layout import lp_root
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GOLDEN_SCRIPT = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden.py"
@@ -46,7 +47,7 @@ def _write_tiny_lastfm(root: Path) -> None:
     """HGB local format: users (type 0), artists (type 1), tags (type 2); rel 0 user->artist
     (the target), rel 1 user->user, rel 2 artist->tag; link.dat.test holds rel-0 pairs that
     are not in link.dat."""
-    folder = root / "LastFM"
+    folder = lp_root(root) / "LastFM"
     folder.mkdir(parents=True)
     generator = torch.Generator().manual_seed(0)
     users, artists, tags = range(0, 12), range(12, 24), range(24, 30)

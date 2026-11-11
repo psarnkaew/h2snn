@@ -54,6 +54,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.configs.config import TrainConfig  # noqa: E402
+from src.data.data_layout import REPO_DATA_ROOT, lp_root  # noqa: E402
 from src.data.link_prediction_dataset import (  # noqa: E402
     _LOCAL_HGB_LINK_DATASETS,
     _load_local_hgb_link_data,
@@ -124,7 +125,7 @@ def task_config(data_root: Path, task: HeartTask) -> TrainConfig:
 def load_task(data_root: Path, task: HeartTask) -> TaskData:
     """The loader's split (J4.2: validation = link.dat.valid) of the task's dataset."""
     spec = _LOCAL_HGB_LINK_DATASETS[task.dataset]
-    folder = data_root / str(spec["folder"])
+    folder = lp_root(data_root) / str(spec["folder"])
     split = _load_local_hgb_link_data(task_config(data_root, task))
     types = sorted(split.data.node_types)
     sizes = {t: int(split.data[t].num_nodes) for t in types}
@@ -490,7 +491,7 @@ def build_task(data_root: Path, name: str, seed: int = SEED, cn_metric: str = "h
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data-root", type=Path, default=PROJECT_ROOT / "data")
+    parser.add_argument("--data-root", type=Path, default=REPO_DATA_ROOT)
     parser.add_argument("--tasks", nargs="+", default=list(HEART_TASKS), choices=list(HEART_TASKS))
     parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--cn-metric", choices=("heart", "ra"), default="heart",

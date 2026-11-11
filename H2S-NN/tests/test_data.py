@@ -5,6 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
+from src.data.data_layout import REPO_DATA_ROOT, gc_root, tu_raw_dir
+
 
 class FakeHeteroData:
     def __init__(self) -> None:
@@ -420,7 +422,7 @@ class DataPipelineTests(unittest.TestCase):
 
         tmp_parent = Path(__file__).resolve().parent.parent
         with TemporaryDirectory(dir=tmp_parent) as tmpdir:
-            raw_dir = Path(tmpdir) / "tud" / "FAKE" / "raw"
+            raw_dir = tu_raw_dir(Path(tmpdir), "FAKE")
             raw_dir.mkdir(parents=True)
             (raw_dir / "FAKE_node_labels.txt").write_text("5\n7\n5\n", encoding="utf-8")
             (raw_dir / "FAKE_graph_indicator.txt").write_text("1\n1\n2\n", encoding="utf-8")
@@ -458,8 +460,7 @@ class DataPipelineTests(unittest.TestCase):
                 _load_tu_type_tensors(root=Path(tmpdir), tud_name="FAKE", data_list=soft)
 
     @unittest.skipUnless(
-        (Path(__file__).resolve().parents[1] / "data" / "tud" / "MUTAG" / "raw"
-         / "MUTAG_edge_labels.txt").exists(),
+        (tu_raw_dir(REPO_DATA_ROOT, "MUTAG") / "MUTAG_edge_labels.txt").exists(),
         "MUTAG raw files not present",
     )
     def test_tu_edge_types_match_raw_labels_by_key_on_mutag(self) -> None:
@@ -470,9 +471,9 @@ class DataPipelineTests(unittest.TestCase):
 
         from src.data.graph_classification_dataset import _load_tu_type_tensors
 
-        root = Path(__file__).resolve().parents[1] / "data"
-        raw = root / "tud" / "MUTAG" / "raw"
-        dataset = TUDataset(root=str(root / "tud"), name="MUTAG")
+        root = REPO_DATA_ROOT
+        raw = tu_raw_dir(root, "MUTAG")
+        dataset = TUDataset(root=str(gc_root(root)), name="MUTAG")
         data_list = [dataset[i] for i in range(len(dataset))]
         _, edge_types, _, num_relations = _load_tu_type_tensors(root, "MUTAG", data_list)
 
@@ -507,7 +508,7 @@ class DataPipelineTests(unittest.TestCase):
 
         tmp_parent = Path(__file__).resolve().parent.parent
         with TemporaryDirectory(dir=tmp_parent) as tmpdir:
-            raw_dir = Path(tmpdir) / "tud" / "FAKE" / "raw"
+            raw_dir = tu_raw_dir(Path(tmpdir), "FAKE")
             raw_dir.mkdir(parents=True)
             (raw_dir / "FAKE_node_labels.txt").write_text("1\n2\n3\n", encoding="utf-8")
             (raw_dir / "FAKE_graph_indicator.txt").write_text("1\n1\n1\n", encoding="utf-8")

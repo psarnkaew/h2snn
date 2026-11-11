@@ -54,6 +54,7 @@ from src.baselines.protocol import (
 )
 from src.baselines.published import load_published_params
 from src.baselines.runtime import PROJECT_ROOT, pushd_sys_path
+from src.data.data_layout import REPO_DATA_ROOT, nc_root
 from src.baselines.training import train_graph_classification, train_link_prediction
 from src.utils.misc import seed_everything
 
@@ -79,14 +80,14 @@ def _load_vendor_graph(dataset: str) -> tuple[Any, Any]:
     from torch_geometric.datasets import HGBDataset
 
     key = dataset.lower()
-    root = PROJECT_ROOT / "data" / key
+    root = nc_root(REPO_DATA_ROOT) / key
 
     with pushd_sys_path(VENDOR):
         from hetero2net import dataset as vendor_dataset  # type: ignore[import-not-found]
 
         original = vendor_dataset.HGBDataset
         vendor_dataset.HGBDataset = lambda root=None, name=None, transform=None: HGBDataset(
-            root=str(PROJECT_ROOT / "data" / str(name).lower()),
+            root=str(nc_root(REPO_DATA_ROOT)),
             name=str(name).upper(),
             transform=transform,
         )

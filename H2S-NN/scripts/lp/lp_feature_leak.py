@@ -29,6 +29,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lp_feature_rules as fr  # noqa: E402  (rule definitions: sources and column maps)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root  # noqa: E402
 
 
 def heart_rank(pos: np.ndarray, neg: np.ndarray) -> np.ndarray:
@@ -198,7 +202,7 @@ def main() -> None:
     parser.add_argument("--rules", type=Path, required=True,
                         help="JSON list of {task, type, source, aggregator}")
     parser.add_argument("--tasks", nargs="+", required=True)
-    parser.add_argument("--lp-root", type=Path, default=PROJECT_ROOT / "data" / "lp_derived")
+    parser.add_argument("--lp-root", type=Path, default=lp_derived_root(REPO_DATA_ROOT))
     parser.add_argument("--node-dat-root", type=Path, default=None,
                         help="folder holding <task>/node.dat to score (default: the task folder)")
     parser.add_argument("--heart-subdir", default="heart")

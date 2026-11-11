@@ -16,9 +16,10 @@ import torch
 
 from scripts.lp import build_derived_lp as bd
 from scripts.lp.apply_feature_rule import apply_rule
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DERIVED_ROOT = PROJECT_ROOT / "data" / "lp_derived"
+DERIVED_ROOT = lp_derived_root(REPO_DATA_ROOT)
 
 # Synthetic release laid out like HGB ACM: type 0 paper, 1 author, 2 subject, 3 term; relation
 # 2 = paper->author (target), 3 = its reverse, 4/5 paper<->subject, 0/1 cite/ref.
@@ -103,7 +104,7 @@ class SyntheticSplitTests(SplitPropertyMixin, unittest.TestCase):
         root = Path(self._tmp.name)
         write_release(root / "release")
         self.source = root / "release"
-        self.task_dir = root / "lp_derived" / "acm_pa"
+        self.task_dir = lp_derived_root(root) / "acm_pa"
         self.meta = bd.build_task(self.source, self.task_dir, 2, seed=42, val_frac=0.09,
                                   test_frac=0.10)
 
@@ -163,7 +164,7 @@ class SyntheticLoaderTests(unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_release(self.root / "release")
-        self.task_dir = self.root / "lp_derived" / "acm_pa"
+        self.task_dir = lp_derived_root(self.root) / "acm_pa"
         bd.build_task(self.root / "release", self.task_dir, 2, seed=42, val_frac=0.09,
                       test_frac=0.10)
         apply_rule("acm_pa", self.task_dir)  # F17/F20: the loader needs the rule applied
@@ -247,7 +248,7 @@ class FreebasePairSplitTests(unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_freebase_like(self.root / "release")
-        self.task_dir = self.root / "lp_derived" / "freebase_bb"
+        self.task_dir = lp_derived_root(self.root) / "freebase_bb"
         self.meta = bd.build_task_by_pair(self.root / "release", self.task_dir, 0, seed=42,
                                           val_frac=0.09, test_frac=0.10)
         apply_rule("freebase_bb", self.task_dir)  # F17/F20

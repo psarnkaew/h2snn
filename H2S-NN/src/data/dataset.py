@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from src.configs.config import TrainConfig
+from src.data.data_layout import nc_root
 from src.data.fact_layer import FactLayer, apply_fact_layer, build_fact_layer
 from src.data.path_sampler import build_schema_path_groups
 from src.data.wisp_sampler import build_wisp_path_groups
@@ -24,22 +25,22 @@ if TYPE_CHECKING:
 
 def _load_hetero_data(config: TrainConfig) -> "HeteroData":
     dataset_name = config.data.dataset_name.lower()
-    root = Path(config.data.root)
+    root = nc_root(Path(config.data.root))
 
     if dataset_name == "acm":
         from torch_geometric.datasets import HGBDataset
 
-        dataset = HGBDataset(root=str(root / "acm"), name="ACM")
+        dataset = HGBDataset(root=str(root), name="ACM")
         return dataset[0]
     if dataset_name == "dblp":
         from torch_geometric.datasets import HGBDataset
 
-        dataset = HGBDataset(root=str(root / "dblp"), name="DBLP")
+        dataset = HGBDataset(root=str(root), name="DBLP")
         return dataset[0]
     if dataset_name == "imdb":
         from torch_geometric.datasets import HGBDataset
 
-        dataset = HGBDataset(root=str(root / "imdb"), name="IMDB")
+        dataset = HGBDataset(root=str(root), name="IMDB")
         return dataset[0]
     raise ValueError(f"Unsupported dataset '{config.data.dataset_name}'.")
 

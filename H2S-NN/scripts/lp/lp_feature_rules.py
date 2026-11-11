@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -27,6 +28,10 @@ import numpy as np
 import scipy.sparse as sp
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root  # noqa: E402
 AGGREGATORS = ("or", "sum", "mean", "max")
 MEAN_TOLERANCE = 1e-12  # pre-registered: rounding only, for fractional (mean) values
 
@@ -403,7 +408,7 @@ def identify(spec: TaskSpec) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--tasks", nargs="+", default=["acm_pa", "dblp_ap", "imdb_ma"])
-    parser.add_argument("--lp-root", type=Path, default=PROJECT_ROOT / "data" / "lp_derived")
+    parser.add_argument("--lp-root", type=Path, default=lp_derived_root(REPO_DATA_ROOT))
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args()
     reports = []

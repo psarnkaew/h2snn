@@ -29,6 +29,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.configs.config import LINK_PREDICTION_PRESETS, TrainConfig  # noqa: E402
+from src.data.data_layout import REPO_DATA_ROOT, lp_root  # noqa: E402
 from src.data.fact_layer import inverse_relations_typed  # noqa: E402
 from src.data.link_prediction_dataset import (  # noqa: E402
     _LOCAL_HGB_LINK_DATASETS,
@@ -43,7 +44,7 @@ from src.data.link_prediction_dataset import (  # noqa: E402
 def carve_rows(data_root: Path, dataset: str) -> tuple[bytes, dict]:
     """The bytes of `link.dat.valid` for `dataset` (the carve, every relation) and a summary."""
     spec = _LOCAL_HGB_LINK_DATASETS[dataset]
-    folder = data_root / str(spec["folder"])
+    folder = lp_root(data_root) / str(spec["folder"])
     config = TrainConfig.from_dict({"device": "cpu", "data": {"dataset_name": dataset,
                                                              "root": str(data_root)}})
     preset = LINK_PREDICTION_PRESETS[dataset]
@@ -101,7 +102,7 @@ def target_rows(data_root: Path, dataset: str) -> tuple[bytes, dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data-root", type=Path, default=PROJECT_ROOT / "data")
+    parser.add_argument("--data-root", type=Path, default=REPO_DATA_ROOT)
     parser.add_argument("--datasets", nargs="+", default=["pubmed", "lastfm"],
                         choices=["pubmed", "lastfm"])
     parser.add_argument("--mode", choices=["target", "carve"], default="target")
@@ -112,7 +113,7 @@ def main() -> None:
         content = target if args.mode == "target" else carve
         if args.mode == "target":
             summary = target_summary
-        path = args.data_root / summary["folder"] / "link.dat.valid"
+        path = lp_root(args.data_root) / summary["folder"] / "link.dat.valid"
         if path.exists() and path.read_bytes() not in (carve, target):
             raise FileExistsError(f"{path} is neither the carve nor the target-only file; "
                                   "not overwritten.")

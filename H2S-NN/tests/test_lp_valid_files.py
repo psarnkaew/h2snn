@@ -19,9 +19,10 @@ import torch
 from scripts.lp import build_derived_lp as bd
 from scripts.lp.apply_feature_rule import apply_rule
 from tests.test_lp_derived import AUTHOR0, PAPER0, derived_config, write_release
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root, lp_root
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT / "data"
+DATA_ROOT = REPO_DATA_ROOT
 
 
 def write_pubmed_like(folder: Path, seed: int = 0) -> None:
@@ -69,7 +70,7 @@ def split_of(root: Path, dataset: str, config) -> tuple[dict, dict]:
                                                   _read_local_hgb_link_file, _split_validation)
 
     spec = _LOCAL_HGB_LINK_DATASETS[dataset]
-    folder = root / spec["folder"]
+    folder = lp_root(root) / spec["folder"]
     nodes = _load_local_hgb_nodes(folder, spec["node_type_names"])
     link = _read_local_hgb_link_file(folder / "link.dat", nodes)
     test = _read_local_hgb_link_file(folder / "link.dat.test", nodes)
@@ -96,7 +97,7 @@ class FileWrittenFromTheCarveTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
-        write_pubmed_like(self.root / "PubMed")
+        write_pubmed_like(lp_root(self.root) / "PubMed")
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -112,7 +113,7 @@ class FileWrittenFromTheCarveTests(unittest.TestCase):
         before = self._load()
         content, summary = carve_rows(self.root, "pubmed")
         self.assertGreater(summary["rows_per_relation"]["rel_2"], 0)
-        (self.root / "PubMed" / "link.dat.valid").write_bytes(content)
+        (lp_root(self.root) / "PubMed" / "link.dat.valid").write_bytes(content)
         with_file, carve = split_of(self.root, "pubmed", pubmed_config(self.root))
         assert_same_split(self, with_file, carve)
         after = self._load()
@@ -128,7 +129,7 @@ class FileWrittenFromTheCarveTests(unittest.TestCase):
                 if r.split("\t")[2] != "2"]
         one = next(r for r in content.decode().splitlines(keepends=True)
                    if r.split("\t")[2] == "2" and r.split("\t")[0] != r.split("\t")[1])
-        (self.root / "PubMed" / "link.dat.valid").write_bytes("".join(rows + [one]).encode())
+        (lp_root(self.root) / "PubMed" / "link.dat.valid").write_bytes("".join(rows + [one]).encode())
         with self.assertRaisesRegex(ValueError, "one orientation"):
             self._load()
 
@@ -142,7 +143,7 @@ class DerivedTaskValidFileTests(unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_release(self.root / "release")
-        self.task_dir = self.root / "lp_derived" / "acm_pa"
+        self.task_dir = lp_derived_root(self.root) / "acm_pa"
         bd.build_task(self.root / "release", self.task_dir, 2, seed=42, val_frac=0.09,
                       test_frac=0.10)
         apply_rule("acm_pa", self.task_dir)  # F17/F20
@@ -237,8 +238,8 @@ def link_edges_of(root: Path, dataset: str) -> dict:
                                                   _read_local_hgb_link_file)
 
     spec = _LOCAL_HGB_LINK_DATASETS[dataset]
-    nodes = _load_local_hgb_nodes(root / spec["folder"], spec["node_type_names"])
-    return _read_local_hgb_link_file(root / spec["folder"] / "link.dat", nodes)
+    nodes = _load_local_hgb_nodes(lp_root(root) / spec["folder"], spec["node_type_names"])
+    return _read_local_hgb_link_file(lp_root(root) / spec["folder"] / "link.dat", nodes)
 
 
 class TargetOnlyFileTests(unittest.TestCase):
@@ -248,7 +249,7 @@ class TargetOnlyFileTests(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
-        write_pubmed_like(self.root / "PubMed")
+        write_pubmed_like(lp_root(self.root) / "PubMed")
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -263,7 +264,7 @@ class TargetOnlyFileTests(unittest.TestCase):
         self.assertTrue(rows and all(r.split("\t")[2] == "2" for r in rows))
         self.assertEqual(rows, [r for r in carve.decode().splitlines(keepends=True)
                                 if r.split("\t")[2] == "2"])  # the same bytes as the carve's
-        (self.root / "PubMed" / "link.dat.valid").write_bytes(content)
+        (lp_root(self.root) / "PubMed" / "link.dat.valid").write_bytes(content)
         _, carve_split = split_of(self.root, "pubmed", pubmed_config(self.root))
         assert_target_only(self, loaded_split(pubmed_config(self.root)), carve_split,
                            link_edges_of(self.root, "pubmed"), "rel_2")
@@ -277,7 +278,7 @@ class RealValidFileTests(unittest.TestCase):
     def _check_target_only(self, dataset: str, folder: str, target: str) -> None:
         from src.configs.config import TrainConfig
 
-        if not _real(DATA_ROOT / folder):
+        if not _real(lp_root(DATA_ROOT) / folder):
             self.skipTest(f"data/{folder} or its link.dat.valid is absent")
         config = TrainConfig.from_dict({"device": "cpu", "data": {"dataset_name": dataset,
                                                                  "root": str(DATA_ROOT)}})
@@ -297,7 +298,7 @@ class RealValidFileTests(unittest.TestCase):
         targets = {"acm_pa": ("paper", "rel_2", "author"), "dblp_ap": ("author", "rel_0", "paper"),
                    "imdb_ma": ("movie", "rel_2", "actor")}
         for name, target in targets.items():
-            task_dir = DATA_ROOT / "lp_derived" / name
+            task_dir = lp_derived_root(DATA_ROOT) / name
             if not _real(task_dir):
                 self.skipTest(f"data/lp_derived/{name} not built")
             meta = json.loads((task_dir / "split_meta.json").read_text(encoding="utf-8"))

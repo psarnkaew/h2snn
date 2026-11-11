@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,11 @@ import numpy as np
 import scipy.sparse as sp
 import torch
 from torch_geometric.datasets import HGBDataset
+
+if str(Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from src.data.data_layout import REPO_DATA_ROOT, nc_root  # noqa: E402
 
 
 TARGET = "book"
@@ -244,8 +250,9 @@ def analyze(root: Path, output_dir: Path) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path("data"))
-    parser.add_argument("--output-dir", type=Path, default=Path("data/freebase/eda"))
+    parser.add_argument("--root", type=Path, default=nc_root(REPO_DATA_ROOT))
+    parser.add_argument("--output-dir", type=Path,
+                        default=nc_root(REPO_DATA_ROOT) / "freebase" / "eda")
     args = parser.parse_args()
     summary = analyze(args.root, args.output_dir)
     print(json.dumps(summary, indent=2))

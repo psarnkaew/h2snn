@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from src.configs.config import TrainConfig
+from src.data.data_layout import LP_DERIVED_DIR, lp_root
 from src.data.fact_layer import (
     FactLayer,
     apply_fact_layer,
@@ -75,17 +76,17 @@ _LOCAL_HGB_LINK_DATASETS = {
     # Every derived task carries feature_rule.json (spec v1.10 F17/F20): the loader refuses a
     # node.dat that does not match it (`_assert_feature_rule`).
     "acm_pa": {
-        "folder": "lp_derived/acm_pa",
+        "folder": f"{LP_DERIVED_DIR}/acm_pa",
         "node_type_names": {0: "paper", 1: "author", 2: "subject", 3: "term"},
         "feature_rule": True,
     },
     "dblp_ap": {
-        "folder": "lp_derived/dblp_ap",
+        "folder": f"{LP_DERIVED_DIR}/dblp_ap",
         "node_type_names": {0: "author", 1: "paper", 2: "term", 3: "venue"},
         "feature_rule": True,
     },
     "imdb_ma": {
-        "folder": "lp_derived/imdb_ma",
+        "folder": f"{LP_DERIVED_DIR}/imdb_ma",
         "node_type_names": {0: "movie", 1: "director", 2: "actor", 3: "keyword"},
         "feature_rule": True,
     },
@@ -93,7 +94,7 @@ _LOCAL_HGB_LINK_DATASETS = {
     # split 81/9/10 by unordered pair by scripts/lp/build_derived_lp.py. Self-loops stay in the
     # message graph as stored facts but are never positives (nor negatives: they are known).
     "freebase_bb": {
-        "folder": "lp_derived/freebase_bb",
+        "folder": f"{LP_DERIVED_DIR}/freebase_bb",
         "node_type_names": {0: "book", 1: "film", 2: "music", 3: "sports", 4: "people",
                             5: "location", 6: "organization", 7: "business"},
         "exclude_self_loop_positives": True,
@@ -137,7 +138,7 @@ def _load_link_pred_hetero_data(config: TrainConfig) -> "HeteroData":
     if dataset_name == "amazonbook":
         from torch_geometric.datasets import AmazonBook
 
-        dataset = AmazonBook(root=str(root / "amazonbook"))
+        dataset = AmazonBook(root=str(lp_root(root) / "amazonbook"))
         return dataset[0]
     raise ValueError(f"Unsupported link-prediction dataset '{config.data.dataset_name}'.")
 
@@ -171,7 +172,7 @@ def _load_official_ini_test_labels(
     metrics exactly reproducible against HGB's published Table 4, rather than an
     approximation via our own 2-hop sampler.
     """
-    label_path = root / f"{folder}_ini" / f"{folder}_ini_{relation_id}_label.txt"
+    label_path = lp_root(root) / f"{folder}_ini" / f"{folder}_ini_{relation_id}_label.txt"
     if not label_path.exists():
         return None
     import numpy as np
@@ -531,10 +532,15 @@ def _assert_feature_rule(dataset_dir: Path) -> None:
         )
 
 
+def local_hgb_link_dir(root: Path, dataset: str) -> Path:
+    """Folder of a local HGB-format link-prediction task under the data root (M1 layout)."""
+    return lp_root(root) / str(_LOCAL_HGB_LINK_DATASETS[dataset]["folder"])
+
+
 def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
     dataset_name = config.data.dataset_name.lower()
     spec = _LOCAL_HGB_LINK_DATASETS[dataset_name]
-    dataset_dir = Path(config.data.root) / str(spec["folder"])
+    dataset_dir = local_hgb_link_dir(Path(config.data.root), dataset_name)
     if not dataset_dir.exists():
         raise FileNotFoundError(
             f"Expected local HGB link-prediction data at '{dataset_dir}'."

@@ -14,8 +14,10 @@ from types import SimpleNamespace
 import torch
 from sklearn.metrics import f1_score
 
+from src.data.data_layout import REPO_DATA_ROOT, hgb_nc_raw_dir
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-IMDB_RAW = PROJECT_ROOT / "data" / "imdb" / "imdb" / "raw" / "IMDB"
+IMDB_RAW = hgb_nc_raw_dir(REPO_DATA_ROOT, "imdb")
 
 
 def _logits_where_threshold_and_topk_differ():
@@ -93,7 +95,7 @@ class RealIMDBSplitTests(unittest.TestCase):
         from src.data.dataset import build_dataset
 
         cls.data = build_dataset(TrainConfig.from_dict({"device": "cpu", "data": {
-            "dataset_name": "imdb", "root": str(PROJECT_ROOT / "data")}}))
+            "dataset_name": "imdb", "root": str(REPO_DATA_ROOT)}}))
 
     def test_unlabelled_movies_are_in_no_split(self) -> None:
         d = self.data

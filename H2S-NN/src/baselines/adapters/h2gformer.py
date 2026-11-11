@@ -438,10 +438,10 @@ def _build_hetero_data(bundle: NodeBundle, device: torch.device) -> tuple[Any, s
 
     from torch_geometric.datasets import HGBDataset
 
-    from src.baselines.runtime import PROJECT_ROOT
+    from src.data.data_layout import REPO_DATA_ROOT, nc_root
 
     key = bundle.dataset.lower()
-    data = HGBDataset(root=str(PROJECT_ROOT / "data" / key), name=key.upper())[0]
+    data = HGBDataset(root=str(nc_root(REPO_DATA_ROOT)), name=key.upper())[0]
 
     # Attribute-less types get an identity-equivalent learned input, matching the
     # convention used everywhere else in this campaign.

@@ -1,0 +1,7 @@
+............C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+......................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 178 tests in 169.586s
+
+OK

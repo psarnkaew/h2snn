@@ -10,6 +10,7 @@ from torch_geometric.datasets import TUDataset
 from torch_geometric.loader import DataLoader
 
 from src.configs.config import TrainConfig
+from src.data.data_layout import gc_root, tu_raw_dir
 from src.data.fact_layer import FactLayer, build_fact_layer, fact_mask
 from src.models.h2snn_model import ModelDims
 
@@ -54,7 +55,7 @@ def _load_tu_type_tensors(
     tud_name: str,
     data_list: list[Data],
 ) -> tuple[list[torch.Tensor], list[torch.Tensor], int, int]:
-    raw_dir = root / "tud" / tud_name / "raw"
+    raw_dir = tu_raw_dir(root, tud_name)
     node_labels = _read_int_file(raw_dir / f"{tud_name}_node_labels.txt")
     graph_indicator = _read_int_file(raw_dir / f"{tud_name}_graph_indicator.txt")
 
@@ -333,7 +334,7 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         raise ValueError(f"Unsupported graph-classification dataset '{config.data.dataset_name}'.")
 
     root = Path(config.data.root)
-    dataset = TUDataset(root=str(root / "tud"), name=tud_name)
+    dataset = TUDataset(root=str(gc_root(root)), name=tud_name)
     raw_data_list = [dataset[i].clone() for i in range(len(dataset))]
     node_types, edge_types, num_node_types, num_relations = _load_tu_type_tensors(
         root=root,

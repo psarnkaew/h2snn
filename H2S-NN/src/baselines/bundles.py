@@ -70,7 +70,7 @@ HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
 def hgb_raw_dir(dataset: str) -> "Path":
     """Absolute path to one dataset's raw HGB directory."""
 
-    from src.baselines.runtime import PROJECT_ROOT
+    from src.data.data_layout import REPO_DATA_ROOT, hgb_nc_raw_dir
 
     key = dataset.lower()
     if key not in HGB_RAW_DIRNAME:
@@ -79,7 +79,7 @@ def hgb_raw_dir(dataset: str) -> "Path":
             f"{sorted(HGB_RAW_DIRNAME)}."
         )
     name = HGB_RAW_DIRNAME[key]
-    path = PROJECT_ROOT / "data" / key / key / "raw" / name
+    path = hgb_nc_raw_dir(REPO_DATA_ROOT, key)
     if not path.is_dir():
         raise FileNotFoundError(f"Raw HGB directory for {dataset!r} is missing: {path}")
     return path

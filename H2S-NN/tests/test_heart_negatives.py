@@ -21,6 +21,7 @@ from scripts.lp import build_heart_negatives as hn
 from scripts.lp.apply_feature_rule import apply_rule
 from tests.test_lp_derived import write_freebase_like, write_release
 from tests.test_lp_valid_files import write_pubmed_like
+from src.data.data_layout import lp_derived_root, lp_root
 
 
 def _sym(edges: list[tuple[int, int]], n: int) -> sp.csr_matrix:
@@ -176,9 +177,9 @@ class CrossTypeWithFeaturesTests(_SyntheticTaskMixin, unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_release(self.root / "release")
-        bd.build_task(self.root / "release", self.root / "lp_derived" / "acm_pa", 2, seed=42,
+        bd.build_task(self.root / "release", lp_derived_root(self.root) / "acm_pa", 2, seed=42,
                       val_frac=0.09, test_frac=0.10)
-        apply_rule("acm_pa", self.root / "lp_derived" / "acm_pa")  # F17/F20
+        apply_rule("acm_pa", lp_derived_root(self.root) / "acm_pa")  # F17/F20
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -201,9 +202,9 @@ class SameTypeWithFeaturesTests(_SyntheticTaskMixin, unittest.TestCase):
 
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
-        write_pubmed_like(self.root / "PubMed")
+        write_pubmed_like(lp_root(self.root) / "PubMed")
         content, _ = carve_rows(self.root, "pubmed")
-        (self.root / "PubMed" / "link.dat.valid").write_bytes(content)
+        (lp_root(self.root) / "PubMed" / "link.dat.valid").write_bytes(content)
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -218,9 +219,9 @@ class SameTypeByPairTests(_SyntheticTaskMixin, unittest.TestCase):
         self._tmp = TemporaryDirectory()
         self.root = Path(self._tmp.name)
         write_freebase_like(self.root / "release")
-        bd.build_task_by_pair(self.root / "release", self.root / "lp_derived" / "freebase_bb", 0,
+        bd.build_task_by_pair(self.root / "release", lp_derived_root(self.root) / "freebase_bb", 0,
                               seed=42, val_frac=0.09, test_frac=0.10)
-        apply_rule("freebase_bb", self.root / "lp_derived" / "freebase_bb")  # F17/F20
+        apply_rule("freebase_bb", lp_derived_root(self.root) / "freebase_bb")  # F17/F20
 
     def tearDown(self) -> None:
         self._tmp.cleanup()
@@ -237,9 +238,9 @@ class PoolTooSmallTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
             write_release(root / "release")
-            bd.build_task(root / "release", root / "lp_derived" / "acm_pa", 2, seed=42,
+            bd.build_task(root / "release", lp_derived_root(root) / "acm_pa", 2, seed=42,
                           val_frac=0.09, test_frac=0.10)
-            apply_rule("acm_pa", root / "lp_derived" / "acm_pa")  # F17/F20
+            apply_rule("acm_pa", lp_derived_root(root) / "acm_pa")  # F17/F20
             data = hn.load_task(root, hn.HEART_TASKS["acm_pa"])
             with self.assertRaises(hn.PoolTooSmall):  # 40 authors cannot give 250 per side
                 hn.build_split(data, data.test_pos, 7, "heart")

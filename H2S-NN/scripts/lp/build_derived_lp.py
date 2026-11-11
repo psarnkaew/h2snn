@@ -29,19 +29,24 @@ import argparse
 import hashlib
 import json
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data.data_layout import REPO_DATA_ROOT, hgb_nc_raw_dir, lp_derived_root  # noqa: E402
 
 Pair = tuple[int, int]
 
 
 @dataclass(frozen=True, slots=True)
 class DerivedTask:
-    source: str  # release folder relative to the data root
+    source: str  # HGB node-classification release key (data_layout.hgb_nc_raw_dir)
     relation: int  # target relation id in the release's link.dat (stored orientation)
     unit: str = "fact"  # "fact" (D7, rho-tied) or "unordered_pair" (spec v1.8 F10)
 
@@ -49,10 +54,10 @@ class DerivedTask:
 #: The spec v1.7 §6 tasks: the relations of each dataset's standard meta-path (PAP, APA, MAM),
 #: and Freebase BOOK-and-BOOK (spec v1.8 F10, the author's choice after the J1.1 inventory).
 DERIVED_TASKS: dict[str, DerivedTask] = {
-    "acm_pa": DerivedTask("acm/acm/raw/ACM", 2),     # paper -> author
-    "dblp_ap": DerivedTask("dblp/dblp/raw/DBLP", 0),  # author -> paper
-    "imdb_ma": DerivedTask("imdb/imdb/raw/IMDB", 2),  # movie -> actor
-    "freebase_bb": DerivedTask("freebase/freebase/raw/Freebase", 0, "unordered_pair"),  # book-book
+    "acm_pa": DerivedTask("acm", 2),     # paper -> author
+    "dblp_ap": DerivedTask("dblp", 0),  # author -> paper
+    "imdb_ma": DerivedTask("imdb", 2),  # movie -> actor
+    "freebase_bb": DerivedTask("freebase", 0, "unordered_pair"),  # book-book
 }
 
 
@@ -245,8 +250,8 @@ def test_fact_leaks(task_dir: Path, relation: int, reverse: int) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--data-root", type=Path, default=PROJECT_ROOT / "data")
-    parser.add_argument("--out-root", type=Path, default=PROJECT_ROOT / "data" / "lp_derived")
+    parser.add_argument("--data-root", type=Path, default=REPO_DATA_ROOT)
+    parser.add_argument("--out-root", type=Path, default=lp_derived_root(REPO_DATA_ROOT))
     parser.add_argument("--tasks", nargs="+", default=list(DERIVED_TASKS), choices=list(DERIVED_TASKS))
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--val-frac", type=float, default=0.09)
@@ -255,7 +260,7 @@ def main() -> None:
     for name in args.tasks:
         task = DERIVED_TASKS[name]
         build = build_task if task.unit == "fact" else build_task_by_pair
-        meta = build(args.data_root / task.source, args.out_root / name, task.relation,
+        meta = build(hgb_nc_raw_dir(args.data_root, task.source), args.out_root / name, task.relation,
                      args.seed, args.val_frac, args.test_frac)
         print(json.dumps({"task": name, **{k: meta[k] for k in (
             "target_relation", "reverse_relation", "facts", "train", "valid", "test",

@@ -36,6 +36,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lp_feature_rules as fr  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root  # noqa: E402
 SOURCE_ORDER = ("V1", "V1p", "V2", "V3")
 AGG_ORDER = ("or", "max", "sum", "mean")
 
@@ -159,7 +163,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--rules", type=Path, required=True)
     parser.add_argument("--tasks", nargs="+", default=["acm_pa", "dblp_ap", "imdb_ma"])
-    parser.add_argument("--lp-root", type=Path, default=PROJECT_ROOT / "data" / "lp_derived")
+    parser.add_argument("--lp-root", type=Path, default=lp_derived_root(REPO_DATA_ROOT))
     args = parser.parse_args()
     identification = {r["task"]: r for r in json.loads(args.rules.read_text(encoding="utf-8"))}
     for name in args.tasks:

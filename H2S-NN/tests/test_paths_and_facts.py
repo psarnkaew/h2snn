@@ -14,6 +14,7 @@ try:
 except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
+from src.data.data_layout import REPO_DATA_ROOT, gc_root, lp_root, nc_root
 from src.data.face_geometry import validate_face_orientation
 from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.models.map_operators import DenseMapOperator, EdgeMapPair, PathTransportOperator
@@ -361,7 +362,7 @@ class FactLayerDefinitionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             _layer([(0, 0, 1), (1, 1, 0), (1, 2, 0)], 3, 2)
 
-    @unittest.skipUnless((REPO_ROOT / "data" / "acm").exists(), "HGB data not present")
+    @unittest.skipUnless((nc_root(REPO_DATA_ROOT) / "acm").exists(), "HGB data not present")
     def test_T4_real_hgb_counts(self) -> None:
         from src.configs.config import TrainConfig
         from src.data.dataset import _load_hetero_data
@@ -370,11 +371,11 @@ class FactLayerDefinitionTests(unittest.TestCase):
         expected = {"acm": (547872, 273936, 4), "dblp": (239566, 119783, 3),
                     "imdb": (86642, 43321, 3)}
         for name, (before, after, pairs) in expected.items():
-            if not (REPO_ROOT / "data" / name).exists():
+            if not (nc_root(REPO_DATA_ROOT) / name).exists():
                 continue
             with self.subTest(dataset=name):
                 config = TrainConfig.from_dict(
-                    {"data": {"dataset_name": name, "root": str(REPO_ROOT / "data")}})
+                    {"data": {"dataset_name": name, "root": str(REPO_DATA_ROOT)}})
                 data = _load_hetero_data(config)
                 x, _, _, slices, _ = stack_node_features(data)
                 edge_index, edge_type, names, _ = flatten_edges(data, slices)
@@ -387,7 +388,7 @@ class FactLayerDefinitionTests(unittest.TestCase):
                     self.assertEqual(layer.rho[names.index("paper__cite__paper")],
                                      names.index("paper__ref__paper"))
 
-    @unittest.skipUnless((REPO_ROOT / "data" / "tud").exists(), "TU data not present")
+    @unittest.skipUnless(gc_root(REPO_DATA_ROOT).exists(), "TU data not present")
     def test_T4_real_tu_relations_are_self_inverse(self) -> None:
         from torch_geometric.datasets import TUDataset
 
@@ -396,13 +397,13 @@ class FactLayerDefinitionTests(unittest.TestCase):
         expected = {"MUTAG": (7442, 3721), "PROTEINS": (162088, 81044),
                     "ENZYMES": (74564, 37282), "NCI1": (265506, 132753)}
         for tud, (before, after) in expected.items():
-            if not (REPO_ROOT / "data" / "tud" / tud).exists():
+            if not (gc_root(REPO_DATA_ROOT) / tud).exists():
                 continue
             with self.subTest(dataset=tud):
-                dataset = TUDataset(root=str(REPO_ROOT / "data" / "tud"), name=tud)
+                dataset = TUDataset(root=str(gc_root(REPO_DATA_ROOT)), name=tud)
                 data_list = [dataset[i].clone() for i in range(len(dataset))]
                 _, edge_types, _, num_relations = _load_tu_type_tensors(
-                    REPO_ROOT / "data", tud, data_list)
+                    REPO_DATA_ROOT, tud, data_list)
                 layer, tied, _ = _tie_tu_facts(data_list, edge_types, num_relations, "tied")
                 self.assertEqual((layer.facts_before, layer.facts_after), (before, after))
                 self.assertEqual(sum(d.edge_index.size(1) for d in tied), after)
@@ -745,7 +746,7 @@ class SchemaTests(unittest.TestCase):
         self.assertEqual(schema.hops, ((0, 0), (0, 0)))
         self.assertEqual(schema.key, (("node",) * 3, ((0, 0), (0, 0))))
 
-    @unittest.skipUnless((REPO_ROOT / "data" / "acm").exists(), "HGB data not present")
+    @unittest.skipUnless((nc_root(REPO_DATA_ROOT) / "acm").exists(), "HGB data not present")
     def test_T10_every_default_schema_resolves_on_real_data(self) -> None:
         from src.configs.config import TrainConfig
         from src.data.dataset import _load_hetero_data
@@ -753,10 +754,10 @@ class SchemaTests(unittest.TestCase):
         from src.data.schemas import resolve_schemas
 
         for name in ("acm", "dblp", "imdb"):
-            if not (REPO_ROOT / "data" / name).exists():
+            if not (nc_root(REPO_DATA_ROOT) / name).exists():
                 continue
             config = TrainConfig.from_dict(
-                {"data": {"dataset_name": name, "root": str(REPO_ROOT / "data")}})
+                {"data": {"dataset_name": name, "root": str(REPO_DATA_ROOT)}})
             data = _load_hetero_data(config)
             x, _, _, slices, _ = stack_node_features(data)
             edge_index, edge_type, names, tuples = flatten_edges(data, slices)
@@ -1154,7 +1155,7 @@ def _write_tied_lastfm(root: Path) -> None:
     (target), rel 3 artist->user = exact reverse of rel 0 in link.dat, rel 1 user-user
     stored in both orientations, rel 2 artist->tag. link.dat.test: rel-0 pairs not in
     link.dat."""
-    folder = root / "LastFM"
+    folder = lp_root(root) / "LastFM"
     folder.mkdir(parents=True)
     generator = torch.Generator().manual_seed(0)
     users, artists, tags = range(0, 12), range(12, 24), range(24, 30)

@@ -26,9 +26,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root  # noqa: E402
 
 #: F17 removals per derived task: node types whose whole block goes, and per type the columns.
 FEATURE_RULE: dict[str, dict] = {
@@ -117,7 +122,7 @@ def apply_rule(task: str, task_dir: Path, rule: dict | None = None) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--lp-root", type=Path, default=PROJECT_ROOT / "data" / "lp_derived")
+    parser.add_argument("--lp-root", type=Path, default=lp_derived_root(REPO_DATA_ROOT))
     parser.add_argument("--tasks", nargs="+", default=list(FEATURE_RULE),
                         choices=list(FEATURE_RULE))
     args = parser.parse_args()

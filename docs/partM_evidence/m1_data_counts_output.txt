@@ -1,0 +1,73 @@
+PASS NC acm info.dat md5: got 3375b0afb7f34f6546b0406f05f77f94 recorded 3375b0afb7f34f6546b0406f05f77f94
+PASS NC acm node.dat md5: got 01b4942d8d1ca9b89232a0fdd93ebafc recorded 01b4942d8d1ca9b89232a0fdd93ebafc
+PASS NC acm link.dat md5: got b76ef4e97c4b81b0b0c00e0f46558955 recorded b76ef4e97c4b81b0b0c00e0f46558955
+PASS NC acm label.dat md5: got 591117e1f8c705b5b107f0ae72f0f3af recorded 591117e1f8c705b5b107f0ae72f0f3af
+PASS NC acm label.dat.test md5: got 521f65d9258de61f18a9628af756f6b1 recorded 521f65d9258de61f18a9628af756f6b1
+PASS NC acm nodes per type: got {'paper': 3025, 'author': 5959, 'subject': 56, 'term': 1902} recorded {'paper': 3025, 'author': 5959, 'subject': 56, 'term': 1902}
+PASS NC acm distinct stored edges per relation (sorted): got [3025, 3025, 5343, 5343, 9949, 9949, 255619, 255619] recorded [3025, 3025, 5343, 5343, 9949, 9949, 255619, 255619]
+PASS NC acm facts before/after tying: got (547872, 273936) recorded (547872, 273936)
+PASS NC acm num_nodes/facts (h0): got (10942, 273936) recorded (10942, 273936)
+PASS NC acm labelled targets / class counts: got (3025, [994, 970, 1061]) recorded (3025, [994, 970, 1061])
+PASS NC dblp info.dat md5: got 8da9d4d7c092a63065a3358287dbaca7 recorded 8da9d4d7c092a63065a3358287dbaca7
+PASS NC dblp node.dat md5: got efcf8247391da9e36a3aa8a1c7f8b81f recorded efcf8247391da9e36a3aa8a1c7f8b81f
+PASS NC dblp link.dat md5: got 817bc1d282eabb915b37a010b5a45207 recorded 817bc1d282eabb915b37a010b5a45207
+PASS NC dblp label.dat md5: got 3e7b01ea63d6a24c2092e7dc2c32df19 recorded 3e7b01ea63d6a24c2092e7dc2c32df19
+PASS NC dblp label.dat.test md5: got 5f62a7e456b02ebe5be875c743565cb3 recorded 5f62a7e456b02ebe5be875c743565cb3
+PASS NC dblp nodes per type: got {'author': 4057, 'paper': 14328, 'term': 7723, 'venue': 20} recorded {'author': 4057, 'paper': 14328, 'term': 7723, 'venue': 20}
+PASS NC dblp distinct stored edges per relation (sorted): got [14328, 14328, 19645, 19645, 85810, 85810] recorded [14328, 14328, 19645, 19645, 85810, 85810]
+PASS NC dblp facts before/after tying: got (239566, 119783) recorded (239566, 119783)
+PASS NC dblp num_nodes/facts (h0): got (26128, 119783) recorded (26128, 119783)
+PASS NC dblp labelled targets / class counts: got (4057, [1197, 745, 1109, 1006]) recorded (4057, [1197, 745, 1109, 1006])
+PASS NC imdb info.dat md5: got 734fa61762a3d993d34b37a714b51dfe recorded 734fa61762a3d993d34b37a714b51dfe
+PASS NC imdb node.dat md5: got 7954f97719c175f8476a4a31acf4dda6 recorded 7954f97719c175f8476a4a31acf4dda6
+PASS NC imdb link.dat md5: got e8882566a2200ab9e36722f6a2110b11 recorded e8882566a2200ab9e36722f6a2110b11
+PASS NC imdb label.dat md5: got d33370ffd25b9a15c9a997bafcd74a2f recorded d33370ffd25b9a15c9a997bafcd74a2f
+PASS NC imdb label.dat.test md5: got 8711f7b30a429c2b0d8d15035889a756 recorded 8711f7b30a429c2b0d8d15035889a756
+PASS NC imdb nodes per type: got {'movie': 4932, 'director': 2393, 'actor': 6124, 'keyword': 7971} recorded {'movie': 4932, 'director': 2393, 'actor': 6124, 'keyword': 7971}
+PASS NC imdb distinct stored edges per relation (sorted): got [4932, 4932, 14779, 14779, 23610, 23610] recorded [4932, 4932, 14779, 14779, 23610, 23610]
+PASS NC imdb facts before/after tying: got (86642, 43321) recorded (86642, 43321)
+PASS NC imdb num_nodes/facts (h0): got (21420, 43321) recorded (21420, 43321)
+PASS NC imdb labelled targets / class counts: got (4573, [1090, 1384, 1837, 1135, 2517]) recorded (4573, [1090, 1384, 1837, 1135, 2517])
+PASS NC freebase info.dat md5: got 5c1c8f793a41856d965e9b1fc0c95cbf recorded 5c1c8f793a41856d965e9b1fc0c95cbf
+PASS NC freebase node.dat md5: got a7d65c599a137c0ad2d48bba6adf207d recorded a7d65c599a137c0ad2d48bba6adf207d
+PASS NC freebase link.dat md5: got 90fbf2d19cbb3c6a0d7fe0dcacc2a7c3 recorded 90fbf2d19cbb3c6a0d7fe0dcacc2a7c3
+PASS NC freebase label.dat md5: got 2d5fe2588ea5b53c6a98e7c4929faf41 recorded 2d5fe2588ea5b53c6a98e7c4929faf41
+PASS NC freebase label.dat.test md5: got a5fbba2074358da6fd09f9851b0ddd82 recorded a5fbba2074358da6fd09f9851b0ddd82
+PASS NC freebase nodes per type: got {'book': 40402, 'film': 19427, 'music': 82351, 'sports': 1025, 'people': 17641, 'location': 9368, 'organization': 2731, 'business': 7153} recorded {'book': 40402, 'film': 19427, 'music': 82351, 'sports': 1025, 'people': 17641, 'location': 9368, 'organization': 2731, 'business': 7153}
+PASS NC freebase distinct stored edges per relation (sorted): got [559, 610, 656, 1073, 1101, 1290, 2215, 2696, 4448, 5378, 6615, 6647, 6763, 8397, 8975, 10702, 10948, 11291, 13128, 14850, 15134, 17604, 18625, 21299, 21900, 22813, 24764, 26921, 31486, 35587, 38299, 42915, 47817, 87838, 202674, 283670] recorded [559, 610, 656, 1073, 1101, 1290, 2215, 2696, 4448, 5378, 6615, 6647, 6763, 8397, 8975, 10702, 10948, 11291, 13128, 14850, 15134, 17604, 18625, 21299, 21900, 22813, 24764, 26921, 31486, 35587, 38299, 42915, 47817, 87838, 202674, 283670]
+PASS NC freebase facts before/after tying: got (1057688, 869706) recorded (1057688, 869706)
+PASS NC freebase labelled targets / class counts: got (7954, [429, 3886, 1748, 185, 962, 359, 385]) recorded (7954, [429, 3886, 1748, 185, 962, 359, 385])
+PASS LP acm_pa link.dat md5: got 8e6331b230e1aef704e3ab94033a3408 recorded 8e6331b230e1aef704e3ab94033a3408
+PASS LP acm_pa link.dat.test md5: got 8b5af509c8a2fca37631e477e499aaf9 recorded 8b5af509c8a2fca37631e477e499aaf9
+PASS LP acm_pa link.dat.valid md5: got 71661a5c3d3b7dda88fb02a2e82fa223 recorded 71661a5c3d3b7dda88fb02a2e82fa223
+PASS LP acm_pa train/valid/test: got (8059, 895, 995) recorded (8059, 895, 995)
+PASS LP dblp_ap link.dat md5: got 8e7827b5c4da919309817f4eed35639c recorded 8e7827b5c4da919309817f4eed35639c
+PASS LP dblp_ap link.dat.test md5: got a9b06a5ee3e4026e8086900a98354efb recorded a9b06a5ee3e4026e8086900a98354efb
+PASS LP dblp_ap link.dat.valid md5: got 02e21c712136edc1c807e89aea64bdf3 recorded 02e21c712136edc1c807e89aea64bdf3
+PASS LP dblp_ap train/valid/test: got (15913, 1768, 1964) recorded (15913, 1768, 1964)
+PASS LP imdb_ma link.dat md5: got 035a29097c6696dc4f3e503d92848d37 recorded 035a29097c6696dc4f3e503d92848d37
+PASS LP imdb_ma link.dat.test md5: got 936b8a91cbad552acc5d4a17d119af8b recorded 936b8a91cbad552acc5d4a17d119af8b
+PASS LP imdb_ma link.dat.valid md5: got 1c5ac40e2f230d22c68eaba657457922 recorded 1c5ac40e2f230d22c68eaba657457922
+PASS LP imdb_ma train/valid/test: got (11971, 1330, 1478) recorded (11971, 1330, 1478)
+PASS LP freebase_bb link.dat md5: got c68908fb221f3c446306c6d93c43f05b recorded c68908fb221f3c446306c6d93c43f05b
+PASS LP freebase_bb link.dat.test md5: got 3fc5363d002454e1c74af3861ed1bc3a recorded 3fc5363d002454e1c74af3861ed1bc3a
+PASS LP freebase_bb link.dat.valid md5: got b420348c9964d2a2cc01ffed88409efa recorded b420348c9964d2a2cc01ffed88409efa
+PASS LP freebase_bb unordered pairs train/valid/test: got (103303, 11478, 12754) recorded (103303, 11478, 12754)
+PASS LP pubmed link.dat.valid md5: got 3d2b5114128e4f1208978b822ae8e22e recorded 3d2b5114128e4f1208978b822ae8e22e
+PASS LP pubmed link.dat.test rows: got 8528 recorded 8528
+PASS LP pubmed link.dat.valid target rows: got 1942 recorded 1942
+INFO LP pubmed loader train/valid/test of ('disease', 'rel_2', 'disease'): (32167, 1942, 8528)
+PASS LP lastfm link.dat.valid md5: got 8ffd3a6821fe7b2fad4f6afbb60bf19b recorded 8ffd3a6821fe7b2fad4f6afbb60bf19b
+PASS LP lastfm link.dat.test rows: got 18567 recorded 18567
+PASS LP lastfm link.dat.valid target rows: got 7301 recorded 7301
+INFO LP lastfm loader train/valid/test of ('user', 'rel_0', 'artist'): (66966, 7301, 18567)
+PASS GC MUTAG stored edges before/after tying: got (7442, 3721) recorded (7442, 3721)
+PASS GC MUTAG test-set size of the 80/10/10 split (n = 188): got 20 recorded 20
+PASS GC PROTEINS stored edges before/after tying: got (162088, 81044) recorded (162088, 81044)
+PASS GC PROTEINS test-set size of the 80/10/10 split (n = 1113): got 112 recorded 112
+PASS GC ENZYMES stored edges before/after tying: got (74564, 37282) recorded (74564, 37282)
+PASS GC ENZYMES test-set size of the 80/10/10 split (n = 600): got 60 recorded 60
+PASS GC NCI1 stored edges before/after tying: got (265506, 132753) recorded (265506, 132753)
+PASS GC NCI1 test-set size of the 80/10/10 split (n = 4110): got 411 recorded 411
+
+0 failure(s)
