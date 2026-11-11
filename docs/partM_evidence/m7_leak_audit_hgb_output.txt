@@ -1,0 +1,6 @@
+acm_pa type 1 V1/or valid: measurable 895, without negatives 0; scorer MRR 0.6230 Hits@10 1.0000; Ctrl-G MRR 0.7100 Hits@10 1.0000; diff MRR -0.0870 Hits@10 +0.0000; gate: pass (dropped type: no stored feature; scorer = all-tie level)
+acm_pa type 1 V1/or test: measurable 763, without negatives 232; scorer MRR 0.6125 Hits@10 1.0000; Ctrl-G MRR 0.6437 Hits@10 1.0000; diff MRR -0.0312 Hits@10 +0.0000; gate: pass (dropped type: no stored feature; scorer = all-tie level)
+dblp_ap type 0 V2:r1/or valid: measurable 1768, without negatives 0; scorer MRR 0.5200 Hits@10 1.0000; Ctrl-G MRR 0.6721 Hits@10 0.9949; diff MRR -0.1520 Hits@10 +0.0051; gate: pass (dropped type: no stored feature; scorer = all-tie level)
+dblp_ap type 0 V2:r1/or test: measurable 0, without negatives 1964; gate: not measurable (no negatives)
+imdb_ma type 2 V1/mean valid: measurable 1330, without negatives 0; scorer MRR 0.6423 Hits@10 1.0000; Ctrl-G MRR 0.7221 Hits@10 1.0000; diff MRR -0.0798 Hits@10 +0.0000; gate: pass (dropped type: no stored feature; scorer = all-tie level)
+imdb_ma type 2 V1/mean test: measurable 0, without negatives 1478; gate: not measurable (no negatives)

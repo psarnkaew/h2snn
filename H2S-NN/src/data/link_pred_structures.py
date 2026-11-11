@@ -69,6 +69,10 @@ class PreparedLinkPredData:
     face_groups: tuple[FaceGroup, ...]
     # rho, kept relations, unmatched edges (D7); None for data built without a fact layer.
     fact_layer: "FactLayer | None" = None
+    # HGB get_test_neigh (spec v1.15 §6, J5): heads without 2-hop candidates get no negatives;
+    # these heads (global ids) and the number of their test positives are reported per task.
+    test_heads_without_negatives: torch.Tensor | None = None
+    test_positives_without_negatives: int = 0
 
     @property
     def num_nodes(self) -> int:
@@ -115,4 +119,6 @@ class PreparedLinkPredData:
             dst_node_offset=self.dst_node_offset,
             face_groups=tuple(group.to(device) for group in self.face_groups),
             fact_layer=self.fact_layer,
+            test_heads_without_negatives=self.test_heads_without_negatives,
+            test_positives_without_negatives=self.test_positives_without_negatives,
         )

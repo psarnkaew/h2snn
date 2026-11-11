@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from collections import Counter, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -20,6 +20,8 @@ from src.data.fact_layer import (
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.link_pred_structures import PreparedLinkPredData
+from src.data.hgb_lp_negatives import (HGBTestNegatives, hgb_test_negatives,
+                                       hgb_valid_negatives)
 from src.data.wisp_tasks import build_link_wisp_path_groups
 
 if TYPE_CHECKING:
@@ -129,6 +131,8 @@ class _LocalHGBLinkData:
     # remap the official _ini test file's head/tail ids, which are in this same
     # raw space, before adding our own type offset.
     raw_to_local: dict[int, int]
+    # raw HGB id -> node type name (to write and read the negative files in raw ids)
+    raw_to_type_name: dict[int, str]
 
 
 def _load_link_pred_hetero_data(config: TrainConfig) -> "HeteroData":
@@ -532,6 +536,54 @@ def _assert_feature_rule(dataset_dir: Path) -> None:
         )
 
 
+HGB_NEGATIVES_DIR = "hgb_negatives"
+
+
+def _read_hgb_negative_file(lp_dir: Path, rel_id: int, test_pos: torch.Tensor,
+                            local_to_raw: dict[tuple[str, int], int], src_offset: int,
+                            dst_offset: int, raw_to_local: dict[int, int],
+                            ) -> tuple[torch.Tensor, torch.Tensor, int] | None:
+    """The written HGB test negatives of one relation (raw HGB ids, `scripts/lp/
+    write_hgb_negatives.py`), mapped to global ids; None when the task has no file. The file
+    records the test positives it was drawn for; a mismatch with the loader's raises."""
+    import hashlib
+    import json
+
+    import numpy as np
+
+    meta_path = lp_dir / HGB_NEGATIVES_DIR / "meta.json"
+    if not meta_path.exists():
+        return None
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    entry = meta["relations"].get(str(rel_id))
+    if entry is None:
+        raise ValueError(f"{meta_path}: no negatives for relation {rel_id}.")
+    raw_pos = hgb_raw_pairs(test_pos, local_to_raw, src_offset, dst_offset, entry["types"])
+    digest = hashlib.md5(np.ascontiguousarray(raw_pos).tobytes()).hexdigest()
+    if digest != entry["test_pos_md5"]:
+        raise ValueError(f"{meta_path}: relation {rel_id} was written for other test positives "
+                         f"(md5 {entry['test_pos_md5']}, loader {digest}); rewrite the file.")
+    neg = np.load(lp_dir / HGB_NEGATIVES_DIR / entry["test_neg_file"])
+    lookup = np.vectorize(lambda raw: raw_to_local[int(raw)], otypes=[np.int64])
+    heads = torch.from_numpy(lookup(neg[:, 0]) if neg.size else neg[:, 0]) + src_offset
+    tails = torch.from_numpy(lookup(neg[:, 1]) if neg.size else neg[:, 1]) + dst_offset
+    without = torch.tensor([raw_to_local[int(r)] + src_offset
+                            for r in entry["heads_without_candidates"]], dtype=torch.long)
+    return (torch.stack([heads, tails]).long().reshape(2, -1), without,
+            int(entry["test_positives_without_negatives"]))
+
+
+def hgb_raw_pairs(edge_index: torch.Tensor, local_to_raw: dict[tuple[str, int], int],
+                  src_offset: int, dst_offset: int, types: list[str]):
+    """Global (head, tail) ids -> raw HGB ids, as an int64 [M, 2] array."""
+    import numpy as np
+
+    src_type, dst_type = types
+    return np.array([[local_to_raw[(src_type, int(h) - src_offset)],
+                      local_to_raw[(dst_type, int(t) - dst_offset)]]
+                     for h, t in edge_index.t().tolist()], dtype=np.int64).reshape(-1, 2)
+
+
 def local_hgb_link_dir(root: Path, dataset: str) -> Path:
     """Folder of a local HGB-format link-prediction task under the data root (M1 layout)."""
     return lp_root(root) / str(_LOCAL_HGB_LINK_DATASETS[dataset]["folder"])
@@ -588,6 +640,7 @@ def _load_local_hgb_link_data(config: TrainConfig) -> _LocalHGBLinkData:
         test_edge_index_by_relation=test_edges,
         link_edge_index_by_relation=link_edges,
         raw_to_local=nodes.raw_to_local,
+        raw_to_type_name=nodes.raw_to_type_name,
     )
 
 
@@ -646,170 +699,8 @@ def _replace_relation_edges(
     )
 
 
-def _known_tails_by_source(edge_index: torch.Tensor) -> dict[int, set[int]]:
-    known: dict[int, set[int]] = defaultdict(set)
-    for src, dst in edge_index.t().tolist():
-        known[int(src)].add(int(dst))
-    return known
-
-
-def _sample_random_tail_negatives(
-    reference_pos_edge_index: torch.Tensor,
-    known_positive_edge_index: torch.Tensor,
-    dst_range: tuple[int, int],
-    seed: int,
-    neg_sampling_ratio: int = 1,
-) -> torch.Tensor:
-    """Sample random non-edges while preserving HGB's per-head negative count."""
-    rng = random.Random(seed)
-    dst_start, dst_end = dst_range
-    known_by_src = _known_tails_by_source(known_positive_edge_index.cpu())
-    head_counts = Counter(int(src) for src in reference_pos_edge_index[0].cpu().tolist())
-    sampled: list[tuple[int, int]] = []
-
-    for src, count in sorted(head_counts.items()):
-        needed = count * neg_sampling_ratio
-        known_tails = known_by_src.get(src, set())
-        max_available = (dst_end - dst_start) - len(
-            [tail for tail in known_tails if dst_start <= tail < dst_end]
-        )
-        if max_available <= 0:
-            continue
-        for _ in range(needed):
-            for _attempt in range(100):
-                tail = rng.randrange(dst_start, dst_end)
-                if tail not in known_tails and tail != src:
-                    sampled.append((src, tail))
-                    break
-            else:
-                candidates = [
-                    tail
-                    for tail in range(dst_start, dst_end)
-                    if tail not in known_tails and tail != src
-                ]
-                if candidates:
-                    sampled.append((src, rng.choice(candidates)))
-
-    if not sampled:
-        return torch.empty((2, 0), dtype=torch.long, device=reference_pos_edge_index.device)
-    return torch.tensor(sampled, dtype=torch.long, device=reference_pos_edge_index.device).t().contiguous()
-
-
-def _has_two_hop_type_path(
-    relation_tuples: tuple[tuple[str, str, str], ...],
-    src_type: str,
-    dst_type: str,
-) -> bool:
-    type_neighbors: dict[str, set[str]] = defaultdict(set)
-    for head_type, _, tail_type in relation_tuples:
-        type_neighbors[head_type].add(tail_type)
-        type_neighbors[tail_type].add(head_type)
-    return any(dst_type in type_neighbors[mid_type] for mid_type in type_neighbors[src_type])
-
-
-def _build_undirected_adjacency(edge_index: torch.Tensor) -> dict[int, set[int]]:
-    adjacency: dict[int, set[int]] = defaultdict(set)
-    for src, dst in edge_index.cpu().t().tolist():
-        src_i, dst_i = int(src), int(dst)
-        adjacency[src_i].add(dst_i)
-        adjacency[dst_i].add(src_i)
-    return adjacency
-
-
-def _sample_hgb_two_hop_negatives(
-    reference_pos_edge_index: torch.Tensor,
-    adjacency_edge_index: torch.Tensor,
-    known_positive_edge_index: torch.Tensor,
-    dst_range: tuple[int, int],
-    seed: int,
-    neg_sampling_ratio: int = 1,
-    allow_random_fallback: bool = True,
-) -> torch.Tensor:
-    """Sample HGB hard negatives from source-node two-hop neighborhoods.
-
-    HGB groups candidates by head/source node, ranks positives and negatives for
-    MRR by that head, and uses a 1:1 positive/negative ratio for evaluation.
-    This helper mirrors that grouping and excludes known positives from all
-    target-relation splits.
-    """
-    dst_start, dst_end = dst_range
-    adjacency = _build_undirected_adjacency(adjacency_edge_index)
-    known_by_src = _known_tails_by_source(known_positive_edge_index.cpu())
-    head_counts = Counter(int(src) for src in reference_pos_edge_index[0].cpu().tolist())
-    rng = random.Random(seed)
-    sampled: list[tuple[int, int]] = []
-
-    for src, count in sorted(head_counts.items()):
-        two_hop: set[int] = set()
-        for mid in adjacency.get(src, set()):
-            two_hop.update(adjacency.get(mid, set()))
-        candidates = sorted(
-            tail
-            for tail in two_hop
-            if dst_start <= tail < dst_end
-            and tail != src
-            and tail not in known_by_src.get(src, set())
-        )
-        needed = count * neg_sampling_ratio
-        if candidates:
-            sampled.extend((src, rng.choice(candidates)) for _ in range(needed))
-            continue
-        if allow_random_fallback:
-            fallback = _sample_random_tail_negatives(
-                reference_pos_edge_index=torch.full(
-                    (2, count),
-                    src,
-                    dtype=torch.long,
-                    device=reference_pos_edge_index.device,
-                ),
-                known_positive_edge_index=known_positive_edge_index,
-                dst_range=dst_range,
-                seed=rng.randrange(2**31),
-                neg_sampling_ratio=neg_sampling_ratio,
-            )
-            if fallback.numel() > 0:
-                sampled.extend((int(h), int(t)) for h, t in fallback.cpu().t().tolist())
-
-    if not sampled:
-        return torch.empty((2, 0), dtype=torch.long, device=reference_pos_edge_index.device)
-    return torch.tensor(sampled, dtype=torch.long, device=reference_pos_edge_index.device).t().contiguous()
-
-
-def _sample_hgb_eval_negatives(
-    reference_pos_edge_index: torch.Tensor,
-    adjacency_edge_index: torch.Tensor,
-    known_positive_edge_index: torch.Tensor,
-    relation_tuples: tuple[tuple[str, str, str], ...],
-    src_type: str,
-    dst_type: str,
-    dst_range: tuple[int, int],
-    seed: int,
-) -> torch.Tensor:
-    if _has_two_hop_type_path(relation_tuples, src_type, dst_type):
-        negatives = _sample_hgb_two_hop_negatives(
-            reference_pos_edge_index=reference_pos_edge_index,
-            adjacency_edge_index=adjacency_edge_index,
-            known_positive_edge_index=known_positive_edge_index,
-            dst_range=dst_range,
-            seed=seed,
-            neg_sampling_ratio=1,
-            allow_random_fallback=True,
-        )
-    else:
-        negatives = _sample_random_tail_negatives(
-            reference_pos_edge_index=reference_pos_edge_index,
-            known_positive_edge_index=known_positive_edge_index,
-            dst_range=dst_range,
-            seed=seed,
-            neg_sampling_ratio=1,
-        )
-
-    if negatives.size(1) != reference_pos_edge_index.size(1):
-        raise ValueError(
-            "Could not build a 1:1 HGB negative set for link prediction: "
-            f"needed {reference_pos_edge_index.size(1)}, got {negatives.size(1)}."
-        )
-    return negatives
+def _negative_heads_without(negatives: HGBTestNegatives) -> tuple[torch.Tensor, int]:
+    return negatives.heads_without_candidates, negatives.positives_of_heads_without
 
 
 def _remove_edges_from_message_passing(
@@ -1077,6 +968,12 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         for raw_id, local_id in raw_to_local_items:
             raw_to_local_lookup[raw_id] = local_id
 
+        raw_to_local_lookup_inverse = {
+            (local_hgb_data.raw_to_type_name[raw], local): raw
+            for raw, local in local_hgb_data.raw_to_local.items()}
+        lp_dir = local_hgb_link_dir(root, dataset_name)
+        heads_without_parts: list[torch.Tensor] = []
+        positives_without_total = 0
         train_pos_parts: list[torch.Tensor] = []
         train_pos_relation_parts: list[torch.Tensor] = []
         val_pos_parts: list[torch.Tensor] = []
@@ -1105,7 +1002,7 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
 
             # HGB's official fixed test triples (Simple-HGN's run_new.py/run_dist.py
             # read this file in place of regenerating negatives) when the provider
-            # shipped one; otherwise fall back to our own 2-hop-or-random sampler.
+            # shipped one; otherwise HGB's get_test_neigh, ported (src/data/hgb_lp_negatives.py).
             official = _load_official_ini_test_labels(root, str(spec["folder"]), rel_id)
             if official is not None:
                 head, tail, label = official
@@ -1122,16 +1019,23 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
                         relation, torch.empty((2, 0), dtype=torch.long)
                     ),
                 )
-                relation_test_neg = _sample_hgb_eval_negatives(
-                    reference_pos_edge_index=relation_test_pos,
-                    adjacency_edge_index=hgb_adjacency_edge_index,
-                    known_positive_edge_index=known_positives_global,
-                    relation_tuples=relation_tuples,
-                    src_type=src_type,
-                    dst_type=dst_type,
-                    dst_range=dst_range,
-                    seed=config.data.acm_split_seed + 202 + rel_id,
-                )
+                # Spec v1.15 §6 (J5): HGB's get_test_neigh exactly (2-hop of train + valid +
+                # test, direct links and self-loops removed, type-filtered, random.choices with
+                # seed 1, k = the head's test positives); a head without candidates gets none.
+                # The task's written negative file (scripts/lp/write_hgb_negatives.py) is read
+                # when present; it must equal this computation's inputs (checked).
+                stored = _read_hgb_negative_file(
+                    lp_dir, rel_id, relation_test_pos, raw_to_local_lookup_inverse, src_offset,
+                    dst_offset, local_hgb_data.raw_to_local)
+                if stored is not None:
+                    relation_test_neg, without_heads, without_positives = stored
+                else:
+                    computed = hgb_test_negatives(relation_test_pos, hgb_adjacency_edge_index,
+                                                  int(raw_x.size(0)), dst_range)
+                    relation_test_neg = computed.edge_index
+                    without_heads, without_positives = _negative_heads_without(computed)
+                heads_without_parts.append(without_heads)
+                positives_without_total += without_positives
 
             if relation_train_pos.size(1) == 0 or relation_test_pos.size(1) == 0:
                 raise ValueError(
@@ -1139,14 +1043,10 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
                     "positive edges."
                 )
 
-            # Validation negatives are always plain uniform-random, matching HGB's
-            # official get_valid_neg — 2-hop/fixed-file negatives are test-only.
-            relation_val_neg = _sample_random_tail_negatives(
-                reference_pos_edge_index=relation_val_pos,
-                known_positive_edge_index=known_positives_global,
-                dst_range=dst_range,
-                seed=config.data.acm_split_seed + 101 + rel_id,
-            )
+            # HGB's get_valid_neg exactly: one uniform tail of the tail type per validation
+            # positive, known positives not excluded (spec v1.15 §6, J5).
+            relation_val_neg = hgb_valid_negatives(
+                relation_val_pos, dst_range, seed=config.data.acm_split_seed + 101 + rel_id)
 
             # Checked per relation (not pooled across target_relations) — Amazon's
             # rel_0/rel_1 share the same (product, product) node-type pair, so a
@@ -1200,6 +1100,8 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         target_original_ids = torch.tensor(
             [relation_tuples.index(relation) for relation in target_relations], dtype=torch.long
         )
+        test_heads_without_negatives = (torch.cat(heads_without_parts) if heads_without_parts
+                                        else torch.empty(0, dtype=torch.long))
     elif dataset_name == "amazonbook":
         label_pos_edge_index = _offset_edge_index(
             edge_store.edge_label_index,
@@ -1247,24 +1149,13 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
             [edge_index, val_pos_edge_index, test_pos_edge_index], dim=1
         )
         dst_range = (dst_offset, dst_offset + num_dst_nodes)
-        # Validation negatives are always plain uniform-random, matching HGB's
-        # official get_valid_neg — 2-hop negatives are reserved for test.
-        val_neg_edge_index = _sample_random_tail_negatives(
-            reference_pos_edge_index=val_pos_edge_index,
-            known_positive_edge_index=known_positives_global,
-            dst_range=dst_range,
-            seed=config.data.acm_split_seed + 101,
-        )
-        test_neg_edge_index = _sample_hgb_eval_negatives(
-            reference_pos_edge_index=test_pos_edge_index,
-            adjacency_edge_index=hgb_adjacency_edge_index,
-            known_positive_edge_index=known_positives_global,
-            relation_tuples=relation_tuples,
-            src_type=src_type,
-            dst_type=dst_type,
-            dst_range=dst_range,
-            seed=config.data.acm_split_seed + 202,
-        )
+        # HGB's get_valid_neg / get_test_neigh exactly (spec v1.15 §6, J5; no fallback).
+        val_neg_edge_index = hgb_valid_negatives(val_pos_edge_index, dst_range,
+                                                 seed=config.data.acm_split_seed + 101)
+        computed = hgb_test_negatives(test_pos_edge_index, hgb_adjacency_edge_index,
+                                      int(raw_x.size(0)), dst_range)
+        test_neg_edge_index = computed.edge_index
+        test_heads_without_negatives, positives_without_total = _negative_heads_without(computed)
 
         held_out = torch.cat([val_pos_edge_index, test_pos_edge_index], dim=1)
         _assert_no_message_passing_leak(
@@ -1341,4 +1232,6 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         dst_node_offset=dst_offset,
         face_groups=face_groups,
         fact_layer=fact_layer,
+        test_heads_without_negatives=test_heads_without_negatives,
+        test_positives_without_negatives=int(positives_without_total),
     )

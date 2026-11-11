@@ -1,0 +1,3 @@
+MUTATION random fallback re-enabled: ran 4, failed 1: ['test_a_head_without_candidates_gets_no_negative_through_the_loader']
+restored: ran 4, failed 0: []
+mutation caught

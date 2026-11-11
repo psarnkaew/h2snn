@@ -414,6 +414,9 @@ class DataConfig:
     decoder_type: str = "dot"                    # "dot" | "distmult" | "concat_mlp"
     neg_sampling_mode: str = "fixed"              # "fixed" | "resample_each_epoch"
     neg_sampling_ratio: int = 1
+    # Positive links per optimizer step (spec v1.15 §6, J5: HGB's LP default 8,192; not tuned).
+    # For H2S-NN one step is one solve on the whole message graph.
+    link_batch_size: int = 8192
     link_val_ratio: float = 0.09
     link_test_ratio: float = 0.10
 
@@ -501,6 +504,7 @@ class DataConfig:
             neg_sampling_ratio=int(raw.get("neg_sampling_ratio", 1)),
             link_val_ratio=float(raw.get("link_val_ratio", 0.09)),
             link_test_ratio=float(raw.get("link_test_ratio", 0.10)),
+            link_batch_size=int(raw.get("link_batch_size", 8192)),
             split_protocol=str(raw.get("split_protocol", "stratified_holdout")),
             num_folds=int(raw.get("num_folds", 10)),
             fold_index=int(raw.get("fold_index", 0)),
@@ -630,6 +634,8 @@ class DataConfig:
         if task_type == "link_prediction":
             if self.decoder_type not in {"dot", "distmult", "concat_mlp"}:
                 raise ValueError("Unsupported data.decoder_type.")
+            if self.link_batch_size < 1:
+                raise ValueError("data.link_batch_size must be >= 1.")
             if not (
                 0.0 < self.link_val_ratio < 1.0
                 and 0.0 < self.link_test_ratio < 1.0

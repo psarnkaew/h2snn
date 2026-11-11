@@ -551,10 +551,10 @@ class DataPipelineTests(unittest.TestCase):
 
     def test_hgb_two_hop_negatives_are_grouped_by_source(self) -> None:
         torch = self._require_torch()
-        from src.data.link_prediction_dataset import _sample_hgb_two_hop_negatives
+        # Part M M7: the sampler is HGB's get_test_neigh, ported (src/data/hgb_lp_negatives.py).
+        from src.data.hgb_lp_negatives import hgb_test_negatives
 
         reference_pos = torch.tensor([[0, 1], [10, 11]])
-        known_pos = reference_pos.clone()
         adjacency_edges = torch.tensor(
             [
                 [0, 0, 1],
@@ -562,17 +562,10 @@ class DataPipelineTests(unittest.TestCase):
             ]
         )
 
-        negatives = _sample_hgb_two_hop_negatives(
-            reference_pos_edge_index=reference_pos,
-            adjacency_edge_index=adjacency_edges,
-            known_positive_edge_index=known_pos,
-            dst_range=(10, 12),
-            seed=5,
-            neg_sampling_ratio=1,
-            allow_random_fallback=False,
-        )
+        negatives = hgb_test_negatives(reference_pos, adjacency_edges, 12, dst_range=(10, 12))
 
-        self.assertTrue(torch.equal(negatives, torch.tensor([[0, 1], [11, 10]])))
+        self.assertTrue(torch.equal(negatives.edge_index, torch.tensor([[0, 1], [11, 10]])))
+        self.assertEqual(negatives.heads_without_candidates.numel(), 0)
 
     def test_link_prediction_metrics_include_hgb_mrr(self) -> None:
         torch = self._require_torch()

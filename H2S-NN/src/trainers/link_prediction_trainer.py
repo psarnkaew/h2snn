@@ -226,7 +226,7 @@ class LinkPredictionTrainer:
         pos_edge_relation: torch.Tensor,
         neg_edge_relation: torch.Tensor,
         epoch: int,
-    ) -> tuple[torch.Tensor, dict[str, float]]:
+    ) -> tuple[torch.Tensor, dict[str, float], torch.Tensor, torch.Tensor]:
         # Message graph and path cells: `data.edge_index` / `data.face_groups`, built from
         # training positives only (src/data/link_prediction_dataset.py).
         encoded = self.model.encode(
@@ -269,23 +269,50 @@ class LinkPredictionTrainer:
             "link_loss": float(link_loss.item()),
             **link_metrics,
         }
-        return total_loss, metrics
+        return total_loss, metrics, pos_scores.detach(), neg_scores.detach()
 
     def _train_epoch(self, data: PreparedLinkPredData, epoch: int) -> dict[str, float]:
+        """One epoch = the training positives in shuffled batches of `data.link_batch_size`
+        (8,192, HGB's LP default; spec v1.15 §6, J5), each with its share of the epoch's 1:1
+        negatives; one optimizer step per batch, and for H2S-NN one solve on the whole message
+        graph per step (the epoch's WISP draw is shared by its batches)."""
         self.model.train()
-        self.optimizer.zero_grad()
         neg_edge_index, neg_edge_relation = self._train_negatives(data)
-        loss, metrics = self._compute(
-            data,
-            data.train_pos_edge_index,
-            neg_edge_index,
-            data.train_pos_edge_relation,
-            neg_edge_relation,
-            epoch,
-        )
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
-        self.optimizer.step()
+        pos_edge_index, pos_edge_relation = data.train_pos_edge_index, data.train_pos_edge_relation
+        batch = self.cfg.data.link_batch_size
+        ratio = max(1, neg_edge_index.size(1) // max(1, pos_edge_index.size(1)))
+        pos_order = torch.randperm(pos_edge_index.size(1), device=pos_edge_index.device)
+        neg_order = torch.randperm(neg_edge_index.size(1), device=neg_edge_index.device)
+        num_batches = max(1, -(-pos_edge_index.size(1) // batch))
+        loss_sum, link_loss_sum, rows = 0.0, 0.0, 0
+        pos_parts, neg_parts, pos_index_parts, neg_index_parts = [], [], [], []
+        for step in range(num_batches):
+            p = pos_order[step * batch:(step + 1) * batch]
+            n = neg_order[step * batch * ratio:(step + 1) * batch * ratio]
+            self.optimizer.zero_grad()
+            loss, step_metrics, pos_scores, neg_scores = self._compute(
+                data, pos_edge_index[:, p], neg_edge_index[:, n], pos_edge_relation[p],
+                neg_edge_relation[n], epoch)
+            loss.backward()
+            if self.cfg.optim.grad_clip > 0:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
+            self.optimizer.step()
+            size = int(p.numel() + n.numel())
+            loss_sum += step_metrics["loss"] * size
+            link_loss_sum += step_metrics["link_loss"] * size
+            rows += size
+            pos_parts.append(pos_scores)
+            neg_parts.append(neg_scores)
+            pos_index_parts.append(pos_edge_index[:, p])
+            neg_index_parts.append(neg_edge_index[:, n])
+        computed = compute_link_prediction_metrics(
+            torch.cat(pos_parts), torch.cat(neg_parts),
+            pos_edge_index=torch.cat(pos_index_parts, dim=1),
+            neg_edge_index=torch.cat(neg_index_parts, dim=1))
+        metrics = {"loss": loss_sum / max(1, rows), "link_loss": link_loss_sum / max(1, rows),
+                   **{name: float(computed.get(name, 0.0))
+                      for name in LINK_PREDICTION_METRIC_NAMES},
+                   "optimizer_steps": float(num_batches)}
         # Diffusion step and path-coupling strength after this epoch's update.
         metrics.update(self.model.diffusion_scalars())
         if epoch % self.cfg.log_every == 0 and self.model.diagnostics_available:
@@ -320,7 +347,7 @@ class LinkPredictionTrainer:
             "test": data.test_neg_edge_relation,
         }[split]
         with torch.no_grad():
-            _, metrics = self._compute(
+            _, metrics, _, _ = self._compute(
                 data, pos_edge_index, neg_edge_index, pos_edge_relation, neg_edge_relation, -1
             )
         return metrics

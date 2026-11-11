@@ -1,0 +1,116 @@
+[
+ {
+  "task": "acm_pa",
+  "type": 1,
+  "rule": "V1/or",
+  "stored_features": false,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "measurable_positives": 895,
+     "positives_without_negatives": 0,
+     "mrr": 0.6230167597765365,
+     "hits_at_10": 1.0
+    },
+    "ctrl_g": {
+     "measurable_positives": 895,
+     "positives_without_negatives": 0,
+     "mrr": 0.7099946794360203,
+     "hits_at_10": 1.0
+    },
+    "diff_mrr": -0.08697791965948387,
+    "diff_hits_at_10": 0.0,
+    "gate": "pass (dropped type: no stored feature; scorer = all-tie level)"
+   },
+   "test": {
+    "scorer": {
+     "measurable_positives": 763,
+     "positives_without_negatives": 232,
+     "mrr": 0.6124945391000437,
+     "hits_at_10": 1.0
+    },
+    "ctrl_g": {
+     "measurable_positives": 763,
+     "positives_without_negatives": 232,
+     "mrr": 0.6436653560506772,
+     "hits_at_10": 1.0
+    },
+    "diff_mrr": -0.031170816950633506,
+    "diff_hits_at_10": 0.0,
+    "gate": "pass (dropped type: no stored feature; scorer = all-tie level)"
+   }
+  }
+ },
+ {
+  "task": "dblp_ap",
+  "type": 0,
+  "rule": "V2:r1/or",
+  "stored_features": false,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "measurable_positives": 1768,
+     "positives_without_negatives": 0,
+     "mrr": 0.5200168652627571,
+     "hits_at_10": 1.0
+    },
+    "ctrl_g": {
+     "measurable_positives": 1768,
+     "positives_without_negatives": 0,
+     "mrr": 0.6720537642215423,
+     "hits_at_10": 0.9949095022624435
+    },
+    "diff_mrr": -0.15203689895878514,
+    "diff_hits_at_10": 0.005090497737556543,
+    "gate": "pass (dropped type: no stored feature; scorer = all-tie level)"
+   },
+   "test": {
+    "scorer": {
+     "measurable_positives": 0,
+     "positives_without_negatives": 1964
+    },
+    "ctrl_g": {
+     "measurable_positives": 0,
+     "positives_without_negatives": 1964
+    },
+    "gate": "not measurable (no negatives)"
+   }
+  }
+ },
+ {
+  "task": "imdb_ma",
+  "type": 2,
+  "rule": "V1/mean",
+  "stored_features": false,
+  "splits": {
+   "valid": {
+    "scorer": {
+     "measurable_positives": 1330,
+     "positives_without_negatives": 0,
+     "mrr": 0.6423057644110276,
+     "hits_at_10": 1.0
+    },
+    "ctrl_g": {
+     "measurable_positives": 1330,
+     "positives_without_negatives": 0,
+     "mrr": 0.7220802005012531,
+     "hits_at_10": 1.0
+    },
+    "diff_mrr": -0.0797744360902255,
+    "diff_hits_at_10": 0.0,
+    "gate": "pass (dropped type: no stored feature; scorer = all-tie level)"
+   },
+   "test": {
+    "scorer": {
+     "measurable_positives": 0,
+     "positives_without_negatives": 1478
+    },
+    "ctrl_g": {
+     "measurable_positives": 0,
+     "positives_without_negatives": 1478
+    },
+    "gate": "not measurable (no negatives)"
+   }
+  }
+ }
+]
