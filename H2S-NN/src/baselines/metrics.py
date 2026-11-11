@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import numpy as np
 import torch
-from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score
+
+from src.utils.nc_metrics import node_classification_f1
 
 
 # How multi-label predictions (HGB IMDB) are binarised before F1. The two conventions are
@@ -93,11 +95,10 @@ def classification_metrics(
             targets = labels.cpu().numpy()
             accuracy = float((predictions == targets).mean())
 
-    return {
-        "macro_f1": float(f1_score(targets, predictions, average="macro", zero_division=0)),
-        "micro_f1": float(f1_score(targets, predictions, average="micro", zero_division=0)),
-        "acc": accuracy,
-    }
+    # Spec v1.15 §6 (card Part M, M8): Macro-F1 over the classes of this split's true labels,
+    # the same module H2S-NN uses (src/utils/nc_metrics.py).
+    f1 = node_classification_f1(targets, predictions, is_multilabel=is_multilabel)
+    return {"macro_f1": f1["macro_f1"], "micro_f1": f1["micro_f1"], "acc": accuracy}
 
 
 def link_metrics(scores: torch.Tensor, labels: torch.Tensor) -> dict[str, float]:

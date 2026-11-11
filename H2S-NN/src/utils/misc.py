@@ -55,8 +55,14 @@ def masked_accuracy(logits: torch.Tensor, labels: torch.Tensor) -> float:
 def compute_classification_metrics(
     logits: torch.Tensor,
     labels: torch.Tensor,
+    split_classes_only: bool = True,
 ) -> dict[str, float]:
     """Return acc, macro_f1, micro_f1 computed from detached tensors.
+
+    Node classification (spec v1.15 §6, card Part M M8): Macro-F1 averages over the classes
+    present in this split's true labels (`src/utils/nc_metrics.py`, shared with every baseline).
+    `split_classes_only=False` keeps sklearn's default class set (labels present in the true or
+    predicted labels): graph classification uses it, unchanged by M8.
 
     ROC-AUC is omitted: for multiclass node classification it requires OvR
     decomposition which is non-standard and rarely reported in GNN benchmarks.
@@ -73,8 +79,14 @@ def compute_classification_metrics(
     preds_np = preds.cpu().numpy()
 
     acc = float((preds_np == labels_np).mean())
-    macro_f1 = float(f1_score(labels_np, preds_np, average="macro", zero_division=0))
-    micro_f1 = float(f1_score(labels_np, preds_np, average="micro", zero_division=0))
+    if split_classes_only:
+        from src.utils.nc_metrics import node_classification_f1
+
+        f1 = node_classification_f1(labels_np, preds_np, is_multilabel=False)
+        macro_f1, micro_f1 = f1["macro_f1"], f1["micro_f1"]
+    else:
+        macro_f1 = float(f1_score(labels_np, preds_np, average="macro", zero_division=0))
+        micro_f1 = float(f1_score(labels_np, preds_np, average="micro", zero_division=0))
 
     # --- ROC-AUC (binary or multiclass OvR) ---
     # Uncomment if needed for binary node classification tasks.
@@ -112,8 +124,6 @@ def compute_multilabel_classification_metrics(
     HGB's. It is not: HGB's ``evaluate()`` is metric-only and its own baselines threshold.
     See ``src/baselines/metrics.py`` for the shared implementation the baselines use.
     """
-    from sklearn.metrics import f1_score
-
     if labels.numel() == 0:
         return {"acc": 0.0, "macro_f1": 0.0, "micro_f1": 0.0}
 
@@ -133,9 +143,11 @@ def compute_multilabel_classification_metrics(
     preds_np = preds.cpu().numpy()
 
     acc = float((preds_np == labels_np).all(axis=1).mean())
-    macro_f1 = float(f1_score(labels_np, preds_np, average="macro", zero_division=0))
-    micro_f1 = float(f1_score(labels_np, preds_np, average="micro", zero_division=0))
-    return {"acc": acc, "macro_f1": macro_f1, "micro_f1": micro_f1}
+    # Spec v1.15 §6 (M8): a genre counts in Macro-F1 when at least one node of the split has it.
+    from src.utils.nc_metrics import node_classification_f1
+
+    f1 = node_classification_f1(labels_np, preds_np, is_multilabel=True)
+    return {"acc": acc, "macro_f1": f1["macro_f1"], "micro_f1": f1["micro_f1"]}
 
 
 def compute_graph_classification_metrics(
@@ -144,7 +156,7 @@ def compute_graph_classification_metrics(
 ) -> dict[str, float]:
     from sklearn.metrics import roc_auc_score
 
-    metrics = compute_classification_metrics(logits, labels)
+    metrics = compute_classification_metrics(logits, labels, split_classes_only=False)
     if labels.numel() == 0:
         return {**metrics, "auroc": 0.0}
 
