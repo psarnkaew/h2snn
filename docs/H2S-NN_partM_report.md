@@ -2,6 +2,18 @@
 
 Card: `docs/H2S-NN_partM_card.md`. Design authority: spec v1.15 (J1–J11), `experiment_settings.html` §4.1–§4.3, §5.2, §6, `experiment_settings_decisions.md`. M2 and M3 are deferred by the author (no H2GB data loaded, no heterophily statistic computed). Evidence files: `docs/partM_evidence/`. Commands run from `H2S-NN/` with `C:\Users\Acer\anaconda3\envs\h2snn\python.exe` (the `h2snn` env). Tags as in `CLAUDE.md`.
 
+## Summary
+
+- **Done:** M0, M1, M4–M12 on branch `part-m` (base `9b1c283`), one commit per unit; **M2 and M3 deferred by the author** (no H2GB data loaded, no heterophily statistic computed). Nothing pushed or merged.
+- **Correctness and function (VERIFIED-RUN):** M1 gate 69/69 (data unchanged after the move); WISP draws for LP (both endpoint types) and GC (each graph alone); GC readout = pooling + one Linear, HetSheaf split/batch/early stopping; stop conditions τ > 50 and log-weight range > 30; HGB LP negatives without fallback, negative files per task, 8,192-link batches; per-split Macro-F1; AdamW/no scheduler/no clipping and per-protocol budgets for every method; H2S-NN search space = method components, plain Bayes, seed-0 tuning then seeds 0–4; registry NC 12 / LP 8 / GC 4 with pending reasons, LatGRL removed. Mutation checks M4, M5, M7: caught. Final suite: 557 tests, 9 failures all in the pre-state set, 0 new, 0 skipped.
+- **Cost:** smoke runs finite, all parameters move, PCG ≤ 12; GC at batch size 1 ≈ 0.9 s per graph on this laptop (decision 4).
+- **Most important finding:** HGB's 2-hop rule gives **no test negatives at all** on dblp_ap and imdb_ma (no length-2 type path between their endpoint types) and none for 23 % of acm_pa's test positives (decision 1).
+- No smoke metric or baseline number in this report is a design signal (untuned vs tuned).
+
+## M2, M3 — deferred (author, 2026-11-12)
+
+Not implemented; kept in the card as the specification of a later card (H2GB preprocessing on the lab cluster, after the mini-batch design).
+
 ## M0 — Preconditions
 
 - Read: spec v1.15 (whole file), `experiment_settings.html` §4 (4.1–4.4), §5.2, §6 (6.1–6.3), the decisions log, the card, the handoff note, `H2S-NN/AGENTS.md`, the binding parts of `H2S-NN/CLAUDE.md` (environment, rules, testing). Not read in full: the rest of `CLAUDE.md` (style templates, LaTeX rules) and `experiment_settings.html` §1–§3, §5.1, §5.3–§5.5.
@@ -178,3 +190,48 @@ Registry after M11 (VERIFIED-RUN): 12 models; 288 cells, **90 runnable** (NC 36 
 
 **Tests (VERIFIED-RUN).** `tests/test_baselines.py`: the cell-count test now checks 12/8/4 datasets and 90 = 36 + 18 + 36 runnable cells; the LatGRL reason test is replaced by `test_pending_cells_carry_their_specific_reason` (data-pending reason on the 8 H2GB and 2 large LP cells; a model without the task keeps its own reason; GCN on PubMed runnable; no LatGRL, no YouTube/Amazon; HetSheaf adapter pending); LatGRL removed from the DGL-split and notebook-lane tests. Full `test_baselines` (`m11_test_baselines_output.txt`): failures=2, errors=7, **none new**; the remaining nine are pre-state (missing vendor clones ×3, PSHGCN key tests on Amazon/YouTube whose data are not on disk ×5, the hand-made top-level notebook with outputs ×1); seven pre-state failures are fixed (notebook lanes, LastFM/PubMed keys, split overlap). `test_shared_protocol`, `test_search_spaces`: OK.
 - Not changed: `notebooks/baselines_node_classification_subset.ipynb` (not produced by the generator) still lists LatGRL in its table and `REQUIRED_VENDORS`; listed under out-of-scope.
+
+## M12 — Full suite and report
+
+**Full suite (VERIFIED-RUN, `python -m unittest discover -s tests`, `m12_suite_raw.txt`):** **Ran 557 tests in 839 s, failures=2, errors=7, skipped=0** (pre-state: 497 tests, failures=11, errors=12, skipped=27). All nine are in the pre-state failure set (`m12_suite_failures.txt`; no new failure): `test_baselines` PolynomialRelationKeyTests ×5 (Amazon/YouTube data not on disk), vendor clones missing ×3 (`test_all_declared_vendor_clones_are_present`, `test_colliding_vendor_module_names_do_not_leak`, `test_vendor_model_init_is_reproducible_under_seed_everything`), `test_notebooks_are_committed_clean` (hand-made top-level notebook with outputs). No Application Control error occurred today. The 27 pre-state skips were real-data tests that could not find the moved data; they all run and pass now. +60 tests are Part M's.
+
+**Smoke cost table (VERIFIED-RUN, final code, `scripts/partm_smoke.py`, 3 epochs, RTX 4060 Laptop 8 GB, v3-B `propagation: anchored`, `arm: full`, d = 32, ℓ_max = 4, r = 8; `m12_smoke_{acm_pa,mutag}.json`).** Function and cost only; untuned, not a design signal.
+
+| Task | protocol in force | build | s / epoch (ep. 0, 1, 2) | peak GPU memory | PCG fwd / bwd max (T_max 100) | τ ep. 0–2 | log-w range ep. 0–2 | params moved | finite |
+|---|---|---|---|---|---|---|---|---|---|
+| acm_pa LP | WISP from both endpoint types; HGB negatives; 8,059 training links → 1 batch of ≤ 8,192 per epoch; AdamW, no scheduler, no clipping | 4.5 s | 6.3, 3.2, 3.0 | 2,000 MB | 7 / 6 | 1.010, 1.018, 1.025 | 1.06, 1.23, 1.56 | 36 / 36 | yes |
+| MUTAG GC | WISP per graph; HetSheaf split, batch 1, constant feature, pooling `mean` + one Linear | 0.1 s | 154, 177, 183 | 23 MB | 12 / 11 | 1.021, 1.354, 2.120 | 1.40, 3.75, 5.68 | 50 / 50 | yes |
+| MUTAG GC (M4, before M5: batch 32) | for comparison | — | 8.2, 7.7, 8.0 | 63 MB | 10 / 10 | 1.048, 1.083, 1.094 | — | 54 / 54 | yes |
+
+No stop condition fired (τ ≤ 2.12 < 50, log-weight range ≤ 5.68 < 30, PCG ≤ 12 < 100). The first acm_pa epoch includes CUDA warm-up. **Cost finding:** GC at HetSheaf's batch size 1 costs ≈ 0.9 s per graph here (150 training + 38 evaluation graphs per MUTAG epoch); at batch 32 the same model took ≈ 8 s per epoch. DERIVED extrapolation (graph sizes differ, so rough): NCI1 (4,110 graphs) ≈ 1 h per epoch on this laptop, × 200–500 epochs × 100 trials × 5 seeds. Listed under decisions.
+
+**LP heads without 2-hop negatives (M7, per local task):** acm_pa 196 / 839 heads, 232 / 995 test positives (23.3 %); **dblp_ap 1,256 / 1,256 heads, 1,964 / 1,964 positives (100 %)**; **imdb_ma 1,340 / 1,340 heads, 1,478 / 1,478 positives (100 %)**; freebase_bb 70 / 9,645 heads, 72 / 18,723 positives (0.38 %); PubMed 3 / 3,048 heads, 3 / 8,528 positives (0.04 %); LastFM 0 / 1,878 heads. ogbn-mag P–P and H-Pokec U–U wait for the H2GB data.
+
+**Commits on `part-m`** (base `9b1c283` on `v3b`): M1 `c13a87b`, M4 `3e4915c`, M5 `b8c1cf6`, M6 `d9aecc2`, M7 `a9dba13`, M8 `883ff38`, M9 `31d890d`, M10 `ed91e61`, M11 `f4af51f`, M12 (this report) (this commit). M2 and M3 deferred by the author; no commit. Nothing pushed or merged.
+
+## Decisions for the author
+
+1. **LP test negatives on dblp_ap and imdb_ma (blocking for those two tasks).** HGB's `get_test_neigh` gives them no negative at all (no type path of length 2 from author to paper or from movie to actor), so test ROC-AUC is undefined and test MRR is 1 for every method; acm_pa loses 23 % of its test positives' negatives (and those heads score RR = 1 for every method, inflating MRR equally). Options: (a) keep the rule as decided and drop dblp_ap/imdb_ma from the LP tables (4 local tasks remain); (b) for a task whose schema has no length-2 head→tail type path, use HGB's own alternative `get_test_neigh_w_random` (in the same `data_loader.py`: one random tail per positive, rejected if linked to the head), fixed per task from the schema before any run; (c) candidates at distance 3 for odd-distance schemas (not HGB's); (d) replace the two derived tasks with relations that have a 2-hop path. **Recommendation: (b)** — it stays inside HGB's code, the rule is set by the schema (not by results), and the paper can state it in one line; acm_pa keeps `get_test_neigh` with its 23 % reported.
+2. **Validation facts in HGB's adjacency.** HGB's code adds validation facts in one orientation; the card/spec say "symmetric", which I implemented. Confirm (recommended: keep symmetric — on our derived tasks the reverse copy of a validation fact is not in the message graph, so HGB's literal choice would make the candidate set depend on the stored orientation).
+3. **"Log-weight range of g" (M6).** Implemented as max − min of `log w_f` over the cells of one forward (one draw). Confirm, or name another definition (e.g. over a fixed evaluation draw only).
+4. **GC cost at batch size 1** (cost table above). Options: (a) keep batch 1 and budget it on the server; (b) keep batch 1 but draw/solve several graphs per step as independent scopes (per-scope PCG, Lemma R; results identical in exact arithmetic, needs its own test); (c) another batch size (a deviation from HetSheaf). This also interacts with open O4 (200 vs 500 epochs). The budget table holds 200 epochs only as a placeholder.
+5. **Graph-classification Macro-F1.** M8 changed NC only; GC still uses sklearn's default class set (classes in truth ∪ prediction). HetSheaf uses torchmetrics' macro F1 over `num_classes`. Choose: keep, apply the per-split rule, or follow HetSheaf's definition.
+6. **LP training negatives.** Unchanged: uniform tails excluding known positives (`negative_sampling`). HGB's `get_train_neg` draws one random tail of the tail type per positive without exclusion. The card does not name them; port `get_train_neg` too?
+7. **Scope extensions I made because spec §6 says "every method"** (please confirm or revert): the baseline campaign is plain Bayes as well (Hyperband removed there too); the baselines' GC loop follows HetSheaf (stop on validation loss, final weights); the tuner refuses a base config with a scheduler or clipping, and the three v3-B NC configs dropped `cosine`, `grad_clip: 1.0` and `epochs: 200`.
+8. **Fixed pre-existing blocker (confirm):** the tuner refused `ablation.coupling: symmetric`, which the v3-B model requires, so the method could not be tuned; the rule now applies to the legacy propagation only.
+9. **Registry cells not runnable for code reasons, not data:** Freebase NC (no baseline bundle, and no H2S-NN NC loader for Freebase) and the four derived LP tasks (baseline adapters accept HGB LP releases only). Both carry an explicit reason; wiring them is a card of its own (with the HetSheaf adapter?).
+10. **Open items untouched, as instructed:** `feats_type` in the baseline spaces, the LP decoder `concat_mlp` (only on request in the tuner), GC epochs 200 vs 500, mini-batch design.
+
+## Out-of-scope findings (listed, not fixed)
+
+- `data/LP/lp_derived/*/split_meta.json` and `feature_rule.json` record the pre-move absolute release paths (md5s match; the loader checks md5 only).
+- `PolynomialRelationKeyTests` (5) need `data/LP/amazon` and `data/LP/youtube`, which are not on disk and are no longer campaign datasets; they fail as in the pre-state. Drop or keep them?
+- Missing vendor clones (`hgb_nc*`, `hgb_lp*`, `sehgnn*`, `pshgcn*`, `chebnetii`) and `notebooks/baselines_node_classification_subset.ipynb` (hand-made, committed with outputs, still lists LatGRL in its table and `REQUIRED_VENDORS`): pre-state failures.
+- The adapters' `SUPPORTED_LP_DATASETS` still name YouTube and Amazon (unreachable now that the registry drops them).
+- `scripts/run_graph_classification_repeated_cv_wandb_tuning.py` implements the superseded repeated-CV GC protocol and still parses `--hyperband_*` (now unused); the legacy experiment configs (`*_h2snn.yaml` without `_v3b`) keep `scheduler: cosine` / `grad_clip: 1.0` and are refused by the tuner.
+- The anchored model's evaluation warm start is reused when the next graph has the same state shape (GC, batch 1): only a starting point (PCG still converges to tolerance), but it couples graphs' evaluation iterates; a per-graph cold start would be cleaner.
+- The LP trainer's per-epoch log line prints node-classification fields (`train_acc 0.0000` …) from the shared logger format; cosmetic.
+- HeaRT negative files (`heart/`, `heart_variant_ra/`) stay on disk unused (spec 1.14).
+- `scripts/analyze_kernel.py` (v1 analysis) computes F1 on its own; not part of any protocol path.
+- HGB's `data_loader.py` was read through a fetch agent; `vendor/HGB` is empty, so the port was checked against that text, not against a clone.
+- Evidence tags: the AdamW check is source-level, not runtime (M9 deviation); the H2GB budget row (500, no early stopping) is in the table but unused until the H2GB cells run.
