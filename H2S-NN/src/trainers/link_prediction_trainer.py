@@ -11,6 +11,7 @@ from src.data.link_pred_structures import PreparedLinkPredData
 from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
+from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.misc import compute_link_prediction_metrics
 
 
@@ -70,6 +71,15 @@ class LinkPredictionTrainer:
                        face_groups=tuple(group.to(self.device) for group in groups))
 
     def fit(
+        self,
+        data: PreparedLinkPredData,
+        epoch_callback: "callable | None" = None,
+    ) -> None:
+        """Train; a stop condition of spec §6 (tau, log-weight range) is logged and re-raised."""
+        with logged_stop_conditions(self.logger):
+            self._fit(data, epoch_callback)
+
+    def _fit(
         self,
         data: PreparedLinkPredData,
         epoch_callback: "callable | None" = None,

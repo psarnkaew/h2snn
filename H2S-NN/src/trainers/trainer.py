@@ -13,6 +13,7 @@ import torch.nn as nn
 from src.configs.config import TrainConfig
 from src.data.structures import PreparedH2SData
 from src.models.h2snn_model import H2SNNOutput
+from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
 from src.utils.misc import (
@@ -115,7 +116,8 @@ class Trainer:
         executor = (ThreadPoolExecutor(max_workers=1, thread_name_prefix="h2snn-draw")
                     if overlap else None)
         try:
-            self._run_epochs(data, prepared_data, epoch_callback, executor, adaptive)
+            with logged_stop_conditions(self.logger):  # spec §6 stop conditions (J10)
+                self._run_epochs(data, prepared_data, epoch_callback, executor, adaptive)
         finally:
             if executor is not None:
                 executor.shutdown(wait=True, cancel_futures=True)

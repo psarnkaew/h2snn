@@ -39,6 +39,31 @@ class PCGConvergenceError(RuntimeError):
     """`T_max` reached in some scope (card §3: a stop condition, reported, never tuned)."""
 
 
+class StopConditionError(RuntimeError):
+    """A stop condition of spec §6 fired (J10): the run stops and is reported; never a reason to
+    change settings. Carries the condition, the value and the epoch (-1 = an evaluation forward)."""
+
+    def __init__(self, condition: str, value: float, limit: float, epoch: int) -> None:
+        self.condition, self.value, self.limit, self.epoch = condition, float(value), limit, epoch
+        super().__init__(f"stop condition {condition}: {float(value):.6g} > {limit:g} at epoch "
+                         f"{epoch}{' (evaluation forward)' if epoch < 0 else ''} (spec v1.15 §6)")
+
+
+class TauStopError(StopConditionError):
+    """`tau = exp(theta_tau) > tau_stop` (50; spec §3 learned tau, G6)."""
+
+    def __init__(self, value: float, limit: float, epoch: int) -> None:
+        super().__init__("tau", value, limit, epoch)
+
+
+class LogWeightRangeStopError(StopConditionError):
+    """Range `max - min` of the cell log-weights `log w_f = g(xi_f)` of one forward above
+    `log_weight_range_stop` (30; spec §3 WISP instance weight)."""
+
+    def __init__(self, value: float, limit: float, epoch: int) -> None:
+        super().__init__("log_weight_range", value, limit, epoch)
+
+
 @dataclass
 class SolveStats:
     """Iteration counts of the solves of one forward / backward pair (filled in place)."""
@@ -275,5 +300,6 @@ def anchored_solve(build: Callable[..., AnchoredOperator], h0: torch.Tensor,
                                scope_rows, num_scopes, *params)
 
 
-__all__ = ["AnchoredSolve", "AnchoredSystem", "PCGConvergenceError", "SolveStats",
+__all__ = ["AnchoredSolve", "AnchoredSystem", "LogWeightRangeStopError", "PCGConvergenceError",
+           "SolveStats", "StopConditionError", "TauStopError",
            "anchored_solve", "pcg", "segment_dot", "solve_anchored", "solver_tolerance"]

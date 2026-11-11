@@ -60,7 +60,8 @@ V3B_ARMS: tuple[str, ...] = ("full", "covering_only", "hub_A", "closure_only", "
 # search space; the propagation and the arm are comparison switches.
 NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solver_tolerance",
                                          "solver_warmup_tolerance", "solver_warmup_epochs",
-                                         "solver_max_iterations")
+                                         "solver_max_iterations", "tau_stop",
+                                         "log_weight_range_stop")
 
 
 def reject_never_tuned_settings(
@@ -874,6 +875,10 @@ class ModelConfig:
     solver_warmup_tolerance: float = 1e-3
     solver_warmup_epochs: int = 10
     solver_max_iterations: int = 100
+    # Stop conditions (spec v1.15 §3, §6; J10): tau > tau_stop and a log-weight range of g above
+    # log_weight_range_stop raise (StopConditionError), as T_max does. Fixed, never tuned.
+    tau_stop: float = 50.0
+    log_weight_range_stop: float = 30.0
 
     def __post_init__(self) -> None:
         if self.graph_pooling not in GRAPH_POOLINGS:
@@ -892,6 +897,9 @@ class ModelConfig:
             )
         if not self.tau_init > 0.0:
             raise ValueError(f"model.tau_init must be positive, got {self.tau_init}.")
+        for name in ("tau_stop", "log_weight_range_stop"):
+            if not getattr(self, name) > 0.0:
+                raise ValueError(f"model.{name} must be positive, got {getattr(self, name)}.")
         for name in ("solver_tolerance", "solver_warmup_tolerance"):
             value = getattr(self, name)
             if not 0.0 < value < 1.0:
@@ -1009,6 +1017,8 @@ class ModelConfig:
             # Not cast with int(): 2.9 or `true` must fail validation.
             solver_warmup_epochs=raw.get("solver_warmup_epochs", 10),
             solver_max_iterations=raw.get("solver_max_iterations", 100),
+            tau_stop=float(raw.get("tau_stop", 50.0)),
+            log_weight_range_stop=float(raw.get("log_weight_range_stop", 30.0)),
         )
 
 

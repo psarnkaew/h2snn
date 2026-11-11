@@ -53,7 +53,8 @@ from src.models.map_operators import (
     normalize_reflectors,
 )
 from src.models.filter_bank import ChebyshevFilterBank
-from src.models.anchored_solve import SolveStats, anchored_solve, solver_tolerance
+from src.models.anchored_solve import (LogWeightRangeStopError, SolveStats, TauStopError,
+                                       anchored_solve, solver_tolerance)
 from src.models.sheaf_energy import (
     EliminatedOperator,
     IncidenceComplex,
@@ -716,6 +717,7 @@ class H2SNN(nn.Module):
         # free orthogonal map per fact-cell incidence (hop positions 0..L_max-1; Thm 3 control).
         self.theta_tau: nn.Parameter | None = None
         self.free_cell_maps: FreeIncidenceMaps | None = None
+        self.stop_limits = (model_config.tau_stop, model_config.log_weight_range_stop)
         self.solver_settings = (model_config.solver_warmup_epochs,
                                 model_config.solver_warmup_tolerance,
                                 model_config.solver_tolerance,
@@ -1248,6 +1250,10 @@ class H2SNN(nn.Module):
         """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
         geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
+        tau_stop, range_stop = self.stop_limits
+        tau_value = float(self.tau().detach())  # type: ignore[union-attr]
+        if tau_value > tau_stop:  # spec §6 stop condition (J10)
+            raise TauStopError(tau_value, tau_stop, epoch)
         geometry = self.geometry_inputs(h0, edge_index, edge_type)
         maps = self.node_to_edge(
             h=geometry, edge_index=edge_index, edge_type=edge_type,
@@ -1262,8 +1268,12 @@ class H2SNN(nn.Module):
                 self.last_path_weights = tuple(w.detach() for w in weights)
             with torch.no_grad():
                 log_w = torch.cat(weights).log()
+                log_w_range = float(log_w.max() - log_w.min())
                 self.last_path_stats = {"path_log_w_max": float(log_w.max()),
-                                        "path_log_w_mean": float(log_w.mean())}
+                                        "path_log_w_mean": float(log_w.mean()),
+                                        "path_log_w_range": log_w_range}
+            if log_w_range > range_stop:  # spec §6 stop condition (J10)
+                raise LogWeightRangeStopError(log_w_range, range_stop, epoch)
         free_params: list[torch.Tensor] = []
         if arm == "free_cell_maps" and self.free_cell_maps is not None:
             for group, latent in zip(groups, latents):

@@ -67,3 +67,16 @@ PCG counts are the last solve of each epoch (MUTAG: last batch); every solve is 
 - GC-affected modules (`test_gc_protocol`, `test_task_heads`, `test_graph_classification_trainer`, `test_data`, `test_wandb_and_runs`, `test_paths_and_facts`, `test_wisp_tasks`): 110 tests, one failure before the update above, OK after (`m5_tests_output.txt` is the run before the update; the updated module: 1 test OK). `test_baselines`: no failure outside the pre-state set.
 - **Mutation (VERIFIED-RUN, `m5_mutation_check.py` → `m5_mutation_output.txt`):** BatchNorm1d re-inserted between pooling and the Linear → 2 of 4 readout tests fail; restored → 0. *Caught.*
 - Note for M10: GC's readout has no dropout, so `classifier_dropout` has no effect on GC.
+
+## M6 — Stop conditions (J10)
+
+**Done.**
+- `src/models/anchored_solve.py`: `StopConditionError(RuntimeError)` (condition, value, limit, epoch; message names the epoch, `-1` = evaluation forward) with `TauStopError` and `LogWeightRangeStopError`, next to `PCGConvergenceError` (T_max).
+- `H2SNN._encode_anchored`: raises `TauStopError` when `τ = exp(θ_τ) > tau_stop` (checked at the start of every anchored forward, training and evaluation) and `LogWeightRangeStopError` when the range `max − min` of `log w_f = g(ξ_f)` over the cells of the forward exceeds `log_weight_range_stop`. The range is also logged per forward (`path_log_w_range`, next to `path_log_w_max`/`mean`). The legacy (Chebyshev) encoder is untouched.
+- Config: `model.tau_stop = 50.0`, `model.log_weight_range_stop = 30.0` (positive; added to `NEVER_TUNED_V3B_KEYS`, so a search space naming them is refused).
+- Trainers (NC, LP, GC): `src/trainers/stop_conditions.logged_stop_conditions` logs "STOP CONDITION <name>: <value> > <limit> at epoch <e>" and re-raises (never silenced); LP/GC `fit` wraps a private `_fit`.
+- Reading of "log-weight range" (spec §3 table: "log-weight range logged, stop at 30"): max − min of `log w_f` over the cells of one forward (one draw). This is my reading of the spec's wording; listed under decisions for confirmation.
+
+**Tests (VERIFIED-RUN).** New `tests/test_stop_conditions.py` (5): a normal forward does not stop (τ < 50, range > 0 and ≤ 30); θ_τ = log 49 passes, log 51 raises `TauStopError` with value 51, limit 50, epoch 3; forced log-weights with range 29 pass and range 31 raise `LogWeightRangeStopError` (value 31, epoch −1 in an evaluation forward); the limits are 50/30 by default, never tuned, must be positive; the trainer helper logs once and re-raises. With `test_v3b_model`, `test_v3b_theory`, `test_v3b_mutations`, `test_task_heads` (bit-identical golden NC outputs), `test_trainer`, `test_gc_protocol`, `test_wisp_tasks`, `test_graph_classification_trainer`: **Ran 42 tests, OK** (`m6_tests_output.txt`).
+
+**Normal smoke does not stop (VERIFIED-RUN, same configs as M4, `m6_smoke_{acm_pa,mutag}.json`):** acm_pa τ 1.010 / 1.017 / 1.019, log-weight range 1.06 / 1.23 / 1.55; MUTAG (now under M5's protocol: batch 1, constant features, randperm split) τ 1.316 / 1.705 / 1.962, range 7.79 / 5.88 / 6.39. No stop condition fired; PCG within T_max.

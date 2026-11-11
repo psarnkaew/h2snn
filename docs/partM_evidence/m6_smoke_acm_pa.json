@@ -1,0 +1,173 @@
+{
+ "config": "configs/experiments/acm_pa_h2snn_v3b.yaml",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "dataset": "acm_pa",
+ "task": "link_prediction",
+ "propagation": "anchored",
+ "arm": "full",
+ "path_source": "wisp",
+ "wisp_max_length": 4,
+ "wisp_walks_per_anchor": 8,
+ "d": 32,
+ "epochs_run": 3,
+ "error": null,
+ "build_seconds": 7.892749899998307,
+ "fit_seconds": 11.397478099999717,
+ "seconds_per_epoch": [
+  5.9,
+  2.826,
+  2.671
+ ],
+ "peak_memory_mb": 1999.40966796875,
+ "t_max": 100,
+ "pcg_iterations_max": {
+  "pcg_fwd_iters": 7.0,
+  "pcg_bwd_iters": 6.0
+ },
+ "pcg_within_t_max": true,
+ "all_metrics_finite": true,
+ "losses": [
+  0.7909223437309265,
+  0.7035952210426331,
+  0.6963400840759277
+ ],
+ "tau": [
+  1.0100501775741577,
+  1.016871452331543,
+  1.0189378261566162
+ ],
+ "path_log_w_max": [
+  -0.29963216185569763,
+  -0.019185060635209084,
+  0.20353896915912628
+ ],
+ "path_log_w_range": [
+  1.0580344200134277,
+  1.2299153804779053,
+  1.5536556243896484
+ ],
+ "parameters_moved": 36,
+ "parameters_total": 36,
+ "parameters_not_moved": [],
+ "epochs": [
+  {
+   "epoch": 0,
+   "train": {
+    "loss": 0.7909223437309265,
+    "link_loss": 0.7909223437309265,
+    "auroc": 0.4894477816622326,
+    "aupr": 0.4902486345290165,
+    "mrr": 0.7053297265682117,
+    "tau": 1.0100501775741577,
+    "pcg_fwd_iters": 7.0,
+    "pcg_bwd_iters": 6.0,
+    "pcg_fwd_rel_residual": 0.0004414156428538263,
+    "pcg_bwd_rel_residual": 0.0008575836545787752,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 54994.0,
+    "num_shared_facts": 18840.0,
+    "num_fact_states": 18840.0,
+    "num_cells": 54558.0,
+    "eliminated_share": 0.9307470060210405,
+    "path_log_w_max": -0.29963216185569763,
+    "path_log_w_mean": -0.8219887614250183,
+    "path_log_w_range": 1.0580344200134277
+   },
+   "val": {
+    "loss": 0.7004917860031128,
+    "link_loss": 0.7004917860031128,
+    "auroc": 0.502757092475266,
+    "aupr": 0.5041658728244236,
+    "mrr": 0.7430644472897993
+   },
+   "test": {
+    "loss": 0.7028422355651855,
+    "link_loss": 0.7028422355651855,
+    "auroc": 0.4754677912173935,
+    "aupr": 0.4862309319116938,
+    "mrr": 0.7357965832340088
+   }
+  },
+  {
+   "epoch": 1,
+   "train": {
+    "loss": 0.7035952210426331,
+    "link_loss": 0.7035952210426331,
+    "auroc": 0.49071275758947447,
+    "aupr": 0.4927424987582335,
+    "mrr": 0.7141925665978889,
+    "tau": 1.016871452331543,
+    "pcg_fwd_iters": 7.0,
+    "pcg_bwd_iters": 6.0,
+    "pcg_fwd_rel_residual": 0.000552442274056375,
+    "pcg_bwd_rel_residual": 0.0005342824733816087,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 55223.0,
+    "num_shared_facts": 18824.0,
+    "num_fact_states": 18824.0,
+    "num_cells": 54521.0,
+    "eliminated_share": 0.9308058196040375,
+    "path_log_w_max": -0.019185060635209084,
+    "path_log_w_mean": -0.6325991153717041,
+    "path_log_w_range": 1.2299153804779053
+   },
+   "val": {
+    "loss": 0.7009947896003723,
+    "link_loss": 0.7009947896003723,
+    "auroc": 0.4816678630504666,
+    "aupr": 0.49044116296604173,
+    "mrr": 0.7289799402475458
+   },
+   "test": {
+    "loss": 0.7036400437355042,
+    "link_loss": 0.7036400437355042,
+    "auroc": 0.45193303199414153,
+    "aupr": 0.4716194915387981,
+    "mrr": 0.7176201827572507
+   }
+  },
+  {
+   "epoch": 2,
+   "train": {
+    "loss": 0.6963400840759277,
+    "link_loss": 0.6963400840759277,
+    "auroc": 0.511320292776251,
+    "aupr": 0.5083011039622489,
+    "mrr": 0.7315828879032564,
+    "tau": 1.0189378261566162,
+    "pcg_fwd_iters": 7.0,
+    "pcg_bwd_iters": 6.0,
+    "pcg_fwd_rel_residual": 0.0006637547630816698,
+    "pcg_bwd_rel_residual": 0.0006629992858506739,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 55294.0,
+    "num_shared_facts": 18799.0,
+    "num_fact_states": 18799.0,
+    "num_cells": 54487.0,
+    "eliminated_share": 0.9308977158274704,
+    "path_log_w_max": 0.20353896915912628,
+    "path_log_w_mean": -0.5275704264640808,
+    "path_log_w_range": 1.5536556243896484
+   },
+   "val": {
+    "loss": 0.7011479139328003,
+    "link_loss": 0.7011479139328003,
+    "auroc": 0.47647202022408786,
+    "aupr": 0.4867926238857911,
+    "mrr": 0.7279129321382842
+   },
+   "test": {
+    "loss": 0.7036357522010803,
+    "link_loss": 0.7036357522010803,
+    "auroc": 0.4464200398979824,
+    "aupr": 0.46989937112305735,
+    "mrr": 0.7168255860150974
+   }
+  }
+ ],
+ "note": "smoke run: function and cost only; metrics are untuned, not a design signal"
+}

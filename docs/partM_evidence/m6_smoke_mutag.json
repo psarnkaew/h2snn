@@ -1,0 +1,173 @@
+{
+ "config": "configs/experiments/mutag_h2snn_v3b.yaml",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "dataset": "mutag",
+ "task": "graph_classification",
+ "propagation": "anchored",
+ "arm": "full",
+ "path_source": "wisp",
+ "wisp_max_length": 4,
+ "wisp_walks_per_anchor": 8,
+ "d": 32,
+ "epochs_run": 3,
+ "error": null,
+ "build_seconds": 0.08285009999963222,
+ "fit_seconds": 557.2937616000017,
+ "seconds_per_epoch": [
+  172.331,
+  191.587,
+  193.375
+ ],
+ "peak_memory_mb": 22.98046875,
+ "t_max": 100,
+ "pcg_iterations_max": {
+  "pcg_fwd_iters": 12.0,
+  "pcg_bwd_iters": 13.0
+ },
+ "pcg_within_t_max": true,
+ "all_metrics_finite": true,
+ "losses": [
+  0.7222058606396119,
+  0.7840052787773311,
+  0.8265765592083335
+ ],
+ "tau": [
+  1.316410779953003,
+  1.704614281654358,
+  1.9622948169708252
+ ],
+ "path_log_w_max": [
+  2.5911123752593994,
+  0.2319108545780182,
+  -0.9381725788116455
+ ],
+ "path_log_w_range": [
+  7.790020942687988,
+  5.876966953277588,
+  6.385406494140625
+ ],
+ "parameters_moved": 50,
+ "parameters_total": 50,
+ "parameters_not_moved": [],
+ "epochs": [
+  {
+   "epoch": 0,
+   "train": {
+    "loss": 0.7222058606396119,
+    "acc": 0.6933333333333334,
+    "macro_f1": 0.4094488188976378,
+    "micro_f1": 0.6933333333333334,
+    "auroc": 0.6049331103678931,
+    "tau": 1.316410779953003,
+    "pcg_fwd_iters": 11.0,
+    "pcg_bwd_iters": 11.0,
+    "pcg_fwd_rel_residual": 0.0006052960525266826,
+    "pcg_bwd_rel_residual": 0.0005216781864874065,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 22.0,
+    "num_shared_facts": 22.0,
+    "num_fact_states": 22.0,
+    "num_cells": 84.0,
+    "eliminated_share": 0.0,
+    "path_log_w_max": 2.5911123752593994,
+    "path_log_w_mean": -3.1529414653778076,
+    "path_log_w_range": 7.790020942687988
+   },
+   "val": {
+    "loss": 1.366587624574701,
+    "acc": 0.5,
+    "macro_f1": 0.3333333333333333,
+    "micro_f1": 0.5,
+    "auroc": 0.7901234567901234
+   },
+   "test": {
+    "loss": 1.0141772760078311,
+    "acc": 0.6,
+    "macro_f1": 0.375,
+    "micro_f1": 0.6,
+    "auroc": 0.8541666666666667
+   }
+  },
+  {
+   "epoch": 1,
+   "train": {
+    "loss": 0.7840052787773311,
+    "acc": 0.6933333333333334,
+    "macro_f1": 0.4094488188976378,
+    "micro_f1": 0.6933333333333334,
+    "auroc": 0.7617056856187291,
+    "tau": 1.704614281654358,
+    "pcg_fwd_iters": 12.0,
+    "pcg_bwd_iters": 13.0,
+    "pcg_fwd_rel_residual": 0.0009750304743647575,
+    "pcg_bwd_rel_residual": 0.0008763858932070434,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 31.0,
+    "num_shared_facts": 31.0,
+    "num_fact_states": 31.0,
+    "num_cells": 96.0,
+    "eliminated_share": 0.0,
+    "path_log_w_max": 0.2319108545780182,
+    "path_log_w_mean": -2.6881656646728516,
+    "path_log_w_range": 5.876966953277588
+   },
+   "val": {
+    "loss": 1.7019618400889966,
+    "acc": 0.5,
+    "macro_f1": 0.3333333333333333,
+    "micro_f1": 0.5,
+    "auroc": 0.8518518518518519
+   },
+   "test": {
+    "loss": 1.1328899096231908,
+    "acc": 0.6,
+    "macro_f1": 0.375,
+    "micro_f1": 0.6,
+    "auroc": 0.8229166666666666
+   }
+  },
+  {
+   "epoch": 2,
+   "train": {
+    "loss": 0.8265765592083335,
+    "acc": 0.6933333333333334,
+    "macro_f1": 0.4094488188976378,
+    "micro_f1": 0.6933333333333334,
+    "auroc": 0.7966137123745819,
+    "tau": 1.9622948169708252,
+    "pcg_fwd_iters": 12.0,
+    "pcg_bwd_iters": 12.0,
+    "pcg_fwd_rel_residual": 0.0008426912827417254,
+    "pcg_bwd_rel_residual": 0.0007110825972631574,
+    "pcg_converged": 1.0,
+    "solver_tolerance": 0.001,
+    "num_path_facts": 14.0,
+    "num_shared_facts": 14.0,
+    "num_fact_states": 14.0,
+    "num_cells": 43.0,
+    "eliminated_share": 0.0,
+    "path_log_w_max": -0.9381725788116455,
+    "path_log_w_mean": -3.8480401039123535,
+    "path_log_w_range": 6.385406494140625
+   },
+   "val": {
+    "loss": 1.3597831449781854,
+    "acc": 0.5,
+    "macro_f1": 0.3333333333333333,
+    "micro_f1": 0.5,
+    "auroc": 0.8271604938271605
+   },
+   "test": {
+    "loss": 0.8957693645730614,
+    "acc": 0.6,
+    "macro_f1": 0.375,
+    "micro_f1": 0.6,
+    "auroc": 0.84375
+   }
+  }
+ ],
+ "note": "smoke run: function and cost only; metrics are untuned, not a design signal"
+}

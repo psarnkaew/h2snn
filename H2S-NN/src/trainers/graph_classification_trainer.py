@@ -11,6 +11,7 @@ from src.data.graph_faces import build_typed_path_face_groups
 from src.data.wisp_tasks import build_graph_wisp_path_groups
 from src.data.graph_classification_dataset import GraphClassificationFold
 from src.models.h2snn_model import H2SNN
+from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
 from src.utils.misc import compute_graph_classification_metrics
@@ -50,6 +51,15 @@ class GraphClassificationTrainer:
         self._best_epoch: int = -1
 
     def fit(
+        self,
+        fold: GraphClassificationFold,
+        epoch_callback: "callable | None" = None,
+    ) -> None:
+        """Train; a stop condition of spec §6 (tau, log-weight range) is logged and re-raised."""
+        with logged_stop_conditions(self.logger):
+            self._fit(fold, epoch_callback)
+
+    def _fit(
         self,
         fold: GraphClassificationFold,
         epoch_callback: "callable | None" = None,
