@@ -22,10 +22,33 @@ from src.baselines.protocol import (
     UnsupportedCell,
 )
 
+# Spec v1.15 §6 (card Part M, M11): NC = HGB 4 + H2GB 8; LP = the 6 local tasks + ogbn-mag P-P and
+# H-Pokec U-U; GC = TU 4. YouTube and Amazon are removed (spec v1.5).
+H2GB_NC: tuple[str, ...] = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
+                            "ieee-cis-g", "h-pokec", "pdns")
+LARGE_LP: tuple[str, ...] = ("ogbn-mag_pp", "h-pokec_uu")
+DERIVED_LP: tuple[str, ...] = ("acm_pa", "dblp_ap", "imdb_ma", "freebase_bb")
+
 DATASETS: dict[str, tuple[str, ...]] = {
-    NODE_CLASSIFICATION: ("acm", "dblp", "imdb"),
-    LINK_PREDICTION: ("lastfm", "youtube", "amazon", "pubmed"),
+    NODE_CLASSIFICATION: ("acm", "dblp", "imdb", "freebase") + H2GB_NC,
+    LINK_PREDICTION: DERIVED_LP + ("pubmed", "lastfm") + LARGE_LP,
     GRAPH_CLASSIFICATION: ("mutag", "proteins", "enzymes", "nci1"),
+}
+
+DATA_PENDING_REASON = "data pending (lab cluster, after mini-batch design)"
+#: Cells that no model can run yet, whatever the model: (task, dataset) -> reason.
+DATASET_PENDING: dict[tuple[str, str], str] = {
+    **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC},
+    **{(LINK_PREDICTION, dataset): DATA_PENDING_REASON for dataset in LARGE_LP},
+    # Not in the card's "data pending" list: the data are local, but no baseline can load them
+    # yet (Part M report, out-of-scope findings).
+    (NODE_CLASSIFICATION, "freebase"): (
+        "loader pending: the baseline bundles read HGB ACM, DBLP and IMDB only "
+        "(src/baselines/bundles.py HGB_RAW_DIRNAME)"),
+    **{(LINK_PREDICTION, dataset): (
+        "adapter support pending: the baseline adapters accept the HGB link-prediction "
+        "releases only (SUPPORTED_LP_DATASETS); derived tasks are not wired yet")
+       for dataset in DERIVED_LP},
 }
 
 
@@ -51,15 +74,6 @@ HET_HET = "Het./het."
 
 _ALL = (NODE_CLASSIFICATION, LINK_PREDICTION, GRAPH_CLASSIFICATION)
 
-#: Kept here rather than imported from the adapter so building the cell matrix does not
-#: require importing a vendor-dependent module.
-LATGRL_FEATURELESS_REASON = (
-    "LatGRL builds its latent graphs from feature cosine similarity "
-    "(module/graph_generating.py:30-64); this dataset has no node attributes, so that "
-    "similarity is the identity and the low-pass latent graph is zeroed by the diagonal "
-    "removal on the next line"
-)
-
 MODELS: tuple[ModelSpec, ...] = (
     ModelSpec("gcn", "GCN", HOM_HOM, "src.baselines.adapters.hgb_gnn", _ALL),
     ModelSpec("gat", "GAT", HOM_HOM, "src.baselines.adapters.hgb_gnn", _ALL),
@@ -82,32 +96,12 @@ MODELS: tuple[ModelSpec, ...] = (
     ModelSpec("h2gformer", "H2G-former", HET_HET, "src.baselines.adapters.h2gformer", _ALL),
     ModelSpec("hetero2net", "Hetero$^2$Net", HET_HET, "src.baselines.adapters.hetero2net", _ALL),
     ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL),
-    ModelSpec(
-        "latgrl", "LatGRL", HET_HET, "src.baselines.adapters.latgrl",
-        (NODE_CLASSIFICATION, LINK_PREDICTION),
-        unsupported=tuple(
-            (
-                GRAPH_CLASSIFICATION,
-                dataset,
-                "unsupervised node-level objective with no graph-level signal; its dense "
-                "O(N^2) latent-graph construction also does not fit the TU union "
-                "(NCI1 60.3 GB, PROTEINS 7.6 GB)",
-            )
-            for dataset in DATASETS[GRAPH_CLASSIFICATION]
-        )
-        + tuple(
-            (LINK_PREDICTION, dataset, LATGRL_FEATURELESS_REASON)
-            # LastFM and YouTube have no node attributes at all, and LatGRL's latent
-            # graphs are built from feature similarity. See _latgrl_lp.
-            for dataset in ("lastfm", "youtube")
-        ),
-    ),
 )
 
-#: HetSheaf has no public implementation; its rows are cited from the paper's Table 2
-#: rather than run. Kept here so table builders can render the row without an adapter.
-CITED_ONLY: dict[str, str] = {
-    "hetsheaf": "no public implementation; values cited from the original paper's Table 2",
+#: Baselines of the protocol whose adapter is not written yet (spec v1.15 §6: HetSheaf is rerun
+#: on our pipeline; its adapter is the next card). Not cited: no number is quoted in a table.
+ADAPTER_PENDING: dict[str, str] = {
+    "hetsheaf": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 §6)",
 }
 
 _BY_NAME: dict[str, ModelSpec] = {spec.name: spec for spec in MODELS}
@@ -133,13 +127,14 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
     if dataset not in DATASETS.get(task, ()):
         return f"{dataset} is not a {task.replace('_', ' ')} dataset in this campaign"
     # A specific reason always wins over the generic "no implementation" fallback: the
-    # table footnote should say *why* LatGRL has no graph-classification cell, not just
-    # that it has none.
+    # table footnote should say *why* a model has no cell, not just that it has none.
     for entry_task, entry_dataset, reason in spec.unsupported:
         if entry_task == task and entry_dataset == dataset:
             return reason
     if task not in spec.tasks:
         return f"{spec.display} has no {task.replace('_', ' ')} implementation"
+    if (task, dataset) in DATASET_PENDING:
+        return DATASET_PENDING[(task, dataset)]
     return None
 
 
@@ -204,8 +199,9 @@ def campaign_summary() -> dict[str, int]:
 
 
 __all__ = [
-    "CITED_ONLY",
+    "ADAPTER_PENDING",
     "DATASETS",
+    "DATASET_PENDING",
     "MODELS",
     "ModelSpec",
     "UnsupportedCell",

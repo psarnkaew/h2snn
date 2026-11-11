@@ -177,7 +177,6 @@ _MODEL_GROUPS: dict[str, tuple[str, ...]] = {
     "hetero2net": ("hetero2net",),
     "chebnetii": (),
     "h2sgnn": (),
-    "latgrl": (),
     # PSHGCN's node- and graph-classification paths import no optional package; only its
     # link-prediction vendor file does. See _BY_TASK below.
     "pshgcn": (),

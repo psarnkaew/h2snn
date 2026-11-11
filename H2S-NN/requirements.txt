@@ -22,7 +22,7 @@
 #   baselines-h2gb.txt       H2G-former
 #   baselines-hetero2net.txt Hetero^2Net
 #
-# Baselines needing nothing beyond core: ChebNetII, H2SGNN, LatGRL, PSHGCN (node
+# Baselines needing nothing beyond core: ChebNetII, H2SGNN, PSHGCN (node
 # classification and graph classification).
 # ---------------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@
 # --- baseline reproduction only: src/baselines/, scripts/run_baseline_*.py ---
 # Not needed to train or evaluate H2S-NN itself. These support the cloned baseline
 # repositories (HGB/, SeHGNN/, PSHGCN/, H2SGNN/, Hetero2Net/, H2GB/, ChebNetII/,
-# neural-sheaf-diffusion/, LatGRL/) used for the comparison tables.
+# neural-sheaf-diffusion/) used for the comparison tables.
 -r requirements/baselines-dgl.txt
 -r requirements/baselines-sheaf.txt
 -r requirements/baselines-h2gb.txt

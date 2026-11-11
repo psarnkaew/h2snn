@@ -80,7 +80,6 @@ NODE_CLASSIFICATION_SUBSET: dict[str, tuple[str, ...]] = {
     "nsd": ("acm", "dblp", "imdb"),
     "hinormer": ("acm",),
     "h2gformer": ("acm", "dblp", "imdb"),
-    "latgrl": ("acm", "dblp", "imdb"),
 }
 
 #: Vendor clone each model reads, for the up-front presence check. Keyed by model because
@@ -98,7 +97,6 @@ MODEL_VENDORS: dict[str, tuple[str, ...]] = {
     "hetero2net": ("hetero2net",),
     "chebnetii": ("chebnetii",),
     "h2sgnn": ("h2sgnn",),
-    "latgrl": ("latgrl",),
     "pshgcn": ("pshgcn", "pshgcn_lp"),
 }
 
@@ -115,7 +113,6 @@ MODEL_NOTES: dict[str, str] = {
     "hetero2net": "Keeps its own disentanglement regulariser, added to the task loss in every batch as in its own trainer.",
     "chebnetii": "Polynomial spectral filter over HGB's summed, symmetrised graph.",
     "h2sgnn": "Learns per-meta-path polynomial filters with separately optimised temperature parameters.",
-    "latgrl": "Trains an unsupervised encoder, then probes the frozen embeddings. Its wall-clock profile is unlike the others.",
     "pshgcn": "Positive-spectrum heterogeneous graph convolution; its link-prediction vendor file carries a leftover `import dgl`.",
 }
 

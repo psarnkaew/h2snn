@@ -41,7 +41,6 @@ VENDOR_ROOTS: dict[str, Path] = {
     "hetero2net": VENDOR_DIR / "Hetero2Net",
     "chebnetii": VENDOR_DIR / "ChebNetII" / "main",
     "nsd": VENDOR_DIR / "neural-sheaf-diffusion",
-    "latgrl": VENDOR_DIR / "LatGRL" / "LatGRL",
     "h2gb": VENDOR_DIR / "H2GB",
     # The authors' own HINormer, not H2GB's (whose transformer stack is commented out).
     "hinormer": VENDOR_DIR / "HINormer",

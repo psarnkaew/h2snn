@@ -1,9 +1,9 @@
 """Shared structure for the target-centric link-prediction baselines.
 
-HAN, Hetero2Net, H2SGNN and LatGRL are all *target-centric*: they embed one node type and
+HAN, Hetero2Net and H2SGNN are all *target-centric*: they embed one node type and
 propagate through meta-paths that return to it. Link prediction needs two adjustments none
 of them ships, and both are the same for every one of them, so they live here rather than
-being re-derived four times.
+being re-derived for each (LatGRL, removed in spec v1.15, used it too).
 
 **The block.** For node classification the target is the classified node type. Here it is
 the set of node types the target relation connects -- ``user`` and ``artist`` on LastFM,

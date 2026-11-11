@@ -1,0 +1,186 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+..F...........................................C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+........EEE..EE......E.................FE.
+======================================================================
+ERROR: test_amazon_keeps_parallel_relations_apart (tests.test_baselines.PolynomialRelationKeyTests.test_amazon_keeps_parallel_relations_apart)
+Their Amazon branch emits PP and UU for two product-product relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 234, in test_amazon_keeps_parallel_relations_apart
+    adjacencies, chaining = self._keys("amazon")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 200, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 862, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 597, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LP\amazon'.
+
+======================================================================
+ERROR: test_every_transposed_monomial_resolves_to_known_keys (tests.test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on all four datasets.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 274, in test_every_transposed_monomial_resolves_to_known_keys
+    adjacencies, chaining = self._keys(dataset)
+                            ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 200, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 862, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 597, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LP\amazon'.
+
+======================================================================
+ERROR: test_keys_are_exactly_two_characters (tests.test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 289, in test_keys_are_exactly_two_characters
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 200, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 862, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 597, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LP\amazon'.
+
+======================================================================
+ERROR: test_single_node_type_keys_are_palindromic (tests.test_baselines.PolynomialRelationKeyTests.test_single_node_type_keys_are_palindromic)
+lis_t reverses a key in place, so a symmetric operator needs a palindrome.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 264, in test_single_node_type_keys_are_palindromic
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 200, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 862, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 597, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LP\amazon'.
+
+======================================================================
+ERROR: test_youtube_gets_one_operator_per_relation (tests.test_baselines.PolynomialRelationKeyTests.test_youtube_gets_one_operator_per_relation)
+Five user-user relations must stay five operators.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 245, in test_youtube_gets_one_operator_per_relation
+    adjacencies, chaining = self._keys("youtube")
+                            ^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 200, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 862, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 597, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data\LP\youtube'.
+
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (tests.test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 682, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 676, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 126, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (tests.test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 431, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (tests.test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 153, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii'] is not false : missing baseline clones: ['hgb_nc', 'hgb_nc_gnn', 'hgb_nc_han', 'hgb_lp', 'hgb_lp_gnn', 'sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii']
+
+----------------------------------------------------------------------
+Ran 88 tests in 81.253s
+
+FAILED (failures=2, errors=7)
+[coverage] 90/90 runnable cells have an adapter; no adapter yet: none

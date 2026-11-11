@@ -265,7 +265,7 @@ class LinkBundle:
 
     ``data.edge_index`` is already the training-positives-only message-passing graph, so
     an adapter that builds its structure from it cannot see validation or test positives.
-    Adapters that derive their own structure (LatGRL's meta-path adjacencies) must derive
+    Adapters that derive their own structure (e.g. meta-path adjacencies) must derive
     it from this field for the same reason.
     """
 

@@ -38,8 +38,15 @@ class RegistryTests(unittest.TestCase):
     def test_campaign_matrix_matches_planned_cell_counts(self) -> None:
         from src.baselines.registry import DATASETS, campaign_summary, iter_cells
 
+        # Spec v1.15 §6 (Part M, M11): NC 12 datasets (HGB 4 + H2GB 8), LP 8, GC 4; LatGRL
+        # removed. Runnable today: NC on ACM/DBLP/IMDB (12 models), LP on PubMed/LastFM (9 models
+        # with LP), GC on the four TU sets (9 models); the H2GB datasets, the two large LP tasks,
+        # Freebase NC and the four derived LP tasks carry a pending reason.
+        self.assertEqual({task: len(names) for task, names in DATASETS.items()},
+                         {"node_classification": 12, "link_prediction": 8,
+                          "graph_classification": 4})
         summary = campaign_summary()
-        self.assertEqual(summary["runnable_cells"], 113)
+        self.assertEqual(summary["runnable_cells"], 90)
 
         per_task = {
             task: sum(
@@ -47,11 +54,8 @@ class RegistryTests(unittest.TestCase):
             )
             for task in DATASETS
         }
-        self.assertEqual(per_task["node_classification"], 39)
-        # 40 minus LatGRL x {LastFM, YouTube}: its latent-graph construction is built on
-        # feature cosine similarity and both of those datasets are attribute-free, which
-        # zeroes the low-pass graph outright. See LATGRL_FEATURELESS_REASON.
-        self.assertEqual(per_task["link_prediction"], 38)
+        self.assertEqual(per_task["node_classification"], 36)
+        self.assertEqual(per_task["link_prediction"], 18)
         self.assertEqual(per_task["graph_classification"], 36)
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:
@@ -65,15 +69,26 @@ class RegistryTests(unittest.TestCase):
                     "but carries no reason; it would render as a silent blank.",
                 )
 
-    def test_latgrl_graph_classification_reason_is_specific(self) -> None:
-        """The generic 'no implementation' fallback must not mask the real reason."""
+    def test_pending_cells_carry_their_specific_reason(self) -> None:
+        """H2GB datasets and the two large LP tasks: data pending; LatGRL, YouTube and Amazon
+        are gone; HetSheaf's adapter is pending (spec v1.15 J7, M11)."""
 
-        from src.baselines.registry import unsupported_reason
+        from src.baselines.registry import (ADAPTER_PENDING, DATASETS, MODELS,
+                                            unsupported_reason)
 
-        reason = unsupported_reason("latgrl", "graph_classification", "nci1")
-        self.assertIsNotNone(reason)
-        self.assertIn("unsupervised", reason)
-        self.assertIn("60.3 GB", reason)
+        pending = "data pending (lab cluster, after mini-batch design)"
+        for dataset in ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g",
+                        "h-pokec", "pdns"):
+            self.assertEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
+        for dataset in ("ogbn-mag_pp", "h-pokec_uu"):
+            self.assertEqual(unsupported_reason("gcn", "link_prediction", dataset), pending)
+        # a model without the task keeps the model-specific reason, not the dataset's
+        self.assertEqual(unsupported_reason("chebnetii", "link_prediction", "ogbn-mag_pp"),
+                         "ChebNetII has no link prediction implementation")
+        self.assertIsNone(unsupported_reason("gcn", "link_prediction", "pubmed"))
+        self.assertNotIn("latgrl", {spec.name for spec in MODELS})
+        self.assertFalse({"youtube", "amazon"} & set(DATASETS["link_prediction"]))
+        self.assertIn("adapter pending", ADAPTER_PENDING["hetsheaf"])
 
     def test_every_model_module_declares_an_adapter(self) -> None:
         import importlib.util
@@ -892,7 +907,7 @@ class RequirementGroupTests(unittest.TestCase):
         from src.baselines.protocol import NODE_CLASSIFICATION
         from src.baselines.runtime import dependencies
 
-        requested = ("gcn", "gat", "han", "sehgnn", "hinormer", "csnn", "latgrl", "pshgcn")
+        requested = ("gcn", "gat", "han", "sehgnn", "hinormer", "csnn", "pshgcn")
         real = dependencies.REQUIREMENT_GROUPS["dgl"].is_installed
         try:
             dependencies.REQUIREMENT_GROUPS["dgl"].__class__.is_installed = (
@@ -906,7 +921,7 @@ class RequirementGroupTests(unittest.TestCase):
         self.assertEqual(
             sorted(blocked), ["gat", "gcn", "han", "hinormer", "sehgnn"]
         )
-        for survivor in ("csnn", "latgrl", "pshgcn"):
+        for survivor in ("csnn", "pshgcn"):
             self.assertNotIn(survivor, blocked)
 
 
@@ -1408,7 +1423,7 @@ class DglCudaGateTests(unittest.TestCase):
             platform="linux", cuda_torch=True, cuda_dgl=False
         )
         with stack:
-            for model in ("csnn", "nsd", "latgrl", "h2sgnn", "chebnetii"):
+            for model in ("csnn", "nsd", "h2sgnn", "chebnetii"):
                 with self.subTest(model=model):
                     self.assertIsNone(
                         unavailable_reason(model, "node_classification")
@@ -1524,7 +1539,6 @@ class LaneNotebookTests(unittest.TestCase):
                 "nsd": ["acm", "dblp", "imdb"],
                 "hinormer": ["acm"],
                 "h2gformer": ["acm", "dblp", "imdb"],
-                "latgrl": ["acm", "dblp", "imdb"],
             },
         )
 

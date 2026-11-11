@@ -12,9 +12,9 @@ Task policy, fixed for the whole campaign:
 
 Every adapter implements the single entry point :meth:`BaselineAdapter.fit_task` and owns
 its own training loop. An earlier design exposed a separate ``node_embeddings`` hook and
-let this module drive training, but two of the twelve adapters do not factor that way --
-LatGRL trains an unsupervised encoder and then fits a logistic-regression probe, and SeHGNN
-precomputes meta-path features before any model exists -- so the shared loop would have
+let this module drive training, but some adapters do not factor that way -- SeHGNN
+precomputes meta-path features before any model exists (and LatGRL, removed in spec v1.15,
+trained an unsupervised encoder before a probe) -- so the shared loop would have
 been bypassed by exactly the cases it was meant to unify. Attaching the shared head is
 therefore the adapter's job on LP and GC; :mod:`src.baselines.heads` supplies it so every
 adapter attaches the *same* one.
@@ -86,7 +86,7 @@ class BaselineAdapter(Protocol):
         """Whether this cell is runnable at all.
 
         A ``False`` here becomes an explicit em-dash in the results table, never a silent
-        omission. LatGRL on graph classification is the motivating case.
+        omission (e.g. a dataset whose data are pending).
         """
         ...
 
