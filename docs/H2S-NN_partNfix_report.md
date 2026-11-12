@@ -61,3 +61,13 @@ Each is loaded with the global generator seeded to 0, 1, 2, 3 and 7 (15 cases). 
 - **Not changed.** As the card says, our code was not changed. The failing oracle test stays in the suite as the record of the difference (skipping it or marking it an expected failure would be forbidden). The mutation checks of F1 (random-set order, two-way validation) were **not run** because F1 stopped. F2 and F3 continue; per the card, F4 waits on this.
 
 **Commit:** F1 (partial): `H2S-NN/.gitignore`, `H2S-NN/vendor/HGB/CLONED_COMMIT.txt`, `H2S-NN/tests/test_hgb_oracle.py`, the evidence and this report.
+
+## F2 — GC collapse check redefined (decision 1)
+
+**Done** (`H2S-NN/scripts/partn_smoke.py`; NC and LP checks unchanged).
+- `GCValidationCapture`: a forward pre-hook and a forward hook on the readout's **last Linear layer** (H2S-NN `GraphReadout.decoder`, `src/models/graph_readout.py`; GCN `SharedGraphHead.classifier`, `src/baselines/heads.py:105`) capture, only during the validation pass, its input (the pooled graph embedding) and its output (the logits) for every validation graph. One hook point for both models, the one the card names ("the readout's input to its Linear layer"). For GCN the input is `dropout(pooled)`, which is the pooled embedding in eval mode.
+- `gc_validation_checks`: (c1) mean over logit coordinates of the std over graphs > 1e-6; (c2) the same for the pooled embedding; **both gate** (c) for GC. The predicted-class count is recorded per epoch, **not a gate**; the x* std over the nodes of the validation graphs stays recorded (Part N).
+- Count check (closes Part N N7's UNVERIFIED point): captured rows must equal `len(fold.val_loader.dataset)` (H2S-NN) / `len(val_loader.dataset)` (GCN); a mismatch raises `ValueError` ("GC capture error"), which the script reports as a script error (exit 1), never as a model result.
+- The H2S-NN GC capture no longer wraps `forward_batch`; it hooks the readout. The validation pass is still identified by `loader is fold.val_loader` inside `_run_epoch`.
+
+**Tests (VERIFIED-RUN).** New `tests/test_partn_smoke.py` (6), with the real `GraphReadout` (mean pooling, one graph per batch): identical pooled embeddings for every graph → (c1) and (c2) fail; varied embeddings with a zero-weight Linear → (c1) fails, (c2) holds; varied outputs with one predicted class (bias +10/−10) → passes, class count 1; capture shorter than the validation set → `ValueError`; the capture records only while active; `checks` gates GC on (c1) and (c2) only. `python -m unittest -v tests.test_partn_smoke` → **Ran 6 tests, OK** (`f2_tests_output.txt`). No other module imports the script.

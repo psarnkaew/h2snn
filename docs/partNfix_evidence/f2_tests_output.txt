@@ -1,0 +1,17 @@
+test_capture_records_only_while_active (tests.test_partn_smoke.GCCollapseCheckTests.test_capture_records_only_while_active)
+Training and test passes (capture inactive) add no rows. ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_capture_shorter_than_the_validation_set_raises (tests.test_partn_smoke.GCCollapseCheckTests.test_capture_shorter_than_the_validation_set_raises) ... ok
+test_constant_head_fails_c1_only (tests.test_partn_smoke.GCCollapseCheckTests.test_constant_head_fails_c1_only) ... ok
+test_identical_pooled_embeddings_fail_c1_and_c2 (tests.test_partn_smoke.GCCollapseCheckTests.test_identical_pooled_embeddings_fail_c1_and_c2)
+Every graph has the same nodes, so the same pooled embedding and, through one Linear ... ok
+test_one_predicted_class_with_varied_outputs_passes (tests.test_partn_smoke.GCCollapseCheckTests.test_one_predicted_class_with_varied_outputs_passes)
+Majority-class prediction early in training is not collapse: not a gate. ... ok
+test_the_gate_of_a_gc_run_is_c1_and_c2 (tests.test_partn_smoke.GCCollapseCheckTests.test_the_gate_of_a_gc_run_is_c1_and_c2)
+`checks` gates GC on (c1) and (c2) only; the class count is recorded. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 13.792s
+
+OK

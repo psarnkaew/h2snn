@@ -4,9 +4,13 @@ One run per invocation, 2 epochs, v3-B anchored, arm `full`, d = 32, l_max = 4, 
 protocol otherwise; or the GCN baseline at its default protocol for 2 epochs. Checks recorded:
   (a) every training and validation loss finite;
   (b) no stop condition fired (if one fires: its condition, value and epoch; nothing changed);
-  (c) no collapse: NC/GC -- validation predictions use >= 2 classes and the mean over coordinates
+  (c) no collapse: NC -- validation predictions use >= 2 classes and the mean over coordinates
       of the std over nodes of x* > 1e-6; LP -- std of the scores > 1e-6 on the validation set
-      and on every non-empty test set;
+      and on every non-empty test set; GC (card Part N-fix F2) -- over the validation graphs,
+      (c1) mean over coordinates of the std over graphs of the logits > 1e-6 and (c2) the same
+      for the pooled graph embedding (the input of the readout's last Linear layer); the
+      predicted-class count and the x* std are recorded, not gates; the number of captured
+      graphs must equal the validation set's size (else a script error, exit 1);
   (d) parameters move;
   (e) last-epoch training loss vs first (reported, not a gate).
 No accuracy, F1, ROC-AUC or MRR is written or printed.
@@ -77,6 +81,7 @@ class Recorder:
         self.lp_score_std: list[dict[str, float | None]] = []
         self.class_counts: list[dict[str, Any]] = []
         self.x_star_std: list[float] = []
+        self.gc_checks: list[dict[str, Any]] = []   # (c1), (c2), count, classes per epoch (F2)
 
     def install(self) -> None:
         import src.baselines.training as baseline_training
@@ -104,6 +109,58 @@ class Recorder:
             values = torch.unique(predictions).tolist()
             self.class_counts.append({"epoch": epoch, "classes_predicted": len(values)})
         self.x_star_std.append(float(x_star.float().std(dim=0, unbiased=False).mean()))
+
+
+class GCValidationCapture:
+    """GC collapse check (card Part N-fix F2, author decision 1 of the Part N review): hooks on
+    the readout's last Linear layer capture, while `active`, its input (the pooled graph
+    embedding) and its output (the logits) for every validation graph.
+
+    (c1) mean over logit coordinates of the std over graphs of the logits > 1e-6;
+    (c2) the same for the pooled embedding. Both must hold. The predicted-class count is
+    recorded, not a gate. The number of captured graphs must equal the validation set's size:
+    a mismatch is a capture error of this script (`ValueError`), never a model result."""
+
+    def __init__(self, linear: torch.nn.Linear) -> None:
+        self.active = False
+        self.pooled: list[torch.Tensor] = []
+        self.logits: list[torch.Tensor] = []
+        self._handles = [linear.register_forward_pre_hook(self._pre),
+                         linear.register_forward_hook(self._post)]
+
+    def _pre(self, _module, inputs) -> None:
+        if self.active:
+            self.pooled.append(inputs[0].detach().float().cpu())
+
+    def _post(self, _module, _inputs, output) -> None:
+        if self.active:
+            self.logits.append(output.detach().float().cpu())
+
+    def start(self) -> None:
+        self.pooled, self.logits, self.active = [], [], True
+
+    def finish(self, expected_graphs: int) -> dict[str, Any]:
+        self.active = False
+        return gc_validation_checks(torch.cat(self.pooled), torch.cat(self.logits),
+                                    expected_graphs)
+
+    def remove(self) -> None:
+        for handle in self._handles:
+            handle.remove()
+
+
+def gc_validation_checks(pooled: torch.Tensor, logits: torch.Tensor,
+                         expected_graphs: int) -> dict[str, Any]:
+    """(c1), (c2), the count check and the predicted-class count of one validation pass."""
+    if logits.size(0) != expected_graphs or pooled.size(0) != expected_graphs:
+        raise ValueError(f"GC capture error: {logits.size(0)} logit rows and {pooled.size(0)} "
+                         f"pooled rows captured for {expected_graphs} validation graphs.")
+    c1 = float(logits.std(dim=0, unbiased=False).mean())
+    c2 = float(pooled.std(dim=0, unbiased=False).mean())
+    return {"graphs_captured": int(logits.size(0)), "graphs_expected": int(expected_graphs),
+            "c1_logit_std_mean": c1, "c2_pooled_std_mean": c2,
+            "c1_ok": c1 > COLLAPSE_EPS, "c2_ok": c2 > COLLAPSE_EPS,
+            "classes_predicted": int(torch.unique(logits.argmax(-1)).numel())}
 
 
 def _snapshot(modules: list[torch.nn.Module]) -> dict[str, torch.Tensor]:
@@ -175,7 +232,7 @@ def run_h2snn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, 
         trainer._eval_epoch = eval_epoch
     elif kind == "gc":
         original_run, original_encode = trainer._run_epoch, model.encode
-        logits_parts: list[torch.Tensor] = []
+        capture = GCValidationCapture(model.graph_readout.decoder)
         x_parts: list[torch.Tensor] = []
 
         def encode(*args, **kwargs):
@@ -184,27 +241,23 @@ def run_h2snn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, 
                 x_parts.append(encoded.x_star.detach().cpu())
             return encoded
 
-        original_forward = trainer.forward_batch
-
-        def forward_batch(batch, seed=None, epoch=-1):
-            logits = original_forward(batch, seed=seed, epoch=epoch)
-            if state["in_val"]:
-                logits_parts.append(logits.detach().cpu())
-            return logits
-
         def run_epoch(loader, epoch, train):
             state["in_val"] = (not train) and loader is data.val_loader
             if state["in_val"]:
-                logits_parts.clear()
                 x_parts.clear()
+                capture.start()
             try:
-                return original_run(loader, epoch, train)
+                metrics = original_run(loader, epoch, train)
             finally:
-                if state["in_val"]:
-                    state["val"] = (torch.cat(logits_parts).argmax(-1), torch.cat(x_parts), False)
-                state["in_val"] = False
+                capture.active = False
+            if state["in_val"]:
+                checks = capture.finish(len(data.val_loader.dataset))
+                rec.gc_checks.append({"epoch": epoch, **checks})
+                state["val"] = (torch.cat(capture.logits).argmax(-1), torch.cat(x_parts), False)
+            state["in_val"] = False
+            return metrics
 
-        model.encode, trainer.forward_batch, trainer._run_epoch = encode, forward_batch, run_epoch
+        model.encode, trainer._run_epoch = encode, run_epoch
 
     def callback(epoch: int, train: dict, val: dict, test: dict) -> None:
         epochs.append({"epoch": epoch, "train_loss": train.get("loss"),
@@ -317,16 +370,22 @@ def run_gcn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, An
             model, head, embed = kwargs["model"], kwargs["head"], kwargs["embed_batch"]
             _, val_loader, _ = kwargs["loaders"]
             before = _snapshot([model, head])
-            state = {"in_val": False, "x": [], "logits": []}
+            state = {"in_val": False, "x": []}
+            capture = GCValidationCapture(head.classifier)
 
             class ValLoader:
+                def __len__(self_inner):
+                    return len(val_loader)
+
                 def __iter__(self_inner):
                     state["in_val"] = True
-                    state["x"], state["logits"] = [], []
+                    state["x"] = []
+                    capture.start()
                     try:
                         yield from val_loader
                     finally:
                         state["in_val"] = False
+                        capture.active = False
 
             def recorded_embed(batch):
                 out = embed(batch)
@@ -334,15 +393,11 @@ def run_gcn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, An
                     state["x"].append(out.detach().cpu())
                 return out
 
-            def head_hook(_module, _inputs, output):
-                if state["in_val"]:
-                    state["logits"].append(output.detach().cpu())
-
-            handle = head.register_forward_hook(head_hook)
-
             def report(*, epoch, monitor, running_best, metrics):
                 rec.val_losses.append((epoch, float(metrics["loss"])))
-                rec.close_epoch(epoch, torch.cat(state["logits"]).argmax(-1),
+                checks = capture.finish(len(val_loader.dataset))
+                rec.gc_checks.append({"epoch": epoch, **checks})
+                rec.close_epoch(epoch, torch.cat(capture.logits).argmax(-1),
                                 torch.cat(state["x"]))
 
             loaders = kwargs["loaders"]
@@ -351,7 +406,7 @@ def run_gcn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, An
             try:
                 return original(**kwargs)
             finally:
-                handle.remove()
+                capture.remove()
                 moved.update(_moved(before, [model, head]))
 
         hgb_gnn.train_graph_classification = train_gc
@@ -398,6 +453,17 @@ def checks(kind: str, rec: Recorder, result: dict[str, Any]) -> dict[str, Any]:
                 if k != "epoch" and v is not None]
         out["c_score_std"] = rec.lp_score_std
         out["c_no_collapse"] = bool(flat) and all(v > COLLAPSE_EPS for v in flat)
+    elif kind == "gc":
+        # Part N-fix F2: (c1) logits and (c2) pooled embeddings vary across the validation
+        # graphs; the predicted-class count is recorded, not a gate; x* std recorded as in Part N.
+        out["c_gc_checks"] = rec.gc_checks
+        out["c_val_prediction_classes"] = rec.class_counts
+        out["c_x_star_std_mean"] = rec.x_star_std
+        out["c1_ok"] = bool(rec.gc_checks) and all(c["c1_ok"] for c in rec.gc_checks)
+        out["c2_ok"] = bool(rec.gc_checks) and all(c["c2_ok"] for c in rec.gc_checks)
+        out["count_ok"] = bool(rec.gc_checks) and all(
+            c["graphs_captured"] == c["graphs_expected"] for c in rec.gc_checks)
+        out["c_no_collapse"] = out["c1_ok"] and out["c2_ok"]
     else:
         out["c_val_prediction_classes"] = rec.class_counts
         out["c_x_star_std_mean"] = rec.x_star_std
@@ -432,7 +498,8 @@ def main() -> None:
                       "not_runnable": result.get("not_runnable"),
                       "stop_condition": result["stop_condition"],
                       **{k: c[k] for k in c if k in ("a_losses_finite", "b_no_stop_condition",
-                                                      "c_no_collapse", "d_parameters_moved",
+                                                      "c_no_collapse", "c1_ok", "c2_ok",
+                                                      "count_ok", "d_parameters_moved",
                                                       "e_train_loss_first_last")}},
                      indent=1, default=str))
     if not c.get("runnable", True):
