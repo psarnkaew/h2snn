@@ -1,0 +1,34 @@
+{
+ "model": "gcn",
+ "config": {
+  "params": {
+   "epochs": 2
+  },
+  "params_source": "defaults",
+  "seed": 42,
+  "run_index": 0
+ },
+ "epochs": [],
+ "stop_condition": null,
+ "error": "ValueError: BaselineParams.source must be 'published' or 'tuned', got 'smoke'.",
+ "seconds": 15.70110299999942,
+ "run": "gcn:nc:acm",
+ "task": "node_classification",
+ "dataset": "acm",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "checks": {
+  "runnable": true,
+  "a_losses_finite": false,
+  "train_loss_steps": 0,
+  "non_finite_train_losses": [],
+  "val_losses": [],
+  "b_no_stop_condition": true,
+  "c_val_prediction_classes": [],
+  "c_x_star_std_mean": [],
+  "c_no_collapse": false,
+  "d_parameters_moved": false,
+  "e_train_loss_first_last": null
+ },
+ "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"
+}

@@ -137,3 +137,28 @@ The full suite runs once, in F5, after F4. With F4 waiting, it was not run; the 
 - HGB's `evaluate` (DL:240-269) was read but not oracle-tested (it is not in the card's list); our `compute_link_prediction_metrics` was not compared with it.
 - The provenance of `data/LP/LastFM/link.dat.valid` and `data/LP/PubMed/link.dat.valid` (presumably written by our carve) was not checked.
 - Unchanged from Part N: the stand-alone import error of `tests/test_full_graph_early_stopping.py`; `LINK_PREDICTION_PRESETS` still holds `youtube`, `amazon` and `amazonbook`; the adapter files with line-ending-only differences (not staged); `docs/H2S-NN_partO_card.md` is untracked (not mine, not staged).
+
+## Continuation after the F1 stop (author, 2026-11-12)
+
+Author decisions: split option (a) (fixed files and split code unchanged; the differences go into the spec, draft v1.18 Z-4); the failing split test is replaced by the two tests of F1c; F4 runs now. HEAD verified at `649dbce`. Designer docs committed by explicit path: **`f3a8f7c`** "docs: Part N-fix continuation, split decision, v1.18 draft Z-1/Z-4" (`docs/H2S-NN_partNfix_card.md`, `docs/experiment_settings_decisions.md`, `docs/spec_v1.18_draft_edits.md`).
+
+## F4 — Smoke completed — **STOPPED at GCN NC acm (check (c), NC: one predicted class)**
+
+**Script changes before and during F4 (`H2S-NN/scripts/partn_smoke.py`; script fixes, not settings):**
+1. **GCN link prediction had no capture.** The GCN branch handled NC and GC only (its `else` assumed GC), so `gcn:lp:pubmed` would have recorded no score spreads and exited as a false collapse. Part N never reached that run. Added: `train_link_prediction` is wrapped like the NC/GC loops; after each epoch's report, one evaluation `embed()` of that epoch's weights gives the std of the scores of the validation pairs and of each non-empty test set (positives + that set's negatives), and the validation BCE loss. No metric is computed.
+2. **`source="smoke"` is not accepted by `BaselineParams`** (`src/baselines/protocol.py:61-63`: `published` | `tuned`). The first GCN NC acm attempt raised before training (`ValueError: BaselineParams.source must be 'published' or 'tuned', got 'smoke'`; kept as `f4/gcn_nc_acm_first_attempt_script_error.json`). Now `published` when GCN has published parameters for the cell, else `tuned`; the values are the published set or the adapter's defaults, with `epochs: 2` in both cases (`resolve_budget` reads it).
+3. **Exit code of a run error.** That attempt exited 2 because "losses finite" was false on an empty list. Now a run error exits 1 unless a non-finite loss was actually recorded; exit 2 is reserved for a non-finite loss or a failed (c)/(c1)/(c2) check.
+`tests.test_partn_smoke` → Ran 6, OK after each change.
+
+**Runs (2 epochs, card configuration; VERIFIED-RUN, `docs/partNfix_evidence/f4/<run>.json`; trainers' console logs kept out of the evidence).** Device: NVIDIA GeForce RTX 4060 Laptop GPU.
+
+| run | (a) losses finite (train steps) | (b) stop condition | (c) | (c1) logit std, epoch 0 / 1 | (c2) pooled std, epoch 0 / 1 | count (captured / expected) | classes predicted (val) | x* std mean | (d) params moved | (e) train loss epoch 0 → 1 | val loss epoch 0, 1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| H2S-NN GC MUTAG | yes (300) | none | **no collapse** ((c1) and (c2) hold) | 0.1241 / 0.1842 | 0.1143 / 0.1165 | 18 / 18, 18 / 18 | 1, 1 (recorded, not a gate) | 0.4401, 0.4055 | 50 / 50 | 0.5892 → 0.5460 | 0.7076, 0.8809 |
+| GCN NC acm | yes (2) | none | **fails: 1 class predicted on the validation nodes in both epochs** (NC check unchanged from Part N: ≥ 2 classes and x* std > 1e-6) | — | — | — | 1, 1 | 0.0126, 0.0155 (> 1e-6) | 13 / 13 | 1.0970 → 1.0948 | 1.0938, 1.0919 |
+| GCN LP pubmed | not run (F4 stopped) | | | | | | | | | | |
+| GCN GC MUTAG | not run (F4 stopped) | | | | | | | | | | |
+
+**Stop (card F4: "(c) for NC/LP as in Part N").** GCN NC acm predicts one class on the validation nodes after each of its 2 epochs; its x* spread passes (0.0126, 0.0155 > 1e-6), all 13 parameter tensors moved, both training steps and both validation losses are finite, no stop condition fired. F4 was stopped there; no setting was changed and nothing was re-run. Configuration: `gcn`, node classification, `acm`, published parameters for this cell: none, so the adapter's defaults (`hidden_dim` 64, `num_layers` 2, `dropout` 0.5, AdamW lr 5e-4, wd 1e-4, `feats_type` = the HGB default for ACM), `epochs` 2, seed 42, `run_index` 0, full-batch training (one step per epoch). As in Part N, x* for GCN is its last layer's output over the target nodes (the vendor GCN has no separate embedding). I read the card's NC check as still gating on the class count (decision 1 redefines GC only) and the general "a single predicted class is not a stop" as the GC case; the author's call is listed under decisions. No interpretation of the cause is offered (2 full-batch steps).
+
+The H2S-NN GC MUTAG run reproduces Part N's training and validation losses to 4 decimals (same seed, same configuration) and now passes (c) as redefined; its captured-graph count equals the validation set (18), which closes Part N's UNVERIFIED point.

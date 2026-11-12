@@ -363,6 +363,45 @@ def run_gcn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, An
                 moved.update(_moved(before, [model]))
 
         hgb_gnn.train_full_batch_node_classification = train_nc
+    elif kind == "lp":
+        original = hgb_gnn.train_link_prediction
+
+        def train_lp(**kwargs):
+            from src.utils.misc import lp_test_sets
+
+            model, head, embed, data = (kwargs["model"], kwargs["head"], kwargs["embed"],
+                                        kwargs["data"])
+            before = _snapshot([model, head])
+            criterion = torch.nn.BCEWithLogitsLoss()
+
+            def report(*, epoch, monitor, running_best, metrics):
+                # Score spreads (check c) and the validation loss from one evaluation pass of
+                # the epoch's weights; no metric is computed or recorded.
+                model.eval()
+                head.eval()
+                with torch.no_grad():
+                    embeddings = embed()
+                    val = torch.cat([
+                        head(embeddings, data.val_pos_edge_index, data.val_pos_edge_relation),
+                        head(embeddings, data.val_neg_edge_index, data.val_neg_edge_relation)])
+                    labels = torch.cat([torch.ones(data.val_pos_edge_index.size(1)),
+                                        torch.zeros(data.val_neg_edge_index.size(1))])
+                    rec.val_losses.append((epoch, float(criterion(val.float().cpu(), labels))))
+                    stds: dict[str, float | None] = {"val": float(val.std(unbiased=False))}
+                    pos = head(embeddings, data.test_pos_edge_index, data.test_pos_edge_relation)
+                    for name, (neg, neg_rel, _reason) in lp_test_sets(data).items():
+                        stds[f"test_{name}"] = (None if neg.size(1) == 0 else float(
+                            torch.cat([pos, head(embeddings, neg, neg_rel)])
+                            .std(unbiased=False)))
+                rec.lp_score_std.append({"epoch": epoch, **stds})
+
+            kwargs["report"] = report
+            try:
+                return original(**kwargs)
+            finally:
+                moved.update(_moved(before, [model, head]))
+
+        hgb_gnn.train_link_prediction = train_lp
     else:
         original = hgb_gnn.train_graph_classification
 
@@ -415,7 +454,10 @@ def run_gcn(kind: str, dataset: str, device: str, rec: Recorder) -> dict[str, An
     stop = error = None
     start = time.perf_counter()
     try:
-        fit_cell(raw_base, params, source="smoke", device=torch.device(device))
+        # BaselineParams accepts only "published" | "tuned"; `params` carries epochs = 2 either
+        # way (resolve_budget reads it), the values are the published set or the defaults.
+        fit_cell(raw_base, params, source="published" if published is not None else "tuned",
+                 device=torch.device(device))
     except (StopConditionError, PCGConvergenceError) as exc:
         stop = _stop_record(exc)
     except Exception as exc:
@@ -505,11 +547,13 @@ def main() -> None:
     if not c.get("runnable", True):
         sys.exit(0)
     stop = result["stop_condition"] or {}
-    if (not c["a_losses_finite"] or stop.get("condition") == "non_finite_loss"
-            or not c["c_no_collapse"]):
+    non_finite = (bool(c["non_finite_train_losses"])
+                  or any(not math.isfinite(v) for _, v in c["val_losses"])
+                  or stop.get("condition") == "non_finite_loss")
+    if result["error"] is not None and not non_finite:
+        sys.exit(1)  # a run or script error, not a check result
+    if non_finite or not c["c_no_collapse"]:
         sys.exit(2)
-    if result["error"] is not None:
-        sys.exit(1)
 
 
 if __name__ == "__main__":
