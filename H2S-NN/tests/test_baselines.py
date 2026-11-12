@@ -400,10 +400,11 @@ class CampaignSummaryTests(unittest.TestCase):
 
         from src.baselines.campaign import summarize_cell
 
-        records = [{"test_auroc": value} for value in (0.1, 0.2, 0.3, 0.4, 0.5)]
+        # spec v1.16 K1: LP records carry HGB's two test sets
+        records = [{"test_2hop_auroc": value} for value in (0.1, 0.2, 0.3, 0.4, 0.5)]
         with tempfile.TemporaryDirectory() as tmp:
             summary = summarize_cell(records, "link_prediction", _Path(tmp) / "s.json")
-        entry = summary["metrics"]["test_auroc"]
+        entry = summary["metrics"]["test_2hop_auroc"]
         self.assertAlmostEqual(entry["mean"], 0.3)
         self.assertNotIn("std_over_repetitions", entry)
 
@@ -1256,8 +1257,10 @@ class SelectionMetricTests(unittest.TestCase):
         for task, monitor in self.EXPECTED.items():
             with self.subTest(task=task):
                 self.assertEqual(default_monitor_for_task(task), monitor)
-                # The headline metric is the first one the table reports.
-                self.assertEqual(report_metrics_for_task(task)[0], f"test_{monitor}")
+                # The headline metric is the first one the table reports; LP reports it on
+                # HGB's two test sets, 2-hop first (spec v1.16 K1).
+                headline = f"test_2hop_{monitor}" if task == "link_prediction" else f"test_{monitor}"
+                self.assertEqual(report_metrics_for_task(task)[0], headline)
 
     def test_sweeps_optimise_the_same_metric_training_selects_on(self) -> None:
         from src.baselines.campaign import Cell, build_sweep_config, monitor_for

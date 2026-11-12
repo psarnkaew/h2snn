@@ -228,7 +228,7 @@ def train_link_prediction(
     after ``embed()`` in the same graph, so it can read whatever that pass cached.
     """
 
-    from src.utils.misc import compute_link_prediction_metrics
+    from src.utils.misc import compute_link_prediction_metrics, lp_test_set_metrics
 
     criterion = torch.nn.BCEWithLogitsLoss()
     best_monitor = float("-inf")
@@ -284,13 +284,9 @@ def train_link_prediction(
                 data.val_pos_edge_relation,
                 data.val_neg_edge_relation,
             )
-            test_metrics = evaluate(
-                embeddings,
-                data.test_pos_edge_index,
-                data.test_neg_edge_index,
-                data.test_pos_edge_relation,
-                data.test_neg_edge_relation,
-            )
+            # HGB's two test sets (spec v1.16 K1): 2-hop and random; an empty set -> None.
+            test_metrics = lp_test_set_metrics(
+                lambda edges, relation: head(embeddings, edges, relation), data)
 
         # HGB reports the per-relation (macro) average on multi-relation targets, so
         # select on that where it exists; it equals the pooled AUROC on single-relation

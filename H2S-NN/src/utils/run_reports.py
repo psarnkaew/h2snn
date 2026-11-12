@@ -26,7 +26,8 @@ def report_metrics_for_task(task_type: str) -> tuple[str, ...]:
     if task_type == "node_classification":
         return ("test_macro_f1", "test_micro_f1", "test_acc")
     if task_type == "link_prediction":
-        return ("test_auroc", "test_aupr", "test_mrr")
+        # HGB's two test sets (spec v1.16 K1)
+        return ("test_2hop_auroc", "test_2hop_mrr", "test_random_auroc", "test_random_mrr")
     if task_type == "graph_classification":
         # Macro-F1 first: it is the headline metric for this task.
         return ("test_macro_f1", "test_micro_f1", "test_auroc", "test_acc")
@@ -88,11 +89,16 @@ def summarize_records(
 ) -> dict[str, dict[str, float]]:
     summary: dict[str, dict[str, float]] = {}
     for metric in metric_names:
-        values = [float(record.get(metric, 0.0)) for record in records]
+        present = [record.get(metric, 0.0) for record in records]
+        values = [float(value) for value in present if value is not None]
         summary[metric] = {
-            "mean": mean(values) if values else 0.0,
-            "std": stdev(values) if len(values) > 1 else 0.0,
+            "mean": mean(values) if values else None,
+            "std": stdev(values) if len(values) > 1 else (0.0 if values else None),
         }
+        if not values:  # an empty LP test set: None, never a number (spec v1.16 K1)
+            reasons = {record.get(metric.replace("_auroc", "_reason").replace("_mrr", "_reason"))
+                       for record in records} - {None}
+            summary[metric]["reason"] = "; ".join(sorted(reasons)) or "no value"
     return summary
 
 
@@ -127,6 +133,7 @@ def write_summary_files(
         "metric",
         "mean",
         "std",
+        "reason",  # set when a metric has no value (an empty LP test set, spec v1.16 K1)
     ]
     with (summary_dir / f"{filename_prefix}.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

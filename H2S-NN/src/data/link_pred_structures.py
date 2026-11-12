@@ -73,6 +73,12 @@ class PreparedLinkPredData:
     # these heads (global ids) and the number of their test positives are reported per task.
     test_heads_without_negatives: torch.Tensor | None = None
     test_positives_without_negatives: int = 0
+    # HGB's second test set (spec v1.16 K1): get_test_neigh_w_random, one random tail per test
+    # positive; `test_neg_edge_index` above is the 2-hop set. `test_2hop_empty_reason` names why
+    # the 2-hop set is empty (its metrics are then None), else None.
+    test_neg_random_edge_index: torch.Tensor | None = None
+    test_neg_random_edge_relation: torch.Tensor | None = None
+    test_2hop_empty_reason: str | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -121,4 +127,9 @@ class PreparedLinkPredData:
             fact_layer=self.fact_layer,
             test_heads_without_negatives=self.test_heads_without_negatives,
             test_positives_without_negatives=self.test_positives_without_negatives,
+            test_neg_random_edge_index=(None if self.test_neg_random_edge_index is None
+                                        else self.test_neg_random_edge_index.to(device)),
+            test_neg_random_edge_relation=(None if self.test_neg_random_edge_relation is None
+                                           else self.test_neg_random_edge_relation.to(device)),
+            test_2hop_empty_reason=self.test_2hop_empty_reason,
         )

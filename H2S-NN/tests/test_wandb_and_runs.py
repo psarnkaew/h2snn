@@ -94,12 +94,14 @@ class WandbAndRunReportingTests(unittest.TestCase):
                 "exp_name": "summary_test",
             }
         )
+        # spec v1.16 K1: HGB's two test sets; here the 2-hop set is empty (None with the reason,
+        # as on dblp_ap / imdb_ma) and the random set carries the values.
         records = [
-            {"run_index": 0, "seed": 42, "test_auroc": 0.6, "test_aupr": 0.5, "test_mrr": 0.4},
-            {"run_index": 1, "seed": 43, "test_auroc": 0.8, "test_aupr": 0.7, "test_mrr": 0.6},
-            {"run_index": 2, "seed": 44, "test_auroc": 1.0, "test_aupr": 0.9, "test_mrr": 0.8},
-            {"run_index": 3, "seed": 45, "test_auroc": 0.4, "test_aupr": 0.3, "test_mrr": 0.2},
-            {"run_index": 4, "seed": 46, "test_auroc": 0.2, "test_aupr": 0.1, "test_mrr": 0.0},
+            {"run_index": i, "seed": 42 + i, "test_2hop_auroc": None, "test_2hop_mrr": None,
+             "test_2hop_reason": "no length-2 head→tail type path",
+             "test_random_auroc": auroc, "test_random_mrr": mrr}
+            for i, (auroc, mrr) in enumerate([(0.6, 0.4), (0.8, 0.6), (1.0, 0.8), (0.4, 0.2),
+                                              (0.2, 0.0)])
         ]
         with tempfile.TemporaryDirectory() as tmpdir:
             payload = write_summary_files(
@@ -113,8 +115,11 @@ class WandbAndRunReportingTests(unittest.TestCase):
 
         self.assertEqual(default_monitor_for_task(cfg.task_type), "auroc")
         self.assertEqual(payload["summary"]["num_runs"], 5)
-        self.assertAlmostEqual(loaded["summary"]["metrics"]["test_auroc"]["mean"], 0.6)
-        self.assertGreater(loaded["summary"]["metrics"]["test_auroc"]["std"], 0.0)
+        self.assertAlmostEqual(loaded["summary"]["metrics"]["test_random_auroc"]["mean"], 0.6)
+        self.assertGreater(loaded["summary"]["metrics"]["test_random_auroc"]["std"], 0.0)
+        empty = loaded["summary"]["metrics"]["test_2hop_auroc"]
+        self.assertIsNone(empty["mean"])  # never a number for an empty set
+        self.assertEqual(empty["reason"], "no length-2 head→tail type path")
 
     def test_wandb_sweep_config_and_tuning_selection(self) -> None:
         from scripts.run_h2snn_wandb_tuning import (

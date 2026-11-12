@@ -562,7 +562,8 @@ class DataPipelineTests(unittest.TestCase):
             ]
         )
 
-        negatives = hgb_test_negatives(reference_pos, adjacency_edges, 12, dst_range=(10, 12))
+        negatives = hgb_test_negatives(reference_pos, adjacency_edges, torch.empty((2, 0)), 12,
+                                       dst_range=(10, 12))
 
         self.assertTrue(torch.equal(negatives.edge_index, torch.tensor([[0, 1], [11, 10]])))
         self.assertEqual(negatives.heads_without_candidates.numel(), 0)

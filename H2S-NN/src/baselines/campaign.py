@@ -292,9 +292,7 @@ def summarize_cell(
     """
 
     import json
-    from statistics import mean, stdev
-
-    from src.utils.run_reports import report_metrics_for_task
+    from src.utils.run_reports import report_metrics_for_task, summarize_records
 
     metrics = report_metrics_for_task(task)
     summary: dict[str, Any] = {
@@ -303,12 +301,9 @@ def summarize_cell(
         "metrics": {},
     }
 
-    for metric in metrics:
-        values = [float(record.get(metric, 0.0)) for record in records]
-        summary["metrics"][metric] = {
-            "mean": mean(values) if values else 0.0,
-            "std": stdev(values) if len(values) > 1 else 0.0,
-        }
+    # the same rule as H2S-NN's summaries: a metric without value (an empty LP test set) is
+    # None with its reason, never a number (spec v1.16 K1)
+    summary["metrics"] = summarize_records(records, metrics)
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:

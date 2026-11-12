@@ -1,10 +1,14 @@
-"""Write each link-prediction task's HGB test negatives once (spec v1.15 §6, J5; card Part M, M7).
+"""Write each link-prediction task's HGB test negatives once: both test sets of HGB's runner
+(spec v1.16 §6, K1-K2; cards Part M M7, Part N N1).
 
 HGB's `get_test_neigh`, ported in `src/data/hgb_lp_negatives.py`: 2-hop candidates of the
 symmetric train + validation + test adjacency, direct links and self-loops removed, filtered to the
 relation's head and tail types, `random.choices` per head (ascending) with k = the head's test
-positives, seed 1; a head without candidates gets no negatives (no fallback). Output, in raw HGB
-ids, under `<task folder>/hgb_negatives/`: `test_neg_rel<r>.npy` ([M, 2] int64, head, tail) and
+positives, seed 1; a head without candidates gets no negatives (no fallback); validation positives
+enter that adjacency as stored only. Random set (`get_test_neigh_w_random`): one tail per test
+positive, redrawn while a known neighbour, seed 1. Output, in raw HGB ids, under
+`<task folder>/hgb_negatives/`: `test_neg_2hop_rel<r>.npy`, `test_neg_random_rel<r>.npy`
+([M, 2] int64, head, tail) and
 `meta.json` (the test positives' md5 the file was drawn for, counts, the heads without
 candidates and the share of test positives they carry). The loader reads the file when present
 (and refuses one written for other positives), so every method (H2S-NN and the baseline bundles)
@@ -75,20 +79,30 @@ def write_task(root: Path, task: str) -> dict:
     types = [src_type, dst_type]
     raw_pos = hgb_raw_pairs(data.test_pos_edge_index, local_to_raw, src_offset, dst_offset, types)
     raw_neg = hgb_raw_pairs(data.test_neg_edge_index, local_to_raw, src_offset, dst_offset, types)
+    raw_random = hgb_raw_pairs(data.test_neg_random_edge_index, local_to_raw, src_offset,
+                               dst_offset, types)
     heads_without = sorted(local_to_raw[(src_type, int(h) - src_offset)]
                            for h in data.test_heads_without_negatives.tolist())
     out_dir.mkdir(parents=True, exist_ok=True)
-    neg_file = f"test_neg_rel{rel_id}.npy"
+    neg_file = f"test_neg_2hop_rel{rel_id}.npy"
+    random_file = f"test_neg_random_rel{rel_id}.npy"
     np.save(out_dir / neg_file, raw_neg)
+    np.save(out_dir / random_file, raw_random)
+    for stale in out_dir.glob("test_neg_rel*.npy"):  # Part M's single-set file
+        stale.unlink()
     n_pos = int(raw_pos.shape[0])
     heads_total = int(np.unique(raw_pos[:, 0]).size)
     entry = {
         "types": types,
-        "test_neg_file": neg_file,
-        "test_neg_md5": md5(out_dir / neg_file),
+        "test_neg_2hop_file": neg_file,
+        "test_neg_2hop_md5": md5(out_dir / neg_file),
+        "test_neg_random_file": random_file,
+        "test_neg_random_md5": md5(out_dir / random_file),
         "test_pos_md5": hashlib.md5(np.ascontiguousarray(raw_pos).tobytes()).hexdigest(),
         "test_positives": n_pos,
-        "test_negatives": int(raw_neg.shape[0]),
+        "test_negatives_2hop": int(raw_neg.shape[0]),
+        "test_negatives_random": int(raw_random.shape[0]),
+        "two_hop_empty_reason": data.test_2hop_empty_reason,
         "test_heads": heads_total,
         "heads_without_candidates": heads_without,
         "heads_without_candidates_count": len(heads_without),
@@ -97,8 +111,10 @@ def write_task(root: Path, task: str) -> dict:
             data.test_positives_without_negatives / n_pos if n_pos else 0.0),
     }
     meta = {
-        "rule": "HGB get_test_neigh (LP/benchmark/scripts/data_loader.py), ported in "
-                "src/data/hgb_lp_negatives.py; symmetric train+valid+test adjacency; no fallback",
+        "rule": "HGB run_new.py test sets: get_test_neigh (2-hop; train and test both ways, "
+                "validation as stored; no fallback) and get_test_neigh_w_random (random, "
+                "redraw while known), LP/benchmark/scripts/data_loader.py @2ccb1d8, ported in "
+                "src/data/hgb_lp_negatives.py",
         "seed": HGB_TEST_NEGATIVE_SEED,
         "task": task,
         "target_relation": list(TARGETS[task]),

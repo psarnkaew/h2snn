@@ -20,7 +20,8 @@ from src.data.fact_layer import (
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.hetero_flatten import flatten_edges, stack_node_features
 from src.data.link_pred_structures import PreparedLinkPredData
-from src.data.hgb_lp_negatives import (HGBTestNegatives, hgb_test_negatives,
+from src.data.hgb_lp_negatives import (NO_TWO_HOP_PATH_REASON, HGBTestNegatives,
+                                       hgb_random_test_negatives, hgb_test_negatives,
                                        hgb_valid_negatives)
 from src.data.wisp_tasks import build_link_wisp_path_groups
 
@@ -542,9 +543,10 @@ HGB_NEGATIVES_DIR = "hgb_negatives"
 def _read_hgb_negative_file(lp_dir: Path, rel_id: int, test_pos: torch.Tensor,
                             local_to_raw: dict[tuple[str, int], int], src_offset: int,
                             dst_offset: int, raw_to_local: dict[int, int],
-                            ) -> tuple[torch.Tensor, torch.Tensor, int] | None:
-    """The written HGB test negatives of one relation (raw HGB ids, `scripts/lp/
-    write_hgb_negatives.py`), mapped to global ids; None when the task has no file. The file
+                            ) -> tuple[torch.Tensor, torch.Tensor, int, torch.Tensor] | None:
+    """The written HGB test negatives of one relation, both sets (raw HGB ids, `scripts/lp/
+    write_hgb_negatives.py`), mapped to global ids: (2-hop negatives, heads without 2-hop
+    candidates, their positives, random negatives); None when the task has no file. The file
     records the test positives it was drawn for; a mismatch with the loader's raises."""
     import hashlib
     import json
@@ -563,14 +565,32 @@ def _read_hgb_negative_file(lp_dir: Path, rel_id: int, test_pos: torch.Tensor,
     if digest != entry["test_pos_md5"]:
         raise ValueError(f"{meta_path}: relation {rel_id} was written for other test positives "
                          f"(md5 {entry['test_pos_md5']}, loader {digest}); rewrite the file.")
-    neg = np.load(lp_dir / HGB_NEGATIVES_DIR / entry["test_neg_file"])
+    if "test_neg_2hop_file" not in entry or "test_neg_random_file" not in entry:
+        raise ValueError(f"{meta_path} predates the two HGB test sets (spec v1.16 K1); rewrite "
+                         "it with scripts/lp/write_hgb_negatives.py.")
     lookup = np.vectorize(lambda raw: raw_to_local[int(raw)], otypes=[np.int64])
-    heads = torch.from_numpy(lookup(neg[:, 0]) if neg.size else neg[:, 0]) + src_offset
-    tails = torch.from_numpy(lookup(neg[:, 1]) if neg.size else neg[:, 1]) + dst_offset
+
+    def read(name: str) -> torch.Tensor:
+        neg = np.load(lp_dir / HGB_NEGATIVES_DIR / entry[name]).reshape(-1, 2)
+        heads = torch.from_numpy(lookup(neg[:, 0]) if neg.size else neg[:, 0]) + src_offset
+        tails = torch.from_numpy(lookup(neg[:, 1]) if neg.size else neg[:, 1]) + dst_offset
+        return torch.stack([heads, tails]).long().reshape(2, -1)
+
     without = torch.tensor([raw_to_local[int(r)] + src_offset
                             for r in entry["heads_without_candidates"]], dtype=torch.long)
-    return (torch.stack([heads, tails]).long().reshape(2, -1), without,
-            int(entry["test_positives_without_negatives"]))
+    return (read("test_neg_2hop_file"), without,
+            int(entry["test_positives_without_negatives"]), read("test_neg_random_file"))
+
+
+def has_two_hop_type_path(relation_tuples: tuple[tuple[str, str, str], ...], src_type: str,
+                          dst_type: str) -> bool:
+    """Whether some type path of length 2 leads from the head type to the tail type (either
+    orientation of every relation): the schema fact behind an empty 2-hop set (spec v1.16 K1)."""
+    neighbours: dict[str, set[str]] = defaultdict(set)
+    for head_type, _, tail_type in relation_tuples:
+        neighbours[head_type].add(tail_type)
+        neighbours[tail_type].add(head_type)
+    return any(dst_type in neighbours[mid] for mid in neighbours[src_type])
 
 
 def hgb_raw_pairs(edge_index: torch.Tensor, local_to_raw: dict[tuple[str, int], int],
@@ -954,9 +974,10 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
             )
 
         known_positives_global = _unique_edge_index(_cat_edge_indices(known_positive_parts))
-        hgb_adjacency_edge_index = _cat_edge_indices(
-            [edge_index, *valid_global_parts, *test_global_parts]
-        )
+        # HGB's pos_links (spec v1.16 K2): training facts (the message graph as stored, every
+        # relation) and test facts in both orientations; validation positives as stored only.
+        hgb_both_ways = _cat_edge_indices([edge_index, *test_global_parts])
+        hgb_one_way = _cat_edge_indices(valid_global_parts)
         dst_range = (dst_offset, dst_offset + num_dst_nodes)
 
         # HGB's node.dat ids are raw and global (e.g. LastFM's artists start at
@@ -983,6 +1004,8 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         test_pos_parts: list[torch.Tensor] = []
         test_pos_relation_parts: list[torch.Tensor] = []
         test_neg_parts: list[torch.Tensor] = []
+        test_neg_random_parts: list[torch.Tensor] = []
+        test_neg_random_relation_parts: list[torch.Tensor] = []
         test_neg_relation_parts: list[torch.Tensor] = []
 
         for local_idx, (relation, rel_id) in enumerate(zip(target_relations, target_relation_ids)):
@@ -1012,6 +1035,9 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
                 neg_mask = label == 0
                 relation_test_pos = torch.stack([head[pos_mask], tail[pos_mask]])
                 relation_test_neg = torch.stack([head[neg_mask], tail[neg_mask]])
+                relation_test_neg_random = hgb_random_test_negatives(
+                    relation_test_pos, hgb_both_ways, hgb_one_way, int(raw_x.size(0)),
+                    dst_range)
             else:
                 relation_test_pos = _offset_local_relation(
                     relation,
@@ -1028,12 +1054,16 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
                     lp_dir, rel_id, relation_test_pos, raw_to_local_lookup_inverse, src_offset,
                     dst_offset, local_hgb_data.raw_to_local)
                 if stored is not None:
-                    relation_test_neg, without_heads, without_positives = stored
+                    (relation_test_neg, without_heads, without_positives,
+                     relation_test_neg_random) = stored
                 else:
-                    computed = hgb_test_negatives(relation_test_pos, hgb_adjacency_edge_index,
-                                                  int(raw_x.size(0)), dst_range)
+                    computed = hgb_test_negatives(relation_test_pos, hgb_both_ways,
+                                                  hgb_one_way, int(raw_x.size(0)), dst_range)
                     relation_test_neg = computed.edge_index
                     without_heads, without_positives = _negative_heads_without(computed)
+                    relation_test_neg_random = hgb_random_test_negatives(
+                        relation_test_pos, hgb_both_ways, hgb_one_way, int(raw_x.size(0)),
+                        dst_range)
                 heads_without_parts.append(without_heads)
                 positives_without_total += without_positives
 
@@ -1085,6 +1115,10 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
             test_neg_relation_parts.append(
                 torch.full((relation_test_neg.size(1),), local_idx, dtype=torch.long)
             )
+            test_neg_random_parts.append(relation_test_neg_random)
+            test_neg_random_relation_parts.append(
+                torch.full((relation_test_neg_random.size(1),), local_idx, dtype=torch.long)
+            )
 
         train_pos_edge_index = torch.cat(train_pos_parts, dim=1)
         train_pos_edge_relation = torch.cat(train_pos_relation_parts, dim=0)
@@ -1096,6 +1130,8 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         test_pos_edge_relation = torch.cat(test_pos_relation_parts, dim=0)
         test_neg_edge_index = torch.cat(test_neg_parts, dim=1)
         test_neg_edge_relation = torch.cat(test_neg_relation_parts, dim=0)
+        test_neg_random_edge_index = torch.cat(test_neg_random_parts, dim=1)
+        test_neg_random_edge_relation = torch.cat(test_neg_random_relation_parts, dim=0)
         num_target_relations = len(target_relation_ids)
         target_original_ids = torch.tensor(
             [relation_tuples.index(relation) for relation in target_relations], dtype=torch.long
@@ -1145,16 +1181,19 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
                 replacement_edges=train_pos_edge_index.flip(0),
             )
 
-        hgb_adjacency_edge_index = torch.cat(
-            [edge_index, val_pos_edge_index, test_pos_edge_index], dim=1
-        )
+        hgb_both_ways = torch.cat([edge_index, test_pos_edge_index], dim=1)
+        hgb_one_way = val_pos_edge_index
         dst_range = (dst_offset, dst_offset + num_dst_nodes)
         # HGB's get_valid_neg / get_test_neigh exactly (spec v1.15 §6, J5; no fallback).
         val_neg_edge_index = hgb_valid_negatives(val_pos_edge_index, dst_range,
                                                  seed=config.data.acm_split_seed + 101)
-        computed = hgb_test_negatives(test_pos_edge_index, hgb_adjacency_edge_index,
+        computed = hgb_test_negatives(test_pos_edge_index, hgb_both_ways, hgb_one_way,
                                       int(raw_x.size(0)), dst_range)
         test_neg_edge_index = computed.edge_index
+        test_neg_random_edge_index = hgb_random_test_negatives(
+            test_pos_edge_index, hgb_both_ways, hgb_one_way, int(raw_x.size(0)), dst_range)
+        test_neg_random_edge_relation = torch.zeros(test_neg_random_edge_index.size(1),
+                                                    dtype=torch.long)
         test_heads_without_negatives, positives_without_total = _negative_heads_without(computed)
 
         held_out = torch.cat([val_pos_edge_index, test_pos_edge_index], dim=1)
@@ -1173,6 +1212,13 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         test_neg_edge_relation = torch.zeros(test_neg_edge_index.size(1), dtype=torch.long)
     else:
         raise ValueError(f"Unsupported link-prediction dataset '{config.data.dataset_name}'.")
+
+    # Spec v1.16 K1: an empty 2-hop set yields metrics None with this reason (never MRR = 1).
+    two_hop_empty_reason = None
+    if test_neg_edge_index.size(1) == 0:
+        two_hop_empty_reason = (NO_TWO_HOP_PATH_REASON
+                                if not has_two_hop_type_path(relation_tuples, src_type, dst_type)
+                                else "no test head has a 2-hop candidate")
 
     if num_target_relations == 1:
         # Already checked per relation above for the multi-relation case (Amazon)
@@ -1234,4 +1280,7 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         fact_layer=fact_layer,
         test_heads_without_negatives=test_heads_without_negatives,
         test_positives_without_negatives=int(positives_without_total),
+        test_neg_random_edge_index=test_neg_random_edge_index,
+        test_neg_random_edge_relation=test_neg_random_edge_relation,
+        test_2hop_empty_reason=two_hop_empty_reason,
     )

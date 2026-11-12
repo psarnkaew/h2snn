@@ -179,6 +179,44 @@ def compute_graph_classification_metrics(
     return {**metrics, "auroc": auroc}
 
 
+LP_TEST_SETS: tuple[str, ...] = ("2hop", "random")
+
+
+def lp_test_sets(data: Any) -> dict[str, tuple[Any, Any, str | None]]:
+    """HGB's two test sets (spec v1.16 K1) of a prepared LP dataset or bundle: name ->
+    (negatives, their relation ids, the reason when the set is empty)."""
+    return {
+        "2hop": (data.test_neg_edge_index, data.test_neg_edge_relation,
+                 getattr(data, "test_2hop_empty_reason", None)),
+        "random": (data.test_neg_random_edge_index, data.test_neg_random_edge_relation, None),
+    }
+
+
+def lp_test_set_metrics(score_pairs: Any, data: Any) -> dict[str, Any]:
+    """ROC-AUC, AUPR and MRR per HGB test set, keys `<set>_<metric>` plus `<set>_negatives`.
+    A set without negatives has metrics None and `<set>_reason` (never MRR = 1 or NaN).
+    `score_pairs(edge_index, relation)` returns the model's scores of those pairs."""
+    out: dict[str, Any] = {}
+    pos, pos_rel = data.test_pos_edge_index, data.test_pos_edge_relation
+    pos_scores = None
+    for name, (neg, neg_rel, reason) in lp_test_sets(data).items():
+        if neg is None:
+            raise ValueError(f"the LP data carry no {name} test set (spec v1.16 K1).")
+        out[f"{name}_negatives"] = int(neg.size(1))
+        if neg.size(1) == 0:
+            for metric in ("auroc", "aupr", "mrr"):
+                out[f"{name}_{metric}"] = None
+            out[f"{name}_reason"] = reason or "no negatives"
+            continue
+        if pos_scores is None:
+            pos_scores = score_pairs(pos, pos_rel)
+        metrics = compute_link_prediction_metrics(pos_scores, score_pairs(neg, neg_rel), pos,
+                                                  neg, pos_rel, neg_rel)
+        for metric, value in metrics.items():
+            out[f"{name}_{metric}"] = value
+    return out
+
+
 def compute_link_prediction_metrics(
     pos_scores: torch.Tensor,
     neg_scores: torch.Tensor,

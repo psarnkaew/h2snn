@@ -18,6 +18,8 @@ def flatten_metric_record(
         ("test", test_metrics),
     ):
         for key, value in metrics.items():
+            if value is None or isinstance(value, str):  # an empty LP test set (spec v1.16 K1)
+                continue
             flattened[f"{split}/{key}"] = float(value)
     return flattened
 

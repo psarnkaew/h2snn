@@ -93,7 +93,7 @@ class LinkPredictionTrainer:
             train_metrics = self._train_epoch(self.training_draw(data, prepared_data, epoch),
                                               epoch)
             val_metrics = self._eval_epoch(prepared_data, "val", epoch)
-            test_metrics = self._eval_epoch(prepared_data, "test", epoch)
+            test_metrics = self._eval_test_sets(prepared_data)
 
             self.logger.log(epoch, train_metrics, val_metrics, test_metrics)
             self.checkpointer.save(
@@ -133,12 +133,15 @@ class LinkPredictionTrainer:
 
             if epoch % self.cfg.log_every == 0 or epoch == self.cfg.epochs - 1:
                 self.logger.info(
-                    "Epoch %04d | val_auroc: %.4f | val_mrr: %.4f | test_auroc: %.4f | test_mrr: %.4f",
+                    "Epoch %04d | val_auroc: %.4f | val_mrr: %.4f | test (2-hop, random) "
+                    "auroc: %s, %s | mrr: %s, %s",
                     epoch,
                     val_metrics["auroc"],
                     val_metrics["mrr"],
-                    test_metrics["auroc"],
-                    test_metrics["mrr"],
+                    test_metrics["2hop_auroc"],
+                    test_metrics["random_auroc"],
+                    test_metrics["2hop_mrr"],
+                    test_metrics["random_mrr"],
                 )
 
             if bad_epochs >= self.cfg.early_stopping_patience:
@@ -152,10 +155,12 @@ class LinkPredictionTrainer:
 
         if self._best_test_metrics is not None:
             self.logger.info(
-                "Best epoch %d | test_auroc: %.4f | test_mrr: %.4f",
+                "Best epoch %d | test (2-hop, random) auroc: %s, %s | mrr: %s, %s",
                 self._best_epoch,
-                self._best_test_metrics.get("test_auroc", 0.0),
-                self._best_test_metrics.get("test_mrr", 0.0),
+                self._best_test_metrics.get("test_2hop_auroc"),
+                self._best_test_metrics.get("test_random_auroc"),
+                self._best_test_metrics.get("test_2hop_mrr"),
+                self._best_test_metrics.get("test_random_mrr"),
             )
             out_path = self.cfg.exp_dir / "best_test_metrics.json"
             with out_path.open("w", encoding="utf-8") as handle:
@@ -328,6 +333,25 @@ class LinkPredictionTrainer:
                 data.num_nodes,
             ))
         return metrics
+
+    def _eval_test_sets(self, data: PreparedLinkPredData) -> dict[str, object]:
+        """Test metrics on HGB's two test sets (spec v1.16 K1), one encode; a set without
+        negatives (dblp_ap, imdb_ma 2-hop) gives None with its reason."""
+        from src.utils.misc import lp_test_set_metrics
+
+        self.model.eval()
+        with torch.no_grad():
+            encoded = self.model.encode(
+                x=data.x, node_type=data.node_type, edge_index=data.edge_index,
+                edge_type=data.edge_type, face_groups=data.face_groups,
+                num_nodes=data.num_nodes, epoch=-1)
+
+            def score(edge_index: torch.Tensor, relation: torch.Tensor) -> torch.Tensor:
+                return self.model.link_readout(  # type: ignore[misc]
+                    node_representation=encoded.representation,
+                    edge_label_index=edge_index, edge_relation=relation)
+
+            return lp_test_set_metrics(score, data)
 
     def _eval_epoch(
         self,

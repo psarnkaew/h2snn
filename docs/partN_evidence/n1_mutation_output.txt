@@ -1,0 +1,5 @@
+MUTATION (a) validation in both orientations: ran 6, failed 1: ['test_validation_orientation_changes_the_candidates_as_hgb']
+restored (a): ran 6, failed 0: []
+MUTATION (b) random set without the redraw: ran 2, failed 2: ['test_random_set_by_hand', 'test_seed_one_redraw_and_count_on_a_random_graph']
+restored (b): ran 2, failed 0: []
+both mutations caught

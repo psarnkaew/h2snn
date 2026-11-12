@@ -1,26 +1,30 @@
-"""HGB link-prediction negatives (spec v1.15 §6, J5; card Part M, M7).
+"""HGB link-prediction negatives (spec v1.16 §6, K1-K3; cards Part M M7, Part N N1-N2).
 
-Port of HGB's ``LP/benchmark/scripts/data_loader.py`` (THUDM/HGB, master; read 2026-11-12):
+Port of HGB's ``LP/benchmark/scripts/data_loader.py`` and the way ``LP/benchmark/methods/
+baseline/run_new.py`` uses it (THUDM/HGB master, last commit of both paths ``2ccb1d8``,
+2023-03-18; read 2026-11-12 through a fetch agent: in Part M as code text, in Part N as a
+structural summary because the repository declares no licence).
 
-* ``get_test_neigh``: ``random.seed(1)``; the adjacency ``A`` holds every training fact, every
-  test fact and every validation fact; ``A2 = A @ A`` is binarised, and a pair ``(h, t)`` is a
-  candidate iff ``A2[h, t] > 0``, ``A[h, t] == 0`` and ``h != t`` (HGB subtracts ``A`` and the
-  identity and keeps entries > 0). Candidates are filtered to the relation's head and tail types.
-  Heads are visited in ascending id order; each head draws ``random.choices(candidates, k=n_h)``
-  with ``n_h`` = its number of test positives; a head without candidates gets **no** negatives
-  (no random fallback). Candidates of a head are in ascending id order, as the canonical CSR
-  ``nonzero()`` HGB reads them from.
-* ``get_valid_neg``: one uniformly random tail of the tail type per validation positive
-  (``random.randrange`` over the tail type's id range), in the order of the positives; known
-  positives are not excluded (HGB does not exclude them).
+HGB's adjacency ``pos_links`` = every training fact plus its transpose, every test fact plus its
+transpose, and every validation positive **in its stored orientation only** (``get_test_neigh`` /
+``get_test_neigh_w_random`` add ``valid_pos`` as one ``coo_matrix`` without ``.T``; spec v1.16
+K2). Here: ``both_ways`` = training and test facts, ``one_way`` = validation positives as stored.
 
-One deliberate difference, stated by the card and the spec ("symmetric adjacency of train +
-validation + test"): HGB adds validation facts in their stored orientation only; here every
-fact enters ``A`` in both orientations (decision recorded for the author in the Part M report).
+* ``get_test_neigh`` (2-hop set): ``random.seed(1)``; a pair ``(h, t)`` is a candidate iff
+  ``(A·A)[h, t] > 0``, ``A[h, t] == 0`` and ``h != t``, ``t`` of the tail type; heads ascending;
+  ``random.choices(candidates, k = #test positives of h)``, candidates ascending (canonical CSR
+  ``nonzero()`` order); a head without candidates gets **no** negative.
+* ``get_test_neigh_w_random`` (random set): ``random.seed(1)``; the known neighbours of ``h`` are
+  the nonzero columns of row ``h`` of ``A``; for each test positive in ``nonzero()`` order (head,
+  then tail ascending) one tail ``randrange`` of the tail type, redrawn while it is a known
+  neighbour of ``h``. One negative per test positive.
+* ``get_valid_neg`` / ``get_train_neg``: one uniform tail of the tail type per positive, in the
+  positives' order, known positives not excluded. ``run_new.py`` redraws ``get_train_neg`` every
+  epoch (and ``get_valid_neg`` at every batch step; here validation negatives are drawn once per
+  run, listed in the Part N report).
 
-Only the rows of the test heads and the columns of the tail type of ``A2`` are formed
-(``A[heads] @ A[:, tails]``), which gives exactly the entries HGB reads without the full
-``N x N`` product.
+Only the rows of the test heads and the columns of the tail type of ``A·A`` are formed
+(``A[heads] @ A[:, tails]``): the entries HGB reads, without the full ``N x N`` product.
 """
 
 from __future__ import annotations
@@ -33,6 +37,7 @@ import scipy.sparse as sp
 import torch
 
 HGB_TEST_NEGATIVE_SEED = 1
+NO_TWO_HOP_PATH_REASON = "no length-2 head→tail type path"
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,12 +49,21 @@ class HGBTestNegatives:
     positives_of_heads_without: int   # test positives whose head has no candidate
 
 
-def symmetric_adjacency(edge_index: torch.Tensor, num_nodes: int) -> sp.csr_matrix:
-    """Binary ``A`` with every pair in both orientations (canonical CSR)."""
-    rows = edge_index[0].cpu().numpy().astype(np.int64)
-    cols = edge_index[1].cpu().numpy().astype(np.int64)
-    data = np.ones(2 * rows.size, dtype=np.int64)
-    adjacency = sp.coo_matrix((data, (np.concatenate([rows, cols]), np.concatenate([cols, rows]))),
+def _rows_cols(edge_index: torch.Tensor) -> tuple[np.ndarray, np.ndarray]:
+    edge_index = edge_index.reshape(2, -1)
+    return (edge_index[0].cpu().numpy().astype(np.int64),
+            edge_index[1].cpu().numpy().astype(np.int64))
+
+
+def hgb_adjacency(both_ways: torch.Tensor, one_way: torch.Tensor,
+                  num_nodes: int) -> sp.csr_matrix:
+    """Binary ``pos_links``: ``both_ways`` facts in both orientations, ``one_way`` facts as
+    stored (canonical CSR)."""
+    r1, c1 = _rows_cols(both_ways)
+    r2, c2 = _rows_cols(one_way)
+    rows = np.concatenate([r1, c1, r2])
+    cols = np.concatenate([c1, r1, c2])
+    adjacency = sp.coo_matrix((np.ones(rows.size, dtype=np.int64), (rows, cols)),
                               shape=(num_nodes, num_nodes)).tocsr()
     adjacency.sum_duplicates()
     adjacency.data[:] = 1
@@ -77,16 +91,13 @@ def two_hop_candidates(adjacency: sp.csr_matrix, heads: np.ndarray,
     return out
 
 
-def hgb_test_negatives(test_pos_edge_index: torch.Tensor, adjacency_edge_index: torch.Tensor,
-                       num_nodes: int, dst_range: tuple[int, int],
+def hgb_test_negatives(test_pos_edge_index: torch.Tensor, both_ways: torch.Tensor,
+                       one_way: torch.Tensor, num_nodes: int, dst_range: tuple[int, int],
                        seed: int = HGB_TEST_NEGATIVE_SEED) -> HGBTestNegatives:
-    """HGB ``get_test_neigh`` for one target relation (see the module docstring).
-
-    ``adjacency_edge_index``: every train, validation and test fact (any orientation; it is
-    symmetrised). ``test_pos_edge_index``: the relation's test positives (global ids)."""
+    """HGB ``get_test_neigh`` (the 2-hop set) for one target relation."""
     heads_all = test_pos_edge_index[0].cpu().numpy().astype(np.int64)
-    heads, counts = np.unique(heads_all, return_counts=True)        # ascending, as HGB's sorted()
-    adjacency = symmetric_adjacency(adjacency_edge_index, num_nodes)
+    heads, counts = np.unique(heads_all, return_counts=True)        # ascending, HGB's sorted()
+    adjacency = hgb_adjacency(both_ways, one_way, num_nodes)
     candidates = two_hop_candidates(adjacency, heads, dst_range)
     rng = random.Random(seed)
     sampled_heads: list[int] = []
@@ -101,25 +112,66 @@ def hgb_test_negatives(test_pos_edge_index: torch.Tensor, adjacency_edge_index: 
         tails = rng.choices(cands.tolist(), k=count)
         sampled_heads.extend([head] * count)
         sampled_tails.extend(tails)
-    device = test_pos_edge_index.device
     edge_index = torch.tensor([sampled_heads, sampled_tails], dtype=torch.long,
-                              device=device).reshape(2, -1)
+                              device=test_pos_edge_index.device).reshape(2, -1)
     return HGBTestNegatives(edge_index=edge_index,
                             heads_without_candidates=torch.tensor(without, dtype=torch.long),
                             positives_of_heads_without=int(without_positives))
 
 
-def hgb_valid_negatives(valid_pos_edge_index: torch.Tensor, dst_range: tuple[int, int],
-                        seed: int) -> torch.Tensor:
-    """HGB ``get_valid_neg``: one uniform tail of the tail type per validation positive, in the
-    positives' order; known positives are not excluded."""
+def hgb_random_test_negatives(test_pos_edge_index: torch.Tensor, both_ways: torch.Tensor,
+                              one_way: torch.Tensor, num_nodes: int,
+                              dst_range: tuple[int, int],
+                              seed: int = HGB_TEST_NEGATIVE_SEED) -> torch.Tensor:
+    """HGB ``get_test_neigh_w_random`` (the random set): one negative per test positive, in the
+    positives' ``nonzero()`` order (head, then tail ascending), redrawn while it is a known
+    neighbour of the head."""
+    start, end = dst_range
+    adjacency = hgb_adjacency(both_ways, one_way, num_nodes)
+    pairs = np.unique(test_pos_edge_index.cpu().numpy().astype(np.int64).T.reshape(-1, 2),
+                      axis=0)                                       # row-major sorted, unique
+    rng = random.Random(seed)
+    heads, tails = [], []
+    for head, _ in pairs.tolist():
+        known = set(adjacency.indices[adjacency.indptr[head]:adjacency.indptr[head + 1]].tolist())
+        if all(t in known for t in range(start, end)):
+            raise ValueError(f"head {head} is a known neighbour of every tail: HGB's redraw loop "
+                             "would not terminate.")
+        tail = rng.randrange(start, end)
+        while tail in known:
+            tail = rng.randrange(start, end)
+        heads.append(head)
+        tails.append(tail)
+    return torch.tensor([heads, tails], dtype=torch.long,
+                        device=test_pos_edge_index.device).reshape(2, -1)
+
+
+def hgb_uniform_tail_negatives(pos_edge_index: torch.Tensor, dst_range: tuple[int, int],
+                               seed: int) -> torch.Tensor:
+    """HGB ``get_valid_neg`` / ``get_train_neg``: one uniform tail of the tail type per
+    positive, in the positives' order; known positives are not excluded."""
     rng = random.Random(seed)
     start, end = dst_range
-    heads = valid_pos_edge_index[0].tolist()
+    heads = pos_edge_index[0].tolist()
     tails = [rng.randrange(start, end) for _ in heads]
     return torch.tensor([heads, tails], dtype=torch.long,
-                        device=valid_pos_edge_index.device).reshape(2, -1)
+                        device=pos_edge_index.device).reshape(2, -1)
 
 
-__all__ = ["HGBTestNegatives", "HGB_TEST_NEGATIVE_SEED", "hgb_test_negatives",
-           "hgb_valid_negatives", "symmetric_adjacency", "two_hop_candidates"]
+def hgb_valid_negatives(valid_pos_edge_index: torch.Tensor, dst_range: tuple[int, int],
+                        seed: int) -> torch.Tensor:
+    """HGB ``get_valid_neg``."""
+    return hgb_uniform_tail_negatives(valid_pos_edge_index, dst_range, seed)
+
+
+def hgb_train_negatives(train_pos_edge_index: torch.Tensor, dst_range: tuple[int, int],
+                        seed: int) -> torch.Tensor:
+    """HGB ``get_train_neg`` (spec v1.16 K3): drawn every epoch by HGB's runner; seed = run seed
+    + epoch here."""
+    return hgb_uniform_tail_negatives(train_pos_edge_index, dst_range, seed)
+
+
+__all__ = ["HGBTestNegatives", "HGB_TEST_NEGATIVE_SEED", "NO_TWO_HOP_PATH_REASON",
+           "hgb_adjacency", "hgb_random_test_negatives", "hgb_test_negatives",
+           "hgb_train_negatives", "hgb_uniform_tail_negatives", "hgb_valid_negatives",
+           "two_hop_candidates"]
