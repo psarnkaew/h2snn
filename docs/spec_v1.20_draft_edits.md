@@ -1,6 +1,6 @@
 # Spec v1.20 — draft edits (fixed-literature-schema row after Part O; Kendall τ of the read-out), for the author's approval
 
-**Status:** DRAFT, awaiting approval. Written against spec **v1.19** on disk (md5 `7922ef0e5886d091c0a8507d7e61f853`). Re-read before applying; every Old string must occur exactly once (checked 2026-11-13: U-1 1×, U-2 1×); back up to `docs/spec_backups/H2S-NN_methodology_spec_v1.19.md`.
+**Status:** APPLIED 2026-11-13 as spec v1.20 (author approval); backup of v1.19: `docs/spec_backups/H2S-NN_methodology_spec_v1.19.md`. Written against spec **v1.19** on disk (md5 `7922ef0e5886d091c0a8507d7e61f853`). Re-read before applying; every Old string must occur exactly once (checked 2026-11-13: U-1 1×, U-2 1×); back up to `docs/spec_backups/H2S-NN_methodology_spec_v1.19.md`.
 **Source:** author decisions of 2026-11-13 on the Part O report (`docs/H2S-NN_partO_report.md`, D-O1–D-O8; `docs/experiment_settings_decisions.md`). **The method is unchanged**; only the comparison row (an ablation of H2S-NN, never used by any baseline) and the read-out statistic are made precise.
 
 **Why (design session, DERIVED from the report and the code, not run):**
