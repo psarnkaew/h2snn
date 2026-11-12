@@ -12,7 +12,7 @@ Notation: letters are node types; `Pc P` = paper –cite→ paper, `Pr P` = pape
 | Heterophily MLH, MDE | Hetero²Net's list where it has one, else `get_metapaths` (§2, column "Hetero²Net") | v1.14–1.15 §1 |
 | Heterophily ℋ² | H2GB's rule: every length-2 type sequence target → target (`calcHomophily.extract_metapath`), not a fixed list | v1.15 §1 |
 | HAN baseline (NC, HGB datasets) | HGB's HAN code lists (§2, column "HAN in HGB"), read through HGB's loader by our adapter (`src/baselines/adapters/hgb_han.py:150-161`) | H9 (original code) |
-| H2G-former baseline (H2GB datasets) | H2GB's MetaPath2Vec walk lists (§3), as positional encoding where H2GB's config enables it | v1.19 |
+| H2G-former baseline | H2GB datasets: H2GB's MetaPath2Vec walk lists (§3) where H2GB's config enables them; other datasets: MetaPath2Vec on/off (tuned) with one cyclic schema = the HGB-table paths starting at the target type, concatenated in table order (as H2GB builds its schemas) | v1.19 T2 |
 | WISP (H2S-NN) | none | R8 |
 
 ## 2. HGB datasets (node classification) and LastFM (link prediction)

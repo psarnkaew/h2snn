@@ -1,6 +1,6 @@
 # Task card — Part O: schema read-out and coverage of the main runs, fixed-literature-schema row
 
-**Design authority:** spec **v1.18** (applied 2026-11-13: the fixed-literature-schema row and the schema read-out/coverage bullets of §6, with O-1 = Hetero²Net's lists and O-2 = tuned `r` split evenly); `H2S-NN/AGENTS.md`/`CLAUDE.md` for environment, coding, testing and evidence tags.
+**Design authority:** spec **v1.19** (the fixed-literature-schema row and the schema read-out/coverage bullets of §6: list = HGB's published table, paths starting at the target type, on ACM, DBLP, IMDB, Freebase only, relation-level definitions in `docs/predefined_metapaths.md` §2; budget = tuned `r` split evenly); `H2S-NN/AGENTS.md`/`CLAUDE.md` for environment, coding, testing and evidence tags.
 **Precondition:** Part N-fix report read by the author. **Branch:** `part-o`, created from `v3b` at the commit given in the prompt (it contains `part-m`, `part-n`, `part-nfix`). **Report:** `docs/H2S-NN_partO_report.md`. Evidence: `docs/partO_evidence/`.
 
 ## Goal and rule
