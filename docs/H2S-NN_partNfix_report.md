@@ -81,3 +81,59 @@ Each is loaded with the global generator seeded to 0, 1, 2, 3 and 7 (15 cases). 
 - **Absent-class value:** `tests/test_gc_metrics.py`'s case (y = [0, 0, 1, 1], p = [0, 1, 1, 1], C = 3; class 2 in neither) gives **macro 0.733333 = 11/15 and micro 0.75 = 3/4 on 1.8.2, the same values as 1.9.0** (`f3_absent_class_value.txt`). The recorded value is unchanged; only the test's docstring now names 1.8.2 as the version in use.
 
 **Tests (VERIFIED-RUN).** `tests.test_gc_metrics` → **Ran 3, OK** (`f3_gc_metrics_output.txt`). Modules that import the GC metric or read the requirement files: `test_gc_metrics`, `test_nc_metrics`, `test_data`, `test_gc_protocol`, `test_graph_classification_trainer`, `test_baselines` → **Ran 126; failures=2, errors=2**, all four in Part N N8's known set (vendor clones ×3, notebook) (`f3_tests_output.txt`); `test_wandb_and_runs` → **Ran 12, OK** (`f3_tests_wandb_output.txt`).
+
+## F4 — Smoke completed: **NOT RUN (waits on F1, card stop rule)**
+
+The card says: "F1: any difference between HGB's code and ours (stop F1; F2–F3 may continue; F4 waits)." F1 found the validation-split difference, so none of the four runs (H2S-NN GC MUTAG; GCN NC acm; GCN LP pubmed; GCN GC MUTAG) was started. The F2 script is ready. When the author releases F4, the commands are (from `H2S-NN/`, env `h2snn`):
+
+```
+python scripts/partn_smoke.py --run h2snn:gc:mutag --device cuda --out ../docs/partNfix_evidence/f4/h2snn_gc_mutag.json
+python scripts/partn_smoke.py --run gcn:nc:acm     --device cuda --out ../docs/partNfix_evidence/f4/gcn_nc_acm.json
+python scripts/partn_smoke.py --run gcn:lp:pubmed  --device cuda --out ../docs/partNfix_evidence/f4/gcn_lp_pubmed.json
+python scripts/partn_smoke.py --run gcn:gc:mutag   --device cuda --out ../docs/partNfix_evidence/f4/gcn_gc_mutag.json
+```
+
+**freebase_bb, for the lab server (decision 2; not run here).** From `H2S-NN/`, with the server's conda:
+
+```
+conda run -n h2snn python scripts/partn_smoke.py --run h2snn:lp:freebase_bb --device cuda --out ../docs/partNfix_evidence/f4/h2snn_lp_freebase_bb.json
+```
+
+Same configuration as Part N N7: template `configs/experiments/acm_pa_h2snn_v3b.yaml` with `dataset_name: freebase_bb`, `target_relation: [book, rel_0, book]`, `wisp_max_length: 4`, `wisp_walks_per_anchor: 8`, 2 epochs. Exit codes: 0 = checks recorded, 2 = non-finite loss or collapse, 1 = error.
+
+## F5 — Full suite and report: **NOT RUN (follows F4)**
+
+The full suite runs once, in F5, after F4. With F4 waiting, it was not run; the affected-module results per unit are above. Two things the F5 run will show:
+- `tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos` fails (15 subtests). This is the F1 difference, kept as its record until the author decides.
+- Known failures of Part N N8: `test_all_declared_vendor_clones_are_present` still fails, but its missing list dropped from 10 entries to 5. The clone resolves `hgb_nc`, `hgb_nc_gnn`, `hgb_nc_han`, `hgb_lp` and `hgb_lp_gnn`; still missing are `sehgnn`, `sehgnn_data`, `pshgcn`, `pshgcn_lp` and `chebnetii` (VERIFIED-RUN, `f3_tests_output.txt` vs `docs/partN_evidence/n8_full_suite_output.txt`). `test_colliding_vendor_module_names_do_not_leak`, `test_vendor_model_init_is_reproducible_under_seed_everything` (PSHGCN not cloned) and `test_notebooks_are_committed_clean` still fail.
+
+## Per unit
+
+| unit | commit | done | VERIFIED-RUN | deviations |
+|---|---|---|---|---|
+| F0 | `a5570f4` | branch `part-nfix` from `c46c1a4`; 8 docs by explicit path | — (no suite, per card) | none |
+| F1 | `cf19946` | HGB cloned (`ca6fd5b`, not committed); 13 points read with file:line; `tests/test_hgb_oracle.py` | 4 functions identical to HGB in 15/15 cases; **split differs in 15/15** | **stopped**: mutation checks not run; our code not changed; the clone's `.git` removed so `CLONED_COMMIT.txt` can be staged |
+| F2 | `5229957` | GC check = (c1) logits and (c2) pooled embeddings vary; class count recorded; count check | `test_partn_smoke`: 6 OK | none |
+| F3 | `1c00bca` | torchmetrics 1.9.0 → 1.8.2, pinned in the core and H2GB groups | absent-class value unchanged; affected modules: only the 4 known failures | none |
+| F4 | — | not run (waits on F1) | — | — |
+| F5 | — | not run (follows F4) | — | — |
+
+## Decisions for the author
+
+1. **The validation split (the F1 difference).**
+   - HGB: `random.random() < 0.9` → training (DL:62), one global stream over all relations, unseeded in `run_new.py`; validation may be empty.
+   - Ours: `rng.random() < 0.10` → validation (`link_prediction_dataset.py:349`), one `random.Random(split_seed + 9973·relation_id)` per relation (`:432-435`), at least one validation fact (`:354-358`).
+   - The rate and the fact order are the same; the draws differ. Today it affects **no campaign task**: all six local tasks read a fixed `link.dat.valid` (spec v1.8 F9), which HGB's loader never reads.
+   - Options: (a) keep ours and state the difference in the spec (HGB's carve rule vs ours, used only when a release has no `link.dat.valid`); (b) switch our carve to HGB's rule (`u ≥ 0.9`, no fallback, one stream), so the oracle test passes, but the existing `link.dat.valid` files (provenance UNVERIFIED) would no longer match a fresh carve; (c) something else.
+   - F4 and F5 wait on this.
+2. **Release F4** once (1) is decided, or now if you judge the split difference does not block the smoke (the smoke reads `link.dat.valid`, never the carve).
+3. **Decision 4's line for the spec:** HGB re-draws validation negatives at every batch step: `run_new.py:150-152`, inside the batch loop that starts at `run_new.py:121`. Our one draw per run stays (decision 4).
+
+## Out-of-scope findings (not fixed)
+
+- `run_new.py:188-194`: HGB's runner replaces the 2-hop test list by `<dataset>_ini_<r>_label.txt` (its hidden-label file) when that file exists in the data folder. None of our six tasks has one, so there is no effect here; worth a sentence in the spec's K1 text.
+- `data_loader.py:366` casts `pos_links` to `int` when removing known pairs, so a link weight < 1 would leave a known pair among the 2-hop candidates. All weights in our six tasks are integers ≥ 1, so there is no effect here.
+- After `get_test_neigh` (`random.seed(1)`), HGB's global generator continues from that state into the next test relation's training draws (multi-relation targets only).
+- HGB's `evaluate` (DL:240-269) was read but not oracle-tested (it is not in the card's list); our `compute_link_prediction_metrics` was not compared with it.
+- The provenance of `data/LP/LastFM/link.dat.valid` and `data/LP/PubMed/link.dat.valid` (presumably written by our carve) was not checked.
+- Unchanged from Part N: the stand-alone import error of `tests/test_full_graph_early_stopping.py`; `LINK_PREDICTION_PRESETS` still holds `youtube`, `amazon` and `amazonbook`; the adapter files with line-ending-only differences (not staged); `docs/H2S-NN_partO_card.md` is untracked (not mine, not staged).
