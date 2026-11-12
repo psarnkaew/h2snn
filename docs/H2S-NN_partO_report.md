@@ -166,3 +166,58 @@
 - I added a still-failing case in its place: `schemas` + `r` + an adaptive proposal raises.
 - Every other rejected case stays, including `ℓ_max` without `r` and the adaptive proposal.
 - This is the only change to an existing test in Part O. No tolerance changed and no test was deleted or skipped.
+
+---
+
+## O4 — Full suite and report
+
+**Full suite, run once (VERIFIED-RUN).** `python -m unittest discover -s tests` from `H2S-NN/` on `f5c2449` → **Ran 604 tests in 2,755 s; FAILED (failures=2, errors=2)** (`o4_full_suite_output.txt`; INFO log lines of the synthetic fixture trainings removed).
+
+| failing test | in F5's known set (O0 pre-state)? |
+|---|---|
+| `test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present` | yes |
+| `test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak` | yes |
+| `test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything` | yes |
+| `test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean` | yes |
+
+- **No new failure.** Test count: 583 (F5) + 21 (Part O: `test_partO_reload` 2, `test_partO_readout` 8, `test_partO_literature_row` 11) = 604.
+- The working tree's uncommitted `src/baselines/adapters/*` edits from another session were present during the run. The four failures are identical to F5's, which ran without those edits.
+
+**Summary per unit.**
+
+| unit | commit | result |
+|---|---|---|
+| O0 | `f897b6a` | preconditions read; branch `part-o` from `af2b4e2` |
+| O1 | `cb3ece5` | retention holds, no script changed; **exact fresh-process reload** of cells, `m_f` and `w_f`; both seed mutations caught |
+| O2 | `b0b803a` | `src/analysis/schema_readout.py` + `scripts/schema_readout.py`; hand values, ρ = 1 under constant g, model `w_f` identity, name mapping, misspelling raises; the `m_f` mutation is caught |
+| O3 | `f5c2449` | row = HGB table + tuned `r` split evenly; the builder changes only `path_source`; every listed path has instances on its real graph (no stop); one superseded test rule updated (D-O1) |
+| O4 | this commit | full suite: only the four known failures |
+
+No stop condition was met. No metric, `I_σ` of a trained model, or method comparison is reported. Local runs were tests on synthetic graphs, plus data-only reads of the HGB files.
+
+### Scripts changed in O1
+None. Retention already holds (O1.1).
+
+---
+
+## Decisions for the author
+
+| ID | Question | What I did (recommendation) | Alternative |
+|---|---|---|---|
+| D-O1 | Two existing sub-tests in `tests/test_wisp.py` asserted that `wisp_walks_per_anchor` is rejected under `path_source: schemas` (the v1.4 rule). | Changed only those two sub-cases to the v1.19 rule (with `r`, `schemas` is the row) and added a replacement failing case (O3). **Confirm.** | Keep the old rule and let the row carry its budget in a new field. The builder would then change two fields, against the card. |
+| D-O2 | How `g` reads the row's cells. | WISP cell format: one group per length, per-cell relation embedding and hop direction, one projection per listed length. `g` reads a listed cell exactly as it reads a WISP cell, so only the path source differs. | The legacy schema groups: one direction-free token per group. ACM's PcPAP and PrPAP would look identical to `g`, and `g`'s input would differ from `full`'s. |
+| D-O3 | "Uniform instances within a meta-path" (O-2). | D8's walk: a uniform fact of the hop's relation and direction at each hop, simple walks only. The builder may not change `path_sampler` (it stays `walk`). | Draws uniform over instances: `path_sampler: uniform_instance` exists for L ≤ 2 only. It would need an extension to L ≤ 4 and a second changed field. |
+| D-O4 | `m_f` of a listed path's walks. | `1/r_π` per accepted walk (D8): each path's cells estimate that path's sum over anchors and instances, whatever its share of the budget. The split sets precision, not weight. | `1/r`: each path's mass proportional to its walk share. Paths would then get unequal weight in the energy, by budget rather than by data. |
+| D-O5 | `r < k` (fewer walks than listed paths). | Raises; one walk each would exceed `r`. Unreachable in the search space (`r ≥ 8`, `k ≤ 7`). | One walk each (sum `k > r`). |
+| D-O6 | Where the row runs write. | The builder keeps `exp_name`/`output_dir` (it may change only `path_source`). The caller must give the row its own directory; otherwise the row's `best.pt` would overwrite the `full` run's, which O1 must keep. | Let the builder take an `exp_name` and exclude the run location from the diff. |
+| D-O7 | Kendall τ "of the `I_σ` rankings". | The table gives τ over all sub-path schemas and over length-2 only. **Choose which one the paper reports.** | One of the two only. |
+| D-O8 | Freebase "BB". | Two hops B→B→B, as HAN's code `['00','00']`, which spec v1.19 names as the relation-level definition. The table's name suggests one hop, but one fact is a 1-cell, not a path cell. | Drop BB, or keep it with one hop (not expressible as a cell). |
+
+## Out-of-scope findings (not fixed)
+
+1. **No Freebase NC loader in H2S-NN.** `DATASET_TASK_TYPES` and `_load_hetero_data` cover ACM, DBLP and IMDB only (`src/configs/config.py:399-413`, `src/data/dataset.py:27-46`). Until a loader exists, neither the row nor the read-out (nor any H2S-NN Freebase NC run) can run on Freebase. The list itself was checked on the real graph through PyG (O3).
+2. **No campaign script for ablation rows.** `run_h2snn_wandb_tuning.py --final_seeds` runs `full` only. The row (and the C-arms) need a driver that applies `fixed_literature_schema_config` to the tuned seed configurations and writes to separate directories (D-O6).
+3. **`docs/predefined_metapaths.md` §2.** For DBLP and IMDB, MAGNN's `etypes_list` numbers are MAGNN's internal edge-type ids, not HGB link ids: HGB's DBLP link 1 is paper-term (`data/NC/dblp/raw/DBLP/info.dat`), so `[0,1]` read as HGB ids would be A-P-T, not APA. The doc calls them "relation ids". This is harmless here, because the table is defined by names, but the doc could mislead. The Freebase HAN codes are now decoded to letters and relations (O2), which partly closes that doc's open item.
+4. **Behaviour change visible in logs.** WISP configurations now resolve to `metapath_templates: ()` (O3). `scripts/train_h2snn.py:62` logs "Metapaths: []" for WISP runs (cosmetic). Saved configurations written before this branch still carry the presets, and the builder refuses them loudly (explicit list under the row).
+5. **Card text.** O2's test example "PAP, PSP, PTP" is v1.18's list. v1.19 was followed (O2 deviation).
+6. **Working tree.** `src/baselines/adapters/*` and files under "Claude outputs/" carry uncommitted edits from other sessions. They were never staged.
