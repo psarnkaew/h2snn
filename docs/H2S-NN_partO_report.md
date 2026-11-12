@@ -59,3 +59,54 @@
   - (a) `load_trained_model` with `cfg.seed + 1` → **FAILED** at the seed check, `AssertionError: 6 != 5` (`o1_mutation_output.txt`).
   - (b) Only the draw rebuilt with `seed + 1`, reported seed unchanged → **FAILED**: `first differing tensor: group 0 nodes` (`o1_mutation_b_output.txt`).
   - The file was restored after each mutation. `git diff` shows only the O1 additions.
+
+---
+
+## O2 — Read-out script (evaluation only)
+
+**New code.**
+- `src/analysis/schema_readout.py` (imports `wisp_readouts`, `schemas`, `fact_layer`, `config`; no training code):
+  - `schema_statistics`: per sub-path schema σ (canonical signature of positions i..j of a cell, as `wisp_readouts`, every span) it computes:
+    - `I_σ`: share of the pair weight `w_f m_f / (2|f|)`;
+    - `c_σ`: the same share with `w_f = 1`;
+    - `ρ_σ = I_σ / c_σ` (`None` when `c_σ = 0`);
+    - mean `g = log w_f` over the distinct cells containing σ;
+    - the cell count. Everything is in float64.
+  - `literature_signature(s)`: maps a listed meta-path to its signature by relation and type names, through `resolve_schema` / `FactLayer.resolve`. An unknown relation raises `KeyError`; a hop that does not join the named types raises `ValueError`; an unknown type raises `KeyError`. Two listed paths with one signature also raise.
+  - `run_record`: the JSON of one run. A listed path that is absent from a draw is kept with `in_draw: false` and `c = I = 0`, `ρ = None`.
+  - `kendall_matrix`: τ-b and permutation p between runs (`wisp_readouts.kendall_tau`), over all sub-path schemas or over length 2 only.
+- `scripts/schema_readout.py --runs <dirs> --out_dir <dir>` writes:
+  - per run: `<out_dir>/<dataset>/<run>.json`;
+  - per dataset: `schema_readout.md` (listed meta-paths: c / I / ρ per seed; top ten length-2 schemas by I per seed; distinct schema counts; τ between seeds).
+- Its imports beyond the analysis modules are `src.analysis.model_loading` (model loading: `load_trained_model`, `evaluation_cell_weights`). Node classification only (the read-out of spec §6). `ΔL_σ` is not computed.
+- The literature table is `LITERATURE_METAPATHS` plus `LITERATURE_SCHEMA_SOURCE` in `src/configs/config.py`. It is added in this unit because the read-out maps the list; O3 gives it its role in the row. The HGB table, paths starting at the target type:
+  - ACM: PAP, PSP, PcPAP, PcPSP, PrPAP, PrPSP;
+  - DBLP: APA, APTPA, APVPA;
+  - IMDB: MDM, MAM;
+  - Freebase: BB, BFB, BLMB, BPB, BPSB, BOFB, BUB.
+- How each path is defined at the relation level (VERIFIED-SOURCE):
+  - Relation names are PyG `HGBDataset` names, from the real ACM, DBLP and IMDB graphs (VERIFIED-RUN: `_load_hetero_data` + `flatten_edges` on `data/NC/{acm,dblp,imdb}`).
+  - ACM link ids come from `data/NC/acm/raw/ACM/info.dat` (0 paper-cite-paper, 1 paper-ref-paper, 2/3 paper-author, 4/5 paper-subject) with MAGNN's `etypes_list` (`vendor/HGB/NC/benchmark/methods/MAGNN/run_ACM.py:20`).
+  - Freebase uses HAN's DGL edge names (`vendor/HGB/NC/benchmark/methods/HAN/utils.py:180-201,234`): `'ab'` = link a→b where stored, otherwise the transpose of the stored b→a link (index + 36). Freebase relation names follow PyG's `info.dat` parse (`<type>__<word>__<type>`; types and words from `data/NC/freebase/raw/Freebase/info.dat`).
+
+**Tests (VERIFIED-RUN).** `python -m unittest -v tests.test_partO_readout` → **Ran 8 tests in 14.2 s, OK** (`o2_tests_output.txt`):
+- Hand cells: two P-A-P cells (m = 0.5, 1; w = 2, 0.5) and one P-A-P-A cell (m = 0.25, w = 4). `c_σ`, `I_σ`, `ρ_σ` and mean g of PA, PAP, APA and PAPA equal the hand fractions to 12 places; cell counts and spans also match.
+- Constant g gives `|ρ_σ − 1| ≤ 1e-12` and mean g = log 3.7 for every σ, on a WISP draw (`tests.test_wisp` fixture, ℓ_max 4).
+- `evaluation_cell_weights` of a v3-B anchored model on a WISP draw equals `H2SNN._path_weights(_path_latent(...))` per group (`torch.equal`), with every module in eval mode.
+- The same model with the path gate's weights set to zero (`g = b`) gives one value of `w_f` and `ρ_σ = 1` (1e-12) for every σ.
+- The ACM list maps to the hand signatures, as typed relation sequences in the code's notation `(t0, r1, d1+1, t1, …)`:
+  - PAP `(0,1,2,1,1,0,0)`; PSP `(0,2,2,2,2,0,0)`;
+  - PcPAP `(0,0,2,0,1,2,1,1,0,0)`; PcPSP `(0,0,2,0,2,2,2,2,0,0)`;
+  - PrPAP `(0,0,0,0,1,2,1,1,0,0)` (ref = cite against its orientation); PrPSP `(0,0,0,0,2,2,2,2,0,0)`;
+  - the card's example PTP `(0,3,2,3,3,0,0)`;
+  - short names `paper-author-paper`, etc.
+- A misspelled relation (`paper__to__autor`) raises `KeyError`; a misspelled type raises `ValueError`.
+- Listed paths absent from a draw are reported with `in_draw: false` (never dropped). A dataset without a list gives `literature: null`.
+- Script end to end on two synthetic 1-epoch runs: one JSON per run (six listed entries, the I and c shares each sum to 1, schemas sorted by I) and one table with the four sections. No value is read or reported.
+
+**Mutation (card) (VERIFIED-RUN, `o2_mutation_output.txt`).** `I_σ` computed without `m_f` (`learned_pair = w[pairs.cell] / (2|f|)`) → **FAILED (failures=88)**:
+- `test_hand_values`, e.g. PA `0.549… != 0.583…`;
+- both ρ = 1 tests.
+- Restored; `git diff` of the module shows only the new file.
+
+**Deviation from the card text.** The card's ACM example lists "PAP, PSP, PTP" (Hetero²Net's list, the v1.18 O-1). Spec v1.19 governs, so the ACM test checks the six paths of HGB's table. PTP is mapped as well, as the card's example of a typed relation sequence.

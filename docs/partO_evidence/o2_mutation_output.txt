@@ -1,0 +1,801 @@
+test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) ... 
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 3, 1, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 2, 2, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 2, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 3, 1, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1, 3, 1, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(2, 1, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 1, 2, 2, 1, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 2, 2, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 0, 2, 1, 3, 1, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 2, 2, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 2, 0, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 2, 2, 0)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1, 0, 0, 0, 0, 2, 1)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 3, 1, 1, 0, 0, 0, 1, 2, 2)) ... FAIL
+  test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 2, 2, 0, 1, 2, 2)) ... FAIL
+test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) ... 
+  test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1)) ... FAIL
+  test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1, 0, 0, 0)) ... FAIL
+  test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(1, 0, 0, 0, 0, 2, 1)) ... FAIL
+  test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1, 0, 0, 0, 0, 2, 1)) ... FAIL
+
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 2, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 0, 2, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 2, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 1, 2, 1, 1, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 2, 2, 2, 2, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 3, 2, 3, 3, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 2, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 2, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 1, 2, 1, 1, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 2, 2, 2, 2, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 3, 2, 3, 3, 0, 0)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 1, 2, 1)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 2, 2, 2)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(2, 2, 0, 0, 3, 2, 3)) ... FAIL
+  test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(3, 3, 0, 0, 3, 2, 3)) ... FAIL
+test_weights_equal_the_models_path_weights (tests.test_partO_readout.ModelWeightTests.test_weights_equal_the_models_path_weights) ... ok
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.009134364172667109 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.049937217783122545 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.021339708619751874 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.010894942437892463 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.02336364857862616 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.03923941076650439 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.09460648706368624 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.1749400554501871 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.08042071392457018 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.2762645849168086 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 3, 1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.006460436768624955 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.06355382076400717 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.044216478568298134 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 2, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.015210465274734464 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.07318880716879272 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.10143382829086334 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.2762645849168086 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.04820945308145819 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 3, 1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.10609597359456768 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1, 3, 1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.033166568742178715 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.07206225612261119 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(2, 1, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 0, 0, 0, 1, 2, 2, 1, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.04280156131239354 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 0, 2, 1, 3, 1, 1, 0, 0, 0, 2, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.02101166793344711 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 0, 2, 1, 3, 1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 1, 2, 2, 1, 0, 0, 2, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.3618677075415956 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 0, 2, 1, 0, 0, 0, 2, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 0, 0, 1, 2, 2, 1, 0, 0, 2, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(0, 2, 2, 0, 0, 2, 1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 3, 1, 1, 0, 0, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) (schema=(1, 0, 0, 0, 2, 2, 0, 1, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 106, in test_constant_weights_give_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.27626458491680883 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 90, in test_hand_values
+    self.assertAlmostEqual(stats[key].share, share, places=12)
+AssertionError: 0.5490196078431373 != 0.5833333333333334 within 12 places (0.03431372549019607 difference)
+
+======================================================================
+FAIL: test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 90, in test_hand_values
+    self.assertAlmostEqual(stats[key].share, share, places=12)
+AssertionError: 0.2156862745098039 != 0.25 within 12 places (0.034313725490196095 difference)
+
+======================================================================
+FAIL: test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 90, in test_hand_values
+    self.assertAlmostEqual(stats[key].share, share, places=12)
+AssertionError: 0.11764705882352941 != 0.08333333333333333 within 12 places (0.03431372549019608 difference)
+
+======================================================================
+FAIL: test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) (schema=(0, 0, 2, 1, 0, 0, 0, 0, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 90, in test_hand_values
+    self.assertAlmostEqual(stats[key].share, share, places=12)
+AssertionError: 0.11764705882352941 != 0.08333333333333333 within 12 places (0.03431372549019608 difference)
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454808 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.029315591815591624 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.014861853832441763 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454808 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454142 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454364 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454364 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454364 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454364 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.04065925209542254 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.022838680926916433 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454142 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 0, 2, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 0, 2, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 1, 2, 1, 1, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 2, 2, 2, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 0, 0, 3, 2, 3, 3, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 2, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 0, 2, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 1, 2, 1, 1, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 2, 2, 2, 2, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 0, 2, 0, 3, 2, 3, 3, 0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 1, 2, 1, 1, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 2, 2, 2, 2, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(0, 3, 2, 3, 3, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 1, 2, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 2, 2, 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(1, 1, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(2, 2, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+======================================================================
+FAIL: test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) (schema=(3, 3, 0, 0, 3, 2, 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_readout.py", line 162, in test_constant_g_of_a_model_gives_ratio_one
+    self.assertLessEqual(abs(stat.ratio - 1.0), 1e-12)
+AssertionError: 0.017045454545454586 not less than or equal to 1e-12
+
+----------------------------------------------------------------------
+Ran 4 tests in 9.992s
+
+FAILED (failures=88)

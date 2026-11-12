@@ -267,6 +267,86 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     },
 }
 
+# The literature meta-path list of the fixed-literature-schema row and of the schema read-out
+# (spec v1.19 §6, O-1 = (a), author 2026-11-13; card Part O O2/O3). One table: its source and its
+# per-dataset entries. HGB's published meta-path table, the paths that start at the target type,
+# on ACM, DBLP, IMDB and Freebase only (no row on H2GB datasets). Relation-level definitions from
+# HGB's code (docs/predefined_metapaths.md §2): MAGNN NC/benchmark/methods/MAGNN/run_ACM.py:20
+# (ACM [2,3] [4,5] [0,2,3] [0,4,5] [1,2,3] [1,4,5] over link ids 0 paper-cite-paper, 1
+# paper-ref-paper, 2/3 paper-author, 4/5 paper-subject), run_DBLP.py:20, run_IMDB.py:19 (target
+# movie: [0,1] [2,3]); HAN NC/benchmark/methods/HAN/utils.py:234 for Freebase (DGL edge names: 'ab'
+# = link a->b stored, a reversed link otherwise, utils.py:180-201). Hops name the relations as
+# PyG's HGBDataset names them (`<src>__<rel>__<dst>`; IMDB's movie->actor is `movie__>actorh__actor`
+# in HGB's info.dat); '+' along the stored relation, '-' against it. The old
+# `NODE_CLASSIFICATION_PRESETS` lists stay for the legacy schema rows only (`resolved()`).
+LITERATURE_SCHEMA_SOURCE: str = (
+    "HGB published meta-path table, paths starting at the target type (spec v1.19 §6); relation "
+    "level from HGB's code (MAGNN run_ACM.py:20, run_DBLP.py:20, run_IMDB.py:19; HAN "
+    "utils.py:234 for Freebase; docs/predefined_metapaths.md §2)")
+
+
+def _literature_path(name: str, node_types: tuple[str, ...],
+                     hops: tuple[tuple[str, str], ...]) -> MetaPathConfig:
+    return MetaPathConfig(name=name, node_types=node_types, hops=hops)
+
+
+LITERATURE_METAPATHS: dict[str, tuple[MetaPathConfig, ...]] = {
+    "acm": (  # target paper
+        _literature_path("PAP", ("paper", "author", "paper"),
+                         (("paper__to__author", "+"), ("author__to__paper", "+"))),
+        _literature_path("PSP", ("paper", "subject", "paper"),
+                         (("paper__to__subject", "+"), ("subject__to__paper", "+"))),
+        _literature_path("PcPAP", ("paper", "paper", "author", "paper"),
+                         (("paper__cite__paper", "+"), ("paper__to__author", "+"),
+                          ("author__to__paper", "+"))),
+        _literature_path("PcPSP", ("paper", "paper", "subject", "paper"),
+                         (("paper__cite__paper", "+"), ("paper__to__subject", "+"),
+                          ("subject__to__paper", "+"))),
+        _literature_path("PrPAP", ("paper", "paper", "author", "paper"),
+                         (("paper__ref__paper", "+"), ("paper__to__author", "+"),
+                          ("author__to__paper", "+"))),
+        _literature_path("PrPSP", ("paper", "paper", "subject", "paper"),
+                         (("paper__ref__paper", "+"), ("paper__to__subject", "+"),
+                          ("subject__to__paper", "+"))),
+    ),
+    "dblp": (  # target author
+        _literature_path("APA", ("author", "paper", "author"),
+                         (("author__to__paper", "+"), ("paper__to__author", "+"))),
+        _literature_path("APTPA", ("author", "paper", "term", "paper", "author"),
+                         (("author__to__paper", "+"), ("paper__to__term", "+"),
+                          ("term__to__paper", "+"), ("paper__to__author", "+"))),
+        _literature_path("APVPA", ("author", "paper", "venue", "paper", "author"),
+                         (("author__to__paper", "+"), ("paper__to__venue", "+"),
+                          ("venue__to__paper", "+"), ("paper__to__author", "+"))),
+    ),
+    "imdb": (  # target movie
+        _literature_path("MDM", ("movie", "director", "movie"),
+                         (("movie__to__director", "+"), ("director__to__movie", "+"))),
+        _literature_path("MAM", ("movie", "actor", "movie"),
+                         (("movie__>actorh__actor", "+"), ("actor__to__movie", "+"))),
+    ),
+    "freebase": (  # target book; HAN's codes ['00','00'] ['01','10'] ['05','52','20'] ['04','40']
+        # ['04','43','30'] ['06','61','10'] ['07','70'] (utils.py:234)
+        _literature_path("BB", ("book", "book", "book"),
+                         (("book__and__book", "+"), ("book__and__book", "+"))),
+        _literature_path("BFB", ("book", "film", "book"),
+                         (("book__to__film", "+"), ("book__to__film", "-"))),
+        _literature_path("BLMB", ("book", "location", "music", "book"),
+                         (("book__on__location", "+"), ("music__on__location", "-"),
+                          ("music__in__book", "+"))),
+        _literature_path("BPB", ("book", "people", "book"),
+                         (("people__to__book", "-"), ("people__to__book", "+"))),
+        _literature_path("BPSB", ("book", "people", "sports", "book"),
+                         (("people__to__book", "-"), ("people__to__sports", "+"),
+                          ("book__on__sports", "-"))),
+        _literature_path("BOFB", ("book", "organization", "film", "book"),
+                         (("book__about__organization", "+"), ("organization__in__film", "+"),
+                          ("book__to__film", "-"))),
+        _literature_path("BUB", ("book", "business", "book"),
+                         (("business__about__book", "-"), ("business__about__book", "+"))),
+    ),
+}
+
 # Backward-compatible alias — kept because it's the name older configs/tooling import.
 # r (walks per anchor) by dataset and l_max, by the H1/H6 incidence rule: the smallest r whose
 # evaluation-draw incidences (seed 42) reach the dataset's schemas-run budget (ACM 403,122, DBLP
