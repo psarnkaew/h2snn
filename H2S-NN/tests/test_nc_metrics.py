@@ -70,7 +70,8 @@ class SplitClassTests(unittest.TestCase):
         self.assertAlmostEqual(ours["macro_f1"], f1_score(y_true, y_pred, average="macro"))
 
     def test_graph_classification_metrics_unchanged(self) -> None:
-        """M8 is node classification: the GC metric keeps sklearn's default class set."""
+        """M8 is node classification; GC uses HetSheaf's torchmetrics call (Part N, N3), which
+        gives sklearn's default value on this example (class 2 predicted but absent: F1 0)."""
         from sklearn.metrics import f1_score
 
         y_true, y_pred = [0, 0, 1, 1], [0, 2, 1, 1]

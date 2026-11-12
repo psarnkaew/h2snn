@@ -150,15 +150,34 @@ def compute_multilabel_classification_metrics(
     return {"acc": acc, "macro_f1": f1["macro_f1"], "micro_f1": f1["micro_f1"]}
 
 
+def hetsheaf_f1(logits: torch.Tensor, labels: torch.Tensor) -> dict[str, float]:
+    """Macro- and Micro-F1 of graph classification exactly as HetSheaf's `GraphClassifier`
+    builds them (spec v1.16 K4): torchmetrics `F1Score(task="multiclass", average="macro" |
+    "micro", num_classes=C)` on the logits (hetsheaf/graph_classification/graph_classifier.py:
+    56-67, commit 6964e1e). torchmetrics 1.9.0 in `h2snn` (HetSheaf's uv.lock: 1.8.2)."""
+    from torchmetrics.classification import F1Score
+
+    num_classes = int(logits.size(-1))
+    preds, target = logits.detach().float().cpu(), labels.detach().long().cpu()
+    return {
+        average + "_f1": float(F1Score(task="multiclass", average=average,
+                                       num_classes=num_classes)(preds, target))
+        for average in ("macro", "micro")
+    }
+
+
 def compute_graph_classification_metrics(
     logits: torch.Tensor,
     labels: torch.Tensor,
 ) -> dict[str, float]:
+    """acc, Macro/Micro-F1 (HetSheaf's torchmetrics call, `hetsheaf_f1`) and AUROC of graph
+    classification; used by H2S-NN's GC trainer and the baselines' GC loop."""
     from sklearn.metrics import roc_auc_score
 
     metrics = compute_classification_metrics(logits, labels, split_classes_only=False)
     if labels.numel() == 0:
         return {**metrics, "auroc": 0.0}
+    metrics.update(hetsheaf_f1(logits, labels))
 
     probs_np = torch.softmax(logits.detach().float(), dim=-1).cpu().numpy()
     labels_np = labels.detach().cpu().numpy()

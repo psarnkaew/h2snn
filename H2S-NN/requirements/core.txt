@@ -13,6 +13,8 @@ numpy
 scipy
 pyyaml
 scikit-learn
+# graph-classification F1 as HetSheaf computes it (spec v1.16 K4); 1.9.0 in h2snn
+torchmetrics
 wandb
 pandas
 umap-learn
