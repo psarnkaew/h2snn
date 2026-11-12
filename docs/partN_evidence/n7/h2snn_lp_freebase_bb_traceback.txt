@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\partn_smoke.py", line 445, in <module>
+    main()
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\partn_smoke.py", line 417, in main
+    result = runner(kind, dataset, args.device, rec)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\partn_smoke.py", line 254, in run_h2snn
+    "seconds": time.perf_counter() - start, **_moved(before, [model])}
+                                              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\partn_smoke.py", line 115, in _moved
+    after = _snapshot(modules)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\scripts\partn_smoke.py", line 110, in _snapshot
+    return {f"{i}.{name}": p.detach().clone().cpu()
+                           ^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+

@@ -1,0 +1,106 @@
+{
+ "model": "h2snn",
+ "config": {
+  "template": "configs/experiments/acm_h2snn_v3b.yaml",
+  "data": {
+   "dataset_name": "acm",
+   "root": "data",
+   "acm_val_ratio": 0.2,
+   "acm_split_seed": 42,
+   "face_sample_k": 50,
+   "wisp_walks_per_anchor": 8,
+   "wisp_max_length": 4
+  },
+  "model": {
+   "d": 32,
+   "d_r": 16,
+   "edge_mlp_hidden_dim": 128,
+   "face_mlp_hidden_dim": 128,
+   "classifier_hidden_dim": 128,
+   "orthogonal_map": "fasthpp",
+   "propagation": "anchored",
+   "arm": "full",
+   "tau_init": 1.0,
+   "solver_tolerance": 0.0001,
+   "solver_warmup_tolerance": 0.001,
+   "solver_warmup_epochs": 10,
+   "solver_max_iterations": 100
+  },
+  "epochs": 2,
+  "seed": 42
+ },
+ "epochs": [
+  {
+   "epoch": 0,
+   "train_loss": 1.1191729307174683,
+   "val_loss": 1.0721356868743896,
+   "tau": 1.0100501775741577,
+   "path_log_w_range": 1.1980750560760498,
+   "pcg_iters": {
+    "pcg_fwd_iters": 6.0,
+    "pcg_bwd_iters": 5.0
+   }
+  },
+  {
+   "epoch": 1,
+   "train_loss": 1.0571988821029663,
+   "val_loss": 1.0404053926467896,
+   "tau": 1.010335922241211,
+   "path_log_w_range": 1.4721506834030151,
+   "pcg_iters": {
+    "pcg_fwd_iters": 6.0,
+    "pcg_bwd_iters": 5.0
+   }
+  }
+ ],
+ "stop_condition": null,
+ "error": null,
+ "seconds": 5.957195599999977,
+ "parameters_moved": 39,
+ "parameters_total": 39,
+ "parameters_not_moved": [],
+ "max_abs_change": 0.01028287410736084,
+ "run": "h2snn:nc:acm",
+ "task": "node_classification",
+ "dataset": "acm",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "checks": {
+  "runnable": true,
+  "a_losses_finite": true,
+  "train_loss_steps": 2,
+  "non_finite_train_losses": [],
+  "val_losses": [
+   [
+    0,
+    1.0721356868743896
+   ],
+   [
+    1,
+    1.0404053926467896
+   ]
+  ],
+  "b_no_stop_condition": true,
+  "c_val_prediction_classes": [
+   {
+    "epoch": 0,
+    "classes_predicted": 3
+   },
+   {
+    "epoch": 1,
+    "classes_predicted": 3
+   }
+  ],
+  "c_x_star_std_mean": [
+   0.49089139699935913,
+   0.4997345209121704
+  ],
+  "c_no_collapse": true,
+  "d_parameters_moved": true,
+  "e_train_loss_first_last": [
+   1.1191729307174683,
+   1.0571988821029663
+  ]
+ },
+ "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"
+}

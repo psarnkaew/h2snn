@@ -1,0 +1,110 @@
+{
+ "model": "h2snn",
+ "config": {
+  "template": "configs/experiments/acm_pa_h2snn_v3b.yaml",
+  "data": {
+   "dataset_name": "dblp_ap",
+   "task_type": "link_prediction",
+   "root": "data",
+   "target_relation": [
+    "author",
+    "rel_0",
+    "paper"
+   ],
+   "decoder_type": "dot",
+   "wisp_max_length": 4,
+   "wisp_walks_per_anchor": 8
+  },
+  "model": {
+   "d": 32,
+   "d_r": 16,
+   "edge_mlp_hidden_dim": 128,
+   "face_mlp_hidden_dim": 128,
+   "classifier_hidden_dim": 128,
+   "orthogonal_map": "fasthpp",
+   "propagation": "anchored",
+   "arm": "full",
+   "tau_init": 1.0,
+   "solver_tolerance": 0.0001,
+   "solver_warmup_tolerance": 0.001,
+   "solver_warmup_epochs": 10,
+   "solver_max_iterations": 100
+  },
+  "epochs": 2,
+  "seed": 0
+ },
+ "epochs": [
+  {
+   "epoch": 0,
+   "train_loss": 0.7819579455252155,
+   "val_loss": 0.7091843485832214,
+   "tau": 1.0192917585372925,
+   "path_log_w_range": 1.6274003982543945,
+   "pcg_iters": {
+    "pcg_fwd_iters": 8.0,
+    "pcg_bwd_iters": 8.0
+   }
+  },
+  {
+   "epoch": 1,
+   "train_loss": 0.7101223196770884,
+   "val_loss": 0.7021381258964539,
+   "tau": 1.0352333784103394,
+   "path_log_w_range": 1.8911082744598389,
+   "pcg_iters": {
+    "pcg_fwd_iters": 9.0,
+    "pcg_bwd_iters": 8.0
+   }
+  }
+ ],
+ "stop_condition": null,
+ "error": null,
+ "seconds": 10.472904500000368,
+ "parameters_moved": 36,
+ "parameters_total": 36,
+ "parameters_not_moved": [],
+ "max_abs_change": 0.03608071804046631,
+ "run": "h2snn:lp:dblp_ap",
+ "task": "link_prediction",
+ "dataset": "dblp_ap",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+ "checks": {
+  "runnable": true,
+  "a_losses_finite": true,
+  "train_loss_steps": 4,
+  "non_finite_train_losses": [],
+  "val_losses": [
+   [
+    0,
+    0.7091843485832214
+   ],
+   [
+    1,
+    0.7021381258964539
+   ]
+  ],
+  "b_no_stop_condition": true,
+  "c_score_std": [
+   {
+    "epoch": 0,
+    "val": 0.3867851793766022,
+    "test_2hop": null,
+    "test_random": 0.40712857246398926
+   },
+   {
+    "epoch": 1,
+    "val": 0.24950966238975525,
+    "test_2hop": null,
+    "test_random": 0.25861138105392456
+   }
+  ],
+  "c_no_collapse": true,
+  "d_parameters_moved": true,
+  "e_train_loss_first_last": [
+   0.7819579455252155,
+   0.7101223196770884
+  ]
+ },
+ "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"
+}
