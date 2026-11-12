@@ -1,0 +1,323 @@
+test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases)
+The three cases of the card hold on HGB's own loading of the files. ... ok
+test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... ok
+test_training_negatives_equal_get_train_neg (tests.test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... ok
+test_validation_negatives_equal_get_valid_neg (tests.test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... 
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=0, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=1, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=2, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=3, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=7, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=0, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=1, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=2, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=3, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=7, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=0, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=1, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=2, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=3, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+  test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=7, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded ... FAIL
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=0, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(5, 15)] != [(2, 8), (3, 12), (3, 13), (3, 15), (5, 13), (5, 15)]
+
+First differing element 0:
+(5, 15)
+(2, 8)
+
+Second list contains 5 additional elements.
+First extra element 1:
+(3, 12)
+
+- [(5, 15)]
++ [(2, 8), (3, 12), (3, 13), (3, 15), (5, 13), (5, 15)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=1, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 13), (1, 15), (2, 12), (3, 15), (4, 9), (5, 11)] != [(3, 13), (3, 14), (4, 13)]
+
+First differing element 0:
+(1, 13)
+(3, 13)
+
+First list contains 3 additional elements.
+First extra element 3:
+(3, 15)
+
+- [(1, 13), (1, 15), (2, 12), (3, 15), (4, 9), (5, 11)]
++ [(3, 13), (3, 14), (4, 13)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=2, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(0, 12), (0, 14), (4, 9), (4, 11), (5, 15)] != [(0, 9), (0, 11), (3, 9), (3, 12)]
+
+First differing element 0:
+(0, 12)
+(0, 9)
+
+First list contains 1 additional elements.
+First extra element 4:
+(5, 15)
+
+- [(0, 12), (0, 14), (4, 9), (4, 11), (5, 15)]
++ [(0, 9), (0, 11), (3, 9), (3, 12)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=3, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 7), (1, 9), (4, 11), (5, 10)] != [(2, 8)]
+
+First differing element 0:
+(1, 7)
+(2, 8)
+
+First list contains 3 additional elements.
+First extra element 1:
+(1, 9)
+
+- [(1, 7), (1, 9), (4, 11), (5, 10)]
++ [(2, 8)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='one_way_validation', seed=7, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(0, 14), (1, 9), (1, 13), (2, 8), (2, 9), (4, 11)] != [(3, 13), (4, 9)]
+
+First differing element 0:
+(0, 14)
+(3, 13)
+
+First list contains 4 additional elements.
+First extra element 2:
+(1, 13)
+
+- [(0, 14), (1, 9), (1, 13), (2, 8), (2, 9), (4, 11)]
++ [(3, 13), (4, 9)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=0, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(4, 12)] != [(3, 9)]
+
+First differing element 0:
+(4, 12)
+(3, 9)
+
+- [(4, 12)]
++ [(3, 9)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=1, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(2, 10), (3, 7)] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+(2, 10)
+
+- [(2, 10), (3, 7)]
++ []
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=2, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(0, 9), (1, 8)] != [(0, 6), (0, 7)]
+
+First differing element 0:
+(0, 9)
+(0, 6)
+
+- [(0, 9), (1, 8)]
+?      ^    ^  ^
+
++ [(0, 6), (0, 7)]
+?      ^    ^  ^
+
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=3, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 10), (2, 7)] != [(3, 9)]
+
+First differing element 0:
+(1, 10)
+(3, 9)
+
+First list contains 1 additional elements.
+First extra element 1:
+(2, 7)
+
+- [(1, 10), (2, 7)]
++ [(3, 9)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='head_without_candidates', seed=7, relation=0)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 8), (2, 7), (2, 10), (3, 9), (3, 10)] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+(1, 8)
+
+- [(1, 8), (2, 7), (2, 10), (3, 9), (3, 10)]
++ []
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=0, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(7, 5)] != [(5, 6)]
+
+First differing element 0:
+(7, 5)
+(5, 6)
+
+- [(7, 5)]
+?   ^  ^
+
++ [(5, 6)]
+?   ^  ^
+
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=1, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(4, 3), (4, 6), (6, 5)] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+(4, 3)
+
+- [(4, 3), (4, 6), (6, 5)]
++ []
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=2, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 4), (1, 6)] != [(0, 2), (0, 3), (7, 5)]
+
+First differing element 0:
+(1, 4)
+(0, 2)
+
+Second list contains 1 additional elements.
+First extra element 2:
+(7, 5)
+
+- [(1, 4), (1, 6)]
++ [(0, 2), (0, 3), (7, 5)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=3, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(2, 6), (3, 2)] != [(5, 6)]
+
+First differing element 0:
+(2, 6)
+(5, 6)
+
+First list contains 1 additional elements.
+First extra element 1:
+(3, 2)
+
+- [(2, 6), (3, 2)]
++ [(5, 6)]
+
+======================================================================
+FAIL: test_validation_split_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos) (dataset='two_types_two_relations', seed=7, relation=1)
+HGB splits at construction: relations in `link.dat` order, one global stream seeded
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_hgb_oracle.py", line 269, in test_validation_split_equals_get_train_valid_pos
+    self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
+AssertionError: Lists differ: [(1, 6), (3, 2), (4, 3), (5, 6), (5, 7)] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+(1, 6)
+
+- [(1, 6), (3, 2), (4, 3), (5, 6), (5, 7)]
++ []
+
+----------------------------------------------------------------------
+Ran 6 tests in 12.232s
+
+FAILED (failures=15)

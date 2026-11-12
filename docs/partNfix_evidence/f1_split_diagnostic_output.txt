@@ -1,0 +1,16 @@
+one_way_validation         seed 0  facts 36  HGB valid  6  ours valid  1  HGB rule replayed == HGB: True
+one_way_validation         seed 1  facts 36  HGB valid  3  ours valid  6  HGB rule replayed == HGB: True
+one_way_validation         seed 2  facts 36  HGB valid  4  ours valid  5  HGB rule replayed == HGB: True
+one_way_validation         seed 3  facts 36  HGB valid  1  ours valid  4  HGB rule replayed == HGB: True
+one_way_validation         seed 7  facts 36  HGB valid  2  ours valid  6  HGB rule replayed == HGB: True
+head_without_candidates    seed 0  facts 18  HGB valid  1  ours valid  1  HGB rule replayed == HGB: True
+head_without_candidates    seed 1  facts 18  HGB valid  0  ours valid  2  HGB rule replayed == HGB: True
+head_without_candidates    seed 2  facts 18  HGB valid  2  ours valid  2  HGB rule replayed == HGB: True
+head_without_candidates    seed 3  facts 18  HGB valid  1  ours valid  2  HGB rule replayed == HGB: True
+head_without_candidates    seed 7  facts 18  HGB valid  0  ours valid  5  HGB rule replayed == HGB: True
+two_types_two_relations    seed 0  facts 24  HGB valid  1  ours valid  1  HGB rule replayed == HGB: True
+two_types_two_relations    seed 1  facts 24  HGB valid  0  ours valid  3  HGB rule replayed == HGB: True
+two_types_two_relations    seed 2  facts 24  HGB valid  3  ours valid  2  HGB rule replayed == HGB: True
+two_types_two_relations    seed 3  facts 24  HGB valid  1  ours valid  2  HGB rule replayed == HGB: True
+two_types_two_relations    seed 7  facts 24  HGB valid  0  ours valid  5  HGB rule replayed == HGB: True
+all replays equal: True
