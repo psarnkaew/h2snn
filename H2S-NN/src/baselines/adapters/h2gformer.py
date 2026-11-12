@@ -72,7 +72,7 @@ from src.utils.misc import seed_everything
 NAME = "h2gformer"
 VENDOR = "h2gb"
 SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb"})
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "youtube", "amazon", "pubmed"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed"})  # YouTube, Amazon removed (spec 1.5)
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 

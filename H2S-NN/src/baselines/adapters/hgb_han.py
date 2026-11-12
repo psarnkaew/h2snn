@@ -69,7 +69,7 @@ NAME = "han"
 # sys.path append; `hgb_nc_han` supplies `utils` and `model_hetero` themselves.
 VENDORS = ("hgb_nc_han", "hgb_nc")
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "youtube", "amazon", "pubmed"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed"})  # YouTube, Amazon removed (spec 1.5)
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 

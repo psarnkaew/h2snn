@@ -186,9 +186,9 @@ class PolynomialRelationKeyTests(unittest.TestCase):
     """The spectral baselines (PSHGCN, H2SGNN) index relations by 2-character keys.
 
     PSHGCN publishes its own link-prediction preprocessing for LastFM and Amazon
-    (PSHGCN/hgb-lp/processing.py), so those two cells have a ground truth to match. The
-    other two datasets have to generalise from it, and the ways that can go wrong are
-    silent: pooling parallel relations, or emitting a key whose transpose is not a key.
+    (PSHGCN/hgb-lp/processing.py); LastFM has a ground truth to match, PubMed generalises from
+    it. Amazon and YouTube (removed by spec 1.5, data not on disk) lost their cases in Part N
+    (N6): the parallel-relation and palindrome checks needed those single-type datasets.
     """
 
     def _keys(self, dataset: str):
@@ -219,33 +219,6 @@ class PolynomialRelationKeyTests(unittest.TestCase):
         # init_coe at their published K=1 allocates 1 + len(lis[1]) coefficients.
         self.assertEqual(polynomial_term_count(lis), 6)
 
-    def test_amazon_keeps_parallel_relations_apart(self) -> None:
-        """Their Amazon branch emits PP and UU for two product-product relations.
-
-        Pooling them into one operator would silently reduce the model to its
-        homogeneous limit on this dataset.
-        """
-
-        from src.baselines.adapters._polynomial_lp import (
-            build_term_lists,
-            polynomial_term_count,
-        )
-
-        adjacencies, chaining = self._keys("amazon")
-        self.assertEqual(len(adjacencies), 2, "one operator per relation, not per type pair")
-        self.assertFalse(chaining, "one node type: every composition is valid")
-
-        lis, _ = build_term_lists(adjacencies, 3, enforce_type_chaining=chaining)
-        # Their published K=3 with 2 keys: 2 + 4 + 8 monomials, plus the identity term.
-        self.assertEqual(polynomial_term_count(lis), 15)
-
-    def test_youtube_gets_one_operator_per_relation(self) -> None:
-        """Five user-user relations must stay five operators."""
-
-        adjacencies, chaining = self._keys("youtube")
-        self.assertEqual(len(adjacencies), 5)
-        self.assertFalse(chaining)
-
     def test_pubmed_keys_encode_node_types(self) -> None:
         """Ten relations over four types, every type pair unique, so chaining applies."""
 
@@ -253,24 +226,13 @@ class PolynomialRelationKeyTests(unittest.TestCase):
         self.assertTrue(chaining)
         self.assertEqual(len(adjacencies), 16)
 
-    def test_single_node_type_keys_are_palindromic(self) -> None:
-        """lis_t reverses a key in place, so a symmetric operator needs a palindrome.
-
-        A label like 'RA' reverses to 'AR', which is not a key, and the vendor forward
-        does a bare ``adjs[j[:2]]`` lookup -- it would raise KeyError mid-training.
-        """
-
-        for dataset in ("amazon", "youtube"):
-            adjacencies, _ = self._keys(dataset)
-            for key in adjacencies:
-                self.assertEqual(key, key[::-1], f"{dataset} key {key!r} is not symmetric")
-
     def test_every_transposed_monomial_resolves_to_known_keys(self) -> None:
-        """The invariant behind the palindrome rule, checked on all four datasets."""
+        """The invariant behind the palindrome rule, checked on the LP datasets of the campaign
+        (Amazon and YouTube removed by spec 1.5; their cases removed in Part N, N6)."""
 
         from src.baselines.adapters._polynomial_lp import build_term_lists
 
-        for dataset in ("lastfm", "amazon", "youtube", "pubmed"):
+        for dataset in ("lastfm", "pubmed"):
             adjacencies, chaining = self._keys(dataset)
             # build_term_lists asserts this internally; call it at an order high enough
             # to exercise composition, and let a violation fail the test.
@@ -285,7 +247,7 @@ class PolynomialRelationKeyTests(unittest.TestCase):
     def test_keys_are_exactly_two_characters(self) -> None:
         """The model slices adjs[j[:2]]; a longer key would index the wrong operator."""
 
-        for dataset in ("lastfm", "amazon", "youtube", "pubmed"):
+        for dataset in ("lastfm", "pubmed"):
             adjacencies, _ = self._keys(dataset)
             for key in adjacencies:
                 self.assertEqual(len(key), 2, f"{dataset} key {key!r}")

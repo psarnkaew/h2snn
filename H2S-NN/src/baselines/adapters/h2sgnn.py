@@ -71,7 +71,7 @@ from src.utils.misc import seed_everything
 
 NAME = "h2sgnn"
 VENDOR = "h2sgnn"
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "youtube", "amazon", "pubmed"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed"})  # YouTube, Amazon removed (spec 1.5)
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 #: Polynomial bases H2SGNN implements (H2SGNN/model.py:80-86).

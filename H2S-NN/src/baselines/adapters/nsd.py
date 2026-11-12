@@ -68,7 +68,7 @@ from src.utils.misc import seed_everything
 NAME = "nsd"
 VENDOR = "nsd"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "youtube", "amazon", "pubmed"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed"})  # YouTube, Amazon removed (spec 1.5)
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 #: Restriction-map families, from neural-sheaf-diffusion/exp/run.py:151-157.
