@@ -164,6 +164,10 @@ class FullGraphEarlyStoppingTests(unittest.TestCase):
         trainer._eval_epoch = (  # type: ignore[method-assign]
             lambda _data, _split, _epoch=-1: _metrics()
         )
+        # Test metrics come from HGB's two test sets since Part N (N1, `_eval_test_sets`).
+        trainer._eval_test_sets = lambda _data: {  # type: ignore[method-assign]
+            f"{name}_{metric}": 0.5 for name in ("2hop", "random") for metric in ("auroc", "mrr")
+        }
         seen_epochs: list[int] = []
         with patch.object(Path, "open", mock_open()):
             trainer.fit(

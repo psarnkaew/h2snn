@@ -1,0 +1,13 @@
+test_campaign_summary_counts_failed_trials_per_cell (tests.test_failed_trials.FailedTrialTests.test_campaign_summary_counts_failed_trials_per_cell) ... ok
+test_each_condition_is_a_failed_trial_without_score (tests.test_failed_trials.FailedTrialTests.test_each_condition_is_a_failed_trial_without_score) ... ok
+test_nan_loss_in_a_baseline_loop_fails_the_trial (tests.test_failed_trials.FailedTrialTests.test_nan_loss_in_a_baseline_loop_fails_the_trial) ... ok
+test_other_errors_are_failed_trials_named_other (tests.test_failed_trials.FailedTrialTests.test_other_errors_are_failed_trials_named_other) ... ok
+test_non_finite_g_raises_before_exp (tests.test_failed_trials.NonFiniteGTests.test_non_finite_g_raises_before_exp) ... ok
+test_config_rejects_nonpositive_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
+test_link_trainer_honors_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
+test_node_trainer_honors_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.988s
+
+OK

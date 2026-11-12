@@ -104,3 +104,70 @@ freebase_bb moved from 72 to 77 positives without 2-hop negatives against M7 (va
 **GCN on acm_pa.** The registry marks every derived LP task unsupported for every baseline: "adapter support pending: the baseline adapters accept the HGB link-prediction releases only (SUPPORTED_LP_DATASETS); derived tasks are not wired yet" (`src/baselines/registry.py:48-51`, VERIFIED-CODE). The script records such a run as not runnable instead of running it. Wiring the derived tasks into the adapters is outside this card; listed under decisions.
 
 **Not run because of the stop:** GCN NC acm, GCN LP acm_pa, GCN GC MUTAG.
+
+## N8 — Full suite and summary
+
+**Full suite, run once (VERIFIED-RUN):** `python -m unittest discover -s tests` from `H2S-NN/` → **Ran 570 tests in 754 s; FAILED (failures=2, errors=3)** (`n8_full_suite_output.txt`). Pre-state (Part M, M12): 557 tests, failures=2, errors=7.
+
+| failing test | in the M12 known set? |
+|---|---|
+| `test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present` | yes (vendor clones absent) |
+| `test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak` | yes |
+| `test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything` | yes |
+| `test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean` | yes |
+| `test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience` | **no: new, caused by N1** |
+
+The five Amazon/YouTube errors of the M12 set are gone (N6).
+
+**New failure, fixed after the suite run (deviation: my N1 run of affected modules did not include this module).** N1 made `LinkPredictionTrainer._fit` take its test metrics from the new `_eval_test_sets` (HGB's two sets). The test stubs the trainer's evaluation with `_eval_epoch` only, so its stand-in model (`torch.nn.Linear`) reached the real `encode` → `AttributeError: 'Linear' object has no attribute 'encode'`. Fix: the test also stubs `_eval_test_sets`, returning the four keys the trainer logs (`tests/test_full_graph_early_stopping.py`). Its assertion (epochs seen = [0, 1, 2] under patience 2) is unchanged. Verified on the module only, because the card allows one full-suite run: `python -m unittest -v tests.test_failed_trials tests.test_full_graph_early_stopping` → **Ran 8 tests, OK** (`n8_early_stopping_fix_output.txt`). The full suite was **not** re-run after this fix.
+- **Pre-existing, order-dependent (VERIFIED-RUN):** run alone (`python -m unittest tests.test_full_graph_early_stopping`), the link test fails at import (`ImportError: cannot import name 'build_model' from 'src.models.h2snn_model'`). The test stubs `src.models.h2snn_model`, and importing a trainer imports the `src.models` package. The same command on the Part M head (`git archive 738b2db` of `src/` and `tests/`, run in the scratchpad) gives the same error, so it predates Part N. It passes in the suite's order. Listed under out-of-scope; not changed.
+
+### Per unit
+
+| unit | commit | done | VERIFIED-RUN | deviations |
+|---|---|---|---|---|
+| N0 | `eb1d213` | branch `part-n` from `738b2db`; docs by explicit path | — (no suite, per card) | none |
+| N1 | `e51c85d` | HGB's two test sets (2-hop with one-way validation; random), both reported; empty 2-hop → None + reason | 289 tests, 9 known; 2 mutations caught | HGB read at summary level (no licence → no verbatim code); the early-stopping test was missed (fixed in N8) |
+| N2 | `6dfc356` | `get_train_neg` every epoch for every method, seed = run seed + epoch | 287 tests, 9 known; mutation caught | HGB's own draws are unseeded; here seeded, as the card says |
+| N3 | `82e1bb0` | GC Macro/Micro-F1 = torchmetrics `F1Score(multiclass, num_classes)` | 54 tests OK | torchmetrics 1.9.0 installed, HetSheaf locks 1.8.2 |
+| N4 | `8e9b262` | non-finite g / non-finite loss stops; failed trials get no score and are counted | 245 tests, 9 known | none |
+| N5 | — | removed by the author | — | — |
+| N6 | `7985620` | Amazon/YouTube key tests and `SUPPORTED_LP_DATASETS` entries removed | `test_baselines`: 85 tests, 4 known | none |
+| N7 | `491d612` | smoke script; checks recorded | 7 runs (table in N7) | **stopped at H2S-NN GC MUTAG (collapse check)**; freebase_bb OOM; GCN runs not run |
+| N8 | this commit | full suite; early-stopping test stub | 570 tests: 4 known + 1 new (fixed; module re-run OK) | full suite not re-run after the fix |
+
+### N7 check table
+
+See N7. Summary: H2S-NN NC acm and LP acm_pa, dblp_ap, imdb_ma, pubmed, lastfm: losses finite, no stop condition, no collapse, all parameters moved. **H2S-NN GC MUTAG: one class predicted on the validation graphs in both epochs → collapse check fails → N7 stopped.** H2S-NN LP freebase_bb: CUDA out of memory (8 GB), checks unknown. GCN acm / acm_pa / MUTAG: not run (stop); acm_pa is also unsupported for every baseline.
+
+### LP test sets per task (from N1, VERIFIED-RUN)
+
+| task | test positives | 2-hop negatives | random negatives | heads without 2-hop candidates | positives without 2-hop negatives |
+|---|---|---|---|---|---|
+| acm_pa | 995 | 763 | 995 | 196 / 839 | 232 (23.3 %) |
+| dblp_ap | 1,964 | 0 (reason: no length-2 head→tail type path) | 1,964 | 1,256 / 1,256 | 1,964 (100 %) |
+| imdb_ma | 1,478 | 0 (same reason) | 1,478 | 1,340 / 1,340 | 1,478 (100 %) |
+| freebase_bb | 18,723 | 18,646 | 18,723 | 75 / 9,645 | 77 (0.41 %) |
+| PubMed | 8,528 | 8,525 | 8,528 | 3 / 3,048 | 3 (0.04 %) |
+| LastFM | 18,567 | 18,567 | 18,567 | 0 / 1,878 | 0 |
+
+### Failed-trial behaviour (N4, VERIFIED-RUN `tests/test_failed_trials.py`)
+
+A trial raising `tau`, `log_weight_range`, `non_finite_log_weight`, `non_finite_loss` or `T_max` logs nothing under the sweep metric, so no score reaches the Bayesian search. It writes no record, and the worker status carries `{condition, value, limit, epoch}`. The parent appends the attempt to `failures` and keeps `failed_trials` and `failed_by_condition` (any other error counts as `other`). `tuning_failures_<unit>.json` is written. The baseline campaign's `summarize_cell` and the H2S-NN tuner summary count failed trials per method and dataset.
+
+### Decisions for the author
+
+1. **MUTAG collapse check (the N7 stop).** H2S-NN GC MUTAG predicts one class on the validation graphs after each of the 2 epochs; its other checks pass. Should a single-class validation prediction after 2 epochs stop the smoke, or should the GC check be read over more epochs? The remaining N7 runs (GCN acm, acm_pa, MUTAG) wait on this. No setting was changed.
+2. **freebase_bb on the 8 GB GPU.** The LP smoke ran out of CUDA memory. Where should it be re-run (a larger GPU, or CPU)? The script now keeps the run's error if the device fails afterwards.
+3. **GCN on acm_pa (and every baseline on the derived LP tasks).** The registry marks them "adapter support pending". The card's N7 list includes GCN on acm_pa, but wiring the derived tasks into the adapters is a separate unit. Should it be scheduled?
+4. **Validation negatives are drawn once per run** here; HGB's `run_new.py` re-draws them (`get_valid_neg`) at every batch step. Kept as is; please confirm.
+5. **Derived tasks with a reverse relation** (acm_pa, dblp_ap, imdb_ma): the split lists the reverse relation's held-out copies as validation facts of that relation. In HGB's 2-hop adjacency, validation therefore enters in both orientations through the two relations (the same as HGB's code applied to our files). Please confirm this is intended.
+6. **torchmetrics 1.9.0** (installed) vs HetSheaf's lock 1.8.2: keep 1.9.0, or pin 1.8.2?
+7. **N2 seeding:** HGB's training-negative draws are unseeded; ours are seeded with run seed + epoch, as the card says. Recorded only.
+
+### Out-of-scope findings (not fixed)
+
+- `tests/test_full_graph_early_stopping.py` fails when run alone (the stubbed `src.models.h2snn_model` breaks `src.models/__init__`). Pre-existing at `738b2db`; passes in the suite's order.
+- `LINK_PREDICTION_PRESETS` still holds `youtube`, `amazon` (and `amazonbook`), and `DATASET_TASK_TYPES` names them; two `LinkProtocolTests` read them. They are outside N6's two named targets.
+- The four remaining known failures (vendor clones absent, a notebook with an execution count) are unchanged from Part M.
+- Several `H2S-NN/src/baselines/adapters/*.py` files show as modified in the working tree with line-ending-only differences that are not mine; they were not staged.
