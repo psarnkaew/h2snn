@@ -1,0 +1,16 @@
+test_loader_reads_the_fixed_validation_file_exactly (tests.test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases)
+The three cases of the card hold on HGB's own loading of the files. ... ok
+test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos)
+The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12): ... ok
+test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... ok
+test_training_negatives_equal_get_train_neg (tests.test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... ok
+test_validation_negatives_equal_get_valid_neg (tests.test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 43.311s
+
+OK

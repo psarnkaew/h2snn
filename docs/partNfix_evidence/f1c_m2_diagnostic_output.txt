@@ -1,0 +1,15 @@
+one_way_validation         seed 0  validation facts  6  test heads  6  heads whose 2-hop candidates change 0  heads whose known set changes 0
+one_way_validation         seed 1  validation facts  3  test heads  6  heads whose 2-hop candidates change 0  heads whose known set changes 0
+one_way_validation         seed 2  validation facts  4  test heads  6  heads whose 2-hop candidates change 0  heads whose known set changes 0
+one_way_validation         seed 3  validation facts  1  test heads  6  heads whose 2-hop candidates change 0  heads whose known set changes 0
+one_way_validation         seed 7  validation facts  2  test heads  6  heads whose 2-hop candidates change 0  heads whose known set changes 0
+head_without_candidates    seed 0  validation facts  1  test heads  5  heads whose 2-hop candidates change 0  heads whose known set changes 0
+head_without_candidates    seed 1  validation facts  0  test heads  5  heads whose 2-hop candidates change 0  heads whose known set changes 0
+head_without_candidates    seed 2  validation facts  2  test heads  5  heads whose 2-hop candidates change 0  heads whose known set changes 0
+head_without_candidates    seed 3  validation facts  1  test heads  5  heads whose 2-hop candidates change 0  heads whose known set changes 0
+head_without_candidates    seed 7  validation facts  0  test heads  5  heads whose 2-hop candidates change 0  heads whose known set changes 0
+two_types_two_relations    seed 0  validation facts  6  test heads  8  heads whose 2-hop candidates change 0  heads whose known set changes 0
+two_types_two_relations    seed 1  validation facts  5  test heads  8  heads whose 2-hop candidates change 0  heads whose known set changes 0
+two_types_two_relations    seed 2  validation facts  8  test heads  8  heads whose 2-hop candidates change 0  heads whose known set changes 1
+two_types_two_relations    seed 3  validation facts  4  test heads  8  heads whose 2-hop candidates change 0  heads whose known set changes 0
+two_types_two_relations    seed 7  validation facts  2  test heads  8  heads whose 2-hop candidates change 0  heads whose known set changes 0

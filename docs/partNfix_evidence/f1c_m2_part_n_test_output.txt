@@ -1,0 +1,4 @@
+M2 vs tests.test_hgb_lp_negatives: CAUGHT
+FAIL: test_validation_orientation_changes_the_candidates_as_hgb (tests.test_hgb_lp_negatives.TwoHopCandidateTests.test_validation_orientation_changes_the_candidates_as_hgb)
+Ran 20 tests in 9.043s
+FAILED (failures=1)

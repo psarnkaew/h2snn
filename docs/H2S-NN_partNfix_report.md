@@ -82,7 +82,7 @@ Each is loaded with the global generator seeded to 0, 1, 2, 3 and 7 (15 cases). 
 
 **Tests (VERIFIED-RUN).** `tests.test_gc_metrics` → **Ran 3, OK** (`f3_gc_metrics_output.txt`). Modules that import the GC metric or read the requirement files: `test_gc_metrics`, `test_nc_metrics`, `test_data`, `test_gc_protocol`, `test_graph_classification_trainer`, `test_baselines` → **Ran 126; failures=2, errors=2**, all four in Part N N8's known set (vendor clones ×3, notebook) (`f3_tests_output.txt`); `test_wandb_and_runs` → **Ran 12, OK** (`f3_tests_wandb_output.txt`).
 
-## F4 — Smoke completed: **NOT RUN (waits on F1, card stop rule)**
+## F4 — Smoke completed: **NOT RUN (waits on F1, card stop rule)** — superseded: F4 ran in the continuation below
 
 The card says: "F1: any difference between HGB's code and ours (stop F1; F2–F3 may continue; F4 waits)." F1 found the validation-split difference, so none of the four runs (H2S-NN GC MUTAG; GCN NC acm; GCN LP pubmed; GCN GC MUTAG) was started. The F2 script is ready. When the author releases F4, the commands are (from `H2S-NN/`, env `h2snn`):
 
@@ -101,7 +101,7 @@ conda run -n h2snn python scripts/partn_smoke.py --run h2snn:lp:freebase_bb --de
 
 Same configuration as Part N N7: template `configs/experiments/acm_pa_h2snn_v3b.yaml` with `dataset_name: freebase_bb`, `target_relation: [book, rel_0, book]`, `wisp_max_length: 4`, `wisp_walks_per_anchor: 8`, 2 epochs. Exit codes: 0 = checks recorded, 2 = non-finite loss or collapse, 1 = error.
 
-## F5 — Full suite and report: **NOT RUN (follows F4)**
+## F5 — Full suite and report: **NOT RUN (follows F4)** — see the continuation below (still not run)
 
 The full suite runs once, in F5, after F4. With F4 waiting, it was not run; the affected-module results per unit are above. Two things the F5 run will show:
 - `tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos` fails (15 subtests). This is the F1 difference, kept as its record until the author decides.
@@ -115,19 +115,17 @@ The full suite runs once, in F5, after F4. With F4 waiting, it was not run; the 
 | F1 | `cf19946` | HGB cloned (`ca6fd5b`, not committed); 13 points read with file:line; `tests/test_hgb_oracle.py` | 4 functions identical to HGB in 15/15 cases; **split differs in 15/15** | **stopped**: mutation checks not run; our code not changed; the clone's `.git` removed so `CLONED_COMMIT.txt` can be staged |
 | F2 | `5229957` | GC check = (c1) logits and (c2) pooled embeddings vary; class count recorded; count check | `test_partn_smoke`: 6 OK | none |
 | F3 | `1c00bca` | torchmetrics 1.9.0 → 1.8.2, pinned in the core and H2GB groups | absent-class value unchanged; affected modules: only the 4 known failures | none |
-| F4 | — | not run (waits on F1) | — | — |
-| F5 | — | not run (follows F4) | — | — |
+| docs | `f3a8f7c` | designer's continuation docs (card, decisions log, v1.18 draft) by explicit path | — | none |
+| F4 | `a75e4ec` | H2S-NN GC MUTAG run (passes the redefined check); GCN NC acm run | 2 runs, table in the continuation | **stopped at GCN NC acm** (NC check (c): one validation class); GCN LP pubmed and GCN GC MUTAG not run; three script fixes (GCN LP capture added, `BaselineParams.source`, exit code of a run error) |
+| F1c | see the F1c section | split test replaced by the two tests of decision 2; F1's two mutation checks | oracle module: 7 tests OK; M1 caught; **M2 not caught by the oracle tests** (caught by the Part N hand-graph test) | **stopped** (continuation stop condition: an F1c mutation not caught); test data not changed; first version of the data test had a wrong expectation for the reverse relation (fixed, below) |
+| F5 | — | not run (F4 and F1c stopped) | — | — |
 
 ## Decisions for the author
 
-1. **The validation split (the F1 difference).**
-   - HGB: `random.random() < 0.9` → training (DL:62), one global stream over all relations, unseeded in `run_new.py`; validation may be empty.
-   - Ours: `rng.random() < 0.10` → validation (`link_prediction_dataset.py:349`), one `random.Random(split_seed + 9973·relation_id)` per relation (`:432-435`), at least one validation fact (`:354-358`).
-   - The rate and the fact order are the same; the draws differ. Today it affects **no campaign task**: all six local tasks read a fixed `link.dat.valid` (spec v1.8 F9), which HGB's loader never reads.
-   - Options: (a) keep ours and state the difference in the spec (HGB's carve rule vs ours, used only when a release has no `link.dat.valid`); (b) switch our carve to HGB's rule (`u ≥ 0.9`, no fallback, one stream), so the oracle test passes, but the existing `link.dat.valid` files (provenance UNVERIFIED) would no longer match a fresh carve; (c) something else.
-   - F4 and F5 wait on this.
-2. **Release F4** once (1) is decided, or now if you judge the split difference does not block the smoke (the smoke reads `link.dat.valid`, never the carve).
-3. **Decision 4's line for the spec:** HGB re-draws validation negatives at every batch step: `run_new.py:150-152`, inside the batch loop that starts at `run_new.py:121`. Our one draw per run stays (decision 4).
+Settled by the author on 2026-11-12 (continuation): the split (option (a)); the test replacement; F4 released; decision 4's HGB line (`run_new.py:150-152`, inside the batch loop at `:121`) is in draft v1.18 Z-1. Open after the continuation:
+
+1. **GCN NC acm, one predicted class (the F4 stop).** The NC collapse check is unchanged from Part N and gates on "≥ 2 classes predicted on the validation nodes". GCN NC acm predicts one class after each of its 2 full-batch steps; its x* spread (0.0126, 0.0155), losses, stop conditions and parameter movement pass. Should the NC check, like GC's (decision 1), record the class count without gating on it (e.g. gate on the spread of the logits over validation nodes instead), or is this a stop? GCN LP pubmed and GCN GC MUTAG wait on this, and F5 waits on both stops.
+2. **M2 is not caught by the oracle tests (the F1c stop).** On the three tiny oracle datasets × 5 seeds, adding validation in both orientations changes no test head's 2-hop candidates and, in one case, one head's known-neighbour set without changing its random draws (`f1c_m2_diagnostic_output.txt`). So these datasets don't exercise validation orientation. The Part N hand-graph test `test_validation_orientation_changes_the_candidates_as_hgb` catches M2, but it is not HGB's code. Proposal: add a fourth oracle dataset in which a one-way validation fact opens a 2-hop path to a tail-type node from a test head (e.g. user→user validation u1→u2 with u1's items not reachable from u2 otherwise). Then M2 must make `get_test_neigh` and ours differ, and the mutation check is re-run. Needs your approval: it changes the card's oracle test data after a stop.
 
 ## Out-of-scope findings (not fixed)
 
@@ -162,3 +160,45 @@ Author decisions: split option (a) (fixed files and split code unchanged; the di
 **Stop (card F4: "(c) for NC/LP as in Part N").** GCN NC acm predicts one class on the validation nodes after each of its 2 epochs; its x* spread passes (0.0126, 0.0155 > 1e-6), all 13 parameter tensors moved, both training steps and both validation losses are finite, no stop condition fired. F4 was stopped there; no setting was changed and nothing was re-run. Configuration: `gcn`, node classification, `acm`, published parameters for this cell: none, so the adapter's defaults (`hidden_dim` 64, `num_layers` 2, `dropout` 0.5, AdamW lr 5e-4, wd 1e-4, `feats_type` = the HGB default for ACM), `epochs` 2, seed 42, `run_index` 0, full-batch training (one step per epoch). As in Part N, x* for GCN is its last layer's output over the target nodes (the vendor GCN has no separate embedding). I read the card's NC check as still gating on the class count (decision 1 redefines GC only) and the general "a single predicted class is not a stop" as the GC case; the author's call is listed under decisions. No interpretation of the cause is offered (2 full-batch steps).
 
 The H2S-NN GC MUTAG run reproduces Part N's training and validation losses to 4 decimals (same seed, same configuration) and now passes (c) as redefined; its captured-graph count equals the validation set (18), which closes Part N's UNVERIFIED point.
+
+## F1c — close F1 — **STOPPED: mutation M2 not caught by the oracle tests**
+
+**Test replacement (author decision 2; our split code and data unchanged).** In `H2S-NN/tests/test_hgb_oracle.py`, `test_validation_split_equals_get_train_valid_pos` is replaced by:
+- (i) `HGBOracleTests.test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos`: HGB's rule replayed over our sorted facts reproduces HGB's `valid_pos` and `train_pos` exactly, for every relation of the three tiny datasets × 5 seeds. The rule: one `random.Random(seed)` stream over the relations in `link.dat` order, first fact of a head to training, else `u ≥ 0.9` to validation, no minimum. The test also checks that HGB's relation order is the `link.dat` order. The replay moved here from `f1_split_diagnostic.py`. It documents draft v1.18 Z-4 (fact order and rule agree; only the draw differs).
+- (ii) `FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly` (no HGB needed, so outside the skip-if-absent class), on all six local tasks:
+  - `link.dat.valid` exists and lists the **target relation only** (F13; checked: acm_pa 895 rows of rel 2, dblp_ap 1,768 of rel 0, imdb_ma 1,330 of rel 2);
+  - the loader's validation facts of the target equal the file's rows exactly (no duplicates);
+  - on acm_pa, dblp_ap and imdb_ma, the one stored reverse relation's validation facts equal those rows flipped (`_file_validation_facts`, `link_prediction_dataset.py:378-383`; decision 5);
+  - for these relations, training and validation are disjoint and their union is the `link.dat` facts;
+  - **every other relation's facts are all in the message graph**.
+- No other test was removed. The unused import of `_split_edge_index_hgb_by_head` was dropped.
+- **Deviation (my error, fixed):** the first version of (ii) expected the reverse relation's rows in the file. It failed on the three derived tasks (`AssertionError: … ('author', 'rel_3', 'paper')` for acm_pa). The files list the target only, and the loader derives the reverse copies, so the test now states that.
+
+`python -m unittest -v tests.test_hgb_oracle` → **Ran 7 tests, OK** in 43 s (`f1c_oracle_output.txt`).
+
+**F1's mutation checks (VERIFIED-RUN, `f1c_mutation_check.py` → `f1c_mutation_output.txt`; each applied to `src/data/hgb_lp_negatives.py` in place, oracle class run, original restored):**
+
+| mutation | result |
+|---|---|
+| M1: random set with the test positives in another order (reversed) | **caught**: `test_random_set_equals_get_test_neigh_w_random` fails in 15/15 cases |
+| M2: 2-hop adjacency with validation in both orientations | **NOT caught**: Ran 6, OK |
+| restored | clean (Ran 6, OK); `git status` shows `hgb_lp_negatives.py` unchanged |
+
+**Why M2 is not caught (VERIFIED-RUN, `f1c_m2_diagnostic.py` → `f1c_m2_diagnostic_output.txt`).** For every dataset × seed I compared the one-way adjacency with the both-ways one. No test head's 2-hop candidates change in any of the 15 cases. One head's known-neighbour set changes in one case (`two_types_two_relations`, seed 2), and its random draws never hit the affected tail. The reasons:
+- in `one_way_validation` (user→item only), a user's 2-hop reach contains no item at all;
+- in the other two datasets, the reversed validation facts open no new head→tail-type path.
+
+My F1 datasets meet the card's letter ("a validation fact stored one way") but not its purpose (orientation must matter).
+
+**M2 against the Part N hand-graph test (VERIFIED-RUN, `f1c_m2_part_n_test_output.txt`):** caught. `tests.test_hgb_lp_negatives.TwoHopCandidateTests.test_validation_orientation_changes_the_candidates_as_hgb` fails (Ran 20, failures=1); restored. That test compares with a re-implementation, not with HGB's code.
+
+**Stop.** "An F1c mutation not caught (stop, report)." The oracle datasets were not changed. The proposal is under "Decisions for the author" (2).
+
+**Commit:** F1c: `H2S-NN/tests/test_hgb_oracle.py`, the F1c evidence and this report.
+
+## F5 — Full suite: **NOT RUN**
+
+F5 waits: F4 stopped (GCN NC acm) and F1c stopped (M2). The full suite runs once, after both are resolved. Expected from the affected-module runs:
+- `test_hgb_oracle`: 7 OK (the old split test is gone).
+- `test_partn_smoke`: 6 OK; `test_gc_metrics`: 3 OK.
+- `test_baselines`: the 4 known failures. `test_all_declared_vendor_clones_are_present` now lists 5 missing clones instead of Part N's 10: SeHGNN ×2, PSHGCN ×2, ChebNetII.

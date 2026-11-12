@@ -1,0 +1,26 @@
+== M1 random set, positives in another order: CAUGHT
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=7, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=7, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=7, relation=0)
+Ran 6 tests in 3.443s
+FAILED (failures=15)
+
+== M2 2-hop adjacency, validation both ways: NOT CAUGHT
+Ran 6 tests in 4.118s
+OK
+
+== restored: clean
+Ran 6 tests in 3.369s
+OK

@@ -27,7 +27,6 @@ import torch
 
 from src.data.hgb_lp_negatives import (hgb_random_test_negatives, hgb_test_negatives,
                                        hgb_train_negatives, hgb_valid_negatives)
-from src.data.link_prediction_dataset import _split_edge_index_hgb_by_head
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 HGB_LOADER = PROJECT_ROOT / "vendor" / "HGB" / "LP" / "benchmark" / "scripts" / "data_loader.py"
@@ -254,22 +253,111 @@ class HGBOracleTests(unittest.TestCase):
                     self.assertEqual(_ours(ours), [(int(h), int(t)) for h, t in
                                                    zip(*expected[relation])])
 
-    def test_validation_split_equals_get_train_valid_pos(self) -> None:
-        """HGB splits at construction: relations in `link.dat` order, one global stream seeded
-        here with `seed`; ours (`_split_edge_index_hgb_by_head`) gets `seed` for the first
-        relation (our loader's `split_seed + relation_id * 9973` with relation id 0), the ratio
-        1 - train_ratio = 0.10 (data_loader.py:44) and the same stored facts. Only the first
-        relation is compared: HGB continues one stream across relations, ours seeds each."""
+    def test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos(self) -> None:
+        """The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12):
+        HGB's carve (data_loader.py:44-73) replayed over our sorted facts with one
+        `random.Random(seed)` stream over the relations in `link.dat` order -- first fact of a
+        head to training, else `u >= 0.9` to validation (`random.random() < 0.9` keeps it in
+        training, :62), no minimum -- equals HGB's `get_train_valid_pos` exactly. Fact order and
+        rule agree; only the draw differs from our fixed files (our carve draws `u < 0.10`, one
+        seeded stream per relation, at least one fact)."""
         for name, seed, dl in self._cases():
-            first = next(iter(dl.links["data"]))
-            with self.subTest(dataset=name, seed=seed, relation=first):
-                stored = [row for row in DATASETS[name]()["links"] if row[2] == first]
-                edge_index = torch.tensor([[h for h, _, _ in stored], [t for _, t, _ in stored]])
-                train, valid = _split_edge_index_hgb_by_head(edge_index, 0.10, seed)
-                self.assertEqual(_ours(valid), [(int(h), int(t)) for h, t in
-                                                zip(*dl.valid_pos[first])])
-                self.assertEqual(_ours(train), [(int(h), int(t)) for h, t in
-                                                zip(*dl.train_pos[first])])
+            rows = DATASETS[name]()["links"]   # written to link.dat in this order
+            relation_order = list(dict.fromkeys(r for _, _, r in rows))
+            rng = random.Random(seed)
+            for relation in relation_order:
+                with self.subTest(dataset=name, seed=seed, relation=relation):
+                    facts = sorted({(h, t) for h, t, r in rows if r == relation})
+                    train, valid, last_head = [], [], None
+                    for head, tail in facts:
+                        if head != last_head:
+                            train.append((head, tail))
+                            last_head = head
+                        elif rng.random() < 0.9:
+                            train.append((head, tail))
+                        else:
+                            valid.append((head, tail))
+                    self.assertEqual(valid, [(int(h), int(t))
+                                             for h, t in zip(*dl.valid_pos[relation])])
+                    self.assertEqual(train, [(int(h), int(t))
+                                             for h, t in zip(*dl.train_pos[relation])])
+            self.assertEqual(list(dl.links["data"]), relation_order)
+
+
+#: The six local LP tasks and their targets (spec v1.16 §6); on the three derived tasks whose
+#: target relation has a stored reverse relation, the validation file also lists the reverse
+#: copies (decision 5 of the Part N review, confirmed).
+LOCAL_TASKS: dict[str, tuple[tuple[str, str, str], bool]] = {
+    "acm_pa": (("paper", "rel_2", "author"), True),
+    "dblp_ap": (("author", "rel_0", "paper"), True),
+    "imdb_ma": (("movie", "rel_2", "actor"), True),
+    "freebase_bb": (("book", "rel_0", "book"), False),
+    "pubmed": (("disease", "rel_2", "disease"), False),
+    "lastfm": (("user", "rel_0", "artist"), False),
+}
+
+
+def _pairs(edge_index: torch.Tensor) -> set[tuple[int, int]]:
+    return {(int(h), int(t)) for h, t in edge_index.reshape(2, -1).t().tolist()}
+
+
+class FixedValidationFileTests(unittest.TestCase):
+    """Our side of the documented difference (draft v1.18 Z-4): every local LP task reads its
+    fixed `link.dat.valid`, which lists the target relation only (spec 1.9 F13); the loader's
+    validation facts of the target relation are exactly the file's rows; on acm_pa, dblp_ap and
+    imdb_ma the stored reverse relation takes those rows flipped (`_file_validation_facts`:
+    the partner's rows flipped; decision 5 of the Part N review); every fact of every other
+    relation in `link.dat` stays in the message graph."""
+
+    def test_loader_reads_the_fixed_validation_file_exactly(self) -> None:
+        from src.configs.config import TrainConfig
+        from src.data.link_prediction_dataset import (_load_local_hgb_link_data,
+                                                      local_hgb_link_dir)
+
+        root = PROJECT_ROOT / "data"
+        for task, (target, has_reverse) in LOCAL_TASKS.items():
+            with self.subTest(task=task):
+                folder = local_hgb_link_dir(root, task)
+                valid_file = folder / "link.dat.valid"
+                self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+                config = TrainConfig.from_dict({"device": "cpu", "data": {
+                    "dataset_name": task, "task_type": "link_prediction", "root": str(root),
+                    "target_relation": list(target), "wisp_walks_per_anchor": 1,
+                    "wisp_max_length": 2}})
+                split = _load_local_hgb_link_data(config)
+
+                file_rows: dict[tuple[str, str, str], set[tuple[int, int]]] = {}
+                count = 0
+                with valid_file.open("r", encoding="utf-8") as handle:
+                    for line in handle:
+                        head, tail, relation = (int(x) for x in line.split("\t")[:3])
+                        key = (split.raw_to_type_name[head], f"rel_{relation}",
+                               split.raw_to_type_name[tail])
+                        file_rows.setdefault(key, set()).add(
+                            (split.raw_to_local[head], split.raw_to_local[tail]))
+                        count += 1
+                self.assertEqual(count, sum(len(v) for v in file_rows.values()))  # no dupes
+                self.assertEqual(set(file_rows), {target})   # F13: the target relation only
+
+                expected = {target: file_rows[target]}
+                if has_reverse:
+                    reverse = [r for r in split.link_edge_index_by_relation
+                               if (r[0], r[2]) == (target[2], target[0])]
+                    self.assertEqual(len(reverse), 1, f"{task}: stored reverse relation")
+                    expected[reverse[0]] = {(t, h) for h, t in file_rows[target]}
+
+                for relation, link_edges in split.link_edge_index_by_relation.items():
+                    valid = split.valid_edge_index_by_relation.get(relation)
+                    valid_pairs = _pairs(valid) if valid is not None else set()
+                    train_pairs = _pairs(split.train_edge_index_by_relation[relation])
+                    self.assertEqual(valid_pairs, expected.get(relation, set()),
+                                     f"{task} {relation}: validation != file rows")
+                    if relation in expected:
+                        self.assertFalse(train_pairs & valid_pairs)
+                        self.assertEqual(train_pairs | valid_pairs, _pairs(link_edges))
+                    else:  # every other relation complete in the message graph
+                        self.assertEqual(train_pairs, _pairs(link_edges),
+                                         f"{task} {relation}: message graph incomplete")
 
 
 if __name__ == "__main__":
