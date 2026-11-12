@@ -1,6 +1,6 @@
 # Task card — Part P: baselines runnable on every local cell (HetSheaf adapter, derived LP tasks, Freebase NC)
 
-**Design authority:** spec **v1.18** (§6 Baselines, Node classification, Link prediction, Graph classification, Tuning) and `docs/experiment_settings_decisions.md`. `H2S-NN/AGENTS.md`/`CLAUDE.md` bind for environment (conda env `h2snn`), coding, testing (`unittest`) and evidence tags. `src/baselines/protocol.py` (module docstring) is the adapter contract.
+**Design authority:** spec **v1.19** (once applied; v1.18 + `docs/spec_v1.19_draft_edits.md` until then) (§6 Baselines, Node classification, Link prediction, Graph classification, Tuning) and `docs/experiment_settings_decisions.md`. `H2S-NN/AGENTS.md`/`CLAUDE.md` bind for environment (conda env `h2snn`), coding, testing (`unittest`) and evidence tags. `src/baselines/protocol.py` (module docstring) is the adapter contract.
 **Branch:** `part-p`, created from the last commit of `part-o` (hash given in the prompt). **Report:** `docs/H2S-NN_partP_report.md`; evidence `docs/partP_evidence/`.
 
 ## Goal and rule
@@ -27,6 +27,10 @@ New `src/baselines/adapters/hetsheaf.py` (+ helpers as needed), importing HetShe
 - **Shared protocol:** AdamW, no scheduler (their `configure_optimizers` builds a cosine scheduler: not used), no clipping, budgets per task/source, failed-trial rule.
 **Tests:** a tiny HGB-format NC release, a tiny derived-format LP release, a tiny TU-like GC set: `fit_task` runs one epoch per variant per task and returns a record with the task's keys (values not asserted beyond finiteness); the homogeneous graph's node/edge type attributes equal a hand construction; each transform of P0(d) is applied (and the excluded one is not); AdamW, no scheduler; search space contains the published values. **Mutation:** drop the edge-type attribute → a test fails.
 
+### P1b — H2G-former's encoder as H2GB's configs (spec v1.19 T2)
+`src/baselines/adapters/h2gformer.py` (and `_h2gformer_lp.py`): replace the fixed `Hetero_Raw` encoder by H2GB's stack per dataset as spec v1.19 T2 states (H2GB datasets: their config's `gnn.node_encoder_name`; HGB NC: `Hetero_Raw+Hetero_Label`; LP and GC: `Hetero_Raw`), using H2GB's own encoder classes (`H2GB/encoder/hetero_label_encoder.py`, `hetero_pos_encoder.py`) and, for `Hetero_Metapath`, H2GB's `preprocess_Metapath` / `load_Metapath`. The H2GB datasets stay "data pending": wire and test the Metapath path on a tiny HeteroData only.
+**Tests:** the encoder stack resolved per (dataset, task) equals the table of T2; **information-route test:** the label channel's input contains no validation or test label (only training labels, masked as H2GB's encoder masks them), checked by poisoning validation/test labels and asserting the encoder input is unchanged; MetaPath2Vec embeddings are produced and consumed on a tiny graph with a walk list. **Mutation:** feed all labels (not only training) to the label channel → the route test fails.
+
 ### P2 — Derived LP tasks for every LP baseline
 Remove the `SUPPORTED_LP_DATASETS` restriction where it only reflects missing wiring, and make every LP adapter (GCN, GAT, NSD, CSNN, HAN, PSHGCN, H2G-former, Hetero²Net, H2SGNN, HetSheaf) run on acm_pa, dblp_ap, imdb_ma, freebase_bb through the canonical bundle. Points to handle per adapter, each stated in the report: types without features after F17 (ACM author, DBLP author, IMDB actor: removed blocks) handled by the adapter's own featureless rule; reverse relations of the target in the message graph (held-out facts removed in both orientations, as the loader does); PSHGCN/H2SGNN relation keys (`_polynomial_lp.py`, 2-character keys, type chaining) on graphs with 3–4 node types; the 2-hop "–" cells (dblp_ap, imdb_ma) yield `None` with the reason, never 1 or NaN. Registry: the derived-LP pending reason is removed for every runnable cell; a cell that cannot run keeps a specific reason.
 **Tests:** a tiny derived-format release (two node types, a target relation and its stored reverse, one featureless type): every LP adapter's `fit_task` runs one epoch and its record has both test sets' keys; no held-out pair reaches any adapter's message graph (either orientation); PSHGCN/H2SGNN keys on the tiny release equal a hand list. **Mutation:** keep the reverse copy of a test fact in the message graph → a test fails.
@@ -42,6 +46,7 @@ Registry after P1–P3: every (model, task, dataset) cell runnable or with a spe
 
 ## Decisions for the author (defaults used unless he changes them; listed again in the report)
 - **D-P1 HetSheaf rows:** one row per variant that the paper's main tables report (P0(a)). Alternative: one "HetSheaf" row with the variant as a tuned categorical.
+- **D-P3 H2G-former on datasets without an H2GB config:** HGB NC `Hetero_Raw+Hetero_Label`; LP and GC `Hetero_Raw` (spec v1.19 T2, recommended; author to confirm).
 - **D-P2 HetSheaf GC readout:** HetSheaf's own readout options, including `late_token` (SheafPool), because the readout is part of their method (spec 1.14 anticipated it). Alternative: the shared GC head (pooling + one Linear) as every other GC baseline.
 
 ## Stop conditions
