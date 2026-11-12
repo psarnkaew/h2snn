@@ -1,0 +1,29 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+E
+======================================================================
+ERROR: setUpClass (tests.test_partP_derived_lp.MessageGraphTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_derived_lp.py", line 111, in setUpClass
+    cls.bundle = tiny_bundle(cls.root, cls.TASK)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_derived_lp.py", line 99, in tiny_bundle
+    return build_bundle(LINK_PREDICTION, task, overrides={"device": "cpu",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\bundles.py", line 390, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 640, in _load_local_hgb_link_data
+    _assert_reverse_partner_is_tied(rho, all_relations, target_relations)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\data\link_prediction_dataset.py", line 496, in _assert_reverse_partner_is_tied
+    raise ValueError(
+ValueError: Target relation ('paper', 'rel_2', 'author') has reverse-typed relation(s) [('author', 'rel_3', 'paper')] but no exact inverse (rho is None): a held-out fact could leak into the message graph as its reverse row. Fix link.dat (every fact stored in both orientations, or none) before splitting.
+
+----------------------------------------------------------------------
+Ran 0 tests in 9.104s
+
+FAILED (errors=1)

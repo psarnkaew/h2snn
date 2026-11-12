@@ -86,6 +86,29 @@ def _relation_label(index: int) -> str:
     return letter + letter
 
 
+def _stored_reverse_relations(data: Any) -> frozenset[int]:
+    """Relations whose (message-graph) edge set equals the transpose of an earlier relation's,
+    with the types swapped accordingly. A non-empty relation only; the earlier one is kept."""
+
+    pairs: dict[int, frozenset[tuple[int, int]]] = {}
+    for relation_id in range(len(data.relation_tuples)):
+        mask = data.edge_type == relation_id
+        rows, columns = data.edge_index[:, mask].cpu().tolist()
+        pairs[relation_id] = frozenset(zip(rows, columns))
+    reverses: set[int] = set()
+    for later, (source, _, destination) in enumerate(data.relation_tuples):
+        if not pairs[later]:
+            continue
+        transposed = frozenset((v, u) for u, v in pairs[later])
+        for earlier in range(later):
+            earlier_source, _, earlier_destination = data.relation_tuples[earlier]
+            if (earlier not in reverses and (earlier_source, earlier_destination)
+                    == (destination, source) and pairs[earlier] == transposed):
+                reverses.add(later)
+                break
+    return frozenset(reverses)
+
+
 def _plan_relation_keys(
     bundle: LinkBundle,
 ) -> tuple[dict[str, list[int]], dict[str, bool], bool]:
@@ -98,13 +121,20 @@ def _plan_relation_keys(
     type_index = {name: index for index, name in enumerate(data.node_type_names)}
     num_node_types = len(type_index)
     enforce_chaining = num_node_types > 1
+    # Part P (P2): releases derived from HGB node-classification data store each relation's
+    # reverse as its own relation (ACM paper->author rel_2 and author->paper rel_3, cite and
+    # ref). A relation whose edge set is exactly the transpose of an earlier relation adds no
+    # operator: its partner's reverse key (cross-type) or symmetrisation (same type) is it.
+    stored_reverses = _stored_reverse_relations(data) if enforce_chaining else frozenset()
 
     if enforce_chaining:
         # Type-encoded keys only work if a (source, destination) pair names exactly one
-        # relation. True for every multi-type dataset in this campaign (LastFM 3/3,
-        # PubMed 10/10); a violation would silently merge distinct relations, so refuse.
+        # relation (after dropping stored reverses). True for LastFM 3/3, PubMed 10/10 and the
+        # derived tasks; a violation would silently merge distinct relations, so refuse.
         seen: dict[tuple[int, int], int] = {}
         for relation_id, (source, _, destination) in enumerate(data.relation_tuples):
+            if relation_id in stored_reverses:
+                continue
             pair = (type_index[source], type_index[destination])
             canonical = tuple(sorted(pair))
             if canonical in seen:
@@ -118,6 +148,8 @@ def _plan_relation_keys(
     keys: dict[str, list[int]] = {}
     self_loops: dict[str, bool] = {}
     for relation_id, (source, _, destination) in enumerate(data.relation_tuples):
+        if relation_id in stored_reverses:
+            continue
         source_type = type_index[source]
         destination_type = type_index[destination]
         same_type = source_type == destination_type

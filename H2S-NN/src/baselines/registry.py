@@ -45,10 +45,7 @@ DATASET_PENDING: dict[tuple[str, str], str] = {
     (NODE_CLASSIFICATION, "freebase"): (
         "loader pending: the baseline bundles read HGB ACM, DBLP and IMDB only "
         "(src/baselines/bundles.py HGB_RAW_DIRNAME)"),
-    **{(LINK_PREDICTION, dataset): (
-        "adapter support pending: the baseline adapters accept the HGB link-prediction "
-        "releases only (SUPPORTED_LP_DATASETS); derived tasks are not wired yet")
-       for dataset in DERIVED_LP},
+    # The derived LP tasks are wired into every LP adapter (Part P P2): no pending reason.
 }
 
 

@@ -382,6 +382,17 @@ WISP_WALKS_PER_ANCHOR: dict[str, dict[int, int]] = {
 DATASET_PRESETS = NODE_CLASSIFICATION_PRESETS
 
 LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
+    # Derived tasks (Part J; spec v1.8): fixed split files under data/LP/lp_derived/<task>;
+    # targets as recorded in scripts/lp/write_hgb_negatives.py:44-47 and each task's
+    # split_meta.json `target_relation` (Part P P2: the bundles build them by name).
+    "acm_pa": {"target_relation": ("paper", "rel_2", "author"),
+               "neg_sampling_mode": "resample_each_epoch"},
+    "dblp_ap": {"target_relation": ("author", "rel_0", "paper"),
+                "neg_sampling_mode": "resample_each_epoch"},
+    "imdb_ma": {"target_relation": ("movie", "rel_2", "actor"),
+                "neg_sampling_mode": "resample_each_epoch"},
+    "freebase_bb": {"target_relation": ("book", "rel_0", "book"),
+                    "neg_sampling_mode": "resample_each_epoch"},
     "lastfm": {
         # HGB local-format LastFM (data/LP/LastFM): node.dat/link.dat/link.dat.test,
         # relation 0 is "user-artist" — the sole relation in link.dat.test.
@@ -502,6 +513,10 @@ DATASET_TASK_TYPES: dict[str, str] = {
     "dblp": "node_classification",
     "imdb": "node_classification",
     "lastfm": "link_prediction",
+    "acm_pa": "link_prediction",
+    "dblp_ap": "link_prediction",
+    "imdb_ma": "link_prediction",
+    "freebase_bb": "link_prediction",
     "amazonbook": "link_prediction",
     "pubmed": "link_prediction",
     "youtube": "link_prediction",

@@ -56,7 +56,8 @@ VENDOR = "hgb_nc_gnn"
 # HGB ships a separate, PyG-based implementation for link prediction; no DGL there.
 VENDOR_LP = "hgb_lp_gnn"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed"})  # YouTube, Amazon removed (spec 1.5)
+# YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 

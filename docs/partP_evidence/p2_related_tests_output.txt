@@ -1,0 +1,15 @@
+F...C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+..................................................
+======================================================================
+FAIL: test_campaign_matrix_matches_planned_cell_counts (tests.test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 49, in test_campaign_matrix_matches_planned_cell_counts
+    self.assertEqual(summary["runnable_cells"], 90)
+AssertionError: 126 != 90
+
+----------------------------------------------------------------------
+Ran 54 tests in 119.395s
+
+FAILED (failures=1)
