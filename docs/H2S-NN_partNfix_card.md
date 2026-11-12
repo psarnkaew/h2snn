@@ -64,3 +64,13 @@ Commit: "F1c: oracle split test states the documented difference; F1 mutations".
 
 ### F4, F5
 As above. F4 first (it does not depend on F1c), then F1c, then F5. Report: append to `docs/H2S-NN_partNfix_report.md` (sections F1c, F4, F5, updated per-unit table and decisions).
+
+## Continuation 2 (author, 2026-11-12 21:03)
+**No smoke runs** (author: only whether the code is correct). F4 is cancelled: the four smoke runs are not re-run and the NC collapse-check question (report decision 1) is moot; the smoke script and `tests.test_partn_smoke` stay as they are (no change, not run beyond the full suite). The runs already recorded stay in the report as they are.
+
+### F1d — oracle dataset where validation orientation matters (report decision 2, approved)
+Add a fourth tiny dataset to `tests/test_hgb_oracle.py`: one same-type relation (e.g. book–book); a training fact (h, x); a validation fact stored as (m, x); a test positive (h, t) with t ≠ m; no link between h and m. Under HGB's one-way validation m is not a 2-hop candidate of h; with both orientations it is. Add a guard assertion that on this dataset one-way and both-ways adjacency give at least one test head different 2-hop candidates (the test fails if the data stop exercising orientation). Run the oracle tests (HGB's own `data_loader` vs ours, all four datasets), then F1's mutation checks M1 and M2 against the oracle tests: both must be caught. Commit: "F1d: oracle dataset where validation orientation matters; M1, M2 caught".
+
+### F5 — full suite and report (as the card)
+Full suite once; append F1d and F5 to the report; updated per-unit table; "Decisions for the author"; stop.
+

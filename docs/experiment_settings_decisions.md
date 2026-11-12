@@ -72,3 +72,6 @@ Started 2026-11-11 by the design session. Single place where experiment-setting 
 | 2026-11-12 | Oracle split test (Part N-fix) | `test_validation_split_equals_get_train_valid_pos` is replaced by tests of the stated facts: HGB's rule replayed over our facts reproduces HGB's `valid_pos`; our validation files are fixed, target-relation only, and read by the loader unchanged | chat (2026-11-12) |
 | 2026-11-12 | Part N-fix F4/F5 (decision 2) | F4 smoke runs now (it reads link.dat.valid, never the carve); F5 full suite after the test change | chat (2026-11-12) |
 | 2026-11-12 | Spec draft v1.18 | Z-1 (validation orientation on derived tasks; validation negatives once per run, HGB re-draws per batch step, run_new.py:150-152) and Z-4 (split differences) approved; Z-2 waits for O-1/O-2, Z-3 for approval | chat (2026-11-12) |
+| 2026-11-12 | Smoke runs | Author: no smoke runs from now on; only correctness tests (unit, oracle, mutation, full suite). Part N-fix F4 cancelled (the NC class-count question is moot); Part O's 2-epoch smoke removed from its card | chat (2026-11-12 21:03) |
+| 2026-11-12 | HGB oracle (Part N-fix decision 2) | Approved: a fourth oracle dataset where a one-way validation fact changes a test head's 2-hop candidates, with a guard assertion; M1 and M2 must both be caught by the oracle tests (unit F1d) | chat (2026-11-12 21:03) |
+
