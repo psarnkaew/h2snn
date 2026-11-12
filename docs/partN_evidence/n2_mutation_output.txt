@@ -1,0 +1,3 @@
+MUTATION exclusion of known positives re-added: ran 4, failed 2: ['test_known_positives_are_not_excluded', 'test_seed_is_run_seed_plus_epoch']
+restored: ran 4, failed 0: []
+mutation caught

@@ -1283,4 +1283,5 @@ def build_link_prediction_dataset(config: TrainConfig) -> PreparedLinkPredData:
         test_neg_random_edge_index=test_neg_random_edge_index,
         test_neg_random_edge_relation=test_neg_random_edge_relation,
         test_2hop_empty_reason=two_hop_empty_reason,
+        run_seed=int(config.seed),
     )

@@ -171,7 +171,27 @@ def hgb_train_negatives(train_pos_edge_index: torch.Tensor, dst_range: tuple[int
     return hgb_uniform_tail_negatives(train_pos_edge_index, dst_range, seed)
 
 
-__all__ = ["HGBTestNegatives", "HGB_TEST_NEGATIVE_SEED", "NO_TWO_HOP_PATH_REASON",
+def hgb_epoch_train_negatives(data, epoch: int) -> tuple[torch.Tensor, torch.Tensor]:
+    """The training negatives of one epoch for every method (spec v1.16 K3): HGB's
+    `get_train_neg` per target relation, `neg_sampling_ratio` tails per positive, seed
+    `data.run_seed + epoch` (HGB's runner calls `get_train_neg` inside its epoch loop; under
+    `neg_sampling_mode: fixed` the epoch-0 draw is reused). Returns (negatives, relation ids)."""
+    epoch_for_seed = epoch if data.neg_sampling_mode == "resample_each_epoch" else 0
+    dst_range = (data.dst_node_offset, data.dst_node_offset + data.num_dst_nodes)
+    ratio = int(data.neg_sampling_ratio)
+    neg_parts, relation_parts = [], []
+    for relation_id in sorted(set(data.train_pos_edge_relation.tolist())):
+        positives = data.train_pos_edge_index[:, data.train_pos_edge_relation == relation_id]
+        positives = positives.repeat_interleave(ratio, dim=1)
+        seed = int(data.run_seed) + epoch_for_seed + 1_000_003 * int(relation_id)
+        negatives = hgb_train_negatives(positives.cpu(), dst_range, seed)
+        neg_parts.append(negatives.to(data.train_pos_edge_index.device))
+        relation_parts.append(torch.full((negatives.size(1),), int(relation_id),
+                                         dtype=torch.long, device=data.train_pos_edge_index.device))
+    return torch.cat(neg_parts, dim=1), torch.cat(relation_parts)
+
+
+__all__ = ["HGBTestNegatives", "hgb_epoch_train_negatives", "HGB_TEST_NEGATIVE_SEED", "NO_TWO_HOP_PATH_REASON",
            "hgb_adjacency", "hgb_random_test_negatives", "hgb_test_negatives",
            "hgb_train_negatives", "hgb_uniform_tail_negatives", "hgb_valid_negatives",
            "two_hop_candidates"]

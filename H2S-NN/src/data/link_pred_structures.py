@@ -79,6 +79,8 @@ class PreparedLinkPredData:
     test_neg_random_edge_index: torch.Tensor | None = None
     test_neg_random_edge_relation: torch.Tensor | None = None
     test_2hop_empty_reason: str | None = None
+    # The run's seed: HGB's training negatives are drawn with run_seed + epoch (spec v1.16 K3).
+    run_seed: int = 0
 
     @property
     def num_nodes(self) -> int:
@@ -132,4 +134,5 @@ class PreparedLinkPredData:
             test_neg_random_edge_relation=(None if self.test_neg_random_edge_relation is None
                                            else self.test_neg_random_edge_relation.to(device)),
             test_2hop_empty_reason=self.test_2hop_empty_reason,
+            run_seed=self.run_seed,
         )

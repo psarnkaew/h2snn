@@ -218,6 +218,77 @@ class ValidNegativeTests(unittest.TestCase):
         self.assertEqual(negatives[1].tolist(), [rng.randrange(3, 7) for _ in range(4)])
 
 
+def _train_data(mode="resample_each_epoch", dst=(12, 24), positives=None, ratio=1):
+    pos = positives if positives is not None else _edges([(0, 12), (0, 13), (1, 14), (2, 20)])
+    return SimpleNamespace(train_pos_edge_index=pos,
+                           train_pos_edge_relation=torch.zeros(pos.size(1), dtype=torch.long),
+                           dst_node_offset=dst[0], num_dst_nodes=dst[1] - dst[0],
+                           neg_sampling_ratio=ratio, neg_sampling_mode=mode, run_seed=7)
+
+
+class TrainNegativeTests(unittest.TestCase):
+    """HGB's get_train_neg (spec v1.16 K3) for every method."""
+
+    def test_count_type_range_and_order(self) -> None:
+        from src.data.hgb_lp_negatives import hgb_epoch_train_negatives
+
+        data = _train_data()
+        negatives, relations = hgb_epoch_train_negatives(data, epoch=0)
+        self.assertEqual(negatives[0].tolist(), [0, 0, 1, 2])   # one per positive, in order
+        self.assertTrue(all(12 <= t < 24 for t in negatives[1].tolist()))
+        self.assertEqual(relations.tolist(), [0, 0, 0, 0])
+        rng = random.Random(7 + 0)
+        self.assertEqual(negatives[1].tolist(), [rng.randrange(12, 24) for _ in range(4)])
+        doubled, _ = hgb_epoch_train_negatives(_train_data(ratio=2), epoch=0)
+        self.assertEqual(doubled[0].tolist(), [0, 0, 0, 0, 1, 1, 2, 2])
+
+    def test_seed_is_run_seed_plus_epoch(self) -> None:
+        from src.data.hgb_lp_negatives import hgb_epoch_train_negatives
+
+        data = _train_data(positives=_edges([(0, 12)] * 40))
+        first, _ = hgb_epoch_train_negatives(data, epoch=3)
+        again, _ = hgb_epoch_train_negatives(data, epoch=3)
+        other, _ = hgb_epoch_train_negatives(data, epoch=4)
+        self.assertTrue(torch.equal(first, again))
+        self.assertFalse(torch.equal(first, other))
+        rng = random.Random(7 + 3)
+        self.assertEqual(first[1].tolist(), [rng.randrange(12, 24) for _ in range(40)])
+        fixed = _train_data(mode="fixed", positives=_edges([(0, 12)] * 40))
+        self.assertTrue(torch.equal(hgb_epoch_train_negatives(fixed, 3)[0],
+                                    hgb_epoch_train_negatives(fixed, 9)[0]))
+
+    def test_known_positives_are_not_excluded(self) -> None:
+        """With a one-node tail type every negative is that node, a known positive: HGB does not
+        exclude known positives (mutation target: exclusion re-added)."""
+        from src.data.hgb_lp_negatives import hgb_epoch_train_negatives
+
+        data = _train_data(dst=(12, 13), positives=_edges([(0, 12), (1, 12), (2, 12)]))
+        negatives, _ = hgb_epoch_train_negatives(data, epoch=0)
+        self.assertEqual(negatives.tolist(), [[0, 1, 2], [12, 12, 12]])
+
+    def test_h2snn_and_the_baseline_loop_call_the_same_function(self) -> None:
+        from unittest import mock
+
+        import src.data.hgb_lp_negatives as negatives_module
+        from src.baselines.training import sample_train_negatives
+        from src.trainers.link_prediction_trainer import LinkPredictionTrainer
+
+        data = _train_data()
+        calls = []
+        original = negatives_module.hgb_epoch_train_negatives
+
+        def recorder(data_, epoch):
+            calls.append(epoch)
+            return original(data_, epoch)
+
+        with mock.patch.object(negatives_module, "hgb_epoch_train_negatives", recorder):
+            trainer = LinkPredictionTrainer.__new__(LinkPredictionTrainer)
+            ours = trainer._train_negatives(data, 5)
+            theirs = sample_train_negatives(data, device=torch.device("cpu"), epoch=5)
+        self.assertEqual(calls, [5, 5])
+        self.assertTrue(torch.equal(ours[0], theirs[0]))
+
+
 def _hgb_evaluate_mrr(edge_list, confidence, labels) -> float:
     """HGB data_loader.evaluate (MRR part), as published."""
     t_dict, labels_dict, conf_dict = defaultdict(list), defaultdict(list), defaultdict(list)

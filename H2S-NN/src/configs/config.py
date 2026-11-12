@@ -469,7 +469,8 @@ class DataConfig:
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
     decoder_type: str = "dot"                    # "dot" | "distmult" | "concat_mlp"
-    neg_sampling_mode: str = "fixed"              # "fixed" | "resample_each_epoch"
+    # HGB's runner re-draws its training negatives every epoch (spec v1.16 K3): the default.
+    neg_sampling_mode: str = "resample_each_epoch"   # "resample_each_epoch" | "fixed"
     neg_sampling_ratio: int = 1
     # Positive links per optimizer step (spec v1.15 §6, J5: HGB's LP default 8,192; not tuned).
     # For H2S-NN one step is one solve on the whole message graph.
@@ -557,7 +558,7 @@ class DataConfig:
             overlap_sampling=raw.get("overlap_sampling", True),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
-            neg_sampling_mode=str(raw.get("neg_sampling_mode", "fixed")),
+            neg_sampling_mode=str(raw.get("neg_sampling_mode", "resample_each_epoch")),
             neg_sampling_ratio=int(raw.get("neg_sampling_ratio", 1)),
             link_val_ratio=float(raw.get("link_val_ratio", 0.09)),
             link_test_ratio=float(raw.get("link_test_ratio", 0.10)),
@@ -809,7 +810,7 @@ class DataConfig:
             return preset.get(key, fallback)
 
         neg_sampling_mode = _pick(
-            "neg_sampling_mode", self.neg_sampling_mode, "fixed"
+            "neg_sampling_mode", self.neg_sampling_mode, "resample_each_epoch"
         )
         link_val_ratio = _pick("link_val_ratio", self.link_val_ratio, 0.09)
         link_test_ratio = _pick("link_test_ratio", self.link_test_ratio, 0.10)

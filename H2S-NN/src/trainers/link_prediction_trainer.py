@@ -4,7 +4,6 @@ import json
 
 import torch
 import torch.nn as nn
-from torch_geometric.utils import negative_sampling
 
 from src.configs.config import TrainConfig
 from src.data.link_pred_structures import PreparedLinkPredData
@@ -48,8 +47,6 @@ class LinkPredictionTrainer:
         self.checkpointer = checkpointer
         self.criterion = nn.BCEWithLogitsLoss()
         self.device = torch.device(cfg.device)
-        self._cached_train_neg: torch.Tensor | None = None
-        self._cached_train_neg_relation: torch.Tensor | None = None
         self._best_test_metrics: dict[str, float] | None = None
         self._best_epoch: int = -1
 
@@ -167,61 +164,14 @@ class LinkPredictionTrainer:
                 json.dump(self._best_test_metrics, handle, indent=2)
             self.logger.log_summary(self._best_test_metrics, prefix="best")
 
-    def _sample_negatives(
-        self, data: PreparedLinkPredData, pos_edge_index: torch.Tensor
-    ) -> torch.Tensor:
-        num_needed = pos_edge_index.size(1) * data.neg_sampling_ratio
-        if data.train_neg_candidates is not None:
-            pool_size = data.train_neg_candidates.size(1)
-            idx = torch.randint(0, pool_size, (num_needed,), device=data.train_neg_candidates.device)
-            return data.train_neg_candidates[:, idx]
+    def _train_negatives(self, data: PreparedLinkPredData,
+                         epoch: int) -> tuple[torch.Tensor, torch.Tensor]:
+        """HGB's get_train_neg (spec v1.16 K3), the same function every baseline uses:
+        one uniform tail of the tail type per training positive, known positives not excluded,
+        seed run seed + epoch, tagged per target relation."""
+        from src.data.hgb_lp_negatives import hgb_epoch_train_negatives
 
-        local_known_pos = torch.stack(
-            [
-                data.known_pos_edge_index[0] - data.src_node_offset,
-                data.known_pos_edge_index[1] - data.dst_node_offset,
-            ]
-        )
-        neg_local = negative_sampling(
-            edge_index=local_known_pos,
-            num_nodes=(data.num_src_nodes, data.num_dst_nodes),
-            num_neg_samples=num_needed,
-        )
-        offset = neg_local.clone()
-        offset[0] += data.src_node_offset
-        offset[1] += data.dst_node_offset
-        return offset
-
-    def _train_negatives(self, data: PreparedLinkPredData) -> tuple[torch.Tensor, torch.Tensor]:
-        """Samples train negatives per pooled target relation, tagging each with
-        the relation it's scored against — matches Simple-HGN's run_dist.py, which
-        draws each relation's negatives from its own positive count rather than
-        pooling all relations into one untyped negative sample. A no-op split for
-        every dataset except Amazon (num_target_relations == 1 everywhere else)."""
-        if data.neg_sampling_mode == "fixed" and self._cached_train_neg is not None:
-            return self._cached_train_neg, self._cached_train_neg_relation  # type: ignore[return-value]
-
-        neg_parts: list[torch.Tensor] = []
-        relation_parts: list[torch.Tensor] = []
-        for local_idx in range(data.num_target_relations):
-            mask = data.train_pos_edge_relation == local_idx
-            pos_subset = data.train_pos_edge_index[:, mask]
-            if pos_subset.size(1) == 0:
-                continue
-            neg_subset = self._sample_negatives(data, pos_subset)
-            neg_parts.append(neg_subset)
-            relation_parts.append(
-                torch.full(
-                    (neg_subset.size(1),), local_idx, dtype=torch.long, device=neg_subset.device
-                )
-            )
-        neg_edge_index = torch.cat(neg_parts, dim=1)
-        neg_edge_relation = torch.cat(relation_parts, dim=0)
-
-        if data.neg_sampling_mode == "fixed":
-            self._cached_train_neg = neg_edge_index
-            self._cached_train_neg_relation = neg_edge_relation
-        return neg_edge_index, neg_edge_relation
+        return hgb_epoch_train_negatives(data, epoch)
 
     def _compute(
         self,
@@ -282,7 +232,7 @@ class LinkPredictionTrainer:
         negatives; one optimizer step per batch, and for H2S-NN one solve on the whole message
         graph per step (the epoch's WISP draw is shared by its batches)."""
         self.model.train()
-        neg_edge_index, neg_edge_relation = self._train_negatives(data)
+        neg_edge_index, neg_edge_relation = self._train_negatives(data, epoch)
         pos_edge_index, pos_edge_relation = data.train_pos_edge_index, data.train_pos_edge_relation
         batch = self.cfg.data.link_batch_size
         ratio = max(1, neg_edge_index.size(1) // max(1, pos_edge_index.size(1)))

@@ -151,53 +151,16 @@ def sample_train_negatives(
     data: Any,
     *,
     device: torch.device,
+    epoch: int = 0,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Draw training negatives, mirroring src/trainers/link_prediction_trainer.py.
+    """Training negatives of one epoch: HGB's get_train_neg (spec v1.16 K3), the same function
+    H2S-NN's LP trainer calls (`src.data.hgb_lp_negatives.hgb_epoch_train_negatives`), seed
+    run seed + epoch. Validation and test negatives are the fixed files of the bundle."""
 
-    Negatives are drawn per pooled target relation and tagged with their relation id, so
-    a multi-relation target such as Amazon (co-view plus co-purchase) gets each relation's
-    negatives from its own positive count rather than pooling them into one untyped
-    sample.
+    from src.data.hgb_lp_negatives import hgb_epoch_train_negatives
 
-    Validation and test negatives are deliberately NOT drawn here: those are the fixed
-    HGB two-hop hard negatives already in the bundle, identical for every model.
-    """
-
-    from torch_geometric.utils import negative_sampling
-
-    pos = data.train_pos_edge_index
-    relations = data.train_pos_edge_relation
-    ratio = int(data.neg_sampling_ratio)
-
-    neg_parts: list[torch.Tensor] = []
-    relation_parts: list[torch.Tensor] = []
-    for relation_id in relations.unique().tolist():
-        subset = pos[:, relations == relation_id]
-        needed = subset.size(1) * ratio
-        if data.train_neg_candidates is not None:
-            pool = data.train_neg_candidates
-            index = torch.randint(0, pool.size(1), (needed,), device=pool.device)
-            sampled = pool[:, index]
-        else:
-            local = negative_sampling(
-                torch.stack(
-                    [
-                        subset[0] - data.src_node_offset,
-                        subset[1] - data.dst_node_offset,
-                    ]
-                ),
-                num_nodes=(data.num_src_nodes, data.num_dst_nodes),
-                num_neg_samples=needed,
-            )
-            sampled = torch.stack(
-                [local[0] + data.src_node_offset, local[1] + data.dst_node_offset]
-            )
-        neg_parts.append(sampled.to(device))
-        relation_parts.append(
-            torch.full((sampled.size(1),), relation_id, dtype=torch.long, device=device)
-        )
-
-    return torch.cat(neg_parts, dim=1), torch.cat(relation_parts, dim=0)
+    negatives, relations = hgb_epoch_train_negatives(data, epoch)
+    return negatives.to(device), relations.to(device)
 
 
 def train_link_prediction(
@@ -258,7 +221,7 @@ def train_link_prediction(
         head.train()
         optimizer.zero_grad()
 
-        neg_edge_index, neg_relation = sample_train_negatives(data, device=device)
+        neg_edge_index, neg_relation = sample_train_negatives(data, device=device, epoch=epoch)
         embeddings = embed()
         pos_scores = head(
             embeddings, data.train_pos_edge_index, data.train_pos_edge_relation
