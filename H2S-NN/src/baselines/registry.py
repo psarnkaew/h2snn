@@ -40,14 +40,18 @@ DATA_PENDING_REASON = "data pending (lab cluster, after mini-batch design)"
 DATASET_PENDING: dict[tuple[str, str], str] = {
     **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC},
     **{(LINK_PREDICTION, dataset): DATA_PENDING_REASON for dataset in LARGE_LP},
-    # Not in the card's "data pending" list: the data are local, but no baseline can load them
-    # yet (Part M report, out-of-scope findings).
-    (NODE_CLASSIFICATION, "freebase"): (
-        "loader pending: the baseline bundles read HGB ACM, DBLP and IMDB only "
-        "(src/baselines/bundles.py HGB_RAW_DIRNAME)"),
+    # Freebase NC is loadable since Part P P3 (H2S-NN loader, bundles HGB_RAW_DIRNAME).
     # The derived LP tasks are wired into every LP adapter (Part P P2): no pending reason.
 }
 
+
+#: Part P P3: Freebase NC needs the authors' own Freebase preprocessing for these three (their
+#: HGB data_loader branch: SeHGNN's hgb/, PSHGCN's and H2SGNN's loaders via _hgb_vendor); their
+#: clones were empty where Part P ran, so it is not wired.
+FREEBASE_VENDOR_REASON = (
+    "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader "
+    "branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code "
+    "has a Freebase branch)")
 
 @dataclass(frozen=True, slots=True)
 class ModelSpec:
@@ -84,15 +88,18 @@ MODELS: tuple[ModelSpec, ...] = (
     ModelSpec(
         "sehgnn", "SeHGNN", HET_HOM, "src.baselines.adapters.sehgnn",
         (NODE_CLASSIFICATION,),
+        unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),),
     ),
     ModelSpec(
         "hinormer", "HiNormer", HET_HOM, "src.baselines.adapters.hinormer",
         (NODE_CLASSIFICATION,),
     ),
-    ModelSpec("pshgcn", "PSHGCN", HET_HOM, "src.baselines.adapters.pshgcn", _ALL),
+    ModelSpec("pshgcn", "PSHGCN", HET_HOM, "src.baselines.adapters.pshgcn", _ALL,
+              unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
     ModelSpec("h2gformer", "H2G-former", HET_HET, "src.baselines.adapters.h2gformer", _ALL),
     ModelSpec("hetero2net", "Hetero$^2$Net", HET_HET, "src.baselines.adapters.hetero2net", _ALL),
-    ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL),
+    ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL,
+              unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
 )
 
 #: Baselines of the protocol whose adapter is not written yet (spec v1.15 §6: HetSheaf is rerun

@@ -45,6 +45,9 @@ HGB_DEFAULT_FEATS_TYPE: dict[str, int] = {
     "acm": 2,
     "dblp": 3,
     "imdb": 0,
+    # Part P P3: Freebase has no node attributes; feats_type 0 keeps what a type has and falls
+    # back to the identity encoding for attribute-less types (every Freebase type).
+    "freebase": 0,
 }
 
 # Several baselines (PSHGCN, H2SGNN, SeHGNN, the HGB DGL models) read the raw HGB
@@ -64,7 +67,7 @@ BASELINE_DATA_PINS: dict[str, Any] = {
     "path_source": "schemas",
 }
 
-HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
+HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Freebase"}
 
 
 def hgb_raw_dir(dataset: str) -> "Path":

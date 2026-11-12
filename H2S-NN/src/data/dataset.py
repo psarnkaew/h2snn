@@ -43,6 +43,13 @@ def _load_hetero_data(config: TrainConfig) -> "HeteroData":
 
         dataset = HGBDataset(root=str(root), name="IMDB")
         return dataset[0]
+    if dataset_name == "freebase":
+        # Part P P3: HGB Freebase (target book; no node features: every type gets the encoder's
+        # learned per-node vectors; unlabelled books carry y = -1 and no mask, as PyG reads it).
+        from torch_geometric.datasets import HGBDataset
+
+        dataset = HGBDataset(root=str(root), name="Freebase")
+        return dataset[0]
     raise ValueError(f"Unsupported dataset '{config.data.dataset_name}'.")
 
 

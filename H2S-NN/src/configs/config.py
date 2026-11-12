@@ -265,6 +265,13 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
             MetaPathConfig(name="MDM", node_types=("movie", "director", "movie")),
         ),
     },
+    # HGB Freebase (Part P P3): target book, no node features. No old preset list existed for
+    # Freebase; the legacy schema rows do not run on it (the literature row uses
+    # LITERATURE_METAPATHS["freebase"]).
+    "freebase": {
+        "target_node_type": "book",
+        "metapath_templates": (),
+    },
 }
 
 # The literature meta-path list of the fixed-literature-schema row and of the schema read-out
@@ -512,6 +519,7 @@ DATASET_TASK_TYPES: dict[str, str] = {
     "acm": "node_classification",
     "dblp": "node_classification",
     "imdb": "node_classification",
+    "freebase": "node_classification",  # HGB Freebase NC (Part P P3)
     "lastfm": "link_prediction",
     "acm_pa": "link_prediction",
     "dblp_ap": "link_prediction",

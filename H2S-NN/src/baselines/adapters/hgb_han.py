@@ -68,7 +68,7 @@ NAME = "han"
 # `hgb_nc` supplies the `scripts.data_loader` package their utils imports via a relative
 # sys.path append; `hgb_nc_han` supplies `utils` and `model_hetero` themselves.
 VENDORS = ("hgb_nc_han", "hgb_nc")
-VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
+VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Freebase"}  # HAN/utils.py:337-341
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
@@ -180,10 +180,13 @@ class HANAdapter:
         graph = graph.to(device)
 
         with pushd_sys_path(*VENDORS):
-            from model_hetero import HAN  # type: ignore[import-not-found]
+            from model_hetero import HAN, HAN_freebase  # type: ignore[import-not-found]
 
             num_heads = int(params.get("num_heads", 8))
-            model = HAN(
+            # HGB's own HAN script uses HAN_freebase on Freebase (an FC layer on the sparse
+            # identity features, HAN/main.py:45-52); Part P P3.
+            model_class = HAN_freebase if bundle.dataset == "freebase" else HAN
+            model = model_class(
                 meta_paths=meta_paths,
                 in_size=int(features.shape[1]),
                 hidden_size=int(params.get("hidden_dim", 128)),

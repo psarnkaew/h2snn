@@ -39,15 +39,15 @@ class RegistryTests(unittest.TestCase):
         from src.baselines.registry import DATASETS, campaign_summary, iter_cells
 
         # Spec v1.15 §6 (Part M, M11): NC 12 datasets (HGB 4 + H2GB 8), LP 8, GC 4; LatGRL
-        # removed. Runnable today: NC on ACM/DBLP/IMDB (12 models), LP on PubMed/LastFM and the
-        # four derived tasks (9 models with LP; derived tasks wired in Part P P2), GC on the four
-        # TU sets (9 models); the H2GB datasets, the two large LP tasks and Freebase NC carry a
-        # pending reason.
+        # removed. Runnable today: NC on ACM/DBLP/IMDB (12 models) and Freebase (9 models; Part P
+        # P3, SeHGNN/PSHGCN/H2SGNN keep a reason), LP on PubMed/LastFM and the four derived tasks
+        # (9 models with LP; Part P P2), GC on the four TU sets (9 models); the H2GB datasets and
+        # the two large LP tasks carry a pending reason.
         self.assertEqual({task: len(names) for task, names in DATASETS.items()},
                          {"node_classification": 12, "link_prediction": 8,
                           "graph_classification": 4})
         summary = campaign_summary()
-        self.assertEqual(summary["runnable_cells"], 126)
+        self.assertEqual(summary["runnable_cells"], 135)
 
         per_task = {
             task: sum(
@@ -55,7 +55,7 @@ class RegistryTests(unittest.TestCase):
             )
             for task in DATASETS
         }
-        self.assertEqual(per_task["node_classification"], 36)
+        self.assertEqual(per_task["node_classification"], 45)
         self.assertEqual(per_task["link_prediction"], 54)
         self.assertEqual(per_task["graph_classification"], 36)
 

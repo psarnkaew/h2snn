@@ -140,6 +140,19 @@ def pushd_sys_path(*names: str) -> Iterator[None]:
             displaced[module_name] = module
             del sys.modules[module_name]
 
+    # A loaded top-level module outside every vendor (e.g. this project's own `scripts`
+    # package) can shadow a vendor module of the same name: HGB's HAN does
+    # `from scripts.data_loader import data_loader` (Part P P3). Displace any such module (and
+    # its submodules) whose name is a top-level module or package of a pushed root.
+    vendor_tops = {entry.stem if entry.suffix == ".py" else entry.name
+                   for root in roots if root.is_dir() for entry in root.iterdir()
+                   if entry.suffix == ".py" or (entry / "__init__.py").exists()}
+    for module_name, module in list(sys.modules.items()):
+        top = module_name.split(".", 1)[0]
+        if top in vendor_tops and _module_root(module) not in roots and module_name not in displaced:
+            displaced[module_name] = module
+            del sys.modules[module_name]
+
     before = set(sys.modules)
     for entry in reversed(added):
         sys.path.insert(0, entry)
