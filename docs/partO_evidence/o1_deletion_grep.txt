@@ -1,0 +1,7 @@
+$ grep -rnE "rmtree|unlink|os.remove|\.rmdir|shutil|TemporaryDirectory" --include=*.py scripts src | grep -v "^src/baselines/adapters"
+scripts/lp/apply_feature_rule.py:114:        stale.unlink()
+scripts/lp/build_derived_lp.py:31:import shutil
+scripts/lp/build_derived_lp.py:139:        shutil.copyfile(source / name, out_dir / name)
+scripts/lp/build_derived_lp.py:194:        shutil.copyfile(source / name, out_dir / name)
+scripts/lp/write_hgb_negatives.py:70:        (out_dir / "meta.json").unlink()
+scripts/lp/write_hgb_negatives.py:92:        stale.unlink()

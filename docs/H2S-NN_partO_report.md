@@ -30,3 +30,32 @@
 4. H2S-NN has no Freebase node-classification loader. `DATASET_TASK_TYPES` (`config.py:399-413`) and `_load_hetero_data` (`dataset.py:26-45`) cover ACM, DBLP and IMDB only. See out-of-scope findings.
 
 **Pre-state of the suite.** No code changed between Part N-fix F5 (`5038744`) and `af2b4e2`: `git diff --stat 5038744 af2b4e2` lists only `docs/` files (VERIFIED-RUN). F5's full suite gave **Ran 583; failures=2, errors=2**, all in `test_baselines` (vendor clones ×3, notebook) (`docs/partNfix_evidence/f5_full_suite_output.txt`). This is the comparison set for O4. The working tree also holds uncommitted edits to `src/baselines/adapters/*` from another session. They are not part of this branch and are never staged.
+
+---
+
+## O1 — What the server runs keep
+
+**O1.1 Retention: no script changed.**
+- Every main-table seed run writes its resolved configuration and checkpoints into its own directory, and nothing in the campaign deletes them (VERIFIED-CODE):
+  - `run_final_seeds` → `train_trial` writes `config.yaml` (`scripts/run_h2snn_wandb_tuning.py:420-421`), with `seed` = the final seed, which is also the base seed of the evaluation draw (l.411).
+  - The NC trainer writes `checkpoints/best.pt` and `last.pt` (`src/trainers/trainer.py:145-159`); the LP trainer does the same (`src/trainers/link_prediction_trainer.py:97-111`).
+  - The directory name carries the seed, `<exp>/final_seeds/<exp>_tune_final_seed{s}_final_seed{s}` (l.713–714), so seeds never share a directory.
+- The resolved dict holds the seed, `data.wisp_max_length` (`ℓ_max`), `data.wisp_walks_per_anchor` (`r`, already resolved by `TrainConfig.from_dict`) and `data.path_source` (resolved to `wisp`).
+- Deletion grep over `scripts/` and `src/` (VERIFIED-RUN, `o1_deletion_grep.txt`): only `scripts/lp/apply_feature_rule.py:114` and `scripts/lp/write_hgb_negatives.py:70,92` delete anything. Both remove stale LP data files, never run directories.
+- **GC** keeps its final weights as its protocol requires: `checkpoints/last.pt` is rewritten every epoch before the early-stopping check (`src/trainers/graph_classification_trainer.py:85-91`, break at l.144). After the loop, `last.pt` therefore holds the final weights the GC test metrics are computed from. `best.pt` (by `checkpoint_metric`) is also written, as an artifact only (l.71–75).
+
+**O1.2 Reload test (VERIFIED-RUN).** New in this unit:
+- `src/analysis/model_loading.py`:
+  - `evaluation_cell_weights(model, data)`: `w_f = exp(g(ξ_f))` through the model's own `H2SNN._cell_weights` (eval mode, no gradient, training flag restored).
+  - `nonempty_groups`.
+  - `load_trained_model` is unchanged apart from its docstring.
+- `tests/partO_fixtures.py`: a synthetic ACM-shaped `HeteroData` with HGB's eight ACM relation names. `patched_acm_loader` makes `build_dataset` read it.
+- `tests/partO_reload_child.py`: the fresh-process reload.
+- `tests/test_partO_reload.py`, two tests:
+  - `RetentionTests`: the real `run_final_seeds`/`train_trial` on seeds 0 and 1, 2 epochs, anchored `full`, WISP `ℓ_max = 3`, `r = 4`. W&B is replaced by a stub. Each seed directory holds `config.yaml` (seed, `path_source: wisp`, `ℓ_max`, `r`) and a loadable `best.pt`, and the second seed leaves the first untouched.
+  - `ReloadTests`: the same steps as `train_trial` for one seed. After every epoch (after its checkpoint save), an epoch callback records `w_f` on the evaluation draw. The test then reloads `config.yaml` + `best.pt` in a fresh process (`python -m tests.partO_reload_child`, through `load_trained_model`) and compares with `torch.equal` (same dtype and device) against the recorded tensors of the best epoch: node, fact and sign tensors, relation and signature ids, `m_f` and `w_f`. Negative control: the run directory is copied with `seed + 1` in `config.yaml`, and that reload must differ.
+- `python -m unittest -v tests.test_partO_reload` → **Ran 2 tests in 50.5 s, OK** (`o1_tests_output.txt`). The reload is exact. The INFO log lines of the synthetic 2-epoch trainings are removed from the evidence file: they are fixture logs, not results.
+- **Mutation (card) (VERIFIED-RUN):**
+  - (a) `load_trained_model` with `cfg.seed + 1` → **FAILED** at the seed check, `AssertionError: 6 != 5` (`o1_mutation_output.txt`).
+  - (b) Only the draw rebuilt with `seed + 1`, reported seed unchanged → **FAILED**: `first differing tensor: group 0 nodes` (`o1_mutation_b_output.txt`).
+  - The file was restored after each mutation. `git diff` shows only the O1 additions.

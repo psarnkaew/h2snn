@@ -1,0 +1,16 @@
+test_reload_rebuilds_cells_and_weights_exactly (tests.test_partO_reload.ReloadTests.test_reload_rebuilds_cells_and_weights_exactly) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+FAIL
+
+======================================================================
+FAIL: test_reload_rebuilds_cells_and_weights_exactly (tests.test_partO_reload.ReloadTests.test_reload_rebuilds_cells_and_weights_exactly)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partO_reload.py", line 169, in test_reload_rebuilds_cells_and_weights_exactly
+    self.assertIsNone(difference, f"first differing tensor: {difference}")
+AssertionError: 'group 0 nodes' is not None : first differing tensor: group 0 nodes
+
+----------------------------------------------------------------------
+Ran 1 test in 38.054s
+
+FAILED (failures=1)
