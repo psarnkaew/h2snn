@@ -25,8 +25,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from src.data.hgb_lp_negatives import (hgb_random_test_negatives, hgb_test_negatives,
-                                       hgb_train_negatives, hgb_valid_negatives)
+from src.data.hgb_lp_negatives import (hgb_adjacency, hgb_random_test_negatives,
+                                       hgb_test_negatives, hgb_train_negatives,
+                                       hgb_valid_negatives, two_hop_candidates)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 HGB_LOADER = PROJECT_ROOT / "vendor" / "HGB" / "LP" / "benchmark" / "scripts" / "data_loader.py"
@@ -96,9 +97,30 @@ def _dataset_two_types_two_relations() -> dict:
     return {"counts": counts, "links": sorted(links), "test": sorted(test)}
 
 
+ORIENTATION_GADGETS = 40
+
+
+def _dataset_validation_orientation_matters() -> dict:
+    """Part N-fix F1d (report decision 2): one node type (book), one same-type relation 0.
+    Gadget i (ids h, a, x, m, t = 5i .. 5i+4): training fact (h, x); facts (m, a) and (m, x) of m,
+    (m, a) first (a < x), so HGB keeps it in training and may carve (m, x) into validation;
+    test positive (h, t), t != m; no link between h and m. When (m, x) is a validation fact,
+    stored as (m, x): under HGB's one-way validation x's row of `pos_links` lacks m, so m is
+    not a 2-hop candidate of h; with both orientations it is (h -> x -> m). 40 gadgets, so that
+    every seed carves at least one (m, x) (guarded in `test_datasets_cover_the_cards_cases`)."""
+    counts = (5 * ORIENTATION_GADGETS,)
+    links, test = set(), set()
+    for gadget in range(ORIENTATION_GADGETS):
+        h, a, x, m, t = (5 * gadget + k for k in range(5))
+        links |= {(h, x, 0), (m, a, 0), (m, x, 0)}
+        test.add((h, t, 0))
+    return {"counts": counts, "links": sorted(links), "test": sorted(test)}
+
+
 DATASETS = {"one_way_validation": _dataset_one_way_validation,
             "head_without_candidates": _dataset_head_without_candidates,
-            "two_types_two_relations": _dataset_two_types_two_relations}
+            "two_types_two_relations": _dataset_two_types_two_relations,
+            "validation_orientation_matters": _dataset_validation_orientation_matters}
 
 
 def _write(folder: Path, spec: dict) -> None:
@@ -195,7 +217,22 @@ class HGBOracleTests(unittest.TestCase):
                 yield name, seed, _load_hgb(self.hgb, folder, seed)
 
     def test_datasets_cover_the_cards_cases(self) -> None:
-        """The three cases of the card hold on HGB's own loading of the files."""
+        """The cases of the card hold on HGB's own loading of the files, including the guard of
+        F1d: on `validation_orientation_matters`, for every seed, one-way and both-ways
+        validation give at least one test head different 2-hop candidates (fails if the data
+        stop exercising validation orientation)."""
+        for seed in SEEDS:
+            with self.subTest(guard="validation_orientation_matters", seed=seed):
+                dl = _load_hgb(self.hgb, self.folders["validation_orientation_matters"], seed)
+                both, valid = _facts_both_ways(dl), _valid_one_way(dl)
+                n = dl.nodes["total"]
+                heads = np.unique(dl.links_test["data"][0].nonzero()[0]).astype(np.int64)
+                tails = _tail_range(dl, 0)
+                one_way = two_hop_candidates(hgb_adjacency(both, valid, n), heads, tails)
+                both_ways = two_hop_candidates(
+                    hgb_adjacency(torch.cat([both, valid], dim=1), valid[:, :0], n), heads, tails)
+                changed = sum(not np.array_equal(a, b) for a, b in zip(one_way, both_ways))
+                self.assertGreaterEqual(changed, 1)
         dl = _load_hgb(self.hgb, self.folders["head_without_candidates"], 0)
         test_neigh, test_label = _seeded(0, dl.get_test_neigh)
         positives = {int(h) for h, y in zip(test_neigh[0][0], test_label[0]) if y == 1}

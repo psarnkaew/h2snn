@@ -1,0 +1,41 @@
+== M1 random set, positives in another order: CAUGHT
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=7, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=7, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=7, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=0, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=1, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=2, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=3, relation=0)
+FAIL: test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=7, relation=0)
+Ran 6 tests in 6.606s
+FAILED (failures=20)
+
+== M2 2-hop adjacency, validation both ways: CAUGHT
+FAIL: test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=0)
+FAIL: test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=1)
+FAIL: test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=2)
+FAIL: test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=3)
+FAIL: test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=7)
+FAIL: test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=0, relation=0)
+FAIL: test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=1, relation=0)
+FAIL: test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=2, relation=0)
+FAIL: test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=3, relation=0)
+FAIL: test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=7, relation=0)
+Ran 6 tests in 6.639s
+FAILED (failures=10)
+
+== restored: clean
+Ran 6 tests in 6.127s
+OK
