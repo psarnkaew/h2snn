@@ -45,3 +45,11 @@
 
 ## How to explain to the author (author, 2026-11-11; "I like this style a lot, remember it")
 - No jargon. Use everyday words and show the reasoning step by step; add a concrete example (small table, everyday analogy) when needed. Example of the liked style: the S3/S2′ explanation of 2026-11-11 — (1) the two parts of the model that can "choose", in plain words; (2) what the test wants; (3) the problem, with a concrete example; (4) the proposal; (5) how to read the result; (6) cost; (7) recommendation and reason.
+
+## Project workflow rules (author, 2026-11-12/13)
+- **Correctness only, no smoke runs.** Claude Code runs unit tests, oracle tests, mutation checks and the full suite; no smoke run on real data, no performance experiment, no metric reported as a result, no comparison between methods. Time is short: cut anything that is not a correctness check.
+- **Follow the source's code exactly** when a benchmark or baseline protocol exists (HGB, H2GB, HetSheaf, each baseline's original code); every deviation is a stated decision in the spec with the source's file:line.
+- **Commit the design docs automatically** (stage by explicit path; see the handoff for the git command); the author does not want to commit by hand.
+- **Short questions get short answers**; use tokens only as needed. Replies in Thai when the author writes Thai, English when he writes English.
+- **Answer the author's questions before starting work**; when he says "อย่าเพิ่งเริ่ม" (do not start yet), hold every card and prompt.
+
