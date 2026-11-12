@@ -116,16 +116,17 @@ The full suite runs once, in F5, after F4. With F4 waiting, it was not run; the 
 | F2 | `5229957` | GC check = (c1) logits and (c2) pooled embeddings vary; class count recorded; count check | `test_partn_smoke`: 6 OK | none |
 | F3 | `1c00bca` | torchmetrics 1.9.0 → 1.8.2, pinned in the core and H2GB groups | absent-class value unchanged; affected modules: only the 4 known failures | none |
 | docs | `f3a8f7c` | designer's continuation docs (card, decisions log, v1.18 draft) by explicit path | — | none |
-| F4 | `a75e4ec` | H2S-NN GC MUTAG run (passes the redefined check); GCN NC acm run | 2 runs, table in the continuation | **stopped at GCN NC acm** (NC check (c): one validation class); GCN LP pubmed and GCN GC MUTAG not run; three script fixes (GCN LP capture added, `BaselineParams.source`, exit code of a run error) |
-| F1c | see the F1c section | split test replaced by the two tests of decision 2; F1's two mutation checks | oracle module: 7 tests OK; M1 caught; **M2 not caught by the oracle tests** (caught by the Part N hand-graph test) | **stopped** (continuation stop condition: an F1c mutation not caught); test data not changed; first version of the data test had a wrong expectation for the reverse relation (fixed, below) |
-| F5 | — | not run (F4 and F1c stopped) | — | — |
+| F4 | `a75e4ec` | H2S-NN GC MUTAG run (passes the redefined check); GCN NC acm run | 2 runs, table in the continuation | stopped at GCN NC acm (NC check (c): one validation class); three script fixes (GCN LP capture added, `BaselineParams.source`, exit code of a run error). **Cancelled by the author (Continuation 2): no smoke runs; the NC class-count question is moot; the recorded runs stay as they are** |
+| F1c | `7954de5` | split test replaced by the two tests of decision 2; F1's two mutation checks | oracle module: 7 tests OK; M1 caught; M2 not caught by the three datasets (caught by the Part N hand-graph test) | stopped; first version of the data test had a wrong expectation for the reverse relation (fixed). **Resolved by F1d** |
+| F1d | `34ceba6` | fourth oracle dataset `validation_orientation_matters` (40 gadgets) with the guard assertion | oracle module: 7 tests OK on 4 datasets; guard holds for 5/5 seeds; **M1 caught, M2 caught** | none |
+| F5 | this commit | full suite once | **Ran 583; failures=2, errors=2**, all four in Part N N8's known set | none |
 
 ## Decisions for the author
 
-Settled by the author on 2026-11-12 (continuation): the split (option (a)); the test replacement; F4 released; decision 4's HGB line (`run_new.py:150-152`, inside the batch loop at `:121`) is in draft v1.18 Z-1. Open after the continuation:
+Settled by the author on 2026-11-12 (continuation): the split (option (a)); the test replacement; F4 released; decision 4's HGB line (`run_new.py:150-152`, inside the batch loop at `:121`) is in draft v1.18 Z-1. Settled in Continuation 2 (21:03): no smoke runs, F4 cancelled, so item 1 below is moot; item 2 approved and done as F1d (M2 now caught). **No decision is open from this card after F5.** Items 1 and 2 are kept as they were written:
 
-1. **GCN NC acm, one predicted class (the F4 stop).** The NC collapse check is unchanged from Part N and gates on "≥ 2 classes predicted on the validation nodes". GCN NC acm predicts one class after each of its 2 full-batch steps; its x* spread (0.0126, 0.0155), losses, stop conditions and parameter movement pass. Should the NC check, like GC's (decision 1), record the class count without gating on it (e.g. gate on the spread of the logits over validation nodes instead), or is this a stop? GCN LP pubmed and GCN GC MUTAG wait on this, and F5 waits on both stops.
-2. **M2 is not caught by the oracle tests (the F1c stop).** On the three tiny oracle datasets × 5 seeds, adding validation in both orientations changes no test head's 2-hop candidates and, in one case, one head's known-neighbour set without changing its random draws (`f1c_m2_diagnostic_output.txt`). So these datasets don't exercise validation orientation. The Part N hand-graph test `test_validation_orientation_changes_the_candidates_as_hgb` catches M2, but it is not HGB's code. Proposal: add a fourth oracle dataset in which a one-way validation fact opens a 2-hop path to a tail-type node from a test head (e.g. user→user validation u1→u2 with u1's items not reachable from u2 otherwise). Then M2 must make `get_test_neigh` and ours differ, and the mutation check is re-run. Needs your approval: it changes the card's oracle test data after a stop.
+1. **(moot) GCN NC acm, one predicted class (the F4 stop).** The NC collapse check is unchanged from Part N and gates on "≥ 2 classes predicted on the validation nodes". GCN NC acm predicts one class after each of its 2 full-batch steps; its x* spread (0.0126, 0.0155), losses, stop conditions and parameter movement pass. Should the NC check, like GC's (decision 1), record the class count without gating on it (e.g. gate on the spread of the logits over validation nodes instead), or is this a stop? GCN LP pubmed and GCN GC MUTAG wait on this, and F5 waits on both stops.
+2. **(approved, done in F1d) M2 is not caught by the oracle tests (the F1c stop).** On the three tiny oracle datasets × 5 seeds, adding validation in both orientations changes no test head's 2-hop candidates and, in one case, one head's known-neighbour set without changing its random draws (`f1c_m2_diagnostic_output.txt`). So these datasets don't exercise validation orientation. The Part N hand-graph test `test_validation_orientation_changes_the_candidates_as_hgb` catches M2, but it is not HGB's code. Proposal: add a fourth oracle dataset in which a one-way validation fact opens a 2-hop path to a tail-type node from a test head (e.g. user→user validation u1→u2 with u1's items not reachable from u2 otherwise). Then M2 must make `get_test_neigh` and ours differ, and the mutation check is re-run. Needs your approval: it changes the card's oracle test data after a stop.
 
 ## Out-of-scope findings (not fixed)
 
@@ -202,3 +203,62 @@ F5 waits: F4 stopped (GCN NC acm) and F1c stopped (M2). The full suite runs once
 - `test_hgb_oracle`: 7 OK (the old split test is gone).
 - `test_partn_smoke`: 6 OK; `test_gc_metrics`: 3 OK.
 - `test_baselines`: the 4 known failures. `test_all_declared_vendor_clones_are_present` now lists 5 missing clones instead of Part N's 10: SeHGNN ×2, PSHGCN ×2, ChebNetII.
+
+## Continuation 2 (author, 2026-11-12 21:03)
+
+- **No smoke runs.** F4 is cancelled and the NC class-count question is moot. `scripts/partn_smoke.py` and `tests/test_partn_smoke.py` are unchanged and were run only within the full suite. The recorded runs stay as they are.
+- **Report decision 2 is approved as F1d.**
+- HEAD verified at `7954de5`.
+- The designer's edits to `docs/H2S-NN_partNfix_card.md` (section "Continuation 2") and `docs/experiment_settings_decisions.md` (rows "Smoke runs" and "HGB oracle (Part N-fix decision 2)") are in the working tree, **uncommitted**. This continuation did not ask me to commit them, so I left them for the author.
+
+## F1d — oracle dataset where validation orientation matters (M1, M2 caught)
+
+**Dataset (`H2S-NN/tests/test_hgb_oracle.py`, `_dataset_validation_orientation_matters`):** one node type (book), one same-type relation 0, built from 40 gadgets. Gadget i has ids h, a, x, m, t = 5i … 5i+4:
+- training fact (h, x);
+- facts (m, a) and (m, x) of m, with (m, a) first (a < x), so HGB keeps it in training and may carve (m, x) into validation;
+- test positive (h, t), with t ≠ m;
+- no link between h and m.
+
+When (m, x) is drawn as validation, it is stored as (m, x). Under HGB's one-way validation, x's row of `pos_links` lacks m, so m is not a 2-hop candidate of h. With both orientations it is (h → x → m).
+
+HGB carves validation at random at load time (DL:62), so a single gadget could not guarantee a validation fact. With 40 gadgets at the 10 % rate, every seed carves at least one.
+
+**Guard (in `test_datasets_cover_the_cards_cases`):** for every seed, one-way and both-ways validation give at least one test head different 2-hop candidates, computed with `hgb_adjacency` and `two_hop_candidates` on HGB's own split. The test fails if the data stop exercising orientation.
+
+**Oracle tests (VERIFIED-RUN):** `python -m unittest -v tests.test_hgb_oracle` → **Ran 7 tests, OK** (127 s; `f1d_oracle_output.txt`). On all four datasets × 5 seeds, HGB's own `data_loader` and ours give identical outputs for:
+- the 2-hop set;
+- the random set;
+- training and validation negatives;
+- the replayed split rule.
+
+The guard holds for 5/5 seeds, and the fixed-validation-file test passes on the six tasks.
+
+**Mutations (VERIFIED-RUN, the F1c harness `f1c_mutation_check.py` → `f1d_mutation_output.txt`; source restored, `git status` clean):**
+
+| mutation | result |
+|---|---|
+| M1: random set, test positives in another order | **caught**: `test_random_set_equals_get_test_neigh_w_random` fails in 20/20 cases (4 datasets × 5 seeds) |
+| M2: 2-hop adjacency with validation in both orientations | **caught**: `test_two_hop_set_equals_get_test_neigh` fails on `validation_orientation_matters` for all 5 seeds (our 2-hop set ≠ HGB's `get_test_neigh`). The guard also fails (5), because under M2 our "one-way" adjacency already holds both orientations |
+| restored | clean: Ran 6, OK |
+
+**Commit:** `34ceba6` "F1d: oracle dataset where validation orientation matters; M1, M2 caught" (`H2S-NN/tests/test_hgb_oracle.py`, `f1d_oracle_output.txt`, `f1d_mutation_output.txt`).
+
+## F5 — Full suite (run once)
+
+`python -m unittest discover -s tests` from `H2S-NN/` → **Ran 583 tests in 2,712 s; FAILED (failures=2, errors=2)** (`f5_full_suite_output.txt`).
+
+| failing test | in Part N N8's known set? |
+|---|---|
+| `test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present` | yes. Missing: `sehgnn`, `sehgnn_data`, `pshgcn`, `pshgcn_lp`, `chebnetii` (5; Part N listed 10; the HGB clone resolved `hgb_nc`, `hgb_nc_gnn`, `hgb_nc_han`, `hgb_lp`, `hgb_lp_gnn`) |
+| `test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak` | yes |
+| `test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything` | yes (PSHGCN not cloned) |
+| `test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean` | yes |
+
+- **No new failure.** Part N's N8 failure `test_full_graph_early_stopping…test_link_trainer_honors_patience` (fixed in N8, verified then on the module only) passes in this full run.
+- **Test count:** 570 (Part N N8) + 7 (`test_hgb_oracle`) + 6 (`test_partn_smoke`) = 583.
+- **Duration:** 2,712 s vs Part N's 754 s on the same machine. The new tests account for about 3 minutes (oracle module 127 s, smoke-check tests 14 s). The rest was not investigated: no profiling was run, and the machine's load was not recorded (UNVERIFIED).
+
+### Out-of-scope findings added after F1d/F5
+
+- The full suite took 2,712 s against Part N's 754 s; the new tests explain only about 3 minutes of that.
+- The designer's Continuation-2 edits to the card and the decisions log are uncommitted in the working tree (not mine).
