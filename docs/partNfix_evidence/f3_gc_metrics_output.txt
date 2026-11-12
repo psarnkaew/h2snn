@@ -1,0 +1,11 @@
+test_class_absent_from_truth_and_prediction (tests.test_gc_metrics.HetSheafF1Tests.test_class_absent_from_truth_and_prediction)
+C = 3, class 2 in neither truth nor prediction. torchmetrics 1.8.2 (the version in ... ok
+test_every_class_present_equals_sklearn (tests.test_gc_metrics.HetSheafF1Tests.test_every_class_present_equals_sklearn) ... ok
+test_h2snn_and_baselines_use_the_same_function (tests.test_gc_metrics.HetSheafF1Tests.test_h2snn_and_baselines_use_the_same_function) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.210s
+
+OK

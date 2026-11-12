@@ -1,0 +1,29 @@
+Collecting torchmetrics==1.8.2
+  Downloading torchmetrics-1.8.2-py3-none-any.whl.metadata (22 kB)
+Requirement already satisfied: numpy>1.20.0 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torchmetrics==1.8.2) (2.4.6)
+Requirement already satisfied: packaging>17.1 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torchmetrics==1.8.2) (26.0)
+Requirement already satisfied: torch>=2.0.0 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torchmetrics==1.8.2) (2.6.0+cu124)
+Requirement already satisfied: lightning-utilities>=0.8.0 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torchmetrics==1.8.2) (0.15.3)
+Requirement already satisfied: typing_extensions in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from lightning-utilities>=0.8.0->torchmetrics==1.8.2) (4.16.0)
+Requirement already satisfied: filelock in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (3.29.5)
+Requirement already satisfied: networkx in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (3.6.1)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (3.1.6)
+Requirement already satisfied: fsspec in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (2026.6.0)
+Requirement already satisfied: setuptools in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (82.0.1)
+Requirement already satisfied: sympy==1.13.1 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2) (1.13.1)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from sympy==1.13.1->torch>=2.0.0->torchmetrics==1.8.2) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages (from jinja2->torch>=2.0.0->torchmetrics==1.8.2) (3.0.3)
+Downloading torchmetrics-1.8.2-py3-none-any.whl (983 kB)
+   ---------------------------------------- 983.2/983.2 kB 3.1 MB/s  0:00:00
+Installing collected packages: torchmetrics
+  Attempting uninstall: torchmetrics
+    Found existing installation: torchmetrics 1.9.0
+    Uninstalling torchmetrics-1.9.0:
+      Successfully uninstalled torchmetrics-1.9.0
+Successfully installed torchmetrics-1.8.2
+Name: torchmetrics
+Version: 1.8.2
+Name: torch
+Version: 2.6.0+cu124
+Name: lightning-utilities
+Version: 0.15.3

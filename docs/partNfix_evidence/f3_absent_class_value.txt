@@ -1,0 +1,1 @@
+torchmetrics 1.8.2 | test example y=[0,0,1,1] p=[0,1,1,1], C=3 | macro 0.733333 (11/15 = 0.733333 ) micro 0.75 (3/4)

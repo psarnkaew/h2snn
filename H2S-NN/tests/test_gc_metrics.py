@@ -26,9 +26,10 @@ class HetSheafF1Tests(unittest.TestCase):
         self.assertAlmostEqual(f1["micro_f1"], f1_score(y, p, average="micro"), places=6)
 
     def test_class_absent_from_truth_and_prediction(self) -> None:
-        """C = 3, class 2 in neither truth nor prediction. torchmetrics 1.9.0 (the version in
-        h2snn) does not average it: macro = mean(F1 class 0 = 2/3, F1 class 1 = 4/5) = 11/15;
-        micro = 3/4. Recorded as torchmetrics computes it, whatever sklearn would do."""
+        """C = 3, class 2 in neither truth nor prediction. torchmetrics 1.8.2 (the version in
+        h2snn, pinned to HetSheaf's uv.lock; Part N-fix F3) does not average it: macro =
+        mean(F1 class 0 = 2/3, F1 class 1 = 4/5) = 11/15; micro = 3/4 (1.9.0 gave the same
+        values). Recorded as torchmetrics computes it, whatever sklearn would do."""
         y, p = [0, 0, 1, 1], [0, 1, 1, 1]
         f1 = hetsheaf_f1(_logits(p, 3), torch.tensor(y))
         self.assertAlmostEqual(f1["macro_f1"], 11 / 15, places=6)

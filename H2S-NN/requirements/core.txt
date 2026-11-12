@@ -13,8 +13,8 @@ numpy
 scipy
 pyyaml
 scikit-learn
-# graph-classification F1 as HetSheaf computes it (spec v1.16 K4); 1.9.0 in h2snn
-torchmetrics
+# graph-classification F1 as HetSheaf computes it (spec v1.16 K4); pinned to HetSheaf's uv.lock (Part N-fix F3)
+torchmetrics==1.8.2
 wandb
 pandas
 umap-learn

@@ -71,3 +71,13 @@ Each is loaded with the global generator seeded to 0, 1, 2, 3 and 7 (15 cases). 
 - The H2S-NN GC capture no longer wraps `forward_batch`; it hooks the readout. The validation pass is still identified by `loader is fold.val_loader` inside `_run_epoch`.
 
 **Tests (VERIFIED-RUN).** New `tests/test_partn_smoke.py` (6), with the real `GraphReadout` (mean pooling, one graph per batch): identical pooled embeddings for every graph → (c1) and (c2) fail; varied embeddings with a zero-weight Linear → (c1) fails, (c2) holds; varied outputs with one predicted class (bias +10/−10) → passes, class count 1; capture shorter than the validation set → `ValueError`; the capture records only while active; `checks` gates GC on (c1) and (c2) only. `python -m unittest -v tests.test_partn_smoke` → **Ran 6 tests, OK** (`f2_tests_output.txt`). No other module imports the script.
+
+## F3 — torchmetrics as HetSheaf's lock (decision 6)
+
+**Done.**
+- Before (VERIFIED-RUN, `pip show`): torchmetrics **1.9.0**, torch 2.6.0+cu124, lightning-utilities 0.15.3.
+- `python -m pip install "torchmetrics==1.8.2"` → exit 0; pip uninstalled 1.9.0 and installed **1.8.2**, changing no other package; after: torchmetrics 1.8.2, torch 2.6.0+cu124, lightning-utilities 0.15.3 (`f3_pip_install_output.txt`).
+- Pinned `torchmetrics==1.8.2` in `H2S-NN/requirements/core.txt` (comment updated) and `H2S-NN/requirements/baselines-h2gb.txt` (the H2GB group also listed it).
+- **Absent-class value:** `tests/test_gc_metrics.py`'s case (y = [0, 0, 1, 1], p = [0, 1, 1, 1], C = 3; class 2 in neither) gives **macro 0.733333 = 11/15 and micro 0.75 = 3/4 on 1.8.2, the same values as 1.9.0** (`f3_absent_class_value.txt`). The recorded value is unchanged; only the test's docstring now names 1.8.2 as the version in use.
+
+**Tests (VERIFIED-RUN).** `tests.test_gc_metrics` → **Ran 3, OK** (`f3_gc_metrics_output.txt`). Modules that import the GC metric or read the requirement files: `test_gc_metrics`, `test_nc_metrics`, `test_data`, `test_gc_protocol`, `test_graph_classification_trainer`, `test_baselines` → **Ran 126; failures=2, errors=2**, all four in Part N N8's known set (vendor clones ×3, notebook) (`f3_tests_output.txt`); `test_wandb_and_runs` → **Ran 12, OK** (`f3_tests_wandb_output.txt`).

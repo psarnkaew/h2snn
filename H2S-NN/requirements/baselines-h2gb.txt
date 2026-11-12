@@ -10,7 +10,7 @@ ogb
 yacs
 dill
 pytorch_lightning
-torchmetrics
+torchmetrics==1.8.2  # pinned in core.txt (HetSheaf uv.lock, Part N-fix F3)
 prettytable
 gdown
 performer-pytorch
