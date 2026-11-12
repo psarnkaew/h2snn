@@ -1,0 +1,17 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+.F
+======================================================================
+FAIL: test_validation_and_test_labels_do_not_reach_the_label_channel (tests.test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 217, in test_validation_and_test_labels_do_not_reach_the_label_channel
+    self.assertTrue(torch.equal(clean, poisoned))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 104.271s
+
+FAILED (failures=1)

@@ -1,0 +1,122 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+..FFFFF
+======================================================================
+FAIL: test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 130, in test_schemas_equal_the_table_concatenation
+    self.assertEqual(list(walk_schema(dataset)), expected)
+AssertionError: Lists differ: [('pa[346 chars]per')] != [('pa[346 chars]per'), ('paper', 'ref', 'paper'), ('paper', 't[38 chars]er')]
+
+Second list contains 3 additional elements.
+First extra element 13:
+('paper', 'ref', 'paper')
+
+  [('paper', 'to', 'author'),
+   ('author', 'to', 'paper'),
+   ('paper', 'to', 'subject'),
+   ('subject', 'to', 'paper'),
+   ('paper', 'cite', 'paper'),
+   ('paper', 'to', 'author'),
+   ('author', 'to', 'paper'),
+   ('paper', 'cite', 'paper'),
+   ('paper', 'to', 'subject'),
+   ('subject', 'to', 'paper'),
+   ('paper', 'ref', 'paper'),
+   ('paper', 'to', 'author'),
+-  ('author', 'to', 'paper')]
+?                           ^
+
++  ('author', 'to', 'paper'),
+?                           ^
+
++  ('paper', 'ref', 'paper'),
++  ('paper', 'to', 'subject'),
++  ('subject', 'to', 'paper')]
+
+======================================================================
+FAIL: test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 130, in test_schemas_equal_the_table_concatenation
+    self.assertEqual(list(walk_schema(dataset)), expected)
+AssertionError: Lists differ: [('mo[47 chars]vie')] != [('mo[47 chars]vie'), ('movie', '>actorh', 'actor'), ('actor', 'to', 'movie')]
+
+Second list contains 2 additional elements.
+First extra element 2:
+('movie', '>actorh', 'actor')
+
+- [('movie', 'to', 'director'), ('director', 'to', 'movie')]
++ [('movie', 'to', 'director'),
++  ('director', 'to', 'movie'),
++  ('movie', '>actorh', 'actor'),
++  ('actor', 'to', 'movie')]
+
+======================================================================
+FAIL: test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) (dataset='lastfm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 130, in test_schemas_equal_the_table_concatenation
+    self.assertEqual(list(walk_schema(dataset)), expected)
+AssertionError: Lists differ: [('us[78 chars]ser')] != [('us[78 chars]ser'), ('user', 'rel_0', 'artist'), ('artist',[77 chars]er')]
+
+Second list contains 4 additional elements.
+First extra element 3:
+('user', 'rel_0', 'artist')
+
+  [('user', 'rel_1', 'user'),
+   ('user', 'rel_0', 'artist'),
++  ('artist', 'rev_rel_0', 'user'),
++  ('user', 'rel_0', 'artist'),
++  ('artist', 'rel_2', 'tag'),
++  ('tag', 'rev_rel_2', 'artist'),
+   ('artist', 'rev_rel_0', 'user')]
+
+======================================================================
+FAIL: test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) (dataset='acm_pa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 130, in test_schemas_equal_the_table_concatenation
+    self.assertEqual(list(walk_schema(dataset)), expected)
+AssertionError: Lists differ: [('pa[380 chars]per')] != [('pa[380 chars]per'), ('paper', 'rel_1', 'paper'), ('paper', [46 chars]er')]
+
+Second list contains 3 additional elements.
+First extra element 13:
+('paper', 'rel_1', 'paper')
+
+  [('paper', 'rel_2', 'author'),
+   ('author', 'rel_3', 'paper'),
+   ('paper', 'rel_4', 'subject'),
+   ('subject', 'rel_5', 'paper'),
+   ('paper', 'rel_0', 'paper'),
+   ('paper', 'rel_2', 'author'),
+   ('author', 'rel_3', 'paper'),
+   ('paper', 'rel_0', 'paper'),
+   ('paper', 'rel_4', 'subject'),
+   ('subject', 'rel_5', 'paper'),
+   ('paper', 'rel_1', 'paper'),
+   ('paper', 'rel_2', 'author'),
+-  ('author', 'rel_3', 'paper')]
+?                              ^
+
++  ('author', 'rel_3', 'paper'),
+?                              ^
+
++  ('paper', 'rel_1', 'paper'),
++  ('paper', 'rel_4', 'subject'),
++  ('subject', 'rel_5', 'paper')]
+
+======================================================================
+FAIL: test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_h2gformer.py", line 131, in test_schemas_equal_the_table_concatenation
+    self.assertEqual(len(walk_schema("dblp")), 2 + 4 + 4)          # APA, APTPA, APVPA
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 6 != 10
+
+----------------------------------------------------------------------
+Ran 3 tests in 10.360s
+
+FAILED (failures=5)

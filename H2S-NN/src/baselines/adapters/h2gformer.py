@@ -16,13 +16,11 @@ Deviations, recorded on the run record:
 
 1. **The split** is the project's canonical HGB carve-out.
 2. **Model selection** is on validation macro-F1, uniformly.
-3. **Node encoder is ``Hetero_Raw``** -- the per-type linear projection into a shared space
-   (``hetero_raw_encoder.py:77``), which is the same convention HGB's ``fc_list`` uses and
-   the one every other homogeneous/heterogeneous baseline here gets. Their ogbn-mag config
-   stacks ``Hetero_Raw+Hetero_Label+Hetero_Metapath``, but the metapath encoder needs
-   precomputed metapath2vec embeddings and the label encoder is a label-reuse channel; on
-   HGB datasets with real node attributes the raw encoder is the natural choice, and it
-   keeps the input treatment aligned with the rest of the table.
+3. **Node encoder is H2GB's own stack** (spec v1.19 T2, Part P P1b;
+   :mod:`src.baselines.adapters._h2gformer_encoders`): H2GB datasets exactly as their configs;
+   HGB NC ``Hetero_Raw+Hetero_Label``, LP and GC ``Hetero_Raw``, plus ``Hetero_Metapath`` when
+   the tuned key ``metapath_pe`` is on (cells with an HGB-table walk schema). The label channel
+   sees training labels only (route test); IMDB (multi-label) has no label channel.
 
 Link prediction reuses the same model through
 :mod:`src.baselines.adapters._h2gformer_lp`, which swaps only the final head so every
@@ -41,6 +39,18 @@ from typing import Any
 import torch
 
 from src.baselines.adapters._gc_typed import batch_hetero_data, relation_key
+from src.baselines.adapters._h2gformer_encoders import (
+    H2GB_STACKS,
+    LABEL,
+    METAPATH,
+    RAW,
+    configure_encoders,
+    encoder_stack,
+    has_walk_schema,
+    metapath2vec_embeddings,
+    training_label_input,
+    walk_schema,
+)
 from src.baselines.adapters._h2gformer_lp import (
     AllTypesHead,
     H2GformerLinkEncoder,
@@ -103,6 +113,8 @@ def _configure_graphgym(
     dim_in: dict[str, int],
     target_type: str,
     device: torch.device,
+    stack: tuple[str, ...] = (RAW,),
+    dim_out: int | None = None,
 ) -> Any:
     """Populate graphgym's global cfg for one trial.
 
@@ -133,7 +145,6 @@ def _configure_graphgym(
     cfg.dataset.task_entity = target_type
     cfg.dataset.transductive = True
     cfg.dataset.node_encoder = True
-    cfg.dataset.node_encoder_name = "Hetero_Raw"
     cfg.dataset.node_encoder_bn = False
     cfg.dataset.edge_encoder = False
     cfg.dataset.edge_encoder_name = "none"
@@ -166,6 +177,10 @@ def _configure_graphgym(
     cfg.gt.virtual_nodes = 0
     cfg.gt.head = "hetero_node"
     cfg.gt.l = 0
+    # spec v1.19 T2 (Part P P1b): H2GB's encoder stack per cell (_h2gformer_encoders).
+    configure_encoders(cfg, stack)
+    if dim_out is not None:
+        cfg.share.dim_out = int(dim_out)  # the label channel's class count (Hetero_Label)
     return cfg
 
 
@@ -193,6 +208,9 @@ class H2GformerAdapter:
             "gt_layers": {"values": [2, 3]},
             "attn_heads": {"values": [4, 8]},
         }
+        if has_walk_schema(task, dataset) and dataset.lower() not in H2GB_STACKS:
+            # spec v1.19 T2 (D-P3): the MetaPath2Vec channel on/off, where a schema exists
+            space["metapath_pe"] = {"values": [True, False]}
         if task == LINK_PREDICTION:
             space["embed_dim"] = {"values": [16, 64, 128]}
             space["decoder_type"] = {"values": ["dot", "distmult"]}
@@ -224,19 +242,9 @@ class H2GformerAdapter:
 
         seed_everything(seed, device)
         data, target_type = _build_hetero_data(bundle, device)
-        dim_in = {
-            node_type: int(data[node_type].x.size(1)) for node_type in data.node_types
-        }
-
-        ensure_pyg_submodules()
-        with pushd_sys_path(VENDOR):
-            _configure_graphgym(
-                params, dim_in=dim_in, target_type=target_type, device=device
-            )
-            from H2GB.network.gt_model import GTModel  # type: ignore[import-not-found]
-
-            shim = _DatasetShim(data, f"hgb-{bundle.dataset}")
-            model = GTModel(dim_in, bundle.num_classes, shim).to(device)
+        stack = node_classification_stack(bundle, params)
+        model = build_node_classification_model(
+            data, target_type, bundle, params, stack, device=device, seed=seed)
 
         optimizer = torch.optim.AdamW(
             model.parameters(),
@@ -263,6 +271,9 @@ class H2GformerAdapter:
         def forward() -> torch.Tensor:
             for node_type, value in pristine_x.items():
                 data[node_type].x = value.clone()
+            # H2GB's label encoder reads `batch.split`; 'test' would add validation labels
+            # (hetero_label_encoder.py:42-44), so evaluation runs as 'val' (training labels only).
+            data.split = "train" if model.training else "val"
             out = model(data)
             # The hetero_node head returns (prediction, label); take the prediction and
             # keep only the target node type.
@@ -286,7 +297,7 @@ class H2GformerAdapter:
             num_target=int(labels.shape[0]),
         )
         record["params_source"] = params.source
-        record["node_encoder"] = "Hetero_Raw"
+        record["node_encoder"] = "+".join(stack)
         return record
 
     def _fit_link_prediction(
@@ -310,10 +321,14 @@ class H2GformerAdapter:
         }
 
         source_type = bundle.data.target_relation[0]
+        stack = encoder_stack(LINK_PREDICTION, bundle.dataset, _metapath_key(
+            LINK_PREDICTION, bundle.dataset, params))
         ensure_pyg_submodules()
         with pushd_sys_path(VENDOR):
+            if METAPATH in stack:  # training message graph only (build_edge_index_dict)
+                attach_metapath_embeddings(hetero, bundle.dataset, device=device, seed=seed)
             _configure_graphgym(
-                params, dim_in=dim_in, target_type=source_type, device=device
+                params, dim_in=dim_in, target_type=source_type, device=device, stack=stack
             )
             from H2GB.network.gt_model import GTModel  # type: ignore[import-not-found]
 
@@ -357,6 +372,7 @@ class H2GformerAdapter:
         )
         record["params_source"] = params.source
         record["decoder_type"] = str(params.get("decoder_type", "dot"))
+        record["node_encoder"] = "+".join(stack)
         record["input_modes"] = ",".join(
             f"{k}:{v}" for k, v in sorted(node_input.modes.items())
         )
@@ -431,6 +447,68 @@ class H2GformerAdapter:
         record["num_relation_keys"] = float(num_relations)
         record["readout"] = "shared_mean_pool_linear"
         return record
+
+
+def _metapath_key(task: str, dataset: str, params: BaselineParams) -> bool | None:
+    """The tuned `metapath_pe` value of a cell that has the key, else None (spec v1.19 T2)."""
+    if not has_walk_schema(task, dataset) or dataset.lower() in H2GB_STACKS:
+        return None
+    return bool(params.get("metapath_pe", False))
+
+
+def node_classification_stack(bundle: NodeBundle, params: BaselineParams) -> tuple[str, ...]:
+    """T2's NC stack. H2GB's label channel one-hot encodes one label per node
+    (hetero_label_encoder.py:49-59), so a multi-label target (IMDB) drops it (stated, D-P5)."""
+    stack = encoder_stack(NODE_CLASSIFICATION, bundle.dataset,
+                          _metapath_key(NODE_CLASSIFICATION, bundle.dataset, params))
+    if bundle.is_multilabel:
+        stack = tuple(name for name in stack if name != LABEL)
+    return stack
+
+
+def attach_metapath_embeddings(data: Any, dataset: str, *, device: torch.device,
+                               seed: int, epochs: int | None = None) -> None:
+    """H2GB's MetaPath2Vec on `data`'s edges with the cell's walk schema, stored as each node
+    type's `pestat_Hetero_Metapath` (as H2GB's master_loader.py:266-281 stores it)."""
+    embeddings = metapath2vec_embeddings(
+        dict(data.edge_index_dict), dict(data.num_nodes_dict), walk_schema(dataset),
+        device=device, seed=seed, epochs=epochs)
+    dim_pe = next(iter(embeddings.values())).size(1)
+    for node_type in data.node_types:
+        # H2GB's schemas visit every node type of their graphs; a type the HGB table never
+        # visits (ACM term, IMDB keyword, ...) gets a zero encoding (no MetaPath2Vec
+        # information; stated, D-P7), so the composed encoder's widths agree.
+        value = embeddings.get(node_type)
+        if value is None:
+            value = torch.zeros(int(data[node_type].num_nodes), dim_pe)
+        data[node_type]["pestat_Hetero_Metapath"] = value.to(device)
+
+
+def build_node_classification_model(data: Any, target_type: str, bundle: NodeBundle,
+                                    params: BaselineParams, stack: tuple[str, ...], *,
+                                    device: torch.device, seed: int,
+                                    metapath_epochs: int | None = None) -> Any:
+    """GTModel with `stack` on `data` (prepared in place: training labels for the label
+    channel, MetaPath2Vec embeddings for the MetaPath channel)."""
+    if LABEL in stack:
+        labels, train, val = training_label_input(
+            bundle.data.target_y.cpu(), bundle.data.target_train_mask.cpu())
+        data[target_type].y = labels.to(device)
+        data[target_type].train_mask = train.to(device)
+        data[target_type].val_mask = val.to(device)
+    ensure_pyg_submodules()
+    with pushd_sys_path(VENDOR):
+        if METAPATH in stack:
+            attach_metapath_embeddings(data, bundle.dataset, device=device, seed=seed,
+                                       epochs=metapath_epochs)
+        dim_in = {node_type: int(data[node_type].x.size(1)) for node_type in data.node_types}
+        _configure_graphgym(params, dim_in=dim_in, target_type=target_type, device=device,
+                            stack=stack, dim_out=bundle.num_classes)
+        from H2GB.network.gt_model import GTModel  # type: ignore[import-not-found]
+
+        shim = _DatasetShim(data, f"hgb-{bundle.dataset}")
+        data.split = "train"
+        return GTModel(dim_in, bundle.num_classes, shim).to(device)
 
 
 def _build_hetero_data(bundle: NodeBundle, device: torch.device) -> tuple[Any, str]:
