@@ -1,7 +1,7 @@
 # Task card — Part O: schema read-out and coverage of the main runs, fixed-literature-schema row
 
-**Design authority:** `docs/spec_v1.18_draft_edits.md` **Z-2 and Z-3 as approved by the author** (with O-1 and O-2 as decided), on top of spec v1.17; `H2S-NN/AGENTS.md`/`CLAUDE.md` for environment, coding, testing and evidence tags.
-**Precondition:** Part N-fix report read by the author. **Branch:** `part-o`, created from the last commit of `part-nfix` (hash given in the prompt). **Report:** `docs/H2S-NN_partO_report.md`. Evidence: `docs/partO_evidence/`.
+**Design authority:** spec **v1.18** (applied 2026-11-13: the fixed-literature-schema row and the schema read-out/coverage bullets of §6, with O-1 = Hetero²Net's lists and O-2 = tuned `r` split evenly); `H2S-NN/AGENTS.md`/`CLAUDE.md` for environment, coding, testing and evidence tags.
+**Precondition:** Part N-fix report read by the author. **Branch:** `part-o`, created from `v3b` at the commit given in the prompt (it contains `part-m`, `part-n`, `part-nfix`). **Report:** `docs/H2S-NN_partO_report.md`. Evidence: `docs/partO_evidence/`.
 
 ## Goal and rule
 Make the read-out of spec §3.2 usable on the v3-B main runs and define the comparison row, so that the server runs keep everything the analysis needs. **No performance experiment and no empirical result** (no accuracy, F1, ROC-AUC, MRR, `I_σ` value of a trained model, or comparison is reported); local runs are correctness tests only; no smoke run (author, 2026-11-12). The method is not changed (WISP, energy, maps, solver, readouts of the heads).

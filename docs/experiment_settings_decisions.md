@@ -74,4 +74,7 @@ Started 2026-11-11 by the design session. Single place where experiment-setting 
 | 2026-11-12 | Spec draft v1.18 | Z-1 (validation orientation on derived tasks; validation negatives once per run, HGB re-draws per batch step, run_new.py:150-152) and Z-4 (split differences) approved; Z-2 waits for O-1/O-2, Z-3 for approval | chat (2026-11-12) |
 | 2026-11-12 | Smoke runs | Author: no smoke runs from now on; only correctness tests (unit, oracle, mutation, full suite). Part N-fix F4 cancelled (the NC class-count question is moot); Part O's 2-epoch smoke removed from its card | chat (2026-11-12 21:03) |
 | 2026-11-12 | HGB oracle (Part N-fix decision 2) | Approved: a fourth oracle dataset where a one-way validation fact changes a test head's 2-hop candidates, with a guard assertion; M1 and M2 must both be caught by the oracle tests (unit F1d) | chat (2026-11-12 21:03) |
+| 2026-11-13 | v1.18 O-1, O-2, Z-3 | Approved as recommended: O-1 = Hetero²Net's predefined lists for the fixed-literature-schema row; O-2 = walks per anchor = tuned `r`, split evenly over the listed meta-paths, no separate tuning; Z-3 schema read-out and coverage approved | author (2026-11-13 02:45) |
+| 2026-11-13 | Spec | docs/spec_v1.18_draft_edits.md (Z-1..Z-4) applied as spec v1.18 (S1-S5); backup docs/spec_backups/H2S-NN_methodology_spec_v1.17.md | chat (2026-11-13) |
+| 2026-11-13 | Git | Docs committed on part-nfix (5fb006e); v3b fast-forwarded to 5fb006e (contains part-m, part-n, part-nfix); author asked for automatic commits of the design docs | chat (2026-11-13) |
 
