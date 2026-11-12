@@ -1,0 +1,20 @@
+# P0(e) HetSheaf imports in conda env h2snn (vendor commit 6964e1e)
+Python 3.12.13
+torch 2.6.0+cu124 pyg 2.8.0
+$ python -c 'import hetsheaf'
+ModuleNotFoundError: No module named 'strenum'
+$ python -c 'import lightning'
+ModuleNotFoundError: No module named 'lightning'
+$ python -c 'import hydra'
+ModuleNotFoundError: No module named 'hydra'
+$ python -c 'import strenum'
+ModuleNotFoundError: No module named 'strenum'
+$ python -c 'import torch_householder'
+subprocess.CalledProcessError: Command '['where', 'cl']' returned non-zero exit status 1.
+$ grep pyproject.toml
+16:requires-python = ">=3.13,<3.14"
+19:    "torch==2.8.0",
+23:    "lightning==2.6.0",
+24:    "torch-householder==1.0.1", # C++ JIT compiler needed (MSVC for Windows)
+28:    "hydra-core",
+29:    "strenum",

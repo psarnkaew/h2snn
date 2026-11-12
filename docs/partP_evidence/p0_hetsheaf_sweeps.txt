@@ -1,0 +1,450 @@
+##### nc/diag_sheaf: 1 distinct
+  datasets: ['acm', 'dblp', 'imdb', 'routenet_traffic']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_nc.py
+    _run_cap : 150
+    model : =diag_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### nc/bundle_sheaf: 2 distinct
+  datasets: ['acm', 'dblp', 'imdb']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_nc.py
+    _run_cap : 150
+    model : =bundle_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+  datasets: ['routenet_traffic'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type'] -> categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+##### nc/general_sheaf: 2 distinct
+  datasets: ['acm', 'dblp', 'imdb']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_nc.py
+    _run_cap : 150
+    model : =general_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+  datasets: ['routenet_traffic'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type'] -> categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+##### nc/attention_sheaf: 2 distinct
+  datasets: ['acm', 'dblp', 'imdb']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_nc.py
+    _run_cap : 150
+    model : =attention_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.heads : int_uniform[1,8]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+  datasets: ['routenet_traffic'] DIFF vs first:
+     model.args.heads : int_uniform[1,8] -> None
+     sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type'] -> categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+##### nc/diag_poly_sheaf: 1 distinct
+  datasets: ['acm', 'dblp', 'imdb', 'routenet_traffic']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_nc.py
+    _run_cap : 150
+    model : =diag_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### nc/bundle_poly_sheaf: 2 distinct
+  datasets: ['acm', 'dblp', 'imdb']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_nc.py
+    _run_cap : 150
+    model : =bundle_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+  datasets: ['routenet_traffic'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type'] -> categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+##### nc/general_poly_sheaf: 2 distinct
+  datasets: ['acm', 'dblp', 'imdb']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_nc.py
+    _run_cap : 150
+    model : =general_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+  datasets: ['routenet_traffic'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type'] -> categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+##### lp/diag_sheaf: 1 distinct
+  datasets: ['as733', 'ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_diag_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### lp/bundle_sheaf: 2 distinct
+  datasets: ['as733']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_bundle_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+  datasets: ['ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only'] -> categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+##### lp/general_sheaf: 2 distinct
+  datasets: ['as733']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_general_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+  datasets: ['ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only'] -> categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+##### lp/attention_sheaf: 2 distinct
+  datasets: ['as733']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_attention_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+  datasets: ['ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi'] DIFF vs first:
+     model.args.heads : None -> int_uniform[1,8]
+     sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only'] -> categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+##### lp/diag_poly_sheaf: 1 distinct
+  datasets: ['as733', 'ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_poly_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_diag_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### lp/bundle_poly_sheaf: 2 distinct
+  datasets: ['as733']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_poly_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_bundle_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+  datasets: ['ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only'] -> categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+##### lp/general_poly_sheaf: 2 distinct
+  datasets: ['as733']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/AUROC'}
+    _program : hetsheaf/scripts/run_poly_sheaf_lp.py
+    _run_cap : 150
+    model : =ind_general_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+  datasets: ['ctd_dda', 'drugbank_ddi', 'hgb_amazon', 'hgb_pubmed', 'hgb_youtube', 'last_fm', 'movie_lens', 'ndfrt_dda', 'string_ppi'] DIFF vs first:
+     sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only'] -> categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+##### gc/diag_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_diag_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### gc/bundle_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_bundle_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+##### gc/general_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_general_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+##### gc/attention_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_attention_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.heads : int_uniform[1,8]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+##### gc/diag_poly_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_diag_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only']
+    trainer.max_epochs : =500
+##### gc/bundle_poly_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_bundle_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
+##### gc/general_poly_sheaf: 1 distinct
+  datasets: ['enzymes', 'mutag', 'nci1', 'proteins']
+    _early : {'type': 'hyperband', 'max_iter': 27, 's': 2}
+    _method : bayes
+    _metric : {'goal': 'maximize', 'name': 'valid/macro-f1'}
+    _program : hetsheaf/scripts/run_poly_sheaf_gc.py
+    _run_cap : 150
+    model : =ind_general_poly_sheaf
+    model.args.d : int_uniform[2,5]
+    model.args.dropout : uniform[0,0.9]
+    model.args.hidden_channels : categorical[8, 16, 32, 64]
+    model.args.initial_dropout : uniform[0,0.9]
+    model.args.input_dropout : uniform[0,0.9]
+    model.args.lambda_max_choice : =analytic
+    model.args.layers : int_uniform[2,8]
+    model.args.output_dim : categorical[32, 64, 128]
+    model.args.poly_layers_K : categorical[2, 3, 4, 5, 8, 12, 16]
+    model.args.polynomial_type : =ChebyshevType1
+    optimization.learning_rate : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05]
+    optimization.weight_decay : categorical['1e-05', '5e-05', 0.0001, 0.0005, 0.001, 0.005]
+    sheaf_learner : categorical['local_concat', 'attention', 'type_concat', 'type_ensemble', 'edge_type_concat', 'node_type_concat', 'node_type', 'edge_type', 'types_only', 'attention_type_concat', 'attention_type_ensemble', 'attention_edge_encoding', 'attention_node_encoding', 'attention_types_only', 'attention_node_type', 'attention_edge_type']
+    trainer.max_epochs : =500
