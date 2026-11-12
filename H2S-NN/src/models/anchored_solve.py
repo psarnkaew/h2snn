@@ -21,6 +21,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Protocol
 
+import math
+
 import torch
 
 
@@ -62,6 +64,35 @@ class LogWeightRangeStopError(StopConditionError):
 
     def __init__(self, value: float, limit: float, epoch: int) -> None:
         super().__init__("log_weight_range", value, limit, epoch)
+
+
+class NonFiniteLogWeightError(StopConditionError):
+    """Some `g(xi_f)` is not finite, checked before `exp` (spec v1.16 K5; fp32 `exp` overflows
+    above about 88.7). `value` = the first non-finite log-weight."""
+
+    def __init__(self, value: float, epoch: int) -> None:
+        RuntimeError.__init__(self, f"stop condition non_finite_log_weight: g(xi_f) = {value} at "
+                                    f"epoch {epoch}{' (evaluation forward)' if epoch < 0 else ''} "
+                                    "(spec v1.16 K5)")
+        self.condition, self.value, self.limit, self.epoch = (
+            "non_finite_log_weight", float(value), float("inf"), epoch)
+
+
+class NonFiniteLossError(StopConditionError):
+    """The training loss of any method is not finite (spec v1.16 K5): the trial fails."""
+
+    def __init__(self, value: float, epoch: int) -> None:
+        RuntimeError.__init__(self, f"stop condition non_finite_loss: training loss {value} at "
+                                    f"epoch {epoch} (spec v1.16 K5)")
+        self.condition, self.value, self.limit, self.epoch = (
+            "non_finite_loss", float(value), float("inf"), epoch)
+
+
+def check_finite_loss(loss: torch.Tensor, epoch: int) -> None:
+    """Raise `NonFiniteLossError` when a training loss is NaN or infinite (every method)."""
+    value = float(loss.detach())
+    if not math.isfinite(value):
+        raise NonFiniteLossError(value, epoch)
 
 
 @dataclass
@@ -300,6 +331,7 @@ def anchored_solve(build: Callable[..., AnchoredOperator], h0: torch.Tensor,
                                scope_rows, num_scopes, *params)
 
 
-__all__ = ["AnchoredSolve", "AnchoredSystem", "LogWeightRangeStopError", "PCGConvergenceError",
-           "SolveStats", "StopConditionError", "TauStopError",
+__all__ = ["AnchoredSolve", "AnchoredSystem", "LogWeightRangeStopError", "NonFiniteLogWeightError",
+           "NonFiniteLossError", "PCGConvergenceError", "SolveStats", "StopConditionError",
+           "TauStopError", "check_finite_loss",
            "anchored_solve", "pcg", "segment_dot", "solve_anchored", "solver_tolerance"]

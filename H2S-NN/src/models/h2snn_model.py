@@ -53,7 +53,8 @@ from src.models.map_operators import (
     normalize_reflectors,
 )
 from src.models.filter_bank import ChebyshevFilterBank
-from src.models.anchored_solve import (LogWeightRangeStopError, SolveStats, TauStopError,
+from src.models.anchored_solve import (LogWeightRangeStopError, NonFiniteLogWeightError,
+                                       PCGConvergenceError, SolveStats, TauStopError,
                                        anchored_solve, solver_tolerance)
 from src.models.sheaf_energy import (
     EliminatedOperator,
@@ -718,6 +719,7 @@ class H2SNN(nn.Module):
         self.theta_tau: nn.Parameter | None = None
         self.free_cell_maps: FreeIncidenceMaps | None = None
         self.stop_limits = (model_config.tau_stop, model_config.log_weight_range_stop)
+        self._current_epoch = -1
         self.solver_settings = (model_config.solver_warmup_epochs,
                                 model_config.solver_warmup_tolerance,
                                 model_config.solver_tolerance,
@@ -881,6 +883,9 @@ class H2SNN(nn.Module):
                 return torch.exp(self.path_log_weight).expand(group.num_faces)
             return like.new_ones(group.num_faces)
         logits = self.path_gate(latent).squeeze(-1)
+        if self.anchored and not bool(torch.isfinite(logits).all()):  # spec v1.16 K5, before exp
+            bad = logits[~torch.isfinite(logits)][0]
+            raise NonFiniteLogWeightError(float(bad), self._current_epoch)
         return torch.exp(logits) if self.path_weight == "exp" else torch.sigmoid(logits)
 
     def path_terms(
@@ -1251,6 +1256,7 @@ class H2SNN(nn.Module):
         geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
         tau_stop, range_stop = self.stop_limits
+        self._current_epoch = epoch  # for the stop conditions raised inside g (K5)
         tau_value = float(self.tau().detach())  # type: ignore[union-attr]
         if tau_value > tau_stop:  # spec §6 stop condition (J10)
             raise TauStopError(tau_value, tau_stop, epoch)
@@ -1332,8 +1338,13 @@ class H2SNN(nn.Module):
                 and self._warm_start.device == device):
             y0 = self._warm_start  # the evaluation draw is fixed: warm start from the last epoch
         stats = SolveStats()
-        y_star = anchored_solve(build, h0, self.theta_tau, params, tolerance, max_iterations,
-                                stats, y0=y0)
+        try:
+            y_star = anchored_solve(build, h0, self.theta_tau, params, tolerance, max_iterations,
+                                    stats, y0=y0)
+        except PCGConvergenceError as exc:  # T_max: name the epoch and the limit (K5), re-raise
+            exc.condition, exc.value, exc.limit, exc.epoch = (
+                "T_max", float(max_iterations), float(max_iterations), epoch)
+            raise
         if not self.training:
             self._warm_start = y_star.detach()
         x_star = y_star[:num_nodes]

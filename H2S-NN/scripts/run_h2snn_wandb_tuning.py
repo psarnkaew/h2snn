@@ -723,6 +723,14 @@ def run_final_seeds(
     return records
 
 
+def _merge_counts(counts) -> dict[str, int]:
+    merged: dict[str, int] = {}
+    for item in counts:
+        for key, value in (item or {}).items():
+            merged[key] = merged.get(key, 0) + int(value)
+    return dict(sorted(merged.items()))
+
+
 def main() -> None:
     args = parse_args()
     if args.worker_context is not None:
@@ -817,6 +825,9 @@ def main() -> None:
         extra_summary={
             "monitor": f"val_{monitor}",
             "tuning": "wandb_plain_bayes_seed0",
+            # failed trials (stop condition, T_max, non-finite loss; spec v1.16 K5)
+            "failed_trials": sum(int(r.get("failed_trials", 0)) for r in best_records),
+            "failed_by_condition": _merge_counts(r.get("failed_by_condition") for r in best_records),
             "run_partition": {
                 "start": args.run_start,
                 "count": run_count,

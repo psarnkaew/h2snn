@@ -8,18 +8,22 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from src.models.anchored_solve import StopConditionError
+from src.models.anchored_solve import PCGConvergenceError, StopConditionError
 
 
 @contextmanager
 def logged_stop_conditions(logger) -> Iterator[None]:
     try:
         yield
-    except StopConditionError as exc:
+    except (StopConditionError, PCGConvergenceError) as exc:
         if logger is not None:
-            logger.info("STOP CONDITION %s: %.6g > %g at epoch %d%s (spec v1.15 §6); run stopped.",
-                        exc.condition, exc.value, exc.limit, exc.epoch,
-                        " (evaluation forward)" if exc.epoch < 0 else "")
+            epoch = getattr(exc, "epoch", None)
+            value, limit = getattr(exc, "value", None), getattr(exc, "limit", None)
+            logger.info("STOP CONDITION %s: %s > %s at epoch %s%s (spec v1.16 §6); run stopped.",
+                        getattr(exc, "condition", type(exc).__name__),
+                        "?" if value is None else f"{value:.6g}",
+                        "?" if limit is None else f"{limit:g}", epoch,
+                        " (evaluation forward)" if epoch is not None and epoch < 0 else "")
         raise
 
 

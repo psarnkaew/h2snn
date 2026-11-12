@@ -11,6 +11,7 @@ from src.data.graph_faces import build_typed_path_face_groups
 from src.data.wisp_tasks import build_graph_wisp_path_groups
 from src.data.graph_classification_dataset import GraphClassificationFold
 from src.models.h2snn_model import H2SNN
+from src.models.anchored_solve import check_finite_loss
 from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
@@ -191,6 +192,7 @@ class GraphClassificationTrainer:
                 loss = self.criterion(logits, labels)
 
             if train:
+                check_finite_loss(loss, epoch)  # spec v1.16 K5
                 loss.backward()
                 if self.cfg.optim.grad_clip > 0:  # spec v1.15 §6: no clipping by default
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(),

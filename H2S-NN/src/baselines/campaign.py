@@ -304,6 +304,13 @@ def summarize_cell(
     # the same rule as H2S-NN's summaries: a metric without value (an empty LP test set) is
     # None with its reason, never a number (spec v1.16 K1)
     summary["metrics"] = summarize_records(records, metrics)
+    # failed trials of this cell (method, dataset), over its units (spec v1.16 K5)
+    summary["failed_trials"] = sum(int(record.get("failed_trials", 0)) for record in records)
+    by_condition: dict[str, int] = {}
+    for record in records:
+        for condition, count in (record.get("failed_by_condition") or {}).items():
+            by_condition[condition] = by_condition.get(condition, 0) + int(count)
+    summary["failed_by_condition"] = dict(sorted(by_condition.items()))
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:

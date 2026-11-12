@@ -89,6 +89,53 @@ class CampaignUnit:
         return self.name or f"{self.label}{self.run_index}"
 
 
+def failure_details(exc: BaseException) -> dict[str, Any] | None:
+    """The named condition of a failed trial (spec v1.16 K5): a stop condition (`tau`,
+    `log_weight_range`, `non_finite_log_weight`, `non_finite_loss`) or `T_max`, with its value
+    and epoch; None for any other error (still a failed trial, recorded by its message)."""
+    from src.models.anchored_solve import PCGConvergenceError, StopConditionError
+
+    if isinstance(exc, (StopConditionError, PCGConvergenceError)):
+        return {"condition": getattr(exc, "condition", "T_max"),
+                "value": getattr(exc, "value", None), "limit": getattr(exc, "limit", None),
+                "epoch": getattr(exc, "epoch", None)}
+    return None
+
+
+def count_failures(failures: list[dict[str, Any]]) -> dict[str, int]:
+    """Failed trials per condition (`other` when the trial failed for any other reason)."""
+    counts: dict[str, int] = {}
+    for attempt in failures:
+        failure = attempt.get("failure") if isinstance(attempt, dict) else None
+        key = str(failure.get("condition")) if isinstance(failure, dict) else "other"
+        counts[key] = counts.get(key, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def record_failed_attempt(state: dict[str, Any], attempt: dict[str, Any],
+                          status: dict[str, Any] | None) -> None:
+    """Append one failed trial to `state["failures"]`: no record, so no score reaches the
+    Bayesian search; the attempt names the condition, epoch and value when one fired."""
+    if isinstance(status, dict) and isinstance(status.get("failure"), dict):
+        attempt["failure"] = status["failure"]
+    entries = state.get("failures", [])
+    if not isinstance(entries, list):
+        entries = []
+    entries.append(attempt)
+    state["failures"] = entries
+    state["failed_trials"] = len(entries)
+    state["failed_by_condition"] = count_failures(entries)
+
+
+def attach_failures(result: Any, failure_summary: dict[str, Any]) -> Any:
+    """A unit's result (best record or cell summary) with its failed-trial counts, so the
+    campaign summary can count failed trials per method and dataset."""
+    if isinstance(result, dict):
+        result["failed_trials"] = failure_summary["failed_trials"]
+        result["failed_by_condition"] = failure_summary["failed_by_condition"]
+    return result
+
+
 def is_sweep_prune(exc: BaseException) -> bool:
     """Whether ``exc`` is Hyperband stopping this trial rather than the fit failing.
 
@@ -324,10 +371,11 @@ def run_campaign_worker(
         entity = str(context.get("wandb_entity", "")) or None
         tags = list(context.get("wandb_tags", []))
         objective_error: str | None = None
+        objective_failure: dict[str, Any] | None = None
         objective_pruned = False
 
         def objective() -> None:
-            nonlocal objective_error, objective_pruned
+            nonlocal objective_error, objective_pruned, objective_failure
             try:
                 init_kwargs: dict[str, Any] = {
                     "project": context["wandb_project"],
@@ -389,6 +437,9 @@ def run_campaign_worker(
                         }
                     )
             except Exception as exc:
+                # A failed trial (spec v1.16 K5): nothing is logged under the sweep metric, so
+                # no score reaches the Bayesian search; the named condition goes to the status.
+                objective_failure = failure_details(exc)
                 objective_pruned = is_sweep_prune(exc)
                 objective_error = (
                     "early-terminated by the sweep's Hyperband bracket"
@@ -422,10 +473,12 @@ def run_campaign_worker(
                 )
                 return
             detail = f" Last objective error: {objective_error}" if objective_error else ""
-            raise RuntimeError(
+            failure = RuntimeError(
                 "W&B worker returned without recording exactly one successful trial."
                 f"{detail}"
             )
+            failure.trial_failure = objective_failure  # type: ignore[attr-defined]
+            raise failure
         write_worker_status(
             status_path,
             {
@@ -443,6 +496,7 @@ def run_campaign_worker(
                 "attempt_index": int(context["attempt_index"]),
                 "worker_pid": os.getpid(),
                 "error": f"{type(exc).__name__}: {exc}"[:1000],
+                "failure": getattr(exc, "trial_failure", None) or failure_details(exc),
             },
         )
         raise
@@ -626,20 +680,22 @@ def run_unit_sweep(
             # A Hyperband prune reaches here exactly like a crash does -- no record was
             # written -- so the worker's status file is what tells the two apart.
             pruned = bool(isinstance(status, dict) and status.get("pruned"))
-            bucket = "pruned" if pruned else "failures"
-            if not pruned:
+            if pruned:
+                entries = after_state.get("pruned", [])
+                if not isinstance(entries, list):
+                    entries = []
+                entries.append(attempt)
+                after_state["pruned"] = entries
+            else:
                 attempt["error"] = (
                     str(status.get("error"))
                     if isinstance(status, dict) and status.get("error")
                     else f"worker exited with return code {result.returncode} "
                     "before recording a trial"
                 )
-            entries = after_state.get(bucket, [])
-            if not isinstance(entries, list):
-                entries = []
-            entries.append(attempt)
-            after_state[bucket] = entries
+                record_failed_attempt(after_state, attempt, status)
         after_state["failed_trials"] = len(after_state.get("failures", []))
+        after_state["failed_by_condition"] = count_failures(after_state.get("failures", []))
         after_state["pruned_trials"] = len(after_state.get("pruned", []))
         save_tuning_state(state_path, after_state)
 
@@ -666,8 +722,13 @@ def run_unit_sweep(
         f"failed={final_state.get('failed_trials', 0)}",
         flush=True,
     )
-    return summarize(
+    failures = final_state.get("failures", []) if isinstance(final_state, dict) else []
+    failure_summary = {"failed_trials": len(failures),
+                       "failed_by_condition": count_failures(failures), "failures": failures}
+    with (seed_dir / f"tuning_failures_{unit_token}.json").open("w", encoding="utf-8") as handle:
+        json.dump(failure_summary, handle, indent=2)
+    return attach_failures(summarize(
         trial_records,
         monitor,
         seed_dir / f"best_tuned_{unit_token}.json",
-    )
+    ), failure_summary)

@@ -13,6 +13,7 @@ import torch.nn as nn
 from src.configs.config import TrainConfig
 from src.data.structures import PreparedH2SData
 from src.models.h2snn_model import H2SNNOutput
+from src.models.anchored_solve import check_finite_loss
 from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
@@ -210,6 +211,7 @@ class Trainer:
         self.optimizer.zero_grad()
         output = self.model(data, epoch=epoch)
         loss, metrics = self._compute_metrics(output, data, data.target_train_mask, epoch)
+        check_finite_loss(loss, epoch)  # spec v1.16 K5: a non-finite loss fails the run
         loss.backward()
         if self.cfg.optim.grad_clip > 0:  # spec v1.15 §6: no clipping by default
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)

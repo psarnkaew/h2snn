@@ -10,6 +10,7 @@ from src.data.link_pred_structures import PreparedLinkPredData
 from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
 from src.utils.logger import ExperimentLogger
+from src.models.anchored_solve import check_finite_loss
 from src.trainers.stop_conditions import logged_stop_conditions
 from src.utils.misc import compute_link_prediction_metrics
 
@@ -248,6 +249,7 @@ class LinkPredictionTrainer:
             loss, step_metrics, pos_scores, neg_scores = self._compute(
                 data, pos_edge_index[:, p], neg_edge_index[:, n], pos_edge_relation[p],
                 neg_edge_relation[n], epoch)
+            check_finite_loss(loss, epoch)  # spec v1.16 K5
             loss.backward()
             if self.cfg.optim.grad_clip > 0:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)

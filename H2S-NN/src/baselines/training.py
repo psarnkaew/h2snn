@@ -39,6 +39,7 @@ from src.baselines.metrics import (
     prefixed,
 )
 from src.baselines.progress import EpochReport, report_epoch
+from src.models.anchored_solve import check_finite_loss
 
 
 # --------------------------------------------------------------------------------------
@@ -84,6 +85,7 @@ def train_full_batch_node_classification(
         model.train()
         optimizer.zero_grad()
         loss = criterion(target_logits()[train_idx], labels[train_idx])
+        check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
         loss.backward()
         optimizer.step()
 
@@ -233,6 +235,7 @@ def train_link_prediction(
         )
         if aux_loss is not None:
             loss = loss + aux_loss()
+        check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
         loss.backward()
         optimizer.step()
 
@@ -346,6 +349,7 @@ def train_graph_classification(
             loss = criterion(head(embed_batch(batch), batch.batch), batch.y.view(-1))
             if aux_loss is not None:
                 loss = loss + aux_loss()
+            check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
             loss.backward()
             optimizer.step()
 
