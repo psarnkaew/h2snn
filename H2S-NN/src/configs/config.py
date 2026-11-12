@@ -1477,6 +1477,10 @@ class TrainConfig:
 
 
 # ----------------------------------------------------------------- fixed-literature-schema row
+# The row's run-name suffix (D-O6): its run directory never equals the `full` run's.
+LITERATURE_ROW_SUFFIX: str = "__literature_row"
+
+
 def is_literature_row(data: DataConfig) -> bool:
     """A resolved configuration of the fixed-literature-schema row (spec v1.19 §6): node
     classification, path_source: schemas, r >= 1 (the legacy schema rows have r = 0)."""
@@ -1500,8 +1504,9 @@ def fixed_literature_schema_config(full: TrainConfig) -> TrainConfig:
     Built through the saved-configuration round trip (`dataclass_to_dict` -> `from_dict`), the
     path a server run takes. Raises unless `full` is a resolved v3-B anchored `full` WISP node-
     classification configuration of a dataset with a list, and if any setting other than the path
-    source differs between the two configurations. The run location (`exp_name`, `output_dir`) is
-    the caller's: the row must not share the main run's directory."""
+    source and the run name differs between the two configurations. The row gets its own run name,
+    `<exp_name>__literature_row` (D-O6, spec v1.20 U1), so it never writes into the `full` run's
+    directory; `output_dir` is unchanged."""
     from src.utils.misc import dataclass_to_dict  # lazy: misc imports torch, config does not
 
     data = full.data
@@ -1519,10 +1524,11 @@ def fixed_literature_schema_config(full: TrainConfig) -> TrainConfig:
     before = dataclass_to_dict(full)
     payload = dataclass_to_dict(full)
     payload["data"]["path_source"] = "schemas"
+    payload["exp_name"] = f"{full.exp_name}{LITERATURE_ROW_SUFFIX}"
     row = TrainConfig.from_dict(payload)
     old, new = _flatten(before), _flatten(dataclass_to_dict(row))
     changed = sorted(key for key in set(old) | set(new) if old.get(key) != new.get(key))
-    if changed != ["data.path_source"]:
+    if changed != ["data.path_source", "exp_name"]:
         raise ValueError("the fixed-literature-schema row may differ from its full configuration "
-                         f"in data.path_source only; differing settings: {changed}.")
+                         f"in data.path_source and exp_name only; differing settings: {changed}.")
     return row

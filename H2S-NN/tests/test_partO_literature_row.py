@@ -69,7 +69,9 @@ class BuilderTests(unittest.TestCase):
                     before, after = _flat(full), _flat(row)
                     self.assertEqual(set(before), set(after))
                     changed = {k for k in before if before[k] != after[k]}
-                    self.assertEqual(changed, {"data.path_source"})
+                    # spec v1.20 U1 (D-O6): the path source and the row's own run name
+                    self.assertEqual(changed, {"data.path_source", "exp_name"})
+                    self.assertEqual(after["exp_name"], before["exp_name"] + "__literature_row")
                     self.assertEqual((before["data.path_source"], after["data.path_source"]),
                                      ("wisp", "schemas"))
                     self.assertTrue(is_literature_row(row.data))
@@ -180,14 +182,14 @@ class DrawTests(unittest.TestCase):
         import src.data.literature_paths as module
 
         calls = []
-        real = module.sample_walks
+        real = module.sample_listed_walks  # spec v1.20 U1: WISP's hop rule (was D8's sample_walks)
 
-        def recording(csrs, anchors, walks_per_anchor, generator, **kwargs):
-            calls.append((len(csrs), walks_per_anchor, anchors.numel()))
-            return real(csrs, anchors, walks_per_anchor, generator, **kwargs)
+        def recording(graph, hops, anchors, walks_per_anchor, mass, generator):
+            calls.append((len(hops), walks_per_anchor, anchors.numel()))
+            return real(graph, hops, anchors, walks_per_anchor, mass, generator)
 
         hetero = acm_like_hetero(seed=4)
-        with mock.patch.object(module, "sample_walks", recording):
+        with mock.patch.object(module, "sample_listed_walks", recording):
             data, _ = _row_data(hetero, r=16)  # 16 over ACM's 6 paths: not divisible
         self.assertEqual([c[1] for c in calls], [3, 3, 3, 3, 2, 2])
         self.assertEqual(sum(c[1] for c in calls), 16)
@@ -287,8 +289,9 @@ class RealListTests(unittest.TestCase):
     TARGETS = {"acm": "paper", "dblp": "author", "imdb": "movie", "freebase": "book"}
 
     def test_lists_resolve_and_have_instances_on_the_real_graphs(self) -> None:
-        from src.data.path_sampler import build_half_edges, hop_csr, sample_walks
+        from src.data.literature_paths import sample_listed_walks
         from src.data.schemas import resolve_schemas
+        from src.data.wisp_sampler import build_action_graph
 
         present = [d for d in self.TARGETS if (nc_root(REPO_DATA_ROOT) / d).exists()]
         if not present:
@@ -301,13 +304,14 @@ class RealListTests(unittest.TestCase):
                 schemas = resolve_schemas(templates, layer, tuples)
                 self.assertEqual(len(schemas), len(templates))
                 start, end = slices[self.TARGETS[dataset]]
-                half = build_half_edges(edge_index, edge_type, node_type.numel(),
-                                        layer.self_inverse, backward=True)
+                graph = build_action_graph(edge_index, edge_type, node_type.numel(),
+                                           layer.self_inverse)
                 generator = torch.Generator().manual_seed(0)
                 for schema in schemas:
                     self.assertEqual(schema.node_types[0], self.TARGETS[dataset])
-                    walks = sample_walks([hop_csr(half, r, d) for r, d in schema.hops],
-                                         torch.arange(start, end), 4, generator)
+                    # the row's own hop rule (spec v1.20 U1; was D8's sample_walks)
+                    walks = sample_listed_walks(graph, schema.hops, torch.arange(start, end), 4,
+                                                1.0, generator)
                     self.assertGreater(walks.nodes.size(0), 0,
                                        f"{dataset} {schema.name}: no instance drawn")
 

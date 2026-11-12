@@ -138,6 +138,41 @@ def _visited_half_edges(graph: ActionGraph, current: torch.Tensor, visited: torc
     return action, position, valid.reshape(current.numel(), width)
 
 
+def unvisited_fact_step(graph: ActionGraph, current: torch.Tensor, chosen: torch.Tensor,
+                        open_: torch.Tensor, v_action: torch.Tensor, v_position: torch.Tensor,
+                        v_valid: torch.Tensor, u_fact: torch.Tensor, active: torch.Tensor
+                        ) -> tuple[torch.Tensor, torch.Tensor]:
+    """WISP's fact choice of one hop: a uniform fact of action `chosen` from `current` to a node
+    not on the walk (`open_` = unvisited counts per action, the visited half-edges from
+    `_visited_half_edges`), driven by `u_fact`. Returns the half-edge position (0 where not
+    `active`) and max(|N|, 1). Shared by WISP and the fixed-literature-schema row (Part P P0b)."""
+    num_actions = graph.num_actions
+    unvisited = open_.gather(1, chosen.unsqueeze(1)).squeeze(1)
+    safe_unvisited = unvisited.clamp(min=1)
+    offset = torch.minimum((u_fact * safe_unvisited).long(), safe_unvisited - 1)
+    position = graph.ptr[current * num_actions + chosen] + offset
+    # skip the visited half-edges of the chosen action (sorted ascending)
+    blocked = torch.where(v_valid & (v_action == chosen.unsqueeze(1)), v_position,
+                          torch.full_like(v_position, torch.iinfo(torch.long).max))
+    for column in torch.sort(blocked, dim=1).values.unbind(dim=1):
+        position = position + (column <= position).long()
+    position = torch.where(active, position, torch.zeros_like(position))
+    return position, safe_unvisited
+
+
+def open_actions(graph: ActionGraph, current: torch.Tensor, visited: torch.Tensor
+                 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """`[W, A]` number of facts of each action from `current` to nodes not in `visited` [W, j],
+    and the visited half-edges (`_visited_half_edges`)."""
+    num_actions = graph.num_actions
+    segment = current.unsqueeze(1) * num_actions + torch.arange(num_actions)
+    degree = graph.ptr[segment + 1] - graph.ptr[segment]
+    v_action, v_position, v_valid = _visited_half_edges(graph, current, visited)
+    seen = torch.zeros(current.numel(), num_actions, dtype=torch.long)
+    seen.scatter_add_(1, v_action, v_valid.long())
+    return degree - seen, v_action, v_position, v_valid
+
+
 def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torch.Tensor,
                       walks_per_anchor: int, max_length: int, generator: torch.Generator,
                       proposal: Proposal | None = None) -> WispDraw:
@@ -148,7 +183,6 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
     anchor = anchors.long().repeat_interleave(walks_per_anchor)
     num = anchor.numel()
     num_actions = graph.num_actions
-    action_ids = torch.arange(num_actions)
     length = 2 + (torch.rand(num, generator=generator, dtype=torch.float64)
                   * (max_length - 1)).long().clamp(max=max_length - 2)
     from_q = torch.zeros(num, dtype=torch.bool)
@@ -176,12 +210,7 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
         u_action = torch.rand(num, generator=generator, dtype=torch.float64)
         u_fact = torch.rand(num, generator=generator, dtype=torch.float64)
         active = alive & (hop <= length)
-        segment = current.unsqueeze(1) * num_actions + action_ids               # [W, A]
-        degree = graph.ptr[segment + 1] - graph.ptr[segment]
-        v_action, v_position, v_valid = _visited_half_edges(graph, current, nodes[:, :hop])
-        seen = torch.zeros(num, num_actions, dtype=torch.long)
-        seen.scatter_add_(1, v_action, v_valid.long())
-        open_ = degree - seen                                                    # |N(a)|
+        open_, v_action, v_position, v_valid = open_actions(graph, current, nodes[:, :hop])  # |N(a)|
         available = open_ > 0
         num_available = available.sum(dim=1)
         dead = active & (num_available == 0)
@@ -202,16 +231,8 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
                                  torch.full_like(total, -math.inf))
         alive = alive & ~dead
         active = active & alive
-        unvisited = open_.gather(1, chosen.unsqueeze(1)).squeeze(1)
-        safe_unvisited = unvisited.clamp(min=1)
-        offset = torch.minimum((u_fact * safe_unvisited).long(), safe_unvisited - 1)
-        position = graph.ptr[current * num_actions + chosen] + offset
-        # skip the visited half-edges of the chosen action (sorted ascending)
-        blocked = torch.where(v_valid & (v_action == chosen.unsqueeze(1)), v_position,
-                              torch.full_like(v_position, torch.iinfo(torch.long).max))
-        for column in torch.sort(blocked, dim=1).values.unbind(dim=1):
-            position = position + (column <= position).long()
-        position = torch.where(active, position, torch.zeros_like(position))
+        position, safe_unvisited = unvisited_fact_step(graph, current, chosen, open_, v_action,
+                                                       v_position, v_valid, u_fact, active)
         log_step = -torch.log(num_available.clamp(min=1).double()) - torch.log(
             safe_unvisited.double())
         log_p = torch.where(active, log_p + log_step, log_p)
@@ -346,6 +367,6 @@ def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
 
 
 __all__ = ["ActionGraph", "Proposal", "WispDraw", "action_of", "build_action_graph",
-           "merge_length_group",
+           "merge_length_group", "open_actions", "unvisited_fact_step",
            "build_wisp_path_groups", "count_actions", "merge_wisp_cells", "proposal_from_mass",
            "sample_wisp_walks"]

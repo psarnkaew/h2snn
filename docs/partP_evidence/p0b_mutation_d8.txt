@@ -1,0 +1,29 @@
+FFF
+======================================================================
+FAIL: test_dead_end_discards (tests.test_partP_literature_row.HopRuleTests.test_dead_end_discards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 84, in test_dead_end_discards
+    self.assertLess(_four_sigma(walks.nodes.size(0), self.N, 0.5), 4.0)
+AssertionError: 104.627118664331 not less than 4.0
+
+======================================================================
+FAIL: test_instance_probability_is_wisps (tests.test_partP_literature_row.HopRuleTests.test_instance_probability_is_wisps) (paper=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 61, in test_instance_probability_is_wisps
+    self.assertLess(_four_sigma(int((ends == paper).sum()), self.N, 0.5), 4.0)
+AssertionError: 103.96304035569563 not less than 4.0
+
+======================================================================
+FAIL: test_instance_probability_is_wisps (tests.test_partP_literature_row.HopRuleTests.test_instance_probability_is_wisps) (paper=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 61, in test_instance_probability_is_wisps
+    self.assertLess(_four_sigma(int((ends == paper).sum()), self.N, 0.5), 4.0)
+AssertionError: 105.60742473898318 not less than 4.0
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.323s
+
+FAILED (failures=3)

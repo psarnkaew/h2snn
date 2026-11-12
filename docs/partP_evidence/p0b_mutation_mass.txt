@@ -1,0 +1,53 @@
+FFFFFF
+======================================================================
+FAIL: test_expected_mass_is_share_times_survival (tests.test_partP_literature_row.MassTests.test_expected_mass_is_share_times_survival) (path='PAP0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 106, in test_expected_mass_is_share_times_survival
+    self.assertTrue(bool((walks.weight == 1.0 / (k * r_pi)).all()))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_expected_mass_is_share_times_survival (tests.test_partP_literature_row.MassTests.test_expected_mass_is_share_times_survival) (path='PAP1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 106, in test_expected_mass_is_share_times_survival
+    self.assertTrue(bool((walks.weight == 1.0 / (k * r_pi)).all()))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_total_mass_without_dead_ends_is_one (tests.test_partP_literature_row.MassTests.test_total_mass_without_dead_ends_is_one) (k=2, r=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 117, in test_total_mass_without_dead_ends_is_one
+    self.assertTrue(torch.equal(total[:3], torch.ones(3, dtype=torch.float64)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_total_mass_without_dead_ends_is_one (tests.test_partP_literature_row.MassTests.test_total_mass_without_dead_ends_is_one) (k=4, r=16)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 117, in test_total_mass_without_dead_ends_is_one
+    self.assertTrue(torch.equal(total[:3], torch.ones(3, dtype=torch.float64)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_total_mass_without_dead_ends_is_one (tests.test_partP_literature_row.MassTests.test_total_mass_without_dead_ends_is_one) (k=2, r=64)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 117, in test_total_mass_without_dead_ends_is_one
+    self.assertTrue(torch.equal(total[:3], torch.ones(3, dtype=torch.float64)))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_total_mass_without_dead_ends_is_one (tests.test_partP_literature_row.MassTests.test_total_mass_without_dead_ends_is_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partP_literature_row.py", line 120, in test_total_mass_without_dead_ends_is_one
+    self.assertLessEqual(float((total[:3] - 1).abs().max()), 1e-15)
+AssertionError: 2.0 not less than or equal to 1e-15
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.113s
+
+FAILED (failures=6)
