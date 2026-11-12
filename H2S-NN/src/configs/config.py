@@ -347,6 +347,27 @@ LITERATURE_METAPATHS: dict[str, tuple[MetaPathConfig, ...]] = {
     ),
 }
 
+
+def literature_walk_split(walks_per_anchor: int, num_paths: int) -> tuple[int, ...]:
+    """Walks per anchor of each listed meta-path in the fixed-literature-schema row (spec v1.19
+    §6, O-2): the tuned r split evenly over the listed paths, at least one each. With r = q k + s
+    (0 <= s < k) the first s paths (table order) get q + 1 and the rest q, so the walks sum to r.
+    Raises when r < k (one walk each would exceed r; unreachable for r in {8, 16, 32, 64})."""
+    if num_paths < 1:
+        raise ValueError("the literature list is empty.")
+    if walks_per_anchor < num_paths:
+        raise ValueError(
+            f"walks per anchor r = {walks_per_anchor} cannot give each of the {num_paths} listed "
+            "meta-paths at least one walk while summing to r (spec v1.19 §6).")
+    base, extra = divmod(walks_per_anchor, num_paths)
+    return tuple(base + (1 if i < extra else 0) for i in range(num_paths))
+
+
+def literature_lengths(dataset_name: str) -> tuple[int, ...]:
+    """Distinct lengths (hops) of the dataset's listed meta-paths, ascending."""
+    return tuple(sorted({len(t.node_types) - 1
+                         for t in LITERATURE_METAPATHS[dataset_name.lower()]}))
+
 # Backward-compatible alias — kept because it's the name older configs/tooling import.
 # r (walks per anchor) by dataset and l_max, by the H1/H6 incidence rule: the smallest r whose
 # evaluation-draw incidences (seed 42) reach the dataset's schemas-run budget (ACM 403,122, DBLP
@@ -594,13 +615,18 @@ class DataConfig:
         if not isinstance(self.overlap_sampling, bool):
             raise ValueError(
                 f"data.overlap_sampling must be a boolean, got {self.overlap_sampling!r}.")
+        # path_source: schemas with r >= 1 is the fixed-literature-schema row (spec v1.19 §6; card
+        # Part O O3): the tuned `full` configuration with only the path source changed, so its
+        # tuned l_max is carried along (not read by the schema draw) and r is the row's walk
+        # budget. With r = 0 it is the legacy schema row (old presets, `face_sample_k` quotas).
         if self.path_source == "schemas" and (
-            self.wisp_max_length != 4 or self.wisp_walks_per_anchor != 0
+            (self.wisp_walks_per_anchor == 0 and self.wisp_max_length != 4)
             or self.wisp_proposal != "uniform"
         ):
             raise ValueError(
-                "data.wisp_max_length, wisp_walks_per_anchor and wisp_proposal configure "
-                "path_source: wisp; they are rejected under path_source: schemas (got "
+                "data.wisp_max_length and wisp_proposal configure path_source: wisp; under "
+                "path_source: schemas the proposal must be uniform and, without r (the legacy "
+                "schema row), l_max must stay unset (got "
                 f"{self.wisp_max_length}, {self.wisp_walks_per_anchor}, {self.wisp_proposal!r})."
             )
 
@@ -743,6 +769,25 @@ class DataConfig:
                 "only as the baseline bundles' pinned pre-D7 DFS row (path_sampler: dfs; their "
                 "adapters never read path cells). The length-2 schema-free walks were replaced by "
                 "WISP (spec v1.15 J1): use path_source: wisp.")
+        if path_source == "schemas" and walks >= 1:  # the fixed-literature-schema row
+            if task_type != "node_classification":
+                raise ValueError("the fixed-literature-schema row (path_source: schemas with "
+                                 "wisp_walks_per_anchor r >= 1) exists for node classification "
+                                 "only (spec v1.19 §6).")
+            listed = LITERATURE_METAPATHS.get(dataset_name, ())
+            if not listed:
+                raise ValueError(
+                    f"no literature meta-path list for dataset {dataset_name!r}: the "
+                    "fixed-literature-schema row exists on "
+                    f"{sorted(LITERATURE_METAPATHS)} only (spec v1.19 §6).")
+            if self.metapath_templates:
+                raise ValueError(
+                    "the fixed-literature-schema row draws the list LITERATURE_METAPATHS "
+                    f"({LITERATURE_SCHEMA_SOURCE}); data.metapath_templates must stay unset.")
+            if self.fact_layer != "tied" or self.path_sampler != "walk":
+                raise ValueError("the fixed-literature-schema row is the main model with another "
+                                 "path source: fact_layer tied, path_sampler walk.")
+            literature_walk_split(walks, len(listed))  # raises when r < number of paths
         if path_source == "wisp":
             if self.fact_layer != "tied":
                 raise ValueError("data.path_source: wisp needs fact_layer: tied (it walks facts in "
@@ -828,7 +873,12 @@ class DataConfig:
 
         preset = NODE_CLASSIFICATION_PRESETS[dataset_name]
         target_node_type = self.target_node_type or preset["target_node_type"]
-        if self.metapath_templates:
+        # Part O (O3): the old preset lists fill only the legacy schema rows (path_source:
+        # schemas without r: the baseline bundles' pinned DFS row and the schema tests). WISP
+        # reads no list (spec R8) and the fixed-literature-schema row reads LITERATURE_METAPATHS,
+        # so neither carries the presets in its resolved (and saved) configuration.
+        legacy_schemas = self.path_source == "schemas" and self.wisp_walks_per_anchor == 0
+        if self.metapath_templates or not legacy_schemas:
             templates = self.metapath_templates
         else:
             templates = preset["metapath_templates"]
@@ -1424,3 +1474,55 @@ class TrainConfig:
                 f"got {config.early_stopping_patience}."
             )
         return config
+
+
+# ----------------------------------------------------------------- fixed-literature-schema row
+def is_literature_row(data: DataConfig) -> bool:
+    """A resolved configuration of the fixed-literature-schema row (spec v1.19 §6): node
+    classification, path_source: schemas, r >= 1 (the legacy schema rows have r = 0)."""
+    return (data.task_type == "node_classification" and data.path_source == "schemas"
+            and data.wisp_walks_per_anchor >= 1)
+
+
+def _flatten(payload: Any, prefix: str = "") -> dict[str, Any]:
+    if isinstance(payload, dict):
+        out: dict[str, Any] = {}
+        for key, value in payload.items():
+            out.update(_flatten(value, f"{prefix}{key}."))
+        return out
+    return {prefix[:-1]: payload}
+
+
+def fixed_literature_schema_config(full: TrainConfig) -> TrainConfig:
+    """The fixed-literature-schema row of a tuned `full` configuration (spec v1.19 §6; card Part
+    O O3): the same configuration with one change, `data.path_source: schemas`; the row then draws
+    the dataset's `LITERATURE_METAPATHS` with the tuned r split evenly (`literature_walk_split`).
+    Built through the saved-configuration round trip (`dataclass_to_dict` -> `from_dict`), the
+    path a server run takes. Raises unless `full` is a resolved v3-B anchored `full` WISP node-
+    classification configuration of a dataset with a list, and if any setting other than the path
+    source differs between the two configurations. The run location (`exp_name`, `output_dir`) is
+    the caller's: the row must not share the main run's directory."""
+    from src.utils.misc import dataclass_to_dict  # lazy: misc imports torch, config does not
+
+    data = full.data
+    if data.task_type != "node_classification" or data.path_source != "wisp":
+        raise ValueError("the fixed-literature-schema row is built from a resolved WISP node-"
+                         f"classification configuration (got {data.task_type!r}, "
+                         f"{data.path_source!r}).")
+    if full.model.propagation != "anchored" or full.model.arm != "full":
+        raise ValueError("the fixed-literature-schema row is built from the v3-B main model "
+                         f"(propagation anchored, arm full), got {full.model.propagation!r}, "
+                         f"{full.model.arm!r}.")
+    if data.dataset_name not in LITERATURE_METAPATHS:
+        raise ValueError(f"no literature list for {data.dataset_name!r} "
+                         f"(the row exists on {sorted(LITERATURE_METAPATHS)} only).")
+    before = dataclass_to_dict(full)
+    payload = dataclass_to_dict(full)
+    payload["data"]["path_source"] = "schemas"
+    row = TrainConfig.from_dict(payload)
+    old, new = _flatten(before), _flatten(dataclass_to_dict(row))
+    changed = sorted(key for key in set(old) | set(new) if old.get(key) != new.get(key))
+    if changed != ["data.path_source"]:
+        raise ValueError("the fixed-literature-schema row may differ from its full configuration "
+                         f"in data.path_source only; differing settings: {changed}.")
+    return row

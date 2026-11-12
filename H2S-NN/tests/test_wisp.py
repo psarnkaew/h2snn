@@ -1176,22 +1176,35 @@ class WispConfigValidationTests(unittest.TestCase):
         bad_data = [{"path_source": "nope"}, {"wisp_max_length": 1},
                     {"wisp_walks_per_anchor": -1}, {"wisp_proposal": "nope"},
                     {"path_source": "schemas", "wisp_max_length": 5},
-                    {"path_source": "schemas", "wisp_walks_per_anchor": 30},
-                    {"path_source": "schemas", "wisp_proposal": "adaptive"}]
+                    {"path_source": "schemas", "wisp_proposal": "adaptive"},
+                    {"path_source": "schemas", "wisp_walks_per_anchor": 30,
+                     "wisp_proposal": "adaptive"}]
         for kwargs in bad_data:
             with self.subTest(data=kwargs), self.assertRaises(ValueError):
                 DataConfig(**kwargs)
         DataConfig(path_source="schemas")
         DataConfig(path_source="wisp", wisp_max_length=5, wisp_walks_per_anchor=30)
+        # Part O (spec v1.19 §6): r >= 1 under schemas is the fixed-literature-schema row, whose
+        # budget is the tuned r and which carries the tuned l_max unchanged (it was rejected
+        # before v1.18/v1.19 defined the row's budget).
+        DataConfig(path_source="schemas", wisp_walks_per_anchor=30)
+        DataConfig(path_source="schemas", wisp_walks_per_anchor=30, wisp_max_length=5)
 
     def test_wisp_keys_are_rejected_under_schemas_through_from_dict(self) -> None:
         from src.configs.config import TrainConfig
 
-        for extra in ({"wisp_max_length": 3}, {"wisp_walks_per_anchor": 30},
-                      {"wisp_proposal": "adaptive"}):
+        for extra in ({"wisp_max_length": 3}, {"wisp_proposal": "adaptive"},
+                      {"wisp_walks_per_anchor": 30, "wisp_proposal": "adaptive"}):
             with self.subTest(extra=extra), self.assertRaises(ValueError):
                 TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_source": "schemas",
                                                 **extra}})
+        # Part O (spec v1.19 §6): with r the schema source is the fixed-literature-schema row
+        from src.configs.config import is_literature_row
+
+        row = TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_source": "schemas",
+                                               "wisp_walks_per_anchor": 30}}).data
+        self.assertTrue(is_literature_row(row))
+        self.assertEqual(row.metapath_templates, ())
         with self.assertRaises(ValueError):  # the pinned GC DFS row is a schema row
             TrainConfig.from_dict({"data": {"dataset_name": "mutag", "path_source": "schemas",
                                             "path_sampler": "dfs", "fact_layer": "untied",

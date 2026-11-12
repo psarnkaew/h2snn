@@ -1,0 +1,12 @@
+FAIL: test_direct_construction_is_validated (tests.test_wisp.WispConfigValidationTests.test_direct_construction_is_validated) (data={'path_source': 'schemas', 'wisp_walks_per_anchor': 30})
+AssertionError: ValueError not raised
+FAIL: test_wisp_keys_are_rejected_under_schemas_through_from_dict (tests.test_wisp.WispConfigValidationTests.test_wisp_keys_are_rejected_under_schemas_through_from_dict) (extra={'wisp_walks_per_anchor': 30})
+AssertionError: ValueError not raised
+Ran 198 tests in 1171.044s
+FAILED (failures=2)
+
+real	19m55.027s
+user	0m1.529s
+sys	0m3.420s
+
+[exited with code 0]

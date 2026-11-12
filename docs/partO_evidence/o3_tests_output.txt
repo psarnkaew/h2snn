@@ -1,0 +1,19 @@
+ok
+test_any_other_difference_raises (tests.test_partO_literature_row.BuilderTests.test_any_other_difference_raises) ... ok
+test_builder_changes_only_the_path_source (tests.test_partO_literature_row.BuilderTests.test_builder_changes_only_the_path_source) ... ok
+test_builder_refuses_other_inputs (tests.test_partO_literature_row.BuilderTests.test_builder_refuses_other_inputs) ... ok
+test_row_configuration_rules (tests.test_partO_literature_row.BuilderTests.test_row_configuration_rules) ... ok
+test_row_is_refused_in_tuning (tests.test_partO_literature_row.BuilderTests.test_row_is_refused_in_tuning) ... ok
+test_evaluation_draw_is_deterministic_per_base_seed (tests.test_partO_literature_row.DrawTests.test_evaluation_draw_is_deterministic_per_base_seed) ... ok
+test_every_cell_is_a_listed_meta_path (tests.test_partO_literature_row.DrawTests.test_every_cell_is_a_listed_meta_path) ... ok
+test_sampler_asks_for_the_split (tests.test_partO_literature_row.DrawTests.test_sampler_asks_for_the_split) ... ok
+test_lists_resolve_and_have_instances_on_the_real_graphs (tests.test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) ... ok
+test_split_sums_to_r_and_is_even (tests.test_partO_literature_row.SplitTests.test_split_sums_to_r_and_is_even) ... ok
+test_direct_construction_is_validated (tests.test_wisp.WispConfigValidationTests.test_direct_construction_is_validated) ... ok
+test_every_never_tuned_wisp_key_is_rejected (tests.test_wisp.WispConfigValidationTests.test_every_never_tuned_wisp_key_is_rejected) ... ok
+test_wisp_keys_are_rejected_under_schemas_through_from_dict (tests.test_wisp.WispConfigValidationTests.test_wisp_keys_are_rejected_under_schemas_through_from_dict) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 24.385s
+
+OK

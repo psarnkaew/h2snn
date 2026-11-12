@@ -110,3 +110,59 @@
 - Restored; `git diff` of the module shows only the new file.
 
 **Deviation from the card text.** The card's ACM example lists "PAP, PSP, PTP" (Hetero²Net's list, the v1.18 O-1). Spec v1.19 governs, so the ACM test checks the six paths of HGB's table. PTP is mapped as well, as the card's example of a typed relation sequence.
+
+---
+
+## O3 — The fixed-literature-schema row (Z-2)
+
+**What the row is in code (VERIFIED-CODE).** The row is a resolved node-classification configuration with `path_source: schemas` and `wisp_walks_per_anchor = r ≥ 1` (`is_literature_row`, `src/configs/config.py:1480`). With `r = 0` the old legacy schema rows remain (see below). The method is unchanged: the row uses the same model, energy, maps, solver, `g` and head. Only the source of the cells changes.
+- **List.** `LITERATURE_METAPATHS` and `LITERATURE_SCHEMA_SOURCE` (`config.py:293`, added in O2) form one table: HGB's published meta-path table, paths starting at the target type, on ACM, DBLP, IMDB and Freebase only. A row on any other dataset raises. The resolved row has no `metapath_templates`, because its list is the table, and an explicit list raises (`config.py:772-790`).
+- **Old presets.** `NODE_CLASSIFICATION_PRESETS` (ACM PAP, PSP; DBLP APA, APTPA; IMDB MAM, MDM) now fill only the legacy schema rows, i.e. `path_source: schemas` with `r` unset (`config.py:880`). Those rows are the baseline bundles' pinned DFS row (`src/baselines/bundles.py:59-64`) and the existing schema tests. Code paths that still need them: `dataset.py` (DFS and the D8 walk sampler over `metapath_templates`) and `tests/test_cooperative.py`, `test_paths_and_facts.py`, `test_wisp.py:647`. **Behaviour change:** WISP configurations no longer carry the presets in their resolved and saved `metapath_templates` (now `()`). WISP never read them (R8). Without this change a tuned `full` configuration would hand the old presets to the row, as found in O0.
+- **Budget (O-2).**
+  - `literature_walk_split(r, k)` (`config.py:351`): with `r = qk + s`, the first `s` paths in table order get `q+1` walks per anchor and the rest get `q`. The walks sum to `r`, each path gets at least one, and `r < k` raises. The search space `r ∈ {8,…,64}` with `k ≤ 7` never reaches that case.
+  - Walks start from every target node. Within a path, each hop picks a uniform fact of the hop's (relation, direction) at the current node; walks that revisit a node are rejected (D8's stated distribution, `path_sampler.sample_walks`). Each accepted walk of path π carries `1/r_π`.
+  - `src/data/literature_paths.py` holds `build_literature_path_groups` and `literature_walk_plan`. `dataset.build_node_classification_paths` calls them for the row (`dataset.py:163`), for the evaluation draw (`seed`) and for the training draws (`seed + epoch`) alike.
+- **Cell format.** The row's cells use WISP's format: one group per length, D8 identity, per-cell signature ids. They go through `merge_length_group` (`src/data/wisp_sampler.py:300`), which was extracted from `merge_wisp_cells` without change. `build_model` gives the row per-cell action tokens (`path_actions`) and one projection of `g` per listed length (`h2snn_model.py:1431`). As a result, `g` reads a listed cell exactly as it reads a WISP cell, with relation embeddings and hop directions. Without this, the legacy schema groups would give `g` one direction-free token per group, and ACM's PcPAP and PrPAP would look the same to `g` (O0 finding 3). This is a choice of the comparison row, not of the method (decision D-O2 below).
+- **Builder.** `fixed_literature_schema_config(full)` (`config.py:1496`):
+  - takes a resolved v3-B `full` WISP NC configuration (`propagation: anchored`, `arm: full`) of a dataset with a list, and raises otherwise;
+  - sets `data.path_source: schemas` through the saved-configuration round trip (`dataclass_to_dict` → `TrainConfig.from_dict`);
+  - raises if any other flattened setting differs.
+  - `DataConfig.__post_init__` now accepts the tuned `ℓ_max` and `r` under `schemas` when `r ≥ 1` (`config.py:623`). `ℓ_max` is carried along unchanged and is not read by the row's draw. The proposal must stay uniform.
+- **Still refused in tuning.** `reject_never_tuned_settings` refuses `path_source: schemas` for NC, as before (`config.py:143-147`), and refuses `path_source` as a search parameter.
+
+**Stop condition checked (VERIFIED-RUN, data read only, `o3_literature_instances_output.txt`, script `o3_literature_instances.py`).** On the real HGB graphs (tied fact layer), every listed path resolves to the relation-level hops below and has simple instances from the target nodes. Counts are target nodes reaching an instance in 8 walks:
+
+| dataset | paths (targets with an instance) |
+|---|---|
+| ACM | PAP 2373/3025, PSP 3012, PcPAP 1857, PcPSP 1980, PrPAP 1321, PrPSP 1445 |
+| DBLP | APA 2351/4057, APTPA 4057, APVPA 4057 |
+| IMDB | MDM 3428/4932, MAM 4368 |
+| Freebase | BB 36670/40402, BFB 9534, BLMB 10857, BPB 7845, BPSB 5920, BOFB 9580, BUB 10720 |
+
+- ACM's PrP resolves to `(paper__cite__paper, −1)` because `ref` is the transpose of `cite`.
+- Freebase's `book__and__book` is stored in one direction only (not self-inverse), so BB = `(+1, +1)`, as HAN's forward-only `['00','00']`.
+- **No stop.** Freebase was read through PyG's `HGBDataset` directly, because H2S-NN has no Freebase NC loader (out-of-scope finding 1).
+
+**Tests (VERIFIED-RUN).** `python -m unittest -v tests.test_partO_literature_row` → **Ran 11 tests in 19.1 s, OK**; with `tests.test_wisp.WispConfigValidationTests` **Ran 14, OK** (`o3_tests_output.txt`):
+- The builder changes only `data.path_source`, on ACM, DBLP and IMDB at `(ℓ_max, r)` ∈ {(2, 8), (5, 64), (4, 33)}, flattened diff = `{data.path_source}`. The result survives the `config.yaml` round trip unchanged.
+- The builder refuses: another arm, the legacy propagation, an existing row, and graph classification. A resolution that also changes another setting (simulated) raises and names it.
+- Row rules: an explicit list, `r < k` (ACM `r = 5`), an adaptive proposal, an untied layer, and a GC row all raise. The legacy row (`r` unset) keeps the old presets and its `ℓ_max` rule.
+- The row is refused in tuning.
+- Split: for `k = 1..7` and `r = k..69` the walks sum to `r`, each path gets ≥ 1, max − min ≤ 1, in table order. Examples: `(16, 6) → (3,3,3,3,2,2)`, `(64, 7) → (10,9,…,9)`, `(5, 6)` raises.
+- The sampler asks `sample_walks` for exactly `(3,3,3,3,2,2)` walks from every target node (`r = 16`, not divisible by 6), with path lengths in table order.
+- Every drawn cell's full signature is one of ACM's six listed signatures, every listed path is drawn, and every cell has a paper end with `m_f > 0`.
+- The evaluation draw is identical (`torch.equal`) for the same base seed and differs for another.
+- The anchored v3-B forward on an ACM-sized synthetic graph is finite in train and eval mode, and so is the loss. The graph has ACM's node counts (3025/5959/56/1902), 2 cites, 3 authors, 1 subject and 10 terms per paper; ACM's term degree is lower here, stated.
+- On the real graphs (data read only), the four lists resolve and every path has instances.
+
+**Existing tests run against the change (VERIFIED-RUN, `o3_related_modules_before_test_update.txt`).** Command: `python -m unittest tests.test_wisp tests.test_paths_and_facts tests.test_v3b_model tests.test_cooperative tests.test_search_spaces tests.test_wandb_and_runs tests.test_task_heads tests.test_v2_model` → **Ran 198 in 1,171 s; FAILED (failures=2)**.
+- 196 pass. These include the bit-for-bit golden NC outputs (`test_task_heads`), so the `merge_length_group` extraction left WISP's output unchanged.
+- The two failures are sub-cases asserting the v1.4 rule "`wisp_walks_per_anchor` is rejected under `path_source: schemas`":
+  - `test_wisp.WispConfigValidationTests.test_direct_construction_is_validated` (`{'path_source': 'schemas', 'wisp_walks_per_anchor': 30}`);
+  - `…test_wisp_keys_are_rejected_under_schemas_through_from_dict` (`{'wisp_walks_per_anchor': 30}`).
+
+**Test change (author to confirm, Decision D-O1).** Spec v1.19 §6 defines the row's budget as the tuned `r`, and the card requires a builder that changes only the path source. A configuration with `schemas` and `r` is therefore the row, so the old rule can no longer hold. I changed only those two `r = 30` sub-cases:
+- Each now asserts the new rule: `DataConfig(path_source="schemas", wisp_walks_per_anchor=30[, wisp_max_length=5])` is accepted, and through `from_dict` it is a row with no `metapath_templates`.
+- I added a still-failing case in its place: `schemas` + `r` + an adaptive proposal raises.
+- Every other rejected case stays, including `ℓ_max` without `r` and the adaptive proposal.
+- This is the only change to an existing test in Part O. No tolerance changed and no test was deleted or skipped.

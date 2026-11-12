@@ -34,7 +34,7 @@ from typing import Mapping, NamedTuple
 import torch
 from torch import nn
 
-from src.configs.config import TrainConfig
+from src.configs.config import TrainConfig, is_literature_row, literature_lengths
 from src.data.link_pred_structures import PreparedLinkPredData
 from src.data.structures import FaceGroup, PreparedH2SData, face_lengths_of
 from src.models.graph_readout import GraphReadout
@@ -1427,6 +1427,11 @@ def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:
         # Every length of the support gets a projection, not only those in this draw: a later
         # training draw may contain a length the evaluation draw lacks.
         dims = dims._replace(face_lengths=tuple(range(2, config.data.wisp_max_length + 1)),
+                             path_actions=True)
+    elif is_literature_row(config.data):
+        # Part O (O3): the fixed-literature-schema row reads WISP-format cells (per-cell actions);
+        # one projection of g per length of the listed meta-paths (every training draw has them).
+        dims = dims._replace(face_lengths=literature_lengths(config.data.dataset_name),
                              path_actions=True)
     return H2SNN(config=config, dims=dims)
 

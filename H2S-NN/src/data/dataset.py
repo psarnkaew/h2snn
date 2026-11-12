@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING
 
 import torch
 
-from src.configs.config import TrainConfig
+from src.configs.config import LITERATURE_METAPATHS, TrainConfig, is_literature_row
 from src.data.data_layout import nc_root
 from src.data.fact_layer import FactLayer, apply_fact_layer, build_fact_layer
+from src.data.literature_paths import build_literature_path_groups
 from src.data.path_sampler import build_schema_path_groups
 from src.data.wisp_sampler import build_wisp_path_groups
 from src.data.schemas import resolve_schemas
@@ -158,6 +159,26 @@ def build_node_classification_paths(
             max_length=config.data.wisp_max_length,
             seed=seed,
             proposal=proposal,  # training draws only (Part H3); the evaluation draw uses p
+        )
+    if is_literature_row(config.data):
+        # Part O (O3): the fixed-literature-schema row; the list is LITERATURE_METAPATHS, never
+        # data.metapath_templates (the resolved row has none).
+        templates = LITERATURE_METAPATHS[config.data.dataset_name]
+        listed = resolve_schemas(templates, fact_layer, relation_tuples)
+        if len(listed) != len(templates):
+            raise ValueError("two listed meta-paths of the row resolve to one schema.")
+        start, end = node_slices[config.data.target_node_type]
+        return build_literature_path_groups(
+            edge_index=edge_index,
+            edge_type=edge_type,
+            node_type=node_type,
+            node_type_names=node_type_names,
+            schemas=listed,
+            self_inverse=fact_layer.self_inverse,
+            target_node_type=config.data.target_node_type,
+            anchors=torch.arange(start, end),
+            walks_per_anchor=config.data.wisp_walks_per_anchor,
+            seed=seed,
         )
     if config.data.path_sampler == "dfs":
         return enumerate_metapath_faces(

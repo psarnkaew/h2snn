@@ -293,34 +293,41 @@ def merge_wisp_cells(draw: WispDraw, node_type: torch.Tensor, edge_index: torch.
         walks = Walks(draw.nodes[rows, :length + 1], draw.facts[rows, :length],
                       draw.signs[rows, :length], draw.relations[rows, :length],
                       draw.directions[rows, :length], draw.ratio[rows] / walks_per_anchor)
-        oriented, signature = canonical_cells(walks, node_type)
-        key = torch.cat([signature, oriented.facts], dim=1)
-        cells, cell_of = torch.unique(key, dim=0, return_inverse=True)
-        weight = torch.zeros(cells.size(0), dtype=torch.float64)
-        if merge == "sum":
-            weight.index_add_(0, cell_of, oriented.weight)
-        else:
-            weight.scatter_reduce_(0, cell_of, oriented.weight, reduce="amax", include_self=False)
-        first = torch.full((cells.size(0),), cell_of.numel(), dtype=torch.long)
-        first.scatter_reduce_(0, cell_of, torch.arange(cell_of.numel()), reduce="amin")
-        table, signature_index = torch.unique(signature[first], dim=0, return_inverse=True)
-        name = f"wisp_L{length}"
-        face_nodes, face_facts = oriented.nodes[first], oriented.facts[first]
-        face_signs = oriented.signs[first].to(torch.float32)
-        validate_face_orientation(face_nodes, face_facts, edge_index, name,
-                                  face_edge_sign=face_signs)
-        groups.append(FaceGroup(
-            template_name=name,
-            node_type_sequence=(),
-            face_node_index=face_nodes,
-            face_edge_index=face_facts,
-            relation_index=oriented.relations[first],
-            face_edge_sign=face_signs,
-            path_weight=weight.to(torch.float32),
-            signature_index=signature_index,
-            signature_table=tuple(tuple(row) for row in table.tolist()),
-        ))
+        groups.append(merge_length_group(walks, node_type, edge_index, f"wisp_L{length}", merge))
     return tuple(groups)
+
+
+def merge_length_group(walks: Walks, node_type: torch.Tensor, edge_index: torch.Tensor,
+                       name: str, merge: str = "sum") -> FaceGroup:
+    """One length's walks (each carrying its weight) as one cell group: D8 identity (canonical
+    orientation, key = (signature, facts)), weights summed per cell (`drop_duplicates`: max), a
+    per-cell signature id. Shared by WISP and the fixed-literature-schema row (Part O)."""
+    oriented, signature = canonical_cells(walks, node_type)
+    key = torch.cat([signature, oriented.facts], dim=1)
+    cells, cell_of = torch.unique(key, dim=0, return_inverse=True)
+    weight = torch.zeros(cells.size(0), dtype=torch.float64)
+    if merge == "sum":
+        weight.index_add_(0, cell_of, oriented.weight)
+    else:
+        weight.scatter_reduce_(0, cell_of, oriented.weight, reduce="amax", include_self=False)
+    first = torch.full((cells.size(0),), cell_of.numel(), dtype=torch.long)
+    first.scatter_reduce_(0, cell_of, torch.arange(cell_of.numel()), reduce="amin")
+    table, signature_index = torch.unique(signature[first], dim=0, return_inverse=True)
+    face_nodes, face_facts = oriented.nodes[first], oriented.facts[first]
+    face_signs = oriented.signs[first].to(torch.float32)
+    validate_face_orientation(face_nodes, face_facts, edge_index, name,
+                              face_edge_sign=face_signs)
+    return FaceGroup(
+        template_name=name,
+        node_type_sequence=(),
+        face_node_index=face_nodes,
+        face_edge_index=face_facts,
+        relation_index=oriented.relations[first],
+        face_edge_sign=face_signs,
+        path_weight=weight.to(torch.float32),
+        signature_index=signature_index,
+        signature_table=tuple(tuple(row) for row in table.tolist()),
+    )
 
 
 def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
@@ -339,5 +346,6 @@ def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
 
 
 __all__ = ["ActionGraph", "Proposal", "WispDraw", "action_of", "build_action_graph",
+           "merge_length_group",
            "build_wisp_path_groups", "count_actions", "merge_wisp_cells", "proposal_from_mass",
            "sample_wisp_walks"]
