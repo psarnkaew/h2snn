@@ -1,0 +1,2823 @@
+{
+ "source": "src/baselines/registry.py iter_cells() at Part P P4 (+ ADAPTER_PENDING rows)",
+ "summary": {
+  "total_cells": 288,
+  "runnable_cells": 135,
+  "unsupported_cells": 153
+ },
+ "runnable_per_task": {
+  "node_classification": 45,
+  "link_prediction": 54,
+  "graph_classification": 36
+ },
+ "cells": [
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "data pending (lab cluster, after mini-batch design)"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  },
+  {
+   "model": "hetsheaf",
+   "display": "HetSheaf",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 \u00a76)"
+  }
+ ]
+}

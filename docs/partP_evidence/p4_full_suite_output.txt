@@ -1,0 +1,149 @@
+..C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+..F..............................FFFFF............C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+.[coverage] 135/135 runnable cells have an adapter; no adapter yet: none
+..ssss.......Processing...
+Done!
+sssC:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\HGB\NC\benchmark\methods\HAN\utils.py:213: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\utils\tensor_new.cpp:646.)
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+......................................................................................C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+................W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+............................................................
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 646, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 640, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 127, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\runtime\vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\PSHGCN\hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 395, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='link_prediction_core')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1441, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{\n [299 chars]* on pubmed, lastfm -- Learns per-meta-path po[20760 chars]n}\n' != '{\n [299 chars]* on acm_pa, dblp_ap, imdb_ma, freebase_bb, pu[20893 chars]n}\n'
+Diff is 21593 characters long. Set self.maxDiff to None to see it. : link_prediction_core.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='link_prediction_dgl')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1441, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{\n [360 chars]* on pubmed, lastfm -- HGB\'s GAT. Same split [26571 chars]n}\n' != '{\n [360 chars]* on acm_pa, dblp_ap, imdb_ma, freebase_bb, pu[27104 chars]n}\n'
+Diff is 28628 characters long. Set self.maxDiff to None to see it. : link_prediction_dgl.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='link_prediction_h2gb')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1441, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{\n [356 chars]* on pubmed, lastfm -- H2GB\'s GTModel. Rebuil[23035 chars]n}\n' != '{\n [356 chars]* on acm_pa, dblp_ap, imdb_ma, freebase_bb, pu[23168 chars]n}\n'
+Diff is 23904 characters long. Set self.maxDiff to None to see it. : link_prediction_h2gb.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='link_prediction_hetero2net')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1441, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{\n [385 chars]* on pubmed, lastfm -- Keeps its own disentang[23058 chars]n}\n' != '{\n [385 chars]* on acm_pa, dblp_ap, imdb_ma, freebase_bb, pu[23191 chars]n}\n'
+Diff is 23965 characters long. Set self.maxDiff to None to see it. : link_prediction_hetero2net.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator) (lane='link_prediction_sheaf')
+Editing the .ipynb instead of the generator must fail here, not in Colab.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 1441, in test_committed_notebooks_match_the_generator
+    self.assertEqual(
+AssertionError: '{\n [371 chars]* on pubmed, lastfm -- The legacy in-repo shea[24007 chars]n}\n' != '{\n [371 chars]* on acm_pa, dblp_ap, imdb_ma, freebase_bb, pu[24274 chars]n}\n'
+Diff is 25389 characters long. Set self.maxDiff to None to see it. : link_prediction_sheaf.ipynb is stale; rerun scripts/generate_baseline_notebooks.py
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_baselines.py", line 154, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii'] is not false : missing baseline clones: ['sehgnn', 'sehgnn_data', 'pshgcn', 'pshgcn_lp', 'chebnetii']
+
+======================================================================
+FAIL: test_every_adapter_builds_adamw (test_shared_protocol.OptimizerTests.test_every_adapter_builds_adamw)
+Every optimizer constructed by a registered adapter module or one of its helper
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_shared_protocol.py", line 44, in test_every_adapter_builds_adamw
+    self.assertEqual(offenders, {})
+AssertionError: {'_h2gformer_encoders.py': ['SparseAdam']} != {}
+- {'_h2gformer_encoders.py': ['SparseAdam']}
++ {}
+
+----------------------------------------------------------------------
+Ran 632 tests in 1070.002s
+
+FAILED (failures=8, errors=2, skipped=7)
+exit 1
