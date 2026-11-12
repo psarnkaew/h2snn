@@ -53,3 +53,14 @@ Full suite once. Report per unit (done, VERIFIED-RUN, deviations), the F1 confir
 - F1: any difference between HGB's code and ours (stop F1; F2–F3 may continue; F4 waits).
 - HGB cannot be cloned or its loader cannot run on the tiny files: stop F1, report what fails.
 - A change would alter the method or needs an open decision: stop the unit, report.
+
+## Continuation after the F1 stop (author, 2026-11-12)
+Decisions: split option (a) (decisions log "LP validation split"); the failing oracle split test is replaced; F4 released; F5 after F1c.
+
+### F1c — close F1
+1. Replace `tests.test_hgb_oracle.HGBOracleTests.test_validation_split_equals_get_train_valid_pos` by two tests of the stated facts (draft v1.18 Z-4): (i) HGB's rule replayed over our sorted facts (`u >= 0.9` → validation, one `random.Random(seed)` stream over the relations in `link.dat` order, first fact of a head to training, no minimum) equals HGB's `get_train_valid_pos` on the three tiny datasets × 5 seeds (move the replay from `f1_split_diagnostic.py` into the test); (ii) on every local LP task the loader reads `link.dat.valid`, the validation facts equal the file's rows exactly, belong to the target relation (and, on acm_pa, dblp_ap and imdb_ma, its stored reverse relation) only, and every fact of every other relation in `link.dat` is in the message graph. No other test is removed. Our split code is not changed.
+2. Run F1's two mutation checks (random set with positives in another order; 2-hop adjacency with validation in both orientations) against the oracle tests; both must be caught.
+Commit: "F1c: oracle split test states the documented difference; F1 mutations".
+
+### F4, F5
+As above. F4 first (it does not depend on F1c), then F1c, then F5. Report: append to `docs/H2S-NN_partNfix_report.md` (sections F1c, F4, F5, updated per-unit table and decisions).
