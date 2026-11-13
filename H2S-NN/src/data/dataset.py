@@ -257,17 +257,22 @@ def build_dataset(config: TrainConfig) -> PreparedH2SData:
     train_indices = target_indices[target_train_mask]
     train_labels = target_y[target_train_mask]
 
-    face_groups = build_node_classification_paths(
-        config=config,
-        fact_layer=fact_layer,
-        node_slices=node_slices,
-        node_type=node_type,
-        node_type_names=node_type_names,
-        edge_index=edge_index,
-        edge_type=edge_type,
-        relation_tuples=relation_tuples,
-        seed=config.seed,
-    )
+    if config.data.training_mode == "minibatch":
+        # Part MB (MB4): mini-batch draws are made per batch and per run on the targets' anchors
+        # (src/trainers/minibatch_trainer.py); no whole-graph draw is built.
+        face_groups: tuple[FaceGroup, ...] = ()
+    else:
+        face_groups = build_node_classification_paths(
+            config=config,
+            fact_layer=fact_layer,
+            node_slices=node_slices,
+            node_type=node_type,
+            node_type_names=node_type_names,
+            edge_index=edge_index,
+            edge_type=edge_type,
+            relation_tuples=relation_tuples,
+            seed=config.seed,
+        )
 
     # Reporting-only statistics; never concatenated onto node features. See
     # compute_relation_diagnostics for why appending a global vector to every node

@@ -49,6 +49,38 @@ NEVER_TUNED_LEGACY_KEYS: tuple[str, ...] = (
     "overlap_sampling", "resample_paths")
 # Part H3: q = p ("uniform") or the adaptive defensive proposal (variance only; fixed by a gate).
 WISP_PROPOSALS: tuple[str, ...] = ("uniform", "adaptive")
+
+# Part MB (spec v1.21 §6; decisions MB1-MB3, N4, N5): training mode per dataset, never per trial.
+TRAINING_MODES: tuple[str, ...] = ("full_batch", "minibatch")
+#: Batch sizes tuned on the H2GB node-classification datasets (MB2; the same range every method).
+MINIBATCH_BATCH_SIZES: tuple[int, ...] = (32, 256, 1024)
+#: One epoch on the H2GB datasets = 8,192 training targets (`8192 / B` optimizer steps; MB2).
+MINIBATCH_EPOCH_TARGETS: int = 8192
+#: Targets per evaluation batch (N5); the metric is over the whole split (MB3).
+EVAL_BATCH_TARGETS: int = 1024
+#: Datasets on which `data.training_mode: minibatch` is the L5/C5 analysis flag (N4).
+MINIBATCH_ANALYSIS_DATASETS: tuple[str, ...] = ("acm", "dblp")
+#: The two large link-prediction tasks (mini-batch, MB4 of the design; data pending).
+LARGE_LP_DATASETS: tuple[str, ...] = ("ogbn-mag_pp", "h-pokec_uu")
+
+
+def default_training_mode(task_type: str, dataset_name: str) -> str:
+    """The training mode of a dataset (MB1): mini-batch on the eight H2GB node-classification
+    datasets and the two large link-prediction tasks; full batch / per graph elsewhere."""
+    name = dataset_name.lower()
+    if (task_type == "node_classification" and name in H2GB_NC_DATASETS) or (
+            task_type == "link_prediction" and name in LARGE_LP_DATASETS):
+        return "minibatch"
+    return "full_batch"
+
+
+def default_eval_period(dataset_name: str) -> int:
+    """Epochs between evaluations in mini-batch: H2GB's `eval_period` (4; OAG 2); 1 for the
+    analysis flag on ACM/DBLP (HGB evaluates every epoch)."""
+    name = dataset_name.lower()
+    if name in ("oag-cs", "oag-eng", "oag-chem"):
+        return 2
+    return 4 if name in H2GB_NC_DATASETS else 1
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
 # §3.2c); "sigmoid_gamma" = gamma * sigmoid(g) (the D11/D12 behaviour, comparison arm).
 PATH_WEIGHTS: tuple[str, ...] = ("exp", "sigmoid_gamma")
@@ -147,6 +179,16 @@ def reject_never_tuned_settings(
         )
     # Spec v1.15 J2: l_max and r are tuned (no pre-registered value, no calibrated-r rule in a
     # tuning base config); the proposal stays fixed (spec §6 WISP settings).
+    # Part MB (MB4; decisions MB1, MB2, N4): the training mode is per dataset, never a trial value;
+    # the mini-batch analysis flag (ACM, DBLP) and the epoch definition are refused by the tuner;
+    # the batch size is tuned on the H2GB node-classification datasets only.
+    if str(data.get("training_mode", "")) == "minibatch" and dataset not in H2GB_NC_DATASETS:
+        raise ValueError(
+            "data.training_mode: minibatch outside the H2GB datasets is the L5/C5 analysis flag "
+            "(decision N4) and must not be used in tuning.")
+    if data.get("epoch_targets"):
+        raise ValueError("data.epoch_targets is resolved per dataset (8,192 training targets on "
+                         "the H2GB datasets, decision MB2); it is never set by the tuner.")
     if str(data.get("wisp_proposal", "uniform")) != "uniform":
         raise ValueError("data.wisp_proposal: adaptive is not the pre-registered proposal "
                          "(spec §6) and must not be used in a tuning base config.")
@@ -156,6 +198,13 @@ def reject_never_tuned_settings(
             "and must not be used in tuning."
         )
     for name in search_parameters:
+        last = str(name).split(".")[-1]
+        if last in ("training_mode", "epoch_targets", "eval_period"):
+            raise ValueError(f"tuning search space contains {name!r}: the training mode, epoch "
+                             "and evaluation period are fixed per dataset (decisions MB1, MB2).")
+        if last == "batch_size" and dataset not in H2GB_NC_DATASETS:
+            raise ValueError(f"tuning search space contains {name!r} on {dataset!r}: the batch "
+                             "size is tuned on the H2GB node-classification datasets only (MB2).")
         # exact last component: `model.encoder_dropout` is an ordinary hyperparameter
         if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
             raise ValueError(
@@ -589,6 +638,14 @@ class DataConfig:
     # (node-classification trainer, resample_paths only). Changes no result: the seed schedule
     # and the proposal inputs are those of the sequential path (bit-identity test).
     overlap_sampling: bool = True
+    # Part MB (MB4): training mode ("" = the dataset's, `default_training_mode`), batch size B
+    # (mini-batch only; tuned in MINIBATCH_BATCH_SIZES on H2GB NC), epoch = `epoch_targets`
+    # training targets (0 = MINIBATCH_EPOCH_TARGETS), evaluation every `eval_period` epochs
+    # (0 = `default_eval_period`). Mini-batch fields are refused in full batch.
+    training_mode: str = ""
+    batch_size: int = 0
+    epoch_targets: int = 0
+    eval_period: int = 0
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
@@ -685,6 +742,10 @@ class DataConfig:
             wisp_proposal=str(raw.get("wisp_proposal", "uniform")),
             # Not cast with bool(): a string such as "false" must fail validation.
             overlap_sampling=raw.get("overlap_sampling", True),
+            training_mode=str(raw.get("training_mode", "")),
+            batch_size=int(raw.get("batch_size", 0)),
+            epoch_targets=int(raw.get("epoch_targets", 0)),
+            eval_period=int(raw.get("eval_period", 0)),
             target_relation=tuple(raw.get("target_relation", ("", "", ""))),
             decoder_type=str(raw.get("decoder_type", "dot")),
             neg_sampling_mode=str(raw.get("neg_sampling_mode", "resample_each_epoch")),
@@ -824,6 +885,33 @@ class DataConfig:
                 f"data.feature_normalization must be one of {FEATURE_NORMALIZATIONS}, "
                 f"got {self.feature_normalization!r}."
             )
+        mode_default = default_training_mode(task_type, dataset_name)
+        mode = self.training_mode or mode_default
+        if mode not in TRAINING_MODES:
+            raise ValueError(f"data.training_mode must be one of {TRAINING_MODES}, got {mode!r}.")
+        if mode != mode_default and not (
+                mode == "minibatch" and task_type == "node_classification"
+                and dataset_name in MINIBATCH_ANALYSIS_DATASETS):
+            raise ValueError(
+                f"data.training_mode {mode!r} on {dataset_name!r}: the mode is fixed per dataset "
+                f"({mode_default}; MB1); mini-batch elsewhere only as the analysis flag on "
+                f"{MINIBATCH_ANALYSIS_DATASETS} (N4).")
+        epoch_targets, eval_period = self.epoch_targets, self.eval_period
+        if mode == "minibatch" and task_type == "node_classification":
+            if self.batch_size < 1:
+                raise ValueError("data.batch_size (B) is required in mini-batch training.")
+            epoch_targets = epoch_targets or MINIBATCH_EPOCH_TARGETS
+            if epoch_targets % self.batch_size:
+                raise ValueError(f"data.epoch_targets {epoch_targets} is not a multiple of "
+                                 f"data.batch_size {self.batch_size}.")
+            eval_period = eval_period or default_eval_period(dataset_name)
+        elif self.batch_size or self.epoch_targets or self.eval_period:
+            raise ValueError("data.batch_size, epoch_targets and eval_period belong to "
+                             "mini-batch node classification only.")
+        if (mode, epoch_targets, eval_period) != (self.training_mode, self.epoch_targets,
+                                                  self.eval_period):
+            return replace(self, training_mode=mode, epoch_targets=epoch_targets,
+                           eval_period=eval_period).resolved(explicit)
         if not self.overlap_sampling and task_type != "node_classification":
             raise ValueError("data.overlap_sampling belongs to the node-classification trainer; "
                              "link prediction and graph classification do not read it.")

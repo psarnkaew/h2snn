@@ -1,0 +1,11 @@
+== (a) epoch = 4 steps regardless of B
+FAIL: test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) (B=32)
+FAIL: test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) (B=1024)
+FAIL: test_training_draw_seeds (tests.test_partMB_trainer.EpochTests.test_training_draw_seeds)
+Ran 8 tests in 14.780s
+FAILED (failures=3)
+== (b) evaluation on a random subset
+FAIL: test_predictions_do_not_depend_on_the_evaluation_batch_size (tests.test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size)
+FAIL: test_whole_split_and_metric_on_the_concatenation (tests.test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation)
+Ran 8 tests in 14.016s
+FAILED (failures=2)

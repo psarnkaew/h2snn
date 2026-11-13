@@ -142,6 +142,11 @@ def build_experiment_components(
     scheduler = build_scheduler(optimizer, cfg)
     logger = build_logger(cfg)
     checkpointer = _checkpointer(cfg)
+    if cfg.data.training_mode == "minibatch":  # Part MB (MB4): H2GB NC, or the N4 analysis flag
+        from src.trainers.minibatch_trainer import MiniBatchNodeTrainer
+
+        minibatch = MiniBatchNodeTrainer(model, optimizer, cfg, logger, checkpointer)
+        return data, model, optimizer, scheduler, logger, checkpointer, minibatch  # type: ignore[return-value]
     trainer = build_trainer(
         model=model,
         optimizer=optimizer,
