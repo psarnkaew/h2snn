@@ -1,0 +1,32 @@
+$ python -I docs/envB_evidence/e2_versions.py H2S-NN/requirements/linux-lock-b.txt   (h2snn-b)
+tag        torch==2.4.1  installed 2.4.1+cu124
+equal      torch_geometric==2.8.0
+tag        torch_scatter==2.1.2  installed 2.1.2+pt24cu124
+tag        torch_sparse==0.6.18  installed 0.6.18+pt24cu124
+tag        torch_cluster==1.6.3  installed 1.6.3+pt24cu124
+equal      numpy==2.4.6
+equal      scipy==1.18.0
+equal      scikit-learn==1.9.0
+equal      pyyaml==6.0.3
+equal      torchmetrics==1.8.2
+equal      wandb==0.28.0
+equal      pandas==3.0.3
+equal      tqdm==4.68.3
+equal      umap-learn==0.5.12
+equal      matplotlib==3.11.0
+equal      ogb==1.3.6
+equal      yacs==0.1.8
+equal      dill==0.4.1
+equal      pytorch_lightning==2.6.5
+equal      prettytable==3.18.0
+equal      gdown==6.1.0
+equal      performer-pytorch==1.1.4
+equal      hyper-connections==0.4.2
+equal      seaborn==0.13.2
+equal      texttable==1.7.0
+equal      termcolor==3.3.0
+MISSING    torch_householder==1.0.1
+DIFFERENT  dgl  lock 2.4.0+cu124  installed 2.2.1
+differences: 2
+
+## extra installed packages not in the lock are the dependencies of the pins; full list: e2_commands.txt (pip freeze)

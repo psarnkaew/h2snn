@@ -1,0 +1,68 @@
+# CANDIDATE lock B (Option B, branch env-b-check, card H2S-NN_envB_laptop_card.md): torch 2.4.1 + DGL 2.4.0.
+# Derived from requirements/linux-lock.txt (branch cluster-setup, CS2), which is NOT edited. Differences from it:
+#   torch 2.6.0 -> 2.4.1; PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (the wheels are used with 2.4.1);
+#   dgl 2.5.0+cu124 -> 2.4.0+cu124 and DGL index torch-2.6 -> torch-2.4 (NOT TESTED on the laptop: Windows has only dgl 2.2.1;
+#   data.dgl.ai was unreachable, see docs/envB_evidence/e1_dgl_index.txt); hyper-connections==0.4.2 added (see below).
+#
+# Original header follows.
+#
+# Linux lock for the `h2snn` environment on the lab GPU cluster (cluster-setup card CS2).
+#
+# Exact pins of the author's laptop environment `h2snn` (read 2026-11-14 from its
+# site-packages; Python 3.12.13), except DGL, whose laptop build (Windows CPU 2.2.1) does not
+# exist on Linux. Check an installed environment against this file with
+#   python scripts/setup/check_env.py
+# (in a SLURM job; it prints every difference and exits 1 if there is one).
+#
+# Not pinned: numba (only scripts/lp/build_heart_negatives.py; HeaRT removed in spec v1.14) and
+# HGB's tensorflow/gensim/rdflib/pynvml (methods not used).
+#
+# An installed version may carry an extra local build tag (`+cu124`, `+pt26cu124`) that the pin
+# leaves to the wheel index; check_env.py prints it as a note, not as a difference.
+
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch==2.4.1
+
+-f https://data.pyg.org/whl/torch-2.4.0+cu124.html
+torch_geometric==2.8.0
+torch_scatter==2.1.2
+torch_sparse==0.6.18
+torch_cluster==1.6.3
+
+numpy==2.4.6
+scipy==1.18.0
+scikit-learn==1.9.0
+pyyaml==6.0.3
+torchmetrics==1.8.2
+wandb==0.28.0
+pandas==3.0.3
+tqdm==4.68.3
+umap-learn==0.5.12
+matplotlib==3.11.0
+
+# H2GB graphgym stack (requirements/baselines-h2gb.txt)
+ogb==1.3.6
+yacs==0.1.8
+dill==0.4.1
+pytorch_lightning==2.6.5
+prettytable==3.18.0
+gdown==6.1.0
+performer-pytorch==1.1.4
+# Needed for torch 2.4.1: performer-pytorch -> local-attention 1.11.2 -> hyper-connections, whose releases from 0.4.3 on require torch>=2.5
+# (0.4.11 also torch-einops-utils, torch>=2.5); without this pin pip replaces torch 2.4.1 by 2.15.0 (docs/envB_evidence/e2_commands.txt).
+# 0.4.2 is the newest release with torch>=2.3. (The torch-2.6 lock has hyper-connections 0.4.11 implicitly.)
+hyper-connections==0.4.2
+seaborn==0.13.2
+
+# Hetero2Net (requirements/baselines-hetero2net.txt)
+texttable==1.7.0
+termcolor==3.3.0
+
+# CSNN, NSD (requirements/baselines-sheaf.txt)
+torch_householder==1.0.1
+
+# DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4 (untested; laptop has Windows dgl 2.2.1 only)
+-f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+dgl==2.4.0+cu124
+# torchdata: DGL's PyPI metadata lists torchdata>=0.5.0; 0.8.0 is the release for torch 2.4 and was installed with dgl 2.2.1 on the laptop.
+# NOT pinned yet: the author decides after the Linux DGL test (E3 on the laptop: see report).
