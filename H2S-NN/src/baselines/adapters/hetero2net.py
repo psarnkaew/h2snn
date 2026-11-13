@@ -35,11 +35,13 @@ from __future__ import annotations
 from copy import copy as shallow_copy
 from typing import Any
 
+from pathlib import Path
+
 import torch
 
 from src.baselines.adapters._gc_typed import batch_hetero_data, relation_key
 from src.baselines.adapters._hetero2net_lp import Hetero2NetLinkEncoder
-from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle
+from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle, bundle_data_root
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
 from src.baselines.metrics import classification_metrics, node_classification_record
 from src.baselines.budget import budget_kwargs, resolve_budget
@@ -54,7 +56,7 @@ from src.baselines.protocol import (
 )
 from src.baselines.published import load_published_params
 from src.baselines.runtime import PROJECT_ROOT, pushd_sys_path
-from src.data.data_layout import REPO_DATA_ROOT, nc_root
+from src.data.data_layout import nc_root
 from src.baselines.training import train_graph_classification, train_link_prediction
 from src.utils.misc import seed_everything
 
@@ -68,7 +70,7 @@ SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imd
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 
-def _load_vendor_graph(dataset: str) -> tuple[Any, Any]:
+def _load_vendor_graph(dataset: str, data_root: Path) -> tuple[Any, Any]:
     """Run their ``load_dataset`` against our on-disk HGBDataset copy.
 
     Their call is ``HGBDataset(root=f'{root}/HGBDataset', name=...)``, which does not match
@@ -81,14 +83,14 @@ def _load_vendor_graph(dataset: str) -> tuple[Any, Any]:
     from torch_geometric.datasets import HGBDataset
 
     key = dataset.lower()
-    root = nc_root(REPO_DATA_ROOT) / key
+    root = nc_root(data_root) / key
 
     with pushd_sys_path(VENDOR):
         from hetero2net import dataset as vendor_dataset  # type: ignore[import-not-found]
 
         original = vendor_dataset.HGBDataset
         vendor_dataset.HGBDataset = lambda root=None, name=None, transform=None: HGBDataset(
-            root=str(nc_root(REPO_DATA_ROOT)),
+            root=str(nc_root(data_root)),
             name=str(name).upper(),
             transform=transform,
         )
@@ -209,7 +211,7 @@ class Hetero2NetAdapter:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
 
         seed_everything(seed, device)
-        data, metapaths = _load_vendor_graph(bundle.dataset)
+        data, metapaths = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
 
         node_types = [t for t in data.node_types if data[t].get("y") is not None]
         if len(node_types) != 1:

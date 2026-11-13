@@ -1,0 +1,45 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Processing...
+Done!
+.C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+Downloading https://drive.usercontent.google.com/download?id=1vw-uqbroJZfFsWpriC1CWbtHCJMGdWJ7&confirm=t
+Extracting C:\Users\Acer\AppData\Local\Temp\tmpjwtp29_q\empty_default_root\NC\freebase\raw\data.zip
+Processing...
+Done!
+EC:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\HGB\NC\benchmark\methods\HAN\utils.py:213: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\utils\tensor_new.cpp:646.)
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+F
+======================================================================
+ERROR: test_fixed_adapters_run_from_the_bundle_root (tests.test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) (adapter='hetero2net')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partPfix_data_root.py", line 99, in test_fixed_adapters_run_from_the_bundle_root
+    record = get_adapter(name).fit_task(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\hetero2net.py", line 214, in fit_task
+    data, metapaths = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\hetero2net.py", line 98, in _load_vendor_graph
+    return vendor_dataset.load_dataset(VENDOR_DATASET[key])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\Hetero2Net\hetero2net\dataset.py", line 52, in load_dataset
+    data[nt].x = torch.eye(data[nt].num_nodes)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 27126748804 bytes.
+
+======================================================================
+FAIL: test_no_baseline_module_reads_repo_data_root (tests.test_partPfix_data_root.SourceTests.test_no_baseline_module_reads_repo_data_root)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partPfix_data_root.py", line 52, in test_no_baseline_module_reads_repo_data_root
+    self.assertEqual({k: v for k, v in offenders.items() if v}, {})
+AssertionError: {'adapters\\hetero2net.py': [59, 93]} != {}
+- {'adapters\\hetero2net.py': [59, 93]}
++ {}
+
+----------------------------------------------------------------------
+Ran 3 tests in 51.441s
+
+FAILED (failures=1, errors=1)

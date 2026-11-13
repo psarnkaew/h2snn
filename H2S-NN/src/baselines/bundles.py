@@ -70,10 +70,22 @@ BASELINE_DATA_PINS: dict[str, Any] = {
 HGB_RAW_DIRNAME: dict[str, str] = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Freebase"}
 
 
-def hgb_raw_dir(dataset: str) -> "Path":
-    """Absolute path to one dataset's raw HGB directory."""
+def bundle_data_root(bundle: Any) -> Path:
+    """The data root a bundle was built from (`data.root` of its configuration, resolved when
+    `build_bundle` ran). Every adapter reads its files under this root, never under
+    `REPO_DATA_ROOT` directly (Part P-fix F4), so a run reads the data its bundle was built from."""
 
-    from src.data.data_layout import REPO_DATA_ROOT, hgb_nc_raw_dir
+    root = getattr(bundle, "metadata", {}).get("data_root")
+    if root is None:
+        raise KeyError("this bundle carries no data root; build it with build_bundle().")
+    return Path(root)
+
+
+def hgb_raw_dir(dataset: str, root: Path) -> "Path":
+    """Absolute path to one dataset's raw HGB directory under the data root `root`
+    (`bundle_data_root(bundle)`)."""
+
+    from src.data.data_layout import hgb_nc_raw_dir
 
     key = dataset.lower()
     if key not in HGB_RAW_DIRNAME:
@@ -82,7 +94,7 @@ def hgb_raw_dir(dataset: str) -> "Path":
             f"{sorted(HGB_RAW_DIRNAME)}."
         )
     name = HGB_RAW_DIRNAME[key]
-    path = hgb_nc_raw_dir(REPO_DATA_ROOT, key)
+    path = hgb_nc_raw_dir(Path(root), key)
     if not path.is_dir():
         raise FileNotFoundError(f"Raw HGB directory for {dataset!r} is missing: {path}")
     return path
@@ -374,6 +386,8 @@ def build_bundle(
     """Build the canonical data bundle for one (task, dataset) cell."""
 
     config = _base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+    # the root this bundle's loader reads (relative roots resolve as the loaders resolve them)
+    data_root = str(Path(config.data.root).resolve())
 
     if task == NODE_CLASSIFICATION:
         from src.data.dataset import build_dataset
@@ -384,7 +398,7 @@ def build_bundle(
             data=data,
             num_classes=data.num_classes,
             is_multilabel=data.is_multilabel,
-            metadata={"split_seed": config.data.acm_split_seed},
+            metadata={"split_seed": config.data.acm_split_seed, "data_root": data_root},
         )
 
     if task == LINK_PREDICTION:
@@ -397,6 +411,7 @@ def build_bundle(
             metadata={
                 "target_relation": list(config.data.target_relation),
                 "neg_sampling_mode": config.data.neg_sampling_mode,
+                "data_root": data_root,
             },
         )
 
@@ -414,6 +429,7 @@ def build_bundle(
             metadata={
                 "split_protocol": config.data.split_protocol,
                 "split_seed": config.data.split_seed,
+                "data_root": data_root,
             },
         )
 

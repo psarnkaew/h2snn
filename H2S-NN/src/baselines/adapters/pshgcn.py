@@ -59,7 +59,7 @@ from src.baselines.adapters._polynomial_lp import (
     build_term_lists,
     polynomial_term_count,
 )
-from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle
+from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle, bundle_data_root
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
 from src.baselines.budget import budget_kwargs
 from src.baselines import search_grids as grids
@@ -201,7 +201,7 @@ class PSHGCNAdapter:
             _train_idx,
             _val_idx,
             vendor_test_idx,
-        ) = load_vendor_dataset(VENDOR, bundle.dataset, args)
+        ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
 
         verify_labels(bundle, labels, vendor=NAME)
         train_idx, val_idx, test_idx = canonical_split(

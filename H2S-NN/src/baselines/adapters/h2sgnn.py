@@ -48,7 +48,7 @@ from src.baselines.adapters._h2sgnn_lp import (
 )
 from src.baselines.adapters._target_block import target_node_range
 from src.baselines.adapters._h2sgnn_lp import parameter_groups as lp_parameter_groups
-from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle
+from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle, bundle_data_root
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
 from src.baselines.budget import budget_kwargs
 from src.baselines import search_grids as grids
@@ -231,7 +231,7 @@ class H2SGNNAdapter:
             _val_idx,
             vendor_test_idx,
             adjs_list,
-        ) = load_vendor_dataset(VENDOR, bundle.dataset, args)
+        ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
 
         verify_labels(bundle, labels, vendor=NAME)
         train_idx, val_idx, test_idx = canonical_split(

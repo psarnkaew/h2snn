@@ -16,6 +16,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pathlib import Path
+
 import torch
 
 from src.baselines.bundles import NodeBundle, hgb_raw_dir
@@ -25,10 +27,11 @@ from src.baselines.runtime import pushd_sys_path
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
 
 
-def load_vendor_dataset(vendor: str, dataset: str, args: Any) -> tuple[Any, ...]:
-    """Run ``<vendor>/processing.load_dataset(args)`` against our raw HGB directory."""
+def load_vendor_dataset(vendor: str, dataset: str, args: Any, root: Path) -> tuple[Any, ...]:
+    """Run ``<vendor>/processing.load_dataset(args)`` against our raw HGB directory under the
+    bundle's data root `root` (`bundle_data_root`)."""
 
-    raw_dir = hgb_raw_dir(dataset)
+    raw_dir = hgb_raw_dir(dataset, root)
     with pushd_sys_path(vendor):
         import processing  # type: ignore[import-not-found]
         from dataset_loader import data_loader  # type: ignore[import-not-found]

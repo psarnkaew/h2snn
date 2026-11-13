@@ -155,7 +155,6 @@ class TinyReleaseTests(unittest.TestCase):
         self.assertTrue((out / "freebase" / "schema_readout.md").exists())
 
     def test_every_nc_adapter_runs_one_epoch(self) -> None:
-        import src.baselines.adapters.hetero2net as hetero2net
         import src.data.data_layout as layout
         from src.baselines.bundles import build_bundle
         from src.baselines.registry import (
@@ -167,8 +166,10 @@ class TinyReleaseTests(unittest.TestCase):
         from tests.test_partP_derived_lp import environment_blocker
 
         blocked = {"chebnetii": "chebnetii", "nsd": "nsd", "h2sgnn": "h2sgnn"}
-        with mock.patch.object(layout, "REPO_DATA_ROOT", self.root), \
-                mock.patch.object(hetero2net, "REPO_DATA_ROOT", self.root):
+        # Part P-fix F4: adapters read the bundle's data root; the default root is an empty dir
+        empty = self.root / "empty_default_root"
+        empty.mkdir(exist_ok=True)
+        with mock.patch.object(layout, "REPO_DATA_ROOT", empty):
             bundle = build_bundle(NODE_CLASSIFICATION, "freebase",
                                   overrides={"device": "cpu", "data": {"root": str(self.root)}})
             for spec in models_for_task(NODE_CLASSIFICATION):

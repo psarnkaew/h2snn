@@ -31,9 +31,11 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
+from pathlib import Path
+
 import torch
 
-from src.baselines.bundles import NodeBundle, hgb_raw_dir
+from src.baselines.bundles import NodeBundle, bundle_data_root, hgb_raw_dir
 from src.baselines.metrics import classification_metrics, node_classification_record
 from src.baselines.budget import resolve_budget
 from src.baselines.progress import report_epoch
@@ -58,9 +60,9 @@ VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
 TARGET_TYPE = {"ACM": "P", "DBLP": "A", "IMDB": "M"}
 
 
-def _vendor_args(dataset: str, params: BaselineParams) -> SimpleNamespace:
+def _vendor_args(dataset: str, params: BaselineParams, root: Path) -> SimpleNamespace:
     vendor_name = VENDOR_DATASET[dataset]
-    raw_dir = hgb_raw_dir(dataset)
+    raw_dir = hgb_raw_dir(dataset, root)
     return SimpleNamespace(
         # load_dataset reads f'{root}/{dataset}', so root is the raw tree's parent.
         root=str(raw_dir.parent),
@@ -191,7 +193,7 @@ class SeHGNNAdapter:
         device = resolve_dgl_device(device)
         seed_everything(seed, device)
 
-        args = _vendor_args(bundle.dataset, params)
+        args = _vendor_args(bundle.dataset, params, bundle_data_root(bundle))
         data = bundle.data
         use_label_feats = bool(params.get("label_feats", True))
 

@@ -31,6 +31,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pathlib import Path
+
 import torch
 
 from src.baselines.adapters._gc_typed import batch_metapath_operators
@@ -41,6 +43,7 @@ from src.baselines.bundles import (
     GraphBundle,
     LinkBundle,
     NodeBundle,
+    bundle_data_root,
     hgb_raw_dir,
 )
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
@@ -74,7 +77,7 @@ SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imd
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 
-def _load_vendor_graph(dataset: str) -> tuple[Any, ...]:
+def _load_vendor_graph(dataset: str, root: Path) -> tuple[Any, ...]:
     """Run HAN's own loader against our raw HGB directory.
 
     Their per-dataset loaders call ``data_loader('../../data/<NAME>')``, a path relative to
@@ -82,7 +85,7 @@ def _load_vendor_graph(dataset: str) -> tuple[Any, ...]:
     heterograph construction, the feature choice and the meta-path lists verbatim.
     """
 
-    raw_dir = hgb_raw_dir(dataset)
+    raw_dir = hgb_raw_dir(dataset, root)
     with pushd_sys_path(*VENDORS):
         import utils as han_utils  # type: ignore[import-not-found]
 
@@ -159,7 +162,7 @@ class HANAdapter:
             _val_mask,
             _test_mask,
             meta_paths,
-        ) = _load_vendor_graph(bundle.dataset)
+        ) = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
 
         data = bundle.data
         expected = int(data.target_y.shape[0])
