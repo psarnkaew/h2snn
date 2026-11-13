@@ -132,3 +132,10 @@ python 3.12.16 executable C:\Users\Acer\anaconda3\envs\h2snn-b\python.exe
   The same failure occurs in the existing h2snn (torch 2.6.0: graphbolt_pytorch_2.6.0.dll): e3_dgl_graphbolt_control.txt. So on this laptop DGL imports in neither environment; this is a Windows-wheel limit, not a torch-2.4.1 result.
 - DGL message passing and graphbolt: NOT TESTED (cannot import). The numpy-2 incompatibility of DGL (pre-registered 3): NOT TESTED; before the failing line no "compiled using NumPy 1.x" message appeared.
 - Warnings seen: torch_geometric DeprecationWarning ('torch-cluster' is no longer necessary), umap ImportWarning (Tensorflow not installed), performer_pytorch DeprecationWarning (distutils LooseVersion), torchdata.datapipes UserWarning (deprecated modules). No NumPy-1.x/2.x message anywhere.
+
+=== E3b addendum (agent): DGL through the project's own route ===
+src/baselines/runtime/_dgl_compat.py (existing code, not modified) stubs dgl.graphbolt when its DLL is missing; the adapters import DGL only through it.
+docs/envB_evidence/e3b_dgl_via_shim.txt: in h2snn-b (torch 2.4.1, numpy 2.4.6, dgl 2.2.1 Windows CPU) and, as control, in h2snn: homogeneous and heterograph
+message passing, GraphConv and GATConv all run; python -W default printed NO warning (no "compiled using NumPy 1.x" message). dgl_supports_cuda() is False (CPU wheel).
+So for the Windows 2.2.1 build: torch 2.4.1 + numpy 2.4.6 + torchdata 0.8.0 works for the graph/conv APIs. Still NOT tested: DGL 2.4.0 Linux (graphbolt on, CUDA build).
+The E3 line "DGL message passing: NOT TESTED" above refers to the bare import only.

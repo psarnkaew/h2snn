@@ -15,4 +15,4 @@ status differences: 1
   "AssertionError: 'missing requirement group sheaf (torch_householder) -- install requirements/baselines-sheaf.txt' is not None" (test_baselines.py:1394).
   Same test fails in the cluster report (CS5) for the same reason. No bit-exact-capture difference: test_task_heads and test_cooperative pass in both envs.
 - The skipped lines (empty vendor clones) are identical in both logs. Nothing was fixed, loosened or skipped.
-- Note: dgl cannot be imported in either env (E3), yet no other test differs; the DGL-backed fits are gated/skipped or mocked the same way in both.
+- Note: a bare import dgl fails in both envs (E3), but the project imports DGL through src/baselines/runtime/_dgl_compat.py, which stubs GraphBolt; with it DGL works in both envs (E3b), which is why no DGL-backed test differs.
