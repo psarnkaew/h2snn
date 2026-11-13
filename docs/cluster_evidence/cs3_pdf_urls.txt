@@ -1,0 +1,34 @@
+job=16611 node=g2tn01
+references/2023Heart_Sampling.pdf: https://github.com/Juanhui28/HeaRT
+references/CWNetworks_2022.pdf: https://github.com/snap-stanford/ogb https://github.com/twitter-research/cwn
+references/Deep_neural_sheaf_diffusion.pdf: github.com/remibourgerie https://github.com/remibourgerie/deep-neural-sheaf-diffusion
+references/GATv2.pdf: https://github.com/gordicaleksa/pytorch-GAT https://github.com/microsoft/tf-gnn-samples https://github.com/tech-srl/how_attentive_are_gats
+references/HETSHEAF.pdf: github.com/alessioborgi/Heterogeneous- https://github.com/BNN- https://github.com/BNN-UPC/NetworkModelingDatasets https://github.com/Zaiwen/Link_Prediction_in_Biomedical_Network https://github.com/alessioborgi/Heterogeneous-Sheaf-Neural-Networks https://github.com/toshas/torch- https://github.com/toshas/torch-householder
+references/background/Addressing Graph Heterogeneity and Heterophily from A Spectral Perspective.pdf: https://github.com/Lukangkang123/H2SGNN
+references/background/HGB.pdf: https://github.com/THUDM/HGB
+references/background/Heterogeneous Sheaf Neural Networks.pdf: https://github.com/BNN- https://github.com/BNN-UPC/NetworkModelingDatasets https://github.com/Zaiwen https://github.com/Zaiwen/Link_Prediction_in_Biomedical_Network
+references/background/Neural Sheaf Diffusion.pdf: https://github.com/twitter-research/neural-sheaf-diffusion www.github.com/toshas/torch-householder
+references/background/Pooling_Method/HISP_HIERARCHICAL POOLING FOR SHEAF NEURAL NETWORKS.pdf: https://github.com/NGMLGroup/hierarchical- https://github.com/NGMLGroup/hierarchical-pooling-for-sheaf-neural-networks
+references/background/Pooling_Method/MVPOOL.pdf: https://github.com/cszhangzhen/MVPool
+references/background/TUDataset.pdf: www.github.com/chrsmrrs/tudataset
+references/background/When Heterophily Meets Heterogeneous Graphs.pdf: https://github.com/zxlearningdeep/LatGRL
+references/cooperative_sheaf_neural_network.pdf: www.github.com/toshas/torch-householder
+references/metapath_search/AMP-HGNAS.pdf: http://bitbucket.org/sortsmill/sortsmill-fontforge
+references/metapath_search/Adaptive meta-path-based neural network architecture search for heterogeneous graphs.pdf: http://bitbucket.org/sortsmill/sortsmill-fontforge
+references/metapath_search/DeepNeuralSheafDiffusion.pdf: github.com/remibourgerie https://github.com/remibourgerie/deep-neural-sheaf-diffusion
+references/metapath_search/Differentiable Meta Multigraph Search with Partial Message Propagation on Heterogeneous Information Networks.pdf: https://github.com/0oshowero0/GEMS https://github.com/AutoML-Research/DiffMG https://github.com/Jhy1993/HAN https://github.com/acbull/pyHGT https://github.com/cynricfu/MAGNN https://github.com/librahu/HIN-Datasets-for-Recommendation-and-Network-Embedding https://github.com/pkuliyi2015/GraphMSE https://github.com/seongjunyun/Graph_Transformer_Networks
+references/metapath_search/Enhancing Heterogeneous Graph Learning with Semantic-Aware Meta-Path Diffusion.pdf: http://bitbucket.org/sortsmill/sortsmill-fontforge https://github.com/Ding- https://github.com/Ding-guang-hua/SMCD
+references/metapath_search/Faster Orthogonal Parameterization with Householder Matrices.pdf: https://github.com/Lezcano/expRNN https://github.com/alexandermath/fasth https://github.com/zhangjiong724/spectral-RNN
+references/metapath_search/H2GB.pdf: https://github.com/junhongmit/H2GB
+references/metapath_search/HG-search multi-stage search for heterogeneous graph neural networks.pdf: https://github.com/dawn-creator/HG-Search
+references/metapath_search/Hetero2Net.pdf: https://github.com/EdisonLeeeee/Hetero2Net
+references/metapath_search/Long-range Meta-path Search on Large-scale Heterogeneous Graphs.pdf: https://github.com/Ffffffffire/HINormer https://github.com/ICT-GIMLab/SeHGNN https://github.com/J https://github.com/JHL-HUST/LMSPS https://github.com/JHL-HUST/PMMM https://github.com/LARS-research/DiffMG https://github.com/THUDM/HGB https://github.com/UCLA-DM/pyHGT https://github.com/dmlc/dgl https://github.com/facebookresearch/NARS https://github.com/scottjiao/SlotGAT_ICML23
+references/metapath_search/Meta-Path Learning for Multi-relational Graph Neural Networks.pdf: https://github.com/francescoferrini/MultirelationalGNN
+references/metapath_search/Rethinking Heterogeneous Graph Representation Learning via Relational Subset Selection.pdf: http://bitbucket.org/sortsmill/sortsmill-fontforge
+references/misc/Neural Architecture Search Insights from 1000 Papers.pdf: https://github.com/D-X-Y/Awesome-AutoDL https://github.com/microsoft/nni
+references/misc/Sheaf HyperNetworks for Personalized Federated Learning.pdf: https://github.com/washingtonpost/data-2C-beyond-the-limit-usa
+references/readout/Graph Neural Networks with Adaptive Readouts.pdf: https://github.com/davidbuterez/gnn-neural-readouts
+references/readout/Kernel Readout for Graph Neural Networks.pdf: https://github.com/jiajunCAU/KerRead
+references/rl_and_search/Automatic Graph Topology-Aware Transformer.pdf: https://github.com/LARS-research/F2GNN https://github.com/LARS-research/SANE https://github.com/LARS-research/SNAG https://github.com/geatpy-dev/geatpy https://github.com/pyg-team/pytorch_geometric https://github.com/qwerfdsaplking/Graph-Trans https://github.com/snap-stanford/ogb https://github.com/xiaofangxd/EGTAS
+references/rl_and_search/Personalised Meta-path Generation for Heterogeneous GNNs.pdf: https://github.com/AndyJZhao/NSHE https://github.com/SkBlaz/PropStar https://github.com/cynricfu/MAGNN https://github.com/eXascaleInfolab/JUST https://github.com/librahu/HERec https://github.com/seongjunyun/Graph_Transformer_Networks https://github.com/shangjingbo1226/ESim https://github.com/shenweichen/GraphEmbedding https://github.com/zhiqiangzhongddu/PM-HGNN
+references/rl_and_search/Policy-Guided Heuristic Search with Guarantees.pdf: https://github.com/levilelis/h-levin

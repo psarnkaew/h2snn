@@ -1,0 +1,21 @@
+name	url	commit	licence	used_by	kind
+HGB	https://github.com/THUDM/HGB	ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe	no licence file: never commit its files	hgb_gnn, hgb_han, _hgb_vendor, _han_lp (GCN, GAT, HAN; LP oracle)	clone
+SeHGNN	https://github.com/ICT-GIMLab/SeHGNN	e92bd37d0b803457339555684f139b4c8f3e160d	no licence file	sehgnn	clone
+PSHGCN	-	-	-	pshgcn, _pshgcn_lp	unresolved
+H2SGNN	https://github.com/Lukangkang123/H2SGNN	93c33faf3a413363efcda2ba2a6c04618f1694f7	no licence file	h2sgnn, _h2sgnn_lp	clone
+Hetero2Net	https://github.com/EdisonLeeeee/Hetero2Net	49133947f33ba46ccd3efb869727f8aef3d7254a	no licence file	hetero2net, _hetero2net_lp	clone
+ChebNetII	-	-	-	chebnetii	unresolved
+neural-sheaf-diffusion	https://github.com/twitter-research/neural-sheaf-diffusion	11e21b561d884713ab1a18a521a7dc2fb26b9361	Apache-2.0	nsd	clone
+H2GB	https://github.com/junhongmit/H2GB	d3b49db63ad66f8a3282dbe699d50ce10ed3062a	MIT	h2gformer, _h2gformer_encoders, _h2gformer_lp	clone
+HINormer	https://github.com/Ffffffffire/HINormer	a29fcace78c64f6c2abfcfad42debac006f5b4f5	no licence file; files tracked in this repository (CLONED_COMMIT.txt)	hinormer	in-repo
+csnn	https://github.com/psarnkaew/h2snn	b0e0fab45868bfd6f6c1f4d58df69ba58a7a4951	this repository's copy (commit = last change here); upstream not recorded	csnn	in-repo
+HINPool	https://github.com/psarnkaew/h2snn	b0e0fab45868bfd6f6c1f4d58df69ba58a7a4951	this repository's copy (commit = last change here); upstream not recorded	campaign (HINPool)	in-repo
+Heterogeneous-Sheaf-Neural-Networks	https://github.com/alessioborgi/Heterogeneous-Sheaf-Neural-Networks	6964e1e79a4c1065f358d0914b238e27fd65a769	CC BY-NC-ND 4.0	none yet (HetSheaf; later card, D-P4)	clone
+deep-neural-sheaf-diffusion	https://github.com/remibourgerie/deep-neural-sheaf-diffusion	3f706c2bff7e2fdb0ed443d3559a8902f7495462	no licence file	none (reference)	clone
+HSB-GDL	https://github.com/mr49online/HSB-GDL	4126e64e7af91bef9ac9edef9f34b2fba320aff1	no licence file	none (no Python code at this commit)	clone
+HeaRT	https://github.com/Juanhui28/HeaRT	c447cbf	not cloned	scripts/lp/build_heart_negatives.py (HeaRT removed in spec v1.14)	no-clone
+fasth	https://github.com/alexandermath/fasth	b3fddf117f051c90825b79a5966a0171682a1158	MIT	none (reference for src/models/fasthpp.py)	clone
+tudataset	https://github.com/chrsmrrs/tudataset	26e6ef6c5f636dd53b7798da7a860dcc19ba3ef8	no licence file	none	clone
+dgl	https://github.com/dmlc/dgl	3d16000b4170fa741ed9e9667f22ba84d3493026	Apache-2.0	none (DGL is used as the pip package)	clone
+Cooperative-Sheaf-NN	-	-	-	none	unresolved
+hgbi	-	-	-	none	unresolved

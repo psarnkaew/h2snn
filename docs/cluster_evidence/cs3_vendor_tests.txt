@@ -1,0 +1,686 @@
+job=16612 node=g2n01 gpu=NVIDIA GeForce RTX 2080 Ti start=2026-11-14T02:48:39+09:00
+=== available_vendors()
+hgb_nc       True
+hgb_nc_gnn   True
+hgb_nc_han   True
+hgb_lp       True
+hgb_lp_gnn   True
+sehgnn       True
+sehgnn_data  True
+pshgcn       False
+pshgcn_lp    False
+h2sgnn       True
+hetero2net   True
+chebnetii    False
+nsd          True
+h2gb         True
+hinormer     True
+csnn         True
+all present: False
+=== tests.test_vendor_manifest
+test_clone_rows_pin_a_full_hash_and_a_url (tests.test_vendor_manifest.VendorManifestTests.test_clone_rows_pin_a_full_hash_and_a_url) ... ok
+test_every_row_has_a_commit (tests.test_vendor_manifest.VendorManifestTests.test_every_row_has_a_commit) ... FAIL
+test_every_vendor_root_has_a_row (tests.test_vendor_manifest.VendorManifestTests.test_every_vendor_root_has_a_row) ... ok
+test_manifest_parses_with_unique_names_and_known_kinds (tests.test_vendor_manifest.VendorManifestTests.test_manifest_parses_with_unique_names_and_known_kinds) ... ok
+
+======================================================================
+FAIL: test_every_row_has_a_commit (tests.test_vendor_manifest.VendorManifestTests.test_every_row_has_a_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_vendor_manifest.py", line 47, in test_every_row_has_a_commit
+    self.assertEqual(bad, [], "rows without a 7-40 hex commit (URL not found in the sources)")
+AssertionError: Lists differ: ['PSHGCN', 'ChebNetII', 'Cooperative-Sheaf-NN', 'hgbi'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'PSHGCN'
+
+- ['PSHGCN', 'ChebNetII', 'Cooperative-Sheaf-NN', 'hgbi']
++ [] : rows without a 7-40 hex commit (URL not found in the sources)
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.003s
+
+FAILED (failures=1)
+=== tests.test_baselines
+test_supported_cells_are_runnable_in_the_registry (tests.test_baselines.AdapterContractTests.test_supported_cells_are_runnable_in_the_registry) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_supports_agrees_with_search_space (tests.test_baselines.AdapterContractTests.test_supports_agrees_with_search_space) ... ok
+test_notebooks_are_committed_clean (tests.test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed. ... FAIL
+test_notebooks_drive_the_entry_scripts (tests.test_baselines.BaselineNotebookTests.test_notebooks_drive_the_entry_scripts)
+The notebooks must call the scripts, not reimplement the campaign. ... ok
+test_graph_summary_reports_one_standard_deviation (tests.test_baselines.CampaignSummaryTests.test_graph_summary_reports_one_standard_deviation)
+Under HINPool's holdout there is no repetition structure to average over. ... ok
+test_seed_tasks_report_one_standard_deviation (tests.test_baselines.CampaignSummaryTests.test_seed_tasks_report_one_standard_deviation) ... ok
+test_every_runnable_cell_builds_a_sweep (tests.test_baselines.CampaignSweepTests.test_every_runnable_cell_builds_a_sweep)
+A search space that fails to resolve must fail now, not mid-campaign. ... ok
+test_no_hyperband_option_remains (tests.test_baselines.CampaignSweepTests.test_no_hyperband_option_remains)
+Spec v1.15 §6: no Hyperband (it feeds unconverged scores to the surrogate); the ... ok
+test_graph_split_comes_from_seed_not_overrides (tests.test_baselines.CampaignUnitTests.test_graph_split_comes_from_seed_not_overrides)
+The split position travels as run_index/seed, which build_bundle takes. ... ok
+test_graph_units_are_seeded_holdout_runs (tests.test_baselines.CampaignUnitTests.test_graph_units_are_seeded_holdout_runs)
+HINPool's protocol: five seeded stratified 80/10/10 holdouts, not folds. ... ok
+test_link_units_carry_no_split_overrides (tests.test_baselines.CampaignUnitTests.test_link_units_carry_no_split_overrides) ... ok
+test_node_and_link_units_are_seeds (tests.test_baselines.CampaignUnitTests.test_node_and_link_units_are_seeds) ... ok
+test_report_current_adapter_coverage (tests.test_baselines.CoverageReportTests.test_report_current_adapter_coverage)
+Not a pass/fail gate -- prints how much of the matrix is actually implemented. ... ok
+test_a_machine_without_a_gpu_has_no_defect (tests.test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... FAIL
+test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect. ... FAIL
+test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... FAIL
+test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... FAIL
+test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... 
+  test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated) (model='csnn')
+A CPU-only DGL must not disable the baselines that never touch DGL. ... FAIL
+  test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated) (model='nsd')
+A CPU-only DGL must not disable the baselines that never touch DGL. ... FAIL
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... 
+  test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform) (platform='linux')
+The warning must reach the user even where the defect check stays silent. ... FAIL
+  test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform) (platform='win32')
+The warning must reach the user even where the defect check stays silent. ... FAIL
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... FAIL
+test_scripts_importing_src_bootstrap_the_project_root (tests.test_baselines.EntryPointBootstrapTests.test_scripts_importing_src_bootstrap_the_project_root) ... ok
+test_a_hyperband_stop_is_not_a_failure (tests.test_baselines.EpochReportingTests.test_a_hyperband_stop_is_not_a_failure)
+W&B terminates a pruned run thread with a bare ``Exception``. ... ok
+test_report_key_matches_the_sweep_metric (tests.test_baselines.EpochReportingTests.test_report_key_matches_the_sweep_metric)
+Live series and sweep metric must share a key, or nothing can prune. ... ok
+test_shared_loops_accept_a_report (tests.test_baselines.EpochReportingTests.test_shared_loops_accept_a_report) ... ok
+test_splits_are_disjoint (tests.test_baselines.HGBSplitTests.test_splits_are_disjoint) ... ok
+test_train_plus_val_equals_hgb_train_and_test_is_untouched (tests.test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) ... ok
+test_validation_is_twenty_percent_of_hgb_train (tests.test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) ... ok
+test_graph_head_pools_per_graph (tests.test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (tests.test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_featureless_type_falls_back_to_identity (tests.test_baselines.HomogeneousViewTests.test_featureless_type_falls_back_to_identity) ... ok
+test_link_prediction_view_keeps_real_features (tests.test_baselines.HomogeneousViewTests.test_link_prediction_view_keeps_real_features)
+Regression: the default view once replaced real features with an identity. ... ok
+test_symmetrization_adds_self_loops_and_drops_duplicates (tests.test_baselines.HomogeneousViewTests.test_symmetrization_adds_self_loops_and_drops_duplicates) ... ok
+test_a_lane_declares_the_vendor_clones_its_models_read (tests.test_baselines.LaneNotebookTests.test_a_lane_declares_the_vendor_clones_its_models_read) ... ok
+test_committed_notebooks_match_the_generator (tests.test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator)
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... ok
+test_each_lane_installs_only_its_own_group (tests.test_baselines.LaneNotebookTests.test_each_lane_installs_only_its_own_group)
+The whole reason for the split: one optional group per runtime. ... ok
+test_every_lane_drives_the_entry_scripts_and_can_resume (tests.test_baselines.LaneNotebookTests.test_every_lane_drives_the_entry_scripts_and_can_resume) ... ok
+test_every_lane_model_needs_that_lane_group (tests.test_baselines.LaneNotebookTests.test_every_lane_model_needs_that_lane_group) ... ok
+test_lanes_partition_every_requested_cell_exactly_once (tests.test_baselines.LaneNotebookTests.test_lanes_partition_every_requested_cell_exactly_once)
+No cell may be dropped between lanes, and none may be run twice. ... ok
+test_no_lane_overrides_the_shared_training_budget (tests.test_baselines.LaneNotebookTests.test_no_lane_overrides_the_shared_training_budget)
+`--epochs` reaches the training loops now, so a notebook must not set it. ... ok
+test_node_classification_runs_only_the_requested_subset (tests.test_baselines.LaneNotebookTests.test_node_classification_runs_only_the_requested_subset)
+HINormer on ACM alone; the other four on all three datasets. ... ok
+test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) ... ok
+test_the_dgl_lane_refuses_to_run_on_cpu (tests.test_baselines.LaneNotebookTests.test_the_dgl_lane_refuses_to_run_on_cpu)
+A CPU-only DGL wastes the whole session; the lane must stop, not warn. ... ok
+test_an_explicit_ratio_survives_the_preset (tests.test_baselines.LinkProtocolTests.test_an_explicit_ratio_survives_the_preset) ... ok
+test_every_hgb_dataset_holds_out_at_hgbs_rate (tests.test_baselines.LinkProtocolTests.test_every_hgb_dataset_holds_out_at_hgbs_rate)
+HGB draws validation at 1 - train_ratio = 0.10 on every link dataset. ... ok
+test_homogeneous_link_baselines_share_one_graph (tests.test_baselines.LinkProtocolTests.test_homogeneous_link_baselines_share_one_graph)
+GCN/GAT read ``view.edge_index``, the reduction NSD and CSNN already got. ... ok
+test_split_overlap_is_measured (tests.test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded. ... ok
+test_adapters_can_be_called_twice_in_one_process (tests.test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects. ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/H2GB/H2GB/utils.py:216: SyntaxWarning: invalid escape sequence '\m'
+  :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/H2GB/H2GB/utils.py:235: SyntaxWarning: invalid escape sequence '\m'
+  :math:`\mathbf{b} \in {\{ 0, \ldots, B-1\}}^N`, which assigns each
+ok
+test_oracle_topk_matches_the_vendor_implementation (tests.test_baselines.MultiLabelProtocolTests.test_oracle_topk_matches_the_vendor_implementation) ... ok
+test_project_helper_can_reproduce_the_hgb_convention (tests.test_baselines.MultiLabelProtocolTests.test_project_helper_can_reproduce_the_hgb_convention)
+src/utils/misc.py must be able to reproduce PSHGCN/H2SGNN's convention. ... ok
+test_rejects_an_unknown_protocol (tests.test_baselines.MultiLabelProtocolTests.test_rejects_an_unknown_protocol) ... ok
+test_topk_selects_exactly_the_true_label_count (tests.test_baselines.MultiLabelProtocolTests.test_topk_selects_exactly_the_true_label_count) ... ok
+test_no_cell_reads_a_name_no_earlier_cell_defines (tests.test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines) ... ok
+test_only_the_lanes_that_install_a_group_define_one (tests.test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables. ... ok
+test_the_checker_catches_the_bug_it_was_written_for (tests.test_baselines.NotebookNameResolutionTests.test_the_checker_catches_the_bug_it_was_written_for)
+A gate reading GROUP_OK with no install cell above it must be flagged. ... ok
+test_every_transposed_monomial_resolves_to_known_keys (tests.test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on the LP datasets of the campaign ... ok
+test_keys_are_exactly_two_characters (tests.test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator. ... ok
+test_lastfm_matches_the_authors_key_set (tests.test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations. ... ok
+test_pubmed_keys_encode_node_types (tests.test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies. ... ok
+test_published_cells_are_declared_runnable (tests.test_baselines.PublishedParamsTests.test_published_cells_are_declared_runnable) ... ok
+test_published_files_declare_a_source (tests.test_baselines.PublishedParamsTests.test_published_files_declare_a_source) ... ok
+test_campaign_matrix_matches_planned_cell_counts (tests.test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts) ... ok
+test_every_cell_is_runnable_or_has_a_reason (tests.test_baselines.RegistryTests.test_every_cell_is_runnable_or_has_a_reason) ... ok
+test_every_model_module_declares_an_adapter (tests.test_baselines.RegistryTests.test_every_model_module_declares_an_adapter) ... ok
+test_pending_cells_carry_their_specific_reason (tests.test_baselines.RegistryTests.test_pending_cells_carry_their_specific_reason)
+H2GB datasets and the two large LP tasks: data pending; LatGRL, YouTube and Amazon ... ok
+test_vendor_model_init_is_reproducible_under_seed_everything (tests.test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models. ... ERROR
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (tests.test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (tests.test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (tests.test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (tests.test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (tests.test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_every_published_value_is_reachable (tests.test_baselines.SearchSpaceCoverageTests.test_every_published_value_is_reachable) ... ok
+test_each_loop_selects_on_its_documented_metric (tests.test_baselines.SelectionMetricTests.test_each_loop_selects_on_its_documented_metric)
+Read the loops' source: the stopping rule must use the expected key. ... ok
+test_monitor_matches_the_reported_headline_metric (tests.test_baselines.SelectionMetricTests.test_monitor_matches_the_reported_headline_metric) ... ok
+test_sweeps_optimise_the_same_metric_training_selects_on (tests.test_baselines.SelectionMetricTests.test_sweeps_optimise_the_same_metric_training_selects_on) ... ok
+test_the_module_docstring_does_not_contradict_the_code (tests.test_baselines.SelectionMetricTests.test_the_module_docstring_does_not_contradict_the_code) ... ok
+test_every_code_cell_parses (tests.test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (tests.test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+test_budget_is_never_searched (tests.test_baselines.TrainingBudgetTests.test_budget_is_never_searched)
+A tuned trial must not be able to buy itself a longer run. ... ok
+test_hyperband_bracket_matches_the_real_epoch_budget (tests.test_baselines.TrainingBudgetTests.test_hyperband_bracket_matches_the_real_epoch_budget) ... ok
+test_no_adapter_sets_its_own_budget (tests.test_baselines.TrainingBudgetTests.test_no_adapter_sets_its_own_budget) ... ok
+test_published_params_keep_the_authors_budget (tests.test_baselines.TrainingBudgetTests.test_published_params_keep_the_authors_budget)
+Reproducing a reported number means using the budget it was reported at. ... ok
+test_tuned_params_get_the_shared_budget (tests.test_baselines.TrainingBudgetTests.test_tuned_params_get_the_shared_budget) ... ok
+test_all_declared_vendor_clones_are_present (tests.test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present) ... FAIL
+test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own. ... ERROR
+test_every_adapter_module_names_a_registered_vendor (tests.test_baselines.VendorRootIntegrityTests.test_every_adapter_module_names_a_registered_vendor)
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+
+======================================================================
+ERROR: test_vendor_model_init_is_reproducible_under_seed_everything (tests.test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 646, in test_vendor_model_init_is_reproducible_under_seed_everything
+    self.assertTrue(torch.equal(build_coefficients(11), build_coefficients(11)))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 640, in build_coefficients
+    with pushd_sys_path("pshgcn"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/runtime/vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/runtime/vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at /mnt/data/peeradon/h2snn/H2S-NN/vendor/PSHGCN/hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+ERROR: test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 127, in test_colliding_vendor_module_names_do_not_leak
+    with pushd_sys_path(vendor):
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/runtime/vendor_paths.py", line 129, in pushd_sys_path
+    roots = [vendor_path(name) for name in names]
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/runtime/vendor_paths.py", line 68, in vendor_path
+    raise FileNotFoundError(
+FileNotFoundError: Baseline repository 'pshgcn' is not present at /mnt/data/peeradon/h2snn/H2S-NN/vendor/PSHGCN/hgb. Clone it into the vendor/ directory before running this adapter.
+
+======================================================================
+FAIL: test_notebooks_are_committed_clean (tests.test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 395, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+======================================================================
+FAIL: test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1380, in test_blocked_models_name_the_defect_not_a_missing_module
+    self.assertIn("CUDA", reason)
+AssertionError: 'CUDA' not found in 'missing requirement group dgl (dgl) -- install requirements/baselines-dgl.txt'
+
+======================================================================
+FAIL: test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1317, in test_cpu_only_dgl_on_linux_counts_as_not_installed
+    self.assertIsNotNone(defect)
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1341, in test_cpu_only_dgl_on_windows_stays_installed
+    self.assertTrue(group.is_installed())
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1327, in test_cuda_dgl_on_linux_is_healthy
+    self.assertTrue(group.is_installed())
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated) (model='csnn')
+A CPU-only DGL must not disable the baselines that never touch DGL.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1394, in test_only_dgl_backed_models_are_gated
+    self.assertIsNone(
+AssertionError: 'missing requirement group sheaf (torch_householder) -- install requirements/baselines-sheaf.txt' is not None
+
+======================================================================
+FAIL: test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated) (model='nsd')
+A CPU-only DGL must not disable the baselines that never touch DGL.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1394, in test_only_dgl_backed_models_are_gated
+    self.assertIsNone(
+AssertionError: 'missing requirement group sheaf (torch_householder) -- install requirements/baselines-sheaf.txt' is not None
+
+======================================================================
+FAIL: test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform) (platform='linux')
+The warning must reach the user even where the defect check stays silent.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1362, in test_report_explains_itself_on_every_platform
+    self.assertIn("without CUDA support", explanation)
+AssertionError: 'without CUDA support' not found in 'DGL is not installed'
+
+======================================================================
+FAIL: test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform) (platform='win32')
+The warning must reach the user even where the defect check stays silent.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1362, in test_report_explains_itself_on_every_platform
+    self.assertIn("without CUDA support", explanation)
+AssertionError: 'without CUDA support' not found in 'DGL is not installed'
+
+======================================================================
+FAIL: test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 1367, in test_report_explains_itself_on_every_platform
+    self.assertTrue(uses_gpu)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_all_declared_vendor_clones_are_present (tests.test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 154, in test_all_declared_vendor_clones_are_present
+    self.assertFalse(missing, f"missing baseline clones: {missing}")
+AssertionError: ['pshgcn', 'pshgcn_lp', 'chebnetii'] is not false : missing baseline clones: ['pshgcn', 'pshgcn_lp', 'chebnetii']
+
+----------------------------------------------------------------------
+Ran 85 tests in 54.737s
+
+FAILED (failures=11, errors=2)
+[coverage] 135/135 runnable cells have an adapter; no adapter yet: none
+=== tests.test_heterophily_metrics
+test_fully_labeled_graph_has_no_diagnostic_and_one_seed (tests.test_heterophily_metrics.FillConventionTests.test_fully_labeled_graph_has_no_diagnostic_and_one_seed) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_primary_is_the_filled_reference_value (tests.test_heterophily_metrics.FillConventionTests.test_primary_is_the_filled_reference_value) ... ok
+test_jaccard_appendix_equals_hand_values (tests.test_heterophily_metrics.MultilabelPerGenreTests.test_jaccard_appendix_equals_hand_values) ... ok
+test_per_genre_reference_values_equal_hand_values (tests.test_heterophily_metrics.MultilabelPerGenreTests.test_per_genre_reference_values_equal_hand_values) ... ok
+test_primary_values_are_per_genre_means_not_exact_match (tests.test_heterophily_metrics.MultilabelPerGenreTests.test_primary_values_are_per_genre_means_not_exact_match) ... ok
+test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic (tests.test_heterophily_metrics.MultilabelPerGenreTests.test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic) ... ok
+test_exact_match_reproduction_row_equals_hetero2net (tests.test_heterophily_metrics.RandomGraphTests.test_exact_match_reproduction_row_equals_hetero2net) ... ok
+test_own_equals_reference_on_a_random_graph (tests.test_heterophily_metrics.RandomGraphTests.test_own_equals_reference_on_a_random_graph) ... ok
+test_random_fill_matches_the_reference_and_labels_are_restored (tests.test_heterophily_metrics.RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored) ... ok
+test_unlabeled_target_without_fill_raises (tests.test_heterophily_metrics.RandomGraphTests.test_unlabeled_target_without_fill_raises) ... ok
+test_same_type_undirected_cross_type_reversed (tests.test_heterophily_metrics.SymmetriseTests.test_same_type_undirected_cross_type_reversed) ... ok
+test_hand_values_fill_and_labeled_only (tests.test_heterophily_metrics.TaskLevelHEdgeTests.test_hand_values_fill_and_labeled_only) ... ok
+test_adjusted_homophily_applies_the_class_imbalance_correction (tests.test_heterophily_metrics.ToyGraphTests.test_adjusted_homophily_applies_the_class_imbalance_correction) ... ok
+test_aggregates (tests.test_heterophily_metrics.ToyGraphTests.test_aggregates) ... ok
+test_metapath_sets (tests.test_heterophily_metrics.ToyGraphTests.test_metapath_sets) ... ok
+test_own_counts_equal_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_own_counts_equal_hand_values) ... ok
+test_reference_h2gb_equals_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_reference_h2gb_equals_hand_values) ... ok
+test_reference_hetero2net_equals_hand_values (tests.test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 2.349s
+
+OK
+=== tests.test_hgb_oracle
+test_loader_reads_the_fixed_validation_file_exactly (tests.test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ok
+test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos)
+The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12): ... ok
+test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... ok
+test_training_negatives_equal_get_train_neg (tests.test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... ok
+test_validation_negatives_equal_get_valid_neg (tests.test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 30.121s
+
+OK
+=== tests.test_partP_freebase
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+test_counts_equal_the_m1_gate (tests.test_partP_freebase.RealLoaderTests.test_counts_equal_the_m1_gate) ... ok
+test_literature_row_draws_every_listed_path (tests.test_partP_freebase.RealLoaderTests.test_literature_row_draws_every_listed_path) ... ok
+test_split_sizes_and_disjointness (tests.test_partP_freebase.RealLoaderTests.test_split_sizes_and_disjointness) ... ok
+test_untied_fallback_relations_equal_a_direct_check (tests.test_partP_freebase.RealLoaderTests.test_untied_fallback_relations_equal_a_direct_check) ... ok
+test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) ... Processing...
+Done!
+
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='gcn') ... ERROR
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='gat') ... ERROR
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='chebnetii') ... skipped 'vendor clone /mnt/data/peeradon/h2snn/H2S-NN/vendor/ChebNetII/main is empty on this machine'
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='nsd') ... ERROR
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='csnn') ... ERROR
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='han') ... ERROR
+  test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='hinormer') ... ERROR
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+test_schema_readout_runs_on_a_freebase_run (tests.test_partP_freebase.TinyReleaseTests.test_schema_readout_runs_on_a_freebase_run) ... 2026-11-14 02:50:50,874 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'book__and__book': None, 'book__to__film': None, 'book__on__sports': None, 'book__on__location': None, 'book__about__organization': None, 'film__and__film': None, 'music__in__book': None, 'music__in__film': None, 'music__and__music': None, 'music__for__sports': None, 'music__on__location': None, 'sports__in__film': None, 'sports__and__sports': 'sports__and__sports', 'sports__on__location': None, 'people__to__book': None, 'people__to__film': None, 'people__to__music': None, 'people__to__sports': None, 'people__and__people': None, 'people__on__location': None, 'people__in__organization': None, 'people__in__business': None, 'location__in__film': None, 'location__and__location': None, 'organization__in__film': None, 'organization__to__music': None, 'organization__to__sports': None, 'organization__on__location': None, 'organization__and__organization': 'organization__and__organization', 'organization__for__business': None, 'business__about__book': None, 'business__about__film': None, 'business__about__music': None, 'business__about__sports': None, 'business__on__location': None, 'business__and__business': 'business__and__business'}, 'kept_relations': ['book__and__book', 'book__to__film', 'book__on__sports', 'book__on__location', 'book__about__organization', 'film__and__film', 'music__in__book', 'music__in__film', 'music__and__music', 'music__for__sports', 'music__on__location', 'sports__in__film', 'sports__and__sports', 'sports__on__location', 'people__to__book', 'people__to__film', 'people__to__music', 'people__to__sports', 'people__and__people', 'people__on__location', 'people__in__organization', 'people__in__business', 'location__in__film', 'location__and__location', 'organization__in__film', 'organization__to__music', 'organization__to__sports', 'organization__on__location', 'organization__and__organization', 'organization__for__business', 'business__about__book', 'business__about__film', 'business__about__music', 'business__about__sports', 'business__on__location', 'business__and__business'], 'self_inverse_relations': ['sports__and__sports', 'organization__and__organization', 'business__and__business'], 'unmatched_edges': {'book__and__book': 30, 'book__to__film': 30, 'book__on__sports': 30, 'book__on__location': 30, 'book__about__organization': 30, 'film__and__film': 30, 'music__in__book': 30, 'music__in__film': 30, 'music__and__music': 30, 'music__for__sports': 30, 'music__on__location': 30, 'sports__in__film': 30, 'sports__and__sports': 0, 'sports__on__location': 30, 'people__to__book': 30, 'people__to__film': 30, 'people__to__music': 30, 'people__to__sports': 30, 'people__and__people': 30, 'people__on__location': 30, 'people__in__organization': 30, 'people__in__business': 30, 'location__in__film': 30, 'location__and__location': 30, 'organization__in__film': 30, 'organization__to__music': 30, 'organization__to__sports': 30, 'organization__on__location': 30, 'organization__and__organization': 0, 'organization__for__business': 30, 'business__about__book': 30, 'business__about__film': 30, 'business__about__music': 30, 'business__about__sports': 30, 'business__on__location': 30, 'business__and__business': 0}, 'facts_before': 1080, 'facts_after': 1035}
+2026-11-14 02:50:51,332 | INFO | Epoch 0000 | train_loss: 1.9810 | train_acc: 0.1000 | train_auroc: 0.0000 | train_macro_f1: 0.0667 | train_micro_f1: 0.1000 | val_loss: 1.8321 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3333 | test_acc: 0.2941 | test_auroc: 0.0000 | test_macro_f1: 0.2088 | test_micro_f1: 0.2941
+2026-11-14 02:50:51,337 | INFO | Checkpoint metric macro_f1: 0.3333
+2026-11-14 02:50:51,337 | INFO | Best epoch 0 | test_macro_f1: 0.2088 | test_micro_f1: 0.2941 | test_acc: 0.2941
+2026-11-14 02:50:51,370 | INFO | wrote /tmp/tmp1x27xq_y/runs/readout/freebase/fb_seed0.json
+2026-11-14 02:50:51,370 | INFO | wrote /tmp/tmp1x27xq_y/runs/readout/freebase/schema_readout.json
+2026-11-14 02:50:51,370 | INFO | wrote /tmp/tmp1x27xq_y/runs/readout/freebase/schema_readout.md
+ok
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='gcn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_gnn.py", line 183, in fit_task
+    graph = _build_dgl_graph(view, device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_gnn.py", line 71, in _build_dgl_graph
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='gat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_gnn.py", line 183, in fit_task
+    graph = _build_dgl_graph(view, device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_gnn.py", line 71, in _build_dgl_graph
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='nsd')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/nsd.py", line 302, in fit_task
+    model = _NSDEncoder(view.in_dims, edge_index, args, model_name).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/nsd.py", line 175, in __init__
+    from models.disc_models import (  # type: ignore[import-not-found]
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/disc_models.py", line 10, in <module>
+    from models import laplacian_builders as lb
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/laplacian_builders.py", line 10, in <module>
+    from models.orthogonal import Orthogonal
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/orthogonal.py", line 8, in <module>
+    from torch_householder import torch_householder_orgqr
+ModuleNotFoundError: No module named 'torch_householder'
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='csnn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/csnn.py", line 249, in fit_task
+    model = _CSNNEncoder(view.in_dims, edge_index, args).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/csnn.py", line 133, in __init__
+    from models.coopshv_model import CSNN  # type: ignore[import-not-found]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/coopshv_model.py", line 6, in <module>
+    from models.CSNNconv import CSNNConv
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/CSNNconv.py", line 4, in <module>
+    from models.orthogonal import Orthogonal
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/orthogonal.py", line 9, in <module>
+    from torch_householder import torch_householder_orgqr
+ModuleNotFoundError: No module named 'torch_householder'
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='han')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 165, in fit_task
+    ) = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 90, in _load_vendor_graph
+    import utils as han_utils  # type: ignore[import-not-found]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/utils.py", line 2, in <module>
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+======================================================================
+ERROR: test_every_nc_adapter_runs_one_epoch (tests.test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='hinormer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_freebase.py", line 195, in test_every_nc_adapter_runs_one_epoch
+    record = adapter.fit_task(bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hinormer.py", line 146, in fit_task
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+----------------------------------------------------------------------
+Ran 6 tests in 35.713s
+
+FAILED (errors=6, skipped=1)
+=== tests.test_partP_derived_lp
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+test_empty_two_hop_set_yields_none_with_a_reason (tests.test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... 
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='nsd') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='csnn') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='han') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='pshgcn') ... skipped 'vendor clone /mnt/data/peeradon/h2snn/H2S-NN/vendor/PSHGCN/hgb-lp is empty on this machine'
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+test_no_held_out_pair_reaches_any_message_graph (tests.test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (tests.test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (tests.test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='nsd')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_derived_lp.py", line 138, in test_every_lp_adapter_runs_one_epoch
+    record = adapter.fit_task(self.bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/nsd.py", line 269, in fit_task
+    record = fit_homogeneous_link_prediction(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_homogeneous_lp.py", line 74, in fit_homogeneous_link_prediction
+    model = build_encoder(view, edge_index, embed_dim).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/nsd.py", line 267, in build
+    return _NSDEncoder(view.in_dims, edge_index, args, model_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/nsd.py", line 175, in __init__
+    from models.disc_models import (  # type: ignore[import-not-found]
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/disc_models.py", line 10, in <module>
+    from models import laplacian_builders as lb
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/laplacian_builders.py", line 10, in <module>
+    from models.orthogonal import Orthogonal
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/neural-sheaf-diffusion/models/orthogonal.py", line 8, in <module>
+    from torch_householder import torch_householder_orgqr
+ModuleNotFoundError: No module named 'torch_householder'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='csnn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_derived_lp.py", line 138, in test_every_lp_adapter_runs_one_epoch
+    record = adapter.fit_task(self.bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/csnn.py", line 222, in fit_task
+    record = fit_homogeneous_link_prediction(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_homogeneous_lp.py", line 74, in fit_homogeneous_link_prediction
+    model = build_encoder(view, edge_index, embed_dim).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/csnn.py", line 220, in build
+    return _CSNNEncoder(view.in_dims, edge_index, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/csnn.py", line 133, in __init__
+    from models.coopshv_model import CSNN  # type: ignore[import-not-found]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/coopshv_model.py", line 6, in <module>
+    from models.CSNNconv import CSNNConv
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/CSNNconv.py", line 4, in <module>
+    from models.orthogonal import Orthogonal
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/csnn/models/orthogonal.py", line 9, in <module>
+    from torch_householder import torch_householder_orgqr
+ModuleNotFoundError: No module named 'torch_householder'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='han')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partP_derived_lp.py", line 138, in test_every_lp_adapter_runs_one_epoch
+    record = adapter.fit_task(self.bundle, BaselineParams(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 146, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 236, in _fit_link_prediction
+    graph, meta_paths, num_metapaths = build_metapath_graph(
+                                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_han_lp.py", line 53, in build_metapath_graph
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+----------------------------------------------------------------------
+Ran 5 tests in 39.227s
+
+FAILED (errors=3, skipped=1)
+=== tests.test_partP_h2gformer
+test_embeddings_are_produced_and_consumed (tests.test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_hidden_width_128_builds_with_metapath (tests.test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath) ... ok
+test_the_label_channel_reads_training_labels (tests.test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels) ... ok
+test_validation_and_test_labels_do_not_reach_the_label_channel (tests.test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel) ... ok
+test_hops_exist_on_the_real_graphs (tests.test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) ... ok
+test_schemas_are_cyclic_edge_types_of_the_graph (tests.test_partP_h2gformer.SchemaTests.test_schemas_are_cyclic_edge_types_of_the_graph) ... ok
+test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) ... ok
+test_metapath2vec_settings_equal_h2gbs (tests.test_partP_h2gformer.SettingsTests.test_metapath2vec_settings_equal_h2gbs) ... ok
+test_h2gb_stacks_equal_their_configs (tests.test_partP_h2gformer.StackTests.test_h2gb_stacks_equal_their_configs) ... ok
+test_stack_per_cell_is_t2 (tests.test_partP_h2gformer.StackTests.test_stack_per_cell_is_t2) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 67.839s
+
+OK
+=== tests.test_partPfix_h2gformer_width
+test_every_pair_of_the_space_runs_one_forward (tests.test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_grid_and_dim_pe_per_width (tests.test_partPfix_h2gformer_width.WidthRuleTests.test_grid_and_dim_pe_per_width) ... ok
+test_h2gb_config_pairs_are_reachable (tests.test_partPfix_h2gformer_width.WidthRuleTests.test_h2gb_config_pairs_are_reachable) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 64.382s
+
+OK
+=== tests.test_partPfix_data_root
+test_bundle_carries_its_root_and_raw_dirs_resolve_under_it (tests.test_partPfix_data_root.RootTests.test_bundle_carries_its_root_and_raw_dirs_resolve_under_it) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Processing...
+Done!
+ok
+test_fixed_adapters_run_from_the_bundle_root (tests.test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+
+  test_fixed_adapters_run_from_the_bundle_root (tests.test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) (adapter='han') ... ERROR
+test_no_baseline_module_reads_repo_data_root (tests.test_partPfix_data_root.SourceTests.test_no_baseline_module_reads_repo_data_root) ... ok
+
+======================================================================
+ERROR: test_fixed_adapters_run_from_the_bundle_root (tests.test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) (adapter='han')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partPfix_data_root.py", line 99, in test_fixed_adapters_run_from_the_bundle_root
+    record = get_adapter(name).fit_task(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 165, in fit_task
+    ) = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 90, in _load_vendor_graph
+    import utils as han_utils  # type: ignore[import-not-found]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/utils.py", line 2, in <module>
+    import dgl
+ModuleNotFoundError: No module named 'dgl'
+
+----------------------------------------------------------------------
+Ran 3 tests in 22.511s
+
+FAILED (errors=1)
+=== tests.test_partO_literature_row
+test_forward_is_finite_on_an_acm_sized_graph (tests.test_partO_literature_row.AnchoredForwardTests.test_forward_is_finite_on_an_acm_sized_graph) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_any_other_difference_raises (tests.test_partO_literature_row.BuilderTests.test_any_other_difference_raises) ... ok
+test_builder_changes_only_the_path_source (tests.test_partO_literature_row.BuilderTests.test_builder_changes_only_the_path_source) ... ok
+test_builder_refuses_other_inputs (tests.test_partO_literature_row.BuilderTests.test_builder_refuses_other_inputs) ... ok
+test_row_configuration_rules (tests.test_partO_literature_row.BuilderTests.test_row_configuration_rules) ... ok
+test_row_is_refused_in_tuning (tests.test_partO_literature_row.BuilderTests.test_row_is_refused_in_tuning) ... ok
+test_evaluation_draw_is_deterministic_per_base_seed (tests.test_partO_literature_row.DrawTests.test_evaluation_draw_is_deterministic_per_base_seed) ... ok
+test_every_cell_is_a_listed_meta_path (tests.test_partO_literature_row.DrawTests.test_every_cell_is_a_listed_meta_path) ... ok
+test_sampler_asks_for_the_split (tests.test_partO_literature_row.DrawTests.test_sampler_asks_for_the_split) ... ok
+test_lists_resolve_and_have_instances_on_the_real_graphs (tests.test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) ... ok
+test_split_sums_to_r_and_is_even (tests.test_partO_literature_row.SplitTests.test_split_sums_to_r_and_is_even) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 6.001s
+
+OK
+end=2026-11-14T02:54:21+09:00

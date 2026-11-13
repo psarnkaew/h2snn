@@ -1,0 +1,31 @@
+=== login01 2026-11-14T02:48:09+09:00: bash scripts/setup/clone_vendors.sh   (idempotency: every clone present)
+PRESENT     HGB ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe
+PRESENT     SeHGNN e92bd37d0b803457339555684f139b4c8f3e160d
+NOT CLONED  PSHGCN (unresolved)
+PRESENT     H2SGNN 93c33faf3a413363efcda2ba2a6c04618f1694f7
+PRESENT     Hetero2Net 49133947f33ba46ccd3efb869727f8aef3d7254a
+NOT CLONED  ChebNetII (unresolved)
+PRESENT     neural-sheaf-diffusion 11e21b561d884713ab1a18a521a7dc2fb26b9361
+PRESENT     H2GB d3b49db63ad66f8a3282dbe699d50ce10ed3062a
+NOT CLONED  HINormer (in-repo)
+NOT CLONED  csnn (in-repo)
+NOT CLONED  HINPool (in-repo)
+PRESENT     Heterogeneous-Sheaf-Neural-Networks 6964e1e79a4c1065f358d0914b238e27fd65a769
+PRESENT     deep-neural-sheaf-diffusion 3f706c2bff7e2fdb0ed443d3559a8902f7495462
+PRESENT     HSB-GDL 4126e64e7af91bef9ac9edef9f34b2fba320aff1
+NOT CLONED  HeaRT (no-clone)
+PRESENT     fasth b3fddf117f051c90825b79a5966a0171682a1158
+PRESENT     tudataset 26e6ef6c5f636dd53b7798da7a860dcc19ba3ef8
+PRESENT     dgl 3d16000b4170fa741ed9e9667f22ba84d3493026
+NOT CLONED  Cooperative-Sheaf-NN (unresolved)
+NOT CLONED  hgbi (unresolved)
+exit=0
+=== fresh clone into an empty directory: --vendor-dir <scratch> --only fasth
+CLONED      fasth b3fddf117f051c90825b79a5966a0171682a1158
+exit=0
+=== second run on it (skip)
+PRESENT     fasth b3fddf117f051c90825b79a5966a0171682a1158
+exit=0
+=== dirty clone (tracked file modified) is refused
+REFUSED     fasth: dirty clone (modified tracked files) at /tmp/claude-319800033/-mnt-data-peeradon-h2snn/ddc023a8-fe36-47f1-9998-6e1c79180b96/scratchpad/vend/fasth
+exit=1
