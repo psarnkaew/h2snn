@@ -1,0 +1,4 @@
+job=16616 node=g2tn01 cpu=Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
+torch 2.6.0+cu124 mkldnn True threads 4
+threads=4 equal=False max|diff|=4.470e-08 rows_differing=1/13
+threads=1 equal=False max|diff|=4.470e-08 rows_differing=1/13
