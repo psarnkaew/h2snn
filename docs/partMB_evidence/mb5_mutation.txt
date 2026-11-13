@@ -1,0 +1,5 @@
+== held-out facts removed in one orientation only (the reverse copy kept)
+FAIL: test_no_held_out_fact_in_any_scope (tests.test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope)
+AssertionError: Items in the first set but not the second:
+Ran 4 tests in 0.918s
+FAILED (failures=1)

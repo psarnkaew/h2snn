@@ -1,0 +1,22 @@
+test_evaluation_scores_every_link (tests.test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... c:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\minibatch_lp.py:89: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen/native/BucketizationUtils.h:34.)
+  rows = torch.searchsorted(unique, links)
+ok
+test_no_held_out_fact_in_any_scope (tests.test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (tests.test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (tests.test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+test_config_rejects_nonpositive_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
+test_link_trainer_honors_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
+test_node_trainer_honors_patience (tests.test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 11.358s
+
+OK
