@@ -1,0 +1,41 @@
+# Task card — Cluster setup 2: DGL and torch_householder, the four missing vendors, the 1-ulp platform difference
+
+**Binding:** `docs/working_preferences.md` ("Server and GitHub workflow"); `docs/H2S-NN_cluster_setup_report.md` (branch `cluster-setup`, `d8f5813`) and its evidence `docs/cluster_evidence/`; `docs/H2S-NN_cluster_setup_card.md` (facts of the cluster, rules: still valid); `H2S-NN/AGENTS.md`/`CLAUDE.md`. Spec v1.22 is the design authority and is not touched: this card changes no method code.
+**Branch:** `cluster-setup2`, created from `cluster-setup` at `d8f5813`. **Report:** `docs/H2S-NN_cluster_setup2_report.md`; evidence `docs/cluster_evidence2/`.
+**Status:** DRAFT. Items marked `<<AUTHOR>>` are filled by the author before the prompt is sent.
+
+## Author inputs (filled 2026-11-14 by the author; the agent never guesses them)
+- DGL wheel, copied by the author from the laptop to the server home: `<<AUTHOR: full path, e.g. /mnt/home/peeradon/dgl-2.5.0+cu124-cp312-...whl>>`.
+- Vendor URLs (and commit to pin, or "latest default branch"): PSHGCN `<<AUTHOR>>`; ChebNetII `<<AUTHOR>>`; Cooperative-Sheaf-NN `<<AUTHOR or "not needed">>`; hgbi `<<AUTHOR or "not needed">>`.
+- Laptop torch build (`torch.__version__` and `torch.__config__.show()`): `<<AUTHOR: paste>>`.
+
+## Rules
+Correctness only; no performance run, no metric as a result, no comparison between methods. Push `cluster-setup2` after each unit; never `v3b`, never `cluster-setup`; never force-push; never commit vendor files, `data/`, secrets, wheels, `Claude outputs/`, `H2S-NN/paper/`. One commit per unit, explicit paths. Forbidden: loosening tolerances, deleting or skipping tests, silencing exceptions, editing the spec or cards, changing method code, **overwriting `docs/heads_evidence/v2_golden.pt` or `docs/partMB_evidence/mb0_reference.pt`** (new captures get new file names). All compute in SLURM jobs (login node: git, editing, submitting). The wheel is installed in a job with `pip install --no-cache-dir`; no file under `/mnt/data` holds a secret.
+**Stop:** DGL or `torch_householder` cannot be installed or imported after the install (report the exact error, stop the unit); the golden capture script cannot be found (report, stop CS7-3/4); a URL the author gave cannot be cloned (report; do not search for another). **Not stop conditions:** any test failing for a reason the report lists; a golden/mb0 difference between nodes (that is the measurement).
+
+## Units
+
+### CS7-0 — Preconditions
+`git fetch`; check `cluster-setup` is `d8f5813`; create `cluster-setup2`. Check the wheel file exists, is non-empty and its filename tag is `cp312`, `manylinux`, `x86_64`, `2.5.0+cu124`. Record its sha256.
+
+### CS7-1 — Install DGL and torch_householder; re-run what they block
+In one job on a GPU node: `pip install --no-cache-dir <wheel>` then `pip install --no-cache-dir torch_householder==1.0.1` (gcc/g++ 14.2 are present; if it compiles, record the compile line and time). Then `python scripts/setup/check_env.py` (expected: 0 differences; notes for local tags only) and `pip freeze > docs/cluster_evidence2/server_pip_freeze_after.txt`. `python -c "import dgl, torch; ..."` printing dgl version, build, `dgl` CUDA availability and a one-line DGL op on the GPU. If the installed DGL does not use CUDA or does not import against torch 2.6.0+cu124, that is a stop (report the error text).
+**Tests:** re-run in a GPU job `test_baselines` (all of `DglCudaGateTests`), `test_partP_freebase`, `test_partP_derived_lp`, `test_partPfix_data_root`, `test_check_env`. Report each previously failing/erroring test (list in the CS6 report, rows "dgl" and "torch_householder") as pass / still failing with the first error line. Remaining failures are reported, not fixed.
+
+### CS7-2 — The four vendors; ignore rules
+Using the author inputs only: clone each URL (login node, git only), pin the commit, fill `H2S-NN/vendor/VENDORS.tsv` (kind `clone`). For a vendor the author marked "not needed": set kind `not-needed` and amend `tests/test_vendor_manifest.py` to accept that kind (state this in the report; it is a stated test change, not a loosened tolerance). Add `.gitignore` entries so that cloned vendor directories (every `kind=clone` row, not `in-repo`, not `VENDORS.tsv`) are ignored; test with `git check-ignore` in a unit test that reads `VENDORS.tsv`. **Tests:** `test_vendor_manifest` green; `available_vendors()` all true (job); the previously skipped/erroring PSHGCN and ChebNetII tests (`test_every_lp_adapter_runs_one_epoch` pshgcn, `test_every_nc_adapter_runs_one_epoch` chebnetii, `test_all_declared_vendor_clones_are_present`, `test_colliding_vendor_module_names_do_not_leak`, `test_vendor_model_init_is_reproducible_under_seed_everything`) run in one GPU job; per vendor pass/fail with the first error line. **Mutation:** one `kind=clone` row removed from the ignore list's source → the ignore test fails.
+
+### CS7-3 — Why do the initial weights differ from the Windows golden? (measurement, no fix)
+The report shows 1-ulp differences already at initialisation (`init/node_encoder.encoders.0.0.weight`, 2.98e-08, 593 tensors). Initialisation is a random draw, not a matrix product, so "GEMM rounding" is not an explanation yet. In one job per node, on **two different node types** (a 2080 Ti node such as g2n01 and a TITAN RTX node such as g2tn01; CPU only, `CUDA_VISIBLE_DEVICES=""`, 1 thread): print the CPU model, `torch.__version__`, `torch.__config__.show()`, MKL/oneDNN versions; then, for the model built exactly as in the golden test (`torch.manual_seed(0)`, the test's config), the sha256 of every initial parameter; and for the raw draws used by the initialiser (`torch.rand(n)`, `kaiming_uniform_`, `normal_` at the sizes in that model, bytes hashed). Compare (i) node A vs node B, (ii) each with the golden's `init/*` tensors. Report a table: parameter group, identical to golden (yes/no), identical between nodes (yes/no), max |diff|. State which of three causes the data supports: the draw differs by platform; the golden was captured with another torch build (compare with the author's laptop torch build above); or init code paths differ (name file:line). Do not change any test or file.
+
+### CS7-4 — Capture on the cluster and compare across nodes (new files only)
+Find the script that produced `docs/heads_evidence/v2_golden.pt` and the one for `docs/partMB_evidence/mb0_reference.pt` (named in their evidence files; if no script exists, stop this unit). Capture both on node A (CPU, 1 thread) into **new** files `docs/cluster_evidence2/v2_golden_nodeA.pt` and `docs/cluster_evidence2/mb0_reference_nodeA.pt`; then compare them (i) on node A again (determinism), (ii) on node B (a different CPU). Report per file: number of tensors, number differing, max |diff|, all differing names (not only five). The existing Windows references are untouched. **Result rule (fixed before the run):** all equal on A-again and on B → the cluster capture is portable across the two node types and re-capture is the recommended fix; differs on B → a bit-exact reference cannot be portable across the cluster's CPUs and the author decides between pinning the campaign to one node type and a stated tolerance in a stated precision.
+
+### CS7-5 — `mb0_reference.py compare` (pending author approval of this unit)
+Make `compare` print every differing name and exit 1 when any tensor differs (today: first 5 names, exit 0). Test: a copy of the reference with one tensor perturbed → exit 1 and the name listed; unperturbed → exit 0. Mutation: the exit code line removed → the test fails.
+
+### CS7-6 — Full suite and report
+`sbatch scripts/slurm/run_tests.sbatch` once (GPU, 32 G, 4 h). Expected: only failures that the report classifies (golden and scope bit-exact tests, the notebook check); every other test green. Report per unit (done, VERIFIED-RUN commands with job ids/nodes/GPUs), the CS7-3 table, the CS7-4 table, the new full-suite classification, "Decisions for the author", out-of-scope findings. The scope test `test_featureless_node_in_two_scopes_has_its_global_h0` is **not** touched here (design-session decision).
+
+## Time (estimate)
+CS7-1 30–60 min (compile of `torch_householder` and DGL import issues would lengthen it); CS7-2 30 min; CS7-3 30 min; CS7-4 45 min; full suite ≈ 20 min of compute plus queue time.
