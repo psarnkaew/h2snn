@@ -1,0 +1,30 @@
+job=16606 node=g2tn01 date=2026-11-14T02:35:46+09:00
+name, driver_version, memory.total [MiB]
+NVIDIA TITAN RTX, 550.163.01, 24576 MiB
+Sat Nov 14 02:35:46 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.163.01             Driver Version: 550.163.01     CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+gcc (Debian 14.2.0-19) 14.2.0
+g++ (Debian 14.2.0-19) 14.2.0
+/mnt/home/peeradon/.conda/envs/h2snn/bin/python
+Python 3.12.16
+--- curl data.dgl.ai from compute node
+curl_exit=35
+--- imports
+torch 2.6.0+cu124 cuda_available True torch.version.cuda 12.4
+device NVIDIA TITAN RTX
+cuda_tensor_sum 3.0
+torch_geometric 2.8.0
+torch_scatter 2.1.2+pt26cu124
+torch_sparse 0.6.18+pt26cu124
+torch_cluster 1.6.3+pt26cu124
+dgl IMPORT FAILED: ModuleNotFoundError No module named 'dgl'
+torch_householder IMPORT FAILED: ModuleNotFoundError No module named 'torch_householder'
+dgl_supports_cuda False
+_dgl_cuda_defect the installed DGL build has no CUDA support while torch does; reinstall requirements/baselines-dgl.txt with --force-reinstall to get the +cu124 wheel
+pip_freeze_lines=104
+
+--- login node (login01, 2026-11-14T02:36:13+09:00): curl -sI https://data.dgl.ai/wheels/torch-2.6/cu124/repo.html
+000 TLS connect error: error:0A000126:SSL routines::unexpected eof while reading
+curl_exit=35
