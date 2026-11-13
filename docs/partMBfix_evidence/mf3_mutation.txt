@@ -1,0 +1,5 @@
+== MF3 mutation: one batch cell's face_edge_sign flipped (scope builder); target test: T1 on a batch of scopes
+ERROR: test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes)
+ValueError: face group 'scope': some hop's fact is not stored in the direction its face_edge_sign states (+1: v_{j-1} -> v_j, -1: v_j -> v_{j-1}), so the transport step would be wrong.
+Ran 1 test in 0.013s
+FAILED (errors=1)

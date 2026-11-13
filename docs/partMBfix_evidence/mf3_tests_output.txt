@@ -1,0 +1,17 @@
+test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... ok
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_T7_eliminated_solve_matches_the_full_state_solve (tests.test_sheaf_energy.EliminationTests.test_T7_eliminated_solve_matches_the_full_state_solve) ... ok
+test_T1_fact_to_cell_maps_are_functorial_on_imdb (tests.test_sheaf_energy.FunctorialityOnRealDrawTests.test_T1_fact_to_cell_maps_are_functorial_on_imdb) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_T2_matrix_free_equals_dense (tests.test_sheaf_energy.OperatorTests.test_T2_matrix_free_equals_dense) ... ok
+test_T3_normalized_operator_is_symmetric_and_psd (tests.test_sheaf_energy.OperatorTests.test_T3_normalized_operator_is_symmetric_and_psd) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 23.046s
+
+OK
