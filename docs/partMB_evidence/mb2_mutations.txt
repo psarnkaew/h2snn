@@ -1,0 +1,9 @@
+== (a) anchor dropped from the merge key
+FAIL: test_one_instance_from_two_anchors_gives_two_cells (tests.test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells)
+FAIL: test_per_anchor_mass_is_the_anchors_walks_only (tests.test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only)
+Ran 5 tests in 1.152s
+FAILED (failures=2)
+== (b) chunk seed ignores the chunk index
+FAIL: test_chunks_use_distinct_generator_states (tests.test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states)
+Ran 5 tests in 1.208s
+FAILED (failures=1)

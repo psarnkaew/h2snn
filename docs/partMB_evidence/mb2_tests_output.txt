@@ -1,0 +1,76 @@
+test_chunks_use_distinct_generator_states (tests.test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states) ... ok
+test_log_p_and_frequencies_equal_the_exact_target (tests.test_partMB_draws.ChunkedDrawTests.test_log_p_and_frequencies_equal_the_exact_target) ... ok
+test_same_seed_and_chunk_size_give_the_same_draw (tests.test_partMB_draws.ChunkedDrawTests.test_same_seed_and_chunk_size_give_the_same_draw) ... ok
+test_one_instance_from_two_anchors_gives_two_cells (tests.test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells) ... ok
+test_per_anchor_mass_is_the_anchors_walks_only (tests.test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_direct_construction_is_validated (tests.test_wisp.WispConfigValidationTests.test_direct_construction_is_validated) ... ok
+test_every_never_tuned_wisp_key_is_rejected (tests.test_wisp.WispConfigValidationTests.test_every_never_tuned_wisp_key_is_rejected) ... ok
+test_wisp_keys_are_rejected_under_schemas_through_from_dict (tests.test_wisp.WispConfigValidationTests.test_wisp_keys_are_rejected_under_schemas_through_from_dict) ... ok
+test_default_path_source_and_r_per_dataset (tests.test_wisp.WispDefaultTests.test_default_path_source_and_r_per_dataset) ... ok
+test_explicit_values_are_kept (tests.test_wisp.WispDefaultTests.test_explicit_values_are_kept) ... ok
+test_resolved_configs_round_trip (tests.test_wisp.WispDefaultTests.test_resolved_configs_round_trip) ... ok
+test_schemas_row_is_never_tuned_for_node_classification (tests.test_wisp.WispDefaultTests.test_schemas_row_is_never_tuned_for_node_classification) ... ok
+test_an_unresolved_path_source_is_refused_by_its_consumers (tests.test_wisp.WispGuardTests.test_an_unresolved_path_source_is_refused_by_its_consumers) ... ok
+test_path_weight_context_is_the_ladder_appendix_pair_only (tests.test_wisp.WispGuardTests.test_path_weight_context_is_the_ladder_appendix_pair_only) ... ok
+test_r_is_in_the_search_space (tests.test_wisp.WispGuardTests.test_r_is_in_the_search_space)
+Spec v1.15 J2 supersedes E11 (r never tuned): r in {8, 16, 32, 64} is tuned. ... ok
+test_r_resolves_from_the_table_for_its_l_max (tests.test_wisp.WispGuardTests.test_r_resolves_from_the_table_for_its_l_max) ... ok
+test_tuning_base_config_carries_the_pre_registered_wisp_settings (tests.test_wisp.WispGuardTests.test_tuning_base_config_carries_the_pre_registered_wisp_settings) ... ok
+test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter (tests.test_wisp.WispLadderTests.test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter) ... ok
+test_TH6_exp_operator_has_no_gamma_multiplier (tests.test_wisp.WispLadderTests.test_TH6_exp_operator_has_no_gamma_multiplier)
+The path part of D enters with exactly sum w_f m_f (1 - 1/|f|) s^2: no gamma, no constant. ... ok
+test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix (tests.test_wisp.WispLadderTests.test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix)
+g reads instance nodes only: a neighbour of the endpoints outside the cell changes no ... ok
+test_TH7_capacity_rule_endpoints_vs_full_within_5_percent (tests.test_wisp.WispLadderTests.test_TH7_capacity_rule_endpoints_vs_full_within_5_percent) ... ok
+test_TH7_endpoint_perturbation_and_schema_equality (tests.test_wisp.WispLadderTests.test_TH7_endpoint_perturbation_and_schema_equality) ... ok
+test_TH7_intermediate_and_its_neighbourhood_under_the_default_context (tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourhood_under_the_default_context)
+Spec v1.4 (R12), under geometry_context: true (the default): perturbing an ... ok
+test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch (tests.test_wisp.WispLadderTests.test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch)
+The v1.3 behaviour is the appendix pair: with path_weight_context: true an ... ok
+test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately)
+Review MINOR-6: v_{l-1} (an intermediate) must not reach endpoints, v_l must; full sees ... ok
+test_TH8_length_neutral_initialisation (tests.test_wisp.WispLadderTests.test_TH8_length_neutral_initialisation)
+Constant g (`uniform`): the expected total cell weight per anchor is equal across ... ok
+test_path_weight_context_is_an_appendix_arm_never_tuned (tests.test_wisp.WispLadderTests.test_path_weight_context_is_an_appendix_arm_never_tuned) ... ok
+test_saved_configs_round_trip_under_both_path_weights (tests.test_wisp.WispLadderTests.test_saved_configs_round_trip_under_both_path_weights) ... ok
+test_overlap_is_bit_identical_for_both_proposals (tests.test_wisp.WispOverlapSamplingTests.test_overlap_is_bit_identical_for_both_proposals) ... ok
+test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect (tests.test_wisp.WispOverlapSamplingTests.test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect) ... ok
+test_TH2_unbiased_under_a_strongly_biased_q_with_control (tests.test_wisp.WispProposalTests.test_TH2_unbiased_under_a_strongly_biased_q_with_control) ... ok
+test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control (tests.test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control) ... ok
+test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms (tests.test_wisp.WispProposalTests.test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms) ... ok
+test_proposal_from_mass_tables (tests.test_wisp.WispProposalTests.test_proposal_from_mass_tables) ... ok
+test_TH11_delta_loss_of_an_absent_schema_is_zero (tests.test_wisp.WispReadoutTests.test_TH11_delta_loss_of_an_absent_schema_is_zero) ... ok
+test_TH11_pair_decomposition_reproduces_each_cell_energy (tests.test_wisp.WispReadoutTests.test_TH11_pair_decomposition_reproduces_each_cell_energy)
+Prop. K: 1/2 x^T L_f x (production PathCellTerm, one cell at a time) equals ... ok
+test_TH11_partial_pair_form_matches_its_kept_pair_energy (tests.test_wisp.WispReadoutTests.test_TH11_partial_pair_form_matches_its_kept_pair_energy)
+With a random symmetric pair mask, 1/2 x^T L_keep x equals the kept pairs' energy ... ok
+test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders (tests.test_wisp.WispReadoutTests.test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders) ... ok
+test_TH11_shares_sum_to_one (tests.test_wisp.WispReadoutTests.test_TH11_shares_sum_to_one) ... ok
+test_kendall_tau_and_permutation_null (tests.test_wisp.WispReadoutTests.test_kendall_tau_and_permutation_null) ... ok
+test_readouts_import_no_training_code (tests.test_wisp.WispReadoutTests.test_readouts_import_no_training_code) ... ok
+test_TH1_exact_distribution_no_revisits_and_dead_end_mass (tests.test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass) ... ok
+test_TH2_unbiased_path_laplacian_for_q_equal_p (tests.test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p) ... ok
+test_TH4_identity_and_summed_merge (tests.test_wisp.WispSamplerTests.test_TH4_identity_and_summed_merge) ... ok
+test_TH9_determinism_and_draw_seeds (tests.test_wisp.WispSamplerTests.test_TH9_determinism_and_draw_seeds) ... ok
+test_TH9_evaluation_draw_ignores_model_and_ablation_settings (tests.test_wisp.WispSamplerTests.test_TH9_evaluation_draw_ignores_model_and_ablation_settings) ... ok
+test_reference_fixture_has_the_required_structures (tests.test_wisp.WispSamplerTests.test_reference_fixture_has_the_required_structures) ... ok
+test_wisp_config_rejections (tests.test_wisp.WispSamplerTests.test_wisp_config_rejections) ... ok
+test_adaptive_training_draws_leave_the_evaluation_cells_unchanged (tests.test_wisp.WispTrainerDrawTests.test_adaptive_training_draws_leave_the_evaluation_cells_unchanged) ... ok
+test_transported_TH2_for_q_equal_p (tests.test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_for_q_equal_p) ... ok
+test_transported_TH2_under_a_biased_q_with_control (tests.test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_under_a_biased_q_with_control) ... ok
+test_TH5_kernel_preserved_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_kernel_preserved_with_exp_weights)
+Prop. 2 on the D7 tree with sections: ker(Delta_0 + L_P) = ker Delta_0 for exp weights ... ok
+test_TH5_props_2_3_5_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_props_2_3_5_with_exp_weights) ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 180.703s
+
+OK

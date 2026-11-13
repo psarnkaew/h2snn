@@ -323,8 +323,18 @@ def merge_length_group(walks: Walks, node_type: torch.Tensor, edge_index: torch.
     """One length's walks (each carrying its weight) as one cell group: D8 identity (canonical
     orientation, key = (signature, facts)), weights summed per cell (`drop_duplicates`: max), a
     per-cell signature id. Shared by WISP and the fixed-literature-schema row (Part O)."""
+    return _merge_cells(walks, node_type, edge_index, name, merge, None)[0]
+
+
+def _merge_cells(walks: Walks, node_type: torch.Tensor, edge_index: torch.Tensor, name: str,
+                 merge: str, anchor: torch.Tensor | None
+                 ) -> tuple[FaceGroup, torch.Tensor | None]:
+    """`merge_length_group`; with `anchor` [W] (Part MB, MB2) the anchor joins the merge key, so
+    `m_f` sums one anchor's walks only, and the anchor of every cell is returned."""
     oriented, signature = canonical_cells(walks, node_type)
     key = torch.cat([signature, oriented.facts], dim=1)
+    if anchor is not None:
+        key = torch.cat([anchor.view(-1, 1).to(key.dtype), key], dim=1)
     cells, cell_of = torch.unique(key, dim=0, return_inverse=True)
     weight = torch.zeros(cells.size(0), dtype=torch.float64)
     if merge == "sum":
@@ -338,7 +348,7 @@ def merge_length_group(walks: Walks, node_type: torch.Tensor, edge_index: torch.
     face_signs = oriented.signs[first].to(torch.float32)
     validate_face_orientation(face_nodes, face_facts, edge_index, name,
                               face_edge_sign=face_signs)
-    return FaceGroup(
+    group = FaceGroup(
         template_name=name,
         node_type_sequence=(),
         face_node_index=face_nodes,
@@ -349,6 +359,100 @@ def merge_length_group(walks: Walks, node_type: torch.Tensor, edge_index: torch.
         signature_index=signature_index,
         signature_table=tuple(tuple(row) for row in table.tolist()),
     )
+    return group, (None if anchor is None else anchor[first])
+
+
+# ----------------------------------------------------------------------------- mini-batch draws
+#: Anchors per chunk of a mini-batch draw (decision N2, author 2026-11-13; a constant, never
+#: tuned). Chunking changes which random numbers a walk uses, never `p`.
+WISP_CHUNK_ANCHORS = 4096
+#: chunk seed = seed * CHUNK_SEED_STRIDE + chunk index: distinct for every (seed, chunk index)
+#: with chunk index < CHUNK_SEED_STRIDE (2**20 chunks = 4.3e9 anchors at 4,096 per chunk).
+CHUNK_SEED_STRIDE = 1 << 20
+
+
+def chunk_seed(seed: int, chunk_index: int) -> int:
+    """The generator seed of chunk `chunk_index` of a mini-batch draw with seed `seed` (N2)."""
+    if not 0 <= int(chunk_index) < CHUNK_SEED_STRIDE:
+        raise ValueError(f"chunk index {chunk_index} outside [0, {CHUNK_SEED_STRIDE}).")
+    return int(seed) * CHUNK_SEED_STRIDE + int(chunk_index)
+
+
+def sample_wisp_walks_chunked(graph: ActionGraph, node_type: torch.Tensor, anchors: torch.Tensor,
+                              walks_per_anchor: int, max_length: int, seed: int,
+                              chunk_size: int = WISP_CHUNK_ANCHORS) -> WispDraw:
+    """A mini-batch draw from `p` (`proposal: uniform`): `sample_wisp_walks` on consecutive chunks
+    of `chunk_size` anchors, chunk `k` with its own generator seeded by `chunk_seed(seed, k)`. The
+    result depends only on (seed, chunk size, anchor order). Full-batch draws do not use this."""
+    if chunk_size < 1:
+        raise ValueError("chunk_size must be positive.")
+    anchors = anchors.long().reshape(-1)
+    if anchors.numel() == 0:
+        raise ValueError("a draw needs at least one anchor.")
+    parts = []
+    for k, start in enumerate(range(0, anchors.numel(), chunk_size)):
+        generator = torch.Generator().manual_seed(chunk_seed(seed, k))
+        parts.append(sample_wisp_walks(graph, node_type, anchors[start:start + chunk_size],
+                                       walks_per_anchor, max_length, generator))
+    return WispDraw(*(torch.cat([getattr(part, field) for part in parts])
+                      for field in WispDraw.__slots__))
+
+
+@dataclass(frozen=True, slots=True)
+class AnchorCells:
+    """Cells merged per anchor (one group per length) and the anchor of every cell."""
+
+    groups: tuple[FaceGroup, ...]
+    anchors: tuple[torch.Tensor, ...]
+
+    def of(self, anchor: int) -> tuple[FaceGroup, ...]:
+        """The cells of one anchor (its scope's cells), one group per length present."""
+        out = []
+        for group, owner in zip(self.groups, self.anchors):
+            rows = (owner == int(anchor)).nonzero(as_tuple=True)[0]
+            if rows.numel() == 0:
+                continue
+            out.append(FaceGroup(
+                template_name=group.template_name, node_type_sequence=group.node_type_sequence,
+                face_node_index=group.face_node_index[rows],
+                face_edge_index=group.face_edge_index[rows],
+                relation_index=group.relation_index[rows],
+                face_edge_sign=group.face_edge_sign[rows],
+                path_weight=group.path_weight[rows],
+                signature_index=group.signature_index[rows],
+                signature_table=group.signature_table))
+        return tuple(out)
+
+
+def merge_wisp_cells_per_anchor(draw: WispDraw, node_type: torch.Tensor,
+                                edge_index: torch.Tensor, walks_per_anchor: int) -> AnchorCells:
+    """D8 identity per anchor (MB2): key = (anchor, signature, facts), `m_f` = sum of (1/r) * ratio
+    over that anchor's walks only, so one instance drawn from two anchors gives two cells."""
+    groups, anchors = [], []
+    for length in sorted(set(draw.length.tolist())):
+        rows = draw.length == length
+        walks = Walks(draw.nodes[rows, :length + 1], draw.facts[rows, :length],
+                      draw.signs[rows, :length], draw.relations[rows, :length],
+                      draw.directions[rows, :length], draw.ratio[rows] / walks_per_anchor)
+        group, owner = _merge_cells(walks, node_type, edge_index, f"wisp_L{length}", "sum",
+                                    draw.anchor[rows])
+        groups.append(group)
+        anchors.append(owner)
+    return AnchorCells(groups=tuple(groups), anchors=tuple(anchors))
+
+
+def build_wisp_anchor_cells(edge_index: torch.Tensor, edge_type: torch.Tensor,
+                            node_type: torch.Tensor, self_inverse: tuple[int, ...],
+                            anchors: torch.Tensor, walks_per_anchor: int, max_length: int,
+                            seed: int, chunk_size: int = WISP_CHUNK_ANCHORS,
+                            graph: ActionGraph | None = None) -> AnchorCells:
+    """A mini-batch draw (chunked, from `p`) merged per anchor, on the whole given graph (the
+    scope is cut afterwards, `src/data/scopes.py`)."""
+    if graph is None:
+        graph = build_action_graph(edge_index, edge_type, int(node_type.numel()), self_inverse)
+    draw = sample_wisp_walks_chunked(graph, node_type, anchors, walks_per_anchor, max_length,
+                                     seed, chunk_size)
+    return merge_wisp_cells_per_anchor(draw, node_type, edge_index, walks_per_anchor)
 
 
 def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
@@ -368,5 +472,7 @@ def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
 
 __all__ = ["ActionGraph", "Proposal", "WispDraw", "action_of", "build_action_graph",
            "merge_length_group", "open_actions", "unvisited_fact_step",
+           "AnchorCells", "CHUNK_SEED_STRIDE", "WISP_CHUNK_ANCHORS", "build_wisp_anchor_cells",
+           "chunk_seed", "merge_wisp_cells_per_anchor", "sample_wisp_walks_chunked",
            "build_wisp_path_groups", "count_actions", "merge_wisp_cells", "proposal_from_mass",
            "sample_wisp_walks"]
