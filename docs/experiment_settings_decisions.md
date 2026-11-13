@@ -104,4 +104,10 @@ Started 2026-11-11 by the design session. Single place where experiment-setting 
 | 2026-11-13 | Part P-fix review (D-PF1) | Confirmed: the length-2 Kendall τ (with its permutation p) lives in the dataset-level `schema_readout.json`, since τ is computed across seeds | author (2026-11-13), Part P-fix report |
 | 2026-11-13 | Spec | docs/spec_v1.21_draft_edits.md (V-1) applied as spec v1.21 (V1); backup docs/spec_backups/H2S-NN_methodology_spec_v1.20.md | author approval (2026-11-13) |
 | 2026-11-13 | Git | `v3b` fast-forwarded to part-pfix (Part P-fix + docs) after review | author (2026-11-13) |
+| 2026-11-13 | Mini-batch card (N1) | The Part MB card covers H2S-NN only; baseline adapters' batch size and epoch on H2GB datasets go to the M3 card with the H2GB loaders | author (2026-11-13) |
+| 2026-11-13 | Mini-batch (N2) | Sampler chunks of 4,096 anchors, per-chunk generator seeded from (seed, chunk index), mini-batch draws only (full batch unchanged); a constant, never tuned (changes which random numbers a walk uses, not p) | author (2026-11-13) |
+| 2026-11-13 | Mini-batch (N3) | Training targets in a seeded permutation continued across epochs and reshuffled when exhausted (as H2GB's LoaderWrapper) | author (2026-11-13) |
+| 2026-11-13 | Mini-batch (N4) | Analysis flag runs ACM and DBLP in mini-batch for the L5/C5 gap; refused by the tuner | author (2026-11-13) |
+| 2026-11-13 | Mini-batch (N5, N6) | Evaluation batches of 1,024 targets (constant); the scope builder takes the graph as input (PDNS test windows), PDNS loader in M3 | author (2026-11-13) |
+| 2026-11-13 | Docs | Part MB card written (`docs/H2S-NN_partMB_card.md`); spec draft v1.22 W-1 (mini-batch constants) awaiting wording approval | design session (2026-11-13) |
 
