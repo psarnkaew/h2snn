@@ -1,0 +1,16 @@
+job=16608 node=g2tn01 gpu=NVIDIA TITAN RTX
+test_script_follows_cluster_rules (tests.test_slurm_scripts.SbatchScriptTests.test_script_follows_cluster_rules) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+OK
+=== mutation: #SBATCH --time removed
+AssertionError: Lists differ: ['missing #SBATCH --time'] != []
+'missing #SBATCH --time'
+- ['missing #SBATCH --time']
+FAILED (failures=1)
+restored: 1 --time line
+--- login node: bash -n scripts/slurm/run_tests.sbatch -> exit 0
+--- login node: sbatch --test-only scripts/slurm/run_tests.sbatch
+sbatch: Job 16607 to start at 2026-11-16T02:37:09 using 8 processors on nodes g2n01 in partition lab

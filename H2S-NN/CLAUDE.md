@@ -32,6 +32,43 @@ Sanity-check the environment at any time with:
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -c "import torch, torch_geometric, torch_scatter, torch_sparse; print(torch.__version__, torch.cuda.is_available())"
 ```
 
+## Lab GPU cluster (Linux, SLURM)
+
+The Windows commands above apply to the author's laptop. On the lab cluster (author, 2026-11-14;
+`../docs/working_preferences.md`, "Server and GitHub workflow"):
+
+- **Where things are.** Login node `login01` (Debian 12; `ssh peeradon@ai1.net.comp.isct.ac.jp`).
+  Repository `/mnt/data/peeradon/h2snn` (project storage, NFS, readable by every lab member, no
+  backup): work from `/mnt/data/peeradon/h2snn/H2S-NN`. Home `/mnt/home/peeradon` (50 GB, private,
+  no backup): Miniforge, `~/.ssh`, the W&B key. **Secrets live only under home, never under
+  `/mnt/data`.** Jobs never run in `$HOME`. `/tmp` on a compute node is fast scratch, deleted at
+  job end (and not visible from the login node).
+- **No computation on the login node** (tests, training, `pip`/`conda install`, preprocessing). It
+  is for git, editing, submitting and monitoring. Compute nodes are reached only through SLURM.
+- **Every job sets `--mem` and `--time`** (at most 72 h; longer work needs checkpoints), plus
+  `--gres` and `--cpus-per-task`. GPU types: `--gres=gpu:<type>:<n>` with `2080ti` (11 GB),
+  `titan_rtx` (24 GB), `3090` (24 GB), `a6000` (48 GB). Driver 550.163.01, CUDA 12.4.
+- **Conda: the author's Miniforge, never `/opt/conda`.** Every job and shell runs
+  `. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn` (env at `~/.conda/envs/h2snn`,
+  Python 3.12). The lab's `/opt/conda` cannot create environments for this user: its `.condarc`
+  locks `pkgs_dirs` (`#!final`) to a shared cache owned by other users. Never mix the two in one
+  shell or script. SLURM jobs do not read `~/.bashrc`, so each script activates conda itself.
+- **Version lock:** `requirements/linux-lock.txt`; `python scripts/setup/check_env.py` (in a job)
+  prints every difference against it.
+- **Tests:** the whole suite or given unittest targets in one GPU job (log in
+  `logs/slurm-<jobid>.out`, git-ignored):
+  ```bash
+  cd /mnt/data/peeradon/h2snn/H2S-NN
+  sbatch scripts/slurm/run_tests.sbatch                       # whole suite
+  sbatch scripts/slurm/run_tests.sbatch tests.test_v2_model   # unittest targets
+  ```
+  Short interactive work: `scripts/slurm/interactive.md` (`srun ... --pty bash`).
+- **Push rules (2026-11-14; supersede "do not commit or push" below for agent work branches):**
+  the agent pushes its own work branch after each unit (`git push origin <branch>`); never `v3b`,
+  never another branch, never force-push. `v3b` is fast-forwarded only after the author approves a
+  report. Never commit vendor files without a licence (HGB), `data/`, secrets, `Claude outputs/`,
+  `paper/`.
+
 ## Coding Style & Conventions for ML/DL Research Projects
 
 ---

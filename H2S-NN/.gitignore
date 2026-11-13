@@ -82,3 +82,7 @@ dist/
 # HGB (THUDM/HGB) is cloned locally as the LP oracle (Part N-fix F1); no licence: never commit its files
 vendor/HGB/*
 !vendor/HGB/CLONED_COMMIT.txt
+
+# SLURM job logs (scripts/slurm/run_tests.sbatch)
+/logs/*
+!/logs/.gitkeep
