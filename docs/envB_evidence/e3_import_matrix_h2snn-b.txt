@@ -1,0 +1,134 @@
+python 3.12.16 executable C:\Users\Acer\anaconda3\envs\h2snn-b\python.exe
+
+=== import matrix (fresh interpreter each, python -W default) ===
+--- torch: rc=0 version='2.4.1+cu124'
+--- torch_geometric: rc=0 version='2.8.0'
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing
+--- torch_scatter: rc=0 version='2.1.2+pt24cu124'
+--- torch_sparse: rc=0 version='0.6.18+pt24cu124'
+--- torch_cluster: rc=0 version='1.6.3+pt24cu124'
+--- dgl: rc=1 version=''
+    stderr:
+      Traceback (most recent call last):
+        File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\__init__.py", line 16, in <module>
+          from . import (
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\dataloading\__init__.py", line 13, in <module>
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.1.dll
+--- torchdata: rc=0 version='0.8.0'
+--- numpy: rc=0 version='2.4.6'
+--- scipy: rc=0 version='1.18.0'
+--- pandas: rc=0 version='3.0.3'
+--- sklearn: rc=0 version='1.9.0'
+--- ogb: rc=0 version='1.3.6'
+--- pytorch_lightning: rc=0 version='2.6.5'
+--- wandb: rc=0 version='0.28.0'
+--- torchmetrics: rc=0 version='1.8.2'
+--- umap: rc=0 version='0.5.12'
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\umap\__init__.py:9: ImportWarning: Tensorflow not installed; ParametricUMAP will be unavailable
+        warn(
+--- performer_pytorch: rc=0 version='no __version__'
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+        TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+
+=== functional calls ===
+--- torch cuda: rc=0
+    stdout:
+      cuda_available True
+      cuda sum 14.0 NVIDIA GeForce RTX 4060 Laptop GPU
+--- torch_scatter: rc=0
+    stdout:
+      tensor([4., 2.])
+--- torch_sparse: rc=0
+    stdout:
+      tensor([[0., 1.],
+              [2., 0.]])
+--- torch_cluster: rc=0
+    stdout:
+      tensor([[1, 0],
+              [0, 1]])
+      tensor([2, 0, 1])
+--- torch_geometric: rc=0
+    stdout:
+      torch.Size([3, 2])
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing
+--- dgl message passing: rc=1
+    stderr:
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.1.dll
+--- dgl graphbolt: rc=1
+    stderr:
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.1.dll
+--- torchdata datapipes: rc=0
+    stdout:
+      [0, 1, 2]
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torchdata\datapipes\__init__.py:18: UserWarning: 
+      ################################################################################
+      WARNING!
+      The 'datapipes', 'dataloader2' modules are deprecated and will be removed in a
+      future torchdata release! Please see https://github.com/pytorch/data/issues/1196
+      to learn more and leave feedback.
+      ################################################################################
+      
+        deprecation_warning()
+--- pytorch_lightning+torchmetrics: rc=0
+    stdout:
+      tensor(0.6667)
+--- performer_pytorch: rc=0
+    stdout:
+      torch.Size([1, 5, 8])
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+        TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+--- ogb: rc=0
+    stdout:
+      <ogb.nodeproppred.evaluate.Evaluator object at 0x0000017B5EE7CEF0>
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing
+
+=== E3 summary (agent) ===
+- 16 of 17 imports ok in h2snn-b (torch 2.4.1+cu124, CUDA available, RTX 4060 tensor op ok). Functional calls ok: scatter, sparse matmul, cluster (radius_graph, fps), PyG GCNConv, torchdata datapipes, torchmetrics, performer, ogb.
+- dgl 2.2.1 (the only Windows build) FAILS to import: FileNotFoundError ... graphbolt_pytorch_2.4.1.dll. The wheel ships graphbolt DLLs for torch 2.1.0-2.3.0 only.
+  The same failure occurs in the existing h2snn (torch 2.6.0: graphbolt_pytorch_2.6.0.dll): e3_dgl_graphbolt_control.txt. So on this laptop DGL imports in neither environment; this is a Windows-wheel limit, not a torch-2.4.1 result.
+- DGL message passing and graphbolt: NOT TESTED (cannot import). The numpy-2 incompatibility of DGL (pre-registered 3): NOT TESTED; before the failing line no "compiled using NumPy 1.x" message appeared.
+- Warnings seen: torch_geometric DeprecationWarning ('torch-cluster' is no longer necessary), umap ImportWarning (Tensorflow not installed), performer_pytorch DeprecationWarning (distutils LooseVersion), torchdata.datapipes UserWarning (deprecated modules). No NumPy-1.x/2.x message anywhere.

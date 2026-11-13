@@ -30,3 +30,8 @@ DIFFERENT  dgl  lock 2.4.0+cu124  installed 2.2.1
 differences: 2
 
 ## extra installed packages not in the lock are the dependencies of the pins; full list: e2_commands.txt (pip freeze)
+$ python -I docs/envB_evidence/e2_versions.py H2S-NN/requirements/linux-lock-b.txt   (h2snn-b; rerun after adding torchdata==0.8.0)
+MISSING    torch_householder==1.0.1
+DIFFERENT  dgl  lock 2.4.0+cu124  installed 2.2.1
+equal      torchdata==0.8.0
+differences: 2

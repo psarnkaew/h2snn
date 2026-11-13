@@ -64,5 +64,7 @@ torch_householder==1.0.1
 # DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4 (untested; laptop has Windows dgl 2.2.1 only)
 -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
 dgl==2.4.0+cu124
-# torchdata: DGL's PyPI metadata lists torchdata>=0.5.0; 0.8.0 is the release for torch 2.4 and was installed with dgl 2.2.1 on the laptop.
-# NOT pinned yet: the author decides after the Linux DGL test (E3 on the laptop: see report).
+# torchdata: DGL's PyPI metadata lists torchdata>=0.5.0 and its graphbolt imports torchdata.datapipes (VERIFIED in dgl 2.2.1 source; UNVERIFIED for 2.4.0).
+# torchdata 0.10+ has no datapipes module (h2snn has 0.11.0: ModuleNotFoundError, docs/envB_evidence/e3_dgl_graphbolt_control.txt);
+# 0.8.0 is the release matching torch 2.4 and imports fine in h2snn-b (with a deprecation warning). Candidate pin, the author decides.
+torchdata==0.8.0
