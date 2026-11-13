@@ -62,3 +62,9 @@
 - **Review reports in this order:** short verdict first; what passed; problems found by the design session itself (with a concrete example); a decision table (option, recommendation, reason); next steps; questions last. Check claims that matter against code or source files before answering (e.g. H2GB configs for D-P6), and say what was not checked.
 - **Explaining a constant or engineering choice** (liked, N2 of 2026-11-13): what the code does now; the problem at real scale with numbers; why a value must be fixed (concrete example); the proposal; what it does not change; how to check it; cost table; recommendation.
 
+## Server and GitHub workflow (author, 2026-11-14; supersedes "never push" in earlier rules and cards)
+- **Where things run.** Design session (Cowork) on the author's laptop folder `C:\Users\Acer\Desktop\h2snn`: specs, cards, reviews, docs commits. Claude Code (the agent) on the lab cluster login node `login01` (`ssh peeradon@ai1.net.comp.isct.ac.jp`), repo at `/mnt/data/peeradon/h2snn` (lab-readable project storage; no secrets there), home `/mnt/home/peeradon` (50 GB, private: conda env `h2snn`, `~/.ssh`, W&B key). GitHub `psarnkaew/h2snn` is the bridge between the two.
+- **Compute only through SLURM** (`srun`/`sbatch` with `--mem` and `--time` ≤ 72 h); the login node is for git, editing, submitting and monitoring. Tests and the full suite run in a job.
+- **Push rules.** The agent pushes **its own work branch** (e.g. `part-m3a`) after each unit; never `v3b`, never another branch. The design session commits docs on the branch it has checked out, only while no agent works on that branch, and the author pushes from the laptop. `v3b` is fast-forwarded only after the author approves a report, then pushed. Never force-push.
+- **Cards** pin the base commit hash; the agent fetches first and stops if the hash differs.
+
