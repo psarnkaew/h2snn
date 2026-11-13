@@ -1,0 +1,5 @@
+== MF2 mutation: the flag falls back to 8,192 epoch targets; target test: one step per epoch
+FAIL: test_one_step_per_epoch_over_every_training_target (tests.test_partMBfix_flag.FlagTrainerTests.test_one_step_per_epoch_over_every_training_target)
+AssertionError: Tuples differ: (14, 8192) != (14, 14)
+Ran 1 test in 4.102s
+FAILED (failures=1)

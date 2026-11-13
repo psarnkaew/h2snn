@@ -1,0 +1,38 @@
+test_flag_resolves_to_whole_passes_with_the_full_batch_budget (tests.test_partMBfix_flag.FlagConfigTests.test_flag_resolves_to_whole_passes_with_the_full_batch_budget) ... ok
+test_tuner_refusal_and_h2gb_without_b (tests.test_partMBfix_flag.FlagConfigTests.test_tuner_refusal_and_h2gb_without_b) ... ok
+test_evaluation_every_epoch (tests.test_partMBfix_flag.FlagTrainerTests.test_evaluation_every_epoch) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-13 14:39:31,675 | INFO | Epoch 0000 | train_loss: 1.1091 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0623 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+2026-11-13 14:39:31,958 | INFO | Epoch 0001 | train_loss: 1.1075 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0642 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+2026-11-13 14:39:32,234 | INFO | Epoch 0002 | train_loss: 1.0779 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0661 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+ok
+test_one_step_per_epoch_over_every_training_target (tests.test_partMBfix_flag.FlagTrainerTests.test_one_step_per_epoch_over_every_training_target) ... ok
+test_batches_stop_at_the_pass_boundary (tests.test_partMBfix_order.PassBoundaryTests.test_batches_stop_at_the_pass_boundary) ... ok
+test_steps_and_the_short_batch_loss (tests.test_partMBfix_order.PassBoundaryTests.test_steps_and_the_short_batch_loss) ... ok
+test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) ... ok
+test_training_draw_seeds (tests.test_partMB_trainer.EpochTests.test_training_draw_seeds) ... ok
+test_training_order_passes (tests.test_partMB_trainer.EpochTests.test_training_order_passes) ... ok
+test_evaluation_graph_is_used_for_its_scopes (tests.test_partMB_trainer.EvaluationTests.test_evaluation_graph_is_used_for_its_scopes) ... ok
+test_predictions_do_not_depend_on_the_evaluation_batch_size (tests.test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size) ... ok
+test_whole_split_and_metric_on_the_concatenation (tests.test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation) ... ok
+test_mode_per_dataset_and_tuner_refusals (tests.test_partMB_trainer.StopAndConfigTests.test_mode_per_dataset_and_tuner_refusals) ... ok
+test_stop_condition_in_one_batch_stops_the_run (tests.test_partMB_trainer.StopAndConfigTests.test_stop_condition_in_one_batch_stops_the_run) ... 2026-11-13 14:39:40,930 | INFO | STOP CONDITION log_weight_range: 31 > 30 at epoch 0 (spec v1.16 §6); run stopped.
+ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (refused only for the ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 18.670s
+
+OK

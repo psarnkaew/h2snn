@@ -133,12 +133,22 @@ class MiniBatchNodeTrainer:
                 "micro_f1": cls["micro_f1"], "cls_loss": loss}
 
     # ------------------------------------------------------------------ training
-    def train_epoch(self, graph: PreparedH2SData, order: TrainingOrder, epoch: int) -> dict:
+    def batch_plan(self, graph: PreparedH2SData) -> tuple[int, int]:
+        """(B, epoch targets). The ACM/DBLP analysis flag with both unset (0) trains on whole
+        passes: B = every training target, 1 epoch = one pass = one step (Part MB-fix MF2); the
+        count is the graph's, so it is resolved here, not in the config."""
         data = self.cfg.data
+        if data.batch_size:
+            return data.batch_size, data.epoch_targets
+        count = int(graph.target_train_mask.sum())
+        return count, count
+
+    def train_epoch(self, graph: PreparedH2SData, order: TrainingOrder, epoch: int) -> dict:
+        batch_size, epoch_targets = self.batch_plan(graph)
         self.model.train()
         losses = []
-        for b in range(steps_per_epoch(data.epoch_targets, data.batch_size)):
-            targets = order.next(data.batch_size)
+        for b in range(steps_per_epoch(epoch_targets, batch_size)):
+            targets = order.next(batch_size)
             cells = self._cells(graph, targets, training_draw_seed(self.cfg.seed, epoch, b))
             _, batch = self._batch(graph, targets, cells)
             self.optimizer.zero_grad()

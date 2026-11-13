@@ -898,12 +898,21 @@ class DataConfig:
                 f"{MINIBATCH_ANALYSIS_DATASETS} (N4).")
         epoch_targets, eval_period = self.epoch_targets, self.eval_period
         if mode == "minibatch" and task_type == "node_classification":
-            if self.batch_size < 1:
-                raise ValueError("data.batch_size (B) is required in mini-batch training.")
-            epoch_targets = epoch_targets or MINIBATCH_EPOCH_TARGETS
-            if epoch_targets % self.batch_size:
-                raise ValueError(f"data.epoch_targets {epoch_targets} is not a multiple of "
-                                 f"data.batch_size {self.batch_size}.")
+            # Part MB-fix MF2 (author 2026-11-13): the ACM/DBLP analysis flag with B and the epoch
+            # unset (0) means B = every training target and 1 epoch = one pass = one step; the
+            # trainer resolves them from the graph (the training-target count is not known here).
+            whole_pass = mode != mode_default and self.batch_size == 0
+            if whole_pass:
+                if epoch_targets:
+                    raise ValueError("the analysis flag without data.batch_size trains on whole "
+                                     "passes; data.epoch_targets needs an explicit batch_size.")
+            else:
+                if self.batch_size < 1:
+                    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+                epoch_targets = epoch_targets or MINIBATCH_EPOCH_TARGETS
+                if epoch_targets % self.batch_size:
+                    raise ValueError(f"data.epoch_targets {epoch_targets} is not a multiple of "
+                                     f"data.batch_size {self.batch_size}.")
             eval_period = eval_period or default_eval_period(dataset_name)
         elif self.batch_size or self.epoch_targets or self.eval_period:
             raise ValueError("data.batch_size, epoch_targets and eval_period belong to "
