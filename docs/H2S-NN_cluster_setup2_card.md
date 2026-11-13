@@ -2,7 +2,7 @@
 
 **Binding:** `docs/working_preferences.md` ("Server and GitHub workflow"); `docs/H2S-NN_cluster_setup_report.md` (branch `cluster-setup`, `d8f5813`) and its evidence `docs/cluster_evidence/`; `docs/H2S-NN_cluster_setup_card.md` (facts of the cluster, rules: still valid); `H2S-NN/AGENTS.md`/`CLAUDE.md`. Spec v1.22 is the design authority and is not touched: this card changes no method code.
 **Branch:** `cluster-setup2`, created from `cluster-setup` at `d8f5813`. **Report:** `docs/H2S-NN_cluster_setup2_report.md`; evidence `docs/cluster_evidence2/`.
-**Status:** DRAFT. Items marked `<<AUTHOR>>` are filled by the author before the prompt is sent.
+**Status:** DRAFT, on hold: CS7-1 (DGL) is rewritten for option B (torch 2.4.1 + DGL 2.4.0, 2026-11-14) after `docs/H2S-NN_envB_laptop_card.md` reports; the `dgl==2.5.0+cu124` text below is superseded. Items marked `<<AUTHOR>>` are filled by the author before the prompt is sent.
 
 ## Author inputs (2026-11-14; the agent never guesses them)
 - DGL wheel: `<<AUTHOR: still missing. The path given so far, `/mnt/data/peeradon/h2snn/H2S-NN/vendor/dgl`, is the DGL source clone (CS3), not a wheel. Needed: the file `dgl-2.5.0+cu124-cp312-...manylinux...x86_64.whl` downloaded on the laptop from data.dgl.ai (torch-2.6/cu124 index) and copied to `/mnt/home/peeradon/`>>`.
