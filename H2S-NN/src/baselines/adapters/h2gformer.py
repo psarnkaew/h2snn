@@ -48,6 +48,7 @@ from src.baselines.adapters._h2gformer_encoders import (
     encoder_stack,
     has_walk_schema,
     metapath2vec_embeddings,
+    metapath_dim_pe,
     training_label_input,
     walk_schema,
 )
@@ -203,7 +204,8 @@ class H2GformerAdapter:
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
-            "hidden_dim": {"values": [64, 128, 256]},
+            # D-P6 (author 2026-11-13): 512 added (H2GB's configs use 64-512)
+            "hidden_dim": {"values": [64, 128, 256, 512]},
             "dropout": grids.DROPOUT,
             "attn_dropout": {"values": [0.0, 0.2]},
             "gt_layers": {"values": [2, 3]},
@@ -327,7 +329,8 @@ class H2GformerAdapter:
         ensure_pyg_submodules()
         with pushd_sys_path(VENDOR):
             if METAPATH in stack:  # training message graph only (build_edge_index_dict)
-                attach_metapath_embeddings(hetero, bundle.dataset, device=device, seed=seed)
+                attach_metapath_embeddings(hetero, bundle.dataset, device=device, seed=seed,
+                                           hidden_dim=int(params.get("hidden_dim", 64)))
             _configure_graphgym(
                 params, dim_in=dim_in, target_type=source_type, device=device, stack=stack
             )
@@ -468,13 +471,14 @@ def node_classification_stack(bundle: NodeBundle, params: BaselineParams) -> tup
 
 
 def attach_metapath_embeddings(data: Any, dataset: str, *, device: torch.device,
-                               seed: int, epochs: int | None = None) -> None:
-    """H2GB's MetaPath2Vec on `data`'s edges with the cell's walk schema, stored as each node
-    type's `pestat_Hetero_Metapath` (as H2GB's master_loader.py:266-281 stores it)."""
+                               seed: int, hidden_dim: int, epochs: int | None = None) -> None:
+    """H2GB's MetaPath2Vec on `data`'s edges with the cell's walk schema, at width
+    `metapath_dim_pe(hidden_dim)` (D-P6), stored as each node type's `pestat_Hetero_Metapath`
+    (as H2GB's master_loader.py:266-281 stores it)."""
+    dim_pe = metapath_dim_pe(int(hidden_dim))
     embeddings = metapath2vec_embeddings(
         dict(data.edge_index_dict), dict(data.num_nodes_dict), walk_schema(dataset),
-        device=device, seed=seed, epochs=epochs)
-    dim_pe = next(iter(embeddings.values())).size(1)
+        device=device, seed=seed, epochs=epochs, dim_pe=dim_pe)
     for node_type in data.node_types:
         # H2GB's schemas visit every node type of their graphs; a type the HGB table never
         # visits (ACM term, IMDB keyword, ...) gets a zero encoding (no MetaPath2Vec
@@ -501,6 +505,7 @@ def build_node_classification_model(data: Any, target_type: str, bundle: NodeBun
     with pushd_sys_path(VENDOR):
         if METAPATH in stack:
             attach_metapath_embeddings(data, bundle.dataset, device=device, seed=seed,
+                                       hidden_dim=int(params.get("hidden_dim", 64)),
                                        epochs=metapath_epochs)
         dim_in = {node_type: int(data[node_type].x.size(1)) for node_type in data.node_types}
         _configure_graphgym(params, dim_in=dim_in, target_type=target_type, device=device,

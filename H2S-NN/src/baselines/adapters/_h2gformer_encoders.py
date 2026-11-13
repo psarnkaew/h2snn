@@ -165,13 +165,24 @@ def with_reverse_edges(edge_index_dict: dict[EdgeType, torch.Tensor]
     return out
 
 
+def metapath_dim_pe(hidden_dim: int) -> int:
+    """Width of the MetaPath2Vec channel at model width `hidden_dim` (decision D-P6, author
+    2026-11-13): `min(128, hidden_dim // 2)`, so H2GB's composed encoder always keeps a raw channel
+    of `hidden_dim - dim_pe > 0` (composed_encoders.py:54-58). Reaches H2GB's configs: PDNS 64/32,
+    Pokec and oag-chem 256/128, ogbn-mag and mag-year 512/128."""
+    if hidden_dim < 2:
+        raise ValueError(f"hidden_dim must be >= 2, got {hidden_dim}.")
+    return min(METAPATH2VEC_SETTINGS["dim_pe"], hidden_dim // 2)
+
+
 def metapath2vec_embeddings(edge_index_dict: dict[EdgeType, torch.Tensor],
                             num_nodes_dict: dict[str, int], schema: tuple[EdgeType, ...],
-                            device: torch.device, seed: int, epochs: int | None = None
-                            ) -> dict[str, torch.Tensor]:
+                            device: torch.device, seed: int, epochs: int | None = None,
+                            dim_pe: int | None = None) -> dict[str, torch.Tensor]:
     """H2GB's MetaPath2Vec trained with its settings on the walk graph; `{node type: [N, dim_pe]}`
     for every node type the schema visits (H2GB's `pestat_Hetero_Metapath`, master_loader.py:266-281).
-    `epochs` overrides H2GB's 5 only in tests."""
+    `dim_pe` is the channel width (`metapath_dim_pe`; H2GB's 128 when None); `epochs` overrides
+    H2GB's 5 only in tests."""
     from src.baselines.runtime import pushd_sys_path
 
     with pushd_sys_path("h2gb"):
@@ -184,7 +195,8 @@ def metapath2vec_embeddings(edge_index_dict: dict[EdgeType, torch.Tensor],
         raise KeyError(f"schema hops {missing} are not edge types of the graph.")
     torch.manual_seed(seed)
     model = MetaPath2Vec({k: v.cpu() for k, v in walk_graph.items()},
-                         embedding_dim=s["dim_pe"], metapath=list(schema),
+                         embedding_dim=s["dim_pe"] if dim_pe is None else int(dim_pe),
+                         metapath=list(schema),
                          walk_length=s["walk_length"], context_size=s["context_size"],
                          walks_per_node=s["walks_per_node"],
                          num_negative_samples=s["num_negative_samples"],
@@ -216,21 +228,18 @@ def training_label_input(y: torch.Tensor, train_mask: torch.Tensor, placeholder:
 def configure_encoders(cfg: Any, stack: tuple[str, ...]) -> None:
     """Set graphgym's encoder config for `stack` (H2GB's own config keys). With MetaPath2Vec,
     H2GB's composed encoder gives the raw channel `dim_hidden - dim_pe` dimensions
-    (composed_encoders.py:54-58), so the hidden width must exceed `dim_pe` (H2GB's configs use
-    256-512 with it); a smaller width raises (a failed trial, D-P6)."""
-    if METAPATH in stack and int(cfg.gt.dim_hidden) <= METAPATH2VEC_SETTINGS["dim_pe"]:
-        raise ValueError(
-            f"H2G-former with the MetaPath2Vec channel needs hidden_dim > dim_pe = "
-            f"{METAPATH2VEC_SETTINGS['dim_pe']} (H2GB's composed encoder), got {cfg.gt.dim_hidden}.")
+    (composed_encoders.py:54-58); `dim_pe = metapath_dim_pe(dim_hidden)` keeps it positive for
+    every width (D-P6)."""
     cfg.dataset.node_encoder_name = "+".join(stack)
     cfg.posenc_Hetero_Label.enable = LABEL in stack
     cfg.posenc_Hetero_Label.dim_pe = 0
     cfg.posenc_Hetero_Metapath.enable = METAPATH in stack
-    cfg.posenc_Hetero_Metapath.dim_pe = METAPATH2VEC_SETTINGS["dim_pe"]
+    cfg.posenc_Hetero_Metapath.dim_pe = metapath_dim_pe(int(cfg.gt.dim_hidden))
     cfg.posenc_Hetero_Metapath.layers = METAPATH2VEC_SETTINGS["layers"]
 
 
 __all__ = ["DERIVED_SOURCE", "H2GB_STACKS", "HGB_RELATIONS", "LABEL", "LASTFM_PATHS",
            "METAPATH", "METAPATH2VEC_SETTINGS", "RAW", "configure_encoders", "encoder_stack",
+           "metapath_dim_pe",
            "has_walk_schema", "listed_paths", "metapath2vec_embeddings",
            "training_label_input", "walk_schema", "with_reverse_edges"]

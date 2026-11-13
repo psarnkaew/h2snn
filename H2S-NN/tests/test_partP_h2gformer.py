@@ -230,26 +230,28 @@ class RouteTests(unittest.TestCase):
 
 
 class MetapathChannelTests(unittest.TestCase):
-    def test_narrow_hidden_width_is_refused_with_metapath(self) -> None:
+    def test_hidden_width_128_builds_with_metapath(self) -> None:
+        # Part P-fix F2 (D-P6): replaces the old "hidden_dim <= 128 raises" rule;
+        # dim_pe = min(128, hidden_dim // 2) = 64 here
         from src.baselines.adapters.h2gformer import build_node_classification_model
         from src.baselines.protocol import BaselineParams
 
         hetero, bundle, _ = _tiny()
-        with self.assertRaisesRegex(ValueError, "hidden_dim > dim_pe"):
-            build_node_classification_model(hetero, "paper", bundle, BaselineParams(
-                {"hidden_dim": 128}), (RAW, LABEL, METAPATH), device=torch.device("cpu"),
-                seed=0, metapath_epochs=1)
+        build_node_classification_model(hetero, "paper", bundle, BaselineParams(
+            {"hidden_dim": 128}), (RAW, LABEL, METAPATH), device=torch.device("cpu"),
+            seed=0, metapath_epochs=1)
+        self.assertEqual(int(hetero["paper"]["pestat_Hetero_Metapath"].size(1)), 64)
 
     def test_embeddings_are_produced_and_consumed(self) -> None:
         from src.baselines.adapters.h2gformer import attach_metapath_embeddings
 
         hetero, _, _ = _tiny()
-        attach_metapath_embeddings(hetero, "acm", device=torch.device("cpu"), seed=0, epochs=1)
+        attach_metapath_embeddings(hetero, "acm", device=torch.device("cpu"), seed=0,
+                                   hidden_dim=160, epochs=1)  # F2 (D-P6): dim_pe = 80
         self.assertTrue(bool((hetero["term"]["pestat_Hetero_Metapath"] == 0).all()))  # unvisited
         for node_type in ("paper", "author", "subject"):
             value = hetero[node_type]["pestat_Hetero_Metapath"]
-            self.assertEqual(tuple(value.shape), (int(hetero[node_type].num_nodes),
-                                                  METAPATH2VEC_SETTINGS["dim_pe"]))
+            self.assertEqual(tuple(value.shape), (int(hetero[node_type].num_nodes), 80))
             self.assertTrue(bool(torch.isfinite(value).all()))
         out = _output((RAW, LABEL, METAPATH))
         self.assertTrue(bool(torch.isfinite(out).all()))

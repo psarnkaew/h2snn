@@ -1,0 +1,45 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+EC:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\init.py:511: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+F
+======================================================================
+ERROR: test_every_pair_of_the_space_runs_one_forward (tests.test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=64, metapath_pe=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partPfix_h2gformer_width.py", line 74, in test_every_pair_of_the_space_runs_one_forward
+    model = build_node_classification_model(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\src\baselines\adapters\h2gformer.py", line 517, in build_node_classification_model
+    return GTModel(dim_in, bundle.num_classes, shim).to(device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\network\gt_model.py", line 78, in __init__
+    self.encoder = FeatureEncoder(dim_in, dataset)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\network\gt_model.py", line 34, in __init__
+    self.node_encoder = NodeEncoder(cfg.gt.dim_hidden, dataset)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\encoder\composed_encoders.py", line 103, in __init__
+    self.encoder1 = self.enc1_cls(dim_emb - enc2_dim_pe - enc3_dim_pe, data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\vendor\H2GB\H2GB\encoder\hetero_raw_encoder.py", line 105, in __init__
+    self.linear[node_type] = nn.Linear(
+                             ^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch\nn\modules\linear.py", line 106, in __init__
+    torch.empty((out_features, in_features), **factory_kwargs)
+RuntimeError: Trying to create tensor with negative dimension -64: [-64, 6]
+
+======================================================================
+FAIL: test_every_pair_of_the_space_runs_one_forward (tests.test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=128, metapath_pe=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partPfix_h2gformer_width.py", line 80, in test_every_pair_of_the_space_runs_one_forward
+    self.assertEqual(width, hand)
+AssertionError: 128 != 64
+
+----------------------------------------------------------------------
+Ran 1 test in 267.983s
+
+FAILED (failures=1, errors=1)

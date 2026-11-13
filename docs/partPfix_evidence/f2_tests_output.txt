@@ -1,0 +1,22 @@
+test_every_pair_of_the_space_runs_one_forward (tests.test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_grid_and_dim_pe_per_width (tests.test_partPfix_h2gformer_width.WidthRuleTests.test_grid_and_dim_pe_per_width) ... ok
+test_h2gb_config_pairs_are_reachable (tests.test_partPfix_h2gformer_width.WidthRuleTests.test_h2gb_config_pairs_are_reachable) ... ok
+test_embeddings_are_produced_and_consumed (tests.test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed) ... ok
+test_hidden_width_128_builds_with_metapath (tests.test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath) ... ok
+test_the_label_channel_reads_training_labels (tests.test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels) ... ok
+test_validation_and_test_labels_do_not_reach_the_label_channel (tests.test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel) ... ok
+test_hops_exist_on_the_real_graphs (tests.test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) ... ok
+test_schemas_are_cyclic_edge_types_of_the_graph (tests.test_partP_h2gformer.SchemaTests.test_schemas_are_cyclic_edge_types_of_the_graph) ... ok
+test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) ... ok
+test_metapath2vec_settings_equal_h2gbs (tests.test_partP_h2gformer.SettingsTests.test_metapath2vec_settings_equal_h2gbs) ... ok
+test_h2gb_stacks_equal_their_configs (tests.test_partP_h2gformer.StackTests.test_h2gb_stacks_equal_their_configs) ... ok
+test_stack_per_cell_is_t2 (tests.test_partP_h2gformer.StackTests.test_stack_per_cell_is_t2) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 318.639s
+
+OK
