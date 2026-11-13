@@ -24,7 +24,7 @@ from typing import Sequence
 
 import torch
 
-from src.data.structures import FaceGroup, PreparedH2SData
+from src.data.structures import FaceGroup, PreparedH2SData, ScopeIndex
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,6 +163,8 @@ def build_scope_batch(graph: PreparedH2SData, targets: torch.Tensor,
         face_groups=tuple(groups),
         metrics=torch.zeros(0),
         global_node_id=global_node_id,
+        scope_index=ScopeIndex(torch.cat(node_scope), torch.cat(fact_scope), tuple(cell_scope),
+                               int(targets.numel())),
     )
     return ScopeBatch(data=data, targets=targets, target_rows=rows,
                       global_node_id=global_node_id, global_fact_id=global_fact_id,

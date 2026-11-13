@@ -1,0 +1,33 @@
+test_a_batch_equals_scopes_alone (tests.test_partMB_model.BatchTests.test_a_batch_equals_scopes_alone) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_b_every_scope_meets_its_own_tolerance (tests.test_partMB_model.BatchTests.test_b_every_scope_meets_its_own_tolerance) ... ok
+test_c_logits_do_not_depend_on_the_batching (tests.test_partMB_model.BatchTests.test_c_logits_do_not_depend_on_the_batching) ... ok
+test_d_whole_graph_harness (tests.test_partMB_model.BatchTests.test_d_whole_graph_harness) ... ok
+test_e_context_and_degrees_are_the_scopes (tests.test_partMB_model.BatchTests.test_e_context_and_degrees_are_the_scopes) ... ok
+test_f_no_warm_start_in_mini_batch (tests.test_partMB_model.BatchTests.test_f_no_warm_start_in_mini_batch) ... ok
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_chunks_use_distinct_generator_states (tests.test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states) ... ok
+test_log_p_and_frequencies_equal_the_exact_target (tests.test_partMB_draws.ChunkedDrawTests.test_log_p_and_frequencies_equal_the_exact_target) ... ok
+test_same_seed_and_chunk_size_give_the_same_draw (tests.test_partMB_draws.ChunkedDrawTests.test_same_seed_and_chunk_size_give_the_same_draw) ... ok
+test_one_instance_from_two_anchors_gives_two_cells (tests.test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells) ... ok
+test_per_anchor_mass_is_the_anchors_walks_only (tests.test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_T14_config_keys_are_validated_and_never_tuned (tests.test_v3b_model.ArmTests.test_T14_config_keys_are_validated_and_never_tuned) ... ok
+test_T14_every_arm_trains_and_gradients_reach_the_right_groups (tests.test_v3b_model.ArmTests.test_T14_every_arm_trains_and_gradients_reach_the_right_groups) ... ok
+test_T10_implicit_gradient_matches_central_finite_differences (tests.test_anchored_solve.ImplicitGradientTests.test_T10_implicit_gradient_matches_central_finite_differences) ... ok
+test_T9_pcg_matches_the_dense_solve (tests.test_anchored_solve.PCGTests.test_T9_pcg_matches_the_dense_solve) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 66.883s
+
+OK

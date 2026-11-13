@@ -36,7 +36,7 @@ from torch import nn
 
 from src.configs.config import TrainConfig, is_literature_row, literature_lengths
 from src.data.link_pred_structures import PreparedLinkPredData
-from src.data.structures import FaceGroup, PreparedH2SData, face_lengths_of
+from src.data.structures import FaceGroup, PreparedH2SData, ScopeIndex, face_lengths_of
 from src.models.graph_readout import GraphReadout
 from src.models.link_readout import LinkPredictionReadout
 from src.models.pair_attention import (
@@ -729,6 +729,7 @@ class H2SNN(nn.Module):
         self._last_solve: SolveStats | None = None
         self._last_solve_info: dict[str, float] = {}
         self._warm_start: torch.Tensor | None = None
+        self._warm_start_key: tuple = ()
         if anchored:
             self.theta_tau = nn.Parameter(torch.tensor(math.log(model_config.tau_init)))
             if self.arm == "free_cell_maps":
@@ -1205,6 +1206,7 @@ class H2SNN(nn.Module):
         num_nodes: int,
         epoch: int = -1,
         global_node_id: torch.Tensor | None = None,
+        scope_index: ScopeIndex | None = None,
     ) -> EncodedState:
         """Shared encoder for all three tasks (a graph batch is one disjoint union). `epoch` sets
         the anchored solver's tolerance (fixed schedule; -1 = the final tolerance);
@@ -1213,7 +1215,8 @@ class H2SNN(nn.Module):
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
         if self.anchored:
-            return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch)
+            return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+                                         scope_index)
         operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
         if self.training:
             self.last_coupling_stats = self.coupling_stats(operator)  # logging only
@@ -1260,7 +1263,8 @@ class H2SNN(nn.Module):
 
     def _encode_anchored(self, h0: torch.Tensor, edge_index: torch.Tensor,
                          edge_type: torch.Tensor, face_groups: tuple[FaceGroup, ...],
-                         num_nodes: int, epoch: int) -> EncodedState:
+                         num_nodes: int, epoch: int,
+                         scope_index: ScopeIndex | None = None) -> EncodedState:
         """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
         geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
@@ -1341,21 +1345,34 @@ class H2SNN(nn.Module):
                 edge_index, num_nodes, groups if cells_in_solve else ())
             num_states = 0 if arm == "hub_A" else complex_.num_shared_facts
             rows = num_nodes + num_states + complex_.num_cells
+        # Part MB (MB3): in a batch of scopes every row of the solved system carries its scope
+        # (per-scope inner products, stopping and T_max); None in full batch.
+        scope_rows = None
+        num_scopes = 1
+        if scope_index is not None:
+            scope_rows = solved_system_scope_rows(scope_index, complex_, face_groups,
+                                                  num_states > 0, cells_in_solve)
+            num_scopes = scope_index.num_scopes
+        # Evaluation warm start (D-B7 otherwise): full batch only (MB6a), and only when the
+        # evaluation draw is the same one as the stored solution's, not only the same shape.
+        draw_key = _draw_key(edge_index, groups)
         y0 = None
-        if (not self.training and self._warm_start is not None
+        if (not self.training and scope_index is None and self._warm_start is not None
                 and self._warm_start.shape == (rows, h0.size(-1))
-                and self._warm_start.device == device):
+                and self._warm_start.device == device
+                and _same_draw(self._warm_start_key, draw_key)):
             y0 = self._warm_start  # the evaluation draw is fixed: warm start from the last epoch
         stats = SolveStats()
         try:
             y_star = anchored_solve(build, h0, self.theta_tau, params, tolerance, max_iterations,
-                                    stats, y0=y0)
+                                    stats, y0=y0, scope_rows=scope_rows, num_scopes=num_scopes)
         except PCGConvergenceError as exc:  # T_max: name the epoch and the limit (K5), re-raise
             exc.condition, exc.value, exc.limit, exc.epoch = (
                 "T_max", float(max_iterations), float(max_iterations), epoch)
             raise
-        if not self.training:
+        if not self.training and scope_index is None:
             self._warm_start = y_star.detach()
+            self._warm_start_key = draw_key
         x_star = y_star[:num_nodes]
         parts = [x_star, h0]
         if arm == "instance_features":
@@ -1386,6 +1403,7 @@ class H2SNN(nn.Module):
         encoded = self.encode(
             data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
             data.num_nodes, epoch=epoch, global_node_id=data.global_node_id,
+            scope_index=data.scope_index,
         )
         logits = self.readout(encoded.representation[data.target_indices])
         operator = encoded.operator
@@ -1410,6 +1428,45 @@ class H2SNN(nn.Module):
             path_gate_max=gate_max,
             max_edge_scale=max_scale.detach(),
         )
+
+
+def solved_system_scope_rows(scope_index: ScopeIndex, complex_: "IncidenceComplex",
+                             face_groups: tuple[FaceGroup, ...], fact_states: bool,
+                             cells_in_solve: bool) -> torch.Tensor:
+    """`[rows]` scope of every row of the anchored system (Part MB, MB3): nodes, then the kept
+    fact states (facts on >= 2 cells, ascending id, `EliminatedOperator`), then the cells of the
+    non-empty groups in group order (`IncidenceComplex.cell_offsets`)."""
+    parts = [scope_index.node]
+    if fact_states:
+        kept = (complex_.cells_per_fact >= 2).nonzero(as_tuple=True)[0]
+        parts.append(scope_index.fact[kept])
+    if cells_in_solve:
+        parts.extend(cells for group, cells in zip(face_groups, scope_index.cell)
+                     if group.num_faces > 0)
+    return torch.cat(parts)
+
+
+def _draw_key(edge_index: torch.Tensor, groups: tuple[FaceGroup, ...]) -> tuple:
+    """The tensors that identify an evaluation draw (for the warm start)."""
+    return (edge_index, *[(g.face_node_index, g.face_edge_index, g.face_edge_sign, g.path_weight)
+                          for g in groups])
+
+
+def _same_tensor(a, b) -> bool:
+    if a is b:
+        return True
+    if a is None or b is None:
+        return False
+    return a.shape == b.shape and a.device == b.device and bool(torch.equal(a, b))
+
+
+def _same_draw(stored: tuple, current: tuple) -> bool:
+    if len(stored) != len(current) or not stored:
+        return False
+    if not _same_tensor(stored[0], current[0]):
+        return False
+    return all(all(_same_tensor(x, y) for x, y in zip(a, b))
+               for a, b in zip(stored[1:], current[1:]))
 
 
 def apply_operator(operator: "DiffusionOperator | AttentionOperator", x: torch.Tensor) -> torch.Tensor:

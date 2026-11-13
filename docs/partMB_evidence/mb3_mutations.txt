@@ -1,0 +1,9 @@
+== (a) scope_rows None (one global inner product), scopes of very different scale
+FAIL: test_b_every_scope_meets_its_own_tolerance (tests.test_partMB_model.BatchTests.test_b_every_scope_meets_its_own_tolerance)
+AssertionError: 0.5919608473777771 not less than or equal to 0.0001 : scope 2: relative residual 5.92e-01
+Ran 6 tests in 13.865s
+FAILED (failures=1)
+== (b) warm start re-enabled in mini-batch
+FAIL: test_f_no_warm_start_in_mini_batch (tests.test_partMB_model.BatchTests.test_f_no_warm_start_in_mini_batch)
+Ran 6 tests in 10.004s
+FAILED (failures=1)

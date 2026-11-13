@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Mapping, NamedTuple
 
 import torch
 
@@ -58,6 +58,20 @@ def face_lengths_of(face_groups: "tuple[FaceGroup, ...]") -> tuple[int, ...]:
     return tuple(sorted({group.length for group in face_groups if group.num_faces > 0}))
 
 
+class ScopeIndex(NamedTuple):
+    """Scope of every node, fact and cell of a batch of scopes (Part MB, MB3): the per-scope PCG
+    reads it to give each row of the solved system its scope."""
+
+    node: torch.Tensor                 # [N] scope of each node
+    fact: torch.Tensor                 # [E] scope of each fact
+    cell: tuple[torch.Tensor, ...]     # per face group, [P_g] scope of each cell
+    num_scopes: int
+
+    def to(self, device: torch.device | str) -> "ScopeIndex":
+        return ScopeIndex(self.node.to(device), self.fact.to(device),
+                          tuple(c.to(device) for c in self.cell), self.num_scopes)
+
+
 @dataclass(slots=True)
 class PreparedH2SData:
     x: torch.Tensor
@@ -89,6 +103,9 @@ class PreparedH2SData:
     # from; featureless types read their embedding row by this id. None = the whole graph (rows
     # are the node ids), the full-batch behaviour.
     global_node_id: torch.Tensor | None = None
+    # Part MB (MB3): for a batch of scopes, the scope of every node, fact and cell (per-scope
+    # PCG); None = one system (full batch).
+    scope_index: ScopeIndex | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -126,4 +143,5 @@ class PreparedH2SData:
             fact_layer=self.fact_layer,
             global_node_id=(None if self.global_node_id is None
                             else self.global_node_id.to(device)),
+            scope_index=None if self.scope_index is None else self.scope_index.to(device),
         )
