@@ -1,0 +1,18 @@
+$ python -I docs/envB_evidence/e4_diff.py e4_suite_h2snn.txt e4_suite_h2snn-b.txt   (A = h2snn torch 2.6.0, B = h2snn-b torch 2.4.1)
+A=docs/envB_evidence/e4_suite_h2snn.txt: 673 tests, {'ok': 667, 'skipped': 2, 'FAIL': 2, 'ERROR': 2}
+B=docs/envB_evidence/e4_suite_h2snn-b.txt: 673 tests, {'ok': 666, 'skipped': 2, 'FAIL': 3, 'ERROR': 2}
+only in A: []
+only in B: []
+status differences: 1
+  test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated: A=ok B=FAIL
+
+## E4 summary (agent)
+- h2snn   (torch 2.6.0): Ran 674 in 2432 s, FAILED (failures=2, errors=2, skipped=7)  == Part MB-fix reference (674; 2/2/7).
+- h2snn-b (torch 2.4.1): Ran 674 in 1653 s, FAILED (failures=4, errors=2, skipped=7). Wall-clock is not comparable across runs (machine load).
+- The 4 failures + 2 errors common to both are the known laptop set: test_notebooks_are_committed_clean, test_all_declared_vendor_clones_are_present (missing: sehgnn, sehgnn_data, pshgcn, pshgcn_lp, chebnetii), test_colliding_vendor_module_names_do_not_leak, test_vendor_model_init_is_reproducible_under_seed_everything.
+- Per-test difference (1 test, 2 subtests): test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated, subtests model='csnn' and model='nsd'.
+  Class: LIBRARY MISSING. h2snn-b has no torch_householder (the card excludes it from E2); error line:
+  "AssertionError: 'missing requirement group sheaf (torch_householder) -- install requirements/baselines-sheaf.txt' is not None" (test_baselines.py:1394).
+  Same test fails in the cluster report (CS5) for the same reason. No bit-exact-capture difference: test_task_heads and test_cooperative pass in both envs.
+- The skipped lines (empty vendor clones) are identical in both logs. Nothing was fixed, loosened or skipped.
+- Note: dgl cannot be imported in either env (E3), yet no other test differs; the DGL-backed fits are gated/skipped or mocked the same way in both.
