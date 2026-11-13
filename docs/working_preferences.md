@@ -53,3 +53,12 @@
 - **Short questions get short answers**; use tokens only as needed. Replies in Thai when the author writes Thai, English when he writes English.
 - **Answer the author's questions before starting work**; when he says "อย่าเพิ่งเริ่ม" (do not start yet), hold every card and prompt.
 
+## Additions (author and design session, 2026-11-13)
+- **Model choice:** design and review work (cards, report reviews, maths) on Opus; mechanical steps and Claude Code runs with a precise card may use Sonnet.
+- **Keep the full test sets** (author, 2026-11-13): do not trim tests to save time; time is saved by running each mutation against its target test only.
+- **Test on one graph** when the code path does not depend on the dataset; test every dataset only when the checked thing depends on its data (lists, file formats, counts).
+- **Tests never reach real data:** a test that uses a fixture makes the real data root unreachable at import time (Part P-fix: a module-level bound root read the real Freebase files).
+- **Git:** `v3b` moves only on the author's approval after a report review (fast-forward). The design session commits docs on the checked-out branch, but not while an agent is working on that branch. Without delete permission git leaves lock files: move them aside under `.git/`.
+- **Review reports in this order:** short verdict first; what passed; problems found by the design session itself (with a concrete example); a decision table (option, recommendation, reason); next steps; questions last. Check claims that matter against code or source files before answering (e.g. H2GB configs for D-P6), and say what was not checked.
+- **Explaining a constant or engineering choice** (liked, N2 of 2026-11-13): what the code does now; the problem at real scale with numbers; why a value must be fixed (concrete example); the proposal; what it does not change; how to check it; cost table; recommendation.
+
