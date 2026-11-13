@@ -14,6 +14,9 @@ Notation: letters are node types; `Pc P` = paper –cite→ paper, `Pr P` = pape
 | HAN baseline (NC, HGB datasets) | HGB's HAN code lists (§2, column "HAN in HGB"), read through HGB's loader by our adapter (`src/baselines/adapters/hgb_han.py:150-161`) | H9 (original code) |
 | H2G-former baseline | H2GB datasets: H2GB's MetaPath2Vec walk lists (§3) where H2GB's config enables them; other datasets: MetaPath2Vec on/off (tuned) with one cyclic schema = the HGB-table paths starting at the target type, concatenated in table order (as H2GB builds its schemas) | v1.19 T2 |
 | WISP (H2S-NN) | none | R8 |
+| HAN baseline (NC, **H2GB datasets**) | HGB's HAN code (the same implementation as the HGB cells) with every length-2 meta-path that starts and ends at the target type, formed from the edge types (the rule of HAN's LP/GC cells and of H2GB's ℋ²); not H2GB's `HANConv` on raw relations (`H2GB/network/hetero_gnn_model.py:127-129`), which has no meta-paths; stated deviation | decisions log 2026-11-13 (M-path 1) |
+| Hetero²Net baseline (NC, **H2GB datasets**) | ogbn-mag and mag-year (same graph): their `MAG` list (`vendor/Hetero2Net/hetero2net/dataset.py:57-63`: P–A–I–A–P, A–P–F–P–A); the other six: `None`, as their Freebase branch (`dataset.py:53`), so metapath-drop is off there (stated) | decisions log 2026-11-13 (M-path 2) |
+| SeHGNN, PSHGCN, H2SGNN (any dataset) | no predefined list: meta-paths enumerated from the schema by each code (SeHGNN: up to `num_hops` ending at the target, `src/baselines/adapters/sehgnn.py:120-123`; PSHGCN: relation products up to K; H2SGNN: length 2) | their code |
 
 ## 2. HGB datasets (node classification) and LastFM (link prediction)
 
@@ -48,3 +51,5 @@ TU datasets (typed-by-label): no predefined meta-paths in HetSheaf or any source
 ## 5. Open
 - Decode MAGNN's Freebase relation ids to type letters (if the paper's baseline section needs MAGNN's Freebase list).
 - mag-year's MetaPath2Vec branch (with the H2GB card).
+- (Part M3b) Hetero²Net on MAG reads `OGB_MAG(preprocess='metapath2vec')` (MetaPath2Vec features for featureless types, `dataset.py:57`); our bundles use H2GB's loader features: decide with the loaders.
+- (Part M3b) Cost of the enumerating baselines on H-Pokec (user–user + 15 user–club relations): type sequences ending at user, counted from the schema (DERIVED, not run): 47 up to 2 hops, 318 up to 3, about 1,050 up to 4; measure SeHGNN's and PSHGCN's actual counts and memory before any run (search ranges unchanged).
