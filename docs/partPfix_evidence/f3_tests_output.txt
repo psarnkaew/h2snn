@@ -1,0 +1,40 @@
+test_one_tau_block_over_length_two_schemas (tests.test_partPfix_readout_tau.LengthTwoTauTests.test_one_tau_block_over_length_two_schemas) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-13 12:20:02,244 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:20:04,862 | INFO | Epoch 0000 | train_loss: 1.0870 | train_acc: 0.5455 | train_auroc: 0.0000 | train_macro_f1: 0.4869 | train_micro_f1: 0.5455 | val_loss: 1.1099 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.2165 | test_micro_f1: 0.3000
+2026-11-13 12:20:04,887 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-13 12:20:04,887 | INFO | Best epoch 0 | test_macro_f1: 0.2165 | test_micro_f1: 0.3000 | test_acc: 0.3000
+2026-11-13 12:20:04,915 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:20:05,600 | INFO | Epoch 0000 | train_loss: 1.1116 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.1429 | train_micro_f1: 0.2727 | val_loss: 1.2247 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.6000 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.6000
+2026-11-13 12:20:05,627 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-13 12:20:05,627 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.6000 | test_acc: 0.6000
+2026-11-13 12:20:05,726 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpiyzz4y5g\readout\acm\run0.json
+2026-11-13 12:20:05,814 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpiyzz4y5g\readout\acm\run1.json
+2026-11-13 12:20:05,834 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpiyzz4y5g\readout\acm\schema_readout.json
+2026-11-13 12:20:05,838 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpiyzz4y5g\readout\acm\schema_readout.md
+ok
+test_constant_weights_give_ratio_one (tests.test_partO_readout.HandTests.test_constant_weights_give_ratio_one) ... ok
+test_hand_values (tests.test_partO_readout.HandTests.test_hand_values) ... ok
+test_acm_list_maps_to_the_expected_signatures (tests.test_partO_readout.LiteratureMappingTests.test_acm_list_maps_to_the_expected_signatures) ... ok
+test_listed_path_absent_from_the_draw_is_stated (tests.test_partO_readout.LiteratureMappingTests.test_listed_path_absent_from_the_draw_is_stated) ... ok
+test_misspelled_entry_raises (tests.test_partO_readout.LiteratureMappingTests.test_misspelled_entry_raises) ... ok
+test_constant_g_of_a_model_gives_ratio_one (tests.test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) ... ok
+test_weights_equal_the_models_path_weights (tests.test_partO_readout.ModelWeightTests.test_weights_equal_the_models_path_weights) ... ok
+test_script_writes_run_json_and_dataset_table (tests.test_partO_readout.ScriptTests.test_script_writes_run_json_and_dataset_table) ... 2026-11-13 12:20:06,090 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:20:06,943 | INFO | Epoch 0000 | train_loss: 1.0997 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2727 | val_loss: 1.0951 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.2500 | val_micro_f1: 0.3333 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.2619 | test_micro_f1: 0.3000
+2026-11-13 12:20:07,002 | INFO | Checkpoint metric macro_f1: 0.2500
+2026-11-13 12:20:07,003 | INFO | Best epoch 0 | test_macro_f1: 0.2619 | test_micro_f1: 0.3000 | test_acc: 0.3000
+2026-11-13 12:20:07,054 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:20:07,805 | INFO | Epoch 0000 | train_loss: 1.1527 | train_acc: 0.1818 | train_auroc: 0.0000 | train_macro_f1: 0.1111 | train_micro_f1: 0.1818 | val_loss: 1.0073 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.2000 | test_micro_f1: 0.2000
+2026-11-13 12:20:07,833 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-13 12:20:07,833 | INFO | Best epoch 0 | test_macro_f1: 0.2000 | test_micro_f1: 0.2000 | test_acc: 0.2000
+2026-11-13 12:20:07,921 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpbk_3da_v\readout\acm\run0.json
+2026-11-13 12:20:08,026 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpbk_3da_v\readout\acm\run1.json
+2026-11-13 12:20:08,033 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpbk_3da_v\readout\acm\schema_readout.json
+2026-11-13 12:20:08,035 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpbk_3da_v\readout\acm\schema_readout.md
+ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 11.507s
+
+OK

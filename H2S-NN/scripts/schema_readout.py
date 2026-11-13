@@ -6,7 +6,8 @@ across the runs of a dataset, Kendall tau of their I_sigma rankings. Delta L_sig
 
     python scripts/schema_readout.py --runs <run_dir> [<run_dir> ...] --out_dir <dir> [--device cpu]
 
-Output: `<out_dir>/<dataset>/<run>.json` per run and `<out_dir>/<dataset>/schema_readout.md` per
+Output: `<out_dir>/<dataset>/<run>.json` per run, `<out_dir>/<dataset>/schema_readout.json` (Kendall
+tau-b over length-2 sub-path schemas, spec v1.20 U2 / D-O7) and `<out_dir>/<dataset>/schema_readout.md` per
 dataset (listed meta-paths per seed; top ten length-2 sub-path schemas by I_sigma; number of
 distinct schemas; Kendall tau between runs).
 """
@@ -78,7 +79,13 @@ def _number(value: float | None) -> str:
     return "—" if value is None else f"{value:.6g}"
 
 
-def dataset_table(records: list[dict[str, Any]], permutations: int) -> str:
+def length2_tau(records: list[dict[str, Any]], permutations: int) -> list[dict[str, Any]]:
+    """Kendall tau-b of the I rankings between every pair of runs, over length-2 sub-path schemas
+    only (spec v1.20 U2; decision D-O7, fixed before results). The one tau the script reports."""
+    return kendall_matrix(records, span=2, permutations=permutations) if len(records) > 1 else []
+
+
+def dataset_table(records: list[dict[str, Any]], tau: list[dict[str, Any]]) -> str:
     """Markdown table of one dataset's runs (ordered by seed)."""
     records = sorted(records, key=lambda r: r["seed"])
     lines = [f"# Schema read-out — {records[0]['dataset']}", "",
@@ -113,13 +120,12 @@ def dataset_table(records: list[dict[str, Any]], permutations: int) -> str:
     lines += [f"| {r['seed']} | {r['num_distinct_schemas']} | {r['num_distinct_length2_schemas']} |"
               for r in records]
     lines.append("")
-    if len(records) > 1:
-        for title, span in (("all sub-path schemas", None), ("length-2 sub-path schemas", 2)):
-            lines += [f"## Kendall tau of the I rankings between seeds ({title})", "",
-                      "| run a | run b | tau | p (one-sided, permutation) |", "|---|---|---|---|"]
-            lines += [f"| {row['a']} | {row['b']} | {_number(row['tau'])} | {_number(row['p'])} |"
-                      for row in kendall_matrix(records, span=span, permutations=permutations)]
-            lines.append("")
+    if tau:
+        lines += ["## Kendall tau of the I rankings between seeds (length-2 sub-path schemas)", "",
+                  "| run a | run b | tau | p (one-sided, permutation) |", "|---|---|---|---|"]
+        lines += [f"| {row['a']} | {row['b']} | {_number(row['tau'])} | {_number(row['p'])} |"
+                  for row in tau]
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -135,8 +141,14 @@ def main(argv: list[str] | None = None) -> None:
         LOGGER.info("wrote %s", out)
         by_dataset.setdefault(record["dataset"], []).append(record)
     for dataset, records in by_dataset.items():
+        tau = length2_tau(records, args.permutations)
+        summary = {"dataset": dataset, "runs": [r["run"] for r in records],
+                   "kendall_tau_length2": tau}
+        out = args.out_dir / dataset / "schema_readout.json"
+        out.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        LOGGER.info("wrote %s", out)
         out = args.out_dir / dataset / "schema_readout.md"
-        out.write_text(dataset_table(records, args.permutations), encoding="utf-8")
+        out.write_text(dataset_table(records, tau), encoding="utf-8")
         LOGGER.info("wrote %s", out)
 
 

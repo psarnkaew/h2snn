@@ -1,0 +1,37 @@
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-13 12:19:44,541 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:19:48,092 | INFO | Epoch 0000 | train_loss: 1.1362 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.2727 | val_loss: 1.0864 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000
+2026-11-13 12:19:48,122 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-13 12:19:48,122 | INFO | Best epoch 0 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000 | test_acc: 0.2000
+2026-11-13 12:19:48,153 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+2026-11-13 12:19:48,846 | INFO | Epoch 0000 | train_loss: 1.0933 | train_acc: 0.3636 | train_auroc: 0.0000 | train_macro_f1: 0.2619 | train_micro_f1: 0.3636 | val_loss: 1.0705 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.4000 | test_auroc: 0.0000 | test_macro_f1: 0.4127 | test_micro_f1: 0.4000
+2026-11-13 12:19:48,869 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-13 12:19:48,869 | INFO | Best epoch 0 | test_macro_f1: 0.4127 | test_micro_f1: 0.4000 | test_acc: 0.4000
+2026-11-13 12:19:49,038 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpp_9crcdn\readout\acm\run0.json
+2026-11-13 12:19:49,167 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpp_9crcdn\readout\acm\run1.json
+2026-11-13 12:19:49,185 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpp_9crcdn\readout\acm\schema_readout.json
+2026-11-13 12:19:49,187 | INFO | wrote C:\Users\Acer\AppData\Local\Temp\tmpp_9crcdn\readout\acm\schema_readout.md
+F
+======================================================================
+FAIL: test_one_tau_block_over_length_two_schemas (tests.test_partPfix_readout_tau.LengthTwoTauTests.test_one_tau_block_over_length_two_schemas)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_partPfix_readout_tau.py", line 62, in test_one_tau_block_over_length_two_schemas
+    self.assertEqual(summary["kendall_tau_length2"], expected)
+AssertionError: Lists differ: [{'a'[13 chars]: 'run1', 'tau': 0.39261492391099323, 'p': 0.0196078431372549}] != [{'a'[13 chars]: 'run1', 'tau': 0.3468658301698707, 'p': 0.0196078431372549}]
+
+First differing element 0:
+{'a': 'run0', 'b': 'run1', 'tau': 0.39261492391099323, 'p': 0.0196078431372549}
+{'a': 'run0', 'b': 'run1', 'tau': 0.3468658301698707, 'p': 0.0196078431372549}
+
++ [{'a': 'run0', 'b': 'run1', 'p': 0.0196078431372549, 'tau': 0.3468658301698707}]
+- [{'a': 'run0',
+-   'b': 'run1',
+-   'p': 0.0196078431372549,
+-   'tau': 0.39261492391099323}]
+
+----------------------------------------------------------------------
+Ran 1 test in 14.787s
+
+FAILED (failures=1)
