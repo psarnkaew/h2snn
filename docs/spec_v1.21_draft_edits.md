@@ -1,6 +1,6 @@
 # Spec v1.21 — draft edits (baselines after Part P: HetSheaf row and code, H2G-former details), for the author's approval
 
-**Status:** DRAFT, awaiting approval of the wording (the decisions themselves were approved by the author on 2026-11-13, `docs/experiment_settings_decisions.md`, rows "Part P review"). Written against spec **v1.20** on disk (md5 `e239d6ec152bf3914df06a8382a27a64`). Re-read before applying; the anchor of V-1 occurs exactly once (checked 2026-11-13); back up to `docs/spec_backups/H2S-NN_methodology_spec_v1.20.md`. **The method is unchanged**; only baseline protocol points are written down.
+**Status:** APPLIED 2026-11-13 as spec v1.21 (author approval); backup of v1.20: `docs/spec_backups/H2S-NN_methodology_spec_v1.20.md`. Originally: draft awaiting approval of the wording (the decisions themselves were approved by the author on 2026-11-13, `docs/experiment_settings_decisions.md`, rows "Part P review"). Written against spec **v1.20** on disk (md5 `e239d6ec152bf3914df06a8382a27a64`). Re-read before applying; the anchor of V-1 occurs exactly once (checked 2026-11-13); back up to `docs/spec_backups/H2S-NN_methodology_spec_v1.20.md`. **The method is unchanged**; only baseline protocol points are written down.
 
 ---
 

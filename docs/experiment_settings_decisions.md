@@ -101,4 +101,7 @@ Started 2026-11-11 by the design session. Single place where experiment-setting 
 | 2026-11-13 | Part P review (D-P8) | SeHGNN, PSHGCN, H2SGNN Freebase NC keep their specific reason; wired on the cluster once their clones exist | author (2026-11-13) |
 | 2026-11-13 | Part P review (D-P9) | Keep H2GB's `SparseAdam` for MetaPath2Vec pretraining (input-encoding preprocessing); AdamW governs model training; the test names this one exception | author (2026-11-13) |
 | 2026-11-13 | Part P follow-up | Part P-fix card (F1 D-P9 test, F2 D-P6 grid, F3 read-out τ length-2, F4 data root from the bundle); spec draft v1.21 V-1; `v3b` fast-forwarded to part-p (author approved the merge) | author (2026-11-13) |
+| 2026-11-13 | Part P-fix review (D-PF1) | Confirmed: the length-2 Kendall τ (with its permutation p) lives in the dataset-level `schema_readout.json`, since τ is computed across seeds | author (2026-11-13), Part P-fix report |
+| 2026-11-13 | Spec | docs/spec_v1.21_draft_edits.md (V-1) applied as spec v1.21 (V1); backup docs/spec_backups/H2S-NN_methodology_spec_v1.20.md | author approval (2026-11-13) |
+| 2026-11-13 | Git | `v3b` fast-forwarded to part-pfix (Part P-fix + docs) after review | author (2026-11-13) |
 
