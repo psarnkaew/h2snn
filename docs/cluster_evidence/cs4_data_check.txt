@@ -1,0 +1,3 @@
+job=16613 node=g2tn01 date=2026-11-14T02:48:54+09:00
+manifest: 215 files, 3270364442 bytes; server: 215 files, 3270364442 bytes
+missing 0, extra 0, size-different 0, equal 215

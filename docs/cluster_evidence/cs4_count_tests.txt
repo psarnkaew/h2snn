@@ -1,0 +1,75 @@
+job=16614 node=g2n01 gpu=NVIDIA GeForce RTX 2080 Ti start=2026-11-14T02:54:21+09:00
+=== python ../docs/partM_evidence/m1_data_counts.py
+PASS NC freebase label.dat md5: got 2d5fe2588ea5b53c6a98e7c4929faf41 recorded 2d5fe2588ea5b53c6a98e7c4929faf41
+PASS NC freebase label.dat.test md5: got a5fbba2074358da6fd09f9851b0ddd82 recorded a5fbba2074358da6fd09f9851b0ddd82
+PASS NC freebase nodes per type: got {'book': 40402, 'film': 19427, 'music': 82351, 'sports': 1025, 'people': 17641, 'location': 9368, 'organization': 2731, 'business': 7153} recorded {'book': 40402, 'film': 19427, 'music': 82351, 'sports': 1025, 'people': 17641, 'location': 9368, 'organization': 2731, 'business': 7153}
+PASS NC freebase distinct stored edges per relation (sorted): got [559, 610, 656, 1073, 1101, 1290, 2215, 2696, 4448, 5378, 6615, 6647, 6763, 8397, 8975, 10702, 10948, 11291, 13128, 14850, 15134, 17604, 18625, 21299, 21900, 22813, 24764, 26921, 31486, 35587, 38299, 42915, 47817, 87838, 202674, 283670] recorded [559, 610, 656, 1073, 1101, 1290, 2215, 2696, 4448, 5378, 6615, 6647, 6763, 8397, 8975, 10702, 10948, 11291, 13128, 14850, 15134, 17604, 18625, 21299, 21900, 22813, 24764, 26921, 31486, 35587, 38299, 42915, 47817, 87838, 202674, 283670]
+PASS NC freebase facts before/after tying: got (1057688, 869706) recorded (1057688, 869706)
+PASS NC freebase labelled targets / class counts: got (7954, [429, 3886, 1748, 185, 962, 359, 385]) recorded (7954, [429, 3886, 1748, 185, 962, 359, 385])
+PASS LP acm_pa link.dat md5: got 8e6331b230e1aef704e3ab94033a3408 recorded 8e6331b230e1aef704e3ab94033a3408
+PASS LP acm_pa link.dat.test md5: got 8b5af509c8a2fca37631e477e499aaf9 recorded 8b5af509c8a2fca37631e477e499aaf9
+PASS LP acm_pa link.dat.valid md5: got 71661a5c3d3b7dda88fb02a2e82fa223 recorded 71661a5c3d3b7dda88fb02a2e82fa223
+PASS LP acm_pa train/valid/test: got (8059, 895, 995) recorded (8059, 895, 995)
+PASS LP dblp_ap link.dat md5: got 8e7827b5c4da919309817f4eed35639c recorded 8e7827b5c4da919309817f4eed35639c
+PASS LP dblp_ap link.dat.test md5: got a9b06a5ee3e4026e8086900a98354efb recorded a9b06a5ee3e4026e8086900a98354efb
+PASS LP dblp_ap link.dat.valid md5: got 02e21c712136edc1c807e89aea64bdf3 recorded 02e21c712136edc1c807e89aea64bdf3
+PASS LP dblp_ap train/valid/test: got (15913, 1768, 1964) recorded (15913, 1768, 1964)
+PASS LP imdb_ma link.dat md5: got 035a29097c6696dc4f3e503d92848d37 recorded 035a29097c6696dc4f3e503d92848d37
+PASS LP imdb_ma link.dat.test md5: got 936b8a91cbad552acc5d4a17d119af8b recorded 936b8a91cbad552acc5d4a17d119af8b
+PASS LP imdb_ma link.dat.valid md5: got 1c5ac40e2f230d22c68eaba657457922 recorded 1c5ac40e2f230d22c68eaba657457922
+PASS LP imdb_ma train/valid/test: got (11971, 1330, 1478) recorded (11971, 1330, 1478)
+PASS LP freebase_bb link.dat md5: got c68908fb221f3c446306c6d93c43f05b recorded c68908fb221f3c446306c6d93c43f05b
+PASS LP freebase_bb link.dat.test md5: got 3fc5363d002454e1c74af3861ed1bc3a recorded 3fc5363d002454e1c74af3861ed1bc3a
+PASS LP freebase_bb link.dat.valid md5: got b420348c9964d2a2cc01ffed88409efa recorded b420348c9964d2a2cc01ffed88409efa
+PASS LP freebase_bb unordered pairs train/valid/test: got (103303, 11478, 12754) recorded (103303, 11478, 12754)
+PASS LP pubmed link.dat.valid md5: got 3d2b5114128e4f1208978b822ae8e22e recorded 3d2b5114128e4f1208978b822ae8e22e
+PASS LP pubmed link.dat.test rows: got 8528 recorded 8528
+PASS LP pubmed link.dat.valid target rows: got 1942 recorded 1942
+INFO LP pubmed loader train/valid/test of ('disease', 'rel_2', 'disease'): (32167, 1942, 8528)
+PASS LP lastfm link.dat.valid md5: got 8ffd3a6821fe7b2fad4f6afbb60bf19b recorded 8ffd3a6821fe7b2fad4f6afbb60bf19b
+PASS LP lastfm link.dat.test rows: got 18567 recorded 18567
+PASS LP lastfm link.dat.valid target rows: got 7301 recorded 7301
+INFO LP lastfm loader train/valid/test of ('user', 'rel_0', 'artist'): (66966, 7301, 18567)
+PASS GC MUTAG stored edges before/after tying: got (7442, 3721) recorded (7442, 3721)
+PASS GC MUTAG test-set size of the 80/10/10 split (n = 188): got 20 recorded 20
+PASS GC PROTEINS stored edges before/after tying: got (162088, 81044) recorded (162088, 81044)
+PASS GC PROTEINS test-set size of the 80/10/10 split (n = 1113): got 112 recorded 112
+PASS GC ENZYMES stored edges before/after tying: got (74564, 37282) recorded (74564, 37282)
+PASS GC ENZYMES test-set size of the 80/10/10 split (n = 600): got 60 recorded 60
+PASS GC NCI1 stored edges before/after tying: got (265506, 132753) recorded (265506, 132753)
+PASS GC NCI1 test-set size of the 80/10/10 split (n = 4110): got 411 recorded 411
+
+0 failure(s)
+m1_exit=0
+=== M1 test modules
+test_no_old_layout_paths_in_code (tests.test_data_layout.DataLayoutTests.test_no_old_layout_paths_in_code)
+test_graph_holdout_split_is_stratified_and_reproducible (tests.test_data.DataPipelineTests.test_graph_holdout_split_is_stratified_and_reproducible) ... /mnt/home/peeradon/.conda/envs/h2snn/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_link_prediction_macro_equals_pooled_on_one_relation (tests.test_data.DataPipelineTests.test_link_prediction_macro_equals_pooled_on_one_relation)
+test_link_prediction_metrics_macro_average_matches_hgb (tests.test_data.DataPipelineTests.test_link_prediction_metrics_macro_average_matches_hgb)
+test_tu_edge_types_match_raw_labels_by_key_on_mutag (tests.test_data.DataPipelineTests.test_tu_edge_types_match_raw_labels_by_key_on_mutag)
+test_tu_type_tensors_use_node_and_edge_labels (tests.test_data.DataPipelineTests.test_tu_type_tensors_use_node_and_edge_labels)
+test_loader_raises_on_a_one_orientation_validation_file (tests.test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_one_orientation_validation_file)
+test_loader_raises_on_a_reversed_test_pair_in_link_dat (tests.test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_reversed_test_pair_in_link_dat)
+test_a_reverse_only_leak_is_caught_at_file_level (tests.test_lp_derived.SyntheticSplitTests.test_a_reverse_only_leak_is_caught_at_file_level)
+test_fill_draws_without_replacement (tests.test_heart_negatives.PieceTests.test_fill_draws_without_replacement)
+test_reverse_only_fixture_raises (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_reverse_only_fixture_raises)
+test_T2_functoriality_on_every_boundary_edge_with_mixed_signs (tests.test_paths_and_facts.SignedTransportTests.test_T2_functoriality_on_every_boundary_edge_with_mixed_signs)
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... FAIL
+
+======================================================================
+FAIL: test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_task_heads.py", line 41, in test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture
+    self.assertEqual(mismatches, 0, messages[:10])
+AssertionError: 593 != 0 : ['[toy_acm] MISMATCH init/node_encoder.encoders.0.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_encoder.encoders.0.0.bias max|diff|=7.451e-09', '[toy_acm] MISMATCH init/node_encoder.encoders.1.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_encoder.encoders.1.0.bias max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.bias max|diff|=1.490e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.bias max|diff|=1.490e-08', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.bias max|diff|=2.980e-08']
+
+----------------------------------------------------------------------
+Ran 178 tests in 130.182s
+
+FAILED (failures=1)
+end=2026-11-14T02:57:10+09:00
