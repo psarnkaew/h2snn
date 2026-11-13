@@ -1,6 +1,6 @@
-# CANDIDATE lock B (Option B, branch env-b-check, card H2S-NN_envB_laptop_card.md): torch 2.4.1 + DGL 2.4.0.
+# CANDIDATE lock B (Option B, branch env-b-check, card H2S-NN_envB_laptop_card.md): torch 2.4.0 (laptop-tested with 2.4.1) + DGL 2.4.0.
 # Derived from requirements/linux-lock.txt (branch cluster-setup, CS2), which is NOT edited. Differences from it:
-#   torch 2.6.0 -> 2.4.1; PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (the wheels are used with 2.4.1);
+#   torch 2.6.0 -> 2.4.0 (see the comment at the torch line); PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (now the exact torch version);
 #   dgl 2.5.0+cu124 -> 2.4.0+cu124 and DGL index torch-2.6 -> torch-2.4 (NOT TESTED on the laptop: Windows has only dgl 2.2.1;
 #   data.dgl.ai was unreachable, see docs/envB_evidence/e1_dgl_index.txt); hyper-connections==0.4.2 added (see below).
 #
@@ -21,7 +21,9 @@
 # leaves to the wheel index; check_env.py prints it as a note, not as a difference.
 
 --extra-index-url https://download.pytorch.org/whl/cu124
-torch==2.4.1
+# torch 2.4.0, not 2.4.1: dgl 2.4.0 declares install_requires torch<=2.4.0 (python/setup.py:233 of the 2.4.0 source, E1b), so 2.4.1 cannot satisfy it,
+# and DGL loads libgraphbolt_pytorch_<exact torch version>.so. The laptop tests (E2-E5) ran with 2.4.1; torch 2.4.0 itself is NOT yet tested here.
+torch==2.4.0
 
 -f https://data.pyg.org/whl/torch-2.4.0+cu124.html
 torch_geometric==2.8.0
@@ -64,7 +66,5 @@ torch_householder==1.0.1
 # DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4 (untested; laptop has Windows dgl 2.2.1 only)
 -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
 dgl==2.4.0+cu124
-# torchdata: DGL's PyPI metadata lists torchdata>=0.5.0 and its graphbolt imports torchdata.datapipes (VERIFIED in dgl 2.2.1 source; UNVERIFIED for 2.4.0).
-# torchdata 0.10+ has no datapipes module (h2snn has 0.11.0: ModuleNotFoundError, docs/envB_evidence/e3_dgl_graphbolt_control.txt);
-# 0.8.0 is the release matching torch 2.4 and imports fine in h2snn-b (with a deprecation warning). Candidate pin, the author decides.
-torchdata==0.8.0
+# torchdata: NOT needed by dgl 2.4.0 (E1b: not in install_requires, no import of it in python/; graphbolt carries its own datapipes copy). Not pinned.
+# (dgl 2.2.1, the Windows build, does import torchdata.datapipes; torchdata 0.8.0 was used with it on the laptop.)

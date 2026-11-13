@@ -1,0 +1,23 @@
+# E1b: inspection of the DGL 2.4.0 files the author placed in H2S-NN/vendor/dgl-2.4.0 (read-only; nothing installed, built or run; not committed)
+# Untrusted third-party files: read with grep/sed only. Paths below are relative to H2S-NN/vendor/dgl-2.4.0/dgl-2.4.0/.
+
+WHAT IT IS: a SOURCE TREE of DGL 2.4.0 (2112 files; python/dgl/_ffi/libinfo.py:108 `__version__ = "2.4.0"`), NOT a wheel. No .whl/.so/.dll file anywhere in it
+  (find . -iname '*.whl' -o -iname '*.so' -o -iname '*.dll' -> empty). `third_party/` does not exist: the 13 git submodules listed in .gitmodules
+  (dmlc-core, dlpack, googletest, METIS, nanoflann, libxsmm, pcg, cccl, liburing, cuco, GKlib, taskflow, tsl_robin_map) are not included, so it cannot be built as it stands.
+  Python tag / platform tag: none (they are decided by whoever builds the wheel).
+
+$ sed -n 222,233p python/setup.py            (install_requires of the dgl distribution)
+    "networkx>=2.1", "numpy>=1.14.0", "packaging", "pandas", "psutil>=5.8.0", "pydantic>=2.0", "pyyaml", "requests>=2.19.0", "scipy>=1.1.0", "tqdm",
+    "torch<=2.4.0",
+  -> numpy: lower bound only (>=1.14.0), no upper bound.
+  -> torchdata: NOT listed. `grep -rnE '^\s*(import|from) torchdata' python/` -> 0 hits; GraphBolt carries its own copy of the datapipes
+     (python/dgl/graphbolt/datapipes/__init__.py:1: "GraphBolt's datapipes, mostly copied from torchdata==0.7.1").
+  -> torch: `torch<=2.4.0` -- torch 2.4.1 does NOT satisfy it (2.4.1 > 2.4.0).
+
+$ sed -n 50,75p python/dgl/graphbolt/__init__.py   and   python/dgl/sparse/__init__.py:19-30
+  Both C++ libraries are looked up by the EXACT torch version string before "+":
+    libgraphbolt_pytorch_{torch.__version__.split('+')[0]}.so   (Linux)    -> dgl/graphbolt/
+    libdgl_sparse_pytorch_{...}.so                                          -> dgl/dgl_sparse/
+  graphbolt/CMakeLists.txt:47 `set(LIB_GRAPHBOLT_NAME "graphbolt_pytorch_${TORCH_VER}")`, graphbolt/build.sh:40-42: one library is built per torch version (TORCH_VER from `import torch`).
+  With torch 2.4.1 installed the loader asks for libgraphbolt_pytorch_2.4.1.so; whether the official wheel contains it cannot be read from the source (UNVERIFIED).
+  (Same mechanism that fails on the laptop: the Windows 2.2.1 wheel ships dlls for 2.1.0-2.3.0 only, E3.)
