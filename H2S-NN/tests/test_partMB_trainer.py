@@ -82,15 +82,16 @@ class EpochTests(unittest.TestCase):
     def test_training_order_passes(self) -> None:
         targets = torch.arange(100, 118)
         order = TrainingOrder(targets, base_seed=4)
-        stream = torch.cat([order.next(5) for _ in range(18)])  # 90 = 5 passes of 18
+        # D-MB2 (Part MB-fix MF1): a pass of 18 is 4 batches (5, 5, 5, 3); 20 calls = 5 passes
+        stream = torch.cat([order.next(5) for _ in range(20)])  # 90 = 5 passes of 18
         passes = stream.view(5, 18)
         for p in passes:
             self.assertEqual(sorted(p.tolist()), targets.tolist())
         self.assertGreater(len({tuple(p.tolist()) for p in passes}), 1)
         again = TrainingOrder(targets, base_seed=4)
-        self.assertTrue(torch.equal(torch.cat([again.next(5) for _ in range(18)]), stream))
+        self.assertTrue(torch.equal(torch.cat([again.next(5) for _ in range(20)]), stream))
         other = TrainingOrder(targets, base_seed=5)
-        self.assertFalse(torch.equal(torch.cat([other.next(5) for _ in range(18)]), stream))
+        self.assertFalse(torch.equal(torch.cat([other.next(5) for _ in range(20)]), stream))
 
     def test_training_draw_seeds(self) -> None:
         seeds = {training_draw_seed(3, e, b) for e in range(50) for b in range(256)}

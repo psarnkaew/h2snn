@@ -1,0 +1,18 @@
+test_batches_stop_at_the_pass_boundary (tests.test_partMBfix_order.PassBoundaryTests.test_batches_stop_at_the_pass_boundary) ... ok
+test_steps_and_the_short_batch_loss (tests.test_partMBfix_order.PassBoundaryTests.test_steps_and_the_short_batch_loss) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) ... ok
+test_training_draw_seeds (tests.test_partMB_trainer.EpochTests.test_training_draw_seeds) ... ok
+test_training_order_passes (tests.test_partMB_trainer.EpochTests.test_training_order_passes) ... ok
+test_evaluation_graph_is_used_for_its_scopes (tests.test_partMB_trainer.EvaluationTests.test_evaluation_graph_is_used_for_its_scopes) ... ok
+test_predictions_do_not_depend_on_the_evaluation_batch_size (tests.test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size) ... ok
+test_whole_split_and_metric_on_the_concatenation (tests.test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation) ... ok
+test_mode_per_dataset_and_tuner_refusals (tests.test_partMB_trainer.StopAndConfigTests.test_mode_per_dataset_and_tuner_refusals) ... ok
+test_stop_condition_in_one_batch_stops_the_run (tests.test_partMB_trainer.StopAndConfigTests.test_stop_condition_in_one_batch_stops_the_run) ... 2026-11-13 14:37:28,300 | INFO | STOP CONDITION log_weight_range: 31 > 30 at epoch 0 (spec v1.16 §6); run stopped.
+ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 16.864s
+
+OK

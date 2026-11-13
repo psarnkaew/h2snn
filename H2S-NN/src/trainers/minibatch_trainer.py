@@ -2,8 +2,9 @@
 mode" and "Evaluation"; `docs/minibatch_design_v3B.md` §5-§6, §9; decisions MB1-MB3, MB6, N3, N5,
 N6; card Part MB, MB4).
 
-* Training order (N3): a seeded permutation of the training targets (seed from the base seed and
-  the pass index), continued across epochs and reshuffled when exhausted.
+* Training order (N3, D-MB2): a seeded permutation of the training targets (seed from the base
+  seed and the pass index), continued across epochs and reshuffled when exhausted; a batch never
+  crosses a pass boundary (the last batch of a pass holds the remaining targets).
 * Epoch = `epoch_targets` training targets = `epoch_targets / B` optimizer steps (MB2); one step per
   batch; loss = mean over the batch's targets.
 * Training draw: fresh per batch, seed from (base seed, epoch, batch index), `proposal: uniform`,
@@ -80,17 +81,17 @@ class TrainingOrder:
         self.position = 0
 
     def next(self, batch_size: int) -> torch.Tensor:
-        """The next `batch_size` targets of the continuing order (crossing a pass boundary)."""
-        out = []
-        needed = int(batch_size)
-        while needed:
-            if self.position >= self.order.numel():
-                self._reshuffle()
-            take = self.order[self.position:self.position + needed]
-            self.position += take.numel()
-            needed -= take.numel()
-            out.append(take)
-        return torch.cat(out)
+        """The next batch of the continuing order: `min(B, targets left in the current pass)`
+        targets. A batch never crosses a pass boundary (decision D-MB2, H2GB's loader): the last
+        batch of a pass holds the remaining targets, no target repeated; the next call starts the
+        next pass with a new seeded permutation."""
+        if batch_size < 1:
+            raise ValueError("batch_size must be positive.")
+        if self.position >= self.order.numel():
+            self._reshuffle()
+        take = self.order[self.position:self.position + int(batch_size)]
+        self.position += take.numel()
+        return take
 
 
 class MiniBatchNodeTrainer:

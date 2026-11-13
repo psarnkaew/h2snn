@@ -1,0 +1,5 @@
+== MF1 mutation: fill up to B from the next pass (old crossing behaviour); target test (i)
+FAIL: test_batches_stop_at_the_pass_boundary (tests.test_partMBfix_order.PassBoundaryTests.test_batches_stop_at_the_pass_boundary)
+AssertionError: Lists differ: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4] != [4, 4, 4, 4, 2, 4, 4, 4, 4, 2]
+Ran 1 test in 0.021s
+FAILED (failures=1)
