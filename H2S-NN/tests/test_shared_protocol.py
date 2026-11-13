@@ -22,25 +22,58 @@ REPO = Path(__file__).resolve().parents[1]
 OPTIMIZER_CALL = re.compile(r"\b(?:torch\.)?optim\.([A-Za-z]+)\(")
 
 
+#: The one optimizer that is not a model's training optimizer (decision D-P9, author 2026-11-13;
+#: spec v1.19 T2): H2GB's MetaPath2Vec pretraining of H2G-former's positional input encodings
+#: uses H2GB's own SparseAdam (its sparse embeddings; AdamW rejects sparse gradients). AdamW
+#: governs every model's training (spec v1.15 J4). (file, optimizer, enclosing function).
+PRETRAINING_EXCEPTION = ("_h2gformer_encoders.py", "SparseAdam", "metapath2vec_embeddings")
+
+
+def _optimizer_calls(path: Path) -> list[tuple[str, str]]:
+    """(optimizer name, enclosing top-level function or '') of every `optim.X(` call."""
+    import ast
+
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    calls = []
+    for top in tree.body:
+        owner = top.name if isinstance(top, (ast.FunctionDef, ast.ClassDef)) else ""
+        for node in ast.walk(top):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                value = node.func.value
+                if (isinstance(value, ast.Attribute) and value.attr == "optim") or (
+                        isinstance(value, ast.Name) and value.id == "optim"):
+                    if node.func.attr != "lr_scheduler":
+                        calls.append((node.func.attr, owner))
+    return calls
+
+
 class OptimizerTests(unittest.TestCase):
     def test_every_adapter_builds_adamw(self) -> None:
-        """Every optimizer constructed by a registered adapter module or one of its helper
-        modules is AdamW (source-level check over the registry; the adapters' vendor imports
-        are not exercised here)."""
+        """Every model optimizer constructed by a registered adapter module or one of its
+        helper modules is AdamW; the one named exception is H2GB's MetaPath2Vec pretraining
+        (`PRETRAINING_EXCEPTION`, D-P9). Source-level check over the registry (the adapters'
+        vendor imports are not exercised here)."""
         from src.baselines.registry import MODELS
 
         modules = {spec.module for spec in MODELS}
         files = {Path(importlib.util.find_spec(name).origin) for name in modules}
         files |= set((REPO / "src" / "baselines" / "adapters").glob("_*.py"))
         files |= {REPO / "src" / "baselines" / "training.py"}
-        found: dict[str, set[str]] = {}
+        found: dict[str, list[tuple[str, str]]] = {}
         for path in sorted(files):
-            names = set(OPTIMIZER_CALL.findall(path.read_text(encoding="utf-8")))
-            names.discard("lr_scheduler")
-            if names:
-                found[path.name] = names
+            calls = _optimizer_calls(path)
+            # the regex view must agree with the AST view (no call form missed)
+            self.assertEqual(sorted(n for n in OPTIMIZER_CALL.findall(path.read_text(
+                encoding="utf-8")) if n != "lr_scheduler"), sorted(n for n, _ in calls),
+                path.name)
+            if calls:
+                found[path.name] = calls
         self.assertGreaterEqual(len(found), 10)
-        offenders = {name: sorted(n) for name, n in found.items() if n != {"AdamW"}}
+        file, name, owner = PRETRAINING_EXCEPTION
+        self.assertEqual(found[file].count((name, owner)), 1, "the named exception, once")
+        found[file].remove((name, owner))
+        offenders = {f: sorted({n for n, _ in calls}) for f, calls in found.items()
+                     if any(n != "AdamW" for n, _ in calls)}
         self.assertEqual(offenders, {})
 
     def test_h2snn_default_optimizer_is_adamw_with_the_scalar_group(self) -> None:

@@ -1,0 +1,12 @@
+== (a) model optimizer -> Adam
+AssertionError: {'_homogeneous_lp.py': ['Adam']} != {}
+Ran 1 test in 0.128s
+FAILED (failures=1)
+== (b) model optimizer -> SparseAdam
+AssertionError: {'_homogeneous_lp.py': ['SparseAdam']} != {}
+Ran 1 test in 0.121s
+FAILED (failures=1)
+== (c) second, unnamed SparseAdam site
+AssertionError: {'_h2gformer_encoders.py': ['SparseAdam']} != {}
+Ran 1 test in 0.205s
+FAILED (failures=1)

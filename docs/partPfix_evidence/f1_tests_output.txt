@@ -1,0 +1,34 @@
+test_baseline_budgets_come_from_the_table (tests.test_shared_protocol.BudgetTableTests.test_baseline_budgets_come_from_the_table) ... ok
+test_baseline_gc_stops_on_validation_loss_and_reports_final_weights (tests.test_shared_protocol.BudgetTableTests.test_baseline_gc_stops_on_validation_loss_and_reports_final_weights)
+Validation losses 0.9, 0.8, 0.85, 0.86 (then 0.1, never reached) with patience 2: ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\sklearn\metrics\_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+ok
+test_h2snn_defaults_follow_the_protocol (tests.test_shared_protocol.BudgetTableTests.test_h2snn_defaults_follow_the_protocol) ... ok
+test_protocol_budgets (tests.test_shared_protocol.BudgetTableTests.test_protocol_budgets) ... ok
+test_every_adapter_builds_adamw (tests.test_shared_protocol.OptimizerTests.test_every_adapter_builds_adamw)
+Every model optimizer constructed by a registered adapter module or one of its ... ok
+test_h2snn_default_optimizer_is_adamw_with_the_scalar_group (tests.test_shared_protocol.OptimizerTests.test_h2snn_default_optimizer_is_adamw_with_the_scalar_group) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_no_gradient_clipping_by_default (tests.test_shared_protocol.SchedulerAndClippingTests.test_no_gradient_clipping_by_default)
+A link-prediction training epoch with the default config never calls clipping. ... ok
+test_no_scheduler_object_is_created (tests.test_shared_protocol.SchedulerAndClippingTests.test_no_scheduler_object_is_created) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 18.201s
+
+OK
