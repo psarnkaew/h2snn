@@ -4,10 +4,10 @@
 **Branch:** `cluster-setup2`, created from `cluster-setup` at `d8f5813`. **Report:** `docs/H2S-NN_cluster_setup2_report.md`; evidence `docs/cluster_evidence2/`.
 **Status:** DRAFT. Items marked `<<AUTHOR>>` are filled by the author before the prompt is sent.
 
-## Author inputs (filled 2026-11-14 by the author; the agent never guesses them)
-- DGL wheel, copied by the author from the laptop to the server home: `<<AUTHOR: full path, e.g. /mnt/home/peeradon/dgl-2.5.0+cu124-cp312-...whl>>`.
-- Vendor URLs (and commit to pin, or "latest default branch"): PSHGCN `<<AUTHOR>>`; ChebNetII `<<AUTHOR>>`; Cooperative-Sheaf-NN `<<AUTHOR or "not needed">>`; hgbi `<<AUTHOR or "not needed">>`.
-- Laptop torch build (`torch.__version__` and `torch.__config__.show()`): `<<AUTHOR: paste>>`.
+## Author inputs (2026-11-14; the agent never guesses them)
+- DGL wheel: `<<AUTHOR: still missing. The path given so far, `/mnt/data/peeradon/h2snn/H2S-NN/vendor/dgl`, is the DGL source clone (CS3), not a wheel. Needed: the file `dgl-2.5.0+cu124-cp312-...manylinux...x86_64.whl` downloaded on the laptop from data.dgl.ai (torch-2.6/cu124 index) and copied to `/mnt/home/peeradon/`>>`.
+- Vendor URLs, each cloned at the latest default-branch commit (recorded in the report): PSHGCN `https://github.com/ivam-he/PSHGCN`; ChebNetII `https://github.com/ivam-he/ChebNetII`; Cooperative-Sheaf-NN `https://github.com/andrerg02/Cooperative-Sheaf-NN`; hgbi: no adapter, test or document uses it (only an empty directory name on the laptop), so `kind=not-needed` unless the author names a URL `<<AUTHOR: confirm>>`.
+- Laptop torch build (author, 2026-11-14): `2.6.0+cu124`, built with MSVC 192930157, Intel MKL 2025.0.1, oneDNN 3.5.3, OpenMP 2019, CPU capability usage AVX2, CUDA 12.4, cuDNN 9.1. The server has the same torch version but a Linux (GCC) build: CS7-3 records its `torch.__config__.show()` for comparison.
 
 ## Rules
 Correctness only; no performance run, no metric as a result, no comparison between methods. Push `cluster-setup2` after each unit; never `v3b`, never `cluster-setup`; never force-push; never commit vendor files, `data/`, secrets, wheels, `Claude outputs/`, `H2S-NN/paper/`. One commit per unit, explicit paths. Forbidden: loosening tolerances, deleting or skipping tests, silencing exceptions, editing the spec or cards, changing method code, **overwriting `docs/heads_evidence/v2_golden.pt` or `docs/partMB_evidence/mb0_reference.pt`** (new captures get new file names). All compute in SLURM jobs (login node: git, editing, submitting). The wheel is installed in a job with `pip install --no-cache-dir`; no file under `/mnt/data` holds a secret.
