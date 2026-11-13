@@ -85,6 +85,10 @@ class PreparedH2SData:
     metrics: torch.Tensor
     # rho, kept relations, unmatched edges (D7); None for data built without a fact layer.
     fact_layer: FactLayer | None = None
+    # Part MB (MB1): for a batch of scopes, each row's node id in the graph the scopes were cut
+    # from; featureless types read their embedding row by this id. None = the whole graph (rows
+    # are the node ids), the full-batch behaviour.
+    global_node_id: torch.Tensor | None = None
 
     @property
     def num_nodes(self) -> int:
@@ -120,4 +124,6 @@ class PreparedH2SData:
             face_groups=tuple(group.to(device) for group in self.face_groups),
             metrics=self.metrics.to(device),
             fact_layer=self.fact_layer,
+            global_node_id=(None if self.global_node_id is None
+                            else self.global_node_id.to(device)),
         )

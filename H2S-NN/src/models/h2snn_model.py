@@ -812,10 +812,17 @@ class H2SNN(nn.Module):
         return scalars
 
     # ------------------------------------------------------------------ operator
-    def encode_nodes(self, x: torch.Tensor, node_type: torch.Tensor) -> torch.Tensor:
+    def encode_nodes(self, x: torch.Tensor, node_type: torch.Tensor,
+                     global_node_id: torch.Tensor | None = None) -> torch.Tensor:
+        """`h0`. `global_node_id` (Part MB): rows of a batch of scopes -> node ids of the whole
+        graph, for the per-node embeddings of featureless types; None in full batch."""
         if self.node_encoder is not None:
-            return self.node_encoder(x, node_type)
-        return self.identity_embedding.weight  # type: ignore[union-attr]
+            if global_node_id is None:
+                return self.node_encoder(x, node_type)
+            return self.node_encoder(x, node_type, global_node_id)
+        if global_node_id is None:
+            return self.identity_embedding.weight  # type: ignore[union-attr]
+        return self.identity_embedding.weight[global_node_id]  # type: ignore[union-attr]
 
     def geometry_inputs(self, h0: torch.Tensor, edge_index: torch.Tensor,
                         edge_type: torch.Tensor) -> torch.Tensor:
@@ -1197,10 +1204,12 @@ class H2SNN(nn.Module):
         face_groups: tuple[FaceGroup, ...],
         num_nodes: int,
         epoch: int = -1,
+        global_node_id: torch.Tensor | None = None,
     ) -> EncodedState:
         """Shared encoder for all three tasks (a graph batch is one disjoint union). `epoch` sets
-        the anchored solver's tolerance (fixed schedule; -1 = the final tolerance)."""
-        h0 = self.encode_nodes(x, node_type)
+        the anchored solver's tolerance (fixed schedule; -1 = the final tolerance);
+        `global_node_id` maps a batch of scopes to the whole graph's node ids (Part MB)."""
+        h0 = self.encode_nodes(x, node_type, global_node_id)
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
         if self.anchored:
@@ -1376,7 +1385,7 @@ class H2SNN(nn.Module):
             )
         encoded = self.encode(
             data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-            data.num_nodes, epoch=epoch,
+            data.num_nodes, epoch=epoch, global_node_id=data.global_node_id,
         )
         logits = self.readout(encoded.representation[data.target_indices])
         operator = encoded.operator

@@ -1,0 +1,20 @@
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_T14_config_keys_are_validated_and_never_tuned (tests.test_v3b_model.ArmTests.test_T14_config_keys_are_validated_and_never_tuned) ... ok
+test_T14_every_arm_trains_and_gradients_reach_the_right_groups (tests.test_v3b_model.ArmTests.test_T14_every_arm_trains_and_gradients_reach_the_right_groups) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 18.446s
+
+OK

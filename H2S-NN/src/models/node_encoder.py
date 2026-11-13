@@ -83,7 +83,11 @@ class TypeSpecificNodeEncoder(nn.Module):
         self.activation = nn.GELU()
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor, node_type: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, node_type: torch.Tensor,
+                global_node_id: torch.Tensor | None = None) -> torch.Tensor:
+        """`global_node_id` (Part MB, MB1): each row's node id in the whole graph, for a batch of
+        scopes; featureless types then read the embedding row of that id. None: rows are the
+        node ids (full batch)."""
         hidden = torch.zeros(
             (x.size(0), self.type_embeddings.embedding_dim),
             device=x.device,
@@ -101,7 +105,9 @@ class TypeSpecificNodeEncoder(nn.Module):
                 # Nodes of a type occupy one contiguous block of the flattened id space
                 # (see stack_node_features), so subtracting the block start gives the
                 # embedding row for each node.
-                local_index = mask.nonzero(as_tuple=False).view(-1) - self.type_offsets[node_type_id]
+                rows = mask.nonzero(as_tuple=False).view(-1)
+                ids = rows if global_node_id is None else global_node_id[rows]
+                local_index = ids - self.type_offsets[node_type_id]
                 encoded = self.identity_embeddings[node_type_id](local_index).to(x.dtype)
             encoded = encoded + self.type_embeddings.weight[node_type_id]
             hidden[mask] = self.activation(encoded)

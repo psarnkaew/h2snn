@@ -1,0 +1,10 @@
+== (a) local position instead of global id
+ERROR: test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0)
+Ran 5 tests in 1.371s
+FAILED (errors=1)
+== (b) induced facts added
+FAIL: test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts)
+FAIL: test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists)
+FAIL: test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts)
+Ran 5 tests in 1.134s
+FAILED (failures=3)
