@@ -1,0 +1,14 @@
+job=16609 node=g2tn01 gpu=NVIDIA TITAN RTX
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK
+=== python scripts/setup/check_env.py
+MISSING    dgl: locked 2.5.0+cu124, not installed
+note       torch: locked 2.6.0, installed 2.6.0+cu124 (local build tag)
+note       torch-cluster: locked 1.6.3, installed 1.6.3+pt26cu124 (local build tag)
+MISSING    torch-householder: locked 1.0.1, not installed
+note       torch-scatter: locked 2.1.2, installed 2.1.2+pt26cu124 (local build tag)
+note       torch-sparse: locked 0.6.18, installed 0.6.18+pt26cu124 (local build tag)
+python 3.12.16; lock /mnt/data/peeradon/h2snn/H2S-NN/requirements/linux-lock.txt; differences: 2; notes: 4
+check_env_exit=1
