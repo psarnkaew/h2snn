@@ -6,7 +6,8 @@
 
 - **Torch 2.4.1 itself is compatible** with every required library that can be tested on Windows, and with the full suite: in `h2snn-b` the suite gives the same result as in `h2snn` (torch 2.6.0) except one test whose library (`torch_householder`) the card did not install (E4). No bit-exact test differs.
 - **Pre-registered expectation 1 failed as stated:** with the CS2 pins alone, pip *replaces torch 2.4.1 by 2.15.0*. Cause: an unpinned chain `performer-pytorch 1.1.4 → local-attention 1.11.2 → hyper-connections ≥ 0.4.3 (needs torch ≥ 2.5)`. One extra pin, `hyper-connections==0.4.2`, fixes it; `pip check` is then clean (E2).
-- **No DGL 2.4.0 wheel could be inspected; the author later supplied the 2.4.0 SOURCE tree (`H2S-NN/vendor/dgl-2.4.0`, E1b).** `data.dgl.ai` is not just unreachable over TLS: plain HTTP shows a Namecheap page "**Domain registration has expired**" (E1); it serves every `repo.html` index (torch-2.4, torch-2.6, the 2.5.0 pin). The source tree answers two of the card's questions and changes the plan: **DGL 2.4.0 declares `torch<=2.4.0`** (so torch **2.4.1 is excluded**; the lock must say 2.4.0) and **does not need `torchdata`** (so my `torchdata==0.8.0` pin is dropped). Python tag and the graphbolt libraries of the official wheel remain unknown (a source tree has neither).
+- **A DGL 2.4.0 cu124 package exists and was inspected (E8).** The pip index is dead, but the official conda channel `dglteam` still has `dgl-2.4.0.th24.cu124-py312_0.tar.bz2` (291 MB, sha256 verified). It ships DGL libraries for **both torch 2.4.0 and 2.4.1**, needs no `torchdata`, `numpy>=1.14.0`, Python 3.12 only. Its metadata still says `torch<=2.4.0`. Installation on Linux is untested.
+- Earlier in this session (E1/E1b), before E8: No DGL 2.4.0 wheel could be inspected; the author then supplied the 2.4.0 SOURCE tree (`H2S-NN/vendor/dgl-2.4.0`, E1b).** `data.dgl.ai` is not just unreachable over TLS: plain HTTP shows a Namecheap page "**Domain registration has expired**" (E1); it serves every `repo.html` index (torch-2.4, torch-2.6, the 2.5.0 pin). The source tree answers two of the card's questions and changes the plan: **DGL 2.4.0 declares `torch<=2.4.0`** (so torch **2.4.1 is excluded**; the lock must say 2.4.0) and **does not need `torchdata`** (so my `torchdata==0.8.0` pin is dropped). Python tag and the graphbolt libraries of the official wheel remain unknown (a source tree has neither).
 - **torch 2.4.0 itself was not tested on the laptop;** E2–E5 ran with 2.4.1. Torch 2.4.0 and 2.4.1 are patch releases, but this is a gap: a repeat of E2–E5 with 2.4.0 is Decision 1 below.
 - **`torch_householder` (CSNN/NSD) installs next to torch 2.4.1 and passes `pip check`, but cannot be imported on the laptop** (JIT compile needs MSVC `cl`, absent; E7). Its one C++ source is CPU-only, so the Linux cluster needs `g++` and `ninja` only.
 - **E5: torch 2.4.1 and 2.6.0 give identical initial weights and outputs on this machine** (golden tests OK, `mb0 compare`: `differing: none`). By the card's rule, the cluster's 1-ulp difference is platform (compiler, BLAS, CPU), not torch version.
@@ -45,7 +46,25 @@
 | `torch` constraint | **`torch<=2.4.0`** (`python/setup.py:233`): **torch 2.4.1 violates it** |
 | graphbolt library | looked up by the exact torch version before `+`: `libgraphbolt_pytorch_<ver>.so` (`python/dgl/graphbolt/__init__.py:52-56`; `dgl_sparse` likewise `python/dgl/sparse/__init__.py:19-22`); one library is built per torch version (`graphbolt/CMakeLists.txt:47`, `graphbolt/build.sh:40-42`). Which versions the official wheel contains: unknown (UNVERIFIED) |
 
-Consequences: (1) with `dgl==2.4.0` in the lock, **torch 2.4.1 cannot be pinned**; pip would downgrade torch to 2.4.0 or fail, and `pip check` would fail. The candidate lock now says `torch==2.4.0`. (2) The pre-registered concern about `torchdata` does not apply to 2.4.0; the `torchdata==0.8.0` pin is dropped (it stays true for the Windows 2.2.1 build). (3) The NumPy-2 concern for 2.4.0 cannot be settled from source (only a lower bound is declared). (4) A wheel still has to be built (needs the submodules, a CUDA 12.4 toolchain and network access to GitHub) or obtained; this source tree alone does not give the cluster a wheel.
+Consequences: (1) with `dgl==2.4.0` in the lock, **torch 2.4.1 cannot be pinned**; pip would downgrade torch to 2.4.0 or fail, and `pip check` would fail. The candidate lock now says `torch==2.4.0`. (2) The pre-registered concern about `torchdata` does not apply to 2.4.0; the `torchdata==0.8.0` pin is dropped (it stays true for the Windows 2.2.1 build). (3) The NumPy-2 concern for 2.4.0 cannot be settled from source (only a lower bound is declared). (4) This source tree alone does not give the cluster a package; E8 found the built package on the conda channel instead.
+
+## E8 — where DGL 2.4.0 cu124 can still be obtained (added at the author's request)
+
+`e8_dgl_conda_channel.txt` (VERIFIED-RUN: anaconda.org API listing, download, sha256, in-memory inspection; nothing installed or extracted; the 291 MB file is in the agent's scratchpad, not in the repository).
+
+- **The pip index is dead for everyone:** dmlc/dgl issue #7935 (opened 2026-11-07) reports the SSL failure, a comment of 2026-11-09 says "Domain registration has expired"; no maintainer answer and no mirror named in the thread.
+- **The same build is on the official conda channel `dglteam`** (anaconda.org, a different host): `dgl-2.4.0.th24.cu124-py312_0.tar.bz2`, linux-64, 291 228 305 bytes, built 2024-09-03, sha256 `0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8` (equal to the API value). Download URL that works: `https://conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2`.
+- Other labels exist (th24_cpu, th24_cu118, th24_cu121; th21–th23 builds) but no label for torch 2.6.
+
+| E1 question | Answer from the package |
+|---|---|
+| Python tag | py312 only (`python >=3.12,<3.13`); egg-info `dgl-2.4.0+cu124-py3.12` |
+| `numpy` | `numpy>=1.14.0`, no upper bound |
+| `torchdata` | not required |
+| graphbolt torch version | **both** `libgraphbolt_pytorch_2.4.0.so` and `libgraphbolt_pytorch_2.4.1.so` (272 MB each); also `libdgl_sparse_pytorch_2.4.{0,1}.so` and `libtensoradapter_pytorch_2.4.{0,1}.so` |
+| torch | egg-info `Requires-Dist: torch<=2.4.0` (pip reads it; conda does not enforce it); the conda `depends` list contains no torch |
+
+So torch 2.4.1 would find its DGL libraries; only `pip check` would complain about the declared `torch<=2.4.0`. The package has the same layout as the pip wheel but is a conda package, so it is installed with conda, not pip. Proposed (UNTESTED) route for the cluster: copy the file to the cluster and run `conda install --no-deps <file>` in the `h2snn` environment (its dependencies are already pip-installed; the conda solver does not try to replace them). Whether DGL then imports with CUDA on the cluster GPUs is exactly the E3 test that cannot be done on Windows.
 
 ## E7 — `torch_householder` next to torch 2.4.1 (added at the author's request)
 
@@ -131,14 +150,14 @@ Per-test difference: **one test, two subtests** — `test_baselines.DglCudaGateT
 | Does torch 2.4.1 break any tested library or test? | No. |
 | What breaks the pins? | `hyper-connections` chain → needs `hyper-connections==0.4.2`. |
 | Do the PyG extension wheels exist for torch 2.4? | Yes (Windows cp312 verified; Linux not checked here). |
-| Is DGL 2.4.0 compatible with torch 2.4.1, numpy 2.4.6, torchdata? | **torch 2.4.1: no** (source declares `torch<=2.4.0`); torchdata: not needed; numpy: only a lower bound is declared; the Linux wheel itself is still unavailable and untested. |
+| Is DGL 2.4.0 compatible with torch 2.4.1, numpy 2.4.6, torchdata? | torch: declared `<=2.4.0`, but the conda package ships libraries for 2.4.0 **and** 2.4.1; torchdata: not needed; numpy: only a lower bound is declared; Linux install and CUDA use untested (E8). |
 
 ## Decisions for the author
 
 | # | Decision | Options | Recommendation | Reason |
 |---|---|---|---|---|
-| 1 | torch version for the cluster, given DGL 2.4.0 needs `torch<=2.4.0` | (a) `torch==2.4.0`: first repeat E2–E5 on the laptop in a new env `h2snn-b240` (2.5 GB download, one suite ≈ 30–40 min); (b) keep 2.6.0 and find a DGL for it; (c) go ahead with 2.4.0 on the cluster without the repeat | (a) | The laptop evidence is for 2.4.1, which DGL 2.4.0 forbids; the repeat is cheap next to a failed cluster setup |
-| 2 | How the cluster gets a DGL wheel (the index domain has expired; only the 2.4.0 source tree is in hand) | (a) build `dgl 2.4.0+cu124` on the cluster from `vendor/dgl-2.4.0` + its 13 submodules (needs CUDA 12.4 toolkit, cmake, GitHub access; a build card); (b) supply a prebuilt `dgl-2.4.0` cu124 cp312 manylinux wheel; (c) CPU-only DGL built the same way | (b) if you can find one; else (a) as its own card | A source tree gives no wheel; building is a separate piece of work whose result must then be inspected like E1(b) |
+| 1 | torch version for the cluster | (a) `torch==2.4.0` (declared by DGL): repeat E2–E5 first on the laptop in a new env `h2snn-b240` (2.5 GB download, one suite ≈ 30–40 min); (b) `torch==2.4.1` (tested here): DGL's conda package ships libraries for it, only `pip check` complains about `torch<=2.4.0`; (c) keep 2.6.0 | (a) if you want zero declared-constraint violations; (b) is acceptable if you accept the `pip check` message | E8 removed the library-name risk for 2.4.1, so the choice is now about declared constraints, not about whether it loads |
+| 2 | How the cluster gets DGL 2.4.0 cu124 | (a) conda package from `dglteam/label/th24_cu124` via `conda install --no-deps <file>` (copy from the laptop; I can place the file in a folder you name); (b) build from `vendor/dgl-2.4.0` (needs 13 submodules, CUDA 12.4 toolkit, cmake) | (a) | The official build exists and was inspected; building is slower and gives no benefit |
 | 3 | `hyper-connections==0.4.2` in the lock | adopt / drop if torch stays 2.6 | adopt with torch 2.4.x | Without it pip upgrades torch to 2.15.0 |
 | 4 | `torchdata` pin | none (revised) | none for DGL 2.4.0 | E1b: DGL 2.4.0 does not use torchdata |
 | 5 | `numpy` pin | keep 2.4.6 / `numpy<2` | keep for now; decide with the 2.4.0 wheel's metadata | No NumPy-1.x message for DGL 2.2.1 on Windows; 2.4.0 Linux untested; changing the pin affects every other library |

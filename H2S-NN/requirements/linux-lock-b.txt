@@ -21,8 +21,9 @@
 # leaves to the wheel index; check_env.py prints it as a note, not as a difference.
 
 --extra-index-url https://download.pytorch.org/whl/cu124
-# torch 2.4.0, not 2.4.1: dgl 2.4.0 declares install_requires torch<=2.4.0 (python/setup.py:233 of the 2.4.0 source, E1b), so 2.4.1 cannot satisfy it,
-# and DGL loads libgraphbolt_pytorch_<exact torch version>.so. The laptop tests (E2-E5) ran with 2.4.1; torch 2.4.0 itself is NOT yet tested here.
+# torch 2.4.0: dgl 2.4.0 declares install_requires torch<=2.4.0 (python/setup.py:233 of the source, E1b; also in the conda package egg-info, E8).
+# The conda package ships DGL libraries for BOTH torch 2.4.0 and 2.4.1 (E8), so 2.4.1 would load; it would only make pip check complain.
+# The laptop tests (E2-E5) ran with 2.4.1; torch 2.4.0 itself is NOT yet tested here. Decision for the author (report, decision 1).
 torch==2.4.0
 
 -f https://data.pyg.org/whl/torch-2.4.0+cu124.html
@@ -63,7 +64,10 @@ termcolor==3.3.0
 # CSNN, NSD (requirements/baselines-sheaf.txt)
 torch_householder==1.0.1
 
-# DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4 (untested; laptop has Windows dgl 2.2.1 only)
+# DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4. data.dgl.ai is dead (expired domain), so the pip index line below no longer resolves.
+# The same build is on the official conda channel (docs/envB_evidence/e8_dgl_conda_channel.txt):
+#   https://conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2  sha256 0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8
+# install it with  conda install --no-deps <that file>  (its dependencies are already pip-installed). Contents inspected, installation NOT tested on Linux.
 -f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
 dgl==2.4.0+cu124
 # torchdata: NOT needed by dgl 2.4.0 (E1b: not in install_requires, no import of it in python/; graphbolt carries its own datapipes copy). Not pinned.
