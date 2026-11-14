@@ -1,0 +1,22 @@
+=============== h2snn-b240
+$ cd H2S-NN; python -W default ../docs/envB_evidence/e3b_dgl_via_shim.py
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\heterograph_index.py", line 1250, in create_metagraph_index
+    metagraph = from_coo(len(ntypes), meta_edges_src, meta_edges_dst, True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graph_index.py", line 1081, in from_coo
+    src = utils.toindex(src)
+          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\utils\internal.py", line 304, in toindex
+    return data if isinstance(data, Index) else Index(data, dtype)
+                                                ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\utils\internal.py", line 37, in __init__
+    self._initialize_data(data)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\utils\internal.py", line 44, in _initialize_data
+    self._dispatch(data)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\utils\internal.py", line 110, in _dispatch
+    self._user_tensor_data[F.cpu()] = F.zerocopy_from_numpy(
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\backend\pytorch\tensor.py", line 429, in zerocopy_from_numpy
+    return th.as_tensor(np_array)
+           ^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Could not infer dtype of numpy.int64

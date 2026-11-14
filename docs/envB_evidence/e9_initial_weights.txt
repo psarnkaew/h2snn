@@ -1,0 +1,53 @@
+# E9 E5-repeat in h2snn-b240 (torch 2.4.0), 2026-11-14T10:07:02+09:00, git 2a0195c97c5611c93922e9b9879c45ae2d21c6bf
+$ python -m unittest tests.test_task_heads tests.test_cooperative -v
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\__main__.py", line 18, in <module>
+    main(module=None)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 104, in __init__
+    self.parseArgs(argv)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 153, in parseArgs
+    self.createTests()
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 164, in createTests
+    self.test = self.testLoader.loadTestsFromNames(self.testNames,
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 207, in loadTestsFromNames
+    suites = [self.loadTestsFromName(name, module) for name in names]
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_task_heads.py", line 18, in <module>
+    import torch
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+    from torch._higher_order_ops import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+    from .cond import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+    import torch._subclasses.functional_tensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+    class FunctionalTensor(torch.Tensor):
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+    cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\c
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init_
+  import torch_geometric.typing
+FAIL
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+
+$ python ../docs/partMB_evidence/mb0_reference.py compare ../docs/partMB_evidence/mb0_reference.pt
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Acer\Desktop\h2snn\docs\partMB_evidence\mb0_reference.py:96: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle
+  _flatten("", torch.load(path), ref)
+C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 139 tensors; differing: ['.grads.node_encoder.encoders.0.0.weight', '.grads.node_encoder.encoders.0.0.bias', '.grads.node_encoder.encoders.0.1.weight', '.grads.node_encoder.encoders.0.1.bias', '.grads.node_encoder.encoders.1.0.weight']

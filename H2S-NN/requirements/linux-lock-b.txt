@@ -1,6 +1,6 @@
-# CANDIDATE lock B (Option B, branch env-b-check, card H2S-NN_envB_laptop_card.md): torch 2.4.0 (laptop-tested with 2.4.1) + DGL 2.4.0.
+# CANDIDATE lock B (Option B, branch env-b-check, card H2S-NN_envB_laptop_card.md): torch 2.4.1 + DGL 2.4.0.
 # Derived from requirements/linux-lock.txt (branch cluster-setup, CS2), which is NOT edited. Differences from it:
-#   torch 2.6.0 -> 2.4.0 (see the comment at the torch line); PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (now the exact torch version);
+#   torch 2.6.0 -> 2.4.1 (see the comment at the torch line); PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (the wheels are used with 2.4.1);
 #   dgl 2.5.0+cu124 -> 2.4.0+cu124 and DGL index torch-2.6 -> torch-2.4 (NOT TESTED on the laptop: Windows has only dgl 2.2.1;
 #   data.dgl.ai was unreachable, see docs/envB_evidence/e1_dgl_index.txt); hyper-connections==0.4.2 added (see below).
 #
@@ -21,10 +21,11 @@
 # leaves to the wheel index; check_env.py prints it as a note, not as a difference.
 
 --extra-index-url https://download.pytorch.org/whl/cu124
-# torch 2.4.0: dgl 2.4.0 declares install_requires torch<=2.4.0 (python/setup.py:233 of the source, E1b; also in the conda package egg-info, E8).
-# The conda package ships DGL libraries for BOTH torch 2.4.0 and 2.4.1 (E8), so 2.4.1 would load; it would only make pip check complain.
-# The laptop tests (E2-E5) ran with 2.4.1; torch 2.4.0 itself is NOT yet tested here. Decision for the author (report, decision 1).
-torch==2.4.0
+# torch 2.4.1, not 2.4.0 (E9): the torch 2.4.0 wheel is built against NumPy 1.x and cannot exchange data with the numpy 2.4.6 / scipy 1.18.0 pins
+# (torch.from_numpy raises "Numpy is not available"; no numpy<2 solution exists because scipy 1.18.0 needs numpy>=2.0.0). 2.4.1 works with numpy 2 (E2-E5).
+# dgl 2.4.0 declares torch<=2.4.0 (E1b), but its official conda package ships libgraphbolt/dgl_sparse/tensoradapter for torch 2.4.1 as well (E8):
+# only pip check complains. Decision for the author (report, decision 1).
+torch==2.4.1
 
 -f https://data.pyg.org/whl/torch-2.4.0+cu124.html
 torch_geometric==2.8.0

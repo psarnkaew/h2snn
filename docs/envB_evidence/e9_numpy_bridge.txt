@@ -1,0 +1,63 @@
+# E9: torch-NumPy bridge, torch 2.4.0 vs 2.4.1, both with numpy 2.4.6 (the lock's pin), python -W default
+
+=== h2snn-b240
+$ python -W default bridge.py
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "C:\Users\Acer\AppData\Local\Temp\claude\c7cc368768f7bbeb\e21ff2ad-23aa-496a-8a13-24e13a1b956b\scratchpad\bridge.py", line 1, in <module>
+    import numpy as np, torch
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+    from torch._higher_order_ops import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+    from .cond import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+    import torch._subclasses.functional_tensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+    class FunctionalTensor(torch.Tensor):
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+    cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\b
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2.4.0+cu124 numpy 2.4.6
+torch.as_tensor(np) FAIL RuntimeError Could not infer dtype of numpy.int64
+torch.from_numpy(np) FAIL RuntimeError Numpy is not available
+torch.arange(3).numpy() FAIL RuntimeError Numpy is not available
+
+=== h2snn-b
+$ python -W default bridge.py
+2.4.1+cu124 numpy 2.4.6
+torch.as_tensor(np) -> tensor([1, 2, 3])
+torch.from_numpy(np) -> tensor([1, 2, 3])
+torch.arange(3).numpy() -> [0 1 2]
+
+=== can torch 2.4.0 be kept with numpy<2 under the other pins?  (h2snn-b240, pip --dry-run, nothing changed)
+$ pip install --dry-run numpy==1.26.4 scipy==1.18.0 pandas==3.0.3
+
+To fix this you could try to:
+1. loosen the range of package versions you've specified
+2. remove package versions to allow pip to attempt to solve the dependency conflict
+
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+
+$ pip download metadata: scipy 1.18.0 Requires-Dist numpy
+scipy 1.18.0 ['numpy<2.8,>=2.0.0', 'numpydoc; extra == "doc"']
+pandas 3.0.3 ['numpy>=1.26.0; python_version < "3.14"', 'numpy>=2.3.3; python_version >= "3.14"']
+scikit-learn 1.9.0 ['numpy>=1.24.1', 'numpy>=1.24.1; extra == "build"', 'numpy>=1.24.1; extra == "install"', 'numpydoc>=1.2.0; extra == "docs"', 'numpydoc>=1.2.0; extra == "tests"']
+
+## E9 summary (agent), env h2snn-b240 = torch 2.4.0+cu124 with the lock's other pins (numpy 2.4.6, scipy 1.18.0, ...)
+- Build: all pins installed, pip check clean, versions equal to lock-b except dgl (2.2.1 Windows vs 2.4.0+cu124): e9_commands.txt, e9_versions.txt.
+- BUT torch 2.4.0's wheel was compiled against NumPy 1.x: "A module that was compiled using NumPy 1.x cannot be run in NumPy 2.4.6" and "UserWarning: Failed to initialize NumPy: _ARRAY_API not found".
+  torch.from_numpy and tensor.numpy() raise RuntimeError "Numpy is not available"; torch.as_tensor(ndarray) raises "Could not infer dtype of numpy.int64". Same numpy 2.4.6 with torch 2.4.1: all three work (above).
+- Consequences seen: DGL graph creation fails (e9_dgl_via_shim.txt, RuntimeError Could not infer dtype of numpy.int64); the suite (e9_suite_h2snn-b240.txt) gives, in the part that ran before the process died
+  (exit=127 after 531 s, inside test_partMB_trainer), ok=301, FAIL=5, ERROR=113 (the 2.4.1 and 2.6.0 environments: 0 such errors); the E5 repeat also did not finish (process ended mid-test) and mb0 compare reports differing tensors
+  (gradients of node_encoder...): that comparison is confounded by the broken bridge and is NOT evidence about 2.4.0 vs 2.6.0 numerics.
+- A numpy<2 route does not exist under the lock: pip --dry-run numpy==1.26.4 scipy==1.18.0 pandas==3.0.3 -> ResolutionImpossible; scipy 1.18.0 requires numpy>=2.0.0.
+=> torch 2.4.0 cannot be used with this lock. torch 2.4.1 (fixed for NumPy 2) is the working choice, and DGL's conda package ships libraries for it (E8).
