@@ -85,3 +85,12 @@
 - **`v3b`:** fast-forwarded only after the author approves a report; the design session does it in its worktree and pushes it.
 - **Memory:** the design session has no Cowork project memory; continuity lives in the repo: this file, the newest `docs/handoff_*.md`, the decisions log and the spec. Keep them current.
 - **The laptop** keeps only the paper LaTeX and slides (and, if useful, a Cowork session for slides/HTML reports, which reads the repo via GitHub).
+
+## Review, approval and branch flow (author, 2026-11-15; supersedes the "Git" line of "Additions (2026-11-13)" and the branch/`v3b` lines of the two server sections above where they differ)
+1. **Approval is by SHA.** Every agent report ends with one line:
+   `branch=<name> sha=<full head sha> card=<card file> base=<pinned sha>`
+   `sha` is the head after the report commit, as pushed (`git rev-parse HEAD` equals `git rev-parse origin/<branch>`). The author approves that SHA, not the branch name. `v3b` moves only by `git merge --ff-only <sha>`, or by `git push origin <sha>:v3b` after `git merge-base --is-ancestor origin/v3b <sha>` succeeds (the design session uses this form: its worktree keeps `design-docs` checked out); optionally the approved SHA is tagged `review/<card>`. After the report line the agent never pushes, rebases, amends or force-pushes that branch; further work happens only after a new prompt.
+2. **Nothing is ever committed directly on `v3b`.** Docs flow one way: `design-docs` → (the agent merges the pinned `design-docs` SHA at the start of each card) → agent branch → `v3b` by fast-forward. `v3b` may lag `design-docs`; that is expected.
+3. **File ownership.** The design session writes the spec, cards, prompts, the decisions log, handoffs, `docs/working_preferences.md` and `docs/agent_skills/`. The agent writes code, tests, scripts, requirements files, `CLAUDE.md`/`AGENTS.md` (only when a card says so), its report and its evidence folder. Neither edits the other's files; a card that is wrong or ambiguous makes the agent stop and report.
+4. **Review fails** → no fast-forward of `v3b`; the design session writes a fix card whose base is the reviewed SHA (new branch `<card>-fix`, e.g. `cluster-setup2-fix`), as for Part P-fix and Part MB-fix.
+5. **Evidence.** Every job script prints `git rev-parse HEAD`, the node (`hostname`) and the job id (`$SLURM_JOB_ID`) into its output. Run cards (tuning, campaign) will add the resolved config and checksums of large outputs that stay outside git.
