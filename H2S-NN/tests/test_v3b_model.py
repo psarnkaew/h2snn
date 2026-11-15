@@ -125,8 +125,11 @@ class ArmTests(unittest.TestCase):
         TrainConfig.from_dict({**base, "model": {"propagation": "anchored"},
                                "ablation": {"coupling": "symmetric"}})
         bad = (
-            {"model": {"arm": "hub_A"}},                                     # arm needs anchored
-            {"model": {"propagation": "anchored"}},                          # default gates
+            # legacy-removal LR-2: the default is anchored with coupling symmetric, so the two v2
+            # rules name their v2 values (the arm under chebyshev; gates under anchored)
+            {"model": {"propagation": "chebyshev", "arm": "hub_A"}},         # arm needs anchored
+            {"model": {"propagation": "anchored"},
+             "ablation": {"coupling": "cooperative"}},                       # gates under anchored
             {"model": {"propagation": "anchored", "arm": "nope"}, "ablation": {"coupling": "symmetric"}},
             {"model": {"propagation": "anchored", "solver_max_iterations": 0},
              "ablation": {"coupling": "symmetric"}},
@@ -147,12 +150,13 @@ class ArmTests(unittest.TestCase):
                 reject_never_tuned_settings(base, [key])
         with self.assertRaises(ValueError):
             reject_never_tuned_settings({**base, "model": {"arm": "covering_only"}}, [])
-        # the legacy propagation is the default and builds no tau
-        legacy = TrainConfig.from_dict({**base, "model": {"d": 8, "d_r": 4}})
-        model = H2SNN(legacy, ModelDims.from_prepared_data(_random_pap_data()))
-        self.assertEqual(legacy.model.propagation, "chebyshev")
-        self.assertIsNone(model.theta_tau)
-        self.assertIsNotNone(model.filter_bank)
+        # legacy-removal LR-2 (B2): the anchored model is the default and builds tau and no v2
+        # encoder (was: the legacy propagation is the default, builds no tau, has the filter bank)
+        default = TrainConfig.from_dict({**base, "model": {"d": 8, "d_r": 4}})
+        model = H2SNN(default, ModelDims.from_prepared_data(_random_pap_data()))
+        self.assertEqual(default.model.propagation, "anchored")
+        self.assertIsNotNone(model.theta_tau)
+        self.assertIsNone(getattr(model, "filter_bank", None))
 
 
 if __name__ == "__main__":

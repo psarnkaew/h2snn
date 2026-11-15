@@ -220,9 +220,15 @@ class WispSamplerTests(unittest.TestCase):
                 edge_index=EDGE_INDEX, edge_type=EDGE_TYPE, relation_tuples=(), seed=config.seed)
 
         base = groups({})
-        for extra in ({"model": {"encoder": "first_order"}}, {"model": {"geometry_context": False}},
-                      {"ablation": {"no_path_cells": True}}, {"ablation": {"endpoint_edges": True}},
-                      {"ablation": {"coupling": "symmetric"}}):
+        # legacy-removal LR-2: settings of the v2 model name it (deleted in LR-3); the v3-B arms
+        # are the counterpart of its path switches
+        v2 = {"propagation": "chebyshev"}
+        for extra in ({"model": {"encoder": "first_order", **v2}},
+                      {"model": {"geometry_context": False}},
+                      {"model": v2, "ablation": {"no_path_cells": True}},
+                      {"model": v2, "ablation": {"endpoint_edges": True}},
+                      {"ablation": {"coupling": "symmetric"}},
+                      {"model": {"arm": "no_path_cells"}}, {"model": {"arm": "closure_only"}}):
             with self.subTest(extra=extra):
                 other = groups(extra)
                 for a, b in zip(base, other):
@@ -343,16 +349,20 @@ class WispWeightOperatorTests(unittest.TestCase):
 
 
 def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "exp",
-                  d: int = 4, path_weight_context: bool = False):
+                  d: int = 4, path_weight_context: bool = False, legacy: bool = False):
+    """`legacy`: the v2 model (legacy-removal LR-2: `propagation: chebyshev` and the former default
+    `coupling: cooperative`; its tests are deleted in LR-3). Otherwise the anchored v3-B default."""
     from src.configs.config import TrainConfig
     from src.models.h2snn_model import H2SNN, ModelDims
 
+    v2_model = {"propagation": "chebyshev", "K": 2} if legacy else {}
     config = TrainConfig.from_dict({
         "device": "cpu",
-        "model": {"d": d, "d_r": 2, "K": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
+        "model": {"d": d, "d_r": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
                   "edge_mlp_hidden_dim": 8, "geometry_context": geometry_context,
-                  "path_weight": path_weight},
-        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context},
+                  "path_weight": path_weight, **v2_model},
+        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context,
+                     **({"coupling": "cooperative"} if legacy else {})},
     })
     dims = ModelDims(in_channels=5, num_node_types=3, num_relations=4, num_classes=2,
                      face_lengths=(2, 3), self_inverse_relations=SELF_INVERSE, path_actions=True)
@@ -422,7 +432,7 @@ class WispLadderTests(unittest.TestCase):
                 # created in float32 at construction (then cast): exactly log(0.5) in float32
                 self.assertEqual(float(b.detach().reshape(-1)[0]),
                                  float(torch.tensor(math.log(0.5), dtype=torch.float32)))
-        sigmoid = _ladder_model("full", path_weight="sigmoid_gamma")
+        sigmoid = _ladder_model("full", path_weight="sigmoid_gamma", legacy=True)  # v2 (LR-2)
         self.assertIsNotNone(sigmoid.theta_gamma)
         with self.assertRaises(ValueError):  # a gamma_init that exp would ignore is rejected
             TrainConfig.from_dict({"model": {"gamma_init": 2.0}})
@@ -439,7 +449,9 @@ class WispLadderTests(unittest.TestCase):
         from src.configs.config import TrainConfig
         from src.utils.misc import save_config
 
-        for model in ({}, {"path_weight": "sigmoid_gamma"}, {"path_weight_init": 0.3}):
+        # legacy-removal LR-2: sigmoid_gamma exists only in the v2 model (named; deleted in LR-3)
+        for model in ({}, {"path_weight": "sigmoid_gamma", "propagation": "chebyshev"},
+                      {"path_weight_init": 0.3}):
             with self.subTest(model=model), tempfile.TemporaryDirectory() as tmp:
                 config = TrainConfig.from_dict({"device": "cpu", "model": model,
                                                 "data": {"path_source": "wisp"}})
@@ -955,7 +967,7 @@ class WispReadoutTests(unittest.TestCase):
     def test_TH11_delta_loss_of_an_absent_schema_is_zero(self) -> None:
         from src.analysis.wisp_readouts import delta_loss, pair_index
 
-        model = _ladder_model("full")
+        model = _ladder_model("full", legacy=True)  # delta_loss reads the v2 operator (LR-2)
         x = torch.randn(8, 5, dtype=torch.float64, generator=torch.Generator().manual_seed(2))
         labels = torch.tensor([0, 1, 1, 0])
         args = (model, x, NODE_TYPE, EDGE_INDEX, EDGE_TYPE, 8, [self.groups], ANCHORS, labels)

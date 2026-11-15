@@ -30,6 +30,8 @@ from tests.test_v2_model import _chain_operators
 from tests.pinned_kernels import assert_kernel_path_pinned, one_thread
 
 F64_TOL = 1e-10
+# Legacy-removal LR-2: these tests exercise the v2 model (deleted in LR-3); they name the v2 values
+# (`propagation: chebyshev`, and `coupling: cooperative` where they relied on the former default).
 REPO = Path(__file__).resolve().parents[1]
 GOLDEN_SCRIPT = REPO.parent / "docs" / "heads_evidence" / "v2_golden.py"
 # cluster-setup3 CS8-2: the cluster capture (pinned kernels E, 1 thread); v2_golden.pt is the Windows
@@ -44,7 +46,7 @@ def _gate_model(coupling: str = "cooperative", d: int = 4) -> H2SNN:
     """A real H2SNN (float64, eval, K = 1); only its gate heads and `diffuse` are used."""
     config = TrainConfig.from_dict({
         "device": "cpu",
-        "model": {"d": d, "d_r": 2, "K": 1, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
+        "model": {"propagation": "chebyshev", "d": d, "d_r": 2, "K": 1, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
                   "edge_mlp_hidden_dim": 8, "layer_dropout": 0.0,
                   "geometry_context": False,  # D10/D11 gate heads read h0 (D12 default: [h0, c])
                   "encoder": "first_order"},  # the D11 update with eta (D12 default: filter_bank)
@@ -187,7 +189,8 @@ class SymmetricIsThePreviousModelTests(unittest.TestCase):
         reference = torch.load(GOLDEN_REFERENCE, weights_only=False)
         entry = reference["toy_acm"]
         data = golden._deserialize(entry["data"])
-        config = TrainConfig.from_dict({"device": "cpu", "model": dict(golden.SMALL)})
+        config = TrainConfig.from_dict({"device": "cpu", "model": {**golden.SMALL, "propagation": "chebyshev", },
+                                         "ablation": {"coupling": "cooperative"}})
         self.assertEqual(config.ablation.coupling, "cooperative")
         record = golden.run_case.__globals__["build_model"](config, data)
         extra = {k for k in record.state_dict() if k.startswith(("listen_gate", "broadcast_gate"))}
@@ -207,7 +210,7 @@ class SymmetricIsThePreviousModelTests(unittest.TestCase):
                 TrainConfig.from_dict({"ablation": {"coupling": bad}})
         for bad in (0.0, 1.0, -0.1):
             with self.assertRaises(ValueError):
-                TrainConfig.from_dict({"model": {"coupling_gate_init": bad}})
+                TrainConfig.from_dict({"model": {"propagation": "chebyshev", "coupling_gate_init": bad}})
         from src.configs.config import reject_never_tuned_settings
 
         for name in ("coupling", "ablation.coupling", "coupling_gate_init"):
@@ -224,8 +227,9 @@ class SymmetricIsThePreviousModelTests(unittest.TestCase):
             self.assertNotIn("coupling", notebook.read_text(encoding="utf-8"))
 
     def test_gates_start_at_the_configured_init(self) -> None:
-        config = TrainConfig.from_dict({"device": "cpu", "model": {
-            "d": 8, "coupling_gate_init": 0.9, "K": 1, "geometry_context": False}})
+        config = TrainConfig.from_dict({"device": "cpu", "model": {"propagation": "chebyshev", 
+            "d": 8, "coupling_gate_init": 0.9, "K": 1, "geometry_context": False},
+            "ablation": {"coupling": "cooperative"}})
         model = H2SNN(config, ModelDims(in_channels=5, num_node_types=2, num_relations=2,
                                         num_classes=2, face_lengths=(2,)))
         listen, broadcast = model.coupling_gates(torch.randn(50, 8))
@@ -461,8 +465,9 @@ class GateGradientTests(unittest.TestCase):
         from tests.test_paths_and_facts import _prepared_small
 
         config = TrainConfig.from_dict({
-            "device": "cpu", "model": {"d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8,
+            "device": "cpu", "model": {"propagation": "chebyshev", "d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8,
                                        "face_mlp_hidden_dim": 8, "edge_mlp_hidden_dim": 8},
+            "ablation": {"coupling": "cooperative"},
             "data": {"dataset_name": "acm", "fact_layer": "tied", "path_sampler": "walk",
                      "path_source": "schemas", "face_sample_k": 3,
                      "metapath_templates": [{"name": "PAP",
@@ -528,7 +533,7 @@ def _train_toy(gate_init: float | None, grouped: bool, seed: int = 0, epochs: in
     # This D11 fixture clips gradients itself at cfg.optim.grad_clip; it pins the clipping of
     # its time (1.0). Spec v1.15 (M9) made "no clipping" (0) the default, which would zero the
     # gradients through clip_grad_norm_(max_norm=0) here.
-    cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": model_cfg,
+    cfg = TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": {**model_cfg, "propagation": "chebyshev"}, "ablation": {"coupling": "cooperative"},
                                  "optim": {"grad_clip": 1.0},
                                  "data": {"resample_paths": False, "path_source": "schemas"}})
     torch.manual_seed(seed)
@@ -582,10 +587,11 @@ class LearningFixTests(unittest.TestCase):
         from src.models.h2snn_model import build_model
 
         data = _signal_fixture()
-        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"d": 8, "d_r": 4, "K": 2,
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"propagation": "chebyshev", "d": 8, "d_r": 4, "K": 2,
                                                                  "encoder": "first_order",
                                                                  # gamma in the group (Part H default: exp)
                                                                  "path_weight": "sigmoid_gamma"},
+                                     "ablation": {"coupling": "cooperative"},
                                      "data": {"path_source": "schemas"}})  # schema fixture (I2)
         self.assertEqual(cfg.model.coupling_gate_init, 0.6)
         self.assertEqual(cfg.ablation.coupling, "cooperative")
@@ -746,9 +752,10 @@ class DiagnosticsTests(unittest.TestCase):
         from src.models.h2snn_model import build_model
 
         data = _signal_fixture()
-        cfg = TrainConfig.from_dict({"device": "cpu", "model": {
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"propagation": "chebyshev", 
             "d": 8, "d_r": 4, "K": 3, "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16,
             "edge_mlp_hidden_dim": 16, "encoder": "first_order"},  # per-step trace (D11 update)
+            "ablation": {"coupling": "cooperative"},
             "data": {"resample_paths": False, "path_source": "schemas"}})
         torch.manual_seed(0)
         model = build_model(cfg, data)
@@ -766,7 +773,7 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertLess(total[-1], total[0])
         # no diffusion -> nothing to trace
         off = TrainConfig.from_dict({"device": "cpu", "ablation": {"h0_only_readout": True},
-                                     "model": {"d": 8, "d_r": 4, "K": 2},
+                                     "model": {"propagation": "chebyshev", "d": 8, "d_r": 4, "K": 2},
                                      "data": {"path_source": "schemas"}})
         self.assertEqual(build_model(off, data).energy_trace(
             data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
@@ -788,9 +795,10 @@ class DiagnosticsTests(unittest.TestCase):
             cfg = TrainConfig.from_dict({
                 "device": "cpu", "epochs": 2, "log_every": 1, "exp_name": "u4", "output_dir": tmp,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
-                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
+                "model": {"propagation": "chebyshev", "d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
                           "encoder": "first_order",  # logs eta and eta_lambda_max (D11 update)
                           "path_weight": "sigmoid_gamma"},  # logs gamma (Part H default: exp)
+                "ablation": {"coupling": "cooperative"},
                 "data": {"resample_paths": False, "path_source": "schemas"}})
             torch.manual_seed(0)
             model = build_model(cfg, data)
@@ -817,9 +825,10 @@ class KernelScriptTests(unittest.TestCase):
         from src.models.h2snn_model import build_model
 
         data = _signal_fixture()
-        cfg = TrainConfig.from_dict({"device": "cpu", "model": {
+        cfg = TrainConfig.from_dict({"device": "cpu", "model": {"propagation": "chebyshev", 
             "d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
-            "edge_mlp_hidden_dim": 8}, "data": {"resample_paths": False, "path_source": "schemas"}})
+            "edge_mlp_hidden_dim": 8}, "ablation": {"coupling": "cooperative"},
+            "data": {"resample_paths": False, "path_source": "schemas"}})
         torch.manual_seed(0)
         model = build_model(cfg, data)
         values, vectors, residuals, operator, h0 = module.kernel_basis(

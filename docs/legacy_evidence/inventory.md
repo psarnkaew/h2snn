@@ -144,3 +144,23 @@ author); "blocked (B1)" at LR-0, resolved by B1 = (c) in LR-0b.
 | `tests/test_wisp.py` | 48 | 16 |
 
 Per-test-function classification: `lr0b_classes.md` (LR-0b).
+
+## B4, B5 and LR-2 corrections (card "After the LR-2 stop"; decisions log "Legacy removal, LR-2 stop", 2026-11-15)
+
+- **LR-2 stop** at `9e9087e` (`docs/legacy_evidence/lr2_stop.md`, probe `lr2_probe_suite.txt`): `map_family: dense` runs only in the v2
+  model (the anchored solve passes the factorized `reflectors`/`rotations`, `src/models/h2snn_model.py:1339`).
+- **B4 = (a):** `map_family: dense` → **delete** with the v2 propagation: the value raises; deleted with it in LR-3: the dense model branch
+  (`DenseConformalNodeToEdgeSheaf`, `src/models/sheaf_maps.py`), `test_v2_model` T13, T8's dense control (T8's factorized assertions test
+  kept code — no `[M, d, d]` tensor in the v3-B forward/backward — and stay), the dense subcase of `test_every_ablation_trains_one_step`;
+  `DenseMapOperator` / `DenseOperatorTests`: decided in LR-3 by whether kept `src/` code uses `DenseMapOperator`.
+- **B5:** further card-listed items that cannot be built under anchored on the unchanged code are deleted with v2 and listed (none found
+  beyond dense: LR-1 built every other configuration).
+- **Corrections of `lr0b_classes.md` found in LR-2:**
+  - `test_v2_model::TwoLatentContextTests::test_context_off_keeps_one_encoder_per_arm`: **delete** (was adapt): both subcases are the
+    deleted arms `endpoint_edges`, `free_path_maps`.
+  - `test_v2_model::V2ModelTests::test_T8_no_dense_map_tensor_in_v2_forward_or_backward`: **adapt** (factorized half kept on the anchored
+    default; the dense control is deleted with dense, B4).
+  - `test_v2_model::V2ModelTests::test_T13_dense_and_factorized_families_match_on_materialized_maps`: **delete** (B4).
+  - `test_partO_literature_row::BuilderTests::test_builder_refuses_other_inputs`,
+    `test_search_spaces::NeverTunedTests::test_the_anchored_model_can_be_tuned`: **adapt** (not in the LR-0b list: their "legacy
+    propagation" case relied on the default; the propagation is now named).

@@ -1,0 +1,41 @@
+job=16741 step=19 node=g2n01 start=2026-11-15T14:51:57+09:00
+git=afda3e36a8a2b91c1301e13c53552ac5804c1330 branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+working tree:  M src/configs/config.py
+working tree:  M tests/test_cooperative.py
+working tree:  M tests/test_filter_bank.py
+working tree:  M tests/test_gap_ladder.py
+working tree:  M tests/test_pair_attention.py
+working tree:  M tests/test_partO_literature_row.py
+working tree:  M tests/test_search_spaces.py
+working tree:  M tests/test_task_heads.py
+working tree:  M tests/test_v2_model.py
+working tree:  M tests/test_v3b_model.py
+working tree:  M tests/test_wisp.py
+working tree:  M ../docs/heads_evidence/v2_golden.py
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: AttributeError: 'DenseMapOperator' object has no attribute 'reflectors'
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== tests.test_legacy_removal tests.test_v3b_golden
+test_empty_model_section_is_the_anchored_v3b_model (tests.test_legacy_removal.V3BDefaultTests.test_empty_model_section_is_the_anchored_v3b_model) ... ok
+test_every_v3b_configuration_is_bit_identical_to_the_capture (tests.test_v3b_golden.V3BGoldenTests.test_every_v3b_configuration_is_bit_identical_to_the_capture) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.044s
+
+OK
+tests_exit=0
+===== mutation: the ModelConfig default back to chebyshev
+AssertionError: Tuples differ: ('chebyshev', 'full') != ('anchored', 'full')
+Ran 1 test in 0.366s
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T14:52:21+09:00

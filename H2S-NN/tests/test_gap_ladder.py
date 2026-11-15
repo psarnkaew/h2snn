@@ -10,7 +10,7 @@ from src.configs.config import AblationConfig, TrainConfig, reject_never_tuned_s
 from src.models.map_operators import EdgeMapPair, IdentityMapOperator
 from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
 from tests.test_factorized_maps import _random_operator
-from tests.test_v2_model import _float64_pap, _v2_model
+from tests.test_v2_model import _float64_pap, _v2_legacy_model
 
 SHEAF_FREE = {"identity_maps": True, "no_path_cells": True, "coupling": "symmetric"}
 
@@ -76,8 +76,8 @@ class IdentityMapsModelTests(unittest.TestCase):
 
     def test_state_dict_unchanged_and_default_off(self) -> None:
         self.assertFalse(AblationConfig().identity_maps)
-        base = _v2_model(self.data, ablation={"no_path_cells": True, "coupling": "symmetric"})
-        free = _v2_model(self.data, ablation=SHEAF_FREE)
+        base = _v2_legacy_model(self.data, ablation={"no_path_cells": True, "coupling": "symmetric"})
+        free = _v2_legacy_model(self.data, ablation=SHEAF_FREE)
         self.assertEqual(list(base.state_dict()), list(free.state_dict()))
         for key, value in base.state_dict().items():
             self.assertTrue(torch.equal(value, free.state_dict()[key]), key)
@@ -85,7 +85,7 @@ class IdentityMapsModelTests(unittest.TestCase):
     def test_sheaf_free_logits_ignore_the_map_module(self) -> None:
         for ablation, expect_equal in ((SHEAF_FREE, True), ({"no_path_cells": True, "coupling": "symmetric"}, False)):
             with self.subTest(identity_maps=expect_equal):
-                model = _v2_model(self.data, ablation=ablation).double().eval()
+                model = _v2_legacy_model(self.data, ablation=ablation).double().eval()
                 before = self._logits(model)
                 with torch.no_grad():
                     for parameter in model.node_to_edge.parameters():
@@ -98,7 +98,7 @@ class IdentityMapsModelTests(unittest.TestCase):
 
     def test_sheaf_free_still_propagates(self) -> None:
         """Not vacuous: the sheaf-free model's logits depend on neighbours (graph diffusion runs)."""
-        model = _v2_model(self.data, ablation=SHEAF_FREE).double().eval()
+        model = _v2_legacy_model(self.data, ablation=SHEAF_FREE).double().eval()
         before = self._logits(model)
         authors = self.data.node_type == 1
         x = self.data.x.clone()

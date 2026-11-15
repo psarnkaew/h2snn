@@ -103,8 +103,9 @@ class NeverTunedTests(unittest.TestCase):
         reject_never_tuned_settings({"data": {"dataset_name": "acm"},
                                      "model": {"propagation": "anchored"},
                                      "ablation": {"coupling": "symmetric"}}, ["lr"])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError):  # legacy-removal LR-2: the legacy propagation named
             reject_never_tuned_settings({"data": {"dataset_name": "acm"},
+                                         "model": {"propagation": "chebyshev"},
                                          "ablation": {"coupling": "symmetric"}}, ["lr"])
 
 

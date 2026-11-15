@@ -75,6 +75,10 @@ def build_config(model: dict, ablations: tuple[str, ...]) -> TrainConfig:
         # cooperative, so the harness names the symmetric mode explicitly.
         if "coupling" in AblationConfig.__dataclass_fields__:
             raw["ablation"]["coupling"] = "symmetric"
+        # Legacy-removal LR-2: the default became the v3-B model; the golden is the v2 model (the
+        # tests that read it are deleted in LR-3), so the propagation is named explicitly.
+        if "propagation" in _ModelConfig.__dataclass_fields__:
+            raw["model"]["propagation"] = "chebyshev"
         # D12: the golden outputs are the D11 geometry (from h0 alone) and the first-order
         # update; the defaults are now geometry_context and filter_bank, named explicitly here.
         from src.configs.config import ModelConfig

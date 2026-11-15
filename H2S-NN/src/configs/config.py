@@ -123,8 +123,9 @@ def reject_never_tuned_settings(
     layer, so the untied control is reachable only by setting it explicitly.
     """
     data = (raw_config or {}).get("data") or {}
-    coupling = str(((raw_config or {}).get("ablation") or {}).get("coupling", "cooperative"))
-    propagation = str(((raw_config or {}).get("model") or {}).get("propagation", "chebyshev"))
+    # Legacy-removal LR-2: the defaults are the v3-B model (anchored, coupling symmetric).
+    coupling = str(((raw_config or {}).get("ablation") or {}).get("coupling", "symmetric"))
+    propagation = str(((raw_config or {}).get("model") or {}).get("propagation", "anchored"))
     # v3-B (spec v1.11 G4, D-B1): the anchored model has no gates, so `symmetric` is the model's
     # own coupling there (ModelConfig refuses any other); the rule below is the legacy one.
     if propagation == "anchored" and coupling == "symmetric":
@@ -1197,7 +1198,8 @@ class ModelConfig:
     # filter bank, gates, eta), unchanged. "anchored": Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
     # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward; no
     # K, eta, gamma or gates. Never tuned.
-    propagation: str = "chebyshev"
+    # Legacy-removal LR-2: the default is the v3-B model (`anchored`); `chebyshev` must be named.
+    propagation: str = "anchored"
     # v3-B arm under `propagation: anchored` (spec §6): full | covering_only (no node-cell term) |
     # hub_A (fact states eliminated, no fact-cell term) | closure_only (holonomy edges, no cells) |
     # no_path_cells (beta = 0) | instance_features (beta = 0 in the solve, cell features to the head)
@@ -1346,7 +1348,7 @@ class ModelConfig:
             encoder=str(raw.get("encoder", "filter_bank")),
             path_weight=path_weight,
             path_weight_init=float(raw.get("path_weight_init", 0.5)),
-            propagation=str(raw.get("propagation", "chebyshev")),
+            propagation=str(raw.get("propagation", "anchored")),
             arm=str(raw.get("arm", "full")),
             tau_init=float(raw.get("tau_init", 1.0)),
             solver_tolerance=float(raw.get("solver_tolerance", 1e-4)),
@@ -1391,7 +1393,8 @@ class AblationConfig:
     # D10 (plan §10): node-level listen / broadcast gates, x <- x - eta G Delta B x.
     # "cooperative": both gates; "listen_only": B = I; "symmetric": no gate heads, all gates
     # 1 (the pre-D10 model). Never tuned (see `reject_never_tuned_settings`).
-    coupling: str = "cooperative"
+    # Legacy-removal LR-2 (B2): the default is `symmetric`, the value v3-B requires (no gates).
+    coupling: str = "symmetric"
     # (D11) "pair_attention" replaces the gates by GATv2-style pair attention on the same sheaf:
     # the test of assumption A4 (plan §12.3). Evidence row only; never a default, never tuned.
     # (D12 G0b) Every restriction map F = I with scale 1: Delta_0 becomes the graph Laplacian

@@ -9,7 +9,7 @@ import torch
 from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.models.relational_context import RelationalContext
 from src.models.sheaf_maps import _build_mlp, mlp_on_blocks
-from tests.test_v2_model import _float64_pap, _v2_model
+from tests.test_v2_model import _float64_pap, _v2_legacy_config, _v2_legacy_model, _v2_model
 
 
 def _reference_context(h0: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor,
@@ -117,9 +117,10 @@ class ContextModelTests(unittest.TestCase):
         geometry = model.geometry_inputs(h0, self.data.edge_index, self.data.edge_type)
         maps = model.node_to_edge(geometry, self.data.edge_index, self.data.edge_type,
                                   model.relation_embedding.weight).maps
-        listen, broadcast = model.coupling_gates(geometry)
+        # Legacy-removal LR-2 (B3): the v2 gate heads g, b read geometry[v]; the v3-B counterpart is that
+        # geometry row itself (the input the map MLPs read under v3-B).
         return (maps.src.materialize()[self.edge], maps.tgt.materialize()[self.edge],
-                listen[self.v], broadcast[self.v])
+                geometry[self.v])
 
     def test_TG7_neighbour_reaches_maps_and_gates_only_with_context(self) -> None:
         for context in (True, False):
@@ -131,7 +132,7 @@ class ContextModelTests(unittest.TestCase):
                     moved[self.u] += 1.0
                     before = self._maps_and_gates(model, h0)
                     after = self._maps_and_gates(model, moved)
-                for name, a, b in zip(("F_src", "F_tgt", "g", "b"), before, after):
+                for name, a, b in zip(("F_src", "F_tgt", "geometry[v]"), before, after):
                     if context:
                         self.assertGreater(float((a - b).abs().max()), 1e-12, name)
                     else:
@@ -144,8 +145,10 @@ class ContextModelTests(unittest.TestCase):
         self.assertEqual(off.geometry_dim, off.d)
         num_relations = len(self.data.relation_names)
         self.assertEqual(on.geometry_dim, on.d * (1 + 2 * num_relations))
-        self.assertEqual(off.listen_gate.in_features, off.d)
-        self.assertEqual(on.listen_gate.in_features, on.geometry_dim)
+        # Legacy-removal LR-2 (B3): the v2 gate head's input width -> the map MLP's (2 * node + d_r + 2).
+        d_r = off.relation_embedding.embedding_dim
+        self.assertEqual(off.node_to_edge.reflector_mlp[0].in_features, 2 * off.d + d_r + 2)
+        self.assertEqual(on.node_to_edge.reflector_mlp[0].in_features, 2 * on.geometry_dim + d_r + 2)
         self.assertEqual(sorted(off.state_dict()), sorted(on.state_dict()))  # parameter-free context
 
 
@@ -355,9 +358,9 @@ class FilterBankModelTests(unittest.TestCase):
         for eta in (0.25, 0.5, 0.9):
             for K in (2, 5):
                 with self.subTest(eta=eta, K=K):
-                    bank = _v2_model(self.data, eta_init=eta, K=K).double().eval()
+                    bank = _v2_legacy_model(self.data, eta_init=eta, K=K).double().eval()
                     bank.filter_bank.reset_parameters()  # theta_k in float64
-                    first = _v2_model(self.data, eta_init=eta, K=K,
+                    first = _v2_legacy_model(self.data, eta_init=eta, K=K,
                                       encoder="first_order").double().eval()
                     with torch.no_grad():
                         first.theta_eta.copy_(torch.tensor(math.log(eta / (1 - eta)),
@@ -369,7 +372,7 @@ class FilterBankModelTests(unittest.TestCase):
                     self.assertLessEqual(error, 1e-10)
 
     def test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps(self) -> None:
-        model = _v2_model(self.data, path_weight="sigmoid_gamma").double().train()  # gamma (H)
+        model = _v2_legacy_model(self.data, path_weight="sigmoid_gamma").double().train()  # gamma (H)
         output = model(self.data)
         output.logits.square().sum().backward()
         V_grad = model.filter_bank.V.grad
@@ -389,18 +392,18 @@ class FilterBankModelTests(unittest.TestCase):
         from src.builders import build_optimizer
         from tests.test_v2_model import _v2_config
 
-        bank = _v2_model(self.data, path_weight="sigmoid_gamma")  # theta_gamma exists (Part H)
+        bank = _v2_legacy_model(self.data, path_weight="sigmoid_gamma")  # theta_gamma exists (Part H)
         self.assertIsNone(bank.theta_eta)
         self.assertIsNone(bank.eta())
-        first = _v2_model(self.data, encoder="first_order")
+        first = _v2_legacy_model(self.data, encoder="first_order")
         self.assertIsNone(first.filter_bank)
-        optimizer = build_optimizer(bank, _v2_config(path_weight="sigmoid_gamma"))
+        optimizer = build_optimizer(bank, _v2_legacy_config(path_weight="sigmoid_gamma"))
         scalar = [g for g in optimizer.param_groups if g["weight_decay"] == 0.0]
         self.assertFalse(any(p is bank.filter_bank.V for g in scalar for p in g["params"]))
         self.assertTrue(any(p is bank.theta_gamma for g in scalar for p in g["params"]))
 
     def test_operator_diagnostics_under_the_filter_bank(self) -> None:
-        model = _v2_model(self.data).double()
+        model = _v2_legacy_model(self.data).double()
         with torch.no_grad():
             model.filter_bank.V.mul_(3.0)  # normalization active
         stats = model.operator_diagnostics(self.data.x, self.data.node_type, self.data.edge_index,
@@ -410,7 +413,7 @@ class FilterBankModelTests(unittest.TestCase):
         self.assertLessEqual(stats["filter_norm_sum"], 1.0 + 1e-9)
         self.assertLessEqual(stats["filter_gain"], stats["filter_norm_sum"] + 1e-9)
         self.assertLessEqual(stats["lambda_max_A"], 2.0)
-        first = _v2_model(self.data, encoder="first_order")
+        first = _v2_legacy_model(self.data, encoder="first_order")
         self.assertEqual(set(first.operator_diagnostics(
             self.data.x.float(), self.data.node_type, self.data.edge_index, self.data.edge_type,
             self.data.face_groups, self.data.num_nodes)), {"eta_lambda_max"})
@@ -419,7 +422,7 @@ class FilterBankModelTests(unittest.TestCase):
         """D12 G3b decision 1: the logged `sum_k ||W_k||_2` takes the spectral norms of the float32
         `W_k` blocks cast to float64; both logging paths report that value; the cap holds within
         the pre-registered 1 + 1e-6 for an active cap (V = 2 x a random draw, float32 model)."""
-        model = _v2_model(self.data).train()  # float32, as in training
+        model = _v2_legacy_model(self.data).train()  # float32, as in training
         generator = torch.Generator().manual_seed(3)
         with torch.no_grad():
             model.filter_bank.V.copy_(_random_v(model.num_steps, model.d, generator).float() * 2.0)

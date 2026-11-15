@@ -28,7 +28,8 @@ GOLDEN_SCRIPT = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden.py"
 # cluster-setup3 CS8-2: the cluster capture (pinned kernels E, 1 thread); v2_golden.pt is the Windows
 # capture, kept as history.
 GOLDEN_REFERENCE = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden_cluster.pt"
-SMALL_MODEL = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
+# legacy-removal: no `K` (a v2 key; the anchored v3-B model is the default)
+SMALL_MODEL = {"d": 8, "d_r": 4, "classifier_hidden_dim": 16,
                "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
 
 
@@ -159,13 +160,11 @@ class LinkPredictionHeadTests(unittest.TestCase):
                                                 logger=None, checkpointer=None)
                 metrics = trainer._train_epoch(data, epoch=0)
                 self.assertTrue(torch.isfinite(torch.tensor(metrics["loss"])))
-                # the encoder's own scalar: eta (first_order) or sum_k ||W_k|| (filter_bank, D12)
-                self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum",
-                              metrics)
-                # gamma exists only under path_weight: sigmoid_gamma (Part H: exp's b is path_gate)
-                for prefix in ("node_encoder", "node_to_edge", "path_gate",
-                               "theta_eta" if model.encoder == "first_order" else "filter_bank",
-                               *(("theta_gamma",) if model.path_weight == "sigmoid_gamma" else ())):
+                # the encoder's own scalar: tau of the anchored solve (legacy-removal B3: was eta
+                # (first_order) or sum_k ||W_k|| (filter_bank) of the v2 model)
+                self.assertIn("tau", metrics)
+                # (Part H: exp's b is path_gate; legacy-removal B3: theta_tau replaces theta_eta / V_k)
+                for prefix in ("node_encoder", "node_to_edge", "path_gate", "theta_tau"):
                     grads = [p.grad for n, p in model.named_parameters() if n.startswith(prefix)]
                     self.assertTrue(grads and all(g is not None for g in grads), prefix)
                     self.assertTrue(all(bool(torch.isfinite(g).all()) for g in grads), prefix)
@@ -254,9 +253,9 @@ class GraphClassificationHeadTests(unittest.TestCase):
         loader = DataLoader([_typed_graph(seed) for seed in range(6)], batch_size=3)
         metrics = trainer._run_epoch(loader, epoch=0, train=True)
         self.assertTrue(torch.isfinite(torch.tensor(metrics["loss"])))
-        self.assertIn("eta" if model.encoder == "first_order" else "filter_norm_sum", metrics)
-        self.assertIn("gamma" if model.path_weight == "sigmoid_gamma" else "path_log_w_max",
-                      metrics)
+        # legacy-removal B3: tau of the anchored solve (was eta / filter_norm_sum of the v2 model)
+        self.assertIn("tau", metrics)
+        self.assertIn("path_log_w_max", metrics)
         for name, parameter in model.named_parameters():
             if parameter.grad is not None:
                 self.assertTrue(bool(torch.isfinite(parameter.grad).all()), name)

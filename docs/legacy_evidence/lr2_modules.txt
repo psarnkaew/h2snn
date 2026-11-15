@@ -1,0 +1,299 @@
+job=16741 node=g2n01 start=2026-11-15T14:44:05+09:00
+git=afda3e36a8a2b91c1301e13c53552ac5804c1330 branch=legacy-removal
+NVIDIA GeForce RTX 2080 Ti, 550.163.01, 11264 MiB
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 6
+test_T4_a_node_with_zero_broadcast_gate_influences_nobody (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_broadcast_gate_influences_nobody) ... ok
+test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly) ... ok
+test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric (tests.test_cooperative.CooperativeBehaviourTests.test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric) ... ok
+test_energy_parts_equal_the_dense_rayleigh_quotients (tests.test_cooperative.DiagnosticsTests.test_energy_parts_equal_the_dense_rayleigh_quotients) ... ok
+test_energy_trace_has_every_step_and_does_not_change_the_model_state (tests.test_cooperative.DiagnosticsTests.test_energy_trace_has_every_step_and_does_not_change_the_model_state) ... ok
+test_the_trainer_logs_the_trace_and_the_gate_statistics (tests.test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-15 14:44:12,155 | INFO | Epoch 0000 | train_loss: 1.1330 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.2500 | val_loss: 1.0966 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-15 14:44:12,175 | INFO | Checkpoint metric acc: 0.3750
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-15 14:44:12,387 | INFO | Epoch 0001 | train_loss: 1.1166 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1481 | train_micro_f1: 0.2500 | val_loss: 1.0923 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-15 14:44:12,397 | INFO | Checkpoint metric acc: 0.3750
+2026-11-15 14:44:12,397 | INFO | Best epoch 0 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500 | test_acc: 0.2500
+ok
+test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates (tests.test_cooperative.FixedPointTests.test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates) ... ok
+test_T6_gradients_reach_both_gate_heads (tests.test_cooperative.GateGradientTests.test_T6_gradients_reach_both_gate_heads) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T2_gated_step_equals_the_dense_reference (tests.test_cooperative.GatedOperatorTests.test_T2_gated_step_equals_the_dense_reference) ... ok
+test_T2_the_fixtures_mix_lengths_and_signs (tests.test_cooperative.GatedOperatorTests.test_T2_the_fixtures_mix_lengths_and_signs) ... ok
+test_lobpcg_eigenvalues_match_the_dense_spectrum (tests.test_cooperative.KernelScriptTests.test_lobpcg_eigenvalues_match_the_dense_spectrum) ... ok
+test_TF1_control_old_setting_does_not_move (tests.test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move) ... ok
+test_TF1_group_contents_and_defaults (tests.test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults) ... ok
+test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (tests.test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads) ... ok
+test_TF2_metric_gradient_identity (tests.test_cooperative.MetricGradientFlowTests.test_TF2_metric_gradient_identity) ... ok
+test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three (tests.test_cooperative.MetricGradientFlowTests.test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three) ... ok
+test_TF3b_control_free_per_direction_weights_have_no_metric (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_control_free_per_direction_weights_have_no_metric)
+A free weight per direction breaks detailed balance, so the check is not vacuous. ... ok
+test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T3_negative_control_csnn_composed_operator_is_complex (tests.test_cooperative.SpectrumTests.test_T3_negative_control_csnn_composed_operator_is_complex) ... ok
+test_T3_real_spectrum_and_bound_with_gates (tests.test_cooperative.SpectrumTests.test_T3_real_spectrum_and_bound_with_gates) ... ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+test_TG7_neighbour_reaches_maps_and_gates_only_with_context (tests.test_filter_bank.ContextModelTests.test_TG7_neighbour_reaches_maps_and_gates_only_with_context) ... ok
+test_context_off_builds_the_d11_parameter_shapes (tests.test_filter_bank.ContextModelTests.test_context_off_builds_the_d11_parameter_shapes) ... ok
+test_gathered_first_layer_equals_the_concatenation (tests.test_filter_bank.FactoredFirstLayerTests.test_gathered_first_layer_equals_the_concatenation) ... ok
+test_TG4_d11_initialization_equals_first_order (tests.test_filter_bank.FilterBankModelTests.test_TG4_d11_initialization_equals_first_order) ... ok
+test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps (tests.test_filter_bank.FilterBankModelTests.test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps) ... ok
+test_eta_only_under_first_order_and_V_in_the_normal_group (tests.test_filter_bank.FilterBankModelTests.test_eta_only_under_first_order_and_V_in_the_normal_group) ... ok
+test_norm_sum_diagnostic_casts_the_blocks_to_float64 (tests.test_filter_bank.FilterBankModelTests.test_norm_sum_diagnostic_casts_the_blocks_to_float64)
+D12 G3b decision 1: the logged `sum_k ||W_k||_2` takes the spectral norms of the float32 ... ok
+test_operator_diagnostics_under_the_filter_bank (tests.test_filter_bank.FilterBankModelTests.test_operator_diagnostics_under_the_filter_bank) ... ok
+test_switches_are_never_tuned (tests.test_filter_bank.FilterBankModelTests.test_switches_are_never_tuned) ... ok
+test_TG1_spectrum_of_A_is_real_and_in_0_2_max_gb (tests.test_filter_bank.FilterBankOperatorTests.test_TG1_spectrum_of_A_is_real_and_in_0_2_max_gb) ... ok
+test_TG2_gain_in_metric_M_is_at_most_one_with_control (tests.test_filter_bank.FilterBankOperatorTests.test_TG2_gain_in_metric_M_is_at_most_one_with_control) ... ok
+test_TG3_cooperation_through_the_filter_exact_zero_blocks (tests.test_filter_bank.FilterBankOperatorTests.test_TG3_cooperation_through_the_filter_exact_zero_blocks) ... ok
+test_TG5_lemma_N_diagonal_blocks_are_identity (tests.test_filter_bank.FilterBankOperatorTests.test_TG5_lemma_N_diagonal_blocks_are_identity) ... ok
+test_TG6_matrix_free_filter_equals_the_dense_reference (tests.test_filter_bank.FilterBankOperatorTests.test_TG6_matrix_free_filter_equals_the_dense_reference) ... ok
+test_gain_diagnostic_matches_the_exact_M_gain (tests.test_filter_bank.FilterBankOperatorTests.test_gain_diagnostic_matches_the_exact_M_gain) ... ok
+test_context_equals_the_loop_reference (tests.test_filter_bank.RelationalContextTests.test_context_equals_the_loop_reference) ... ok
+test_facts_only_no_double_counting_through_the_reverse_relation (tests.test_filter_bank.RelationalContextTests.test_facts_only_no_double_counting_through_the_reverse_relation)
+Stored edges in both directions (r and rho(r)); the tied fact layer keeps r. c over the ... ok
+test_shared_role_relation_is_orientation_independent (tests.test_filter_bank.RelationalContextTests.test_shared_role_relation_is_orientation_independent) ... ok
+test_config_values (tests.test_gap_ladder.FeatureNormalizationTests.test_config_values) ... ok
+test_row_switch_applies_pyg_normalize_features_per_type (tests.test_gap_ladder.FeatureNormalizationTests.test_row_switch_applies_pyg_normalize_features_per_type)
+build_dataset applies PyG's transform to the HeteroData before stacking; checked here ... ok
+test_config_rejects_invalid_combinations (tests.test_gap_ladder.IdentityMapsModelTests.test_config_rejects_invalid_combinations) ... ok
+test_sheaf_free_logits_ignore_the_map_module (tests.test_gap_ladder.IdentityMapsModelTests.test_sheaf_free_logits_ignore_the_map_module) ... ok
+test_sheaf_free_still_propagates (tests.test_gap_ladder.IdentityMapsModelTests.test_sheaf_free_still_propagates)
+Not vacuous: the sheaf-free model's logits depend on neighbours (graph diffusion runs). ... ok
+test_state_dict_unchanged_and_default_off (tests.test_gap_ladder.IdentityMapsModelTests.test_state_dict_unchanged_and_default_off) ... ok
+test_control_learned_maps_are_not_the_graph_laplacian (tests.test_gap_ladder.IdentityMapsOperatorTests.test_control_learned_maps_are_not_the_graph_laplacian) ... ok
+test_identity_maps_give_the_normalized_graph_laplacian (tests.test_gap_ladder.IdentityMapsOperatorTests.test_identity_maps_give_the_normalized_graph_laplacian) ... ok
+test_diagnostics_rejected_in_search_spaces (tests.test_gap_ladder.NeverTunedTests.test_diagnostics_rejected_in_search_spaces) ... ok
+test_identity_maps_rejected_in_tuning_base_config (tests.test_gap_ladder.NeverTunedTests.test_identity_maps_rejected_in_tuning_base_config) ... ok
+test_TF4_alpha_matches_an_independent_loop_based_softmax (tests.test_pair_attention.AttentionWeightTests.test_TF4_alpha_matches_an_independent_loop_based_softmax) ... ok
+test_TF4_every_row_is_positive_and_sums_to_one (tests.test_pair_attention.AttentionWeightTests.test_TF4_every_row_is_positive_and_sums_to_one) ... ok
+test_TF4_the_fixtures_have_loops_shared_roles_and_signed_hops (tests.test_pair_attention.AttentionWeightTests.test_TF4_the_fixtures_have_loops_shared_roles_and_signed_hops) ... ok
+test_TF7_operator_equals_the_explicit_matrix (tests.test_pair_attention.DenseReferenceTests.test_TF7_operator_equals_the_explicit_matrix) ... ok
+test_TF7_state_dict_differs_from_d11_only_by_attention_added_and_gates_removed (tests.test_pair_attention.DenseReferenceTests.test_TF7_state_dict_differs_from_d11_only_by_attention_added_and_gates_removed) ... ok
+test_a_merged_cell_of_weight_two_equals_two_duplicate_unit_cells (tests.test_pair_attention.MergedWeightTests.test_a_merged_cell_of_weight_two_equals_two_duplicate_unit_cells)
+Softmax mass of a cell with merged weight m is m e^s (the `log m_f` term): one cell with ... ok
+test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent (tests.test_pair_attention.MergedWeightTests.test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent) ... ok
+test_pair_attention_is_never_a_default_and_never_tuned (tests.test_pair_attention.MergedWeightTests.test_pair_attention_is_never_a_default_and_never_tuned) ... ok
+test_TF6_control_unnormalized_exp_scores_expand (tests.test_pair_attention.NonExpansionTests.test_TF6_control_unnormalized_exp_scores_expand) ... ok
+test_TF6_max_node_norm_is_nonincreasing_for_eta_up_to_one (tests.test_pair_attention.NonExpansionTests.test_TF6_max_node_norm_is_nonincreasing_for_eta_up_to_one) ... ok
+test_TF3b_control_pair_attention_has_no_metric (tests.test_pair_attention.Prop4ControlTests.test_TF3b_control_pair_attention_has_no_metric)
+The same factorization check that the gated operator passes (tests.test_cooperative) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_TF5_a_global_section_is_a_fixed_point (tests.test_pair_attention.SectionTests.test_TF5_a_global_section_is_a_fixed_point) ... ok
+test_forward_is_finite_on_an_acm_sized_graph (tests.test_partO_literature_row.AnchoredForwardTests.test_forward_is_finite_on_an_acm_sized_graph) ... ok
+test_any_other_difference_raises (tests.test_partO_literature_row.BuilderTests.test_any_other_difference_raises) ... ok
+test_builder_changes_only_the_path_source (tests.test_partO_literature_row.BuilderTests.test_builder_changes_only_the_path_source) ... ok
+test_builder_refuses_other_inputs (tests.test_partO_literature_row.BuilderTests.test_builder_refuses_other_inputs) ... ok
+test_row_configuration_rules (tests.test_partO_literature_row.BuilderTests.test_row_configuration_rules) ... ok
+test_row_is_refused_in_tuning (tests.test_partO_literature_row.BuilderTests.test_row_is_refused_in_tuning) ... ok
+test_evaluation_draw_is_deterministic_per_base_seed (tests.test_partO_literature_row.DrawTests.test_evaluation_draw_is_deterministic_per_base_seed) ... ok
+test_every_cell_is_a_listed_meta_path (tests.test_partO_literature_row.DrawTests.test_every_cell_is_a_listed_meta_path) ... ok
+test_sampler_asks_for_the_split (tests.test_partO_literature_row.DrawTests.test_sampler_asks_for_the_split) ... ok
+test_lists_resolve_and_have_instances_on_the_real_graphs (tests.test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) ... ok
+test_split_sums_to_r_and_is_even (tests.test_partO_literature_row.SplitTests.test_split_sums_to_r_and_is_even) ... ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (refused only for the ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (tests.test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) ... ok
+test_T11_free_maps_are_orthogonal_and_per_incidence (tests.test_v2_model.AblationTests.test_T11_free_maps_are_orthogonal_and_per_incidence) ... ok
+test_T11_h0_only_readout_ignores_the_graph (tests.test_v2_model.AblationTests.test_T11_h0_only_readout_ignores_the_graph) ... ok
+test_T11_holonomy_edges_equal_the_dense_closure_edge (tests.test_v2_model.AblationTests.test_T11_holonomy_edges_equal_the_dense_closure_edge) ... ok
+test_T11_no_path_cells_makes_logits_independent_of_path_data (tests.test_v2_model.AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data) ... ok
+test_T11_per_side_scales_reach_transports_and_degree (tests.test_v2_model.AblationTests.test_T11_per_side_scales_reach_transports_and_degree) ... ok
+test_T11_uniform_gate_gives_w_identically_one (tests.test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one) ... ok
+test_every_ablation_trains_one_step (tests.test_v2_model.AblationTests.test_every_ablation_trains_one_step) ... ok
+test_defaults_are_the_full_model (tests.test_v2_model.ConfigTests.test_defaults_are_the_full_model) ... ok
+test_invalid_values_and_conflicting_ablations_are_rejected (tests.test_v2_model.ConfigTests.test_invalid_values_and_conflicting_ablations_are_rejected) ... ok
+test_unknown_keys_fail_loudly (tests.test_v2_model.ConfigTests.test_unknown_keys_fail_loudly)
+Old (v1 / AMPSS) settings and typos are rejected in every section. ... ok
+test_dense_operator_closed_form_inverse_and_shapes (tests.test_v2_model.DenseOperatorTests.test_dense_operator_closed_form_inverse_and_shapes) ... ok
+test_path_transport_accepts_dense_operators (tests.test_v2_model.DenseOperatorTests.test_path_transport_accepts_dense_operators) ... ok
+test_D_is_the_per_incidence_degree_of_the_operators_own_terms (tests.test_v2_model.PathLaplacianTests.test_D_is_the_per_incidence_degree_of_the_operators_own_terms)
+`D_v I` equals the dense diagonal block of `L` at every node without a self-loop; ... ok
+test_T2_path_operator_equals_dense_kron_reduced_reference (tests.test_v2_model.PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference)
+Mixed path lengths 2, 3, 4 in one complex; per-edge and per-side scales. ... ok
+test_T3_normalized_operator_is_self_adjoint_and_psd (tests.test_v2_model.PathLaplacianTests.test_T3_normalized_operator_is_self_adjoint_and_psd) ... ok
+test_T5_normalized_spectrum_is_bounded_by_two (tests.test_v2_model.PathLaplacianTests.test_T5_normalized_spectrum_is_bounded_by_two)
+60 fixtures: c in {eps, 50} (40 per-edge, 20 per-side), random w_f, gamma. ... ok
+test_T7_cell_state_is_the_least_squares_minimizer (tests.test_v2_model.PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer) ... ok
+test_T12a_both_sides_share_exactly_one_scale_per_edge (tests.test_v2_model.PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge) ... ok
+test_T12a_per_side_ablation_keeps_two_scales (tests.test_v2_model.PerEdgeScaleTests.test_T12a_per_side_ablation_keeps_two_scales) ... ok
+test_T12b_edge_transports_are_orthogonal (tests.test_v2_model.PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal) ... ok
+test_T12b_negative_control_per_side_scales_break_orthogonality (tests.test_v2_model.PerEdgeScaleTests.test_T12b_negative_control_per_side_scales_break_orthogonality) ... ok
+test_T12b_path_transports_are_orthogonal_at_every_length (tests.test_v2_model.PerEdgeScaleTests.test_T12b_path_transports_are_orthogonal_at_every_length) ... ok
+test_T12b_shared_scale_path_uses_no_scale (tests.test_v2_model.PerEdgeScaleTests.test_T12b_shared_scale_path_uses_no_scale)
+The fast path never touches `c`: transports are bit-identical for any shared scale, ... ok
+test_T12c_scale_lower_bound_and_finite_gradients_at_extremes (tests.test_v2_model.PerEdgeScaleTests.test_T12c_scale_lower_bound_and_finite_gradients_at_extremes) ... ok
+test_T10_per_edge_storage_matches_the_bound_exactly (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T10_per_edge_storage_matches_the_bound_exactly)
+Unique float storage held by both operators: `2 M k d + M + 2 |R| d^2`. ... ok
+test_T4_per_edge_maps_are_side_specific_and_node_dependent (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T4_per_edge_maps_are_side_specific_and_node_dependent) ... ok
+test_T5_per_edge_holonomy_is_nontrivial_and_varies (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies) ... ok
+test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0 (tests.test_v2_model.ScaleGaugeTests.test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0) ... ok
+test_T4_negative_control_free_maps_shrink_the_kernel (tests.test_v2_model.SectionPreservationTests.test_T4_negative_control_free_maps_shrink_the_kernel) ... ok
+test_T4_sections_are_preserved_and_the_kernel_is_unchanged (tests.test_v2_model.SectionPreservationTests.test_T4_sections_are_preserved_and_the_kernel_is_unchanged) ... ok
+test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates (tests.test_v2_model.TwoLatentContextTests.test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates) ... ok
+test_b_g_reads_h0_only_unless_the_appendix_switch (tests.test_v2_model.TwoLatentContextTests.test_b_g_reads_h0_only_unless_the_appendix_switch) ... ok
+test_c_free_maps_read_every_instance_node_context_through_the_latent (tests.test_v2_model.TwoLatentContextTests.test_c_free_maps_read_every_instance_node_context_through_the_latent) ... ok
+test_context_off_keeps_one_encoder_per_arm (tests.test_v2_model.TwoLatentContextTests.test_context_off_keeps_one_encoder_per_arm) ... ok
+test_d_pair_attention_cell_scores_read_the_context (tests.test_v2_model.TwoLatentContextTests.test_d_pair_attention_cell_scores_read_the_context) ... ok
+test_T10_gradients_reach_every_learned_component (tests.test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) ... ok
+test_T13_dense_and_factorized_families_match_on_materialized_maps (tests.test_v2_model.V2ModelTests.test_T13_dense_and_factorized_families_match_on_materialized_maps) ... ok
+test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node (tests.test_v2_model.V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node)
+One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links ... ok
+test_T8_no_dense_map_tensor_in_v2_forward_or_backward (tests.test_v2_model.V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward)
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4 ... ok
+test_T9_deleted_components_are_absent (tests.test_v2_model.V2ModelTests.test_T9_deleted_components_are_absent) ... ok
+test_build_model_builds_the_node_classification_head (tests.test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
+test_checkpointing_switch_does_not_change_outputs_or_gradients (tests.test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
+test_gate_initialization_is_near_one_half (tests.test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
+test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (tests.test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-15 14:50:23,770 | INFO | Epoch 0000 | train_loss: 1.2068 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0817 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.2167 | val_micro_f1: 0.2500 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-15 14:50:23,788 | INFO | Checkpoint metric acc: 0.2500
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-15 14:50:24,054 | INFO | Epoch 0001 | train_loss: 1.1866 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0781 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3175 | val_micro_f1: 0.3750 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-15 14:50:24,072 | INFO | Checkpoint metric acc: 0.3750
+2026-11-15 14:50:24,072 | INFO | Best epoch 1 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750 | test_acc: 0.3750
+/mnt/data/peeradon/h2snn/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+ok
+test_T14_config_keys_are_validated_and_never_tuned (tests.test_v3b_model.ArmTests.test_T14_config_keys_are_validated_and_never_tuned) ... ok
+test_T14_every_arm_trains_and_gradients_reach_the_right_groups (tests.test_v3b_model.ArmTests.test_T14_every_arm_trains_and_gradients_reach_the_right_groups) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_direct_construction_is_validated (tests.test_wisp.WispConfigValidationTests.test_direct_construction_is_validated) ... ok
+test_every_never_tuned_wisp_key_is_rejected (tests.test_wisp.WispConfigValidationTests.test_every_never_tuned_wisp_key_is_rejected) ... ok
+test_wisp_keys_are_rejected_under_schemas_through_from_dict (tests.test_wisp.WispConfigValidationTests.test_wisp_keys_are_rejected_under_schemas_through_from_dict) ... ok
+test_default_path_source_and_r_per_dataset (tests.test_wisp.WispDefaultTests.test_default_path_source_and_r_per_dataset) ... ok
+test_explicit_values_are_kept (tests.test_wisp.WispDefaultTests.test_explicit_values_are_kept) ... ok
+test_resolved_configs_round_trip (tests.test_wisp.WispDefaultTests.test_resolved_configs_round_trip) ... ok
+test_schemas_row_is_never_tuned_for_node_classification (tests.test_wisp.WispDefaultTests.test_schemas_row_is_never_tuned_for_node_classification) ... ok
+test_an_unresolved_path_source_is_refused_by_its_consumers (tests.test_wisp.WispGuardTests.test_an_unresolved_path_source_is_refused_by_its_consumers) ... ok
+test_path_weight_context_is_the_ladder_appendix_pair_only (tests.test_wisp.WispGuardTests.test_path_weight_context_is_the_ladder_appendix_pair_only) ... ok
+test_r_is_in_the_search_space (tests.test_wisp.WispGuardTests.test_r_is_in_the_search_space)
+Spec v1.15 J2 supersedes E11 (r never tuned): r in {8, 16, 32, 64} is tuned. ... ok
+test_r_resolves_from_the_table_for_its_l_max (tests.test_wisp.WispGuardTests.test_r_resolves_from_the_table_for_its_l_max) ... ok
+test_tuning_base_config_carries_the_pre_registered_wisp_settings (tests.test_wisp.WispGuardTests.test_tuning_base_config_carries_the_pre_registered_wisp_settings) ... ok
+test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter (tests.test_wisp.WispLadderTests.test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter) ... ok
+test_TH6_exp_operator_has_no_gamma_multiplier (tests.test_wisp.WispLadderTests.test_TH6_exp_operator_has_no_gamma_multiplier)
+The path part of D enters with exactly sum w_f m_f (1 - 1/|f|) s^2: no gamma, no constant. ... ok
+test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix (tests.test_wisp.WispLadderTests.test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix)
+g reads instance nodes only: a neighbour of the endpoints outside the cell changes no ... ok
+test_TH7_capacity_rule_endpoints_vs_full_within_5_percent (tests.test_wisp.WispLadderTests.test_TH7_capacity_rule_endpoints_vs_full_within_5_percent) ... ok
+test_TH7_endpoint_perturbation_and_schema_equality (tests.test_wisp.WispLadderTests.test_TH7_endpoint_perturbation_and_schema_equality) ... ok
+test_TH7_intermediate_and_its_neighbourhood_under_the_default_context (tests.test_wisp.WispLadderTests.test_TH7_intermediate_and_its_neighbourhood_under_the_default_context)
+Spec v1.4 (R12), under geometry_context: true (the default): perturbing an ... ok
+test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch (tests.test_wisp.WispLadderTests.test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch)
+The v1.3 behaviour is the appendix pair: with path_weight_context: true an ... ok
+test_TH7_positions_l_minus_1_and_l_separately (tests.test_wisp.WispLadderTests.test_TH7_positions_l_minus_1_and_l_separately)
+Review MINOR-6: v_{l-1} (an intermediate) must not reach endpoints, v_l must; full sees ... ok
+test_TH8_length_neutral_initialisation (tests.test_wisp.WispLadderTests.test_TH8_length_neutral_initialisation)
+Constant g (`uniform`): the expected total cell weight per anchor is equal across ... ok
+test_path_weight_context_is_an_appendix_arm_never_tuned (tests.test_wisp.WispLadderTests.test_path_weight_context_is_an_appendix_arm_never_tuned) ... ok
+test_saved_configs_round_trip_under_both_path_weights (tests.test_wisp.WispLadderTests.test_saved_configs_round_trip_under_both_path_weights) ... ok
+test_overlap_is_bit_identical_for_both_proposals (tests.test_wisp.WispOverlapSamplingTests.test_overlap_is_bit_identical_for_both_proposals) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect (tests.test_wisp.WispOverlapSamplingTests.test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect) ... ok
+test_TH2_unbiased_under_a_strongly_biased_q_with_control (tests.test_wisp.WispProposalTests.test_TH2_unbiased_under_a_strongly_biased_q_with_control) ... ok
+test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control (tests.test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control) ... ok
+test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms (tests.test_wisp.WispProposalTests.test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms) ... ok
+test_proposal_from_mass_tables (tests.test_wisp.WispProposalTests.test_proposal_from_mass_tables) ... ok
+test_TH11_delta_loss_of_an_absent_schema_is_zero (tests.test_wisp.WispReadoutTests.test_TH11_delta_loss_of_an_absent_schema_is_zero) ... ok
+test_TH11_pair_decomposition_reproduces_each_cell_energy (tests.test_wisp.WispReadoutTests.test_TH11_pair_decomposition_reproduces_each_cell_energy)
+Prop. K: 1/2 x^T L_f x (production PathCellTerm, one cell at a time) equals ... ok
+test_TH11_partial_pair_form_matches_its_kept_pair_energy (tests.test_wisp.WispReadoutTests.test_TH11_partial_pair_form_matches_its_kept_pair_energy)
+With a random symmetric pair mask, 1/2 x^T L_keep x equals the kept pairs' energy ... ok
+test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders (tests.test_wisp.WispReadoutTests.test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders) ... ok
+test_TH11_shares_sum_to_one (tests.test_wisp.WispReadoutTests.test_TH11_shares_sum_to_one) ... ok
+test_kendall_tau_and_permutation_null (tests.test_wisp.WispReadoutTests.test_kendall_tau_and_permutation_null) ... ok
+test_readouts_import_no_training_code (tests.test_wisp.WispReadoutTests.test_readouts_import_no_training_code) ... ok
+test_TH1_exact_distribution_no_revisits_and_dead_end_mass (tests.test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass) ... ok
+test_TH2_unbiased_path_laplacian_for_q_equal_p (tests.test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p) ... ok
+test_TH4_identity_and_summed_merge (tests.test_wisp.WispSamplerTests.test_TH4_identity_and_summed_merge) ... ok
+test_TH9_determinism_and_draw_seeds (tests.test_wisp.WispSamplerTests.test_TH9_determinism_and_draw_seeds) ... ok
+test_TH9_evaluation_draw_ignores_model_and_ablation_settings (tests.test_wisp.WispSamplerTests.test_TH9_evaluation_draw_ignores_model_and_ablation_settings) ... ok
+test_reference_fixture_has_the_required_structures (tests.test_wisp.WispSamplerTests.test_reference_fixture_has_the_required_structures) ... ok
+test_wisp_config_rejections (tests.test_wisp.WispSamplerTests.test_wisp_config_rejections) ... ok
+test_adaptive_training_draws_leave_the_evaluation_cells_unchanged (tests.test_wisp.WispTrainerDrawTests.test_adaptive_training_draws_leave_the_evaluation_cells_unchanged) ... ok
+test_transported_TH2_for_q_equal_p (tests.test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_for_q_equal_p) ... ok
+test_transported_TH2_under_a_biased_q_with_control (tests.test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_under_a_biased_q_with_control) ... ok
+test_TH5_kernel_preserved_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_kernel_preserved_with_exp_weights)
+Prop. 2 on the D7 tree with sections: ker(Delta_0 + L_P) = ker Delta_0 for exp weights ... ok
+test_TH5_props_2_3_5_with_exp_weights (tests.test_wisp.WispWeightOperatorTests.test_TH5_props_2_3_5_with_exp_weights) ... ok
+test_empty_model_section_is_the_anchored_v3b_model (tests.test_legacy_removal.V3BDefaultTests.test_empty_model_section_is_the_anchored_v3b_model) ... ok
+
+----------------------------------------------------------------------
+Ran 189 tests in 447.509s
+
+OK
+end=2026-11-15T14:51:36+09:00 exit=0

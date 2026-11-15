@@ -743,6 +743,21 @@ def _v2_model(data, seed: int = 0, ablation: dict | None = None, **model: object
     return build_model(_v2_config(ablation, **model), data)
 
 
+# Legacy-removal LR-2: the default model became the anchored v3-B model. Tests of the v2 model (deleted in
+# LR-3) build it through these helpers, which name the v2 values: `propagation: chebyshev` and the former
+# default `coupling: cooperative` (an explicit ablation value overrides it).
+def _v2_legacy_config(ablation: dict | None = None, **model: object) -> TrainConfig:
+    return _v2_config({"coupling": "cooperative", **(ablation or {})}, propagation="chebyshev",
+                      **model)
+
+
+def _v2_legacy_model(data, seed: int = 0, ablation: dict | None = None, **model: object):
+    from src.models.h2snn_model import build_model
+
+    torch.manual_seed(seed)
+    return build_model(_v2_legacy_config(ablation, **model), data)
+
+
 def _a1_p_a2():
     """Path A1 -> P -> A2 (nodes 0, 1, 2), one 2-cell on it, plus a pendant node 3 on A2."""
     from src.data.structures import FaceGroup
@@ -778,7 +793,7 @@ class V2ModelTests(unittest.TestCase):
         dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
                          face_lengths=(2,))
         torch.manual_seed(0)
-        model = H2SNN(_v2_config(encoder="first_order"), dims).double()  # one eta step (D11)
+        model = H2SNN(_v2_legacy_config(encoder="first_order"), dims).double()  # one eta step (D11)
         h0 = torch.randn(4, 8, dtype=torch.float64)
         operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
         self.assertEqual(len(operator.laplacian.path_terms), 1)
@@ -811,7 +826,8 @@ class V2ModelTests(unittest.TestCase):
             lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
         self.assertGreater(float(jacobian[0, :, 2, :].abs().max()), 1e-8)
         torch.manual_seed(0)
-        ablated = H2SNN(_v2_config({"no_path_cells": True}, encoder="first_order"), dims).double()
+        ablated = H2SNN(_v2_legacy_config({"no_path_cells": True}, encoder="first_order"),
+                        dims).double()
         ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
         jacobian = torch.autograd.functional.jacobian(
             lambda x0: x0 - ablated_operator.eta
@@ -853,7 +869,8 @@ class V2ModelTests(unittest.TestCase):
         self.assertEqual(hits(v2, "forward"), [])
         self.assertEqual(hits(v2, "backward"), [])
         self.assertTrue(any(p == "backward" for p, _ in v2.shapes))
-        dense = record(_v2_model(data, d=d, face_mlp_hidden_dim=128, edge_mlp_hidden_dim=128,
+        # Legacy-removal B4: the dense family runs only in the v2 model (deleted in LR-3).
+        dense = record(_v2_legacy_model(data, d=d, face_mlp_hidden_dim=128, edge_mlp_hidden_dim=128,
                                  map_family="dense"))
         self.assertTrue(hits(dense, "forward"))
         self.assertTrue(hits(dense, "backward"))
@@ -894,8 +911,9 @@ class V2ModelTests(unittest.TestCase):
         data = _random_pap_data()
         model = _v2_model(data)
         model(data).logits.square().sum().backward()
-        # the encoder's own parameters: theta_eta (first_order) or the filter bank V (D12 default)
-        groups = ["theta_eta" if model.encoder == "first_order" else "filter_bank",
+        # the encoder's own parameters: theta_tau of the anchored solve (legacy-removal B3: was
+        # theta_eta (first_order) or the filter bank V of the v2 model)
+        groups = ["theta_tau",
                   *(["theta_gamma"] if model.path_weight == "sigmoid_gamma" else []),
                   "path_gate", "path_encoder",
                   "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
@@ -942,7 +960,7 @@ class V2ModelTests(unittest.TestCase):
         data = _as_float64(_random_pap_data())
         for map_scale in ("per_edge", "per_side"):
             with self.subTest(map_scale=map_scale):
-                factorized = _v2_model(
+                factorized = _v2_legacy_model(
                     data, ablation={"per_side_scale": map_scale == "per_side"}
                 ).double().eval()
                 dense = copy.deepcopy(factorized)
@@ -959,7 +977,7 @@ class V2ModelTests(unittest.TestCase):
                 self.assertEqual(set(grads_a), set(grads_b))
                 for name, grad in grads_a.items():
                     self.assertLess(_rel_err(grads_b[name], grad), F64_TOL, name)
-        dense_family = _v2_model(_random_pap_data(), map_family="dense")
+        dense_family = _v2_legacy_model(_random_pap_data(), map_family="dense")
         output = dense_family(_random_pap_data())
         output.logits.square().sum().backward()
         self.assertTrue(bool(torch.isfinite(output.logits).all()))
@@ -998,9 +1016,9 @@ class V2ModelTests(unittest.TestCase):
             cfg = TrainConfig.from_dict({
                 "device": "cpu", "epochs": 2, "exp_name": "v2_smoke", "output_dir": tmpdir,
                 "checkpoint_metric": "acc", "checkpoint_mode": "max",
-                "model": {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
-                          "encoder": "first_order",  # eta logged, 6-tensor scalar group (D11)
-                          "path_weight": "sigmoid_gamma"},  # gamma logged (Part H default: exp)
+                # legacy-removal B3: the anchored v3-B model (was the v2 model with first_order and
+                # sigmoid_gamma: eta, gamma and four gate tensors in the scalar group)
+                "model": {"d": 8, "d_r": 4, "classifier_hidden_dim": 16},
                 # Hand-built fixture without a fact layer: nothing to resample.
                 "data": {"resample_paths": False, "path_source": "schemas"},
                 "optim": {"lr": 1e-3, "weight_decay": 1e-4, "scalar_lr_scale": 10.0}})
@@ -1010,12 +1028,13 @@ class V2ModelTests(unittest.TestCase):
             checkpointer = Checkpointer(cfg.exp_dir, metric="acc", mode="max")
             save_config(cfg, cfg.exp_dir / "config.yaml")
             optimizer = build_optimizer(model, cfg)
-            # theta_eta, theta_gamma and the four gate-head tensors (plan §12.4) in their own
-            # group: lr x 10, no weight decay.
+            # theta_tau and the bias b of g (v3-B scalars; legacy-removal B3: was theta_eta,
+            # theta_gamma and the four gate-head tensors) in their own group: lr x 10, no weight decay.
             scalar_group = [g for g in optimizer.param_groups
-                            if any(p is model.theta_eta for p in g["params"])]
+                            if any(p is model.theta_tau for p in g["params"])]
             self.assertEqual(len(scalar_group), 1)
-            self.assertEqual(len(scalar_group[0]["params"]), 6)
+            self.assertEqual(len(scalar_group[0]["params"]), 2)
+            self.assertTrue(any(p is model.path_gate.bias for p in scalar_group[0]["params"]))
             self.assertAlmostEqual(scalar_group[0]["lr"], 1e-2)
             self.assertEqual(scalar_group[0]["weight_decay"], 0.0)
             other = [g for g in optimizer.param_groups if g is not scalar_group[0]]
@@ -1034,9 +1053,9 @@ class V2ModelTests(unittest.TestCase):
                 records = [json.loads(line) for line in
                            (cfg.exp_dir / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
                 self.assertEqual(len(records), 2)
-                for record in records:
-                    self.assertIn("eta", json.dumps(record))
-                    self.assertIn("gamma", json.dumps(record))
+                for record in records:  # legacy-removal B3: tau and log w_f (were eta and gamma)
+                    self.assertIn("tau", json.dumps(record))
+                    self.assertIn("path_log_w_max", json.dumps(record))
                 self.assertTrue((cfg.exp_dir / "checkpoints" / "best.pt").exists())
                 import yaml
 
@@ -1080,36 +1099,48 @@ class AblationTests(unittest.TestCase):
     def _model(self, ablation: dict | None = None, **model):
         return _v2_model(self.data, ablation=ablation, **model).double().eval()
 
+    def _legacy_model(self, ablation: dict | None = None, **model):
+        """The v2 model (legacy-removal LR-2: its switches are deleted in LR-3)."""
+        return _v2_legacy_model(self.data, ablation=ablation, **model).double().eval()
+
     def _logits(self, model, data=None) -> torch.Tensor:
         with torch.no_grad():
             return model(self.data if data is None else data).logits
 
     def test_T11_no_path_cells_makes_logits_independent_of_path_data(self) -> None:
-        model = self._model({"no_path_cells": True})
-        self.assertIsNone(model.theta_gamma)
-        self.assertIsNone(model.path_encoder)
-        self.assertIsNone(model.path_gate)
+        # Legacy-removal B1/B3: the v2 switch `ablation.no_path_cells` is deleted; the v3-B arm
+        # `model.arm: no_path_cells` is its counterpart. The v2 checks "no theta_gamma, no path
+        # encoder, no gate" (nothing built for the path term) become "no cell in the solved system".
+        model = self._model(arm="no_path_cells")
         no_faces = _with(self.data, face_groups=())
         self.assertTrue(torch.equal(self._logits(model), self._logits(model, no_faces)))
+        self._logits(model)
+        self.assertEqual(model.last_solver_stats["num_cells"], 0.0)
         control = self._model()
         self.assertGreater(float((self._logits(control) - self._logits(control, no_faces))
                                  .abs().max()), 1e-6)
 
     def test_T11_uniform_gate_gives_w_identically_one(self) -> None:
-        # Part H: `uniform_path_gate` is `path_weight_input: uniform`; w = 1 under sigmoid_gamma
-        model = self._model({"path_weight_input": "uniform"}, path_weight="sigmoid_gamma")
+        # Part H: `uniform_path_gate` is `path_weight_input: uniform`. Legacy-removal B3: under the
+        # v3-B weight w = exp(g) (sigmoid_gamma is deleted) the uniform rung gives w = exp(b) for every
+        # cell (no input reaches g; was w = 1 under sigmoid_gamma), and a learned g varies across cells.
+        model = self._model({"path_weight_input": "uniform"})
         self.assertIsNone(model.path_gate)
         self.assertIsNone(model.path_encoder)
-        h0 = model.encode_nodes(self.data.x, self.data.node_type)
-        operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                        self.data.face_groups, self.data.num_nodes)
+        with torch.no_grad():
+            operator = model.encode(self.data.x, self.data.node_type, self.data.edge_index,
+                                    self.data.edge_type, self.data.face_groups,
+                                    self.data.num_nodes).operator
+        constant = torch.exp(model.path_log_weight.detach())
         for weights in operator.path_weights:
-            self.assertTrue(torch.equal(weights, torch.ones_like(weights)))
-        learned = self._model(path_weight="sigmoid_gamma")
-        h0 = learned.encode_nodes(self.data.x, self.data.node_type)
-        weights = learned.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                         self.data.face_groups, self.data.num_nodes).path_weights
-        self.assertGreater(float((torch.cat(weights) - 1).abs().min()), 0.1)
+            self.assertTrue(torch.equal(weights, constant.expand_as(weights)))
+        learned = self._model()
+        with torch.no_grad():
+            weights = learned.encode(self.data.x, self.data.node_type, self.data.edge_index,
+                                     self.data.edge_type, self.data.face_groups,
+                                     self.data.num_nodes).operator.path_weights
+        all_weights = torch.cat(weights)
+        self.assertGreater(float(all_weights.max() - all_weights.min()), 1e-3)
 
     def test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term(self) -> None:
         # Geometry from h0 alone: under the D12 geometry_context the endpoints' context c is a
@@ -1117,7 +1148,7 @@ class AblationTests(unittest.TestCase):
         # an intermediate's h0 moves c by design; the path-specific claim is tested here.
         for mode, expect_equal in (("endpoint_edges", True), ("cells", False)):
             with self.subTest(path_mode=mode):
-                model = self._model({"endpoint_edges": mode == "endpoint_edges"},
+                model = self._legacy_model({"endpoint_edges": mode == "endpoint_edges"},
                                     geometry_context=False)
                 h0 = model.encode_nodes(self.data.x, self.data.node_type)
                 maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
@@ -1155,7 +1186,7 @@ class AblationTests(unittest.TestCase):
 
         for map_scale in ("per_edge", "per_side"):
             with self.subTest(map_scale=map_scale):
-                model = self._model({"holonomy_edges": True,
+                model = self._legacy_model({"holonomy_edges": True,
                                      "per_side_scale": map_scale == "per_side"})
                 h0 = model.encode_nodes(self.data.x, self.data.node_type)
                 with torch.no_grad():
@@ -1185,7 +1216,7 @@ class AblationTests(unittest.TestCase):
     def test_T11_free_maps_are_orthogonal_and_per_incidence(self) -> None:
         from src.models.vertex_path_laplacian import FreeIncidenceOperator
 
-        model = self._model({"free_path_maps": True})
+        model = self._legacy_model({"free_path_maps": True})
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
         with torch.no_grad():
             operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1204,7 +1235,7 @@ class AblationTests(unittest.TestCase):
         self.assertGreater(float(model.free_maps.reflector_mlp[0].weight.grad.abs().sum()), 0.0)
 
     def test_T11_per_side_scales_reach_transports_and_degree(self) -> None:
-        model = self._model({"per_side_scale": True})
+        model = self._legacy_model({"per_side_scale": True})
         h0 = model.encode_nodes(self.data.x, self.data.node_type)
         with torch.no_grad():
             operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1215,7 +1246,7 @@ class AblationTests(unittest.TestCase):
             squares = term.incidence.squared_scales()
             self.assertGreater(float((squares - 1).abs().max()), 1e-3)
             self.assertTrue(torch.equal(squares[:, 0], torch.ones_like(squares[:, 0])))
-        per_edge = self._model()
+        per_edge = self._legacy_model()
         with torch.no_grad():
             h0 = per_edge.encode_nodes(self.data.x, self.data.node_type)
             terms = per_edge.build_operator(h0, self.data.edge_index, self.data.edge_type,
@@ -1242,20 +1273,30 @@ class AblationTests(unittest.TestCase):
     def test_every_ablation_trains_one_step(self) -> None:
         # boolean switches (D10's `coupling` is a mode, covered below)
         # identity_maps (D12 G0b diagnostic) is defined only together with no_path_cells.
+        # Legacy-removal LR-2 (B1, B4, B3): switches of the v2 model (deleted in LR-3) run on the
+        # explicit v2 model; the kept switches and the v3-B arms (the counterpart of the v2 path
+        # switches) run on the anchored default.
+        from src.configs.config import V3B_ARMS
+
+        deleted = ("no_path_cells", "free_path_maps", "endpoint_edges", "holonomy_edges",
+                   "per_side_scale", "identity_maps")
         requires = {"identity_maps": {"no_path_cells": True}}
-        switches = [({name: True, **requires.get(name, {})}, {})
-                    for name in AblationConfig.__dataclass_fields__
-                    if name not in ("coupling", "path_weight_input")]
+        switches = [({name: True}, {}, False) for name in AblationConfig.__dataclass_fields__
+                    if name not in ("coupling", "path_weight_input") + deleted]
+        switches += [({name: True, **requires.get(name, {})}, {}, True) for name in deleted]
         # Part H: the C2 weight ladder (a mode) and the sigmoid_gamma comparison arm
-        switches += [({"path_weight_input": arm}, {}) for arm in ("endpoints", "schema", "uniform")]
-        switches += [({}, {"path_weight": "sigmoid_gamma"}),
-                     ({"path_weight_input": "uniform"}, {"path_weight": "sigmoid_gamma"})]
-        switches += [({"coupling": mode}, {}) for mode in ("cooperative", "listen_only",
-                                                           "symmetric")]
-        switches.append(({}, {"map_family": "dense"}))
-        for ablation, model_overrides in switches:
+        switches += [({"path_weight_input": arm}, {}, False)
+                     for arm in ("endpoints", "schema", "uniform")]
+        switches += [({}, {"path_weight": "sigmoid_gamma"}, True),
+                     ({"path_weight_input": "uniform"}, {"path_weight": "sigmoid_gamma"}, True)]
+        switches += [({"coupling": mode}, {}, True) for mode in ("cooperative", "listen_only")]
+        switches += [({"coupling": "symmetric"}, {}, False)]
+        switches.append(({}, {"map_family": "dense"}, True))
+        switches += [({}, {"arm": arm}, False) for arm in V3B_ARMS]
+        for ablation, model_overrides, legacy in switches:
             with self.subTest(ablation=ablation, model=model_overrides):
-                model = _v2_model(_random_pap_data(), ablation=ablation, **model_overrides)
+                build = _v2_legacy_model if legacy else _v2_model
+                model = build(_random_pap_data(), ablation=ablation, **model_overrides)
                 output = model(_random_pap_data())
                 output.logits.square().sum().backward()
                 self.assertTrue(bool(torch.isfinite(output.logits).all()))
@@ -1274,7 +1315,10 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.ablation.path_weight_input, "full")  # Part H: the full g
         self.assertEqual(config.model.path_weight, "exp")  # Part H: w_f = exp(g), no gamma
         self.assertEqual(config.data.path_source, "wisp")  # spec v1.4 E7 (Part I, I2)
-        self.assertEqual(config.ablation.coupling, "cooperative")  # D10 default
+        # legacy-removal LR-2 (B2): the default coupling is `symmetric` (was D10's `cooperative`),
+        # and the default model is the anchored v3-B model
+        self.assertEqual(config.ablation.coupling, "symmetric")
+        self.assertEqual((config.model.propagation, config.model.arm), ("anchored", "full"))
         self.assertEqual(config.model.coupling_gate_init, 0.6)
         self.assertEqual(config.ablation.map_scale, "per_edge")
         self.assertEqual(config.ablation.path_mode, "cells")
@@ -1336,8 +1380,11 @@ class TwoLatentContextTests(unittest.TestCase):
     def setUp(self) -> None:
         self.data = _float64_pap()
 
-    def _model(self, ablation: dict | None = None, **model):
-        built = _v2_model(self.data, ablation=ablation, **model).double().eval()
+    def _model(self, ablation: dict | None = None, legacy: bool = False, **model):
+        # legacy: the v2 model (its arms endpoint_edges, free_path_maps, pair_attention are deleted
+        # in LR-3; legacy-removal LR-2)
+        build = _v2_legacy_model if legacy else _v2_model
+        built = build(self.data, ablation=ablation, **model).double().eval()
         self.assertIsNotNone(built.relational_context, "default geometry_context is on")
         return built
 
@@ -1368,7 +1415,7 @@ class TwoLatentContextTests(unittest.TestCase):
         return moved
 
     def test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates(self) -> None:
-        model = self._model({"endpoint_edges": True})
+        model = self._model({"endpoint_edges": True}, legacy=True)
         self.assertIsNotNone(model.map_encoder)
         h0, geometry = self._inputs(model)
         maps = self._maps(model, geometry)  # fact maps held fixed: only the path term is read
@@ -1395,19 +1442,26 @@ class TwoLatentContextTests(unittest.TestCase):
                                                   ({"free_path_maps": True}, False, False),
                                                   ({}, False, False), ({}, True, True)):
             with self.subTest(ablation=ablation, path_weight_context=appendix):
-                model = self._model({**ablation, "path_weight_context": appendix})
+                legacy = bool(ablation)  # endpoint_edges / free_path_maps: v2 arms (LR-2)
+                model = self._model({**ablation, "path_weight_context": appendix}, legacy=legacy)
                 h0, geometry = self._inputs(model)
                 maps = self._maps(model, geometry)
                 cell_nodes = sorted({n for g in self.data.face_groups
                                      for n in g.face_node_index[0].tolist()})
                 moved = self._moved(model, geometry, cell_nodes)  # c parts only
-                before = self._path_terms(model, h0, geometry, maps)[1]
-                after = self._path_terms(model, h0, moved, maps)[1]
+                if legacy:
+                    before = self._path_terms(model, h0, geometry, maps)[1]
+                    after = self._path_terms(model, h0, moved, maps)[1]
+                else:  # legacy-removal B3: g's w_f as the anchored model computes them
+                    groups = tuple(g for g in self.data.face_groups if g.num_faces > 0)
+                    with torch.no_grad():
+                        before = model._cell_weights(h0, geometry, groups)[1]
+                        after = model._cell_weights(h0, moved, groups)[1]
                 changed = any(not torch.equal(a, b) for a, b in zip(before, after))
                 self.assertEqual(changed, expect_change)
 
     def test_c_free_maps_read_every_instance_node_context_through_the_latent(self) -> None:
-        model = self._model({"free_path_maps": True})
+        model = self._model({"free_path_maps": True}, legacy=True)
         self.assertIsNotNone(model.map_encoder)
         h0, geometry = self._inputs(model)
         maps = self._maps(model, geometry)
@@ -1428,7 +1482,7 @@ class TwoLatentContextTests(unittest.TestCase):
                 self.assertGreater(float((after[others] - base[others]).abs().max()), 1e-12)
 
     def test_d_pair_attention_cell_scores_read_the_context(self) -> None:
-        model = self._model({"coupling": "pair_attention"})
+        model = self._model({"coupling": "pair_attention"}, legacy=True)
         h0, geometry = self._inputs(model)
         maps = self._maps(model, geometry)
         nodes = self.data.face_groups[0].face_node_index[0].tolist()
@@ -1447,7 +1501,7 @@ class TwoLatentContextTests(unittest.TestCase):
     def test_context_off_keeps_one_encoder_per_arm(self) -> None:
         for ablation in ({"endpoint_edges": True}, {"free_path_maps": True}):
             with self.subTest(ablation=ablation):
-                model = _v2_model(self.data, ablation=ablation, geometry_context=False)
+                model = _v2_legacy_model(self.data, ablation=ablation, geometry_context=False)
                 self.assertIsNone(model.map_encoder)
 
 

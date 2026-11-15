@@ -343,8 +343,10 @@ class MergedWeightTests(unittest.TestCase):
                         1e-12)
 
     def test_pair_attention_is_never_a_default_and_never_tuned(self) -> None:
-        self.assertEqual(AblationConfig().coupling, "cooperative")
-        self.assertEqual(TrainConfig.from_dict({}).ablation.coupling, "cooperative")
+        # Legacy-removal LR-2 (B2): the default coupling is `symmetric` (was `cooperative`); this
+        # test of the deleted pair-attention arm is removed in LR-3.
+        self.assertEqual(AblationConfig().coupling, "symmetric")
+        self.assertEqual(TrainConfig.from_dict({}).ablation.coupling, "symmetric")
         with self.assertRaises(ValueError):
             reject_never_tuned_settings({"ablation": {"coupling": "pair_attention"}})
         with self.assertRaises(ValueError):
@@ -364,7 +366,8 @@ class MergedWeightTests(unittest.TestCase):
 
         data = _signal_fixture()
         cfg = TrainConfig.from_dict({"device": "cpu",  # the D11 arm: eta in the fast group
-                                     "model": {"d": 8, "d_r": 4, "K": 2, "encoder": "first_order",
+                                     "model": {"propagation": "chebyshev",  # v2 (LR-2)
+                                               "d": 8, "d_r": 4, "K": 2, "encoder": "first_order",
                                                "path_weight": "sigmoid_gamma"},  # theta_gamma (Part H)
                                      "ablation": {"coupling": "pair_attention"},
                                      "data": {"resample_paths": False, "path_source": "schemas"}})
