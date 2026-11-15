@@ -1,0 +1,19 @@
+job=16721 step=9 node=g2n01 start=2026-11-15T09:31:05+09:00
+git=74c8eb916fb4344fa23d3839fc5a92f854a5c6ee branch=cluster-setup2 env=h2snn-b
+===== test
+test_one_perturbed_tensor_exits_1_with_its_name (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_one_perturbed_tensor_exits_1_with_its_name) ... ok
+test_unperturbed_reference_exits_0 (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_unperturbed_reference_exits_0) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 12.729s
+
+OK
+test_exit=0
+
+===== mutation: the exit-code line removed
+0
+AssertionError: 0 != 1 : compared 139 tensors; differing: 1
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T09:31:46+09:00

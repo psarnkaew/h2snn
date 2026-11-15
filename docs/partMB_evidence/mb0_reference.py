@@ -8,6 +8,9 @@ Saved: (1) full-batch WISP draws, merged into cell groups (`build_wisp_path_grou
 ACM-shaped graph; (2) a full-batch anchored v3-B model on that graph: evaluation logits of two
 consecutive evaluations (the second one takes the warm start), one training step's loss and every
 parameter gradient, and h0 of a featureless type. Synthetic data only.
+
+`compare` prints every differing tensor name and exits 1 if any tensor differs (cluster-setup2 CS7-4;
+H2S-NN/tests/test_mb0_reference_compare.py).
 """
 
 import sys
@@ -98,5 +101,9 @@ if __name__ == "__main__":
         bad = [k for k in ref if k not in now or ref[k].dtype != now[k].dtype
                or not torch.equal(ref[k], now[k])]
         missing = sorted(set(now) - set(ref))
-        print(f"compared {len(ref)} tensors; differing: {bad[:5] or 'none'}"
-              f"{'' if not missing else f'; new keys {missing[:3]}'}")
+        # cluster-setup2 CS7-4: every differing name is printed and any difference exits 1.
+        print(f"compared {len(ref)} tensors; differing: {len(bad) or 'none'}"
+              f"{'' if not missing else f'; new keys {missing}'}")
+        for k in bad:
+            print(f"  DIFF {k}")
+        sys.exit(1 if bad else 0)
