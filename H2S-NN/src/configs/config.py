@@ -204,8 +204,8 @@ def reject_never_tuned_settings(
             "and must not be used in tuning."
         )
     # Spec v1.22 W2: H2S-NN's LP decoder is tuned in {dot, DistMult}, the LP head shared with every
-    # baseline; `concat_mlp` (model code kept in `link_readout.py`) is refused in a base config, in a
-    # search space and in a trial's values.
+    # baseline; `concat_mlp` (removed from the model and refused by `DataConfig` validation, M3a-fix)
+    # is refused in a base config, in a search space and in a trial's values.
     if str(data.get("decoder_type", "dot")) == "concat_mlp":
         raise ValueError(REMOVED_DECODER_MESSAGE.format(where="data.decoder_type in the base config"))
     if isinstance(search_parameters, Mapping):
@@ -669,7 +669,7 @@ class DataConfig:
 
     # --- link prediction ---
     target_relation: tuple[str, str, str] = ("", "", "")
-    decoder_type: str = "dot"                    # "dot" | "distmult" | "concat_mlp"
+    decoder_type: str = "dot"                    # "dot" | "distmult" (spec v1.22 W2)
     # HGB's runner re-draws its training negatives every epoch (spec v1.16 K3): the default.
     neg_sampling_mode: str = "resample_each_epoch"   # "resample_each_epoch" | "fixed"
     neg_sampling_ratio: int = 1
@@ -955,7 +955,10 @@ class DataConfig:
                 raise ValueError("data.acm_val_ratio must be in (0, 1).")
             return self._resolved_node_classification(dataset_name, task_type)
         if task_type == "link_prediction":
-            if self.decoder_type not in {"dot", "distmult", "concat_mlp"}:
+            # Spec v1.22 W2 (M3a-fix F1): concat_mlp is removed; the decoder is dot or DistMult.
+            if self.decoder_type == "concat_mlp":
+                raise ValueError(REMOVED_DECODER_MESSAGE.format(where="data.decoder_type"))
+            if self.decoder_type not in {"dot", "distmult"}:
                 raise ValueError("Unsupported data.decoder_type.")
             if self.link_batch_size < 1:
                 raise ValueError("data.link_batch_size must be >= 1.")

@@ -12,7 +12,7 @@ transport (`src/models/vertex_path_laplacian.py`). `eta = sigmoid(theta_eta)`,
 
 One encoder, three task heads (plan §4.8), selected by `data.task_type`:
 - node classification: `MLP([x_K, h0])` on the target nodes;
-- link prediction: the `dot` / `distmult` / `concat_mlp` decoders on `[x_K, h0]`;
+- link prediction: the `dot` / `distmult` decoders on `[x_K, h0]` (spec v1.22 W2);
 - graph classification: sum of `[x_K, h0]` per graph -> BatchNorm -> MLP.
 Ablation switches (plan §4.6) come from `config.ablation`.
 

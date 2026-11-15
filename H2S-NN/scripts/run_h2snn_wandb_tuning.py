@@ -73,8 +73,8 @@ SPACE_WISP_MAX_LENGTH: dict[str, Any] = {"values": [2, 3, 4, 5]}
 SPACE_WISP_WALKS_PER_ANCHOR: dict[str, Any] = {"values": [8, 16, 32, 64]}
 SPACE_GRAPH_POOLING: dict[str, Any] = {"values": ["mean", "max", "add", "attention"]}
 # Spec v1.22 W2: H2S-NN's LP decoder is tuned in {dot, DistMult}, the decoders of the LP head shared
-# with every baseline (`src/baselines/heads.py` `build_link_decoder`); `concat_mlp` is removed from
-# tuning and runs (its model code in `src/models/link_readout.py` stays, unreachable from here).
+# with every baseline (`src/baselines/heads.py` `build_link_decoder`); `concat_mlp` is removed (from
+# tuning, runs, the config and the model; M3a, M3a-fix).
 SPACE_DECODER_TYPE: dict[str, Any] = {"values": ["dot", "distmult"]}
 # Tuning on seed 0 only, then the best configuration on seeds 0-4 (spec §6).
 TUNING_SEED = 0

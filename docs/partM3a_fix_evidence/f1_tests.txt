@@ -1,0 +1,148 @@
+job=16741 step=2 node=g2n01 start=2026-11-15T13:19:11+09:00
+git=c9b1f3e40e12da6514f4383603756536576435a3 branch=part-m3a-fix env=h2snn-b
+working tree:  M scripts/run_h2snn_runs.py
+working tree:  M scripts/run_h2snn_wandb_tuning.py
+working tree:  M scripts/train_h2snn.py
+working tree:  M src/configs/config.py
+working tree:  M src/models/h2snn_model.py
+working tree:  M src/models/link_readout.py
+working tree:  M tests/test_task_heads.py
+===== tests
+test_config_refuses_concat_mlp (tests.test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_config_refuses_concat_mlp) ... ok
+test_readout_has_no_concat_mlp (tests.test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_readout_has_no_concat_mlp) ... ok
+test_tuning_refusal_stays (tests.test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_tuning_refusal_stays) ... ok
+test_yaml_and_run_scripts_refuse_concat_mlp (tests.test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_yaml_and_run_scripts_refuse_concat_mlp) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... ok
+ok
+ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_concat_mlp_is_refused_by_the_tuner (tests.test_partM3a_decoder.ConcatMlpRefusalTests.test_concat_mlp_is_refused_by_the_tuner) ... ok
+test_concat_mlp_is_refused_on_the_command_lines (tests.test_partM3a_decoder.ConcatMlpRefusalTests.test_concat_mlp_is_refused_on_the_command_lines) ... ok
+test_include_decoder_type_flag_is_gone (tests.test_partM3a_decoder.ConcatMlpRefusalTests.test_include_decoder_type_flag_is_gone) ... ok
+test_lp_sweeps_tune_the_decoder (tests.test_partM3a_decoder.LinkDecoderSweepTests.test_lp_sweeps_tune_the_decoder) ... ok
+test_nc_and_gc_sweeps_have_no_decoder (tests.test_partM3a_decoder.LinkDecoderSweepTests.test_nc_and_gc_sweeps_have_no_decoder) ... ok
+test_values_equal_the_baselines_shared_head (tests.test_partM3a_decoder.LinkDecoderSweepTests.test_values_equal_the_baselines_shared_head) ... ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (refused only for the ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term (tests.test_v2_model.AblationTests.test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term) ... ok
+ok
+test_T11_h0_only_readout_ignores_the_graph (tests.test_v2_model.AblationTests.test_T11_h0_only_readout_ignores_the_graph) ... ok
+test_T11_holonomy_edges_equal_the_dense_closure_edge (tests.test_v2_model.AblationTests.test_T11_holonomy_edges_equal_the_dense_closure_edge) ... ok
+test_T11_no_path_cells_makes_logits_independent_of_path_data (tests.test_v2_model.AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data) ... ok
+test_T11_per_side_scales_reach_transports_and_degree (tests.test_v2_model.AblationTests.test_T11_per_side_scales_reach_transports_and_degree) ... ok
+test_T11_uniform_gate_gives_w_identically_one (tests.test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one) ... ok
+test_every_ablation_trains_one_step (tests.test_v2_model.AblationTests.test_every_ablation_trains_one_step) ... ok
+test_defaults_are_the_full_model (tests.test_v2_model.ConfigTests.test_defaults_are_the_full_model) ... ok
+test_invalid_values_and_conflicting_ablations_are_rejected (tests.test_v2_model.ConfigTests.test_invalid_values_and_conflicting_ablations_are_rejected) ... ok
+test_unknown_keys_fail_loudly (tests.test_v2_model.ConfigTests.test_unknown_keys_fail_loudly)
+Old (v1 / AMPSS) settings and typos are rejected in every section. ... ok
+test_dense_operator_closed_form_inverse_and_shapes (tests.test_v2_model.DenseOperatorTests.test_dense_operator_closed_form_inverse_and_shapes) ... ok
+test_path_transport_accepts_dense_operators (tests.test_v2_model.DenseOperatorTests.test_path_transport_accepts_dense_operators) ... ok
+test_D_is_the_per_incidence_degree_of_the_operators_own_terms (tests.test_v2_model.PathLaplacianTests.test_D_is_the_per_incidence_degree_of_the_operators_own_terms)
+`D_v I` equals the dense diagonal block of `L` at every node without a self-loop; ... ok
+test_T2_path_operator_equals_dense_kron_reduced_reference (tests.test_v2_model.PathLaplacianTests.test_T2_path_operator_equals_dense_kron_reduced_reference)
+Mixed path lengths 2, 3, 4 in one complex; per-edge and per-side scales. ... ok
+test_T3_normalized_operator_is_self_adjoint_and_psd (tests.test_v2_model.PathLaplacianTests.test_T3_normalized_operator_is_self_adjoint_and_psd) ... ok
+test_T5_normalized_spectrum_is_bounded_by_two (tests.test_v2_model.PathLaplacianTests.test_T5_normalized_spectrum_is_bounded_by_two)
+60 fixtures: c in {eps, 50} (40 per-edge, 20 per-side), random w_f, gamma. ... ok
+test_T7_cell_state_is_the_least_squares_minimizer (tests.test_v2_model.PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer) ... ok
+test_T12a_both_sides_share_exactly_one_scale_per_edge (tests.test_v2_model.PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge) ... ok
+test_T12a_per_side_ablation_keeps_two_scales (tests.test_v2_model.PerEdgeScaleTests.test_T12a_per_side_ablation_keeps_two_scales) ... ok
+test_T12b_edge_transports_are_orthogonal (tests.test_v2_model.PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal) ... ok
+test_T12b_negative_control_per_side_scales_break_orthogonality (tests.test_v2_model.PerEdgeScaleTests.test_T12b_negative_control_per_side_scales_break_orthogonality) ... ok
+test_T12b_path_transports_are_orthogonal_at_every_length (tests.test_v2_model.PerEdgeScaleTests.test_T12b_path_transports_are_orthogonal_at_every_length) ... ok
+test_T12b_shared_scale_path_uses_no_scale (tests.test_v2_model.PerEdgeScaleTests.test_T12b_shared_scale_path_uses_no_scale)
+The fast path never touches `c`: transports are bit-identical for any shared scale, ... ok
+test_T12c_scale_lower_bound_and_finite_gradients_at_extremes (tests.test_v2_model.PerEdgeScaleTests.test_T12c_scale_lower_bound_and_finite_gradients_at_extremes) ... ok
+test_T10_per_edge_storage_matches_the_bound_exactly (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T10_per_edge_storage_matches_the_bound_exactly)
+Unique float storage held by both operators: `2 M k d + M + 2 |R| d^2`. ... ok
+test_T4_per_edge_maps_are_side_specific_and_node_dependent (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T4_per_edge_maps_are_side_specific_and_node_dependent) ... ok
+test_T5_per_edge_holonomy_is_nontrivial_and_varies (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies) ... ok
+test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0 (tests.test_v2_model.ScaleGaugeTests.test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0) ... ok
+test_T4_negative_control_free_maps_shrink_the_kernel (tests.test_v2_model.SectionPreservationTests.test_T4_negative_control_free_maps_shrink_the_kernel) ... ok
+test_T4_sections_are_preserved_and_the_kernel_is_unchanged (tests.test_v2_model.SectionPreservationTests.test_T4_sections_are_preserved_and_the_kernel_is_unchanged) ... ok
+test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates (tests.test_v2_model.TwoLatentContextTests.test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates) ... ok
+test_b_g_reads_h0_only_unless_the_appendix_switch (tests.test_v2_model.TwoLatentContextTests.test_b_g_reads_h0_only_unless_the_appendix_switch) ... ok
+test_c_free_maps_read_every_instance_node_context_through_the_latent (tests.test_v2_model.TwoLatentContextTests.test_c_free_maps_read_every_instance_node_context_through_the_latent) ... ok
+test_context_off_keeps_one_encoder_per_arm (tests.test_v2_model.TwoLatentContextTests.test_context_off_keeps_one_encoder_per_arm) ... ok
+test_d_pair_attention_cell_scores_read_the_context (tests.test_v2_model.TwoLatentContextTests.test_d_pair_attention_cell_scores_read_the_context) ... ok
+test_T10_gradients_reach_every_learned_component (tests.test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) ... ok
+test_T13_dense_and_factorized_families_match_on_materialized_maps (tests.test_v2_model.V2ModelTests.test_T13_dense_and_factorized_families_match_on_materialized_maps) ... ok
+test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node (tests.test_v2_model.V2ModelTests.test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node)
+One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links ... ok
+test_T8_no_dense_map_tensor_in_v2_forward_or_backward (tests.test_v2_model.V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward)
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4 ... ok
+test_T9_deleted_components_are_absent (tests.test_v2_model.V2ModelTests.test_T9_deleted_components_are_absent) ... ok
+test_build_model_builds_the_node_classification_head (tests.test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
+test_checkpointing_switch_does_not_change_outputs_or_gradients (tests.test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
+test_gate_initialization_is_near_one_half (tests.test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
+2026-11-15 13:19:40,588 | INFO | Epoch 0000 | train_loss: 1.1474 | train_acc: 0.1250 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.1250 | val_loss: 1.1060 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3016 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250
+2026-11-15 13:19:40,607 | INFO | Checkpoint metric acc: 0.3750
+2026-11-15 13:19:40,698 | INFO | Epoch 0001 | train_loss: 1.1443 | train_acc: 0.1250 | train_auroc: 0.0000 | train_macro_f1: 0.2000 | train_micro_f1: 0.1250 | val_loss: 1.0992 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3016 | val_micro_f1: 0.3750 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250
+2026-11-15 13:19:40,709 | INFO | Checkpoint metric acc: 0.3750
+2026-11-15 13:19:40,709 | INFO | Best epoch 0 | test_macro_f1: 0.2222 | test_micro_f1: 0.1250 | test_acc: 0.1250
+  payload = torch.load(path, map_location="cpu")
+ok
+test_evaluation_scores_every_link (tests.test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... /mnt/data/peeradon/h2snn/H2S-NN/src/trainers/minibatch_lp.py:89: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  rows = torch.searchsorted(unique, links)
+ok
+test_no_held_out_fact_in_any_scope (tests.test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (tests.test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (tests.test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+
+----------------------------------------------------------------------
+Ran 75 tests in 28.433s
+
+OK
+tests_exit=0
+
+===== readout equality, dot / distmult vs 310e5c7: python ../docs/partM3a_fix_evidence/f1_readout_equal.py
+dot      relations=1: parameters ['endpoint_projection.0.weight', 'endpoint_projection.0.bias']; parameters, logits, gradients equal to 310e5c7: True
+dot      relations=2: parameters ['endpoint_projection.0.weight', 'endpoint_projection.0.bias']; parameters, logits, gradients equal to 310e5c7: True
+distmult relations=1: parameters ['relation_matrices', 'endpoint_projection.0.weight', 'endpoint_projection.0.bias']; parameters, logits, gradients equal to 310e5c7: True
+distmult relations=2: parameters ['relation_matrices', 'endpoint_projection.0.weight', 'endpoint_projection.0.bias']; parameters, logits, gradients equal to 310e5c7: True
+readout_equal_failures=0
+readout_equal_exit=0
+
+===== mutation: the config accepts concat_mlp again -> test_config_refuses_concat_mlp
+AssertionError: ValueError not raised
+Ran 1 test in 0.000s
+FAILED (failures=1)
+restored: identical
+OK
+
+===== GATE job=16741 step=2 node=g2n01 git=c9b1f3e40e12da6514f4383603756536576435a3 2026-11-15T13:19:49+09:00
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.408s
+
+OK
+gate_golden_exit=0
+compared 139 tensors; differing: none
+gate_mb0_exit=0
+GATE PASS
+end=2026-11-15T13:19:57+09:00

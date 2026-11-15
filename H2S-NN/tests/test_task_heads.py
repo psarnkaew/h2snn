@@ -146,7 +146,9 @@ class LinkPredictionHeadTests(unittest.TestCase):
         from src.models.h2snn_model import build_link_prediction_model
         from src.trainers.link_prediction_trainer import LinkPredictionTrainer
 
-        for decoder_type in ("dot", "distmult", "concat_mlp"):
+        # M3a-fix F1 (stated test change): concat_mlp is removed (spec v1.22 W2); its subcase is gone
+        # and its refusal is tested in tests/test_partM3afix_concat_mlp.py.
+        for decoder_type in ("dot", "distmult"):
             with self.subTest(decoder=decoder_type):
                 data = self._data(decoder_type)
                 cfg = _link_config(self.root, decoder_type)
