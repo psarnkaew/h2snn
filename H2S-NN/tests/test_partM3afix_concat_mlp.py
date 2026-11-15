@@ -66,9 +66,9 @@ class ConcatMlpConfigTests(unittest.TestCase):
         from src.models.link_readout import LinkPredictionReadout
 
         with self.assertRaisesRegex(ValueError, "Unsupported decoder_type 'concat_mlp'"):
-            LinkPredictionReadout(d=4, decoder_type="concat_mlp", hidden_dim=8, dropout=0.1)
+            LinkPredictionReadout(d=4, decoder_type="concat_mlp")
         for decoder in ("dot", "distmult"):
-            readout = LinkPredictionReadout(d=4, decoder_type=decoder, hidden_dim=8, dropout=0.1)
+            readout = LinkPredictionReadout(d=4, decoder_type=decoder)
             self.assertFalse(hasattr(readout, "mlp"))
 
     def test_tuning_refusal_stays(self) -> None:

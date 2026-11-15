@@ -16,7 +16,7 @@ except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
 from src.configs.config import AblationConfig, ModelConfig, OptimConfig, TrainConfig
-from src.models.h2snn_model import H2SNN, ModelDims
+from src.models.h2snn_model import H2SNN
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
@@ -391,82 +391,6 @@ class _Complex:
         return PathTransportOperator(self.maps.src, self.maps.tgt, nodes, edges, self.edge_index,
                                      shared_scale=self.scale_mode == "per_edge")
 
-    def laplacian(self, gamma: float | None, free: bool = False, terms: bool = True):
-        from src.models.vertex_path_laplacian import (
-            FreeIncidenceOperator, PathCellTerm, VertexPathSheafLaplacian)
-
-        path_terms = []
-        if terms:
-            for (nodes, edges), weights in zip(self.groups, self.weights):
-                if free:
-                    incidence = FreeIncidenceOperator(self.free_maps(nodes), nodes)
-                else:
-                    incidence = self.transports(nodes, edges)
-                path_terms.append(PathCellTerm(incidence, weights))
-        return VertexPathSheafLaplacian(
-            self.maps, self.edge_index, self.num_nodes, tuple(path_terms),
-            None if gamma is None else torch.tensor(gamma, dtype=torch.float64),
-            checkpoint=False,
-        )
-
-    def free_maps(self, nodes: torch.Tensor) -> FactorizedMapOperator:
-        g = torch.Generator().manual_seed(int(nodes.sum()) + 7)
-        size = nodes.numel()
-        return _operators(size, self.d, 2, g, torch.ones(size, dtype=torch.float64),
-                          torch.ones(size, dtype=torch.float64), num_groups=1).src
-
-
-def _matrix(apply, num_nodes: int, d: int) -> torch.Tensor:
-    """Dense `[N d, N d]` matrix of a linear map on `[N, d]` node cochains."""
-    columns = []
-    for index in range(num_nodes * d):
-        x = torch.zeros(num_nodes * d, dtype=torch.float64)
-        x[index] = 1.0
-        columns.append(apply(x.view(num_nodes, d)).reshape(-1))
-    return torch.stack(columns, dim=1)
-
-
-def _dense_delta0(maps: EdgeMapPair, edge_index: torch.Tensor, num_nodes: int,
-                  keep: torch.Tensor | None = None) -> torch.Tensor:
-    """Independent dense `Delta_0 = B^T B` from materialized maps (rows `F_tgt x_t - F_src x_s`)."""
-    F_src, F_tgt = maps.src.materialize(), maps.tgt.materialize()
-    d = F_src.size(-1)
-    num_edges = F_src.size(0)
-    B = torch.zeros(num_edges * d, num_nodes * d, dtype=torch.float64)
-    for e in range(num_edges):
-        if keep is not None and not bool(keep[e]):
-            continue
-        s, t = int(edge_index[0, e]), int(edge_index[1, e])
-        B[e * d:(e + 1) * d, s * d:(s + 1) * d] -= F_src[e]
-        B[e * d:(e + 1) * d, t * d:(t + 1) * d] += F_tgt[e]
-    return B.T @ B
-
-
-def _dense_path_term(transports: torch.Tensor, nodes: torch.Tensor, weights: torch.Tensor,
-                     num_nodes: int) -> torch.Tensor:
-    """Kron-reduced `sum_f w_f B_f^T (I - 1 1^T/|f|) B_f` from materialized `T_v` `[P, n, d, d]`."""
-    num_paths, n, d, _ = transports.shape
-    projector = torch.kron(torch.eye(n, dtype=torch.float64)
-                           - torch.full((n, n), 1.0 / n, dtype=torch.float64),
-                           torch.eye(d, dtype=torch.float64))
-    total = torch.zeros(num_nodes * d, num_nodes * d, dtype=torch.float64)
-    for p in range(num_paths):
-        B = torch.zeros(n * d, num_nodes * d, dtype=torch.float64)
-        for i in range(n):
-            v = int(nodes[p, i])
-            B[i * d:(i + 1) * d, v * d:(v + 1) * d] = transports[p, i]
-        total += weights[p] * B.T @ projector @ B
-    return total
-
-
-def _dense_path_part(complex_: _Complex) -> torch.Tensor:
-    total = 0.0
-    for (nodes, edges), weights in zip(complex_.groups, complex_.weights):
-        total = total + _dense_path_term(_dense_transports(complex_.maps, edges), nodes, weights,
-                                         complex_.num_nodes)
-    return total
-
-
 def _rel_err(a: torch.Tensor, b: torch.Tensor) -> float:
     return float((a - b).abs().max() / b.abs().max().clamp_min(1.0))
 
@@ -515,88 +439,6 @@ class DenseOperatorTests(unittest.TestCase):
 
 
 class PathLaplacianTests(unittest.TestCase):
-    def test_T2_path_operator_equals_dense_kron_reduced_reference(self) -> None:
-        """Mixed path lengths 2, 3, 4 in one complex; per-edge and per-side scales."""
-        for mode in ("per_edge", "per_side"):
-            for seed in range(3):
-                with self.subTest(mode=mode, seed=seed):
-                    complex_ = _Complex(seed=seed, scale_mode=mode)
-                    operator = complex_.laplacian(gamma=1.0)
-                    got = _matrix(operator.apply_path, complex_.num_nodes, complex_.d)
-                    want = _dense_path_part(complex_)
-                    self.assertLess(_rel_err(got, want), F64_TOL)
-                    full = _matrix(operator.apply, complex_.num_nodes, complex_.d)
-                    want_full = _dense_delta0(complex_.maps, complex_.edge_index,
-                                              complex_.num_nodes) + want
-                    self.assertLess(_rel_err(full, want_full), F64_TOL)
-
-    def test_T3_normalized_operator_is_self_adjoint_and_psd(self) -> None:
-        for mode, values in (("per_edge", (EPS, 50.0 + EPS)), ("per_side", (EPS, 50.0 + EPS)),
-                             ("per_edge", None)):
-            with self.subTest(mode=mode, values=values):
-                complex_ = _Complex(seed=11, scale_mode=mode, scale_values=values)
-                operator = complex_.laplacian(gamma=2.5)
-                g = torch.Generator().manual_seed(1)
-                x = torch.randn(complex_.num_nodes, complex_.d, generator=g, dtype=torch.float64)
-                y = torch.randn(complex_.num_nodes, complex_.d, generator=g, dtype=torch.float64)
-                lhs = float((x * operator.apply_normalized(y)).sum())
-                rhs = float((operator.apply_normalized(x) * y).sum())
-                self.assertLess(abs(lhs - rhs), F64_TOL * max(1.0, abs(lhs)))
-                matrix = _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
-                self.assertLess(float((matrix - matrix.T).abs().max()), F64_TOL)
-                eigenvalues = torch.linalg.eigvalsh(0.5 * (matrix + matrix.T))
-                self.assertGreaterEqual(float(eigenvalues.min()), -1e-12)
-                quadratic = float((x * operator.apply_normalized(x)).sum())
-                self.assertGreaterEqual(quadratic, -1e-12 * float(x.square().sum()))
-
-    def test_D_is_the_per_incidence_degree_of_the_operators_own_terms(self) -> None:
-        """`D_v I` equals the dense diagonal block of `L` at every node without a self-loop;
-        at the self-loop node it equals the block without that edge plus `c_src^2 + c_tgt^2`."""
-        for mode in ("per_edge", "per_side"):
-            with self.subTest(mode=mode):
-                complex_ = _Complex(seed=5, scale_mode=mode, scale_values=(EPS, 50.0 + EPS))
-                gamma = 0.7
-                operator = complex_.laplacian(gamma=gamma)
-                degree = operator.degree()
-                d = complex_.d
-                loop_edge = complex_.edge_index.size(1) - 1
-                keep = torch.ones(complex_.edge_index.size(1), dtype=torch.bool)
-                keep[loop_edge] = False
-                dense = (_dense_delta0(complex_.maps, complex_.edge_index, complex_.num_nodes, keep)
-                         + gamma * _dense_path_part(complex_))
-                eye = torch.eye(d, dtype=torch.float64)
-                for v in range(complex_.num_nodes):
-                    block = dense[v * d:(v + 1) * d, v * d:(v + 1) * d]
-                    if v == complex_.self_loop_node:
-                        block = block + (complex_.maps.src.scale[loop_edge] ** 2
-                                         + complex_.maps.tgt.scale[loop_edge] ** 2) * eye
-                    self.assertLess(_rel_err(degree[v] * eye, block), F64_TOL)
-                self.assertEqual(float(degree[complex_.num_nodes - 1]), 0.0)
-
-    def test_T5_normalized_spectrum_is_bounded_by_two(self) -> None:
-        """60 fixtures: c in {eps, 50} (40 per-edge, 20 per-side), random w_f, gamma."""
-        max_normalized = 0.0
-        max_unnormalized = 0.0
-        for seed in range(60):
-            mode = "per_edge" if seed < 40 else "per_side"
-            complex_ = _Complex(seed=100 + seed, scale_mode=mode,
-                                scale_values=(EPS, 50.0 + EPS))
-            g = torch.Generator().manual_seed(seed)
-            gamma = float(10 ** (4 * torch.rand(1, generator=g) - 2))
-            operator = complex_.laplacian(gamma=gamma)
-            normalized = _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
-            unnormalized = _matrix(operator.apply, complex_.num_nodes, complex_.d)
-            lam = float(torch.linalg.eigvalsh(0.5 * (normalized + normalized.T)).max())
-            self.assertLessEqual(lam, 2.0 + 1e-9, f"seed {seed}")
-            isolated = complex_.num_nodes - 1
-            rows = normalized[isolated * complex_.d:(isolated + 1) * complex_.d]
-            self.assertEqual(float(rows.abs().max()), 0.0)
-            max_normalized = max(max_normalized, lam)
-            max_unnormalized = max(max_unnormalized,
-                                   float(torch.linalg.eigvalsh(unnormalized).max()))
-        self.assertGreater(max_unnormalized, 2.0)  # negative control: normalization matters
-        self.assertGreater(max_normalized, 1.0)    # the bound is not met vacuously
-
     def test_T7_cell_state_is_the_least_squares_minimizer(self) -> None:
         from src.models.vertex_path_laplacian import PathCellTerm
 
@@ -616,119 +458,9 @@ class PathLaplacianTests(unittest.TestCase):
                         self.assertLess(_rel_err(z[p], y[p].sum(0) / n), F64_TOL)
 
 
-def _tree_complex(seed: int, num_nodes: int = 12, d: int = 3,
-                  scale_values: tuple[float, ...] | None = (EPS, 50.0 + EPS)):
-    """Random rooted tree, edges stored parent -> child, and root-ward chains of length 2
-    and 3 along tree edges. Returns (complex-like object, explicit global sections [d, N, d])."""
-    g = torch.Generator().manual_seed(seed)
-    parent = [-1] + [int(torch.randint(v, (1,), generator=g)) for v in range(1, num_nodes)]
-    edge_of = {v: v - 1 for v in range(1, num_nodes)}  # edge id of (parent[v] -> v)
-    edge_index = torch.tensor([[parent[v] for v in range(1, num_nodes)],
-                               list(range(1, num_nodes))])
-    chains: dict[int, list[tuple[list[int], list[int]]]] = {2: [], 3: []}
-    for v in range(num_nodes):
-        for length in (2, 3):
-            nodes = [v]
-            while len(nodes) < length + 1 and parent[nodes[0]] >= 0:
-                nodes.insert(0, parent[nodes[0]])
-            if len(nodes) == length + 1:
-                chains[length].append((nodes, [edge_of[u] for u in nodes[1:]]))
-    complex_ = _Complex.__new__(_Complex)
-    complex_.num_nodes = num_nodes
-    complex_.d = d
-    complex_.edge_index = edge_index
-    complex_.scale_mode = "per_edge"
-    num_edges = num_nodes - 1
-    if scale_values is None:
-        c = 0.5 + 1.5 * torch.rand(num_edges, generator=g, dtype=torch.float64)
-    else:
-        c = torch.tensor(scale_values, dtype=torch.float64)[
-            torch.randint(len(scale_values), (num_edges,), generator=g)]
-    complex_.maps = _operators(num_edges, d, 2, g, c, c)
-    complex_.groups = [(torch.tensor([n for n, _ in chains[L]]),
-                        torch.tensor([e for _, e in chains[L]])) for L in (2, 3) if chains[L]]
-    complex_.weights = [torch.rand(nodes.size(0), generator=g, dtype=torch.float64)
-                        for nodes, _ in complex_.groups]
-    # Global sections: x_root free; delta_e x = F_tgt x_child - F_src x_parent = 0.
-    F_src, F_tgt = complex_.maps.src.materialize(), complex_.maps.tgt.materialize()
-    sections = torch.zeros(d, num_nodes, d, dtype=torch.float64)
-    sections[:, 0] = torch.eye(d, dtype=torch.float64)
-    for v in range(1, num_nodes):  # parents have smaller ids
-        e = edge_of[v]
-        sections[:, v] = (torch.linalg.solve(F_tgt[e], F_src[e] @ sections[:, parent[v]].T)).T
-    return complex_, sections
-
-
-def _kernel_dimension(matrix: torch.Tensor, threshold: float = 1e-9) -> int:
-    return int((torch.linalg.eigvalsh(0.5 * (matrix + matrix.T)).abs() < threshold).sum())
-
-
-class SectionPreservationTests(unittest.TestCase):
-    """T4. Eigenvalue threshold 1e-9 (stated before running), on normalized operators."""
-
-    def test_T4_sections_are_preserved_and_the_kernel_is_unchanged(self) -> None:
-        for seed in range(3):
-            with self.subTest(seed=seed):
-                complex_, sections = _tree_complex(seed)
-                self.assertGreater(sum(n.size(0) for n, _ in complex_.groups), 3)
-                edge_only = complex_.laplacian(gamma=None, terms=False)
-                full = complex_.laplacian(gamma=3.0)
-                for section in sections:
-                    scale = float(section.abs().max())
-                    self.assertLess(float(edge_only.apply(section).abs().max()) / scale, F64_TOL)
-                    self.assertLess(float(full.apply_path(section).abs().max()) / scale, F64_TOL)
-                N, d = complex_.num_nodes, complex_.d
-                kernel_edges = _kernel_dimension(_matrix(edge_only.apply_normalized, N, d))
-                kernel_full = _kernel_dimension(_matrix(full.apply_normalized, N, d))
-                self.assertEqual(kernel_edges, d)  # connected tree: H^0 has dimension d
-                self.assertEqual(kernel_full, kernel_edges)
-
-    def test_T4_negative_control_free_maps_shrink_the_kernel(self) -> None:
-        for seed in range(3):
-            with self.subTest(seed=seed):
-                complex_, sections = _tree_complex(seed)
-                free = complex_.laplacian(gamma=3.0, free=True)
-                N, d = complex_.num_nodes, complex_.d
-                kernel_free = _kernel_dimension(_matrix(free.apply_normalized, N, d))
-                self.assertLess(kernel_free, d)
-                residual = max(float(free.apply_path(s).abs().max() / s.abs().max())
-                               for s in sections)
-                self.assertGreater(residual, 1e-3)
-
-
-class ScaleGaugeTests(unittest.TestCase):
-    def test_T14_node_rescaled_per_side_scales_give_the_same_normalized_delta0(self) -> None:
-        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
-
-        complex_ = _Complex(seed=21, extra_edges=8)  # extra edges close cycles
-        g = torch.Generator().manual_seed(0)
-        c = complex_.maps.src.scale
-        node_gauge = 0.5 + 1.5 * torch.rand(complex_.num_nodes, generator=g, dtype=torch.float64)
-        src_idx, tgt_idx = complex_.edge_index
-
-        def normalized_delta0(src_scale: torch.Tensor, tgt_scale: torch.Tensor) -> torch.Tensor:
-            maps = EdgeMapPair(
-                FactorizedMapOperator(src_scale, complex_.maps.src.reflectors,
-                                      complex_.maps.src.rotations, complex_.maps.src.group_ids),
-                FactorizedMapOperator(tgt_scale, complex_.maps.tgt.reflectors,
-                                      complex_.maps.tgt.rotations, complex_.maps.tgt.group_ids),
-            )
-            operator = VertexPathSheafLaplacian(maps, complex_.edge_index, complex_.num_nodes,
-                                                (), None, checkpoint=False)
-            return _matrix(operator.apply_normalized, complex_.num_nodes, complex_.d)
-
-        per_edge = normalized_delta0(c, c)
-        gauged = normalized_delta0(node_gauge[src_idx] * c, node_gauge[tgt_idx] * c)
-        generic = normalized_delta0(
-            0.5 + 1.5 * torch.rand(c.shape, generator=g, dtype=torch.float64),
-            0.5 + 1.5 * torch.rand(c.shape, generator=g, dtype=torch.float64))
-        self.assertLess(float((gauged - per_edge).abs().max()), F64_TOL)
-        self.assertGreater(float((generic - per_edge).abs().max()), 1e-3)
-
-
 # ----------------------------------------------------------------------------- v2 model (T1, T6, T8-T10, T13)
 def _v2_config(ablation: dict | None = None, **model: object) -> TrainConfig:
-    base = {"map_family": "factorized", "d": 8, "d_r": 4, "K": 2,
+    base = {"map_family": "factorized", "d": 8, "d_r": 4,
             "classifier_hidden_dim": 16, "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
     base.update(model)
     return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
@@ -746,32 +478,6 @@ def _v2_model(data, seed: int = 0, ablation: dict | None = None, **model: object
 # Legacy-removal LR-2: the default model became the anchored v3-B model. Tests of the v2 model (deleted in
 # LR-3) build it through these helpers, which name the v2 values: `propagation: chebyshev` and the former
 # default `coupling: cooperative` (an explicit ablation value overrides it).
-def _v2_legacy_config(ablation: dict | None = None, **model: object) -> TrainConfig:
-    return _v2_config({"coupling": "cooperative", **(ablation or {})}, propagation="chebyshev",
-                      **model)
-
-
-def _v2_legacy_model(data, seed: int = 0, ablation: dict | None = None, **model: object):
-    from src.models.h2snn_model import build_model
-
-    torch.manual_seed(seed)
-    return build_model(_v2_legacy_config(ablation, **model), data)
-
-
-def _a1_p_a2():
-    """Path A1 -> P -> A2 (nodes 0, 1, 2), one 2-cell on it, plus a pendant node 3 on A2."""
-    from src.data.structures import FaceGroup
-
-    edge_index = torch.tensor([[0, 1, 2], [1, 2, 3]])
-    edge_type = torch.tensor([0, 1, 0])
-    nodes = torch.tensor([[0, 1, 2]])
-    edges = torch.tensor([[0, 1]])
-    group = FaceGroup(template_name="APA", node_type_sequence=("a", "p", "a"),
-                      face_node_index=nodes, face_edge_index=edges,
-                      relation_index=edge_type[edges], face_edge_sign=torch.ones(1, 2))
-    return edge_index, edge_type, (group,)
-
-
 class V2ModelTests(unittest.TestCase):
     def test_build_model_builds_the_node_classification_head(self) -> None:
         data = _random_pap_data()
@@ -784,59 +490,9 @@ class V2ModelTests(unittest.TestCase):
         self.assertEqual(tuple(output.logits.shape), (data.target_indices.numel(), 3))
         self.assertTrue(bool(torch.isfinite(output.logits).all()))
 
-    def test_T6_path_term_reaches_the_far_endpoint_and_the_intermediate_node(self) -> None:
-        """One step with fixed maps: d x1(A1)/d x0(A2) != 0 iff gamma > 0 (nothing else links
-        A1 to A2 in one step), and d x1(A1)/d x0(P) changes with gamma."""
-        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
-
-        edge_index, edge_type, groups = _a1_p_a2()
-        dims = ModelDims(in_channels=5, num_node_types=2, num_relations=2, num_classes=2,
-                         face_lengths=(2,))
-        torch.manual_seed(0)
-        model = H2SNN(_v2_legacy_config(encoder="first_order"), dims).double()  # one eta step (D11)
-        h0 = torch.randn(4, 8, dtype=torch.float64)
-        operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes=4)
-        self.assertEqual(len(operator.laplacian.path_terms), 1)
-
-        def block(gamma: float, row: int, column: int) -> torch.Tensor:
-            laplacian = VertexPathSheafLaplacian(
-                operator.maps, edge_index, 4, operator.laplacian.path_terms,
-                torch.tensor(gamma, dtype=torch.float64), checkpoint=False)
-
-            def step(x0: torch.Tensor) -> torch.Tensor:
-                return x0 - operator.eta * laplacian.apply_normalized(x0)
-
-            jacobian = torch.autograd.functional.jacobian(step, h0.detach().clone())
-            return jacobian[row, :, column, :]
-
-        far_zero = block(0.0, 0, 2)
-        self.assertEqual(float(far_zero.abs().max()), 0.0)
-        for gamma in (0.3, 2.0):
-            self.assertGreater(float(block(gamma, 0, 2).abs().max()), 1e-8)
-        middle_change = (block(0.3, 0, 1) - block(2.0, 0, 1)).abs().max()
-        self.assertGreater(float(middle_change), 1e-8)
-        # The clause above also holds through D alone (gamma enters D_{A1}, D_P), so it does
-        # not prove intermediate reach by itself: the path term's own blocks must link P and A1
-        # in both directions.
-        path_only = torch.autograd.functional.jacobian(operator.laplacian.apply_path, h0.clone())
-        self.assertGreater(float(path_only[0, :, 1, :].abs().max()), 1e-8)  # A1 <- P
-        self.assertGreater(float(path_only[1, :, 0, :].abs().max()), 1e-8)  # P <- A1
-        # The model's own gamma also reaches A2 (and the ablation does not).
-        jacobian = torch.autograd.functional.jacobian(
-            lambda x0: x0 - operator.eta * operator.laplacian.apply_normalized(x0), h0.clone())
-        self.assertGreater(float(jacobian[0, :, 2, :].abs().max()), 1e-8)
-        torch.manual_seed(0)
-        ablated = H2SNN(_v2_legacy_config({"no_path_cells": True}, encoder="first_order"),
-                        dims).double()
-        ablated_operator = ablated.build_operator(h0, edge_index, edge_type, groups, 4)
-        jacobian = torch.autograd.functional.jacobian(
-            lambda x0: x0 - ablated_operator.eta
-            * ablated_operator.laplacian.apply_normalized(x0), h0.clone())
-        self.assertEqual(float(jacobian[0, :, 2, :].abs().max()), 0.0)
-
     def test_T8_no_dense_map_tensor_in_v2_forward_or_backward(self) -> None:
         """Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4
-        elements. Control: the dense map family ([M, d, d] maps) is flagged in both passes."""
+        elements. (The dense-family control was removed with the dense map family, legacy-removal B4.)"""
         from tests.test_factorized_maps import _ShapeRecorder
 
         data = _random_pap_data(num_papers=100, num_authors=50, max_faces=270)
@@ -869,11 +525,7 @@ class V2ModelTests(unittest.TestCase):
         self.assertEqual(hits(v2, "forward"), [])
         self.assertEqual(hits(v2, "backward"), [])
         self.assertTrue(any(p == "backward" for p, _ in v2.shapes))
-        # Legacy-removal B4: the dense family runs only in the v2 model (deleted in LR-3).
-        dense = record(_v2_legacy_model(data, d=d, face_mlp_hidden_dim=128, edge_mlp_hidden_dim=128,
-                                 map_family="dense"))
-        self.assertTrue(hits(dense, "forward"))
-        self.assertTrue(hits(dense, "backward"))
+        # (legacy-removal B4: the dense-family control was removed with the dense map family)
 
     def test_T9_deleted_components_are_absent(self) -> None:
         import src.models.sheaf_maps as sheaf_maps
@@ -892,10 +544,12 @@ class V2ModelTests(unittest.TestCase):
                 self.assertTrue(name.startswith("node_encoder"), name)
         M = data.num_edges
         extended = M + sum(group.num_faces for group in data.face_groups)
-        h0 = model.encode_nodes(data.x, data.node_type)
-        operator = model.build_operator(h0, data.edge_index, data.edge_type, data.face_groups,
-                                        data.num_nodes)
-        self.assertEqual(operator.laplacian.src_idx.numel(), M)  # no closure edges in Delta_0
+        # no closure edges in Delta_0: the maps of the solved system cover exactly the M observed facts
+        # (legacy-removal B3: read from the anchored state; was the v2 operator's src_idx)
+        with torch.no_grad():
+            state = model.encode(data.x, data.node_type, data.edge_index, data.edge_type,
+                                 data.face_groups, data.num_nodes).operator
+        self.assertEqual(state.maps.src.num_edges, M)
 
         def edge_cochains(model_) -> list[tuple[int, ...]]:
             recorder = _ShapeRecorder()
@@ -914,7 +568,6 @@ class V2ModelTests(unittest.TestCase):
         # the encoder's own parameters: theta_tau of the anchored solve (legacy-removal B3: was
         # theta_eta (first_order) or the filter bank V of the v2 model)
         groups = ["theta_tau",
-                  *(["theta_gamma"] if model.path_weight == "sigmoid_gamma" else []),
                   "path_gate", "path_encoder",
                   "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
                   "node_to_edge.rotation_params", "node_encoder", "relation_embedding",
@@ -930,60 +583,12 @@ class V2ModelTests(unittest.TestCase):
     def test_gate_initialization_is_near_one_half(self) -> None:
         data = _random_pap_data()
         model = _v2_model(data)
-        # bias 0 (sigmoid_gamma) or b = log(path_weight_init) = log 0.5 in float32 (exp, Part H):
-        # w_f starts near 0.5 either way.
-        expected = 0.0 if model.path_weight == "sigmoid_gamma" else float(
-            torch.tensor(math.log(0.5), dtype=torch.float32))
+        # b = log(path_weight_init) = log 0.5 in float32 (exp, Part H): w_f starts near 0.5.
+        expected = float(torch.tensor(math.log(0.5), dtype=torch.float32))
         self.assertEqual(float(model.path_gate.bias.reshape(-1)[0]), expected)
         output = model(data)
         self.assertLess(abs(float(output.path_gate_mean) - 0.5), 0.1)
         self.assertLess(float(output.path_gate_max), 0.75)
-
-    def test_T13_dense_and_factorized_families_match_on_materialized_maps(self) -> None:
-        import copy
-
-        from src.models.map_operators import DenseMapOperator
-        from src.models.sheaf_maps import FactorizedNodeToEdgeSheafOutput
-        from tests.test_factorized_maps import _as_float64
-
-        class Materialized(torch.nn.Module):
-            def __init__(self, factorized: FactorizedNodeToEdgeSheaf) -> None:
-                super().__init__()
-                self.factorized = factorized
-
-            def forward(self, h, edge_index, edge_type, relation_embeddings):
-                maps = self.factorized(h, edge_index, edge_type, relation_embeddings).maps
-                return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(
-                    DenseMapOperator(maps.src.materialize(), maps.src.scale),
-                    DenseMapOperator(maps.tgt.materialize(), maps.tgt.scale)))
-
-        data = _as_float64(_random_pap_data())
-        for map_scale in ("per_edge", "per_side"):
-            with self.subTest(map_scale=map_scale):
-                factorized = _v2_legacy_model(
-                    data, ablation={"per_side_scale": map_scale == "per_side"}
-                ).double().eval()
-                dense = copy.deepcopy(factorized)
-                dense.node_to_edge = Materialized(dense.node_to_edge)
-                outputs = []
-                for model in (factorized, dense):
-                    output = model(data)
-                    output.logits.square().sum().backward()
-                    outputs.append(output)
-                self.assertLess(_rel_err(outputs[1].logits, outputs[0].logits), F64_TOL)
-                grads_a = {n: p.grad for n, p in factorized.named_parameters()}
-                grads_b = {n.replace("node_to_edge.factorized.", "node_to_edge."): p.grad
-                           for n, p in dense.named_parameters()}
-                self.assertEqual(set(grads_a), set(grads_b))
-                for name, grad in grads_a.items():
-                    self.assertLess(_rel_err(grads_b[name], grad), F64_TOL, name)
-        dense_family = _v2_legacy_model(_random_pap_data(), map_family="dense")
-        output = dense_family(_random_pap_data())
-        output.logits.square().sum().backward()
-        self.assertTrue(bool(torch.isfinite(output.logits).all()))
-        self.assertGreater(float(dense_family.node_to_edge.src_mlps[0][0].weight.grad.abs().sum()), 0)
-        self.assertGreater(
-            float(dense_family.node_to_edge.edge_scale_mlp[0].weight.grad.abs().sum()), 0)
 
     def test_checkpointing_switch_does_not_change_outputs_or_gradients(self) -> None:
         from tests.test_factorized_maps import _as_float64
@@ -1099,10 +704,6 @@ class AblationTests(unittest.TestCase):
     def _model(self, ablation: dict | None = None, **model):
         return _v2_model(self.data, ablation=ablation, **model).double().eval()
 
-    def _legacy_model(self, ablation: dict | None = None, **model):
-        """The v2 model (legacy-removal LR-2: its switches are deleted in LR-3)."""
-        return _v2_legacy_model(self.data, ablation=ablation, **model).double().eval()
-
     def _logits(self, model, data=None) -> torch.Tensor:
         with torch.no_grad():
             return model(self.data if data is None else data).logits
@@ -1142,120 +743,6 @@ class AblationTests(unittest.TestCase):
         all_weights = torch.cat(weights)
         self.assertGreater(float(all_weights.max() - all_weights.min()), 1e-3)
 
-    def test_T11_endpoint_edges_ignore_intermediate_nodes_in_the_path_term(self) -> None:
-        # Geometry from h0 alone: under the D12 geometry_context the endpoints' context c is a
-        # per-node neighbourhood mean that includes intermediates (not path-specific), so moving
-        # an intermediate's h0 moves c by design; the path-specific claim is tested here.
-        for mode, expect_equal in (("endpoint_edges", True), ("cells", False)):
-            with self.subTest(path_mode=mode):
-                model = self._legacy_model({"endpoint_edges": mode == "endpoint_edges"},
-                                    geometry_context=False)
-                h0 = model.encode_nodes(self.data.x, self.data.node_type)
-                maps = model.node_to_edge(h0, self.data.edge_index, self.data.edge_type,
-                                          model.relation_embedding.weight).maps
-                h0_moved = h0.clone()
-                h0_moved[self.authors] += self.author_noise
-                x = torch.randn(self.data.num_nodes, 8, dtype=torch.float64,
-                                generator=torch.Generator().manual_seed(3))
-                x_moved = x.clone()
-                x_moved[self.authors] += self.author_noise
-                N = self.data.num_nodes
-                with torch.no_grad():
-                    terms, _ = model.path_terms(h0, maps, self.data.edge_index,
-                                                self.data.face_groups,
-                                                path_input=model.path_inputs(h0, h0))
-                    terms_moved, _ = model.path_terms(
-                        h0_moved, maps, self.data.edge_index, self.data.face_groups,
-                        path_input=model.path_inputs(h0_moved, h0_moved))
-                    base = sum(term.apply(x, N) for term in terms)
-                    via_h0 = sum(term.apply(x, N) for term in terms_moved)
-                    via_x = sum(term.apply(x_moved, N) for term in terms)
-                    diag = sum(term.diagonal(N) for term in terms)
-                    diag_moved = sum(term.diagonal(N) for term in terms_moved)
-                self.assertGreater(float(base.abs().max()), 1e-3)  # the term is not empty
-                if expect_equal:
-                    self.assertTrue(torch.equal(base, via_h0))
-                    self.assertTrue(torch.equal(base, via_x))
-                    self.assertTrue(torch.equal(diag, diag_moved))
-                else:  # control: the 2-cell reads the intermediate nodes
-                    self.assertGreater(float((base - via_h0).abs().max()), 1e-6)
-                    self.assertGreater(float((base - via_x).abs().max()), 1e-6)
-
-    def test_T11_holonomy_edges_equal_the_dense_closure_edge(self) -> None:
-        from src.models.vertex_path_laplacian import HolonomyEdgeTerm
-
-        for map_scale in ("per_edge", "per_side"):
-            with self.subTest(map_scale=map_scale):
-                model = self._legacy_model({"holonomy_edges": True,
-                                     "per_side_scale": map_scale == "per_side"})
-                h0 = model.encode_nodes(self.data.x, self.data.node_type)
-                with torch.no_grad():
-                    operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                                    self.data.face_groups, self.data.num_nodes)
-                N, d = self.data.num_nodes, 8
-                for term, group, weights in zip(operator.laplacian.path_terms,
-                                                self.data.face_groups, operator.path_weights):
-                    self.assertIsInstance(term, HolonomyEdgeTerm)
-                    holonomy = _dense_transports(operator.maps, group.face_edge_index)[:, -1]
-                    want = torch.zeros(N * d, N * d, dtype=torch.float64)
-                    for p in range(group.num_faces):
-                        B = torch.zeros(d, N * d, dtype=torch.float64)
-                        v0, vL = int(group.face_node_index[p, 0]), int(group.face_node_index[p, -1])
-                        B[:, v0 * d:(v0 + 1) * d] += torch.eye(d, dtype=torch.float64)
-                        B[:, vL * d:(vL + 1) * d] -= holonomy[p]
-                        want += weights[p] * B.T @ B
-                    with torch.no_grad():
-                        got = _matrix(lambda x: term.apply(x, N), N, d)
-                        diagonal = term.diagonal(N)
-                    self.assertLess(_rel_err(got, want), F64_TOL)
-                    blocks = torch.stack([want[v * d:(v + 1) * d, v * d:(v + 1) * d].diagonal()
-                                          for v in range(N)])
-                    self.assertLess(_rel_err(diagonal.unsqueeze(-1).expand_as(blocks), blocks),
-                                    F64_TOL)
-
-    def test_T11_free_maps_are_orthogonal_and_per_incidence(self) -> None:
-        from src.models.vertex_path_laplacian import FreeIncidenceOperator
-
-        model = self._legacy_model({"free_path_maps": True})
-        h0 = model.encode_nodes(self.data.x, self.data.node_type)
-        with torch.no_grad():
-            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                            self.data.face_groups, self.data.num_nodes)
-        for term in operator.laplacian.path_terms:
-            incidence = term.incidence
-            self.assertIsInstance(incidence, FreeIncidenceOperator)
-            maps = incidence.maps.materialize()  # scale 1: the orthogonal factor itself
-            self.assertLess(_orthogonality_error(maps), F64_TOL)
-            nodes = incidence.face_node_index.reshape(-1)
-            repeated = int(torch.mode(nodes).values)
-            rows = (nodes == repeated).nonzero().view(-1)
-            self.assertGreater(rows.numel(), 1)
-            self.assertGreater(float((maps[rows[0]] - maps[rows[1]]).abs().max()), 1e-3)
-        model(self.data).logits.square().sum().backward()
-        self.assertGreater(float(model.free_maps.reflector_mlp[0].weight.grad.abs().sum()), 0.0)
-
-    def test_T11_per_side_scales_reach_transports_and_degree(self) -> None:
-        model = self._legacy_model({"per_side_scale": True})
-        h0 = model.encode_nodes(self.data.x, self.data.node_type)
-        with torch.no_grad():
-            operator = model.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                            self.data.face_groups, self.data.num_nodes)
-        self.assertIsNot(operator.maps.src.scale, operator.maps.tgt.scale)
-        for term in operator.laplacian.path_terms:
-            self.assertFalse(term.incidence.shared_scale)
-            squares = term.incidence.squared_scales()
-            self.assertGreater(float((squares - 1).abs().max()), 1e-3)
-            self.assertTrue(torch.equal(squares[:, 0], torch.ones_like(squares[:, 0])))
-        per_edge = self._legacy_model()
-        with torch.no_grad():
-            h0 = per_edge.encode_nodes(self.data.x, self.data.node_type)
-            terms = per_edge.build_operator(h0, self.data.edge_index, self.data.edge_type,
-                                            self.data.face_groups,
-                                            self.data.num_nodes).laplacian.path_terms
-        for term in terms:
-            self.assertTrue(torch.equal(term.incidence.squared_scales(),
-                                        torch.ones_like(term.incidence.squared_scales())))
-
     def test_T11_h0_only_readout_ignores_the_graph(self) -> None:
         moved_x = self.data.x.clone()
         moved_x[self.authors] += 1.0
@@ -1271,32 +758,19 @@ class AblationTests(unittest.TestCase):
                                      .abs().max()), 1e-6)
 
     def test_every_ablation_trains_one_step(self) -> None:
-        # boolean switches (D10's `coupling` is a mode, covered below)
-        # identity_maps (D12 G0b diagnostic) is defined only together with no_path_cells.
-        # Legacy-removal LR-2 (B1, B4, B3): switches of the v2 model (deleted in LR-3) run on the
-        # explicit v2 model; the kept switches and the v3-B arms (the counterpart of the v2 path
-        # switches) run on the anchored default.
+        # Legacy-removal (B1-B4, B3): the kept boolean switches, the C2 weight ladder and the v3-B arms
+        # (the counterpart of the removed v2 path switches), on the anchored model; the v2 switches,
+        # sigmoid_gamma, the gate modes and the dense family were removed with v2.
         from src.configs.config import V3B_ARMS
 
-        deleted = ("no_path_cells", "free_path_maps", "endpoint_edges", "holonomy_edges",
-                   "per_side_scale", "identity_maps")
-        requires = {"identity_maps": {"no_path_cells": True}}
-        switches = [({name: True}, {}, False) for name in AblationConfig.__dataclass_fields__
-                    if name not in ("coupling", "path_weight_input") + deleted]
-        switches += [({name: True, **requires.get(name, {})}, {}, True) for name in deleted]
-        # Part H: the C2 weight ladder (a mode) and the sigmoid_gamma comparison arm
-        switches += [({"path_weight_input": arm}, {}, False)
-                     for arm in ("endpoints", "schema", "uniform")]
-        switches += [({}, {"path_weight": "sigmoid_gamma"}, True),
-                     ({"path_weight_input": "uniform"}, {"path_weight": "sigmoid_gamma"}, True)]
-        switches += [({"coupling": mode}, {}, True) for mode in ("cooperative", "listen_only")]
-        switches += [({"coupling": "symmetric"}, {}, False)]
-        switches.append(({}, {"map_family": "dense"}, True))
-        switches += [({}, {"arm": arm}, False) for arm in V3B_ARMS]
-        for ablation, model_overrides, legacy in switches:
+        switches = [({name: True}, {}) for name in AblationConfig.__dataclass_fields__
+                    if name not in ("coupling", "path_weight_input")]
+        switches += [({"path_weight_input": arm}, {}) for arm in ("endpoints", "schema", "uniform")]
+        switches += [({"coupling": "symmetric"}, {})]
+        switches += [({}, {"arm": arm}) for arm in V3B_ARMS]
+        for ablation, model_overrides in switches:
             with self.subTest(ablation=ablation, model=model_overrides):
-                build = _v2_legacy_model if legacy else _v2_model
-                model = build(_random_pap_data(), ablation=ablation, **model_overrides)
+                model = _v2_model(_random_pap_data(), ablation=ablation, **model_overrides)
                 output = model(_random_pap_data())
                 output.logits.square().sum().backward()
                 self.assertTrue(bool(torch.isfinite(output.logits).all()))
@@ -1319,11 +793,15 @@ class ConfigTests(unittest.TestCase):
         # and the default model is the anchored v3-B model
         self.assertEqual(config.ablation.coupling, "symmetric")
         self.assertEqual((config.model.propagation, config.model.arm), ("anchored", "full"))
-        self.assertEqual(config.model.coupling_gate_init, 0.6)
-        self.assertEqual(config.ablation.map_scale, "per_edge")
-        self.assertEqual(config.ablation.path_mode, "cells")
+        # legacy-removal B3: the v2-only fields (`coupling_gate_init`, `gamma_init`, `eta_init`) and
+        # properties (`map_scale`, `path_mode`) are gone; v3-B counterparts: the one diffusion
+        # scalar tau starts at tau_init = 1, and the maps have one scale per edge (D1a, no switch).
+        for name in ("coupling_gate_init", "gamma_init", "eta_init"):
+            self.assertFalse(hasattr(config.model, name), name)
+        for name in ("map_scale", "path_mode"):
+            self.assertFalse(hasattr(config.ablation, name), name)
+        self.assertEqual(config.model.tau_init, 1.0)
         self.assertEqual(config.model.map_family, "factorized")
-        self.assertEqual((config.model.gamma_init, config.model.eta_init), (1.0, 0.5))
         self.assertEqual(config.optim.scalar_lr_scale, 10.0)
 
     def test_unknown_keys_fail_loudly(self) -> None:
@@ -1349,19 +827,19 @@ class ConfigTests(unittest.TestCase):
                     TrainConfig.from_dict(raw)
 
     def test_invalid_values_and_conflicting_ablations_are_rejected(self) -> None:
-        for raw in ({"eta_init": 0.0}, {"eta_init": 1.0},
-                    {"path_weight": "sigmoid_gamma", "gamma_init": 0.0}, {"gamma_init": 2.0},
+        # legacy-removal B3: the eta_init / gamma_init ranges are v2-only (removed keys, they raise
+        # through tests/test_legacy_removal.py); v3-B counterpart: tau_init must be positive.
+        for raw in ({"tau_init": 0.0}, {"tau_init": -1.0},
                     {"checkpointing": "false"}, {"map_family": "lowrank"}):
             with self.subTest(model=raw):
                 with self.assertRaises(ValueError):
                     ModelConfig.from_dict(raw)
-        for raw in ({"no_path_cells": "true"}, {"endpoint_edges": True, "holonomy_edges": True},
-                    {"free_path_maps": True, "endpoint_edges": True},
-                    {"free_path_maps": True, "per_side_scale": True},
-                    {"no_path_cells": True, "path_weight_input": "uniform"},
-                    {"endpoint_edges": True, "path_weight_input": "endpoints"},
-                    {"path_weight_input": "nope"},
-                    {"no_path_cells": True, "free_path_maps": True}):
+        # legacy-removal B3: the conflicts among the removed v2 path switches are gone with them;
+        # the non-boolean switch check moves to a kept switch, and the kept conflict
+        # (path_weight_context without a node input) replaces the switch conflicts.
+        for raw in ({"h0_only_readout": "true"},
+                    {"path_weight_context": True, "path_weight_input": "uniform"},
+                    {"path_weight_input": "nope"}):
             with self.subTest(ablation=raw):
                 with self.assertRaises(ValueError):
                     AblationConfig.from_dict(raw)
@@ -1372,19 +850,16 @@ class ConfigTests(unittest.TestCase):
 
 
 class TwoLatentContextTests(unittest.TestCase):
-    """T11-ctx (Part K, K1; spec v1.6 E10) under the default geometry_context: the path-specific
-    maps of endpoint_edges and free_path_maps and the pair-attention cell scores read [h0, c];
-    only g reads h0. Geometry rows are injected directly, because perturbing h0 moves the
+    """T11-ctx (Part K, K1; spec v1.6 E10) under the default geometry_context: only g reads h0
+    (the v2 path-specific maps and pair-attention scores that read [h0, c] were removed by the
+    legacy-removal card). Geometry rows are injected directly, because perturbing h0 moves the
     neighbours' context c by design."""
 
     def setUp(self) -> None:
         self.data = _float64_pap()
 
-    def _model(self, ablation: dict | None = None, legacy: bool = False, **model):
-        # legacy: the v2 model (its arms endpoint_edges, free_path_maps, pair_attention are deleted
-        # in LR-3; legacy-removal LR-2)
-        build = _v2_legacy_model if legacy else _v2_model
-        built = build(self.data, ablation=ablation, **model).double().eval()
+    def _model(self, ablation: dict | None = None, **model):
+        built = _v2_model(self.data, ablation=ablation, **model).double().eval()
         self.assertIsNotNone(built.relational_context, "default geometry_context is on")
         return built
 
@@ -1398,12 +873,6 @@ class TwoLatentContextTests(unittest.TestCase):
             return model.node_to_edge(geometry, self.data.edge_index, self.data.edge_type,
                                       model.relation_embedding.weight).maps
 
-    def _path_terms(self, model, h0, geometry, maps=None):
-        maps = self._maps(model, geometry) if maps is None else maps
-        with torch.no_grad():
-            return model.path_terms(geometry, maps, self.data.edge_index, self.data.face_groups,
-                                    path_input=model.path_inputs(h0, geometry))
-
     @staticmethod
     def _moved(model, geometry, nodes, c_only: bool = True):
         moved = geometry.clone()
@@ -1414,95 +883,24 @@ class TwoLatentContextTests(unittest.TestCase):
                                                dtype=moved.dtype)
         return moved
 
-    def test_a_endpoint_edge_maps_read_the_endpoints_context_not_intermediates(self) -> None:
-        model = self._model({"endpoint_edges": True}, legacy=True)
-        self.assertIsNotNone(model.map_encoder)
-        h0, geometry = self._inputs(model)
-        maps = self._maps(model, geometry)  # fact maps held fixed: only the path term is read
-        group = self.data.face_groups[0]
-        nodes = group.face_node_index[0].tolist()
-
-        def cell_maps(geom):
-            term = self._path_terms(model, h0, geom, maps)[0][0]
-            return term.maps.src.materialize()[0], term.maps.tgt.materialize()[0]
-
-        base = cell_maps(geometry)
-        for label, moved in (("endpoint c only", self._moved(model, geometry, [nodes[0]])),
-                             ("endpoint row", self._moved(model, geometry, [nodes[-1]], False))):
-            with self.subTest(label):
-                after = cell_maps(moved)
-                self.assertTrue(any(float((a - b).abs().max()) > 1e-12
-                                    for a, b in zip(base, after)), label)
-        intermediate = cell_maps(self._moved(model, geometry, nodes[1:-1], False))
-        for a, b in zip(base, intermediate):
-            self.assertTrue(torch.equal(a, b), "an intermediate must not reach the endpoint maps")
-
     def test_b_g_reads_h0_only_unless_the_appendix_switch(self) -> None:
-        for ablation, appendix, expect_change in (({"endpoint_edges": True}, False, False),
-                                                  ({"free_path_maps": True}, False, False),
-                                                  ({}, False, False), ({}, True, True)):
-            with self.subTest(ablation=ablation, path_weight_context=appendix):
-                legacy = bool(ablation)  # endpoint_edges / free_path_maps: v2 arms (LR-2)
-                model = self._model({**ablation, "path_weight_context": appendix}, legacy=legacy)
+        # legacy-removal B4/B5: the endpoint_edges / free_path_maps subcases were deleted with the
+        # v2 switches.
+        for appendix, expect_change in ((False, False), (True, True)):
+            with self.subTest(path_weight_context=appendix):
+                model = self._model({"path_weight_context": appendix})
                 h0, geometry = self._inputs(model)
                 maps = self._maps(model, geometry)
                 cell_nodes = sorted({n for g in self.data.face_groups
                                      for n in g.face_node_index[0].tolist()})
                 moved = self._moved(model, geometry, cell_nodes)  # c parts only
-                if legacy:
-                    before = self._path_terms(model, h0, geometry, maps)[1]
-                    after = self._path_terms(model, h0, moved, maps)[1]
-                else:  # legacy-removal B3: g's w_f as the anchored model computes them
-                    groups = tuple(g for g in self.data.face_groups if g.num_faces > 0)
-                    with torch.no_grad():
-                        before = model._cell_weights(h0, geometry, groups)[1]
-                        after = model._cell_weights(h0, moved, groups)[1]
+                # legacy-removal B3: g's w_f as the anchored model computes them
+                groups = tuple(g for g in self.data.face_groups if g.num_faces > 0)
+                with torch.no_grad():
+                    before = model._cell_weights(h0, geometry, groups)[1]
+                    after = model._cell_weights(h0, moved, groups)[1]
                 changed = any(not torch.equal(a, b) for a, b in zip(before, after))
                 self.assertEqual(changed, expect_change)
-
-    def test_c_free_maps_read_every_instance_node_context_through_the_latent(self) -> None:
-        model = self._model({"free_path_maps": True}, legacy=True)
-        self.assertIsNotNone(model.map_encoder)
-        h0, geometry = self._inputs(model)
-        maps = self._maps(model, geometry)
-        group = self.data.face_groups[0]
-        size = group.face_node_index.size(1)
-        nodes = group.face_node_index[0].tolist()
-
-        def rows(geom):
-            term = self._path_terms(model, h0, geom, maps)[0][0]
-            return term.incidence.maps.reflectors[:size]  # cell 0, every position
-
-        base = rows(geometry)
-        for i, node in enumerate(nodes):
-            with self.subTest(position=i):
-                after = rows(self._moved(model, geometry, [node]))
-                others = [j for j in range(size) if j != i]
-                # positions j != i see node i only through the map latent
-                self.assertGreater(float((after[others] - base[others]).abs().max()), 1e-12)
-
-    def test_d_pair_attention_cell_scores_read_the_context(self) -> None:
-        model = self._model({"coupling": "pair_attention"}, legacy=True)
-        h0, geometry = self._inputs(model)
-        maps = self._maps(model, geometry)
-        nodes = self.data.face_groups[0].face_node_index[0].tolist()
-
-        def cell_scores(geom):
-            with torch.no_grad():
-                operator = model._build_attention_operator(
-                    h0, maps, self.data.edge_index, self.data.edge_type,
-                    self.data.face_groups, geom)
-            return torch.cat([a.reshape(-1) for a in operator.alpha_cells])
-
-        base = cell_scores(geometry)
-        after = cell_scores(self._moved(model, geometry, nodes))
-        self.assertGreater(float((after - base).abs().max()), 1e-12)
-
-    def test_context_off_keeps_one_encoder_per_arm(self) -> None:
-        for ablation in ({"endpoint_edges": True}, {"free_path_maps": True}):
-            with self.subTest(ablation=ablation):
-                model = _v2_legacy_model(self.data, ablation=ablation, geometry_context=False)
-                self.assertIsNone(model.map_encoder)
 
 
 if __name__ == "__main__":  # pragma: no cover

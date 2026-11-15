@@ -48,16 +48,6 @@ class CudaHardeningTests(unittest.TestCase):
                         train_h2snn.main()
                     seed_mock.assert_not_called()
 
-    def test_model_memory_guard_fraction_is_validated(self) -> None:
-        from src.configs.config import ModelConfig
-
-        with self.assertRaisesRegex(ValueError, "must be in"):
-            ModelConfig(node_edge_memory_guard_fraction=0.0)
-        with self.assertRaisesRegex(ValueError, "must be in"):
-            ModelConfig(node_edge_memory_guard_fraction=1.1)
-        self.assertAlmostEqual(ModelConfig().node_edge_memory_guard_fraction, 0.20)
-        self.assertEqual(ModelConfig().orthogonal_map, "fasthpp")
-
     def test_cpu_seeding_does_not_touch_cuda_seed_state(self) -> None:
         from src.utils.misc import seed_everything
 
@@ -152,45 +142,6 @@ class CudaHardeningTests(unittest.TestCase):
                 self.assertTrue(
                     torch.allclose(dispatched.transpose(-2, -1) @ dispatched, identity, atol=1e-10)
                 )
-
-    def test_memory_guard_accepts_safe_and_rejects_unsafe_workloads(self) -> None:
-        from src.utils.memory_guard import (
-            estimate_node_edge_live_bytes,
-            validate_node_edge_memory_budget,
-        )
-
-        safe_bytes = estimate_node_edge_live_bytes(
-            num_edges=1_000,
-            d=16,
-            param_dim=120,
-            use_orthogonal=True,
-            element_size=4,
-        )
-        self.assertGreater(safe_bytes, 0)
-        validate_node_edge_memory_budget(
-            num_edges=1_000,
-            d=16,
-            param_dim=120,
-            use_orthogonal=True,
-            element_size=4,
-            total_device_bytes=16 * 1024**3,
-            guard_fraction=0.20,
-        )
-
-        with self.assertRaisesRegex(
-            RuntimeError,
-            r"edges=547,872.*d=128.*estimated minimum live memory",
-        ):
-            validate_node_edge_memory_budget(
-                num_edges=547_872,
-                d=128,
-                param_dim=128 * 127 // 2,
-                use_orthogonal=True,
-                element_size=4,
-                total_device_bytes=80 * 1024**3,
-                guard_fraction=0.20,
-            )
-
 
 if __name__ == "__main__":
     unittest.main()

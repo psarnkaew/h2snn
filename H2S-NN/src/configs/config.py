@@ -16,20 +16,55 @@ def _reject_unknown_keys(section: str, raw: Mapping[str, Any], config_class: typ
         )
 
 
+# Legacy-removal card (v1/v2; decisions log "Legacy removal", B1-B5): settings of the removed v2 model.
+# A configuration (YAML, dict, tuning space) that names a removed key, or a removed value of a kept key,
+# raises `ValueError` naming the setting (fail-closed, never ignored).
+REMOVED_BY_LEGACY_CARD = "removed by the legacy-removal card (v1/v2)"
+REMOVED_KEYS: dict[str, tuple[str, ...]] = {
+    "model": ("K", "layer_dropout", "eta_init", "gamma_init", "coupling_gate_init", "encoder",
+              "node_edge_memory_guard_fraction"),
+    "ablation": ("no_path_cells", "free_path_maps", "endpoint_edges", "holonomy_edges",
+                 "per_side_scale", "identity_maps"),
+}
+REMOVED_VALUES: dict[tuple[str, str], tuple[str, ...]] = {
+    ("model", "propagation"): ("chebyshev",),
+    ("model", "path_weight"): ("sigmoid_gamma",),
+    ("model", "map_family"): ("dense",),
+    ("ablation", "coupling"): ("cooperative", "listen_only", "pair_attention"),
+    ("data", "path_sampler"): ("uniform_instance",),
+}
+_REMOVED_KEY_NAMES = frozenset(key for keys in REMOVED_KEYS.values() for key in keys)
+
+
+def _reject_removed_value(section: str, key: str, value: Any) -> None:
+    if str(value) in REMOVED_VALUES.get((section, key), ()):
+        raise ValueError(f"{section}.{key}: {value} is {REMOVED_BY_LEGACY_CARD}; a configuration "
+                         "that names it raises.")
+
+
+def _reject_removed_settings(section: str, raw: Mapping[str, Any]) -> None:
+    """Raise on a removed key or a removed value of `section` (legacy-removal card)."""
+    for key in REMOVED_KEYS.get(section, ()):
+        if key in raw:
+            raise ValueError(f"{section}.{key} is {REMOVED_BY_LEGACY_CARD}; a configuration that "
+                             "names it raises.")
+    for (value_section, key), _ in REMOVED_VALUES.items():
+        if value_section == section and key in raw:
+            _reject_removed_value(section, key, raw[key])
+
+
 # Settings that are ablation controls only: reported as separate experiments and never part
 # of a tuning search space, sweep config or tuning notebook (plan §9.1, §4.6).
 NEVER_TUNED_DATA_KEYS: tuple[str, ...] = ("fact_layer",)
-# D10: neither the coupling mode nor the gate init is ever a search-space parameter.
-NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling", "coupling_gate_init")
-# "pair_attention" (plan §12.3, Part F U4b) is the test of assumption A4, not a model option.
-COUPLING_MODES: tuple[str, ...] = ("cooperative", "listen_only", "symmetric", "pair_attention")
-# D12 G0b diagnostics (gap ladder): never a search-space parameter; identity_maps is also
-# refused in a tuning base config (it is a control, not a model option).
-NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("identity_maps", "feature_normalization")
+# The coupling is never a search-space parameter (v3-B has no gates: `symmetric` only).
+NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling",)
+# v3-B (spec v1.11 D-B1): no listen / broadcast gates; the D10/D11 modes are removed (legacy-removal B2).
+COUPLING_MODES: tuple[str, ...] = ("symmetric",)
+# D12 G0b diagnostic (gap ladder): never a search-space parameter (identity_maps removed, B1).
+NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("feature_normalization",)
 # D12 comparison arms (C8, C9): never a search-space parameter; the non-default values are refused
 # in a tuning base config (evidence rows, never tuned, never defaults).
-NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context", "encoder")
-ENCODERS: tuple[str, ...] = ("filter_bank", "first_order")
+NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context",)
 # Part H (WISP, spec v1.3 §3.2): the path source and the WISP method constants are never tuned.
 # Spec v1.15 J2 (card Part M, M10): the support `wisp_max_length` (l_max in {2, 3, 4, 5}) and the
 # precision `wisp_walks_per_anchor` (r in {8, 16, 32, 64}) ARE tuned; they left this list.
@@ -82,16 +117,15 @@ def default_eval_period(dataset_name: str) -> int:
         return 2
     return 4 if name in H2GB_NC_DATASETS else 1
 # Cell weight (Part H): "exp" = w_f = exp(g(xi_f)), gamma removed (it is the bias of g; spec v1.3
-# §3.2c); "sigmoid_gamma" = gamma * sigmoid(g) (the D11/D12 behaviour, comparison arm).
-PATH_WEIGHTS: tuple[str, ...] = ("exp", "sigmoid_gamma")
+# §3.2c). The D11/D12 `sigmoid_gamma` was removed by the legacy-removal card.
+PATH_WEIGHTS: tuple[str, ...] = ("exp",)
 # The C2 weight ladder (spec v1.3 §5): inputs of g, nested restrictions on identical cells.
 PATH_WEIGHT_INPUTS: tuple[str, ...] = ("full", "endpoints", "schema", "uniform")
 FEATURE_NORMALIZATIONS: tuple[str, ...] = ("none", "row")
-# v3-B (spec v1.11 R13, §6; card Part L): "chebyshev" = the v1.2-1.10 propagation (gated
-# Chebyshev filter bank / first-order update; legacy, bit-identical); "anchored" = one anchored
-# quadratic solve `(P^T P + tau L_hat) Y* = P^T h0` on the three-level sheaf energy (PCG, implicit
-# backward). Never tuned.
-PROPAGATIONS: tuple[str, ...] = ("chebyshev", "anchored")
+# v3-B (spec v1.11 R13, §6; card Part L): "anchored" = one anchored quadratic solve
+# `(P^T P + tau L_hat) Y* = P^T h0` on the three-level sheaf energy (PCG, implicit backward). The v2
+# `chebyshev` propagation was removed by the legacy-removal card. Never tuned.
+PROPAGATIONS: tuple[str, ...] = ("anchored",)
 # Spec v1.15 §6 GC (J6): pooling before the one Linear layer of the graph readout; tuned (M10).
 GRAPH_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention")
 # v3-B arms (spec §6): every arm is a configuration of the one model under `propagation: anchored`
@@ -123,18 +157,12 @@ def reject_never_tuned_settings(
     layer, so the untied control is reachable only by setting it explicitly.
     """
     data = (raw_config or {}).get("data") or {}
-    # Legacy-removal LR-2: the defaults are the v3-B model (anchored, coupling symmetric).
-    coupling = str(((raw_config or {}).get("ablation") or {}).get("coupling", "symmetric"))
-    propagation = str(((raw_config or {}).get("model") or {}).get("propagation", "anchored"))
-    # v3-B (spec v1.11 G4, D-B1): the anchored model has no gates, so `symmetric` is the model's
-    # own coupling there (ModelConfig refuses any other); the rule below is the legacy one.
-    if propagation == "anchored" and coupling == "symmetric":
-        pass
-    elif coupling != "cooperative":
-        raise ValueError(
-            f"ablation.coupling: {coupling} is an ablation / test row (plan §10.5, §12.3) and must "
-            "not be used in tuning; tune the cooperative model and report the row separately."
-        )
+    # Legacy-removal card: removed v1/v2 settings raise first, in the base config and in the space.
+    for section in ("model", "ablation", "data"):
+        _reject_removed_settings(section, (raw_config or {}).get(section) or {})
+    for name in search_parameters:
+        if str(name).split(".")[-1] in _REMOVED_KEY_NAMES:
+            raise ValueError(f"tuning search space contains {name!r}: {REMOVED_BY_LEGACY_CARD}.")
     optim = (raw_config or {}).get("optim") or {}
     # Spec v1.15 §6 (J4): no learning-rate scheduler and no gradient clipping for any method.
     if str(optim.get("scheduler", "none")) != "none" or float(optim.get("grad_clip", 0.0)) > 0:
@@ -147,24 +175,10 @@ def reject_never_tuned_settings(
             "data.fact_layer: untied is an ablation control and must not be used in tuning "
             "(plan §9.1); tune the tied model and report untied separately."
         )
-    if ((raw_config or {}).get("ablation") or {}).get("identity_maps", False):
-        raise ValueError(
-            "ablation.identity_maps is the sheaf-free diagnostic of the D12 gap ladder and must "
-            "not be used in tuning."
-        )
     model = (raw_config or {}).get("model") or {}
     if model.get("geometry_context", True) is not True:
         raise ValueError(
             "model.geometry_context: false is the C9 comparison arm and must not be used in tuning."
-        )
-    if str(model.get("encoder", "filter_bank")) != "filter_bank":
-        raise ValueError(
-            "model.encoder: first_order is the C8 comparison arm and must not be used in tuning."
-        )
-    if str(model.get("path_weight", "exp")) != "exp":
-        raise ValueError(
-            "model.path_weight: sigmoid_gamma is a comparison arm (Part H) and must not be used in "
-            "tuning."
         )
     if str(model.get("arm", "full")) != "full":
         raise ValueError(
@@ -230,11 +244,11 @@ def reject_never_tuned_settings(
         if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the D12 comparison switches "
-                "(geometry_context, encoder) are never tuned."
+                "(geometry_context) are never tuned."
             )
         if any(key in str(name) for key in NEVER_TUNED_DIAGNOSTIC_KEYS):
             raise ValueError(
-                f"tuning search space contains {name!r}: identity_maps and feature_normalization "
+                f"tuning search space contains {name!r}: feature_normalization "
                 "are D12 diagnostics, never tuned."
             )
         if str(name).split(".")[-1] in NEVER_TUNED_V3B_KEYS:
@@ -259,8 +273,8 @@ def reject_never_tuned_settings(
             )
         if any(key in str(name) for key in NEVER_TUNED_MODEL_KEYS):
             raise ValueError(
-                f"tuning search space contains {name!r}: ablation.coupling and "
-                "model.coupling_gate_init are never tuned (plan §10.5)."
+                f"tuning search space contains {name!r}: ablation.coupling is never tuned "
+                "(plan §10.5)."
             )
 
 
@@ -636,8 +650,8 @@ class DataConfig:
     # `reject_never_tuned_settings`).
     fact_layer: str = "tied"
     # Path-cell builder (plan §9.2): "walk" (r walks per anchor and schema, merged weights,
-    # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only), "uniform_instance"
-    # (ablation: draws uniform over instances, L <= 2). Baseline bundles pin untied + dfs +
+    # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only; `uniform_instance` was
+    # removed by the legacy-removal card). Baseline bundles pin untied + dfs +
     # no resampling in src/baselines/bundles.py::_base_config (plan §9.5, option A).
     path_sampler: str = "walk"
     # Protocol (plan §9.2): training redraws the path cells every epoch (seed = seed +
@@ -733,6 +747,7 @@ class DataConfig:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "DataConfig":
+        _reject_removed_settings("data", raw)
         _reject_unknown_keys("data", raw, cls)
         config = cls(
             dataset_name=str(raw.get("dataset_name", "acm")).lower(),
@@ -809,10 +824,10 @@ class DataConfig:
             raise ValueError(
                 f"data.fact_layer must be 'tied' or 'untied', got {self.fact_layer!r}."
             )
-        if self.path_sampler not in {"walk", "dfs", "uniform_instance"}:
+        _reject_removed_value("data", "path_sampler", self.path_sampler)
+        if self.path_sampler not in {"walk", "dfs"}:
             raise ValueError(
-                "data.path_sampler must be 'walk', 'dfs' or 'uniform_instance', got "
-                f"{self.path_sampler!r}."
+                f"data.path_sampler must be 'walk' or 'dfs', got {self.path_sampler!r}."
             )
         if not isinstance(self.resample_paths, bool):
             raise ValueError(
@@ -820,8 +835,8 @@ class DataConfig:
             )
         if self.resample_paths and self.path_sampler == "dfs":
             raise ValueError(
-                "data.resample_paths needs a sampler with a draw seed (walk or "
-                "uniform_instance); path_sampler: dfs keeps its fixed seed."
+                "data.resample_paths needs a sampler with a draw seed (walk); path_sampler: "
+                "dfs keeps its fixed seed."
             )
         if self.fact_layer == "tied" and self.path_sampler == "dfs":
             raise ValueError(
@@ -1058,10 +1073,6 @@ class DataConfig:
     def _resolved_link_prediction(
         self, dataset_name: str, task_type: str, explicit: frozenset[str] = frozenset()
     ) -> "DataConfig":
-        if self.path_sampler == "uniform_instance":
-            raise ValueError(
-                "link prediction has no schemas; path_sampler: uniform_instance needs one."
-            )
         preset = LINK_PREDICTION_PRESETS.get(dataset_name, {})
         target_relation = (
             self.target_relation
@@ -1159,46 +1170,28 @@ class ModelConfig:
     # Graph classification readout (spec v1.15 §6, J6): pooling before one Linear layer
     # ("mean" | "max" | "add" | "attention" = HetSheaf's AttentionPooling); tuned (M10).
     graph_pooling: str = "mean"
-    # Diffusion steps x <- x - eta D^{-1/2} (Delta_0 + gamma L_P) D^{-1/2} x.
-    K: int = 5
-    layer_dropout: float = 0.0
     orthogonal_map: str = "fasthpp"
-    # CUDA allocation guard of the dense map family ([M, d, d] maps).
-    node_edge_memory_guard_fraction: float = 0.20
-    # Node->edge restriction maps (decision D1). "factorized": F = c R_{relation,side} H_k(u),
-    # matrix-free. "dense": explicit [M, d, d] FastHPP maps with the same scale law.
+    # Node->edge restriction maps (decision D1): "factorized", F = c R_{relation,side} H_k(u),
+    # matrix-free (the dense family was removed by the legacy-removal card, B4).
     map_family: str = "factorized"
     # Householder reflections k per incidence in the factorized family, 1 <= k <= d.
     householder_k: int = 2
     # Lower bound eps of the conformal scale c = softplus(.) + eps.
     map_scale_eps: float = 0.1
-    # Initial gamma = softplus(theta_gamma) > 0 and eta = sigmoid(theta_eta) in (0, 1).
-    gamma_init: float = 1.0
-    eta_init: float = 0.5
-    # D10: initial value of the listen / broadcast gates g, b in (0, 1) (plan §10.2). 0.6 since
-    # D11 (plan §12.4): at 0.95 the sigmoid is flat and the gates did not move. Never tuned.
-    coupling_gate_init: float = 0.6
     # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
     # D12 (spec v1.2 R10, Eq. 9): the geometry (map MLPs, gate heads, path encoder) is computed
     # once from [h0, c], c = per-(relation, role) mean of the neighbours' h0 over facts. false =
     # geometry from h0 alone (the D11 model; comparison arm C9). Never tuned.
     geometry_context: bool = True
-    # D12 (spec v1.2 R9): "filter_bank" = x = sum_k T_k(A - I)(h0 W_k), the method;
-    # "first_order" = K steps x <- x - eta A x (the D11 update; nested arm C8, Prop. 7). eta exists
-    # only under first_order; filter_bank starts at the first-order update with eta = eta_init.
-    # Never tuned.
-    encoder: str = "filter_bank"
     # Part H (spec v1.3 §3.2c): "exp" = w_f = exp(g(xi_f)) with the bias b of g initialised to
-    # log(path_weight_init) and no gamma; "sigmoid_gamma" = gamma * sigmoid(g) (comparison arm,
-    # the D12 model bit for bit). Never tuned.
+    # log(path_weight_init) and no gamma (`sigmoid_gamma` removed by the legacy-removal card).
     path_weight: str = "exp"
     path_weight_init: float = 0.5
-    # v3-B (spec v1.11 R13; card Part L). "chebyshev": the legacy propagation above (K steps or the
-    # filter bank, gates, eta), unchanged. "anchored": Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
-    # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward; no
-    # K, eta, gamma or gates. Never tuned.
-    # Legacy-removal LR-2: the default is the v3-B model (`anchored`); `chebyshev` must be named.
+    # v3-B (spec v1.11 R13; card Part L): "anchored", Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
+    # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward. The
+    # only value (the v2 `chebyshev` propagation was removed by the legacy-removal card); the key
+    # stays so that v3-B configurations parse. Never tuned.
     propagation: str = "anchored"
     # v3-B arm under `propagation: anchored` (spec §6): full | covering_only (no node-cell term) |
     # hub_A (fact states eliminated, no fact-cell term) | closure_only (holonomy edges, no cells) |
@@ -1223,17 +1216,14 @@ class ModelConfig:
         if self.graph_pooling not in GRAPH_POOLINGS:
             raise ValueError(
                 f"model.graph_pooling must be one of {GRAPH_POOLINGS}, got {self.graph_pooling!r}.")
+        for key in ("propagation", "path_weight", "map_family"):
+            _reject_removed_value("model", key, getattr(self, key))
         if self.propagation not in PROPAGATIONS:
             raise ValueError(
                 f"model.propagation must be one of {PROPAGATIONS}, got {self.propagation!r}."
             )
         if self.arm not in V3B_ARMS:
             raise ValueError(f"model.arm must be one of {V3B_ARMS}, got {self.arm!r}.")
-        if self.propagation != "anchored" and self.arm != "full":
-            raise ValueError(
-                f"model.arm: {self.arm} is a v3-B arm and exists only under model.propagation: "
-                "anchored (the legacy propagation keeps its ablation switches)."
-            )
         if not self.tau_init > 0.0:
             raise ValueError(f"model.tau_init must be positive, got {self.tau_init}.")
         for name in ("tau_stop", "log_weight_range_stop"):
@@ -1247,26 +1237,14 @@ class ModelConfig:
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value < lower:
                 raise ValueError(f"model.{name} must be an integer >= {lower}, got {value!r}.")
-        if self.propagation == "anchored" and self.path_weight != "exp":
-            raise ValueError("model.propagation: anchored needs model.path_weight: exp (beta_f = "
-                             "w_f m_f with w_f = exp(g); there is no gamma).")
         if self.path_weight not in PATH_WEIGHTS:
             raise ValueError(
                 f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
             )
-        # A value the active weight mode would ignore is rejected (the saved defaults pass, so
-        # configs round-trip through save_config).
-        if self.path_weight == "exp" and self.gamma_init != 1.0:
-            raise ValueError("model.gamma_init is rejected under model.path_weight: exp (there is "
-                             "no gamma; the scale is the bias of g, set by path_weight_init).")
-        if self.path_weight == "sigmoid_gamma" and self.path_weight_init != 0.5:
-            raise ValueError("model.path_weight_init exists only under model.path_weight: exp.")
         if not self.path_weight_init > 0.0:
             raise ValueError(
                 f"model.path_weight_init must be positive, got {self.path_weight_init}."
             )
-        if self.encoder not in ENCODERS:
-            raise ValueError(f"model.encoder must be one of {ENCODERS}, got {self.encoder!r}.")
         if not isinstance(self.geometry_context, bool):
             raise ValueError(
                 f"model.geometry_context must be a boolean, got {self.geometry_context!r}."
@@ -1276,15 +1254,9 @@ class ModelConfig:
                 f"Unsupported model.orthogonal_map '{self.orthogonal_map}'. "
                 "Only 'fasthpp' is implemented."
             )
-        if not 0.0 < self.node_edge_memory_guard_fraction <= 1.0:
+        if self.map_family != "factorized":
             raise ValueError(
-                "model.node_edge_memory_guard_fraction must be in (0, 1], "
-                f"got {self.node_edge_memory_guard_fraction}."
-            )
-        if self.map_family not in {"dense", "factorized"}:
-            raise ValueError(
-                f"Unsupported model.map_family '{self.map_family}'. "
-                "Supported values: dense, factorized."
+                f"Unsupported model.map_family '{self.map_family}'. Supported value: factorized."
             )
         if isinstance(self.householder_k, bool) or not isinstance(self.householder_k, int):
             raise ValueError(
@@ -1292,7 +1264,7 @@ class ModelConfig:
             )
         if self.householder_k < 1:
             raise ValueError(f"model.householder_k must be >= 1, got {self.householder_k}.")
-        if self.map_family == "factorized" and self.householder_k > self.d:
+        if self.householder_k > self.d:
             # d reflections already generate O(d), so k > d adds parameters, not reach.
             raise ValueError(
                 f"model.householder_k must be <= d={self.d} for map_family='factorized', "
@@ -1300,24 +1272,12 @@ class ModelConfig:
             )
         if not self.map_scale_eps > 0.0:
             raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
-        if not 0.0 < self.coupling_gate_init < 1.0:
-            raise ValueError(
-                f"model.coupling_gate_init must be in (0, 1), got {self.coupling_gate_init}."
-            )
-        if not 0.0 < self.eta_init < 1.0:
-            raise ValueError(f"model.eta_init must be in (0, 1), got {self.eta_init}.")
-        if not self.gamma_init > 0.0:
-            raise ValueError(
-                f"model.gamma_init must be positive (gamma = softplus(theta)), got "
-                f"{self.gamma_init}; use ablation.no_path_cells for gamma = 0."
-            )
         if not isinstance(self.checkpointing, bool):
             raise ValueError(f"model.checkpointing must be a boolean, got {self.checkpointing!r}.")
-        if self.K < 0:
-            raise ValueError(f"model.K must be non-negative, got {self.K}.")
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
+        _reject_removed_settings("model", raw)
         _reject_unknown_keys("model", raw, cls)
         path_weight = str(raw.get("path_weight", "exp"))
         return cls(
@@ -1329,23 +1289,14 @@ class ModelConfig:
             classifier_hidden_dim=int(raw.get("classifier_hidden_dim", 128)),
             classifier_dropout=float(raw.get("classifier_dropout", 0.1)),
             graph_pooling=str(raw.get("graph_pooling", "mean")),
-            K=int(raw.get("K", 5)),
-            layer_dropout=float(raw.get("layer_dropout", 0.0)),
             orthogonal_map=str(raw.get("orthogonal_map", "fasthpp")),
-            node_edge_memory_guard_fraction=float(
-                raw.get("node_edge_memory_guard_fraction", 0.20)
-            ),
             map_family=str(raw.get("map_family", "factorized")),
             # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
             householder_k=raw.get("householder_k", 2),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
-            gamma_init=float(raw.get("gamma_init", 1.0)),
-            eta_init=float(raw.get("eta_init", 0.5)),
-            coupling_gate_init=float(raw.get("coupling_gate_init", 0.6)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
             geometry_context=raw.get("geometry_context", True),
-            encoder=str(raw.get("encoder", "filter_bank")),
             path_weight=path_weight,
             path_weight_init=float(raw.get("path_weight_init", 0.5)),
             propagation=str(raw.get("propagation", "anchored")),
@@ -1363,50 +1314,38 @@ class ModelConfig:
 
 @dataclass(slots=True)
 class AblationConfig:
-    """Ablation switches of plan §4.6, all off by default (the full model)."""
+    """Switches of the v3-B model that are not arms (spec §6), all off by default (the full model).
 
-    # gamma = 0: no path coupling, path operator not built.
-    no_path_cells: bool = False
-    # Per-incidence orthogonal maps instead of the transport forced by functoriality.
-    free_path_maps: bool = False
-    # Each path replaced by one gated edge (v_0, v_L) with endpoint-only maps.
-    endpoint_edges: bool = False
-    # Each path replaced by a closure edge (v_L, v_0) whose relative map is the holonomy.
-    holonomy_edges: bool = False
+    The v2 path switches (`no_path_cells`, `free_path_maps`, `endpoint_edges`, `holonomy_edges`,
+    `per_side_scale`) and the sheaf-free `identity_maps` were removed by the legacy-removal card (B1);
+    the v3-B arms (`model.arm`) are their counterparts. Naming one raises.
+    """
+
     # Part H, the C2 weight ladder (spec v1.3 §5): the inputs of g. "full" = all nodes' geometry
     # and the actions; "endpoints" = v_0, v_L and the actions (hidden width matched to full's
-    # parameter count within 5 %); "schema" = the actions only; "uniform" = no input (w_f = exp(b),
-    # or 1 under sigmoid_gamma: the former `uniform_path_gate`). Same cells, same transports.
-    # Never tuned.
+    # parameter count within 5 %); "schema" = the actions only; "uniform" = no input (w_f = exp(b):
+    # the former `uniform_path_gate`). Same cells, same transports. Never tuned.
     path_weight_input: str = "full"
     # Spec v1.4 (E1-E2, R12): g reads each instance node's own h0 (false, the model), or the
     # v1.3 input [h0, c] (true: the appendix pair, full and endpoints only; needs
-    # geometry_context). Maps and gates read [h0, c] either way. Never tuned.
+    # geometry_context). Maps read [h0, c] either way. Never tuned.
     path_weight_context: bool = False
-    # D1's per-incidence conformal scales instead of one scale per edge (D1a).
-    per_side_scale: bool = False
-    # Read out from h0 only (sanity control: is diffusion used at all?).
+    # Read out from h0 only (sanity control: is diffusion used at all?; D12 G0b diagnostic).
     h0_only_readout: bool = False
     # Same frame on both sides, no side code and a symmetrized c_e for EVERY relation
     # (shared roles everywhere; the analogue of DSNN's q = 0).
     direction_blind_maps: bool = False
-    # D10 (plan §10): node-level listen / broadcast gates, x <- x - eta G Delta B x.
-    # "cooperative": both gates; "listen_only": B = I; "symmetric": no gate heads, all gates
-    # 1 (the pre-D10 model). Never tuned (see `reject_never_tuned_settings`).
-    # Legacy-removal LR-2 (B2): the default is `symmetric`, the value v3-B requires (no gates).
+    # v3-B has no listen / broadcast gates (spec v1.11 D-B1): `symmetric` is the only value (the
+    # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
+    # Never tuned.
     coupling: str = "symmetric"
-    # (D11) "pair_attention" replaces the gates by GATv2-style pair attention on the same sheaf:
-    # the test of assumption A4 (plan §12.3). Evidence row only; never a default, never tuned.
-    # (D12 G0b) Every restriction map F = I with scale 1: Delta_0 becomes the graph Laplacian
-    # over facts (x) I_d, the sheaf-free control of the gap ladder. Diagnostic only; needs
-    # no_path_cells; never tuned (`reject_never_tuned_settings`).
-    identity_maps: bool = False
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
             if name not in ("coupling", "path_weight_input") and not isinstance(
                     getattr(self, name), bool):
                 raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
+        _reject_removed_value("ablation", "coupling", self.coupling)
         if self.coupling not in COUPLING_MODES:
             raise ValueError(
                 f"ablation.coupling must be one of {COUPLING_MODES}, got {self.coupling!r}."
@@ -1416,72 +1355,15 @@ class AblationConfig:
                 f"ablation.path_weight_input must be one of {PATH_WEIGHT_INPUTS}, got "
                 f"{self.path_weight_input!r}."
             )
-        if self.coupling == "pair_attention" and (
-            self.per_side_scale or self.free_path_maps or self.endpoint_edges
-            or self.holonomy_edges or self.path_weight_input != "full" or self.h0_only_readout
-        ):
-            raise ValueError(
-                "ablation.coupling: pair_attention needs orthogonal transports and the path "
-                "encoder; it cannot be combined with per_side_scale, free_path_maps, "
-                "endpoint_edges, holonomy_edges, path_weight_input other than full or "
-                "h0_only_readout."
-            )
-        if self.path_weight_input != "full" and (
-            self.no_path_cells or self.free_path_maps or self.endpoint_edges or self.holonomy_edges
-        ):
-            raise ValueError(
-                "ablation.path_weight_input restricts g on identical cells (the C2 ladder); it "
-                "cannot be combined with no_path_cells, free_path_maps, endpoint_edges or "
-                "holonomy_edges."
-            )
-        if self.path_weight_context and (
-            self.no_path_cells or self.path_weight_input not in ("full", "endpoints")
-            or self.endpoint_edges or self.free_path_maps or self.coupling == "pair_attention"
-        ):
+        if self.path_weight_context and self.path_weight_input not in ("full", "endpoints"):
             raise ValueError(
                 "ablation.path_weight_context (g reads [h0, c], the spec v1.4 appendix pair) needs "
-                "path cells and path_weight_input full or endpoints, on the cell ladder (not "
-                "endpoint_edges, free_path_maps or pair_attention, spec v1.6); schema and uniform "
-                "read no node at all."
+                "path_weight_input full or endpoints; schema and uniform read no node at all."
             )
-        if self.identity_maps and (
-            not self.no_path_cells or self.h0_only_readout or self.coupling == "pair_attention"
-        ):
-            raise ValueError(
-                "ablation.identity_maps (sheaf-free diagnostic) needs no_path_cells: true and "
-                "cannot be combined with h0_only_readout or coupling: pair_attention."
-            )
-        if self.endpoint_edges and self.holonomy_edges:
-            raise ValueError("ablation.endpoint_edges and ablation.holonomy_edges are exclusive.")
-        if self.free_path_maps and (
-            self.endpoint_edges or self.holonomy_edges or self.per_side_scale
-        ):
-            raise ValueError(
-                "ablation.free_path_maps ablates the path cells under per-edge scales: it "
-                "cannot be combined with endpoint_edges, holonomy_edges or per_side_scale."
-            )
-        if self.no_path_cells and (
-            self.free_path_maps or self.endpoint_edges or self.holonomy_edges
-        ):
-            raise ValueError(
-                "ablation.no_path_cells removes the path term; it cannot be combined with "
-                "free_path_maps, endpoint_edges or holonomy_edges."
-            )
-
-    @property
-    def map_scale(self) -> str:
-        return "per_side" if self.per_side_scale else "per_edge"
-
-    @property
-    def path_mode(self) -> str:
-        if self.endpoint_edges:
-            return "endpoint_edges"
-        if self.holonomy_edges:
-            return "holonomy_edges"
-        return "cells"
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "AblationConfig":
+        _reject_removed_settings("ablation", raw)
         _reject_unknown_keys("ablation", raw, cls)
         defaults = cls()
         # Not cast with bool(): a string such as "false" must fail validation.
@@ -1498,7 +1380,7 @@ class OptimConfig:
     # `grad_clip <= 0` means no clipping.
     scheduler: str = "none"
     grad_clip: float = 0.0
-    # Learning rate of the diffusion scalars theta_eta, theta_gamma and the coupling-gate heads,
+    # Learning rate of the scalars theta_tau and the bias b of g (`H2SNN.scalar_parameters`),
     # as a multiple of `lr` (own parameter group, no weight decay). Full-batch training takes one optimizer step
     # per epoch, so at the base rate these scalars barely move (plan §4.7).
     scalar_lr_scale: float = 10.0
@@ -1551,23 +1433,6 @@ class TrainConfig:
                 "ablation.path_weight_context lets g read [h0, c]; c exists only under "
                 "model.geometry_context: true."
             )
-        if self.model.propagation == "anchored":
-            # v3-B (D-B1): no gates; the arms replace the legacy path switches; orthogonal maps
-            # need one scale per fact (D1a); the sheaf-free diagnostic has no anchored form.
-            if self.ablation.coupling != "symmetric":
-                raise ValueError(
-                    "model.propagation: anchored has no listen / broadcast gates (spec v1.11 D-B1, "
-                    "L1'); set ablation.coupling: symmetric."
-                )
-            switched = [name for name in ("no_path_cells", "free_path_maps", "endpoint_edges",
-                                          "holonomy_edges", "identity_maps", "per_side_scale")
-                        if getattr(self.ablation, name)]
-            if switched:
-                raise ValueError(
-                    f"ablation.{', '.join(switched)} belong to the legacy propagation; under "
-                    "model.propagation: anchored use model.arm (no_path_cells, closure_only, "
-                    "free_cell_maps, ...) with per-edge scales."
-                )
 
     @property
     def exp_dir(self) -> Path:

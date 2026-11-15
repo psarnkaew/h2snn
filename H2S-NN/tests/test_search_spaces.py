@@ -87,8 +87,10 @@ class NeverTunedTests(unittest.TestCase):
                                     ["data.wisp_max_length", "data.wisp_walks_per_anchor"])
 
     def test_K_layer_dropout_and_legacy_keys_are_refused(self) -> None:
+        # legacy-removal LR-3: K and layer_dropout are removed v2 keys; in a search space they now raise
+        # with the fail-closed message (was "not a component of the method", card LR-3)
         for key in ("K", "layer_dropout"):
-            with self.assertRaisesRegex(ValueError, "not a component of the method"):
+            with self.assertRaisesRegex(ValueError, "removed by the legacy-removal card"):
                 reject_never_tuned_settings(None, [key])
         for key in NEVER_TUNED_LEGACY_KEYS:
             with self.subTest(key=key), self.assertRaises(ValueError):
@@ -98,15 +100,13 @@ class NeverTunedTests(unittest.TestCase):
 
 
     def test_the_anchored_model_can_be_tuned(self) -> None:
-        """v3-B has no gates: `coupling: symmetric` is its own setting (refused only for the
-        legacy propagation, where it is an ablation row)."""
+        """v3-B has no gates: `coupling: symmetric` is its own setting (the legacy propagation, where
+        it was an ablation row, was removed by the legacy-removal card)."""
         reject_never_tuned_settings({"data": {"dataset_name": "acm"},
                                      "model": {"propagation": "anchored"},
                                      "ablation": {"coupling": "symmetric"}}, ["lr"])
-        with self.assertRaises(ValueError):  # legacy-removal LR-2: the legacy propagation named
-            reject_never_tuned_settings({"data": {"dataset_name": "acm"},
-                                         "model": {"propagation": "chebyshev"},
-                                         "ablation": {"coupling": "symmetric"}}, ["lr"])
+        # (legacy-removal B4/B5: the legacy-propagation subcase was deleted; chebyshev raises as a
+        # removed setting, tests/test_legacy_removal.py)
 
 
 class SeedProtocolTests(unittest.TestCase):

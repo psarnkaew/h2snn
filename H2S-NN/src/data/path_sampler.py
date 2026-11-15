@@ -27,9 +27,8 @@ its canonical orientation (decision 7). Paths through different reciprocal facts
 different cells. Everything is vectorized over walkers (per-hop CSR, `torch.unique`); there
 is no Python loop over nodes, anchors or walks.
 
-`uniform_instance` (ablation, L <= 2): instead of walk probabilities, each draw is uniform
-over the schema's walks from the anchor (first hop chosen proportional to the number of
-completions), non-simple draws rejected, so accepted draws are uniform over instances.
+The v2 sampler ablation `uniform_instance` (uniform over instances, L <= 2) was removed by the
+legacy-removal card.
 """
 
 from __future__ import annotations
@@ -43,7 +42,7 @@ from src.data.face_geometry import validate_face_orientation, validate_relation_
 from src.data.schemas import ResolvedSchema
 from src.data.structures import FaceGroup
 
-PATH_SAMPLERS = ("walk", "dfs", "uniform_instance")
+PATH_SAMPLERS = ("walk", "dfs")
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,24 +153,17 @@ def sample_walks(
     anchors: torch.Tensor,
     walks_per_anchor: int,
     generator: torch.Generator,
-    uniform_instance: bool = False,
 ) -> Walks:
     """`walks_per_anchor` walks from every anchor along `hop_csrs`; keeps accepted (simple)
     walks only. Vectorized over all walkers; one `torch.rand` call per hop."""
     if walks_per_anchor <= 0:
         raise ValueError("walks_per_anchor must be positive.")
-    if uniform_instance and len(hop_csrs) > 2:
-        raise ValueError("path_sampler: uniform_instance is implemented for schemas with "
-                         f"L <= 2 only, got L = {len(hop_csrs)}.")
     current = anchors.long().repeat_interleave(walks_per_anchor)
     alive = torch.ones_like(current, dtype=torch.bool)
     nodes, facts, signs, relations, directions = [current], [], [], [], []
     for j, csr in enumerate(hop_csrs):
         u = torch.rand(current.numel(), generator=generator, dtype=torch.float64)
-        counts = None
-        if uniform_instance and j == 0 and len(hop_csrs) == 2:
-            counts = hop_csrs[1].degree(csr.other)  # completions through each first hop
-        index, alive = _pick(csr, current, alive, u.to(current.device), counts)
+        index, alive = _pick(csr, current, alive, u.to(current.device), None)
         current = csr.other[index] if csr.other.numel() else current
         nodes.append(current)
         facts.append(csr.fact[index] if csr.fact.numel() else current)
@@ -304,7 +296,7 @@ def build_schema_path_groups(
     merge: str = "sum",
 ) -> tuple[FaceGroup, ...]:
     """Node classification: walks per resolved schema from every node of its start type."""
-    if sampler not in {"walk", "uniform_instance"}:
+    if sampler != "walk":
         raise ValueError(f"build_schema_path_groups samples walks, got sampler {sampler!r}.")
     half = build_half_edges(edge_index, edge_type, node_type.numel(), self_inverse, tied)
     generator = torch.Generator().manual_seed(int(seed))
@@ -313,8 +305,7 @@ def build_schema_path_groups(
     for schema in schemas:
         csrs = [hop_csr(half, relation, direction) for relation, direction in schema.hops]
         walks = sample_walks(csrs, anchors_of(schema.node_types[0]),
-                             schema.sample_per_anchor or default_walks, generator,
-                             uniform_instance=(sampler == "uniform_instance"))
+                             schema.sample_per_anchor or default_walks, generator)
         parts.append(walks)
         types = tuple(type_id[t] for t in schema.node_types)
         forward = _signature(torch.tensor([types]), torch.tensor([[r for r, _ in schema.hops]]),

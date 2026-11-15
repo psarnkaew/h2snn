@@ -67,9 +67,9 @@ class ArmTests(unittest.TestCase):
                 config = _config(arm)
                 model = H2SNN(config, ModelDims.from_prepared_data(data))
                 self.assertIsNotNone(model.theta_tau)
-                self.assertIsNone(model.filter_bank)
-                self.assertIsNone(model.theta_eta)
-                self.assertIsNone(model.listen_gate)
+                # legacy-removal B3: the v2 attributes (were None here) no longer exist at all
+                for name in ("filter_bank", "theta_eta", "listen_gate"):
+                    self.assertFalse(hasattr(model, name), name)
                 self.assertIn(model.theta_tau, model.scalar_parameters())
                 model.train()
                 output = model(data, epoch=0)
@@ -106,8 +106,9 @@ class ArmTests(unittest.TestCase):
                     self.assertEqual(stats["num_cells"], 0.0)
                 else:
                     self.assertGreater(stats["num_cells"], 0.0)
-                self.assertEqual(output.eta, None)
-                self.assertEqual(output.gamma, None)
+                # legacy-removal B3: H2SNNOutput has no eta / gamma fields any more (were None)
+                self.assertFalse(hasattr(output, "eta"))
+                self.assertFalse(hasattr(output, "gamma"))
                 # evaluation: the warm start is stored and reused on the same draw
                 model.eval()
                 with torch.no_grad():
@@ -125,21 +126,15 @@ class ArmTests(unittest.TestCase):
         TrainConfig.from_dict({**base, "model": {"propagation": "anchored"},
                                "ablation": {"coupling": "symmetric"}})
         bad = (
-            # legacy-removal LR-2: the default is anchored with coupling symmetric, so the two v2
-            # rules name their v2 values (the arm under chebyshev; gates under anchored)
-            {"model": {"propagation": "chebyshev", "arm": "hub_A"}},         # arm needs anchored
-            {"model": {"propagation": "anchored"},
-             "ablation": {"coupling": "cooperative"}},                       # gates under anchored
+            # legacy-removal B4/B5: the subcases naming removed v2 settings (chebyshev, the gate
+            # modes, holonomy_edges, sigmoid_gamma) were deleted; they raise as removed settings
+            # (tests/test_legacy_removal.py)
             {"model": {"propagation": "anchored", "arm": "nope"}, "ablation": {"coupling": "symmetric"}},
             {"model": {"propagation": "anchored", "solver_max_iterations": 0},
              "ablation": {"coupling": "symmetric"}},
             {"model": {"propagation": "anchored", "solver_tolerance": 2.0},
              "ablation": {"coupling": "symmetric"}},
             {"model": {"propagation": "anchored", "tau_init": 0.0}, "ablation": {"coupling": "symmetric"}},
-            {"model": {"propagation": "anchored"},
-             "ablation": {"coupling": "symmetric", "holonomy_edges": True}},
-            {"model": {"propagation": "anchored", "path_weight": "sigmoid_gamma"},
-             "ablation": {"coupling": "symmetric"}},
         )
         for raw in bad:
             with self.subTest(raw=raw), self.assertRaises(ValueError):

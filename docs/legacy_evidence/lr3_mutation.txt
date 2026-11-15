@@ -1,0 +1,62 @@
+mode=mutate job=16741 step=25 node=g2n01 start=2026-11-15T15:25:06+09:00
+git=888d12eb93c7a0dcef8da3960c7db14564b14ba1 branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+working tree: D  scripts/analyze_kernel.py
+working tree:  M src/analysis/wisp_readouts.py
+working tree:  M src/builders.py
+working tree:  M src/configs/config.py
+working tree:  M src/data/path_sampler.py
+working tree: D  src/models/coboundary_ops.py
+working tree: D  src/models/filter_bank.py
+working tree:  M src/models/h2snn_model.py
+working tree:  M src/models/link_readout.py
+working tree:  M src/models/map_operators.py
+working tree: D  src/models/pair_attention.py
+working tree:  M src/models/sheaf_maps.py
+working tree:  M src/models/vertex_path_laplacian.py
+working tree:  M src/trainers/link_prediction_trainer.py
+working tree:  M src/trainers/trainer.py
+working tree: D  src/utils/memory_guard.py
+working tree: D  tests/test_cooperative.py
+working tree:  M tests/test_cuda_hardening.py
+working tree:  M tests/test_factorized_maps.py
+working tree:  M tests/test_gap_ladder.py
+working tree:  M tests/test_hgb_lp_negatives.py
+working tree:  M tests/test_legacy_removal.py
+working tree: D  tests/test_pair_attention.py
+working tree:  M tests/test_partM3afix_concat_mlp.py
+working tree:  M tests/test_partO_literature_row.py
+working tree:  M tests/test_paths_and_facts.py
+working tree: RM tests/test_filter_bank.py -> tests/test_relational_context.py
+working tree:  M tests/test_search_spaces.py
+working tree:  M tests/test_shared_protocol.py
+working tree:  M tests/test_task_heads.py
+working tree:  M tests/test_trainer.py
+working tree:  M tests/test_v2_model.py
+working tree:  M tests/test_v3b_model.py
+working tree:  M tests/test_wisp.py
+===== mutation 1: the raise for one value removed (sigmoid_gamma dropped from REMOVED_VALUES)
+FAIL: test_removed_keys_raise_in_a_tuning_space (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) (base='model.path_weight', value='sigmoid_gamma')
+AssertionError: ValueError not raised
+FAIL: test_removed_values_raise (tests.test_legacy_removal.FailClosedTests.test_removed_values_raise) (setting='model.path_weight', value='sigmoid_gamma')
+AssertionError: "model\.path_weight: sigmoid_gamma .*removed by the legacy-removal card \(v1/v2\)" does not match "model.path_weight must be one of ('exp',), got 'sigmoid_gamma'."
+FAIL: test_removed_values_raise_on_direct_construction (tests.test_legacy_removal.FailClosedTests.test_removed_values_raise_on_direct_construction) (setting='model.path_weight', value='sigmoid_gamma')
+AssertionError: "model\.path_weight: sigmoid_gamma .*removed by the legacy-removal card \(v1/v2\)" does not match "model.path_weight must be one of ('exp',), got 'sigmoid_gamma'."
+Ran 6 tests in 0.368s
+FAILED (failures=3)
+restored: identical
+===== mutation 2: the raise for one key removed (encoder dropped from REMOVED_KEYS)
+FAIL: test_removed_keys_raise (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise) (setting='model.encoder')
+AssertionError: "model\.encoder is removed by the legacy-removal card \(v1/v2\)" does not match "Unknown model key(s): encoder. They are not settings of the current model; remove them (v1 and AMPSS settings were deleted, see docs/H2S-NN_v2_plan.md D6)."
+FAIL: test_removed_keys_raise_in_a_tuning_space (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) (search='model.encoder')
+AssertionError: "'model.encoder': removed by the legacy-removal card \(v1/v2\)" does not match "tuning search space contains 'model.encoder': not a component of the method (spec v1.15 J3; experiment_settings.html §4.2); never in H2S-NN's search space."
+FAIL: test_removed_keys_raise_in_a_tuning_space (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) (search='encoder')
+AssertionError: "'encoder': removed by the legacy-removal card \(v1/v2\)" does not match "tuning search space contains 'encoder': not a component of the method (spec v1.15 J3; experiment_settings.html §4.2); never in H2S-NN's search space."
+FAIL: test_removed_keys_raise_in_a_tuning_space (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) (base='model.encoder')
+AssertionError: ValueError not raised
+Ran 6 tests in 0.356s
+FAILED (failures=4)
+restored: identical
+OK
+end=2026-11-15T15:25:13+09:00

@@ -18,7 +18,7 @@ from src.data.data_layout import REPO_DATA_ROOT, gc_root, lp_root, nc_root
 from src.data.face_geometry import validate_face_orientation
 from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.models.map_operators import DenseMapOperator, EdgeMapPair, PathTransportOperator
-from src.models.sheaf_maps import DenseConformalNodeToEdgeSheaf, FactorizedNodeToEdgeSheaf
+from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm, PathCellTerm
 from tests.test_v2_model import _chain_operators
 
@@ -438,17 +438,14 @@ class FactLayerDefinitionTests(unittest.TestCase):
 # ----------------------------------------------------------------------------- D7 (T5, T16)
 def _map_module(family: str, map_scale: str, shared: tuple[int, ...], num_relations: int,
                 d: int = 4, seed: int = 0):
+    # legacy-removal B4: the dense family (DenseConformalNodeToEdgeSheaf) was deleted; factorized only
+    if family != "factorized":
+        raise ValueError(f"unknown map family {family!r}")
     torch.manual_seed(seed)
-    if family == "factorized":
-        module = FactorizedNodeToEdgeSheaf(
-            d=d, d_r=2, num_relations=num_relations, hidden_dim=8, householder_k=2,
-            scale_eps=0.1, orthogonal_map="fasthpp", map_scale=map_scale, checkpoint=False,
-            shared_role_relations=shared)
-    else:
-        module = DenseConformalNodeToEdgeSheaf(
-            d=d, d_r=2, num_relations=num_relations, hidden_dim=8, scale_eps=0.1,
-            orthogonal_map="fasthpp", map_scale=map_scale, memory_guard_fraction=0.9,
-            shared_role_relations=shared)
+    module = FactorizedNodeToEdgeSheaf(
+        d=d, d_r=2, num_relations=num_relations, hidden_dim=8, householder_k=2,
+        scale_eps=0.1, orthogonal_map="fasthpp", map_scale=map_scale, checkpoint=False,
+        shared_role_relations=shared)
     return module.double()
 
 
@@ -491,8 +488,8 @@ def _two_relation_graph(seed: int):
     return edge_index, edge_type, h, rel
 
 
-FAMILIES = [(family, scale) for family in ("factorized", "dense")
-            for scale in ("per_edge", "per_side")]
+# legacy-removal B4: the dense subcases were deleted with `map_family: dense`
+FAMILIES = [("factorized", scale) for scale in ("per_edge", "per_side")]
 
 
 class SharedRoleTests(unittest.TestCase):
@@ -928,76 +925,6 @@ class IdentityTests(unittest.TestCase):
                 self.assertFalse(any(k in reversed_keys and k != k[::-1] for k in keys))
 
 
-class StabilityTests(unittest.TestCase):
-    """T13: lambda_max(D^-1/2 L D^-1/2) <= 2 + 1e-9 with m_f and signs, 60 fixtures."""
-
-    def test_T13_lambda_max_at_most_two(self) -> None:
-        from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
-
-        worst = 0.0
-        for fixture in range(60):
-            shared = fixture % 2 == 0
-            generator = torch.Generator().manual_seed(1000 + fixture)
-            paths = SignedPaths(7, (2, 3), 3, generator, signed=True)
-            maps = _chain_operators(paths.edge_index.size(1), k=2, d=3, seed=fixture,
-                                    dtype=torch.float64, shared=shared)
-            terms = []
-            for transport in paths.transports(maps, shared):
-                m = 3.0 * (1.0 - torch.rand(transport.face_node_index.size(0),
-                                            generator=generator, dtype=torch.float64))
-                w = torch.rand(m.numel(), generator=generator, dtype=torch.float64)
-                terms.append(PathCellTerm(transport, w * m))
-            gamma = torch.rand(1, generator=generator, dtype=torch.float64)[0] * 3
-            laplacian = VertexPathSheafLaplacian(maps, paths.edge_index, 7, tuple(terms), gamma,
-                                                 checkpoint=False)
-            basis = torch.eye(7 * 3, dtype=torch.float64).view(7 * 3, 7, 3)
-            matrix = torch.stack([laplacian.apply_normalized(b).reshape(-1) for b in basis], 1)
-            worst = max(worst, float(torch.linalg.eigvalsh(0.5 * (matrix + matrix.T))[-1]))
-        self.assertLessEqual(worst, 2.0 + 1e-9)
-
-
-class UniformInstanceTests(unittest.TestCase):
-    """T16 (part): uniform_instance draws instances uniformly; it refuses L > 2."""
-
-    def _hub(self):
-        # anchor paper 0 with authors 1, 2, 3; author 1 has 30 more papers, authors 2, 3 have 3
-        writes = [(0, 1), (0, 2), (0, 3)]
-        paper = 4
-        for author, count in ((1, 30), (2, 3), (3, 3)):
-            for _ in range(count):
-                writes.append((paper, author))
-                paper += 1
-        edge_index = torch.tensor(writes).t()
-        node_type = torch.tensor([0] + [1, 1, 1] + [0] * (paper - 4))
-        return edge_index, torch.zeros(len(writes), dtype=torch.long), node_type
-
-    def _counts(self, sampler: str, draws: int) -> torch.Tensor:
-        from src.data.path_sampler import build_half_edges, hop_csr, sample_walks
-
-        edge_index, edge_type, node_type = self._hub()
-        half = build_half_edges(edge_index, edge_type, node_type.numel(), (), True)
-        csrs = [hop_csr(half, 0, 1), hop_csr(half, 0, -1)]
-        walks = sample_walks(csrs, torch.tensor([0]), draws, torch.Generator().manual_seed(3),
-                             uniform_instance=(sampler == "uniform_instance"))
-        return torch.bincount(walks.nodes[:, 2], minlength=node_type.numel())[4:]
-
-    def test_T16_uniform_instance_is_uniform_over_instances(self) -> None:
-        draws = 36 * 1000
-        counts = self._counts("uniform_instance", draws).double()
-        accepted = counts.sum()
-        expected = accepted / 36
-        sigma = (expected * (1 - 1 / 36)) ** 0.5
-        self.assertLess(float(((counts - expected).abs() / sigma).max()), 5.0)
-        walk = self._counts("walk", draws).double()  # control: 1/90 vs 1/9 per instance
-        self.assertGreater(float(((walk - walk.sum() / 36).abs()
-                                  / (walk.sum() / 36) ** 0.5).max()), 10.0)
-
-    def test_T16_uniform_instance_refuses_long_schemas(self) -> None:
-        with self.assertRaisesRegex(ValueError, "L <= 2"):
-            _draw(0, 2, sampler="uniform_instance",
-                  schemas=(("PPPA", ("paper",) * 3 + ("author",), ((0, 1), (0, 1), (1, 1))),))
-
-
 class SamplerConfigAndFreeWalkTests(unittest.TestCase):
     def test_config_rules(self) -> None:
         from src.configs.config import TrainConfig
@@ -1007,7 +934,8 @@ class SamplerConfigAndFreeWalkTests(unittest.TestCase):
                                             "path_sampler": "dfs"}})
         with self.assertRaises(ValueError):
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "path_sampler": "bfs"}})
-        for sampler in ("walk", "uniform_instance"):  # the schema sampler's variants
+        # legacy-removal B5: the uniform_instance variant was deleted (it raises)
+        for sampler in ("walk",):  # the schema sampler's variants
             TrainConfig.from_dict({"data": {"dataset_name": "acm", "fact_layer": "tied",
                                             "path_sampler": sampler, "path_source": "schemas"}})
 
@@ -1306,8 +1234,7 @@ class LinkPredictionFactTests(unittest.TestCase):
         self.assertIs(trainer.training_draw(data, data, 5), data)
 
     def test_T11_config(self) -> None:
-        with self.assertRaises(ValueError):
-            _lp_config(self.root, "tied", "uniform_instance")
+        # (legacy-removal B5: the uniform_instance subcase was deleted with the sampler)
         with self.assertRaises(ValueError):  # the length-2 walks were replaced by WISP (J1)
             _lp_config(self.root, "tied", "walk")
 

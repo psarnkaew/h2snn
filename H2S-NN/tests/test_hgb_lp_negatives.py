@@ -332,7 +332,7 @@ def _tiny_lastfm_config(root, **data):
         "dataset_name": "lastfm", "root": str(root), "wisp_walks_per_anchor": 2,
         "wisp_max_length": 2, **data}, "model": {"d": 8, "d_r": 4, "classifier_hidden_dim": 8,
                                                   "face_mlp_hidden_dim": 8,
-                                                  "edge_mlp_hidden_dim": 8, "K": 1}})
+                                                  "edge_mlp_hidden_dim": 8}})
 
 
 def _raw_pairs(path) -> list[tuple[int, int]]:

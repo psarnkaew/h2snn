@@ -1,0 +1,65 @@
+mode=suite job=16741 step=22 node=g2n01 start=2026-11-15T15:11:13+09:00
+git=888d12eb93c7a0dcef8da3960c7db14564b14ba1 branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+working tree: D  scripts/analyze_kernel.py
+working tree:  M src/analysis/wisp_readouts.py
+working tree:  M src/builders.py
+working tree:  M src/configs/config.py
+working tree:  M src/data/path_sampler.py
+working tree: D  src/models/coboundary_ops.py
+working tree: D  src/models/filter_bank.py
+working tree:  M src/models/h2snn_model.py
+working tree:  M src/models/link_readout.py
+working tree:  M src/models/map_operators.py
+working tree: D  src/models/pair_attention.py
+working tree:  M src/models/sheaf_maps.py
+working tree:  M src/models/vertex_path_laplacian.py
+working tree:  M src/trainers/link_prediction_trainer.py
+working tree:  M src/trainers/trainer.py
+working tree: D  src/utils/memory_guard.py
+working tree: D  tests/test_cooperative.py
+working tree:  M tests/test_cuda_hardening.py
+working tree:  M tests/test_factorized_maps.py
+working tree:  M tests/test_gap_ladder.py
+working tree:  M tests/test_hgb_lp_negatives.py
+working tree:  M tests/test_legacy_removal.py
+working tree: D  tests/test_pair_attention.py
+working tree:  M tests/test_partM3afix_concat_mlp.py
+working tree:  M tests/test_partO_literature_row.py
+working tree:  M tests/test_paths_and_facts.py
+working tree: RM tests/test_filter_bank.py -> tests/test_relational_context.py
+working tree:  M tests/test_search_spaces.py
+working tree:  M tests/test_shared_protocol.py
+working tree:  M tests/test_task_heads.py
+working tree:  M tests/test_trainer.py
+working tree:  M tests/test_v2_model.py
+working tree:  M tests/test_v3b_model.py
+working tree:  M tests/test_wisp.py
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest discover (whole suite)
+suite_exit=1
+Random graph with a one-way validation set: equal to the independent re-implementation ... ok
+FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Ran 635 tests in 710.834s
+FAILED (failures=1)
+======================================================================
+FAIL: test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines.py", line 395, in test_notebooks_are_committed_clean
+    self.assertIsNone(cell.get("execution_count"))
+AssertionError: 1 is not None
+
+----------------------------------------------------------------------
+Ran 635 tests in 710.834s
+
+FAILED (failures=1)
+end=2026-11-15T15:23:21+09:00

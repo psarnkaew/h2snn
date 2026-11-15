@@ -27,16 +27,12 @@ class LinkPredictionReadout(nn.Module):
         self,
         d: int,
         decoder_type: str,
-        hidden_dim: int,
-        dropout: float,
         num_relations: int = 1,
         input_dim: int | None = None,
     ) -> None:
         """`input_dim` is the representation width: `2d` for `[x_K, h0]` (the default),
-        `d` under the `h0_only_readout` ablation. `hidden_dim` and `dropout` are unused since the
-        concat+MLP decoder was removed (M3a-fix F1); they stay because the caller
-        `src/models/h2snn_model.py` (`hidden_dim=model_config.classifier_hidden_dim`,
-        `dropout=model_config.classifier_dropout`) passes them."""
+        `d` under the `h0_only_readout` ablation. (The former `hidden_dim` and `dropout` belonged
+        to the removed concat+MLP decoder; removed by the legacy-removal card, LR-3.)"""
         super().__init__()
         self.decoder_type = decoder_type
         self.endpoint_projection = nn.Sequential(

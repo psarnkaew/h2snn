@@ -89,9 +89,8 @@ class BuilderTests(unittest.TestCase):
                 "data": {"dataset_name": "acm", "wisp_walks_per_anchor": 16},
                 "model": {"propagation": "anchored", "arm": "covering_only"},
                 "ablation": {"coupling": "symmetric"}}),
-            # legacy-removal LR-2: the default is anchored, so the legacy propagation is named
-            "legacy propagation": TrainConfig.from_dict({"data": {"dataset_name": "acm"},
-                                                         "model": {"propagation": "chebyshev"}}),
+            # (legacy-removal B4/B5: the "legacy propagation" case was deleted; chebyshev raises
+            # as a removed setting before any builder, tests/test_legacy_removal.py)
             "already a row": fixed_literature_schema_config(_full()),
             "graph classification": TrainConfig.from_dict({
                 "data": {"dataset_name": "mutag", "wisp_walks_per_anchor": 8},

@@ -1,29 +1,21 @@
-"""H2S-NN: node diffusion with the vertex-2-cell sheaf Laplacian (plan §4, decision D6).
+"""H2S-NN v3-B (spec v1.11 R13; plan §4, decision D6): one anchored quadratic solve on the three-level
+sheaf energy (`src/models/sheaf_energy.py`),
 
-    h0 = TypeEncoder(x)
-    repeat K steps:
-        x <- x - eta D^{-1/2} (Delta_0 + gamma L_P) D^{-1/2} x       # then layer dropout
-    representation = [x_K, h0]
+    h0 = TypeEncoder(x),   (P^T P + tau L_hat) Y* = P^T h0,   Y = (x, s, z),   tau = exp(theta_tau),
+    representation = [x*, h0],
 
-`Delta_0` runs over the observed edges with the D1 map operators (one conformal scale per
-edge, D1a); `L_P` couples every path 2-cell to every node on it through ordered parallel
-transport (`src/models/vertex_path_laplacian.py`). `eta = sigmoid(theta_eta)`,
-`gamma = softplus(theta_gamma)`, `w_f = sigmoid(g(path_latent_f))`.
+solved by PCG with an implicit backward (`src/models/anchored_solve.py`). `Delta_0` runs over the
+observed facts with the D1 map operators (one conformal scale per fact, D1a); every path 2-cell
+couples to every node on it through ordered parallel transport, with weight `beta_f = w_f m_f`,
+`w_f = exp(g(path_latent_f))`. The arms of spec §6 are configurations of this one path (`model.arm`).
 
 One encoder, three task heads (plan §4.8), selected by `data.task_type`:
-- node classification: `MLP([x_K, h0])` on the target nodes;
-- link prediction: the `dot` / `distmult` decoders on `[x_K, h0]` (spec v1.22 W2);
-- graph classification: sum of `[x_K, h0]` per graph -> BatchNorm -> MLP.
-Ablation switches (plan §4.6) come from `config.ablation`.
-
-v3-B (spec v1.11 R13; `model.propagation: anchored`): the propagation above is replaced by one
-anchored quadratic solve on the three-level sheaf energy (`src/models/sheaf_energy.py`),
-
-    (P^T P + tau L_hat) Y* = P^T h0,   Y = (x, s, z),   tau = exp(theta_tau),
-
-solved by PCG with an implicit backward (`src/models/anchored_solve.py`); the arms of spec §6 are
-configurations of this one path (`model.arm`). The legacy propagation stays reachable under
-`model.propagation: chebyshev` (the default) and is unchanged.
+- node classification: `MLP([x*, h0])` on the target nodes;
+- link prediction: the `dot` / `distmult` decoders on `[x*, h0]` (spec v1.22 W2);
+- graph classification: pooling of `[x*, h0]` per graph -> one Linear layer.
+The v2 propagation (Chebyshev filter bank / first-order update, listen/broadcast gates, pair
+attention, the v2 path switches, identity maps, the dense map family) was removed by the
+legacy-removal card (v1/v2).
 """
 
 from __future__ import annotations
@@ -39,20 +31,13 @@ from src.data.link_pred_structures import PreparedLinkPredData
 from src.data.structures import FaceGroup, PreparedH2SData, ScopeIndex, face_lengths_of
 from src.models.graph_readout import GraphReadout
 from src.models.link_readout import LinkPredictionReadout
-from src.models.pair_attention import (
-    AttentionOperator,
-    PairAttention,
-    build_attention_operator,
-)
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
-    IdentityMapOperator,
     PathTransportOperator,
     checkpoint_if_grad,
     normalize_reflectors,
 )
-from src.models.filter_bank import ChebyshevFilterBank
 from src.models.anchored_solve import (LogWeightRangeStopError, NonFiniteLogWeightError,
                                        PCGConvergenceError, SolveStats, TauStopError,
                                        anchored_solve, solver_tolerance)
@@ -67,18 +52,10 @@ from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
 from src.models.sheaf_maps import (
     REFLECTOR_NORM_EPS,
-    DenseConformalNodeToEdgeSheaf,
     FactorizedNodeToEdgeSheaf,
     gathered_linear,
 )
-from src.models.vertex_path_laplacian import (
-    EdgePairTerm,
-    FreeIncidenceOperator,
-    HolonomyEdgeTerm,
-    PathCellTerm,
-    PathTerm,
-    VertexPathSheafLaplacian,
-)
+from src.models.vertex_path_laplacian import HolonomyEdgeTerm
 
 
 def _per_type_layout(
@@ -185,40 +162,23 @@ def _self_inverse_of(data: object) -> tuple[int, ...]:
     return () if layer is None else tuple(layer.self_inverse)
 
 
-class DiffusionOperator(NamedTuple):
-    """Everything one forward pass diffuses with; `encode` and the tests share it."""
-
-    laplacian: VertexPathSheafLaplacian
-    eta: torch.Tensor | None  # None under encoder: filter_bank (eta exists only under first_order)
-    gamma: torch.Tensor | None
-    path_weights: tuple[torch.Tensor, ...]
-    maps: EdgeMapPair
-    # D10 listen / broadcast gates g, b in (0, 1), shape [N]; None = 1 (symmetric, or the
-    # absent half under `listen_only`). The update is x <- x - eta G Delta B x.
-    listen: torch.Tensor | None = None
-    broadcast: torch.Tensor | None = None
-
-
 class AnchoredState(NamedTuple):
-    """What one anchored forward solved with (v3-B); `forward` reads the same four attributes as
-    from `DiffusionOperator` (eta and gamma do not exist: None)."""
+    """What one anchored forward solved with (v3-B)."""
 
     maps: EdgeMapPair
     path_weights: tuple[torch.Tensor, ...]  # w_f per face group (before m_f)
     tau: torch.Tensor                        # detached
     stats: SolveStats
     layout_rows: tuple[int, int, int]        # (N, |fact states|, F) of the solved system
-    eta: torch.Tensor | None = None
-    gamma: torch.Tensor | None = None
 
 
 class EncodedState(NamedTuple):
     """Output of the shared encoder, before any task head."""
 
     h0: torch.Tensor
-    x_star: torch.Tensor  # x_K (h0 under ablation.h0_only_readout)
-    representation: torch.Tensor  # [x_K, h0] (h0 under ablation.h0_only_readout)
-    operator: "DiffusionOperator | AnchoredState | None"  # None under ablation.h0_only_readout
+    x_star: torch.Tensor  # x* (h0 under ablation.h0_only_readout)
+    representation: torch.Tensor  # [x*, h0] (h0 under ablation.h0_only_readout)
+    operator: "AnchoredState | None"  # None under ablation.h0_only_readout
 
 
 class H2SNNOutput(NamedTuple):
@@ -228,8 +188,6 @@ class H2SNNOutput(NamedTuple):
     x_star: torch.Tensor
     h0: torch.Tensor
     # Detached diagnostics for logging (no effect on optimization).
-    eta: torch.Tensor | None
-    gamma: torch.Tensor | None
     path_gate_mean: torch.Tensor | None
     path_gate_max: torch.Tensor | None
     max_edge_scale: torch.Tensor | None
@@ -366,49 +324,8 @@ def _rotation_parameters(count: int, orthogonal: Orthogonal, d: int) -> nn.Param
     return parameters
 
 
-class EndpointEdgeMaps(nn.Module):
-    """Factorized maps of the endpoint edge `(v_0 -> v_L)` from the endpoint latent:
-    `F_side = c R_side H_k(u_side)`, one rotation per side, `c` per `map_scale`."""
-
-    def __init__(self, d: int, latent_dim: int, householder_k: int, map_scale: str,
-                 scale_eps: float, orthogonal_map: str) -> None:
-        super().__init__()
-        self.d = d
-        self.householder_k = householder_k
-        self.map_scale = map_scale
-        self.scale_eps = scale_eps
-        self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
-        self.rotation_params = _rotation_parameters(2, self.orthogonal, d)
-        self.reflector_head = nn.Linear(latent_dim, 2 * householder_k * d)
-        self.scale_head = nn.Linear(latent_dim, 1 if map_scale == "per_edge" else 2)
-
-    def forward(self, latent: torch.Tensor) -> EdgeMapPair:
-        num_paths = latent.size(0)
-        reflectors = normalize_reflectors(
-            self.reflector_head(latent).view(num_paths, 2, self.householder_k, self.d),
-            REFLECTOR_NORM_EPS,
-        )
-        scales = nn.functional.softplus(self.scale_head(latent)) + self.scale_eps
-        if self.map_scale == "per_edge":
-            side_scales = (scales[:, 0], scales[:, 0])  # one c_e, shared (D1a)
-        else:
-            side_scales = (scales[:, 0], scales[:, 1])
-        rotations = self.orthogonal(self.rotation_params)
-        group_ids = torch.zeros(num_paths, dtype=torch.long, device=latent.device)
-        sides = [
-            FactorizedMapOperator(
-                scale=side_scales[side],
-                reflectors=reflectors[:, side],
-                rotations=rotations[side:side + 1],
-                group_ids=group_ids,
-            )
-            for side in range(2)
-        ]
-        return EdgeMapPair(src=sides[0], tgt=sides[1])
-
-
 class FreeIncidenceMaps(nn.Module):
-    """Ablation `path_maps: free`: one orthogonal map `R_{position} H_k(u_{v,f})` per
+    """Arm `free_cell_maps` (Thm 3 control): one orthogonal map `R_{position} H_k(u_{v,f})` per
     incidence, `u` from `[h_v, path_latent_f, onehot(position)]` (same factorized family as
     the node->edge maps, but not forced by functoriality)."""
 
@@ -460,24 +377,6 @@ class FreeIncidenceMaps(nn.Module):
         )
 
 
-def _gate_head(d: int, gate_init: float) -> nn.Linear:
-    """`g = sigmoid(a^T h0 + beta)` as a linear head: bias = logit(gate_init) so every gate
-    starts at `coupling_gate_init`, weights N(0, 0.01^2) (an initialisation choice, like the
-    frame init in sheaf_maps.py, not a config key) so training starts near the symmetric model."""
-    head = nn.Linear(d, 1)
-    nn.init.normal_(head.weight, mean=0.0, std=0.01)
-    nn.init.constant_(head.bias, _logit(gate_init))
-    return head
-
-
-def _logit(p: float) -> float:
-    return math.log(p / (1.0 - p))
-
-
-def _softplus_inverse(y: float) -> float:
-    return y + math.log(-math.expm1(-y))
-
-
 _LINK_PREDICTION = "link_prediction"
 _GRAPH_CLASSIFICATION = "graph_classification"
 
@@ -492,13 +391,10 @@ class H2SNN(nn.Module):
         self.task_type = config.data.task_type
         d = model_config.d
         self.d = d
-        self.num_steps = model_config.K
         self.checkpointing = model_config.checkpointing
-        self.map_scale = ablation.map_scale
+        # D1a: one conformal scale per fact (the per-side scales were removed with v2).
+        self.map_scale = "per_edge"
         self.h0_only = ablation.h0_only_readout
-        # D12 G0b sheaf-free diagnostic: node_to_edge is still built (same state dict) but not called.
-        self.identity_maps = ablation.identity_maps
-        # v3-B: the anchored solve replaces K, eta, gamma, the filter bank and the gates.
         self.propagation = model_config.propagation
         self.arm = model_config.arm
         anchored = self.propagation == "anchored" and not self.h0_only
@@ -537,128 +433,58 @@ class H2SNN(nn.Module):
                                                         self.shared_role_relations)
             geometry_dim = d + self.relational_context.output_dim(d)
         self.geometry_dim = geometry_dim
-        self.node_to_edge: FactorizedNodeToEdgeSheaf | DenseConformalNodeToEdgeSheaf
-        if model_config.map_family == "factorized":
-            self.node_to_edge = FactorizedNodeToEdgeSheaf(
-                d=d,
-                d_r=model_config.d_r,
-                num_relations=dims.num_relations,
-                hidden_dim=model_config.edge_mlp_hidden_dim,
-                householder_k=model_config.householder_k,
-                scale_eps=model_config.map_scale_eps,
-                orthogonal_map=model_config.orthogonal_map,
-                map_scale=self.map_scale,
-                checkpoint=model_config.checkpointing,
-                shared_role_relations=self.shared_role_relations,
-                input_dim=geometry_dim,
-                factored_inputs=model_config.geometry_context,
-            )
-        else:
-            self.node_to_edge = DenseConformalNodeToEdgeSheaf(
-                d=d,
-                d_r=model_config.d_r,
-                num_relations=dims.num_relations,
-                hidden_dim=model_config.edge_mlp_hidden_dim,
-                scale_eps=model_config.map_scale_eps,
-                orthogonal_map=model_config.orthogonal_map,
-                map_scale=self.map_scale,
-                memory_guard_fraction=model_config.node_edge_memory_guard_fraction,
-                shared_role_relations=self.shared_role_relations,
-                input_dim=geometry_dim,
-            )
-        # eta exists only under encoder: first_order (D12); the filter bank absorbs the step size.
-        self.encoder = model_config.encoder
-        self.theta_eta: nn.Parameter | None = (
-            nn.Parameter(torch.tensor(_logit(model_config.eta_init)))
-            if model_config.encoder == "first_order" and not anchored else None
+        self.node_to_edge = FactorizedNodeToEdgeSheaf(
+            d=d,
+            d_r=model_config.d_r,
+            num_relations=dims.num_relations,
+            hidden_dim=model_config.edge_mlp_hidden_dim,
+            householder_k=model_config.householder_k,
+            scale_eps=model_config.map_scale_eps,
+            orthogonal_map=model_config.orthogonal_map,
+            map_scale=self.map_scale,
+            checkpoint=model_config.checkpointing,
+            shared_role_relations=self.shared_role_relations,
+            input_dim=geometry_dim,
+            factored_inputs=model_config.geometry_context,
         )
-        self.use_path_cells = not ablation.no_path_cells
-        self.path_mode = ablation.path_mode
-        self.free_path_maps = ablation.free_path_maps
-        self.theta_gamma: nn.Parameter | None = None
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
         self.path_log_weight: nn.Parameter | None = None
-        self.free_maps: FreeIncidenceMaps | None = None
-        self.endpoint_maps: EndpointEdgeMaps | None = None
-        # Part H: w_f = exp(g) without gamma ("exp"), or gamma * sigmoid(g) ("sigmoid_gamma");
-        # the C2 ladder restricts the inputs of g on identical cells.
-        self.path_weight = model_config.path_weight
+        # Part H: w_f = exp(g) without gamma; the C2 ladder restricts the inputs of g on identical
+        # cells.
         self.path_weight_input = ablation.path_weight_input
         # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0;
         # [h0, c] only under the appendix switch. Maps and gates keep geometry_dim.
         self.path_weight_context = ablation.path_weight_context
-        # Spec v1.6 E10: pair attention has no g; its path latents are scores and read [h0, c].
-        path_input_dim = (geometry_dim if self.path_weight_context
-                          or ablation.coupling == "pair_attention" else d)
+        path_input_dim = geometry_dim if self.path_weight_context else d
         self.path_input_dim = path_input_dim
         self.path_actions = dims.path_actions
         hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
-        if self.use_path_cells:
-            if self.path_weight == "sigmoid_gamma":
-                self.theta_gamma = nn.Parameter(
-                    torch.tensor(_softplus_inverse(model_config.gamma_init))
-                )
-            hidden = model_config.face_mlp_hidden_dim
-            if self.path_mode == "endpoint_edges":
-                # No intermediate node enters: neither the maps nor the gate see them.
-                self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
-                                                    dims.face_lengths,
-                                                    factored_inputs=model_config.geometry_context)
-                self.endpoint_maps = EndpointEdgeMaps(
-                    d=d, latent_dim=hidden, householder_k=model_config.householder_k,
-                    map_scale=self.map_scale, scale_eps=model_config.map_scale_eps,
-                    orthogonal_map=model_config.orthogonal_map,
-                )
-            elif self.free_path_maps or self.path_weight_input == "full":
-                self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden,
+        hidden = model_config.face_mlp_hidden_dim
+        if self.path_weight_input == "full":
+            self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden,
+                                            dims.face_lengths,
+                                            factored_inputs=model_config.geometry_context)
+        elif self.path_weight_input == "endpoints":
+            hidden = endpoint_hidden_width(hidden, path_input_dim, hop_dim, dims.face_lengths)
+            self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
                                                 dims.face_lengths,
                                                 factored_inputs=model_config.geometry_context)
-            elif self.path_weight_input == "endpoints":
-                hidden = endpoint_hidden_width(hidden, path_input_dim, hop_dim, dims.face_lengths)
-                self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
-                                                    dims.face_lengths,
-                                                    factored_inputs=model_config.geometry_context)
-            elif self.path_weight_input == "schema":
-                self.path_encoder = SchemaEncoder(hop_dim, hidden, dims.face_lengths)
-            if self.free_path_maps:
-                self.free_maps = FreeIncidenceMaps(
-                    d=d, latent_dim=hidden, hidden_dim=model_config.edge_mlp_hidden_dim,
-                    householder_k=model_config.householder_k,
-                    max_positions=max(dims.face_lengths, default=1) + 1,
-                    orthogonal_map=model_config.orthogonal_map,
-                    node_dim=geometry_dim,
-                    factored_inputs=model_config.geometry_context,
-                )
-            if self.path_weight_input != "uniform":
-                # Gate g, default weight init so the path encoder gets gradients from step 0.
-                # sigmoid_gamma: zero bias, w_f = sigmoid(g) starts near 0.5 with a small spread.
-                # exp: bias b = log(path_weight_init), w_f = exp(g) starts near path_weight_init.
-                self.path_gate = nn.Linear(hidden, 1)
-                if self.path_weight == "exp":
-                    nn.init.constant_(self.path_gate.bias, math.log(model_config.path_weight_init))
-                else:
-                    nn.init.zeros_(self.path_gate.bias)
-            elif self.path_weight == "exp":
-                # uniform under exp: w_f = exp(b) for every cell (b alone; no g input).
-                self.path_log_weight = nn.Parameter(
-                    torch.tensor(math.log(model_config.path_weight_init)))
-        self.layer_dropout = nn.Dropout(model_config.layer_dropout)
-        self.coupling = ablation.coupling
-        self.listen_gate: nn.Linear | None = None
-        self.broadcast_gate: nn.Linear | None = None
-        self.last_coupling_stats: dict[str, float] = {}
+        elif self.path_weight_input == "schema":
+            self.path_encoder = SchemaEncoder(hop_dim, hidden, dims.face_lengths)
+        if self.path_weight_input != "uniform":
+            # Gate g, default weight init so the path encoder gets gradients from step 0; bias
+            # b = log(path_weight_init), w_f = exp(g) starts near path_weight_init.
+            self.path_gate = nn.Linear(hidden, 1)
+            nn.init.constant_(self.path_gate.bias, math.log(model_config.path_weight_init))
+        else:
+            # uniform: w_f = exp(b) for every cell (b alone; no g input).
+            self.path_log_weight = nn.Parameter(
+                torch.tensor(math.log(model_config.path_weight_init)))
         self.last_path_stats: dict[str, float] = {}
         self.last_path_weights: tuple[torch.Tensor, ...] = ()
-        # Gate heads are created last, so the other parameters initialise exactly as before
-        # (`symmetric` creates none: the pre-D10 model, bit for bit). No heads without
-        # diffusion (`h0_only_readout`).
-        if not self.h0_only and self.coupling in ("listen_only", "cooperative"):
-            self.listen_gate = _gate_head(geometry_dim, model_config.coupling_gate_init)
-            if self.coupling == "cooperative":
-                self.broadcast_gate = _gate_head(geometry_dim, model_config.coupling_gate_init)
 
-        # Task head on the node representation [x_K, h0] (h0 under h0_only_readout); the v3-B arm
+        # Task head on the node representation [x*, h0] (h0 under h0_only_readout); the v3-B arm
         # `instance_features` adds the anchor's cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
         representation_dim = d if self.h0_only else 2 * d
         if anchored and self.arm == "instance_features":
@@ -671,8 +497,6 @@ class H2SNN(nn.Module):
                 d=d,
                 input_dim=representation_dim,
                 decoder_type=config.data.decoder_type,
-                hidden_dim=model_config.classifier_hidden_dim,
-                dropout=model_config.classifier_dropout,
                 num_relations=dims.num_target_relations,
             )
         elif self.task_type == _GRAPH_CLASSIFICATION:
@@ -688,32 +512,7 @@ class H2SNN(nn.Module):
                 nn.Dropout(model_config.classifier_dropout),
                 nn.Linear(model_config.classifier_hidden_dim, dims.num_classes),
             )
-        # A4 test variant (plan §12.3): created last, so every other parameter initialises as in
-        # the gated model; gate heads are not instantiated for it.
-        self.pair_attention: PairAttention | None = None
-        if self.coupling == "pair_attention" and not self.h0_only:
-            self.pair_attention = PairAttention(
-                d=d, d_r=model_config.d_r, path_hidden=model_config.face_mlp_hidden_dim,
-                num_relations=dims.num_relations,
-                max_positions=max(dims.face_lengths, default=1) + 1,
-            )
-        # D12 G2: the Chebyshev filter bank (spec v1.2 §3). Created last; its initialization is
-        # deterministic (V_k = theta_k I, no RNG), so every other parameter is as before.
-        self.filter_bank: ChebyshevFilterBank | None = None
-        if model_config.encoder == "filter_bank" and not self.h0_only and not anchored:
-            self.filter_bank = ChebyshevFilterBank(d, model_config.K, model_config.eta_init)
-        # Spec v1.6 E10: the path-specific maps of endpoint_edges and free_path_maps read the
-        # geometry [h0, c]; g reads h0. A second encoder (same class) exists only when the two
-        # inputs differ (geometry_context on, path_weight_context off), so the context-off model
-        # is unchanged; it is created last, so every other parameter initialises as before.
-        self.map_encoder: PathEncoder | EndpointEncoder | None = None
-        if (self.use_path_cells and (self.path_mode == "endpoint_edges" or self.free_path_maps)
-                and path_input_dim != geometry_dim):
-            encoder_class = EndpointEncoder if self.path_mode == "endpoint_edges" else PathEncoder
-            self.map_encoder = encoder_class(geometry_dim, hop_dim,
-                                             model_config.face_mlp_hidden_dim, dims.face_lengths,
-                                             factored_inputs=model_config.geometry_context)
-        # v3-B (created last: every legacy parameter initialises as before). tau = exp(theta_tau),
+        # v3-B (created last, as before the legacy removal). tau = exp(theta_tau),
         # theta_tau = log(tau_init), own optimizer group (D-B4). The arm `free_cell_maps` has one
         # free orthogonal map per fact-cell incidence (hop positions 0..L_max-1; Thm 3 control).
         self.theta_tau: nn.Parameter | None = None
@@ -745,41 +544,21 @@ class H2SNN(nn.Module):
                 )
 
     # ------------------------------------------------------------------ scalars
-    def eta(self) -> torch.Tensor | None:
-        """`sigmoid(theta_eta)` under `encoder: first_order`; None under `filter_bank`."""
-        if self.theta_eta is None:
-            return None
-        return torch.sigmoid(self.theta_eta)
-
-    def gamma(self) -> torch.Tensor | None:
-        if self.theta_gamma is None:
-            return None
-        return nn.functional.softplus(self.theta_gamma)
-
     def tau(self) -> torch.Tensor | None:
-        """`exp(theta_tau)` under `propagation: anchored`; None otherwise."""
+        """`exp(theta_tau)` of the anchored solve; None under `h0_only_readout`."""
         if self.theta_tau is None:
             return None
         return torch.exp(self.theta_tau)
 
     def diffusion_scalars(self) -> dict[str, float]:
-        """Current eta and gamma (legacy) or tau and the last solve's PCG statistics (anchored),
-        for per-epoch logging."""
+        """tau and the last solve's PCG statistics, and log w_f of the last forward, for per-epoch
+        logging."""
         with torch.no_grad():
             scalars: dict[str, float] = {}
-            eta = self.eta()
-            if eta is not None:
-                scalars["eta"] = float(eta)
             tau = self.tau()
             if tau is not None:
                 scalars["tau"] = float(tau)
                 scalars.update(self.last_solver_stats)
-            if self.filter_bank is not None:  # sum_k ||W_k||_2 (Prop. 5 bound), float64 norms
-                scalars["filter_norm_sum"] = self.filter_bank.diagnostic_norm_sum()
-            gamma = self.gamma()
-            if gamma is not None:
-                scalars["gamma"] = float(gamma)
-        scalars.update(self.last_coupling_stats)  # gates of the last training forward
         scalars.update(self.last_path_stats)      # log w_f of the last forward (Part H)
         return scalars
 
@@ -793,26 +572,17 @@ class H2SNN(nn.Module):
         return {**self._last_solve.as_dict(), **self._last_solve_info}
 
     def scalar_parameters(self) -> list[nn.Parameter]:
-        """`theta_eta`, `theta_gamma`, `theta_tau` (v3-B, D-B4) and the gate heads (weights and
-        biases): the optimizer gives them their own group (plan §12.4). Sigmoid-saturated scalars
-        move too little per full-batch step at the base rate."""
-        scalars = [p for p in (self.theta_eta, self.theta_gamma, self.theta_tau) if p is not None]
-        for head in (self.listen_gate, self.broadcast_gate):
-            if head is not None:
-                scalars.extend(head.parameters())
-        if self.path_weight == "exp":
-            # b, the bias of g (gamma's role under exp, spec v1.3 §3.2c), or the uniform arm's b.
-            if self.path_gate is not None:
-                scalars.append(self.path_gate.bias)
-            if self.path_log_weight is not None:
-                scalars.append(self.path_log_weight)
-        if self.pair_attention is not None:
-            # The strength-forming parameters of the A4 test get the same optimizer treatment as
-            # the gate heads they replace (a test of A4 must not handicap one arm).
-            scalars.extend(self.pair_attention.parameters())
+        """`theta_tau` (v3-B, D-B4) and the bias b of g (or the uniform arm's b): the optimizer gives
+        them their own group (plan §12.4)."""
+        scalars = [p for p in (self.theta_tau,) if p is not None]
+        # b, the bias of g (gamma's role under exp, spec v1.3 §3.2c), or the uniform arm's b.
+        if self.path_gate is not None:
+            scalars.append(self.path_gate.bias)
+        if self.path_log_weight is not None:
+            scalars.append(self.path_log_weight)
         return scalars
 
-    # ------------------------------------------------------------------ operator
+    # ------------------------------------------------------------------ inputs
     def encode_nodes(self, x: torch.Tensor, node_type: torch.Tensor,
                      global_node_id: torch.Tensor | None = None) -> torch.Tensor:
         """`h0`. `global_node_id` (Part MB): rows of a batch of scopes -> node ids of the whole
@@ -838,20 +608,8 @@ class H2SNN(nn.Module):
         [h0, c] under `ablation.path_weight_context` (appendix pair)."""
         return geometry if self.path_weight_context else h0
 
-    def _map_latent(self, geometry: torch.Tensor, group: FaceGroup) -> torch.Tensor:
-        """Latent of the path-specific maps (endpoint_edges, free_path_maps) from the geometry
-        `[h0, c]` (spec v1.6 E10), through the map encoder."""
-        encoder = self.map_encoder
-        return checkpoint_if_grad(
-            lambda h_in, rel_in: encoder(h_in, group.face_node_index,
-                                         self._hop_tokens(group, rel_in)),
-            geometry,
-            self.relation_embedding.weight,
-            enabled=self.checkpointing,
-        )
-
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
-        """`[P, hidden]` path latent (endpoint-only under `endpoint_edges`), or None."""
+        """`[P, hidden]` path latent of g, or None (`path_weight_input: uniform`)."""
         if self.path_encoder is None:
             return None
         encoder = self.path_encoder
@@ -884,316 +642,14 @@ class H2SNN(nn.Module):
 
     def _path_weights(self, latent: torch.Tensor | None, group: FaceGroup,
                       like: torch.Tensor) -> torch.Tensor:
-        """`w_f = exp(g(latent_f))` (`path_weight: exp`) or `sigmoid(g(latent_f))`
-        (`sigmoid_gamma`); under `path_weight_input: uniform`, `exp(b)` or 1."""
+        """`w_f = exp(g(latent_f))`; under `path_weight_input: uniform`, `exp(b)`."""
         if self.path_gate is None:
-            if self.path_log_weight is not None:
-                return torch.exp(self.path_log_weight).expand(group.num_faces)
-            return like.new_ones(group.num_faces)
+            return torch.exp(self.path_log_weight).expand(group.num_faces)  # type: ignore[arg-type]
         logits = self.path_gate(latent).squeeze(-1)
         if self.anchored and not bool(torch.isfinite(logits).all()):  # spec v1.16 K5, before exp
             bad = logits[~torch.isfinite(logits)][0]
             raise NonFiniteLogWeightError(float(bad), self._current_epoch)
-        return torch.exp(logits) if self.path_weight == "exp" else torch.sigmoid(logits)
-
-    def path_terms(
-        self,
-        h0: torch.Tensor,
-        maps: EdgeMapPair,
-        edge_index: torch.Tensor,
-        face_groups: tuple[FaceGroup, ...],
-        *,
-        path_input: torch.Tensor,
-    ) -> tuple[tuple[PathTerm, ...], tuple[torch.Tensor, ...]]:
-        """One coupling term per face group, per the ablation switches, and its `w_f`. `h0` is the
-        per-node geometry input (`geometry_inputs`: `[h0, c]` under `geometry_context`; the free
-        maps' node input); `path_input` is g's per-node input (`path_inputs`, spec v1.4 R12)."""
-        terms: list[PathTerm] = []
-        weights: list[torch.Tensor] = []
-        shared = self.map_scale == "per_edge"
-        for group in face_groups:
-            if group.num_faces == 0:
-                continue
-            latent = self._path_latent(path_input, group)
-            # one latent when g's input is the geometry (context off, or the appendix switch)
-            map_latent = latent if self.map_encoder is None else self._map_latent(h0, group)
-            group_weights = self._path_weights(latent, group, h0)
-            gate_weights = group_weights
-            if group.path_weight is not None:  # merged weight m_f, in both L_P and D (D8)
-                group_weights = group_weights * group.path_weight.to(group_weights.dtype)
-            nodes = group.face_node_index
-            if self.path_mode == "endpoint_edges":
-                endpoints = torch.stack([nodes[:, 0], nodes[:, -1]])
-                term: PathTerm = EdgePairTerm(self.endpoint_maps(map_latent), endpoints,
-                                              group_weights)
-            elif self.free_path_maps:
-                incidence = FreeIncidenceOperator(self.free_maps(h0, nodes, map_latent), nodes)
-                term = PathCellTerm(incidence, group_weights)
-            else:
-                transport = PathTransportOperator(
-                    maps.src, maps.tgt, nodes, group.face_edge_index, edge_index,
-                    shared_scale=shared, face_edge_sign=group.face_edge_sign,
-                )
-                if self.path_mode == "holonomy_edges":
-                    term = HolonomyEdgeTerm(transport, group_weights)
-                else:
-                    term = PathCellTerm(transport, group_weights)
-            terms.append(term)
-            weights.append(gate_weights)
-        return tuple(terms), tuple(weights)
-
-    def _build_attention_operator(
-        self,
-        h0: torch.Tensor,
-        maps: EdgeMapPair,
-        edge_index: torch.Tensor,
-        edge_type: torch.Tensor,
-        face_groups: tuple[FaceGroup, ...],
-        geometry: torch.Tensor | None = None,
-    ) -> AttentionOperator:
-        """Pair-attention operator on the same maps, facts and cells (A4 test, plan §12.3)."""
-        transports: list[PathTransportOperator] = []
-        latents: list[torch.Tensor] = []
-        log_merged: list[torch.Tensor] = []
-        if self.use_path_cells:
-            for group in face_groups:
-                if group.num_faces == 0:
-                    continue
-                transports.append(PathTransportOperator(
-                    maps.src, maps.tgt, group.face_node_index, group.face_edge_index, edge_index,
-                    shared_scale=True, face_edge_sign=group.face_edge_sign,
-                ))
-                # spec v1.6 E10: the cell scores' latents read the geometry [h0, c]
-                latents.append(self._path_latent(h0 if geometry is None else geometry, group))
-                merged = group.path_weight
-                log_merged.append(h0.new_zeros(group.num_faces) if merged is None
-                                  else merged.to(h0.dtype).clamp_min(1e-30).log())
-        shared_roles = torch.zeros(self.relation_embedding.num_embeddings, dtype=torch.bool,
-                                   device=h0.device)
-        if self.shared_role_relations:
-            shared_roles[list(self.shared_role_relations)] = True
-        return build_attention_operator(
-            self.pair_attention, maps, self.eta(), h0, edge_index, edge_type, shared_roles,
-            transports, latents, log_merged, self.checkpointing,
-        )
-
-    def coupling_gates(self, h0: torch.Tensor) -> tuple[torch.Tensor | None, torch.Tensor | None]:
-        """`(g, b)`, each `[N]` in (0, 1) or None when absent: `sigmoid(a^T h0 + beta)`,
-        computed once from h0 like the maps (plan §10.4)."""
-        listen = broadcast = None
-        if self.listen_gate is not None:
-            listen = torch.sigmoid(self.listen_gate(h0).squeeze(-1))
-        if self.broadcast_gate is not None:
-            broadcast = torch.sigmoid(self.broadcast_gate(h0).squeeze(-1))
-        return listen, broadcast
-
-    def build_operator(
-        self,
-        h0: torch.Tensor,
-        edge_index: torch.Tensor,
-        edge_type: torch.Tensor,
-        face_groups: tuple[FaceGroup, ...],
-        num_nodes: int,
-    ) -> DiffusionOperator:
-        geometry = self.geometry_inputs(h0, edge_index, edge_type)
-        if self.identity_maps:
-            identity = IdentityMapOperator.ones(edge_index.size(1), self.d, h0)
-            maps = EdgeMapPair(src=identity, tgt=identity)
-        else:
-            maps = self.node_to_edge(
-                h=geometry,
-                edge_index=edge_index,
-                edge_type=edge_type,
-                relation_embeddings=self.relation_embedding.weight,
-            ).maps
-        if self.pair_attention is not None:
-            # C4b arm unchanged: attention scores from h0; path latents from the shared encoder.
-            return self._build_attention_operator(h0, maps, edge_index, edge_type, face_groups,
-                                                  geometry)
-        gamma = self.gamma()
-        terms: tuple[PathTerm, ...] = ()
-        weights: tuple[torch.Tensor, ...] = ()
-        if self.use_path_cells:
-            terms, weights = self.path_terms(geometry, maps, edge_index, face_groups,
-                                             path_input=self.path_inputs(h0, geometry))
-        if weights:
-            if self.training:  # the adaptive proposal's input for the next epoch (Part H3)
-                self.last_path_weights = tuple(w.detach() for w in weights)
-            with torch.no_grad():
-                log_w = torch.cat(weights).log()
-                self.last_path_stats = {"path_log_w_max": float(log_w.max()),
-                                        "path_log_w_mean": float(log_w.mean())}
-        laplacian = VertexPathSheafLaplacian(
-            edge_maps=maps,
-            edge_index=edge_index,
-            num_nodes=num_nodes,
-            path_terms=terms,
-            gamma=gamma if terms else None,
-            checkpoint=self.checkpointing,
-        )
-        listen, broadcast = self.coupling_gates(geometry)
-        return DiffusionOperator(laplacian=laplacian, eta=self.eta(), gamma=gamma,
-                                 path_weights=weights, maps=maps, listen=listen,
-                                 broadcast=broadcast)
-
-    def diffuse(self, x0: torch.Tensor, operator: DiffusionOperator,
-                trace: list[torch.Tensor] | None = None) -> torch.Tensor:
-        """`encoder: first_order`: K steps of `x <- x - eta G Delta B x` (then layer dropout). G and
-        B are skipped, not multiplied by ones, when absent, so `symmetric` runs the pre-D10
-        operations. `trace`, if given, receives the state after every step (diagnostics only)."""
-        if operator.eta is None:
-            raise ValueError("diffuse is the first-order update; eta exists only under "
-                             "encoder: first_order (use propagate).")
-        x = x0
-        for _ in range(self.num_steps):
-            x = x - operator.eta * apply_operator(operator, x)
-            x = self.layer_dropout(x)
-            if trace is not None:
-                trace.append(x)
-        return x
-
-    def propagate(self, h0: torch.Tensor, operator: DiffusionOperator) -> torch.Tensor:
-        """`x_K`: the filter bank `sum_k T_k(A - I)(h0 W_k)` (then layer dropout, once), or the
-        first-order update under `encoder: first_order`."""
-        if self.filter_bank is None:
-            return self.diffuse(h0, operator)
-        return self.layer_dropout(self.filter_bank(lambda x: apply_operator(operator, x), h0))
-
-    @property
-    def diagnostics_available(self) -> bool:
-        """Whether `eta_lambda_max` and `energy_trace` are defined (a Laplacian operator exists).
-        The anchored path logs tau and the PCG statistics through `diffusion_scalars` instead."""
-        return not self.h0_only and self.pair_attention is None and not self.anchored
-
-    # ------------------------------------------------------------------ D10 diagnostics
-    @staticmethod
-    def coupling_scale(operator: DiffusionOperator, like: torch.Tensor) -> torch.Tensor:
-        """`[N]` per-node `sqrt(g b)`: `G Delta B` is similar to `S Delta S` with this `S`."""
-        scale = torch.ones(like.size(0), dtype=like.dtype, device=like.device)
-        if operator.listen is not None:
-            scale = scale * operator.listen
-        if operator.broadcast is not None:
-            scale = scale * operator.broadcast
-        return scale.sqrt()
-
-    def coupling_stats(self, operator: DiffusionOperator) -> dict[str, float]:
-        """Mean and min of the gates present (detached floats, logging only)."""
-        stats: dict[str, float] = {}
-        if isinstance(operator, AttentionOperator):  # self-attention mass of every node
-            stats["alpha_self_mean"] = float(operator.alpha_self.detach().mean())
-            stats["alpha_self_min"] = float(operator.alpha_self.detach().min())
-            return stats
-        for name, gate in (("g", operator.listen), ("b", operator.broadcast)):
-            if gate is not None and gate.numel():
-                values = gate.detach()
-                stats[f"{name}_mean"] = float(values.mean())
-                stats[f"{name}_min"] = float(values.min())
-        return stats
-
-    @torch.no_grad()
-    def lambda_max(self, operator: DiffusionOperator, num_nodes: int, steps: int = 30,
-                   seed: int = 0) -> float:
-        """Largest eigenvalue of `G Delta B` by power iteration on its symmetric similar form
-        `(GB)^{1/2} Delta (GB)^{1/2}` (plan §10.3). Returns the Rayleigh quotient after
-        `steps` steps: a lower bound of lambda_max that converges from below."""
-        if isinstance(operator, AttentionOperator):
-            raise ValueError("pair_attention has no Laplacian operator (use `diagnostics_available`).")
-        probe = operator.maps.src.scale  # device and dtype only
-        scale = self.coupling_scale(operator, probe.new_zeros(num_nodes)).unsqueeze(-1)
-        generator = torch.Generator(device=probe.device).manual_seed(seed)
-        x = torch.randn((num_nodes, self.d), generator=generator, device=probe.device,
-                        dtype=probe.dtype)
-        x = x / x.norm()
-
-        def apply(v: torch.Tensor) -> torch.Tensor:
-            return scale * operator.laplacian.apply_normalized(scale * v)
-
-        for _ in range(steps):
-            y = apply(x)
-            norm = y.norm()
-            if float(norm) == 0.0:
-                return 0.0
-            x = y / norm
-        return float((x * apply(x)).sum())
-
-    @torch.no_grad()
-    def energy_trace(self, x: torch.Tensor, node_type: torch.Tensor,
-                     edge_index: torch.Tensor, edge_type: torch.Tensor,
-                     face_groups: tuple[FaceGroup, ...], num_nodes: int) -> dict[str, float]:
-        """Normalized energy `<x_t, Delta_hat x_t> / ||x_t||^2` after each diffusion step
-        t = 0..K, split into `energy_edge_t` and `energy_path_t` (plan §12.6 diagnostics; a fresh
-        eval-mode operator, no grad; the training state is restored). Empty under
-        `h0_only_readout`."""
-        if self.h0_only:
-            return {}
-        was_training = self.training
-        self.eval()
-        try:
-            h0 = self.encode_nodes(x, node_type)
-            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
-            if self.filter_bank is not None:  # no intermediate steps: input and filter output
-                states = {"0": h0, "out": self.propagate(h0, operator)}
-            else:
-                trajectory = [h0]
-                self.diffuse(h0, operator, trajectory)
-                states = {str(step): state for step, state in enumerate(trajectory)}
-            trace: dict[str, float] = {}
-            for step, state in states.items():
-                edge, path = operator.laplacian.energy_parts(state)
-                trace[f"energy_edge_{step}"] = float(edge)
-                trace[f"energy_path_{step}"] = float(path)
-            return trace
-        finally:
-            self.train(was_training)
-
-    @torch.no_grad()
-    def eta_lambda_max(self, x: torch.Tensor, node_type: torch.Tensor,
-                       edge_index: torch.Tensor, edge_type: torch.Tensor,
-                       face_groups: tuple[FaceGroup, ...], num_nodes: int,
-                       steps: int = 30) -> float:
-        """`eta * lambda_max(G Delta B)` of a fresh eval-mode operator (diagnostic, no grad);
-        the training state of the module is restored."""
-        was_training = self.training
-        self.eval()
-        try:
-            h0 = self.encode_nodes(x, node_type)
-            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
-            if operator.eta is None:
-                raise ValueError("eta exists only under encoder: first_order; use "
-                                 "operator_diagnostics.")
-            return float(operator.eta) * self.lambda_max(operator, num_nodes, steps)
-        finally:
-            self.train(was_training)
-
-    @torch.no_grad()
-    def operator_diagnostics(self, x: torch.Tensor, node_type: torch.Tensor,
-                             edge_index: torch.Tensor, edge_type: torch.Tensor,
-                             face_groups: tuple[FaceGroup, ...], num_nodes: int,
-                             steps: int = 30) -> dict[str, float]:
-        """Spectral diagnostics of a fresh eval-mode operator (no grad; training state restored).
-        first_order: `{"eta_lambda_max"}` (D10). filter_bank: `lambda_max_A` (power iteration, a
-        lower bound), `filter_norm_sum = sum_k ||W_k||_2` (Prop. 5's bound when the spectrum of A
-        is in [0, 2]) and `filter_gain` (power iteration of F*F in M = B G^-1, a lower bound)."""
-        if self.filter_bank is None:
-            return {"eta_lambda_max": self.eta_lambda_max(x, node_type, edge_index, edge_type,
-                                                          face_groups, num_nodes, steps)}
-        was_training = self.training
-        self.eval()
-        try:
-            h0 = self.encode_nodes(x, node_type)
-            operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
-            ones = h0.new_ones(num_nodes)
-            listen = ones if operator.listen is None else operator.listen
-            broadcast = ones if operator.broadcast is None else operator.broadcast
-            gain = self.filter_bank.gain(lambda v: apply_operator(operator, v),
-                                         broadcast / listen, (num_nodes, self.d), steps)
-            return {
-                "lambda_max_A": self.lambda_max(operator, num_nodes, steps),
-                "filter_norm_sum": self.filter_bank.diagnostic_norm_sum(),
-                "filter_gain": gain,
-            }
-        finally:
-            self.train(was_training)
+        return torch.exp(logits)
 
     # ------------------------------------------------------------------ encoder
     def encode(
@@ -1214,19 +670,8 @@ class H2SNN(nn.Module):
         h0 = self.encode_nodes(x, node_type, global_node_id)
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
-        if self.anchored:
-            return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
-                                         scope_index)
-        operator = self.build_operator(h0, edge_index, edge_type, face_groups, num_nodes)
-        if self.training:
-            self.last_coupling_stats = self.coupling_stats(operator)  # logging only
-        x_star = self.propagate(h0, operator)
-        return EncodedState(
-            h0=h0,
-            x_star=x_star,
-            representation=torch.cat([x_star, h0], dim=-1),
-            operator=operator,
-        )
+        return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+                                     scope_index)
 
     # ------------------------------------------------------------------ v3-B anchored solve
     def _cell_weights(self, h0: torch.Tensor, geometry: torch.Tensor,
@@ -1296,9 +741,9 @@ class H2SNN(nn.Module):
         free_params: list[torch.Tensor] = []
         if arm == "free_cell_maps" and self.free_cell_maps is not None:
             for group, latent in zip(groups, latents):
-                map_latent = latent if self.map_encoder is None else self._map_latent(geometry, group)
                 # one free map per fact-cell incidence, indexed by the hop's near node and position
-                free = self.free_cell_maps(geometry, group.face_node_index[:, :-1], map_latent)
+                # (its latent is g's; the v2 map encoder never existed under anchored)
+                free = self.free_cell_maps(geometry, group.face_node_index[:, :-1], latent)
                 free_params.extend([free.reflectors, free.rotations])
         num_groups = len(groups)
         device = h0.device
@@ -1394,7 +839,7 @@ class H2SNN(nn.Module):
 
     # ------------------------------------------------------------------ node classification
     def forward(self, data: PreparedH2SData, epoch: int = -1) -> H2SNNOutput:
-        """Node classification. `epoch` is accepted for trainer compatibility only."""
+        """Node classification. `epoch` sets the anchored solver's tolerance schedule."""
         if self.readout is None:
             raise RuntimeError(
                 f"forward() is the node-classification head; this model was built for "
@@ -1408,11 +853,8 @@ class H2SNN(nn.Module):
         logits = self.readout(encoded.representation[data.target_indices])
         operator = encoded.operator
         if operator is None:
-            eta = self.eta()
             return H2SNNOutput(logits=logits, x_star=encoded.x_star, h0=encoded.h0,
-                               eta=None if eta is None else eta.detach(), gamma=None,
-                               path_gate_mean=None,
-                               path_gate_max=None, max_edge_scale=None)
+                               path_gate_mean=None, path_gate_max=None, max_edge_scale=None)
         gate_mean = gate_max = None
         if operator.path_weights:
             all_weights = torch.cat(operator.path_weights).detach()
@@ -1422,8 +864,6 @@ class H2SNN(nn.Module):
             logits=logits,
             x_star=encoded.x_star,
             h0=encoded.h0,
-            eta=None if operator.eta is None else operator.eta.detach(),
-            gamma=None if operator.gamma is None else operator.gamma.detach(),
             path_gate_mean=gate_mean,
             path_gate_max=gate_max,
             max_edge_scale=max_scale.detach(),
@@ -1467,19 +907,6 @@ def _same_draw(stored: tuple, current: tuple) -> bool:
         return False
     return all(all(_same_tensor(x, y) for x, y in zip(a, b))
                for a, b in zip(stored[1:], current[1:]))
-
-
-def apply_operator(operator: "DiffusionOperator | AttentionOperator", x: torch.Tensor) -> torch.Tensor:
-    """`A x` with `A = G Delta_hat B` (gates skipped, not multiplied by ones, when absent), or
-    `A = I - P` for the pair-attention arm (its update `x - eta (x - P x)`). Shared by the
-    first-order update and the filter bank, so `first_order` is the D11 computation bit for bit."""
-    if isinstance(operator, AttentionOperator):
-        return x - operator.propagate(x)
-    y = x if operator.broadcast is None else operator.broadcast.unsqueeze(-1) * x
-    y = operator.laplacian.apply_normalized(y)
-    if operator.listen is not None:
-        y = operator.listen.unsqueeze(-1) * y
-    return y
 
 
 def build_model(config: TrainConfig, data: PreparedH2SData) -> H2SNN:

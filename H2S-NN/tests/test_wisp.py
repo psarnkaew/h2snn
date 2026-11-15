@@ -220,13 +220,9 @@ class WispSamplerTests(unittest.TestCase):
                 edge_index=EDGE_INDEX, edge_type=EDGE_TYPE, relation_tuples=(), seed=config.seed)
 
         base = groups({})
-        # legacy-removal LR-2: settings of the v2 model name it (deleted in LR-3); the v3-B arms
-        # are the counterpart of its path switches
-        v2 = {"propagation": "chebyshev"}
-        for extra in ({"model": {"encoder": "first_order", **v2}},
-                      {"model": {"geometry_context": False}},
-                      {"model": v2, "ablation": {"no_path_cells": True}},
-                      {"model": v2, "ablation": {"endpoint_edges": True}},
+        # legacy-removal B4/B5: the v2 subcases (encoder first_order, the v2 path switches) were
+        # deleted with the v2 model; the v3-B arms are the counterpart of its path switches
+        for extra in ({"model": {"geometry_context": False}},
                       {"ablation": {"coupling": "symmetric"}},
                       {"model": {"arm": "no_path_cells"}}, {"model": {"arm": "closure_only"}}):
             with self.subTest(extra=extra):
@@ -241,7 +237,7 @@ class WispSamplerTests(unittest.TestCase):
         for data in ({"path_source": "nope"}, {"path_source": "wisp", "wisp_max_length": 1},
                      {"path_source": "wisp", "wisp_walks_per_anchor": -1},
                      {"path_source": "wisp", "fact_layer": "untied"},
-                     {"path_source": "wisp", "path_sampler": "uniform_instance"},
+                     # (legacy-removal: the uniform_instance subcase moved to test_legacy_removal)
                      # spec v1.15 J1: the LP/GC length-2 walks were replaced by WISP
                      {"dataset_name": "lastfm", "path_source": "schemas"},
                      {"dataset_name": "mutag", "path_source": "schemas", "path_sampler": "walk"}):
@@ -258,111 +254,19 @@ class WispSamplerTests(unittest.TestCase):
                                            "data.wisp_walks_per_anchor": {"values": [16, 32]}})
 
 
-
 # ============================================================================= H2: weights
-def _exp_system(seed: int):
-    """test_cooperative.System with exp cell weights spanning e^-10 .. e^10 and no gamma."""
-    from src.models.vertex_path_laplacian import PathCellTerm, VertexPathSheafLaplacian
-    from tests.test_cooperative import System
-
-    shared = seed % 2 == 0
-    system = System(4000 + seed, shared=shared)
-    generator = torch.Generator().manual_seed(seed)
-    weights = []
-    for nodes in system.paths.nodes:
-        logits = torch.empty(nodes.size(0), dtype=torch.float64).uniform_(-10, 10,
-                                                                          generator=generator)
-        logits[0], logits[-1] = -10.0, 10.0
-        weights.append(torch.exp(logits))
-    system.weights = weights
-    terms = tuple(PathCellTerm(t, w) for t, w in
-                  zip(system.paths.transports(system.maps, shared), weights))
-    system.laplacian = VertexPathSheafLaplacian(system.maps, system.paths.edge_index,
-                                                system.num_nodes, terms, None, checkpoint=False)
-    system.gamma = 1.0  # the dense reference multiplies L_P by gamma: 1 = no gamma
-    return system
-
-
-class WispWeightOperatorTests(unittest.TestCase):
-    def test_TH5_props_2_3_5_with_exp_weights(self) -> None:
-        from tests.test_cooperative import _random_gates
-        from tests.test_filter_bank import _bank, _filter_matrix, _m_gain, _random_v
-
-        generator = torch.Generator().manual_seed(7)
-        worst_ref, worst_low, worst_high, worst_gain = 0.0, 0.0, 0.0, 0.0
-        for seed in range(12):
-            system = _exp_system(seed)
-            production = system.production_delta_hat()
-            dense = system.dense_delta_hat()
-            worst_ref = max(worst_ref, float((production - dense).abs().max()))
-            eigenvalues = torch.linalg.eigvalsh((production + production.T) / 2)
-            worst_low = max(worst_low, float(-eigenvalues.min()))
-            worst_high = max(worst_high, float(eigenvalues.max()) - 2.0)
-            g, b = _random_gates(system)
-            bank = _bank(system.d, 3, _random_v(3, system.d, generator))
-            worst_gain = max(worst_gain,
-                             _m_gain(_filter_matrix(system, g, b, bank), b / g, system.d))
-        self.assertLessEqual(worst_ref, 1e-9, "production = dense reference with gamma absent")
-        self.assertLessEqual(worst_low, 1e-9, "PSD")
-        self.assertLessEqual(worst_high, 1e-9, "Prop. 3: lambda_max <= 2")
-        self.assertLessEqual(worst_gain, 1.0 + 1e-9, "Prop. 5: filter gain <= 1")
-
-    def test_TH5_kernel_preserved_with_exp_weights(self) -> None:
-        """Prop. 2 on the D7 tree with sections: ker(Delta_0 + L_P) = ker Delta_0 for exp weights
-        spanning e^-10 .. e^10 (production operator, gamma absent)."""
-        from src.models.map_operators import PathTransportOperator
-        from src.models.vertex_path_laplacian import PathCellTerm, VertexPathSheafLaplacian
-        from tests.test_paths_and_facts import (SectionPreservationTests, _chain_operators,
-                                                _moderate_scales)
-
-        d, num_nodes = 3, 8
-        for seed in range(3):
-            for shared in (True, False):
-                with self.subTest(seed=seed, shared=shared):
-                    edge_index, groups = SectionPreservationTests()._tree(seed)
-                    generator = torch.Generator().manual_seed(200 + seed)
-                    maps = _moderate_scales(
-                        _chain_operators(edge_index.size(1), k=2, d=d, seed=seed,
-                                         dtype=torch.float64, shared=shared),
-                        generator, shared)
-                    terms = []
-                    for nodes, edges, signs in groups:
-                        logits = torch.empty(nodes.size(0), dtype=torch.float64).uniform_(
-                            -10, 10, generator=generator)
-                        logits[0], logits[-1] = -10.0, 10.0
-                        transport = PathTransportOperator(maps.src, maps.tgt, nodes, edges,
-                                                          edge_index, shared_scale=shared,
-                                                          face_edge_sign=signs)
-                        terms.append(PathCellTerm(transport, torch.exp(logits)))
-                    full = VertexPathSheafLaplacian(maps, edge_index, num_nodes, tuple(terms),
-                                                    None, checkpoint=False)
-                    edges_only = VertexPathSheafLaplacian(maps, edge_index, num_nodes, (), None,
-                                                          checkpoint=False)
-                    basis = torch.eye(num_nodes * d, dtype=torch.float64).view(-1, num_nodes, d)
-                    for name, lap in (("delta0", edges_only), ("full", full)):
-                        matrix = torch.stack([lap.apply_normalized(e).reshape(-1)
-                                              for e in basis], 1)
-                        eigenvalues = torch.linalg.eigvalsh((matrix + matrix.T) / 2)
-                        kernel = int((eigenvalues <= 1e-9).sum())
-                        self.assertEqual(kernel, d, name)
-                        self.assertGreater(float(eigenvalues[kernel]), 1e3 * 1e-9, name)
-
-
 def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "exp",
-                  d: int = 4, path_weight_context: bool = False, legacy: bool = False):
-    """`legacy`: the v2 model (legacy-removal LR-2: `propagation: chebyshev` and the former default
-    `coupling: cooperative`; its tests are deleted in LR-3). Otherwise the anchored v3-B default."""
+                  d: int = 4, path_weight_context: bool = False):
+    """The anchored v3-B default model (legacy-removal: the v2 `legacy` variant was removed)."""
     from src.configs.config import TrainConfig
     from src.models.h2snn_model import H2SNN, ModelDims
 
-    v2_model = {"propagation": "chebyshev", "K": 2} if legacy else {}
     config = TrainConfig.from_dict({
         "device": "cpu",
         "model": {"d": d, "d_r": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
                   "edge_mlp_hidden_dim": 8, "geometry_context": geometry_context,
-                  "path_weight": path_weight, **v2_model},
-        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context,
-                     **({"coupling": "cooperative"} if legacy else {})},
+                  "path_weight": path_weight},
+        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context},
     })
     dims = ModelDims(in_channels=5, num_node_types=3, num_relations=4, num_classes=2,
                      face_lengths=(2, 3), self_inverse_relations=SELF_INVERSE, path_actions=True)
@@ -384,11 +288,13 @@ class WispLadderTests(unittest.TestCase):
         self.group = next(g for g in self.groups if g.length == 3)
 
     def _weights(self, model, h0):
-        """w_f of `self.group` through the production path (build_operator) from node states h0."""
+        """w_f of `self.group` through the production path from node states h0 (legacy-removal B3:
+        the anchored model's `_cell_weights`, was the v2 `build_operator`'s path weights)."""
+        nonempty = tuple(g for g in self.groups if g.num_faces)
         with torch.no_grad():
-            operator = model.build_operator(h0, EDGE_INDEX, EDGE_TYPE, self.groups, 8)
-        nonempty = [g for g in self.groups if g.num_faces]
-        return operator.path_weights[nonempty.index(self.group)]
+            geometry = model.geometry_inputs(h0, EDGE_INDEX, EDGE_TYPE)
+            weights = model._cell_weights(h0, geometry, nonempty)[1]
+        return weights[nonempty.index(self.group)]
 
     def _weights_of(self, model, h0, group):
         self.group, previous = group, self.group
@@ -421,9 +327,10 @@ class WispLadderTests(unittest.TestCase):
         for arm in ARMS:
             with self.subTest(arm=arm):
                 model = _ladder_model(arm)
-                self.assertIsNone(model.theta_gamma)
-                self.assertFalse(any("theta_gamma" in n for n, _ in model.named_parameters()))
-                self.assertIsNone(model.gamma())
+                # legacy-removal B3: theta_gamma / gamma() were removed with v2; their counterpart:
+                # no gamma parameter exists at all
+                self.assertFalse(hasattr(model, "theta_gamma"))
+                self.assertFalse(any("gamma" in n for n, _ in model.named_parameters()))
                 b = model.path_gate.bias if model.path_gate is not None else model.path_log_weight
                 cfg = TrainConfig.from_dict({"device": "cpu"})
                 scalar = [g for g in build_parameter_groups(model, cfg) if g["weight_decay"] == 0.0]
@@ -432,14 +339,8 @@ class WispLadderTests(unittest.TestCase):
                 # created in float32 at construction (then cast): exactly log(0.5) in float32
                 self.assertEqual(float(b.detach().reshape(-1)[0]),
                                  float(torch.tensor(math.log(0.5), dtype=torch.float32)))
-        sigmoid = _ladder_model("full", path_weight="sigmoid_gamma", legacy=True)  # v2 (LR-2)
-        self.assertIsNotNone(sigmoid.theta_gamma)
-        with self.assertRaises(ValueError):  # a gamma_init that exp would ignore is rejected
-            TrainConfig.from_dict({"model": {"gamma_init": 2.0}})
-        TrainConfig.from_dict({"model": {"gamma_init": 1.0}})  # the saved default round-trips
-        with self.assertRaises(ValueError):
-            TrainConfig.from_dict({"model": {"path_weight": "sigmoid_gamma",
-                                             "path_weight_init": 0.3}})
+        # legacy-removal B4/B5: the sigmoid_gamma / gamma_init subcases were deleted with v2
+        # (both names raise, tests/test_legacy_removal.py)
 
     def test_saved_configs_round_trip_under_both_path_weights(self) -> None:
         import tempfile
@@ -449,9 +350,8 @@ class WispLadderTests(unittest.TestCase):
         from src.configs.config import TrainConfig
         from src.utils.misc import save_config
 
-        # legacy-removal LR-2: sigmoid_gamma exists only in the v2 model (named; deleted in LR-3)
-        for model in ({}, {"path_weight": "sigmoid_gamma", "propagation": "chebyshev"},
-                      {"path_weight_init": 0.3}):
+        # legacy-removal B4/B5: the sigmoid_gamma subcase was deleted with v2
+        for model in ({}, {"path_weight_init": 0.3}):
             with self.subTest(model=model), tempfile.TemporaryDirectory() as tmp:
                 config = TrainConfig.from_dict({"device": "cpu", "model": model,
                                                 "data": {"path_source": "wisp"}})
@@ -460,14 +360,6 @@ class WispLadderTests(unittest.TestCase):
                 reloaded = TrainConfig.from_dict(yaml.safe_load(path.read_text(encoding="utf-8")))
                 self.assertEqual(reloaded.model, config.model)
                 self.assertEqual(reloaded.data.path_source, "wisp")
-
-    def test_TH6_exp_operator_has_no_gamma_multiplier(self) -> None:
-        """The path part of D enters with exactly sum w_f m_f (1 - 1/|f|) s^2: no gamma, no constant."""
-        system = _exp_system(3)
-        self.assertIsNone(system.laplacian.gamma)
-        path = sum(t.diagonal(system.num_nodes) for t in system.laplacian.path_terms)
-        self.assertTrue(torch.equal(system.laplacian.degree(),
-                                    system.laplacian.edge_degree() + path))
 
     def test_TH7_intermediate_and_its_neighbourhood_under_the_default_context(self) -> None:
         """Spec v1.4 (R12), under geometry_context: true (the default): perturbing an
@@ -593,7 +485,7 @@ class WispLadderTests(unittest.TestCase):
         bad = [({"model": {"geometry_context": False}}, {"path_weight_context": True}),
                ({}, {"path_weight_context": True, "path_weight_input": "schema"}),
                ({}, {"path_weight_context": True, "path_weight_input": "uniform"}),
-               ({}, {"path_weight_context": True, "no_path_cells": True}),
+               # (legacy-removal B1: the no_path_cells subcase was deleted with the v2 switch)
                ({}, {"path_weight_context": "true"})]
         for extra, ablation in bad:
             with self.subTest(extra=extra, ablation=ablation), self.assertRaises(ValueError):
@@ -632,7 +524,6 @@ class WispLadderTests(unittest.TestCase):
         expected = 0.5 / 2  # w = exp(b) = 0.5, length uniform over {2, 3}
         for k in range(2):
             self.assertLessEqual(abs(float(mean[k]) - expected), 4 * float(se[k]) + 1e-12)
-
 
 
 # ============================================================================= I2: default flip
@@ -854,8 +745,6 @@ class WispProposalTests(unittest.TestCase):
                         self.assertTrue(torch.equal(a.path_weight, b.path_weight))
 
 
-
-
 # ============================================================================= H4: read-outs
 def _fixture_transports(groups, shared: bool = True):
     from src.models.map_operators import PathTransportOperator
@@ -964,19 +853,6 @@ class WispReadoutTests(unittest.TestCase):
             full = schema_keep(group, NODE_TYPE, SELF_INVERSE, None)
             self.assertEqual(float(full.sum()), group.num_faces * size * (size - 1))
 
-    def test_TH11_delta_loss_of_an_absent_schema_is_zero(self) -> None:
-        from src.analysis.wisp_readouts import delta_loss, pair_index
-
-        model = _ladder_model("full", legacy=True)  # delta_loss reads the v2 operator (LR-2)
-        x = torch.randn(8, 5, dtype=torch.float64, generator=torch.Generator().manual_seed(2))
-        labels = torch.tensor([0, 1, 1, 0])
-        args = (model, x, NODE_TYPE, EDGE_INDEX, EDGE_TYPE, 8, [self.groups], ANCHORS, labels)
-        self.assertEqual(delta_loss(*args, schema=(99, 99, 99), self_inverse=SELF_INVERSE), 0.0)
-        present = pair_index(self.groups[0], NODE_TYPE, SELF_INVERSE).schema[0]
-        self.assertNotEqual(delta_loss(*args, schema=present, self_inverse=SELF_INVERSE), 0.0,
-                            "control: removing a present schema changes the loss")
-        self.assertFalse(model.training, "the frozen model's mode is restored")
-
     def test_kendall_tau_and_permutation_null(self) -> None:
         from src.analysis.wisp_readouts import kendall_tau
 
@@ -997,7 +873,6 @@ class WispReadoutTests(unittest.TestCase):
         out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
                              cwd=Path(__file__).resolve().parent.parent, check=True)
         self.assertEqual(out.stdout.strip(), "[]")
-
 
 
 # ============================================================================= I5: review gaps
@@ -1178,13 +1053,12 @@ class WispConfigValidationTests(unittest.TestCase):
     def test_direct_construction_is_validated(self) -> None:
         from src.configs.config import DataConfig, ModelConfig
 
-        bad_model = [{"path_weight": "exp", "gamma_init": 2.0},
-                     {"path_weight": "sigmoid_gamma", "path_weight_init": 0.3},
-                     {"path_weight": "nope"}, {"path_weight_init": 0.0}]
+        # legacy-removal B4/B5: the gamma_init / sigmoid_gamma subcases were deleted with v2
+        bad_model = [{"path_weight": "nope"}, {"path_weight_init": 0.0}]
         for kwargs in bad_model:
             with self.subTest(model=kwargs), self.assertRaises(ValueError):
                 ModelConfig(**kwargs)
-        ModelConfig(path_weight="exp", gamma_init=1.0)  # the saved default round-trips
+        ModelConfig(path_weight="exp")  # the saved default round-trips
         bad_data = [{"path_source": "nope"}, {"wisp_max_length": 1},
                     {"wisp_walks_per_anchor": -1}, {"wisp_proposal": "nope"},
                     {"path_source": "schemas", "wisp_max_length": 5},
@@ -1238,13 +1112,12 @@ class WispConfigValidationTests(unittest.TestCase):
                         reject_never_tuned_settings({}, [name])
                     self.assertIn("wisp_proposal", str(caught.exception))
         reject_never_tuned_settings({}, ["model.d"])  # ordinary hyperparameters still pass
-        for base in ({"model": {"path_weight": "sigmoid_gamma"}},
-                     {"ablation": {"path_weight_input": "endpoints"}},
+        # (legacy-removal B4/B5: the sigmoid_gamma subcase was deleted with v2)
+        for base in ({"ablation": {"path_weight_input": "endpoints"}},
                      {"ablation": {"path_weight_context": True}},
                      {"data": {"dataset_name": "dblp", "path_source": "schemas"}}):
             with self.subTest(base=base), self.assertRaises(ValueError):
                 reject_never_tuned_settings(base)
-
 
 
 # ============================================================================= I6: overlap
@@ -1264,7 +1137,7 @@ class WispOverlapSamplingTests(unittest.TestCase):
 
         cfg = TrainConfig.from_dict({
             "device": "cpu", "seed": 7, "epochs": epochs, "log_every": 1000,
-            "model": {"d": 4, "d_r": 2, "K": 2, "classifier_hidden_dim": 8,
+            "model": {"d": 4, "d_r": 2, "classifier_hidden_dim": 8,
                       "face_mlp_hidden_dim": 8, "edge_mlp_hidden_dim": 8},
             "data": {"dataset_name": "acm", "path_source": "wisp", "wisp_max_length": 3,
                      "wisp_walks_per_anchor": 10, "wisp_proposal": proposal,
@@ -1326,7 +1199,6 @@ class WispOverlapSamplingTests(unittest.TestCase):
         self.assertTrue(TrainConfig.from_dict({}).data.overlap_sampling)
 
 
-
 # ============================================================================= K3: guards
 class WispGuardTests(unittest.TestCase):
     """Part K, K3 (spec v1.6 E11, I7 review m1 and NIT): r is never tuned; the tuning base config
@@ -1365,10 +1237,12 @@ class WispGuardTests(unittest.TestCase):
     def test_path_weight_context_is_the_ladder_appendix_pair_only(self) -> None:
         from src.configs.config import TrainConfig
 
-        for ablation in ({"endpoint_edges": True}, {"free_path_maps": True},
-                         {"coupling": "pair_attention"}):
-            with self.subTest(ablation=ablation), self.assertRaises(ValueError):
-                TrainConfig.from_dict({"ablation": {**ablation, "path_weight_context": True}})
+        # legacy-removal B4/B5: the endpoint_edges / free_path_maps / pair_attention subcases were
+        # deleted with the v2 arms; the kept rejection (no node input) is the counterpart
+        for arm in ("schema", "uniform"):
+            with self.subTest(arm=arm), self.assertRaises(ValueError):
+                TrainConfig.from_dict({"ablation": {"path_weight_input": arm,
+                                                    "path_weight_context": True}})
         for arm in ("full", "endpoints"):
             TrainConfig.from_dict({"ablation": {"path_weight_input": arm,
                                                 "path_weight_context": True}})

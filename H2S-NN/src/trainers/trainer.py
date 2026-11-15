@@ -216,20 +216,9 @@ class Trainer:
         if self.cfg.optim.grad_clip > 0:  # spec v1.15 §6: no clipping by default
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.optim.grad_clip)
         self.optimizer.step()
-        # Diffusion step and path-coupling strength after this epoch's update.
+        # tau, the solver statistics and log w_f after this epoch's update (the v2 operator
+        # diagnostics were removed by the legacy-removal card).
         metrics.update(self.model.diffusion_scalars())  # type: ignore[operator]
-        if epoch % self.cfg.log_every == 0 and self.model.diagnostics_available:  # type: ignore[attr-defined]
-            # first_order: eta * lambda_max of G Delta B (D10, power iteration, 30 steps: a lower
-            # bound); filter_bank: lambda_max(A), sum_k ||W_k||_2 and the M-gain (D12).
-            metrics.update(self.model.operator_diagnostics(  # type: ignore[operator]
-                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-                data.num_nodes,
-            ))
-            # Normalized energy per diffusion step, edge and path-cell parts (plan §12.6).
-            metrics.update(self.model.energy_trace(  # type: ignore[operator]
-                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-                data.num_nodes,
-            ))
         return metrics
 
     def _eval_epoch(

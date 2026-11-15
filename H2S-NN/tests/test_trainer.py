@@ -31,7 +31,7 @@ class TrainerSmokeTests(unittest.TestCase):
                     "output_dir": tmpdir,
                     "checkpoint_metric": "acc",
                     "checkpoint_mode": "max",
-                    "model": {"d": 4, "d_r": 2, "K": 1, "classifier_hidden_dim": 8},
+                    "model": {"d": 4, "d_r": 2, "classifier_hidden_dim": 8},
                     # Hand-built fixture without a fact layer: nothing to resample.
                     "data": {"resample_paths": False, "path_source": "schemas"},
                 }

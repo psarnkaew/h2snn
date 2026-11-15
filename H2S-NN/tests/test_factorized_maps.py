@@ -162,7 +162,7 @@ def _module_maps(data: PreparedH2SData, d: int = 8, k: int = 2, seed: int = 0,
 
 
 def _config(**model: object) -> TrainConfig:
-    base = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16}
+    base = {"d": 8, "d_r": 4, "classifier_hidden_dim": 16}
     base.update(model)
     return TrainConfig.from_dict({"device": "cpu", "checkpoint_metric": "acc", "model": base,
                                   "data": {"path_source": "schemas"}})  # schema fixtures (I2)
@@ -478,8 +478,7 @@ class ConfigAndScopeTests(unittest.TestCase):
             with self.subTest(householder_k=not_an_int):
                 with self.assertRaises(ValueError):
                     ModelConfig.from_dict({"householder_k": not_an_int})
-        # Dense maps never trip the factorized-only bound k <= d.
-        self.assertEqual(ModelConfig.from_dict({"d": 1, "map_family": "dense"}).householder_k, 2)
+        # (legacy-removal B4: the dense-family subcase was deleted with `map_family: dense`)
 
 
 if __name__ == "__main__":  # pragma: no cover

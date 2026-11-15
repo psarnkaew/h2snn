@@ -270,20 +270,9 @@ class LinkPredictionTrainer:
                    **{name: float(computed.get(name, 0.0))
                       for name in LINK_PREDICTION_METRIC_NAMES},
                    "optimizer_steps": float(num_batches)}
-        # Diffusion step and path-coupling strength after this epoch's update.
+        # tau, the solver statistics and log w_f after this epoch's update (the v2 operator
+        # diagnostics were removed by the legacy-removal card).
         metrics.update(self.model.diffusion_scalars())
-        if epoch % self.cfg.log_every == 0 and self.model.diagnostics_available:
-            # first_order: eta * lambda_max of G Delta B (D10, power iteration, 30 steps: a lower
-            # bound); filter_bank: lambda_max(A), sum_k ||W_k||_2 and the M-gain (D12).
-            metrics.update(self.model.operator_diagnostics(
-                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-                data.num_nodes,
-            ))
-            # Normalized energy per diffusion step, edge and path-cell parts (plan §12.6).
-            metrics.update(self.model.energy_trace(
-                data.x, data.node_type, data.edge_index, data.edge_type, data.face_groups,
-                data.num_nodes,
-            ))
         return metrics
 
     def _eval_test_sets(self, data: PreparedLinkPredData) -> dict[str, object]:

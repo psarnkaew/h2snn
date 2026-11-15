@@ -164,3 +164,86 @@ Per-test-function classification: `lr0b_classes.md` (LR-0b).
   - `test_partO_literature_row::BuilderTests::test_builder_refuses_other_inputs`,
     `test_search_spaces::NeverTunedTests::test_the_anchored_model_can_be_tuned`: **adapt** (not in the LR-0b list: their "legacy
     propagation" case relied on the default; the propagation is now named).
+
+## LR-3 record (deletion, fail-closed, tests)
+
+**Deleted from `src/` and `scripts/`** (`git rm` = whole file): `src/models/filter_bank.py`, `src/models/pair_attention.py`,
+`src/models/coboundary_ops.py` (only the v2 operator used it), `src/utils/memory_guard.py` (only the dense family used it; B4/B5),
+`scripts/analyze_kernel.py` (kernel of the v2 operator; only `tests/test_cooperative.py` used it). In kept files: the v2 branches of
+`H2SNN` (gates, filter bank / first-order steps, pair attention, `DiffusionOperator`, `EndpointEdgeMaps`, `build_operator`, `diffuse`,
+`propagate`, `theta_eta`/`theta_gamma`, `identity_maps`, `free_path_maps`, `layer_dropout`, the dense branch; `AnchoredState`/`H2SNNOutput`
+lose `eta`/`gamma`); `VertexPathSheafLaplacian` / `EdgePairTerm` / `FreeIncidenceOperator` (`vertex_path_laplacian.py` keeps
+`IncidenceOperator`, `PathCellTerm`, `HolonomyEdgeTerm`, `PathTerm` with unchanged bodies); `IdentityMapOperator`;
+`DenseConformalNodeToEdgeSheaf`; `delta_loss`; the `uniform_instance` sampler; the filter-bank diagnostics of both trainers;
+`LinkPredictionReadout`'s unused `hidden_dim`/`dropout`.
+
+**Kept, with reason:** `DenseMapOperator` and `DenseOperatorTests` (kept `src/` code uses it: `sheaf_energy.py:41,154`, and
+`PathTransportOperator` accepts it); the `per_side` option of `FactorizedNodeToEdgeSheaf` (a kept class body; its module tests stay);
+`PairCellTerm` / `schema_keep` / `cell_energy_pairs` in `wisp_readouts.py` (spec §6 read-outs); `_pick`'s now-unused `counts`
+parameter in `src/data/path_sampler.py` (a kept function signature; listed, not edited).
+
+**Fail-closed** (`src/configs/config.py:22-53`): `REMOVED_KEYS` (model: `K`, `layer_dropout`, `eta_init`, `gamma_init`,
+`coupling_gate_init`, `encoder`, `node_edge_memory_guard_fraction`; ablation: `no_path_cells`, `free_path_maps`, `endpoint_edges`,
+`holonomy_edges`, `per_side_scale`, `identity_maps`) and `REMOVED_VALUES` (`model.propagation: chebyshev`, `model.path_weight:
+sigmoid_gamma`, `model.map_family: dense`, `ablation.coupling: cooperative | listen_only | pair_attention`, `data.path_sampler:
+uniform_instance`) raise `ValueError` "<section>.<key>[: <value>] is removed by the legacy-removal card (v1/v2); a configuration that
+names it raises" from every `from_dict`, from `ModelConfig`/`AblationConfig` construction and from `reject_never_tuned_settings` (base
+config and search-space names). `PROPAGATIONS = ("anchored",)`. Tests: `tests/test_legacy_removal.py::FailClosedTests` (lists spelled
+out in the test, not read from the registry). Mutations (`lr3_mutation.txt`, 16741 step 25): `sigmoid_gamma` dropped from
+`REMOVED_VALUES` → 3 failures (`test_removed_values_raise`, `..._on_direct_construction`, `..._in_a_tuning_space`); `encoder` dropped
+from `REMOVED_KEYS` → 4 failures (`test_removed_keys_raise`, `test_removed_keys_raise_in_a_tuning_space` ×3); restored identical.
+
+**Test count** (loader listing, `lr3_list_tests.sh`, 16741 step 23): 713 at `888d12e` (`test_ids_lr2.txt`) → 635
+(`test_ids_lr3.txt`, the LR-3 working tree) = 713 − 84 + 6. Of the 84 ids, 2 are not deleted tests: `test_paths_and_facts.SectionPreservationTests.
+test_T6_sections_are_preserved_with_signed_hops` was also collected through its imports in the deleted `test_cooperative.py` and
+`test_pair_attention.py`; it is kept and runs once. 82 tests deleted:
+- `test_cooperative.py` (24, whole file: gates, v2 operator, v2 golden), `test_pair_attention.py` (12, whole file),
+  `test_filter_bank.py`'s `FilterBankOperatorTests` (6) and `FilterBankModelTests` (6; `test_switches_are_never_tuned` moved, below);
+- `test_gap_ladder.py`: `IdentityMapsOperatorTests` (2), `IdentityMapsModelTests` (4),
+  `NeverTunedTests.test_identity_maps_rejected_in_tuning_base_config` (B1);
+- `test_v2_model.py`: `PathLaplacianTests` T2, T3, D, T5 (v2 operator), `ScaleGaugeTests` (per_side_scale switch), `SectionPreservationTests`
+  T4 + control (v2 operator / free maps), `V2ModelTests` T6 (v2 path term) and T13 (B4), `AblationTests` T11 endpoint / free / holonomy /
+  per_side (deleted switches), `TwoLatentContextTests` a, c, d, context_off (deleted arms / pair attention);
+- `test_paths_and_facts.py`: `StabilityTests.test_T13_lambda_max_at_most_two` (v2 operator), `UniformInstanceTests` (2);
+- `test_wisp.py`: `WispWeightOperatorTests` (2, v2 operator), `WispLadderTests.test_TH6_exp_operator_has_no_gamma_multiplier` (v2
+  operator), `WispReadoutTests.test_TH11_delta_loss_of_an_absent_schema_is_zero` (`delta_loss`);
+- `test_task_heads.py`: `NodeClassificationGoldenTests` (v2 golden; replaced by `test_v3b_golden`);
+- `test_cuda_hardening.py`: the two memory-guard tests (B4/B5: dense-family guard).
+6 added: `FailClosedTests` (5) and `test_relational_context.ContextNeverTunedTests.test_switches_are_never_tuned` (the kept part of
+`FilterBankModelTests.test_switches_are_never_tuned`: `geometry_context` is never tuned; its `encoder` subcases are deleted).
+`tests/test_filter_bank.py` is renamed `tests/test_relational_context.py` (it keeps the relational-context tests, no filter bank).
+
+**Adapted in LR-3** (B3; configuration or v2-only quantity → v3-B counterpart; subcases that name a removed setting are deleted, B4/B5):
+- `test_v2_model`: `test_every_ablation_trains_one_step` (kept switches, the C2 rungs, `coupling: symmetric` and every `V3B_ARMS` arm on
+  the anchored model; removed: the v2 switches, sigmoid_gamma, gate modes, dense); `ConfigTests.test_defaults_are_the_full_model`
+  (`coupling_gate_init`, `gamma_init`/`eta_init`, `map_scale`, `path_mode` → their absence, and `tau_init == 1.0`);
+  `test_invalid_values_and_conflicting_ablations_are_rejected` (eta/gamma ranges → `tau_init` ≤ 0; v2 switch conflicts →
+  non-boolean `h0_only_readout`, `path_weight_context` with `uniform`); `TwoLatentContextTests.test_b` (endpoint/free subcases deleted);
+  T8 docstring; `K` dropped from `_config`.
+- `test_wisp`: `_ladder_model` (no `legacy`); `WispLadderTests._weights` (w_f through the anchored `_cell_weights`, was `build_operator`;
+  assertions unchanged); TH6 (`theta_gamma is None`/`gamma() is None` → no attribute / no gamma parameter; sigmoid subcases deleted);
+  round trip, direct construction, never-tuned, path-weight-context, ladder-appendix (sigmoid / gamma_init / no_path_cells /
+  endpoint / free / pair_attention subcases deleted; the appendix-pair rejection is checked on `schema`/`uniform`); the paths-invariance
+  test (first_order / v2 switch subcases deleted); `wisp_config_rejections` (uniform_instance subcase → `test_legacy_removal`);
+  the overlap test (`K` dropped).
+- `test_paths_and_facts`: `_map_module` / `FAMILIES` factorized only (B4); `test_config_rules`, `test_T11_config` (uniform_instance
+  subcases deleted).
+- `test_factorized_maps`: the dense subcase of the config test deleted; `K` dropped from `_config`. `test_trainer`,
+  `test_hgb_lp_negatives`, `test_shared_protocol`: `K` dropped from the model section (ignored under anchored).
+- `test_v3b_model`: T14 every arm (`filter_bank`/`theta_eta`/`listen_gate is None` and `output.eta/gamma is None` → the attributes do
+  not exist); T14 config (chebyshev / cooperative / holonomy_edges / sigmoid_gamma subcases deleted).
+- `test_search_spaces`: `test_K_layer_dropout_and_legacy_keys_are_refused`: the regex for `K`/`layer_dropout` in a search space is now
+  "removed by the legacy-removal card" (was "not a component of the method"; card LR-3 requires this message for a removed key in a
+  tuning space); `test_the_anchored_model_can_be_tuned` (legacy-propagation subcase deleted).
+- `test_partO_literature_row::test_builder_refuses_other_inputs` ("legacy propagation" case deleted: it raises at load).
+- `test_gap_ladder::test_diagnostics_rejected_in_search_spaces` (`ablation.identity_maps` name deleted, B1).
+- `test_task_heads`: v2 golden imports/constants removed. `test_partM3afix_concat_mlp`: readout built without `hidden_dim`/`dropout`.
+
+**Gate** (16741 steps 21–22, g2n01, E, working tree on `888d12e`): `v3b_golden.py compare` → `compared 1365 tensors in 24
+configurations; differing: none` (`nc_map_family_dense` skipped: now raises the removed-value message); `mb0_reference.py compare` →
+`compared 139 tensors; differing: none`. Full suite (step 22, `lr3_suite.txt`): `Ran 635 tests — FAILED (failures=1)`, the one failure
+being `test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean` (committed notebook outputs; fixed in LR-4). Every other
+baseline test passes unchanged.
+
+**For LR-4:** the 12 legacy YAMLs are loaded by no test or script (grep of `tests/`, `src/`, `scripts/`); each sets `model.K`, so each
+already raises. The `h2snn_*` Colab notebooks name `configs/experiments/<dataset>_h2snn.yaml` (out of scope: listed, not edited).

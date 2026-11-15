@@ -8,7 +8,8 @@ no training code.
                 E_f = sum_{i<j} w_f m_f / (2 |f|) ||T_i x_i - T_j x_j||^2
     I_v_sigma   the same, restricted to the pairs with node v at one end, normalised per node
     overlap     share of pair weight whose sub-path instance also occurs in another sampled cell
-    delta_L     validation-loss change when sigma's pair terms are removed (mean over T draws)
+    (delta_L, the validation-loss change through the v2 operator, was removed by the legacy-removal
+    card: spec §6 does not report it)
     kendall_tau rank agreement of two schema scores, with a permutation null
 
 A sub-path schema is the canonical signature (t_i, r, d + 1, ..., t_j) of positions i..j of a cell
@@ -23,7 +24,6 @@ from typing import NamedTuple
 import torch
 
 from src.data.structures import FaceGroup
-from src.models.vertex_path_laplacian import VertexPathSheafLaplacian
 
 
 # ----------------------------------------------------------------------------- schemas
@@ -227,42 +227,6 @@ def schema_keep(group: FaceGroup, node_type: torch.Tensor, self_inverse: tuple[i
     return keep
 
 
-def delta_loss(model, x, node_type, edge_index, edge_type, num_nodes, draws, target_index,
-               labels, schema: tuple[int, ...], self_inverse=()) -> float:
-    """Validation-loss change when `schema`'s pair terms are removed (mean over the given
-    evaluation draws), with the frozen `model` in eval mode. A schema absent from every draw gives
-    exactly 0: both losses come from the same pair-form computation."""
-    was_training = model.training
-    saved_stats = dict(model.last_path_stats)
-    model.eval()
-    try:
-        deltas = []
-        with torch.no_grad():
-            h0 = model.encode_nodes(x, node_type)
-            for groups in draws:
-                operator = model.build_operator(h0, edge_index, edge_type, groups, num_nodes)
-                nonempty = [g for g in groups if g.num_faces > 0]
-                losses = []
-                for drop in (False, True):
-                    terms = []
-                    for group, term in zip(nonempty, operator.laplacian.path_terms):
-                        keep = schema_keep(group, node_type, self_inverse,
-                                           schema if drop else None, h0.device)
-                        terms.append(PairCellTerm(term.incidence, term.weights, keep))
-                    laplacian = VertexPathSheafLaplacian(
-                        operator.laplacian.edge_maps, edge_index, num_nodes, tuple(terms),
-                        operator.laplacian.gamma, checkpoint=False)
-                    x_star = model.propagate(h0, operator._replace(laplacian=laplacian))
-                    logits = model.readout(torch.cat([x_star, h0], dim=-1)[target_index])
-                    losses.append(float(torch.nn.functional.cross_entropy(logits, labels)))
-                deltas.append(losses[1] - losses[0])
-        return sum(deltas) / len(deltas)
-    finally:
-        model.train(was_training)
-        model.last_path_stats = saved_stats
-
-
-# ----------------------------------------------------------------------------- stability
 def kendall_tau(a: dict, b: dict, permutations: int = 1000, seed: int = 0) -> tuple[float, float]:
     """Kendall tau-b of two score dicts over the union of keys (missing = 0), and the one-sided
     permutation p-value P(tau_perm >= tau)."""
@@ -284,6 +248,6 @@ def kendall_tau(a: dict, b: dict, permutations: int = 1000, seed: int = 0) -> tu
     return observed, (hits + 1) / (permutations + 1)
 
 
-__all__ = ["PairCellTerm", "cell_energy_pairs", "delta_loss", "full_schema_keys", "i_pi",
+__all__ = ["PairCellTerm", "cell_energy_pairs", "full_schema_keys", "i_pi",
            "i_sigma", "i_v_sigma", "kendall_tau", "mean_log_weight", "overlap_ratio",
            "pair_index", "schema_keep"]
