@@ -1,0 +1,177 @@
+{
+ "oag-chem": {
+  "key": "oag-chem",
+  "h2gb_class": "OAGDataset",
+  "h2gb_loader": "preformat_OAG",
+  "h2gb_name": "chemistry",
+  "target_node_type": "paper",
+  "label": "multiclass",
+  "split_source": "by year: <= 2016 / 2017 / >= 2018, in the processed file (oag_dataset.py:151-153)",
+  "processed_file": "data/NC/OAG/chemistry/processed/data.pt",
+  "processed_bytes": 2960710156,
+  "load_seconds": 34.8,
+  "transform": "ToUndirected()",
+  "stored": {
+   "nodes": {
+    "paper": 370624,
+    "field": 44714,
+    "author": 504888,
+    "affiliation": 9089
+   },
+   "total_nodes": 929315,
+   "feature_dims": {
+    "paper": [
+     768
+    ],
+    "field": [
+     768
+    ],
+    "author": [
+     768
+    ],
+    "affiliation": [
+     768
+    ]
+   },
+   "edges": {
+    "paper|PP_cite|paper": 1054651,
+    "author|AP_write_first|paper": 288440,
+    "author|AP_write_other|paper": 402095,
+    "author|AP_write_last|paper": 283131,
+    "field|FF_in|field": 240326,
+    "paper|PF_in_L1|field": 686302,
+    "paper|PF_in_L5|field": 58205,
+    "paper|PF_in_L0|field": 370755,
+    "paper|PF_in_L2|field": 1569093,
+    "paper|PF_in_L3|field": 577152,
+    "paper|PF_in_L4|field": 140354,
+    "author|in|affiliation": 504888
+   },
+   "total_edges": 6175392,
+   "num_node_types": 4,
+   "num_edge_types": 12
+  },
+  "loaded": {
+   "nodes": {
+    "paper": 370624,
+    "field": 44714,
+    "author": 504888,
+    "affiliation": 9089
+   },
+   "total_nodes": 929315,
+   "feature_dims": {
+    "paper": [
+     768
+    ],
+    "field": [
+     768
+    ],
+    "author": [
+     768
+    ],
+    "affiliation": [
+     768
+    ]
+   },
+   "edges": {
+    "paper|PP_cite|paper": 2105372,
+    "author|AP_write_first|paper": 288440,
+    "author|AP_write_other|paper": 402095,
+    "author|AP_write_last|paper": 283131,
+    "field|FF_in|field": 480652,
+    "paper|PF_in_L1|field": 686302,
+    "paper|PF_in_L5|field": 58205,
+    "paper|PF_in_L0|field": 370755,
+    "paper|PF_in_L2|field": 1569093,
+    "paper|PF_in_L3|field": 577152,
+    "paper|PF_in_L4|field": 140354,
+    "author|in|affiliation": 504888,
+    "paper|rev_AP_write_first|author": 288440,
+    "paper|rev_AP_write_other|author": 402095,
+    "paper|rev_AP_write_last|author": 283131,
+    "field|rev_PF_in_L1|paper": 686302,
+    "field|rev_PF_in_L5|paper": 58205,
+    "field|rev_PF_in_L0|paper": 370755,
+    "field|rev_PF_in_L2|paper": 1569093,
+    "field|rev_PF_in_L3|paper": 577152,
+    "field|rev_PF_in_L4|paper": 140354,
+    "affiliation|rev_in|author": 504888
+   },
+   "total_edges": 12346854,
+   "num_node_types": 4,
+   "num_edge_types": 22
+  },
+  "labels": {
+   "y_shape": [
+    370624
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 294050,
+   "unlabelled_(y=-1)": 76574,
+   "num_classes_(max_y+1)": 3957,
+   "classes_present": 3957,
+   "splits": {
+    "train": {
+     "size": 259444,
+     "unlabelled_in_mask": 0,
+     "classes_present": 3888,
+     "class_counts": {
+      "min": 0,
+      "max": 5282,
+      "top5": [
+       5282,
+       4318,
+       4215,
+       4154,
+       4075
+      ]
+     }
+    },
+    "val": {
+     "size": 28524,
+     "unlabelled_in_mask": 0,
+     "classes_present": 1209,
+     "class_counts": {
+      "min": 0,
+      "max": 1302,
+      "top5": [
+       1302,
+       1071,
+       1056,
+       1050,
+       1034
+      ]
+     }
+    },
+    "test": {
+     "size": 6082,
+     "unlabelled_in_mask": 0,
+     "classes_present": 439,
+     "class_counts": {
+      "min": 0,
+      "max": 339,
+      "top5": [
+       339,
+       318,
+       285,
+       275,
+       256
+      ]
+     }
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "c9c64ab75ba34b233b77032d5a09b81c2551e173aec67671daba7f70cd908bcf",
+  "processed_dir_files": {
+   "data.pt": 2960710156,
+   "pre_filter.pt": 864,
+   "pre_transform.pt": 864
+  }
+ },
+ "peak_rss_gib": 3.64
+}
