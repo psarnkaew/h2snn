@@ -1,0 +1,7 @@
+job=16737 step=none node=g2n01 start=2026-11-15T10:32:41+09:00
+git=b0b2086c9a2e0a0061b0c21c62c73d3b26a3b855 branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 8
+  _flatten("", torch.load(path), ref)
+compared 139 tensors; differing: none
+mb0_compare_exit=0 end=2026-11-15T10:32:48+09:00
