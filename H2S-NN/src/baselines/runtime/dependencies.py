@@ -39,9 +39,11 @@ def _dgl_cuda_defect() -> str | None:
     a machine with an idle GPU. Nothing raises; the numbers are even correct. Only the
     runtime is wrong, and only by a factor nobody notices until the campaign is over.
 
-    Reported as a *defect* -- something a reinstall can fix -- only on Linux, where the
-    CUDA wheel actually exists (``dgl-2.5.0+cu124-*-manylinux1_x86_64.whl`` on DGL's
-    torch-2.6 index). On Windows no CUDA wheel is published for any torch 2.x, so a
+    Reported as a *defect* -- something a reinstall can fix -- only on Linux, where a CUDA
+    build exists: DGL 2.4.0+cu124, the official conda package installed by
+    ``scripts/setup/install_env_b.sh`` (URL and sha256 in ``requirements/linux-lock-b.txt``);
+    pip cannot install it (DGL's wheel index is gone). On Windows no CUDA wheel is published for
+    any torch 2.x, so a
     CPU-only build is the normal state of a local development environment and must not
     make the group look broken; :func:`dgl_cuda_report` still surfaces it there.
     """
@@ -59,8 +61,9 @@ def _dgl_cuda_defect() -> str | None:
     if sys.platform != "linux":
         return None
     return (
-        "the installed DGL build has no CUDA support while torch does; reinstall "
-        "requirements/baselines-dgl.txt with --force-reinstall to get the +cu124 wheel"
+        "the installed DGL build has no CUDA support while torch does; on Linux the CUDA build "
+        "(DGL 2.4.0+cu124) is the conda package installed by scripts/setup/install_env_b.sh (URL "
+        "and sha256 in requirements/linux-lock-b.txt); pip cannot install it"
     )
 
 
@@ -277,9 +280,9 @@ def dgl_cuda_report() -> tuple[bool, str]:
         return True, "DGL has CUDA support"
     if sys.platform == "linux":
         return False, (
-            "DGL is installed without CUDA support. The +cu124 wheel exists for this "
-            "torch build, so this is a fixable install: reinstall "
-            "requirements/baselines-dgl.txt with --force-reinstall."
+            "DGL is installed without CUDA support. On Linux the CUDA build (DGL 2.4.0+cu124) "
+            "is the conda package installed by scripts/setup/install_env_b.sh (URL and sha256 in "
+            "requirements/linux-lock-b.txt), so this is a fixable install; pip cannot install it."
         )
     return False, (
         "DGL is installed without CUDA support, and no CUDA wheel is published for "

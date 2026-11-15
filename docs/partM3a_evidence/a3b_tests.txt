@@ -1,0 +1,58 @@
+job=16721 step=21 node=g2n01 start=2026-11-15T11:18:24+09:00
+git=9f3b638106e7e8ecbcc00ca62d7199596f7b0d5f branch=part-m3a env=h2snn-b
+NVIDIA GeForce RTX 2080 Ti
+working tree:  M CLAUDE.md
+working tree:  M src/baselines/runtime/dependencies.py
+working tree:  M tests/test_baselines.py
+===== tests
+test_a_machine_without_a_gpu_has_no_defect (tests.test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux has a CUDA build (the DGL 2.4.0+cu124 conda package), so a CPU build there is a ... ok
+test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (tests.test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (tests.test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (tests.test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (tests.test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (tests.test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.607s
+
+OK
+tests_exit=0
+===== the messages on this machine (real DGL 2.4.0+cu124 with CUDA) and with a CPU-only DGL patched in
+real: (True, 'DGL has CUDA support')
+cpu-only DGL, linux, report: DGL is installed without CUDA support. On Linux the CUDA build (DGL 2.4.0+cu124) is the conda package installed by scripts/setup/install_env_b.sh (URL and sha256 in requirements/linux-lock-b.txt), so this is a fixable install; pip cannot install it.
+cpu-only DGL, linux, defect: the installed DGL build has no CUDA support while torch does; on Linux the CUDA build (DGL 2.4.0+cu124) is the conda package installed by scripts/setup/install_env_b.sh (URL and sha256 in requirements/linux-lock-b.txt); pip cannot install it
+
+===== GATE job=16721 step=21 node=g2n01 git=9f3b638106e7e8ecbcc00ca62d7199596f7b0d5f 2026-11-15T11:18:30+09:00
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.481s
+
+OK
+gate_golden_exit=0
+compared 139 tensors; differing: none
+gate_mb0_exit=0
+GATE PASS
+end=2026-11-15T11:18:38+09:00

@@ -1307,7 +1307,9 @@ class DglCudaGateTests(unittest.TestCase):
         return stack, dependencies.REQUIREMENT_GROUPS["dgl"]
 
     def test_cpu_only_dgl_on_linux_counts_as_not_installed(self) -> None:
-        """Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect."""
+        """Linux has a CUDA build (the DGL 2.4.0+cu124 conda package), so a CPU build there is a
+        fixable defect; the message names the current route (Part M3a A3b, stated test change:
+        it asserted the removed `--force-reinstall` advice)."""
 
         stack, group = self._patched_group(
             platform="linux", cuda_torch=True, cuda_dgl=False
@@ -1315,7 +1317,8 @@ class DglCudaGateTests(unittest.TestCase):
         with stack:
             defect = group.defect()
             self.assertIsNotNone(defect)
-            self.assertIn("--force-reinstall", defect)
+            self.assertIn("scripts/setup/install_env_b.sh", defect)
+            self.assertNotIn("--force-reinstall", defect)
             self.assertFalse(group.is_installed())
 
     def test_cuda_dgl_on_linux_is_healthy(self) -> None:
@@ -1360,6 +1363,9 @@ class DglCudaGateTests(unittest.TestCase):
                 uses_gpu, explanation = dgl_cuda_report()
                 self.assertFalse(uses_gpu)
                 self.assertIn("without CUDA support", explanation)
+                self.assertNotIn("--force-reinstall", explanation)  # Part M3a A3b
+                if platform == "linux":
+                    self.assertIn("scripts/setup/install_env_b.sh", explanation)
 
         stack, _ = self._patched_group(platform="linux", cuda_torch=True, cuda_dgl=True)
         with stack:

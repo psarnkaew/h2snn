@@ -1012,10 +1012,11 @@ truth for that mapping — update it and `tests/test_baselines.py:RequirementGro
 whenever a baseline gains or loses a dependency. The Colab notebooks install core first,
 then one group per cell, and drop the models of any group that failed before launching.
 
-DGL is not on PyPI past 2.1.0 and ships no Windows wheel for any 2.x; it is pinned per
-platform against its own wheel index (`dgl==2.5.0+cu124` on Linux for torch 2.6, the
-already-installed `2.2.1` on Windows). Do not "simplify" that to a bare `dgl==<version>` —
-it cannot resolve.
+DGL is not on PyPI past 2.1.0 and ships no Windows wheel for any 2.x. On Linux, DGL 2.4.0+cu124
+comes from the official conda package installed by `scripts/setup/install_env_b.sh` (URL and
+sha256 in `requirements/linux-lock-b.txt`); pip cannot install it (DGL's wheel index is gone), so
+`requirements/baselines-dgl.txt` has no Linux line. On Windows `baselines-dgl.txt` pins the
+already-installed `2.2.1`. Do not "simplify" that to a bare `dgl==<version>` — it cannot resolve.
 
 W&B (Weights & Biases) is used for experiment tracking; set `--wandb=0` to disable.
 
