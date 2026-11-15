@@ -124,3 +124,10 @@
 
 ## Check
 Anchors checked with a script on spec v1.22 (md5 above), 2026-11-16: every anchor occurs exactly once, except `| Not significantly better |`, which occurs twice (rows C11 and C14); X-2h and X-2j therefore replace it only inside the named row. The X-12 insertion point `- **Cost gate (1.11;` occurs once.
+
+## X-14 §6 Seeds and statistics: Holm per task (author 2026-11-16)
+**Replace:** `and both raw and adjusted values are given; which adjustment (Holm or Bonferroni) is decided after the results (author).`
+**with:**
+> and both raw and adjusted values are given; the adjustment is Holm, fixed before the results (1.23, author), applied per task: NC (24 tests), LP (28) and GC (8) are separate families.
+
+Anchor checked: occurs once in spec v1.22 (md5 `7b44dd2c9b10bf620a8e36d8d3a9b922`). Changelog addition: "(X8) main-table multiplicity: Holm per task, fixed before the results."
