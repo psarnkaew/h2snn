@@ -6,6 +6,14 @@
 ## Goal
 Every baseline cell on the eight H2GB NC datasets and the two large LP tasks either runs under the shared protocol (budget table of Part M3b B8: batch range `{32, 256, 1024}`, 1 epoch = 8,192 training targets, 500 epochs, no early stopping, best validation epoch, evaluation on whole splits in batches; large LP: 8,192 positives per step, 40 epochs, patience 40) with its mini-batch scheme fixed below, or carries a stated reason. **Correctness only:** synthetic-graph tests, mutation checks, the full suite. No training run on real data, no metric reported as a result, no comparison between methods.
 
+## Slim mode (author, 2026-11-16; overrides the test, gate and report requirements below where they differ)
+Time is short (paper in about six weeks); compute for the real runs is not the constraint, preparation time is. Keep only the checks that protect the correctness of the results:
+- **Kept tests:** C1 full-fan-out equivalence for **GCN only** (with its negative control) and the evaluation-coverage test; C2 split equal to H2GB's code on the fixture; **per adapter one test only**: on a synthetic graph one training step is finite and moves the parameters; C3 H2G-former label-route test **and its mutation**; C4 precomputation exactness for **SeHGNN only**; C6 held-out-fact test **and its mutation**. Every other test and mutation listed in the units is dropped.
+- **Gates:** the v3b_golden and mb0 compares run only at C8 and after a unit that touches `src/` outside `src/baselines/`. Existing tests must still pass.
+- **C7:** item 2 only (no test may download data or reach the network). Items 1 and 3 go to the report's out-of-scope list, not done.
+- **C8:** full suite once, on one node (g2n01, or any free node). Report short: one table per unit (what, commit, job id), the per-method scheme table, deviations, decisions for the author. Evidence: job scripts and logs only.
+- Stop conditions unchanged.
+
 ## The mini-batch scheme of each baseline (rule; author decisions D1–D2 in the prompt)
 Principle (mini-batch design §13): a method's own sampler is part of the method and stays. Three classes, from the vendor code (VERIFIED-CODE by the design session, 2026-11-16; the agent re-checks each file:line in C0 and stops on a difference):
 
