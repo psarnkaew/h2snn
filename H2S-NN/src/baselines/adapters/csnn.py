@@ -60,6 +60,10 @@ from src.utils.misc import seed_everything
 NAME = "csnn"
 VENDOR = "csnn"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
+#: Part 2 E3 (decisions D1, S1): class C on the H2GB NC datasets, H2GB's `hgt` sampler with the dataset's H2GB GCN
+#: fan-out list unchanged; CSNN reads the node count from each batch (models/CSNNconv.py:96).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
@@ -146,12 +150,25 @@ class _CSNNEncoder(torch.nn.Module):
         return self.csnn(batch)
 
 
+def build_h2gb_model(in_dims: list[int], num_classes: int, params: BaselineParams, device: torch.device) -> Any:
+    """`_CSNNEncoder` with a placeholder graph (its `edge_index` is set per batch)."""
+    args = _vendor_args(params, input_dim=int(params.get("hidden_channels", 32)), output_dim=num_classes,
+                        graph_size=2, device=device)
+    return _CSNNEncoder(in_dims, torch.tensor([[0, 1], [1, 0]], device=device), args)
+
+
+def h2gb_forward(model: Any, inputs: list[torch.Tensor], edge_index: torch.Tensor, num_nodes: int) -> torch.Tensor:
+    """The batch's HGB reduction without self-loops (CSNN builds its own sheaf Laplacian, as on HGB)."""
+    model.edge_index = edge_index[:, edge_index[0] != edge_index[1]]
+    return model(inputs)
+
+
 class CSNNAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
@@ -175,6 +192,11 @@ class CSNNAdapter:
         }
         if task == LINK_PREDICTION:
             space["decoder_type"] = {"values": ["dot", "distmult"]}
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space.pop("feats_type", None)  # featureless types: one-hot rows (HGB's identity encoding)
+            space["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
         if task == GRAPH_CLASSIFICATION:
             # feats_type is a node-classification notion (HGB's per-type feature
             # fill-in); TU graphs carry one uniform feature matrix.
@@ -226,6 +248,8 @@ class CSNNAdapter:
             return record
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         feats_type = int(
@@ -341,6 +365,17 @@ class CSNNAdapter:
         record["params_source"] = params.source
         record["gnn_type"] = args["gnn_type"]
         record["readout"] = "shared_mean_pool_linear"
+        return record
+
+
+    def _fit_h2gb(self, bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
+        from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD, fit_homogeneous_on_hgt
+
+        record = fit_homogeneous_on_hgt(
+            bundle, params, fanout_method=CLASS_C_REFERENCE_METHOD, seed=seed, device=device,
+            build_model=lambda dims, classes: build_h2gb_model(dims, classes, params, device), forward=h2gb_forward)
+        record["params_source"] = params.source
+        record["gnn_type"] = str(params.get("gnn_type", "GCN"))
         return record
 
 

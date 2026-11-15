@@ -68,6 +68,10 @@ from src.utils.misc import seed_everything
 NAME = "nsd"
 VENDOR = "nsd"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
+#: Part 2 E3 (decisions D1, S1): class C on the H2GB NC datasets, H2GB's `hgt` sampler with the dataset's H2GB GCN
+#: fan-out list unchanged; the model is rebound to each batch's HGB reduction (`_rebind_graph`).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
@@ -191,12 +195,30 @@ class _NSDEncoder(torch.nn.Module):
             return self.sheaf(x)
 
 
+def build_h2gb_model(in_dims: list[int], num_classes: int, params: BaselineParams, device: torch.device) -> Any:
+    """`_NSDEncoder` with a placeholder graph (rebound per batch)."""
+    model_name = str(params.get("sheaf_model", "DiagSheaf"))
+    if model_name not in SHEAF_MODELS:
+        raise ValueError(f"sheaf_model must be one of {SHEAF_MODELS}.")
+    args = _vendor_args(params, input_dim=int(params.get("hidden_channels", 32)), output_dim=num_classes,
+                        graph_size=2, device=device)
+    return _NSDEncoder(in_dims, torch.tensor([[0, 1], [1, 0]], device=device), args, model_name)
+
+
+def h2gb_forward(model: Any, inputs: list[torch.Tensor], edge_index: torch.Tensor, num_nodes: int) -> torch.Tensor:
+    """Rebind NSD to the batch's HGB reduction without self-loops (NSD needs exact symmetric pairs, no diagonal) and run
+    it; rebinding builds a MessagePassing builder, so it runs inside the vendor context."""
+    with pushd_sys_path(VENDOR):
+        _rebind_graph(model.sheaf, edge_index[:, edge_index[0] != edge_index[1]], num_nodes)
+    return model(inputs)
+
+
 class NSDAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
@@ -224,6 +246,11 @@ class NSDAdapter:
             # HGB offers both decoders and lets each method choose, so it is
             # validation-selected here as for every other link-prediction baseline.
             space["decoder_type"] = {"values": ["dot", "distmult"]}
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space.pop("feats_type", None)  # featureless types: one-hot rows (HGB's identity encoding)
+            space["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
         if task == GRAPH_CLASSIFICATION:
             # feats_type is HGB's per-node-type feature fill-in; TU graphs carry one
             # uniform feature matrix, so there is nothing for it to select.
@@ -273,6 +300,8 @@ class NSDAdapter:
             return record
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         feats_type = int(
@@ -408,6 +437,17 @@ class NSDAdapter:
         record["params_source"] = params.source
         record["sheaf_model"] = model_name
         record["readout"] = "shared_mean_pool_linear"
+        return record
+
+
+    def _fit_h2gb(self, bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
+        from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD, fit_homogeneous_on_hgt
+
+        record = fit_homogeneous_on_hgt(
+            bundle, params, fanout_method=CLASS_C_REFERENCE_METHOD, seed=seed, device=device,
+            build_model=lambda dims, classes: build_h2gb_model(dims, classes, params, device), forward=h2gb_forward)
+        record["params_source"] = params.source
+        record["sheaf_model"] = str(params.get("sheaf_model", "DiagSheaf"))
         return record
 
 

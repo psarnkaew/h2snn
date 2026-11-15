@@ -69,8 +69,10 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "h2gformer": f"adapter pending: {_S1}",
     "nsd": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
     "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
-    "h2sgnn": ("adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends "
-               f"it to H2GB's hgt sampler: {_S1}"),
+    "h2sgnn": ("adapter pending: part 2 E0 stop S4b: its operators come from its own preprocessing, one hand-written "
+               "branch per HGB dataset (H2SGNN/processing.py:46-121: links paired by HGB's file order, per-dataset "
+               "merges and drops); no rule exists for the H2GB datasets, so its relation set on them is a design "
+               "decision"),
     "pshgcn": ("adapter pending: part 2 E0 stop P1: decision S3 (b) changes the input widths only, but PSHGCN's ogbn-mag "
                "code also enumerates its polynomial terms from MAG's relation list (ogbn-mag/processing.py:14-15) and "
                "fixes MAG's label keys (main.py:126) whose self-effect removal needs sparse_tools diagonals "
@@ -93,6 +95,8 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # part 2 E1 (author decisions S1, S5): class A on H2GB's hgt sampler with H2GB's YAML fan-out
     *((m, d) for m in ("gcn", "gat", "han") for d in H2GB_NC),
     *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
+    # part 2 E3 (D1 second branch, S1): class C on the hgt sampler with the dataset's GCN fan-out
+    *((m, d) for m in ("nsd", "csnn") for d in H2GB_NC),
     ("sehgnn", "ieee-cis-g"),
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
