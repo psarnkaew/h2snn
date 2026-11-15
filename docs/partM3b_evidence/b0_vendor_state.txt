@@ -1,0 +1,10 @@
+git -C H2S-NN/vendor/H2GB rev-parse HEAD: d3b49db63ad66f8a3282dbe699d50ce10ed3062a
+git -C H2S-NN/vendor/H2GB status --short (pycache lines omitted, 149 of them):
+ M H2GB/datasets/ieee_cis_dataset.py
+ M H2GB/datasets/pokec_dataset.py
+ M examples/use_dataset.py
+
+sha256 of the author's three edited files (working clone, 2026-11-15T18:08:28+09:00):
+4b4cb7d1ab106f85e2fee498fbc09ed354fdcb9f7d84574aef4c22c8c1c8278b  H2GB/datasets/ieee_cis_dataset.py
+76570b563df0f044085365c7ae982d7b3b8e86038d385fef6a7a3f1659d7b4b7  H2GB/datasets/pokec_dataset.py
+da99a83a5de27f4cb40f9726746e77e9d1f7f9a95a1e7d99d13493b1204d4c4b  examples/use_dataset.py
