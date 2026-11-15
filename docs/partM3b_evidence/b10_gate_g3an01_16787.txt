@@ -1,0 +1,12 @@
+unit=B10 job=16787 step=none node=g3an01 start=2026-11-15T23:27:08+09:00
+git=184936452009e998fcc9db61a5d9c31dbffb1b05 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 4 cuda False
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+end=2026-11-15T23:27:24+09:00

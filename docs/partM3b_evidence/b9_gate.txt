@@ -1,0 +1,16 @@
+unit=B9 job=16741 step=54 node=g2n01 start=2026-11-15T23:10:38+09:00
+tree=/mnt/data/peeradon/m3b_gate/B9-184936452009e998fcc9db61a5d9c31dbffb1b05/H2S-NN (git archive export) commit=184936452009e998fcc9db61a5d9c31dbffb1b05 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_notebook_configs tests.test_wisp tests.test_wisp_tasks tests.test_wandb_and_runs
+tests_exit=0
+Ran 67 tests in 63.840s
+OK
+end=2026-11-15T23:11:57+09:00
