@@ -27,11 +27,14 @@ from tests.test_paths_and_facts import (
     _signed_dense_transports,
 )
 from tests.test_v2_model import _chain_operators
+from tests.pinned_kernels import assert_kernel_path_pinned, one_thread
 
 F64_TOL = 1e-10
 REPO = Path(__file__).resolve().parents[1]
 GOLDEN_SCRIPT = REPO.parent / "docs" / "heads_evidence" / "v2_golden.py"
-GOLDEN_REFERENCE = REPO.parent / "docs" / "heads_evidence" / "v2_golden.pt"
+# cluster-setup3 CS8-2: the cluster capture (pinned kernels E, 1 thread); v2_golden.pt is the Windows
+# capture, kept as history.
+GOLDEN_REFERENCE = REPO.parent / "docs" / "heads_evidence" / "v2_golden_cluster.pt"
 ETA = 0.5
 GATE_PREACTIVATION = 4.59511985013459  # logit(0.99): sigmoid(GATE_PREACTIVATION * u), u in [-1, 1]
 
@@ -170,7 +173,9 @@ class SymmetricIsThePreviousModelTests(unittest.TestCase):
         golden = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(golden)  # type: ignore[union-attr]
         self.assertEqual(golden.build_config({}, ()).ablation.coupling, "symmetric")
-        compared, mismatches, messages = golden.compare(GOLDEN_REFERENCE)
+        assert_kernel_path_pinned(self)
+        with one_thread():
+            compared, mismatches, messages = golden.compare(GOLDEN_REFERENCE)
         self.assertEqual(mismatches, 0, messages[:5])
         self.assertEqual(compared, 844)
 

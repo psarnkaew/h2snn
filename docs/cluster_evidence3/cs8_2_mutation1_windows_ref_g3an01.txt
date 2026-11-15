@@ -1,0 +1,36 @@
+job=16733 step=none node=g3an01 mode=E start=2026-11-15T10:28:42+09:00
+git=4fc33dfcf14a49de01300b017707d0d52fd459bd branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+E: ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2
+torch 2.4.1+cu124 cpu_capability AVX2 threads 8
+working tree:  M tests/test_cooperative.py
+working tree:  M tests/test_task_heads.py
+working tree:  M ../docs/heads_evidence/golden_capture.txt
+working tree:  M ../docs/partMB_evidence/mb0_reference.py
+working tree: ?? tests/pinned_kernels.py
+working tree: ?? ../docs/heads_evidence/v2_golden_cluster.pt
+working tree: ?? ../docs/partMB_evidence/mb0_reference_cluster.pt
+===== golden tests
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+FAIL
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+======================================================================
+FAIL: test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_task_heads.py", line 46, in test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture
+    self.assertEqual(mismatches, 0, messages[:10])
+AssertionError: 591 != 0 : ['[toy_acm] MISMATCH init/node_encoder.encoders.0.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_encoder.encoders.0.0.bias max|diff|=7.451e-09', '[toy_acm] MISMATCH init/node_encoder.encoders.1.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_encoder.encoders.1.0.bias max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.0.bias max|diff|=1.490e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.reflector_mlp.2.bias max|diff|=1.490e-08', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.weight max|diff|=2.980e-08', '[toy_acm] MISMATCH init/node_to_edge.edge_scale_mlp.0.bias max|diff|=2.980e-08']
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.745s
+
+FAILED (failures=1)
+golden_tests_exit=1
+end=2026-11-15T10:28:48+09:00

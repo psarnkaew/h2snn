@@ -21,10 +21,13 @@ except ImportError as exc:  # pragma: no cover - environment specific
 
 from src.configs.config import TrainConfig
 from src.data.data_layout import lp_root
+from tests.pinned_kernels import assert_kernel_path_pinned, one_thread
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GOLDEN_SCRIPT = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden.py"
-GOLDEN_REFERENCE = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden.pt"
+# cluster-setup3 CS8-2: the cluster capture (pinned kernels E, 1 thread); v2_golden.pt is the Windows
+# capture, kept as history.
+GOLDEN_REFERENCE = REPO_ROOT / "docs" / "heads_evidence" / "v2_golden_cluster.pt"
 SMALL_MODEL = {"d": 8, "d_r": 4, "K": 2, "classifier_hidden_dim": 16,
                "face_mlp_hidden_dim": 16, "edge_mlp_hidden_dim": 16}
 
@@ -37,7 +40,9 @@ class NodeClassificationGoldenTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("v2_golden", GOLDEN_SCRIPT)
         golden = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(golden)  # type: ignore[union-attr]
-        compared, mismatches, messages = golden.compare(GOLDEN_REFERENCE)
+        assert_kernel_path_pinned(self)
+        with one_thread():
+            compared, mismatches, messages = golden.compare(GOLDEN_REFERENCE)
         self.assertEqual(mismatches, 0, messages[:10])
         self.assertEqual(compared, 844)
 

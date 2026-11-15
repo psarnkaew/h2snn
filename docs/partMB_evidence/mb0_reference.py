@@ -11,8 +11,19 @@ parameter gradient, and h0 of a featureless type. Synthetic data only.
 
 `compare` prints every differing tensor name and exits 1 if any tensor differs (cluster-setup2 CS7-4;
 H2S-NN/tests/test_mb0_reference_compare.py).
+
+Cluster reference (cluster-setup3 card, CS8-1/CS8-2): `docs/partMB_evidence/mb0_reference_cluster.pt`,
+saved on node g2n01 (Intel i9-10900K) in env h2snn-b (torch 2.4.1+cu124), CPU only, with the pinned
+kernel environment E (ATEN_CPU_CAPABILITY=avx2, MKL_CBWR=AVX2, ONEDNN_MAX_CPU_ISA=AVX2) and 1 thread;
+job 16721 step 13, git e0a7ca12fd37a7915d44740bf453926accd8526a; sha256
+83f5f57d4feee19624f5bb9e38e935032813546c7a159c4f523d36d183c91700 (copy of
+docs/cluster_evidence3/mb0_reference_E.pt). It is portable with E and 1 thread (0/139 differing on
+g2n01 again and on g3an01, i9-10900X). `mb0_reference.pt` is the Windows capture, kept as history.
+Rule R2 of that card: `compare` refuses to run (exit 2) unless E is in effect, and the references
+are computed with 1 thread (restored after).
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -89,15 +100,39 @@ def _flatten(prefix, value, into):
         into[prefix] = value
 
 
+PINNED_MESSAGE = ("bit-exact test needs the pinned kernel environment: "
+                  "run through scripts/slurm/run_tests.sbatch")
+
+
+def kernel_path_is_pinned() -> bool:
+    """cluster-setup3 CS8-2: E is in effect (torch's CPU kernels and MKL on the AVX2 path)."""
+    return (torch.backends.cpu.get_cpu_capability() == "AVX2"
+            and os.environ.get("MKL_CBWR") == "AVX2")
+
+
+def references_one_thread() -> dict:
+    """`references()` with 1 thread (rule R2 of the cluster-setup3 card), restored after."""
+    threads = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        return references()
+    finally:
+        torch.set_num_threads(threads)
+
+
 if __name__ == "__main__":
     mode, path = sys.argv[1], Path(sys.argv[2])
     if mode == "save":
-        torch.save(references(), path)
+        torch.save(references_one_thread(), path)
         print("saved", path)
     else:
+        if not kernel_path_is_pinned():
+            print(f"{PINNED_MESSAGE} (cpu_capability={torch.backends.cpu.get_cpu_capability()}, "
+                  f"MKL_CBWR={os.environ.get('MKL_CBWR')})")
+            sys.exit(2)
         ref, now = {}, {}
         _flatten("", torch.load(path), ref)
-        _flatten("", references(), now)
+        _flatten("", references_one_thread(), now)
         bad = [k for k in ref if k not in now or ref[k].dtype != now[k].dtype
                or not torch.equal(ref[k], now[k])]
         missing = sorted(set(now) - set(ref))

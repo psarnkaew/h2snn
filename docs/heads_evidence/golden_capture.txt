@@ -1,1 +1,11 @@
 captured 13 cases, 844 entries -> ..\docs\heads_evidence\v2_golden.pt
+
+# History: the line above is the Windows capture (laptop), v2_golden.pt; kept unchanged.
+# Cluster reference (cluster-setup3 card, CS8-1/CS8-2), read by tests/test_task_heads.py and tests/test_cooperative.py:
+re-captured 13 cases, 844 entries on stored fixtures -> docs/heads_evidence/v2_golden_cluster.pt
+  command: python ../docs/heads_evidence/v2_golden.py recapture ../docs/heads_evidence/v2_golden.pt <out>   (fixtures from the Windows file)
+  node g2n01, CPU Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz, env h2snn-b (torch 2.4.1+cu124), CPU only
+  E: ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2 (get_cpu_capability() = AVX2); 1 thread (OMP_NUM_THREADS=MKL_NUM_THREADS=1)
+  job 16721 step 13, git e0a7ca12fd37a7915d44740bf453926accd8526a; copy of docs/cluster_evidence3/v2_golden_E.pt
+  sha256 b97d9ad7fd7c4f4bd0cd78e6df824621112743fb0919c6bfcc4fa9814826445f
+  portable with E and 1 thread: 0/1136 differing on g2n01 again (job 16728) and g3an01 i9-10900X (job 16729)

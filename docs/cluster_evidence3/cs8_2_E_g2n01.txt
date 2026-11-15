@@ -1,0 +1,40 @@
+job=16730 step=none node=g2n01 mode=E start=2026-11-15T10:26:42+09:00
+git=4fc33dfcf14a49de01300b017707d0d52fd459bd branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+E: ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2
+torch 2.4.1+cu124 cpu_capability AVX2 threads 8
+working tree:  M tests/test_cooperative.py
+working tree:  M tests/test_task_heads.py
+working tree:  M ../docs/heads_evidence/golden_capture.txt
+working tree:  M ../docs/partMB_evidence/mb0_reference.py
+working tree: ?? tests/pinned_kernels.py
+working tree: ?? ../docs/heads_evidence/v2_golden_cluster.pt
+working tree: ?? ../docs/partMB_evidence/mb0_reference_cluster.pt
+===== golden tests
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.557s
+
+OK
+golden_tests_exit=0
+===== tests.test_mb0_reference_compare
+test_one_perturbed_tensor_exits_1_with_its_name (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_one_perturbed_tensor_exits_1_with_its_name) ... ok
+test_unperturbed_reference_exits_0 (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_unperturbed_reference_exits_0) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 12.426s
+
+OK
+mb0_test_exit=0
+===== mb0_reference.py compare mb0_reference_cluster.pt
+  _flatten("", torch.load(path), ref)
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+end=2026-11-15T10:27:05+09:00
