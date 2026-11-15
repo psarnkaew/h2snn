@@ -1,0 +1,11 @@
+label=c1-diagnostic job=16741 step=61 node=g2n01 start=2026-11-16T05:25:47+09:00
+git=8dd349f6048d06857905319a645e2b5f3732530a branch=baselines-h2gb
+env=h2snn-b cmd=python ../docs/baselines_h2gb_evidence/c1_equivalence_diagnostic.py
+graph: 65 nodes; target type a 40
+depth=1: GCN max|diff|=7.890e-01  HAN max|diff|=7.022e-02  (largest subgraph 19 of 65 nodes)
+depth=2: GCN max|diff|=7.183e-02  HAN max|diff|=1.786e-03  (largest subgraph 45 of 65 nodes)
+depth=3: GCN max|diff|=1.110e-16  HAN max|diff|=8.473e-04  (largest subgraph 61 of 65 nodes)
+depth=4: GCN max|diff|=1.110e-16  HAN max|diff|=3.508e-04  (largest subgraph 62 of 65 nodes)
+depth=6: GCN max|diff|=1.110e-16  HAN max|diff|=1.776e-04  (largest subgraph 62 of 65 nodes)
+peak_rss_gib=0.75 elapsed_s=54.6
+end=2026-11-16T05:26:42+09:00 exit=0

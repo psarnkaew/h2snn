@@ -1,0 +1,26 @@
+label=c1-mutation job=16741 step=62 node=g2n01 start=2026-11-16T05:27:12+09:00
+git=8dd349f6048d06857905319a645e2b5f3732530a branch=baselines-h2gb
+env=h2snn-b cmd=python -m unittest tests.test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+E
+======================================================================
+ERROR: test_evaluation_covers_split_once (tests.test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_minibatch.py", line 128, in test_evaluation_covers_split_once
+    ids, logits, _ = evaluate_split(loader, lambda b: torch.zeros(int(b["a"].batch_size), 3),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/minibatch.py", line 205, in evaluate_split
+    raise RuntimeError(f"evaluation covered {all_ids.numel()} targets ({torch.unique(all_ids).numel()} "
+RuntimeError: evaluation covered 12 targets (12 distinct); the split has 13.
+
+----------------------------------------------------------------------
+Ran 1 test in 8.912s
+
+FAILED (errors=1)
+peak_rss_gib=0.74 elapsed_s=10.9
+end=2026-11-16T05:27:23+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1

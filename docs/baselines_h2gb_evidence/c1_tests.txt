@@ -1,0 +1,44 @@
+label=c1-tests job=16741 step=60 node=g2n01 start=2026-11-16T05:21:50+09:00
+git=8dd349f6048d06857905319a645e2b5f3732530a branch=baselines-h2gb
+env=h2snn-b cmd=python -m unittest -v tests.test_baselines_minibatch tests.test_baselines_minibatch_equivalence
+test_eval_epoch_rule_is_h2gbs (tests.test_baselines_minibatch.BatchPlanTests.test_eval_epoch_rule_is_h2gbs) ... ok
+test_steps_per_epoch_for_each_batch_size (tests.test_baselines_minibatch.BatchPlanTests.test_steps_per_epoch_for_each_batch_size) ... ok
+test_evaluation_covers_split_once (tests.test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_incomplete_pass_is_refused (tests.test_baselines_minibatch.EvaluationCoverageTests.test_incomplete_pass_is_refused) ... ok
+test_fanouts_equal_h2gb_yaml (tests.test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) ... ok
+test_repeat_fanout_refuses_non_uniform_lists (tests.test_baselines_minibatch.FanoutTests.test_repeat_fanout_refuses_non_uniform_lists) ... ok
+test_loop_runs_plan_and_keeps_best_validation_epoch (tests.test_baselines_minibatch.LoopTests.test_loop_runs_plan_and_keeps_best_validation_epoch) ... ok
+test_gcn_full_fanout_equals_full_batch (tests.test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_gcn_full_fanout_equals_full_batch) ... FAIL
+test_han_full_fanout_equals_full_batch (tests.test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_han_full_fanout_equals_full_batch) ... FAIL
+
+======================================================================
+FAIL: test_gcn_full_fanout_equals_full_batch (tests.test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_gcn_full_fanout_equals_full_batch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_minibatch_equivalence.py", line 127, in test_gcn_full_fanout_equals_full_batch
+    self._check(data, gcn_full(model, data, node_types), gcn_seeds(model, node_types), depth=2)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_minibatch_equivalence.py", line 113, in _check
+    self.assertLessEqual(diff, ATOL, f"{split}: first differing batch (seeds {ids.tolist()}), "
+AssertionError: 0.052733577903658846 not less than or equal to 1e-10 : val: first differing batch (seeds [3, 4, 6, 15]), max |diff| = 5.273e-02
+
+======================================================================
+FAIL: test_han_full_fanout_equals_full_batch (tests.test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_han_full_fanout_equals_full_batch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_minibatch_equivalence.py", line 138, in test_han_full_fanout_equals_full_batch
+    self._check(data, full_out, forward, depth=2)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_minibatch_equivalence.py", line 113, in _check
+    self.assertLessEqual(diff, ATOL, f"{split}: first differing batch (seeds {ids.tolist()}), "
+AssertionError: 8.730690292778343e-05 not less than or equal to 1e-10 : val: first differing batch (seeds [3, 4, 6, 15]), max |diff| = 8.731e-05
+
+----------------------------------------------------------------------
+Ran 9 tests in 216.814s
+
+FAILED (failures=2)
+peak_rss_gib=0.77 elapsed_s=219.0
+end=2026-11-16T05:25:29+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1
