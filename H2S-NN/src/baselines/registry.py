@@ -106,12 +106,17 @@ H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
                     "num_hops 2-4, Part M3b B7; author decision 2026-11-16)")
-_LP_FULL_GRAPH = ("its `supports()` lists the six local LP tasks only and `train_link_prediction` embeds the "
-                  "whole graph every step (src/baselines/training.py:168-183): no endpoint-scope mini-batch of "
-                  "8,192 positives, the task's split.npz / negatives.npz are not read")
+#: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
+#: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
+_LP_S1 = ("adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), "
+          "but its fan-out and depth are the class's, undecided (C0 stop S1)")
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
-    name: f"adapter pending: {_LP_FULL_GRAPH}"
-    for name in ("gcn", "gat", "nsd", "csnn", "han", "pshgcn", "h2gformer", "hetero2net", "h2sgnn")
+    **{name: _LP_S1 for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
+    "h2sgnn": f"{_LP_S1}; H2SGNN is not decoupled (C0 S4), so D2's per-node precomputation does not apply",
+    "pshgcn": ("adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit "
+               "(card baselines-h2gb C0 stop S3)"),
+    "hetero2net": ("adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the "
+                   "link-level sampler on the message graph is in place (C6)"),
 }
 #: Cells that no model can run yet, whatever the model: (task, dataset) -> reason.
 DATASET_PENDING: dict[tuple[str, str], str] = {

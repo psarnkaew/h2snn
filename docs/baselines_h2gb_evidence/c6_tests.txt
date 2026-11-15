@@ -1,0 +1,15 @@
+label=c6-tests job=16741 step=70 node=g2n01 start=2026-11-16T05:56:38+09:00
+git=cef6b6dc2f036f0508361f879b16fcf9ced36238 branch=baselines-h2gb
+env=h2snn-b cmd=python -m unittest -v tests.test_baselines_large_lp
+test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.259s
+
+OK
+peak_rss_gib=0.60 elapsed_s=4.1
+end=2026-11-16T05:56:43+09:00 exit=0

@@ -1,0 +1,25 @@
+label=c6-mutation job=16741 step=71 node=g2n01 start=2026-11-16T05:56:52+09:00
+git=cef6b6dc2f036f0508361f879b16fcf9ced36238 branch=baselines-h2gb
+env=h2snn-b cmd=python -m unittest tests.test_baselines_large_lp
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+F
+======================================================================
+FAIL: test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_large_lp.py", line 72, in test_no_held_out_fact_in_any_sampled_subgraph
+    assert_no_held_out_facts(batch, "user", held)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_minibatch.py", line 90, in assert_no_held_out_facts
+    raise AssertionError(f"{found} held-out fact(s) present in a sampled subgraph")
+AssertionError: 17 held-out fact(s) present in a sampled subgraph
+
+----------------------------------------------------------------------
+Ran 1 test in 1.825s
+
+FAILED (failures=1)
+peak_rss_gib=0.60 elapsed_s=3.5
+end=2026-11-16T05:56:55+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1
