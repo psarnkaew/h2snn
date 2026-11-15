@@ -50,6 +50,11 @@ def _load_hetero_data(config: TrainConfig) -> "HeteroData":
 
         dataset = HGBDataset(root=str(root), name="Freebase")
         return dataset[0]
+    from src.data.h2gb_nc import H2GB_NC_SPECS, load_h2gb_nc
+
+    if dataset_name in H2GB_NC_SPECS:
+        # Part M3b B2: H2GB's own loader on its processed files (offline; transform and split as H2GB).
+        return load_h2gb_nc(dataset_name, config.data.root)
     raise ValueError(f"Unsupported dataset '{config.data.dataset_name}'.")
 
 

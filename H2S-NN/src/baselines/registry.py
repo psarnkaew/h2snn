@@ -36,9 +36,20 @@ DATASETS: dict[str, tuple[str, ...]] = {
 }
 
 DATA_PENDING_REASON = "data pending (lab cluster, after mini-batch design)"
+#: Part M3b B2: H2GB NC datasets with a loader (`src/data/h2gb_nc.py`) and a count record equal to H2GB's
+#: Table 1 (`docs/partM3b_evidence/h2gb_nc_counts.{json,md}`); their NC cell is no longer data-pending.
+H2GB_NC_LOADED: tuple[str, ...] = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
+                                   "ieee-cis-g", "h-pokec")
+#: Part M3b: a baseline runs on a loaded H2GB NC dataset only once its adapter reads the shared batch range
+#: and epoch definition and consumes the H2GB bundle (card B8 decides per adapter); until then the cell says so.
+H2GB_ADAPTER_PENDING_REASON = ("adapter pending: the H2GB bundle, batch range and epoch definition are not "
+                               "wired into this adapter yet (Part M3b B8)")
+#: Adapters wired for the loaded H2GB NC datasets (Part M3b B8).
+H2GB_NC_WIRED_ADAPTERS: frozenset[str] = frozenset()
 #: Cells that no model can run yet, whatever the model: (task, dataset) -> reason.
 DATASET_PENDING: dict[tuple[str, str], str] = {
-    **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC},
+    **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC
+       if dataset not in H2GB_NC_LOADED},
     **{(LINK_PREDICTION, dataset): DATA_PENDING_REASON for dataset in LARGE_LP},
     # Freebase NC is loadable since Part P P3 (H2S-NN loader, bundles HGB_RAW_DIRNAME).
     # The derived LP tasks are wired into every LP adapter (Part P P2): no pending reason.
@@ -139,6 +150,8 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
         return f"{spec.display} has no {task.replace('_', ' ')} implementation"
     if (task, dataset) in DATASET_PENDING:
         return DATASET_PENDING[(task, dataset)]
+    if task == NODE_CLASSIFICATION and dataset in H2GB_NC_LOADED and name not in H2GB_NC_WIRED_ADAPTERS:
+        return H2GB_ADAPTER_PENDING_REASON
     return None
 
 

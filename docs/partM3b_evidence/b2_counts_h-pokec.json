@@ -1,0 +1,205 @@
+{
+ "h-pokec": {
+  "key": "h-pokec",
+  "h2gb_class": "PokecDataset",
+  "h2gb_loader": "preformat_Pokec",
+  "h2gb_name": null,
+  "target_node_type": "user",
+  "label": "binary",
+  "split_source": "random 50/25/25 of labelled users drawn at processing time, in the processed file (pokec_dataset.py:291-301)",
+  "processed_file": "data/NC/Pokec/processed/data.pt",
+  "processed_bytes": 989825292,
+  "load_seconds": 11.1,
+  "transform": "ToUndirected()",
+  "stored": {
+   "nodes": {
+    "user": 1632803,
+    "life_style": 21579,
+    "music": 20080,
+    "cars": 2587,
+    "politics": 1423,
+    "relationships": 22067,
+    "art_culture": 1619,
+    "hobbies_interests": 6826,
+    "science_technologies": 756,
+    "computers_internet": 2236,
+    "education": 2347,
+    "sport": 7430,
+    "movies": 5870,
+    "travelling": 1251,
+    "health": 2390,
+    "companies_brands": 713
+   },
+   "total_nodes": 1731977,
+   "feature_dims": {
+    "user": [
+     65
+    ],
+    "life_style": null,
+    "music": null,
+    "cars": null,
+    "politics": null,
+    "relationships": null,
+    "art_culture": null,
+    "hobbies_interests": null,
+    "science_technologies": null,
+    "computers_internet": null,
+    "education": null,
+    "sport": null,
+    "movies": null,
+    "travelling": null,
+    "health": null,
+    "companies_brands": null
+   },
+   "edges": {
+    "user|has_friend|user": 30622564,
+    "user|lists|life_style": 827974,
+    "user|lists|music": 580378,
+    "user|lists|cars": 92972,
+    "user|lists|politics": 40188,
+    "user|lists|relationships": 1010495,
+    "user|lists|art_culture": 51209,
+    "user|lists|hobbies_interests": 275117,
+    "user|lists|science_technologies": 41177,
+    "user|lists|computers_internet": 76867,
+    "user|lists|education": 82974,
+    "user|lists|sport": 165616,
+    "user|lists|movies": 180064,
+    "user|lists|travelling": 49697,
+    "user|lists|health": 74056,
+    "user|lists|companies_brands": 36670
+   },
+   "total_edges": 34208018,
+   "num_node_types": 16,
+   "num_edge_types": 16
+  },
+  "loaded": {
+   "nodes": {
+    "user": 1632803,
+    "life_style": 21579,
+    "music": 20080,
+    "cars": 2587,
+    "politics": 1423,
+    "relationships": 22067,
+    "art_culture": 1619,
+    "hobbies_interests": 6826,
+    "science_technologies": 756,
+    "computers_internet": 2236,
+    "education": 2347,
+    "sport": 7430,
+    "movies": 5870,
+    "travelling": 1251,
+    "health": 2390,
+    "companies_brands": 713
+   },
+   "total_nodes": 1731977,
+   "feature_dims": {
+    "user": [
+     65
+    ],
+    "life_style": null,
+    "music": null,
+    "cars": null,
+    "politics": null,
+    "relationships": null,
+    "art_culture": null,
+    "hobbies_interests": null,
+    "science_technologies": null,
+    "computers_internet": null,
+    "education": null,
+    "sport": null,
+    "movies": null,
+    "travelling": null,
+    "health": null,
+    "companies_brands": null
+   },
+   "edges": {
+    "user|has_friend|user": 44603928,
+    "user|lists|life_style": 827974,
+    "user|lists|music": 580378,
+    "user|lists|cars": 92972,
+    "user|lists|politics": 40188,
+    "user|lists|relationships": 1010495,
+    "user|lists|art_culture": 51209,
+    "user|lists|hobbies_interests": 275117,
+    "user|lists|science_technologies": 41177,
+    "user|lists|computers_internet": 76867,
+    "user|lists|education": 82974,
+    "user|lists|sport": 165616,
+    "user|lists|movies": 180064,
+    "user|lists|travelling": 49697,
+    "user|lists|health": 74056,
+    "user|lists|companies_brands": 36670,
+    "life_style|rev_lists|user": 827974,
+    "music|rev_lists|user": 580378,
+    "cars|rev_lists|user": 92972,
+    "politics|rev_lists|user": 40188,
+    "relationships|rev_lists|user": 1010495,
+    "art_culture|rev_lists|user": 51209,
+    "hobbies_interests|rev_lists|user": 275117,
+    "science_technologies|rev_lists|user": 41177,
+    "computers_internet|rev_lists|user": 76867,
+    "education|rev_lists|user": 82974,
+    "sport|rev_lists|user": 165616,
+    "movies|rev_lists|user": 180064,
+    "travelling|rev_lists|user": 49697,
+    "health|rev_lists|user": 74056,
+    "companies_brands|rev_lists|user": 36670
+   },
+   "total_edges": 51774836,
+   "num_node_types": 16,
+   "num_edge_types": 31
+  },
+  "labels": {
+   "y_shape": [
+    1632803
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 1632640,
+   "unlabelled_(y=-1)": 163,
+   "num_classes_(max_y+1)": 2,
+   "classes_present": 2,
+   "splits": {
+    "train": {
+     "size": 816320,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      414045,
+      402275
+     ]
+    },
+    "val": {
+     "size": 408160,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      207361,
+      200799
+     ]
+    },
+    "test": {
+     "size": 408160,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      206898,
+      201262
+     ]
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "fac97b78e42f16b1a5a27b143f345a19af338e446cbade3fa13e05dd001ca3fd",
+  "processed_dir_files": {
+   "data.pt": 989825292,
+   "pre_filter.pt": 864,
+   "pre_transform.pt": 864
+  }
+ },
+ "peak_rss_gib": 6.33
+}

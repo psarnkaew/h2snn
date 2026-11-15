@@ -1,0 +1,145 @@
+{
+ "mag-year": {
+  "key": "mag-year",
+  "h2gb_class": "MAGDataset",
+  "h2gb_loader": "preformat_MAG",
+  "h2gb_name": "mag-year",
+  "target_node_type": "paper",
+  "label": "multiclass",
+  "split_source": "random 50/25/25 drawn at processing time, in the processed file (mag_dataset.py:163-172)",
+  "processed_file": "data/NC/mag/mag-year/processed/data.pt",
+  "processed_bytes": 2602203256,
+  "load_seconds": 32.3,
+  "transform": "None",
+  "stored": {
+   "nodes": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "total_nodes": 1939743,
+   "feature_dims": {
+    "paper": [
+     128
+    ],
+    "author": [
+     128
+    ],
+    "field_of_study": [
+     128
+    ],
+    "institution": [
+     128
+    ]
+   },
+   "edges": {
+    "author|affiliated_with|institution": 1043998,
+    "institution|rev_affiliated_with|author": 1043998,
+    "author|writes|paper": 7145660,
+    "paper|rev_writes|author": 7145660,
+    "paper|cites|paper": 10792672,
+    "paper|has_topic|field_of_study": 7505078,
+    "field_of_study|rev_has_topic|paper": 7505078
+   },
+   "total_edges": 42182144,
+   "num_node_types": 4,
+   "num_edge_types": 7
+  },
+  "loaded": {
+   "nodes": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "total_nodes": 1939743,
+   "feature_dims": {
+    "paper": [
+     128
+    ],
+    "author": [
+     128
+    ],
+    "field_of_study": [
+     128
+    ],
+    "institution": [
+     128
+    ]
+   },
+   "edges": {
+    "author|affiliated_with|institution": 1043998,
+    "institution|rev_affiliated_with|author": 1043998,
+    "author|writes|paper": 7145660,
+    "paper|rev_writes|author": 7145660,
+    "paper|cites|paper": 10792672,
+    "paper|has_topic|field_of_study": 7505078,
+    "field_of_study|rev_has_topic|paper": 7505078
+   },
+   "total_edges": 42182144,
+   "num_node_types": 4,
+   "num_edge_types": 7
+  },
+  "labels": {
+   "y_shape": [
+    736389
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 736389,
+   "unlabelled_(y=-1)": 0,
+   "num_classes_(max_y+1)": 5,
+   "classes_present": 5,
+   "splits": {
+    "train": {
+     "size": 368194,
+     "unlabelled_in_mask": 0,
+     "classes_present": 5,
+     "class_counts": [
+      36786,
+      80456,
+      84159,
+      78386,
+      88407
+     ]
+    },
+    "val": {
+     "size": 184097,
+     "unlabelled_in_mask": 0,
+     "classes_present": 5,
+     "class_counts": [
+      18338,
+      39990,
+      41955,
+      39373,
+      44441
+     ]
+    },
+    "test": {
+     "size": 184098,
+     "unlabelled_in_mask": 0,
+     "classes_present": 5,
+     "class_counts": [
+      18429,
+      40540,
+      41945,
+      39016,
+      44168
+     ]
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "6ba59a64782f2d6a147d23877b2df89b05958bf3188ce6f9dd8955fc077732e4",
+  "processed_dir_files": {
+   "data.pt": 2602203256,
+   "pre_filter.pt": 864,
+   "pre_transform.pt": 864
+  }
+ },
+ "peak_rss_gib": 3.17
+}

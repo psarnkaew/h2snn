@@ -1,0 +1,164 @@
+job=16756 step=none node=g3an01 key=ogbn-mag start=2026-11-15T18:16:38+09:00
+git=fc5d9aa4b4b6d856ee6aff020bf399f4e4020c61 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+working tree:  M src/data/data_layout.py
+  self.data, self.slices = torch.load(self.processed_paths[0])
+{"ogbn-mag": {"load_seconds": 32.4, "processed_bytes": 2602203256}}
+{
+ "ogbn-mag": {
+  "key": "ogbn-mag",
+  "h2gb_class": "MAGDataset",
+  "h2gb_loader": "preformat_MAG",
+  "h2gb_name": "ogbn-mag",
+  "target_node_type": "paper",
+  "label": "multiclass",
+  "split_source": "OGB's official split, in the processed file (mag_dataset.py:130-142)",
+  "processed_file": "data/NC/mag/ogbn-mag/processed/data.pt",
+  "processed_bytes": 2602203256,
+  "load_seconds": 32.4,
+  "transform": "None",
+  "stored": {
+   "nodes": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "total_nodes": 1939743,
+   "feature_dims": {
+    "paper": [
+     128
+    ],
+    "author": [
+     128
+    ],
+    "field_of_study": [
+     128
+    ],
+    "institution": [
+     128
+    ]
+   },
+   "edges": {
+    "author|affiliated_with|institution": 1043998,
+    "institution|rev_affiliated_with|author": 1043998,
+    "author|writes|paper": 7145660,
+    "paper|rev_writes|author": 7145660,
+    "paper|cites|paper": 10792672,
+    "paper|has_topic|field_of_study": 7505078,
+    "field_of_study|rev_has_topic|paper": 7505078
+   },
+   "total_edges": 42182144,
+   "num_node_types": 4,
+   "num_edge_types": 7
+  },
+  "loaded": {
+   "nodes": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "total_nodes": 1939743,
+   "feature_dims": {
+    "paper": [
+     128
+    ],
+    "author": [
+     128
+    ],
+    "field_of_study": [
+     128
+    ],
+    "institution": [
+     128
+    ]
+   },
+   "edges": {
+    "author|affiliated_with|institution": 1043998,
+    "institution|rev_affiliated_with|author": 1043998,
+    "author|writes|paper": 7145660,
+    "paper|rev_writes|author": 7145660,
+    "paper|cites|paper": 10792672,
+    "paper|has_topic|field_of_study": 7505078,
+    "field_of_study|rev_has_topic|paper": 7505078
+   },
+   "total_edges": 42182144,
+   "num_node_types": 4,
+   "num_edge_types": 7
+  },
+  "labels": {
+   "y_shape": [
+    736389
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 736389,
+   "unlabelled_(y=-1)": 0,
+   "num_classes_(max_y+1)": 349,
+   "classes_present": 349,
+   "splits": {
+    "train": {
+     "size": 629571,
+     "unlabelled_in_mask": 0,
+     "classes_present": 349,
+     "class_counts": {
+      "min": 70,
+      "max": 28600,
+      "top5": [
+       28600,
+       27449,
+       22771,
+       22689,
+       21319
+      ]
+     }
+    },
+    "val": {
+     "size": 64879,
+     "unlabelled_in_mask": 0,
+     "classes_present": 331,
+     "class_counts": {
+      "min": 0,
+      "max": 4085,
+      "top5": [
+       4085,
+       3447,
+       3149,
+       2535,
+       2088
+      ]
+     }
+    },
+    "test": {
+     "size": 41939,
+     "unlabelled_in_mask": 0,
+     "classes_present": 311,
+     "class_counts": {
+      "min": 0,
+      "max": 2776,
+      "top5": [
+       2776,
+       2437,
+       2427,
+       1803,
+       1653
+      ]
+     }
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "d32e050f386dcd176fe4dc97efe7c3dc3d8ea4b5f06c6b7bb4c09410c1656fbc",
+  "processed_dir_files": {
+   "data.pt": 2602203256,
+   "pre_filter.pt": 864,
+   "pre_transform.pt": 864
+  }
+ },
+ "peak_rss_gib": 3.17
+}
+end=2026-11-15T18:17:18+09:00 exit=0

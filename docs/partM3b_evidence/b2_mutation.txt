@@ -1,0 +1,8 @@
+job=16741 step=38 node=g2n01 git=fc5d9aa4b4b6d856ee6aff020bf399f4e4020c61 start=2026-11-15T18:34:20+09:00
+FAIL: test_oag_with_empty_raw_never_downloads (tests.test_h2gb_nc.H2GBLoaderTests.test_oag_with_empty_raw_never_downloads)
+AssertionError: download called
+Ran 1 test in 12.385s
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T18:34:49+09:00

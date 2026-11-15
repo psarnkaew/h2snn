@@ -1,0 +1,176 @@
+job=16761 step=none node=g3an01 key=ieee-cis-g start=2026-11-15T18:21:38+09:00
+git=fc5d9aa4b4b6d856ee6aff020bf399f4e4020c61 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+working tree:  M src/data/data_layout.py
+  self.data = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/H2GB/H2GB/loader/master_loader.py:767: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  data = dataset.data
+{"ieee-cis-g": {"load_seconds": 34.7, "processed_bytes": 2784766460}}
+{
+ "ieee-cis-g": {
+  "key": "ieee-cis-g",
+  "h2gb_class": "IeeeCisDataset",
+  "h2gb_loader": "preformat_IEEE_CIS",
+  "h2gb_name": null,
+  "target_node_type": "transaction",
+  "label": "binary",
+  "split_source": "node order: first 80 % train, next 10 % val, rest test, set at load (master_loader.py:766-775)",
+  "processed_file": "data/NC/IEEE-CIS/processed/data.pt",
+  "processed_bytes": 2784766460,
+  "load_seconds": 34.7,
+  "transform": "Compose([\n  ToUndirected(),\n  AddSelfLoops(),\n  NormalizeFeatures()\n])",
+  "stored": {
+   "nodes": {
+    "transaction": 144233,
+    "card1": 8499,
+    "card2": 482,
+    "card3": 103,
+    "card4": 4,
+    "card5": 106,
+    "card6": 3,
+    "ProductCD": 4,
+    "addr1": 255,
+    "addr2": 72,
+    "P_emaildomain": 59,
+    "R_emaildomain": 60
+   },
+   "total_nodes": 153880,
+   "feature_dims": {
+    "transaction": [
+     4785
+    ],
+    "card1": null,
+    "card2": null,
+    "card3": null,
+    "card4": null,
+    "card5": null,
+    "card6": null,
+    "ProductCD": null,
+    "addr1": null,
+    "addr2": null,
+    "P_emaildomain": null,
+    "R_emaildomain": null
+   },
+   "edges": {
+    "transaction|to|card1": 144233,
+    "transaction|to|card2": 143331,
+    "transaction|to|card3": 144061,
+    "transaction|to|card4": 144049,
+    "transaction|to|card5": 143277,
+    "transaction|to|card6": 144055,
+    "transaction|to|ProductCD": 144233,
+    "transaction|to|addr1": 83786,
+    "transaction|to|addr2": 83786,
+    "transaction|to|P_emaildomain": 130842,
+    "transaction|to|R_emaildomain": 131083
+   },
+   "total_edges": 1436736,
+   "num_node_types": 12,
+   "num_edge_types": 11
+  },
+  "loaded": {
+   "nodes": {
+    "transaction": 144233,
+    "card1": 8499,
+    "card2": 482,
+    "card3": 103,
+    "card4": 4,
+    "card5": 106,
+    "card6": 3,
+    "ProductCD": 4,
+    "addr1": 255,
+    "addr2": 72,
+    "P_emaildomain": 59,
+    "R_emaildomain": 60
+   },
+   "total_nodes": 153880,
+   "feature_dims": {
+    "transaction": [
+     4785
+    ],
+    "card1": null,
+    "card2": null,
+    "card3": null,
+    "card4": null,
+    "card5": null,
+    "card6": null,
+    "ProductCD": null,
+    "addr1": null,
+    "addr2": null,
+    "P_emaildomain": null,
+    "R_emaildomain": null
+   },
+   "edges": {
+    "transaction|to|card1": 144233,
+    "transaction|to|card2": 143331,
+    "transaction|to|card3": 144061,
+    "transaction|to|card4": 144049,
+    "transaction|to|card5": 143277,
+    "transaction|to|card6": 144055,
+    "transaction|to|ProductCD": 144233,
+    "transaction|to|addr1": 83786,
+    "transaction|to|addr2": 83786,
+    "transaction|to|P_emaildomain": 130842,
+    "transaction|to|R_emaildomain": 131083,
+    "card1|rev_to|transaction": 144233,
+    "card2|rev_to|transaction": 143331,
+    "card3|rev_to|transaction": 144061,
+    "card4|rev_to|transaction": 144049,
+    "card5|rev_to|transaction": 143277,
+    "card6|rev_to|transaction": 144055,
+    "ProductCD|rev_to|transaction": 144233,
+    "addr1|rev_to|transaction": 83786,
+    "addr2|rev_to|transaction": 83786,
+    "P_emaildomain|rev_to|transaction": 130842,
+    "R_emaildomain|rev_to|transaction": 131083
+   },
+   "total_edges": 2873472,
+   "num_node_types": 12,
+   "num_edge_types": 22
+  },
+  "labels": {
+   "y_shape": [
+    144233
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 144233,
+   "unlabelled_(y=-1)": 0,
+   "num_classes_(max_y+1)": 2,
+   "classes_present": 2,
+   "splits": {
+    "train": {
+     "size": 115386,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      106740,
+      8646
+     ]
+    },
+    "val": {
+     "size": 14423,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      13106,
+      1317
+     ]
+    },
+    "test": {
+     "size": 14424,
+     "unlabelled_in_mask": 0,
+     "classes_present": 2,
+     "class_counts": [
+      13069,
+      1355
+     ]
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "931fa351be9fcfe13d82d0cecf30581e0d92aac7457
+end=2026-11-15T18:22:20+09:00 exit=0

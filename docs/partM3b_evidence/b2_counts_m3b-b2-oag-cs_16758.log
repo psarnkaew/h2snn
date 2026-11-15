@@ -1,0 +1,184 @@
+job=16758 step=none node=g3an01 key=oag-cs start=2026-11-15T18:18:38+09:00
+git=fc5d9aa4b4b6d856ee6aff020bf399f4e4020c61 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+working tree:  M src/data/data_layout.py
+  self.data, self.slices = torch.load(self.processed_paths[0])
+{"oag-cs": {"load_seconds": 42.1, "processed_bytes": 3649001164}}
+{
+ "oag-cs": {
+  "key": "oag-cs",
+  "h2gb_class": "OAGDataset",
+  "h2gb_loader": "preformat_OAG",
+  "h2gb_name": "cs",
+  "target_node_type": "paper",
+  "label": "multiclass",
+  "split_source": "by year: <= 2016 / 2017 / >= 2018, in the processed file (oag_dataset.py:151-153)",
+  "processed_file": "data/NC/OAG/cs/processed/data.pt",
+  "processed_bytes": 3649001164,
+  "load_seconds": 42.1,
+  "transform": "ToUndirected()",
+  "stored": {
+   "nodes": {
+    "paper": 546704,
+    "field": 45775,
+    "author": 511122,
+    "affiliation": 9090
+   },
+   "total_nodes": 1112691,
+   "feature_dims": {
+    "paper": [
+     768
+    ],
+    "field": [
+     768
+    ],
+    "author": [
+     768
+    ],
+    "affiliation": [
+     768
+    ]
+   },
+   "edges": {
+    "paper|PP_cite|paper": 5872552,
+    "author|AP_write_last|paper": 431027,
+    "author|AP_write_other|paper": 664266,
+    "author|AP_write_first|paper": 456903,
+    "field|FF_in|field": 262839,
+    "paper|PF_in_L0|field": 546831,
+    "paper|PF_in_L3|field": 869729,
+    "paper|PF_in_L1|field": 1202487,
+    "paper|PF_in_L2|field": 2347239,
+    "paper|PF_in_L5|field": 203338,
+    "paper|PF_in_L4|field": 304912,
+    "author|in|affiliation": 614161
+   },
+   "total_edges": 13776284,
+   "num_node_types": 4,
+   "num_edge_types": 12
+  },
+  "loaded": {
+   "nodes": {
+    "paper": 546704,
+    "field": 45775,
+    "author": 511122,
+    "affiliation": 9090
+   },
+   "total_nodes": 1112691,
+   "feature_dims": {
+    "paper": [
+     768
+    ],
+    "field": [
+     768
+    ],
+    "author": [
+     768
+    ],
+    "affiliation": [
+     768
+    ]
+   },
+   "edges": {
+    "paper|PP_cite|paper": 11729984,
+    "author|AP_write_last|paper": 431027,
+    "author|AP_write_other|paper": 664266,
+    "author|AP_write_first|paper": 456903,
+    "field|FF_in|field": 525678,
+    "paper|PF_in_L0|field": 546831,
+    "paper|PF_in_L3|field": 869729,
+    "paper|PF_in_L1|field": 1202487,
+    "paper|PF_in_L2|field": 2347239,
+    "paper|PF_in_L5|field": 203338,
+    "paper|PF_in_L4|field": 304912,
+    "author|in|affiliation": 614161,
+    "paper|rev_AP_write_last|author": 431027,
+    "paper|rev_AP_write_other|author": 664266,
+    "paper|rev_AP_write_first|author": 456903,
+    "field|rev_PF_in_L0|paper": 546831,
+    "field|rev_PF_in_L3|paper": 869729,
+    "field|rev_PF_in_L1|paper": 1202487,
+    "field|rev_PF_in_L2|paper": 2347239,
+    "field|rev_PF_in_L5|paper": 203338,
+    "field|rev_PF_in_L4|paper": 304912,
+    "affiliation|rev_in|author": 614161
+   },
+   "total_edges": 27537448,
+   "num_node_types": 4,
+   "num_edge_types": 22
+  },
+  "labels": {
+   "y_shape": [
+    546704
+   ],
+   "y_dtype": "torch.int64",
+   "labelled": 229104,
+   "unlabelled_(y=-1)": 317600,
+   "num_classes_(max_y+1)": 3514,
+   "classes_present": 3514,
+   "splits": {
+    "train": {
+     "size": 182310,
+     "unlabelled_in_mask": 0,
+     "classes_present": 3208,
+     "class_counts": {
+      "min": 0,
+      "max": 3925,
+      "top5": [
+       3925,
+       2769,
+       2713,
+       2482,
+       2362
+      ]
+     }
+    },
+    "val": {
+     "size": 19551,
+     "unlabelled_in_mask": 0,
+     "classes_present": 1314,
+     "class_counts": {
+      "min": 0,
+      "max": 929,
+      "top5": [
+       929,
+       568,
+       508,
+       371,
+       341
+      ]
+     }
+    },
+    "test": {
+     "size": 27243,
+     "unlabelled_in_mask": 0,
+     "classes_present": 1216,
+     "class_counts": {
+      "min": 0,
+      "max": 1442,
+      "top5": [
+       1442,
+       985,
+       782,
+       672,
+       567
+      ]
+     }
+    }
+   },
+   "split_overlaps": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+   }
+  },
+  "processed_sha256": "4ead71634b34f8125e35256ac742f2d7efbba1bb65cae8c65739db23f0b727c6",
+  "processed_dir_files": {
+   "data.pt": 3649001164,
+   "pre_filter.pt": 864,
+   "pre_transform.pt": 864
+  }
+ },
+ "peak_rss_gib": 5.08
+}
+end=2026-11-15T18:19:30+09:00 exit=0

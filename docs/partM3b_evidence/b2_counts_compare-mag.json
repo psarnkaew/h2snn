@@ -1,0 +1,48 @@
+{
+ "mag_vs_mag_year": {
+  "node_types_equal": true,
+  "edge_types_equal": true,
+  "edge_index_equal": {
+   "author|affiliated_with|institution": true,
+   "institution|rev_affiliated_with|author": true,
+   "author|writes|paper": true,
+   "paper|rev_writes|author": true,
+   "paper|cites|paper": true,
+   "paper|has_topic|field_of_study": true,
+   "field_of_study|rev_has_topic|paper": true
+  },
+  "x_equal": {
+   "paper": true,
+   "author": true,
+   "field_of_study": true,
+   "institution": true
+  },
+  "y_equal": false,
+  "masks_equal": {
+   "train_mask": false,
+   "val_mask": false,
+   "test_mask": false
+  },
+  "paper_attributes": {
+   "ogbn-mag": [
+    "test_mask",
+    "train_mask",
+    "val_mask",
+    "x",
+    "y"
+   ],
+   "mag-year": [
+    "test_mask",
+    "train_mask",
+    "val_mask",
+    "x",
+    "y"
+   ]
+  },
+  "y_classes": {
+   "ogbn-mag": 349,
+   "mag-year": 5
+  }
+ },
+ "peak_rss_gib": 5.55
+}
