@@ -3,8 +3,9 @@
 H2S-NN's W&B sweep is plain Bayes (no Hyperband) over the method's components only: d {16, 32,
 64}; lr log-uniform [1e-4, 1e-2]; weight_decay {0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 1e-2, 0.1, 0.8};
 encoder/classifier dropout uniform [0, 0.9] (encoder dropout absent without features); l_max
-{2, 3, 4, 5}; r {8, 16, 32, 64}; GC pooling {mean, max, add, attention}; LP decoder_type only on
-request (open). K, layer_dropout and every legacy key are refused. Tuning on seed 0; the best
+{2, 3, 4, 5}; r {8, 16, 32, 64}; GC pooling {mean, max, add, attention}; LP decoder_type in {dot,
+distmult} on every LP task (spec v1.22 W2; Part M3a A1, `tests/test_partM3a_decoder.py`). K,
+layer_dropout and every legacy key are refused. Tuning on seed 0; the best
 configuration is then trained on seeds 0-4."""
 
 from __future__ import annotations
@@ -42,19 +43,18 @@ class SweepConfigTests(unittest.TestCase):
                          {**COMMON, "encoder_dropout": DROP, "classifier_dropout": DROP})
 
     def test_link_prediction_spaces(self) -> None:
-        # LastFM: no features (no encoder dropout); dot decoder has no dropout module
+        # Part M3a A1 (stated test change, spec v1.22 W2): every LP space tunes decoder_type in
+        # {dot, distmult}; concat_mlp (and with it LP's classifier_dropout) is refused.
+        # LastFM: no features (no encoder dropout); dot and DistMult have no dropout module
+        decoder = {"decoder_type": {"values": ["dot", "distmult"]}}
         self.assertEqual(_sweep("link_prediction", "lastfm", decoder_type="dot")["parameters"],
-                         COMMON)
+                         {**COMMON, **decoder})
         self.assertEqual(_sweep("link_prediction", "freebase_bb",
-                                decoder_type="distmult")["parameters"], COMMON)
+                                decoder_type="distmult")["parameters"], {**COMMON, **decoder})
         self.assertEqual(_sweep("link_prediction", "pubmed", decoder_type="dot")["parameters"],
-                         {**COMMON, "encoder_dropout": DROP})
-        self.assertEqual(_sweep("link_prediction", "acm_pa",
-                                decoder_type="concat_mlp")["parameters"],
-                         {**COMMON, "encoder_dropout": DROP, "classifier_dropout": DROP})
-        open_decoder = _sweep("link_prediction", "pubmed", include_decoder_type=True)
-        self.assertEqual(open_decoder["parameters"]["decoder_type"],
-                         {"values": ["dot", "distmult", "concat_mlp"]})
+                         {**COMMON, "encoder_dropout": DROP, **decoder})
+        with self.assertRaisesRegex(ValueError, "concat_mlp"):
+            _sweep("link_prediction", "acm_pa", decoder_type="concat_mlp")
 
     def test_graph_classification_space(self) -> None:
         for dataset in ("mutag", "proteins", "enzymes", "nci1"):

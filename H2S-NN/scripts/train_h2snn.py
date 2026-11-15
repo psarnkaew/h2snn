@@ -20,7 +20,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--exp_name", type=str, default=None)
     parser.add_argument("--device", type=str, default=None)
-    parser.add_argument("--decoder_type", type=str, default=None, choices=["dot", "distmult", "concat_mlp"])
+    # Spec v1.22 W2: the LP decoder is dot or DistMult (the LP head shared with every baseline);
+    # concat_mlp is not offered (its model code stays in src/models/link_readout.py).
+    parser.add_argument("--decoder_type", type=str, default=None, choices=["dot", "distmult"])
     return parser.parse_args()
 
 

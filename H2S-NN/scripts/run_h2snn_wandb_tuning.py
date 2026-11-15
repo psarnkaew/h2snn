@@ -72,6 +72,10 @@ SPACE_DROPOUT: dict[str, Any] = shared_grids.DROPOUT
 SPACE_WISP_MAX_LENGTH: dict[str, Any] = {"values": [2, 3, 4, 5]}
 SPACE_WISP_WALKS_PER_ANCHOR: dict[str, Any] = {"values": [8, 16, 32, 64]}
 SPACE_GRAPH_POOLING: dict[str, Any] = {"values": ["mean", "max", "add", "attention"]}
+# Spec v1.22 W2: H2S-NN's LP decoder is tuned in {dot, DistMult}, the decoders of the LP head shared
+# with every baseline (`src/baselines/heads.py` `build_link_decoder`); `concat_mlp` is removed from
+# tuning and runs (its model code in `src/models/link_readout.py` stays, unreachable from here).
+SPACE_DECODER_TYPE: dict[str, Any] = {"values": ["dot", "distmult"]}
 # Tuning on seed 0 only, then the best configuration on seeds 0-4 (spec §6).
 TUNING_SEED = 0
 FINAL_SEEDS: tuple[int, ...] = (0, 1, 2, 3, 4)
@@ -129,8 +133,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=None)
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
-    parser.add_argument("--decoder_type", type=str, default=None, choices=["dot", "distmult", "concat_mlp"])
-    parser.add_argument("--include_decoder_type", action="store_true")
+    parser.add_argument("--decoder_type", type=str, default=None,
+                        choices=list(SPACE_DECODER_TYPE["values"]))
     parser.add_argument("--wandb_project", type=str, default="h2snn")
     parser.add_argument("--wandb_entity", type=str, default="")
     parser.add_argument("--wandb_mode", type=str, default="online")
@@ -267,12 +271,9 @@ def validate_trial_params(
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be in [0, 1)."
             )
-    if "decoder_type" in params and str(params["decoder_type"]) not in {
-        "dot",
-        "distmult",
-        "concat_mlp",
-    }:
-        raise ValueError(f"W&B proposed invalid decoder_type={params['decoder_type']!r}.")
+    if "decoder_type" in params and str(params["decoder_type"]) not in SPACE_DECODER_TYPE["values"]:
+        raise ValueError(f"W&B proposed invalid decoder_type={params['decoder_type']!r}; "
+                         f"the LP decoder is tuned in {SPACE_DECODER_TYPE['values']} (spec v1.22 W2).")
 
 
 def _apply_base_cli(raw: dict[str, Any], args: argparse.Namespace) -> dict[str, Any]:
@@ -301,16 +302,20 @@ def build_sweep_config(
     epochs: int,
     decoder_type: str | None = None,
     dataset_name: str = "",
-    include_decoder_type: bool = False,
     d_values: list[int] | tuple[int, ...] | None = None,
 ) -> dict[str, Any]:
     """The W&B sweep of H2S-NN (spec v1.15 §6 Tuning; card Part M, M10): plain Bayes, no
     Hyperband or other early termination; the space holds only components of the method:
     d, lr, weight_decay, encoder/classifier dropout (shared ranges), l_max, r, and GC pooling;
-    LP's decoder_type only with --include_decoder_type (open). `epochs` is not used by the
-    sweep (no early termination); it is kept for the callers' signature."""
-    if include_decoder_type and task_type != "link_prediction":
-        raise ValueError("--include_decoder_type is valid only for link prediction.")
+    on every LP task decoder_type in {dot, distmult} (spec v1.22 W2; never on NC or GC).
+    `decoder_type` is the base config's decoder: `concat_mlp` is refused (W2), any other value is
+    replaced per trial by the tuned one. `epochs` is not used by the sweep (no early termination);
+    it is kept for the callers' signature."""
+    if decoder_type is not None and decoder_type not in SPACE_DECODER_TYPE["values"]:
+        raise ValueError(
+            f"data.decoder_type: {decoder_type} is not an LP decoder of the tuned model: H2S-NN's "
+            f"decoder is tuned in {SPACE_DECODER_TYPE['values']}, the LP head shared with every "
+            "baseline (spec v1.22 W2; concat_mlp is removed).")
 
     resolved_d_values = validate_d_values(
         d_values if d_values is not None else default_d_values(task_type)
@@ -327,19 +332,16 @@ def build_sweep_config(
     if dataset_name.lower() not in FEATURELESS_DATASETS:
         parameters["encoder_dropout"] = dict(SPACE_DROPOUT)
 
-    # The classifier dropout exists in the NC head and in LP's concat_mlp decoder; dot and
-    # DistMult have none, and the GC readout is pooling + one Linear (no dropout, M5).
-    classifier_dropout_active = task_type == "node_classification" or (
-        task_type == "link_prediction" and not include_decoder_type
-        and decoder_type == "concat_mlp"
-    )
-    if classifier_dropout_active:
+    # The classifier dropout exists in the NC head only: LP's dot and DistMult decoders have none
+    # (`classifier_dropout` reached LP only through the removed concat_mlp MLP; M3a-A0), and the
+    # GC readout is pooling + one Linear (no dropout, M5).
+    if task_type == "node_classification":
         parameters["classifier_dropout"] = dict(SPACE_DROPOUT)
     if task_type == "graph_classification":
         parameters["graph_pooling"] = {"values": list(SPACE_GRAPH_POOLING["values"])}
 
-    if include_decoder_type:
-        parameters["decoder_type"] = {"values": ["dot", "distmult", "concat_mlp"]}
+    if task_type == "link_prediction":
+        parameters["decoder_type"] = {"values": list(SPACE_DECODER_TYPE["values"])}
 
     reject_never_tuned_settings(None, parameters)
     return {
@@ -506,7 +508,6 @@ def _build_sweep_for_run(
         epochs=base_cfg.epochs,
         decoder_type=base_cfg.data.decoder_type,
         dataset_name=base_cfg.data.dataset_name,
-        include_decoder_type=args.include_decoder_type,
         d_values=args.d_values,
     )
     unit_token = unit_name or f"{unit_label}{run_index}"

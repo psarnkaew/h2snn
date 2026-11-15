@@ -187,16 +187,17 @@ class WandbAndRunReportingTests(unittest.TestCase):
         )
         self.assertNotIn("encoder_dropout", featureless_link_sweep["parameters"])
         self.assertNotIn("classifier_dropout", featureless_link_sweep["parameters"])
-        decoder_ablation = build_sweep_config(
+        # Part M3a A1 (stated test change, spec v1.22 W2): the LP decoder is always tuned in
+        # {dot, distmult}, without a flag and without LP classifier dropout.
+        link_sweep = build_sweep_config(
             task_type="link_prediction",
             metric="auroc",
             epochs=30,
-            decoder_type="concat_mlp",
+            decoder_type="dot",
             dataset_name="pubmed",
-            include_decoder_type=True,
         )
-        self.assertIn("decoder_type", decoder_ablation["parameters"])
-        self.assertNotIn("classifier_dropout", decoder_ablation["parameters"])
+        self.assertEqual(link_sweep["parameters"]["decoder_type"], {"values": ["dot", "distmult"]})
+        self.assertNotIn("classifier_dropout", link_sweep["parameters"])
         custom_sweep = build_sweep_config(
             task_type="node_classification",
             metric="macro_f1",

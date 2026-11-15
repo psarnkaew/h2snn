@@ -106,6 +106,12 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
                                          "log_weight_range_stop")
 
 
+#: Spec v1.22 W2 (decisions log 2026-11-13, "H2S-NN LP decoder"): the refusal of `concat_mlp`.
+REMOVED_DECODER_MESSAGE = (
+    "{where}: concat_mlp is removed from tuning and runs (spec v1.22 W2); H2S-NN's LP decoder is "
+    "tuned in {{dot, distmult}}, the LP head shared with every baseline.")
+
+
 def reject_never_tuned_settings(
     raw_config: Mapping[str, Any] | None,
     search_parameters: Any = (),
@@ -197,6 +203,20 @@ def reject_never_tuned_settings(
             "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
             "and must not be used in tuning."
         )
+    # Spec v1.22 W2: H2S-NN's LP decoder is tuned in {dot, DistMult}, the LP head shared with every
+    # baseline; `concat_mlp` (model code kept in `link_readout.py`) is refused in a base config, in a
+    # search space and in a trial's values.
+    if str(data.get("decoder_type", "dot")) == "concat_mlp":
+        raise ValueError(REMOVED_DECODER_MESSAGE.format(where="data.decoder_type in the base config"))
+    if isinstance(search_parameters, Mapping):
+        for name, spec in search_parameters.items():
+            if str(name).split(".")[-1] != "decoder_type":
+                continue
+            values = spec.get("values", [spec.get("value")]) if isinstance(spec, Mapping) else (
+                list(spec) if isinstance(spec, (list, tuple)) else [spec])
+            if "concat_mlp" in [str(v) for v in values]:
+                raise ValueError(REMOVED_DECODER_MESSAGE.format(
+                    where=f"tuning search space / trial value {name!r}"))
     for name in search_parameters:
         last = str(name).split(".")[-1]
         if last in ("training_mode", "epoch_targets", "eval_period"):
