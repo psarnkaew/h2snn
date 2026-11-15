@@ -81,10 +81,9 @@ class RegistryTests(unittest.TestCase):
                                             unsupported_reason)
 
         pending = "data pending (lab cluster, after mini-batch design)"
-        for dataset in ("pdns",):
-            self.assertEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
+        # card baselines-h2gb C2: PDNS has its loader (H2GB's code) and leaves "data pending"
         for dataset in ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g",
-                        "h-pokec"):
+                        "h-pokec", "pdns"):
             self.assertNotEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
         # Part M3b B6: the two large LP tasks have their split and negative files; adapter pending until wired.
         for dataset in ("ogbn-mag_pp", "h-pokec_uu"):

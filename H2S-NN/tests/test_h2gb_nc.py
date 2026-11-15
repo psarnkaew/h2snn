@@ -250,17 +250,20 @@ class RegistryTests(unittest.TestCase):
 
     def test_nc_cell_is_runnable_only_with_a_loader_and_a_count_record(self) -> None:
         from src.baselines.registry import DATASET_PENDING, DATA_PENDING_REASON, H2GB_NC
-        from src.data.h2gb_nc import H2GB_NC_SPECS
+        from src.data.h2gb_nc import H2GB_NC_SPECS, RAW_ONLY
 
         counted = json.loads((EVIDENCE / "h2gb_nc_counts.json").read_text())
         for dataset in H2GB_NC:
             with self.subTest(dataset=dataset):
                 pending = ("node_classification", dataset) in DATASET_PENDING
-                ready = dataset in H2GB_NC_SPECS and dataset in counted.get("verified", [])
+                # card baselines-h2gb C2: PDNS is loaded by H2GB's code (raw only; its counts equal Table 1 in
+                # docs/partM3b_evidence/b5_pdns_check.json and the C2 check)
+                ready = (dataset in H2GB_NC_SPECS and dataset in counted.get("verified", [])) or dataset in RAW_ONLY
                 self.assertEqual(pending, not ready)
                 if pending:
                     self.assertTrue(DATASET_PENDING[("node_classification", dataset)])
-        self.assertEqual(DATASET_PENDING.get(("node_classification", "pdns")), DATA_PENDING_REASON)
+        self.assertNotIn(("node_classification", "pdns"), DATASET_PENDING)  # card baselines-h2gb C2
+        self.assertTrue(DATA_PENDING_REASON)
 
 
 if __name__ == "__main__":

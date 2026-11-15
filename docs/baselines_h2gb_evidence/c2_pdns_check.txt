@@ -1,0 +1,33 @@
+label=c2-pdns-check job=16741 step=65 node=g2n01 start=2026-11-16T05:39:03+09:00
+git=dafb3571facd31bf526ff8efd611d0de3708e431 branch=baselines-h2gb
+working tree:  M src/baselines/registry.py
+working tree:  M src/configs/config.py
+working tree:  M src/data/data_layout.py
+working tree:  M src/data/dataset.py
+working tree:  M src/data/h2gb_nc.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_h2gb_nc.py
+env=h2snn-b cmd=python ../docs/baselines_h2gb_evidence/c2_pdns_check.py --root data --seeds 0 1 2 3 4
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+seed 0: train 61077 [20304, 40773] e8bdf95ae51d, val 17450 [5815, 11635] 64619604054e, test 8725 [2860, 5865] 4c0422741651; labelled 87252, nodes 1173558, edges 76797104
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+seed 1: train 61077 [20274, 40803] ec5fc2feca9a, val 17450 [5802, 11648] bd715976b2d1, test 8725 [2903, 5822] 9ccaf0058b13; labelled 87252, nodes 1173558, edges 76797104
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+seed 2: train 61077 [20192, 40885] 44682191c582, val 17450 [5833, 11617] 3d961a522d34, test 8725 [2954, 5771] 01416a51121b; labelled 87252, nodes 1173558, edges 76797104
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+seed 3: train 61077 [20401, 40676] d127d54455cf, val 17450 [5615, 11835] 514335b623c5, test 8725 [2963, 5762] 44496b4113c1; labelled 87252, nodes 1173558, edges 76797104
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+seed 4: train 61077 [20248, 40829] 07204a18793b, val 17450 [5815, 11635] 9fb1d83cab43, test 8725 [2916, 5809] b7d90f4eeab5; labelled 87252, nodes 1173558, edges 76797104
+seed 0 sizes and class counts equal b5_pdns_check.json: True
+peak_rss_gib=6.92 elapsed_s=142.4
+end=2026-11-16T05:41:25+09:00 exit=0

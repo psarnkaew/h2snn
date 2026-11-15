@@ -45,6 +45,8 @@ H2GB_NC_DIRS: dict[str, tuple[str, tuple[str, ...]]] = {
     "oag-chem": ("OAG", ("engineering", "processed", "data.pt")),
     "ieee-cis-g": ("IEEE-CIS", ("processed", "data.pt")),
     "h-pokec": ("Pokec", ("processed", "data.pt")),
+    # Card baselines-h2gb C2: PDNS has no processed file; H2GB reads `NC/PDNS/raw` on every load (B5).
+    "pdns": ("PDNS", ()),
 }
 
 

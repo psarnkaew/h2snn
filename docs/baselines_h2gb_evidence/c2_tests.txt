@@ -1,0 +1,21 @@
+label=c2-tests job=16741 step=64 node=g2n01 start=2026-11-16T05:37:45+09:00
+git=dafb3571facd31bf526ff8efd611d0de3708e431 branch=baselines-h2gb
+working tree:  M src/baselines/registry.py
+working tree:  M src/configs/config.py
+working tree:  M src/data/data_layout.py
+working tree:  M src/data/dataset.py
+working tree:  M src/data/h2gb_nc.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_h2gb_nc.py
+env=h2snn-b cmd=python -m unittest -v tests.test_pdns_loader tests.test_h2gb_nc tests.test_baselines.RegistryCompletenessTests
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+peak_rss_gib=0.75 elapsed_s=69.5
+end=2026-11-16T05:38:55+09:00 exit=1

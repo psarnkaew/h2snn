@@ -39,7 +39,7 @@ DATA_PENDING_REASON = "data pending (lab cluster, after mini-batch design)"
 #: Part M3b B2: H2GB NC datasets with a loader (`src/data/h2gb_nc.py`) and a count record equal to H2GB's
 #: Table 1 (`docs/partM3b_evidence/h2gb_nc_counts.{json,md}`); their NC cell is no longer data-pending.
 H2GB_NC_LOADED: tuple[str, ...] = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
-                                   "ieee-cis-g", "h-pokec")
+                                   "ieee-cis-g", "h-pokec", "pdns")  # PDNS: card baselines-h2gb C2
 #: Part M3b: a baseline runs on a loaded H2GB NC dataset only once its adapter reads the shared batch range
 #: and epoch definition and consumes the H2GB bundle (card B8 decides per adapter); until then the cell says so.
 H2GB_ADAPTER_PENDING_REASON = ("adapter pending: the H2GB bundle, batch range and epoch definition are not "

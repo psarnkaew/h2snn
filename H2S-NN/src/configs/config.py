@@ -360,7 +360,8 @@ NODE_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
     # H2GB_NC_SPECS); no meta-path list (WISP reads none; no fixed-literature-schema row on H2GB).
     **{name: {"target_node_type": target, "metapath_templates": ()} for name, target in (
         ("ogbn-mag", "paper"), ("mag-year", "paper"), ("oag-cs", "paper"), ("oag-eng", "paper"),
-        ("oag-chem", "paper"), ("ieee-cis-g", "transaction"), ("h-pokec", "user"))},
+        ("oag-chem", "paper"), ("ieee-cis-g", "transaction"), ("h-pokec", "user"),
+        ("pdns", "domain_node"))},  # PDNS: card baselines-h2gb C2 (H2GB task_entity, PDNS-*.yaml)
 }
 
 # The literature meta-path list of the fixed-literature-schema row and of the schema read-out
@@ -678,7 +679,7 @@ DATASET_TASK_TYPES: dict[str, str] = {
     "freebase": "node_classification",  # HGB Freebase NC (Part P P3)
     # H2GB NC with a loader (Part M3b B2; PDNS: B5)
     **{name: "node_classification" for name in ("ogbn-mag", "mag-year", "oag-cs", "oag-eng",
-                                                 "oag-chem", "ieee-cis-g", "h-pokec")},
+                                                 "oag-chem", "ieee-cis-g", "h-pokec", "pdns")},
     "lastfm": "link_prediction",
     "acm_pa": "link_prediction",
     "dblp_ap": "link_prediction",
