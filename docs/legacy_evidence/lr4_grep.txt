@@ -1,0 +1,132 @@
+git=4e70e6af48e80ac65b34b1a4d2ec75b375ab209f (working tree; LR-4 changes uncommitted at the time of the grep) date=2026-11-15T15:28:39+09:00
+pattern: chebyshev|filter_bank|FilterBank|first_order|pair_attention|PairAttention|listen_only|cooperative|sigmoid_gamma|endpoint_edges|holonomy_edges|free_path_maps|uniform_instance|coupling_gate|eta_init|gamma_init|per_side_scale|layer_dropout|identity_maps|IdentityMap|memory_guard|DenseConformal|VertexPathSheafLaplacian|coboundary_ops|delta_loss|analyze_kernel|theta_eta|theta_gamma|map_family.{0,6}dense|"dense"|"K"|"encoder"|ablation\.no_path_cells|"no_path_cells": True
+files searched: src tests scripts configs (*.py *.yaml *.sh *.sbatch)
+src/data/path_sampler.py:30:The v2 sampler ablation `uniform_instance` (uniform over instances, L <= 2) was removed by the
+src/baselines/adapters/pshgcn.py:98:        K=int(params.get("K", 5)),
+src/baselines/adapters/pshgcn.py:136:                "K": {"values": [1, 2, 3, 5]},
+src/baselines/adapters/pshgcn.py:153:                "K": {"values": [1, 2, 3]},
+src/baselines/adapters/pshgcn.py:165:            "K": {"values": [1, 3, 5]},
+src/baselines/adapters/h2sgnn.py:94:        K=int(params.get("K", 10)),
+src/baselines/adapters/h2sgnn.py:143:                "K": {"values": [4, 6, 10]},
+src/baselines/adapters/h2sgnn.py:163:                "K": {"values": [2, 4, 6]},
+src/baselines/adapters/h2sgnn.py:180:            "K": {"values": [6, 10]},
+src/baselines/adapters/_pyg_compat.py:44:    for submodule in ("conv", "dense", "pool", "norm"):
+src/baselines/adapters/_pshgcn_lp.py:100:        K=int(params.get("K", 1)),
+src/baselines/adapters/chebnetii.py:116:            "K": {"values": [5, 10]},
+src/baselines/adapters/chebnetii.py:154:            K=int(params.get("K", 10)),
+src/models/vertex_path_laplacian.py:6:(`VertexPathSheafLaplacian`, the endpoint-edge and free-incidence ablations) was removed by the
+src/models/vertex_path_laplacian.py:84:    """v1-style shortcut (ablation `path_mode: holonomy_edges`): one closure edge
+src/models/h2snn_model.py:256:    (ablation `path_mode: endpoint_edges`, and the `endpoints` arm of the C2 weight ladder: no
+src/models/sheaf_maps.py:4:operators. (The dense family `DenseConformalNodeToEdgeSheaf` ran only in the v2 model and was
+src/configs/config.py:24:    "model": ("K", "layer_dropout", "eta_init", "gamma_init", "coupling_gate_init", "encoder",
+src/configs/config.py:25:              "node_edge_memory_guard_fraction"),
+src/configs/config.py:26:    "ablation": ("no_path_cells", "free_path_maps", "endpoint_edges", "holonomy_edges",
+src/configs/config.py:27:                 "per_side_scale", "identity_maps"),
+src/configs/config.py:30:    ("model", "propagation"): ("chebyshev",),
+src/configs/config.py:31:    ("model", "path_weight"): ("sigmoid_gamma",),
+src/configs/config.py:32:    ("model", "map_family"): ("dense",),
+src/configs/config.py:33:    ("ablation", "coupling"): ("cooperative", "listen_only", "pair_attention"),
+src/configs/config.py:34:    ("data", "path_sampler"): ("uniform_instance",),
+src/configs/config.py:63:# D12 G0b diagnostic (gap ladder): never a search-space parameter (identity_maps removed, B1).
+src/configs/config.py:78:    "K", "layer_dropout", "eta_init", "gamma_init", "coupling_gate_init", "encoder", "coupling",
+src/configs/config.py:80:    "feature_normalization", "per_side_scale", "identity_maps", "h0_only_readout",
+src/configs/config.py:81:    "direction_blind_maps", "free_path_maps", "endpoint_edges", "holonomy_edges",
+src/configs/config.py:83:    "compute_relation_diagnostics", "checkpointing", "node_edge_memory_guard_fraction",
+src/configs/config.py:120:# §3.2c). The D11/D12 `sigmoid_gamma` was removed by the legacy-removal card.
+src/configs/config.py:127:# `chebyshev` propagation was removed by the legacy-removal card. Never tuned.
+src/configs/config.py:653:    # the model), "dfs" (pre-D7 seeded DFS with a quota; untied only; `uniform_instance` was
+src/configs/config.py:1188:    # log(path_weight_init) and no gamma (`sigmoid_gamma` removed by the legacy-removal card).
+src/configs/config.py:1193:    # only value (the v2 `chebyshev` propagation was removed by the legacy-removal card); the key
+src/configs/config.py:1319:    The v2 path switches (`no_path_cells`, `free_path_maps`, `endpoint_edges`, `holonomy_edges`,
+src/configs/config.py:1320:    `per_side_scale`) and the sheaf-free `identity_maps` were removed by the legacy-removal card (B1);
+src/configs/config.py:1339:    # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
+tests/test_relational_context.py:3:this file was `tests/test_filter_bank.py`.)"""
+tests/test_wandb_and_runs.py:148:            "eta_init",
+tests/test_wandb_and_runs.py:149:            "gamma_init",
+tests/test_wandb_and_runs.py:217:        self.assertNotIn("layer_dropout", sweep["parameters"])  # not a method component
+tests/test_wandb_and_runs.py:218:        self.assertNotIn("K", sweep["parameters"])
+tests/test_wandb_and_runs.py:240:        with self.assertRaises(ValueError):  # layer_dropout is no longer a tuning parameter
+tests/test_wandb_and_runs.py:241:            apply_sweep_overrides(raw, {"d": 32, "layer_dropout": 0.2})
+tests/test_gap_ladder.py:2:default off. (`ablation.identity_maps` and its tests were removed by the legacy-removal card, B1; the
+tests/test_gap_ladder.py:15:        # (legacy-removal B1: ablation.identity_maps was deleted; a removed key raises in a search
+tests/test_factorized_maps.py:481:        # (legacy-removal B4: the dense-family subcase was deleted with `map_family: dense`)
+tests/test_wisp.py:223:        # legacy-removal B4/B5: the v2 subcases (encoder first_order, the v2 path switches) were
+tests/test_wisp.py:240:                     # (legacy-removal: the uniform_instance subcase moved to test_legacy_removal)
+tests/test_wisp.py:330:                # legacy-removal B3: theta_gamma / gamma() were removed with v2; their counterpart:
+tests/test_wisp.py:332:                self.assertFalse(hasattr(model, "theta_gamma"))
+tests/test_wisp.py:342:        # legacy-removal B4/B5: the sigmoid_gamma / gamma_init subcases were deleted with v2
+tests/test_wisp.py:353:        # legacy-removal B4/B5: the sigmoid_gamma subcase was deleted with v2
+tests/test_wisp.py:814:        sum_j keep_ij (w_f / |f|) s_i^2 (the form `delta_loss` uses when it drops a schema)."""
+tests/test_wisp.py:1056:        # legacy-removal B4/B5: the gamma_init / sigmoid_gamma subcases were deleted with v2
+tests/test_wisp.py:1115:        # (legacy-removal B4/B5: the sigmoid_gamma subcase was deleted with v2)
+tests/test_wisp.py:1240:        # legacy-removal B4/B5: the endpoint_edges / free_path_maps / pair_attention subcases were
+tests/test_v3b_model.py:71:                for name in ("filter_bank", "theta_eta", "listen_gate"):
+tests/test_v3b_model.py:129:            # legacy-removal B4/B5: the subcases naming removed v2 settings (chebyshev, the gate
+tests/test_v3b_model.py:130:            # modes, holonomy_edges, sigmoid_gamma) were deleted; they raise as removed settings
+tests/test_v3b_model.py:154:        self.assertIsNone(getattr(model, "filter_bank", None))
+tests/test_v2_model.py:175:    def test_T12b_negative_control_per_side_scales_break_orthogonality(self) -> None:
+tests/test_v2_model.py:568:        # theta_eta (first_order) or the filter bank V of the v2 model)
+tests/test_v2_model.py:623:                # legacy-removal B3: the anchored v3-B model (was the v2 model with first_order and
+tests/test_v2_model.py:624:                # sigmoid_gamma: eta, gamma and four gate tensors in the scalar group)
+tests/test_v2_model.py:635:            # theta_tau and the bias b of g (v3-B scalars; legacy-removal B3: was theta_eta,
+tests/test_v2_model.py:636:            # theta_gamma and the four gate-head tensors) in their own group: lr x 10, no weight decay.
+tests/test_v2_model.py:711:        # Legacy-removal B1/B3: the v2 switch `ablation.no_path_cells` is deleted; the v3-B arm
+tests/test_v2_model.py:712:        # `model.arm: no_path_cells` is its counterpart. The v2 checks "no theta_gamma, no path
+tests/test_v2_model.py:725:        # v3-B weight w = exp(g) (sigmoid_gamma is deleted) the uniform rung gives w = exp(b) for every
+tests/test_v2_model.py:726:        # cell (no input reaches g; was w = 1 under sigmoid_gamma), and a learned g varies across cells.
+tests/test_v2_model.py:762:        # sigmoid_gamma, the gate modes and the dense family were removed with v2.
+tests/test_v2_model.py:791:        # legacy-removal LR-2 (B2): the default coupling is `symmetric` (was D10's `cooperative`),
+tests/test_v2_model.py:795:        # legacy-removal B3: the v2-only fields (`coupling_gate_init`, `gamma_init`, `eta_init`) and
+tests/test_v2_model.py:798:        for name in ("coupling_gate_init", "gamma_init", "eta_init"):
+tests/test_v2_model.py:829:        # legacy-removal B3: the eta_init / gamma_init ranges are v2-only (removed keys, they raise
+tests/test_v2_model.py:886:        # legacy-removal B4/B5: the endpoint_edges / free_path_maps subcases were deleted with the
+tests/test_v3b_golden.py:6:It replaces the v2 golden tests (`test_task_heads` golden, `test_cooperative` T1), which captured the v2
+tests/test_paths_and_facts.py:441:    # legacy-removal B4: the dense family (DenseConformalNodeToEdgeSheaf) was deleted; factorized only
+tests/test_paths_and_facts.py:491:# legacy-removal B4: the dense subcases were deleted with `map_family: dense`
+tests/test_paths_and_facts.py:937:        # legacy-removal B5: the uniform_instance variant was deleted (it raises)
+tests/test_paths_and_facts.py:1237:        # (legacy-removal B5: the uniform_instance subcase was deleted with the sampler)
+tests/test_search_spaces.py:8:layer_dropout and every legacy key are refused. Tuning on seed 0; the best
+tests/test_search_spaces.py:89:    def test_K_layer_dropout_and_legacy_keys_are_refused(self) -> None:
+tests/test_search_spaces.py:90:        # legacy-removal LR-3: K and layer_dropout are removed v2 keys; in a search space they now raise
+tests/test_search_spaces.py:92:        for key in ("K", "layer_dropout"):
+tests/test_search_spaces.py:108:        # (legacy-removal B4/B5: the legacy-propagation subcase was deleted; chebyshev raises as a
+tests/test_partO_literature_row.py:92:            # (legacy-removal B4/B5: the "legacy propagation" case was deleted; chebyshev raises
+tests/test_task_heads.py:143:                # (first_order) or sum_k ||W_k|| (filter_bank) of the v2 model)
+tests/test_task_heads.py:145:                # (Part H: exp's b is path_gate; legacy-removal B3: theta_tau replaces theta_eta / V_k)
+tests/test_legacy_removal.py:5:Card mutation: the default back to `chebyshev` -> `test_empty_model_section_is_the_anchored_v3b_model` fails.
+tests/test_legacy_removal.py:53:    ("model", "propagation"): ("chebyshev",),
+tests/test_legacy_removal.py:54:    ("model", "path_weight"): ("sigmoid_gamma",),
+tests/test_legacy_removal.py:55:    ("model", "map_family"): ("dense",),
+tests/test_legacy_removal.py:56:    ("ablation", "coupling"): ("cooperative", "listen_only", "pair_attention"),
+tests/test_legacy_removal.py:57:    ("data", "path_sampler"): ("uniform_instance",),
+tests/test_legacy_removal.py:60:    "model": ("K", "layer_dropout", "eta_init", "gamma_init", "coupling_gate_init", "encoder",
+tests/test_legacy_removal.py:61:              "node_edge_memory_guard_fraction"),
+tests/test_legacy_removal.py:62:    "ablation": ("no_path_cells", "free_path_maps", "endpoint_edges", "holonomy_edges",
+tests/test_legacy_removal.py:63:                 "per_side_scale", "identity_maps"),
+tests/test_legacy_removal.py:66:_OLD_VALUE = {"K": 2, "layer_dropout": 0.0, "eta_init": 0.5, "gamma_init": 1.0,
+tests/test_legacy_removal.py:67:              "coupling_gate_init": 0.6, "encoder": "filter_bank",
+tests/test_legacy_removal.py:68:              "node_edge_memory_guard_fraction": 0.5}
+hits per file:
+      2 src/baselines/adapters/chebnetii.py
+      4 src/baselines/adapters/h2sgnn.py
+      1 src/baselines/adapters/_pshgcn_lp.py
+      4 src/baselines/adapters/pshgcn.py
+      1 src/baselines/adapters/_pyg_compat.py
+     22 src/configs/config.py
+      1 src/data/path_sampler.py
+      1 src/models/h2snn_model.py
+      1 src/models/sheaf_maps.py
+      2 src/models/vertex_path_laplacian.py
+      1 tests/test_factorized_maps.py
+      2 tests/test_gap_ladder.py
+     13 tests/test_legacy_removal.py
+      1 tests/test_partO_literature_row.py
+      4 tests/test_paths_and_facts.py
+      1 tests/test_relational_context.py
+      5 tests/test_search_spaces.py
+      2 tests/test_task_heads.py
+     16 tests/test_v2_model.py
+      1 tests/test_v3b_golden.py
+      4 tests/test_v3b_model.py
+      6 tests/test_wandb_and_runs.py
+     10 tests/test_wisp.py

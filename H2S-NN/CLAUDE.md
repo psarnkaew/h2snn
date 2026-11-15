@@ -792,7 +792,7 @@ number improved, or a bug is fixed without showing the run output.
 
 | ID | Decision (details in `../docs/H2S-NN_v2_plan.md`) | State |
 |---|---|---|
-| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; `model.map_family: factorized \| dense` (dense = comparison family), `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
+| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; `model.map_family: factorized`, `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
 | D2 | WISP (spec v1.3 §3.2): Walk-sampled, Instance-weighted Sheaf Paths replace AMPSS — schema-free self-avoiding walks from a stated target measure, walk-level defensive importance sampling (ratio ≤ 2), `w_f = exp(g(ξ_f))` (γ removed), schemas read out (`I_π`, `I_σ`, `ΔL_σ`), never selected; knobs `ℓ_max` (support), `r` (precision). Default (spec v1.4 E7): `path_source: wisp` for node classification; `path_source: schemas` (fixed literature presets) is the comparison row | Agreed 2026-11-08; implementation: task card Part H, branch `wisp`. "AMPSS" = deleted v1 only |
 | D3 | Scalability: normalized Laplacians with full-graph degrees, `η = σ(θ)`, per-batch path cells, `NeighborLoader` mini-batching | Normalization and bounded step implemented (D4); mini-batching not started |
 | D4 | Path 2-cells couple to **every** boundary node through the **vertex–2-cell sheaf Laplacian** | Implemented with the §4.6 ablation switches; ACM memory and smoke run only |
@@ -884,12 +884,12 @@ Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
   via `data.decoder_type` (`dot` | `distmult`; spec v1.22 W2, `concat_mlp` removed).
 - Graph classification: `mutag`, `enzymes`, `nci1`, `proteins`.
 
-Config sections: `data`, `model`, `ablation` (plan §4.6 switches, all off by default:
-`no_path_cells`, `free_path_maps`, `endpoint_edges`, `holonomy_edges`, `uniform_path_gate`,
-`per_side_scale`, `h0_only_readout`), `optim` (`scalar_lr_scale`: learning-rate multiple for the
-diffusion scalars `θ_η`, `θ_γ`, which get their own group with no weight decay). Unknown keys are
-errors. `orthogonal_map` accepts only `fasthpp` (`src/models/fasthpp.py`); the dense map family is
-guarded by `model.node_edge_memory_guard_fraction`.
+Config sections: `data`, `model` (`propagation: anchored`; the v3-B arms are `model.arm`),
+`ablation` (switches, all off by default: `path_weight_input`, `path_weight_context`,
+`h0_only_readout`, `direction_blind_maps`; `coupling: symmetric` only), `optim` (`scalar_lr_scale`:
+learning-rate multiple for the scalars `θ_τ` and the bias of `g`, which get their own group with no
+weight decay). Unknown keys are errors. `orthogonal_map` accepts only `fasthpp`
+(`src/models/fasthpp.py`). v1/v2 settings are removed (legacy-removal card); a configuration that names one raises.
 
 Validate W&B tuning before creating or resuming a sweep (does not contact W&B or train):
 
@@ -945,16 +945,14 @@ before deleting temporary directories on Windows.
 ```
 h₀ = TypeEncoder(x)                                               (src/models/node_encoder.py)
 maps F_{v◁e} = c_e R_{ψ,side} H_k(u)                              (src/models/sheaf_maps.py)
-repeat K steps:
-    z_f = Σ_{v∈f} T_v x_v / |f|                                   # 2-cell state
-    x  ← x − η D^{-1/2} [ Δ₀ + γ L_P ] D^{-1/2} x                  (src/models/vertex_path_laplacian.py)
-    (L_P x)_v = Σ_{f∋v} w_f T_vᵀ (T_v x_v − z_f)                   # vertex–2-cell coupling
-representation = [x_K, h₀]
+w_f = exp(g(ξ_f))                                                 # path-cell weights
+Y* = argmin_Y ½‖x − h₀‖² + (τ/2) Yᵀ L̂ Y                          # one anchored solve
+     (PᵀP + τ L̂) Y* = Pᵀ h₀: PCG forward, implicit backward     (src/models/sheaf_energy.py, anchored_solve.py)
+representation = [x_K, h₀]                                        # x_K: the node part of Y*
 ```
-`Δ₀` is the sheaf Laplacian on observed edges with the D1 maps; `D` is the per-node scalar degree
-of the operator's own terms (per-incidence sum, so self-loops count twice); `T_v` is ordered
-parallel transport along the path (`PathTransportOperator`, matrix-free, orthogonal under D1a);
-`η = σ(θ_η)`, `γ = softplus(θ_γ)`, `w_f = σ(g(path latent))`.
+`L̂` is the three-level sheaf energy with the D1 maps (spec v1.11 R13; `T_v`, ordered parallel
+transport along a path, is `PathTransportOperator`, matrix-free, orthogonal under D1a);
+`τ = exp(θ_τ)`.
 
 | Task head | Module | Reads |
 |---|---|---|
@@ -963,7 +961,7 @@ parallel transport along the path (`PathTransportOperator`, matrix-free, orthogo
 | Graph classification | `GraphReadout` (`src/models/graph_readout.py`) | sum of `[x_K, h₀]` per graph → BatchNorm → MLP; path cells enumerated per batch |
 
 Trainers: `src/trainers/trainer.py` (node), `link_prediction_trainer.py`,
-`graph_classification_trainer.py`; each logs `eta` and `gamma` per epoch.
+`graph_classification_trainer.py`; each logs `tau` and the solver statistics per epoch.
 
 ### Legacy baseline (`vendor/csnn/`) — homogeneous-graph `CSNN`
 

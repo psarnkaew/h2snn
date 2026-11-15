@@ -1,0 +1,32 @@
+mode=gate job=16741 step=26 node=g2n01 start=2026-11-15T15:28:51+09:00
+git=4e70e6af48e80ac65b34b1a4d2ec75b375ab209f branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+working tree:  M AGENTS.md
+working tree:  M CLAUDE.md
+working tree: D  configs/experiments/acm_h2snn.yaml
+working tree: D  configs/experiments/amazon_h2snn.yaml
+working tree: D  configs/experiments/amazonbook_h2snn.yaml
+working tree: D  configs/experiments/dblp_h2snn.yaml
+working tree: D  configs/experiments/enzymes_h2snn.yaml
+working tree: D  configs/experiments/imdb_h2snn.yaml
+working tree: D  configs/experiments/lastfm_h2snn.yaml
+working tree: D  configs/experiments/mutag_h2snn.yaml
+working tree: D  configs/experiments/nci1_h2snn.yaml
+working tree: D  configs/experiments/proteins_h2snn.yaml
+working tree: D  configs/experiments/pubmed_h2snn.yaml
+working tree: D  configs/experiments/youtube_h2snn.yaml
+working tree:  M notebooks/baselines_graph_classification.ipynb
+working tree:  M tests/test_v2_model.py
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_baselines.BaselineNotebookTests tests.test_v2_model tests.test_legacy_removal tests.test_wandb_and_runs tests.test_paths_and_facts
+Ran 96 tests in 72.167s
+OK
+tests_exit=0
+end=2026-11-15T15:30:18+09:00

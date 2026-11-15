@@ -475,9 +475,8 @@ def _v2_model(data, seed: int = 0, ablation: dict | None = None, **model: object
     return build_model(_v2_config(ablation, **model), data)
 
 
-# Legacy-removal LR-2: the default model became the anchored v3-B model. Tests of the v2 model (deleted in
-# LR-3) build it through these helpers, which name the v2 values: `propagation: chebyshev` and the former
-# default `coupling: cooperative` (an explicit ablation value overrides it).
+# Legacy-removal: `_v2_model` builds the default model, the anchored v3-B model (the v2 model and its
+# helpers were removed in LR-3).
 class V2ModelTests(unittest.TestCase):
     def test_build_model_builds_the_node_classification_head(self) -> None:
         data = _random_pap_data()

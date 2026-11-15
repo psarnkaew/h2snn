@@ -247,3 +247,34 @@ baseline test passes unchanged.
 
 **For LR-4:** the 12 legacy YAMLs are loaded by no test or script (grep of `tests/`, `src/`, `scripts/`); each sets `model.K`, so each
 already raises. The `h2snn_*` Colab notebooks name `configs/experiments/<dataset>_h2snn.yaml` (out of scope: listed, not edited).
+
+## LR-4 record (configs, scripts, agent docs, notebook, grep)
+
+- **YAMLs deleted** (`git rm`): the 12 `configs/experiments/*_h2snn.yaml`; no test or script loads one (each set `model.K`, a removed
+  key). Kept: the five `*_h2snn_v3b.yaml`.
+- **Scripts:** the only legacy-only script, `scripts/analyze_kernel.py`, was already deleted in LR-3 (its only user was
+  `tests/test_cooperative.py`); the grep finds no other script naming a removed setting.
+- **CLAUDE.md / AGENTS.md** (one edit, the same added line in both): D1 row without `| dense`; CLAUDE.md config-sections paragraph
+  (the removed ablation switches, `θ_η`/`θ_γ`, the dense memory guard → the kept switches, `θ_τ` and the bias of g), the
+  architecture block (K first-order steps with η, γ → the anchored solve) and "logs `eta` and `gamma`" → "`tau` and the solver
+  statistics"; AGENTS.md key-files line (`Delta_0 + gamma L_P` → the path-cell terms and the anchored solve); the line "v1/v2
+  settings are removed (legacy-removal card); a configuration that names one raises." added to both.
+- **Notebook** `notebooks/baselines_graph_classification.ipynb`: `execution_count` → null and `outputs` → [] in every code cell
+  (cells 2, 4, 5, 6, 7 had them); parsed comparison against HEAD (`lr4_notebook_check.py` → `lr4_notebook_check.txt`): same
+  27 cells, sources, metadata and top-level keys; compact JSON layout kept (no trailing newline, as before).
+- **Gate** (`lr4_gate.txt`, 16741 step 26, g2n01): v3b_golden differing none; mb0 differing none;
+  `test_baselines.BaselineNotebookTests` + `test_v2_model`, `test_legacy_removal`, `test_wandb_and_runs`, `test_paths_and_facts`:
+  `Ran 96 tests — OK`.
+- **Grep** (`lr4_grep.sh` → `lr4_grep.txt`): hits are only (a) the fail-closed registry and messages in `src/configs/config.py:22-53`
+  and `tests/test_legacy_removal.py`; (b) comments and docstrings that record the removal (config.py, `path_sampler.py:30`,
+  `sheaf_maps.py:4`, `vertex_path_laplacian.py:6`, the `legacy-removal` notes in adapted tests); (c) assertions that a removed name is
+  absent or refused (`test_wandb_and_runs.py:148-149, 217-218, 240-241`; `test_v2_model.py:799`; `test_v3b_model.py:71, 154`;
+  `test_wisp.py:332`; `test_search_spaces.py:92`); (d) unrelated names: `K` of the baselines PSHGCN, H2SGNN, ChebNetII
+  (`src/baselines/adapters/`), `"dense"` as a PyG submodule (`_pyg_compat.py:44`), `per_side` scales of the kept
+  `FactorizedNodeToEdgeSheaf` option (`test_v2_model.py:175`); (e) two docstrings inside kept class bodies left verbatim
+  (`vertex_path_laplacian.py:84` `HolonomyEdgeTerm`, `h2snn_model.py:256` `EndpointEncoder`: "ablation `path_mode: ...`").
+  `NEVER_TUNED_LEGACY_KEYS` (`config.py:77-84`) still lists removed names; for them the removed-key check above it raises first.
+- **Out of scope, listed for the author** (not edited by this card): CLAUDE.md/AGENTS.md still name the deleted v2 golden tests
+  (`test_task_heads`/`test_cooperative` golden, pinned-kernel bullet and "Testing" section), the deleted `*_h2snn.yaml` files
+  (dataset list, the W&B validate / Windows train commands) and D3's `η = σ(θ)`; the eight `notebooks/h2snn_*_colab.ipynb` name
+  `configs/experiments/<dataset>_h2snn.yaml`.
