@@ -1,0 +1,57 @@
+job=16721 step=20 node=g2n01 start=2026-11-15T11:17:07+09:00
+git=f714270ce2092e01a115a65a0be88e30a60ff191 branch=part-m3a env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+===== unmutated: tests.test_partMBfix_functoriality
+test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.105s
+
+OK
+
+===== mutation (i): the transport ignores the hop sign (every hop forward)
+ H2S-NN/src/models/map_operators.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... FAIL
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partMBfix_functoriality.py", line 99, in test_T1_on_a_batch_of_scopes
+    self.assertLess(worst, T1_TOL, f"functoriality residual {worst} at (scope, cell, hop) "
+AssertionError: 8.080689430236816 not less than 1e-05 : functoriality residual 8.080689430236816 at (scope, cell, hop) (1, 4, 1) on 48 incidences
+Ran 1 test in 0.102s
+FAILED (failures=1)
+restored: identical
+
+===== mutation (ii): near/far maps of one reversed hop swapped (the first reversed hop met)
+ H2S-NN/src/models/map_operators.py | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... FAIL
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_partMBfix_functoriality.py", line 99, in test_T1_on_a_batch_of_scopes
+    self.assertLess(worst, T1_TOL, f"functoriality residual {worst} at (scope, cell, hop) "
+AssertionError: 7.702715873718262 not less than 1e-05 : functoriality residual 7.702715873718262 at (scope, cell, hop) (0, 1, 0) on 48 incidences
+Ran 1 test in 0.103s
+FAILED (failures=1)
+restored: identical
+git diff src/models/map_operators.py: clean
+OK
+
+===== GATE job=16721 step=20 node=g2n01 git=f714270ce2092e01a115a65a0be88e30a60ff191 2026-11-15T11:17:16+09:00
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.510s
+
+OK
+gate_golden_exit=0
+compared 139 tensors; differing: none
+gate_mb0_exit=0
+GATE PASS
+end=2026-11-15T11:17:24+09:00
