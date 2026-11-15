@@ -754,6 +754,21 @@ class WandbAndRunReportingTests(unittest.TestCase):
             ):
                 self.assertNotIn(removed_switch, source)
 
+    def test_h2snn_notebooks_have_no_decoder_switch_or_concat_mlp(self) -> None:
+        """M3a-fix F2 (spec v1.22 W2): the LP decoder is tuned in {dot, distmult} without a flag and
+        concat_mlp is removed, so no h2snn_* notebook offers the switch or names concat_mlp."""
+        notebook_dir = Path(__file__).resolve().parent.parent / "notebooks"
+        notebooks = sorted(notebook_dir.glob("h2snn_*.ipynb"))
+        self.assertGreaterEqual(len(notebooks), 3)
+        for path in notebooks:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            source = "\n".join(
+                "".join(cell.get("source", [])) for cell in payload.get("cells", [])
+            )
+            for removed in ("--include_decoder_type", "INCLUDE_DECODER_TYPE", "concat_mlp"):
+                with self.subTest(notebook=path.name, text=removed):
+                    self.assertNotIn(removed, source)
+
     def test_repeated_cv_notebook_is_clean_and_uses_fold_campaign(self) -> None:
         notebook_dir = Path(__file__).resolve().parent.parent / "notebooks"
         repeated_cv_name = "h2snn_graph_classification_repeated_cv_wandb_tuning_colab.ipynb"
