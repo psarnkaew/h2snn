@@ -1,0 +1,20 @@
+job=16725 step=none node=g3an01 start=2026-11-15T09:33:12+09:00
+git=260e2860d92af4c1dd96ab6478f9e2212d0b9435 branch=cluster-setup2 env=h2snn-b
+cpu= Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+torch 2.4.1+cu124 threads 2
+['  - CPU capability usage: AVX512']
+===== tests.test_partMB_scopes (whole module)
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.737s
+
+OK
+
+[CS7-5] scoped vs whole max|diff| = 0.000e+00
+test_exit=0
+end=2026-11-15T09:33:16+09:00

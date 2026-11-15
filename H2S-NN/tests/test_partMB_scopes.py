@@ -4,7 +4,8 @@
 - the scope is a lower set (every cell's facts and nodes, every fact's endpoints are in it);
 - no fact joins two scope nodes unless it is a fact of the target or on one of its cells;
 - the forced cell maps are well defined on scope cells (`validate_face_orientation`);
-- a featureless node copied into two scopes gets the same h0 as in the whole graph;
+- a featureless node copied into two scopes gets the same h0 as in the whole graph (float64,
+  atol 1e-12, with a negative control; cluster-setup2 CS7-5);
 - a scope built on a second graph uses that graph's facts only (N6).
 Card mutations: local position instead of the global id -> the h0 test fails; one induced fact
 added -> the lower-set / no-induced test fails.
@@ -103,16 +104,27 @@ class ScopeTests(unittest.TestCase):
                       "classifier_hidden_dim": 16, "propagation": "anchored", "arm": "full"},
             "ablation": {"coupling": "symmetric"}})
         torch.manual_seed(0)
-        model = H2SNN(cfg, ModelDims.from_prepared_data(graph)).eval()
+        model = H2SNN(cfg, ModelDims.from_prepared_data(graph)).double().eval()
         batch = build_scope_batch(graph, torch.tensor([0, 1]), [example_cells(), cells_of_paper_1()])
         with torch.no_grad():
-            whole = model.encode_nodes(graph.x, graph.node_type)
-            scoped = model.encode_nodes(batch.data.x, batch.data.node_type,
+            whole = model.encode_nodes(graph.x.double(), graph.node_type)
+            scoped = model.encode_nodes(batch.data.x.double(), batch.data.node_type,
                                         batch.data.global_node_id)
         copies = (batch.global_node_id == 6).nonzero(as_tuple=True)[0]
         self.assertEqual(copies.numel(), 2)  # author A6 is in both scopes
         self.assertEqual(batch.node_scope[copies].tolist(), [0, 1])
-        self.assertTrue(torch.equal(scoped, whole[batch.global_node_id]))
+        # Cluster-setup2 CS7-5 (approved 2026-11-15): float64 and atol 1e-12 fixed before the run,
+        # replacing torch.equal in float32 (a CPU GEMM rounds a row differently for different row
+        # counts; CS5 diagnostic: 4.47e-8). Float64 rounding here is ~1e-16.
+        expected = whole[batch.global_node_id]
+        self.assertEqual(scoped.dtype, torch.float64)
+        print(f"\n[CS7-5] scoped vs whole max|diff| = {float((scoped - expected).abs().max()):.3e}")
+        self.assertTrue(torch.allclose(scoped, expected, rtol=0, atol=1e-12))
+        # Negative control: A6's scoped row replaced by the encoding of another author (A7).
+        control = scoped.clone()
+        control[copies[0]] = whole[7]
+        self.assertFalse(torch.allclose(control, expected, rtol=0, atol=1e-12))
+        self.assertGreater(float((control - expected).abs().max()), 1e-6)
 
     def test_scope_on_a_second_graph_uses_its_facts(self) -> None:
         second = [(u, v, r) for u, v, r in EDGES if (u, v) != (0, 8)] + [(0, 9, 0)]

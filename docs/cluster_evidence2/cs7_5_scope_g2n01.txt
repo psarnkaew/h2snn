@@ -1,0 +1,28 @@
+job=16721 step=10 node=g2n01 start=2026-11-15T09:32:45+09:00
+git=260e2860d92af4c1dd96ab6478f9e2212d0b9435 branch=cluster-setup2 env=h2snn-b
+cpu= Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 threads 6
+['  - CPU capability usage: AVX2']
+===== tests.test_partMB_scopes (whole module)
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.624s
+
+OK
+
+[CS7-5] scoped vs whole max|diff| = 0.000e+00
+test_exit=0
+
+===== mutation: src/models/node_encoder.py reads global_node_id shifted by one
+109:                ids = rows if global_node_id is None else global_node_id[rows] + 1
+AssertionError: False is not true
+FAILED (failures=1)
+[CS7-5] scoped vs whole max|diff| = 3.145e+00
+restored: identical
+git diff src/models/node_encoder.py: clean
+end=2026-11-15T09:32:51+09:00
