@@ -54,4 +54,5 @@ while IFS=$'\t' read -r name url commit licence used_by kind; do
         echo "FAILED      ${name}: could not check out ${commit} from ${url}" >&2; failed=1
     fi
 done < "$MANIFEST"
+bash "${REPO_ROOT}/scripts/setup/apply_vendor_patches.sh" --vendor-dir "$VENDOR_DIR" --manifest "$MANIFEST" ${ONLY:+--only "$ONLY"} || failed=1
 exit "$failed"

@@ -1,0 +1,22 @@
+job=16741 step=29 node=g2n01 start=2026-11-15T18:11:50+09:00
+git=64068232c84bdf98e404bf077896505c16f3cc1b branch=part-m3b env=h2snn-b
+working tree:  M scripts/setup/clone_vendors.sh
+===== tests.test_vendor_patches
+test_clean_clone_gets_the_patch (tests.test_vendor_patches.ApplyVendorPatchesTests.test_clean_clone_gets_the_patch) ... ok
+test_clone_at_another_commit_is_refused (tests.test_vendor_patches.ApplyVendorPatchesTests.test_clone_at_another_commit_is_refused) ... ok
+test_conflicting_clone_is_refused_unchanged (tests.test_vendor_patches.ApplyVendorPatchesTests.test_conflicting_clone_is_refused_unchanged) ... ok
+test_second_run_is_a_no_op (tests.test_vendor_patches.ApplyVendorPatchesTests.test_second_run_is_a_no_op) ... ok
+test_h2gb_patch_touches_exactly_the_two_dataset_files (tests.test_vendor_patches.RecordedPatchTests.test_h2gb_patch_touches_exactly_the_two_dataset_files) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.122s
+
+OK
+===== mutation: the 'already applied' branch removed (the script reapplies an applied patch)
+FAIL: test_second_run_is_a_no_op (tests.test_vendor_patches.ApplyVendorPatchesTests.test_second_run_is_a_no_op)
+AssertionError: 1 != 0 : CONFLICT    Toy: /tmp/tmpq0f9sbw7/patches/Toy.patch neither applies nor is applied; nothing changed
+Ran 1 test in 0.035s
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T18:11:51+09:00

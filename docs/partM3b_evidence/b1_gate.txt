@@ -1,0 +1,39 @@
+B1 gate, login01 (git only; card: 'clone_vendors.sh ... Git only: safe on the login node'), 2026-11-15T18:11:32+09:00, HEAD 64068232c84bdf98e404bf077896505c16f3cc1b + B1 working tree
+== before: author's working clone and protected files
+   M H2GB/datasets/ieee_cis_dataset.py
+   M H2GB/datasets/pokec_dataset.py
+   M examples/use_dataset.py
+  4b4cb7d1ab106f85e2fee498fbc09ed354fdcb9f7d84574aef4c22c8c1c8278b  vendor/H2GB/H2GB/datasets/ieee_cis_dataset.py
+  76570b563df0f044085365c7ae982d7b3b8e86038d385fef6a7a3f1659d7b4b7  vendor/H2GB/H2GB/datasets/pokec_dataset.py
+  da99a83a5de27f4cb40f9726746e77e9d1f7f9a95a1e7d99d13493b1204d4c4b  vendor/H2GB/examples/use_dataset.py
+  a112c363a54989626a43865f5827bac98577cc8ac2f3b0a3ac1f424f6f8825cb  ../docs/lab-gpu-cluster.html
+== run 1: clone_vendors.sh --vendor-dir <scratch> --only H2GB
+CLONED      H2GB d3b49db63ad66f8a3282dbe699d50ce10ed3062a
+APPLIED     H2GB (H2GB.patch)
+exit=0
+  scratch clone HEAD d3b49db63ad66f8a3282dbe699d50ce10ed3062a
+  scratch status:
+     M H2GB/datasets/ieee_cis_dataset.py
+     M H2GB/datasets/pokec_dataset.py
+== sha256 scratch vs author's working clone (the two patched files)
+  H2GB/datasets/ieee_cis_dataset.py scratch=4b4cb7d1ab106f85e2fee498fbc09ed354fdcb9f7d84574aef4c22c8c1c8278b author=4b4cb7d1ab106f85e2fee498fbc09ed354fdcb9f7d84574aef4c22c8c1c8278b IDENTICAL
+  H2GB/datasets/pokec_dataset.py scratch=76570b563df0f044085365c7ae982d7b3b8e86038d385fef6a7a3f1659d7b4b7 author=76570b563df0f044085365c7ae982d7b3b8e86038d385fef6a7a3f1659d7b4b7 IDENTICAL
+== run 2: apply_vendor_patches.sh directly (idempotence)
+ALREADY APPLIED H2GB (H2GB.patch)
+exit=0
+== run 2b: clone_vendors.sh again
+REFUSED     H2GB: dirty clone (modified tracked files) at /tmp/claude-319800033/-mnt-data-peeradon-h2snn/50d45fee-ddd8-4d59-bfd5-4c134361c8fb/scratchpad/b1_gate/vendor/H2GB
+ALREADY APPLIED H2GB (H2GB.patch)
+exit=1
+  scratch tree after run 2 and 2b: unchanged (1055 files)
+== after: author's working clone and protected files
+   M H2GB/datasets/ieee_cis_dataset.py
+   M H2GB/datasets/pokec_dataset.py
+   M examples/use_dataset.py
+  4b4cb7d1ab106f85e2fee498fbc09ed354fdcb9f7d84574aef4c22c8c1c8278b  vendor/H2GB/H2GB/datasets/ieee_cis_dataset.py
+  76570b563df0f044085365c7ae982d7b3b8e86038d385fef6a7a3f1659d7b4b7  vendor/H2GB/H2GB/datasets/pokec_dataset.py
+  da99a83a5de27f4cb40f9726746e77e9d1f7f9a95a1e7d99d13493b1204d4c4b  vendor/H2GB/examples/use_dataset.py
+  a112c363a54989626a43865f5827bac98577cc8ac2f3b0a3ac1f424f6f8825cb  ../docs/lab-gpu-cluster.html
+== sbatch checks
+  bash -n: ok
+  sbatch: Job 16755 to start at 2026-11-17T12:33:41 using 10 processors on nodes g2n01 in partition lab
