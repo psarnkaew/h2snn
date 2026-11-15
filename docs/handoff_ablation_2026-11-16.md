@@ -21,3 +21,9 @@ Seeds 1–10 paired, Wilcoxon, Holm per claim; four ablation datasets ACM, DBLP,
 
 ## Not done here
 No task card, no code, no push to `design-docs`. The `h2snn-b` environment line for the spec is still separate. Merge `design-ablation` into `design-docs` when the author says "merge design-ablation".
+
+## Update after merging `design-docs` `98bc8ed` into `design-ablation` (2026-11-16)
+- **Spec v1.23 draft approved by the author.** Apply X-1 … X-15 on `design-docs` together with the main session's v1.23 items (handoff_2026-11-15 §8: PDNS per H2GB's code, H-Pokec SeHGNN N/A / PSHGCN K = 1, env line `h2snn-b`) in one version; spec v1.22 is unchanged on `design-docs`, so the anchors still hold.
+- **Slim preparation (author, 2026-11-16) applies to the seven cards above:** keep result-protecting checks only (label-route/leak tests with their mutation, one equivalence test per new mechanism, e.g. maps = I gives transports = I and `full` bit-identical), one-node suite, short reports.
+- **Plan item "card 4: ablation driver + G0b":** G0b is closed (WISP gate (i), B-10); card 4 is the ablation driver only. The proposal-variance measurement and the known-answer tasks (S1′-B, S3, S2′) must run before main-table tuning; with the dry-run card running now, place them right after it.
+- The dry-run card's evaluation-draw reproduction test also serves the ablation checkpoints (N1–N4 need the draw rebuilt from the base seed).
