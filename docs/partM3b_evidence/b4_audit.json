@@ -1,0 +1,771 @@
+{
+ "carrier_share": 0.95,
+ "datasets": {
+  "oag-cs": {
+   "target": "paper",
+   "passed": true,
+   "carriers": [],
+   "inventory": {
+    "node_types": [
+     "paper",
+     "field",
+     "author",
+     "affiliation"
+    ],
+    "edge_types": [
+     "paper|PP_cite|paper",
+     "author|AP_write_last|paper",
+     "author|AP_write_other|paper",
+     "author|AP_write_first|paper",
+     "field|FF_in|field",
+     "paper|PF_in_L0|field",
+     "paper|PF_in_L3|field",
+     "paper|PF_in_L1|field",
+     "paper|PF_in_L2|field",
+     "paper|PF_in_L5|field",
+     "paper|PF_in_L4|field",
+     "author|in|affiliation",
+     "paper|rev_AP_write_last|author",
+     "paper|rev_AP_write_other|author",
+     "paper|rev_AP_write_first|author",
+     "field|rev_PF_in_L0|paper",
+     "field|rev_PF_in_L3|paper",
+     "field|rev_PF_in_L1|paper",
+     "field|rev_PF_in_L2|paper",
+     "field|rev_PF_in_L5|paper",
+     "field|rev_PF_in_L4|paper",
+     "affiliation|rev_in|author"
+    ],
+    "attributes": {
+     "paper": [
+      "test_mask",
+      "train_mask",
+      "val_mask",
+      "x",
+      "y",
+      "year"
+     ],
+     "field": [
+      "x"
+     ],
+     "author": [
+      "x"
+     ],
+     "affiliation": [
+      "x"
+     ]
+    },
+    "label_source_names_present": []
+   },
+   "h2snn_flattened_relations": [
+    "paper__PP_cite__paper",
+    "author__AP_write_last__paper",
+    "author__AP_write_other__paper",
+    "author__AP_write_first__paper",
+    "field__FF_in__field",
+    "paper__PF_in_L0__field",
+    "paper__PF_in_L3__field",
+    "paper__PF_in_L1__field",
+    "paper__PF_in_L2__field",
+    "paper__PF_in_L5__field",
+    "paper__PF_in_L4__field",
+    "author__in__affiliation",
+    "paper__rev_AP_write_last__author",
+    "paper__rev_AP_write_other__author",
+    "paper__rev_AP_write_first__author",
+    "field__rev_PF_in_L0__paper",
+    "field__rev_PF_in_L3__paper",
+    "field__rev_PF_in_L1__paper",
+    "field__rev_PF_in_L2__paper",
+    "field__rev_PF_in_L5__paper",
+    "field__rev_PF_in_L4__paper",
+    "affiliation__rev_in__author"
+   ],
+   "probes": [
+    {
+     "relation": "paper|PP_cite|paper",
+     "hubs_with_2plus": 480448,
+     "incidences": 4715426,
+     "covered_targets": 224821,
+     "majority_share": 0.2921,
+     "control_share": 0.1232,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_last|paper",
+     "hubs_with_2plus": 25010,
+     "incidences": 109217,
+     "covered_targets": 109217,
+     "majority_share": 0.4234,
+     "control_share": 0.2418,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_other|paper",
+     "hubs_with_2plus": 40861,
+     "incidences": 147434,
+     "covered_targets": 83999,
+     "majority_share": 0.452,
+     "control_share": 0.2869,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_first|paper",
+     "hubs_with_2plus": 31994,
+     "incidences": 95642,
+     "covered_targets": 95642,
+     "majority_share": 0.5082,
+     "control_share": 0.3411,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L0|field",
+     "hubs_with_2plus": 10,
+     "incidences": 229212,
+     "covered_targets": 229104,
+     "majority_share": 0.0217,
+     "control_share": 0.0216,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L3|field",
+     "hubs_with_2plus": 8161,
+     "incidences": 371826,
+     "covered_targets": 181870,
+     "majority_share": 0.1693,
+     "control_share": 0.0461,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L1|field",
+     "hubs_with_2plus": 257,
+     "incidences": 493521,
+     "covered_targets": 229102,
+     "majority_share": 0.0918,
+     "control_share": 0.0223,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L2|field",
+     "hubs_with_2plus": 10754,
+     "incidences": 997110,
+     "covered_targets": 222093,
+     "majority_share": 0.107,
+     "control_share": 0.0338,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L5|field",
+     "hubs_with_2plus": 3405,
+     "incidences": 79914,
+     "covered_targets": 45488,
+     "majority_share": 0.1904,
+     "control_share": 0.0679,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L4|field",
+     "hubs_with_2plus": 3944,
+     "incidences": 129709,
+     "covered_targets": 86435,
+     "majority_share": 0.1849,
+     "control_share": 0.0547,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_last|author",
+     "hubs_with_2plus": 25010,
+     "incidences": 109217,
+     "covered_targets": 109217,
+     "majority_share": 0.4234,
+     "control_share": 0.2418,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_other|author",
+     "hubs_with_2plus": 40861,
+     "incidences": 147434,
+     "covered_targets": 83999,
+     "majority_share": 0.452,
+     "control_share": 0.2869,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_first|author",
+     "hubs_with_2plus": 31994,
+     "incidences": 95642,
+     "covered_targets": 95642,
+     "majority_share": 0.5082,
+     "control_share": 0.3411,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L0|paper",
+     "hubs_with_2plus": 10,
+     "incidences": 229212,
+     "covered_targets": 229104,
+     "majority_share": 0.0217,
+     "control_share": 0.0216,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L3|paper",
+     "hubs_with_2plus": 8161,
+     "incidences": 371826,
+     "covered_targets": 181870,
+     "majority_share": 0.1693,
+     "control_share": 0.0461,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L1|paper",
+     "hubs_with_2plus": 257,
+     "incidences": 493521,
+     "covered_targets": 229102,
+     "majority_share": 0.0918,
+     "control_share": 0.0223,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L2|paper",
+     "hubs_with_2plus": 10754,
+     "incidences": 997110,
+     "covered_targets": 222093,
+     "majority_share": 0.107,
+     "control_share": 0.0338,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L5|paper",
+     "hubs_with_2plus": 3405,
+     "incidences": 79914,
+     "covered_targets": 45488,
+     "majority_share": 0.1904,
+     "control_share": 0.0679,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L4|paper",
+     "hubs_with_2plus": 3944,
+     "incidences": 129709,
+     "covered_targets": 86435,
+     "majority_share": 0.1849,
+     "control_share": 0.0547,
+     "carries_label": false
+    }
+   ],
+   "seconds": 13.5
+  },
+  "oag-eng": {
+   "target": "paper",
+   "passed": true,
+   "carriers": [],
+   "inventory": {
+    "node_types": [
+     "paper",
+     "field",
+     "author",
+     "affiliation"
+    ],
+    "edge_types": [
+     "paper|PP_cite|paper",
+     "author|AP_write_first|paper",
+     "author|AP_write_other|paper",
+     "author|AP_write_last|paper",
+     "field|FF_in|field",
+     "paper|PF_in_L1|field",
+     "paper|PF_in_L5|field",
+     "paper|PF_in_L0|field",
+     "paper|PF_in_L2|field",
+     "paper|PF_in_L3|field",
+     "paper|PF_in_L4|field",
+     "author|in|affiliation",
+     "paper|rev_AP_write_first|author",
+     "paper|rev_AP_write_other|author",
+     "paper|rev_AP_write_last|author",
+     "field|rev_PF_in_L1|paper",
+     "field|rev_PF_in_L5|paper",
+     "field|rev_PF_in_L0|paper",
+     "field|rev_PF_in_L2|paper",
+     "field|rev_PF_in_L3|paper",
+     "field|rev_PF_in_L4|paper",
+     "affiliation|rev_in|author"
+    ],
+    "attributes": {
+     "paper": [
+      "test_mask",
+      "train_mask",
+      "val_mask",
+      "x",
+      "y",
+      "year"
+     ],
+     "field": [
+      "x"
+     ],
+     "author": [
+      "x"
+     ],
+     "affiliation": [
+      "x"
+     ]
+    },
+    "label_source_names_present": []
+   },
+   "h2snn_flattened_relations": [
+    "paper__PP_cite__paper",
+    "author__AP_write_first__paper",
+    "author__AP_write_other__paper",
+    "author__AP_write_last__paper",
+    "field__FF_in__field",
+    "paper__PF_in_L1__field",
+    "paper__PF_in_L5__field",
+    "paper__PF_in_L0__field",
+    "paper__PF_in_L2__field",
+    "paper__PF_in_L3__field",
+    "paper__PF_in_L4__field",
+    "author__in__affiliation",
+    "paper__rev_AP_write_first__author",
+    "paper__rev_AP_write_other__author",
+    "paper__rev_AP_write_last__author",
+    "field__rev_PF_in_L1__paper",
+    "field__rev_PF_in_L5__paper",
+    "field__rev_PF_in_L0__paper",
+    "field__rev_PF_in_L2__paper",
+    "field__rev_PF_in_L3__paper",
+    "field__rev_PF_in_L4__paper",
+    "affiliation__rev_in__author"
+   ],
+   "probes": [
+    {
+     "relation": "paper|PP_cite|paper",
+     "hubs_with_2plus": 244930,
+     "incidences": 1814167,
+     "covered_targets": 256369,
+     "majority_share": 0.425,
+     "control_share": 0.1571,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_first|paper",
+     "hubs_with_2plus": 34873,
+     "incidences": 101356,
+     "covered_targets": 101356,
+     "majority_share": 0.6038,
+     "control_share": 0.3515,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_other|paper",
+     "hubs_with_2plus": 44060,
+     "incidences": 144212,
+     "covered_targets": 90254,
+     "majority_share": 0.5523,
+     "control_share": 0.3158,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_last|paper",
+     "hubs_with_2plus": 30761,
+     "incidences": 115322,
+     "covered_targets": 115322,
+     "majority_share": 0.5249,
+     "control_share": 0.2795,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L1|field",
+     "hubs_with_2plus": 271,
+     "incidences": 538522,
+     "covered_targets": 293965,
+     "majority_share": 0.1139,
+     "control_share": 0.0211,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L5|field",
+     "hubs_with_2plus": 1795,
+     "incidences": 31747,
+     "covered_targets": 22577,
+     "majority_share": 0.2527,
+     "control_share": 0.0845,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L0|field",
+     "hubs_with_2plus": 10,
+     "incidences": 294152,
+     "covered_targets": 294050,
+     "majority_share": 0.0195,
+     "control_share": 0.0194,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L2|field",
+     "hubs_with_2plus": 13169,
+     "incidences": 1279198,
+     "covered_targets": 288257,
+     "majority_share": 0.1383,
+     "control_share": 0.0351,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L3|field",
+     "hubs_with_2plus": 10490,
+     "incidences": 407454,
+     "covered_targets": 210798,
+     "majority_share": 0.2072,
+     "control_share": 0.0521,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L4|field",
+     "hubs_with_2plus": 3784,
+     "incidences": 89148,
+     "covered_targets": 67396,
+     "majority_share": 0.2447,
+     "control_share": 0.0692,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_first|author",
+     "hubs_with_2plus": 34873,
+     "incidences": 101356,
+     "covered_targets": 101356,
+     "majority_share": 0.6038,
+     "control_share": 0.3515,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_other|author",
+     "hubs_with_2plus": 44060,
+     "incidences": 144212,
+     "covered_targets": 90254,
+     "majority_share": 0.5523,
+     "control_share": 0.3158,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_last|author",
+     "hubs_with_2plus": 30761,
+     "incidences": 115322,
+     "covered_targets": 115322,
+     "majority_share": 0.5249,
+     "control_share": 0.2795,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L1|paper",
+     "hubs_with_2plus": 271,
+     "incidences": 538522,
+     "covered_targets": 293965,
+     "majority_share": 0.1139,
+     "control_share": 0.0211,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L5|paper",
+     "hubs_with_2plus": 1795,
+     "incidences": 31747,
+     "covered_targets": 22577,
+     "majority_share": 0.2527,
+     "control_share": 0.0845,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L0|paper",
+     "hubs_with_2plus": 10,
+     "incidences": 294152,
+     "covered_targets": 294050,
+     "majority_share": 0.0195,
+     "control_share": 0.0194,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L2|paper",
+     "hubs_with_2plus": 13169,
+     "incidences": 1279198,
+     "covered_targets": 288257,
+     "majority_share": 0.1383,
+     "control_share": 0.0351,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L3|paper",
+     "hubs_with_2plus": 10490,
+     "incidences": 407454,
+     "covered_targets": 210798,
+     "majority_share": 0.2072,
+     "control_share": 0.0521,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L4|paper",
+     "hubs_with_2plus": 3784,
+     "incidences": 89148,
+     "covered_targets": 67396,
+     "majority_share": 0.2447,
+     "control_share": 0.0692,
+     "carries_label": false
+    }
+   ],
+   "seconds": 6.6
+  },
+  "oag-chem": {
+   "target": "paper",
+   "passed": true,
+   "carriers": [],
+   "inventory": {
+    "node_types": [
+     "paper",
+     "field",
+     "author",
+     "affiliation"
+    ],
+    "edge_types": [
+     "paper|PP_cite|paper",
+     "author|AP_write_last|paper",
+     "author|AP_write_other|paper",
+     "author|AP_write_first|paper",
+     "field|FF_in|field",
+     "paper|PF_in_L3|field",
+     "paper|PF_in_L2|field",
+     "paper|PF_in_L1|field",
+     "paper|PF_in_L0|field",
+     "paper|PF_in_L4|field",
+     "paper|PF_in_L5|field",
+     "author|in|affiliation",
+     "paper|rev_AP_write_last|author",
+     "paper|rev_AP_write_other|author",
+     "paper|rev_AP_write_first|author",
+     "field|rev_PF_in_L3|paper",
+     "field|rev_PF_in_L2|paper",
+     "field|rev_PF_in_L1|paper",
+     "field|rev_PF_in_L0|paper",
+     "field|rev_PF_in_L4|paper",
+     "field|rev_PF_in_L5|paper",
+     "affiliation|rev_in|author"
+    ],
+    "attributes": {
+     "paper": [
+      "test_mask",
+      "train_mask",
+      "val_mask",
+      "x",
+      "y",
+      "year"
+     ],
+     "field": [
+      "x"
+     ],
+     "author": [
+      "x"
+     ],
+     "affiliation": [
+      "x"
+     ]
+    },
+    "label_source_names_present": []
+   },
+   "h2snn_flattened_relations": [
+    "paper__PP_cite__paper",
+    "author__AP_write_last__paper",
+    "author__AP_write_other__paper",
+    "author__AP_write_first__paper",
+    "field__FF_in__field",
+    "paper__PF_in_L3__field",
+    "paper__PF_in_L2__field",
+    "paper__PF_in_L1__field",
+    "paper__PF_in_L0__field",
+    "paper__PF_in_L4__field",
+    "paper__PF_in_L5__field",
+    "author__in__affiliation",
+    "paper__rev_AP_write_last__author",
+    "paper__rev_AP_write_other__author",
+    "paper__rev_AP_write_first__author",
+    "field__rev_PF_in_L3__paper",
+    "field__rev_PF_in_L2__paper",
+    "field__rev_PF_in_L1__paper",
+    "field__rev_PF_in_L0__paper",
+    "field__rev_PF_in_L4__paper",
+    "field__rev_PF_in_L5__paper",
+    "affiliation__rev_in__author"
+   ],
+   "probes": [
+    {
+     "relation": "paper|PP_cite|paper",
+     "hubs_with_2plus": 733913,
+     "incidences": 14438559,
+     "covered_targets": 741565,
+     "majority_share": 0.2692,
+     "control_share": 0.0884,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_last|paper",
+     "hubs_with_2plus": 83128,
+     "incidences": 512799,
+     "covered_targets": 512799,
+     "majority_share": 0.4041,
+     "control_share": 0.1873,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_other|paper",
+     "hubs_with_2plus": 261856,
+     "incidences": 1116075,
+     "covered_targets": 445551,
+     "majority_share": 0.4306,
+     "control_share": 0.2529,
+     "carries_label": false
+    },
+    {
+     "relation": "author|AP_write_first|paper",
+     "hubs_with_2plus": 114574,
+     "incidences": 348844,
+     "covered_targets": 348844,
+     "majority_share": 0.5324,
+     "control_share": 0.3391,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L3|field",
+     "hubs_with_2plus": 15515,
+     "incidences": 1703657,
+     "covered_targets": 679217,
+     "majority_share": 0.1521,
+     "control_share": 0.0471,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L2|field",
+     "hubs_with_2plus": 12211,
+     "incidences": 3102185,
+     "covered_targets": 735358,
+     "majority_share": 0.1113,
+     "control_share": 0.0424,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L1|field",
+     "hubs_with_2plus": 242,
+     "incidences": 1331595,
+     "covered_targets": 747027,
+     "majority_share": 0.1016,
+     "control_share": 0.0392,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L0|field",
+     "hubs_with_2plus": 10,
+     "incidences": 747179,
+     "covered_targets": 747053,
+     "majority_share": 0.039,
+     "control_share": 0.039,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L4|field",
+     "hubs_with_2plus": 10617,
+     "incidences": 392443,
+     "covered_targets": 284747,
+     "majority_share": 0.2066,
+     "control_share": 0.0642,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|PF_in_L5|field",
+     "hubs_with_2plus": 5698,
+     "incidences": 83501,
+     "covered_targets": 64875,
+     "majority_share": 0.2719,
+     "control_share": 0.1019,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_last|author",
+     "hubs_with_2plus": 83128,
+     "incidences": 512799,
+     "covered_targets": 512799,
+     "majority_share": 0.4041,
+     "control_share": 0.1873,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_other|author",
+     "hubs_with_2plus": 261856,
+     "incidences": 1116075,
+     "covered_targets": 445551,
+     "majority_share": 0.4306,
+     "control_share": 0.2529,
+     "carries_label": false
+    },
+    {
+     "relation": "paper|rev_AP_write_first|author",
+     "hubs_with_2plus": 114574,
+     "incidences": 348844,
+     "covered_targets": 348844,
+     "majority_share": 0.5324,
+     "control_share": 0.3391,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L3|paper",
+     "hubs_with_2plus": 15515,
+     "incidences": 1703657,
+     "covered_targets": 679217,
+     "majority_share": 0.1521,
+     "control_share": 0.0471,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L2|paper",
+     "hubs_with_2plus": 12211,
+     "incidences": 3102185,
+     "covered_targets": 735358,
+     "majority_share": 0.1113,
+     "control_share": 0.0424,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L1|paper",
+     "hubs_with_2plus": 242,
+     "incidences": 1331595,
+     "covered_targets": 747027,
+     "majority_share": 0.1016,
+     "control_share": 0.0392,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L0|paper",
+     "hubs_with_2plus": 10,
+     "incidences": 747179,
+     "covered_targets": 747053,
+     "majority_share": 0.039,
+     "control_share": 0.039,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L4|paper",
+     "hubs_with_2plus": 10617,
+     "incidences": 392443,
+     "covered_targets": 284747,
+     "majority_share": 0.2066,
+     "control_share": 0.0642,
+     "carries_label": false
+    },
+    {
+     "relation": "field|rev_PF_in_L5|paper",
+     "hubs_with_2plus": 5698,
+     "incidences": 83501,
+     "covered_targets": 64875,
+     "majority_share": 0.2719,
+     "control_share": 0.1019,
+     "carries_label": false
+    }
+   ],
+   "seconds": 13.2
+  }
+ },
+ "peak_rss_gib": 10.59
+}
