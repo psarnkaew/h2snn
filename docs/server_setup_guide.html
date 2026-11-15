@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H2S-NN — คู่มือ setup server (Lab GPU cluster)</title>
+<style>
+  :root{--fg:#1f2328;--muted:#59636e;--bg:#ffffff;--soft:#f6f8fa;--line:#d1d9e0;--accent:#0b6bcb;--warn:#9a6700;--warnbg:#fff8c5;--ok:#1a7f37;--okbg:#dafbe1;--bad:#cf222e;--badbg:#ffebe9}
+  @media (prefers-color-scheme: dark){:root{--fg:#e6edf3;--muted:#9198a1;--bg:#0d1117;--soft:#161b22;--line:#30363d;--accent:#4493f8;--warn:#d29922;--warnbg:#2b2111;--ok:#3fb950;--okbg:#12261e;--bad:#f85149;--badbg:#2d1214}}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.65 system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;color:var(--fg);background:var(--bg)}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-size:28px;margin:0 0 6px} h2{font-size:21px;margin:40px 0 10px;padding-top:12px;border-top:1px solid var(--line)} h3{font-size:17px;margin:22px 0 8px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  nav{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 18px;margin:18px 0}
+  nav ol{margin:0;padding-left:20px;columns:2;column-gap:28px} nav a{color:var(--accent);text-decoration:none}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:15px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top} th{background:var(--soft)}
+  code{font:13.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);padding:1px 5px;border-radius:4px}
+  pre{position:relative;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;margin:8px 0 14px}
+  pre code{background:none;padding:0;font-size:13.5px}
+  button.copy{position:absolute;top:6px;right:6px;font:12px system-ui;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:2px 8px;cursor:pointer}
+  .note{border-left:4px solid var(--accent);background:var(--soft);padding:8px 12px;margin:10px 0;border-radius:0 6px 6px 0}
+  .warn{border-left:4px solid var(--warn);background:var(--warnbg);padding:8px 12px;margin:10px 0;border-radius:0 6px 6px 0}
+  .ok{color:var(--ok);font-weight:600} .bad{color:var(--bad);font-weight:600}
+  .where{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:10px;margin-right:6px;vertical-align:2px}
+  .w-lap{background:#ddf4ff;color:#0550ae} .w-login{background:#fbefff;color:#8250df} .w-node{background:#dafbe1;color:#1a7f37}
+  @media (prefers-color-scheme: dark){.w-lap{background:#0c2d6b;color:#a5d6ff}.w-login{background:#3b1f5c;color:#d2a8ff}.w-node{background:#12261e;color:#7ee787}}
+  footer{margin-top:48px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>คู่มือ setup server สำหรับ H2S-NN</h1>
+<p class="sub">Lab GPU cluster (Murata lab) · เขียนจากการ setup จริงวันที่ 2026-11-14 · ทุกคำสั่งในหน้านี้รันผ่านแล้ว เว้นแต่จะเขียนไว้ว่ายังไม่ได้ลอง</p>
+
+<p>ป้ายบอกว่ารันที่ไหน:
+<span class="where w-lap">เครื่องเรา</span> Windows (PowerShell / Git Bash)
+<span class="where w-login">login01</span> login node (git, แก้ไฟล์, ส่ง job เท่านั้น)
+<span class="where w-node">compute node</span> เครื่องคำนวณ ได้มาด้วย <code>srun</code> หรือ <code>sbatch</code></p>
+
+<nav><ol>
+<li><a href="#map">ภาพรวม: อะไรอยู่ที่ไหน</a></li>
+<li><a href="#ssh">เข้า server และ VS Code</a></li>
+<li><a href="#github">เชื่อม GitHub บน server</a></li>
+<li><a href="#clone">clone repo และ copy ข้อมูล</a></li>
+<li><a href="#env">สร้าง environment (Miniforge)</a></li>
+<li><a href="#slurm">ใช้ srun / sbatch ให้ถูก</a></li>
+<li><a href="#claude">Claude Code บน server</a></li>
+<li><a href="#rules">กฎการทำงานและการ push</a></li>
+<li><a href="#trouble">ปัญหาที่เจอและวิธีแก้</a></li>
+<li><a href="#undo">ย้อนกลับ / ลบทิ้ง</a></li>
+<li><a href="#status">สถานะและงานค้าง</a></li>
+</ol></nav>
+
+<h2 id="map">1. ภาพรวม: อะไรอยู่ที่ไหน</h2>
+<table>
+<tr><th>ของ</th><th>ที่</th><th>หมายเหตุ</th></tr>
+<tr><td>login node</td><td><code>ssh peeradon@ai1.net.comp.isct.ac.jp</code> (นอกแล็บ) หรือ <code>login01.murata-lab.internal</code> (ในแล็บ)</td><td>ห้ามรันงานหนัก ใช้สำหรับ git, แก้ไฟล์, <code>sbatch</code>, <code>squeue</code></td></tr>
+<tr><td>repo</td><td><code>/mnt/data/peeradon/h2snn</code></td><td>project storage: ไม่มีโควตา แต่<b>ทุกคนในแล็บอ่านได้</b> และไม่มี backup</td></tr>
+<tr><td>home</td><td><code>/mnt/home/peeradon</code></td><td>โควตา 50 GB อ่านได้เฉพาะเรา: Miniforge, env, <code>~/.ssh</code>, key ต่างๆ</td></tr>
+<tr><td>conda / env</td><td><code>~/miniforge3</code>, env ที่ <code>~/.conda/envs/h2snn</code></td><td>Python 3.12 ไม่ใช้ <code>/opt/conda</code> (ดูหัวข้อ 9)</td></tr>
+<tr><td>ข้อมูล</td><td><code>/mnt/data/peeradon/h2snn/H2S-NN/data</code></td><td>ไม่อยู่ใน git ต้อง copy เอง</td></tr>
+<tr><td>scratch</td><td><code>/tmp</code> บน compute node</td><td>เร็วที่สุด ถูกลบเมื่อ job จบ</td></tr>
+<tr><td>GPU</td><td><code>2080ti</code> 11 GB · <code>titan_rtx</code> 24 GB · <code>3090</code> 24 GB · <code>a6000</code> 48 GB</td><td>driver 550.163.01, CUDA 12.4 (ตรงกับ wheel <code>cu124</code>)</td></tr>
+</table>
+<p>การส่งงานไปมา: <b>เครื่องเรา (design session: docs, card) ⇄ GitHub <code>psarnkaew/h2snn</code> ⇄ server (Claude Code: โค้ด, test, job)</b></p>
+
+<h2 id="ssh">2. เข้า server และ VS Code</h2>
+<p>ครั้งแรก: login ด้วยรหัสผ่านจากในแล็บหนึ่งครั้ง แล้วเพิ่ม SSH public key ที่ <code>https://idm01.murata-lab.internal</code> (เข้าได้จากในแล็บเท่านั้น) หลังเพิ่ม key แล้วรอได้ถึง 10 นาทีกว่าจะใช้ได้</p>
+<p><span class="where w-lap">เครื่องเรา</span> เพิ่มบรรทัดเหล่านี้ใน <code>C:\Users\Acer\.ssh\config</code></p>
+<pre><code>Host lab
+  HostName ai1.net.comp.isct.ac.jp
+  User peeradon</code></pre>
+<p>ใน VS Code: ติดตั้ง extension <b>Remote - SSH</b> → Command Palette → <b>Remote-SSH: Connect to Host</b> → <code>lab</code> → Open Folder <code>/mnt/data/peeradon/h2snn</code></p>
+<div class="note">ถ้า VS Code ช้ามากหลังติดตั้ง Python extension: Settings → Extensions → Pylance ตั้งให้ไม่สแกนโฟลเดอร์ <code>.conda</code> และ <code>miniforge3</code> (คู่มือแล็บ)</div>
+
+<h2 id="github">3. เชื่อม GitHub บน server</h2>
+<p><span class="where w-login">login01</span> สร้าง key ของ server (เก็บใน home เท่านั้น)</p>
+<pre><code>ssh-keygen -t ed25519 -C "h2snn-lab-server" -f ~/.ssh/id_ed25519_github
+cat ~/.ssh/id_ed25519_github.pub</code></pre>
+<p>GitHub (เว็บ) → Settings → <b>SSH and GPG keys</b> → <b>New SSH key</b> → วางบรรทัด <code>ssh-ed25519 ...</code></p>
+<p><span class="where w-login">login01</span> สร้าง <code>~/.ssh/config</code> (ถ้ายังไม่มีไฟล์ คำสั่งนี้จะสร้างให้)</p>
+<pre><code>cat >> ~/.ssh/config <<'EOF'
+
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/id_ed25519_github
+  IdentitiesOnly yes
+  ProxyCommand none
+EOF
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/config ~/.ssh/id_ed25519_github
+chmod 644 ~/.ssh/id_ed25519_github.pub
+ssh -T git@github.com</code></pre>
+<p>ต้องขึ้น <span class="ok">Hi psarnkaew! You've successfully authenticated…</span> (ครั้งแรกตอบ <code>yes</code>)</p>
+<table>
+<tr><th>บรรทัด</th><th>ทำไมต้องมี</th></tr>
+<tr><td><code>HostName ssh.github.com</code> + <code>Port 443</code></td><td>เผื่อแล็บบล็อกพอร์ต 22 ขาออก</td></tr>
+<tr><td><code>IdentitiesOnly yes</code></td><td>บังคับให้ใช้ key ตัวนี้เท่านั้นกับ GitHub</td></tr>
+<tr><td><code>ProxyCommand none</code></td><td>ระบบตั้ง ssh ให้เรียก <code>sss_ssh_knownhostsproxy</code> ซึ่งพังบน compute node (<code>Broken pipe</code>) บรรทัดนี้ทำให้ทุก node ต่อ GitHub ได้</td></tr>
+</table>
+<p><span class="where w-login">login01</span> ตั้งชื่อผู้ commit ให้ตรงกับเครื่องเรา</p>
+<pre><code>git config --global user.name "psarnkaew"
+git config --global user.email "&lt;อีเมลเดียวกับที่ใช้ commit บนเครื่องเรา&gt;"</code></pre>
+
+<h2 id="clone">4. clone repo และ copy ข้อมูล</h2>
+<p><span class="where w-login">login01</span></p>
+<pre><code>cd /mnt/data/peeradon
+git clone git@github.com:psarnkaew/h2snn.git
+cd h2snn && git fetch origin && git checkout &lt;branch&gt;</code></pre>
+<p><span class="where w-lap">เครื่องเรา</span> push ก่อนทุกครั้งที่อยากให้ server เห็นของใหม่: <code>git push origin &lt;branch&gt;</code></p>
+<p><span class="where w-lap">เครื่องเรา</span> copy ข้อมูล (ไม่อยู่ใน git; ประมาณ 3.3 GB ไม่รวมข้อมูล H2GB)</p>
+<pre><code>scp -r "C:\Users\Acer\Desktop\h2snn\H2S-NN\data" peeradon@ai1.net.comp.isct.ac.jp:/mnt/data/peeradon/h2snn/H2S-NN/</code></pre>
+<p>รายการไฟล์ที่ควรมี: <code>docs/cluster_evidence/laptop_data_manifest.tsv</code> (path และขนาด)</p>
+<div class="warn">ห้ามวาง key, token หรือ W&amp;B key ใน <code>/mnt/data</code> เพราะทุกคนในแล็บอ่านได้ ให้เก็บใน home (เช่น <code>wandb login</code> จะเก็บที่ <code>~/.netrc</code>)</div>
+
+<h2 id="env">5. สร้าง environment (Miniforge ใน home)</h2>
+<div class="warn"><b>ทำไมไม่ใช้ <code>/opt/conda</code> ตามคู่มือแล็บ:</b> <code>/opt/conda/.condarc</code> ล็อก <code>pkgs_dirs: #!final</code> ไว้ที่ <code>/mnt/data/cache</code> แต่ไฟล์ในนั้นเป็นของ user อื่น <code>conda create</code> จึงล้มด้วย <code>PermissionError</code> ทุกครั้ง และ <code>~/.condarc</code> หรือ <code>CONDA_PKGS_DIRS</code> แทนค่าที่ล็อกด้วย <code>#!final</code> ไม่ได้ ถ้า admin แก้แล้วในภายหลัง กลับไปใช้ <code>/opt/conda</code> ได้</div>
+<p><span class="where w-login">login01</span> ขอ compute node ก่อน (คู่มือห้ามติดตั้งบน login node)</p>
+<pre><code>srun --mem=16G --time=2:00:00 --pty bash</code></pre>
+<p><span class="where w-node">compute node</span> ติดตั้ง Miniforge (ไม่แก้ <code>.bashrc</code>) แล้วสร้าง env</p>
+<pre><code>cd ~
+curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh -b -p ~/miniforge3
+rm Miniforge3-Linux-x86_64.sh
+. ~/miniforge3/etc/profile.d/conda.sh
+conda create -n h2snn python=3.12 -y
+conda activate h2snn
+which python        # /mnt/home/peeradon/.conda/envs/h2snn/bin/python</code></pre>
+<p><span class="where w-node">compute node</span> ติดตั้งแพ็กเกจแบบ<b>ล็อกเวอร์ชัน</b>ให้ตรงกับเครื่องเรา (ห้ามใช้ <code>pip install -r requirements.txt</code> ตรงๆ ดูหัวข้อ 9)</p>
+<pre><code>python -m pip install --upgrade pip
+python -m pip install --no-cache-dir "torch==2.6.0+cu124" --extra-index-url https://download.pytorch.org/whl/cu124
+python -m pip install --no-cache-dir torch_scatter==2.1.2 torch_sparse==0.6.18 torch_cluster==1.6.3 -f https://data.pyg.org/whl/torch-2.6.0+cu124.html
+python -m pip install --no-cache-dir torch_geometric==2.8.0 numpy==2.4.6 scipy==1.18.0 scikit-learn==1.9.0 pyyaml==6.0.3 torchmetrics==1.8.2 wandb==0.28.0 pandas==3.0.3 tqdm==4.68.3 umap-learn==0.5.12 matplotlib==3.11.0 ogb==1.3.6 yacs==0.1.8 dill==0.4.1 pytorch_lightning==2.6.5 prettytable==3.18.0 gdown==6.1.0 performer-pytorch==1.1.4 seaborn==0.13.2 texttable==1.7.0 termcolor==3.3.0</code></pre>
+<p>ตรวจ (ต้องขอ GPU ด้วย):</p>
+<pre><code>srun --gres=gpu:1 --mem=8G --time=0:15:00 --pty bash
+. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn
+python -c "import torch, torch_geometric, torch_scatter, torch_sparse; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0), torch_geometric.__version__)"
+exit</code></pre>
+<p>ต้องได้ประมาณ <span class="ok">2.6.0+cu124 True NVIDIA GeForce RTX 2080 Ti 2.8.0</span></p>
+<table>
+<tr><th>กลุ่ม</th><th>ใช้กับ</th><th>สถานะ</th></tr>
+<tr><td>core (torch, PyG, …)</td><td>H2S-NN, test, ทุก baseline</td><td class="ok">ติดตั้งแล้ว</td></tr>
+<tr><td>h2gb, hetero2net</td><td>H2G-former, Hetero²Net</td><td class="ok">ติดตั้งแล้ว (อยู่ในคำสั่งข้างบน)</td></tr>
+<tr><td>DGL 2.5.0+cu124</td><td>GCN, GAT, HAN, SeHGNN, HINormer, PSHGCN (LP)</td><td class="bad">ยังไม่ได้ลง: <code>data.dgl.ai</code> ต่อไม่ได้จาก server (SSL EOF) ดาวน์โหลด wheel บนเครื่องเราแล้ว <code>scp</code> ขึ้นไป แล้ว <code>pip install &lt;file&gt;.whl</code></td></tr>
+<tr><td>torch_householder 1.0.1</td><td>CSNN, NSD</td><td>ต้อง compile (ต้องมี <code>gcc</code>) ทำใน cluster-setup card</td></tr>
+<tr><td>HetSheaf</td><td>HetSheaf</td><td>ต้องแยก env (Python ≥ 3.13, torch 2.8) ทำใน card ต่อไป</td></tr>
+</table>
+
+<h2 id="slurm">6. ใช้ srun / sbatch ให้ถูก</h2>
+<table>
+<tr><th>เรื่อง</th><th>ทำอย่างไร</th><th>เพราะอะไร</th></tr>
+<tr><td>ทุก shell หรือ job ใหม่ต้องเปิด env เอง</td><td><code>. ~/miniforge3/etc/profile.d/conda.sh</code> แล้ว <code>conda activate h2snn</code></td><td><code>srun --pty bash</code> เปิด shell ใหม่ ส่วน <code>sbatch</code> ไม่อ่าน <code>~/.bashrc</code></td></tr>
+<tr><td>ห้ามใช้ conda สองตัวปนกัน</td><td>ห้ามมี <code>. /opt/conda/...</code> ใน shell หรือ script เดียวกัน</td><td>จะสลับไปใช้ conda ของ server ที่สร้าง env ไม่ได้</td></tr>
+<tr><td>ระบุทรัพยากรทุกครั้ง</td><td><code>--mem</code>, <code>--time</code> (≤ 72 ชม.), <code>--gres=gpu:&lt;ชนิด&gt;:1</code>, <code>--cpus-per-task</code></td><td>คู่มือบังคับ งานเกิน 72 ชม. ต้องมี checkpoint</td></tr>
+<tr><td>ห้ามรันใน <code>$HOME</code></td><td>ใน script ให้ <code>cd /mnt/data/peeradon/h2snn/H2S-NN</code></td><td>คู่มือห้าม และ home มีโควตา 50 GB</td></tr>
+<tr><td>ห้าม <code>srun</code> ซ้อน</td><td>ถ้า prompt เป็นชื่อ node แล้ว (เช่น <code>g2tn01</code>) แปลว่าอยู่บน compute node แล้ว อย่าสั่ง <code>srun</code> อีก</td><td><code>srun</code> ที่ซ้อนจะค้างด้วย <code>step creation temporarily disabled</code></td></tr>
+<tr><td>วางคำสั่งทีละบรรทัดเมื่อมี <code>srun --pty</code> หรือ <code>exit</code></td><td>อย่าวางทั้งก้อน</td><td>บรรทัดที่ตามหลังจะไปรันผิดเครื่อง</td></tr>
+<tr><td>งาน interactive ยาว</td><td>เปิด <code>tmux</code> บน login node ก่อน แล้วค่อย <code>srun --pty bash</code></td><td>เน็ตหลุดแล้ว job ไม่ตาย</td></tr>
+<tr><td>โควตา home</td><td><code>pip install --no-cache-dir</code>, <code>conda clean --all</code>, <code>du -sh ~</code></td><td>env ที่มี torch ใช้ราว 6–8 GB</td></tr>
+</table>
+<h3>ตัวอย่าง sbatch</h3>
+<pre><code>#!/bin/bash
+#SBATCH --job-name=h2snn-tests
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=4:00:00
+#SBATCH --output=/mnt/data/peeradon/h2snn/H2S-NN/logs/slurm-%j.out
+. ~/miniforge3/etc/profile.d/conda.sh
+conda activate h2snn
+cd /mnt/data/peeradon/h2snn/H2S-NN
+python -m unittest discover -s tests</code></pre>
+<p>สร้าง <code>logs/</code> ก่อนส่ง (<code>mkdir -p .../H2S-NN/logs</code>) · ส่ง: <code>sbatch file.sbatch</code> · ดู: <code>squeue -u $USER</code> · ยกเลิก: <code>scancel &lt;JOBID&gt;</code> · ดูทรัพยากรของ node: <code>sinfo</code></p>
+
+<h2 id="claude">7. Claude Code บน server</h2>
+<ul>
+<li><b>Extension ใน VS Code:</b> ในหน้าต่างที่ต่อ SSH อยู่ ให้ติดตั้ง Claude Code แบบ <b>"Install in SSH: lab"</b> extension มี CLI ของตัวเองติดมา ใช้ได้ทันที ครั้งแรกจะให้ login ด้วยบัญชี Claude</li>
+<li><b>Native CLI (ไม่บังคับ):</b> ลงตาม <a href="https://code.claude.com/docs/en/setup">Advanced setup</a> ได้คำสั่ง <code>claude</code> ใน terminal ซึ่งใช้ใน <code>tmux</code> ได้ งานยาวจึงไม่หยุดตอนหน้าต่าง VS Code หลุด ลงคู่กับ extension ได้ ใช้การตั้งค่า <code>~/.claude/</code> ชุดเดียวกัน</li>
+<li>Claude Code ทำงานบน login node: ให้ใช้ทำงาน git และแก้ไฟล์ ส่วน test หรือการเทรนต้องส่งผ่าน <code>srun</code>/<code>sbatch</code> เท่านั้น</li>
+<li>เช็คว่าเข้าถึง API ได้: <code>curl -sI https://api.anthropic.com | head -1</code> ขึ้น <code>HTTP/2 404</code> แปลว่าต่อได้</li>
+</ul>
+
+<h2 id="rules">8. กฎการทำงานและการ push (2026-11-14)</h2>
+<table>
+<tr><th>ใคร</th><th>push ได้</th><th>push ไม่ได้</th></tr>
+<tr><td>agent บน server</td><td>branch งานของตัวเอง (เช่น <code>cluster-setup</code>, <code>part-m3a</code>) หลังทำเสร็จแต่ละ unit</td><td><code>v3b</code>, branch ของคนอื่น, force-push</td></tr>
+<tr><td>design session (Cowork บนเครื่องเรา)</td><td>commit docs บน branch ที่เปิดอยู่ (เฉพาะตอนไม่มี agent ทำงานบน branch นั้น) แล้วเราเป็นคน push</td><td>—</td></tr>
+<tr><td><code>v3b</code></td><td>fast-forward หลังเราอนุมัติรายงานเท่านั้น แล้วค่อย push</td><td>—</td></tr>
+</table>
+<p>card ทุกใบตรึง commit hash ไว้ agent จะ fetch ก่อน และหยุดถ้า hash ไม่ตรง · งาน git ทำบน login node (compute node ก็ใช้ได้หลังตั้ง <code>ProxyCommand none</code>)</p>
+
+<h2 id="trouble">9. ปัญหาที่เจอและวิธีแก้</h2>
+<table>
+<tr><th>อาการ</th><th>สาเหตุ</th><th>แก้</th></tr>
+<tr><td><code>PermissionError: ... /mnt/data/cache/cache/*.info.json</code> ตอน <code>conda create</code></td><td><code>/opt/conda/.condarc</code>: <code>pkgs_dirs: #!final</code> → <code>/mnt/data/cache</code> ซึ่งไฟล์เป็นของ user อื่น</td><td>ใช้ Miniforge ใน home (หัวข้อ 5) หรือขอ admin แก้สิทธิ์ของ <code>/mnt/data/cache</code></td></tr>
+<tr><td><code>CONDA_PKGS_DIRS</code> หรือ <code>~/.condarc</code> ไม่มีผล (<code>package cache : /mnt/data/cache</code>)</td><td>ค่าถูกล็อกด้วย <code>#!final</code></td><td>เหมือนข้างบน</td></tr>
+<tr><td><code>srun: Job … step creation temporarily disabled</code></td><td>สั่ง <code>srun</code> ซ้อนตอนอยู่บน compute node อยู่แล้ว</td><td>กด Ctrl+C, <code>exit</code> กลับ login node, <code>squeue -u $USER</code>, แล้วขอ node ใหม่ครั้งเดียว</td></tr>
+<tr><td><code>SSLError ... UNEXPECTED_EOF</code> ที่ <code>data.dgl.ai</code></td><td>server ต่อเว็บของ DGL ไม่ได้</td><td>ข้าม DGL ไปก่อน แล้วดาวน์โหลด wheel บนเครื่องเรา + <code>scp</code></td></tr>
+<tr><td><code>pip install -r requirements.txt</code> ได้เวอร์ชันใหม่กว่าเครื่องเรา (เช่น numpy 2.5.4)</td><td>ไฟล์ requirements ไม่ได้ล็อกเวอร์ชัน และ DGL ที่หาไม่เจอจะทำให้ล้มทั้งชุด</td><td>ใช้คำสั่งที่ล็อกเวอร์ชันในหัวข้อ 5 (ต่อไปจะมี <code>requirements/linux-lock.txt</code>)</td></tr>
+<tr><td><code>banner exchange: Connection to UNKNOWN port 65535: Broken pipe</code> ตอน <code>git fetch</code></td><td><code>sss_ssh_knownhostsproxy</code> ของระบบ</td><td>เพิ่ม <code>ProxyCommand none</code> ใต้ <code>Host github.com</code></td></tr>
+<tr><td><code>ModuleNotFoundError: No module named 'torch'</code> ใน env ใหม่</td><td>env เพิ่งสร้าง ยังไม่มีแพ็กเกจ</td><td>รันคำสั่ง <code>pip</code> ในหัวข้อ 5 ใน env นั้น</td></tr>
+<tr><td><code>RuntimeError: No CUDA GPUs are available</code></td><td>รันบน login node หรือขอ job โดยไม่มี <code>--gres=gpu:1</code></td><td>ขอ node พร้อม GPU</td></tr>
+<tr><td><code>conda env list</code> ไม่เห็น env</td><td>env นั้นเป็น venv ไม่ใช่ conda (ทางเก่าที่เลิกใช้แล้ว) หรือ activate ผิดตัว</td><td><code>. ~/miniforge3/etc/profile.d/conda.sh</code> แล้ว <code>conda env list</code></td></tr>
+<tr><td>VS Code ต่อไม่ติด: <code>Resource temporarily unavailable</code></td><td>process ค้างบน login node</td><td>แจ้ง admin ให้ลบ process (คู่มือแล็บ)</td></tr>
+<tr><td><code>Disk quota exceeded</code></td><td>home เกิน 50 GB</td><td><code>conda clean --all</code>, ลบ cache ของ pip และ env ที่ไม่ใช้</td></tr>
+</table>
+<p>ข้อความถึง admin (ถ้าต้องการให้ <code>/opt/conda</code> ใช้ได้):</p>
+<pre><code>conda create ล้มด้วย PermissionError: [Errno 13] Permission denied: '/mnt/data/cache/cache/497deca9.info.json'
+เพราะ /opt/conda/.condarc ตั้ง pkgs_dirs: #!final ไว้ที่ /mnt/data/cache แต่ไฟล์ cache ในนั้นเป็นของ user อื่น
+ช่วยตั้งสิทธิ์ให้ทุกคนในกลุ่มเขียนได้ หรือให้ user ใช้ cache ของตัวเองได้ไหมครับ</code></pre>
+
+<h2 id="undo">10. ย้อนกลับ / ลบทิ้ง</h2>
+<pre><code>rm -rf ~/miniforge3                    # ลบ conda ที่ลงเอง
+rm -rf ~/.conda/envs/h2snn             # ลบ env
+conda config --remove pkgs_dirs ~/.conda/pkgs
+conda config --remove envs_dirs ~/.conda/envs
+rm -rf ~/venvs/h2snn                   # venv เก่า (ถ้ายังอยู่)</code></pre>
+<p>ไม่มีอะไรนอก home ที่ถูกแก้ ลบแล้วจะกลับไปใช้ <code>/opt/conda</code> ตามคู่มือได้เหมือนเดิม</p>
+
+<h2 id="status">11. สถานะและงานค้าง (2026-11-14)</h2>
+<table>
+<tr><th>เรื่อง</th><th>สถานะ</th></tr>
+<tr><td>SSH, VS Code, GitHub (ทั้ง login node และ compute node)</td><td class="ok">ใช้ได้</td></tr>
+<tr><td>env <code>h2snn</code> (Miniforge), torch 2.6.0+cu124 บน GPU</td><td class="ok">ใช้ได้</td></tr>
+<tr><td>repo ที่ <code>/mnt/data/peeradon/h2snn</code>, <code>part-mb</code> @ <code>ccbcf99</code></td><td class="ok">ใช้ได้</td></tr>
+<tr><td>cluster-setup card (CS0–CS6): ไฟล์ล็อกเวอร์ชัน, script <code>sbatch</code>, vendor 12 ตัว, เช็คข้อมูล, test ชุดเต็ม</td><td>agent กำลังทำ (branch <code>cluster-setup</code>)</td></tr>
+<tr><td>DGL</td><td class="bad">ค้าง (ดูหัวข้อ 5)</td></tr>
+<tr><td>HetSheaf env, tuning launcher, ข้อมูลและ preprocessing ของ H2GB (M3b), M3a</td><td>card ต่อไป</td></tr>
+<tr><td>W&amp;B</td><td>ยังไม่ตั้ง (<code>wandb login</code> ตอนจะเริ่ม tune)</td></tr>
+<tr><td>แจ้ง admin เรื่อง <code>/mnt/data/cache</code></td><td>ไม่เร่ง</td></tr>
+</table>
+
+<footer>เอกสารนี้เป็นสำเนาใน repo: <code>docs/server_setup_guide.html</code> · ข้อมูลของ cluster มาจากคู่มือแล็บ "Lab GPU Cluster" และสิ่งที่ตรวจจริงวันที่ 2026-11-14 · เมื่อ cluster-setup card เสร็จ จะอัปเดตส่วน DGL, linux-lock และ script จริง</footer>
+</div>
+<script>
+document.querySelectorAll('pre').forEach(function(pre){
+  var b=document.createElement('button');b.className='copy';b.textContent='copy';
+  b.onclick=function(){var t=pre.querySelector('code').innerText;
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){b.textContent='copied';setTimeout(function(){b.textContent='copy'},1200)})}};
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+# E5, 2026-11-14T06:18:46+09:00, git 7b191dea866a09a8642e3ddd20937c5136646265
+
+=================== env h2snn-b (2.4.1+cu124) ===================
+$ python -m unittest tests.test_task_heads tests.test_cooperative -v
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T4_a_node_with_zero_broadcast_gate_influences_nobody (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_broadcast_gate_influences_nobody) ... ok
+test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly) ... ok
+test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric (tests.test_cooperative.CooperativeBehaviourTests.test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric) ... ok
+test_energy_parts_equal_the_dense_rayleigh_quotients (tests.test_cooperative.DiagnosticsTests.test_energy_parts_equal_the_dense_rayleigh_quotients) ... ok
+test_energy_trace_has_every_step_and_does_not_change_the_model_state (tests.test_cooperative.DiagnosticsTests.test_energy_trace_has_every_step_and_does_not_change_the_model_state) ... ok
+test_the_trainer_logs_the_trace_and_the_gate_statistics (tests.test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics) ... C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-14 06:19:35,614 | INFO | Epoch 0000 | train_loss: 1.1330 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.2500 | val_loss: 1.0966 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-14 06:19:35,633 | INFO | Checkpoint metric acc: 0.3750
+C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-14 06:19:36,026 | INFO | Epoch 0001 | train_loss: 1.1166 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1481 | train_micro_f1: 0.2500 | val_loss: 1.0923 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-14 06:19:36,033 | INFO | Checkpoint metric acc: 0.3750
+2026-11-14 06:19:36,033 | INFO | Best epoch 0 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500 | test_acc: 0.2500
+ok
+test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates (tests.test_cooperative.FixedPointTests.test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates) ... ok
+test_T6_gradients_reach_both_gate_heads (tests.test_cooperative.GateGradientTests.test_T6_gradients_reach_both_gate_heads) ... C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T2_gated_step_equals_the_dense_reference (tests.test_cooperative.GatedOperatorTests.test_T2_gated_step_equals_the_dense_reference) ... ok
+test_T2_the_fixtures_mix_lengths_and_signs (tests.test_cooperative.GatedOperatorTests.test_T2_the_fixtures_mix_lengths_and_signs) ... ok
+test_lobpcg_eigenvalues_match_the_dense_spectrum (tests.test_cooperative.KernelScriptTests.test_lobpcg_eigenvalues_match_the_dense_spectrum) ... ok
+test_TF1_control_old_setting_does_not_move (tests.test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move) ... ok
+test_TF1_group_contents_and_defaults (tests.test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults) ... ok
+test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (tests.test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads) ... ok
+test_TF2_metric_gradient_identity (tests.test_cooperative.MetricGradientFlowTests.test_TF2_metric_gradient_identity) ... ok
+test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three (tests.test_cooperative.MetricGradientFlowTests.test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three) ... ok
+test_TF3b_control_free_per_direction_weights_have_no_metric (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_control_free_per_direction_weights_have_no_metric)
+A free weight per direction breaks detailed balance, so the check is not vacuous. ... ok
+test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T3_negative_control_csnn_composed_operator_is_complex (tests.test_cooperative.SpectrumTests.test_T3_negative_control_csnn_composed_operator_is_complex) ... ok
+test_T3_real_spectrum_and_bound_with_gates (tests.test_cooperative.SpectrumTests.test_T3_real_spectrum_and_bound_with_gates) ... ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 178.913s
+
+OK
+
+$ python ../docs/partMB_evidence/mb0_reference.py compare ../docs/partMB_evidence/mb0_reference.pt
+C:\Users\Acer\Desktop\h2snn\docs\partMB_evidence\mb0_reference.py:96: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  _flatten("", torch.load(path), ref)
+C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 139 tensors; differing: none
+[exit=0]
+
+=================== env h2snn (2.6.0+cu124) ===================
+$ python -m unittest tests.test_task_heads tests.test_cooperative -v
+test_logits_are_invariant_to_node_permutation_within_a_graph (tests.test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... C:\Users\Acer\anaconda3\envs\h2snn\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_one_training_step_is_finite (tests.test_task_heads.GraphClassificationHeadTests.test_one_training_step_is_finite) ... ok
+test_each_decoder_trains_one_step_and_reaches_the_encoder (tests.test_task_heads.LinkPredictionHeadTests.test_each_decoder_trains_one_step_and_reaches_the_encoder) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (tests.test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+Captured from the pre-removal code (13 cases: toy ACM/DBLP/IMDB, a paper-author ... ok
+test_T4_a_node_with_zero_broadcast_gate_influences_nobody (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_broadcast_gate_influences_nobody) ... ok
+test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly (tests.test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly) ... ok
+test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric (tests.test_cooperative.CooperativeBehaviourTests.test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric) ... ok
+test_energy_parts_equal_the_dense_rayleigh_quotients (tests.test_cooperative.DiagnosticsTests.test_energy_parts_equal_the_dense_rayleigh_quotients) ... ok
+test_energy_trace_has_every_step_and_does_not_change_the_model_state (tests.test_cooperative.DiagnosticsTests.test_energy_trace_has_every_step_and_does_not_change_the_model_state) ... ok
+test_the_trainer_logs_the_trace_and_the_gate_statistics (tests.test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics) ... 2026-11-14 06:22:53,619 | INFO | Epoch 0000 | train_loss: 1.1330 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1667 | train_micro_f1: 0.2500 | val_loss: 1.0966 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-14 06:22:53,639 | INFO | Checkpoint metric acc: 0.3750
+2026-11-14 06:22:53,934 | INFO | Epoch 0001 | train_loss: 1.1166 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1481 | train_micro_f1: 0.2500 | val_loss: 1.0923 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3238 | val_micro_f1: 0.3750 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500
+2026-11-14 06:22:53,943 | INFO | Checkpoint metric acc: 0.3750
+2026-11-14 06:22:53,944 | INFO | Best epoch 0 | test_macro_f1: 0.2857 | test_micro_f1: 0.2500 | test_acc: 0.2500
+ok
+test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates (tests.test_cooperative.FixedPointTests.test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates) ... ok
+test_T6_gradients_reach_both_gate_heads (tests.test_cooperative.GateGradientTests.test_T6_gradients_reach_both_gate_heads) ... ok
+test_T2_gated_step_equals_the_dense_reference (tests.test_cooperative.GatedOperatorTests.test_T2_gated_step_equals_the_dense_reference) ... ok
+test_T2_the_fixtures_mix_lengths_and_signs (tests.test_cooperative.GatedOperatorTests.test_T2_the_fixtures_mix_lengths_and_signs) ... ok
+test_lobpcg_eigenvalues_match_the_dense_spectrum (tests.test_cooperative.KernelScriptTests.test_lobpcg_eigenvalues_match_the_dense_spectrum) ... ok
+test_TF1_control_old_setting_does_not_move (tests.test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move) ... ok
+test_TF1_group_contents_and_defaults (tests.test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults) ... ok
+test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (tests.test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads) ... ok
+test_TF2_metric_gradient_identity (tests.test_cooperative.MetricGradientFlowTests.test_TF2_metric_gradient_identity) ... ok
+test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three (tests.test_cooperative.MetricGradientFlowTests.test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three) ... ok
+test_TF3b_control_free_per_direction_weights_have_no_metric (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_control_free_per_direction_weights_have_no_metric)
+A free weight per direction breaks detailed balance, so the check is not vacuous. ... ok
+test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists (tests.test_cooperative.MetricGradientFlowTests.test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T3_negative_control_csnn_composed_operator_is_complex (tests.test_cooperative.SpectrumTests.test_T3_negative_control_csnn_composed_operator_is_complex) ... ok
+test_T3_real_spectrum_and_bound_with_gates (tests.test_cooperative.SpectrumTests.test_T3_real_spectrum_and_bound_with_gates) ... ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 172.685s
+
+OK
+
+$ python ../docs/partMB_evidence/mb0_reference.py compare ../docs/partMB_evidence/mb0_reference.pt
+compared 139 tensors; differing: none
+[exit=0]
+
+## E5 verdict (agent), by the result rule fixed in the card before the run
+- h2snn-b (torch 2.4.1): tests.test_task_heads + tests.test_cooperative: Ran 30, OK (the golden tests, incl. test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit, pass);
+  mb0_reference.py compare: "compared 139 tensors; differing: none".
+- Control, h2snn (torch 2.6.0), same commands: Ran 30, OK; "differing: none".
+=> torch 2.4.1 and 2.6.0 give identical initial weights and outputs on this machine (this CPU, Windows, same wheels family). The cluster's 1-ulp
+   difference at initialisation (CS4/CS5) is therefore not explained by the torch version; it is platform (compiler, MKL/BLAS, CPU).
+   Limit of this measurement: one machine; it says nothing about the cluster itself. (mb0 compare prints only the first 5 names; "none" means the list is empty.)

@@ -1,0 +1,585 @@
+# E9 suite in h2snn-b240, started 2026-11-14T10:07:23+09:00, git 2a0195c97c5611c93922e9b9879c45ae2d21c6bf
+$ cd H2S-NN; python -m unittest discover -s tests -v   (/c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe)
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\__main__.py", line 18, in <module>
+    main(module=None)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 104, in __init__
+    self.parseArgs(argv)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 130, in parseArgs
+    self._do_discovery(argv[2:])
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 253, in _do_discovery
+    self.createTests(from_discovery=True, Loader=Loader)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\main.py", line 160, in createTests
+    self.test = loader.discover(self.start, self.pattern, self.top)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 310, in discover
+    tests = list(self._find_tests(start_dir, pattern))
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 366, in _find_tests
+    tests, should_recurse = self._find_test_path(full_path, pattern)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\unittest\loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "C:\Users\Acer\Desktop\h2snn\H2S-NN\tests\test_anchored_solve.py", line 15, in <module>
+    import torch
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+    from torch._higher_order_ops import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+    from .cond import cond
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+    import torch._subclasses.functional_tensor
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+    class FunctionalTensor(torch.Tensor):
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+    cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_T10_implicit_gradient_matches_central_finite_differences (test_anchored_solve.ImplicitGradientTests.test_T10_implicit_gradient_matches_central_finite_differences) ... ok
+test_T9_pcg_matches_the_dense_solve (test_anchored_solve.PCGTests.test_T9_pcg_matches_the_dense_solve) ... ok
+test_supported_cells_are_runnable_in_the_registry (test_baselines.AdapterContractTests.test_supported_cells_are_runnable_in_the_registry) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_supports_agrees_with_search_space (test_baselines.AdapterContractTests.test_supports_agrees_with_search_space) ... ok
+test_notebooks_are_committed_clean (test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed. ... FAIL
+test_notebooks_drive_the_entry_scripts (test_baselines.BaselineNotebookTests.test_notebooks_drive_the_entry_scripts)
+The notebooks must call the scripts, not reimplement the campaign. ... ok
+test_graph_summary_reports_one_standard_deviation (test_baselines.CampaignSummaryTests.test_graph_summary_reports_one_standard_deviation)
+Under HINPool's holdout there is no repetition structure to average over. ... ok
+test_seed_tasks_report_one_standard_deviation (test_baselines.CampaignSummaryTests.test_seed_tasks_report_one_standard_deviation) ... ok
+test_every_runnable_cell_builds_a_sweep (test_baselines.CampaignSweepTests.test_every_runnable_cell_builds_a_sweep)
+A search space that fails to resolve must fail now, not mid-campaign. ... ok
+test_no_hyperband_option_remains (test_baselines.CampaignSweepTests.test_no_hyperband_option_remains)
+Spec v1.15 §6: no Hyperband (it feeds unconverged scores to the surrogate); the ... ok
+test_graph_split_comes_from_seed_not_overrides (test_baselines.CampaignUnitTests.test_graph_split_comes_from_seed_not_overrides)
+The split position travels as run_index/seed, which build_bundle takes. ... ok
+test_graph_units_are_seeded_holdout_runs (test_baselines.CampaignUnitTests.test_graph_units_are_seeded_holdout_runs)
+HINPool's protocol: five seeded stratified 80/10/10 holdouts, not folds. ... ok
+test_link_units_carry_no_split_overrides (test_baselines.CampaignUnitTests.test_link_units_carry_no_split_overrides) ... ok
+test_node_and_link_units_are_seeds (test_baselines.CampaignUnitTests.test_node_and_link_units_are_seeds) ... ok
+test_report_current_adapter_coverage (test_baselines.CoverageReportTests.test_report_current_adapter_coverage)
+Not a pass/fail gate -- prints how much of the matrix is actually implemented. ... [coverage] 135/135 runnable cells have an adapter; no adapter yet: none
+ok
+test_a_machine_without_a_gpu_has_no_defect (test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect. ... ok
+test_cpu_only_dgl_on_windows_stays_installed (test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+test_scripts_importing_src_bootstrap_the_project_root (test_baselines.EntryPointBootstrapTests.test_scripts_importing_src_bootstrap_the_project_root) ... ok
+test_a_hyperband_stop_is_not_a_failure (test_baselines.EpochReportingTests.test_a_hyperband_stop_is_not_a_failure)
+W&B terminates a pruned run thread with a bare ``Exception``. ... ok
+test_report_key_matches_the_sweep_metric (test_baselines.EpochReportingTests.test_report_key_matches_the_sweep_metric)
+Live series and sweep metric must share a key, or nothing can prune. ... ok
+test_shared_loops_accept_a_report (test_baselines.EpochReportingTests.test_shared_loops_accept_a_report) ... ok
+test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) ... ok
+test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) ... ok
+test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) ... ok
+test_graph_head_pools_per_graph (test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_featureless_type_falls_back_to_identity (test_baselines.HomogeneousViewTests.test_featureless_type_falls_back_to_identity) ... ok
+test_link_prediction_view_keeps_real_features (test_baselines.HomogeneousViewTests.test_link_prediction_view_keeps_real_features)
+Regression: the default view once replaced real features with an identity. ... ok
+test_symmetrization_adds_self_loops_and_drops_duplicates (test_baselines.HomogeneousViewTests.test_symmetrization_adds_self_loops_and_drops_duplicates) ... ok
+test_a_lane_declares_the_vendor_clones_its_models_read (test_baselines.LaneNotebookTests.test_a_lane_declares_the_vendor_clones_its_models_read) ... ok
+test_committed_notebooks_match_the_generator (test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator)
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... ok
+test_each_lane_installs_only_its_own_group (test_baselines.LaneNotebookTests.test_each_lane_installs_only_its_own_group)
+The whole reason for the split: one optional group per runtime. ... ok
+test_every_lane_drives_the_entry_scripts_and_can_resume (test_baselines.LaneNotebookTests.test_every_lane_drives_the_entry_scripts_and_can_resume) ... ok
+test_every_lane_model_needs_that_lane_group (test_baselines.LaneNotebookTests.test_every_lane_model_needs_that_lane_group) ... ok
+test_lanes_partition_every_requested_cell_exactly_once (test_baselines.LaneNotebookTests.test_lanes_partition_every_requested_cell_exactly_once)
+No cell may be dropped between lanes, and none may be run twice. ... ok
+test_no_lane_overrides_the_shared_training_budget (test_baselines.LaneNotebookTests.test_no_lane_overrides_the_shared_training_budget)
+`--epochs` reaches the training loops now, so a notebook must not set it. ... ok
+test_node_classification_runs_only_the_requested_subset (test_baselines.LaneNotebookTests.test_node_classification_runs_only_the_requested_subset)
+HINormer on ACM alone; the other four on all three datasets. ... ok
+test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) ... ok
+test_the_dgl_lane_refuses_to_run_on_cpu (test_baselines.LaneNotebookTests.test_the_dgl_lane_refuses_to_run_on_cpu)
+A CPU-only DGL wastes the whole session; the lane must stop, not warn. ... ok
+test_an_explicit_ratio_survives_the_preset (test_baselines.LinkProtocolTests.test_an_explicit_ratio_survives_the_preset) ... ok
+test_every_hgb_dataset_holds_out_at_hgbs_rate (test_baselines.LinkProtocolTests.test_every_hgb_dataset_holds_out_at_hgbs_rate)
+HGB draws validation at 1 - train_ratio = 0.10 on every link dataset. ... ok
+test_homogeneous_link_baselines_share_one_graph (test_baselines.LinkProtocolTests.test_homogeneous_link_baselines_share_one_graph)
+GCN/GAT read ``view.edge_index``, the reduction NSD and CSNN already got. ... ok
+test_split_overlap_is_measured (test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded. ... ERROR
+test_adapters_can_be_called_twice_in_one_process (test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects. ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_oracle_topk_matches_the_vendor_implementation (test_baselines.MultiLabelProtocolTests.test_oracle_topk_matches_the_vendor_implementation) ... ERROR
+test_project_helper_can_reproduce_the_hgb_convention (test_baselines.MultiLabelProtocolTests.test_project_helper_can_reproduce_the_hgb_convention)
+src/utils/misc.py must be able to reproduce PSHGCN/H2SGNN's convention. ... ERROR
+test_rejects_an_unknown_protocol (test_baselines.MultiLabelProtocolTests.test_rejects_an_unknown_protocol) ... ok
+test_topk_selects_exactly_the_true_label_count (test_baselines.MultiLabelProtocolTests.test_topk_selects_exactly_the_true_label_count) ... ok
+test_no_cell_reads_a_name_no_earlier_cell_defines (test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines) ... ok
+test_only_the_lanes_that_install_a_group_define_one (test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables. ... ok
+test_the_checker_catches_the_bug_it_was_written_for (test_baselines.NotebookNameResolutionTests.test_the_checker_catches_the_bug_it_was_written_for)
+A gate reading GROUP_OK with no install cell above it must be flagged. ... ok
+test_every_transposed_monomial_resolves_to_known_keys (test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on the LP datasets of the campaign ... ERROR
+test_keys_are_exactly_two_characters (test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator. ... ERROR
+test_lastfm_matches_the_authors_key_set (test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations. ... ERROR
+test_pubmed_keys_encode_node_types (test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies. ... ERROR
+test_published_cells_are_declared_runnable (test_baselines.PublishedParamsTests.test_published_cells_are_declared_runnable) ... ok
+test_published_files_declare_a_source (test_baselines.PublishedParamsTests.test_published_files_declare_a_source) ... ok
+test_campaign_matrix_matches_planned_cell_counts (test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts) ... ok
+test_every_cell_is_runnable_or_has_a_reason (test_baselines.RegistryTests.test_every_cell_is_runnable_or_has_a_reason) ... ok
+test_every_model_module_declares_an_adapter (test_baselines.RegistryTests.test_every_model_module_declares_an_adapter) ... ok
+test_pending_cells_carry_their_specific_reason (test_baselines.RegistryTests.test_pending_cells_carry_their_specific_reason)
+H2GB datasets and the two large LP tasks: data pending; LatGRL, YouTube and Amazon ... ok
+test_vendor_model_init_is_reproducible_under_seed_everything (test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models. ... ERROR
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_every_published_value_is_reachable (test_baselines.SearchSpaceCoverageTests.test_every_published_value_is_reachable) ... ok
+test_each_loop_selects_on_its_documented_metric (test_baselines.SelectionMetricTests.test_each_loop_selects_on_its_documented_metric)
+Read the loops' source: the stopping rule must use the expected key. ... ok
+test_monitor_matches_the_reported_headline_metric (test_baselines.SelectionMetricTests.test_monitor_matches_the_reported_headline_metric) ... ok
+test_sweeps_optimise_the_same_metric_training_selects_on (test_baselines.SelectionMetricTests.test_sweeps_optimise_the_same_metric_training_selects_on) ... ok
+test_the_module_docstring_does_not_contradict_the_code (test_baselines.SelectionMetricTests.test_the_module_docstring_does_not_contradict_the_code) ... ok
+test_every_code_cell_parses (test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+test_budget_is_never_searched (test_baselines.TrainingBudgetTests.test_budget_is_never_searched)
+A tuned trial must not be able to buy itself a longer run. ... ok
+test_hyperband_bracket_matches_the_real_epoch_budget (test_baselines.TrainingBudgetTests.test_hyperband_bracket_matches_the_real_epoch_budget) ... ok
+test_no_adapter_sets_its_own_budget (test_baselines.TrainingBudgetTests.test_no_adapter_sets_its_own_budget) ... ok
+test_published_params_keep_the_authors_budget (test_baselines.TrainingBudgetTests.test_published_params_keep_the_authors_budget)
+Reproducing a reported number means using the budget it was reported at. ... ok
+test_tuned_params_get_the_shared_budget (test_baselines.TrainingBudgetTests.test_tuned_params_get_the_shared_budget) ... ok
+test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present) ... FAIL
+test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own. ... ERROR
+test_every_adapter_module_names_a_registered_vendor (test_baselines.VendorRootIntegrityTests.test_every_adapter_module_names_a_registered_vendor)
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+test_T4_a_node_with_zero_broadcast_gate_influences_nobody (test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_broadcast_gate_influences_nobody) ... ok
+test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly (test_cooperative.CooperativeBehaviourTests.test_T4_a_node_with_zero_listen_gate_is_unchanged_exactly) ... ok
+test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric (test_cooperative.CooperativeBehaviourTests.test_T4_unequal_gates_make_the_jacobian_blocks_asymmetric) ... ok
+test_energy_parts_equal_the_dense_rayleigh_quotients (test_cooperative.DiagnosticsTests.test_energy_parts_equal_the_dense_rayleigh_quotients) ... ok
+test_energy_trace_has_every_step_and_does_not_change_the_model_state (test_cooperative.DiagnosticsTests.test_energy_trace_has_every_step_and_does_not_change_the_model_state) ... ok
+test_the_trainer_logs_the_trace_and_the_gate_statistics (test_cooperative.DiagnosticsTests.test_the_trainer_logs_the_trace_and_the_gate_statistics) ... ERROR
+test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates (test_cooperative.FixedPointTests.test_T5_fixed_points_are_the_sections_seen_through_the_broadcast_gates) ... ok
+test_T6_gradients_reach_both_gate_heads (test_cooperative.GateGradientTests.test_T6_gradients_reach_both_gate_heads) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T2_gated_step_equals_the_dense_reference (test_cooperative.GatedOperatorTests.test_T2_gated_step_equals_the_dense_reference) ... ok
+test_T2_the_fixtures_mix_lengths_and_signs (test_cooperative.GatedOperatorTests.test_T2_the_fixtures_mix_lengths_and_signs) ... ok
+test_lobpcg_eigenvalues_match_the_dense_spectrum (test_cooperative.KernelScriptTests.test_lobpcg_eigenvalues_match_the_dense_spectrum) ... ERROR
+test_TF1_control_old_setting_does_not_move (test_cooperative.LearningFixTests.test_TF1_control_old_setting_does_not_move) ... ok
+test_TF1_group_contents_and_defaults (test_cooperative.LearningFixTests.test_TF1_group_contents_and_defaults) ... ok
+test_TF1_the_scalar_group_moves_eta_and_both_gate_heads (test_cooperative.LearningFixTests.test_TF1_the_scalar_group_moves_eta_and_both_gate_heads) ... FAIL
+test_TF2_metric_gradient_identity (test_cooperative.MetricGradientFlowTests.test_TF2_metric_gradient_identity) ... ok
+test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three (test_cooperative.MetricGradientFlowTests.test_TF3_energy_never_increases_for_eta_up_to_one_and_does_for_eta_three) ... ok
+test_TF3b_control_free_per_direction_weights_have_no_metric (test_cooperative.MetricGradientFlowTests.test_TF3b_control_free_per_direction_weights_have_no_metric)
+A free weight per direction breaks detailed balance, so the check is not vacuous. ... ok
+test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists (test_cooperative.MetricGradientFlowTests.test_TF3b_prop4_the_d11_operator_factorizes_and_a_metric_exists) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T3_negative_control_csnn_composed_operator_is_complex (test_cooperative.SpectrumTests.test_T3_negative_control_csnn_composed_operator_is_complex) ... ok
+test_T3_real_spectrum_and_bound_with_gates (test_cooperative.SpectrumTests.test_T3_real_spectrum_and_bound_with_gates) ... ok
+test_T1_control_the_default_model_is_not_the_golden_one (test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... FAIL
+test_gates_start_at_the_configured_init (test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+test_cpu_seeding_does_not_touch_cuda_seed_state (test_cuda_hardening.CudaHardeningTests.test_cpu_seeding_does_not_touch_cuda_seed_state) ... ok
+test_fasthpp_has_finite_orthogonal_parameterisation (test_cuda_hardening.CudaHardeningTests.test_fasthpp_has_finite_orthogonal_parameterisation) ... ok
+test_householder_orgqr_dispatches_on_shape (test_cuda_hardening.CudaHardeningTests.test_householder_orgqr_dispatches_on_shape)
+Non-power-of-two and non-square inputs must fall back to the sequential builder. ... ok
+test_householder_wy_matches_the_sequential_builder (test_cuda_hardening.CudaHardeningTests.test_householder_wy_matches_the_sequential_builder)
+The compact-WY builder is an implementation swap, not a reparameterisation. ... ok
+test_householder_wy_routes_through_fasthpp (test_cuda_hardening.CudaHardeningTests.test_householder_wy_routes_through_fasthpp) ... ok
+test_matrix_exp_config_is_rejected_before_seeding (test_cuda_hardening.CudaHardeningTests.test_matrix_exp_config_is_rejected_before_seeding) ... ok
+test_memory_guard_accepts_safe_and_rejects_unsafe_workloads (test_cuda_hardening.CudaHardeningTests.test_memory_guard_accepts_safe_and_rejects_unsafe_workloads) ... ok
+test_model_memory_guard_fraction_is_validated (test_cuda_hardening.CudaHardeningTests.test_model_memory_guard_fraction_is_validated) ... ok
+test_deterministic_validation_split_is_reproducible (test_data.DataPipelineTests.test_deterministic_validation_split_is_reproducible) ... ok
+test_encoder_gives_featureless_types_distinct_embeddings (test_data.DataPipelineTests.test_encoder_gives_featureless_types_distinct_embeddings) ... ok
+test_encoder_normalises_featureless_and_featured_types_alike (test_data.DataPipelineTests.test_encoder_normalises_featureless_and_featured_types_alike) ... ok
+test_encoder_sizes_each_type_to_its_own_width (test_data.DataPipelineTests.test_encoder_sizes_each_type_to_its_own_width) ... ok
+test_featureless_node_types_are_padded_to_common_dim (test_data.DataPipelineTests.test_featureless_node_types_are_padded_to_common_dim) ... ok
+test_flatten_and_face_enumeration_build_path_cells (test_data.DataPipelineTests.test_flatten_and_face_enumeration_build_path_cells) ... ok
+test_graph_classification_metrics_include_binary_and_multiclass_auroc (test_data.DataPipelineTests.test_graph_classification_metrics_include_binary_and_multiclass_auroc) ... ERROR
+test_graph_face_builder_excludes_identity_backtracking (test_data.DataPipelineTests.test_graph_face_builder_excludes_identity_backtracking) ... ok
+test_graph_face_builder_uses_typed_two_hop_paths (test_data.DataPipelineTests.test_graph_face_builder_uses_typed_two_hop_paths) ... ok
+test_graph_holdout_split_is_stratified_and_reproducible (test_data.DataPipelineTests.test_graph_holdout_split_is_stratified_and_reproducible) ... ok
+test_hgb_link_split_uses_81_9_10_ratios (test_data.DataPipelineTests.test_hgb_link_split_uses_81_9_10_ratios) ... ok
+test_hgb_multilabel_target_labels_are_preserved (test_data.DataPipelineTests.test_hgb_multilabel_target_labels_are_preserved) ... ok
+test_hgb_two_hop_negatives_are_grouped_by_source (test_data.DataPipelineTests.test_hgb_two_hop_negatives_are_grouped_by_source) ... ERROR
+test_link_prediction_macro_equals_pooled_on_one_relation (test_data.DataPipelineTests.test_link_prediction_macro_equals_pooled_on_one_relation)
+LastFM and PubMed target a single relation, so selection must not shift. ... ERROR
+test_link_prediction_metrics_include_hgb_mrr (test_data.DataPipelineTests.test_link_prediction_metrics_include_hgb_mrr) ... ERROR
+test_link_prediction_metrics_macro_average_matches_hgb (test_data.DataPipelineTests.test_link_prediction_metrics_macro_average_matches_hgb)
+HGB scores each test relation separately and averages the results. ... ERROR
+test_local_hgb_train_valid_split_keeps_each_head_in_train (test_data.DataPipelineTests.test_local_hgb_train_valid_split_keeps_each_head_in_train) ... ok
+test_multilabel_classification_metrics_follow_hgb_threshold (test_data.DataPipelineTests.test_multilabel_classification_metrics_follow_hgb_threshold) ... ERROR
+test_multilabel_label_propagation_accepts_multi_hot_labels (test_data.DataPipelineTests.test_multilabel_label_propagation_accepts_multi_hot_labels) ... ok
+test_relation_diagnostics_are_a_single_global_vector (test_data.DataPipelineTests.test_relation_diagnostics_are_a_single_global_vector) ... ok
+test_repeated_kfold_config_validates_indices (test_data.DataPipelineTests.test_repeated_kfold_config_validates_indices) ... ok
+test_repeated_kfold_splits_cover_each_repetition_once (test_data.DataPipelineTests.test_repeated_kfold_splits_cover_each_repetition_once) ... ok
+test_tu_edge_types_match_raw_labels_by_key_on_mutag (test_data.DataPipelineTests.test_tu_edge_types_match_raw_labels_by_key_on_mutag)
+Real data: every PyG edge's type equals the raw label of the same (graph, src, dst) ... ok
+test_tu_type_tensors_fallback_to_single_edge_type (test_data.DataPipelineTests.test_tu_type_tensors_fallback_to_single_edge_type) ... ok
+test_tu_type_tensors_use_node_and_edge_labels (test_data.DataPipelineTests.test_tu_type_tensors_use_node_and_edge_labels)
+Edge labels follow PyG's edge order (its `edge_attr`), not the raw file order. ... ok
+test_loader_specs_live_under_lp (test_data_layout.DataLayoutTests.test_loader_specs_live_under_lp) ... ok
+test_no_old_layout_paths_in_code (test_data_layout.DataLayoutTests.test_no_old_layout_paths_in_code)
+No loader, adapter or script builds a path of the pre-M1 layout (`data/<key>/<key>/raw`, ... ok
+test_roots (test_data_layout.DataLayoutTests.test_roots) ... ok
+test_invalid_values_are_rejected (test_factorized_maps.ConfigAndScopeTests.test_invalid_values_are_rejected) ... ok
+test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence (test_factorized_maps.HolonomyTests.test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence) ... ok
+test_T5_negative_control_tied_maps_collapse_holonomy_to_identity (test_factorized_maps.HolonomyTests.test_T5_negative_control_tied_maps_collapse_holonomy_to_identity) ... ok
+test_cuda_float32_matches_cpu_float64_reference (test_factorized_maps.ModelIntegrationTests.test_cuda_float32_matches_cpu_float64_reference) ... ok
+test_T10_storage_matches_the_bound_exactly (test_factorized_maps.NumericalGuardTests.test_T10_storage_matches_the_bound_exactly)
+Counts the tensors the operators actually hold (found generically, after an ... ok
+test_T9_finite_gradients_with_near_zero_reflectors (test_factorized_maps.NumericalGuardTests.test_T9_finite_gradients_with_near_zero_reflectors) ... ok
+test_T9_zero_reflector_mlp_keeps_model_finite (test_factorized_maps.NumericalGuardTests.test_T9_zero_reflector_mlp_keeps_model_finite) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_normalized_reflectors_are_unit_above_eps (test_factorized_maps.NumericalGuardTests.test_normalized_reflectors_are_unit_above_eps) ... ok
+test_T1_negative_control_detects_a_non_orthogonal_factor (test_factorized_maps.OperatorAlgebraTests.test_T1_negative_control_detects_a_non_orthogonal_factor) ... ok
+test_T1_rotation_and_householder_factors_are_orthogonal (test_factorized_maps.OperatorAlgebraTests.test_T1_rotation_and_householder_factors_are_orthogonal) ... ok
+test_T2_apply_and_apply_T_match_dense_reference (test_factorized_maps.OperatorAlgebraTests.test_T2_apply_and_apply_T_match_dense_reference) ... ok
+test_T3_closed_form_inverse_is_the_true_inverse (test_factorized_maps.OperatorAlgebraTests.test_T3_closed_form_inverse_is_the_true_inverse) ... ok
+test_T4_maps_are_side_specific_and_node_dependent (test_factorized_maps.SideAndNodeDependenceTests.test_T4_maps_are_side_specific_and_node_dependent) ... ok
+test_campaign_summary_counts_failed_trials_per_cell (test_failed_trials.FailedTrialTests.test_campaign_summary_counts_failed_trials_per_cell) ... ok
+test_each_condition_is_a_failed_trial_without_score (test_failed_trials.FailedTrialTests.test_each_condition_is_a_failed_trial_without_score) ... ok
+test_nan_loss_in_a_baseline_loop_fails_the_trial (test_failed_trials.FailedTrialTests.test_nan_loss_in_a_baseline_loop_fails_the_trial) ... ok
+test_other_errors_are_failed_trials_named_other (test_failed_trials.FailedTrialTests.test_other_errors_are_failed_trials_named_other) ... ok
+test_non_finite_g_raises_before_exp (test_failed_trials.NonFiniteGTests.test_non_finite_g_raises_before_exp) ... ok
+test_TG7_neighbour_reaches_maps_and_gates_only_with_context (test_filter_bank.ContextModelTests.test_TG7_neighbour_reaches_maps_and_gates_only_with_context) ... ok
+test_context_off_builds_the_d11_parameter_shapes (test_filter_bank.ContextModelTests.test_context_off_builds_the_d11_parameter_shapes) ... ok
+test_gathered_first_layer_equals_the_concatenation (test_filter_bank.FactoredFirstLayerTests.test_gathered_first_layer_equals_the_concatenation) ... ok
+test_TG4_d11_initialization_equals_first_order (test_filter_bank.FilterBankModelTests.test_TG4_d11_initialization_equals_first_order) ... ok
+test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps (test_filter_bank.FilterBankModelTests.test_TG8_gradients_reach_every_V_k_gates_gamma_and_map_mlps) ... ok
+test_eta_only_under_first_order_and_V_in_the_normal_group (test_filter_bank.FilterBankModelTests.test_eta_only_under_first_order_and_V_in_the_normal_group) ... ok
+test_norm_sum_diagnostic_casts_the_blocks_to_float64 (test_filter_bank.FilterBankModelTests.test_norm_sum_diagnostic_casts_the_blocks_to_float64)
+D12 G3b decision 1: the logged `sum_k ||W_k||_2` takes the spectral norms of the float32 ... ok
+test_operator_diagnostics_under_the_filter_bank (test_filter_bank.FilterBankModelTests.test_operator_diagnostics_under_the_filter_bank) ... ok
+test_switches_are_never_tuned (test_filter_bank.FilterBankModelTests.test_switches_are_never_tuned) ... ok
+test_TG1_spectrum_of_A_is_real_and_in_0_2_max_gb (test_filter_bank.FilterBankOperatorTests.test_TG1_spectrum_of_A_is_real_and_in_0_2_max_gb) ... ok
+test_TG2_gain_in_metric_M_is_at_most_one_with_control (test_filter_bank.FilterBankOperatorTests.test_TG2_gain_in_metric_M_is_at_most_one_with_control) ... ok
+test_TG3_cooperation_through_the_filter_exact_zero_blocks (test_filter_bank.FilterBankOperatorTests.test_TG3_cooperation_through_the_filter_exact_zero_blocks) ... ok
+test_TG5_lemma_N_diagonal_blocks_are_identity (test_filter_bank.FilterBankOperatorTests.test_TG5_lemma_N_diagonal_blocks_are_identity) ... ok
+test_TG6_matrix_free_filter_equals_the_dense_reference (test_filter_bank.FilterBankOperatorTests.test_TG6_matrix_free_filter_equals_the_dense_reference) ... ok
+test_gain_diagnostic_matches_the_exact_M_gain (test_filter_bank.FilterBankOperatorTests.test_gain_diagnostic_matches_the_exact_M_gain) ... ok
+test_context_equals_the_loop_reference (test_filter_bank.RelationalContextTests.test_context_equals_the_loop_reference) ... ok
+test_facts_only_no_double_counting_through_the_reverse_relation (test_filter_bank.RelationalContextTests.test_facts_only_no_double_counting_through_the_reverse_relation)
+Stored edges in both directions (r and rho(r)); the tied fact layer keeps r. c over the ... ok
+test_shared_role_relation_is_orientation_independent (test_filter_bank.RelationalContextTests.test_shared_role_relation_is_orientation_independent) ... ok
+test_config_rejects_nonpositive_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
+test_link_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
+test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+test_config_values (test_gap_ladder.FeatureNormalizationTests.test_config_values) ... ok
+test_row_switch_applies_pyg_normalize_features_per_type (test_gap_ladder.FeatureNormalizationTests.test_row_switch_applies_pyg_normalize_features_per_type)
+build_dataset applies PyG's transform to the HeteroData before stacking; checked here ... ok
+test_config_rejects_invalid_combinations (test_gap_ladder.IdentityMapsModelTests.test_config_rejects_invalid_combinations) ... ok
+test_sheaf_free_logits_ignore_the_map_module (test_gap_ladder.IdentityMapsModelTests.test_sheaf_free_logits_ignore_the_map_module) ... ok
+test_sheaf_free_still_propagates (test_gap_ladder.IdentityMapsModelTests.test_sheaf_free_still_propagates)
+Not vacuous: the sheaf-free model's logits depend on neighbours (graph diffusion runs). ... ok
+test_state_dict_unchanged_and_default_off (test_gap_ladder.IdentityMapsModelTests.test_state_dict_unchanged_and_default_off) ... ok
+test_control_learned_maps_are_not_the_graph_laplacian (test_gap_ladder.IdentityMapsOperatorTests.test_control_learned_maps_are_not_the_graph_laplacian) ... ok
+test_identity_maps_give_the_normalized_graph_laplacian (test_gap_ladder.IdentityMapsOperatorTests.test_identity_maps_give_the_normalized_graph_laplacian) ... ok
+test_diagnostics_rejected_in_search_spaces (test_gap_ladder.NeverTunedTests.test_diagnostics_rejected_in_search_spaces) ... ok
+test_identity_maps_rejected_in_tuning_base_config (test_gap_ladder.NeverTunedTests.test_identity_maps_rejected_in_tuning_base_config) ... ok
+test_class_absent_from_truth_and_prediction (test_gc_metrics.HetSheafF1Tests.test_class_absent_from_truth_and_prediction)
+C = 3, class 2 in neither truth nor prediction. torchmetrics 1.8.2 (the version in ... ok
+test_every_class_present_equals_sklearn (test_gc_metrics.HetSheafF1Tests.test_every_class_present_equals_sklearn) ... ok
+test_h2snn_and_baselines_use_the_same_function (test_gc_metrics.HetSheafF1Tests.test_h2snn_and_baselines_use_the_same_function) ... ERROR
+test_stops_on_validation_loss_and_reports_final_weights (test_gc_protocol.EarlyStoppingOnValidationLossTests.test_stops_on_validation_loss_and_reports_final_weights)
+Validation loss 1.0, 0.9, 0.95, 0.96, 0.97 with patience 3: stops after epoch 4; the ... ok
+test_attention_pooling_by_hand (test_gc_protocol.PoolingTests.test_attention_pooling_by_hand)
+Scores s = W2 tanh(W1 x + b1): W1 = I, b1 = 0, W2 = I (2 heads); per head a softmax ... ok
+test_config_pooling_values (test_gc_protocol.PoolingTests.test_config_pooling_values) ... ok
+test_mean_max_add_by_hand (test_gc_protocol.PoolingTests.test_mean_max_add_by_hand) ... ok
+test_readout_is_pooling_then_one_linear (test_gc_protocol.PoolingTests.test_readout_is_pooling_then_one_linear)
+No BatchNorm, no MLP: the only parameterised layer after pooling is one Linear ... ok
+test_constant_feature_and_batch_size_one (test_gc_protocol.ProtocolOnMutagTests.test_constant_feature_and_batch_size_one) ... ok
+test_node_and_edge_types_are_the_one_hot_argmax (test_gc_protocol.ProtocolOnMutagTests.test_node_and_edge_types_are_the_one_hot_argmax) ... ok
+test_split_is_hetsheaf_randperm_seed_42_for_every_training_seed (test_gc_protocol.ProtocolOnMutagTests.test_split_is_hetsheaf_randperm_seed_42_for_every_training_seed) ... ok
+test_early_stopping_on_validation_loss_reports_final_weights (test_graph_classification_trainer.GraphClassificationTrainerTests.test_early_stopping_on_validation_loss_reports_final_weights)
+Spec v1.15 §6 GC (HetSheaf, Part M M5): early stopping on the validation loss; the ... 2026-11-14 10:13:11,695 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-14 10:13:11,704 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-14 10:13:11,706 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-14 10:13:11,714 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9500 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-14 10:13:11,718 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9600 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-14 10:13:11,719 | INFO | Early stopping at epoch 3 after 2 epochs without validation loss improvement.
+2026-11-14 10:13:11,719 | INFO | Final epoch 3 (final weights; run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_heuristics_read_training_facts_only (test_heart_negatives.CrossTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ERROR
+test_mask_and_scores_use_the_kept_endpoint (test_heart_negatives.CrossTypeWithFeaturesTests.test_mask_and_scores_use_the_kept_endpoint) ... ERROR
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.CrossTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ERROR
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.CrossTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ERROR
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.CrossTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ERROR
+test_fill_draws_without_replacement (test_heart_negatives.PieceTests.test_fill_draws_without_replacement)
+C4: 20 zero-score candidates, 20 needed: the fill must be a permutation (a draw with ... ERROR
+test_heart_cn_is_common_neighbours_over_candidate_degree (test_heart_negatives.PieceTests.test_heart_cn_is_common_neighbours_over_candidate_degree) ... ok
+test_l3_equals_kovacs_eq1_by_hand (test_heart_negatives.PieceTests.test_l3_equals_kovacs_eq1_by_hand) ... ok
+test_ppr_push_approximates_exact_ppr (test_heart_negatives.PieceTests.test_ppr_push_approximates_exact_ppr) ... ok
+test_rank_score_matrix_matches_heart (test_heart_negatives.PieceTests.test_rank_score_matrix_matches_heart) ... ok
+test_select_top_k_and_fill_without_replacement (test_heart_negatives.PieceTests.test_select_top_k_and_fill_without_replacement) ... ERROR
+test_textbook_ra_differs (test_heart_negatives.PieceTests.test_textbook_ra_differs) ... ok
+test_too_few_candidates_stop_the_run (test_heart_negatives.PoolTooSmallTests.test_too_few_candidates_stop_the_run) ... ERROR
+test_heuristics_read_training_facts_only (test_heart_negatives.SameTypeByPairTests.test_heuristics_read_training_facts_only) ... ERROR
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.SameTypeByPairTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ERROR
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.SameTypeByPairTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ERROR
+test_self_loops_are_never_negatives (test_heart_negatives.SameTypeByPairTests.test_self_loops_are_never_negatives) ... ERROR
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.SameTypeByPairTests.test_written_files_have_the_required_types_and_are_reproducible) ... ERROR
+test_heuristics_read_training_facts_only (test_heart_negatives.SameTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ERROR
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.SameTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ERROR
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.SameTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ERROR
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.SameTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ERROR
+test_fully_labeled_graph_has_no_diagnostic_and_one_seed (test_heterophily_metrics.FillConventionTests.test_fully_labeled_graph_has_no_diagnostic_and_one_seed) ... ok
+test_primary_is_the_filled_reference_value (test_heterophily_metrics.FillConventionTests.test_primary_is_the_filled_reference_value) ... ok
+test_jaccard_appendix_equals_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_jaccard_appendix_equals_hand_values) ... ok
+test_per_genre_reference_values_equal_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_per_genre_reference_values_equal_hand_values) ... ok
+test_primary_values_are_per_genre_means_not_exact_match (test_heterophily_metrics.MultilabelPerGenreTests.test_primary_values_are_per_genre_means_not_exact_match) ... ok
+test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic (test_heterophily_metrics.MultilabelPerGenreTests.test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic) ... ok
+test_exact_match_reproduction_row_equals_hetero2net (test_heterophily_metrics.RandomGraphTests.test_exact_match_reproduction_row_equals_hetero2net) ... ok
+test_own_equals_reference_on_a_random_graph (test_heterophily_metrics.RandomGraphTests.test_own_equals_reference_on_a_random_graph) ... ok
+test_random_fill_matches_the_reference_and_labels_are_restored (test_heterophily_metrics.RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored) ... ok
+test_unlabeled_target_without_fill_raises (test_heterophily_metrics.RandomGraphTests.test_unlabeled_target_without_fill_raises) ... ok
+test_same_type_undirected_cross_type_reversed (test_heterophily_metrics.SymmetriseTests.test_same_type_undirected_cross_type_reversed) ... ok
+test_hand_values_fill_and_labeled_only (test_heterophily_metrics.TaskLevelHEdgeTests.test_hand_values_fill_and_labeled_only) ... ok
+test_adjusted_homophily_applies_the_class_imbalance_correction (test_heterophily_metrics.ToyGraphTests.test_adjusted_homophily_applies_the_class_imbalance_correction) ... ok
+test_aggregates (test_heterophily_metrics.ToyGraphTests.test_aggregates) ... ok
+test_metapath_sets (test_heterophily_metrics.ToyGraphTests.test_metapath_sets) ... ok
+test_own_counts_equal_hand_values (test_heterophily_metrics.ToyGraphTests.test_own_counts_equal_hand_values) ... ok
+test_reference_h2gb_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_h2gb_equals_hand_values) ... ok
+test_reference_hetero2net_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values) ... ok
+test_an_empty_2hop_set_gives_none_with_the_reason (test_hgb_lp_negatives.EmptySetMetricTests.test_an_empty_2hop_set_gives_none_with_the_reason) ... ERROR
+test_one_optimizer_step_and_one_solve_per_batch (test_hgb_lp_negatives.LinkBatchTests.test_one_optimizer_step_and_one_solve_per_batch)
+link_batch_size B: ceil(P / B) optimizer steps per epoch, one encode (solve) each. ... ERROR
+test_a_head_without_candidates_gets_no_negative_through_the_loader (test_hgb_lp_negatives.LoaderNegativeTests.test_a_head_without_candidates_gets_no_negative_through_the_loader)
+User 0 loses its two friendship facts (0-1, 11-0): its neighbours are artists only, so ... ERROR
+test_both_test_sets_are_hgb_on_the_release (test_hgb_lp_negatives.LoaderNegativeTests.test_both_test_sets_are_hgb_on_the_release) ... ERROR
+test_validation_negatives_are_hgb_get_valid_neg (test_hgb_lp_negatives.LoaderNegativeTests.test_validation_negatives_are_hgb_get_valid_neg) ... ERROR
+test_written_files_are_read_and_must_match_the_positives (test_hgb_lp_negatives.LoaderNegativeTests.test_written_files_are_read_and_must_match_the_positives) ... ERROR
+test_mrr_hand_example_matches_hgb (test_hgb_lp_negatives.MRRTests.test_mrr_hand_example_matches_hgb)
+Head 0: positive 0.2 below negatives 0.9 and 0.5 -> rank 3, RR 1/3. Head 1: positive ... ERROR
+test_random_set_by_hand (test_hgb_lp_negatives.RandomSetTests.test_random_set_by_hand) ... ERROR
+test_seed_one_redraw_and_count_on_a_random_graph (test_hgb_lp_negatives.RandomSetTests.test_seed_one_redraw_and_count_on_a_random_graph)
+Independent re-implementation of HGB's loop; no negative is a known neighbour (train, ... ERROR
+test_count_type_range_and_order (test_hgb_lp_negatives.TrainNegativeTests.test_count_type_range_and_order) ... ok
+test_h2snn_and_the_baseline_loop_call_the_same_function (test_hgb_lp_negatives.TrainNegativeTests.test_h2snn_and_the_baseline_loop_call_the_same_function) ... ok
+test_known_positives_are_not_excluded (test_hgb_lp_negatives.TrainNegativeTests.test_known_positives_are_not_excluded)
+With a one-node tail type every negative is that node, a known positive: HGB does not ... ok
+test_seed_is_run_seed_plus_epoch (test_hgb_lp_negatives.TrainNegativeTests.test_seed_is_run_seed_plus_epoch) ... ok
+test_candidates_by_hand (test_hgb_lp_negatives.TwoHopCandidateTests.test_candidates_by_hand) ... ERROR
+test_head_without_candidates_gets_no_negative (test_hgb_lp_negatives.TwoHopCandidateTests.test_head_without_candidates_gets_no_negative)
+No random fallback (mutation target: a fallback gives head 2 a negative). ... ERROR
+test_no_candidate_is_known_positive_or_self_loop (test_hgb_lp_negatives.TwoHopCandidateTests.test_no_candidate_is_known_positive_or_self_loop) ... ERROR
+test_seed_one_and_hgb_loop_on_a_random_graph (test_hgb_lp_negatives.TwoHopCandidateTests.test_seed_one_and_hgb_loop_on_a_random_graph)
+Random graph with a one-way validation set: equal to the independent re-implementation ... ERROR
+test_test_negatives_by_hand (test_hgb_lp_negatives.TwoHopCandidateTests.test_test_negatives_by_hand) ... ERROR
+test_validation_orientation_changes_the_candidates_as_hgb (test_hgb_lp_negatives.TwoHopCandidateTests.test_validation_orientation_changes_the_candidates_as_hgb)
+The validation fact 1->6 stored as 6->1 removes head 0's only candidate, exactly as ... ERROR
+test_one_uniform_tail_per_positive_in_order (test_hgb_lp_negatives.ValidNegativeTests.test_one_uniform_tail_per_positive_in_order) ... ok
+test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) ... ok
+test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... 
+  test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=0)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ERROR
+  test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=1)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ERROR
+  test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=2)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ERROR
+  test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=3)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ERROR
+  test_datasets_cover_the_cards_cases (test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases) (guard='validation_orientation_matters', seed=7)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ERROR
+test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos (test_hgb_oracle.HGBOracleTests.test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos)
+The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12): ... ok
+test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... 
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=0, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=1, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=2, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=3, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='one_way_validation', seed=7, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=0, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=1, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=2, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=3, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='head_without_candidates', seed=7, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=0, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=1, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=2, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=3, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='two_types_two_relations', seed=7, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=0, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=1, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=2, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=3, relation=0) ... ERROR
+  test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) (dataset='validation_orientation_matters', seed=7, relation=0) ... ERROR
+test_training_negatives_equal_get_train_neg (test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... 
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='one_way_validation', seed=0, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='one_way_validation', seed=1, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='one_way_validation', seed=2, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='one_way_validation', seed=3, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='one_way_validation', seed=7, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='head_without_candidates', seed=0, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='head_without_candidates', seed=1, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='head_without_candidates', seed=2, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='head_without_candidates', seed=3, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='head_without_candidates', seed=7, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='two_types_two_relations', seed=0, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='two_types_two_relations', seed=1, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='two_types_two_relations', seed=2, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='two_types_two_relations', seed=3, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='two_types_two_relations', seed=7, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=0, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=1, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=2, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=3, relation=0) ... ERROR
+  test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) (dataset='validation_orientation_matters', seed=7, relation=0) ... ERROR
+test_validation_negatives_equal_get_valid_neg (test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+test_classification_metrics_default_is_threshold (test_imdb_protocol.BaselineProtocolTests.test_classification_metrics_default_is_threshold) ... ERROR
+setUpClass (test_imdb_protocol.RealIMDBSplitTests) ... ERROR
+test_default_is_not_oracle_topk (test_imdb_protocol.TrainerProtocolTests.test_default_is_not_oracle_topk) ... ERROR
+test_f1_uses_logit_above_zero_on_labelled_rows_only (test_imdb_protocol.TrainerProtocolTests.test_f1_uses_logit_above_zero_on_labelled_rows_only) ... ERROR
+test_loss_is_bce_over_labelled_rows_only (test_imdb_protocol.TrainerProtocolTests.test_loss_is_bce_over_labelled_rows_only) ... ERROR
+test_every_stored_row_of_a_held_out_pair_is_in_its_file (test_lp_derived.FreebasePairSplitTests.test_every_stored_row_of_a_held_out_pair_is_in_its_file) ... ok
+test_loader_leak_checks_pass_and_positives_exclude_self_loops (test_lp_derived.FreebasePairSplitTests.test_loader_leak_checks_pass_and_positives_exclude_self_loops) ... ERROR
+test_loader_raises_on_a_one_orientation_validation_file (test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_one_orientation_validation_file)
+Independent review, finding 3 (B): link.dat.valid lists one row of a two-row pair. ... ok
+test_loader_raises_on_a_reversed_test_pair_in_link_dat (test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_reversed_test_pair_in_link_dat)
+Independent review, finding 3 (A): the reverse row of a one-row test pair put back. ... ok
+test_no_unordered_pair_has_rows_in_two_parts (test_lp_derived.FreebasePairSplitTests.test_no_unordered_pair_has_rows_in_two_parts) ... ok
+test_proportions_are_81_9_10_by_pair (test_lp_derived.FreebasePairSplitTests.test_proportions_are_81_9_10_by_pair) ... ok
+test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation (test_lp_derived.FreebasePairSplitTests.test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation) ... ok
+test_same_seed_gives_byte_identical_files (test_lp_derived.FreebasePairSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_self_loops_are_in_no_part_and_stay_in_link_dat (test_lp_derived.FreebasePairSplitTests.test_self_loops_are_in_no_part_and_stay_in_link_dat) ... ok
+test_disjoint_by_unordered_pair (test_lp_derived.RealFreebasePairTests.test_disjoint_by_unordered_pair) ... ok
+test_no_reciprocal_leak_and_no_held_out_self_loop (test_lp_derived.RealFreebasePairTests.test_no_reciprocal_leak_and_no_held_out_self_loop) ... ok
+test_proportions_by_pair (test_lp_derived.RealFreebasePairTests.test_proportions_by_pair) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_acm_pa.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_acm_pa.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_acm_pa.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_acm_pa.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_dblp_ap.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_dblp_ap.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_dblp_ap.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_dblp_ap.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_imdb_ma.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_imdb_ma.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_imdb_ma.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_imdb_ma.test_proportions_are_81_9_10) ... ok
+test_loads_and_its_test_set_is_link_dat_test (test_lp_derived.SyntheticLoaderTests.test_loads_and_its_test_set_is_link_dat_test) ... ERROR
+test_mutation_a_test_fact_back_as_its_target_row_is_caught (test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_as_its_target_row_is_caught) ... ok
+test_mutation_a_test_fact_back_in_link_dat_is_caught (test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_in_link_dat_is_caught) ... ERROR
+test_validation_split_does_not_depend_on_the_training_seed (test_lp_derived.SyntheticLoaderTests.test_validation_split_does_not_depend_on_the_training_seed) ... ERROR
+test_a_reverse_only_leak_is_caught_at_file_level (test_lp_derived.SyntheticSplitTests.test_a_reverse_only_leak_is_caught_at_file_level)
+Route 2 of the pre-registration: a test fact back in link.dat only as an r' row. ... ok
+test_counts_and_reverse_relation (test_lp_derived.SyntheticSplitTests.test_counts_and_reverse_relation) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.SyntheticSplitTests.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_link_dat_is_the_release_minus_the_test_rows (test_lp_derived.SyntheticSplitTests.test_link_dat_is_the_release_minus_the_test_rows) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.SyntheticSplitTests.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.SyntheticSplitTests.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.SyntheticSplitTests.test_proportions_are_81_9_10) ... ok
+test_same_seed_gives_byte_identical_files (test_lp_derived.SyntheticSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_all_ties_rank_251_of_500 (test_lp_feature_leak.LeakMeasureTests.test_all_ties_rank_251_of_500) ... ok
+test_containment_is_the_share_of_the_contribution_inside_the_kept_feature (test_lp_feature_leak.LeakMeasureTests.test_containment_is_the_share_of_the_contribution_inside_the_kept_feature) ... ok
+test_contribution_follows_the_column_map (test_lp_feature_leak.LeakMeasureTests.test_contribution_follows_the_column_map) ... ok
+test_strictly_first_is_rank_1_and_one_tie_is_1_5 (test_lp_feature_leak.LeakMeasureTests.test_strictly_first_is_rank_1_and_one_tie_is_1_5) ... ok
+test_mean_rule_over_mapped_tokens_is_rebuilt (test_lp_feature_rebuild.FeatureRebuildTests.test_mean_rule_over_mapped_tokens_is_rebuilt) ... ERROR
+test_or_rule_is_rebuilt_from_training_facts_only (test_lp_feature_rebuild.FeatureRebuildTests.test_or_rule_is_rebuilt_from_training_facts_only) ... ERROR
+test_other_rows_byte_identical_and_release_untouched (test_lp_feature_rebuild.FeatureRebuildTests.test_other_rows_byte_identical_and_release_untouched) ... ok
+test_rebuild_is_idempotent (test_lp_feature_rebuild.FeatureRebuildTests.test_rebuild_is_idempotent) ... ok
+test_type_without_exact_rule_is_dropped (test_lp_feature_rebuild.FeatureRebuildTests.test_type_without_exact_rule_is_dropped) ... ok
+test_hand_edited_value_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_hand_edited_value_is_refused) ... ok
+test_missing_record_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_missing_record_is_refused) ... ok
+test_removed_type_with_features_is_refused_even_with_a_matching_md5 (test_lp_feature_rule.FeatureRuleAndGuardTests.test_removed_type_with_features_is_refused_even_with_a_matching_md5) ... ok
+test_rerun_of_the_split_builder_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rerun_of_the_split_builder_is_refused) ... ok
+test_rule_applied_task_loads (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_applied_task_loads) ... ERROR
+test_rule_removes_single_columns (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_single_columns) ... ok
+test_rule_removes_the_block_and_keeps_every_other_row (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_the_block_and_keeps_every_other_row) ... ok
+test_mean_of_keyword_token_counts_is_found (test_lp_feature_rules.FeatureRuleTests.test_mean_of_keyword_token_counts_is_found) ... ok
+test_or_of_neighbour_features_is_found_exactly (test_lp_feature_rules.FeatureRuleTests.test_or_of_neighbour_features_is_found_exactly) ... ok
+test_own_features_have_no_rule (test_lp_feature_rules.FeatureRuleTests.test_own_features_have_no_rule) ... ok
+test_permuted_vocabulary_is_matched_by_column (test_lp_feature_rules.FeatureRuleTests.test_permuted_vocabulary_is_matched_by_column) ... ok
+test_a_validation_fact_missing_from_link_dat_raises (test_lp_valid_files.DerivedTaskValidFileTests.test_a_validation_fact_missing_from_link_dat_raises) ... ok
+test_non_target_relations_absent_from_the_file_stay_whole (test_lp_valid_files.DerivedTaskValidFileTests.test_non_target_relations_absent_from_the_file_stay_whole) ... ok
+test_reverse_only_fixture_raises (test_lp_valid_files.DerivedTaskValidFileTests.test_reverse_only_fixture_raises)
+J1.3 finding 2: a test fact back in link.dat only as its r' row breaks rho; the ... ok
+test_validation_facts_leave_the_message_graph_in_both_orientations (test_lp_valid_files.DerivedTaskValidFileTests.test_validation_facts_leave_the_message_graph_in_both_orientations) ... ERROR
+test_validation_is_the_file_and_the_split_is_81_9_10 (test_lp_valid_files.DerivedTaskValidFileTests.test_validation_is_the_file_and_the_split_is_81_9_10) ... ERROR
+test_self_inverse_relation_listed_in_one_orientation_raises (test_lp_valid_files.FileWrittenFromTheCarveTests.test_self_inverse_relation_listed_in_one_orientation_raises) ... ok
+test_written_file_reproduces_the_loaders_carve (test_lp_valid_files.FileWrittenFromTheCarveTests.test_written_file_reproduces_the_loaders_carve) ... ERROR
+test_derived_tasks_evaluate_81_9_10 (test_lp_valid_files.RealValidFileTests.test_derived_tasks_evaluate_81_9_10) ... ok
+test_lastfm_file_is_target_only (test_lp_valid_files.RealValidFileTests.test_lastfm_file_is_target_only) ... ok
+test_pubmed_file_is_target_only (test_lp_valid_files.RealValidFileTests.test_pubmed_file_is_target_only) ... FAIL
+test_target_only_file_keeps_the_target_split_and_completes_the_rest (test_lp_valid_files.TargetOnlyFileTests.test_target_only_file_keeps_the_target_split_and_completes_the_rest) ... ok
+test_a_class_absent_from_the_split_is_not_averaged (test_nc_metrics.SplitClassTests.test_a_class_absent_from_the_split_is_not_averaged)
+True labels {0, 1}; the model predicts class 2 once. F1(0) = 2/3, F1(1) = 1, so ... ERROR
+test_every_class_present_changes_nothing (test_nc_metrics.SplitClassTests.test_every_class_present_changes_nothing)
+On a split that contains every class (HGB's case) the value is sklearn's default. ... ok
+test_graph_classification_metrics_unchanged (test_nc_metrics.SplitClassTests.test_graph_classification_metrics_unchanged)
+M8 is node classification; GC uses HetSheaf's torchmetrics call (Part N, N3), which ... ERROR
+test_imdb_genre_absent_from_the_split_is_not_averaged (test_nc_metrics.SplitClassTests.test_imdb_genre_absent_from_the_split_is_not_averaged)
+Genre 2 has no positive in the split; the model predicts it for one movie. Macro-F1 is ... ERROR
+test_TF4_alpha_matches_an_independent_loop_based_softmax (test_pair_attention.AttentionWeightTests.test_TF4_alpha_matches_an_independent_loop_based_softmax) ... ok
+test_TF4_every_row_is_positive_and_sums_to_one (test_pair_attention.AttentionWeightTests.test_TF4_every_row_is_positive_and_sums_to_one) ... ok
+test_TF4_the_fixtures_have_loops_shared_roles_and_signed_hops (test_pair_attention.AttentionWeightTests.test_TF4_the_fixtures_have_loops_shared_roles_and_signed_hops) ... ok
+test_TF7_operator_equals_the_explicit_matrix (test_pair_attention.DenseReferenceTests.test_TF7_operator_equals_the_explicit_matrix) ... ok
+test_TF7_state_dict_differs_from_d11_only_by_attention_added_and_gates_removed (test_pair_attention.DenseReferenceTests.test_TF7_state_dict_differs_from_d11_only_by_attention_added_and_gates_removed) ... ok
+test_a_merged_cell_of_weight_two_equals_two_duplicate_unit_cells (test_pair_attention.MergedWeightTests.test_a_merged_cell_of_weight_two_equals_two_duplicate_unit_cells)
+Softmax mass of a cell with merged weight m is m e^s (the `log m_f` term): one cell with ... ok
+test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent (test_pair_attention.MergedWeightTests.test_attention_parameters_share_the_fast_group_and_gate_heads_are_absent) ... C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\utils\checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_pair_attention_is_never_a_default_and_never_tuned (test_pair_attention.MergedWeightTests.test_pair_attention_is_never_a_default_and_never_tuned) ... ok
+test_TF6_control_unnormalized_exp_scores_expand (test_pair_attention.NonExpansionTests.test_TF6_control_unnormalized_exp_scores_expand) ... ok
+test_TF6_max_node_norm_is_nonincreasing_for_eta_up_to_one (test_pair_attention.NonExpansionTests.test_TF6_max_node_norm_is_nonincreasing_for_eta_up_to_one) ... ok
+test_TF3b_control_pair_attention_has_no_metric (test_pair_attention.Prop4ControlTests.test_TF3b_control_pair_attention_has_no_metric)
+The same factorization check that the gated operator passes (tests.test_cooperative) ... ok
+test_T6_sections_are_preserved_with_signed_hops (tests.test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_TF5_a_global_section_is_a_fixed_point (test_pair_attention.SectionTests.test_TF5_a_global_section_is_a_fixed_point) ... ok
+test_chunks_use_distinct_generator_states (test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states) ... ok
+test_log_p_and_frequencies_equal_the_exact_target (test_partMB_draws.ChunkedDrawTests.test_log_p_and_frequencies_equal_the_exact_target) ... ok
+test_same_seed_and_chunk_size_give_the_same_draw (test_partMB_draws.ChunkedDrawTests.test_same_seed_and_chunk_size_give_the_same_draw) ... ok
+test_one_instance_from_two_anchors_gives_two_cells (test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells) ... ok
+test_per_anchor_mass_is_the_anchors_walks_only (test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only) ... ok
+test_evaluation_scores_every_link (test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... C:\Users\Acer\Desktop\h2snn\H2S-NN\src\trainers\minibatch_lp.py:89: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\aten\src\ATen/native/BucketizationUtils.h:34.)
+  rows = torch.searchsorted(unique, links)
+ok
+test_no_held_out_fact_in_any_scope (test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+test_a_batch_equals_scopes_alone (test_partMB_model.BatchTests.test_a_batch_equals_scopes_alone) ... ok
+test_b_every_scope_meets_its_own_tolerance (test_partMB_model.BatchTests.test_b_every_scope_meets_its_own_tolerance) ... ok
+test_c_logits_do_not_depend_on_the_batching (test_partMB_model.BatchTests.test_c_logits_do_not_depend_on_the_batching) ... ok
+test_d_whole_graph_harness (test_partMB_model.BatchTests.test_d_whole_graph_harness) ... ok
+test_e_context_and_degrees_are_the_scopes (test_partMB_model.BatchTests.test_e_context_and_degrees_are_the_scopes) ... ok
+test_f_no_warm_start_in_mini_batch (test_partMB_model.BatchTests.test_f_no_warm_start_in_mini_batch) ... ok
+test_featureless_node_in_two_scopes_has_its_global_h0 (test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_steps_per_epoch_follow_the_batch_size (test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) ... # exit=127 seconds=531

@@ -1,0 +1,461 @@
+python 3.12.16 executable C:\Users\Acer\anaconda3\envs\h2snn-b240\python.exe
+
+=== import matrix (fresh interpreter each, python -W default) ===
+--- torch: rc=0 version='2.4.0+cu124'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_geometric: rc=0 version='2.8.0'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init__.py", line 3, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing
+--- torch_scatter: rc=0 version='2.1.2+pt24cu124'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_scatter\__init__.py", line 5, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_sparse: rc=0 version='0.6.18+pt24cu124'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_sparse\__init__.py", line 4, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_cluster: rc=0 version='1.6.3+pt24cu124'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_cluster\__init__.py", line 4, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- dgl: rc=1 version=''
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\__init__.py", line 14, in <module>
+          from .backend import backend_name, load_backend  # usort: skip
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\backend\__init__.py", line 122, in <module>
+          load_backend(get_preferred_backend())
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\backend\__init__.py", line 37, in load_backend
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      Traceback (most recent call last):
+        File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\__init__.py", line 16, in <module>
+          from . import (
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\dataloading\__init__.py", line 13, in <module>
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.0.dll
+--- torchdata: rc=0 version='0.8.0'
+--- numpy: rc=0 version='2.4.6'
+--- scipy: rc=0 version='1.18.0'
+--- pandas: rc=0 version='3.0.3'
+--- sklearn: rc=0 version='1.9.0'
+--- ogb: rc=0 version='1.3.6'
+--- pytorch_lightning: rc=0 version='2.6.5'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\pytorch_lightning\__init__.py", line 25, in <module>
+          from lightning_fabric.utilities.seed import seed_everything  # noqa: E402
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\lightning_fabric\__init__.py", line 35, in <module>
+          from lightning_fabric.fabric import Fabric  # noqa: E402
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\lightning_fabric\fabric.py", line 30, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- wandb: rc=0 version='0.28.0'
+--- torchmetrics: rc=0 version='1.8.2'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torchmetrics\__init__.py", line 37, in <module>
+          from torchmetrics import functional  # noqa: E402
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torchmetrics\functional\__init__.py", line 14, in <module>
+          from torchmetrics.functional.audio._deprecated import _permutation_invariant_training as permutation_invariant_training
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torchmetrics\functional\audio\__init__.py", line 14, in <module>
+          from torchmetrics.functional.audio.pit import permutation_invariant_training, pit_permutate
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torchmetrics\functional\audio\pit.py", line 18, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- umap: rc=0 version='0.5.12'
+    stderr:
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\umap\__init__.py:9: ImportWarning: Tensorflow not installed; ParametricUMAP will be unavailable
+        warn(
+--- performer_pytorch: rc=0 version='no __version__'
+    stderr:
+      A module that was compiled using NumPy 1.x cannot be run in
+      NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+      versions of NumPy, modules must be compiled with NumPy 2.0.
+      Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+      
+      If you are a user of the module, the easiest solution will be to
+      downgrade to 'numpy<2' or try to upgrade the affected module.
+      We expect that some modules will need time to support NumPy 2.
+      
+      Traceback (most recent call last):  File "<string>", line 1, in <module>
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\performer_pytorch\__init__.py", line 1, in <module>
+          from performer_pytorch.performer_pytorch import PerformerLM, Performer, FastAttention, SelfAttention, CrossAttention, ProjectionUpdater
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\performer_pytorch\performer_pytorch.py", line 2, in <module>
+          import torch
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+        TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+
+=== functional calls ===
+--- torch cuda: rc=0
+    stdout:
+      cuda_available True
+      cuda sum 14.0 NVIDIA GeForce RTX 4060 Laptop GPU
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_scatter: rc=0
+    stdout:
+      tensor([4., 2.])
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_sparse: rc=0
+    stdout:
+      tensor([[0., 1.],
+              [2., 0.]])
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_cluster: rc=0
+    stdout:
+      tensor([[1, 0],
+              [0, 1]])
+      tensor([2, 0, 1])
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- torch_geometric: rc=0
+    stdout:
+      torch.Size([3, 2])
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing
+--- dgl message passing: rc=1
+    stderr:
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.0.dll
+--- dgl graphbolt: rc=1
+    stderr:
+          from .dataloader import *
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\dataloading\dataloader.py", line 27, in <module>
+          from ..distributed import DistGraph
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\__init__.py", line 5, in <module>
+          from .dist_graph import DistGraph, DistGraphServer, edge_split, node_split
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\distributed\dist_graph.py", line 11, in <module>
+          from .. import backend as F, graphbolt as gb, heterograph_index
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 36, in <module>
+          load_graphbolt()
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\__init__.py", line 26, in load_graphbolt
+          raise FileNotFoundError(
+      FileNotFoundError: Cannot find DGL C++ graphbolt library at C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\dgl\graphbolt\graphbolt_pytorch_2.4.0.dll
+--- torchdata datapipes: rc=0
+    stdout:
+      [0, 1, 2]
+    stderr:
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torchdata\datapipes\__init__.py:18: UserWarning: 
+      ################################################################################
+      WARNING!
+      The 'datapipes', 'dataloader2' modules are deprecated and will be removed in a
+      future torchdata release! Please see https://github.com/pytorch/data/issues/1196
+      to learn more and leave feedback.
+      ################################################################################
+      
+        deprecation_warning()
+--- pytorch_lightning+torchmetrics: rc=0
+    stdout:
+      tensor(0.6667)
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\__init__.py", line 2120, in <module>
+          from torch._higher_order_ops import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+--- performer_pytorch: rc=0
+    stdout:
+      torch.Size([1, 5, 8])
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\performer_pytorch\performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+        TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+--- ogb: rc=0
+    stdout:
+      <ogb.nodeproppred.evaluate.Evaluator object at 0x000001CF29529280>
+    stderr:
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\__init__.py", line 1, in <module>
+          from .cond import cond
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_higher_order_ops\cond.py", line 5, in <module>
+          import torch._subclasses.functional_tensor
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 42, in <module>
+          class FunctionalTensor(torch.Tensor):
+        File "C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py", line 258, in FunctionalTensor
+          cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch\_subclasses\functional_tensor.py:258: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_numpy.cpp:84.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages\torch_geometric\__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+        import torch_geometric.typing

@@ -1,0 +1,132 @@
+$ curl -sS -m 60 https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed
+curl_exit=35
+
+$ curl -sS -m 60 --ssl-no-revoke https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed
+
+--- python urllib (h2snn python, -I)
+URLError <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>
+--- curl -v head
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0* Host data.dgl.ai:443 was resolved.
+* IPv6: (none)
+* IPv4: 104.219.250.37
+*   Trying 104.219.250.37:443...
+* schannel: disabled automatic use of client certificate
+* ALPN: curl offers http/1.1
+* schannel: failed to receive handshake, SSL/TLS connection failed
+
+* closing connection #0
+curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed
+
+$ curl -sS -m 30 -I http://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+HTTP/1.1 404 Not Found
+server: nginx/1.28.3 (Ubuntu)
+date: Fri, 13 Nov 2026 19:27:02 GMT
+content-type: text/html
+content-length: 162
+connection: close
+
+--- TLS1.2 forced
+curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed
+--- other hosts for comparison
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 7725
+curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed
+
+$ curl -sS -m 30 -o /dev/null -w '%{http_code} %{redirect_url}' http://data.dgl.ai/
+200 
+$ curl -sS -m 30 -o /dev/null -w '%{http_code} %{redirect_url}' http://data.dgl.ai/wheels/repo.html
+404 
+$ curl -sS -m 30 -o /dev/null -w '%{http_code} %{redirect_url}' http://data.dgl.ai/wheels/torch-2.4/cu124/
+404 
+$ curl -sS -m 30 -o /dev/null -w '%{http_code} %{redirect_url}' http://data.dgl.ai/wheels/torch-2.4/repo.html
+404 
+
+$ curl -sS -m 30 http://data.dgl.ai/ | head -c 1500
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Send the parked domain's origin as the referrer so the market can
+       attribute the visit to this domain's TLD. -->
+  <meta name="referrer" content="origin" />
+  <title></title>
+  <script type="module" crossorigin src="/assets/index-BuG04mTK.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B_f2Ggms.css">
+  <script async src="https://lander.parity.domains/js/pa-6FZUe2Iv3m6Yx_KBS2sv2.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init({customProperties: {domain: location.hostname}});
+  </script>
+</head>
+
+<body class="gb-scope">
+  <header>
+    <div class="container h-20 flex items-center">
+      <a href="https://www.namecheap.com/?utm_source=parkingpage&utm_medium=referral&utm_campaign=nc_market">
+        <img src="logo.svg" alt="Namecheap Logo" width="155" height="28" />
+      </a>
+    </div>
+    <div class="container text-center lg:text-left">
+      <div class="py-20">
+        <h1 class="break-all font-bold tracking-[-0.4px] text-4xl sm:text-5xl md:text-7xl mb-2 sm:mb-4"></h1>
+      </div>
+      <section id="expired-banner" class="pb-20 text-left">
+        <h2 class="font-bold text-2xl sm:text-3xl md:text-4xl mb-6 text-center lg:text-left">Domain registrat
+
+$ curl -sS -m 30 http://data.dgl.ai/ | sed -e "s/<[^>]*>//g" | grep -v "^\s*$" | head -30
+  <!-- Send the parked domain's origin as the referrer so the market can
+       attribute the visit to this domain's TLD. -->
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init({customProperties: {domain: location.hostname}});
+        Domain registration has
+          expired.
+        <div
+          class="bg-gray-90/60 border-b-4 lg:border-b-0 lg:border-l-4 border-brand-60 rounded-lg p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center gap-6">
+            Renewal instructions
+            If you own this domain, you may still be
+              able to renew it through your Namecheap account. To renew: sign in, open Domain List,
+              select this domain, and choose Renew.
+              Sign in ·
+              Renewal help ·
+              Renewal and redemption fees
+          <a class="gb-btn gb-btn--hg gb-btn--primary shrink-0 self-center lg:self-auto"
+            href="https://ap.www.namecheap.com/?utm_source=parkingpage&utm_medium=referral&utm_campaign=nc_market">Renew
+            this domain
+    <div
+      class="container py-8 flex flex-col items-stretch lg:items-center lg:flex-row gap-8 text-center lg:text-left min-h-74">
+        Want a domain name like this?
+        Discover domains on auction now
+        See all auctions
+    Download the Namecheap Auctions app
+    Take auctions with you wherever you go
+        <a
+          href="https://apps.apple.com/us/app/namecheap-auctions/id6743634772?itscg=30200&itsct=apps_box_badge&mttnsubad=6743634772">
+
+$ nslookup data.dgl.ai
+    timeout was 2 seconds.
+Name:    data.dgl.ai
+Address:  104.219.250.37
+
+E1(b): prompt placeholder '<<AUTHOR: path ...>>' was not filled; no dgl*.whl found under C:\Users\Acer (Get-ChildItem -Recurse -Filter 'dgl*.whl' returned nothing).
+
+## PyPI JSON for dgl (files per release, python -I urllib)
+latest 2.2.1
+requires_dist(latest) ['numpy>=1.14.0', 'scipy>=1.1.0', 'networkx>=2.1', 'requests>=2.19.0', 'tqdm', 'psutil>=5.8.0', 'torchdata>=0.5.0', 'pandas']
+2.0.0 ['dgl-2.0.0-cp310-cp310-macosx_11_0_arm64.whl', 'dgl-2.0.0-cp310-cp310-macosx_11_0_x86_64.whl', 'dgl-2.0.0-cp310-cp310-manylinux2014_aarch64.whl', 'dgl-2.0.0-cp310-cp310-win_amd64.whl', 'dgl-2.0.0-cp311-cp311-macosx_11_0_arm64.whl', 'dgl-2.0.0-cp311-cp311-macosx_11_0_x86_64.whl', 'dgl-2.0.0-cp311-cp311-manylinux2014_aarch64.whl', 'dgl-2.0.0-cp311-cp311-win_amd64.whl', 'dgl-2.0.0-cp37-cp37m-macosx_11_0_arm64.whl', 'dgl-2.0.0-cp37-cp37m-macosx_11_0_x86_64.whl', 'dgl-2.0.0-cp37-cp37m-manylinux2014_aarch64.whl', 'dgl-2.0.0-cp37-cp37m-win_amd64.whl', 'dgl-2.0.0-cp38-cp38-macosx_11_0_arm64.whl', 'dgl-2.0.0-cp38-cp38-macosx_11_0_x86_64.whl', 'dgl-2.0.0-cp38-cp38-manylinux2014_aarch64.whl', 'dgl-2.0.0-cp38-cp38-win_amd64.whl', 'dgl-2.0.0-cp39-cp39-macosx_11_0_arm64.whl', 'dgl-2.0.0-cp39-cp39-macosx_11_0_x86_64.whl', 'dgl-2.0.0-cp39-cp39-manylinux2014_aarch64.whl', 'dgl-2.0.0-cp39-cp39-win_amd64.whl']
+2.1.0 ['dgl-2.1.0-cp310-cp310-macosx_11_0_arm64.whl', 'dgl-2.1.0-cp310-cp310-macosx_11_0_x86_64.whl', 'dgl-2.1.0-cp310-cp310-manylinux1_x86_64.whl', 'dgl-2.1.0-cp310-cp310-manylinux2014_aarch64.whl', 'dgl-2.1.0-cp311-cp311-macosx_11_0_arm64.whl', 'dgl-2.1.0-cp311-cp311-macosx_11_0_x86_64.whl', 'dgl-2.1.0-cp311-cp311-manylinux1_x86_64.whl', 'dgl-2.1.0-cp311-cp311-manylinux2014_aarch64.whl', 'dgl-2.1.0-cp312-cp312-macosx_11_0_x86_64.whl', 'dgl-2.1.0-cp312-cp312-macosx_12_0_arm64.whl', 'dgl-2.1.0-cp312-cp312-manylinux1_x86_64.whl', 'dgl-2.1.0-cp312-cp312-manylinux2014_aarch64.whl', 'dgl-2.1.0-cp38-cp38-macosx_11_0_arm64.whl', 'dgl-2.1.0-cp38-cp38-macosx_11_0_x86_64.whl', 'dgl-2.1.0-cp38-cp38-manylinux1_x86_64.whl', 'dgl-2.1.0-cp38-cp38-manylinux2014_aarch64.whl', 'dgl-2.1.0-cp39-cp39-macosx_11_0_arm64.whl', 'dgl-2.1.0-cp39-cp39-macosx_11_0_x86_64.whl', 'dgl-2.1.0-cp39-cp39-manylinux1_x86_64.whl', 'dgl-2.1.0-cp39-cp39-manylinux2014_aarch64.whl']
+2.2.0 ['dgl-2.2.0-cp310-cp310-macosx_11_0_arm64.whl', 'dgl-2.2.0-cp310-cp310-macosx_11_0_x86_64.whl', 'dgl-2.2.0-cp311-cp311-macosx_11_0_arm64.whl', 'dgl-2.2.0-cp311-cp311-macosx_11_0_x86_64.whl', 'dgl-2.2.0-cp312-cp312-macosx_11_0_x86_64.whl', 'dgl-2.2.0-cp312-cp312-macosx_12_0_arm64.whl', 'dgl-2.2.0-cp38-cp38-macosx_11_0_arm64.whl', 'dgl-2.2.0-cp38-cp38-macosx_11_0_x86_64.whl', 'dgl-2.2.0-cp39-cp39-macosx_11_0_arm64.whl', 'dgl-2.2.0-cp39-cp39-macosx_11_0_x86_64.whl']
+2.2.1 ['dgl-2.2.1-cp310-cp310-win_amd64.whl', 'dgl-2.2.1-cp311-cp311-win_amd64.whl', 'dgl-2.2.1-cp312-cp312-win_amd64.whl', 'dgl-2.2.1-cp38-cp38-win_amd64.whl', 'dgl-2.2.1-cp39-cp39-win_amd64.whl']
+
+## E1 answers (summary written by the agent)
+(a) index page: NOT obtainable. https://data.dgl.ai/... fails at TLS handshake from curl/schannel and python (UNEXPECTED_EOF), the same as on the cluster;
+    plain http://data.dgl.ai/ answers 200 with a Namecheap parking page reading "Domain registration has expired." (resolves to 104.219.250.37);
+    http paths under /wheels/ are 404. So the DGL 2.4.0 file names and tags could not be read.
+(b) wheel inspection: no wheel path was given (placeholder unfilled) and none was found on the laptop. Python tag / numpy / torchdata / graphbolt torch version: NOT ANSWERED.
+Only fact from PyPI: latest dgl on PyPI is 2.2.1 (win_amd64 only; Requires-Dist numpy>=1.14.0, scipy>=1.1.0, networkx>=2.1, requests>=2.19.0, tqdm, psutil>=5.8.0, torchdata>=0.5.0, pandas).

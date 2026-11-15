@@ -1,0 +1,18 @@
+=============== h2snn-b
+$ cd H2S-NN; python -W default ../docs/envB_evidence/e3b_dgl_via_shim.py
+torch 2.4.1+cu124 | numpy 2.4.6 | dgl 2.2.1
+dgl.graphbolt is stub: module None
+dgl_supports_cuda(): False
+homogeneous message passing: [[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
+heterograph message passing: [[2.0, 2.0, 2.0], [0.0, 0.0, 0.0]]
+GraphConv: torch.Size([3, 4]) GATConv: torch.Size([3, 2, 4])
+[done h2snn-b]
+=============== h2snn
+$ cd H2S-NN; python -W default ../docs/envB_evidence/e3b_dgl_via_shim.py
+torch 2.6.0+cu124 | numpy 2.4.6 | dgl 2.2.1
+dgl.graphbolt is stub: module None
+dgl_supports_cuda(): False
+homogeneous message passing: [[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
+heterograph message passing: [[2.0, 2.0, 2.0], [0.0, 0.0, 0.0]]
+GraphConv: torch.Size([3, 4]) GATConv: torch.Size([3, 2, 4])
+[done h2snn]

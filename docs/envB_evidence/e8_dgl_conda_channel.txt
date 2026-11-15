@@ -1,0 +1,145 @@
+# E8: where can DGL 2.4.0 cu124 be obtained now? anaconda.org API (read-only), 2026-11-14T09:02:16+09:00
+$ GET https://api.anaconda.org/package/dglteam/dgl/files  -> files whose version starts with 2.4.0
+total files 1096
+2.4.0 files 60
+linux-64/dgl-2.4.0.th21.cpu-py310_0.tar.bz2 | linux-64 | 7.4 MB | labels ['th21_cpu'] | sha256 aa15e68a6c968d90
+linux-64/dgl-2.4.0.th21.cpu-py311_0.tar.bz2 | linux-64 | 7.7 MB | labels ['th21_cpu'] | sha256 601ad35e921e6b9f
+linux-64/dgl-2.4.0.th21.cpu-py312_0.tar.bz2 | linux-64 | 7.6 MB | labels ['th21_cpu'] | sha256 d124f076421d3ee7
+linux-64/dgl-2.4.0.th21.cpu-py38_0.tar.bz2 | linux-64 | 7.7 MB | labels ['th21_cpu'] | sha256 14a48cb18c2d2b56
+linux-64/dgl-2.4.0.th21.cpu-py39_0.tar.bz2 | linux-64 | 7.4 MB | labels ['th21_cpu'] | sha256 2ae895f64e8de479
+linux-64/dgl-2.4.0.th21.cu118-py310_0.tar.bz2 | linux-64 | 432.0 MB | labels ['th21_cu118'] | sha256 5baa40cbe6789848
+linux-64/dgl-2.4.0.th21.cu118-py311_0.tar.bz2 | linux-64 | 432.4 MB | labels ['th21_cu118'] | sha256 a002c7d662f8bc4a
+linux-64/dgl-2.4.0.th21.cu118-py312_0.tar.bz2 | linux-64 | 432.3 MB | labels ['th21_cu118'] | sha256 4821cc74276c14d9
+linux-64/dgl-2.4.0.th21.cu118-py38_0.tar.bz2 | linux-64 | 432.1 MB | labels ['th21_cu118'] | sha256 66b1b680fc92b993
+linux-64/dgl-2.4.0.th21.cu118-py39_0.tar.bz2 | linux-64 | 432.0 MB | labels ['th21_cu118'] | sha256 2c4e451f3023c2e6
+linux-64/dgl-2.4.0.th21.cu121-py310_0.tar.bz2 | linux-64 | 399.7 MB | labels ['th21_cu121'] | sha256 234185743512b19f
+linux-64/dgl-2.4.0.th21.cu121-py311_0.tar.bz2 | linux-64 | 400.0 MB | labels ['th21_cu121'] | sha256 e0591aebf79a7c85
+linux-64/dgl-2.4.0.th21.cu121-py312_0.tar.bz2 | linux-64 | 400.0 MB | labels ['th21_cu121'] | sha256 72586bf6e34362c5
+linux-64/dgl-2.4.0.th21.cu121-py38_0.tar.bz2 | linux-64 | 400.6 MB | labels ['th21_cu121'] | sha256 b1cd26de9965e548
+linux-64/dgl-2.4.0.th21.cu121-py39_0.tar.bz2 | linux-64 | 399.7 MB | labels ['th21_cu121'] | sha256 49012fe09c3d5731
+linux-64/dgl-2.4.0.th22.cpu-py310_0.tar.bz2 | linux-64 | 7.4 MB | labels ['th22_cpu'] | sha256 bfef92f661a9fc21
+linux-64/dgl-2.4.0.th22.cpu-py311_0.tar.bz2 | linux-64 | 7.7 MB | labels ['th22_cpu'] | sha256 9f0693b22e97dc5a
+linux-64/dgl-2.4.0.th22.cpu-py312_0.tar.bz2 | linux-64 | 7.6 MB | labels ['th22_cpu'] | sha256 d9f83e42c51b5587
+linux-64/dgl-2.4.0.th22.cpu-py38_0.tar.bz2 | linux-64 | 7.7 MB | labels ['th22_cpu'] | sha256 86723bcadfa8fb44
+linux-64/dgl-2.4.0.th22.cpu-py39_0.tar.bz2 | linux-64 | 7.4 MB | labels ['th22_cpu'] | sha256 7c47bcbdac99531b
+linux-64/dgl-2.4.0.th22.cu118-py310_0.tar.bz2 | linux-64 | 432.7 MB | labels ['th22_cu118'] | sha256 27770b60e166b105
+linux-64/dgl-2.4.0.th22.cu118-py311_0.tar.bz2 | linux-64 | 432.8 MB | labels ['th22_cu118'] | sha256 62e8350a817acc76
+linux-64/dgl-2.4.0.th22.cu118-py312_0.tar.bz2 | linux-64 | 432.7 MB | labels ['th22_cu118'] | sha256 958f8392c3f28957
+linux-64/dgl-2.4.0.th22.cu118-py38_0.tar.bz2 | linux-64 | 432.8 MB | labels ['th22_cu118'] | sha256 5fbf489fcbf10161
+linux-64/dgl-2.4.0.th22.cu118-py39_0.tar.bz2 | linux-64 | 432.7 MB | labels ['th22_cu118'] | sha256 a1b050adb9540a84
+linux-64/dgl-2.4.0.th23.cpu-py310_0.tar.bz2 | linux-64 | 6.5 MB | labels ['th23_cpu'] | sha256 d64cd5311c8895e7
+linux-64/dgl-2.4.0.th23.cpu-py311_0.tar.bz2 | linux-64 | 6.8 MB | labels ['th23_cpu'] | sha256 ed4c5b4feb79d5da
+linux-64/dgl-2.4.0.th23.cpu-py312_0.tar.bz2 | linux-64 | 6.7 MB | labels ['th23_cpu'] | sha256 487cbde75d738019
+linux-64/dgl-2.4.0.th23.cpu-py38_0.tar.bz2 | linux-64 | 6.8 MB | labels ['th23_cpu'] | sha256 1aa8a7f35aa21e0c
+linux-64/dgl-2.4.0.th23.cpu-py39_0.tar.bz2 | linux-64 | 6.5 MB | labels ['th23_cpu'] | sha256 ef92c5c80792d824
+linux-64/dgl-2.4.0.th23.cu118-py310_0.tar.bz2 | linux-64 | 317.8 MB | labels ['th23_cu118'] | sha256 ae5c7fd93395bac1
+linux-64/dgl-2.4.0.th23.cu118-py311_0.tar.bz2 | linux-64 | 318.2 MB | labels ['th23_cu118'] | sha256 595b33c4818ced10
+linux-64/dgl-2.4.0.th23.cu118-py312_0.tar.bz2 | linux-64 | 318.1 MB | labels ['th23_cu118'] | sha256 b31e7096150481f7
+linux-64/dgl-2.4.0.th23.cu118-py38_0.tar.bz2 | linux-64 | 318.5 MB | labels ['th23_cu118'] | sha256 bb925322dbc8c945
+linux-64/dgl-2.4.0.th23.cu118-py39_0.tar.bz2 | linux-64 | 317.7 MB | labels ['th23_cu118'] | sha256 a4cbe899673a71a1
+linux-64/dgl-2.4.0.th23.cu121-py310_0.tar.bz2 | linux-64 | 294.3 MB | labels ['th23_cu121'] | sha256 d1392c40bfee3d3c
+linux-64/dgl-2.4.0.th23.cu121-py311_0.tar.bz2 | linux-64 | 294.6 MB | labels ['th23_cu121'] | sha256 b22aef255263dd04
+linux-64/dgl-2.4.0.th23.cu121-py312_0.tar.bz2 | linux-64 | 294.6 MB | labels ['th23_cu121'] | sha256 8ea529efb72f1b17
+linux-64/dgl-2.4.0.th23.cu121-py38_0.tar.bz2 | linux-64 | 295.0 MB | labels ['th23_cu121'] | sha256 7a700f92e763e032
+linux-64/dgl-2.4.0.th23.cu121-py39_0.tar.bz2 | linux-64 | 294.3 MB | labels ['th23_cu121'] | sha256 b0a1cfbe40804191
+linux-64/dgl-2.4.0.th24.cpu-py310_0.tar.bz2 | linux-64 | 6.5 MB | labels ['th24_cpu'] | sha256 e9b1302fcf55b2b4
+linux-64/dgl-2.4.0.th24.cpu-py311_0.tar.bz2 | linux-64 | 6.9 MB | labels ['th24_cpu'] | sha256 6e87ab565157965f
+linux-64/dgl-2.4.0.th24.cpu-py312_0.tar.bz2 | linux-64 | 6.8 MB | labels ['th24_cpu'] | sha256 c7593b783d716776
+linux-64/dgl-2.4.0.th24.cpu-py38_0.tar.bz2 | linux-64 | 6.8 MB | labels ['th24_cpu'] | sha256 e4c19a61a5777e02
+linux-64/dgl-2.4.0.th24.cpu-py39_0.tar.bz2 | linux-64 | 6.5 MB | labels ['th24_cpu'] | sha256 38373b07727eded9
+linux-64/dgl-2.4.0.th24.cu118-py310_0.tar.bz2 | linux-64 | 317.9 MB | labels ['th24_cu118'] | sha256 dd77d2eb8026274e
+linux-64/dgl-2.4.0.th24.cu118-py311_0.tar.bz2 | linux-64 | 318.3 MB | labels ['th24_cu118'] | sha256 abfd6e0b71b1d7f6
+linux-64/dgl-2.4.0.th24.cu118-py312_0.tar.bz2 | linux-64 | 318.3 MB | labels ['th24_cu118'] | sha256 37b1a9c21e8ecf66
+linux-64/dgl-2.4.0.th24.cu118-py38_0.tar.bz2 | linux-64 | 318.2 MB | labels ['th24_cu118'] | sha256 1372ff5443c2222e
+linux-64/dgl-2.4.0.th24.cu118-py39_0.tar.bz2 | linux-64 | 317.9 MB | labels ['th24_cu118'] | sha256 a7214213157e0bb6
+linux-64/dgl-2.4.0.th24.cu121-py310_0.tar.bz2 | linux-64 | 294.2 MB | labels ['th24_cu121'] | sha256 92602a0315cbfdf8
+linux-64/dgl-2.4.0.th24.cu121-py311_0.tar.bz2 | linux-64 | 295.0 MB | labels ['th24_cu121'] | sha256 69afd81b89f07585
+linux-64/dgl-2.4.0.th24.cu121-py312_0.tar.bz2 | linux-64 | 294.7 MB | labels ['th24_cu121'] | sha256 6a0746cb2cb7610e
+linux-64/dgl-2.4.0.th24.cu121-py38_0.tar.bz2 | linux-64 | 295.3 MB | labels ['th24_cu121'] | sha256 e0f33a7140e661f5
+linux-64/dgl-2.4.0.th24.cu121-py39_0.tar.bz2 | linux-64 | 294.2 MB | labels ['th24_cu121'] | sha256 465f7fb495bda6ab
+linux-64/dgl-2.4.0.th24.cu124-py310_0.tar.bz2 | linux-64 | 291.0 MB | labels ['th24_cu124'] | sha256 9080ef4e4751f28a
+linux-64/dgl-2.4.0.th24.cu124-py311_0.tar.bz2 | linux-64 | 291.4 MB | labels ['th24_cu124'] | sha256 59239b538a61cd85
+linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 | linux-64 | 291.2 MB | labels ['th24_cu124'] | sha256 0267a1a7cfb7fa1d
+linux-64/dgl-2.4.0.th24.cu124-py38_0.tar.bz2 | linux-64 | 291.0 MB | labels ['th24_cu124'] | sha256 ff7370b1a0e369ad
+linux-64/dgl-2.4.0.th24.cu124-py39_0.tar.bz2 | linux-64 | 291.0 MB | labels ['th24_cu124'] | sha256 ffd4c81c36dbe471
+
+## th24 builds (torch 2.4) of dgl 2.4.0 and their declared dependencies
+linux-64/dgl-2.4.0.th24.cpu-py312_0.tar.bz2 | 6.8 MB | labels ['th24_cpu'] | sha256 c7593b783d7167769e6678b31a5aa9c1b5954a71079e4a6f5269b627a302aa2e
+   depends: ['networkx', 'numpy', 'psutil', 'python >=3.12,<3.13.0a0', 'requests', 'scipy', 'tqdm']
+   download: https://anaconda.org/conda.anaconda.org/dglteam/label/th24_cpu/linux-64/dgl-2.4.0.th24.cpu-py312_0.tar.bz2
+linux-64/dgl-2.4.0.th24.cu118-py312_0.tar.bz2 | 318.3 MB | labels ['th24_cu118'] | sha256 37b1a9c21e8ecf66b12d9c38e1b7fc9c3dbde7f15a3319cac5eeeb320ce9cf09
+   depends: ['networkx', 'numpy', 'psutil', 'python >=3.12,<3.13.0a0', 'requests', 'scipy', 'tqdm']
+   download: https://anaconda.org/conda.anaconda.org/dglteam/label/th24_cu118/linux-64/dgl-2.4.0.th24.cu118-py312_0.tar.bz2
+linux-64/dgl-2.4.0.th24.cu121-py312_0.tar.bz2 | 294.7 MB | labels ['th24_cu121'] | sha256 6a0746cb2cb7610e9b47b184155506b2db4787e8deb17550ccd6b4596f1f382d
+   depends: ['networkx', 'numpy', 'psutil', 'python >=3.12,<3.13.0a0', 'requests', 'scipy', 'tqdm']
+   download: https://anaconda.org/conda.anaconda.org/dglteam/label/th24_cu121/linux-64/dgl-2.4.0.th24.cu121-py312_0.tar.bz2
+linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 | 291.2 MB | labels ['th24_cu124'] | sha256 0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8
+   depends: ['networkx', 'numpy', 'psutil', 'python >=3.12,<3.13.0a0', 'requests', 'scipy', 'tqdm']
+   download: https://anaconda.org/conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2
+
+## downloaded https://conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 (291228305 bytes), sha256 0267a1a7... == the API value; NOT installed, not extracted to disk, not committed
+$ python -I inspect_conda.py <package>   (reads the archive in memory)
+members: 737
+           349  info/index.json
+          4515  info/about.json
+        127489  lib/python3.12/site-packages/dgl/tensoradapter/pytorch/libtensoradapter_pytorch_2.4.0.so
+        127489  lib/python3.12/site-packages/dgl/tensoradapter/pytorch/libtensoradapter_pytorch_2.4.1.so
+        184072  lib/python3.12/site-packages/dgl/_ffi/_cy3/core.cpython-312-x86_64-linux-gnu.so
+        999825  lib/python3.12/site-packages/dgl/dgl_sparse/libdgl_sparse_pytorch_2.4.0.so
+        999825  lib/python3.12/site-packages/dgl/dgl_sparse/libdgl_sparse_pytorch_2.4.1.so
+     272055465  lib/python3.12/site-packages/dgl/graphbolt/libgraphbolt_pytorch_2.4.1.so
+     272055465  lib/python3.12/site-packages/dgl/graphbolt/libgraphbolt_pytorch_2.4.0.so
+     314278273  lib/python3.12/site-packages/dgl/libdgl.so
+           128  lib/python3.12/site-packages/dgl-2.4.0+cu124-py3.12.egg-info/requires.txt
+           646  lib/python3.12/site-packages/dgl-2.4.0+cu124-py3.12.egg-info/PKG-INFO
+--- info/index.json
+{
+  "arch": "x86_64",
+  "build": "py312_0",
+  "build_number": 0,
+  "depends": [
+    "networkx",
+    "numpy",
+    "psutil",
+    "python >=3.12,<3.13.0a0",
+    "requests",
+    "scipy",
+    "tqdm"
+  ],
+  "license": "Apache",
+  "name": "dgl",
+  "platform": "linux",
+  "subdir": "linux-64",
+  "timestamp": 1725267489247,
+  "version": "2.4.0.th24.cu124"
+}
+--- info/about.json
+{
+  "channels": [
+    "https://repo.anaconda.com/pkgs/main"
+  ],
+  "conda_build_version": "24.7.1",
+  "conda_version": "24.7.1",
+  "env_vars": {
+    "CIO_TEST": "<not set>"
+  },
+  "extra": {
+    "copy_test_source_files": true,
+    "final": true
+  },
+  "home": "https://github.com/dmlc/dgl.git",
+  "identifiers": [],
+  "keywords": [],
+  "license": "Apache",
+  "license_file": "/root/miniconda3/conda-bld/dgl_1725266847832/work/LICENSE",
+  "root_pkgs": [... build-machine package list omitted by the agent ...],
+
+## E8 summary (agent)
+- data.dgl.ai is dead (domain expired; GitHub issue dmlc/dgl#7935, opened 2026-11-07, comment 2026-11-09 "Domain registration has expired", no maintainer reply, no mirror named).
+- The official conda channel dglteam on anaconda.org (separate host) still has the build: dgl-2.4.0.th24.cu124-py312_0.tar.bz2, linux-64, 291 228 305 bytes, built 2024-09-03,
+  sha256 0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8 (verified after download).
+  URL: https://conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2  (note: the anaconda.org/conda.anaconda.org/... form returns an HTML 404 page).
+- It is the same build as the pip wheel (egg-info Version 2.4.0+cu124, py3.12) and answers E1(b): Python tag cp312 (py312 only); numpy>=1.14.0 (no upper bound); torchdata NOT required;
+  graphbolt, dgl_sparse and tensoradapter libraries exist for BOTH torch 2.4.0 and 2.4.1 (libgraphbolt_pytorch_2.4.0.so and _2.4.1.so, 272 MB each);
+  egg-info Requires-Dist still says torch<=2.4.0 (pip check reads it; conda does not enforce it). conda 'depends' list has no torch at all: networkx numpy psutil python>=3.12,<3.13 requests scipy tqdm.
+- Not installed anywhere; nothing extracted to disk; the file sits in the agent's scratchpad and is not committed.

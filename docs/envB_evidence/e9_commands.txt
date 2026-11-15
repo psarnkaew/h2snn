@@ -1,0 +1,682 @@
+# E9: repeat of E2 with torch 2.4.0 in env h2snn-b240, 2026-11-14T09:44:26+09:00
+
+$ /c/Users/Acer/anaconda3/Scripts/conda.exe create -y -q -n h2snn-b240 python=3.12
+3 channel Terms of Service accepted
+Channels:
+ - defaults
+Platform: win-64
+Collecting package metadata (repodata.json): ...working... done
+Solving environment: ...working... done
+
+## Package Plan ##
+
+  environment location: C:\Users\Acer\anaconda3\envs\h2snn-b240
+
+  added / updated specs:
+    - python=3.12
+
+
+The following NEW packages will be INSTALLED:
+
+  bzip2              pkgs/main/win-64::bzip2-1.0.8-h2bbff1b_6 
+  ca-certificates    pkgs/main/noarch::ca-certificates-2026.11.5-h382c6e5_0 
+  libexpat           pkgs/main/win-64::libexpat-2.10.0-hd7fb8db_0 
+  libffi             pkgs/main/win-64::libffi-3.4.8-h42d73b9_3 
+  libzlib            pkgs/main/win-64::libzlib-1.3.2-h1c6eee0_0 
+  openssl            pkgs/main/win-64::openssl-3.5.9-hbb43b14_0 
+  packaging          pkgs/main/win-64::packaging-26.3-py312haa95532_0 
+  pip                pkgs/main/noarch::pip-26.2.2-pyhc872135_0 
+  python             pkgs/main/win-64::python-3.12.16-hd7b1df3_0 
+  setuptools         pkgs/main/win-64::setuptools-84.2.1-py312haa95532_0 
+  sqlite             pkgs/main/win-64::sqlite-3.54.1-hee5a0db_0 
+  tk                 pkgs/main/win-64::tk-8.6.15-hf199647_0 
+  tzdata             pkgs/main/noarch::tzdata-2026c-he532380_0 
+  ucrt               pkgs/main/win-64::ucrt-10.0.22621.0-haa95532_0 
+  vc                 pkgs/main/win-64::vc-14.3-h2df5915_12 
+  vc14_runtime       pkgs/main/win-64::vc14_runtime-14.44.35208-h4927774_12 
+  vs2015_runtime     pkgs/main/win-64::vs2015_runtime-14.44.35208-ha6b5a95_12 
+  wheel              pkgs/main/win-64::wheel-0.48.0-py312haa95532_0 
+  xz                 pkgs/main/win-64::xz-5.8.4-hb851c79_0 
+  zlib               pkgs/main/win-64::zlib-1.3.2-h1c6eee0_0 
+
+
+Preparing transaction: ...working... done
+Verifying transaction: ...working... done
+Executing transaction: ...working... done
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off torch==2.4.0 --index-url https://download.pytorch.org/whl/cu124
+Looking in indexes: https://download.pytorch.org/whl/cu124
+Collecting torch==2.4.0
+  Downloading torch-2.4.0%2Bcu124-cp312-cp312-win_amd64.whl (2503.3 MB)
+Collecting filelock (from torch==2.4.0)
+  Downloading filelock-4.2.4-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.8.0 (from torch==2.4.0)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting sympy (from torch==2.4.0)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch==2.4.0)
+  Downloading networkx-3.7-py3-none-any.whl.metadata (6.7 kB)
+Collecting jinja2 (from torch==2.4.0)
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch==2.4.0)
+  Downloading fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: setuptools in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch==2.4.0) (84.2.1)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.4.0)
+  Downloading markupsafe-3.0.3-cp312-cp312-win_amd64.whl.metadata (2.8 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy->torch==2.4.0)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading filelock-4.2.4-py3-none-any.whl (162 kB)
+Downloading fsspec-2026.9.0-py3-none-any.whl (221 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp312-cp312-win_amd64.whl (15 kB)
+Downloading networkx-3.7-py3-none-any.whl (2.1 MB)
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+Installing collected packages: mpmath, typing-extensions, sympy, networkx, MarkupSafe, fsspec, filelock, jinja2, torch
+  WARNING: The script isympy.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The scripts convert-caffe2-to-onnx.exe, convert-onnx-to-caffe2.exe and torchrun.exe are installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed MarkupSafe-3.0.3 filelock-4.2.4 fsspec-2026.9.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.7 sympy-1.14.0 torch-2.4.0+cu124 typing-extensions-4.16.0
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off numpy==2.4.6 scipy==1.18.0 torch_scatter==2.1.2 torch_sparse==0.6.18 torch_cluster==1.6.3 -f https://data.pyg.org/whl/torch-2.4.0+cu124.html
+Looking in links: https://data.pyg.org/whl/torch-2.4.0+cu124.html
+Collecting numpy==2.4.6
+  Downloading numpy-2.4.6-cp312-cp312-win_amd64.whl.metadata (6.6 kB)
+Collecting scipy==1.18.0
+  Downloading scipy-1.18.0-cp312-cp312-win_amd64.whl.metadata (61 kB)
+Collecting torch_scatter==2.1.2
+  Downloading torch_scatter-2.1.2%2Bpt24cu124-cp312-cp312-win_amd64.whl (3.5 MB)
+Collecting torch_sparse==0.6.18
+  Downloading torch_sparse-0.6.18%2Bpt24cu124-cp312-cp312-win_amd64.whl (2.1 MB)
+Collecting torch_cluster==1.6.3
+  Downloading torch_cluster-1.6.3%2Bpt24cu124-cp312-cp312-win_amd64.whl (1.6 MB)
+Downloading numpy-2.4.6-cp312-cp312-win_amd64.whl (12.3 MB)
+Downloading scipy-1.18.0-cp312-cp312-win_amd64.whl (36.6 MB)
+Installing collected packages: torch_scatter, numpy, scipy, torch_sparse, torch_cluster
+  WARNING: The scripts f2py.exe and numpy-config.exe are installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed numpy-2.4.6 scipy-1.18.0 torch_cluster-1.6.3+pt24cu124 torch_scatter-2.1.2+pt24cu124 torch_sparse-0.6.18+pt24cu124
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off torch_geometric==2.8.0
+Collecting torch_geometric==2.8.0
+  Downloading torch_geometric-2.8.0-py3-none-any.whl.metadata (64 kB)
+Collecting aiohttp (from torch_geometric==2.8.0)
+  Downloading aiohttp-3.14.5-cp312-cp312-win_amd64.whl.metadata (8.5 kB)
+Requirement already satisfied: fsspec in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch_geometric==2.8.0) (2026.9.0)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch_geometric==2.8.0) (3.1.6)
+Requirement already satisfied: numpy in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch_geometric==2.8.0) (2.4.6)
+Collecting psutil>=5.8.0 (from torch_geometric==2.8.0)
+  Downloading psutil-7.2.2-cp37-abi3-win_amd64.whl.metadata (22 kB)
+Collecting pyparsing (from torch_geometric==2.8.0)
+  Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+Collecting requests (from torch_geometric==2.8.0)
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting tqdm (from torch_geometric==2.8.0)
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Collecting xxhash (from torch_geometric==2.8.0)
+  Downloading xxhash-4.1.0-cp312-cp312-win_amd64.whl.metadata (19 kB)
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp->torch_geometric==2.8.0)
+  Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl.metadata (5.9 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp->torch_geometric==2.8.0)
+  Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting attrs>=17.3.0 (from aiohttp->torch_geometric==2.8.0)
+  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting frozenlist>=1.1.1 (from aiohttp->torch_geometric==2.8.0)
+  Downloading frozenlist-1.8.0-cp312-cp312-win_amd64.whl.metadata (21 kB)
+Collecting multidict<8.0,>=4.5 (from aiohttp->torch_geometric==2.8.0)
+  Downloading multidict-7.2.1-cp312-cp312-win_amd64.whl.metadata (6.3 kB)
+Collecting propcache>=0.2.0 (from aiohttp->torch_geometric==2.8.0)
+  Downloading propcache-0.5.4-cp312-cp312-win_amd64.whl.metadata (25 kB)
+Requirement already satisfied: typing_extensions>=4.4 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp->torch_geometric==2.8.0) (4.16.0)
+Collecting yarl<2.0,>=1.25.1 (from aiohttp->torch_geometric==2.8.0)
+  Downloading yarl-1.25.1-cp312-cp312-win_amd64.whl.metadata (115 kB)
+Collecting idna>=2.0 (from yarl<2.0,>=1.25.1->aiohttp->torch_geometric==2.8.0)
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from jinja2->torch_geometric==2.8.0) (3.0.3)
+Collecting charset_normalizer<4,>=2 (from requests->torch_geometric==2.8.0)
+  Downloading charset_normalizer-3.5.2-cp312-cp312-win_amd64.whl.metadata (47 kB)
+Collecting urllib3<3,>=1.26 (from requests->torch_geometric==2.8.0)
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting certifi>=2023.5.7 (from requests->torch_geometric==2.8.0)
+  Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+Collecting colorama (from tqdm->torch_geometric==2.8.0)
+  Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Downloading torch_geometric-2.8.0-py3-none-any.whl (1.3 MB)
+Downloading psutil-7.2.2-cp37-abi3-win_amd64.whl (137 kB)
+Downloading aiohttp-3.14.5-cp312-cp312-win_amd64.whl (506 kB)
+Downloading multidict-7.2.1-cp312-cp312-win_amd64.whl (95 kB)
+Downloading yarl-1.25.1-cp312-cp312-win_amd64.whl (102 kB)
+Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl (15 kB)
+Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading frozenlist-1.8.0-cp312-cp312-win_amd64.whl (44 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading propcache-0.5.4-cp312-cp312-win_amd64.whl (46 kB)
+Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading charset_normalizer-3.5.2-cp312-cp312-win_amd64.whl (207 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Downloading xxhash-4.1.0-cp312-cp312-win_amd64.whl (48 kB)
+Installing collected packages: xxhash, urllib3, pyparsing, psutil, propcache, multidict, idna, frozenlist, colorama, charset_normalizer, certifi, attrs, aiohappyeyeballs, yarl, tqdm, requests, aiosignal, aiohttp, torch_geometric
+  WARNING: The script idna.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script normalizer.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script tqdm.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed aiohappyeyeballs-2.7.1 aiohttp-3.14.5 aiosignal-1.4.0 attrs-26.1.0 certifi-2026.10.23 charset_normalizer-3.5.2 colorama-0.4.6 frozenlist-1.8.0 idna-3.20 multidict-7.2.1 propcache-0.5.4 psutil-7.2.2 pyparsing-3.3.3 requests-2.34.2 torch_geometric-2.8.0 tqdm-4.70.1 urllib3-2.8.0 xxhash-4.1.0 yarl-1.25.1
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off --dry-run -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/extra_b.txt
+Requirement already satisfied: numpy==2.4.6 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 1)) (2.4.6)
+Requirement already satisfied: scipy==1.18.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 2)) (1.18.0)
+Collecting scikit-learn==1.9.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading scikit_learn-1.9.0-cp312-cp312-win_amd64.whl.metadata (11 kB)
+Collecting pyyaml==6.0.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 4))
+  Downloading pyyaml-6.0.3-cp312-cp312-win_amd64.whl.metadata (2.4 kB)
+Collecting torchmetrics==1.8.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5))
+  Downloading torchmetrics-1.8.2-py3-none-any.whl.metadata (22 kB)
+Collecting wandb==0.28.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading wandb-0.28.0-py3-none-win_amd64.whl.metadata (11 kB)
+Collecting pandas==3.0.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading pandas-3.0.3-cp312-cp312-win_amd64.whl.metadata (19 kB)
+Collecting tqdm==4.68.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 8))
+  Downloading tqdm-4.68.3-py3-none-any.whl.metadata (57 kB)
+Collecting umap-learn==0.5.12 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading umap_learn-0.5.12-py3-none-any.whl.metadata (24 kB)
+Collecting matplotlib==3.11.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading matplotlib-3.11.0-cp312-cp312-win_amd64.whl.metadata (80 kB)
+Collecting ogb==1.3.6 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading ogb-1.3.6-py3-none-any.whl.metadata (6.2 kB)
+Collecting yacs==0.1.8 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 12))
+  Downloading yacs-0.1.8-py3-none-any.whl.metadata (639 bytes)
+Collecting dill==0.4.1 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 13))
+  Downloading dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Collecting pytorch_lightning==2.6.5 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14))
+  Downloading pytorch_lightning-2.6.5-py3-none-any.whl.metadata (21 kB)
+Collecting prettytable==3.18.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 15))
+  Downloading prettytable-3.18.0-py3-none-any.whl.metadata (37 kB)
+Collecting gdown==6.1.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading gdown-6.1.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting performer-pytorch==1.1.4 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading performer_pytorch-1.1.4-py3-none-any.whl.metadata (763 bytes)
+Collecting seaborn==0.13.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 18))
+  Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting texttable==1.7.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 19))
+  Downloading texttable-1.7.0-py2.py3-none-any.whl.metadata (9.8 kB)
+Collecting termcolor==3.3.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 20))
+  Downloading termcolor-3.3.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting hyper-connections==0.4.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/extra_b.txt (line 1))
+  Downloading hyper_connections-0.4.2-py3-none-any.whl.metadata (6.7 kB)
+Collecting joblib>=1.4.0 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting narwhals>=2.0.1 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading narwhals-2.28.0-py3-none-any.whl.metadata (15 kB)
+Collecting threadpoolctl>=3.5.0 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading threadpoolctl-3.8.0-py3-none-any.whl.metadata (29 kB)
+Requirement already satisfied: packaging>17.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (26.3)
+Requirement already satisfied: torch>=2.0.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (2.4.0+cu124)
+Collecting lightning-utilities>=0.8.0 (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5))
+  Downloading lightning_utilities-0.15.3-py3-none-any.whl.metadata (5.5 kB)
+Collecting click>=8.2.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+Collecting gitpython!=3.1.29,>=1.0.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading gitpython-3.2.1-py3-none-any.whl.metadata (13 kB)
+Collecting platformdirs (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading platformdirs-4.14.5-py3-none-any.whl.metadata (5.7 kB)
+Collecting protobuf!=5.28.0,!=5.29.0,<8,>4.21.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading protobuf-7.36.2-cp310-abi3-win_amd64.whl.metadata (595 bytes)
+Collecting pydantic<3,>=2.6 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+Requirement already satisfied: requests<3,>=2.0.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (2.34.2)
+Collecting sentry-sdk>=2.0.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading sentry_sdk-2.75.0-py3-none-any.whl.metadata (11 kB)
+Requirement already satisfied: typing-extensions<5,>=4.8 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (4.16.0)
+Collecting python-dateutil>=2.8.2 (from pandas==3.0.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting tzdata (from pandas==3.0.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: colorama in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from tqdm==4.68.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 8)) (0.4.6)
+Collecting numba>=0.51.2 (from umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading numba-0.68.1-cp312-cp312-win_amd64.whl.metadata (2.9 kB)
+Collecting pynndescent>=0.5 (from umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading pynndescent-0.7.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting contourpy>=1.0.1 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading contourpy-1.4.0-cp312-cp312-win_amd64.whl.metadata (3.8 kB)
+Collecting cycler>=0.10 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading fonttools-4.68.0-cp312-cp312-win_amd64.whl.metadata (142 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading kiwisolver-1.5.1-cp312-cp312-win_amd64.whl.metadata (5.2 kB)
+Collecting pillow>=9 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading pillow-13.0.0-cp312-cp312-win_amd64.whl.metadata (9.3 kB)
+Requirement already satisfied: pyparsing>=3 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10)) (3.3.3)
+Collecting six>=1.12.0 (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Requirement already satisfied: urllib3>=1.24.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11)) (2.8.0)
+Collecting outdated>=0.2.0 (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading outdated-0.2.2-py2.py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: fsspec>=2022.5.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (2026.9.0)
+Collecting wcwidth>=0.3.5 (from prettytable==3.18.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 15))
+  Downloading wcwidth-0.9.4-cp310-abi3-win_amd64.whl.metadata (24 kB)
+Collecting beautifulsoup4 (from gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading beautifulsoup4-4.15.0-py3-none-any.whl.metadata (3.8 kB)
+Requirement already satisfied: filelock in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16)) (4.2.4)
+Collecting einops>=0.3 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading einops-0.8.2-py3-none-any.whl.metadata (13 kB)
+Collecting local-attention>=1.1.1 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading local_attention-1.11.2-py3-none-any.whl.metadata (929 bytes)
+Collecting axial-positional-embedding>=0.1.0 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading axial_positional_embedding-0.3.12-py3-none-any.whl.metadata (4.3 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading pydantic_core-2.50.4-cp312-cp312-win_amd64.whl.metadata (6.7 kB)
+Collecting typing-inspection>=0.4.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: charset_normalizer<4,>=2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (3.5.2)
+Requirement already satisfied: idna<4,>=2.5 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (3.20)
+Requirement already satisfied: certifi>=2023.5.7 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (2026.10.23)
+Requirement already satisfied: aiohttp!=4.0.0a0,!=4.0.0a1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (3.14.5)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (2.7.1)
+Requirement already satisfied: aiosignal>=1.4.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.4.0)
+Requirement already satisfied: attrs>=17.3.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (26.1.0)
+Requirement already satisfied: frozenlist>=1.1.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.8.0)
+Requirement already satisfied: multidict<8.0,>=4.5 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (7.2.1)
+Requirement already satisfied: propcache>=0.2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (0.5.4)
+Requirement already satisfied: yarl<2.0,>=1.25.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.25.1)
+Collecting gitdb<5,>=4.0.1 (from gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
+Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading smmap-5.0.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting cloudpickle>=3.0 (from joblib>=1.4.0->scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting llvmlite<0.51,>=0.50.0dev0 (from numba>=0.51.2->umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading llvmlite-0.50.0-cp312-cp312-win_amd64.whl.metadata (5.2 kB)
+Requirement already satisfied: setuptools>=44 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from outdated>=0.2.0->ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11)) (84.2.1)
+Collecting littleutils (from outdated>=0.2.0->ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading littleutils-0.2.4-py3-none-any.whl.metadata (679 bytes)
+Requirement already satisfied: sympy in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (1.14.0)
+Requirement already satisfied: networkx in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.7)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.1.6)
+Collecting soupsieve>=1.6.1 (from beautifulsoup4->gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading soupsieve-4.1-py3-none-any.whl.metadata (4.4 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from jinja2->torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.0.3)
+Collecting PySocks!=1.5.7,>=1.5.6 (from requests[socks]->gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading PySocks-1.7.1-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from sympy->torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (1.3.0)
+Would install GitPython-3.2.1 PySocks-1.7.1 PyYAML-6.0.3 annotated-types-0.8.0 axial_positional_embedding-0.3.12 beautifulsoup4-4.15.0 click-8.5.1 cloudpickle-3.1.2 contourpy-1.4.0 cycler-0.12.1 dill-0.4.1 einops-0.8.2 fonttools-4.68.0 gdown-6.1.0 gitdb-4.0.12 hyper-connections-0.4.2 joblib-1.6.0 kiwisolver-1.5.1 lightning-utilities-0.15.3 littleutils-0.2.4 llvmlite-0.50.0 local-attention-1.11.2 matplotlib-3.11.0 narwhals-2.28.0 numba-0.68.1 ogb-1.3.6 outdated-0.2.2 pandas-3.0.3 performer-pytorch-1.1.4 pillow-13.0.0 platformdirs-4.14.5 prettytable-3.18.0 protobuf-7.36.2 pydantic-2.14.3 pydantic_core-2.50.4 pynndescent-0.7.0 python-dateutil-4.0.0 pytorch-lightning-2.6.5 scikit-learn-1.9.0 seaborn-0.13.2 sentry-sdk-2.75.0 six-1.17.0 smmap-5.0.3 soupsieve-4.1 termcolor-3.3.0 texttable-1.7.0 threadpoolctl-3.8.0 torchmetrics-1.8.2 tqdm-4.68.3 typing-inspection-0.4.5 tzdata-2026.6 umap-learn-0.5.12 wandb-0.28.0 wcwidth-0.9.4 yacs-0.1.8
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/extra_b.txt
+Requirement already satisfied: numpy==2.4.6 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 1)) (2.4.6)
+Requirement already satisfied: scipy==1.18.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 2)) (1.18.0)
+Collecting scikit-learn==1.9.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading scikit_learn-1.9.0-cp312-cp312-win_amd64.whl.metadata (11 kB)
+Collecting pyyaml==6.0.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 4))
+  Downloading pyyaml-6.0.3-cp312-cp312-win_amd64.whl.metadata (2.4 kB)
+Collecting torchmetrics==1.8.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5))
+  Downloading torchmetrics-1.8.2-py3-none-any.whl.metadata (22 kB)
+Collecting wandb==0.28.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading wandb-0.28.0-py3-none-win_amd64.whl.metadata (11 kB)
+Collecting pandas==3.0.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading pandas-3.0.3-cp312-cp312-win_amd64.whl.metadata (19 kB)
+Collecting tqdm==4.68.3 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 8))
+  Downloading tqdm-4.68.3-py3-none-any.whl.metadata (57 kB)
+Collecting umap-learn==0.5.12 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading umap_learn-0.5.12-py3-none-any.whl.metadata (24 kB)
+Collecting matplotlib==3.11.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading matplotlib-3.11.0-cp312-cp312-win_amd64.whl.metadata (80 kB)
+Collecting ogb==1.3.6 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading ogb-1.3.6-py3-none-any.whl.metadata (6.2 kB)
+Collecting yacs==0.1.8 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 12))
+  Downloading yacs-0.1.8-py3-none-any.whl.metadata (639 bytes)
+Collecting dill==0.4.1 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 13))
+  Downloading dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Collecting pytorch_lightning==2.6.5 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14))
+  Downloading pytorch_lightning-2.6.5-py3-none-any.whl.metadata (21 kB)
+Collecting prettytable==3.18.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 15))
+  Downloading prettytable-3.18.0-py3-none-any.whl.metadata (37 kB)
+Collecting gdown==6.1.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading gdown-6.1.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting performer-pytorch==1.1.4 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading performer_pytorch-1.1.4-py3-none-any.whl.metadata (763 bytes)
+Collecting seaborn==0.13.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 18))
+  Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting texttable==1.7.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 19))
+  Downloading texttable-1.7.0-py2.py3-none-any.whl.metadata (9.8 kB)
+Collecting termcolor==3.3.0 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 20))
+  Downloading termcolor-3.3.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting hyper-connections==0.4.2 (from -r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/extra_b.txt (line 1))
+  Downloading hyper_connections-0.4.2-py3-none-any.whl.metadata (6.7 kB)
+Collecting joblib>=1.4.0 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting narwhals>=2.0.1 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading narwhals-2.28.0-py3-none-any.whl.metadata (15 kB)
+Collecting threadpoolctl>=3.5.0 (from scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading threadpoolctl-3.8.0-py3-none-any.whl.metadata (29 kB)
+Requirement already satisfied: packaging>17.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (26.3)
+Requirement already satisfied: torch>=2.0.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (2.4.0+cu124)
+Collecting lightning-utilities>=0.8.0 (from torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5))
+  Downloading lightning_utilities-0.15.3-py3-none-any.whl.metadata (5.5 kB)
+Collecting click>=8.2.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+Collecting gitpython!=3.1.29,>=1.0.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading gitpython-3.2.1-py3-none-any.whl.metadata (13 kB)
+Collecting platformdirs (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading platformdirs-4.14.5-py3-none-any.whl.metadata (5.7 kB)
+Collecting protobuf!=5.28.0,!=5.29.0,<8,>4.21.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading protobuf-7.36.2-cp310-abi3-win_amd64.whl.metadata (595 bytes)
+Collecting pydantic<3,>=2.6 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+Requirement already satisfied: requests<3,>=2.0.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (2.34.2)
+Collecting sentry-sdk>=2.0.0 (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading sentry_sdk-2.75.0-py3-none-any.whl.metadata (11 kB)
+Requirement already satisfied: typing-extensions<5,>=4.8 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (4.16.0)
+Collecting python-dateutil>=2.8.2 (from pandas==3.0.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting tzdata (from pandas==3.0.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 7))
+  Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: colorama in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from tqdm==4.68.3->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 8)) (0.4.6)
+Collecting numba>=0.51.2 (from umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading numba-0.68.1-cp312-cp312-win_amd64.whl.metadata (2.9 kB)
+Collecting pynndescent>=0.5 (from umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading pynndescent-0.7.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting contourpy>=1.0.1 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading contourpy-1.4.0-cp312-cp312-win_amd64.whl.metadata (3.8 kB)
+Collecting cycler>=0.10 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading fonttools-4.68.0-cp312-cp312-win_amd64.whl.metadata (142 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading kiwisolver-1.5.1-cp312-cp312-win_amd64.whl.metadata (5.2 kB)
+Collecting pillow>=9 (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10))
+  Downloading pillow-13.0.0-cp312-cp312-win_amd64.whl.metadata (9.3 kB)
+Requirement already satisfied: pyparsing>=3 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from matplotlib==3.11.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 10)) (3.3.3)
+Collecting six>=1.12.0 (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Requirement already satisfied: urllib3>=1.24.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11)) (2.8.0)
+Collecting outdated>=0.2.0 (from ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading outdated-0.2.2-py2.py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: fsspec>=2022.5.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (2026.9.0)
+Collecting wcwidth>=0.3.5 (from prettytable==3.18.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 15))
+  Downloading wcwidth-0.9.4-cp310-abi3-win_amd64.whl.metadata (24 kB)
+Collecting beautifulsoup4 (from gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading beautifulsoup4-4.15.0-py3-none-any.whl.metadata (3.8 kB)
+Requirement already satisfied: filelock in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16)) (4.2.4)
+Collecting einops>=0.3 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading einops-0.8.2-py3-none-any.whl.metadata (13 kB)
+Collecting local-attention>=1.1.1 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading local_attention-1.11.2-py3-none-any.whl.metadata (929 bytes)
+Collecting axial-positional-embedding>=0.1.0 (from performer-pytorch==1.1.4->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 17))
+  Downloading axial_positional_embedding-0.3.12-py3-none-any.whl.metadata (4.3 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading pydantic_core-2.50.4-cp312-cp312-win_amd64.whl.metadata (6.7 kB)
+Collecting typing-inspection>=0.4.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: charset_normalizer<4,>=2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (3.5.2)
+Requirement already satisfied: idna<4,>=2.5 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (3.20)
+Requirement already satisfied: certifi>=2023.5.7 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests<3,>=2.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6)) (2026.10.23)
+Requirement already satisfied: aiohttp!=4.0.0a0,!=4.0.0a1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (3.14.5)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (2.7.1)
+Requirement already satisfied: aiosignal>=1.4.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.4.0)
+Requirement already satisfied: attrs>=17.3.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (26.1.0)
+Requirement already satisfied: frozenlist>=1.1.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.8.0)
+Requirement already satisfied: multidict<8.0,>=4.5 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (7.2.1)
+Requirement already satisfied: propcache>=0.2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (0.5.4)
+Requirement already satisfied: yarl<2.0,>=1.25.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]>=2022.5.0->pytorch_lightning==2.6.5->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 14)) (1.25.1)
+Collecting gitdb<5,>=4.0.1 (from gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
+Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 6))
+  Downloading smmap-5.0.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting cloudpickle>=3.0 (from joblib>=1.4.0->scikit-learn==1.9.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 3))
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting llvmlite<0.51,>=0.50.0dev0 (from numba>=0.51.2->umap-learn==0.5.12->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 9))
+  Downloading llvmlite-0.50.0-cp312-cp312-win_amd64.whl.metadata (5.2 kB)
+Requirement already satisfied: setuptools>=44 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from outdated>=0.2.0->ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11)) (84.2.1)
+Collecting littleutils (from outdated>=0.2.0->ogb==1.3.6->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 11))
+  Downloading littleutils-0.2.4-py3-none-any.whl.metadata (679 bytes)
+Requirement already satisfied: sympy in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (1.14.0)
+Requirement already satisfied: networkx in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.7)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.1.6)
+Collecting soupsieve>=1.6.1 (from beautifulsoup4->gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading soupsieve-4.1-py3-none-any.whl.metadata (4.4 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from jinja2->torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (3.0.3)
+Collecting PySocks!=1.5.7,>=1.5.6 (from requests[socks]->gdown==6.1.0->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 16))
+  Downloading PySocks-1.7.1-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from sympy->torch>=2.0.0->torchmetrics==1.8.2->-r C:/Users/Acer/AppData/Local/Temp/claude/c7cc368768f7bbeb/e21ff2ad-23aa-496a-8a13-24e13a1b956b/scratchpad/others.txt (line 5)) (1.3.0)
+Downloading scikit_learn-1.9.0-cp312-cp312-win_amd64.whl (8.2 MB)
+Downloading pyyaml-6.0.3-cp312-cp312-win_amd64.whl (154 kB)
+Downloading torchmetrics-1.8.2-py3-none-any.whl (983 kB)
+Downloading wandb-0.28.0-py3-none-win_amd64.whl (24.5 MB)
+Downloading pandas-3.0.3-cp312-cp312-win_amd64.whl (9.8 MB)
+Downloading tqdm-4.68.3-py3-none-any.whl (78 kB)
+Downloading umap_learn-0.5.12-py3-none-any.whl (91 kB)
+Downloading matplotlib-3.11.0-cp312-cp312-win_amd64.whl (9.3 MB)
+Downloading ogb-1.3.6-py3-none-any.whl (78 kB)
+Downloading yacs-0.1.8-py3-none-any.whl (14 kB)
+Downloading dill-0.4.1-py3-none-any.whl (120 kB)
+Downloading pytorch_lightning-2.6.5-py3-none-any.whl (852 kB)
+Downloading prettytable-3.18.0-py3-none-any.whl (37 kB)
+Downloading gdown-6.1.0-py3-none-any.whl (19 kB)
+Downloading performer_pytorch-1.1.4-py3-none-any.whl (13 kB)
+Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
+Downloading texttable-1.7.0-py2.py3-none-any.whl (10 kB)
+Downloading termcolor-3.3.0-py3-none-any.whl (7.7 kB)
+Downloading hyper_connections-0.4.2-py3-none-any.whl (22 kB)
+Downloading protobuf-7.36.2-cp310-abi3-win_amd64.whl (456 kB)
+Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+Downloading pydantic_core-2.50.4-cp312-cp312-win_amd64.whl (2.3 MB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading axial_positional_embedding-0.3.12-py3-none-any.whl (6.7 kB)
+Downloading click-8.5.1-py3-none-any.whl (126 kB)
+Downloading contourpy-1.4.0-cp312-cp312-win_amd64.whl (234 kB)
+Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Downloading einops-0.8.2-py3-none-any.whl (65 kB)
+Downloading fonttools-4.68.0-cp312-cp312-win_amd64.whl (2.5 MB)
+Downloading gitpython-3.2.1-py3-none-any.whl (231 kB)
+Downloading gitdb-4.0.12-py3-none-any.whl (62 kB)
+Downloading smmap-5.0.3-py3-none-any.whl (24 kB)
+Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading kiwisolver-1.5.1-cp312-cp312-win_amd64.whl (70 kB)
+Downloading lightning_utilities-0.15.3-py3-none-any.whl (31 kB)
+Downloading local_attention-1.11.2-py3-none-any.whl (9.5 kB)
+Downloading narwhals-2.28.0-py3-none-any.whl (490 kB)
+Downloading numba-0.68.1-cp312-cp312-win_amd64.whl (2.8 MB)
+Downloading llvmlite-0.50.0-cp312-cp312-win_amd64.whl (41.9 MB)
+Downloading outdated-0.2.2-py2.py3-none-any.whl (7.5 kB)
+Downloading pillow-13.0.0-cp312-cp312-win_amd64.whl (7.3 MB)
+Downloading pynndescent-0.7.0-py3-none-any.whl (112 kB)
+Downloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+Downloading sentry_sdk-2.75.0-py3-none-any.whl (555 kB)
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading threadpoolctl-3.8.0-py3-none-any.whl (32 kB)
+Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+Downloading wcwidth-0.9.4-cp310-abi3-win_amd64.whl (597 kB)
+Downloading beautifulsoup4-4.15.0-py3-none-any.whl (109 kB)
+Downloading soupsieve-4.1-py3-none-any.whl (52 kB)
+Downloading littleutils-0.2.4-py3-none-any.whl (8.1 kB)
+Downloading platformdirs-4.14.5-py3-none-any.whl (35 kB)
+Downloading PySocks-1.7.1-py3-none-any.whl (16 kB)
+Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Installing collected packages: texttable, wcwidth, tzdata, typing-inspection, tqdm, threadpoolctl, termcolor, soupsieve, smmap, six, sentry-sdk, pyyaml, PySocks, pydantic-core, protobuf, platformdirs, pillow, narwhals, llvmlite, littleutils, lightning-utilities, kiwisolver, fonttools, einops, dill, cycler, contourpy, cloudpickle, click, annotated-types, yacs, python-dateutil, pydantic, prettytable, outdated, numba, joblib, gitdb, beautifulsoup4, torchmetrics, scikit-learn, pandas, matplotlib, hyper-connections, gitpython, gdown, axial-positional-embedding, wandb, seaborn, pytorch_lightning, pynndescent, ogb, local-attention, umap-learn, performer-pytorch
+  Attempting uninstall: tqdm
+    Found existing installation: tqdm 4.70.1
+    Uninstalling tqdm-4.70.1:
+      Successfully uninstalled tqdm-4.70.1
+  WARNING: The script tqdm.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The scripts fonttools.exe, pyftmerge.exe, pyftsubset.exe and ttx.exe are installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script gdown.exe is installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The scripts wandb.exe and wb.exe are installed in 'C:\Users\Acer\anaconda3\envs\h2snn-b240\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed PySocks-1.7.1 annotated-types-0.8.0 axial-positional-embedding-0.3.12 beautifulsoup4-4.15.0 click-8.5.1 cloudpickle-3.1.2 contourpy-1.4.0 cycler-0.12.1 dill-0.4.1 einops-0.8.2 fonttools-4.68.0 gdown-6.1.0 gitdb-4.0.12 gitpython-3.2.1 hyper-connections-0.4.2 joblib-1.6.0 kiwisolver-1.5.1 lightning-utilities-0.15.3 littleutils-0.2.4 llvmlite-0.50.0 local-attention-1.11.2 matplotlib-3.11.0 narwhals-2.28.0 numba-0.68.1 ogb-1.3.6 outdated-0.2.2 pandas-3.0.3 performer-pytorch-1.1.4 pillow-13.0.0 platformdirs-4.14.5 prettytable-3.18.0 protobuf-7.36.2 pydantic-2.14.3 pydantic-core-2.50.4 pynndescent-0.7.0 python-dateutil-4.0.0 pytorch_lightning-2.6.5 pyyaml-6.0.3 scikit-learn-1.9.0 seaborn-0.13.2 sentry-sdk-2.75.0 six-1.17.0 smmap-5.0.3 soupsieve-4.1 termcolor-3.3.0 texttable-1.7.0 threadpoolctl-3.8.0 torchmetrics-1.8.2 tqdm-4.68.3 typing-inspection-0.4.5 tzdata-2026.6 umap-learn-0.5.12 wandb-0.28.0 wcwidth-0.9.4 yacs-0.1.8
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip install --no-cache-dir --progress-bar off dgl==2.2.1 torchdata==0.8.0 torch_householder==1.0.1
+Collecting dgl==2.2.1
+  Downloading dgl-2.2.1-cp312-cp312-win_amd64.whl.metadata (595 bytes)
+Collecting torchdata==0.8.0
+  Downloading torchdata-0.8.0-cp312-cp312-win_amd64.whl.metadata (5.5 kB)
+Collecting torch_householder==1.0.1
+  Downloading torch_householder-1.0.1.tar.gz (457 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: numpy>=1.14.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (2.4.6)
+Requirement already satisfied: scipy>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (1.18.0)
+Requirement already satisfied: networkx>=2.1 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (3.7)
+Requirement already satisfied: requests>=2.19.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (2.34.2)
+Requirement already satisfied: tqdm in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (4.68.3)
+Requirement already satisfied: psutil>=5.8.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (7.2.2)
+Requirement already satisfied: pandas in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from dgl==2.2.1) (3.0.3)
+Requirement already satisfied: urllib3>=1.25 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchdata==0.8.0) (2.8.0)
+Requirement already satisfied: torch>=2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torchdata==0.8.0) (2.4.0+cu124)
+Collecting ninja (from torch_householder==1.0.1)
+  Downloading ninja-1.13.2-py3-none-win_amd64.whl.metadata (5.4 kB)
+Requirement already satisfied: charset_normalizer<4,>=2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests>=2.19.0->dgl==2.2.1) (3.5.2)
+Requirement already satisfied: idna<4,>=2.5 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests>=2.19.0->dgl==2.2.1) (3.20)
+Requirement already satisfied: certifi>=2023.5.7 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from requests>=2.19.0->dgl==2.2.1) (2026.10.23)
+Requirement already satisfied: filelock in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (4.2.4)
+Requirement already satisfied: typing-extensions>=4.8.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (4.16.0)
+Requirement already satisfied: sympy in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (1.14.0)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (3.1.6)
+Requirement already satisfied: fsspec in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (2026.9.0)
+Requirement already satisfied: setuptools in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from torch>=2->torchdata==0.8.0) (84.2.1)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from jinja2->torch>=2->torchdata==0.8.0) (3.0.3)
+Requirement already satisfied: python-dateutil>=2.8.2 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from pandas->dgl==2.2.1) (4.0.0)
+Requirement already satisfied: tzdata in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from pandas->dgl==2.2.1) (2026.6)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from sympy->torch>=2->torchdata==0.8.0) (1.3.0)
+Requirement already satisfied: colorama in C:\Users\Acer\anaconda3\envs\h2snn-b240\Lib\site-packages (from tqdm->dgl==2.2.1) (0.4.6)
+Downloading dgl-2.2.1-cp312-cp312-win_amd64.whl (5.3 MB)
+Downloading torchdata-0.8.0-cp312-cp312-win_amd64.whl (1.3 MB)
+Downloading ninja-1.13.2-py3-none-win_amd64.whl (311 kB)
+Building wheels for collected packages: torch_householder
+  Building wheel for torch_householder (pyproject.toml): started
+  Building wheel for torch_householder (pyproject.toml): still running...
+  Building wheel for torch_householder (pyproject.toml): finished with status 'done'
+  Created wheel for torch_householder: filename=torch_householder-1.0.1-cp312-cp312-win_amd64.whl size=118160 sha256=98cde2614ec512cd89acd069f25f332154f61265449eafe25ce2aa539650ec6d
+  Stored in directory: C:\Users\Acer\AppData\Local\Temp\pip-ephem-wheel-cache-rutnwyvr\wheels\3f\33\34\8846b50a754aaf4682cfd092742e66eef3b99c75db2f960ad6
+Successfully built torch_householder
+Installing collected packages: ninja, torchdata, torch_householder, dgl
+Successfully installed dgl-2.2.1 ninja-1.13.2 torch_householder-1.0.1 torchdata-0.8.0
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip check
+No broken requirements found.
+[exit=0]
+
+$ /c/Users/Acer/anaconda3/envs/h2snn-b240/python.exe -m pip freeze
+aiohappyeyeballs==2.7.1
+aiohttp==3.14.5
+aiosignal==1.4.0
+annotated-types==0.8.0
+attrs==26.1.0
+axial_positional_embedding==0.3.12
+beautifulsoup4==4.15.0
+certifi==2026.10.23
+charset-normalizer==3.5.2
+click==8.5.1
+cloudpickle==3.1.2
+colorama==0.4.6
+contourpy==1.4.0
+cycler==0.12.1
+dgl==2.2.1
+dill==0.4.1
+einops==0.8.2
+filelock==4.2.4
+fonttools==4.68.0
+frozenlist==1.8.0
+fsspec==2026.9.0
+gdown==6.1.0
+gitdb==4.0.12
+GitPython==3.2.1
+hyper-connections==0.4.2
+idna==3.20
+Jinja2==3.1.6
+joblib==1.6.0
+kiwisolver==1.5.1
+lightning-utilities==0.15.3
+littleutils==0.2.4
+llvmlite==0.50.0
+local-attention==1.11.2
+MarkupSafe==3.0.3
+matplotlib==3.11.0
+mpmath==1.3.0
+multidict==7.2.1
+narwhals==2.28.0
+networkx==3.7
+ninja==1.13.2
+numba==0.68.1
+numpy==2.4.6
+ogb==1.3.6
+outdated==0.2.2
+packaging==26.3
+pandas==3.0.3
+performer-pytorch==1.1.4
+pillow==13.0.0
+platformdirs==4.14.5
+prettytable==3.18.0
+propcache==0.5.4
+protobuf==7.36.2
+psutil==7.2.2
+pydantic==2.14.3
+pydantic_core==2.50.4
+pynndescent==0.7.0
+pyparsing==3.3.3
+PySocks==1.7.1
+python-dateutil==4.0.0
+pytorch-lightning==2.6.5
+PyYAML==6.0.3
+requests==2.34.2
+scikit-learn==1.9.0
+scipy==1.18.0
+seaborn==0.13.2
+sentry-sdk==2.75.0
+setuptools==84.2.1
+six==1.17.0
+smmap==5.0.3
+soupsieve==4.1
+sympy==1.14.0
+termcolor==3.3.0
+texttable==1.7.0
+threadpoolctl==3.8.0
+torch==2.4.0+cu124
+torch-geometric==2.8.0
+torch_cluster==1.6.3+pt24cu124
+torch_householder==1.0.1
+torch_scatter==2.1.2+pt24cu124
+torch_sparse==0.6.18+pt24cu124
+torchdata==0.8.0
+torchmetrics==1.8.2
+tqdm==4.68.3
+typing-inspection==0.4.5
+typing_extensions==4.16.0
+tzdata==2026.6
+umap-learn==0.5.12
+urllib3==2.8.0
+wandb==0.28.0
+wcwidth==0.9.4
+wheel==0.48.0
+xxhash==4.1.0
+yacs==0.1.8
+yarl==1.25.1
+[exit=0]
+BUILD_DONE

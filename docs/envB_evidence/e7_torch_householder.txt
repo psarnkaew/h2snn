@@ -1,0 +1,83 @@
+# E7 torch_householder in h2snn-b, 2026-11-14T06:39:55+09:00
+
+$ where cl (MSVC on PATH?)
+INFO: Could not find files for the given pattern(s).
+$ where gcc g++ nvcc
+C:\Strawberry\c\bin\gcc.exe
+C:\Strawberry\c\bin\g++.exe
+INFO: Could not find "nvcc".
+
+$ pip install --no-cache-dir --dry-run torch_householder==1.0.1
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: torch>=1.5 in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch_householder==1.0.1) (2.4.1+cu124)
+Collecting ninja (from torch_householder==1.0.1)
+  Downloading ninja-1.13.2-py3-none-win_amd64.whl.metadata (5.4 kB)
+Requirement already satisfied: filelock in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (4.2.4)
+Requirement already satisfied: typing-extensions>=4.8.0 in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (4.16.0)
+Requirement already satisfied: sympy in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (1.14.0)
+Requirement already satisfied: networkx in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (3.7)
+Requirement already satisfied: jinja2 in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (3.1.6)
+Requirement already satisfied: fsspec in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (2026.9.0)
+Requirement already satisfied: setuptools in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from torch>=1.5->torch_householder==1.0.1) (84.2.1)
+Requirement already satisfied: MarkupSafe>=2.0 in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from jinja2->torch>=1.5->torch_householder==1.0.1) (3.0.3)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages (from sympy->torch>=1.5->torch_householder==1.0.1) (1.3.0)
+Would install ninja-1.13.2 torch_householder-1.0.1
+
+$ pip install --no-cache-dir torch_householder==1.0.1
+  Created wheel for torch_householder: filename=torch_householder-1.0.1-cp312-cp312-win_amd64.whl size=118162 sha256=4df2fe3bf22232da689afdb4c193334e688b1552d1f2120a32557cdaa30df53b
+  Stored in directory: C:\Users\Acer\AppData\Local\Temp\pip-ephem-wheel-cache-h9fok4yl\wheels\3f\33\34\8846b50a754aaf4682cfd092742e66eef3b99c75db2f960ad6
+Successfully built torch_householder
+Installing collected packages: ninja, torch_householder
+
+Successfully installed ninja-1.13.2 torch_householder-1.0.1
+[exit=0]
+
+$ pip check
+No broken requirements found.
+
+$ python -W default th_test.py (CPU)
+  File "C:\Users\Acer\AppData\Local\Temp\claude\c7cc368768f7bbeb\e21ff2ad-23aa-496a-8a13-24e13a1b956b\scratchpad\th_test.py", line 2, in <module>
+    import torch_householder
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch_householder\__init__.py", line 1, in <module>
+    from torch_householder.householder import torch_householder_orgqr
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch_householder\householder.py", line 18, in <module>
+    torch_householder_cpp = load(
+                            ^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\cpp_extension.py", line 1312, in load
+    return _jit_compile(
+           ^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\cpp_extension.py", line 1722, in _jit_compile
+    _write_ninja_file_and_build_library(
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\cpp_extension.py", line 1821, in _write_ninja_file_and_build_library
+    _write_ninja_file_to_build_library(
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\cpp_extension.py", line 2246, in _write_ninja_file_to_build_library
+    _write_ninja_file(
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\site-packages\torch\utils\cpp_extension.py", line 2382, in _write_ninja_file
+    cl_paths = subprocess.check_output(['where',
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Acer\anaconda3\envs\h2snn-b\Lib\subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['where', 'cl']' returned non-zero exit status 1.
+
+$ cd H2S-NN; python -m unittest tests.test_baselines.DglCudaGateTests -v  (h2snn-b, after the install)
+test_a_machine_without_a_gpu_has_no_defect (tests.test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect. ... ok
+test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.454s
+
+OK
