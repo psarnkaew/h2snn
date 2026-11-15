@@ -74,9 +74,10 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "pshgcn": ("adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a "
                "model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB "
                "model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit"),
-    "hinormer": ("adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole "
-                 "graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of "
-                 "targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)"),
+    "hinormer": ("adapter pending: part 2 E0 stop H1: H2GB's own HINormerModel has its transformer and feature encoder "
+                 "commented out (hinormer_model.py:221-222, 274-289: a linear head on the ego node after full-graph GCN "
+                 "layers) and its `hin` loader yields the whole split as one step (custom_sampler.py:678-685); configs "
+                 "exist for 4 of the 8 datasets; decision S2 needs revisiting"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
     "chebnetii": "adapter pending (card baselines-h2gb C4)",
     "hetero2net": ("adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:"
@@ -85,6 +86,9 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
 #: Cells wired on the loaded H2GB NC datasets (card baselines-h2gb C4): adapter and its tests in place, no open
 #: author decision.
 H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
+    # part 2 E1 (author decisions S1, S5): class A on H2GB's hgt sampler with H2GB's YAML fan-out
+    *((m, d) for m in ("gcn", "gat", "han") for d in H2GB_NC),
+    *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
     ("sehgnn", "ieee-cis-g"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
     ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
@@ -99,6 +103,9 @@ _CHEB_WIDTHS = ("pending author decision (card baselines-h2gb C4-c): ChebNetII's
                 "(ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
+    ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
+                                "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
+                                "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
     ("sehgnn", "ogbn-mag"): _SEHGNN_MAG, ("sehgnn", "mag-year"): _SEHGNN_MAG,
     **{("sehgnn", d): _SEHGNN_PARALLEL for d in ("oag-cs", "oag-eng", "oag-chem", "pdns")},
     **{("chebnetii", d): _CHEB_WIDTHS for d in ("ieee-cis-g", "h-pokec", "pdns")},

@@ -86,6 +86,10 @@ SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Part 2 E1: the H2GB NC datasets on H2GB's `hgt` batches with H2GB's own configs (`_h2gformer_h2gb.py`); mag-year
+#: cannot run under H2GB's own code (no MetaPath2Vec schema for its name) and is left out.
+H2GB_DATASETS = frozenset({"ogbn-mag", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
 
 
 class _DatasetShim:
@@ -191,7 +195,7 @@ class H2GformerAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
@@ -201,6 +205,13 @@ class H2GformerAdapter:
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task not in (NODE_CLASSIFICATION, LINK_PREDICTION, GRAPH_CLASSIFICATION):
             raise UnsupportedCell(NAME, task, dataset, "unsupported task")
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY,
+                    "hidden_dim": {"values": [64, 128, 256, 512]}, "dropout": grids.DROPOUT,
+                    "attn_dropout": {"values": [0.0, 0.2]}, "gt_layers": {"values": [2, 3]},
+                    "attn_heads": {"values": [4, 8]}, "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -242,6 +253,10 @@ class H2GformerAdapter:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            from src.baselines.adapters import _h2gformer_h2gb
+
+            return _h2gformer_h2gb.fit(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         data, target_type = _build_hetero_data(bundle, device)
