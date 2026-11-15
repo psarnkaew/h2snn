@@ -1,0 +1,50 @@
+label=c0-probe job=16741 step=59 node=g2n01 start=2026-11-16T05:14:58+09:00
+git=724c1173ca116e18f4d71361698a57dabe73130d branch=baselines-h2gb
+env=h2snn-b cmd=python ../docs/baselines_h2gb_evidence/c0_probe.py
+P1 ogbn-mag    GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HomoGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 ogbn-mag    GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HomoGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 ogbn-mag    HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HeteroGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 ogbn-mag    H2Gformer src=neighbor_sizes sampler=hgt lens=[3] bs=32 eval_period=4 iter_train=256 iter_val=512 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512]}
+P1 ogbn-mag    HINormer  src=neighbor_sizes sampler=hin lens=[1] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HINormerModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [25]}
+P1 mag-year    GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 mag-year    GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 mag-year    HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HeteroGNNModel {'gnn.layers_mp': 4, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512, 512, 512, 512]}
+P1 mag-year    H2Gformer src=neighbor_sizes sampler=hgt lens=[3] bs=32 eval_period=4 iter_train=256 iter_val=256 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [512, 512, 512]}
+P1 mag-year    HINormer  src=neighbor_sizes sampler=hin lens=[1] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HINormerModel {'gnn.layers_mp': 1, 'gt.layers': 3} sizes(first 3)={'<every type>': [50]}
+P1 oag-cs      GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-cs      GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-cs      HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-cs      H2Gformer src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-cs      HINormer  no config
+P1 oag-eng     GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-eng     GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-eng     HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-eng     H2Gformer src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-eng     HINormer  src=neighbor_sizes sampler=hin lens=[1] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HINormerModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [10]}
+P1 oag-chem    GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-chem    GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-chem    HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-chem    H2Gformer src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=2 iter_train=256 iter_val=128 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 oag-chem    HINormer  no config
+P1 ieee-cis-g  GCN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 ieee-cis-g  GAT       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 ieee-cis-g  HAN       src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 ieee-cis-g  H2Gformer src=neighbor_sizes sampler=hgt lens=[6] bs=32 eval_period=4 iter_train=256 iter_val=256 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [64, 64, 64, 64, 64, 64]}
+P1 ieee-cis-g  HINormer  no config
+P1 h-pokec     GCN       src=neighbor_sizes_dict sampler=hgt lens=[3, 4] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'user': [2048, 2048, 512, 512], 'life_style': [128, 128, 128], 'music': [128, 128, 128]}
+P1 h-pokec     GAT       src=neighbor_sizes_dict sampler=hgt lens=[3, 4] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'user': [2048, 2048, 512, 512], 'life_style': [128, 128, 128], 'music': [128, 128, 128]}
+P1 h-pokec     HAN       src=neighbor_sizes_dict sampler=hgt lens=[3, 4] bs=32 eval_period=4 iter_train=256 iter_val=512 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'user': [2048, 2048, 512, 512], 'life_style': [128, 128, 128], 'music': [128, 128, 128]}
+P1 h-pokec     H2Gformer src=neighbor_sizes_dict sampler=hgt lens=[3, 4] bs=32 eval_period=4 iter_train=256 iter_val=256 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'user': [2048, 2048, 512, 512], 'life_style': [128, 128, 128], 'music': [128, 128, 128]}
+P1 h-pokec     HINormer  no config
+P1 pdns        GCN       src=neighbor_sizes sampler=hgt lens=[4] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [256, 256, 256, 256]}
+P1 pdns        GAT       src=neighbor_sizes sampler=hgt lens=[4] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HomoGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [256, 256, 256, 256]}
+P1 pdns        HAN       src=neighbor_sizes sampler=hgt lens=[4] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HeteroGNNModel {'gnn.layers_mp': 3, 'gt.layers': 3} sizes(first 3)={'<every type>': [256, 256, 256, 256]}
+P1 pdns        H2Gformer src=neighbor_sizes sampler=hgt lens=[4] bs=32 eval_period=4 iter_train=256 iter_val=256 model=GTModel {'gnn.layers_mp': 2, 'gt.layers': 3} sizes(first 3)={'<every type>': [256, 256, 256, 256]}
+P1 pdns        HINormer  src=neighbor_sizes sampler=hin lens=[1] bs=32 eval_period=4 iter_train=256 iter_val=256 model=HINormerModel {'gnn.layers_mp': 1, 'gt.layers': 3} sizes(first 3)={'<every type>': [25]}
+P2 sizes={'a': [4, 4, 2, 2], 'b': [3, 3, 3]} ok: nodes a=14 b=14
+P2 sizes={'a': [4, 4, 2], 'b': [3, 3, 3, 3]} ok: nodes a=25 b=11
+P3 depth=1 sampled==ball: True (|sampled|=8, |ball|=8); edges in batch=16 induced edges=16
+P3 depth=2 sampled==ball: True (|sampled|=22, |ball|=22); edges in batch=66 induced edges=66
+P3 depth=3 sampled==ball: True (|sampled|=42, |ball|=42); edges in batch=154 induced edges=154
+peak_rss_gib=0.74 elapsed_s=21.5
+end=2026-11-16T05:15:20+09:00 exit=0
