@@ -2,10 +2,14 @@
 
 Reads the manifest only; nothing is cloned. A row of kind `unresolved` has no URL in the sources
 the card names and fails `test_every_row_has_a_commit` until the author supplies one.
+Cluster-setup2 CS7-2: kind `not-needed` (no adapter, test or document uses the vendor; author
+decision) has no URL and no commit; every `kind=clone` directory is git-ignored
+(`VendorIgnoreTests`, driven by the manifest through `git check-ignore`).
 """
 
 import csv
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -13,7 +17,8 @@ from src.baselines.runtime.vendor_paths import VENDOR_DIR, VENDOR_ROOTS
 
 MANIFEST = Path(__file__).resolve().parents[1] / "vendor" / "VENDORS.tsv"
 COLUMNS = ["name", "url", "commit", "licence", "used_by", "kind"]
-KINDS = {"clone", "in-repo", "no-clone", "unresolved"}
+KINDS = {"clone", "in-repo", "no-clone", "unresolved", "not-needed"}
+REPO = MANIFEST.parents[1]
 
 
 def read_manifest(path: Path) -> list[dict[str, str]]:
@@ -43,7 +48,8 @@ class VendorManifestTests(unittest.TestCase):
         self.assertEqual(top_dirs - names, set())
 
     def test_every_row_has_a_commit(self) -> None:
-        bad = [row["name"] for row in self.rows if not re.fullmatch(r"[0-9a-f]{7,40}", row["commit"])]
+        bad = [row["name"] for row in self.rows
+               if row["kind"] != "not-needed" and not re.fullmatch(r"[0-9a-f]{7,40}", row["commit"])]
         self.assertEqual(bad, [], "rows without a 7-40 hex commit (URL not found in the sources)")
 
     def test_clone_rows_pin_a_full_hash_and_a_url(self) -> None:
@@ -51,6 +57,38 @@ class VendorManifestTests(unittest.TestCase):
             if row["kind"] == "clone":
                 self.assertRegex(row["commit"], r"^[0-9a-f]{40}$", row["name"])
                 self.assertRegex(row["url"], r"^https://github\.com/[\w.-]+/[\w.-]+$", row["name"])
+
+    def test_not_needed_rows_carry_no_url_or_commit(self) -> None:
+        for row in self.rows:
+            if row["kind"] == "not-needed":
+                self.assertEqual((row["url"], row["commit"]), ("-", "-"), row["name"])
+
+
+def ignore_problems(rows: list[dict[str, str]], repo: Path = REPO) -> list[str]:
+    """Every kind=clone directory is ignored; in-repo vendors and VENDORS.tsv are not."""
+
+    def ignored(rel: str) -> bool:
+        # --no-index: decide from the ignore rules alone, also for paths that are tracked
+        done = subprocess.run(["git", "check-ignore", "-q", "--no-index", rel], cwd=repo)
+        if done.returncode not in (0, 1):
+            raise RuntimeError(f"git check-ignore failed ({done.returncode}) for {rel}")
+        return done.returncode == 0
+
+    problems = []
+    for row in rows:
+        probe = f"vendor/{row['name']}/ignore_probe.txt"
+        if row["kind"] == "clone" and not ignored(probe):
+            problems.append(f"clone not ignored: {row['name']}")
+        if row["kind"] == "in-repo" and ignored(probe):
+            problems.append(f"in-repo vendor ignored: {row['name']}")
+    if ignored("vendor/VENDORS.tsv"):
+        problems.append("vendor/VENDORS.tsv ignored")
+    return problems
+
+
+class VendorIgnoreTests(unittest.TestCase):
+    def test_every_clone_directory_is_ignored(self) -> None:
+        self.assertEqual(ignore_problems(read_manifest(MANIFEST)), [])
 
 
 if __name__ == "__main__":

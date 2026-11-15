@@ -86,3 +86,21 @@ vendor/HGB/*
 # SLURM job logs (scripts/slurm/run_tests.sbatch)
 /logs/*
 !/logs/.gitkeep
+
+# Vendor clones: every kind=clone row of vendor/VENDORS.tsv (scripts/setup/clone_vendors.sh); never committed
+# (cluster-setup2 CS7-2; tests/test_vendor_manifest.py checks this list against the manifest with git check-ignore).
+# vendor/HGB is covered by the rule above (its CLONED_COMMIT.txt stays tracked).
+/vendor/SeHGNN/
+/vendor/PSHGCN/
+/vendor/H2SGNN/
+/vendor/Hetero2Net/
+/vendor/ChebNetII/
+/vendor/neural-sheaf-diffusion/
+/vendor/H2GB/
+/vendor/Heterogeneous-Sheaf-Neural-Networks/
+/vendor/deep-neural-sheaf-diffusion/
+/vendor/HSB-GDL/
+/vendor/fasth/
+/vendor/tudataset/
+/vendor/dgl/
+/vendor/Cooperative-Sheaf-NN/

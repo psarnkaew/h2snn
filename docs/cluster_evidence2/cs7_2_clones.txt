@@ -1,0 +1,42 @@
+# CS7-2 clones (login01, git only, 2026-11-15T09:23:05+09:00); git=64211fb6c513a9b293ddb189c28f45d113421f0b
+$ git ls-remote --symref <url> HEAD
+ivam-he/PSHGCN ref: refs/heads/main	HEAD f87406ce56ba3780d19aa540d3d1081ff085cca5	HEAD 
+ivam-he/ChebNetII ref: refs/heads/main	HEAD ded6c18cbe9673234071031767d17826ad632aca	HEAD 
+andrerg02/Cooperative-Sheaf-NN ref: refs/heads/main	HEAD a1a12f78f3548605b375760779a704f3c2c77a09	HEAD 
+
+CLONED      PSHGCN f87406ce56ba3780d19aa540d3d1081ff085cca5
+exit=0
+CLONED      ChebNetII ded6c18cbe9673234071031767d17826ad632aca
+exit=0
+CLONED      Cooperative-Sheaf-NN a1a12f78f3548605b375760779a704f3c2c77a09
+exit=0
+
+$ find <3 clones> -iname "*licen*"  -> (no output: no licence file)
+
+$ bash scripts/setup/clone_vendors.sh   (full run)
+PRESENT     HGB ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe
+PRESENT     SeHGNN e92bd37d0b803457339555684f139b4c8f3e160d
+PRESENT     PSHGCN f87406ce56ba3780d19aa540d3d1081ff085cca5
+PRESENT     H2SGNN 93c33faf3a413363efcda2ba2a6c04618f1694f7
+PRESENT     Hetero2Net 49133947f33ba46ccd3efb869727f8aef3d7254a
+PRESENT     ChebNetII ded6c18cbe9673234071031767d17826ad632aca
+PRESENT     neural-sheaf-diffusion 11e21b561d884713ab1a18a521a7dc2fb26b9361
+REFUSED     H2GB: dirty clone (modified tracked files) at /mnt/data/peeradon/h2snn/H2S-NN/vendor/H2GB
+NOT CLONED  HINormer (in-repo)
+NOT CLONED  csnn (in-repo)
+NOT CLONED  HINPool (in-repo)
+PRESENT     Heterogeneous-Sheaf-Neural-Networks 6964e1e79a4c1065f358d0914b238e27fd65a769
+PRESENT     deep-neural-sheaf-diffusion 3f706c2bff7e2fdb0ed443d3559a8902f7495462
+PRESENT     HSB-GDL 4126e64e7af91bef9ac9edef9f34b2fba320aff1
+NOT CLONED  HeaRT (no-clone)
+PRESENT     fasth b3fddf117f051c90825b79a5966a0171682a1158
+PRESENT     tudataset 26e6ef6c5f636dd53b7798da7a860dcc19ba3ef8
+PRESENT     dgl 3d16000b4170fa741ed9e9667f22ba84d3493026
+PRESENT     Cooperative-Sheaf-NN a1a12f78f3548605b375760779a704f3c2c77a09
+NOT CLONED  hgbi (not-needed)
+exit=1
+
+$ git -C vendor/H2GB status --porcelain --untracked-files=no   (reported, not cleaned)
+ M H2GB/datasets/ieee_cis_dataset.py
+ M H2GB/datasets/pokec_dataset.py
+ M examples/use_dataset.py
