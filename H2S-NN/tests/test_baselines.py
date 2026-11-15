@@ -74,7 +74,8 @@ class RegistryTests(unittest.TestCase):
         """H2GB datasets without a loader and the two large LP tasks: data pending; LatGRL,
         YouTube and Amazon are gone; HetSheaf's adapter is pending (spec v1.15 J7, M11). Part M3b
         B2: the seven H2GB NC datasets with a loader and a count record are no longer data pending
-        (PDNS stays until B5); tests/test_h2gb_nc.py checks the rule against the count record."""
+        (PDNS stays until B5); tests/test_h2gb_nc.py checks the rule against the count record. B6: the two large LP
+        tasks have their files; their cells say adapter pending."""
 
         from src.baselines.registry import (ADAPTER_PENDING, DATASETS, MODELS,
                                             unsupported_reason)
@@ -85,8 +86,10 @@ class RegistryTests(unittest.TestCase):
         for dataset in ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g",
                         "h-pokec"):
             self.assertNotEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
+        # Part M3b B6: the two large LP tasks have their split and negative files; adapter pending until wired.
         for dataset in ("ogbn-mag_pp", "h-pokec_uu"):
-            self.assertEqual(unsupported_reason("gcn", "link_prediction", dataset), pending)
+            self.assertNotEqual(unsupported_reason("gcn", "link_prediction", dataset), pending)
+            self.assertIn("adapter pending", unsupported_reason("gcn", "link_prediction", dataset))
         # a model without the task keeps the model-specific reason, not the dataset's
         self.assertEqual(unsupported_reason("chebnetii", "link_prediction", "ogbn-mag_pp"),
                          "ChebNetII has no link prediction implementation")

@@ -68,6 +68,14 @@ def lp_root(root: Path) -> Path:
     return Path(root) / LP_DIR
 
 
+# The two large link-prediction tasks (Part M3b B6): `LP/large/<task>` (split, negatives, meta).
+LP_LARGE_DIR = "large"
+
+
+def large_lp_dir(root: Path, key: str) -> Path:
+    return lp_root(root) / LP_LARGE_DIR / key
+
+
 def lp_derived_root(root: Path) -> Path:
     return lp_root(root) / LP_DERIVED_DIR
 
@@ -88,4 +96,4 @@ def tu_raw_dir(root: Path, tud_name: str) -> Path:
 
 
 __all__ = ["GC_DIR", "H2GB_NC_DIRS", "HGB_NC_NAMES", "h2gb_nc_dataset_dir", "h2gb_nc_processed_file", "LP_DERIVED_DIR", "LP_DIR", "NC_DIR", "REPO_DATA_ROOT", "gc_root",
-           "hgb_nc_raw_dir", "lp_derived_root", "lp_root", "nc_root", "tu_raw_dir"]
+           "hgb_nc_raw_dir", "large_lp_dir", "LP_LARGE_DIR", "lp_derived_root", "lp_root", "nc_root", "tu_raw_dir"]

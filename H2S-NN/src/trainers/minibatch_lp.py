@@ -21,6 +21,7 @@ import torch
 import torch.nn as nn
 
 from src.configs.config import EVAL_BATCH_TARGETS
+from src.data.large_lp import held_out_fact_mask
 from src.data.scopes import build_scope_batch
 from src.data.structures import PreparedH2SData
 from src.data.wisp_sampler import AnchorCells, build_wisp_anchor_cells
@@ -31,11 +32,9 @@ LP_POSITIVES_PER_STEP = 8192
 
 def remove_held_out_facts(edge_index: torch.Tensor, edge_type: torch.Tensor,
                           held_out: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-    """The message graph without every fact whose pair is a held-out pair, in either orientation."""
-    pairs = {tuple(p) for p in held_out.t().tolist()}
-    pairs |= {(v, u) for u, v in pairs}
-    keep = torch.tensor([(u, v) not in pairs for u, v in edge_index.t().tolist()],
-                        dtype=torch.bool)
+    """The message graph without every fact whose pair is a held-out pair, in either orientation and
+    whatever its relation (vectorised in Part M3b B6 for the large graphs; same result)."""
+    keep = ~held_out_fact_mask(edge_index, held_out)
     return edge_index[:, keep], edge_type[keep]
 
 
@@ -111,4 +110,78 @@ class LinkScopes:
             return self.score(links, cells, -1, batch_size=EVAL_BATCH_TARGETS)
 
 
-__all__ = ["LP_POSITIVES_PER_STEP", "LinkScopes", "endpoint_graph", "remove_held_out_facts"]
+class LinkEpochLoop:
+    """The large-LP epoch loop (MB4; decisions D-MB3, D-MB4; card Part M3b B6).
+
+    * Training order: a seeded permutation of the training positives (seed `pass_seed(base, pass)`, as the
+      node trainer), continued across epochs; a step takes `LP_POSITIVES_PER_STEP` positives and never
+      crosses a pass boundary, so one epoch = one pass over the training positives = `ceil(P / 8192)` steps
+      (design §6: "pass over training positives").
+    * Negatives 1:1: HGB's `get_train_neg` (one uniform tail per positive) drawn per epoch with seed
+      `base + epoch` (`hgb_train_negatives`, spec v1.16 K3); a positive's negative shares its index.
+    * Training draw per step: seed `training_draw_seed(base, epoch, step)`; anchors = the step's endpoints.
+    * Evaluation every epoch on **all** validation links (positives and their fixed negatives): one draw per
+      run from the base seed, endpoint scopes computed once per evaluation and shared by the links
+      (`LinkScopes.evaluate`); the metric is ROC-AUC.
+    * Early stopping: patience counted in epochs (D-MB4); the best validation epoch is kept.
+    * Stop conditions (tau, log-weight range per forward, non-finite g, T_max) raise inside the model and end
+      the run (`logged_stop_conditions`); evaluation solves start from the initial guess (MB6a).
+    """
+
+    def __init__(self, scopes: LinkScopes, optimizer: torch.optim.Optimizer, base_seed: int, epochs: int,
+                 patience: int, dst_range: tuple[int, int], logger=None) -> None:
+        self.scopes = scopes
+        self.optimizer = optimizer
+        self.base_seed = int(base_seed)
+        self.epochs = int(epochs)
+        self.patience = int(patience)
+        self.dst_range = dst_range
+        self.logger = logger
+        self.history: list[dict[str, float]] = []
+        self.best_epoch = -1
+
+    def epoch_steps(self, num_positives: int) -> int:
+        return -(-int(num_positives) // LP_POSITIVES_PER_STEP)
+
+    def train_epoch(self, order, train_pos: torch.Tensor, epoch: int) -> float:
+        from src.data.hgb_lp_negatives import hgb_train_negatives
+        from src.trainers.minibatch_trainer import training_draw_seed
+
+        negatives = hgb_train_negatives(train_pos, self.dst_range, self.base_seed + epoch)
+        losses = []
+        for step in range(self.epoch_steps(train_pos.size(1))):
+            index = order.next(LP_POSITIVES_PER_STEP)
+            losses.append(self.scopes.train_step(train_pos[:, index], negatives[:, index],
+                                                 training_draw_seed(self.base_seed, epoch, step), epoch,
+                                                 self.optimizer))
+        return sum(losses) / len(losses)
+
+    def validate(self, val_pos: torch.Tensor, val_neg: torch.Tensor) -> float:
+        from src.utils.misc import compute_link_prediction_metrics
+
+        scores = self.scopes.evaluate(torch.cat([val_pos, val_neg], dim=1), self.base_seed)
+        pos, neg = scores.split([val_pos.size(1), val_neg.size(1)])
+        return float(compute_link_prediction_metrics(pos.float(), neg.float())["auroc"])
+
+    def fit(self, train_pos: torch.Tensor, val_pos: torch.Tensor, val_neg: torch.Tensor) -> int:
+        """Train for at most `epochs`; returns the best validation epoch."""
+        from src.trainers.minibatch_trainer import TrainingOrder
+        from src.trainers.stop_conditions import logged_stop_conditions
+
+        order = TrainingOrder(torch.arange(train_pos.size(1)), self.base_seed)
+        best, bad_epochs = float("-inf"), 0
+        with logged_stop_conditions(self.logger):
+            for epoch in range(self.epochs):
+                loss = self.train_epoch(order, train_pos, epoch)
+                auroc = self.validate(val_pos, val_neg)
+                self.history.append({"epoch": epoch, "loss": loss, "val_auroc": auroc})
+                if auroc > best:
+                    best, bad_epochs, self.best_epoch = auroc, 0, epoch
+                else:
+                    bad_epochs += 1
+                if bad_epochs >= self.patience:
+                    break
+        return self.best_epoch
+
+
+__all__ = ["LP_POSITIVES_PER_STEP", "LinkEpochLoop", "LinkScopes", "endpoint_graph", "remove_held_out_facts"]

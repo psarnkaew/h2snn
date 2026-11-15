@@ -91,14 +91,36 @@ def two_hop_candidates(adjacency: sp.csr_matrix, heads: np.ndarray,
     return out
 
 
+def _choices(rng: random.Random, population: np.ndarray, k: int) -> list[int]:
+    """`rng.choices(list(population), k=k)` without building the list: CPython's unweighted `choices`
+    draws `population[floor(random() * n)]` k times (`random.py`, `Random.choices`), so the same calls on
+    the same generator give the same tails (Part M3b B6; checked against `random.choices` in a test)."""
+    n = float(population.size)
+    return [int(population[int(rng.random() * n)]) for _ in range(k)]
+
+
+def _candidates_in_chunks(adjacency: sp.csr_matrix, heads: np.ndarray, dst_range: tuple[int, int],
+                          head_chunk: int | None, progress=None):
+    """`two_hop_candidates` per head, in the heads' order, computed `head_chunk` heads at a time (Part M3b
+    B6: on the large graphs a head's 2-hop set can hold 10^5 tails, so the product of all test heads is not
+    formed at once). The candidates of a head do not depend on the other heads, so the result is equal."""
+    step = heads.size if not head_chunk else int(head_chunk)
+    for start in range(0, heads.size, max(step, 1)):
+        if progress is not None:
+            progress(start, heads.size)
+        yield from two_hop_candidates(adjacency, heads[start:start + step], dst_range)
+
+
 def hgb_test_negatives(test_pos_edge_index: torch.Tensor, both_ways: torch.Tensor,
                        one_way: torch.Tensor, num_nodes: int, dst_range: tuple[int, int],
-                       seed: int = HGB_TEST_NEGATIVE_SEED) -> HGBTestNegatives:
-    """HGB ``get_test_neigh`` (the 2-hop set) for one target relation."""
+                       seed: int = HGB_TEST_NEGATIVE_SEED,
+                       head_chunk: int | None = None, progress=None) -> HGBTestNegatives:
+    """HGB ``get_test_neigh`` (the 2-hop set) for one target relation. `head_chunk` bounds the memory
+    of the 2-hop product (heads processed in ascending order; the draw is unchanged)."""
     heads_all = test_pos_edge_index[0].cpu().numpy().astype(np.int64)
     heads, counts = np.unique(heads_all, return_counts=True)        # ascending, HGB's sorted()
     adjacency = hgb_adjacency(both_ways, one_way, num_nodes)
-    candidates = two_hop_candidates(adjacency, heads, dst_range)
+    candidates = _candidates_in_chunks(adjacency, heads, dst_range, head_chunk, progress)
     rng = random.Random(seed)
     sampled_heads: list[int] = []
     sampled_tails: list[int] = []
@@ -109,7 +131,7 @@ def hgb_test_negatives(test_pos_edge_index: torch.Tensor, both_ways: torch.Tenso
             without.append(head)
             without_positives += count
             continue
-        tails = rng.choices(cands.tolist(), k=count)
+        tails = _choices(rng, cands, count)
         sampled_heads.extend([head] * count)
         sampled_tails.extend(tails)
     edge_index = torch.tensor([sampled_heads, sampled_tails], dtype=torch.long,

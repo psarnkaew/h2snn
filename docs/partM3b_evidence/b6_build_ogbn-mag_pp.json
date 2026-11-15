@@ -1,0 +1,66 @@
+{
+ "task": "ogbn-mag_pp",
+ "nc_dataset": "ogbn-mag",
+ "relation": [
+  "paper",
+  "cites",
+  "paper"
+ ],
+ "load_seconds": 10.1,
+ "relations_between_endpoint_type": [
+  "paper|cites|paper"
+ ],
+ "stored_target_facts": {
+  "facts": 10792672,
+  "self_loop_facts": 0,
+  "distinct_ordered_facts": 10792672,
+  "pairs": 5396336,
+  "pairs_in_both_orientations": 5396336,
+  "pairs_with_a_repeated_fact": 0,
+  "pairs_with_more_than_one_fact": 5396336
+ },
+ "loaded_target_facts": {
+  "facts": 10792672,
+  "self_loop_facts": 0,
+  "distinct_ordered_facts": 10792672,
+  "pairs": 5396336,
+  "pairs_in_both_orientations": 5396336,
+  "pairs_with_a_repeated_fact": 0,
+  "pairs_with_more_than_one_fact": 5396336
+ },
+ "pairs_in_more_than_one_relation": 0,
+ "split": {
+  "train": 4371032,
+  "valid": 485670,
+  "test": 539634,
+  "seed": 42,
+  "val_frac": 0.09,
+  "test_frac": 0.1
+ },
+ "message_graph": {
+  "facts_before": 42182144,
+  "facts_removed": 2050608,
+  "target_facts_removed": 2050608,
+  "other_relation_facts_removed": 0,
+  "held_out_pairs": 1025304,
+  "held_out_facts_left_either_orientation": 0
+ },
+ "two_hop_seconds": 14367.2,
+ "random_seconds": 6.6,
+ "negatives": {
+  "test_2hop": 539634,
+  "test_random": 539634,
+  "valid": 485670,
+  "test_heads": 256755,
+  "heads_without_2hop_candidates": 0,
+  "share_of_heads_without": 0.0,
+  "test_positives_without_2hop_negatives": 0,
+  "seed_test": 1,
+  "seed_valid": 1
+ },
+ "files": {
+  "split.npz": "5009402ecffef4cd49e271b4e94c34c1a292970c6aed7be04a4e82b0d487cc85",
+  "negatives.npz": "38fde8f514ce66e52c53cf5ef4e17bbbba7afa62ab3b8257e0307d76420569e7"
+ },
+ "peak_rss_gib": 15.76
+}

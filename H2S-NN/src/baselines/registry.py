@@ -46,11 +46,21 @@ H2GB_ADAPTER_PENDING_REASON = ("adapter pending: the H2GB bundle, batch range an
                                "wired into this adapter yet (Part M3b B8)")
 #: Adapters wired for the loaded H2GB NC datasets (Part M3b B8).
 H2GB_NC_WIRED_ADAPTERS: frozenset[str] = frozenset()
+#: Part M3b B6: large LP tasks whose split and negative files exist (`data/LP/large/<task>/{split,negatives}.npz`,
+#: written by `scripts/lp/build_large_lp.py`; jobs 16779 / 16780, sha256 in `meta.json` and
+#: `docs/partM3b_evidence/b6_build_<task>.json`); their LP cell is no longer data-pending.
+LARGE_LP_BUILT: tuple[str, ...] = ("ogbn-mag_pp", "h-pokec_uu")
+#: Part M3b: a baseline runs on a large LP task only once its adapter reads the task files and the mini-batch
+#: budget (8,192 positives per step, 40 epochs; card B8 decides per adapter); until then the cell says so.
+LARGE_LP_ADAPTER_PENDING_REASON = ("adapter pending: the large-LP task files, mini-batch step and epoch definition "
+                                   "are not wired into this adapter yet (Part M3b B8)")
+#: Adapters wired for the built large LP tasks (Part M3b B8).
+LARGE_LP_WIRED_ADAPTERS: frozenset[str] = frozenset()
 #: Cells that no model can run yet, whatever the model: (task, dataset) -> reason.
 DATASET_PENDING: dict[tuple[str, str], str] = {
     **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC
        if dataset not in H2GB_NC_LOADED},
-    **{(LINK_PREDICTION, dataset): DATA_PENDING_REASON for dataset in LARGE_LP},
+    **{(LINK_PREDICTION, dataset): DATA_PENDING_REASON for dataset in LARGE_LP if dataset not in LARGE_LP_BUILT},
     # Freebase NC is loadable since Part P P3 (H2S-NN loader, bundles HGB_RAW_DIRNAME).
     # The derived LP tasks are wired into every LP adapter (Part P P2): no pending reason.
 }
@@ -152,6 +162,8 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
         return DATASET_PENDING[(task, dataset)]
     if task == NODE_CLASSIFICATION and dataset in H2GB_NC_LOADED and name not in H2GB_NC_WIRED_ADAPTERS:
         return H2GB_ADAPTER_PENDING_REASON
+    if task == LINK_PREDICTION and dataset in LARGE_LP_BUILT and name not in LARGE_LP_WIRED_ADAPTERS:
+        return LARGE_LP_ADAPTER_PENDING_REASON
     return None
 
 

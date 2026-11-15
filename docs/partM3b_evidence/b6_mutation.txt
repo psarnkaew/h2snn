@@ -1,0 +1,15 @@
+job=16741 step=44 node=g2n01 git=9ccdf9a83481125429ab3deb72241f941c76417b start=2026-11-15T22:53:38+09:00
+===== mutation 1: each endpoint's scope includes the other endpoints' cells
+FAIL: test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope (tests.test_large_lp.StepScopeTests.test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope)
+AssertionError: 0.11912413713603753 not less than or equal to 1e-10 : link 0-1
+Ran 1 test in 0.354s
+FAILED (failures=1)
+restored: identical
+===== mutation 2: held-out removal restricted to one orientation
+FAIL: test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts (tests.test_large_lp.HeldOutTests.test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts)
+AssertionError: 2 held-out fact(s) present in the message graph (either orientation).
+Ran 1 test in 0.189s
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T22:53:48+09:00

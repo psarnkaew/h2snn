@@ -1,0 +1,66 @@
+{
+ "task": "h-pokec_uu",
+ "nc_dataset": "h-pokec",
+ "relation": [
+  "user",
+  "has_friend",
+  "user"
+ ],
+ "load_seconds": 21.1,
+ "relations_between_endpoint_type": [
+  "user|has_friend|user"
+ ],
+ "stored_target_facts": {
+  "facts": 30622564,
+  "self_loop_facts": 0,
+  "distinct_ordered_facts": 30622564,
+  "pairs": 22301964,
+  "pairs_in_both_orientations": 8320600,
+  "pairs_with_a_repeated_fact": 0,
+  "pairs_with_more_than_one_fact": 8320600
+ },
+ "loaded_target_facts": {
+  "facts": 44603928,
+  "self_loop_facts": 0,
+  "distinct_ordered_facts": 44603928,
+  "pairs": 22301964,
+  "pairs_in_both_orientations": 22301964,
+  "pairs_with_a_repeated_fact": 0,
+  "pairs_with_more_than_one_fact": 22301964
+ },
+ "pairs_in_more_than_one_relation": 0,
+ "split": {
+  "train": 18064591,
+  "valid": 2007177,
+  "test": 2230196,
+  "seed": 42,
+  "val_frac": 0.09,
+  "test_frac": 0.1
+ },
+ "message_graph": {
+  "facts_before": 51774836,
+  "facts_removed": 8474746,
+  "target_facts_removed": 8474746,
+  "other_relation_facts_removed": 0,
+  "held_out_pairs": 4237373,
+  "held_out_facts_left_either_orientation": 0
+ },
+ "two_hop_seconds": 1557.6,
+ "random_seconds": 19.2,
+ "negatives": {
+  "test_2hop": 2230163,
+  "test_random": 2230196,
+  "valid": 2007177,
+  "test_heads": 648970,
+  "heads_without_2hop_candidates": 33,
+  "share_of_heads_without": 5.084980815754195e-05,
+  "test_positives_without_2hop_negatives": 33,
+  "seed_test": 1,
+  "seed_valid": 1
+ },
+ "files": {
+  "split.npz": "9ca8efae68bb9970bdd8d541d166c8f648ab446f1150c5640a81b3f10a7e5bfb",
+  "negatives.npz": "6e715184f811d4b70e641763f862363a6f81014a4c200fad05153b82db28a972"
+ },
+ "peak_rss_gib": 9.16
+}
