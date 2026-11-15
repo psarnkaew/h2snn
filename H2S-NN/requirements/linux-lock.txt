@@ -1,3 +1,4 @@
+# superseded by linux-lock-b.txt (2026-11-15); env h2snn (torch 2.6.0) only
 # Linux lock for the `h2snn` environment on the lab GPU cluster (cluster-setup card CS2).
 #
 # Exact pins of the author's laptop environment `h2snn` (read 2026-11-14 from its

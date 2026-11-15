@@ -49,7 +49,8 @@ Sanity check:
 ## Lab GPU cluster (Linux, SLURM)
 
 The Windows commands above apply to the author's laptop. On the lab cluster (author, 2026-11-14;
-`../docs/working_preferences.md`, "Server and GitHub workflow"):
+`../docs/working_preferences.md`, "Server and GitHub workflow"; environment and kernels updated by
+cluster-setup3, 2026-11-15):
 
 - **Where things are.** Login node `login01` (Debian 12; `ssh peeradon@ai1.net.comp.isct.ac.jp`).
   Repository `/mnt/data/peeradon/h2snn` (project storage, NFS, readable by every lab member, no
@@ -58,17 +59,35 @@ The Windows commands above apply to the author's laptop. On the lab cluster (aut
   `/mnt/data`.** Jobs never run in `$HOME`. `/tmp` on a compute node is fast scratch, deleted at
   job end (and not visible from the login node).
 - **No computation on the login node** (tests, training, `pip`/`conda install`, preprocessing). It
-  is for git, editing, submitting and monitoring. Compute nodes are reached only through SLURM.
+  is for git, editing, submitting and monitoring. Compute nodes are reached only through SLURM. If
+  the author holds an interactive allocation, run steps in it with `srun --jobid=<id> --overlap`.
 - **Every job sets `--mem` and `--time`** (at most 72 h; longer work needs checkpoints), plus
   `--gres` and `--cpus-per-task`. GPU types: `--gres=gpu:<type>:<n>` with `2080ti` (11 GB),
-  `titan_rtx` (24 GB), `3090` (24 GB), `a6000` (48 GB). Driver 550.163.01, CUDA 12.4.
+  `titan_rtx` (24 GB), `3090` (24 GB), `a6000` (48 GB). Driver 550.163.01, CUDA 12.4. Every job
+  script prints `git rev-parse HEAD`, `hostname` and `$SLURM_JOB_ID`.
 - **Conda: the author's Miniforge, never `/opt/conda`.** Every job and shell runs
-  `. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn` (env at `~/.conda/envs/h2snn`,
+  `. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b` (env at `~/.conda/envs/h2snn-b`,
   Python 3.12). The lab's `/opt/conda` cannot create environments for this user: its `.condarc`
   locks `pkgs_dirs` (`#!final`) to a shared cache owned by other users. Never mix the two in one
   shell or script. SLURM jobs do not read `~/.bashrc`, so each script activates conda itself.
-- **Version lock:** `requirements/linux-lock.txt`; `python scripts/setup/check_env.py` (in a job)
-  prints every difference against it.
+- **Environment `h2snn-b` (default since cluster-setup3).** torch 2.4.1+cu124, numpy 2.4.6,
+  DGL 2.4.0+cu124 from the official conda package (the DGL pip index is dead), `torch_householder`
+  JIT-compiled with g++ into `TORCH_EXTENSIONS_DIR=~/.cache/torch_extensions/h2snn-b`. Lock:
+  `requirements/linux-lock-b.txt`; install into a new env with
+  `scripts/setup/install_env_b.sh ENV_NAME DGL_FILE` (in a job); `python scripts/setup/check_env.py`
+  (in a job) prints every difference against the lock. `pip check` reports one accepted line (DGL
+  declares `torch<=2.4.0`; its package ships the 2.4.1 libraries). `requirements/linux-lock-b.freeze.txt`
+  is a record of every installed package. The old env `h2snn` (torch 2.6.0, `linux-lock.txt`) is
+  superseded and is not modified.
+- **Pinned CPU kernel environment E** (exported by `scripts/slurm/run_tests.sbatch`):
+  `ATEN_CPU_CAPABILITY=avx2`, `MKL_CBWR=AVX2`, `ONEDNN_MAX_CPU_ISA=AVX2`. Why: the nodes have
+  different CPUs (i9-10900K: AVX2; i9-10900X: AVX512), torch picks its CPU kernels per node, and
+  full-batch outputs then differ in the last bits. With E and 1 thread a capture is bit-identical on
+  every node (cluster-setup3 CS8-1), so the bit-exact tests (`test_task_heads` and `test_cooperative`
+  golden against `../docs/heads_evidence/v2_golden_cluster.pt`, `mb0_reference.py compare` against
+  `../docs/partMB_evidence/mb0_reference_cluster.pt`) assert E and compare with 1 thread; without E
+  they fail with "bit-exact test needs the pinned kernel environment". The Windows captures
+  (`v2_golden.pt`, `mb0_reference.pt`) are history.
 - **Tests:** the whole suite or given unittest targets in one GPU job (log in
   `logs/slurm-<jobid>.out`, git-ignored):
   ```bash
@@ -77,11 +96,17 @@ The Windows commands above apply to the author's laptop. On the lab cluster (aut
   sbatch scripts/slurm/run_tests.sbatch tests.test_v2_model   # unittest targets
   ```
   Short interactive work: `scripts/slurm/interactive.md` (`srun ... --pty bash`).
-- **Push rules (2026-11-14; supersede "do not commit or push" below for agent work branches):**
-  the agent pushes its own work branch after each unit (`git push origin <branch>`); never `v3b`,
-  never another branch, never force-push. `v3b` is fast-forwarded only after the author approves a
-  report. Never commit vendor files without a licence (HGB), `data/`, secrets, `Claude outputs/`,
-  `paper/`.
+- **Never mutate a file that a running job reads** (bash reads a script while it runs; Python
+  imports modules when a test starts). Apply a mutation only when none of your jobs is running, and
+  restore it before the next submission.
+- **Push rules (2026-11-14) and approval by SHA (2026-11-15):** the agent pushes its own work branch
+  after each unit (`git push origin <branch>`); never `v3b`, never another branch, never
+  force-push, rebase, amend or stash. Stage by explicit path only. `v3b` moves only after the author
+  approves a report SHA. Never commit vendor clones, `data/`, secrets, `Claude outputs/`, `paper/`.
+- **Report line:** every agent report ends with
+  `branch=<name> sha=<full head sha> card=<card file> base=<pinned sha>`, where `sha` is the head
+  after the report commit as pushed (`git rev-parse HEAD` = `git rev-parse origin/<branch>`). After
+  that line nothing more is pushed, rebased, amended or committed on that branch until a new prompt.
 
 ## Revision Status
 
@@ -125,7 +150,7 @@ A sheaf-consistency link decoder; per-relation / per-schema energy features for 
 - **No design conclusions from untuned cross-model comparisons.** Our models are untuned until the cluster protocol; baselines (R-GCN, GCN, SimpleHGN, HetSheaf, ...) use published or tuned configurations. A gap between H2S-NN and another model (e.g. "feature-free R-GCN beats H2S-NN by 5-10 points") is not evidence that any H2S-NN component, design choice or hypothesis is wrong, and must not be presented as a deficit, a "real problem", a risk or a reason to change, delay or gate the design. Report such numbers only as context, labelled "untuned vs tuned; not a design signal". Design conclusions may come only from ablations of the same model under the same settings and budget (switch one component on/off, everything else identical), from known-answer tests, or from tuned comparisons under the frozen protocol.
 - Config loading is strict: every section rejects unknown keys, so old v1/AMPSS configs and checkpoints fail loudly. Do not add compatibility shims.
 - Forbidden fixes: loosening tolerances, deleting or skipping tests, silencing exceptions, special-casing test inputs, editing the spec to fit the code.
-- Stay inside the task card's scope; list out-of-scope problems instead of fixing them. Do not commit or push unless asked.
+- Stay inside the task card's scope; list out-of-scope problems instead of fixing them. Commit and push only as the task card and `docs/working_preferences.md` say (push rules 2026-11-14, approval by SHA 2026-11-15).
 
 ## Codebase Map
 
@@ -156,7 +181,7 @@ Use `unittest`, not bare `pytest`:
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m unittest discover -s tests -v
 ```
 
-Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress. `tests/test_task_heads.py` compares node-classification outputs and gradients bit-for-bit with `../docs/heads_evidence/v2_golden.pt`.
+Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress. `tests/test_task_heads.py` compares node-classification outputs and gradients bit-for-bit with `../docs/heads_evidence/v2_golden_cluster.pt` (the cluster capture; needs the pinned kernel environment E, see the cluster section; `v2_golden.pt` is the Windows capture, kept as history).
 
 On this Windows machine, PyG-dependent tests can be blocked while importing `xxhash._xxhash` by Application Control. Treat that as an environment-policy blocker, not an H2S-NN defect; report it, run the complete suite in the clean Colab environment, and do not weaken the policy or add model workarounds.
 

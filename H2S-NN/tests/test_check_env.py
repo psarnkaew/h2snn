@@ -61,10 +61,14 @@ class CompareTests(unittest.TestCase):
             parse_lock("numpy>=2.0\n")
 
     def test_repository_lock_parses(self) -> None:
+        # cluster-setup3 CS8-3 (stated test change): the default lock is linux-lock-b.txt (env h2snn-b);
+        # the 27 pins of linux-lock.txt plus hyper-connections==0.4.2, torch 2.4.1, dgl 2.4.0+cu124.
+        self.assertEqual(Path(DEFAULT_LOCK).name, "linux-lock-b.txt")
         pins = parse_lock(Path(DEFAULT_LOCK).read_text(encoding="utf-8"))
-        self.assertEqual(pins["torch"], "2.6.0")
-        self.assertEqual(pins["dgl"], "2.5.0+cu124")
-        self.assertEqual(len(pins), 27)
+        self.assertEqual(pins["torch"], "2.4.1")
+        self.assertEqual(pins["dgl"], "2.4.0+cu124")
+        self.assertEqual(pins["hyper-connections"], "0.4.2")
+        self.assertEqual(len(pins), 28)
 
 
 if __name__ == "__main__":

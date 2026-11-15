@@ -1,6 +1,7 @@
-"""Compare the installed packages with `requirements/linux-lock.txt` (cluster-setup CS2).
+"""Compare the installed packages with `requirements/linux-lock-b.txt` (cluster-setup CS2; default lock
+`linux-lock-b.txt`, env h2snn-b, since cluster-setup3 CS8-3; `linux-lock.txt` is the superseded torch-2.6 lock).
 
-    python scripts/setup/check_env.py [--lock requirements/linux-lock.txt]
+    python scripts/setup/check_env.py [--lock requirements/linux-lock-b.txt]
 
 Prints one line per difference (missing package, different version) and exits 1 if there is
 any. An installed version that equals the pin plus a local build tag the pin does not state
@@ -17,7 +18,7 @@ from importlib import metadata
 from pathlib import Path
 from typing import NamedTuple
 
-DEFAULT_LOCK = Path(__file__).resolve().parents[2] / "requirements" / "linux-lock.txt"
+DEFAULT_LOCK = Path(__file__).resolve().parents[2] / "requirements" / "linux-lock-b.txt"
 
 
 class Finding(NamedTuple):
