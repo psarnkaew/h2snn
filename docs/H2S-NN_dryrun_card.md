@@ -1,0 +1,44 @@
+# Task card — Dry run on real data, tuning launcher end to end, heterophily statistics (card 2 of 4 before the runs)
+
+**Design authority:** spec **v1.22** §6 (protocol, tuning, budgets, schema read-out requirement); `docs/minibatch_design_v3B.md`; Part M3b report (budget table, loaders, large-LP tasks); `docs/H2S-NN_partM_card.md` M2 (heterophily specification) and M10 (search spaces). `docs/working_preferences.md` binds, including **"Slim preparation" (2026-11-16)**. `H2S-NN/AGENTS.md`/`CLAUDE.md` bind.
+**Author decision (2026-11-16): a dry run on real data is allowed for this card** (an exception to "no smoke runs"): one epoch per cell, to find what breaks on real data and to measure memory and time. It is **not** a performance measurement.
+**Runs in parallel** with `baselines-h2gb` (agent session 1). **Branch:** `dry-run`, from `v3b` at the SHA in the prompt, then `git merge --no-ff` of the pinned `design-docs` SHA. Do not edit the H2GB-specific baseline code that session 1 writes (`src/baselines/minibatch.py`, H2GB parts of adapters); if a fix needs it, list it for session 1. After whichever branch is approved first, the other merges the new `v3b` (merge, never rebase). **Report:** `docs/H2S-NN_dryrun_report.md`; evidence `docs/dryrun_evidence/`.
+**Goal:** by the end of this card the author can start tuning the main table on every ready cell (target: Monday evening).
+
+## Rule
+- **What is recorded per cell:** status (OK / OOM / error / non-finite / stop condition fired), the error and its first file:line, peak GPU memory, peak host memory, time of the training epoch, time of one full validation pass, GPU type and node, PCG iterations (H2S-NN), `T_max` / `τ > 50` / log-weight stops if fired. **No metric value (accuracy, F1, AUC, MRR, loss value beyond "finite") is written to the report or the evidence**, and none is read as a signal. W&B logging in the dry run goes to a project named `h2snn-dryrun` (separate from the tuning project).
+- **Configuration per cell:** the largest memory point of the cell's search space (H2S-NN: `d` 64, `ℓ_max` 5, `r` 64; batch 1024 on mini-batch cells; baselines: the largest values of their memory axes in `search_grids.py`: hidden size, layers, heads, hops; state which axes). One epoch as the budget table defines it (H2GB NC: 8,192 training targets; LP: one pass over the training positives; GC: one pass over the training graphs; HGB NC: one full-graph step), then one full validation pass.
+- **Fixes:** a code bug found on real data (error, wrong shape, index, dtype, missing feature) is fixed in this card with one test that reproduces it on a synthetic graph (Slim). **OOM is not fixed**: it is recorded with the memory needed, as a decision for the author (bigger GPU, or a stated range restriction). A non-finite loss or a fired stop condition is recorded and is not "fixed" by changing settings (stop that cell; report). Any change to H2S-NN's `src/` keeps the v3b_golden and mb0 compares `differing: none` (E, 1 thread).
+- **Cluster:** env `h2snn-b`; SLURM only (`sbatch`, job arrays welcome; `srun --jobid=16741 --overlap` while held). GPUs: use any free GPU; run each cell first on a 24 GB GPU (3090 or Titan RTX); a cell that OOMs there is retried once on the A6000 (48 GB) and both results are recorded. Memory requests ≤ 60G host unless g3an01. Job scripts print `git rev-parse HEAD`, `hostname`, `$SLURM_JOB_ID`.
+- Never changed: method, search ranges, budget values, the spec, the cards, vendor code, anything under `data/`.
+
+## Units
+
+### D0 — Preconditions and cell list (no runs)
+Read the documents above, `scripts/run_h2snn_wandb_tuning.py`, `scripts/run_baseline_tuning.py`, `scripts/run_h2snn_runs.py`, `scripts/train_h2snn.py`, `src/baselines/registry.py`, `src/baselines/search_grids.py`, `configs/experiments/*_v3b.yaml` (only acm, acm_pa, dblp, imdb, mutag exist: record how the other datasets get their configuration: dataset preset, generated config, or missing). Write the **cell list**: every (method, task, dataset) the registry marks runnable today, plus H2S-NN on the 7 loaded H2GB NC datasets and the 2 large LP tasks (H2S-NN's mini-batch path exists); baseline cells on H2GB wait for session 1 and are listed as such. Check W&B access on the cluster (`wandb login --verify` or equivalent in a job): if no key is configured, **stop and ask the author** to run `wandb login` once (never write a key into a file in the repo).
+
+### D1 — Missing configurations
+Any cell of the list without a runnable configuration (e.g. H2S-NN v3-B on freebase NC, dblp_ap, imdb_ma, freebase_bb, pubmed, lastfm, proteins, enzymes, nci1, the H2GB datasets) gets one, built the way the existing `*_v3b.yaml` files are (same keys, the dataset's own data keys; no new setting, nothing tuned by hand). **Test (Slim):** every cell of the list resolves a configuration that passes config validation.
+
+### D2 — Dry run, all ready cells
+A job array over the cell list (script kept in the evidence folder), the configuration rule above. Output `docs/dryrun_evidence/cells.{csv,md}`: one row per cell with the fields of the Rule. Fix bugs as the Rule says, then re-run only the affected cells. **Expected:** every cell is OK, OOM-with-a-number, or a reported stop; no unexplained error remains.
+
+### D3 — Tuning launcher end to end
+On ACM NC for H2S-NN and for one baseline (GCN), and on one LP task (acm_pa) and one GC task (MUTAG) for H2S-NN:
+1. Create a W&B sweep with the launcher exactly as the protocol (plain Bayes, no Hyperband; the generated search space equals spec §6 / card M10, as the existing tests check) in the `h2snn-dryrun` project; run **one trial** with the epoch budget overridden to 1 by an explicit dry-run flag (the flag cannot be set in a tuning sweep config: test).
+2. The trial saves its best checkpoint and resolved configuration where the seeds launcher and `scripts/schema_readout.py` read them; `run_h2snn_runs.py` takes that configuration and runs seed 0 for one epoch (same flag).
+3. **Evaluation draw reproduces** (spec §6 schema read-out requirement, "tested before the runs"): rebuilding the evaluation draw from the base seed after loading the checkpoint gives the same cells and the same `w_f` as at the end of training, exactly (`torch.equal`). One test on a synthetic graph plus the check on the ACM trial.
+4. A SLURM script that starts W&B sweep agents on N GPUs (`scripts/slurm/run_sweep_agents.sbatch`, job array, one agent per GPU, `--time` ≤ 72 h, resumable: an agent that is killed leaves the sweep usable). `bash -n` and `sbatch --test-only`.
+**Output:** the commands the author runs on Monday to start tuning each ready cell, in the report (one block, copy-paste).
+
+### D4 — Heterophily statistics (M2, C6 input)
+Run `scripts/heterophily/compute_heterophily.py` as spec §1 and card M2 define it (reference code unchanged: Hetero²Net `homophily.py`, H2GB `calcHomophily.py`; random fill with 5 fill seeds; labelled-only value beside it) on the 4 HGB NC datasets, the local LP tasks, the 4 TU datasets, and the 7 loaded H2GB NC datasets (one job per dataset; record peak memory and time). If the script does not follow M2 (e.g. it re-implements a formula), stop this unit and report what differs. Output `docs/heterophily_evidence/{stats.json, table.md}`. No published value is compared.
+
+### D5 — Suite and report
+Full suite once on one node. Report short: cell table (summary counts and the non-OK rows), fixes with their tests and commits, OOM cells with the memory needed and the GPU tried, the Monday commands, heterophily table location, decisions for the author. Last line: `branch=dry-run sha=<full head sha> card=docs/H2S-NN_dryrun_card.md base=<pinned v3b sha>` (full SHA in the report if you can, else in the final message).
+
+## Rules and stop conditions
+- **Git:** one commit per unit (D2 may have one commit per fix), explicit paths; push `dry-run` after each unit; never push or move `v3b`, `design-docs`, `baselines-h2gb` or any other branch; never force-push, rebase, amend, stash or reset. Never stage `data/`, W&B run folders, checkpoints, `Claude outputs/`, `H2S-NN/paper/`, vendor clones, `docs/lab-gpu-cluster.html`.
+- **Forbidden:** reporting or comparing metrics; changing search ranges, budgets, or the method; loosening tolerances; deleting or skipping tests; silencing exceptions; editing the spec, cards or vendor code; downloading data.
+- **Stop (the item, report, continue):** W&B not configured (ask the author); a fix would change the method or a full-batch output; the evaluation draw does not reproduce; a configuration cannot be built without a new setting; M2 script deviates from the reference code.
+- **Not stop conditions:** OOM (recorded), time per epoch, a fired stop condition on one cell (recorded), any metric (not looked at).
