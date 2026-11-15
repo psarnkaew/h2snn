@@ -69,11 +69,11 @@ cluster-setup3, 2026-11-15):
   `ATEN_CPU_CAPABILITY=avx2`, `MKL_CBWR=AVX2`, `ONEDNN_MAX_CPU_ISA=AVX2`. Why: the nodes have
   different CPUs (i9-10900K: AVX2; i9-10900X: AVX512), torch picks its CPU kernels per node, and
   full-batch outputs then differ in the last bits. With E and 1 thread a capture is bit-identical on
-  every node (cluster-setup3 CS8-1), so the bit-exact tests (`test_task_heads` and `test_cooperative`
-  golden against `../docs/heads_evidence/v2_golden_cluster.pt`, `mb0_reference.py compare` against
-  `../docs/partMB_evidence/mb0_reference_cluster.pt`) assert E and compare with 1 thread; without E
-  they fail with "bit-exact test needs the pinned kernel environment". The Windows captures
-  (`v2_golden.pt`, `mb0_reference.pt`) are history.
+  every node (cluster-setup3 CS8-1), so the bit-exact checks (`tests/test_v3b_golden.py`, i.e.
+  `../docs/legacy_evidence/v3b_golden.py compare ../docs/legacy_evidence/v3b_golden_cluster.pt`, and
+  `../docs/partMB_evidence/mb0_reference.py compare ../docs/partMB_evidence/mb0_reference_cluster.pt`)
+  assert E and compare with 1 thread; without E they fail with "bit-exact test needs the pinned kernel
+  environment". The Windows capture `mb0_reference.pt` is history.
 - **Tests:** the whole suite or given unittest targets in one GPU job (log in
   `logs/slurm-<jobid>.out`, git-ignored):
   ```bash
@@ -751,7 +751,7 @@ As of 2026-11-06:
   `src/models/vertex_path_laplacian.py`; tests `tests/test_v2_model.py`. Report:
   `../docs/H2S-NN_D4_report.md`.
 - D6: task heads — `src/models/link_readout.py`, `src/models/graph_readout.py`; tests
-  `tests/test_task_heads.py` (incl. golden node-classification outputs).
+  `tests/test_task_heads.py`; bit-exact v3-B golden `tests/test_v3b_golden.py`.
 No accuracy result exists yet for any task.
 
 ### Sources of truth, in this order
@@ -794,7 +794,7 @@ number improved, or a bug is fixed without showing the run output.
 |---|---|---|
 | D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; `model.map_family: factorized`, `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
 | D2 | WISP (spec v1.3 §3.2): Walk-sampled, Instance-weighted Sheaf Paths replace AMPSS — schema-free self-avoiding walks from a stated target measure, walk-level defensive importance sampling (ratio ≤ 2), `w_f = exp(g(ξ_f))` (γ removed), schemas read out (`I_π`, `I_σ`, `ΔL_σ`), never selected; knobs `ℓ_max` (support), `r` (precision). Default (spec v1.4 E7): `path_source: wisp` for node classification; `path_source: schemas` (fixed literature presets) is the comparison row | Agreed 2026-11-08; implementation: task card Part H, branch `wisp`. "AMPSS" = deleted v1 only |
-| D3 | Scalability: normalized Laplacians with full-graph degrees, `η = σ(θ)`, per-batch path cells, `NeighborLoader` mini-batching | Normalization and bounded step implemented (D4); mini-batching not started |
+| D3 | Scalability: normalized Laplacians with full-graph degrees, per-batch path cells, `NeighborLoader` mini-batching | Normalization and bounded step implemented (D4); mini-batching not started |
 | D4 | Path 2-cells couple to **every** boundary node through the **vertex–2-cell sheaf Laplacian** | Implemented with the §4.6 ablation switches; ACM memory and smoke run only |
 | D5 | Baseline provenance (fix spec H8) and IMDB heterophily under fair multilabel definitions (H5); parallel track | Not started |
 | D6 | One model; link prediction and graph classification ported to it (heads change only where forced) | Implemented; no accuracy run |
@@ -878,8 +878,8 @@ Remember the approval rule above before launching anything longer than a smoke t
 ```
 
 Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
-- Node classification: `acm`, `dblp`, `imdb` (`*_h2snn.yaml`; meta-path presets in
-  `NODE_CLASSIFICATION_PRESETS`, `src/configs/config.py`).
+- Node classification: `acm`, `dblp`, `imdb` (`acm_h2snn_v3b.yaml`, `dblp_h2snn_v3b.yaml`,
+  `imdb_h2snn_v3b.yaml`; presets in `NODE_CLASSIFICATION_PRESETS`, `src/configs/config.py`).
 - Link prediction: `lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon`; decoder per dataset
   via `data.decoder_type` (`dot` | `distmult`; spec v1.22 W2, `concat_mlp` removed).
 - Graph classification: `mutag`, `enzymes`, `nci1`, `proteins`.
@@ -895,7 +895,7 @@ Validate W&B tuning before creating or resuming a sweep (does not contact W&B or
 
 ```bash
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts/run_h2snn_wandb_tuning.py \
-    --config configs/experiments/acm_h2snn.yaml --num_runs 5 --n_trials 30 \
+    --config configs/experiments/acm_h2snn_v3b.yaml --num_runs 5 --n_trials 30 \
     --d_values 16 32 --validate_only
 ```
 
@@ -927,10 +927,10 @@ Use `unittest`, not bare `pytest`:
 ```
 
 Do not rely on a remembered test count; record the count and result before your change and compare
-after it. Any newly failing existing test blocks progress. `tests/test_task_heads.py` compares
-node-classification outputs and gradients bit-for-bit with `../docs/heads_evidence/v2_golden_cluster.pt`
-(the cluster capture; needs the pinned kernel environment E, see the cluster section; `v2_golden.pt` is the
-Windows capture, kept as history).
+after it. Any newly failing existing test blocks progress. `tests/test_v3b_golden.py` compares the v3-B
+model's outputs, gradients and solver statistics bit-for-bit with `../docs/legacy_evidence/v3b_golden_cluster.pt`
+(`../docs/legacy_evidence/v3b_golden.py`), and `../docs/partMB_evidence/mb0_reference.py compare` the mini-batch
+reference; both need the pinned kernel environment E (see the cluster section).
 
 On this Windows machine, PyG-dependent tests can be blocked while importing `xxhash._xxhash` by
 Application Control. That is an environment-policy blocker, not an H2S-NN defect: report it, run

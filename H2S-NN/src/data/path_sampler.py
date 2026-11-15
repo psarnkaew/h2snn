@@ -123,25 +123,16 @@ class Walks:
     weight: torch.Tensor     # [W] 1 / r of the walk's (anchor, schema)
 
 
-def _pick(csr: CSR, current: torch.Tensor, alive: torch.Tensor, u: torch.Tensor,
-          counts: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
-    """Index of the chosen half-edge per walker (uniform, or proportional to `counts`
-    over the node's CSR segment) and the updated alive mask."""
+def _pick(csr: CSR, current: torch.Tensor, alive: torch.Tensor,
+          u: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """Index of the chosen half-edge per walker (uniform over the node's CSR segment) and the
+    updated alive mask. (Part M3b B9: the unused `counts` branch, left by the removed
+    `uniform_instance` sampler, is gone; the only caller passed `None`.)"""
     start = csr.ptr[current]
     degree = csr.ptr[current + 1] - start
-    if counts is None:
-        alive = alive & (degree > 0)
-        offset = torch.minimum((u * degree).long(), (degree - 1).clamp_min(0))
-        index = start + offset
-    else:
-        cumulative = torch.cumsum(counts, dim=0)
-        before = torch.where(start > 0, cumulative[(start - 1).clamp_min(0)],
-                             torch.zeros_like(start))
-        end = (start + degree - 1).clamp_min(0)
-        total = torch.where(degree > 0, cumulative[end] - before, torch.zeros_like(start))
-        alive = alive & (total > 0)
-        target = before + torch.minimum((u * total).long(), (total - 1).clamp_min(0))
-        index = torch.searchsorted(cumulative, target, right=True)
+    alive = alive & (degree > 0)
+    offset = torch.minimum((u * degree).long(), (degree - 1).clamp_min(0))
+    index = start + offset
     if csr.other.numel() == 0:
         return torch.zeros_like(current), torch.zeros_like(alive)
     index = torch.where(alive, index, torch.zeros_like(index)).clamp(max=csr.other.numel() - 1)
@@ -163,7 +154,7 @@ def sample_walks(
     nodes, facts, signs, relations, directions = [current], [], [], [], []
     for j, csr in enumerate(hop_csrs):
         u = torch.rand(current.numel(), generator=generator, dtype=torch.float64)
-        index, alive = _pick(csr, current, alive, u.to(current.device), None)
+        index, alive = _pick(csr, current, alive, u.to(current.device))
         current = csr.other[index] if csr.other.numel() else current
         nodes.append(current)
         facts.append(csr.fact[index] if csr.fact.numel() else current)

@@ -33,10 +33,12 @@ def install() -> None:
 
     Unconditionally registering the stub would be wrong on a healthy install: DGL's
     ``__init__`` does ``from . import graphbolt``, and Python would hand it this empty
-    module instead of the real one, silently disabling GraphBolt. Colab's
-    ``dgl 2.5.0+cu124`` for torch 2.6 is such a healthy install, so the stub must not be
-    applied there -- it is only for builds whose GraphBolt binary is missing, like the
-    Windows ``dgl 2.2.1`` wheel used for local development.
+    module instead of the real one, silently disabling GraphBolt. The cluster environment
+    ``h2snn-b`` is such a healthy install (DGL ``2.4.0+cu124`` from the official conda package,
+    installed by ``scripts/setup/install_env_b.sh``; URL and sha256 in
+    ``requirements/linux-lock-b.txt``), so the stub must not be applied there -- it is only for
+    builds whose GraphBolt binary is missing, like the Windows ``dgl 2.2.1`` wheel of the
+    author's laptop.
     """
 
     if "dgl" in sys.modules:

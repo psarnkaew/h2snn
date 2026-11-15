@@ -1,0 +1,107 @@
+## H2GB node-classification datasets (Part M3b, 2026-11-15)
+
+Source: the H2GB benchmark (Lin et al., arXiv 2407.10916; code `github.com/junhongmit/H2GB` at commit `d3b49db63ad66f8a3282dbe699d50ce10ed3062a`, cloned by `scripts/setup/clone_vendors.sh`). The author downloaded and processed them on the lab cluster with H2GB's own classes (`scripts/data/h2gb_use_dataset.py`, formerly `vendor/H2GB/examples/use_dataset.py`), with the vendor patch `vendor/patches/H2GB.patch` (IEEE-CIS test identity columns `id-NN` → `id_NN`; Pokec download without `extract_zip`). Loaded offline by `src/data/h2gb_nc.py` (H2GB's own `preformat_*`); counts and checks: `docs/partM3b_evidence/h2gb_nc_counts.md`, `oag_identity.md`, `leak_audit.md`, `pdns_protocol.md`. ogbn-mag/mag-year also need OGB's own `mag/ogbn_mag` (H2GB builds them from it).
+
+- `ogbn-mag` — H2GB `MAGDataset` via `preformat_MAG` (name 'ogbn-mag'); processed `data/NC/mag/ogbn-mag/processed/data.pt`, 2,602,203,256 bytes, sha256 `d32e050f386dcd176fe4dc97efe7c3dc3d8ea4b5f06c6b7bb4c09410c1656fbc`.
+- `mag-year` — H2GB `MAGDataset` via `preformat_MAG` (name 'mag-year'); processed `data/NC/mag/mag-year/processed/data.pt`, 2,602,203,256 bytes, sha256 `6ba59a64782f2d6a147d23877b2df89b05958bf3188ce6f9dd8955fc077732e4`.
+- `oag-cs` — H2GB `OAGDataset` via `preformat_OAG` (name 'cs'); processed `data/NC/OAG/cs/processed/data.pt`, 3,649,001,164 bytes, sha256 `4ead71634b34f8125e35256ac742f2d7efbba1bb65cae8c65739db23f0b727c6`.
+- `oag-eng` — H2GB `OAGDataset` via `preformat_OAG` (name 'chemistry'); processed `data/NC/OAG/chemistry/processed/data.pt`, 2,960,710,156 bytes, sha256 `c9c64ab75ba34b233b77032d5a09b81c2551e173aec67671daba7f70cd908bcf`.
+  Verified identity: the folder `OAG/chemistry` holds the **engineering** field (H2GB's `oag_dataset.py:55-57` swaps the hub files; Table 1 counts match).
+- `oag-chem` — H2GB `OAGDataset` via `preformat_OAG` (name 'engineering'); processed `data/NC/OAG/engineering/processed/data.pt`, 6,213,821,636 bytes, sha256 `f69877c0f4134b5c5e64b74811546fa54a1fb466e41f4a6126e864b2b7d0c3bd`.
+  Verified identity: the folder `OAG/engineering` holds the **chemistry** field.
+- `ieee-cis-g` — H2GB `IeeeCisDataset` via `preformat_IEEE_CIS` (name None); processed `data/NC/IEEE-CIS/processed/data.pt`, 2,784,766,460 bytes, sha256 `931fa351be9fcfe13d82d0cecf30581e0d92aac7457ea8ce5d4fc03159c2b664`.
+- `h-pokec` — H2GB `PokecDataset` via `preformat_Pokec` (name None); processed `data/NC/Pokec/processed/data.pt`, 989,825,292 bytes, sha256 `fac97b78e42f16b1a5a27b143f345a19af338e446cbade3fa13e05dd001ca3fd`.
+- `OAG/raw` is empty (H2GB processed the hub files elsewhere; not needed offline).
+- IEEE-CIS-G raw (`NC/IEEE-CIS/raw`):
+  - `test_identity.csv` 25,797,161 bytes, sha256 `3e5978cb13ca5e72f52babc4349ae0125e14b87ca8bfabe952ab67bb4ff1e10b`
+  - `test_transaction.csv` 613,194,934 bytes, sha256 `2a8e51f1d335a86025d2b7f45beb9b78d0ab1edd726ef531d8b71a8a0065c011`
+  - `train_identity.csv` 26,529,680 bytes, sha256 `b63c725d8377be90a995268d97f347c17d456b95db45807adcf9f59cd603c37c`
+  - `train_transaction.csv` 683,351,067 bytes, sha256 `3a5c83ab6b3cc13dcabe5ffa9f522307fd5f7f7b6e6f6a60c32284ca6283d642`
+- H-Pokec raw (`NC/Pokec/raw`):
+  - `soc-pokec-profiles.txt.gz` 435,512,787 bytes, sha256 `d4c6b0151cfa3571a7864ea12b06a7c5367e33ecbfe20358cf5420d76e40bad9`
+  - `soc-pokec-relationships.txt.gz` 132,454,730 bytes, sha256 `1a23e0ec8a4e497752125f6b3f01696fea7fcdb696fa61d1e822faf4d0d69b14`
+- PDNS raw (`NC/PDNS/raw`):
+  - `domain_features.csv` 55,476,425 bytes, sha256 `3c870cdba255c7b2549934b57c82a5bd9e13bd0384e198315653503242437f52`
+  - `domain_features_map.txt` 93 bytes, sha256 `99a2a3ad28a9821cf3a5eebbb476e7bddd976ef310a6c178a77f42205dcc98fe`
+  - `domains.csv` 45,126,257 bytes, sha256 `6198bde6119bc91a05189a7125cc3de3c3e4b3b08fa3865be9bc8099254c4f02`
+  - `domains2.csv` 49,275,694 bytes, sha256 `1e1fb0235cffbc806a1a4d1741157ce6e63b18da32e064b8e6207d7eea3a7b7d`
+  - `gt/domains_0.active` 86,079 bytes, sha256 `bfd0163b4f769f84826b49e74e2f92e8cf9290f4798718b7a6838f17165246a8`
+  - `gt/domains_1.active` 83,409 bytes, sha256 `5412976d9a588df3e25d104d91300ece0997af0d06b43c77d1c1700c5b2b56c2`
+  - `gt/domains_10.active` 50,680 bytes, sha256 `23817cc8e40a1bb9e46a51889b0e4273f8366dfb24f587d58bb8810126766918`
+  - `gt/domains_11.active` 50,627 bytes, sha256 `74a2c8a29e5d0e5e05b1a9e43dd78ab2a5c7974464d31451e2f7c98cf83aa209`
+  - `gt/domains_12.active` 52,426 bytes, sha256 `e295ad90d897ef742715fb845e53bf5a646711e065ad2e42bd562411c1553bdd`
+  - `gt/domains_13.active` 49,079 bytes, sha256 `f7d2514713ffd0ce86e549df1f25fdc80993a7c75c438e647ff0f727f0933182`
+  - `gt/domains_14.active` 55,352 bytes, sha256 `49840958fc5a29929341c34ed3d71f6cae8b4ae3d2c6a7715db4105223ddc03b`
+  - `gt/domains_2.active` 86,732 bytes, sha256 `330b748d5f7febc7bfb17359bbaad292f0b752cb857e1b1784b516b26eff6523`
+  - `gt/domains_3.active` 86,852 bytes, sha256 `f0f12a684558dbaccbb5181598faf127bbe91cfcc792bb988b8bfdc83f82c1f5`
+  - `gt/domains_4.active` 107,450 bytes, sha256 `87dac55b0a1a4ddc8f630987824285c3fb2c3a7e8600408c2dc81442f65a1189`
+  - `gt/domains_5.active` 97,688 bytes, sha256 `de3256a83fefc96b730b84dfbede7bc2e471ffa16483aedb257d91012fc1ff13`
+  - `gt/domains_6.active` 54,526 bytes, sha256 `182b842c783ca7e9e91b479db881ac242776c9c9e877c400bdc49f863a84d844`
+  - `gt/domains_7.active` 47,326 bytes, sha256 `c5368974d8fbef8b6ea215654a97f4a48b52bfc29cf74386a482a262818d5abc`
+  - `gt/domains_8.active` 49,387 bytes, sha256 `689d00fab1bd943b37897fab9dd813d01f7f273ad9aebfae7b1474107a818a15`
+  - `gt/domains_9.active` 44,776 bytes, sha256 `a4d8d9381abd7911cefc100d434e5786a682e0dcbf64d23e2e2a33e2513917eb`
+  - `ip_features.csv` 12,592,779 bytes, sha256 `0fe6cf8b53f8c4f294c1ac9632cb1917e88dec3bc46917a6d9f5bbbb4850e478`
+  - `ip_features_map.txt` 10 bytes, sha256 `ada18bc9900647b53699afe9ca23144044e9b06555b755b13d3012938d9414fe`
+  - `ips.csv` 6,325,627 bytes, sha256 `94b4772093bbbe9a62e3129594d8788cac9f35045e40e3adefece35c49caf8be`
+  - `timestamp_0_edges.csv` 7,119,795 bytes, sha256 `4e11b65d48de54d343c6255db721462d0ca4445077f535918bc09db33e31a67a`
+  - `timestamp_10_edges.csv` 15,631,158 bytes, sha256 `41e991a615a66c387fb3de3ecfc32c055255d23a1d32a46129eff264b1c72866`
+  - `timestamp_11_edges.csv` 22,557,049 bytes, sha256 `cf94e3f403503c30f44317e581bd4e82a084bcc51496dc9a0dbcaa08b33be0bc`
+  - `timestamp_12_edges.csv` 16,041,637 bytes, sha256 `a39ce283f23beac850fce66a91f6ca8cb30744c48e6bfb1bbc1d912f6bc05c7a`
+  - `timestamp_13_edges.csv` 26,643,177 bytes, sha256 `6f8587c657f1cb5ba5ffc11d7912e11126748e1a7a516f39d1a5bf42cdbe89db`
+  - `timestamp_14_edges.csv` 26,653,427 bytes, sha256 `3105b90da3d38f3e2c555f085e390c2ec7eb64195500a7b8671a22fff45f3dc2`
+  - `timestamp_15_edges.csv` 20,327,080 bytes, sha256 `b822a2ab174a255cb7107e8fb3e55bbb37fd9ff0733b72290e1b4bc53732dc10`
+  - `timestamp_16_edges.csv` 21,966,660 bytes, sha256 `4d8ae034b0ca0cac3d30a639a9b60be3f3a1071c0700c6d0bd42b2e9760bd657`
+  - `timestamp_17_edges.csv` 15,978,228 bytes, sha256 `2a5630c60b4c3187f1ef0e8d9443b30fa4de69610f0b672121d084d4a2c6bd2a`
+  - `timestamp_18_edges.csv` 17,841,853 bytes, sha256 `ee0a147b4a188450a110c466c50370689cd3e84ec8785203d55a6f10bf9e757a`
+  - `timestamp_19_edges.csv` 18,046,482 bytes, sha256 `3385c4be2c92a5477141a8f126c76ed14edb8e5107f9eb2ed1d14f20083a8d75`
+  - `timestamp_1_edges.csv` 11,365,355 bytes, sha256 `b68af62b1914abae0bf2e6969453014c52d4180e9be7892a84dedf2dc7db758e`
+  - `timestamp_20_edges.csv` 17,672,679 bytes, sha256 `cfd50271892eb640dc87c8e1242b9de49e3e18eb8d144cd0c262e81b39f9ef3e`
+  - `timestamp_21_edges.csv` 18,270,597 bytes, sha256 `0b5e3548ae829d12cde4b640b9edc8c875d650845b5cd79112e9811353d788fb`
+  - `timestamp_22_edges.csv` 17,009,914 bytes, sha256 `70bfb46df7fe39ea9ece3df4e0cc540f1e2f974ed86dcab2128dd31a32783f70`
+  - `timestamp_23_edges.csv` 15,858,509 bytes, sha256 `2c89428ea632f6f3c6f2d9790c83fc618f8613584202475625c7596067413e1d`
+  - `timestamp_24_edges.csv` 6,405,700 bytes, sha256 `201d25c273fe79dd8b3ff821a2f5dd1a778bf3f94eeebee85d393dee2113599b`
+  - `timestamp_25_edges.csv` 8,250,259 bytes, sha256 `fbe92215867433b52168b7d2eed8be21640a34fd24624da447a0a187bc097276`
+  - `timestamp_26_edges.csv` 9,648,103 bytes, sha256 `d7c66ee67dfc3bff9d9caaf8df0c3bcf20a68c81805bacf5fad75e176c2193a8`
+  - `timestamp_27_edges.csv` 8,401,677 bytes, sha256 `34f8bf25880079368edc7da7da0540cc8ab24edddd1fd0a394f1e59734a5bdc9`
+  - `timestamp_28_edges.csv` 19,038,251 bytes, sha256 `c2ebbfdda40118723965b8e81a0f59a8c42a82a2e0e35eaf5c755c05714e3059`
+  - `timestamp_29_edges.csv` 18,490,812 bytes, sha256 `48286af227536bf80d8c1c9588dacf994410a6fb7afb984883b86b52f2a0fc61`
+  - `timestamp_2_edges.csv` 7,029,064 bytes, sha256 `8ed792ca9dc5798b4db5530ce99f92611c6919c6521aba4587ca6ba683a9ffc3`
+  - `timestamp_30_edges.csv` 7,133,914 bytes, sha256 `4027bf8b723b8c3eb3c756217f89530dae2135e456c899316732412786293cdb`
+  - `timestamp_31_edges.csv` 6,313,177 bytes, sha256 `e1d57417f79ecf291f97ee3fd6a56a039bc7afeec5e3c202967ff666ac034d56`
+  - `timestamp_32_edges.csv` 8,147,464 bytes, sha256 `c651d7ec073065ead5993afe81faef2a08b8c8765683331bef68b9a8d10da7f2`
+  - `timestamp_33_edges.csv` 32,754,258 bytes, sha256 `28d51d0731fbb94815a6b09606ac1833fe4f1d0a5aa0efb4bf908b6e37bb5581`
+  - `timestamp_34_edges.csv` 14,618,192 bytes, sha256 `e3db31d981868a7754dca4c4f4b87653642aa5b4acca6575d30d18190bb7ee25`
+  - `timestamp_35_edges.csv` 24,690,306 bytes, sha256 `76b53211fe52a951d398439bfb5a3d0503fa7867ab772985c9334ad19bb83a3a`
+  - `timestamp_36_edges.csv` 22,965,435 bytes, sha256 `be0bb5c1e43fac5bd25514d196da1a758f2fdc0438e4dd8f6e10f1e096509079`
+  - `timestamp_37_edges.csv` 6,572,340 bytes, sha256 `4fd0fa039691469fb8ff8d1d72345d40b6582ed1f844b610c070c901fdded5b2`
+  - `timestamp_38_edges.csv` 5,789,433 bytes, sha256 `0bada570c01ff14f6083f9b921ba402924c679ec66862e84f6f42a23eaebcc21`
+  - `timestamp_39_edges.csv` 22,007,210 bytes, sha256 `8bca3b6632d0d4730c28cbb466bda1fc1b3d805989fca2abad9f536422816310`
+  - `timestamp_3_edges.csv` 6,782,331 bytes, sha256 `5829ce67c4f40e9c033656a9fc6ec1b56d87c2d9f0f54fab26350e0f7dc5e6d1`
+  - `timestamp_40_edges.csv` 24,625,494 bytes, sha256 `17e34a0f22bbb32fb5ad0df60604468dd11d739dbea77f7ab1b08697ec90b996`
+  - `timestamp_41_edges.csv` 20,409,683 bytes, sha256 `4651cdff567bd6b6a4e622807a1ecd454d8792e051f4c826098efa92641aa455`
+  - `timestamp_42_edges.csv` 30,541,540 bytes, sha256 `84554e0544f0555f656299db34b7e751ca1e14435408c185db74e0ddf47d4d17`
+  - `timestamp_43_edges.csv` 29,165,043 bytes, sha256 `fa1dd91d3d5c77c7cff15866bbfe6f8243532d435ea7999664b335a8ce4f5047`
+  - `timestamp_44_edges.csv` 18,983,850 bytes, sha256 `400aa304f44e9edd26e8ab57c24af3aef0366cab5087ac436c143b299c904002`
+  - `timestamp_45_edges.csv` 26,647,856 bytes, sha256 `ce795cc5713ad514a382ba284b1d4ce94a8654e6b97b583da77ee87474bb8197`
+  - `timestamp_46_edges.csv` 28,681,533 bytes, sha256 `f66952dd54870ccb851c9d1ab23b1476e5db6dde3d44613d63f22fddab81a1cc`
+  - `timestamp_47_edges.csv` 22,138,348 bytes, sha256 `517a9f33be6bc1d2d57c6f7c1447a3f1073fa020e39e793f39da472cbcf5a560`
+  - `timestamp_48_edges.csv` 27,987,713 bytes, sha256 `38e49bfc57b1a081581bb1038a0d720e37c91f54469f45304adbefc8a120967e`
+  - `timestamp_49_edges.csv` 25,953,399 bytes, sha256 `5d22c2d5dd1a140a77e6d572ed0a601a995358c1a36cc0398005166b73dd408a`
+  - `timestamp_4_edges.csv` 17,301,938 bytes, sha256 `3e85761a6711bcd764e7d11f4e0daf63b820bae7700809c00e9b37b3d3274ad5`
+  - `timestamp_50_edges.csv` 21,086,359 bytes, sha256 `0a98b09e96e7d77afd06e85032e462715d6f612f356ee1fbabecea645e3f86f0`
+  - `timestamp_51_edges.csv` 20,850,565 bytes, sha256 `88e2d6d3a2a82be32be76b6427b44cd4f4ed29adc332706cfbb83762b82c6508`
+  - `timestamp_52_edges.csv` 19,232,817 bytes, sha256 `733812ea3dfb73242b88dfb7dde43fed86c2e28f9a6570d3b29da3ef090be01a`
+  - `timestamp_53_edges.csv` 14,455,799 bytes, sha256 `0e633c9e812ae980b107d52d0e98efe57a12df9c8be4714eb18e8ecb9be16659`
+  - `timestamp_54_edges.csv` 24,398,806 bytes, sha256 `e7452087018c63c941849977378882f0d79aa683fe232b565db53aa7d7bf812b`
+  - `timestamp_55_edges.csv` 26,439,401 bytes, sha256 `f2398e8d1f3b9c6d0f26caf0dc9b454a18824d299fc529e328df60b302c0459b`
+  - `timestamp_56_edges.csv` 11,471,717 bytes, sha256 `aceb2c1d6483c226fa3d632146ddfd6ec4a46f8aeb6e476b8793fad700ee49a8`
+  - `timestamp_57_edges.csv` 19,504,483 bytes, sha256 `37146bb01cae536318d4c3b835b44b4affe7db7b1c0d687d049b2bf33913d49d`
+  - `timestamp_58_edges.csv` 18,816,538 bytes, sha256 `fab2d68b2dc88580f2faf273eab14d91c7fe7d03c5d5691278a8907e0bf4a761`
+  - `timestamp_59_edges.csv` 7,958,532 bytes, sha256 `90c3d3d007e6d85cba9a8445cd9da9a313a9db9431e7185091ad69ae51ff1244`
+  - `timestamp_5_edges.csv` 21,505,812 bytes, sha256 `34c2b0c2438f89e8419fd0c1b5a77bb3cafcbb317e366c43ca34483d2d6c7c54`
+  - `timestamp_60_edges.csv` 19,816,614 bytes, sha256 `7680c2f8157a40f07e56841d5a198a9d4fbff2a37a88af7daf8787d4da825051`
+  - `timestamp_6_edges.csv` 20,728,886 bytes, sha256 `4b8835379c2db079a107405b4c830590f3829e04a9b66d88b33e99acd0efa5d8`
+  - `timestamp_7_edges.csv` 16,614,408 bytes, sha256 `d2514038e6e6d345a0933d7990111b9d6c72aaf711c1e3c0dbecb6367ae7b586`
+  - `timestamp_8_edges.csv` 7,820,913 bytes, sha256 `35bdc042351b28815c6676d4a5b6f0d4120abb851a6536a07d505fb631fd10e4`
+  - `timestamp_9_edges.csv` 15,986,279 bytes, sha256 `56dcbf0eb62a3814cc07f6ba8ace7fd274a14a97e04fb37a5b83bc01e76bf278`
+- PDNS has no processed file: H2GB's class reads `raw/` on every load (`pdns_protocol.md`).

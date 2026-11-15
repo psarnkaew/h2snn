@@ -18,7 +18,7 @@ Use one of these forms:
 ```powershell
 # Preferred for scripts and tests from any shell
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m unittest discover -s tests -v
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn_v3b.yaml --device cuda --exp_name acm_h2snn_test
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m pip install <package>
 ```
 
@@ -83,11 +83,11 @@ cluster-setup3, 2026-11-15):
   `ATEN_CPU_CAPABILITY=avx2`, `MKL_CBWR=AVX2`, `ONEDNN_MAX_CPU_ISA=AVX2`. Why: the nodes have
   different CPUs (i9-10900K: AVX2; i9-10900X: AVX512), torch picks its CPU kernels per node, and
   full-batch outputs then differ in the last bits. With E and 1 thread a capture is bit-identical on
-  every node (cluster-setup3 CS8-1), so the bit-exact tests (`test_task_heads` and `test_cooperative`
-  golden against `../docs/heads_evidence/v2_golden_cluster.pt`, `mb0_reference.py compare` against
-  `../docs/partMB_evidence/mb0_reference_cluster.pt`) assert E and compare with 1 thread; without E
-  they fail with "bit-exact test needs the pinned kernel environment". The Windows captures
-  (`v2_golden.pt`, `mb0_reference.pt`) are history.
+  every node (cluster-setup3 CS8-1), so the bit-exact checks (`tests/test_v3b_golden.py`, i.e.
+  `../docs/legacy_evidence/v3b_golden.py compare ../docs/legacy_evidence/v3b_golden_cluster.pt`, and
+  `../docs/partMB_evidence/mb0_reference.py compare ../docs/partMB_evidence/mb0_reference_cluster.pt`)
+  assert E and compare with 1 thread; without E they fail with "bit-exact test needs the pinned kernel
+  environment". The Windows capture `mb0_reference.pt` is history.
 - **Tests:** the whole suite or given unittest targets in one GPU job (log in
   `logs/slurm-<jobid>.out`, git-ignored):
   ```bash
@@ -132,7 +132,7 @@ Advisor report (`../docs/advisor_report/`): a progress report written for the au
 |---|---|---|
 | D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c * R_{psi,side} * H_k(u)`; `model.map_family: factorized`, `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
 | D2 | WISP (spec v1.3 §3.2): Walk-sampled, Instance-weighted Sheaf Paths replace AMPSS — schema-free self-avoiding walks from a stated target, walk-level defensive IS, `w_f = exp(g(ξ_f))`, schemas read out. Default (spec v1.4 E7): `path_source: wisp` for node classification; `path_source: schemas` (fixed literature presets) is the comparison row | Agreed 2026-11-08; implementation: task card Part H, branch `wisp`. "AMPSS" = deleted v1 only |
-| D3 | Scalability: normalized Laplacians (full-graph degrees), `eta = sigmoid(theta)`, per-batch path cells, `NeighborLoader` | Normalization and bounded step implemented (D4); mini-batching not started |
+| D3 | Scalability: normalized Laplacians (full-graph degrees), per-batch path cells, `NeighborLoader` | Normalization and bounded step implemented (D4); mini-batching not started |
 | D4 | Path 2-cells couple to every boundary node through the vertex-2-cell sheaf Laplacian | Implemented with the plan §4.6 ablation switches; ACM memory and smoke run only |
 | D5 | Baseline provenance and IMDB heterophily fixes (parallel) | Not started |
 | D6 | One model; link prediction and graph classification ported to it (heads change only where forced) | Implemented; no accuracy run |
@@ -181,7 +181,7 @@ Use `unittest`, not bare `pytest`:
 "C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python -m unittest discover -s tests -v
 ```
 
-Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress. `tests/test_task_heads.py` compares node-classification outputs and gradients bit-for-bit with `../docs/heads_evidence/v2_golden_cluster.pt` (the cluster capture; needs the pinned kernel environment E, see the cluster section; `v2_golden.pt` is the Windows capture, kept as history).
+Do not rely on a remembered test count: record the count and result before your change and compare after it. Any newly failing existing test blocks progress. `tests/test_v3b_golden.py` compares the v3-B model bit-for-bit with `../docs/legacy_evidence/v3b_golden_cluster.pt` (`../docs/legacy_evidence/v3b_golden.py`), and `../docs/partMB_evidence/mb0_reference.py compare` the mini-batch reference; both need the pinned kernel environment E (see the cluster section).
 
 On this Windows machine, PyG-dependent tests can be blocked while importing `xxhash._xxhash` by Application Control. Treat that as an environment-policy blocker, not an H2S-NN defect; report it, run the complete suite in the clean Colab environment, and do not weaken the policy or add model workarounds.
 
@@ -192,16 +192,16 @@ If a test writes trainer artifacts, close file handlers (`ExperimentLogger.close
 Respect the approval rule for anything longer than a smoke test. The task follows from `data.dataset_name`.
 
 ```powershell
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cuda --exp_name acm_h2snn_test
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn.yaml --device cpu --exp_name acm_smoke_cpu
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn_v3b.yaml --device cuda --exp_name acm_h2snn_test
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\train_h2snn.py --config configs\experiments\acm_h2snn_v3b.yaml --device cpu --exp_name acm_smoke_cpu
 ```
 
-Configs: node classification `acm`, `dblp`, `imdb`; link prediction `lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon` (decoder per dataset via `data.decoder_type`); graph classification `mutag`, `enzymes`, `nci1`, `proteins` (all `*_h2snn.yaml`). Ablations go in the `ablation:` block (all off by default). v1/v2 settings are removed (legacy-removal card); a configuration that names one raises.
+Configs: node classification `acm`, `dblp`, `imdb`; link prediction `lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon` (decoder per dataset via `data.decoder_type`); graph classification `mutag`, `enzymes`, `nci1`, `proteins` (experiment configs: `configs/experiments/*_h2snn_v3b.yaml` for acm, acm_pa, dblp, imdb, mutag). Ablations go in the `ablation:` block (all off by default). v1/v2 settings are removed (legacy-removal card); a configuration that names one raises.
 
 W&B tuning preflight (does not contact W&B or train):
 
 ```powershell
-"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\acm_h2snn.yaml --num_runs 5 --n_trials 30 --d_values 16 32 --validate_only
+"C:\Users\Acer\anaconda3\Scripts\conda.exe" run -n h2snn python scripts\run_h2snn_wandb_tuning.py --config configs\experiments\acm_h2snn_v3b.yaml --num_runs 5 --n_trials 30 --d_values 16 32 --validate_only
 ```
 
 W&B tuning state is versioned and fingerprinted; `--resume` continues compatible sweeps and creates numbered continuation sweeps for incompatible ones. To split a campaign across machines, keep `--num_runs` and `--base_seed` fixed and use `--run_start`/`--run_count`; never run the same run index concurrently.
