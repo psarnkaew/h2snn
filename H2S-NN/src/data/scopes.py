@@ -15,10 +15,18 @@ each. The batch graph is an ordinary `PreparedH2SData` on which the unchanged mo
 carries `global_node_id` (batch row -> node id in the given graph), so featureless types read the
 embedding row of the global node. `ScopeBatch` also records the scope of every node, fact and cell,
 and the batch row of every target.
+
+The facts of a target are read from an incidence index built once per graph (Part M3a A2; decisions
+log, Part MB review): for every node the ids of its facts in ascending order, in CSR form (`rowptr`,
+`fact_ids`; a self-loop fact is listed once). The index belongs to the graph given (N6: the training
+graph and each evaluation graph have their own) and is cached on that graph's `edge_index` tensor.
+The output is identical to the former O(E)-per-target comparison, which is kept as the test-only
+reference `tests/scope_reference.py`.
 """
 
 from __future__ import annotations
 
+import weakref
 from dataclasses import dataclass, replace
 from typing import Sequence
 
@@ -48,11 +56,64 @@ class ScopeBatch:
     num_scopes: int
 
 
-def scope_members(graph: PreparedH2SData, target: int,
-                  cells: Sequence[FaceGroup]) -> ScopeMembers:
-    """Nodes and facts of `target`'s scope (`cells` = the target's own cells, graph ids)."""
-    src, dst = graph.edge_index[0], graph.edge_index[1]
-    incident = ((src == target) | (dst == target)).nonzero(as_tuple=True)[0]
+@dataclass(frozen=True, slots=True)
+class IncidenceIndex:
+    """CSR incidence of a graph: the facts of node `v` are `fact_ids[rowptr[v]:rowptr[v + 1]]`,
+    ascending; a self-loop fact is listed once."""
+
+    rowptr: torch.Tensor    # [N + 1]
+    fact_ids: torch.Tensor  # [sum of the node degrees, self-loops counted once]
+
+    def facts_of(self, node: int) -> torch.Tensor:
+        node = int(node)
+        if not 0 <= node < self.rowptr.numel() - 1:
+            return self.fact_ids.new_zeros(0)
+        return self.fact_ids[int(self.rowptr[node]):int(self.rowptr[node + 1])]
+
+
+def build_incidence_index(edge_index: torch.Tensor, num_nodes: int) -> IncidenceIndex:
+    """The incidence index of the facts `edge_index` ([2, E]) on `num_nodes` nodes (O(E log E))."""
+    src = edge_index[0].to(torch.long)
+    dst = edge_index[1].to(torch.long)
+    fact = torch.arange(src.numel(), dtype=torch.long)
+    loop = src == dst
+    nodes = torch.cat([src, dst[~loop]])
+    facts = torch.cat([fact, fact[~loop]])
+    size = max(int(num_nodes), int(nodes.max()) + 1 if nodes.numel() else 0)
+    # (node, fact) pairs are distinct, so this key sorts by node, then by ascending fact id
+    order = torch.argsort(nodes * max(src.numel(), 1) + facts)
+    rowptr = torch.zeros(size + 1, dtype=torch.long)
+    rowptr[1:] = torch.cumsum(torch.bincount(nodes, minlength=size), dim=0)
+    return IncidenceIndex(rowptr=rowptr, fact_ids=facts[order])
+
+
+# edge_index tensor id -> (weak reference to it, its version, num_nodes, index). An entry is used only
+# while it refers to the same live tensor, unchanged in place, with the same number of nodes.
+_INDEX_CACHE: dict[int, tuple[weakref.ref, int, int, IncidenceIndex]] = {}
+
+
+def incidence_index(graph: PreparedH2SData) -> IncidenceIndex:
+    """The incidence index of `graph` (the graph given, N6), built once and cached on its facts."""
+    edge_index = graph.edge_index
+    key = id(edge_index)
+    entry = _INDEX_CACHE.get(key)
+    if entry is not None:
+        ref, version, num_nodes, index = entry
+        if ref() is edge_index and version == edge_index._version and num_nodes == graph.num_nodes:
+            return index
+    index = build_incidence_index(edge_index, graph.num_nodes)
+    _INDEX_CACHE[key] = (weakref.ref(edge_index, lambda _ref, key=key: _INDEX_CACHE.pop(key, None)),
+                         edge_index._version, graph.num_nodes, index)
+    return index
+
+
+def scope_members(graph: PreparedH2SData, target: int, cells: Sequence[FaceGroup],
+                  index: IncidenceIndex | None = None) -> ScopeMembers:
+    """Nodes and facts of `target`'s scope (`cells` = the target's own cells, graph ids); `index`
+    = the incidence index of `graph` (built and cached if not given)."""
+    if index is None:
+        index = incidence_index(graph)
+    incident = index.facts_of(target)
     cell_facts = [g.face_edge_index.reshape(-1) for g in cells if g.num_faces]
     cell_nodes = [g.face_node_index.reshape(-1) for g in cells if g.num_faces]
     facts = torch.unique(torch.cat([incident.to(torch.long), *cell_facts]))
@@ -100,9 +161,11 @@ def _merge_groups(parts: list[tuple[FaceGroup, int]]) -> tuple[FaceGroup, torch.
 
 
 def build_scope_batch(graph: PreparedH2SData, targets: torch.Tensor,
-                      cells: Sequence[Sequence[FaceGroup]]) -> ScopeBatch:
+                      cells: Sequence[Sequence[FaceGroup]],
+                      index: IncidenceIndex | None = None) -> ScopeBatch:
     """The disjoint union of the scopes of `targets` (node ids of `graph`, the graph given: N6);
-    `cells[i]` are the cells of `targets[i]` (groups in `graph`'s node and fact ids)."""
+    `cells[i]` are the cells of `targets[i]` (groups in `graph`'s node and fact ids); `index` = the
+    incidence index of `graph` (built once and cached if not given)."""
     targets = torch.as_tensor(targets, dtype=torch.long).reshape(-1)
     if len(cells) != targets.numel():
         raise ValueError(f"{len(cells)} cell lists for {targets.numel()} targets.")
@@ -114,8 +177,10 @@ def build_scope_batch(graph: PreparedH2SData, targets: torch.Tensor,
     node_parts, fact_parts, edge_parts, node_scope, fact_scope, target_rows = [], [], [], [], [], []
     group_parts: dict[int, list[tuple[FaceGroup, int]]] = {}
     node_offset = fact_offset = 0
+    if index is None:
+        index = incidence_index(graph)
     for s, (target, own) in enumerate(zip(targets.tolist(), cells)):
-        members = scope_members(graph, target, own)
+        members = scope_members(graph, target, own, index)
         local_edges = _local(members.nodes, graph.edge_index[:, members.facts].reshape(-1))
         edge_parts.append(local_edges.reshape(2, -1) + node_offset)
         node_parts.append(members.nodes)
@@ -172,4 +237,5 @@ def build_scope_batch(graph: PreparedH2SData, targets: torch.Tensor,
                       cell_scope=tuple(cell_scope), num_scopes=int(targets.numel()))
 
 
-__all__ = ["ScopeBatch", "ScopeMembers", "build_scope_batch", "scope_members"]
+__all__ = ["IncidenceIndex", "ScopeBatch", "ScopeMembers", "build_incidence_index", "build_scope_batch",
+           "incidence_index", "scope_members"]

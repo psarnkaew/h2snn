@@ -1,0 +1,93 @@
+job=16721 step=19 node=g2n01 start=2026-11-15T11:15:57+09:00
+git=481cbdd723bd09822d5e102c3a617ee0aea11205 branch=part-m3a env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+working tree:  M src/data/scopes.py
+===== A2 tests and every Part MB / MB-fix test
+modules: tests.test_partM3a_scopes tests.test_partMB_draws tests.test_partMBfix_flag tests.test_partMBfix_functoriality tests.test_partMBfix_order tests.test_partMB_link tests.test_partMB_model tests.test_partMB_scopes tests.test_partMB_trainer 
+test_each_graph_gets_its_own_index_built_once (tests.test_partM3a_scopes.IncidenceIndexTests.test_each_graph_gets_its_own_index_built_once) ... ok
+test_index_lists_each_nodes_facts_ascending (tests.test_partM3a_scopes.IncidenceIndexTests.test_index_lists_each_nodes_facts_ascending) ... ok
+test_equal_to_the_reference_builder (tests.test_partM3a_scopes.ReferenceEqualityTests.test_equal_to_the_reference_builder) ... ok
+test_chunks_use_distinct_generator_states (tests.test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states) ... ok
+test_log_p_and_frequencies_equal_the_exact_target (tests.test_partMB_draws.ChunkedDrawTests.test_log_p_and_frequencies_equal_the_exact_target) ... ok
+test_same_seed_and_chunk_size_give_the_same_draw (tests.test_partMB_draws.ChunkedDrawTests.test_same_seed_and_chunk_size_give_the_same_draw) ... ok
+test_one_instance_from_two_anchors_gives_two_cells (tests.test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells) ... ok
+test_per_anchor_mass_is_the_anchors_walks_only (tests.test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only) ... ok
+test_flag_resolves_to_whole_passes_with_the_full_batch_budget (tests.test_partMBfix_flag.FlagConfigTests.test_flag_resolves_to_whole_passes_with_the_full_batch_budget) ... ok
+test_tuner_refusal_and_h2gb_without_b (tests.test_partMBfix_flag.FlagConfigTests.test_tuner_refusal_and_h2gb_without_b) ... ok
+test_evaluation_every_epoch (tests.test_partMBfix_flag.FlagTrainerTests.test_evaluation_every_epoch) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+2026-11-15 11:16:04,677 | INFO | Epoch 0000 | train_loss: 1.1091 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0623 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+2026-11-15 11:16:04,941 | INFO | Epoch 0001 | train_loss: 1.1075 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0642 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+2026-11-15 11:16:05,200 | INFO | Epoch 0002 | train_loss: 1.0779 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0661 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+ok
+ok
+test_T1_on_a_batch_of_scopes (tests.test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... ok
+test_batches_stop_at_the_pass_boundary (tests.test_partMBfix_order.PassBoundaryTests.test_batches_stop_at_the_pass_boundary) ... ok
+test_steps_and_the_short_batch_loss (tests.test_partMBfix_order.PassBoundaryTests.test_steps_and_the_short_batch_loss) ... ok
+test_evaluation_scores_every_link (tests.test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... /mnt/data/peeradon/h2snn/H2S-NN/src/trainers/minibatch_lp.py:89: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  rows = torch.searchsorted(unique, links)
+ok
+test_no_held_out_fact_in_any_scope (tests.test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (tests.test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (tests.test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+test_a_batch_equals_scopes_alone (tests.test_partMB_model.BatchTests.test_a_batch_equals_scopes_alone) ... ok
+test_b_every_scope_meets_its_own_tolerance (tests.test_partMB_model.BatchTests.test_b_every_scope_meets_its_own_tolerance) ... ok
+test_c_logits_do_not_depend_on_the_batching (tests.test_partMB_model.BatchTests.test_c_logits_do_not_depend_on_the_batching) ... ok
+test_d_whole_graph_harness (tests.test_partMB_model.BatchTests.test_d_whole_graph_harness) ... ok
+test_e_context_and_degrees_are_the_scopes (tests.test_partMB_model.BatchTests.test_e_context_and_degrees_are_the_scopes) ... ok
+test_f_no_warm_start_in_mini_batch (tests.test_partMB_model.BatchTests.test_f_no_warm_start_in_mini_batch) ... ok
+test_featureless_node_in_two_scopes_has_its_global_h0 (tests.test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (tests.test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (tests.test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (tests.test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (tests.test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) ... ok
+test_training_draw_seeds (tests.test_partMB_trainer.EpochTests.test_training_draw_seeds) ... ok
+test_training_order_passes (tests.test_partMB_trainer.EpochTests.test_training_order_passes) ... ok
+test_evaluation_graph_is_used_for_its_scopes (tests.test_partMB_trainer.EvaluationTests.test_evaluation_graph_is_used_for_its_scopes) ... ok
+test_predictions_do_not_depend_on_the_evaluation_batch_size (tests.test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size) ... ok
+test_whole_split_and_metric_on_the_concatenation (tests.test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation) ... ok
+test_mode_per_dataset_and_tuner_refusals (tests.test_partMB_trainer.StopAndConfigTests.test_mode_per_dataset_and_tuner_refusals) ... ok
+2026-11-15 11:16:16,621 | INFO | STOP CONDITION log_weight_range: 31 > 30 at epoch 0 (spec v1.16 §6); run stopped.
+ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 16.591s
+
+OK
+
+[CS7-5] scoped vs whole max|diff| = 0.000e+00
+tests_exit=0
+
+===== mutation: the index built without self-loop facts -> test_equal_to_the_reference_builder
+AssertionError: Tuples differ: (torch.int64, (13,)) != (torch.int64, (14,))
+Ran 1 test in 0.008s
+FAILED (failures=1)
+restored: identical
+OK
+
+===== timing (informational, not a gate): python ../docs/partM3a_evidence/a2_timing.py
+graph: 100000 nodes, 1000000 facts; 200 targets, no cells; torch 2.4.1+cu124, threads 6
+CSR index build (once per graph): 54.4 ms
+time per target: reference (O(E)) 0.764 ms over 50 targets; CSR 0.069 ms over 200 targets; ratio 11x; facts equal on 10 targets: True
+
+===== GATE job=16721 step=19 node=g2n01 git=481cbdd723bd09822d5e102c3a617ee0aea11205 2026-11-15T11:16:22+09:00
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.452s
+
+OK
+gate_golden_exit=0
+compared 139 tensors; differing: none
+gate_mb0_exit=0
+GATE PASS
+end=2026-11-15T11:16:30+09:00
