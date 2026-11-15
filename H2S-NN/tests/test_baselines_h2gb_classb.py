@@ -156,5 +156,49 @@ class OneStepTests(unittest.TestCase):
             h2gb.homogeneous_inputs(typed_graph())
 
 
+class ChebNetIIProjectionTests(unittest.TestCase):
+    """Part 2 E2, decision C4-c: per-type projection after per-block bases equals projecting first (float64)."""
+
+    def _graph(self):
+        data = typed_graph(width=6)
+        data["author"].x = torch.randn(int(data["author"].num_nodes), 3, dtype=torch.float64)  # another width
+        return data
+
+    def test_block_bases_then_projection_equals_projection_then_propagation(self) -> None:
+        from src.baselines.adapters import _chebnetii_h2gb as h2gb
+
+        data = self._graph()
+        features, edge_index, slices = h2gb.block_inputs(data)
+        start, end = slices["paper"]
+        rows = torch.arange(start, end)
+        torch.manual_seed(0)
+        projected = h2gb.ProjectedBases([int(f.size(1)) for f in features], 5).double()
+        blocks = h2gb.block_bases(features, edge_index, slices, 4, rows)
+        with torch.no_grad():
+            got = projected(blocks)
+            x_proj = projected.projection(features)               # project first (HGB adapter order)
+            expected = h2gb.chebyshev_bases(x_proj, edge_index, 4, rows)
+        self.assertEqual(len(got), len(expected))
+        for k, (a, b) in enumerate(zip(got, expected)):
+            self.assertLessEqual((a - b).abs().max().item(), ATOL, f"T_{k}")
+        with self.assertRaises(ValueError):  # a featureless type is refused (stop item)
+            h2gb.block_inputs(typed_graph())
+
+    def test_projected_chebnetii_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters import _chebnetii_h2gb as h2gb
+
+        data = self._graph()
+        features, edge_index, slices = h2gb.block_inputs(data)
+        start, end = slices["paper"]
+        blocks = h2gb.block_bases([f.float() for f in features], edge_index, slices, 3, torch.arange(start, end))
+        torch.manual_seed(0)
+        model = torch.nn.ModuleDict({"projection": h2gb.ProjectedBases([int(f.size(1)) for f in features], 8),
+                                     "chebnet": h2gb.build_model(8, 3, {"K": 3, "hidden": 16})})
+        idx = data["paper"].train_mask.nonzero().view(-1)
+        _one_step_moves(self, model, lambda: model["chebnet"](
+            model["projection"]([[b[idx] for b in per_type] for per_type in blocks]), 0, idx.numel()),
+            data["paper"].y[idx], torch.nn.functional.nll_loss)
+
+
 if __name__ == "__main__":
     unittest.main()

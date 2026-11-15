@@ -63,7 +63,7 @@ READS_BATCH_PLAN = True
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "pdns"})
 #: The H2GB cells without an open author decision (registry `H2GB_NC_WIRED_CELLS`); the others wait on C4-a (MAG
 #: features) and C4-b (parallel relations merged), see `src/baselines/registry.py`.
-H2GB_RUNNABLE = frozenset({"ieee-cis-g"})
+H2GB_RUNNABLE = frozenset({"ieee-cis-g", "oag-cs", "oag-eng", "oag-chem", "pdns"})  # part 2 E2: C4-b decided
 #: Target node type and the type set, from SeHGNN/hgb/main.py:31-44.
 TARGET_TYPE = {"ACM": "P", "DBLP": "A", "IMDB": "M"}
 

@@ -251,7 +251,7 @@ class RegistryTests(unittest.TestCase):
                     self.assertEqual(reason, H2GB_NC_CELL_REASONS.get(
                         (spec.name, dataset), H2GB_NC_ADAPTER_PENDING.get(spec.name, H2GB_ADAPTER_PENDING_REASON)))
                     self.assertTrue(reason.startswith(("adapter pending: ", "adapter in place, pending author",
-                                                       "pending author decision")))
+                                                       "pending author decision", "pending author (")))
 
     def test_nc_cell_is_runnable_only_with_a_loader_and_a_count_record(self) -> None:
         from src.baselines.registry import DATASET_PENDING, DATA_PENDING_REASON, H2GB_NC

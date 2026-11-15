@@ -71,17 +71,21 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
     "h2sgnn": ("adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends "
                f"it to H2GB's hgt sampler: {_S1}"),
-    "pshgcn": ("adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a "
-               "model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB "
-               "model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit"),
+    "pshgcn": ("adapter pending: part 2 E0 stop P1: decision S3 (b) changes the input widths only, but PSHGCN's ogbn-mag "
+               "code also enumerates its polynomial terms from MAG's relation list (ogbn-mag/processing.py:14-15) and "
+               "fixes MAG's label keys (main.py:126) whose self-effect removal needs sparse_tools diagonals "
+               "(processing.py:133-151; sparse_tools is not installed)"),
     "hinormer": ("adapter pending: part 2 E0 stop H1: H2GB's own HINormerModel has its transformer and feature encoder "
                  "commented out (hinormer_model.py:221-222, 274-289: a linear head on the ego node after full-graph GCN "
                  "layers) and its `hin` loader yields the whole split as one step (custom_sampler.py:678-685); configs "
                  "exist for 4 of the 8 datasets; decision S2 needs revisiting"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
     "chebnetii": "adapter pending (card baselines-h2gb C4)",
-    "hetero2net": ("adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:"
-                   "147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)"),
+    "hetero2net": ("adapter pending: its NeighborLoader path (Hetero2Net/main.py:147-175) is not wired (part 2 E2): its "
+                   "metapath-drop needs a per-dataset metapath list, which its code defines for HGB, MAG and RCDD only "
+                   "(hetero2net/dataset.py:20-67; OAG, IEEE-CIS, H-Pokec, PDNS need a decision), and its label "
+                   "channel y_emb on sampled batches needs a route test; ogbn-mag/mag-year also wait for "
+                   "`mag_metapath2vec_emb.zip` (author download)"),
 }
 #: Cells wired on the loaded H2GB NC datasets (card baselines-h2gb C4): adapter and its tests in place, no open
 #: author decision.
@@ -90,25 +94,25 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     *((m, d) for m in ("gcn", "gat", "han") for d in H2GB_NC),
     *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
     ("sehgnn", "ieee-cis-g"),
+    # part 2 E2: decision C4-b (parallel relations merged)
+    ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
     ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
+    ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
 })
-_SEHGNN_MAG = ("adapter in place, pending author decision (card baselines-h2gb C4-a): SeHGNN's own MAG branch feeds "
-               "author/field/institution with random-uniform or ComplEx embeddings (SeHGNN/ogbn/utils.py:345-354), "
-               "H2GB's graph carries averaged paper features")
-_SEHGNN_PARALLEL = ("adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between "
-                    "one pair of node types are merged into one (SeHGNN names keys by one letter per type, "
-                    "SeHGNN/ogbn/utils.py:56-63, and would keep only the last)")
-_CHEB_WIDTHS = ("pending author decision (card baselines-h2gb C4-c): ChebNetII's ogb scheme takes one feature matrix "
-                "(ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths")
+_SEHGNN_MAG = ("pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
+               "embeddings that its README trains with dglke under dgl<1.0 (SeHGNN/ogbn/Readme.md; utils.py:345-354); "
+               "no file is offered for download and the agent does not train them (part 2 E0)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
     ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
                                 "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
                                 "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
     ("sehgnn", "ogbn-mag"): _SEHGNN_MAG, ("sehgnn", "mag-year"): _SEHGNN_MAG,
-    **{("sehgnn", d): _SEHGNN_PARALLEL for d in ("oag-cs", "oag-eng", "oag-chem", "pdns")},
-    **{("chebnetii", d): _CHEB_WIDTHS for d in ("ieee-cis-g", "h-pokec", "pdns")},
+    **{("chebnetii", d): ("adapter pending: part 2 E2 stop item: decision C4-c precomputes T_k(L) X_t per type block, "
+                          "but this dataset has featureless types whose identity block makes T_k(L)[:, block] a dense "
+                          "N x N_type matrix per k (cannot be stored); a different input rule is the author's call")
+       for d in ("ieee-cis-g", "h-pokec")},
 }
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "

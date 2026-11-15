@@ -84,4 +84,61 @@ def build_model(num_features: int, num_classes: int, params: Any) -> torch.nn.Mo
         return ChebNetII(num_features, int(params.get("hidden", 2048)), num_classes, args)
 
 
-__all__ = ["build_model", "chebyshev_bases", "homogeneous_inputs", "sys_normalized_adjacency"]
+
+def block_inputs(data: Any) -> tuple[list[torch.Tensor], torch.Tensor, dict[str, tuple[int, int]]]:
+    """(per-type `x` in H2GB's type order, undirected edge_index over the concatenated nodes, node slices) for the
+    per-type projection of decision C4-c; refused when a type has no `x` (see `block_bases`)."""
+    from torch_geometric.utils import to_undirected
+
+    missing = [t for t in data.node_types if data[t].get("x") is None]
+    if missing:
+        raise ValueError(f"featureless node types {missing}: their identity block makes T_k(L)[:, block] X a dense "
+                         "N x N_type matrix per k (part 2 E2 stop item)")
+    slices, start = {}, 0
+    for node_type in data.node_types:
+        count = int(data[node_type].num_nodes)
+        slices[node_type] = (start, start + count)
+        start += count
+    edges = [torch.stack([data[e].edge_index[0] + slices[e[0]][0], data[e].edge_index[1] + slices[e[2]][0]])
+             for e in data.edge_types]
+    return [data[t].x for t in data.node_types], to_undirected(torch.cat(edges, dim=1), num_nodes=start), slices
+
+
+def block_bases(features: list[torch.Tensor], edge_index: torch.Tensor, slices: dict[str, tuple[int, int]], K: int,
+                rows: torch.Tensor) -> list[list[torch.Tensor]]:
+    """Decision C4-c: `out[t][k]` = rows of T_k(L) [X_t | 1] placed in type t's block (zeros elsewhere), so that
+    T_k(L) (X_t W_t^T + 1 b_t^T) = out[t][k][:, :-1] W_t^T + out[t][k][:, -1:] b_t^T (the projection is linear)."""
+    n = sum(f.size(0) for f in features)
+    out = []
+    for feature, (start, end) in zip(features, slices.values()):
+        block = torch.zeros(n, feature.size(1) + 1, dtype=feature.dtype)
+        block[start:end, :-1] = feature
+        block[start:end, -1] = 1.0
+        out.append(chebyshev_bases(block, edge_index, K, rows))
+    return out
+
+
+class ProjectedBases(torch.nn.Module):
+    """HGB's per-type input projection (`TypeProjectedInput`, the ChebNetII HGB adapter's) applied after the bases:
+    the batch's T_k(L) X_proj rows from the per-block bases."""
+
+    def __init__(self, in_dims: list[int], hidden_dim: int) -> None:
+        super().__init__()
+        from src.baselines.encoders import TypeProjectedInput
+
+        self.projection = TypeProjectedInput(in_dims, hidden_dim)
+
+    def forward(self, blocks: list[list[torch.Tensor]]) -> list[torch.Tensor]:
+        K1 = len(blocks[0])
+        out = []
+        for k in range(K1):
+            total = None
+            for linear, per_k in zip(self.projection.projections, blocks):
+                value = per_k[k][:, :-1] @ linear.weight.t() + per_k[k][:, -1:] * linear.bias
+                total = value if total is None else total + value
+            out.append(total)
+        return out
+
+
+__all__ = ["ProjectedBases", "block_bases", "block_inputs", "build_model", "chebyshev_bases",
+           "homogeneous_inputs", "sys_normalized_adjacency"]
