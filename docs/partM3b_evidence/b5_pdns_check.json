@@ -1,0 +1,1160 @@
+{
+ "pdns_dir": "data/NC/PDNS",
+ "seed": 0,
+ "raw_files_expected_by_h2gb": 68,
+ "load_seconds": 52.3,
+ "transform": "ToUndirected()",
+ "stored": {
+  "nodes": {
+   "domain_node": 897635,
+   "ip_node": 275923
+  },
+  "total_nodes": 1173558,
+  "feature_dims": {
+   "domain_node": [
+    10
+   ],
+   "ip_node": [
+    2
+   ]
+  },
+  "edges": {
+   "domain_node|apex|domain_node": 1609183,
+   "domain_node|resolves|ip_node": 37390522,
+   "domain_node|similar|domain_node": 2502030
+  },
+  "total_edges": 41501735,
+  "num_node_types": 2,
+  "num_edge_types": 3
+ },
+ "loaded": {
+  "nodes": {
+   "domain_node": 897635,
+   "ip_node": 275923
+  },
+  "total_nodes": 1173558,
+  "feature_dims": {
+   "domain_node": [
+    10
+   ],
+   "ip_node": [
+    2
+   ]
+  },
+  "edges": {
+   "domain_node|apex|domain_node": 787236,
+   "domain_node|resolves|ip_node": 37390522,
+   "domain_node|similar|domain_node": 1228824,
+   "ip_node|rev_resolves|domain_node": 37390522
+  },
+  "total_edges": 76797104,
+  "num_node_types": 2,
+  "num_edge_types": 4
+ },
+ "labels": {
+  "y_shape": [
+   897635
+  ],
+  "y_dtype": "torch.int64",
+  "labelled": 87252,
+  "unlabelled_(y=-1)": 810383,
+  "num_classes_(max_y+1)": 2,
+  "classes_present": 2,
+  "splits": {
+   "train": {
+    "size": 61077,
+    "unlabelled_in_mask": 0,
+    "classes_present": 2,
+    "class_counts": [
+     20304,
+     40773
+    ]
+   },
+   "val": {
+    "size": 17450,
+    "unlabelled_in_mask": 0,
+    "classes_present": 2,
+    "class_counts": [
+     5815,
+     11635
+    ]
+   },
+   "test": {
+    "size": 8725,
+    "unlabelled_in_mask": 0,
+    "classes_present": 2,
+    "class_counts": [
+     2860,
+     5865
+    ]
+   }
+  },
+  "split_overlaps": {
+   "train&val": 0,
+   "train&test": 0,
+   "val&test": 0
+  }
+ },
+ "test_graphs": [
+  {
+   "stored": {
+    "nodes": {
+     "domain_node": 897635,
+     "ip_node": 275923
+    },
+    "total_nodes": 1173558,
+    "feature_dims": {
+     "domain_node": [
+      10
+     ],
+     "ip_node": [
+      2
+     ]
+    },
+    "edges": {
+     "domain_node|apex|domain_node": 138140,
+     "domain_node|resolves|ip_node": 2487072,
+     "domain_node|similar|domain_node": 211892
+    },
+    "total_edges": 2837104,
+    "num_node_types": 2,
+    "num_edge_types": 3
+   },
+   "labels": {
+    "y_shape": [
+     897635
+    ],
+    "y_dtype": "torch.int64",
+    "labelled": 3997,
+    "unlabelled_(y=-1)": 893638,
+    "num_classes_(max_y+1)": 2,
+    "classes_present": 2,
+    "splits": {
+     "train": {
+      "size": 0,
+      "unlabelled_in_mask": 0,
+      "classes_present": 0,
+      "class_counts": [
+       0,
+       0
+      ]
+     },
+     "val": {
+      "size": 3598,
+      "unlabelled_in_mask": 0,
+      "classes_present": 2,
+      "class_counts": [
+       2381,
+       1217
+      ]
+     },
+     "test": {
+      "size": 399,
+      "unlabelled_in_mask": 0,
+      "classes_present": 2,
+      "class_counts": [
+       276,
+       123
+      ]
+     }
+    },
+    "split_overlaps": {
+     "train&val": 0,
+     "train&test": 0,
+     "val&test": 0
+    }
+   }
+  }
+ ],
+ "windows": [
+  {
+   "window": 0,
+   "edges": {
+    "apex": 23923,
+    "resolves": 235304,
+    "similar": 34903
+   },
+   "domains": 69407,
+   "ips": 41840,
+   "malicious": 8586,
+   "benign": 3301,
+   "unlabelled": 57520,
+   "new_domains": 69407,
+   "new_labelled": 11887
+  },
+  {
+   "window": 1,
+   "edges": {
+    "apex": 25936,
+    "resolves": 397478,
+    "similar": 38562
+   },
+   "domains": 79177,
+   "ips": 75884,
+   "malicious": 8889,
+   "benign": 4831,
+   "unlabelled": 65457,
+   "new_domains": 35862,
+   "new_labelled": 4623
+  },
+  {
+   "window": 2,
+   "edges": {
+    "apex": 19719,
+    "resolves": 234385,
+    "similar": 30281
+   },
+   "domains": 64432,
+   "ips": 42775,
+   "malicious": 7660,
+   "benign": 4520,
+   "unlabelled": 52252,
+   "new_domains": 18129,
+   "new_labelled": 3360
+  },
+  {
+   "window": 3,
+   "edges": {
+    "apex": 22016,
+    "resolves": 215697,
+    "similar": 36126
+   },
+   "domains": 64888,
+   "ips": 38711,
+   "malicious": 8324,
+   "benign": 4538,
+   "unlabelled": 52026,
+   "new_domains": 18842,
+   "new_labelled": 3317
+  },
+  {
+   "window": 4,
+   "edges": {
+    "apex": 22430,
+    "resolves": 621522,
+    "similar": 35990
+   },
+   "domains": 75721,
+   "ips": 94276,
+   "malicious": 8222,
+   "benign": 6097,
+   "unlabelled": 61402,
+   "new_domains": 24388,
+   "new_labelled": 4594
+  },
+  {
+   "window": 5,
+   "edges": {
+    "apex": 24116,
+    "resolves": 782686,
+    "similar": 36030
+   },
+   "domains": 78706,
+   "ips": 98404,
+   "malicious": 9383,
+   "benign": 7198,
+   "unlabelled": 62125,
+   "new_domains": 19863,
+   "new_labelled": 3997
+  },
+  {
+   "window": 6,
+   "edges": {
+    "apex": 21757,
+    "resolves": 756431,
+    "similar": 33599
+   },
+   "domains": 74148,
+   "ips": 92472,
+   "malicious": 8502,
+   "benign": 6261,
+   "unlabelled": 59385,
+   "new_domains": 15887,
+   "new_labelled": 2610
+  },
+  {
+   "window": 7,
+   "edges": {
+    "apex": 21327,
+    "resolves": 598009,
+    "similar": 33441
+   },
+   "domains": 70406,
+   "ips": 88315,
+   "malicious": 8038,
+   "benign": 5816,
+   "unlabelled": 56552,
+   "new_domains": 13236,
+   "new_labelled": 2083
+  },
+  {
+   "window": 8,
+   "edges": {
+    "apex": 24099,
+    "resolves": 252411,
+    "similar": 37544
+   },
+   "domains": 74788,
+   "ips": 43098,
+   "malicious": 9325,
+   "benign": 4758,
+   "unlabelled": 60705,
+   "new_domains": 18627,
+   "new_labelled": 2683
+  },
+  {
+   "window": 9,
+   "edges": {
+    "apex": 18924,
+    "resolves": 576521,
+    "similar": 31502
+   },
+   "domains": 63884,
+   "ips": 85727,
+   "malicious": 7697,
+   "benign": 5310,
+   "unlabelled": 50877,
+   "new_domains": 11424,
+   "new_labelled": 1773
+  },
+  {
+   "window": 10,
+   "edges": {
+    "apex": 17840,
+    "resolves": 565310,
+    "similar": 29413
+   },
+   "domains": 60298,
+   "ips": 85374,
+   "malicious": 7840,
+   "benign": 5007,
+   "unlabelled": 47451,
+   "new_domains": 8651,
+   "new_labelled": 1320
+  },
+  {
+   "window": 11,
+   "edges": {
+    "apex": 21233,
+    "resolves": 824946,
+    "similar": 34288
+   },
+   "domains": 75029,
+   "ips": 95309,
+   "malicious": 8238,
+   "benign": 6444,
+   "unlabelled": 60347,
+   "new_domains": 14602,
+   "new_labelled": 1706
+  },
+  {
+   "window": 12,
+   "edges": {
+    "apex": 25394,
+    "resolves": 564170,
+    "similar": 39931
+   },
+   "domains": 80136,
+   "ips": 90206,
+   "malicious": 9536,
+   "benign": 5863,
+   "unlabelled": 64737,
+   "new_domains": 18984,
+   "new_labelled": 2135
+  },
+  {
+   "window": 13,
+   "edges": {
+    "apex": 31411,
+    "resolves": 960463,
+    "similar": 49451
+   },
+   "domains": 98978,
+   "ips": 108718,
+   "malicious": 9778,
+   "benign": 6793,
+   "unlabelled": 82407,
+   "new_domains": 21761,
+   "new_labelled": 1089
+  },
+  {
+   "window": 14,
+   "edges": {
+    "apex": 29997,
+    "resolves": 964139,
+    "similar": 46057
+   },
+   "domains": 96128,
+   "ips": 103193,
+   "malicious": 10308,
+   "benign": 6247,
+   "unlabelled": 79573,
+   "new_domains": 20479,
+   "new_labelled": 1333
+  },
+  {
+   "window": 15,
+   "edges": {
+    "apex": 25740,
+    "resolves": 730471,
+    "similar": 38177
+   },
+   "domains": 81989,
+   "ips": 92156,
+   "malicious": 9021,
+   "benign": 4926,
+   "unlabelled": 68042,
+   "new_domains": 16423,
+   "new_labelled": 792
+  },
+  {
+   "window": 16,
+   "edges": {
+    "apex": 24084,
+    "resolves": 796544,
+    "similar": 37350
+   },
+   "domains": 77344,
+   "ips": 94996,
+   "malicious": 8567,
+   "benign": 5050,
+   "unlabelled": 63727,
+   "new_domains": 10971,
+   "new_labelled": 679
+  },
+  {
+   "window": 17,
+   "edges": {
+    "apex": 19421,
+    "resolves": 576568,
+    "similar": 30360
+   },
+   "domains": 64682,
+   "ips": 87562,
+   "malicious": 7603,
+   "benign": 4404,
+   "unlabelled": 52675,
+   "new_domains": 7508,
+   "new_labelled": 593
+  },
+  {
+   "window": 18,
+   "edges": {
+    "apex": 28075,
+    "resolves": 629871,
+    "similar": 42162
+   },
+   "domains": 83771,
+   "ips": 92045,
+   "malicious": 9269,
+   "benign": 4872,
+   "unlabelled": 69630,
+   "new_domains": 13978,
+   "new_labelled": 715
+  },
+  {
+   "window": 19,
+   "edges": {
+    "apex": 28727,
+    "resolves": 634675,
+    "similar": 43685
+   },
+   "domains": 87080,
+   "ips": 91038,
+   "malicious": 9382,
+   "benign": 4566,
+   "unlabelled": 73132,
+   "new_domains": 15779,
+   "new_labelled": 903
+  },
+  {
+   "window": 20,
+   "edges": {
+    "apex": 26376,
+    "resolves": 625707,
+    "similar": 40609
+   },
+   "domains": 82511,
+   "ips": 92408,
+   "malicious": 9565,
+   "benign": 4536,
+   "unlabelled": 68410,
+   "new_domains": 13724,
+   "new_labelled": 810
+  },
+  {
+   "window": 21,
+   "edges": {
+    "apex": 29022,
+    "resolves": 642921,
+    "similar": 43940
+   },
+   "domains": 88826,
+   "ips": 93794,
+   "malicious": 9253,
+   "benign": 4528,
+   "unlabelled": 75045,
+   "new_domains": 17022,
+   "new_labelled": 887
+  },
+  {
+   "window": 22,
+   "edges": {
+    "apex": 23519,
+    "resolves": 604201,
+    "similar": 38294
+   },
+   "domains": 74019,
+   "ips": 87337,
+   "malicious": 8425,
+   "benign": 4104,
+   "unlabelled": 61490,
+   "new_domains": 10289,
+   "new_labelled": 650
+  },
+  {
+   "window": 23,
+   "edges": {
+    "apex": 19346,
+    "resolves": 571103,
+    "similar": 30105
+   },
+   "domains": 63357,
+   "ips": 83939,
+   "malicious": 7065,
+   "benign": 3662,
+   "unlabelled": 52630,
+   "new_domains": 8764,
+   "new_labelled": 623
+  },
+  {
+   "window": 24,
+   "edges": {
+    "apex": 16911,
+    "resolves": 212444,
+    "similar": 27505
+   },
+   "domains": 55065,
+   "ips": 38434,
+   "malicious": 6652,
+   "benign": 2352,
+   "unlabelled": 46061,
+   "new_domains": 4982,
+   "new_labelled": 255
+  },
+  {
+   "window": 25,
+   "edges": {
+    "apex": 25999,
+    "resolves": 261038,
+    "similar": 41150
+   },
+   "domains": 78906,
+   "ips": 42697,
+   "malicious": 8855,
+   "benign": 2917,
+   "unlabelled": 67134,
+   "new_domains": 16524,
+   "new_labelled": 868
+  },
+  {
+   "window": 26,
+   "edges": {
+    "apex": 26997,
+    "resolves": 314017,
+    "similar": 40600
+   },
+   "domains": 77316,
+   "ips": 68743,
+   "malicious": 8673,
+   "benign": 2865,
+   "unlabelled": 65778,
+   "new_domains": 16598,
+   "new_labelled": 895
+  },
+  {
+   "window": 27,
+   "edges": {
+    "apex": 30750,
+    "resolves": 258745,
+    "similar": 45769
+   },
+   "domains": 83739,
+   "ips": 41767,
+   "malicious": 8455,
+   "benign": 3056,
+   "unlabelled": 72228,
+   "new_domains": 14477,
+   "new_labelled": 817
+  },
+  {
+   "window": 28,
+   "edges": {
+    "apex": 33561,
+    "resolves": 661788,
+    "similar": 51187
+   },
+   "domains": 97693,
+   "ips": 93903,
+   "malicious": 8939,
+   "benign": 4650,
+   "unlabelled": 84104,
+   "new_domains": 19329,
+   "new_labelled": 1032
+  },
+  {
+   "window": 29,
+   "edges": {
+    "apex": 30037,
+    "resolves": 649838,
+    "similar": 44644
+   },
+   "domains": 92098,
+   "ips": 92548,
+   "malicious": 8777,
+   "benign": 4871,
+   "unlabelled": 78450,
+   "new_domains": 13205,
+   "new_labelled": 661
+  },
+  {
+   "window": 30,
+   "edges": {
+    "apex": 21884,
+    "resolves": 230251,
+    "similar": 32410
+   },
+   "domains": 68900,
+   "ips": 39350,
+   "malicious": 7674,
+   "benign": 2454,
+   "unlabelled": 58772,
+   "new_domains": 10523,
+   "new_labelled": 523
+  },
+  {
+   "window": 31,
+   "edges": {
+    "apex": 16384,
+    "resolves": 206591,
+    "similar": 25058
+   },
+   "domains": 57490,
+   "ips": 35418,
+   "malicious": 7489,
+   "benign": 1448,
+   "unlabelled": 48553,
+   "new_domains": 24961,
+   "new_labelled": 4160
+  },
+  {
+   "window": 32,
+   "edges": {
+    "apex": 23722,
+    "resolves": 258643,
+    "similar": 37349
+   },
+   "domains": 77443,
+   "ips": 44262,
+   "malicious": 9145,
+   "benign": 2045,
+   "unlabelled": 66253,
+   "new_domains": 17066,
+   "new_labelled": 1942
+  },
+  {
+   "window": 33,
+   "edges": {
+    "apex": 70810,
+    "resolves": 1093715,
+    "similar": 110545
+   },
+   "domains": 190614,
+   "ips": 132385,
+   "malicious": 16436,
+   "benign": 9074,
+   "unlabelled": 165104,
+   "new_domains": 42534,
+   "new_labelled": 2929
+  },
+  {
+   "window": 34,
+   "edges": {
+    "apex": 53204,
+    "resolves": 437278,
+    "similar": 82327
+   },
+   "domains": 145723,
+   "ips": 68381,
+   "malicious": 13765,
+   "benign": 3435,
+   "unlabelled": 128523,
+   "new_domains": 23987,
+   "new_labelled": 1633
+  },
+  {
+   "window": 35,
+   "edges": {
+    "apex": 30890,
+    "resolves": 879156,
+    "similar": 47380
+   },
+   "domains": 99229,
+   "ips": 105505,
+   "malicious": 9839,
+   "benign": 4265,
+   "unlabelled": 85125,
+   "new_domains": 12415,
+   "new_labelled": 875
+  },
+  {
+   "window": 36,
+   "edges": {
+    "apex": 22593,
+    "resolves": 831195,
+    "similar": 35037
+   },
+   "domains": 80771,
+   "ips": 104189,
+   "malicious": 8593,
+   "benign": 3719,
+   "unlabelled": 68459,
+   "new_domains": 11991,
+   "new_labelled": 786
+  },
+  {
+   "window": 37,
+   "edges": {
+    "apex": 15452,
+    "resolves": 217178,
+    "similar": 25599
+   },
+   "domains": 57587,
+   "ips": 39910,
+   "malicious": 7371,
+   "benign": 1483,
+   "unlabelled": 48733,
+   "new_domains": 6252,
+   "new_labelled": 478
+  },
+  {
+   "window": 38,
+   "edges": {
+    "apex": 14010,
+    "resolves": 190990,
+    "similar": 21796
+   },
+   "domains": 51337,
+   "ips": 35624,
+   "malicious": 7166,
+   "benign": 1317,
+   "unlabelled": 42854,
+   "new_domains": 6363,
+   "new_labelled": 511
+  },
+  {
+   "window": 39,
+   "edges": {
+    "apex": 20230,
+    "resolves": 798075,
+    "similar": 32988
+   },
+   "domains": 75898,
+   "ips": 94399,
+   "malicious": 8992,
+   "benign": 3573,
+   "unlabelled": 63333,
+   "new_domains": 8889,
+   "new_labelled": 838
+  },
+  {
+   "window": 40,
+   "edges": {
+    "apex": 28186,
+    "resolves": 880228,
+    "similar": 45508
+   },
+   "domains": 96724,
+   "ips": 102912,
+   "malicious": 10946,
+   "benign": 4359,
+   "unlabelled": 81419,
+   "new_domains": 13932,
+   "new_labelled": 1337
+  },
+  {
+   "window": 41,
+   "edges": {
+    "apex": 29611,
+    "resolves": 716729,
+    "similar": 45251
+   },
+   "domains": 96367,
+   "ips": 98385,
+   "malicious": 10943,
+   "benign": 3764,
+   "unlabelled": 81660,
+   "new_domains": 10940,
+   "new_labelled": 797
+  },
+  {
+   "window": 42,
+   "edges": {
+    "apex": 44656,
+    "resolves": 1071261,
+    "similar": 68054
+   },
+   "domains": 135556,
+   "ips": 115643,
+   "malicious": 13908,
+   "benign": 5979,
+   "unlabelled": 115669,
+   "new_domains": 10236,
+   "new_labelled": 702
+  },
+  {
+   "window": 43,
+   "edges": {
+    "apex": 33967,
+    "resolves": 1041013,
+    "similar": 53723
+   },
+   "domains": 112773,
+   "ips": 115535,
+   "malicious": 11754,
+   "benign": 5045,
+   "unlabelled": 95974,
+   "new_domains": 9807,
+   "new_labelled": 858
+  },
+  {
+   "window": 44,
+   "edges": {
+    "apex": 22993,
+    "resolves": 675357,
+    "similar": 36953
+   },
+   "domains": 82129,
+   "ips": 93273,
+   "malicious": 10173,
+   "benign": 3274,
+   "unlabelled": 68682,
+   "new_domains": 7619,
+   "new_labelled": 464
+  },
+  {
+   "window": 45,
+   "edges": {
+    "apex": 27170,
+    "resolves": 961082,
+    "similar": 42719
+   },
+   "domains": 90899,
+   "ips": 104040,
+   "malicious": 10167,
+   "benign": 4444,
+   "unlabelled": 76288,
+   "new_domains": 7353,
+   "new_labelled": 537
+  },
+  {
+   "window": 46,
+   "edges": {
+    "apex": 33887,
+    "resolves": 1023568,
+    "similar": 52417
+   },
+   "domains": 110927,
+   "ips": 107597,
+   "malicious": 12089,
+   "benign": 4895,
+   "unlabelled": 93943,
+   "new_domains": 11243,
+   "new_labelled": 716
+  },
+  {
+   "window": 47,
+   "edges": {
+    "apex": 31923,
+    "resolves": 775858,
+    "similar": 50161
+   },
+   "domains": 101689,
+   "ips": 102363,
+   "malicious": 11655,
+   "benign": 3902,
+   "unlabelled": 86132,
+   "new_domains": 12134,
+   "new_labelled": 723
+  },
+  {
+   "window": 48,
+   "edges": {
+    "apex": 29875,
+    "resolves": 1004073,
+    "similar": 47714
+   },
+   "domains": 100732,
+   "ips": 106520,
+   "malicious": 10629,
+   "benign": 4459,
+   "unlabelled": 85644,
+   "new_domains": 12557,
+   "new_labelled": 841
+  },
+  {
+   "window": 49,
+   "edges": {
+    "apex": 30065,
+    "resolves": 926376,
+    "similar": 47274
+   },
+   "domains": 99419,
+   "ips": 106754,
+   "malicious": 10895,
+   "benign": 4274,
+   "unlabelled": 84250,
+   "new_domains": 9386,
+   "new_labelled": 605
+  },
+  {
+   "window": 50,
+   "edges": {
+    "apex": 30930,
+    "resolves": 737508,
+    "similar": 48022
+   },
+   "domains": 100060,
+   "ips": 99638,
+   "malicious": 11066,
+   "benign": 3680,
+   "unlabelled": 85314,
+   "new_domains": 10415,
+   "new_labelled": 505
+  },
+  {
+   "window": 51,
+   "edges": {
+    "apex": 30383,
+    "resolves": 730503,
+    "similar": 46675
+   },
+   "domains": 98575,
+   "ips": 100174,
+   "malicious": 11359,
+   "benign": 3733,
+   "unlabelled": 83483,
+   "new_domains": 9650,
+   "new_labelled": 481
+  },
+  {
+   "window": 52,
+   "edges": {
+    "apex": 25022,
+    "resolves": 679950,
+    "similar": 39861
+   },
+   "domains": 82643,
+   "ips": 92046,
+   "malicious": 9139,
+   "benign": 3249,
+   "unlabelled": 70255,
+   "new_domains": 7994,
+   "new_labelled": 313
+  },
+  {
+   "window": 53,
+   "edges": {
+    "apex": 28624,
+    "resolves": 488792,
+    "similar": 44892
+   },
+   "domains": 91997,
+   "ips": 86374,
+   "malicious": 10488,
+   "benign": 2752,
+   "unlabelled": 78757,
+   "new_domains": 9305,
+   "new_labelled": 766
+  },
+  {
+   "window": 54,
+   "edges": {
+    "apex": 31333,
+    "resolves": 867110,
+    "similar": 46166
+   },
+   "domains": 103762,
+   "ips": 106282,
+   "malicious": 11537,
+   "benign": 4197,
+   "unlabelled": 88028,
+   "new_domains": 11144,
+   "new_labelled": 882
+  },
+  {
+   "window": 55,
+   "edges": {
+    "apex": 29075,
+    "resolves": 947619,
+    "similar": 46231
+   },
+   "domains": 99831,
+   "ips": 110015,
+   "malicious": 10626,
+   "benign": 4374,
+   "unlabelled": 84831,
+   "new_domains": 10630,
+   "new_labelled": 491
+  },
+  {
+   "window": 56,
+   "edges": {
+    "apex": 26072,
+    "resolves": 379810,
+    "similar": 41566
+   },
+   "domains": 87631,
+   "ips": 73979,
+   "malicious": 9961,
+   "benign": 2215,
+   "unlabelled": 75455,
+   "new_domains": 9297,
+   "new_labelled": 527
+  },
+  {
+   "window": 57,
+   "edges": {
+    "apex": 23690,
+    "resolves": 694021,
+    "similar": 37364
+   },
+   "domains": 81195,
+   "ips": 93295,
+   "malicious": 8780,
+   "benign": 3201,
+   "unlabelled": 69214,
+   "new_domains": 8668,
+   "new_labelled": 450
+  },
+  {
+   "window": 58,
+   "edges": {
+    "apex": 21510,
+    "resolves": 672393,
+    "similar": 34528
+   },
+   "domains": 75342,
+   "ips": 91888,
+   "malicious": 8922,
+   "benign": 3238,
+   "unlabelled": 63182,
+   "new_domains": 5358,
+   "new_labelled": 621
+  },
+  {
+   "window": 59,
+   "edges": {
+    "apex": 22345,
+    "resolves": 254796,
+    "similar": 33807
+   },
+   "domains": 73854,
+   "ips": 47528,
+   "malicious": 8908,
+   "benign": 1741,
+   "unlabelled": 63205,
+   "new_domains": 7786,
+   "new_labelled": 271
+  },
+  {
+   "window": 60,
+   "edges": {
+    "apex": 25574,
+    "resolves": 700979,
+    "similar": 40184
+   },
+   "domains": 85801,
+   "ips": 95329,
+   "malicious": 9066,
+   "benign": 3223,
+   "unlabelled": 73512,
+   "new_domains": 7485,
+   "new_labelled": 547
+  }
+ ],
+ "raw_files": {
+  "domain_features.csv": 55476425,
+  "domain_features_map.txt": 93,
+  "domains.csv": 45126257,
+  "domains2.csv": 49275694,
+  "ip_features.csv": 12592779,
+  "ip_features_map.txt": 10,
+  "ips.csv": 6325627,
+  "timestamp_0_edges.csv": 7119795,
+  "timestamp_10_edges.csv": 15631158,
+  "timestamp_11_edges.csv": 22557049,
+  "timestamp_12_edges.csv": 16041637,
+  "timestamp_13_edges.csv": 26643177,
+  "timestamp_14_edges.csv": 26653427,
+  "timestamp_15_edges.csv": 20327080,
+  "timestamp_16_edges.csv": 21966660,
+  "timestamp_17_edges.csv": 15978228,
+  "timestamp_18_edges.csv": 17841853,
+  "timestamp_19_edges.csv": 18046482,
+  "timestamp_1_edges.csv": 11365355,
+  "timestamp_20_edges.csv": 17672679,
+  "timestamp_21_edges.csv": 18270597,
+  "timestamp_22_edges.csv": 17009914,
+  "timestamp_23_edges.csv": 15858509,
+  "timestamp_24_edges.csv": 6405700,
+  "timestamp_25_edges.csv": 8250259,
+  "timestamp_26_edges.csv": 9648103,
+  "timestamp_27_edges.csv": 8401677,
+  "timestamp_28_edges.csv": 19038251,
+  "timestamp_29_edges.csv": 18490812,
+  "timestamp_2_edges.csv": 7029064,
+  "timestamp_30_edges.csv": 7133914,
+  "timestamp_31_edges.csv": 6313177,
+  "timestamp_32_edges.csv": 8147464,
+  "timestamp_33_edges.csv": 32754258,
+  "timestamp_34_edges.csv": 14618192,
+  "timestamp_35_edges.csv": 24690306,
+  "timestamp_36_edges.csv": 22965435,
+  "timestamp_37_edges.csv": 6572340,
+  "timestamp_38_edges.csv": 5789433,
+  "timestamp_39_edges.csv": 22007210,
+  "timestamp_3_edges.csv": 6782331,
+  "timestamp_40_edges.csv": 24625494,
+  "timestamp_41_edges.csv": 20409683,
+  "timestamp_42_edges.csv": 30541540,
+  "timestamp_43_edges.csv": 29165043,
+  "timestamp_44_edges.csv": 18983850,
+  "timestamp_45_edges.csv": 26647856,
+  "timestamp_46_edges.csv": 28681533,
+  "timestamp_47_edges.csv": 22138348,
+  "timestamp_48_edges.csv": 27987713,
+  "timestamp_49_edges.csv": 25953399,
+  "timestamp_4_edges.csv": 17301938,
+  "timestamp_50_edges.csv": 21086359,
+  "timestamp_51_edges.csv": 20850565,
+  "timestamp_52_edges.csv": 19232817,
+  "timestamp_53_edges.csv": 14455799,
+  "timestamp_54_edges.csv": 24398806,
+  "timestamp_55_edges.csv": 26439401,
+  "timestamp_56_edges.csv": 11471717,
+  "timestamp_57_edges.csv": 19504483,
+  "timestamp_58_edges.csv": 18816538,
+  "timestamp_59_edges.csv": 7958532,
+  "timestamp_5_edges.csv": 21505812,
+  "timestamp_60_edges.csv": 19816614,
+  "timestamp_6_edges.csv": 20728886,
+  "timestamp_7_edges.csv": 16614408,
+  "timestamp_8_edges.csv": 7820913,
+  "timestamp_9_edges.csv": 15986279
+ },
+ "pdns_dir_after": [
+  "raw"
+ ],
+ "peak_rss_gib": 5.63
+}

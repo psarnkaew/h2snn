@@ -1,0 +1,10 @@
+job=16773 node=g3an01 start=2026-11-15T18:42:39+09:00
+git=a06b001200f08a39946fae02375e4010c268f609 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+data/NC/PDNS before: raw 
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+{"load_seconds": 52.3, "peak_rss_gib": 5.63, "pdns_dir_after": ["raw"]}
+data/NC/PDNS after: raw 
+end=2026-11-15T18:44:00+09:00 exit=0
