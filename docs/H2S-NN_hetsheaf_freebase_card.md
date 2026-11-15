@@ -28,6 +28,7 @@ Through `src/baselines/minibatch.py` (class C, D1 second branch) and `src/baseli
 For every HetSheaf cell, one epoch at the largest memory point of H-3 (`d` 5, `layers` 8, `hidden` 64, general maps) plus one validation pass, as card 2's Rule (status, peak memory, time; **no metric**); OOM recorded (retry once on the A6000), not fixed. Full suite once on one node; golden/mb0 after H-1. Report short. Last line: `branch=hetsheaf sha=<full head sha> card=docs/H2S-NN_hetsheaf_freebase_card.md base=<pinned v3b sha>`.
 
 ## Part B — Freebase NC: SeHGNN, PSHGCN, H2SGNN (after card 1b)
+**Added 2026-11-16 (decisions G-2, G-3):** Part B also wires **PSHGCN on the 6 non-MAG H2GB NC datasets (OAG×3, IEEE-CIS-G, H-Pokec, PDNS) and on the large-LP tasks, and H2SGNN on all 8 H2GB NC datasets and the large-LP tasks**, with the same generic branch of F-1 (one row-normalised adjacency per relation; PSHGCN polynomial terms over all relations, no label part, as their HGB code), batched as part 1/2 define (decoupled: precompute per node on the graph or message graph, then batch). The B1 ACM-branch equivalence test covers the construction; plus one step finite and moves per new adapter path, and the large-LP held-out-fact test with each new loader. Branch from the `v3b` that contains card 1c if it is approved by then, else card 1b.
 ### B0 — Preconditions
 Branch from the new `v3b`, merge the pinned `design-docs`. Record file:line of each source's dataset branch (F-1).
 ### B1 — Wiring
