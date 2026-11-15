@@ -1,0 +1,36 @@
+job=16721 step=15 node=g2n01 start=2026-11-15T10:31:45+09:00
+git=2613a7d08242058656af604bc2da770635cf8c0c branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+NVIDIA GeForce RTX 2080 Ti
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+===== baselines-dgl.txt code lines
+dgl==2.2.1; sys_platform == "win32"
+===== tests
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (tests.test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (tests.test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (tests.test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (tests.test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (tests.test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_a_machine_without_a_gpu_has_no_defect (tests.test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux publishes a +cu124 wheel, so a CPU build there is a fixable defect. ... ok
+test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+test_every_code_cell_parses (tests.test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (tests.test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.860s
+
+OK
+tests_exit=0 end=2026-11-15T10:31:50+09:00
