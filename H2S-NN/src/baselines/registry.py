@@ -104,7 +104,7 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
     ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
 })
-_SEHGNN_MAG = ("pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
+_SEHGNN_MAG = ("adapter in place, pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
                "embeddings that its README trains with dglke under dgl<1.0 (SeHGNN/ogbn/Readme.md; utils.py:345-354); "
                "no file is offered for download and the agent does not train them (part 2 E0)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
