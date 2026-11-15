@@ -582,6 +582,15 @@ class HGBSplitTests(unittest.TestCase):
         "imdb": (1371, 3202),
     }
 
+    def setUp(self) -> None:
+        # Card baselines-h2gb C7: these counts are the real releases' (a fixture cannot check them); without a
+        # release on disk the test skips, as the suite's other real-data tests do, instead of reaching the network.
+        from src.data.data_layout import REPO_DATA_ROOT, nc_root
+
+        missing = [d for d in self.EXPECTED if not (nc_root(REPO_DATA_ROOT) / d / "raw").is_dir()]
+        if missing:
+            self.skipTest(f"HGB node-classification releases not present: {missing}")
+
     def test_train_plus_val_equals_hgb_train_and_test_is_untouched(self) -> None:
         for dataset, (hgb_train, hgb_test) in self.EXPECTED.items():
             with self.subTest(dataset=dataset):

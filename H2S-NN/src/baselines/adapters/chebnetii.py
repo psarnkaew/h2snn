@@ -49,6 +49,8 @@ VENDOR = "chebnetii"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 #: Card baselines-h2gb C4: H2GB NC datasets with one feature width on every type, where their ogb scheme
 #: (`_chebnetii_h2gb.py`: Chebyshev bases once, batches of target rows) runs unchanged.
+#: Card baselines-h2gb C4: the H2GB path reads the budget table's batch plan (`minibatch.minibatch_plan`).
+READS_BATCH_PLAN = True
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem"})
 
 

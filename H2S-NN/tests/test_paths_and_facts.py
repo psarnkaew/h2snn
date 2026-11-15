@@ -1262,6 +1262,10 @@ class BaselineBundleIdentityTests(unittest.TestCase):
     def test_node_bundle_equals_explicit_untied_dfs(self) -> None:
         from src.baselines.bundles import build_bundle
         from src.data.dataset import build_dataset
+        from src.data.data_layout import REPO_DATA_ROOT, nc_root
+
+        if not (nc_root(REPO_DATA_ROOT) / "acm" / "raw").is_dir():  # card baselines-h2gb C7: never download
+            self.skipTest("HGB ACM release not present")
 
         bundle = build_bundle("node_classification", "acm", overrides={"device": "cpu"}).data
         old = build_dataset(self._explicit_old_config("acm"))

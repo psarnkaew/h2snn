@@ -29,26 +29,26 @@ def _load_hetero_data(config: TrainConfig) -> "HeteroData":
     root = nc_root(Path(config.data.root))
 
     if dataset_name == "acm":
-        from torch_geometric.datasets import HGBDataset
+        from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
-        dataset = HGBDataset(root=str(root), name="ACM")
+        dataset = offline_hgb_dataset(root, "ACM")
         return dataset[0]
     if dataset_name == "dblp":
-        from torch_geometric.datasets import HGBDataset
+        from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
-        dataset = HGBDataset(root=str(root), name="DBLP")
+        dataset = offline_hgb_dataset(root, "DBLP")
         return dataset[0]
     if dataset_name == "imdb":
-        from torch_geometric.datasets import HGBDataset
+        from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
-        dataset = HGBDataset(root=str(root), name="IMDB")
+        dataset = offline_hgb_dataset(root, "IMDB")
         return dataset[0]
     if dataset_name == "freebase":
         # Part P P3: HGB Freebase (target book; no node features: every type gets the encoder's
         # learned per-node vectors; unlabelled books carry y = -1 and no mask, as PyG reads it).
-        from torch_geometric.datasets import HGBDataset
+        from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
-        dataset = HGBDataset(root=str(root), name="Freebase")
+        dataset = offline_hgb_dataset(root, "Freebase")
         return dataset[0]
     from src.data.h2gb_nc import ALL_H2GB_NC_SPECS, load_h2gb_nc
 

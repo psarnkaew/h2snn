@@ -138,11 +138,11 @@ class SchemaTests(unittest.TestCase):
         present = [d for d in names if (nc_root(REPO_DATA_ROOT) / d).exists()]
         if not present:
             self.skipTest("HGB node-classification data not present")
-        from torch_geometric.datasets import HGBDataset
+        from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
         for dataset in present:  # data read only
             with self.subTest(dataset=dataset):
-                data = HGBDataset(root=str(nc_root(REPO_DATA_ROOT)), name=names[dataset])[0]
+                data = offline_hgb_dataset(nc_root(REPO_DATA_ROOT), names[dataset])[0]
                 graph = with_reverse_edges(dict(data.edge_index_dict))
                 self.assertLessEqual(set(walk_schema(dataset)), set(graph))
 

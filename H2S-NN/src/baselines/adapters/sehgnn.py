@@ -58,6 +58,8 @@ VENDORS = ("sehgnn", "sehgnn_data")
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
 #: Card baselines-h2gb C4: the H2GB NC datasets on which their own large-graph scheme (`SeHGNN/ogbn`) runs
 #: (`_sehgnn_h2gb.py`); H-Pokec is N/A (author, 2026-11-16: out of memory under its own code, Part M3b B7).
+#: Card baselines-h2gb C4: the H2GB path reads the budget table's batch plan (`minibatch.minibatch_plan`).
+READS_BATCH_PLAN = True
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "pdns"})
 #: The H2GB cells without an open author decision (registry `H2GB_NC_WIRED_CELLS`); the others wait on C4-a (MAG
 #: features) and C4-b (parallel relations merged), see `src/baselines/registry.py`.

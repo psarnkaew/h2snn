@@ -1,0 +1,22 @@
+label=c7-tests job=16741 step=74 node=g2n01 start=2026-11-16T06:18:02+09:00
+git=1722f2b325fa0b909084fd2c1b4a1184ced2633f branch=baselines-h2gb
+working tree:  M src/baselines/adapters/chebnetii.py
+working tree:  M src/baselines/adapters/h2gformer.py
+working tree:  M src/baselines/adapters/sehgnn.py
+working tree:  M src/data/dataset.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_partP_h2gformer.py
+working tree:  M tests/test_paths_and_facts.py
+env=h2snn-b cmd=python -m unittest tests.test_baselines tests.test_paths_and_facts.BaselineBundleIdentityTests tests.test_partP_h2gformer tests.test_partO_literature_row tests.test_budget_table tests.test_data tests.test_baselines_h2gb_classb
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+............................................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+..................................................................................................
+----------------------------------------------------------------------
+Ran 144 tests in 202.189s
+
+OK
+[coverage] 141/141 runnable cells have an adapter; no adapter yet: none
+peak_rss_gib=4.76 elapsed_s=204.8
+end=2026-11-16T06:21:27+09:00 exit=0

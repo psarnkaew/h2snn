@@ -520,13 +520,12 @@ def build_node_classification_model(data: Any, target_type: str, bundle: NodeBun
 def _build_hetero_data(bundle: NodeBundle, device: torch.device) -> tuple[Any, str]:
     """Rebuild the PyG HeteroData H2GB expects, from the canonical bundle."""
 
-    from torch_geometric.datasets import HGBDataset
-
     from src.baselines.bundles import bundle_data_root
     from src.data.data_layout import nc_root
+    from src.data.offline import offline_hgb_dataset  # never downloads (card baselines-h2gb C7)
 
     key = bundle.dataset.lower()
-    data = HGBDataset(root=str(nc_root(bundle_data_root(bundle))), name=key.upper())[0]
+    data = offline_hgb_dataset(nc_root(bundle_data_root(bundle)), key.upper())[0]
 
     # Attribute-less types get an identity-equivalent learned input, matching the
     # convention used everywhere else in this campaign.

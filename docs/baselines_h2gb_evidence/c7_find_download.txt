@@ -1,0 +1,1723 @@
+label=c7-find-download job=16741 step=73 node=g2n01 start=2026-11-16T05:59:48+09:00
+tree=/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN (git archive export) commit=1722f2b325fa0b909084fd2c1b4a1184ced2633f
+env=h2snn-b cmd=python -m unittest discover -s tests
+../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+........................Downloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1fLLoy559V7jJaQ_9mQEsC06VKd6Qd3SC&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=18qXmmwKJBrEJxVQaYwKTL3Ny3fPqJeJ2&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1fLLoy559V7jJaQ_9mQEsC06VKd6Qd3SC&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=18qXmmwKJBrEJxVQaYwKTL3Ny3fPqJeJ2&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1fLLoy559V7jJaQ_9mQEsC06VKd6Qd3SC&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=18qXmmwKJBrEJxVQaYwKTL3Ny3fPqJeJ2&confirm=t
+E..................E/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+........EEEE.............................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+............FFFFFF........../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...........................s.............../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+..........................sss2026-11-16 06:05:46,636 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:05:46,639 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-16 06:05:46,640 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:05:46,643 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9500 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:05:46,644 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9600 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:05:46,645 | INFO | Early stopping at epoch 3 after 2 epochs without validation loss improvement.
+2026-11-16 06:05:46,645 | INFO | Final epoch 3 (final weights; run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+./mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/H2GB/H2GB/datasets/pokec_dataset.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+./mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/H2GB/H2GB/datasets/mag_dataset.py:71: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/H2GB/H2GB/datasets/oag_dataset.py:72: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/H2GB/H2GB/datasets/ieee_cis_dataset.py:170: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/H2GB/H2GB/loader/master_loader.py:767: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  data = dataset.data
+.............................................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...................FFFFFF.......ss....../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...........................sssssssssssssss.......................................sss............................./mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/trainers/minibatch_lp.py:87: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  rows = torch.searchsorted(unique, links)
+.............../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+......./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:36,124 | INFO | STOP CONDITION log_weight_range: 31 > 30 at epoch 0 (spec v1.16 §6); run stopped.
+...2026-11-16 06:07:36,382 | INFO | Epoch 0000 | train_loss: 1.1091 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0623 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:36,638 | INFO | Epoch 0001 | train_loss: 1.1075 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0642 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:36,890 | INFO | Epoch 0002 | train_loss: 1.0779 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0661 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2667 | val_micro_f1: 0.5000 | test_acc: 0.1667 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1667
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+.............Downloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1fLLoy559V7jJaQ_9mQEsC06VKd6Qd3SC&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=18qXmmwKJBrEJxVQaYwKTL3Ny3fPqJeJ2&confirm=t
+E........2026-11-16 06:07:39,730 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:39,966 | INFO | Epoch 0000 | train_loss: 1.0997 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2727 | val_loss: 1.0951 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.2500 | val_micro_f1: 0.3333 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.2619 | test_micro_f1: 0.3000
+2026-11-16 06:07:39,974 | INFO | Checkpoint metric macro_f1: 0.2500
+2026-11-16 06:07:39,974 | INFO | Best epoch 0 | test_macro_f1: 0.2619 | test_micro_f1: 0.3000 | test_acc: 0.3000
+2026-11-16 06:07:39,983 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:40,218 | INFO | Epoch 0000 | train_loss: 1.1527 | train_acc: 0.1818 | train_auroc: 0.0000 | train_macro_f1: 0.1111 | train_micro_f1: 0.1818 | val_loss: 1.0073 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.2000 | test_micro_f1: 0.2000
+2026-11-16 06:07:40,225 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-16 06:07:40,225 | INFO | Best epoch 0 | test_macro_f1: 0.2000 | test_micro_f1: 0.2000 | test_acc: 0.2000
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+.2026-11-16 06:07:40,288 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:40,527 | INFO | Epoch 0000 | train_loss: 1.1163 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.2165 | train_micro_f1: 0.2727 | val_loss: 1.1536 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1778 | test_micro_f1: 0.2000
+2026-11-16 06:07:40,534 | INFO | Checkpoint metric macro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:40,751 | INFO | Epoch 0001 | train_loss: 1.0755 | train_acc: 0.3636 | train_auroc: 0.0000 | train_macro_f1: 0.3889 | train_micro_f1: 0.3636 | val_loss: 1.1199 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.1667 | val_micro_f1: 0.3333 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1212 | test_micro_f1: 0.2000
+2026-11-16 06:07:40,759 | INFO | Checkpoint metric macro_f1: 0.1667
+2026-11-16 06:07:40,759 | INFO | Best epoch 1 | test_macro_f1: 0.1212 | test_micro_f1: 0.2000 | test_acc: 0.2000
+[coverage] 141/141 runnable cells have an adapter; no adapter yet: none
+
+[CS7-5] scoped vs whole max|diff| = 0.000e+00
+Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpme_z0yfw/exp/final_seeds/exp_tune_final_seed0_final_seed0
+.2026-11-16 06:07:47,451 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:47,687 | INFO | Epoch 0000 | train_loss: 1.1669 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2727 | val_loss: 1.0663 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.2315 | test_micro_f1: 0.3000
+2026-11-16 06:07:47,693 | INFO | Checkpoint metric macro_f1: 0.4000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:47,909 | INFO | Epoch 0001 | train_loss: 1.0532 | train_acc: 0.4545 | train_auroc: 0.0000 | train_macro_f1: 0.3571 | train_micro_f1: 0.4545 | val_loss: 1.0511 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.4000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.4000
+2026-11-16 06:07:47,912 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-16 06:07:47,912 | INFO | Best epoch 0 | test_macro_f1: 0.2315 | test_micro_f1: 0.3000 | test_acc: 0.3000
+Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpme_z0yfw/exp/final_seeds/exp_tune_final_seed1_final_seed1
+2026-11-16 06:07:47,923 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:48,151 | INFO | Epoch 0000 | train_loss: 1.0768 | train_acc: 0.2727 | train_auroc: 0.0000 | train_macro_f1: 0.2407 | train_micro_f1: 0.2727 | val_loss: 1.1538 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.2444 | test_micro_f1: 0.3000
+2026-11-16 06:07:48,157 | INFO | Checkpoint metric macro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:07:48,367 | INFO | Epoch 0001 | train_loss: 1.0888 | train_acc: 0.3636 | train_auroc: 0.0000 | train_macro_f1: 0.2872 | train_micro_f1: 0.3636 | val_loss: 1.0985 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.3000 | test_auroc: 0.0000 | test_macro_f1: 0.1667 | test_micro_f1: 0.3000
+2026-11-16 06:07:48,373 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-16 06:07:48,374 | INFO | Best epoch 1 | test_macro_f1: 0.1667 | test_micro_f1: 0.3000 | test_acc: 0.3000
+......ssssProcessing...
+Done!
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/utils.py:213: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:641.)
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+.2026-11-16 06:09:51,972 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'book__and__book': None, 'book__to__film': None, 'book__on__sports': None, 'book__on__location': None, 'book__about__organization': None, 'film__and__film': None, 'music__in__book': None, 'music__in__film': None, 'music__and__music': None, 'music__for__sports': None, 'music__on__location': None, 'sports__in__film': None, 'sports__and__sports': 'sports__and__sports', 'sports__on__location': None, 'people__to__book': None, 'people__to__film': None, 'people__to__music': None, 'people__to__sports': None, 'people__and__people': None, 'people__on__location': None, 'people__in__organization': None, 'people__in__business': None, 'location__in__film': None, 'location__and__location': None, 'organization__in__film': None, 'organization__to__music': None, 'organization__to__sports': None, 'organization__on__location': None, 'organization__and__organization': 'organization__and__organization', 'organization__for__business': None, 'business__about__book': None, 'business__about__film': None, 'business__about__music': None, 'business__about__sports': None, 'business__on__location': None, 'business__and__business': 'business__and__business'}, 'kept_relations': ['book__and__book', 'book__to__film', 'book__on__sports', 'book__on__location', 'book__about__organization', 'film__and__film', 'music__in__book', 'music__in__film', 'music__and__music', 'music__for__sports', 'music__on__location', 'sports__in__film', 'sports__and__sports', 'sports__on__location', 'people__to__book', 'people__to__film', 'people__to__music', 'people__to__sports', 'people__and__people', 'people__on__location', 'people__in__organization', 'people__in__business', 'location__in__film', 'location__and__location', 'organization__in__film', 'organization__to__music', 'organization__to__sports', 'organization__on__location', 'organization__and__organization', 'organization__for__business', 'business__about__book', 'business__about__film', 'business__about__music', 'business__about__sports', 'business__on__location', 'business__and__business'], 'self_inverse_relations': ['sports__and__sports', 'organization__and__organization', 'business__and__business'], 'unmatched_edges': {'book__and__book': 30, 'book__to__film': 30, 'book__on__sports': 30, 'book__on__location': 30, 'book__about__organization': 30, 'film__and__film': 30, 'music__in__book': 30, 'music__in__film': 30, 'music__and__music': 30, 'music__for__sports': 30, 'music__on__location': 30, 'sports__in__film': 30, 'sports__and__sports': 0, 'sports__on__location': 30, 'people__to__book': 30, 'people__to__film': 30, 'people__to__music': 30, 'people__to__sports': 30, 'people__and__people': 30, 'people__on__location': 30, 'people__in__organization': 30, 'people__in__business': 30, 'location__in__film': 30, 'location__and__location': 30, 'organization__in__film': 30, 'organization__to__music': 30, 'organization__to__sports': 30, 'organization__on__location': 30, 'organization__and__organization': 0, 'organization__for__business': 30, 'business__about__book': 30, 'business__about__film': 30, 'business__about__music': 30, 'business__about__sports': 30, 'business__on__location': 30, 'business__and__business': 0}, 'facts_before': 1080, 'facts_after': 1035}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:09:52,297 | INFO | Epoch 0000 | train_loss: 1.9810 | train_acc: 0.1000 | train_auroc: 0.0000 | train_macro_f1: 0.0667 | train_micro_f1: 0.1000 | val_loss: 1.8321 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.3333 | val_micro_f1: 0.3333 | test_acc: 0.2941 | test_auroc: 0.0000 | test_macro_f1: 0.2088 | test_micro_f1: 0.2941
+2026-11-16 06:09:52,301 | INFO | Checkpoint metric macro_f1: 0.3333
+2026-11-16 06:09:52,301 | INFO | Best epoch 0 | test_macro_f1: 0.2088 | test_micro_f1: 0.2941 | test_acc: 0.2941
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+.....Downloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=1fLLoy559V7jJaQ_9mQEsC06VKd6Qd3SC&confirm=t
+EDownloading https://drive.usercontent.google.com/download?id=18qXmmwKJBrEJxVQaYwKTL3Ny3fPqJeJ2&confirm=t
+E............Processing...
+Done!
+......2026-11-16 06:12:52,883 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:12:53,119 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.3636 | train_auroc: 0.0000 | train_macro_f1: 0.2652 | train_micro_f1: 0.3636 | val_loss: 1.3636 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4000 | test_auroc: 0.0000 | test_macro_f1: 0.2771 | test_micro_f1: 0.4000
+2026-11-16 06:12:53,127 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-16 06:12:53,127 | INFO | Best epoch 0 | test_macro_f1: 0.2771 | test_micro_f1: 0.4000 | test_acc: 0.4000
+2026-11-16 06:12:53,137 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:12:53,379 | INFO | Epoch 0000 | train_loss: 1.1165 | train_acc: 0.4545 | train_auroc: 0.0000 | train_macro_f1: 0.2083 | train_micro_f1: 0.4545 | val_loss: 1.0452 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.2500 | val_micro_f1: 0.3333 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000
+2026-11-16 06:12:53,387 | INFO | Checkpoint metric macro_f1: 0.2500
+2026-11-16 06:12:53,387 | INFO | Best epoch 0 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000 | test_acc: 0.2000
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+........Downloading https://www.chrsmrrs.com/graphkerneldatasets/MUTAG.zip
+Processing...
+Done!
+.Downloading https://drive.usercontent.google.com/download?id=1xbJ4QE9pcDJOcALv7dYhHDCPITX2Iddz&confirm=t
+E.....ss........................s................................/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+...../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...s........../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:14:30,762 | INFO | Epoch 0000 | train_loss: 1.2636 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.2085 | val_acc: 0.1250 | val_auroc: 0.0000 | val_macro_f1: 0.0741 | val_micro_f1: 0.1250 | test_acc: 0.6250 | test_auroc: 0.0000 | test_macro_f1: 0.4444 | test_micro_f1: 0.6250
+2026-11-16 06:14:30,777 | INFO | Checkpoint metric acc: 0.1250
+2026-11-16 06:14:30,777 | INFO | Best epoch 0 | test_macro_f1: 0.4444 | test_micro_f1: 0.6250 | test_acc: 0.6250
+..../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+......................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:14:35,739 | INFO | Epoch 0000 | train_loss: 1.2068 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0817 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.2167 | val_micro_f1: 0.2500 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-16 06:14:35,757 | INFO | Checkpoint metric acc: 0.2500
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 06:14:35,985 | INFO | Epoch 0001 | train_loss: 1.1866 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0781 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3175 | val_micro_f1: 0.3750 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-16 06:14:36,004 | INFO | Checkpoint metric acc: 0.3750
+2026-11-16 06:14:36,004 | INFO | Best epoch 1 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750 | test_acc: 0.3750
+/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...ss.........fatal: not a git repository (or any parent up to mount point /mnt)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+E...................2026-11-16 06:15:39,516 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-16 06:15:39,516 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+........................./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...............................
+======================================================================
+ERROR: test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 612, in test_splits_are_disjoint
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 34, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="ACM")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) (dataset='dblp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 612, in test_splits_are_disjoint
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 39, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="DBLP")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 612, in test_splits_are_disjoint
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 44, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="IMDB")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 588, in test_train_plus_val_equals_hgb_train_and_test_is_untouched
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 34, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="ACM")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) (dataset='dblp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 588, in test_train_plus_val_equals_hgb_train_and_test_is_untouched
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 39, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="DBLP")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 588, in test_train_plus_val_equals_hgb_train_and_test_is_untouched
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 44, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="IMDB")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 604, in test_validation_is_twenty_percent_of_hgb_train
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 34, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="ACM")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) (dataset='dblp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 604, in test_validation_is_twenty_percent_of_hgb_train
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 39, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="DBLP")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 604, in test_validation_is_twenty_percent_of_hgb_train
+    data = cached_bundle("node_classification", dataset).data
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 44, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="IMDB")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_split_overlap_is_measured (test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 1196, in test_split_overlap_is_measured
+    overlap = link_split_overlap(cached_bundle("link_prediction", "lastfm").data)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 408, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 617, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data/LP/LastFM'.
+
+======================================================================
+ERROR: test_every_transposed_monomial_resolves_to_known_keys (test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on the LP datasets of the campaign
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 245, in test_every_transposed_monomial_resolves_to_known_keys
+    adjacencies, chaining = self._keys(dataset)
+                            ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 209, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 408, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 617, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data/LP/LastFM'.
+
+======================================================================
+ERROR: test_keys_are_exactly_two_characters (test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 260, in test_keys_are_exactly_two_characters
+    adjacencies, _ = self._keys(dataset)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 209, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 408, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 617, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data/LP/LastFM'.
+
+======================================================================
+ERROR: test_lastfm_matches_the_authors_key_set (test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 220, in test_lastfm_matches_the_authors_key_set
+    adjacencies, chaining = self._keys("lastfm")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 209, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 408, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 617, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data/LP/LastFM'.
+
+======================================================================
+ERROR: test_pubmed_keys_encode_node_types (test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 234, in test_pubmed_keys_encode_node_types
+    adjacencies, chaining = self._keys("pubmed")
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 209, in _keys
+    cached_bundle("link_prediction", dataset), torch.device("cpu")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_baselines.py", line 34, in cached_bundle
+    return build_bundle(task, dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 408, in build_bundle
+    data = build_link_prediction_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 882, in build_link_prediction_dataset
+    local_hgb_data = _load_local_hgb_link_data(config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/link_prediction_dataset.py", line 617, in _load_local_hgb_link_data
+    raise FileNotFoundError(
+FileNotFoundError: Expected local HGB link-prediction data at 'data/LP/PubMed'.
+
+======================================================================
+ERROR: test_lists_resolve_and_have_instances_on_the_real_graphs (test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 303, in test_lists_resolve_and_have_instances_on_the_real_graphs
+    _real_layer(dataset)
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 275, in _real_layer
+    hetero = _load_hetero_data(TrainConfig.from_dict(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 34, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="ACM")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_lists_resolve_and_have_instances_on_the_real_graphs (test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) (dataset='dblp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 303, in test_lists_resolve_and_have_instances_on_the_real_graphs
+    _real_layer(dataset)
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 275, in _real_layer
+    hetero = _load_hetero_data(TrainConfig.from_dict(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 39, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="DBLP")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_lists_resolve_and_have_instances_on_the_real_graphs (test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 303, in test_lists_resolve_and_have_instances_on_the_real_graphs
+    _real_layer(dataset)
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partO_literature_row.py", line 275, in _real_layer
+    hetero = _load_hetero_data(TrainConfig.from_dict(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 44, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="IMDB")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_hops_exist_on_the_real_graphs (test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) (dataset='acm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partP_h2gformer.py", line 145, in test_hops_exist_on_the_real_graphs
+    data = HGBDataset(root=str(nc_root(REPO_DATA_ROOT)), name=names[dataset])[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_hops_exist_on_the_real_graphs (test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) (dataset='dblp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partP_h2gformer.py", line 145, in test_hops_exist_on_the_real_graphs
+    data = HGBDataset(root=str(nc_root(REPO_DATA_ROOT)), name=names[dataset])[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_hops_exist_on_the_real_graphs (test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) (dataset='imdb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_partP_h2gformer.py", line 145, in test_hops_exist_on_the_real_graphs
+    data = HGBDataset(root=str(nc_root(REPO_DATA_ROOT)), name=names[dataset])[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_node_bundle_equals_explicit_untied_dfs (test_paths_and_facts.BaselineBundleIdentityTests.test_node_bundle_equals_explicit_untied_dfs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1141, in _send_output
+    self.send(msg)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1085, in send
+    self.connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1520, in connect
+    super().connect()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_paths_and_facts.py", line 1266, in test_node_bundle_equals_explicit_untied_dfs
+    bundle = build_bundle("node_classification", "acm", overrides={"device": "cpu"}).data
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/baselines/bundles.py", line 395, in build_bundle
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 228, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/src/data/dataset.py", line 34, in _load_hetero_data
+    dataset = HGBDataset(root=str(root), name="ACM")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 69, in __init__
+    super().__init__(root, transform, pre_transform,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/in_memory_dataset.py", line 81, in __init__
+    super().__init__(root, transform, pre_transform, pre_filter, log,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 113, in __init__
+    self._download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/dataset.py", line 231, in _download
+    self.download()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/datasets/hgb_dataset.py", line 92, in download
+    path = download_google_url(id, self.raw_dir, 'data.zip')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 68, in download_google_url
+    return download_url(url, folder, log, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/download.py", line 47, in download_url
+    data = urllib.request.urlopen(url, context=context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1405, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/urllib/request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+======================================================================
+ERROR: test_every_clone_directory_is_ignored (test_vendor_manifest.VendorIgnoreTests.test_every_clone_directory_is_ignored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_vendor_manifest.py", line 91, in test_every_clone_directory_is_ignored
+    self.assertEqual(ignore_problems(read_manifest(MANIFEST)), [])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_vendor_manifest.py", line 80, in ignore_problems
+    if row["kind"] == "clone" and not ignored(probe):
+                                      ^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_vendor_manifest.py", line 74, in ignored
+    raise RuntimeError(f"git check-ignore failed ({done.returncode}) for {rel}")
+RuntimeError: git check-ignore failed (128) for vendor/HGB/ignore_probe.txt
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='chebnetii', task='node_classification', dataset='ogbn-mag')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : chebnetii runs on ogbn-mag without reading batch_plan
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='chebnetii', task='node_classification', dataset='mag-year')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : chebnetii runs on mag-year without reading batch_plan
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='chebnetii', task='node_classification', dataset='oag-cs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : chebnetii runs on oag-cs without reading batch_plan
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='chebnetii', task='node_classification', dataset='oag-eng')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : chebnetii runs on oag-eng without reading batch_plan
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='chebnetii', task='node_classification', dataset='oag-chem')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : chebnetii runs on oag-chem without reading batch_plan
+
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='sehgnn', task='node_classification', dataset='ieee-cis-g')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : sehgnn runs on ieee-cis-g without reading batch_plan
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='acm_pa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : acm_pa: no link.dat.valid
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='dblp_ap')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : dblp_ap: no link.dat.valid
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='imdb_ma')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : imdb_ma: no link.dat.valid
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='freebase_bb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : freebase_bb: no link.dat.valid
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='pubmed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : pubmed: no link.dat.valid
+
+======================================================================
+FAIL: test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) (task='lastfm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/bh2gb_gate/1722f2b325fa0b909084fd2c1b4a1184ced2633f/H2S-NN/tests/test_hgb_oracle.py", line 359, in test_loader_reads_the_fixed_validation_file_exactly
+    self.assertTrue(valid_file.exists(), f"{task}: no link.dat.valid")
+AssertionError: False is not true : lastfm: no link.dat.valid
+
+----------------------------------------------------------------------
+Ran 684 tests in 1007.280s
+
+FAILED (failures=12, errors=22, skipped=34)
+peak_rss_gib=6.14 elapsed_s=1011.9
+end=2026-11-16T06:16:40+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1
