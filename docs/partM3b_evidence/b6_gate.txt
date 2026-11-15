@@ -1,0 +1,148 @@
+unit=B6 job=16741 step=46 node=g2n01 start=2026-11-15T22:57:02+09:00
+tree=/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN (git archive export) commit=7ab6a0f7dec7252a3d2e082a2146866224324e37 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_large_lp tests.test_partMB_link tests.test_hgb_lp_negatives tests.test_lp_derived tests.test_baselines tests.test_h2gb_nc
+tests_exit=1
+ERROR: test_adapters_can_be_called_twice_in_one_process (tests.test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+ERROR: test_build_dataset_meets_the_h2snn_contract (tests.test_h2gb_nc.H2GBLoaderTests.test_build_dataset_meets_the_h2snn_contract)
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ogbn-mag')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='mag-year')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-cs')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-eng')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-chem')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ieee-cis-g')
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='h-pokec')
+ERROR: test_ieee_cis_features_are_normalised_as_h2gb_does (tests.test_h2gb_nc.H2GBLoaderTests.test_ieee_cis_features_are_normalised_as_h2gb_does)
+ERROR: test_oag_with_empty_raw_never_downloads (tests.test_h2gb_nc.H2GBLoaderTests.test_oag_with_empty_raw_never_downloads)
+FAIL: test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+Ran 163 tests in 143.713s
+FAILED (failures=1, errors=11)
+======================================================================
+ERROR: test_adapters_can_be_called_twice_in_one_process (tests.test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/tests/test_baselines.py", line 762, in test_adapters_can_be_called_twice_in_one_process
+    import H2GB  # type: ignore[import-not-found]  # noqa: F401
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 40, in bounded_register
+    register_base(mapping, key, module)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 34, in register_base
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+
+======================================================================
+ERROR: test_build_dataset_meets_the_h2snn_contract (tests.test_h2gb_nc.H2GBLoaderTests.test_build_dataset_meets_the_h2snn_contract)
+`build_dataset` (the H2S-NN and baseline-bundle path) reads the loader: target type, labels and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/tests/test_h2gb_nc.py", line 222, in test_build_dataset_meets_the_h2snn_contract
+    data = build_dataset(config)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/dataset.py", line 227, in build_dataset
+    data = _load_hetero_data(config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/dataset.py", line 57, in _load_hetero_data
+    return load_h2gb_nc(dataset_name, config.data.root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 136, in load_h2gb_nc
+    return load_h2gb_dataset(key, root)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 115, in load_h2gb_dataset
+    import H2GB  # noqa: F401  - H2GB's package registers its config groups (cfg.dataset.rand_split)
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 40, in bounded_register
+    register_base(mapping, key, module)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 34, in register_base
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+
+======================================================================
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ogbn-mag')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/tests/test_h2gb_nc.py", line 157, in test_every_dataset_loads_with_h2gb_types_counts_labels_and_split
+    data = load_h2gb_nc(key, self.fixture.root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 136, in load_h2gb_nc
+    return load_h2gb_dataset(key, root)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 115, in load_h2gb_dataset
+    import H2GB  # noqa: F401  - H2GB's package registers its config groups (cfg.dataset.rand_split)
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 40, in bounded_register
+    register_base(mapping, key, module)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 34, in register_base
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+
+======================================================================
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='mag-year')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/tests/test_h2gb_nc.py", line 157, in test_every_dataset_loads_with_h2gb_types_counts_labels_and_split
+    data = load_h2gb_nc(key, self.fixture.root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 136, in load_h2gb_nc
+    return load_h2gb_dataset(key, root)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 115, in load_h2gb_dataset
+    import H2GB  # noqa: F401  - H2GB's package registers its config groups (cfg.dataset.rand_split)
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 40, in bounded_register
+    register_base(mapping, key, module)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 34, in register_base
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+
+======================================================================
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (tests.test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-cs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/tests/test_h2gb_nc.py", line 157, in test_every_dataset_loads_with_h2gb_types_counts_labels_and_split
+    data = load_h2gb_nc(key, self.fixture.root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 136, in load_h2gb_nc
+    return load_h2gb_dataset(key, root)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/src/data/h2gb_nc.py", line 115, in load_h2gb_dataset
+    import H2GB  # noqa: F401  - H2GB's package registers its config groups (cfg.dataset.rand_split)
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/m3b_gate/B6-7ab6a0f7dec7252a3d2e082a2146866224324e37/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+end=2026-11-15T22:59:42+09:00

@@ -1,0 +1,21 @@
+job=16741 step=42 node=g2n01 git=9ccdf9a83481125429ab3deb72241f941c76417b start=2026-11-15T18:57:55+09:00
+working tree:  M src/data/data_layout.py
+working tree:  M src/data/hgb_lp_negatives.py
+working tree:  M src/trainers/minibatch_lp.py
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.163s
+
+OK
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+SeHGNN 2 {'feature_keys': 48, 'label_keys': 17, 'keys_ending_at_a_featured_type': 18, 'feature_gib': 1213.6, 'label_gib': 0.21}
+SeHGNN 3 {'feature_keys': 319, 'label_keys': 48, 'keys_ending_at_a_featured_type': 49, 'feature_gib': 10877.7, 'label_gib': 0.58}
+SeHGNN 4 {'feature_keys': 1055, 'label_keys': 319, 'keys_ending_at_a_featured_type': 320, 'feature_gib': 29685.4, 'label_gib': 3.88}
+PSHGCN 1 {'terms_per_pass': 32, 'per_order': {1: 31}, 'activations_gib_hidden_16': 6.6, 'activations_gib_hidden_64': 26.4, 'activations_gib_hidden_256': 105.7}
+PSHGCN 2 {'terms_per_pass': 303, 'per_order': {1: 31, 2: 271}, 'activations_gib_hidden_16': 62.6, 'activations_gib_hidden_64': 250.2, 'activations_gib_hidden_256': 1001.0}
+PSHGCN 3 {'terms_per_pass': 1039, 'per_order': {1: 31, 2: 271, 3: 736}, 'activations_gib_hidden_16': 214.5, 'activations_gib_hidden_64': 858.1, 'activations_gib_hidden_256': 3432.3}
+PSHGCN 4 {'terms_per_pass': 5840, 'per_order': {1: 31, 2: 271, 3: 736, 4: 4801}, 'activations_gib_hidden_16': 1205.8, 'activations_gib_hidden_64': 4823.1, 'activations_gib_hidden_256': 19292.3}
+PSHGCN 5 {'terms_per_pass': 21681, 'per_order': {1: 31, 2: 271, 3: 736, 4: 4801, 5: 15841}, 'activations_gib_hidden_16': 4476.4, 'activations_gib_hidden_64': 17905.7, 'activations_gib_hidden_256': 71622.8}
+end=2026-11-15T18:58:25+09:00

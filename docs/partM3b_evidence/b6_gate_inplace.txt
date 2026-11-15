@@ -1,0 +1,31 @@
+unit=B6-inplace job=16741 step=47 node=g2n01 start=2026-11-15T23:00:04+09:00
+git=7ab6a0f7dec7252a3d2e082a2146866224324e37 branch=part-m3b env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6 cuda True
+working tree:  M AGENTS.md
+working tree:  M CLAUDE.md
+working tree:  M notebooks/h2snn_graph_classification_colab.ipynb
+working tree:  M notebooks/h2snn_graph_classification_repeated_cv_wandb_tuning_colab.ipynb
+working tree:  M notebooks/h2snn_graph_classification_wandb_tuning_colab.ipynb
+working tree:  M notebooks/h2snn_link_prediction_colab.ipynb
+working tree:  M notebooks/h2snn_link_prediction_wandb_tuning_colab.ipynb
+working tree:  M notebooks/h2snn_node_classification_colab.ipynb
+working tree:  M notebooks/h2snn_node_classification_wandb_tuning_colab.ipynb
+working tree:  M notebooks/h2snn_wandb_paper_tuning_colab.ipynb
+working tree:  M src/baselines/budget.py
+working tree:  M src/baselines/runtime/_dgl_compat.py
+working tree:  M src/configs/config.py
+working tree:  M src/data/path_sampler.py
+working tree:  M tests/test_wandb_and_runs.py
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_baselines tests.test_h2gb_nc tests.test_large_lp
+tests_exit=0
+Ran 103 tests in 129.516s
+OK
+end=2026-11-15T23:02:29+09:00

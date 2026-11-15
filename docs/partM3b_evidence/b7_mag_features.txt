@@ -1,0 +1,9 @@
+job=16741 step=43 node=g2n01 git=9ccdf9a83481125429ab3deb72241f941c76417b start=2026-11-15T18:58:49+09:00
+  self.data, self.slices = torch.load(self.processed_paths[0])
+OGB processed object: Data keys: ['edge_index_dict', 'edge_reltype', 'node_year', 'num_nodes_dict', 'x_dict', 'y_dict']
+paper x shapes (736389, 128) (736389, 128) dtypes torch.float32 torch.float32
+paper x identical (torch.equal): True
+OGB num_nodes_dict: {'author': 1134649, 'field_of_study': 59965, 'institution': 8740, 'paper': 736389}
+OGB types with features: ['paper']
+B2 loader feature dims: {'paper': (736389, 128), 'author': (1134649, 128), 'field_of_study': (59965, 128), 'institution': (8740, 128)}
+end=2026-11-15T18:59:29+09:00
