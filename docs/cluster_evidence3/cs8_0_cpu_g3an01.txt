@@ -1,0 +1,7 @@
+job=16726 step=none node=g3an01 start=2026-11-15T10:20:12+09:00
+git=e0a7ca12fd37a7915d44740bf453926accd8526a branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz
+flag avx2=avx2 avx512f=avx512f
+without E: torch 2.4.1+cu124 cpu_capability AVX512 threads 2
+with E:    torch 2.4.1+cu124 cpu_capability AVX2 threads 2
+end=2026-11-15T10:20:16+09:00

@@ -1,0 +1,10 @@
+job=16721 step=13 node=g2n01 mode=capture cpus_per_task=? start=2026-11-15T10:23:09+09:00
+git=e0a7ca12fd37a7915d44740bf453926accd8526a branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+E: ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2
+[capture, 1 thread] torch 2.4.1+cu124 cpu_capability AVX2 threads 1
+re-captured 13 cases, 844 entries on stored fixtures -> /mnt/data/peeradon/h2snn/docs/cluster_evidence3/v2_golden_E.pt
+saved /mnt/data/peeradon/h2snn/docs/cluster_evidence3/mb0_reference_E.pt
+b97d9ad7fd7c4f4bd0cd78e6df824621112743fb0919c6bfcc4fa9814826445f  /mnt/data/peeradon/h2snn/docs/cluster_evidence3/v2_golden_E.pt
+83f5f57d4feee19624f5bb9e38e935032813546c7a159c4f523d36d183c91700  /mnt/data/peeradon/h2snn/docs/cluster_evidence3/mb0_reference_E.pt
+end=2026-11-15T10:23:19+09:00

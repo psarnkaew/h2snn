@@ -1,0 +1,17 @@
+# CS8-0 evidence (login01, 2026-11-15T10:22:44+09:00)
+origin/v3b=8bf2e8f2f3e4024f7c5afc66fc54157d0b3e5e68
+origin/design-docs=c085395167b8ea524c0ff8ce37f6ec0ddc484629
+HEAD after merge=e0a7ca12fd37a7915d44740bf453926accd8526a
+
+$ sinfo -N -o "%N %G %c %m %t"
+NODELIST GRES CPUS MEMORY STATE
+g2n01 gpu:2080ti:1,shield:1 20 64210 mix
+g2tn01 gpu:titan_rtx:2 8 64220 down*
+g3an01 gpu:a6000:1 20 225171 idle
+g3n01 gpu:3090:2 20 64210 mix-
+
+CPU model and flags: scontrol show node lists no CPU model (AvailableFeatures=(null)), so one tiny CPU job per node that is up:
+  g2n01  -> cs8_0_cpu_g2n01.txt  (16721 step 12)
+  g3an01 -> cs8_0_cpu_g3an01.txt (job 16726)
+  g3n01  -> cs8_0_cpu_g3n01.txt  (job 16727)
+  g2tn01 -> down*, not probed

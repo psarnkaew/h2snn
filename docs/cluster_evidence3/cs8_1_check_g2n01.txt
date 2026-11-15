@@ -1,0 +1,89 @@
+job=16728 step=none node=g2n01 mode=check cpus_per_task=8 start=2026-11-15T10:23:41+09:00
+git=e0a7ca12fd37a7915d44740bf453926accd8526a branch=cluster-setup3 env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+E: ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2
+
+######## threads=1
+[threads=1] torch 2.4.1+cu124 cpu_capability AVX2 threads 1
+re-captured 13 cases, 844 entries on stored fixtures -> /tmp/cs8_1_293624_1/v2_golden_E.pt
+saved /tmp/cs8_1_293624_1/mb0_reference_E.pt
+b97d9ad7fd7c4f4bd0cd78e6df824621112743fb0919c6bfcc4fa9814826445f  /tmp/cs8_1_293624_1/v2_golden_E.pt
+83f5f57d4feee19624f5bb9e38e935032813546c7a159c4f523d36d183c91700  /tmp/cs8_1_293624_1/mb0_reference_E.pt
+===== golden: node A capture vs this node, threads=1
+reference /mnt/data/peeradon/h2snn/docs/cluster_evidence3/v2_golden_E.pt
+candidate /tmp/cs8_1_293624_1/v2_golden_E.pt
+tensors=1136 differing=0 max|diff|=0.000e+00 extra_in_candidate=0
+golden_diff_exit=0
+===== mb0: node A capture vs this node, threads=1
+reference /mnt/data/peeradon/h2snn/docs/cluster_evidence3/mb0_reference_E.pt
+candidate /tmp/cs8_1_293624_1/mb0_reference_E.pt
+tensors=139 differing=0 max|diff|=0.000e+00 extra_in_candidate=0
+mb0_diff_exit=0
+
+######## threads=default
+[threads=default] torch 2.4.1+cu124 cpu_capability AVX2 threads 8
+re-captured 13 cases, 844 entries on stored fixtures -> /tmp/cs8_1_293624_default/v2_golden_E.pt
+saved /tmp/cs8_1_293624_default/mb0_reference_E.pt
+2fc2d2fb18bbef7e240e64b70699bb70fabbcb4e82115000ec85dd1f94cc9f67  /tmp/cs8_1_293624_default/v2_golden_E.pt
+15edeead2008647b7b89c40a01605c6ccf2932ffe07b3c4bc279778b4805cca4  /tmp/cs8_1_293624_default/mb0_reference_E.pt
+===== golden: node A capture vs this node, threads=default
+reference /mnt/data/peeradon/h2snn/docs/cluster_evidence3/v2_golden_E.pt
+candidate /tmp/cs8_1_293624_default/v2_golden_E.pt
+tensors=1136 differing=43 max|diff|=4.768e-07 extra_in_candidate=0
+  DIFF toy_acm.record.grad/node_encoder.encoders.0.1.weight: max|diff|=3.725e-09
+  DIFF toy_acm.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.980e-08
+  DIFF toy_dblp.record.grad/node_encoder.encoders.0.1.weight: max|diff|=3.725e-09
+  DIFF toy_imdb.record.grad/node_encoder.encoders.0.1.weight: max|diff|=4.657e-10
+  DIFF pap.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.384e-07
+  DIFF pap.record.grad/node_encoder.encoders.0.1.bias: max|diff|=5.960e-08
+  DIFF pap.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.980e-08
+  DIFF pap.record.grad/node_encoder.encoders.1.1.bias: max|diff|=5.960e-08
+  DIFF pap_dense.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.235e-08
+  DIFF pap_dense.record.grad/node_encoder.encoders.0.1.bias: max|diff|=1.490e-08
+  DIFF pap_dense.record.grad/node_encoder.encoders.1.1.weight: max|diff|=3.725e-09
+  DIFF pap_dense.record.grad/node_encoder.encoders.1.1.bias: max|diff|=7.451e-09
+  DIFF pap_no_checkpointing.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.384e-07
+  DIFF pap_no_checkpointing.record.grad/node_encoder.encoders.0.1.bias: max|diff|=5.960e-08
+  DIFF pap_no_checkpointing.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.980e-08
+  DIFF pap_no_checkpointing.record.grad/node_encoder.encoders.1.1.bias: max|diff|=5.960e-08
+  DIFF pap_no_path_cells.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.980e-08
+  DIFF pap_no_path_cells.record.grad/node_encoder.encoders.0.1.bias: max|diff|=2.980e-08
+  DIFF pap_no_path_cells.record.grad/node_encoder.encoders.1.1.weight: max|diff|=7.451e-09
+  DIFF pap_no_path_cells.record.grad/node_encoder.encoders.1.1.bias: max|diff|=1.490e-08
+  DIFF pap_uniform_path_gate.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.980e-08
+  DIFF pap_uniform_path_gate.record.grad/node_encoder.encoders.0.1.bias: max|diff|=1.490e-08
+  DIFF pap_uniform_path_gate.record.grad/node_encoder.encoders.1.1.weight: max|diff|=7.451e-09
+  DIFF pap_uniform_path_gate.record.grad/node_encoder.encoders.1.1.bias: max|diff|=7.451e-09
+  DIFF pap_free_path_maps.record.grad/node_encoder.encoders.0.1.weight: max|diff|=5.960e-08
+  DIFF pap_free_path_maps.record.grad/node_encoder.encoders.0.1.bias: max|diff|=2.384e-07
+  DIFF pap_free_path_maps.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.980e-08
+  DIFF pap_free_path_maps.record.grad/node_encoder.encoders.1.1.bias: max|diff|=1.490e-08
+  DIFF pap_endpoint_edges.record.grad/node_encoder.encoders.0.1.weight: max|diff|=5.960e-08
+  DIFF pap_endpoint_edges.record.grad/node_encoder.encoders.0.1.bias: max|diff|=2.980e-08
+  DIFF pap_endpoint_edges.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.980e-08
+  DIFF pap_endpoint_edges.record.grad/node_encoder.encoders.1.1.bias: max|diff|=5.960e-08
+  DIFF pap_holonomy_edges.record.grad/node_encoder.encoders.0.1.weight: max|diff|=1.192e-07
+  DIFF pap_holonomy_edges.record.grad/node_encoder.encoders.0.1.bias: max|diff|=4.768e-07
+  DIFF pap_holonomy_edges.record.grad/node_encoder.encoders.1.1.weight: max|diff|=7.451e-09
+  DIFF pap_per_side_scale.record.grad/node_encoder.encoders.0.1.weight: max|diff|=2.980e-08
+  DIFF pap_per_side_scale.record.grad/node_encoder.encoders.0.1.bias: max|diff|=1.490e-08
+  DIFF pap_per_side_scale.record.grad/node_encoder.encoders.1.1.weight: max|diff|=2.235e-08
+  DIFF pap_per_side_scale.record.grad/node_encoder.encoders.1.1.bias: max|diff|=3.725e-09
+  DIFF pap_h0_only_readout.record.grad/node_encoder.encoders.0.1.weight: max|diff|=3.576e-07
+  DIFF pap_h0_only_readout.record.grad/node_encoder.encoders.0.1.bias: max|diff|=2.384e-07
+  DIFF pap_h0_only_readout.record.grad/node_encoder.encoders.1.1.weight: max|diff|=1.490e-08
+  DIFF pap_h0_only_readout.record.grad/node_encoder.encoders.1.1.bias: max|diff|=7.451e-09
+golden_diff_exit=1
+===== mb0: node A capture vs this node, threads=default
+reference /mnt/data/peeradon/h2snn/docs/cluster_evidence3/mb0_reference_E.pt
+candidate /tmp/cs8_1_293624_default/mb0_reference_E.pt
+tensors=139 differing=7 max|diff|=1.863e-09 extra_in_candidate=0
+  DIFF grads.node_encoder.encoders.0.1.weight: max|diff|=1.863e-09
+  DIFF grads.node_encoder.encoders.0.1.bias: max|diff|=9.313e-10
+  DIFF grads.node_encoder.encoders.1.1.weight: max|diff|=2.910e-11
+  DIFF grads.node_encoder.encoders.1.1.bias: max|diff|=1.455e-11
+  DIFF grads.node_encoder.encoders.2.1.weight: max|diff|=2.910e-11
+  DIFF grads.node_encoder.identity_embeddings.3.1.weight: max|diff|=2.328e-10
+  DIFF grads.node_encoder.identity_embeddings.3.1.bias: max|diff|=5.821e-11
+mb0_diff_exit=1
+end=2026-11-15T10:24:05+09:00
