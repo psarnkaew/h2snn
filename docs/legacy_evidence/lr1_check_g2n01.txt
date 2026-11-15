@@ -1,0 +1,22 @@
+job=16741 step=14 node=g2n01 mode=check start=2026-11-15T14:07:15+09:00
+git=7495e58085363041ed86f336a346cccca1306fb6 branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: AttributeError: 'DenseMapOperator' object has no attribute 'reflectors'
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== tests.test_v3b_golden
+test_every_v3b_configuration_is_bit_identical_to_the_capture (tests.test_v3b_golden.V3BGoldenTests.test_every_v3b_configuration_is_bit_identical_to_the_capture) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.126s
+
+OK
+v3b_test_exit=0
+===== mb0_reference.py compare mb0_reference_cluster.pt
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+end=2026-11-15T14:07:35+09:00

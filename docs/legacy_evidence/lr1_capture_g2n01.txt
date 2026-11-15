@@ -1,0 +1,9 @@
+job=16741 step=13 node=g2n01 mode=capture start=2026-11-15T14:07:05+09:00
+git=7495e58085363041ed86f336a346cccca1306fb6 branch=legacy-removal env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+  SKIPPED nc_map_family_dense: AttributeError: 'DenseMapOperator' object has no attribute 'reflectors'
+captured 24 configurations, 1365 tensors, skipped 1 -> ../docs/legacy_evidence/v3b_golden_cluster.pt
+capture_exit=0
+6198d18d29ca0df9488e15d350030d0deebd9529a73cb93d053834c6968b1687  ../docs/legacy_evidence/v3b_golden_cluster.pt
+end=2026-11-15T14:07:15+09:00
