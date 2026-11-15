@@ -1282,6 +1282,10 @@ class BaselineBundleIdentityTests(unittest.TestCase):
         from src.baselines.bundles import build_bundle
         from src.data.graph_classification_dataset import build_graph_classification_dataset
 
+        from src.data.data_layout import REPO_DATA_ROOT, gc_root
+
+        if not (gc_root(REPO_DATA_ROOT) / "MUTAG" / "raw").is_dir():  # card baselines-h2gb C7: never download
+            self.skipTest("TU MUTAG not present")
         fold = build_bundle("graph_classification", "mutag", overrides={"device": "cpu"}).fold
         old = build_graph_classification_dataset(self._explicit_old_config("mutag"))
         for split in ("train", "val", "test"):

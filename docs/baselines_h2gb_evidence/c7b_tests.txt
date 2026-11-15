@@ -1,0 +1,22 @@
+label=c7b-tests job=16741 step=78 node=g2n01 start=2026-11-16T06:48:39+09:00
+git=e0d91cbe1c68ded81bbd0682e39af4c19806fcef branch=baselines-h2gb
+working tree:  M src/data/graph_classification_dataset.py
+working tree:  M src/data/offline.py
+working tree:  M tests/test_paths_and_facts.py
+env=h2snn-b cmd=python -m unittest tests.test_paths_and_facts tests.test_gc_protocol tests.test_graph_classification_trainer tests.test_data
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+......................................................2026-11-16 06:49:50,811 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:49:50,814 | INFO | Epoch 0000 | val_auroc: 0.2000 | val_acc: 0.0000 | val_macro_f1: 0.0000 | test_auroc: 0.7000 | test_acc: 0.0000 | test_macro_f1: 0.0000
+2026-11-16 06:49:50,815 | INFO | Epoch 0001 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9000 | val_acc: 0.0000 | val_auroc: 0.5000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7100 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:49:50,817 | INFO | Epoch 0002 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9500 | val_acc: 0.0000 | val_auroc: 0.4000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7200 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:49:50,819 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.9600 | val_acc: 0.0000 | val_auroc: 0.3900 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7300 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-16 06:49:50,820 | INFO | Early stopping at epoch 3 after 2 epochs without validation loss improvement.
+2026-11-16 06:49:50,820 | INFO | Final epoch 3 (final weights; run 2/5, repetition 0/1, fold 2/5) | test_auroc: 0.7300 | test_acc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+..........................
+----------------------------------------------------------------------
+Ran 81 tests in 70.876s
+
+OK
+peak_rss_gib=1.87 elapsed_s=73.3
+end=2026-11-16T06:49:52+09:00 exit=0

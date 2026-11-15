@@ -3,7 +3,8 @@
 PyG's `Dataset._download` calls the class's `download()` whenever one of its raw files is missing; for `HGBDataset`
 that fetches the HGB release from the network into the data root. This project never downloads data: the releases
 are placed on the cluster by the author. `offline_hgb_dataset` is PyG's `HGBDataset` whose `download()` raises
-`DataNotOnDiskError` naming the missing files instead, so a missing release fails closed. When every raw file is
+`DataNotOnDiskError` naming the missing files instead, so a missing release fails closed; `offline_tu_dataset` does the
+same for the TU graph-classification sets (`TUDataset` fetches them from chrsmrrs.com). When every raw file is
 present nothing changes (PyG returns before calling `download()`).
 """
 
@@ -42,4 +43,24 @@ def offline_hgb_dataset(root: Path | str, name: str) -> Any:
     return OfflineHGBDataset(root=str(root), name=name)
 
 
-__all__ = ["DataNotOnDiskError", "offline_hgb_dataset"]
+def offline_tu_dataset(root: Path | str, name: str) -> Any:
+    """PyG's `TUDataset(root, name)` that raises `DataNotOnDiskError` instead of downloading (a missing
+    `<root>/<name>/raw`, PyG's `TUDataset.raw_dir`, is refused before PyG creates it)."""
+    from torch_geometric.datasets import TUDataset
+
+    raw = Path(root) / name / "raw"
+    if not raw.is_dir() or not any(raw.iterdir()):
+        raise DataNotOnDiskError(f"TU {name}: no release under {raw}. This project never downloads data "
+                                 "(card baselines-h2gb C7); place the dataset under the data root.")
+
+    class OfflineTUDataset(TUDataset):
+        def download(self) -> None:
+            raise DataNotOnDiskError(f"TU {self.name}: raw file(s) missing under {self.raw_dir}. This project never "
+                                     "downloads data (card baselines-h2gb C7).")
+
+    OfflineTUDataset.__name__ = TUDataset.__name__
+    OfflineTUDataset.__qualname__ = TUDataset.__qualname__
+    return OfflineTUDataset(root=str(root), name=name)
+
+
+__all__ = ["DataNotOnDiskError", "offline_hgb_dataset", "offline_tu_dataset"]

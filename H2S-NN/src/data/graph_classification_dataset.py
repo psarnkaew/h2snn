@@ -354,7 +354,9 @@ def build_graph_classification_dataset(config: TrainConfig) -> GraphClassificati
         raise ValueError(f"Unsupported graph-classification dataset '{config.data.dataset_name}'.")
 
     root = Path(config.data.root)
-    dataset = TUDataset(root=str(gc_root(root)), name=tud_name)
+    from src.data.offline import offline_tu_dataset  # never downloads (card baselines-h2gb C7)
+
+    dataset = offline_tu_dataset(gc_root(root), tud_name)
     raw_data_list = [dataset[i].clone() for i in range(len(dataset))]
     node_types, edge_types, num_node_types, num_relations = _load_tu_type_tensors(
         root=root,
