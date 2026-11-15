@@ -604,6 +604,73 @@ def protocol_budget(task_type: str, dataset_name: str = "") -> ProtocolBudget:
     return PROTOCOL_BUDGETS[(task_type, source)]
 
 
+#: Positive links per optimizer step in link prediction (HGB's 8,192; design §6, MB4), full graph and large.
+LP_POSITIVES_PER_STEP: int = 8192
+
+
+@dataclass(frozen=True, slots=True)
+class BatchBudget:
+    """How a dataset class is batched, the same for H2S-NN and every baseline (spec §6; MB1-MB4; card Part M3b
+    B8). With `PROTOCOL_BUDGETS` (epochs, patience, monitor) this is the one budget table; `budget_table()`
+    lists both per (task, dataset class)."""
+
+    dataset_class: str
+    mode: str                              # "full_batch" | "minibatch"
+    batch_sizes: tuple[int, ...] | None    # the tuned range (None: not tuned)
+    epoch: str                             # what one epoch is
+    epoch_targets: int | None              # NC mini-batch: training targets per epoch
+    positives_per_step: int | None         # LP: positive links per step (1:1 negatives)
+    evaluation: str
+
+
+BATCH_BUDGETS: dict[tuple[str, str], BatchBudget] = {
+    ("node_classification", "hgb"): BatchBudget(
+        "hgb_nc", "full_batch", None, "one full-graph step", None, None, "whole split, every epoch"),
+    ("node_classification", "h2gb"): BatchBudget(
+        "h2gb_nc", "minibatch", MINIBATCH_BATCH_SIZES, f"{MINIBATCH_EPOCH_TARGETS:,} training targets "
+        "(epoch_targets / B steps)", MINIBATCH_EPOCH_TARGETS, None,
+        "whole split in batches, every eval_period epochs (H2GB's: 4; OAG 2)"),
+    ("link_prediction", "hgb"): BatchBudget(
+        "local_lp", "full_batch", None, "one pass over the training positives", None, LP_POSITIVES_PER_STEP,
+        "all validation/test links, every epoch"),
+    ("link_prediction", "large"): BatchBudget(
+        "large_lp", "minibatch", None, "one pass over the training positives", None, LP_POSITIVES_PER_STEP,
+        "all validation/test links, every epoch (endpoint scopes once per evaluation)"),
+    ("graph_classification", "hetsheaf"): BatchBudget(
+        "gc", "per_graph", None, "one pass over the training graphs", None, None, "as HetSheaf"),
+}
+
+
+def budget_class(task_type: str, dataset_name: str = "") -> tuple[str, str]:
+    """(task, source) of a dataset: the key of `PROTOCOL_BUDGETS` and `BATCH_BUDGETS`."""
+    name = dataset_name.lower()
+    if task_type == "node_classification":
+        return task_type, ("h2gb" if name in H2GB_NC_DATASETS else "hgb")
+    if task_type == "link_prediction":
+        return task_type, ("large" if name in LARGE_LP_DATASETS else "hgb")
+    if task_type == "graph_classification":
+        return task_type, "hetsheaf"
+    raise ValueError(f"Unsupported task {task_type!r}.")
+
+
+def batch_budget(task_type: str, dataset_name: str = "") -> BatchBudget:
+    """The batch range and epoch definition of a dataset (one place: H2S-NN, the registry, the adapters)."""
+    return BATCH_BUDGETS[budget_class(task_type, dataset_name)]
+
+
+def budget_table() -> list[dict[str, Any]]:
+    """One row per (task, dataset class): epochs, patience, monitor (`PROTOCOL_BUDGETS`) and batching
+    (`BATCH_BUDGETS`); the large LP tasks share the HGB LP epochs and patience."""
+    rows = []
+    for (task, source), batch in BATCH_BUDGETS.items():
+        protocol = PROTOCOL_BUDGETS[(task, "hgb" if source == "large" else source)]
+        rows.append({"task": task, "class": batch.dataset_class, "epochs": protocol.epochs,
+                     "patience": protocol.patience, "monitor": protocol.monitor, "mode": batch.mode,
+                     "batch_sizes": batch.batch_sizes, "epoch": batch.epoch,
+                     "positives_per_step": batch.positives_per_step, "evaluation": batch.evaluation})
+    return rows
+
+
 DATASET_TASK_TYPES: dict[str, str] = {
     "acm": "node_classification",
     "dblp": "node_classification",
@@ -698,7 +765,7 @@ class DataConfig:
     neg_sampling_ratio: int = 1
     # Positive links per optimizer step (spec v1.15 §6, J5: HGB's LP default 8,192; not tuned).
     # For H2S-NN one step is one solve on the whole message graph.
-    link_batch_size: int = 8192
+    link_batch_size: int = LP_POSITIVES_PER_STEP
     link_val_ratio: float = 0.09
     link_test_ratio: float = 0.10
 
@@ -796,7 +863,7 @@ class DataConfig:
             neg_sampling_ratio=int(raw.get("neg_sampling_ratio", 1)),
             link_val_ratio=float(raw.get("link_val_ratio", 0.09)),
             link_test_ratio=float(raw.get("link_test_ratio", 0.10)),
-            link_batch_size=int(raw.get("link_batch_size", 8192)),
+            link_batch_size=int(raw.get("link_batch_size", LP_POSITIVES_PER_STEP)),
             split_protocol=str(raw.get("split_protocol", "stratified_holdout")),
             num_folds=int(raw.get("num_folds", 10)),
             fold_index=int(raw.get("fold_index", 0)),

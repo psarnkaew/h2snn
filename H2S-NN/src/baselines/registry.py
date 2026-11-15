@@ -56,6 +56,37 @@ LARGE_LP_ADAPTER_PENDING_REASON = ("adapter pending: the large-LP task files, mi
                                    "are not wired into this adapter yet (Part M3b B8)")
 #: Adapters wired for the built large LP tasks (Part M3b B8).
 LARGE_LP_WIRED_ADAPTERS: frozenset[str] = frozenset()
+#: Part M3b B8: why each adapter cannot yet run on the loaded H2GB NC datasets / the built large LP tasks (no
+#: adapter declares `READS_BATCH_PLAN`; none is wired by guessing; no baseline model code is changed).
+_NC_FULL_BATCH = ("its `supports()` lists the HGB datasets only and it trains full-batch "
+                  "(`train_full_batch_node_classification`, src/baselines/training.py:50): no batch range "
+                  "{32, 256, 1024}, no epoch of 8,192 targets, no H2GB bundle")
+_HGB_RAW = "; its data path reads HGB's raw files"
+H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
+    "gcn": f"adapter pending: {_NC_FULL_BATCH} (hgb_gnn.py:58)",
+    "gat": f"adapter pending: {_NC_FULL_BATCH} (hgb_gnn.py:58)",
+    "chebnetii": f"adapter pending: {_NC_FULL_BATCH} (chebnetii.py:49)",
+    "nsd": f"adapter pending: {_NC_FULL_BATCH} (nsd.py:70)",
+    "csnn": f"adapter pending: {_NC_FULL_BATCH} (csnn.py:62)",
+    "hinormer": f"adapter pending: {_NC_FULL_BATCH} (hinormer.py:61)",
+    "han": f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (HAN/utils.py via hgb_han.py:74)",
+    "sehgnn": (f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (sehgnn.py:58); on H-Pokec its stored "
+               "propagated features exceed every node at every num_hops (Part M3b B7)"),
+    "pshgcn": (f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (their load_dataset, _hgb_vendor.py); on "
+               "H-Pokec only K = 1 fits a node (Part M3b B7)"),
+    "h2sgnn": f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (their load_dataset, _hgb_vendor.py)",
+    "h2gformer": (f"adapter pending: {_NC_FULL_BATCH} (h2gformer.py:85); it runs H2GB's model on the HGB "
+                  "bundle, not through H2GB's own loader"),
+    "hetero2net": (f"adapter pending: {_NC_FULL_BATCH} (hetero2net.py:67); on ogbn-mag/mag-year the feature "
+                   "source is an author decision (Part M3b B7, M-path 3)"),
+}
+_LP_FULL_GRAPH = ("its `supports()` lists the six local LP tasks only and `train_link_prediction` embeds the "
+                  "whole graph every step (src/baselines/training.py:168-183): no endpoint-scope mini-batch of "
+                  "8,192 positives, the task's split.npz / negatives.npz are not read")
+LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
+    name: f"adapter pending: {_LP_FULL_GRAPH}"
+    for name in ("gcn", "gat", "nsd", "csnn", "han", "pshgcn", "h2gformer", "hetero2net", "h2sgnn")
+}
 #: Cells that no model can run yet, whatever the model: (task, dataset) -> reason.
 DATASET_PENDING: dict[tuple[str, str], str] = {
     **{(NODE_CLASSIFICATION, dataset): DATA_PENDING_REASON for dataset in H2GB_NC
@@ -161,9 +192,9 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
     if (task, dataset) in DATASET_PENDING:
         return DATASET_PENDING[(task, dataset)]
     if task == NODE_CLASSIFICATION and dataset in H2GB_NC_LOADED and name not in H2GB_NC_WIRED_ADAPTERS:
-        return H2GB_ADAPTER_PENDING_REASON
+        return H2GB_NC_ADAPTER_PENDING.get(name, H2GB_ADAPTER_PENDING_REASON)
     if task == LINK_PREDICTION and dataset in LARGE_LP_BUILT and name not in LARGE_LP_WIRED_ADAPTERS:
-        return LARGE_LP_ADAPTER_PENDING_REASON
+        return LARGE_LP_ADAPTER_PENDING.get(name, LARGE_LP_ADAPTER_PENDING_REASON)
     return None
 
 

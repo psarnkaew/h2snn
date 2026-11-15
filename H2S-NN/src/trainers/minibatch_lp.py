@@ -20,14 +20,13 @@ from dataclasses import replace
 import torch
 import torch.nn as nn
 
-from src.configs.config import EVAL_BATCH_TARGETS
+# LP_POSITIVES_PER_STEP: positive links per step on the large LP tasks (HGB's 8,192; design §6), the budget
+# table's value (`src/configs/config.py`, Part M3b B8), re-exported here.
+from src.configs.config import EVAL_BATCH_TARGETS, LP_POSITIVES_PER_STEP
 from src.data.large_lp import held_out_fact_mask
 from src.data.scopes import build_scope_batch
 from src.data.structures import PreparedH2SData
 from src.data.wisp_sampler import AnchorCells, build_wisp_anchor_cells
-
-#: Positive links per optimizer step on the large LP tasks (HGB's 8,192; design §6).
-LP_POSITIVES_PER_STEP = 8192
 
 
 def remove_held_out_facts(edge_index: torch.Tensor, edge_type: torch.Tensor,

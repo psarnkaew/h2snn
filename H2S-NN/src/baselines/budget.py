@@ -26,7 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from src.configs.config import protocol_budget
+from src.configs.config import BatchBudget, batch_budget, protocol_budget
 from src.baselines.protocol import (
     GRAPH_CLASSIFICATION,
     LINK_PREDICTION,
@@ -71,22 +71,31 @@ def default_budget(task: str, dataset: str = "") -> TrainingBudget:
     return TrainingBudget(epochs=budget.epochs, patience=patience)
 
 
-def resolve_budget(task: str, params: BaselineParams) -> TrainingBudget:
+def resolve_budget(task: str, params: BaselineParams, dataset: str = "") -> TrainingBudget:
     """The budget this run trains under.
 
     Published parameter sets carry the authors' own ``epochs``/``early_stopping`` and keep
     them. Tuned runs carry neither key -- they are not in any search space -- and get the
-    shared budget.
+    shared budget of ``dataset``'s source protocol (Part M3b B8: without the dataset an H2GB
+    cell would get the HGB budget; every current call site runs an HGB/local dataset).
     """
 
-    budget = default_budget(task)
+    budget = default_budget(task, dataset)
     return TrainingBudget(
         epochs=int(params.get("epochs", budget.epochs)),
         patience=int(params.get("early_stopping", budget.patience)),
     )
 
 
-def budget_kwargs(task: str, params: BaselineParams) -> dict[str, Any]:
+def batch_plan(task: str, dataset: str) -> BatchBudget:
+    """The batch range and epoch definition of ``dataset`` (Part M3b B8): the table H2S-NN's
+    trainers read (`src/configs/config.py`, `BATCH_BUDGETS`); an adapter wired for the H2GB
+    datasets or the large LP tasks reads its batch size range and epoch length from here."""
+
+    return batch_budget(task, dataset)
+
+
+def budget_kwargs(task: str, params: BaselineParams, dataset: str = "") -> dict[str, Any]:
     """``epochs``/``patience``/``report`` for a :mod:`src.baselines.training` loop.
 
     Passed as ``**budget_kwargs(TASK, params)`` at every call site so that the three
@@ -94,7 +103,7 @@ def budget_kwargs(task: str, params: BaselineParams) -> dict[str, Any]:
     that adding a fourth later does not mean revisiting thirty call sites.
     """
 
-    budget = resolve_budget(task, params)
+    budget = resolve_budget(task, params, dataset)
     return {
         "epochs": budget.epochs,
         "patience": budget.patience,
@@ -102,7 +111,8 @@ def budget_kwargs(task: str, params: BaselineParams) -> dict[str, Any]:
     }
 
 
-def record_budget(record: dict[str, float], task: str, params: BaselineParams) -> None:
+def record_budget(record: dict[str, float], task: str, params: BaselineParams,
+                  dataset: str = "") -> None:
     """Stamp the budget onto a finished run record, in place.
 
     ``budget_source`` says why this row trained for this long: ``"published"`` (the
@@ -112,7 +122,7 @@ def record_budget(record: dict[str, float], task: str, params: BaselineParams) -
     comparable, and this is what makes that visible without re-reading the code.
     """
 
-    budget = resolve_budget(task, params)
+    budget = resolve_budget(task, params, dataset)
     overridden = "epochs" in params.values or "early_stopping" in params.values
     record["budget_epochs"] = float(budget.epochs)
     record["budget_patience"] = float(budget.patience)
@@ -127,6 +137,7 @@ def record_budget(record: dict[str, float], task: str, params: BaselineParams) -
 __all__ = [
     "TASK_EPOCHS",
     "TrainingBudget",
+    "batch_plan",
     "budget_kwargs",
     "default_budget",
     "record_budget",
