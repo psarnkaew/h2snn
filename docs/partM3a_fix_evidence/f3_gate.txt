@@ -1,0 +1,28 @@
+# M3a-fix F3: text only (CLAUDE.md l.884, l.962; AGENTS.md l.164; docs/h2snn_current_model_documentation.html l.1553, l.1590); the gate
+job=16741 (author allocation) via srun --overlap; git 3d041369ba23661ceb90444b8e7459321a8af8b5
+
+$ git diff --stat (F3 files)
+ H2S-NN/AGENTS.md                                   | 2 +-
+ H2S-NN/CLAUDE.md                                   | 4 ++--
+ H2S-NN/docs/h2snn_current_model_documentation.html | 7 +++++--
+ 3 files changed, 8 insertions(+), 5 deletions(-)
+
+===== GATE job=16741 step=4 node=g2n01 git=3d041369ba23661ceb90444b8e7459321a8af8b5 2026-11-15T13:21:40+09:00
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 6
+test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture (tests.test_task_heads.NodeClassificationGoldenTests.test_outputs_and_gradients_are_bit_identical_to_the_pre_removal_capture)
+ok
+test_T1_control_the_default_model_is_not_the_golden_one (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_control_the_default_model_is_not_the_golden_one)
+Non-vacuity: with the default (cooperative) config the golden key set differs. ... ok
+test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_T1_symmetric_reproduces_the_golden_outputs_bit_for_bit) ... ok
+test_gates_start_at_the_configured_init (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_gates_start_at_the_configured_init) ... ok
+test_modes_instantiate_the_right_heads (tests.test_cooperative.SymmetricIsThePreviousModelTests.test_modes_instantiate_the_right_heads) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.452s
+
+OK
+gate_golden_exit=0
+compared 139 tensors; differing: none
+gate_mb0_exit=0
+GATE PASS

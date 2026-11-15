@@ -1550,7 +1550,9 @@ training loss = task loss</code></pre>
             <li>Added all AMPSS/discovery hyperparameters to
             <code>scripts/run_h2snn_wandb_tuning.py</code>'s sweep space, gated behind a new
             <code>--include_discovery</code> flag (mirrors the existing
-            <code>--include_pooling_type</code>/<code>--include_decoder_type</code> pattern):
+            <code>--include_pooling_type</code>/<code>--include_decoder_type</code> pattern; both flags were later
+            removed, <code>--include_decoder_type</code> by spec v1.22 W2, where the LP decoder is tuned in
+            <code>dot</code> | <code>distmult</code>):
             schema-pool size and length bounds, instance sampling caps, partial-schema-propagation
             probability, warmup epochs, the then-current six discovery loss lambdas, and the two new
             <code>schema_gate_init_*</code> knobs. Deliberately not swept:
@@ -1587,7 +1589,8 @@ training loss = task loss</code></pre>
             (<code>run_dist.py --dataset amazon</code>; <code>run_new.py</code> is used only for LastFM, which
             has a single target relation). <code>LinkPredictionReadout</code>'s <code>distmult</code> decoder
             now holds one d&times;d relation matrix per pooled relation (was a single global matrix); <code>dot</code>
-            and <code>concat_mlp</code> stay relation-agnostic, matching that HGB itself only ever tries
+            stays relation-agnostic (the LP decoder is <code>dot</code> | <code>distmult</code>; <code>concat_mlp</code>
+            was removed by spec v1.22 W2), matching that HGB itself only ever tries
             dot/DistMult for link prediction. <code>PreparedLinkPredData</code> carries a per-edge relation-id
             tensor (train/val/test, pos/neg) that's all-zeros for every other dataset.</li>
             <li>Moved <code>lastfm</code> from PyG's bundled <code>LastFM</code> class to the local HGB folder

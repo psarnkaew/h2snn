@@ -881,7 +881,7 @@ Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
 - Node classification: `acm`, `dblp`, `imdb` (`*_h2snn.yaml`; meta-path presets in
   `NODE_CLASSIFICATION_PRESETS`, `src/configs/config.py`).
 - Link prediction: `lastfm`, `amazonbook`, `pubmed`, `youtube`, `amazon`; decoder per dataset
-  via `data.decoder_type` (`dot` | `distmult` | `concat_mlp`).
+  via `data.decoder_type` (`dot` | `distmult`; spec v1.22 W2, `concat_mlp` removed).
 - Graph classification: `mutag`, `enzymes`, `nci1`, `proteins`.
 
 Config sections: `data`, `model`, `ablation` (plan §4.6 switches, all off by default:
@@ -959,7 +959,7 @@ parallel transport along the path (`PathTransportOperator`, matrix-free, orthogo
 | Task head | Module | Reads |
 |---|---|---|
 | Node classification | `H2SNN.readout` (MLP) | `[x_K, h₀]` of target nodes |
-| Link prediction | `LinkPredictionReadout` (`src/models/link_readout.py`): endpoint projection `Linear(2d, d) + GELU`, then `dot` / `distmult` / `concat_mlp` | `[x_K, h₀]` of both endpoints; encoder runs on the train-only message graph and its path cells |
+| Link prediction | `LinkPredictionReadout` (`src/models/link_readout.py`): endpoint projection `Linear(2d, d) + GELU`, then `dot` / `distmult` (spec v1.22 W2; `concat_mlp` removed) | `[x_K, h₀]` of both endpoints; encoder runs on the train-only message graph and its path cells |
 | Graph classification | `GraphReadout` (`src/models/graph_readout.py`) | sum of `[x_K, h₀]` per graph → BatchNorm → MLP; path cells enumerated per batch |
 
 Trainers: `src/trainers/trainer.py` (node), `link_prediction_trainer.py`,
