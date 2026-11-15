@@ -155,7 +155,7 @@ class PSHGCNAdapter:
                 "prop_wd": {"values": [5e-5, 1e-3]},
                 "decoder_type": {"values": ["dot", "distmult"]},
             }
-        return {
+        space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
             "hidden": grids.HIDDEN,
@@ -168,6 +168,8 @@ class PSHGCNAdapter:
             "prop_lr": grids.PROP_LR,
             "prop_wd": {"values": [0.0, 0.3, 0.8]},
         }
+        space.update(grids.dataset_override(NAME, task, dataset))  # H-Pokec: K = 1, hidden <= 64 (author)
+        return space
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
         return load_published_params(NAME, task, dataset)

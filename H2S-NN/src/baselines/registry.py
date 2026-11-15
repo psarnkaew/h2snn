@@ -56,30 +56,56 @@ LARGE_LP_ADAPTER_PENDING_REASON = ("adapter pending: the large-LP task files, mi
                                    "are not wired into this adapter yet (Part M3b B8)")
 #: Adapters wired for the built large LP tasks (Part M3b B8).
 LARGE_LP_WIRED_ADAPTERS: frozenset[str] = frozenset()
-#: Part M3b B8: why each adapter cannot yet run on the loaded H2GB NC datasets / the built large LP tasks (no
-#: adapter declares `READS_BATCH_PLAN`; none is wired by guessing; no baseline model code is changed).
-_NC_FULL_BATCH = ("its `supports()` lists the HGB datasets only and it trains full-batch "
-                  "(`train_full_batch_node_classification`, src/baselines/training.py:50): no batch range "
-                  "{32, 256, 1024}, no epoch of 8,192 targets, no H2GB bundle")
-_HGB_RAW = "; its data path reads HGB's raw files"
+#: Card baselines-h2gb (C0, C1, C4): why each adapter cannot yet run on the loaded H2GB NC datasets
+#: (`docs/baselines_h2gb_evidence/c0_preconditions.md`; report `docs/H2S-NN_baselines_h2gb_report.md`).
+_S1 = ("sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its "
+       "YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch "
+       "output under full fan-out, C1)")
 H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
-    "gcn": f"adapter pending: {_NC_FULL_BATCH} (hgb_gnn.py:58)",
-    "gat": f"adapter pending: {_NC_FULL_BATCH} (hgb_gnn.py:58)",
-    "chebnetii": f"adapter pending: {_NC_FULL_BATCH} (chebnetii.py:49)",
-    "nsd": f"adapter pending: {_NC_FULL_BATCH} (nsd.py:70)",
-    "csnn": f"adapter pending: {_NC_FULL_BATCH} (csnn.py:62)",
-    "hinormer": f"adapter pending: {_NC_FULL_BATCH} (hinormer.py:61)",
-    "han": f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (HAN/utils.py via hgb_han.py:74)",
-    "sehgnn": (f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (sehgnn.py:58); on H-Pokec its stored "
-               "propagated features exceed every node at every num_hops (Part M3b B7)"),
-    "pshgcn": (f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (their load_dataset, _hgb_vendor.py); on "
-               "H-Pokec only K = 1 fits a node (Part M3b B7)"),
-    "h2sgnn": f"adapter pending: {_NC_FULL_BATCH}{_HGB_RAW} (their load_dataset, _hgb_vendor.py)",
-    "h2gformer": (f"adapter pending: {_NC_FULL_BATCH} (h2gformer.py:85); it runs H2GB's model on the HGB "
-                  "bundle, not through H2GB's own loader"),
-    "hetero2net": (f"adapter pending: {_NC_FULL_BATCH} (hetero2net.py:67); on ogbn-mag/mag-year the feature "
-                   "source is an author decision (Part M3b B7, M-path 3)"),
+    "gcn": f"adapter pending: {_S1}",
+    "gat": f"adapter pending: {_S1}",
+    "han": (f"adapter pending: {_S1}; and HAN's semantic attention averages over every node of the sampled "
+            "subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one"),
+    "h2gformer": f"adapter pending: {_S1}",
+    "nsd": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
+    "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
+    "h2sgnn": ("adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends "
+               f"it to H2GB's hgt sampler: {_S1}"),
+    "pshgcn": ("adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a "
+               "model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB "
+               "model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit"),
+    "hinormer": ("adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole "
+                 "graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of "
+                 "targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)"),
+    "sehgnn": "adapter pending (card baselines-h2gb C4)",
+    "chebnetii": "adapter pending (card baselines-h2gb C4)",
+    "hetero2net": ("adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:"
+                   "147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)"),
 }
+#: Cells wired on the loaded H2GB NC datasets (card baselines-h2gb C4): adapter and its tests in place, no open
+#: author decision.
+H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
+    ("sehgnn", "ieee-cis-g"),
+    ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
+    ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
+})
+_SEHGNN_MAG = ("adapter in place, pending author decision (card baselines-h2gb C4-a): SeHGNN's own MAG branch feeds "
+               "author/field/institution with random-uniform or ComplEx embeddings (SeHGNN/ogbn/utils.py:345-354), "
+               "H2GB's graph carries averaged paper features")
+_SEHGNN_PARALLEL = ("adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between "
+                    "one pair of node types are merged into one (SeHGNN names keys by one letter per type, "
+                    "SeHGNN/ogbn/utils.py:56-63, and would keep only the last)")
+_CHEB_WIDTHS = ("pending author decision (card baselines-h2gb C4-c): ChebNetII's ogb scheme takes one feature matrix "
+                "(ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths")
+#: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
+H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
+    ("sehgnn", "ogbn-mag"): _SEHGNN_MAG, ("sehgnn", "mag-year"): _SEHGNN_MAG,
+    **{("sehgnn", d): _SEHGNN_PARALLEL for d in ("oag-cs", "oag-eng", "oag-chem", "pdns")},
+    **{("chebnetii", d): _CHEB_WIDTHS for d in ("ieee-cis-g", "h-pokec", "pdns")},
+}
+#: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
+SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
+                    "num_hops 2-4, Part M3b B7; author decision 2026-11-16)")
 _LP_FULL_GRAPH = ("its `supports()` lists the six local LP tasks only and `train_link_prediction` embeds the "
                   "whole graph every step (src/baselines/training.py:168-183): no endpoint-scope mini-batch of "
                   "8,192 positives, the task's split.npz / negatives.npz are not read")
@@ -140,7 +166,8 @@ MODELS: tuple[ModelSpec, ...] = (
     ModelSpec(
         "sehgnn", "SeHGNN", HET_HOM, "src.baselines.adapters.sehgnn",
         (NODE_CLASSIFICATION,),
-        unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),),
+        unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),
+                     (NODE_CLASSIFICATION, "h-pokec", SEHGNN_HPOKEC_NA)),
     ),
     ModelSpec(
         "hinormer", "HiNormer", HET_HOM, "src.baselines.adapters.hinormer",
@@ -192,7 +219,10 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
     if (task, dataset) in DATASET_PENDING:
         return DATASET_PENDING[(task, dataset)]
     if task == NODE_CLASSIFICATION and dataset in H2GB_NC_LOADED and name not in H2GB_NC_WIRED_ADAPTERS:
-        return H2GB_NC_ADAPTER_PENDING.get(name, H2GB_ADAPTER_PENDING_REASON)
+        if (name, dataset) in H2GB_NC_WIRED_CELLS:
+            return None
+        return H2GB_NC_CELL_REASONS.get((name, dataset),
+                                        H2GB_NC_ADAPTER_PENDING.get(name, H2GB_ADAPTER_PENDING_REASON))
     if task == LINK_PREDICTION and dataset in LARGE_LP_BUILT and name not in LARGE_LP_WIRED_ADAPTERS:
         return LARGE_LP_ADAPTER_PENDING.get(name, LARGE_LP_ADAPTER_PENDING_REASON)
     return None

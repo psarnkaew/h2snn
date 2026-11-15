@@ -56,6 +56,12 @@ VENDOR = "sehgnn"
 VENDORS = ("sehgnn", "sehgnn_data")
 
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB"}
+#: Card baselines-h2gb C4: the H2GB NC datasets on which their own large-graph scheme (`SeHGNN/ogbn`) runs
+#: (`_sehgnn_h2gb.py`); H-Pokec is N/A (author, 2026-11-16: out of memory under its own code, Part M3b B7).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "pdns"})
+#: The H2GB cells without an open author decision (registry `H2GB_NC_WIRED_CELLS`); the others wait on C4-a (MAG
+#: features) and C4-b (parallel relations merged), see `src/baselines/registry.py`.
+H2GB_RUNNABLE = frozenset({"ieee-cis-g"})
 #: Target node type and the type set, from SeHGNN/hgb/main.py:31-44.
 TARGET_TYPE = {"ACM": "P", "DBLP": "A", "IMDB": "M"}
 
@@ -153,11 +159,27 @@ class SeHGNNAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
-        return task == NODE_CLASSIFICATION and dataset in VENDOR_DATASET
+        return task == NODE_CLASSIFICATION and (dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE)
 
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, dataset, "node classification only")
+        if dataset in H2GB_DATASETS:
+            # their ogbn scheme at stage 0 (no label features); batch size from the shared range (card C4)
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {
+                "lr": grids.LR,
+                "weight_decay": grids.WEIGHT_DECAY,
+                "hidden": {"values": [256, 512]},
+                "embed_size": {"values": [256, 512]},
+                "dropout": grids.DROPOUT,
+                "input_drop": grids.INPUT_DROP,
+                "num_hops": {"values": [2, 3, 4]},
+                "n_layers_2": {"values": [1, 2, 3, 4]},
+                "residual": {"values": [True, False]},
+                "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)},
+            }
         return {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -189,6 +211,8 @@ class SeHGNNAdapter:
     ) -> dict[str, float]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "node classification only")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         device = resolve_dgl_device(device)
         seed_everything(seed, device)
@@ -329,6 +353,44 @@ class SeHGNNAdapter:
         record["device"] = device.type
         record["num_metapaths"] = float(len(feats))
         record["num_label_metapaths"] = float(len(label_feats))
+        return record
+
+
+    def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
+                  device: torch.device) -> dict[str, float]:
+        """Their ogbn scheme on H2GB's graph (`_sehgnn_h2gb.py`): propagation once, batches of B target rows, the
+        shared H2GB NC loop (`minibatch.train_index_minibatch`)."""
+        from src.baselines.adapters import _sehgnn_h2gb as h2gb
+        from src.baselines.minibatch import h2gb_graph, minibatch_plan, train_index_minibatch
+        from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+        device = resolve_dgl_device(device)
+        seed_everything(seed, device)
+        data = h2gb_graph(bundle)
+        target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        inputs = h2gb.node_inputs(data, int(params.get("embed_size", 256)), seed)
+        feats = h2gb.propagate(data, target, int(params.get("num_hops", 2)), inputs)
+        labels = data[target].y.long()
+        num_classes = int(labels.max()) + 1
+        model = h2gb.build_model(feats, h2gb.type_letters(list(data.node_types))[target], num_classes,
+                                 params).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 1e-3)),
+                                      weight_decay=float(params.get("weight_decay", 0.0)))
+
+        def forward_rows(index: torch.Tensor) -> torch.Tensor:
+            batch = {key: value[index.cpu()].to(device) for key, value in feats.items()}
+            return model(batch, {}, torch.zeros(index.numel(), num_classes, device=device))
+
+        record = train_index_minibatch(
+            model=model, forward_rows=forward_rows, labels=labels.to(device),
+            train_idx=data[target].train_mask.nonzero().view(-1), val_idx=data[target].val_mask.nonzero().view(-1),
+            test_idx=data[target].test_mask.nonzero().view(-1), optimizer=optimizer,
+            criterion=torch.nn.functional.cross_entropy, plan=plan, base_seed=seed, report=params.report)
+        record["params_source"] = params.source
+        record["device"] = device.type
+        record["num_metapaths"] = float(len(feats))
+        record["batch_size"] = float(plan.batch_size)
         return record
 
 

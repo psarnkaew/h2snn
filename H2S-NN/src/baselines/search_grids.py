@@ -70,7 +70,25 @@ LEN_SEQ: dict[str, Any] = {"values": [20, 30, 50, 80, 100, 150]}
 SHEAF_LAYERS: dict[str, Any] = {"values": [1, 2, 3, 4]}
 
 
+#: Per-(model, task, dataset) restrictions decided by the author; every other range is unchanged.
+#: PSHGCN on H-Pokec (author, 2026-11-16; Part M3b B7: only K = 1 with hidden <= 64 fits a node under its own code;
+#: stated in the paper): K = 1, hidden from the shared axis up to 64.
+DATASET_OVERRIDES: dict[tuple[str, str, str], dict[str, Any]] = {
+    ("pshgcn", "node_classification", "h-pokec"): {
+        "K": {"values": [1]},
+        "hidden": {"values": [v for v in HIDDEN["values"] if v <= 64]},
+    },
+}
+
+
+def dataset_override(model: str, task: str, dataset: str) -> dict[str, Any]:
+    """The author's restriction of `model`'s search space on (`task`, `dataset`), or {}."""
+    return dict(DATASET_OVERRIDES.get((model, task, dataset), {}))
+
+
 __all__ = [
+    "DATASET_OVERRIDES",
+    "dataset_override",
     "DROPOUT",
     "HIDDEN",
     "INPUT_DROP",

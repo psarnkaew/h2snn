@@ -47,6 +47,9 @@ from src.utils.misc import seed_everything
 NAME = "chebnetii"
 VENDOR = "chebnetii"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
+#: Card baselines-h2gb C4: H2GB NC datasets with one feature width on every type, where their ogb scheme
+#: (`_chebnetii_h2gb.py`: Chebyshev bases once, batches of target rows) runs unchanged.
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem"})
 
 
 class _ChebNetIIEncoder(torch.nn.Module):
@@ -103,11 +106,22 @@ class ChebNetIIAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
-        return task == NODE_CLASSIFICATION and dataset in SUPPORTED_DATASETS
+        return task == NODE_CLASSIFICATION and (dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS)
 
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, dataset, "node classification only")
+        if dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {  # their ogb model: K, hidden, dropout (ogb/large_train.py:25-31); B from the shared range
+                "lr": grids.LR,
+                "weight_decay": grids.WEIGHT_DECAY,
+                "hidden": {"values": [256, 512, 1024, 2048]},
+                "dropout": grids.DROPOUT,
+                "K": {"values": [5, 10]},
+                "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)},
+            }
         return {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -135,6 +149,8 @@ class ChebNetIIAdapter:
     ) -> dict[str, float]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "node classification only")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         feats_type = int(
@@ -198,6 +214,42 @@ class ChebNetIIAdapter:
         record["params_source"] = params.source
         record["feats_type"] = float(feats_type)
         record["input_projection"] = "per_type_linear"
+        return record
+
+
+    def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
+                  device: torch.device) -> dict[str, float]:
+        """Their ogb scheme on H2GB's graph (`_chebnetii_h2gb.py`): bases once, batches of B target rows, the shared
+        H2GB NC loop."""
+        from src.baselines.adapters import _chebnetii_h2gb as h2gb
+        from src.baselines.minibatch import h2gb_graph, minibatch_plan, train_index_minibatch
+        from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+        seed_everything(seed, device)
+        data = h2gb_graph(bundle)
+        target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        x, edge_index, slices = h2gb.homogeneous_inputs(data)
+        start, end = slices[target]
+        bases = h2gb.chebyshev_bases(x, edge_index, int(params.get("K", 10)), torch.arange(start, end))
+        labels = data[target].y.long()
+        num_classes = int(labels.max()) + 1
+        model = h2gb.build_model(int(x.size(1)), num_classes, params).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 1e-3)),
+                                      weight_decay=float(params.get("weight_decay", 0.0)))
+
+        def forward_rows(index: torch.Tensor) -> torch.Tensor:
+            rows = [basis[index.cpu()].to(device) for basis in bases]
+            return model(rows, 0, index.numel())
+
+        record = train_index_minibatch(
+            model=model, forward_rows=forward_rows, labels=labels.to(device),
+            train_idx=data[target].train_mask.nonzero().view(-1), val_idx=data[target].val_mask.nonzero().view(-1),
+            test_idx=data[target].test_mask.nonzero().view(-1), optimizer=optimizer,
+            criterion=torch.nn.functional.nll_loss, plan=plan, base_seed=seed, report=params.report)
+        record["params_source"] = params.source
+        record["device"] = device.type
+        record["batch_size"] = float(plan.batch_size)
         return record
 
 

@@ -281,8 +281,80 @@ def hgb_homogeneous_batch(batch: Any, node_types: tuple[str, ...]) -> tuple[list
     return [batch[t].x for t in node_types], _symmetrize_with_self_loops(edge_index, start), offsets
 
 
+def h2gb_graph(bundle: Any) -> Any:
+    """H2GB's own graph of a node bundle (`dataset[0]` through the B2/C2 loader, the bundle's data root and run seed):
+    the object H2GB's samplers read, for adapters that consume the heterogeneous graph rather than the flattened one."""
+    from src.baselines.bundles import bundle_data_root
+    from src.data.h2gb_nc import load_h2gb_nc
+
+    return load_h2gb_nc(bundle.dataset, bundle_data_root(bundle), seed=bundle.metadata.get("seed"))
+
+
+def index_batches(index: torch.Tensor, batch_size: int) -> list[torch.Tensor]:
+    """Contiguous batches of `index` in its order, the last partial batch included (evaluation of index-batched
+    methods: SeHGNN `ogbn/main.py:296-306`, ChebNetII `ogb/large_train.py:75-83`)."""
+    return [index[start:start + batch_size] for start in range(0, index.numel(), batch_size)]
+
+
+def train_index_minibatch(
+    *,
+    model: torch.nn.Module,
+    forward_rows: Callable[[torch.Tensor], torch.Tensor],
+    labels: torch.Tensor,
+    train_idx: torch.Tensor,
+    val_idx: torch.Tensor,
+    test_idx: torch.Tensor,
+    optimizer: torch.optim.Optimizer,
+    criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    plan: MinibatchPlan,
+    base_seed: int,
+    report: Any = None,
+) -> dict[str, float]:
+    """The shared H2GB NC loop for methods whose source batches target rows of precomputed inputs (class B): each
+    epoch takes `plan.steps_per_epoch` batches of B training targets from a seeded order continued across epochs
+    (`TrainingOrder`, as H2S-NN's trainer), loss = mean over the batch; evaluation on whole splits in contiguous
+    batches by H2GB's eval-epoch rule; the best validation macro-F1 epoch is kept; no early stopping."""
+    from src.baselines.metrics import classification_metrics, node_classification_record
+    from src.baselines.progress import report_epoch
+    from src.models.anchored_solve import check_finite_loss
+    from src.trainers.minibatch_trainer import TrainingOrder
+
+    order = TrainingOrder(train_idx.cpu(), base_seed)
+
+    def evaluate(index: torch.Tensor) -> dict[str, float]:
+        with torch.no_grad():
+            logits = torch.cat([forward_rows(batch) for batch in index_batches(index, plan.batch_size)])
+        return classification_metrics(logits, labels[index.to(labels.device)], is_multilabel=False)
+
+    best_monitor, best_epoch = float("-inf"), -1
+    best_val: dict[str, float] = {}
+    best_test: dict[str, float] = {}
+    for epoch in range(plan.epochs):
+        model.train()
+        for _ in range(plan.steps_per_epoch):
+            batch = order.next(plan.batch_size)
+            optimizer.zero_grad()
+            logits = forward_rows(batch)
+            loss = criterion(logits, labels[batch.to(labels.device)])
+            check_finite_loss(loss, epoch)
+            loss.backward()
+            optimizer.step()
+        if not is_eval_epoch(epoch, plan):
+            continue
+        model.eval()
+        val_metrics, test_metrics = evaluate(val_idx), evaluate(test_idx)
+        if val_metrics["macro_f1"] > best_monitor:
+            best_monitor, best_epoch, best_val, best_test = val_metrics["macro_f1"], epoch, val_metrics, test_metrics
+        report_epoch(report, epoch=epoch, monitor=val_metrics["macro_f1"], running_best=best_monitor,
+                     metrics=val_metrics)
+    if not best_val:
+        raise RuntimeError("mini-batch training produced no evaluated epoch.")
+    return node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
+
+
 __all__ = [
     "CLASS_C_REFERENCE_METHOD", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "eval_loader",
-    "eval_steps", "evaluate_split", "h2gb_config_file", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
-    "is_eval_epoch", "minibatch_plan", "repeat_fanout", "seed_rows", "train_minibatch_node_classification",
+    "eval_steps", "evaluate_split", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
+    "is_eval_epoch", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
+    "train_minibatch_node_classification",
 ]

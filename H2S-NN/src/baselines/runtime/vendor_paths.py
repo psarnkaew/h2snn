@@ -35,6 +35,9 @@ VENDOR_ROOTS: dict[str, Path] = {
     # SeHGNN/hgb/utils.py does a bare `from data_loader import data_loader`, which
     # lives one level up in SeHGNN/data/.
     "sehgnn_data": VENDOR_DIR / "SeHGNN" / "data",
+    # Card baselines-h2gb C4: SeHGNN's and ChebNetII's own large-graph code (their ogbn / ogb folders).
+    "sehgnn_ogbn": VENDOR_DIR / "SeHGNN" / "ogbn",
+    "chebnetii_ogb": VENDOR_DIR / "ChebNetII" / "ogb",
     "pshgcn": VENDOR_DIR / "PSHGCN" / "hgb",
     "pshgcn_lp": VENDOR_DIR / "PSHGCN" / "hgb-lp",
     "h2sgnn": VENDOR_DIR / "H2SGNN",

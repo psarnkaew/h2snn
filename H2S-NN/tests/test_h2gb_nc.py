@@ -233,20 +233,25 @@ class H2GBLoaderTests(unittest.TestCase):
 class RegistryTests(unittest.TestCase):
     def test_loaded_datasets_say_adapter_pending_until_wired(self) -> None:
         from src.baselines.registry import (H2GB_ADAPTER_PENDING_REASON, H2GB_NC_ADAPTER_PENDING,
-                                            H2GB_NC_LOADED, H2GB_NC_WIRED_ADAPTERS, MODELS,
-                                            unsupported_reason)
+                                            H2GB_NC_CELL_REASONS, H2GB_NC_LOADED, H2GB_NC_WIRED_ADAPTERS,
+                                            H2GB_NC_WIRED_CELLS, MODELS, unsupported_reason)
 
         for spec in MODELS:
             if "node_classification" not in spec.tasks:
                 continue
+            explicit = {d: r for t, d, r in spec.unsupported if t == "node_classification"}
             for dataset in H2GB_NC_LOADED:
                 reason = unsupported_reason(spec.name, "node_classification", dataset)
-                if spec.name in H2GB_NC_WIRED_ADAPTERS:
+                if dataset in explicit:  # the author's N/A cells (card baselines-h2gb: SeHGNN on H-Pokec)
+                    self.assertEqual(reason, explicit[dataset])
+                elif spec.name in H2GB_NC_WIRED_ADAPTERS or (spec.name, dataset) in H2GB_NC_WIRED_CELLS:
                     self.assertIsNone(reason)
                 else:
-                    # Part M3b B8: each adapter states its own reason (the generic one is the fallback)
-                    self.assertEqual(reason, H2GB_NC_ADAPTER_PENDING.get(spec.name, H2GB_ADAPTER_PENDING_REASON))
-                    self.assertTrue(reason.startswith("adapter pending: "))
+                    # Part M3b B8 / card baselines-h2gb: a per-cell reason, else the adapter's own reason
+                    self.assertEqual(reason, H2GB_NC_CELL_REASONS.get(
+                        (spec.name, dataset), H2GB_NC_ADAPTER_PENDING.get(spec.name, H2GB_ADAPTER_PENDING_REASON)))
+                    self.assertTrue(reason.startswith(("adapter pending: ", "adapter in place, pending author",
+                                                       "pending author decision")))
 
     def test_nc_cell_is_runnable_only_with_a_loader_and_a_count_record(self) -> None:
         from src.baselines.registry import DATASET_PENDING, DATA_PENDING_REASON, H2GB_NC

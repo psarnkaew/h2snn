@@ -398,7 +398,8 @@ def build_bundle(
             data=data,
             num_classes=data.num_classes,
             is_multilabel=data.is_multilabel,
-            metadata={"split_seed": config.data.acm_split_seed, "data_root": data_root},
+            # "seed": the run seed (PDNS's split is drawn from it, card baselines-h2gb C2; `minibatch.h2gb_graph`)
+            metadata={"split_seed": config.data.acm_split_seed, "data_root": data_root, "seed": seed},
         )
 
     if task == LINK_PREDICTION:
