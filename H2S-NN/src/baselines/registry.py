@@ -123,11 +123,23 @@ SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated fe
                     "num_hops 2-4, Part M3b B7; author decision 2026-11-16)")
 #: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
 #: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
-_LP_S1 = ("adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), "
-          "but its fan-out and depth are the class's, undecided (C0 stop S1)")
+#: Part 2 E4: large-LP cells wired (link-level sampling on the message graph, the local-LP encoder, shared decoder).
+LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset()
+_LP_NOTEBOOKS = ("adapter pending: its large-LP code path is in place and tested (part 2 E4: large_lp_training.py, "
+                 "hgb_gnn._fit_large_lp), but claiming the cell changes the generated lane notebooks "
+                 "(notebooks/baselines/, scripts/generate_baseline_notebooks.py), outside card 1b's files: stop item")
+_LP_POKEC = ("adapter pending: part 2 E4 stop item: H2GB's H-Pokec fan-out is per node type and of unequal length "
+             "(user [2048, 2048, 512, 512], clubs [128, 128, 128]), PyG's link sampler takes one list per relation; "
+             "the per-relation fan-out on H-Pokec is a design decision")
+_LP_NOT_WIRED = ("adapter pending: part 2 E4 did not wire this method's large-LP path (its local-LP encoder on link-level "
+                 "subgraphs); the sampler, the message graph and the loop are in place (large_lp_training.py)")
+LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
+    ("gcn", "h-pokec_uu"): _LP_POKEC, ("gat", "h-pokec_uu"): _LP_POKEC,
+    ("gcn", "ogbn-mag_pp"): _LP_NOTEBOOKS, ("gat", "ogbn-mag_pp"): _LP_NOTEBOOKS,
+}
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
-    **{name: _LP_S1 for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
-    "h2sgnn": f"{_LP_S1}; H2SGNN is not decoupled (C0 S4), so D2's per-node precomputation does not apply",
+    **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
+    "h2sgnn": "adapter pending: part 2 E0 stop S4b (H2SGNN has no relation rule for the H2GB graphs)",
     "pshgcn": ("adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit "
                "(card baselines-h2gb C0 stop S3)"),
     "hetero2net": ("adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the "
@@ -244,7 +256,10 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
         return H2GB_NC_CELL_REASONS.get((name, dataset),
                                         H2GB_NC_ADAPTER_PENDING.get(name, H2GB_ADAPTER_PENDING_REASON))
     if task == LINK_PREDICTION and dataset in LARGE_LP_BUILT and name not in LARGE_LP_WIRED_ADAPTERS:
-        return LARGE_LP_ADAPTER_PENDING.get(name, LARGE_LP_ADAPTER_PENDING_REASON)
+        if (name, dataset) in LARGE_LP_WIRED_CELLS:
+            return None
+        return LARGE_LP_CELL_REASONS.get((name, dataset),
+                                         LARGE_LP_ADAPTER_PENDING.get(name, LARGE_LP_ADAPTER_PENDING_REASON))
     return None
 
 

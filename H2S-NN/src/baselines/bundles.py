@@ -312,6 +312,19 @@ class LinkBundle:
 
 
 @dataclass(slots=True)
+class LargeLinkBundle:
+    """One of the two large LP tasks (Part M3b B6; part 2 E4): no graph is loaded here -- the adapter reads H2GB's graph,
+    the task files and the message graph (`src/baselines/large_lp_training.py`) from `metadata["data_root"]`."""
+
+    dataset: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def task(self) -> str:
+        return LINK_PREDICTION
+
+
+@dataclass(slots=True)
 class GraphBundle:
     """Graph classification on one TU dataset, for a single run index of the split.
 
@@ -403,6 +416,10 @@ def build_bundle(
         )
 
     if task == LINK_PREDICTION:
+        from src.data.large_lp import LARGE_LP_TASKS
+
+        if dataset in LARGE_LP_TASKS:  # part 2 E4: loaded by the adapter from the data root
+            return LargeLinkBundle(dataset=dataset, metadata={"data_root": data_root, "seed": seed})
         from src.data.link_prediction_dataset import build_link_prediction_dataset
 
         data = build_link_prediction_dataset(config)

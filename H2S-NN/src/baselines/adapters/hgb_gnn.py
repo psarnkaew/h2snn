@@ -63,6 +63,10 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: this method and dataset (`src/baselines/minibatch.py`).
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 READS_BATCH_PLAN = True
+#: Part 2 E4 (decision D2): large LP tasks with a code path (link-level sampling on the message graph); H-Pokec U-U is
+#: a stop item (H2GB's per-node-type fan-out has no per-relation form for PyG's link sampler). Not claimed in
+#: `supports()`: claiming them regenerates the lane notebooks (`notebooks/baselines/`, outside card 1b's files).
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp"})
 
 
 def _build_dgl_graph(view: Any, device: torch.device) -> Any:
@@ -173,6 +177,8 @@ class HGBHomogeneousAdapter:
         seed: int,
         device: torch.device,
     ) -> dict[str, float]:
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            return self._fit_large_lp(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task == GRAPH_CLASSIFICATION:
@@ -308,6 +314,35 @@ class HGBHomogeneousAdapter:
             forward=self.hgb_forward)
         record["params_source"] = params.source
         record["device"] = device.type
+        return record
+
+    def build_lp_encoder(self, in_dims: list[int], params: BaselineParams) -> torch.nn.Module:
+        """HGB's link-prediction GCN / GAT (`HGB/LP/benchmark/methods/GNN/GNN.py`), the local-LP encoder; its own
+        decoder is not used (the shared head scores the links)."""
+        hidden_dim = int(params.get("hidden_dim", 64))
+        num_layers = int(params.get("num_layers", 2))
+        dropout = float(params.get("dropout", 0.5))
+        decoder_type = str(params.get("decoder_type", "dot"))
+        with pushd_sys_path(VENDOR_LP), legacy_conv_attrs():
+            from GNN import GAT, GCN  # type: ignore[import-not-found]
+
+            if self.model_type == "gat":
+                heads = [int(params.get("num_heads", 8))] * max(num_layers - 1, 1) + [1]
+                return GAT(in_dims, hidden_dim, n_layers=num_layers, dropout=dropout, heads=heads,
+                           decoder=decoder_type, rel_num=1)
+            return GCN(in_dims, hidden_dim, n_layers=num_layers, dropout=dropout, decoder=decoder_type, rel_num=1)
+
+    def _fit_large_lp(self, bundle: Any, params: BaselineParams, *, seed: int, device: torch.device
+                      ) -> dict[str, float]:
+        """Part 2 E4: the local-LP encoder on link-level subgraphs of the message graph (D2)."""
+        from src.baselines.large_lp_training import fit_large_lp_homogeneous
+
+        record = fit_large_lp_homogeneous(
+            bundle, params, fanout_method=self.name, seed=seed, device=device,
+            build_encoder=lambda dims: self.build_lp_encoder(dims, params),
+            encode=lambda model, inputs, edge_index: model.encode((inputs, edge_index)),
+            embed_dim=int(params.get("hidden_dim", 64)))
+        record["params_source"] = params.source
         return record
 
     def _fit_link_prediction(
