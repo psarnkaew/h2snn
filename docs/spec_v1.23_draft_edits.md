@@ -131,3 +131,10 @@ Anchors checked with a script on spec v1.22 (md5 above), 2026-11-16: every ancho
 > and both raw and adjusted values are given; the adjustment is Holm, fixed before the results (1.23, author), applied per task: NC (24 tests), LP (28) and GC (8) are separate families.
 
 Anchor checked: occurs once in spec v1.22 (md5 `7b44dd2c9b10bf620a8e36d8d3a9b922`). Changelog addition: "(X8) main-table multiplicity: Holm per task, fixed before the results."
+
+## X-15 §6 Graph classification: heterophily statement and type mixing (author 2026-11-16)
+**Replace:** `MUTAG's test set is 20 graphs. No heterophily claim.`
+**with:**
+> MUTAG's test set is 20 graphs. No heterophily claim and no heterophily value (1.23): labels are graph-level, so ℋ² and MLH are undefined, and MDE is not reported (constant features under this protocol; MUTAG and NCI1 have no attributes). The GC dataset table reports the number of node and edge types and the type-mixing ratio (share of edges joining nodes of different types) as a heterogeneity statistic, never as heterophily.
+
+Anchor checked: occurs once in spec v1.22. Changelog addition: "(X9) GC: no heterophily value; type-mixing ratio reported."

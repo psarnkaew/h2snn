@@ -159,7 +159,7 @@ Notation: "better on d" = passes on dataset d in the sense of §1.
 4. **Mini-batch vs full-batch gap** (spec 1.22 analysis flag), ACM and DBLP, seeds 1–5: a Macro-F1 gap > 1 point on either is stated, and the H2GB results carry that note.
 
 ### 4.7 Not done
-Graph clustering (no claim needs it). C3. Ablations on LP and GC. A v3-B vs R-GCN untuned comparison (G0b; gate (i) closed by author decision, B-10).
+GC heterophily values (labels are graph-level; the GC table reports node/edge type counts and the type-mixing ratio instead, as heterogeneity). N7 evaluation-draw variance (already inside the seed std). D0 model-free data analysis (C2 and N6 answer R2 comment 1). Graph clustering (no claim needs it). C3. Ablations on LP and GC. A v3-B vs R-GCN untuned comparison (G0b; gate (i) closed by author decision, B-10).
 
 ### 4.8 Parameter table (B-13)
 Every arm on the four ablation datasets at `full`'s configuration: total and the part removed or added (`g`, geometry network, head input); share of `g` for `uniform` and `schema`. "Within 5 %" applies to `endpoints` only. No padding.
