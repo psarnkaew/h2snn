@@ -1,0 +1,42 @@
+job=16721 node=g2n01 start=2026-11-15T09:20:52+09:00
+git=64211fb6c513a9b293ddb189c28f45d113421f0b branch=cluster-setup2 env=h2snn-b
+NVIDIA GeForce RTX 2080 Ti, 7.5, 550.163.01
+DGL backend not selected or invalid.  Assuming PyTorch for now.
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/graphbolt/__init__.py:114: GBWarning: 
+An experimental feature for CUDA allocations is turned on for better allocation
+pattern resulting in better memory usage for minibatch GNN training workloads.
+See https://pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf,
+and set the environment variable `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False`
+if you want to disable it and set it True to acknowledge and disable the warning.
+
+  gb_warning(WARNING_STR_TO_BE_SHOWN)
+Setting the default backend to "pytorch". You can change it in the ~/.dgl/config.json file or export the DGLBACKEND environment variable.  Valid options are: pytorch, mxnet, tensorflow (all lowercase)
+python 3.12.16
+torch 2.4.1+cu124 cuda build 12.4 cuda available True
+numpy 2.4.6 scipy 1.18.0
+dgl.__version__ 2.4.0+cu124 | importlib.metadata.version('dgl') 2.4.0+cu124
+gpu NVIDIA GeForce RTX 2080 Ti capability (7, 5)
+PASS  (v) import dgl.graphbolt: ok
+PASS  (v) import dgl.sparse: ok
+loaded DGL shared objects:
+    /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/_ffi/_cy3/core.cpython-312-x86_64-linux-gnu.so
+    /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/dgl_sparse/libdgl_sparse_pytorch_2.4.1.so
+    /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/graphbolt/libgraphbolt_pytorch_2.4.1.so
+    /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/libdgl.so
+    /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/tensoradapter/pytorch/libtensoradapter_pytorch_2.4.1.so
+PASS  loaded libgraphbolt_pytorch_2.4.1.so: in /proc/self/maps
+PASS  loaded libdgl_sparse_pytorch_2.4.1.so: in /proc/self/maps
+PASS  loaded libtensoradapter_pytorch_2.4.1.so: in /proc/self/maps
+PASS  (i) update_all(copy_u, sum): max|diff|=0.000e+00
+PASS  (i) update_all(copy_u, mean): max|diff|=0.000e+00
+PASS  (ii) multi_update_all sum (3 node types): max|diff|=0.000e+00
+PASS  (iii) GraphConv == plain sum: max|diff|=0.000e+00
+PASS  (iii) GraphConv finite outputs and gradients: finite=True
+PASS  (iii) GATConv finite outputs and gradients: out shape (6, 2, 4), finite=True
+PASS  (iv) graph from numpy == from torch: edges equal=True
+PASS  (iv) graph from scipy.sparse == from torch: edges equal=True
+dependencies.dgl_cuda_report() -> (True, 'DGL has CUDA support')
+PASS  dependencies.dgl_cuda_report uses GPU: DGL has CUDA support
+SUMMARY checks=14 failed=0
+dgl_check_exit=0
+end=2026-11-15T09:21:00+09:00

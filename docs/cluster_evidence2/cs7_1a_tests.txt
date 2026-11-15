@@ -1,0 +1,26 @@
+job=16721 step=2 node=g2n01 start=2026-11-15T09:16:43+09:00
+git=64211fb6c513a9b293ddb189c28f45d113421f0b branch=cluster-setup2 env=h2snn-b
+
+===== CS7-1a: unit tests (no install)
+bash_n_exit=0
+test_checker_catches_script_violations (tests.test_env_b_install.InstallScriptBTests.test_checker_catches_script_violations) ... ok
+test_repository_install_script (tests.test_env_b_install.InstallScriptBTests.test_repository_install_script) ... ok
+test_checker_catches_lock_violations (tests.test_env_b_install.LockBTests.test_checker_catches_lock_violations) ... ok
+test_repository_lock_b (tests.test_env_b_install.LockBTests.test_repository_lock_b) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.004s
+
+OK
+tests_exit=0
+
+===== CS7-1a mutations (applied to the real file, restored from a copy)
+--- mutation 1: the sha256 check removed
+AssertionError: Lists differ: ['sha256 is not checked before conda install'] != []
+FAILED (failures=1)
+--- mutation 2: dgl not filtered (grep -v line replaced by a copy)
+AssertionError: Lists differ: ['dgl is not filtered from the lock'] != []
+FAILED (failures=1)
+restored: identical
+OK
+end=2026-11-15T09:16:44+09:00

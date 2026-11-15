@@ -1,0 +1,16 @@
+job=16721 step=4 node=g2n01 start=2026-11-15T09:21:33+09:00
+git=64211fb6c513a9b293ddb189c28f45d113421f0b branch=cluster-setup2 env=h2snn-b
+g++: g++ (Debian 14.2.0-19) 14.2.0
+ninja: 1.13.2.git.kitware.jobserver-pipe-1
+torch 2.4.1+cu124 TORCH_EXTENSIONS_DIR /mnt/home/peeradon/.cache/torch_extensions/h2snn-b exists before import: False
+import torch_householder (incl. JIT compile): 10.9 s
+--- /mnt/home/peeradon/.cache/torch_extensions/h2snn-b/torch_householder_cpp/build.ninja
+    cxx = c++
+    cflags = -DTORCH_EXTENSION_NAME=torch_householder_cpp -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/include -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/include/TH -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/include/THC -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/include/python3.12 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17
+    post_cflags = 
+    ldflags = -shared -L/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/lib -lc10 -ltorch_cpu -ltorch -ltorch_python
+built: /mnt/home/peeradon/.cache/torch_extensions/h2snn-b/torch_householder_cpp/torch_householder_cpp.so
+dtype torch.float64 shape (8, 5)
+PASS  orthogonality max|Q^T Q - I| = 6.405e-16 (< 1e-10)
+PASS  equals plain-torch product of 5 reflectors: max|diff| = 3.036e-16 (atol 1e-10)
+householder_check_exit=0 end=2026-11-15T09:21:46+09:00

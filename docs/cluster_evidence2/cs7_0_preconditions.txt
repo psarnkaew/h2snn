@@ -1,0 +1,16 @@
+# CS7-0 evidence (login01, 2026-11-15T09:01:04+09:00)
+origin/cluster-setup=d8f5813b19865121c99e9e296a25ca7789eb5b91
+origin/design-docs=2d9ea70f878b474d1bd979ff370730630230bea7
+HEAD after merge=64211fb6c513a9b293ddb189c28f45d113421f0b
+
+$ ls -l <DGL file>
+-rw-r--r-- 1 peeradon peeradon 291228305 Nov 15 08:03 /mnt/home/peeradon/wheels/dgl-2.4.0.th24.cu124-py312_0.tar.bz2
+$ sha256sum <DGL file>
+0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8  /mnt/home/peeradon/wheels/dgl-2.4.0.th24.cu124-py312_0.tar.bz2
+
+$ sinfo -o "%N %G %c %m %P %t"
+NODELIST GRES CPUS MEMORY PARTITION STATE
+g3n01 gpu:3090:2 20 64210 lab* mix-
+g2tn01 gpu:titan_rtx:2 8 64220 lab* down*
+g2n01 gpu:2080ti:1,shield:1 20 64210 lab* idle
+g3an01 gpu:a6000:1 20 225171 lab* idle

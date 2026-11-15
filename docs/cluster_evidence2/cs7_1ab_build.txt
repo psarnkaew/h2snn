@@ -1,0 +1,594 @@
+job=16722 node=g2n01 start=2026-11-15T09:04:41+09:00
+git=64211fb6c513a9b293ddb189c28f45d113421f0b branch=cluster-setup2
+cpu= Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+gcc: g++ (Debian 14.2.0-19) 14.2.0
+
+===== CS7-1b: conda create (only if absent)
+Retrieving notices: ...working... done
+Channels:
+ - pyg
+ - pytorch
+ - nvidia
+ - conda-forge
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): ...working... done
+Solving environment: ...working... done
+## Package Plan ##
+  environment location: /mnt/home/peeradon/.conda/envs/h2snn-b
+  added / updated specs:
+    - python=3.12
+The following NEW packages will be INSTALLED:
+  _openmp_mutex      conda-forge/linux-64::_openmp_mutex-4.5-20_gnu 
+  bzip2              conda-forge/linux-64::bzip2-1.0.8-hda65f42_10 
+  ca-certificates    conda-forge/noarch::ca-certificates-2026.10.23-hbd8a1cb_0 
+  ld_impl_linux-64   conda-forge/linux-64::ld_impl_linux-64-2.46.1-default_hbd61a6d_103 
+  libexpat           conda-forge/linux-64::libexpat-2.9.0-hd2095e1_0 
+  libffi             conda-forge/linux-64::libffi-3.7.0-h81df57d_1 
+  libgcc             conda-forge/linux-64::libgcc-16.2.0-ha9f2e26_7 
+  libgomp            conda-forge/linux-64::libgomp-16.2.0-he0feb66_7 
+  liblzma            conda-forge/linux-64::liblzma-5.8.3-hb03c661_1 
+  libnsl             conda-forge/linux-64::libnsl-2.0.1-hb9d3cd8_1 
+  libpython          conda-forge/linux-64::libpython-3.12.16-ha57cdbe_0_cpython 
+  libsqlite          conda-forge/linux-64::libsqlite-3.54.1-h0737f62_101 
+  libuuid            conda-forge/linux-64::libuuid-2.42.4-hcfc3c73_1 
+  libxcrypt          conda-forge/linux-64::libxcrypt-4.4.38-h280c20c_0 
+  libzlib            conda-forge/linux-64::libzlib-1.3.2-h25fd6f3_3 
+  ncurses            conda-forge/linux-64::ncurses-6.6-hdb14827_1 
+  openssl            conda-forge/linux-64::openssl-3.6.5-h781a0a9_0 
+  packaging          conda-forge/noarch::packaging-26.3-pyhc364b38_0 
+  pip                conda-forge/noarch::pip-26.2.2-pyh8b19718_2 
+  python             conda-forge/linux-64::python-3.12.16-h5f976f7_0_cpython 
+  readline           conda-forge/linux-64::readline-8.3-hd6e31c0_1 
+  setuptools         conda-forge/noarch::setuptools-84.2.1-pyhe730653_0 
+  tk                 conda-forge/linux-64::tk-8.6.13-noxft_h1df4ec4_4 
+  tzdata             conda-forge/noarch::tzdata-2026e-h5d301ff_0 
+  wheel              conda-forge/noarch::wheel-0.48.0-pyhd8ed1ab_0 
+  zstd               conda-forge/linux-64::zstd-1.5.7-hb78ec9c_7 
+Downloading and Extracting Packages: ...working... done
+Preparing transaction: ...working... done
+Verifying transaction: ...working... done
+Executing transaction: ...working... WARNING conda.conda_pypi.main:notify_conda_pypi_tip(158): 
+  Did you know? You can install many PyPI packages with conda
+  using conda-pypi. Get started:
+    https://bit.ly/4xXYt0B
+done
+#
+# To activate this environment, use
+#
+#     $ conda activate h2snn-b
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+Channel "nvidia" has the following notices:
+  [warning] -- Thu Sep 17 07:00:09 2026
+  NVIDIA conda channel update — cuda, cublasmp, cudnn, cudss, cuest, cufftmp,
+  cuquantum, cusolvermp, cusparselt, cutensor, nccl, nvpl, nvshmem, cuda-python,
+  numbast stop receiving updates on the `nvidia` channel after Aug 7, 2026.
+  Existing packages/envs keep working; get updates from Anaconda main (defaults)
+  or conda-forge. Migration guide: https://anaconda.com/guides/nvidia-channel-mi
+  gration?utm_source=channel_notices
+Channel "defaults" has the following notices:
+  [warning] -- Wed Sep 30 00:00:00 2026
+  Anaconda will stop building new Python 3.10 packages on the main channel after
+  October 31, 2026. Existing Python 3.10 packages will stay available but will
+  no longer get new builds or security fixes. We recommend upgrading to Python
+  3.11 or later. Details: https://www.anaconda.com/docs/reference/policies-pract
+  ices/python-version-support?utm_source=channel_notices
+  [info] -- Thu Aug  6 00:00:00 2026
+  main-x (Anaconda's new authenticated channel) is now generally available, with
+  thousands of additional packages from our secure supply chain. Get started at:
+  https://anaconda.com/docs/getting-started/main-x?utm_source=channel_notices
+conda_create_exit=0
+active=h2snn-b python=/mnt/home/peeradon/.conda/envs/h2snn-b/bin/python Python 3.12.16
+
+===== CS7-1a: unit tests (no install)
+bash_n_exit=0
+test_checker_catches_script_violations (tests.test_env_b_install.InstallScriptBTests.test_checker_catches_script_violations) ... ok
+test_repository_install_script (tests.test_env_b_install.InstallScriptBTests.test_repository_install_script) ... FAIL
+test_checker_catches_lock_violations (tests.test_env_b_install.LockBTests.test_checker_catches_lock_violations) ... ok
+test_repository_lock_b (tests.test_env_b_install.LockBTests.test_repository_lock_b) ... ok
+
+======================================================================
+FAIL: test_repository_install_script (tests.test_env_b_install.InstallScriptBTests.test_repository_install_script)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_env_b_install.py", line 107, in test_repository_install_script
+    self.assertEqual(script_problems(INSTALL_B.read_text(encoding="utf-8")), [])
+AssertionError: Lists differ: ['conda install without --no-deps'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'conda install without --no-deps'
+
+- ['conda install without --no-deps']
++ []
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+FAILED (failures=1)
+tests_exit=1
+
+===== CS7-1a mutations (applied to the real file, restored from a copy)
+--- mutation 1: the sha256 check removed
+AssertionError: Lists differ: ['sha256 is not checked before conda insta[34 chars]eps'] != []
+FAILED (failures=1)
+--- mutation 2: dgl not filtered (grep -v line replaced by a copy)
+AssertionError: Lists differ: ['dgl is not filtered from the lock', 'conda install without --no-deps'] != []
+FAILED (failures=1)
+restored: identical
+FAILED (failures=1)
+
+===== CS7-1b: install_env_b.sh h2snn-b <DGL file>
+env=h2snn-b python=/mnt/home/peeradon/.conda/envs/h2snn-b/bin/python lock=/mnt/data/peeradon/h2snn/H2S-NN/requirements/linux-lock-b.txt
+== step 1: torch
+Looking in indexes: https://download.pytorch.org/whl/cu124, https://pypi.org/simple
+Collecting torch==2.4.1+cu124
+  Downloading torch-2.4.1%2Bcu124-cp312-cp312-linux_x86_64.whl (797.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 797.1/797.1 MB 11.6 MB/s  0:01:09
+Collecting filelock (from torch==2.4.1+cu124)
+  Downloading filelock-4.2.10-py3-none-any.whl.metadata (2.3 kB)
+Collecting typing-extensions>=4.8.0 (from torch==2.4.1+cu124)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting sympy (from torch==2.4.1+cu124)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch==2.4.1+cu124)
+  Downloading networkx-3.7-py3-none-any.whl.metadata (6.7 kB)
+Collecting jinja2 (from torch==2.4.1+cu124)
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch==2.4.1+cu124)
+  Downloading fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: setuptools in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1+cu124) (84.2.1)
+Collecting nvidia-cuda-nvrtc-cu12==12.4.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_cuda_nvrtc_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-runtime-cu12==12.4.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_cuda_runtime_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cuda-cupti-cu12==12.4.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_cuda_cupti_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.4.1+cu124)
+  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cublas-cu12==12.4.2.65 (from torch==2.4.1+cu124)
+  Downloading nvidia_cublas_cu12-12.4.2.65-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cufft-cu12==11.2.0.44 (from torch==2.4.1+cu124)
+  Downloading nvidia_cufft_cu12-11.2.0.44-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-curand-cu12==10.3.5.119 (from torch==2.4.1+cu124)
+  Downloading nvidia_curand_cu12-10.3.5.119-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting nvidia-cusolver-cu12==11.6.0.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_cusolver_cu12-11.6.0.99-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-cusparse-cu12==12.3.0.142 (from torch==2.4.1+cu124)
+  Downloading nvidia_cusparse_cu12-12.3.0.142-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)
+Collecting nvidia-nccl-cu12==2.20.5 (from torch==2.4.1+cu124)
+  Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvtx-cu12==12.4.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_nvtx_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-nvjitlink-cu12==12.4.99 (from torch==2.4.1+cu124)
+  Downloading nvidia_nvjitlink_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting triton==3.0.0 (from torch==2.4.1+cu124)
+  Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.3 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.4.1+cu124)
+  Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy->torch==2.4.1+cu124)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Downloading nvidia_cublas_cu12-12.4.2.65-py3-none-manylinux2014_x86_64.whl (363.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 363.0/363.0 MB 10.7 MB/s  0:00:33
+Downloading nvidia_cuda_cupti_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl (13.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.8/13.8 MB 11.8 MB/s  0:00:01
+Downloading nvidia_cuda_nvrtc_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl (24.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24.7/24.7 MB 11.7 MB/s  0:00:02
+Downloading nvidia_cuda_runtime_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl (883 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 883.4/883.4 kB 12.0 MB/s  0:00:00
+Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 11.7 MB/s  0:00:56
+Downloading nvidia_cufft_cu12-11.2.0.44-py3-none-manylinux2014_x86_64.whl (211.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 211.5/211.5 MB 11.5 MB/s  0:00:18
+Downloading nvidia_curand_cu12-10.3.5.119-py3-none-manylinux2014_x86_64.whl (56.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.3/56.3 MB 11.6 MB/s  0:00:04
+Downloading nvidia_cusolver_cu12-11.6.0.99-py3-none-manylinux2014_x86_64.whl (128.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 128.4/128.4 MB 10.9 MB/s  0:00:11
+Downloading nvidia_cusparse_cu12-12.3.0.142-py3-none-manylinux2014_x86_64.whl (207.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 207.5/207.5 MB 11.5 MB/s  0:00:18
+Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl (176.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 11.7 MB/s  0:00:15
+Downloading nvidia_nvjitlink_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl (21.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 21.1/21.1 MB 11.4 MB/s  0:00:01
+Downloading nvidia_nvtx_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl (99 kB)
+Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (209.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.5/209.5 MB 11.7 MB/s  0:00:17
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading filelock-4.2.10-py3-none-any.whl (218 kB)
+Downloading fsspec-2026.9.0-py3-none-any.whl (221 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading networkx-3.7-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 11.9 MB/s  0:00:00
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 11.8 MB/s  0:00:00
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 12.5 MB/s  0:00:00
+Installing collected packages: mpmath, typing-extensions, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch
+
+Successfully installed MarkupSafe-3.0.4 filelock-4.2.10 fsspec-2026.9.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.7 nvidia-cublas-cu12-12.4.2.65 nvidia-cuda-cupti-cu12-12.4.99 nvidia-cuda-nvrtc-cu12-12.4.99 nvidia-cuda-runtime-cu12-12.4.99 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.0.44 nvidia-curand-cu12-10.3.5.119 nvidia-cusolver-cu12-11.6.0.99 nvidia-cusparse-cu12-12.3.0.142 nvidia-nccl-cu12-2.20.5 nvidia-nvjitlink-cu12-12.4.99 nvidia-nvtx-cu12-12.4.99 sympy-1.14.0 torch-2.4.1+cu124 triton-3.0.0 typing-extensions-4.16.0
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:258: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+[1] torch 2.4.1+cu124
+== step 2: PyG extensions
+Looking in links: https://data.pyg.org/whl/torch-2.4.0+cu124.html
+Collecting torch_scatter==2.1.2
+  Downloading torch_scatter-2.1.2%2Bpt24cu124-cp312-cp312-linux_x86_64.whl (10.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 11.2 MB/s  0:00:00
+Collecting torch_sparse==0.6.18
+  Downloading torch_sparse-0.6.18%2Bpt24cu124-cp312-cp312-linux_x86_64.whl (5.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 11.8 MB/s  0:00:00
+Collecting torch_cluster==1.6.3
+  Downloading torch_cluster-1.6.3%2Bpt24cu124-cp312-cp312-linux_x86_64.whl (3.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 7.0 MB/s  0:00:00
+Collecting scipy (from torch_sparse==0.6.18)
+  Downloading scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting numpy<2.8,>=2.0.0 (from scipy->torch_sparse==0.6.18)
+  Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Downloading scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 11.6 MB/s  0:00:03
+Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 11.8 MB/s  0:00:01
+Installing collected packages: torch_scatter, numpy, scipy, torch_sparse, torch_cluster
+
+Successfully installed numpy-2.5.4 scipy-1.18.1 torch_cluster-1.6.3+pt24cu124 torch_scatter-2.1.2+pt24cu124 torch_sparse-0.6.18+pt24cu124
+[2] torch 2.4.1+cu124
+== step 3: every other lock line except dgl
+Looking in indexes: https://pypi.org/simple, https://download.pytorch.org/whl/cu124
+Looking in links: https://data.pyg.org/whl/torch-2.4.0+cu124.html
+Requirement already satisfied: torch==2.4.1 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from -r /tmp/tmp.9wNxxmOqS6 (line 30)) (2.4.1+cu124)
+Collecting torch_geometric==2.8.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading torch_geometric-2.8.0-py3-none-any.whl.metadata (64 kB)
+Requirement already satisfied: torch_scatter==2.1.2 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from -r /tmp/tmp.9wNxxmOqS6 (line 34)) (2.1.2+pt24cu124)
+Requirement already satisfied: torch_sparse==0.6.18 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from -r /tmp/tmp.9wNxxmOqS6 (line 35)) (0.6.18+pt24cu124)
+Requirement already satisfied: torch_cluster==1.6.3 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from -r /tmp/tmp.9wNxxmOqS6 (line 36)) (1.6.3+pt24cu124)
+Collecting numpy==2.4.6 (from -r /tmp/tmp.9wNxxmOqS6 (line 38))
+  Downloading numpy-2.4.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy==1.18.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 39))
+  Downloading scipy-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting scikit-learn==1.9.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 40))
+  Downloading scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
+Collecting pyyaml==6.0.3 (from -r /tmp/tmp.9wNxxmOqS6 (line 41))
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting torchmetrics==1.8.2 (from -r /tmp/tmp.9wNxxmOqS6 (line 42))
+  Downloading torchmetrics-1.8.2-py3-none-any.whl.metadata (22 kB)
+Collecting wandb==0.28.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading wandb-0.28.0-py3-none-manylinux_2_28_x86_64.whl.metadata (11 kB)
+Collecting pandas==3.0.3 (from -r /tmp/tmp.9wNxxmOqS6 (line 44))
+  Downloading pandas-3.0.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+Collecting tqdm==4.68.3 (from -r /tmp/tmp.9wNxxmOqS6 (line 45))
+  Downloading tqdm-4.68.3-py3-none-any.whl.metadata (57 kB)
+Collecting umap-learn==0.5.12 (from -r /tmp/tmp.9wNxxmOqS6 (line 46))
+  Downloading umap_learn-0.5.12-py3-none-any.whl.metadata (24 kB)
+Collecting matplotlib==3.11.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading matplotlib-3.11.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+Collecting ogb==1.3.6 (from -r /tmp/tmp.9wNxxmOqS6 (line 50))
+  Downloading ogb-1.3.6-py3-none-any.whl.metadata (6.2 kB)
+Collecting yacs==0.1.8 (from -r /tmp/tmp.9wNxxmOqS6 (line 51))
+  Downloading yacs-0.1.8-py3-none-any.whl.metadata (639 bytes)
+Collecting dill==0.4.1 (from -r /tmp/tmp.9wNxxmOqS6 (line 52))
+  Downloading dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Collecting pytorch_lightning==2.6.5 (from -r /tmp/tmp.9wNxxmOqS6 (line 53))
+  Downloading pytorch_lightning-2.6.5-py3-none-any.whl.metadata (21 kB)
+Collecting prettytable==3.18.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 54))
+  Downloading prettytable-3.18.0-py3-none-any.whl.metadata (37 kB)
+Collecting gdown==6.1.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 55))
+  Downloading gdown-6.1.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting performer-pytorch==1.1.4 (from -r /tmp/tmp.9wNxxmOqS6 (line 56))
+  Downloading performer_pytorch-1.1.4-py3-none-any.whl.metadata (763 bytes)
+Collecting hyper-connections==0.4.2 (from -r /tmp/tmp.9wNxxmOqS6 (line 60))
+  Downloading hyper_connections-0.4.2-py3-none-any.whl.metadata (6.7 kB)
+Collecting seaborn==0.13.2 (from -r /tmp/tmp.9wNxxmOqS6 (line 61))
+  Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting texttable==1.7.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 64))
+  Downloading texttable-1.7.0-py2.py3-none-any.whl.metadata (9.8 kB)
+Collecting termcolor==3.3.0 (from -r /tmp/tmp.9wNxxmOqS6 (line 65))
+  Downloading termcolor-3.3.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting torch_householder==1.0.1 (from -r /tmp/tmp.9wNxxmOqS6 (line 68))
+  Downloading torch_householder-1.0.1.tar.gz (457 kB)
+  Installing build dependencies: started
+  Installing build dependencies: still running...
+  Installing build dependencies: still running...
+  Installing build dependencies: still running...
+  Installing build dependencies: still running...
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: filelock in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (4.2.10)
+Requirement already satisfied: typing-extensions>=4.8.0 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (4.16.0)
+Requirement already satisfied: sympy in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (1.14.0)
+Requirement already satisfied: networkx in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (3.7)
+Requirement already satisfied: jinja2 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (3.1.6)
+Requirement already satisfied: fsspec in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (2026.9.0)
+Requirement already satisfied: setuptools in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (84.2.1)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.4.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.99)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.4.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.99)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.4.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.99)
+Requirement already satisfied: nvidia-cudnn-cu12==9.1.0.70 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (9.1.0.70)
+Requirement already satisfied: nvidia-cublas-cu12==12.4.2.65 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.2.65)
+Requirement already satisfied: nvidia-cufft-cu12==11.2.0.44 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (11.2.0.44)
+Requirement already satisfied: nvidia-curand-cu12==10.3.5.119 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (10.3.5.119)
+Requirement already satisfied: nvidia-cusolver-cu12==11.6.0.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (11.6.0.99)
+Requirement already satisfied: nvidia-cusparse-cu12==12.3.0.142 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.3.0.142)
+Requirement already satisfied: nvidia-nccl-cu12==2.20.5 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (2.20.5)
+Requirement already satisfied: nvidia-nvtx-cu12==12.4.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.99)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.4.99 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (12.4.99)
+Requirement already satisfied: triton==3.0.0 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (3.0.0)
+Collecting aiohttp (from torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading aiohttp-3.14.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+Collecting psutil>=5.8.0 (from torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Collecting pyparsing (from torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+Collecting requests (from torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting xxhash (from torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading xxhash-4.1.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (18 kB)
+Collecting joblib>=1.4.0 (from scikit-learn==1.9.0->-r /tmp/tmp.9wNxxmOqS6 (line 40))
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting narwhals>=2.0.1 (from scikit-learn==1.9.0->-r /tmp/tmp.9wNxxmOqS6 (line 40))
+  Downloading narwhals-2.28.0-py3-none-any.whl.metadata (15 kB)
+Collecting threadpoolctl>=3.5.0 (from scikit-learn==1.9.0->-r /tmp/tmp.9wNxxmOqS6 (line 40))
+  Downloading threadpoolctl-3.8.0-py3-none-any.whl.metadata (29 kB)
+Requirement already satisfied: packaging>17.1 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from torchmetrics==1.8.2->-r /tmp/tmp.9wNxxmOqS6 (line 42)) (26.3)
+Collecting lightning-utilities>=0.8.0 (from torchmetrics==1.8.2->-r /tmp/tmp.9wNxxmOqS6 (line 42))
+  Downloading lightning_utilities-0.15.3-py3-none-any.whl.metadata (5.5 kB)
+Collecting click>=8.2.0 (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading click-8.5.1-py3-none-any.whl.metadata (2.6 kB)
+Collecting gitpython!=3.1.29,>=1.0.0 (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading gitpython-3.2.1-py3-none-any.whl.metadata (13 kB)
+Collecting platformdirs (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading platformdirs-4.14.5-py3-none-any.whl.metadata (5.7 kB)
+Collecting protobuf!=5.28.0,!=5.29.0,<8,>4.21.0 (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+Collecting pydantic<3,>=2.6 (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading pydantic-2.14.3-py3-none-any.whl.metadata (141 kB)
+Collecting sentry-sdk>=2.0.0 (from wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading sentry_sdk-2.75.0-py3-none-any.whl.metadata (11 kB)
+Collecting python-dateutil>=2.8.2 (from pandas==3.0.3->-r /tmp/tmp.9wNxxmOqS6 (line 44))
+  Downloading python_dateutil-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting numba>=0.51.2 (from umap-learn==0.5.12->-r /tmp/tmp.9wNxxmOqS6 (line 46))
+  Downloading numba-0.68.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (2.8 kB)
+Collecting pynndescent>=0.5 (from umap-learn==0.5.12->-r /tmp/tmp.9wNxxmOqS6 (line 46))
+  Downloading pynndescent-0.7.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting contourpy>=1.0.1 (from matplotlib==3.11.0->-r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading contourpy-1.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+Collecting cycler>=0.10 (from matplotlib==3.11.0->-r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib==3.11.0->-r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading fonttools-4.68.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (139 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib==3.11.0->-r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+Collecting pillow>=9 (from matplotlib==3.11.0->-r /tmp/tmp.9wNxxmOqS6 (line 47))
+  Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+Collecting six>=1.12.0 (from ogb==1.3.6->-r /tmp/tmp.9wNxxmOqS6 (line 50))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting urllib3>=1.24.0 (from ogb==1.3.6->-r /tmp/tmp.9wNxxmOqS6 (line 50))
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting outdated>=0.2.0 (from ogb==1.3.6->-r /tmp/tmp.9wNxxmOqS6 (line 50))
+  Downloading outdated-0.2.2-py2.py3-none-any.whl.metadata (4.7 kB)
+Collecting wcwidth>=0.3.5 (from prettytable==3.18.0->-r /tmp/tmp.9wNxxmOqS6 (line 54))
+  Downloading wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (23 kB)
+Collecting beautifulsoup4 (from gdown==6.1.0->-r /tmp/tmp.9wNxxmOqS6 (line 55))
+  Downloading beautifulsoup4-4.15.0-py3-none-any.whl.metadata (3.8 kB)
+Collecting einops>=0.3 (from performer-pytorch==1.1.4->-r /tmp/tmp.9wNxxmOqS6 (line 56))
+  Downloading einops-0.8.2-py3-none-any.whl.metadata (13 kB)
+Collecting local-attention>=1.1.1 (from performer-pytorch==1.1.4->-r /tmp/tmp.9wNxxmOqS6 (line 56))
+  Downloading local_attention-1.11.2-py3-none-any.whl.metadata (929 bytes)
+Collecting axial-positional-embedding>=0.1.0 (from performer-pytorch==1.1.4->-r /tmp/tmp.9wNxxmOqS6 (line 56))
+  Downloading axial_positional_embedding-0.3.12-py3-none-any.whl.metadata (4.3 kB)
+Collecting ninja (from torch_householder==1.0.1->-r /tmp/tmp.9wNxxmOqS6 (line 68))
+  Downloading ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.4 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=2.6->wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.6 kB)
+Collecting typing-inspection>=0.4.4 (from pydantic<3,>=2.6->wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading typing_inspection-0.4.5-py3-none-any.whl.metadata (2.6 kB)
+Collecting charset_normalizer<4,>=2 (from requests->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+Collecting idna<4,>=2.5 (from requests->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting certifi>=2023.5.7 (from requests->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl.metadata (5.9 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting attrs>=17.3.0 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting frozenlist>=1.1.1 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
+Collecting multidict<8.0,>=4.5 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading multidict-7.2.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (6.1 kB)
+Collecting propcache>=0.2.0 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (25 kB)
+Collecting yarl<2.0,>=1.25.1 (from aiohttp->torch_geometric==2.8.0->-r /tmp/tmp.9wNxxmOqS6 (line 33))
+  Downloading yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (111 kB)
+Collecting gitdb<5,>=4.0.1 (from gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
+Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->gitpython!=3.1.29,>=1.0.0->wandb==0.28.0->-r /tmp/tmp.9wNxxmOqS6 (line 43))
+  Downloading smmap-5.0.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting cloudpickle>=3.0 (from joblib>=1.4.0->scikit-learn==1.9.0->-r /tmp/tmp.9wNxxmOqS6 (line 40))
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting llvmlite<0.51,>=0.50.0dev0 (from numba>=0.51.2->umap-learn==0.5.12->-r /tmp/tmp.9wNxxmOqS6 (line 46))
+  Downloading llvmlite-0.50.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+Collecting littleutils (from outdated>=0.2.0->ogb==1.3.6->-r /tmp/tmp.9wNxxmOqS6 (line 50))
+  Downloading littleutils-0.2.4-py3-none-any.whl.metadata (679 bytes)
+Collecting tzdata (from python-dateutil>=2.8.2->pandas==3.0.3->-r /tmp/tmp.9wNxxmOqS6 (line 44))
+  Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting soupsieve>=1.6.1 (from beautifulsoup4->gdown==6.1.0->-r /tmp/tmp.9wNxxmOqS6 (line 55))
+  Downloading soupsieve-4.1.1-py3-none-any.whl.metadata (4.4 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from jinja2->torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (3.0.4)
+Collecting PySocks!=1.5.7,>=1.5.6 (from requests[socks]->gdown==6.1.0->-r /tmp/tmp.9wNxxmOqS6 (line 55))
+  Downloading PySocks-1.7.1-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages (from sympy->torch==2.4.1->-r /tmp/tmp.9wNxxmOqS6 (line 30)) (1.3.0)
+Downloading torch_geometric-2.8.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 11.9 MB/s  0:00:00
+Downloading numpy-2.4.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 11.4 MB/s  0:00:01
+Downloading scipy-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 11.8 MB/s  0:00:03
+Downloading scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (9.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.1/9.1 MB 11.8 MB/s  0:00:00
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 12.1 MB/s  0:00:00
+Downloading torchmetrics-1.8.2-py3-none-any.whl (983 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 983.2/983.2 kB 12.0 MB/s  0:00:00
+Downloading wandb-0.28.0-py3-none-manylinux_2_28_x86_64.whl (26.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 26.8/26.8 MB 11.7 MB/s  0:00:02
+Downloading pandas-3.0.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (10.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.9/10.9 MB 11.7 MB/s  0:00:00
+Downloading tqdm-4.68.3-py3-none-any.whl (78 kB)
+Downloading umap_learn-0.5.12-py3-none-any.whl (91 kB)
+Downloading matplotlib-3.11.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.0/10.0 MB 11.8 MB/s  0:00:00
+Downloading ogb-1.3.6-py3-none-any.whl (78 kB)
+Downloading yacs-0.1.8-py3-none-any.whl (14 kB)
+Downloading dill-0.4.1-py3-none-any.whl (120 kB)
+Downloading pytorch_lightning-2.6.5-py3-none-any.whl (852 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 852.4/852.4 kB 12.0 MB/s  0:00:00
+Downloading prettytable-3.18.0-py3-none-any.whl (37 kB)
+Downloading gdown-6.1.0-py3-none-any.whl (19 kB)
+Downloading performer_pytorch-1.1.4-py3-none-any.whl (13 kB)
+Downloading hyper_connections-0.4.2-py3-none-any.whl (22 kB)
+Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
+Downloading texttable-1.7.0-py2.py3-none-any.whl (10 kB)
+Downloading termcolor-3.3.0-py3-none-any.whl (7.7 kB)
+Downloading protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl (343 kB)
+Downloading pydantic-2.14.3-py3-none-any.whl (494 kB)
+Downloading pydantic_core-2.50.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 11.8 MB/s  0:00:00
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading axial_positional_embedding-0.3.12-py3-none-any.whl (6.7 kB)
+Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+Downloading click-8.5.1-py3-none-any.whl (126 kB)
+Downloading contourpy-1.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (383 kB)
+Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Downloading einops-0.8.2-py3-none-any.whl (65 kB)
+Downloading fonttools-4.68.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.4/5.4 MB 11.7 MB/s  0:00:00
+Downloading aiohttp-3.14.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.9/1.9 MB 11.8 MB/s  0:00:00
+Downloading multidict-7.2.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (516 kB)
+Downloading yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (117 kB)
+Downloading aiohappyeyeballs-2.7.1-py3-none-any.whl (15 kB)
+Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (242 kB)
+Downloading gitpython-3.2.1-py3-none-any.whl (231 kB)
+Downloading gitdb-4.0.12-py3-none-any.whl (62 kB)
+Downloading smmap-5.0.3-py3-none-any.whl (24 kB)
+Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 11.9 MB/s  0:00:00
+Downloading lightning_utilities-0.15.3-py3-none-any.whl (31 kB)
+Downloading local_attention-1.11.2-py3-none-any.whl (9.5 kB)
+Downloading narwhals-2.28.0-py3-none-any.whl (490 kB)
+Downloading numba-0.68.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.9/3.9 MB 11.8 MB/s  0:00:00
+Downloading llvmlite-0.50.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (59.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.7/59.7 MB 11.4 MB/s  0:00:05
+Downloading outdated-0.2.2-py2.py3-none-any.whl (7.5 kB)
+Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 11.3 MB/s  0:00:00
+Downloading propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (250 kB)
+Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading pynndescent-0.7.0-py3-none-any.whl (112 kB)
+Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+Downloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+Downloading sentry_sdk-2.75.0-py3-none-any.whl (555 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 555.2/555.2 kB 11.7 MB/s  0:00:00
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading threadpoolctl-3.8.0-py3-none-any.whl (32 kB)
+Downloading typing_inspection-0.4.5-py3-none-any.whl (14 kB)
+Downloading wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (785 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 785.9/785.9 kB 12.1 MB/s  0:00:00
+Downloading beautifulsoup4-4.15.0-py3-none-any.whl (109 kB)
+Downloading soupsieve-4.1.1-py3-none-any.whl (55 kB)
+Downloading littleutils-0.2.4-py3-none-any.whl (8.1 kB)
+Downloading ninja-1.13.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (183 kB)
+Downloading platformdirs-4.14.5-py3-none-any.whl (35 kB)
+Downloading PySocks-1.7.1-py3-none-any.whl (16 kB)
+Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Downloading xxhash-4.1.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (472 kB)
+Building wheels for collected packages: torch_householder
+  Building wheel for torch_householder (pyproject.toml): started
+  Building wheel for torch_householder (pyproject.toml): finished with status 'done'
+  Created wheel for torch_householder: filename=torch_householder-1.0.1-cp312-cp312-linux_x86_64.whl size=106848 sha256=2a1cc85254790028a4a1c2a31842df35c577255dd43bda9ca38d27446a926bac
+  Stored in directory: /tmp/pip-ephem-wheel-cache-h03eckrb/wheels/3f/33/34/8846b50a754aaf4682cfd092742e66eef3b99c75db2f960ad6
+Successfully built torch_householder
+Installing collected packages: texttable, xxhash, wcwidth, urllib3, tzdata, typing-inspection, tqdm, threadpoolctl, termcolor, soupsieve, smmap, six, pyyaml, PySocks, pyparsing, pydantic-core, psutil, protobuf, propcache, platformdirs, pillow, numpy, ninja, narwhals, multidict, llvmlite, littleutils, lightning-utilities, kiwisolver, idna, frozenlist, fonttools, einops, dill, cycler, cloudpickle, click, charset_normalizer, certifi, attrs, annotated-types, aiohappyeyeballs, yarl, yacs, sentry-sdk, scipy, requests, python-dateutil, pydantic, prettytable, numba, joblib, gitdb, contourpy, beautifulsoup4, aiosignal, scikit-learn, pandas, outdated, matplotlib, gitpython, aiohttp, wandb, torchmetrics, torch_householder, torch_geometric, seaborn, pynndescent, ogb, hyper-connections, gdown, axial-positional-embedding, umap-learn, pytorch_lightning, local-attention, performer-pytorch
+  Attempting uninstall: numpy
+    Found existing installation: numpy 2.5.4
+    Uninstalling numpy-2.5.4:
+      Successfully uninstalled numpy-2.5.4
+  Attempting uninstall: scipy
+    Found existing installation: scipy 1.18.1
+    Uninstalling scipy-1.18.1:
+      Successfully uninstalled scipy-1.18.1
+
+Successfully installed PySocks-1.7.1 aiohappyeyeballs-2.7.1 aiohttp-3.14.5 aiosignal-1.4.0 annotated-types-0.8.0 attrs-26.1.0 axial-positional-embedding-0.3.12 beautifulsoup4-4.15.0 certifi-2026.10.23 charset_normalizer-3.5.2 click-8.5.1 cloudpickle-3.1.2 contourpy-1.4.0 cycler-0.12.1 dill-0.4.1 einops-0.8.2 fonttools-4.68.0 frozenlist-1.8.0 gdown-6.1.0 gitdb-4.0.12 gitpython-3.2.1 hyper-connections-0.4.2 idna-3.20 joblib-1.6.0 kiwisolver-1.5.1 lightning-utilities-0.15.3 littleutils-0.2.4 llvmlite-0.50.0 local-attention-1.11.2 matplotlib-3.11.0 multidict-7.2.1 narwhals-2.28.0 ninja-1.13.2 numba-0.68.1 numpy-2.4.6 ogb-1.3.6 outdated-0.2.2 pandas-3.0.3 performer-pytorch-1.1.4 pillow-13.0.0 platformdirs-4.14.5 prettytable-3.18.0 propcache-0.5.4 protobuf-7.36.2 psutil-7.2.2 pydantic-2.14.3 pydantic-core-2.50.4 pynndescent-0.7.0 pyparsing-3.3.3 python-dateutil-4.0.0 pytorch_lightning-2.6.5 pyyaml-6.0.3 requests-2.34.2 scikit-learn-1.9.0 scipy-1.18.0 seaborn-0.13.2 sentry-sdk-2.75.0 six-1.17.0 smmap-5.0.3 soupsieve-4.1.1 termcolor-3.3.0 texttable-1.7.0 threadpoolctl-3.8.0 torch_geometric-2.8.0 torch_householder-1.0.1 torchmetrics-1.8.2 tqdm-4.68.3 typing-inspection-0.4.5 tzdata-2026.6 umap-learn-0.5.12 urllib3-2.8.0 wandb-0.28.0 wcwidth-0.9.4 xxhash-4.1.0 yacs-0.1.8 yarl-1.25.1
+[3] torch 2.4.1+cu124
+== step 5: DGL file sha256
+sha256 lock=0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8 file=0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8 size=291228305
+== step 6: conda install DGL (no deps, offline)
+
+Downloading and Extracting Packages: ...working... done
+
+## Package Plan ##
+
+  environment location: /mnt/home/peeradon/.conda/envs/h2snn-b
+
+  added / updated specs:
+    - <unknown>/linux-64::dgl==2.4.0.th24.cu124=py312_0
+
+
+The following NEW packages will be INSTALLED:
+
+  dgl                <unknown>/linux-64::dgl-2.4.0.th24.cu124-py312_0 
+
+
+
+Downloading and Extracting Packages: ...working... done
+Preparing transaction: ...working... done
+Verifying transaction: ...working... done
+Executing transaction: ...working... done
+[6] torch 2.4.1+cu124
+== step 7: pip check (exit code not used)
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+install_env_b.sh: done
+install_exit=0 seconds=899
+
+===== check_env.py --lock requirements/linux-lock-b.txt
+note       torch: locked 2.4.1, installed 2.4.1+cu124 (local build tag)
+note       torch-cluster: locked 1.6.3, installed 1.6.3+pt24cu124 (local build tag)
+note       torch-scatter: locked 2.1.2, installed 2.1.2+pt24cu124 (local build tag)
+note       torch-sparse: locked 0.6.18, installed 0.6.18+pt24cu124 (local build tag)
+python 3.12.16; lock requirements/linux-lock-b.txt; differences: 0; notes: 4
+check_env_exit=0
+
+===== pip check
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+pip_check_exit=1
+
+===== conda list -n h2snn-b dgl
+# packages in environment at /mnt/home/peeradon/.conda/envs/h2snn-b:
+#
+# Name                     Version           Build            Channel
+dgl                        2.4.0.th24.cu124  py312_0          <unknown>
+
+===== torch / numpy
+torch 2.4.1+cu124 cuda_build 12.4 numpy 2.4.6
+pip_freeze_lines=105
+end=2026-11-15T09:20:32+09:00

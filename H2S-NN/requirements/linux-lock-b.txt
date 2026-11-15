@@ -3,6 +3,8 @@
 #   torch 2.6.0 -> 2.4.1 (see the comment at the torch line); PyG wheel index torch-2.6.0+cu124 -> torch-2.4.0+cu124 (the wheels are used with 2.4.1);
 #   dgl 2.5.0+cu124 -> 2.4.0+cu124 and DGL index torch-2.6 -> torch-2.4 (NOT TESTED on the laptop: Windows has only dgl 2.2.1;
 #   data.dgl.ai was unreachable, see docs/envB_evidence/e1_dgl_index.txt); hyper-connections==0.4.2 added (see below).
+# cluster-setup2 CS7-1a (2026-11-15): the dead DGL pip index line was removed; DGL is installed from the conda package by
+#   scripts/setup/install_env_b.sh ENV_NAME DGL_FILE (see the DGL block at the end).
 #
 # Original header follows.
 #
@@ -65,11 +67,13 @@ termcolor==3.3.0
 # CSNN, NSD (requirements/baselines-sheaf.txt)
 torch_householder==1.0.1
 
-# DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4. data.dgl.ai is dead (expired domain), so the pip index line below no longer resolves.
-# The same build is on the official conda channel (docs/envB_evidence/e8_dgl_conda_channel.txt):
+# DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4. The pip index of DGL is dead (expired domain; envB E1), so the
+# lock names no DGL index. The same build is on the official conda channel (docs/envB_evidence/e8_dgl_conda_channel.txt):
 #   https://conda.anaconda.org/dglteam/label/th24_cu124/linux-64/dgl-2.4.0.th24.cu124-py312_0.tar.bz2  sha256 0267a1a7cfb7fa1dde5cd5a2e378427ee002288318fbbf26332f63afa8c867a8
-# install it with  conda install --no-deps <that file>  (its dependencies are already pip-installed). Contents inspected, installation NOT tested on Linux.
--f https://data.dgl.ai/wheels/torch-2.4/cu124/repo.html
+# (291 228 305 bytes; it ships libgraphbolt/dgl_sparse/tensoradapter for torch 2.4.0 and 2.4.1; its metadata declares torch<=2.4.0,
+# so pip check reports that one line: accepted by the author, cluster-setup2 card).
+# The dgl line below is a check line for scripts/setup/check_env.py:
+# installed by conda from the dglteam package by scripts/setup/install_env_b.sh; pip must not install this line.
 dgl==2.4.0+cu124
 # torchdata: NOT needed by dgl 2.4.0 (E1b: not in install_requires, no import of it in python/; graphbolt carries its own datapipes copy). Not pinned.
 # (dgl 2.2.1, the Windows build, does import torchdata.datapipes; torchdata 0.8.0 was used with it on the laptop.)
