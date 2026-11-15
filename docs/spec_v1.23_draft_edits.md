@@ -138,3 +138,29 @@ Anchor checked: occurs once in spec v1.22 (md5 `7b44dd2c9b10bf620a8e36d8d3a9b922
 > MUTAG's test set is 20 graphs. No heterophily claim and no heterophily value (1.23): labels are graph-level, so ℋ² and MLH are undefined, and MDE is not reported (constant features under this protocol; MUTAG and NCI1 have no attributes). The GC dataset table reports the number of node and edge types and the type-mixing ratio (share of edges joining nodes of different types) as a heterogeneity statistic, never as heterophily.
 
 Anchor checked: occurs once in spec v1.22. Changelog addition: "(X9) GC: no heterophily value; type-mixing ratio reported."
+
+---
+
+# Main-session items X-16 … X-19 (drafted 2026-11-16 by the main design session; **wording awaits the author's approval**)
+Decisions already taken by the author (decisions log: "Part M3b review" (1), (3); "Baselines on H2GB …" rows S1–S5, C4, G-1..G-10; handoff_2026-11-15 §6). Anchors checked on spec v1.22 (md5 `7b44dd2c…a922`): each occurs once.
+
+## X-16 §6 PDNS protocol = H2GB's code (Part M3b review (1))
+**X-16a. Replace:** `PDNS follows H2GB's temporal protocol (training graph over the training windows, one test graph per later window with previously labelled domains removed); it is the one inductive NC dataset.`
+**with:**
+> PDNS follows H2GB's released code (1.23, author; `pdns_dataset.py:55, 173-187, 247-249`): one transductive graph over windows 0–59 and a random 70/20/10 split drawn from the run seed. The paper states that H2GB's released code splits at random although its paper describes a temporal split (corrects 1.15, which followed the paper's description without reading the code).
+
+**X-16b. Delete:** ` (PDNS: each test window's graph)` and ` PDNS: scopes and the evaluation draw are built on each test window's graph.`
+
+## X-17 §6 Baselines: H-Pokec cells (Part M3b review (3))
+**Insert before** `(1.21, author) **HetSheaf**`:
+> (1.23, author) On H-Pokec, SeHGNN is N/A (out of memory under its own code: stored propagated features 1,214–29,685 GiB at `num_hops` 2–4, Part M3b B7) and PSHGCN runs with `K` = 1 and hidden ≤ 64 (stated in the paper).
+
+## X-18 §6 Baselines: batching and inputs on the H2GB datasets
+**Insert after X-17's sentence:**
+> (1.23, author) Baselines on the H2GB datasets follow their sources' batching and inputs as fixed in the decisions log (rows "Baselines on H2GB …", 2026-11-16: S1–S5, C4, G-1–G-10), each deviation stated in the paper with the source's file:line. In short: class A (GCN, GAT, HAN, H2G-former) on H2GB's `hgt` sampler with its YAML fan-out lists; class B on the source's own batching and inputs where defined (SeHGNN on ogbn-mag/mag-year with its README's "without extra embeddings" inputs; Hetero²Net's MetaPath2Vec embeddings on MAG; HINormer = the original HINormer code, because H2GB's `HINormerModel` has its transformer commented out); class C (NSD, CSNN, HetSheaf, H2SGNN) on H2GB's `hgt` sampler; PSHGCN on MAG with its ogbn-mag code, elsewhere and H2SGNN everywhere with their generic per-relation branch (no label part); H2G-former on mag-year with ogbn-mag's meta-path schema (same graph).
+
+## X-19 §6 Environment (handoff §6 open item)
+**Insert before** `- **Cost gate (1.11;`:
+> - **Environment (1.23).** Every run uses conda env `h2snn-b` on the lab cluster: torch 2.4.1+cu124, PyG extensions pt24cu124, DGL 2.4.0+cu124 (conda package `dglteam/label/th24_cu124`), numpy 2.4.6, `torch_householder` 1.0.1; lock `H2S-NN/requirements/linux-lock-b.txt`. Bit-exact references (v3-B golden, mb0) are the cluster captures (`docs/legacy_evidence/v3b_golden_cluster.pt`, `docs/partMB_evidence/mb0_reference_cluster.pt`).
+
+Changelog additions: "(X10) PDNS per H2GB's code (transductive, random 70/20/10); (X11) H-Pokec: SeHGNN N/A, PSHGCN K = 1, hidden ≤ 64; baselines' H2GB batching and inputs per the decisions log; (X12) environment `h2snn-b`."
