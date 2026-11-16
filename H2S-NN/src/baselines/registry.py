@@ -115,18 +115,16 @@ SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated fe
 #: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
 #: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
 #: Part 2 E4: large-LP cells wired (link-level sampling on the message graph, the local-LP encoder, shared decoder).
-LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset()
-_LP_NOTEBOOKS = ("adapter pending: its large-LP code path is in place and tested (part 2 E4: large_lp_training.py, "
-                 "hgb_gnn._fit_large_lp), but claiming the cell changes the generated lane notebooks "
-                 "(notebooks/baselines/, scripts/generate_baseline_notebooks.py), outside card 1b's files: stop item")
-_LP_POKEC = ("adapter pending: part 2 E4 stop item: H2GB's H-Pokec fan-out is per node type and of unequal length "
-             "(user [2048, 2048, 512, 512], clubs [128, 128, 128]), PyG's link sampler takes one list per relation; "
-             "the per-relation fan-out on H-Pokec is a design decision")
+LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
+    # card 1c F7 (G-8, G-10): large_lp_training.py; notebooks regenerated (G-9)
+    *((m, t) for m in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer") for t in ("ogbn-mag_pp", "h-pokec_uu")),
+    ("hetero2net", "h-pokec_uu"),
+})
 _LP_NOT_WIRED = ("adapter pending: part 2 E4 did not wire this method's large-LP path (its local-LP encoder on link-level "
                  "subgraphs); the sampler, the message graph and the loop are in place (large_lp_training.py)")
 LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("gcn", "h-pokec_uu"): _LP_POKEC, ("gat", "h-pokec_uu"): _LP_POKEC,
-    ("gcn", "ogbn-mag_pp"): _LP_NOTEBOOKS, ("gat", "ogbn-mag_pp"): _LP_NOTEBOOKS,
+    ("hetero2net", "ogbn-mag_pp"): ("adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under "
+                                    "<data root>/NC/mag/hetero2net/; card 1c F7)"),
 }
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
     **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},

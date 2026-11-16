@@ -80,6 +80,9 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: `hgt` batches with that YAML's fan-out; semantic attention averages over the sampled subgraph (stated).
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP with H2GB's HAN on H2GB's hgt sampler seeded by each step's endpoints (its head reads
+#: the seed rows), H2GB's per-type lists unchanged.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _load_vendor_graph(dataset: str, root: Path) -> tuple[Any, ...]:
@@ -109,7 +112,7 @@ class HANAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in VENDOR_DATASET or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -154,6 +157,13 @@ class HANAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
@@ -372,6 +382,30 @@ class HANAdapter:
         record["num_relation_keys"] = float(num_relations)
         record["readout"] = "shared_mean_pool_linear"
         return record
+
+
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: H2GB's HAN (`HeteroGNNModel`, its HAN YAML on the task's NC dataset) with `embed_dim` outputs; the
+    seed rows of its head are the endpoints' embeddings."""
+    from src.baselines.adapters._h2gb_network import build_hetero_gnn, configure_from_yaml, seed_predictions
+    from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
+    from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler
+    from src.data.large_lp import LARGE_LP_TASKS
+
+    graph, node_type = d.graph, d.node_type
+    sampler = sampler or h2gb_sampler(NAME, d.task, tuple(graph.node_types), force_hgt=True)
+    if graph[node_type].get("y") is None:  # H2GB's head returns `y` beside the prediction; nothing reads it
+        graph[node_type].y = torch.zeros(int(graph[node_type].num_nodes), dtype=torch.long)
+    embed_dim = int(params.get("embed_dim", 64))
+    ensure_pyg_submodules()
+    with pushd_sys_path("h2gb"):
+        configure_from_yaml(NAME, LARGE_LP_TASKS[d.task].nc_dataset, graph, node_type, device, {
+            "gnn.dim_inner": int(params.get("hidden_dim", 64)), "gnn.layers_mp": int(params.get("num_layers", 2)),
+            "gnn.dropout": float(params.get("dropout", 0.2)), "gnn.attn_heads": int(params.get("num_heads", 8)),
+            "train.sampler": "hgt"})
+        model = build_hetero_gnn(graph, d.task, embed_dim).to(device)
+    return LargeLPModel(model, lambda batch, train: seed_predictions(model, batch.to(device), node_type),
+                        embed_dim), sampler
 
 
 def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:

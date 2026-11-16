@@ -91,6 +91,9 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 H2GB_DATASETS = frozenset({"ogbn-mag", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns",
                            "mag-year"})  # card 1c F6 (G-7): mag-year with ogbn-mag's MetaPath2Vec schema
 READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP with H2GB's GTModel (raw encoder only: no label channel in link prediction, D-P3's LP
+#: rule; H2GB has no LP config for these tasks) on H2GB's hgt sampler seeded by each step's endpoints.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 class _DatasetShim:
@@ -198,7 +201,7 @@ class H2GformerAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -250,6 +253,13 @@ class H2GformerAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
@@ -556,6 +566,34 @@ def _build_hetero_data(bundle: NodeBundle, device: torch.device) -> tuple[Any, s
     # target block as the batch makes the head return every target node's prediction.
     data[target_type].batch_size = int(data[target_type].num_nodes)
     return data.to(device), target_type
+
+
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: H2GB's GTModel from its H2Gformer YAML on the task's NC dataset, raw encoder only, `embed_dim`
+    outputs; the seed rows of its head are the endpoints' embeddings."""
+    from src.baselines.adapters import _h2gformer_h2gb as h2gf
+    from src.baselines.adapters._h2gb_network import configure_from_yaml, seed_predictions
+    from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler
+    from src.data.large_lp import LARGE_LP_TASKS
+
+    graph, node_type = d.graph, d.node_type
+    sampler = sampler or h2gb_sampler(NAME, d.task, tuple(graph.node_types), force_hgt=True)
+    if graph[node_type].get("y") is None:  # H2GB's head returns `y` beside the prediction; nothing reads it
+        graph[node_type].y = torch.zeros(int(graph[node_type].num_nodes), dtype=torch.long)
+    embed_dim = int(params.get("embed_dim", 64))
+    ensure_pyg_submodules()
+    with pushd_sys_path(VENDOR):
+        cfg = configure_from_yaml("h2gformer", LARGE_LP_TASKS[d.task].nc_dataset, graph, node_type, device,
+                                  h2gf.overrides(params, embed_dim, (RAW,)))
+        configure_encoders(cfg, (RAW,))
+        model = h2gf.build_gtmodel(graph, d.task, embed_dim).to(device)
+
+    def embed(batch: Any, train: bool) -> torch.Tensor:
+        batch = batch.to(device)
+        batch.split = "train" if train else "val"
+        return seed_predictions(model, batch, node_type)
+
+    return LargeLPModel(model, embed, embed_dim), sampler
 
 
 ADAPTER = H2GformerAdapter()

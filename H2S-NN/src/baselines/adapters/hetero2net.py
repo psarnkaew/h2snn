@@ -73,6 +73,10 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 H2GB_RUNNABLE = H2GB_DATASETS - {"ogbn-mag", "mag-year"}
 READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP with its HeteroGNN (as its local-LP encoder: y_emb none, disentanglement term) on
+#: link-level batches of the message graph with its own fan-out [10, 10] (D2); inputs as its NC path (FreeBase
+#: branch; MAG waits for the author's embedding file).
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _load_vendor_graph(dataset: str, data_root: Path) -> tuple[Any, Any]:
@@ -151,7 +155,7 @@ class Hetero2NetAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or (dataset in LARGE_LP_DATASETS and dataset != "ogbn-mag_pp")
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -215,6 +219,13 @@ class Hetero2NetAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
@@ -550,6 +561,53 @@ class Hetero2NetAdapter:
         record["batch_size"] = float(plan.batch_size)
         record["metapaths"] = float(metapaths is not None)
         return record
+
+
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: their HeteroGNN emitting `embed_dim` rows of the endpoint type (as `Hetero2NetLinkEncoder`), its
+    disentanglement term as the auxiliary loss (their utils.py:161-167), on link batches with fan-out [10, 10]."""
+    from src.baselines.adapters import _hetero2net_h2gb as h2gb
+    from src.baselines.large_lp_training import LargeLPModel, Sampler
+    from src.data.large_lp import LARGE_LP_TASKS
+
+    graph, node_type = d.graph, d.node_type
+    root = d.extra.get("data_root") if hasattr(d, "extra") else None
+    h2gb.prepare_inputs(graph, LARGE_LP_TASKS[d.task].nc_dataset, root)
+    sampler = sampler or Sampler("link", list(h2gb.NUM_NEIGHBORS))
+    embed_dim = int(params.get("embed_dim", 64))
+    hidden = int(params.get("hidden_channels", 128))
+    alpha = float(params.get("alpha", 0.2))
+    with pushd_sys_path(VENDOR):
+        from hetero2net.models import HeteroGNN  # type: ignore[import-not-found]
+
+        model = HeteroGNN(graph.metadata(), in_channels=hidden, hidden_channels=hidden, out_channels=embed_dim,
+                          dropout=float(params.get("dropout", 0.0)), project=True)
+    model.node_type = node_type
+    components: list = []
+
+    def embed(batch: Any, train: bool) -> torch.Tensor:
+        batch = batch.to(device, "x", "edge_index")
+        out = model(dict(batch.x_dict), batch.edge_index_dict)
+        components.clear()
+        if isinstance(out, tuple):
+            out, homos, heteros = out
+            components.append((homos, heteros))
+        return out[node_type] if isinstance(out, dict) else out
+
+    def aux_loss() -> torch.Tensor:
+        total = torch.zeros((), device=device)
+        if alpha <= 0:
+            return total
+        with pushd_sys_path(VENDOR):
+            from hetero2net.utils import dist_corr  # type: ignore[import-not-found]
+
+            for homos, heteros in components:
+                for homo_dict, hetero_dict in zip(homos, heteros):
+                    for edge_type in homo_dict:
+                        total = total + alpha * dist_corr(homo_dict[edge_type], hetero_dict[edge_type])
+        return total
+
+    return LargeLPModel(model, embed, embed_dim, aux_loss), sampler
 
 
 ADAPTER = Hetero2NetAdapter()

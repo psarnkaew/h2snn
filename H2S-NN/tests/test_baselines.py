@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 212)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year
+        self.assertEqual(summary["runnable_cells"], 225)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells
 
         per_task = {
             task: sum(
@@ -58,7 +58,7 @@ class RegistryTests(unittest.TestCase):
             for task in DATASETS
         }
         self.assertEqual(per_task["node_classification"], 122)
-        self.assertEqual(per_task["link_prediction"], 54)
+        self.assertEqual(per_task["link_prediction"], 67)
         self.assertEqual(per_task["graph_classification"], 36)
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:
@@ -88,9 +88,9 @@ class RegistryTests(unittest.TestCase):
                         "h-pokec", "pdns"):
             self.assertNotEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
         # Part M3b B6: the two large LP tasks have their split and negative files; adapter pending until wired.
+        # card 1c F7: GCN wired on both large LP tasks
         for dataset in ("ogbn-mag_pp", "h-pokec_uu"):
-            self.assertNotEqual(unsupported_reason("gcn", "link_prediction", dataset), pending)
-            self.assertIn("adapter pending", unsupported_reason("gcn", "link_prediction", dataset))
+            self.assertIsNone(unsupported_reason("gcn", "link_prediction", dataset))
         # a model without the task keeps the model-specific reason, not the dataset's
         self.assertEqual(unsupported_reason("chebnetii", "link_prediction", "ogbn-mag_pp"),
                          "ChebNetII has no link prediction implementation")
