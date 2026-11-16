@@ -1,0 +1,67 @@
+unit=a4_full_suite_post_merge job=17093 node=g2n01 start=2026-11-16T20:05:52+09:00
+git=4a6d94ad7698979427653dcbedc95557285fbd28 branch=hetsheaf
+4d355a1e6ab95d5e60994b61efcaaf1be324501d9c7a77bfee6fbc400c7641e5  src/baselines/adapters/hetsheaf.py
+37da56540e8dfb9f1001e46e6ab3a75768761322bd0d109a254fe92b7326e99b  src/baselines/registry.py
+fef7418593029c87424a7e7119b0b2f7ca29cfcd1f6dca415eda7a86345d2b55  src/baselines/large_lp_training.py
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB, 1 MiB
+2026-11-16 20:32:05,465 | INFO | Best epoch 1 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750 | test_acc: 0.3750
+  payload = torch.load(path, map_location="cpu")
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+.........................Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+.......2026-11-16 20:33:14,700 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-16 20:33:14,701 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...............................
+======================================================================
+FAIL: test_one_perturbed_tensor_exits_1_with_its_name (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_one_perturbed_tensor_exits_1_with_its_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_mb0_reference_compare.py", line 50, in test_one_perturbed_tensor_exits_1_with_its_name
+    self.assertEqual(done.returncode, 1, done.stdout + done.stderr[-2000:])
+AssertionError: 2 != 1 : bit-exact test needs the pinned kernel environment: run through scripts/slurm/run_tests.sbatch (cpu_capability=AVX2, MKL_CBWR=None)
+======================================================================
+FAIL: test_unperturbed_reference_exits_0 (tests.test_mb0_reference_compare.Mb0CompareExitCodeTests.test_unperturbed_reference_exits_0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_mb0_reference_compare.py", line 45, in test_unperturbed_reference_exits_0
+    self.assertEqual(done.returncode, 0, done.stdout + done.stderr[-2000:])
+AssertionError: 2 != 0 : bit-exact test needs the pinned kernel environment: run through scripts/slurm/run_tests.sbatch (cpu_capability=AVX2, MKL_CBWR=None)
+======================================================================
+FAIL: test_every_v3b_configuration_is_bit_identical_to_the_capture (tests.test_v3b_golden.V3BGoldenTests.test_every_v3b_configuration_is_bit_identical_to_the_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_v3b_golden.py", line 37, in test_every_v3b_configuration_is_bit_identical_to_the_capture
+    assert_kernel_path_pinned(self)
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/pinned_kernels.py", line 25, in assert_kernel_path_pinned
+    case.assertTrue(
+AssertionError: False is not true : bit-exact test needs the pinned kernel environment: run through scripts/slurm/run_tests.sbatch (cpu_capability=AVX2, MKL_CBWR=None)
+----------------------------------------------------------------------
+Ran 738 tests in 1697.880s
+FAILED (failures=3)
+tests_exit=1 end=2026-11-16T20:34:16+09:00

@@ -1,0 +1,1 @@
+{"cell": "link_prediction:h-pokec_uu", "host": "g3n01", "job": "16916", "step": null, "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "status": "error", "error": "ValueError: No target_relation for link-prediction dataset 'h-pokec_uu'; set data.target_relation explicitly.", "where": "src/configs/config.py:1159", "peak_gpu_gib": 0.0, "peak_host_gib": 0.39, "total_s": 0.0}
