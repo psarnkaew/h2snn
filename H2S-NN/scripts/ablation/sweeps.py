@@ -9,8 +9,8 @@ arm. Removed keys (DERIVED from `h2snn_model.py`):
   weights are unused, `h2snn_model.py` `cells_in_solve`); every other key acts.
 - `endpoints`, `closure_only` (holonomy edges of the drawn cells), `instance_features` (cell features
   in the head), `S2` (cells, g, transports = I): every key acts; nothing removed.
-The launcher builds its space itself and has no option to drop a key: for `no_path_cells` the
-restricted space cannot be passed (stop item); its two removed keys would be sampled without effect.
+Card 4b L2: the launcher drops these keys itself in arm-tuning mode (`ARM_INERT_SEARCH_KEYS`,
+`arm_search_space`); they keep the base config's value, which the arm never reads.
 
     python scripts/ablation/sweeps.py --tuning_base configs/experiments/acm_h2snn_v3b.yaml --out_dir <dir>
 """
@@ -31,12 +31,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import arms  # noqa: E402
-from src.configs.config import TrainConfig  # noqa: E402
+from src.configs.config import ARM_INERT_SEARCH_KEYS, TrainConfig  # noqa: E402
 
-REMOVED_KEYS: dict[str, tuple[str, ...]] = {
-    "endpoints": (), "closure_only": (), "instance_features": (),
-    "no_path_cells": ("wisp_max_length", "wisp_walks_per_anchor"), "S2": (),
-}
+REMOVED_KEYS: dict[str, tuple[str, ...]] = ARM_INERT_SEARCH_KEYS  # card 4b L2: the launcher's table
 N_TRIALS = 100
 TUNING_SEED = 0
 
@@ -58,8 +55,11 @@ def emit_configurations_b(tuning_base: Path, out_dir: Path) -> dict[str, dict]:
         raw["tuning"] = {"arm": arm}
         raw["exp_name"] = f"{base_raw.get('exp_name', dataset)}__ablation_b_{arm}"
         cfg = TrainConfig.from_dict(copy.deepcopy(raw))
-        space = launcher_space(cfg)
+        space = launcher_space(cfg)                      # the launcher's main-table space
         restricted = {k: v for k, v in space["parameters"].items() if k not in REMOVED_KEYS[arm]}
+        # what the launcher itself builds for this base config (arm-tuning mode)
+        from run_h2snn_wandb_tuning import arm_search_space
+        launcher_arm_space = arm_search_space(space["parameters"], arm)
         sweep = {**space, "parameters": restricted}
         base_path = out_dir / dataset / f"tune_{arm}.yaml"
         base_path.parent.mkdir(parents=True, exist_ok=True)
@@ -67,7 +67,7 @@ def emit_configurations_b(tuning_base: Path, out_dir: Path) -> dict[str, dict]:
         record = {"arm": arm, "base_config": str(base_path), "n_trials": N_TRIALS,
                   "seed": TUNING_SEED, "method": sweep["method"], "metric": sweep["metric"],
                   "parameters": restricted, "removed_keys": list(REMOVED_KEYS[arm]),
-                  "launcher_space_matches": sorted(restricted) == sorted(space["parameters"]),
+                  "launcher_space_matches": sorted(restricted) == sorted(launcher_arm_space),
                   "command": (f"python scripts/run_h2snn_wandb_tuning.py --config {base_path} "
                               f"--n_trials {N_TRIALS} --num_runs 1 --base_seed {TUNING_SEED}")}
         (out_dir / dataset / f"sweep_{arm}.json").write_text(json.dumps(record, indent=1),

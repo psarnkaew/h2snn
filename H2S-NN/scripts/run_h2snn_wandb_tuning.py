@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.configs.config import TrainConfig, reject_never_tuned_settings
+from src.configs.config import TrainConfig, arm_search_space, reject_never_tuned_settings
 from src.baselines import search_grids as shared_grids
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
@@ -510,6 +510,8 @@ def _build_sweep_for_run(
         dataset_name=base_cfg.data.dataset_name,
         d_values=args.d_values,
     )
+    if base_cfg.tuning.arm:  # spec 1.24 Y4: an arm-tuning sweep drops the arm's inert keys
+        sweep_config["parameters"] = arm_search_space(sweep_config["parameters"], base_cfg.tuning.arm)
     unit_token = unit_name or f"{unit_label}{run_index}"
     sweep_config["name"] = f"{base_exp_name}_{unit_token}_sweep"
     return sweep_config

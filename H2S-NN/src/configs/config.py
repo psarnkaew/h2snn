@@ -156,6 +156,34 @@ ARM_TUNING_KEYS: dict[str, tuple[str, str, str]] = {
     "no_path_cells": ("model", "arm", "no_path_cells"),
     "S2": ("ablation", "fact_maps_identity", "True"),
 }
+# Spec 1.24 Y4 (card 4b L2): search keys with no effect in an arm-tuning sweep, dropped from that arm's
+# space by the tuning launcher (they keep the base config's value, which is never read). Each entry is
+# shown unread by `tests/test_card4b_prefreeze.py` (the arm's outputs do not change with the key).
+# `no_path_cells`: cells are not in the solve and g's weights are unused (`h2snn_model.py`
+# `cells_in_solve`), so l_max and r only change the unused draw. The main table drops nothing.
+ARM_INERT_SEARCH_KEYS: dict[str, tuple[str, ...]] = {
+    "endpoints": (),
+    "closure_only": (),
+    "instance_features": (),
+    "no_path_cells": ("wisp_max_length", "wisp_walks_per_anchor"),
+    "S2": (),
+}
+
+
+def arm_search_space(parameters: Mapping[str, Any], tuning_arm: str) -> dict[str, Any]:
+    """The search space of an arm-tuning sweep: `parameters` without the arm's inert keys
+    (`ARM_INERT_SEARCH_KEYS`). Refused without an arm (a main-table sweep drops nothing)."""
+    if not tuning_arm:
+        raise ValueError("dropping search keys is for arm-tuning sweeps only (tuning.arm); a "
+                         "main-table sweep keeps every key (spec 1.24 Y4).")
+    if tuning_arm not in ARM_INERT_SEARCH_KEYS:
+        raise ValueError(f"tuning.arm must be one of {tuple(ARM_INERT_SEARCH_KEYS)}, got "
+                         f"{tuning_arm!r}.")
+    inert = ARM_INERT_SEARCH_KEYS[tuning_arm]
+    missing = [key for key in inert if key not in parameters]
+    if missing:
+        raise ValueError(f"inert keys {missing} of arm {tuning_arm!r} are not in the search space.")
+    return {key: value for key, value in parameters.items() if key not in inert}
 
 
 #: Spec v1.22 W2 (decisions log 2026-11-13, "H2S-NN LP decoder"): the refusal of `concat_mlp`.
