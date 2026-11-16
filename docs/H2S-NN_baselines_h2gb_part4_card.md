@@ -39,10 +39,11 @@ First check each on `baselines-h2gb-4` (some may already be fixed by cards 1b/1c
 Notebooks regenerated with the unchanged generator if cell claims change (`--check` after). Full suite on one node. No `src/` change outside `src/baselines/` → no golden/mb0. Report `docs/H2S-NN_baselines_h2gb_part4_report.md`: units table, cell table delta, tests/mutations, deviations, decisions; last line `branch=… sha=… card=… base=…`.
 
 ## Files
-`src/baselines/**`, baseline tests, `H2S-NN/vendor/VENDORS.tsv` (one row), `H2S-NN/scripts/setup/build_sparse_tools.sh`, `notebooks/baselines/` (regenerated only), evidence `docs/baselines_h2gb_evidence/p4_*`, the report. Nothing else.
+`src/baselines/**`, baseline tests, `H2S-NN/vendor/VENDORS.tsv` (one row), `H2S-NN/.gitignore` (one line `/vendor/sparse_tools/` beside the other clone rows; amendment 2026-11-16 after H1 stop, `tests/test_vendor_manifest.py:77-81`), `H2S-NN/scripts/setup/build_sparse_tools.sh`, `notebooks/baselines/` (regenerated only), evidence `docs/baselines_h2gb_evidence/p4_*`, the report. Nothing else.
 
 ## Rules and stop conditions
 - Never install into or remove from `h2snn-b` (4 agents share it). `pip freeze` before/after any build: identical, or stop.
 - Vendor code is never edited; the stub and paths live in our adapter.
 - Stop and report if: the build needs anything not in `h2snn-b`; PSHGCN's ogbn-mag label part calls anything from `sparse_tools.utils`; a diagonal does not match its formula; the zip's sha256 differs from what card 1c recorded (if it recorded one).
 - One commit per unit; push `baselines-h2gb-4` after each unit; never push another branch; after the report line, no further push.
+- **Continuation (2026-11-16):** H1 and H3b run on a new branch `baselines-h2gb-5` from `7df909df4487ca8deed03aace71ccce34d5eeb69` (H0, H2, H3 reviewed there); report `docs/H2S-NN_baselines_h2gb_part5_report.md`.
