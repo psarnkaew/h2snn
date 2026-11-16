@@ -1,6 +1,6 @@
 # Known-answer pre-registrations S1′-B, S3, S2′ under v3-B — DRAFT (item 6)
 
-**Status:** DRAFT for the author. Not yet a frozen pre-registration: it becomes one when the author approves it and it is committed before any S-run. Spec §0 rule 6 applies: every task states (a) **reachability** and (b) an **information-route audit**, per arm, including memorisation, written from the code.
+**Status:** FROZEN 2026-11-16 (author decision B-9; settings below). Originally: it becomes one when the author approves it and it is committed before any S-run. Spec §0 rule 6 applies: every task states (a) **reachability** and (b) an **information-route audit**, per arm, including memorisation, written from the code.
 **Written:** 2026-11-11, design session. **Authority:** spec v1.11 (C2, C2b, C12, §6 known-answer rows, E13), task card Part K (K0 pre-registration, `docs/WISP_evidence/k_preregistration.md`), Part K report, Part L report §7–§8.
 **Tags:** VERIFIED-CODE, VERIFIED-RUN, DERIVED, UNVERIFIED, PROPOSAL.
 
@@ -8,6 +8,8 @@
 1. **The propagation changed.** Gate (ii) (capacity of the weight channel) was met in Part K under v2 (gated Chebyshev filter bank, `K = 4`). v3-B uses one anchored solve on the three-level energy. **Capacity under v3-B is not shown**; S1′-B's `full` arm re-establishes it.
 2. **The receptive field is the whole connected component.** The solve is a PPR resolvent; a fact route is no longer limited to `K` applications. Every route audit below uses components, not hop counts.
 3. **Context routes.** Maps and fact weights read the geometry `[h₀, c]` in every arm (E10; `geometry_context: true`). `c_v` is, per (relation, role), the mean of `v`'s neighbours' `h₀` (VERIFIED-CODE `src/models/relational_context.py:3, 28-44`). Hence a fact `(u, v)` sees, through its map MLP and its weight `c_e = softplus(MLP([h_u, h_v, rel_emb])) + ε` (VERIFIED-CODE `src/models/sheaf_maps.py:261-273`, `h` = geometry), every node within one hop of `u` or `v`, as per-relation means. **A window of four consecutive path nodes is visible to one fact.** The Part K audit of S1′ did not list this route (DERIVED; it was harmless there because no arm learned the 6-bit parity, β = 0 stayed at chance).
+
+**Frozen settings (author, 2026-11-16, decision B-9; supersede the common settings and reachability paragraphs below where they differ):** S1′-B as written, S3 as proposed (author approved the design), S2′ option (a). Optimiser and schedule follow the protocol: AdamW, **no scheduler, no gradient clipping**; lr 1e-3, scalar group (θ_τ, `b`) at a constant 1e-2; 100 epochs; **seeds 1, 2, 3** (replace 42–44 everywhere below). **Reachability recomputed:** one scalar moves at most Σ_t lr_t = 0.01 · 100 = 1.0 in 100 epochs, so `log τ ∈ [−1, 1]` (τ ∈ [0.37, 2.72]) and `b` shifts every cell by at most e^{±1}; neither supplies a selection ratio near log 64 ≈ 4.2 or log 512 ≈ 6.2, so selection must still come from the oracle's fixed β or from `g`. Run on the cluster after M3b and before any tuning (card 4, `docs/H2S-NN_card4_ablation_prep_card.md`). Everything else below (graphs, arms, expectations, criteria, consequences) is unchanged and fixed.
 
 Common settings (all three tasks; PROPOSAL, fixed before running): `propagation: anchored`, solver values of spec §6 (never tuned), `d = 32`, `tau_init = 1`, AdamW lr 1e-3, scalar group 1e-2 (θ_τ, `b`), cosine, 100 epochs, grad clip 1.0, validation-accuracy selection, `resample_paths: false` (one draw = training and evaluation, as in Part K), n = 2000 targets split 50/25/25 (1,000 training targets), seeds 42, 43, 44. The oracle lives in the evidence script, not in `src/`.
 **Reachability of the scalars** (DERIVED, as K0): one scalar in the scalar group moves at most Σ_t lr_t = 0.01 · 50.5 ≈ 0.505 in 100 cosine epochs. So `log τ ∈ [−0.5, 0.5]` (τ ∈ [0.60, 1.66]) and `b` shifts every cell by at most e^{±0.5}. Neither can supply a selection ratio; selection must come from the oracle's fixed β (S1′-B) or from `g` (S3, S2′).
@@ -99,7 +101,7 @@ Part K's K2b miss (`uniform` solved it through the relation-specific fact `d`) i
 
 ---
 
-## Open decisions for the author
+## Open decisions for the author (HISTORY: all closed 2026-11-16, B-9: S3 design approved, runs on the cluster before tuning; see the Frozen settings paragraph at the top)
 **Decided 2026-11-11:** S1′-B approved as written; S2′ option (a). **Later the same day the author deferred all three tasks** (S1′-B, S3, S2′; prompt KA1 not run). S3 design choice still open.
 1. ~~Approve S1′-B as written (graph unchanged; 18 runs).~~ Approved.
 2. S3: accept the proposed 3-node, 1-bit, length-4 design in place of the spec text, or keep the spec text knowing the controls leak through fact weights.
