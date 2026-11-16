@@ -66,6 +66,10 @@ termcolor==3.3.0
 
 # CSNN, NSD (requirements/baselines-sheaf.txt)
 torch_householder==1.0.1
+# HetSheaf (card 3 Part A, H-1): its model code imports strenum (models/sheaf_gnn/config.py:8); version of HetSheaf's uv.lock
+# (vendor Heterogeneous-Sheaf-Neural-Networks 6964e1e, uv.lock:1255-1256); pure Python, no dependencies; installed with
+# `pip install --no-deps strenum==0.4.15` (docs/hetsheaf_evidence/a0_install_strenum.txt).
+strenum==0.4.15
 
 # DGL (requirements/baselines-dgl.txt): Linux CUDA build for torch 2.4. The pip index of DGL is dead (expired domain; envB E1), so the
 # lock names no DGL index. The same build is on the official conda channel (docs/envB_evidence/e8_dgl_conda_channel.txt):

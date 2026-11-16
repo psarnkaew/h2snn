@@ -1,0 +1,378 @@
+"""Card 3 Part A (HetSheaf), Slim tests: one NC and one LP step finite and moving; preprocessing equal to their
+`datasets/hgb.py:51-82` chain with `SubsetTrainSplit` removed; the shared split masks unchanged by the chain
+(label-route protection; mutation: `SubsetTrainSplit` in our chain -> `test_shared_masks_survive_the_chain` fails);
+the import route leaves no `lightning` / `omegaconf` / `hetsheaf` module behind registry or other adapter imports
+(design-session condition 1 of S-A0-1). Synthetic graphs only; no test reads the data root."""
+
+from __future__ import annotations
+
+import contextlib
+import importlib
+import subprocess
+import sys
+import textwrap
+import types
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Any, Iterator
+
+import torch
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+
+def synthetic_hgb() -> Any:
+    """A small HGB-like release: target `paper` (features, labels, split masks), `author` (other width), `term`
+    (no features); a duplicated `cite` edge and a self-loop so every step of their chain acts."""
+    from torch_geometric.data import HeteroData
+
+    g = torch.Generator().manual_seed(0)
+    data = HeteroData()
+    data["paper"].x = torch.rand(8, 6, generator=g) * 3.0
+    data["paper"].y = torch.tensor([0, 1, 2, 0, 1, 2, 0, 1])
+    data["paper"].train_mask = torch.tensor([1, 1, 0, 1, 0, 0, 1, 0], dtype=torch.bool)
+    data["paper"].val_mask = torch.tensor([0, 0, 1, 0, 0, 1, 0, 0], dtype=torch.bool)
+    data["paper"].test_mask = torch.tensor([0, 0, 0, 0, 1, 0, 0, 1], dtype=torch.bool)
+    data["author"].x = torch.rand(5, 4, generator=g)
+    data["term"].num_nodes = 4
+    pa = torch.tensor([[0, 1, 2, 3, 4, 5, 6, 7, 0], [0, 1, 2, 3, 4, 0, 1, 2, 3]])
+    data["paper", "to", "author"].edge_index = pa
+    data["author", "to", "paper"].edge_index = pa.flip(0)
+    data["paper", "cite", "paper"].edge_index = torch.tensor([[0, 1, 2, 2, 3, 5], [1, 2, 3, 3, 3, 6]])
+    pt = torch.tensor([[0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 0, 1, 2, 3]])
+    data["paper", "to", "term"].edge_index = pt
+    data["term", "to", "paper"].edge_index = pt.flip(0)
+    return data
+
+
+@contextlib.contextmanager
+def their_hgb_module() -> Iterator[Any]:
+    """Their `hetsheaf.datasets.hgb` imported through the adapter's route; its `import lightning as L`
+    (`hgb.py:9`, base class `L.LightningDataModule`) is given `pytorch_lightning`'s class for this import only."""
+    import pytorch_lightning
+
+    from src.baselines.adapters import hetsheaf
+
+    hetsheaf._vendor()
+    with hetsheaf._lightning_alias():
+        sys.modules["lightning"].LightningDataModule = pytorch_lightning.LightningDataModule
+        module = importlib.import_module("hetsheaf.datasets.hgb")
+    yield module
+
+
+def run_their_prepare_data(release: Any, target: str) -> Any:
+    """Their `HGBBaseDataModule.prepare_data` (`datasets/hgb.py:50-91`) on `release`, with `SubsetTrainSplit`
+    replaced by the identity (H-2), `HGBDataset` returning `release` through their transform, and the Lightning
+    loader replaced by a capture of the homogeneous graph it receives."""
+    with their_hgb_module() as hgb:
+        captured: dict[str, Any] = {}
+
+        class Identity:
+            def __init__(self, *args: Any, **kwargs: Any) -> None:
+                pass
+
+            def __call__(self, data: Any) -> Any:
+                return data
+
+        def fake_dataset(root: str, name: str, transform: Any) -> list[Any]:
+            return [transform(release.clone())]
+
+        def capture(data: Any, **kwargs: Any) -> Any:
+            captured["data"] = data
+            return SimpleNamespace()
+
+        saved = (hgb.SubsetTrainSplit, hgb.HGBDataset, hgb.LightningNodeData)
+        hgb.SubsetTrainSplit, hgb.HGBDataset, hgb.LightningNodeData = Identity, fake_dataset, capture
+        try:
+            module = hgb.HGBBaseDataModule(target=target, num_classes=3, dataset="ACM", homogeneous=True)
+            module.prepare_data()
+        finally:
+            hgb.SubsetTrainSplit, hgb.HGBDataset, hgb.LightningNodeData = saved
+        return captured["data"]
+
+
+def tuned(**values: Any) -> Any:
+    from src.baselines.protocol import BaselineParams
+
+    return BaselineParams(values=values, source="tuned")
+
+
+def parameters_snapshot(*modules: torch.nn.Module) -> list[torch.Tensor]:
+    return [p.detach().clone() for module in modules for p in module.parameters()]
+
+
+def assert_step_finite_and_moves(case: unittest.TestCase, loss: torch.Tensor, optimizer: Any,
+                                 modules: tuple[torch.nn.Module, ...]) -> None:
+    before = parameters_snapshot(*modules)
+    case.assertTrue(torch.isfinite(loss).item())
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    after = parameters_snapshot(*modules)
+    case.assertTrue(all(torch.isfinite(p).all() for p in after))
+    case.assertTrue(any(not torch.equal(a, b) for a, b in zip(before, after)), "no parameter moved")
+
+
+class PreprocessingTests(unittest.TestCase):
+    def test_chain_equals_their_hgb_chain_without_subset_train_split(self) -> None:
+        from src.baselines.adapters.hetsheaf import prepare_node_graph
+
+        release = synthetic_hgb()
+        theirs = run_their_prepare_data(release, "paper")
+        ours = prepare_node_graph(release, "paper", train_mask=release["paper"].train_mask,
+                                  val_mask=release["paper"].val_mask, test_mask=release["paper"].test_mask).graph
+        self.assertTrue(torch.equal(ours.x, theirs.x.float()))
+        self.assertTrue(torch.equal(ours.edge_index, theirs.edge_index))
+        self.assertTrue(torch.equal(ours.node_type, theirs.node_type))
+        self.assertTrue(torch.equal(ours.edge_type, theirs.edge_type))
+        self.assertEqual((ours.num_node_types, ours.num_edge_types),
+                         (int(theirs.num_node_types), int(theirs.num_edge_types)))
+
+    def test_shared_masks_survive_the_chain(self) -> None:
+        """Label-route protection: the shared split comes back unchanged (a split-changing transform such as their
+        `SubsetTrainSplit` would carve a new validation set out of the training nodes)."""
+        from src.baselines.adapters.hetsheaf import prepare_node_graph
+
+        release = synthetic_hgb()
+        masks = {key: release["paper"][key].clone() for key in ("train_mask", "val_mask", "test_mask")}
+        prepared = prepare_node_graph(release, "paper", **masks)
+        for key, expected in masks.items():
+            with self.subTest(mask=key):
+                self.assertTrue(torch.equal(getattr(prepared, key), expected))
+        self.assertEqual(prepared.target_rows.numel(), 8)
+
+
+class StepTests(unittest.TestCase):
+    def test_one_node_classification_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters.hetsheaf import HetSheafNodeClassifier, build_encoder, prepare_node_graph
+
+        torch.manual_seed(0)
+        release = synthetic_hgb()
+        prepared = prepare_node_graph(release, "paper", train_mask=release["paper"].train_mask,
+                                      val_mask=release["paper"].val_mask, test_mask=release["paper"].test_mask)
+        params = tuned(sheaf="general/attention_type_concat", d=3, layers=2, hidden_channels=8, dropout=0.1,
+                       input_dropout=0.1, lr=1e-2)
+        device = torch.device("cpu")
+        model = HetSheafNodeClassifier(build_encoder(prepared.graph, params, device, output_dim=3), 3,
+                                       prepared.target_rows)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+        logits = model(prepared.graph.encoder_input(device))
+        self.assertEqual(tuple(logits.shape), (8, 3))
+        train = prepared.train_mask.nonzero().view(-1)
+        loss = torch.nn.functional.cross_entropy(logits[train], release["paper"].y[train])
+        assert_step_finite_and_moves(self, loss, optimizer, (model,))
+
+    def test_one_link_prediction_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters.hetsheaf import HetSheafLinkEncoder, build_encoder, prepare_link_graph
+        from src.baselines.heads import SharedLinkHead
+
+        torch.manual_seed(0)
+        # A flattened message graph in the bundle's layout (PubMed-like: four typed relations, one type without
+        # features); every LP branch of the adapter reads the same fields.
+        x = torch.zeros(9, 5)
+        x[:4, :5] = torch.rand(4, 5)
+        x[4:7, :3] = torch.rand(3, 3)
+        data = SimpleNamespace(
+            x=x, node_type_names=("gene", "disease", "species"),
+            node_slices={"gene": (0, 4), "disease": (4, 7), "species": (7, 9)},
+            feature_dims={"gene": 5, "disease": 3, "species": 0},
+            relation_tuples=(("gene", "rel_0", "gene"), ("gene", "rel_1", "disease"), ("species", "rel_2", "gene")),
+            edge_index=torch.tensor([[0, 1, 2, 0, 1, 3, 7, 8], [1, 2, 3, 4, 5, 6, 0, 2]]),
+            edge_type=torch.tensor([0, 0, 0, 1, 1, 1, 2, 2]))
+        device = torch.device("cpu")
+        params = tuned(sheaf="bundle/type_concat", d=2, layers=2, hidden_channels=8, lr=1e-2)
+        for dataset in ("pubmed", "lastfm", "acm_pa"):
+            with self.subTest(branch=dataset):
+                graph, global_id = prepare_link_graph(dataset, data)
+                self.assertTrue(torch.equal(global_id.sort().values, torch.arange(9)))
+                encoder = HetSheafLinkEncoder(build_encoder(graph, params, device, output_dim=64), global_id)
+                head = SharedLinkHead("distmult", num_relations=1, dim=encoder.embed_dim)
+                optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
+                embeddings = encoder(graph.encoder_input(device))
+                self.assertEqual(embeddings.size(0), 9)
+                pairs = torch.tensor([[0, 1, 2, 5], [1, 3, 6, 8]])
+                scores = head(embeddings, pairs)
+                loss = torch.nn.functional.binary_cross_entropy_with_logits(scores, torch.tensor([1.0, 1.0, 0.0, 0.0]))
+                assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
+
+
+class GraphClassificationStepTests(unittest.TestCase):
+    def test_one_graph_classification_step_is_finite_and_moves(self) -> None:
+        """A2: their inductive encoder and their readouts `late_token` (SheafPool) and `mean`, one step each on a
+        batch of two typed graphs with constant features (HetSheaf's GC protocol)."""
+        from torch_geometric.data import Batch, Data
+
+        from src.baselines.adapters.hetsheaf import HetSheafGraphHead, build_inductive_encoder, gc_encoder_input
+
+        graphs = []
+        for n, y in ((5, 0), (4, 1)):
+            ring = torch.stack([torch.arange(n), (torch.arange(n) + 1) % n])
+            edge_index = torch.cat([ring, ring.flip(0)], dim=1)
+            graphs.append(Data(x=torch.ones(n, 1), edge_index=edge_index, node_type=torch.arange(n) % 3,
+                               edge_type=torch.arange(edge_index.size(1)) % 2, y=torch.tensor([y])))
+        batch = Batch.from_data_list(graphs)
+        device = torch.device("cpu")
+        for pooling in ("late_token", "mean"):
+            with self.subTest(pooling=pooling):
+                torch.manual_seed(0)
+                params = tuned(sheaf="general/type_concat", d=3, layers=2, hidden_channels=8, dropout=0.1)
+                encoder = build_inductive_encoder(params, device, graph_size=5, input_dim=1, num_node_types=3,
+                                                  num_edge_types=2)
+                head = HetSheafGraphHead(encoder, pooling, num_classes=2)
+                optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
+                logits = head(encoder(gc_encoder_input(batch))[0], batch.batch)
+                self.assertEqual(tuple(logits.shape), (2, 2))
+                loss = torch.nn.functional.cross_entropy(logits, batch.y.view(-1))
+                assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
+
+
+class H2GBStepTests(unittest.TestCase):
+    """A3 (H-4): class C on H2GB's `hgt` batches and D2 large LP, synthetic graphs (the real data root is unreachable)."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        from tests.partMB_fixtures import unreachable_real_data
+
+        unreachable_real_data()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        from tests.partMB_fixtures import restore_real_data
+
+        restore_real_data()
+
+    def test_one_sampled_node_classification_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters.hetsheaf import (HetSheafBatchClassifier, TypedSchema, build_rebinding_encoder,
+                                                     their_chain_on_graph, typed_batch)
+        from tests.test_baselines_h2gb_classa import _first_batch
+        from tests.test_baselines_minibatch import synthetic_hetero
+
+        data = their_chain_on_graph(synthetic_hetero())
+        schema = TypedSchema.of(data)
+        batch = _first_batch(data)
+        size = int(batch["a"].batch_size)
+        torch.manual_seed(0)
+        device = torch.device("cpu")
+        params = tuned(sheaf="bundle/type_ensemble", d=2, layers=2, hidden_channels=8, dropout=0.1)
+        model = HetSheafBatchClassifier(build_rebinding_encoder(schema, params, device, output_dim=3), 3)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+        graph, rows = typed_batch(batch, schema)
+        logits = model(graph, rows["a"][:size], device)
+        self.assertEqual(tuple(logits.shape), (size, 3))
+        loss = torch.nn.functional.cross_entropy(logits, batch["a"].y[:size])
+        assert_step_finite_and_moves(self, loss, optimizer, (model,))
+
+    def test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph(self) -> None:
+        """The rebinding mechanism (A3): their encoder, built on a placeholder and rebound to a sampled batch (after a
+        first rebinding to another batch), gives exactly the output of the same weights built on that batch's graph
+        (eval mode; float32, as their learners build their type one-hots in float32), for each map family."""
+        from src.baselines.adapters.hetsheaf import (TypedSchema, build_encoder, build_rebinding_encoder,
+                                                     their_chain_on_graph, typed_batch)
+        from tests.test_baselines_h2gb_classa import _first_batch
+        from tests.test_baselines_minibatch import synthetic_hetero
+
+        data = their_chain_on_graph(synthetic_hetero())
+        schema = TypedSchema.of(data)
+        other, _ = typed_batch(_first_batch(data, batch_size=5, depth=1), schema)
+        graph, _ = typed_batch(_first_batch(data, batch_size=8, depth=2), schema)
+        device = torch.device("cpu")
+        for sheaf in ("diag/type_concat", "bundle/attention_type_concat", "general/node_type"):
+            with self.subTest(sheaf=sheaf):
+                params = tuned(sheaf=sheaf, d=2, layers=2, hidden_channels=4)
+                torch.manual_seed(0)
+                rebound = build_rebinding_encoder(schema, params, device, output_dim=3).eval()
+                fresh = build_encoder(graph, params, device, output_dim=3).eval()
+                fresh.load_state_dict(rebound.encoder.state_dict())
+                rebound(other.encoder_input(device))
+                out_rebound, _ = rebound(graph.encoder_input(device))
+                out_fresh, _ = fresh(graph.encoder_input(device))
+                self.assertTrue(torch.equal(out_rebound, out_fresh))
+
+    def test_one_large_lp_step_is_finite_and_moves(self) -> None:
+        from src.baselines import large_lp_training as llp
+        from src.baselines.adapters.hetsheaf import (HetSheafBatchEncoder, TypedSchema, build_rebinding_encoder,
+                                                     their_chain_on_graph)
+        from src.baselines.heads import SharedLinkHead
+        from src.baselines.large_lp_minibatch import held_out_pairs, message_graph
+        from tests.test_baselines_large_lp import synthetic_task
+
+        data, files = synthetic_task()
+        graph = their_chain_on_graph(message_graph(data, "user", held_out_pairs(files)))
+        schema = TypedSchema.of(graph)
+        relation = ("user", "has_friend", "user")
+        pos = torch.from_numpy(files["split_train"].T.copy())[:, :8]
+        neg = torch.stack([pos[0], torch.randint(0, 40, (8,), generator=torch.Generator().manual_seed(1))])
+        torch.manual_seed(0)
+        device = torch.device("cpu")
+        params = tuned(sheaf="diag/edge_type_concat", d=2, layers=2, hidden_channels=8)
+        encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=64))
+        head = SharedLinkHead("dot", num_relations=1, dim=encoder.embed_dim)
+        optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
+        model = llp.LargeLPModel(modules=encoder, embed=lambda batch, train: encoder(batch, schema, "user", device),
+                                 embed_dim=encoder.embed_dim)
+        scores = llp.step_scores(model, head, llp.Sampler("link", [-1, -1]), graph, relation, "user",
+                                 torch.cat([pos, neg], dim=1), device)
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(scores, torch.cat([torch.ones(8), torch.zeros(8)]))
+        assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
+
+    def test_no_held_out_fact_in_hetsheaf_large_lp_loaders(self) -> None:
+        """`large_lp_minibatch`'s held-out-fact test with HetSheaf's loader configuration: their chain (incl.
+        `ToUndirected`) applied to the message graph, the step sampler and the evaluation endpoint sampler, depth 1-3."""
+        from src.baselines import large_lp_training as llp
+        from src.baselines.adapters.hetsheaf import their_chain_on_graph
+        from src.baselines.large_lp_minibatch import assert_no_held_out_facts, held_out_pairs, message_graph
+        from src.data.large_lp import held_out_fact_mask
+        from tests.test_baselines_large_lp import synthetic_task
+
+        data, files = synthetic_task()
+        held = held_out_pairs(files)
+        graph = their_chain_on_graph(message_graph(data, "user", held))
+        for edge_type in graph.edge_types:
+            if edge_type[0] == edge_type[2] == "user" and graph[edge_type].edge_index.numel():
+                self.assertEqual(int(held_out_fact_mask(graph[edge_type].edge_index, held).sum()), 0)
+        relation = ("user", "has_friend", "user")
+        train = torch.from_numpy(files["split_train"].T.copy())
+        checked = 0
+        for depth in (1, 2, 3):
+            for start in range(0, train.size(1), 12):
+                batch, _ = llp.Sampler("link", [-1] * depth).step(graph, relation, "user", train[:, start:start + 12])
+                assert_no_held_out_facts(batch, "user", held)
+                checked += 1
+            for split in ("valid", "test"):
+                nodes = torch.unique(torch.from_numpy(files[f"split_{split}"]).reshape(-1))
+                for batch in llp.Sampler("link", [-1] * depth).endpoints(graph, "user", nodes, batch_size=5):
+                    assert_no_held_out_facts(batch, "user", held)
+                    checked += 1
+        self.assertGreater(checked, 30)
+
+
+class ImportRouteTests(unittest.TestCase):
+    def test_registry_and_another_adapter_leave_no_hetsheaf_or_lightning_module(self) -> None:
+        """Design-session condition 1 (S-A0-1): the empty packages and the `lightning.pytorch` alias exist only
+        through the HetSheaf adapter; the alias is gone again after SheafPool's module is imported."""
+        script = textwrap.dedent(
+            f"""
+            import sys
+            sys.path.insert(0, {str(PROJECT_ROOT)!r})
+            import src.baselines.registry as registry
+            import src.baselines.adapters.nsd  # another adapter
+            registry.iter_cells()
+            bad = sorted(m for m in sys.modules if m.split('.')[0] in ('lightning', 'omegaconf', 'hetsheaf'))
+            print('after_registry', bad)
+            from src.baselines.adapters import hetsheaf
+            hetsheaf._vendor_gc()
+            print('after_hetsheaf_gc', sorted(m for m in sys.modules if m.split('.')[0] in ('lightning', 'omegaconf')))
+            """)
+        result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, cwd=PROJECT_ROOT,
+                                timeout=600)
+        self.assertEqual(result.returncode, 0, result.stderr[-2000:])
+        lines = dict(line.split(" ", 1) for line in result.stdout.splitlines() if line.startswith("after_"))
+        self.assertEqual(lines["after_registry"], "[]")
+        self.assertEqual(lines["after_hetsheaf_gc"], "[]")
+
+
+if __name__ == "__main__":
+    unittest.main()

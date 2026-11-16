@@ -130,7 +130,7 @@ class WiredLoaderTests(unittest.TestCase):
         neg = torch.stack([pos[0], torch.randint(0, 40, (8,), generator=torch.Generator().manual_seed(1))])
         links = torch.cat([pos, neg], dim=1)
         names = sorted({name for name, _ in LARGE_LP_WIRED_CELLS})
-        self.assertEqual(names, ["csnn", "gat", "gcn", "h2gformer", "han", "hetero2net", "nsd"])
+        self.assertEqual(names, ["csnn", "gat", "gcn", "h2gformer", "han", "hetero2net", "hetsheaf", "nsd"])
         params = type("P", (dict,), {"report": None, "source": "test"})(
             hidden_dim=8, num_layers=2, num_heads=2, dropout=0.0, embed_dim=8, hidden_channels=8, d=2, layers=2,
             gt_layers=2, attn_heads=2)

@@ -1,0 +1,20 @@
+f87e1fabaadae6facecf2c0325e7a0741d5652d145ef1998905c901a2b623076  requirements/linux-lock-b.txt
+987b56b56fecccb30b0afa121e7a4859f8fad680cbf1eead73546e607f41caa4  tests/test_check_env.py
+unit=a0_lock_fix job=16741 step=139 node=g2n01 start=2026-11-16T10:10:03+09:00
+git=ea826614c84471cf36317a0b140d9858ee82dbbd branch=hetsheaf env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 4 cuda True
+working tree:  M requirements/linux-lock-b.txt
+working tree:  M tests/test_check_env.py
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_check_env tests.test_env_b_install
+tests_exit=0
+Ran 13 tests in 0.005s
+OK
+end=2026-11-16T10:10:18+09:00

@@ -1,0 +1,10 @@
+HEAD 62ba92f1a2ff0ebbfcdf813a67247255e45e7741 host g2n01 job 16741 step 166
+c8aeb2ccbaa6478349b9d3027ce1fc4f4032e34788ac8ecc08f5463fda6e2144  src/baselines/registry.py
+11499824e84dfb98c344748d3d4a4b168605e73af30a8cc1b4aff1bb630023ad  scripts/generate_baseline_notebooks.py
+notebooks/baselines/graph_classification_h2gb.ipynb: 4 cells, h2gformer
+notebooks/baselines/graph_classification_hetero2net.ipynb: 4 cells, hetero2net
+notebooks/baselines/graph_classification_sheaf.ipynb: 12 cells, csnn, hetsheaf, nsd
+
+13 notebooks, 111 cells total.
+13 notebooks match the generator.
+check_exit=0

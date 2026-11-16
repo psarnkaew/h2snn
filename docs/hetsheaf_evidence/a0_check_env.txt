@@ -1,0 +1,7 @@
+HEAD 2c66ffbbe507bc172c7e1912a4057cd504bc2ad8 host g2n01 job 16741
+f87e1fabaadae6facecf2c0325e7a0741d5652d145ef1998905c901a2b623076  requirements/linux-lock-b.txt
+note       torch: locked 2.4.1, installed 2.4.1+cu124 (local build tag)
+note       torch-cluster: locked 1.6.3, installed 1.6.3+pt24cu124 (local build tag)
+note       torch-scatter: locked 2.1.2, installed 2.1.2+pt24cu124 (local build tag)
+note       torch-sparse: locked 0.6.18, installed 0.6.18+pt24cu124 (local build tag)
+python 3.12.16; lock /mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/requirements/linux-lock-b.txt; differences: 0; notes: 4

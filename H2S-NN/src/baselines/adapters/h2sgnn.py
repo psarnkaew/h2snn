@@ -46,7 +46,7 @@ from src.baselines.adapters._h2sgnn_lp import (
     build_metapath_operators,
     target_features,
 )
-from src.baselines.adapters._target_block import target_node_range
+from src.baselines.adapters._target_block import target_block
 from src.baselines.adapters._h2sgnn_lp import parameter_groups as lp_parameter_groups
 from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle, bundle_data_root
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
@@ -291,10 +291,10 @@ class H2SGNNAdapter:
         seed_everything(seed, device)
 
         args = _vendor_args(bundle.dataset, params, device=device)
-        node_range = target_node_range(bundle)
-        features = target_features(bundle, node_range, device)
+        block = target_block(bundle)
+        features = target_features(bundle, block, device)
         operators, metapath_names = build_metapath_operators(
-            bundle, node_range, device
+            bundle, block, device
         )
 
         embed_dim = int(params.get("embed_dim", 64))
@@ -305,7 +305,7 @@ class H2SGNNAdapter:
             metapath_names,
             args,
             num_nodes=int(data.x.size(0)),
-            node_range=node_range,
+            block=block,
         ).to(device)
         head = SharedLinkHead(
             str(params.get("decoder_type", "dot")),

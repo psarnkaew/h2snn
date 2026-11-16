@@ -12,3 +12,6 @@
 # the build still fails, rerun it with --no-build-isolation so setup.py can see the
 # already-installed torch.
 torch_householder
+
+# HetSheaf (card 3 Part A, H-1): its model code imports strenum (models/sheaf_gnn/config.py:8); version of its uv.lock.
+strenum==0.4.15

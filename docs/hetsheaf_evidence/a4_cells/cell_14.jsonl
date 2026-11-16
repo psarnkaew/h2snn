@@ -1,0 +1,1 @@
+{"cell": "link_prediction:imdb_ma", "host": "g2tn01", "job": "16975", "step": null, "gpu": "NVIDIA TITAN RTX", "gpu_total_gib": 23.6, "status": "OK", "load_s": 10.2, "epoch_and_eval_s": 2.3, "peak_gpu_gib": 16.52, "peak_host_gib": 2.18, "total_s": 12.4}

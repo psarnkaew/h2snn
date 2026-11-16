@@ -68,7 +68,9 @@ class CompareTests(unittest.TestCase):
         self.assertEqual(pins["torch"], "2.4.1")
         self.assertEqual(pins["dgl"], "2.4.0+cu124")
         self.assertEqual(pins["hyper-connections"], "0.4.2")
-        self.assertEqual(len(pins), 28)
+        # card 3 Part A, S-A0-2 (author, 2026-11-16; stated change outside Part A's files): strenum for HetSheaf (H-1).
+        self.assertEqual(pins["strenum"], "0.4.15")
+        self.assertEqual(len(pins), 29)
 
 
 if __name__ == "__main__":

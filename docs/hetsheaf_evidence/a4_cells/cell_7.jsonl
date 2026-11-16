@@ -1,0 +1,1 @@
+{"cell": "node_classification:oag-eng", "host": "g3n01", "job": "16951", "step": null, "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "status": "OK", "load_s": 36.8, "epoch_and_eval_s": 38.7, "peak_gpu_gib": 0.94, "peak_host_gib": 12.09, "total_s": 75.5}

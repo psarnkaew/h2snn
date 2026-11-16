@@ -1,0 +1,1 @@
+{"cell": "link_prediction:lastfm", "host": "g2tn01", "job": "16977", "step": null, "gpu": "NVIDIA TITAN RTX", "gpu_total_gib": 23.6, "status": "OK", "load_s": 5.7, "epoch_and_eval_s": 2.4, "peak_gpu_gib": 19.03, "peak_host_gib": 1.44, "total_s": 8.2}

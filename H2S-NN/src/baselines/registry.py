@@ -96,6 +96,7 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # card 1c F4 (G-5 amended): Hetero2Net without a metapath list (its FreeBase branch)
     *(("hetero2net", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
     ("hetero2net", "ogbn-mag"), ("hetero2net", "mag-year"),  # card 1d H3: the author's embedding file in place
+    ("pshgcn", "ogbn-mag"), ("pshgcn", "mag-year"),  # card 1d H1 (G-2, D1-b): their ogbn-mag code with sparse_tools
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
@@ -103,12 +104,8 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
     ("chebnetii", "ieee-cis-g"), ("chebnetii", "h-pokec"),  # card 1c F5 (G-6): projection first
 })
-_PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports "
-               "sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the "
-               "label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("pshgcn", "ogbn-mag"): _PSHGCN_MAG, ("pshgcn", "mag-year"): _PSHGCN_MAG,
 }
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
@@ -150,6 +147,13 @@ FREEBASE_VENDOR_REASON = (
     "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader "
     "branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code "
     "has a Freebase branch)")
+
+#: Card 3 Part A A3 (H-4): HetSheaf as class C on the 8 H2GB NC datasets (H2GB's hgt sampler with the dataset's GCN list,
+#: S1; their chain on the whole graph, type ids per subgraph) and both large LP tasks on the shared loop (card 1c F7:
+#: ogbn-mag P-P per-hop link sampler, D2; H-Pokec U-U H2GB's hgt sampler with its per-type lists, G-8; author 2026-11-16).
+H2GB_NC_WIRED_CELLS = H2GB_NC_WIRED_CELLS | frozenset(("hetsheaf", dataset) for dataset in H2GB_NC)
+LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset({("hetsheaf", "ogbn-mag_pp"), ("hetsheaf", "h-pokec_uu")})
+
 
 @dataclass(frozen=True, slots=True)
 class ModelSpec:
@@ -199,13 +203,14 @@ MODELS: tuple[ModelSpec, ...] = (
     ModelSpec("hetero2net", "Hetero$^2$Net", HET_HET, "src.baselines.adapters.hetero2net", _ALL),
     ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL,
               unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
+    # Card 3 Part A (H-1..H-4): HetSheaf rerun under the shared protocol (spec v1.22 §6, C7); heterogeneous and
+    # heterophily-aimed as its paper states. GC cells: card 3 A2.
+    ModelSpec("hetsheaf", "HetSheaf", HET_HET, "src.baselines.adapters.hetsheaf", _ALL),
 )
 
-#: Baselines of the protocol whose adapter is not written yet (spec v1.15 §6: HetSheaf is rerun
-#: on our pipeline; its adapter is the next card). Not cited: no number is quoted in a table.
-ADAPTER_PENDING: dict[str, str] = {
-    "hetsheaf": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 §6)",
-}
+#: Baselines of the protocol whose adapter is not written yet. Not cited: no number is quoted in a table.
+#: Card 3 A1: HetSheaf's entry replaced by its ModelSpec row.
+ADAPTER_PENDING: dict[str, str] = {}
 
 _BY_NAME: dict[str, ModelSpec] = {spec.name: spec for spec in MODELS}
 

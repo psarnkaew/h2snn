@@ -1,0 +1,1 @@
+{"cell": "link_prediction:ogbn-mag_pp", "host": "g2tn01", "job": "16959", "step": null, "gpu": "NVIDIA TITAN RTX", "gpu_total_gib": 23.6, "status": "error", "error": "ValueError: No target_relation for link-prediction dataset 'ogbn-mag_pp'; set data.target_relation explicitly.", "where": "src/configs/config.py:1159", "peak_gpu_gib": 0.0, "peak_host_gib": 0.39, "total_s": 0.0}

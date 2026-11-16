@@ -1,0 +1,30 @@
+unit=a0_lock job=16741 step=121 node=g2n01 start=2026-11-16T09:45:37+09:00
+git=2c66ffbbe507bc172c7e1912a4057cd504bc2ad8 branch=hetsheaf env=h2snn-b
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2 threads 4 cuda True
+working tree:  M requirements/linux-lock-b.txt
+===== v3b_golden.py compare
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+v3b_compare_exit=0
+===== mb0_reference.py compare
+compared 139 tensors; differing: none
+mb0_compare_exit=0
+===== unittest tests.test_check_env tests.test_env_b_install
+tests_exit=1
+FAIL: test_repository_lock_parses (tests.test_check_env.CompareTests.test_repository_lock_parses)
+Ran 13 tests in 0.006s
+FAILED (failures=1)
+======================================================================
+FAIL: test_repository_lock_parses (tests.test_check_env.CompareTests.test_repository_lock_parses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_check_env.py", line 71, in test_repository_lock_parses
+    self.assertEqual(len(pins), 28)
+AssertionError: 29 != 28
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.006s
+
+FAILED (failures=1)
+end=2026-11-16T09:45:50+09:00
