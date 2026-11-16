@@ -89,4 +89,33 @@ cell counts (runnable 228 → 230, NC 124 → 126).
 
 The report commit's own SHA cannot be written inside it; the final message gives it.
 
-branch=baselines-h2gb-5 sha=<see final message> card=docs/H2S-NN_baselines_h2gb_part4_card.md base=7df909df4487ca8deed03aace71ccce34d5eeb69
+(Part 5 report line, as reviewed: `branch=baselines-h2gb-5 sha=ba0e9d61f20ffdff4a6db617fcb1d95c440f8065 card=docs/H2S-NN_baselines_h2gb_part4_card.md base=7df909df4487ca8deed03aace71ccce34d5eeb69`.)
+
+## H5 — review follow-up (author decision 1a)
+Card section "H5" at design-docs `21d9196`; evidence `docs/baselines_h2gb_evidence/p5_h5_*`.
+
+- **Merges.** The branch started at `ba0e9d6` (= origin). I merged design-docs `21d9196` (`9c65d3f`), then v3b
+  `5ccc792` (`454a3b5`). Neither conflicted, and nothing was rebased.
+- **Fix (`cf5de23`).** `hinormer.allow_isolated_nodes` sets `allow_zero_in_degree` on every `GraphConv` in
+  `model.GCNLayers`. It uses DGL 2.4's setter, which writes `_allow_zero_in_degree`.
+  - It applies at both places a HINormer model is built: `build_model` (H2GB path) and `fit_task` (HGB path).
+  - It applies on every dataset.
+  - The graph is unchanged and no self-loop is added. Vendor code is not edited.
+  - An isolated node receives no message, and its degree normalisation is already clamped at 1 (`model.py:85`).
+- **Tests** (`tests/test_baselines_hinormer_isolated.py`, synthetic two-type graph):
+
+  | Check | Job | Result |
+  |---|---|---|
+  | (i) isolated target node, pre-fix code | 16913 | raises DGL's "There are 0-in-degree nodes in the graph" |
+  | (i) fixed code: finite outputs through `fit_task` (HGB path) and `build_model` (H2GB path); (ii) no isolated node: same-seed outputs with and without the flag bit-identical (`torch.equal`); + `test_baselines_h2gb_classb`, `test_baselines` | 16914 | 101 OK |
+  | Mutation: flag dropped, run against (i) only | 16917 | caught (DGL 0-in-degree error) |
+
+- **Notebooks.** No cell claim changed, so nothing was regenerated.
+- **Suite.** `scripts/slurm/run_tests.sbatch` ran at `cf5de23` on g2n01 (job 16918; its own RTX 2080 Ti, `--gres=gpu:1`):
+  **Ran 728 tests, OK**, in 1,597 s (`p5_h5_suite.txt`). That is the merged base's 726 plus 2 new. No `src/` change
+  outside `src/baselines/`, so no golden/mb0 compare.
+- **Not here:** the H2SGNN freebase_bb rerun (decision 2) goes to card 2 / S2.
+
+The report commit's own SHA cannot be written inside it; the final message gives it.
+
+branch=baselines-h2gb-5 sha=<see final message> card=docs/H2S-NN_baselines_h2gb_part4_card.md base=ba0e9d61f20ffdff4a6db617fcb1d95c440f8065
