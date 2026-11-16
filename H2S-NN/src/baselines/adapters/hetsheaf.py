@@ -21,6 +21,16 @@ Card 3 Part A (`docs/H2S-NN_hetsheaf_freebase_card.md`), author decisions H-1..H
   (`node_classifier.py:66-67`); LP the shared link head of every baseline (spec §6).
 * **Search space (H-3).** One row: map family x learner from their sweep lists, `d` 2-5, `layers` 2-8,
   `hidden_channels` {8, 16, 32, 64}, `input_dropout` U[0, 0.9]; lr / weight decay / dropout shared.
+* **H2GB NC and large LP (A3; H-4, author 2026-11-16).** Class C (no mini-batch scheme in the source), D1 second
+  branch: their HGB NC chain applied **once to the whole H2GB graph** (their code transforms the dataset, and
+  `NormalizeFeatures` shifts by each type's global minimum, so a per-subgraph chain would change the features), then
+  H2GB's `hgt` sampler with the dataset's H2GB GCN list unchanged (S1) through `minibatch.hgt_loader` /
+  `eval_loader` / `train_minibatch_node_classification` (called, not edited); each sampled batch goes through
+  `to_homogeneous` (type ids per subgraph, H-4) and their encoder is rebound to it as their inductive classes
+  rebind (`inductive/disc_models.py:24-30`; `RebindingEncoder`). Featureless types take `Constant`'s column of ones (their chain), not the
+  one-hot rows of the other class-C adapters. Large LP (ogbn-mag P-P only; H-Pokec U-U waits for G-8): D2 on the
+  task's message graph (their chain applied to it), a typed copy of the loop of `large_lp_training.py:115-160`
+  (author decision: that loop reduces each subgraph to HGB's untyped graph inside itself), calling its helpers.
 * **GC (A2; D-P2).** Their inductive encoders (`models/sheaf_gnn/inductive/disc_models.py:18-58`;
   `configs/sheaf_config_gc.yaml:4`, `configs/model/ind_*_sheaf.yaml`: `edge_weights: false`) with their readouts
   as a categorical: mean / max / add (PyG globals), attention (`pooling.py:7-40`, heads 2) and `late_token`
@@ -78,6 +88,11 @@ VENDOR = "hetsheaf"
 SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: A3 (H-4): class C on the H2GB NC datasets.
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
+#: A3 (D2): the large LP task wired here (H-Pokec U-U: per-type fan-out, decision G-8 of card 1c).
+HETSHEAF_LARGE_LP_TASKS = frozenset({"ogbn-mag_pp"})
 #: Their GC readouts (`graph_classifier.py:43-54`, `sheaf_graph_classifier.py:184-192`; `scripts/run_pooling_ablation.py:23`).
 GC_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention", "late_token")
 #: Their GC `output_dim` (`run_sheaf_gc.py:40`: `cfg.hidden_dim`, 64 in `configs/sheaf_config_gc.yaml`).
@@ -504,9 +519,9 @@ class HetSheafAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in HETSHEAF_LARGE_LP_TASKS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -529,6 +544,10 @@ class HetSheafAdapter:
             space["decoder_type"] = {"values": ["dot", "distmult"]}  # the shared link head (spec §6)
         if task == GRAPH_CLASSIFICATION:
             space["pooling"] = {"values": list(GC_POOLINGS)}  # their readouts incl. late_token (D-P2)
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}  # the shared batch range
         return space
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
@@ -538,6 +557,10 @@ class HetSheafAdapter:
                  device: torch.device) -> dict[str, float]:
         if task == NODE_CLASSIFICATION and bundle.dataset in SUPPORTED_DATASETS:
             return self._fit_node_classification(bundle, params, seed=seed, device=device)
+        if task == NODE_CLASSIFICATION and bundle.dataset in H2GB_DATASETS:
+            return fit_h2gb_node_classification(bundle, params, seed=seed, device=device)
+        if task == LINK_PREDICTION and bundle.dataset in HETSHEAF_LARGE_LP_TASKS:
+            return fit_large_lp(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION and bundle.dataset in SUPPORTED_LP_DATASETS:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task == GRAPH_CLASSIFICATION and bundle.dataset in SUPPORTED_GC_DATASETS:
@@ -631,6 +654,255 @@ def fit_node_graph(node_graph: NodeGraph, bundle: NodeBundle, params: BaselinePa
         is_multilabel=bundle.is_multilabel,
         **budget_kwargs(NODE_CLASSIFICATION, params),
     )
+    record["params_source"] = params.source
+    record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
+    return record
+
+
+# --------------------------------------------------------------------------------------------------
+# A3: H2GB NC (class C) and large LP (D2)
+# --------------------------------------------------------------------------------------------------
+
+def their_chain_on_graph(data: Any) -> Any:
+    """Their HGB NC chain (`hgb_nc_transform`) and `coalesce` on a whole heterogeneous graph (in place)."""
+    return hgb_nc_transform()(data).coalesce()
+
+
+@dataclass(slots=True)
+class TypedSchema:
+    """Node and edge types of the transformed graph; every sampled batch must reproduce them in this order."""
+
+    node_types: tuple[str, ...]
+    edge_types: tuple[tuple[str, str, str], ...]
+    input_dim: int
+
+    @classmethod
+    def of(cls, data: Any) -> "TypedSchema":
+        return cls(tuple(data.node_types), tuple(data.edge_types),
+                   max(int(data[t].x.size(1)) for t in data.node_types))
+
+
+def typed_batch(batch: Any, schema: TypedSchema) -> tuple[SheafGraph, dict[str, torch.Tensor]]:
+    """One sampled `HeteroData` batch in their form (`to_homogeneous`: type ids per subgraph, H-4), and for every
+    node type the homogeneous rows of its batch nodes in batch order."""
+    from torch_geometric.data import HeteroData
+
+    if set(batch.node_types) != set(schema.node_types) or not set(batch.edge_types) <= set(schema.edge_types):
+        raise RuntimeError("a sampled batch has a different type schema than the graph")
+    # Only what the encoder reads, in the graph's type order (sampler fields, labels and masks left out).
+    clean = HeteroData()
+    for node_type in schema.node_types:
+        clean[node_type].x = batch[node_type].x
+    present = set(batch.edge_types)
+    for edge_type in schema.edge_types:
+        clean[edge_type].edge_index = (batch[edge_type].edge_index if edge_type in present
+                                       else torch.empty(2, 0, dtype=torch.long))
+    homogeneous = clean.to_homogeneous()
+    graph = SheafGraph(x=homogeneous.x.float(), edge_index=homogeneous.edge_index, node_type=homogeneous.node_type,
+                       edge_type=homogeneous.edge_type, num_node_types=len(schema.node_types),
+                       num_edge_types=len(schema.edge_types), node_type_names=schema.node_types)
+    if graph.x.size(1) != schema.input_dim:
+        raise RuntimeError(f"batch input width {graph.x.size(1)}, graph {schema.input_dim}")
+    rows = {t: (graph.node_type == i).nonzero(as_tuple=False).view(-1) for i, t in enumerate(schema.node_types)}
+    return graph, rows
+
+
+class _SchemaGraph:
+    """The type counts and input width the encoder is built for (the graph itself is rebound per batch)."""
+
+    def __init__(self, schema: TypedSchema) -> None:
+        self.x = torch.zeros(2, schema.input_dim)
+        self.edge_index = torch.tensor([[0, 1], [1, 0]])
+        self.num_nodes = 2
+        self.num_node_types = len(schema.node_types)
+        self.num_edge_types = len(schema.edge_types)
+
+
+class RebindingEncoder(torch.nn.Module):
+    """Their transductive encoder (NC arguments, `edge_weights` True) rebound to each batch as their inductive
+    classes rebind (`inductive/disc_models.py:24-30`: graph size, then `update_edge_index`, which also re-indexes the
+    edge-weight learners, `transductive/disc_models.py:342-345, 510-513`). Their inductive classes themselves cannot
+    be built with `edge_weights` True (their `EdgeWeightLearner` indexes the construction graph, `sheaf_models.py:199-205`;
+    their GC configs set it false)."""
+
+    def __init__(self, encoder: torch.nn.Module) -> None:
+        super().__init__()
+        self.encoder = encoder
+
+    @property
+    def hidden_dim(self) -> int:
+        return int(self.encoder.hidden_dim)
+
+    def forward(self, data: Any) -> Any:
+        self.encoder.graph_size = int(data.x.size(0))
+        self.encoder.update_edge_index(data.edge_index)
+        return self.encoder(data)
+
+
+def build_rebinding_encoder(schema: TypedSchema, params: BaselineParams, device: torch.device, *,
+                            output_dim: int) -> torch.nn.Module:
+    """`build_encoder`'s model (NC arguments) on a two-node placeholder graph, rebound to every batch."""
+    return RebindingEncoder(build_encoder(_SchemaGraph(schema), params, device, output_dim=output_dim))
+
+
+class HetSheafBatchClassifier(torch.nn.Module):
+    """Their rebinding encoder and their NC head on one sampled batch; returns the seed targets' logits."""
+
+    def __init__(self, encoder: torch.nn.Module, num_classes: int) -> None:
+        super().__init__()
+        from torch_geometric.nn import Linear
+
+        self.encoder = encoder
+        self.decoder = Linear(encoder.hidden_dim, num_classes)
+
+    def forward(self, graph: SheafGraph, seed_rows: torch.Tensor, device: torch.device) -> torch.Tensor:
+        embeddings, _maps = self.encoder(graph.encoder_input(device))
+        return self.decoder(embeddings[seed_rows.to(device)])
+
+
+def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: int,
+                                 device: torch.device) -> dict[str, float]:
+    """Class C on H2GB's `hgt` batches (module docstring, A3)."""
+    from src.baselines.minibatch import (CLASS_C_REFERENCE_METHOD, eval_loader, h2gb_graph, h2gb_sample_sizes,
+                                         hgt_loader, minibatch_plan, train_minibatch_node_classification)
+    from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+    seed_everything(seed, device)
+    data = their_chain_on_graph(h2gb_graph(bundle))
+    schema = TypedSchema.of(data)
+    target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+    fanout = h2gb_sample_sizes(CLASS_C_REFERENCE_METHOD, bundle.dataset, schema.node_types)
+    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+    labels = data[target].y.long()
+    num_classes = int(labels.max()) + 1
+    model = HetSheafBatchClassifier(build_rebinding_encoder(schema, params, device, output_dim=num_classes),
+                                    num_classes).to(device)
+
+    def forward_seeds(batch: Any) -> torch.Tensor:
+        graph, rows = typed_batch(batch, schema)
+        return model(graph, rows[target][:int(batch[target].batch_size)], device)
+
+    record = train_minibatch_node_classification(
+        model=model, forward_seeds=forward_seeds,
+        train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
+                                steps=plan.steps_per_epoch),
+        val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
+        test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
+        val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        target_type=target, optimizer=_optimizer([model], params), criterion=F.cross_entropy, plan=plan,
+        report=getattr(params, "report", None), labels=labels)
+    record["params_source"] = params.source
+    record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
+    record["batch_size"] = float(plan.batch_size)
+    record["sampler_depth"] = float(max(len(v) for v in fanout.values()))
+    return record
+
+
+class HetSheafBatchEncoder(torch.nn.Module):
+    """Their rebinding encoder on one sampled batch; returns the rows of `node_type`'s batch nodes (batch order)."""
+
+    def __init__(self, encoder: torch.nn.Module) -> None:
+        super().__init__()
+        self.encoder = encoder
+
+    @property
+    def embed_dim(self) -> int:
+        return int(self.encoder.hidden_dim)
+
+    def forward(self, batch: Any, schema: TypedSchema, node_type: str, device: torch.device) -> torch.Tensor:
+        graph, rows = typed_batch(batch, schema)
+        embeddings, _maps = self.encoder(graph.encoder_input(device))
+        return embeddings[rows[node_type].to(device)]
+
+
+def large_lp_graph(bundle: Any) -> Any:
+    """The task data of `large_lp_training.load_large_lp` with their chain applied to the message graph (held-out
+    facts already removed in both orientations, `large_lp_minibatch.task_message_graph`)."""
+    from src.baselines.large_lp_training import load_large_lp
+
+    d = load_large_lp(bundle.dataset, bundle.metadata["data_root"])
+    d.graph = their_chain_on_graph(d.graph)
+    return d
+
+
+def fit_large_lp(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
+    """D2 on the task's message graph: a typed copy of `large_lp_training.fit_large_lp_homogeneous`
+    (`large_lp_training.py:86-166`: steps of `LP_POSITIVES_PER_STEP` positives in a seeded continued order, one HGB
+    tail negative per positive drawn per epoch with seed `run seed + epoch`, the links seeding `step_subgraph`,
+    evaluation endpoints computed once by `endpoint_loader`, best validation AUROC, both test sets when validation
+    improves, the LP budget); the per-batch embedding is HetSheaf's typed one instead of HGB's untyped reduction."""
+    from src.baselines.budget import default_budget
+    from src.baselines.large_lp_training import endpoint_loader, per_hop_fanout, step_subgraph
+    from src.baselines.metrics import prefixed
+    from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD, h2gb_sample_sizes
+    from src.configs.config import LP_POSITIVES_PER_STEP
+    from src.data.hgb_lp_negatives import hgb_train_negatives
+    from src.data.large_lp import LARGE_LP_TASKS
+    from src.models.anchored_solve import check_finite_loss
+    from src.trainers.minibatch_trainer import TrainingOrder
+    from src.utils.misc import compute_link_prediction_metrics
+
+    seed_everything(seed, device)
+    d = large_lp_graph(bundle)
+    schema = TypedSchema.of(d.graph)
+    fanout = per_hop_fanout(h2gb_sample_sizes(CLASS_C_REFERENCE_METHOD, LARGE_LP_TASKS[bundle.dataset].nc_dataset,
+                                              schema.node_types))
+    encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=_LP_OUTPUT_DIM)).to(device)
+    embed_dim = encoder.embed_dim
+    head = SharedLinkHead(str(params.get("decoder_type", "dot")), num_relations=1, dim=embed_dim).to(device)
+    optimizer = _optimizer([encoder, head], params)
+    budget = default_budget(LINK_PREDICTION, bundle.dataset)
+    num_dst = int(d.graph[d.node_type].num_nodes)
+
+    def score_step(links: torch.Tensor) -> torch.Tensor:
+        batch = step_subgraph(d.graph, d.relation, links, fanout)
+        out = encoder(batch, schema, d.node_type, device)
+        return head(out, batch[d.relation].edge_label_index.to(device))
+
+    def score_links(links: torch.Tensor) -> torch.Tensor:
+        nodes = torch.unique(links.reshape(-1))
+        table = torch.empty(int(nodes.numel()), embed_dim, device=device)
+        position = 0
+        with torch.no_grad():
+            for batch in endpoint_loader(d.graph, d.node_type, nodes, fanout):
+                size = int(batch[d.node_type].batch_size)
+                table[position:position + size] = encoder(batch, schema, d.node_type, device)[:size]
+                position += size
+            return head(table, torch.searchsorted(nodes, links).to(device))
+
+    def metrics(pos: torch.Tensor, neg: torch.Tensor) -> dict[str, float]:
+        return compute_link_prediction_metrics(score_links(pos).float(), score_links(neg).float())
+
+    order = TrainingOrder(torch.arange(d.train_pos.size(1)), seed)
+    steps = -(-int(d.train_pos.size(1)) // LP_POSITIVES_PER_STEP)
+    best, best_epoch, stale, best_val, best_test = float("-inf"), -1, 0, {}, {}
+    for epoch in range(budget.epochs):
+        encoder.train()
+        head.train()
+        negatives = hgb_train_negatives(d.train_pos, (0, num_dst), seed + epoch)
+        for _ in range(steps):
+            index = order.next(LP_POSITIVES_PER_STEP)
+            links = torch.cat([d.train_pos[:, index], negatives[:, index]], dim=1)
+            labels = torch.cat([torch.ones(index.numel()), torch.zeros(index.numel())]).to(device)
+            optimizer.zero_grad()
+            loss = F.binary_cross_entropy_with_logits(score_step(links), labels)
+            check_finite_loss(loss, epoch)
+            loss.backward()
+            optimizer.step()
+        encoder.eval()
+        head.eval()
+        val = metrics(d.val_pos, d.val_neg)
+        if val["auroc"] > best:
+            best, best_epoch, stale, best_val = val["auroc"], epoch, 0, val
+            best_test = {**prefixed(metrics(d.test_pos, d.test_2hop), "2hop"),
+                         **prefixed(metrics(d.test_pos, d.test_random), "random")}
+        else:
+            stale += 1
+        if stale >= budget.patience:
+            break
+    record = {**prefixed(best_val, "val"), **prefixed(best_test, "test")}
+    record["best_epoch"] = float(best_epoch)
+    record["sampler_depth"] = float(len(fanout))
     record["params_source"] = params.source
     record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
     return record

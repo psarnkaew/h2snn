@@ -163,12 +163,12 @@ FREEBASE_VENDOR_REASON = (
     "branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code "
     "has a Freebase branch)")
 
-#: Card 3 Part A: HetSheaf cells wired in later units of the card.
-HETSHEAF_H2GB_PENDING = ("adapter pending: card 3 A3, class C (H-4), H2GB's hgt sampler with H2GB's YAML lists (S1), "
-                         "type ids per subgraph")
-HETSHEAF_LARGE_LP_PENDING = "adapter pending: card 3 A3, large LP by D2 on the message graph (H-4)"
-H2GB_NC_ADAPTER_PENDING["hetsheaf"] = HETSHEAF_H2GB_PENDING
-LARGE_LP_ADAPTER_PENDING["hetsheaf"] = HETSHEAF_LARGE_LP_PENDING
+#: Card 3 Part A A3 (H-4): HetSheaf as class C on the 8 H2GB NC datasets (H2GB's hgt sampler with the dataset's GCN list,
+#: S1; their chain on the whole graph, type ids per subgraph) and D2 large LP on ogbn-mag P-P (typed copy of the
+#: large_lp_training loop, author decision 2026-11-16).
+H2GB_NC_WIRED_CELLS = H2GB_NC_WIRED_CELLS | frozenset(("hetsheaf", dataset) for dataset in H2GB_NC)
+LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset({("hetsheaf", "ogbn-mag_pp")})
+LARGE_LP_CELL_REASONS[("hetsheaf", "h-pokec_uu")] = _LP_POKEC
 
 
 @dataclass(frozen=True, slots=True)

@@ -229,6 +229,124 @@ class GraphClassificationStepTests(unittest.TestCase):
                 assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
 
 
+class H2GBStepTests(unittest.TestCase):
+    """A3 (H-4): class C on H2GB's `hgt` batches and D2 large LP, synthetic graphs (the real data root is unreachable)."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        from tests.partMB_fixtures import unreachable_real_data
+
+        unreachable_real_data()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        from tests.partMB_fixtures import restore_real_data
+
+        restore_real_data()
+
+    def test_one_sampled_node_classification_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters.hetsheaf import (HetSheafBatchClassifier, TypedSchema, build_rebinding_encoder,
+                                                     their_chain_on_graph, typed_batch)
+        from tests.test_baselines_h2gb_classa import _first_batch
+        from tests.test_baselines_minibatch import synthetic_hetero
+
+        data = their_chain_on_graph(synthetic_hetero())
+        schema = TypedSchema.of(data)
+        batch = _first_batch(data)
+        size = int(batch["a"].batch_size)
+        torch.manual_seed(0)
+        device = torch.device("cpu")
+        params = tuned(sheaf="bundle/type_ensemble", d=2, layers=2, hidden_channels=8, dropout=0.1)
+        model = HetSheafBatchClassifier(build_rebinding_encoder(schema, params, device, output_dim=3), 3)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+        graph, rows = typed_batch(batch, schema)
+        logits = model(graph, rows["a"][:size], device)
+        self.assertEqual(tuple(logits.shape), (size, 3))
+        loss = torch.nn.functional.cross_entropy(logits, batch["a"].y[:size])
+        assert_step_finite_and_moves(self, loss, optimizer, (model,))
+
+    def test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph(self) -> None:
+        """The rebinding mechanism (A3): their encoder, built on a placeholder and rebound to a sampled batch (after a
+        first rebinding to another batch), gives exactly the output of the same weights built on that batch's graph
+        (eval mode; float32, as their learners build their type one-hots in float32), for each map family."""
+        from src.baselines.adapters.hetsheaf import (TypedSchema, build_encoder, build_rebinding_encoder,
+                                                     their_chain_on_graph, typed_batch)
+        from tests.test_baselines_h2gb_classa import _first_batch
+        from tests.test_baselines_minibatch import synthetic_hetero
+
+        data = their_chain_on_graph(synthetic_hetero())
+        schema = TypedSchema.of(data)
+        other, _ = typed_batch(_first_batch(data, batch_size=5, depth=1), schema)
+        graph, _ = typed_batch(_first_batch(data, batch_size=8, depth=2), schema)
+        device = torch.device("cpu")
+        for sheaf in ("diag/type_concat", "bundle/attention_type_concat", "general/node_type"):
+            with self.subTest(sheaf=sheaf):
+                params = tuned(sheaf=sheaf, d=2, layers=2, hidden_channels=4)
+                torch.manual_seed(0)
+                rebound = build_rebinding_encoder(schema, params, device, output_dim=3).eval()
+                fresh = build_encoder(graph, params, device, output_dim=3).eval()
+                fresh.load_state_dict(rebound.encoder.state_dict())
+                rebound(other.encoder_input(device))
+                out_rebound, _ = rebound(graph.encoder_input(device))
+                out_fresh, _ = fresh(graph.encoder_input(device))
+                self.assertTrue(torch.equal(out_rebound, out_fresh))
+
+    def test_one_large_lp_step_is_finite_and_moves(self) -> None:
+        from src.baselines import large_lp_training as llp
+        from src.baselines.adapters.hetsheaf import (HetSheafBatchEncoder, TypedSchema, build_rebinding_encoder,
+                                                     their_chain_on_graph)
+        from src.baselines.heads import SharedLinkHead
+        from src.baselines.large_lp_minibatch import held_out_pairs, message_graph
+        from tests.test_baselines_large_lp import synthetic_task
+
+        data, files = synthetic_task()
+        graph = their_chain_on_graph(message_graph(data, "user", held_out_pairs(files)))
+        schema = TypedSchema.of(graph)
+        relation = ("user", "has_friend", "user")
+        pos = torch.from_numpy(files["split_train"].T.copy())[:, :8]
+        neg = torch.stack([pos[0], torch.randint(0, 40, (8,), generator=torch.Generator().manual_seed(1))])
+        torch.manual_seed(0)
+        device = torch.device("cpu")
+        params = tuned(sheaf="diag/edge_type_concat", d=2, layers=2, hidden_channels=8)
+        encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=64))
+        head = SharedLinkHead("dot", num_relations=1, dim=encoder.embed_dim)
+        optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
+        batch = llp.step_subgraph(graph, relation, torch.cat([pos, neg], dim=1), [-1, -1])
+        scores = head(encoder(batch, schema, "user", device), batch[relation].edge_label_index)
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(scores, torch.cat([torch.ones(8), torch.zeros(8)]))
+        assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
+
+    def test_no_held_out_fact_in_hetsheaf_large_lp_loaders(self) -> None:
+        """`large_lp_minibatch`'s held-out-fact test with HetSheaf's loader configuration: their chain (incl.
+        `ToUndirected`) applied to the message graph, the step sampler and the evaluation endpoint sampler, depth 1-3."""
+        from src.baselines import large_lp_training as llp
+        from src.baselines.adapters.hetsheaf import their_chain_on_graph
+        from src.baselines.large_lp_minibatch import assert_no_held_out_facts, held_out_pairs, message_graph
+        from src.data.large_lp import held_out_fact_mask
+        from tests.test_baselines_large_lp import synthetic_task
+
+        data, files = synthetic_task()
+        held = held_out_pairs(files)
+        graph = their_chain_on_graph(message_graph(data, "user", held))
+        for edge_type in graph.edge_types:
+            if edge_type[0] == edge_type[2] == "user" and graph[edge_type].edge_index.numel():
+                self.assertEqual(int(held_out_fact_mask(graph[edge_type].edge_index, held).sum()), 0)
+        relation = ("user", "has_friend", "user")
+        train = torch.from_numpy(files["split_train"].T.copy())
+        checked = 0
+        for depth in (1, 2, 3):
+            for start in range(0, train.size(1), 12):
+                assert_no_held_out_facts(llp.step_subgraph(graph, relation, train[:, start:start + 12], [-1] * depth),
+                                         "user", held)
+                checked += 1
+            for split in ("valid", "test"):
+                nodes = torch.unique(torch.from_numpy(files[f"split_{split}"]).reshape(-1))
+                for batch in llp.endpoint_loader(graph, "user", nodes, [-1] * depth, batch_size=5):
+                    assert_no_held_out_facts(batch, "user", held)
+                    checked += 1
+        self.assertGreater(checked, 30)
+
+
 class ImportRouteTests(unittest.TestCase):
     def test_registry_and_another_adapter_leave_no_hetsheaf_or_lightning_module(self) -> None:
         """Design-session condition 1 (S-A0-1): the empty packages and the `lightning.pytorch` alias exist only
