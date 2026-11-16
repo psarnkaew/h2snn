@@ -1,0 +1,15 @@
+# Card 2 D6.8 tests and mutation (job 16928, g2n01, CPU; working tree on 68efedd with the D6.8 changes)
+head=68efedd8a29fb50970d3bbf95ceaefe1b47ffbd0 host=g2n01 job=16928
+ M scripts/run_baseline_tuning.py
+?? tests/test_baseline_final_seeds.py
+test_best_trial_by_monitor_and_its_params_unchanged_per_seed (tests.test_baseline_final_seeds.BaselineFinalSeedsTests.test_best_trial_by_monitor_and_its_params_unchanged_per_seed) ... ok
+test_trial_record_keeps_its_params (tests.test_baseline_final_seeds.BaselineFinalSeedsTests.test_trial_record_keeps_its_params) ... ok
+`run_unit_sweep` calls `summarize(records, monitor, path)`; the baseline launcher passed the monitor as the ... ok
+`run_unit_sweep` re-spawns `run_baseline_tuning.py --worker_context <file>` only; with `--task` required ... ok
+Ran 5 tests in 4.651s
+OK
+--- mutation
+Ran 1 test in 0.003s
+
+FAILED (failures=1)
+MUTATION select-last-trial: caught (test fails)
