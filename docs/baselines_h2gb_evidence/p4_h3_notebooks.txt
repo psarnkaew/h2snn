@@ -1,0 +1,28 @@
+label=p4-h3-notebooks job=16741 step=182 node=g2n01 start=2026-11-16T11:41:08+09:00
+git=ad5cd882aa80f726264b57a76ec4d549e062c309 branch=baselines-h2gb-4
+working tree:  M src/baselines/adapters/hetero2net.py
+working tree:  M src/baselines/large_lp_training.py
+working tree:  M src/baselines/registry.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_baselines_h2gb_classb.py
+env=h2snn-b cmd=python scripts/generate_baseline_notebooks.py
+notebooks/baselines/node_classification_dgl.ipynb: 1 cells, hinormer
+notebooks/baselines/node_classification_h2gb.ipynb: 3 cells, h2gformer
+notebooks/baselines/node_classification_sheaf.ipynb: 6 cells, csnn, nsd
+notebooks/baselines/link_prediction_core.ipynb: 6 cells, h2sgnn
+notebooks/baselines/link_prediction_dgl.ipynb: 30 cells, gat, gcn, han, pshgcn
+notebooks/baselines/link_prediction_h2gb.ipynb: 8 cells, h2gformer
+notebooks/baselines/link_prediction_hetero2net.ipynb: 8 cells, hetero2net
+notebooks/baselines/link_prediction_sheaf.ipynb: 16 cells, csnn, nsd
+notebooks/baselines/graph_classification_core.ipynb: 8 cells, h2sgnn, pshgcn
+notebooks/baselines/graph_classification_dgl.ipynb: 12 cells, gat, gcn, han
+notebooks/baselines/graph_classification_h2gb.ipynb: 4 cells, h2gformer
+notebooks/baselines/graph_classification_hetero2net.ipynb: 4 cells, hetero2net
+notebooks/baselines/graph_classification_sheaf.ipynb: 8 cells, csnn, nsd
+
+13 notebooks, 114 cells total.
+peak_rss_gib=0.40 elapsed_s=1.5
+end=2026-11-16T11:41:10+09:00 exit=0
+6b3fb7fe20effa52
+/usr/bin/bash: line 1: python: command not found
+srun: error: g2n01: task 0: Exited with exit code 127

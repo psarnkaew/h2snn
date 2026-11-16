@@ -59,6 +59,12 @@ from src.utils.misc import seed_everything
 NAME = "hinormer"
 VENDOR = "hinormer"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
+#: Card 1c F1 (author decision G-1): the original HINormer on the H2GB NC datasets, class B -- its own sequences
+#: (run.py:100-127) and model (model.py:198-217, full-graph GCN then the sequences), the shared batch size and
+#: 8,192-target epoch imposed on its training step (run.py:155 trains all targets in one forward). H2GB's own
+#: `HINormerModel` is not used: its transformer and encoder are commented out (hinormer_model.py:221-222, 274-289).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
 
 
 def _build_node_sequences(
@@ -91,15 +97,58 @@ def _build_node_sequences(
     return node_seq
 
 
+def build_node_sequences_for(graph: Any, nodes: torch.Tensor, len_seq: int) -> torch.Tensor:
+    """`_build_node_sequences` (run.py:100-122) for the given node ids (row i = the sequence of `nodes[i]`), so the
+    target type need not be the leading block (card 1c F1, H2GB graphs)."""
+
+    node_seq = torch.zeros(int(nodes.numel()), len_seq, dtype=torch.long)
+    for row, node in enumerate(nodes.tolist()):
+        cursor, read = 0, 0
+        node_seq[row, cursor] = node
+        cursor += 1
+        start = int(node_seq[row, read].item())
+        while cursor < len_seq:
+            candidates = graph.successors(start).numpy().tolist()
+            sampled = random.sample(candidates, max(len(candidates), 1)) if candidates else [start]
+            for value in sampled:
+                node_seq[row, cursor] = value
+                cursor += 1
+                if cursor == len_seq:
+                    break
+            read += 1
+            start = int(node_seq[row, read].item())
+    return node_seq
+
+
+def build_model(graph: Any, num_classes: int, in_dims: list[int], num_types: int, params: BaselineParams) -> Any:
+    """Their `HINormer` (model.py) with the adapter's defaults."""
+    with pushd_sys_path(VENDOR):
+        from model import HINormer  # type: ignore[import-not-found]
+
+        return HINormer(graph, num_classes, in_dims, int(params.get("hidden_dim", 256)),
+                        int(params.get("num_layers", 2)), int(params.get("num_gnns", 4)),
+                        int(params.get("num_heads", 2)), float(params.get("dropout", 0.5)),
+                        temper=float(params.get("temperature", 1.0)), num_type=num_types,
+                        beta=float(params.get("beta", 1.0)))
+
+
 class HINormerAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
-        return task == NODE_CLASSIFICATION and dataset in SUPPORTED_DATASETS
+        return task == NODE_CLASSIFICATION and (dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS)
 
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, dataset, "node classification only")
+        if dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "hidden_dim": {"values": [64, 128, 256]},
+                    "dropout": grids.DROPOUT, "num_layers": {"values": [2, 3, 4, 5]},
+                    "num_gnns": {"values": [3, 4, 5]}, "num_heads": {"values": [2, 8]},
+                    "beta": {"values": [0.1, 0.2, 0.5, 1.0, 2.0]}, "len_seq": grids.LEN_SEQ,
+                    "temperature": grids.TEMPERATURE, "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         # Ranges follow the paper's Appendix C: lr 1e-4, d=256, n_h=2, L in {2,3,4,5},
         # beta in {0.1,0.2,0.5,1,2}, S in [10,200], K_s=K_h 3-5 by dataset.
         return {
@@ -130,6 +179,8 @@ class HINormerAdapter:
     ) -> dict[str, float]:
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "node classification only")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         device = resolve_dgl_device(device)
         seed_everything(seed, device)
@@ -209,6 +260,44 @@ class HINormerAdapter:
         record["len_seq"] = float(len_seq)
         record["device"] = device.type
         record["implementation"] = "official (Ffffffffire/HINormer)"
+        return record
+
+
+    def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
+                  device: torch.device) -> dict[str, float]:
+        """Card 1c F1: their sequences and model on the bundle's HGB reduction (attributes kept, identity for
+        featureless types); batches of B targets' sequences per step (`minibatch.train_index_minibatch`)."""
+        import dgl
+
+        from src.baselines.minibatch import minibatch_plan, train_index_minibatch
+
+        device = resolve_dgl_device(device)
+        seed_everything(seed, device)
+        view = bundle.homogeneous(feats_type=0)
+        features = [f.coalesce().to(device) if f.is_sparse else f.to(device) for f in view.features_list]
+        restore_legacy_message_functions()
+        source, destination = view.edge_index_without_self_loops  # as run.py: no self-loops added back
+        graph = dgl.graph((source.cpu(), destination.cpu()), num_nodes=view.num_nodes)
+        data = bundle.data
+        node_seq = build_node_sequences_for(graph, data.target_indices.cpu(), int(params.get("len_seq", 50)))
+        graph = graph.to(device)
+        node_type = view.node_type.to(device)
+        type_emb = torch.eye(len(view.node_type_names)).to(device)
+        model = build_model(graph, bundle.num_classes, view.in_dims, len(view.node_type_names), params).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 1e-4)),
+                                      weight_decay=float(params.get("weight_decay", 0.0)))
+        use_l2norm = bool(params.get("l2norm", True))
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        record = train_index_minibatch(
+            model=model,
+            forward_rows=lambda idx: model(features, node_seq[idx.cpu()].to(device), type_emb, node_type, use_l2norm),
+            labels=data.target_y.to(device), train_idx=data.target_train_mask.nonzero().view(-1),
+            val_idx=data.target_val_mask.nonzero().view(-1), test_idx=data.target_test_mask.nonzero().view(-1),
+            optimizer=optimizer, criterion=torch.nn.functional.cross_entropy, plan=plan, base_seed=seed,
+            report=params.report)
+        record["params_source"] = params.source
+        record["batch_size"] = float(plan.batch_size)
+        record["implementation"] = "official (Ffffffffire/HINormer), card 1c F1"
         return record
 
 

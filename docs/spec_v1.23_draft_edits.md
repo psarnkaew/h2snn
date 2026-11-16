@@ -141,7 +141,7 @@ Anchor checked: occurs once in spec v1.22. Changelog addition: "(X9) GC: no hete
 
 ---
 
-# Main-session items X-16 … X-19 (drafted 2026-11-16 by the main design session; **wording awaits the author's approval**)
+# Main-session items X-16 … X-19 (drafted 2026-11-16 by the main design session; APPROVED by the author 2026-11-16, applied in spec v1.23)
 Decisions already taken by the author (decisions log: "Part M3b review" (1), (3); "Baselines on H2GB …" rows S1–S5, C4, G-1..G-10; handoff_2026-11-15 §6). Anchors checked on spec v1.22 (md5 `7b44dd2c…a922`): each occurs once.
 
 ## X-16 §6 PDNS protocol = H2GB's code (Part M3b review (1))

@@ -1,0 +1,63 @@
+379c05af6015949b src/baselines/large_lp_minibatch.py
+label=p3-f7-mutation job=16741 step=143 node=g2n01 start=2026-11-16T10:16:58+09:00
+git=08751b591f8bfcfa30a8625534da553b545705b0 branch=baselines-h2gb-3
+working tree:  M notebooks/baselines/link_prediction_dgl.ipynb
+working tree:  M notebooks/baselines/link_prediction_h2gb.ipynb
+working tree:  M notebooks/baselines/link_prediction_hetero2net.ipynb
+working tree:  M notebooks/baselines/link_prediction_sheaf.ipynb
+working tree:  M src/baselines/adapters/csnn.py
+working tree:  M src/baselines/adapters/h2gformer.py
+working tree:  M src/baselines/adapters/hetero2net.py
+working tree:  M src/baselines/adapters/hgb_gnn.py
+working tree:  M src/baselines/adapters/hgb_han.py
+working tree:  M src/baselines/adapters/nsd.py
+working tree:  M src/baselines/large_lp_minibatch.py
+working tree:  M src/baselines/large_lp_training.py
+working tree:  M src/baselines/registry.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_baselines_large_lp.py
+env=h2snn-b cmd=python -m unittest tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+FF/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_training.py:60: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  return batch, torch.searchsorted(nodes, links)
+F
+======================================================================
+FAIL: test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) (sampler='link, H2GB per-hop list (full)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_large_lp.py", line 113, in test_no_held_out_fact_in_any_sampler_configuration
+    assert_no_held_out_facts(batch, "user", held)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_minibatch.py", line 90, in assert_no_held_out_facts
+    raise AssertionError(f"{found} held-out fact(s) present in a sampled subgraph")
+AssertionError: 76 held-out fact(s) present in a sampled subgraph
+
+======================================================================
+FAIL: test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) (sampler='link, own fan-out [10, 10] (Hetero2Net)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_large_lp.py", line 113, in test_no_held_out_fact_in_any_sampler_configuration
+    assert_no_held_out_facts(batch, "user", held)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_minibatch.py", line 90, in assert_no_held_out_facts
+    raise AssertionError(f"{found} held-out fact(s) present in a sampled subgraph")
+AssertionError: 74 held-out fact(s) present in a sampled subgraph
+
+======================================================================
+FAIL: test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) (sampler='hgt, per-type lists seeded by endpoints (G-8)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_large_lp.py", line 113, in test_no_held_out_fact_in_any_sampler_configuration
+    assert_no_held_out_facts(batch, "user", held)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_minibatch.py", line 90, in assert_no_held_out_facts
+    raise AssertionError(f"{found} held-out fact(s) present in a sampled subgraph")
+AssertionError: 76 held-out fact(s) present in a sampled subgraph
+
+----------------------------------------------------------------------
+Ran 1 test in 2.350s
+
+FAILED (failures=3)
+peak_rss_gib=0.61 elapsed_s=4.1
+end=2026-11-16T10:17:02+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1

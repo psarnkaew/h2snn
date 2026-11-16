@@ -1,0 +1,40 @@
+job=16741 step=107 node=g2n01 start=2026-11-16T09:25:21+09:00
+repo git=8ee1fff92acf7362521f8e4c702a83616e8cea54
+sparse_tools commit=0596f00b9f86b8f46abe9280946e8a8f999f5628
+pip check before:
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+setup.py develop exit=1 (first errors:)
+        calls to avoid build errors in the future.
+  Getting requirements to build editable: finished with status 'error'
+  error: subprocess-exited-with-error
+      ModuleNotFoundError: No module named 'torch'
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+Obtaining file:///mnt/home/peeradon/src/sparse_tools
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: sparse_tools
+  Building editable for sparse_tools (pyproject.toml): started
+  Building editable for sparse_tools (pyproject.toml): finished with status 'done'
+  Created wheel for sparse_tools: filename=sparse_tools-0.0.0-0.editable-cp312-cp312-linux_x86_64.whl size=2748 sha256=3fd6a97a445bbe5c621798c265c341768fe44c8e45cc2329291266f608c8f5e4
+  Stored in directory: /tmp/pip-ephem-wheel-cache-2gec3lux/wheels/9d/38/a0/e09d1260e483af02e0e811e52de26a0793eed145e50dd9785c
+Successfully built sparse_tools
+Installing collected packages: sparse_tools
+Successfully installed sparse_tools-0.0.0
+build_exit=0
+pip freeze diff:
+81a82
+> -e git+https://github.com/Yangxc13/sparse_tools.git@0596f00b9f86b8f46abe9280946e8a8f999f5628#egg=sparse_tools
+pip check after:
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+pip check diff:
+(unchanged)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/mnt/home/peeradon/src/sparse_tools/sparse_tools/__init__.py", line 24, in <module>
+    from .utils import SparseAdjList
+  File "/mnt/home/peeradon/src/sparse_tools/sparse_tools/utils.py", line 5, in <module>
+    import sortednp as snp
+ModuleNotFoundError: No module named 'sortednp'
+end=2026-11-16T09:26:24+09:00

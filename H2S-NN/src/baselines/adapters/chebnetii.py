@@ -51,7 +51,9 @@ SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 #: (`_chebnetii_h2gb.py`: Chebyshev bases once, batches of target rows) runs unchanged.
 #: Card baselines-h2gb C4: the H2GB path reads the budget table's batch plan (`minibatch.minibatch_plan`).
 READS_BATCH_PLAN = True
-H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "pdns"})
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "pdns", "ieee-cis-g", "h-pokec"})
+#: Card 1c F5 (decision G-6): datasets with featureless types: projection first, propagation in the forward.
+H2GB_FORWARD = frozenset({"ieee-cis-g", "h-pokec"})
 #: Part 2 E2 (decision C4-c): datasets with several feature widths take HGB's per-type projection, applied after the
 #: per-block Chebyshev bases (`_chebnetii_h2gb.block_bases`, `ProjectedBases`). IEEE-CIS-G and H-Pokec have featureless
 #: types (identity blocks: a dense N x N_type matrix per k) and are a stop item.
@@ -128,7 +130,7 @@ class ChebNetIIAdapter:
                 "K": {"values": [5, 10]},
                 "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)},
             }
-            if dataset in H2GB_PROJECTED:
+            if dataset in H2GB_PROJECTED or dataset in H2GB_FORWARD:
                 space["hidden_dim"] = {"values": [64, 128, 256]}  # the projection width, as its HGB adapter
             return space
         return {
@@ -241,7 +243,20 @@ class ChebNetIIAdapter:
         labels = data[target].y.long()
         num_classes = int(labels.max()) + 1
         K = int(params.get("K", 10))
-        if bundle.dataset in H2GB_PROJECTED:
+        if bundle.dataset in H2GB_FORWARD:
+            features, edge_index, slices = h2gb.forward_inputs(data)
+            start, end = slices[target]
+            width = int(params.get("hidden_dim", 64))
+            features = [f.to(device) for f in features]
+            model = torch.nn.ModuleDict({
+                "bases": h2gb.ForwardBases([int(f.size(1)) for f in features], width, edge_index,
+                                           sum(int(f.size(0)) for f in features), K),
+                "chebnet": h2gb.build_model(width, num_classes, params)}).to(device)
+
+            def forward_rows(index: torch.Tensor) -> torch.Tensor:
+                bases = model["bases"](features, index.to(device) + start)
+                return model["chebnet"](bases, 0, index.numel())
+        elif bundle.dataset in H2GB_PROJECTED:
             features, edge_index, slices = h2gb.block_inputs(data)
             start, end = slices[target]
             blocks = h2gb.block_bases(features, edge_index, slices, K, torch.arange(start, end))

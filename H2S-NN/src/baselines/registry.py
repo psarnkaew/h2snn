@@ -69,54 +69,46 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "h2gformer": f"adapter pending: {_S1}",
     "nsd": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
     "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
-    "h2sgnn": ("adapter pending: part 2 E0 stop S4b: its operators come from its own preprocessing, one hand-written "
-               "branch per HGB dataset (H2SGNN/processing.py:46-121: links paired by HGB's file order, per-dataset "
-               "merges and drops); no rule exists for the H2GB datasets, so its relation set on them is a design "
-               "decision"),
-    "pshgcn": ("adapter pending: part 2 E0 stop P1: decision S3 (b) changes the input widths only, but PSHGCN's ogbn-mag "
-               "code also enumerates its polynomial terms from MAG's relation list (ogbn-mag/processing.py:14-15) and "
-               "fixes MAG's label keys (main.py:126) whose self-effect removal needs sparse_tools diagonals "
-               "(processing.py:133-151; sparse_tools is not installed)"),
-    "hinormer": ("adapter pending: part 2 E0 stop H1: H2GB's own HINormerModel has its transformer and feature encoder "
-                 "commented out (hinormer_model.py:221-222, 274-289: a linear head on the ego node after full-graph GCN "
-                 "layers) and its `hin` loader yields the whole split as one step (custom_sampler.py:678-685); configs "
-                 "exist for 4 of the 8 datasets; decision S2 needs revisiting"),
+    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1",
+    "pshgcn": ("adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic "
+               "branch of F-1 (one "
+               "row-normalised adjacency per relation, polynomial terms over all relations, no label part)"),
+    "hinormer": ("not used: H2GB's own HINormerModel (transformer and encoder commented out, hinormer_model.py:221-222, "
+                 "274-289); the original HINormer runs instead (card 1c F1, decision G-1)"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
     "chebnetii": "adapter pending (card baselines-h2gb C4)",
-    "hetero2net": ("adapter pending: its NeighborLoader path (Hetero2Net/main.py:147-175) is not wired (part 2 E2): its "
-                   "metapath-drop needs a per-dataset metapath list, which its code defines for HGB, MAG and RCDD only "
-                   "(hetero2net/dataset.py:20-67; OAG, IEEE-CIS, H-Pokec, PDNS need a decision), and its label "
-                   "channel y_emb on sampled batches needs a route test; ogbn-mag/mag-year also wait for "
-                   "`mag_metapath2vec_emb.zip` (author download)"),
+    "hetero2net": ("adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under "
+                   "<data root>/NC/mag/hetero2net/, author download: https://data.pyg.org/datasets/mag_metapath2vec_emb.zip; "
+                   "card 1c F4)"),
 }
 #: Cells wired on the loaded H2GB NC datasets (card baselines-h2gb C4): adapter and its tests in place, no open
 #: author decision.
 H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # part 2 E1 (author decisions S1, S5): class A on H2GB's hgt sampler with H2GB's YAML fan-out
     *((m, d) for m in ("gcn", "gat", "han") for d in H2GB_NC),
-    *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
+    *(("h2gformer", d) for d in H2GB_NC),  # mag-year: card 1c F6 (G-7)
     # part 2 E3 (D1 second branch, S1): class C on the hgt sampler with the dataset's GCN fan-out
     *((m, d) for m in ("nsd", "csnn") for d in H2GB_NC),
+    # card 1c F1 (G-1): the original HINormer, class B
+    *(("hinormer", d) for d in H2GB_NC),
     ("sehgnn", "ieee-cis-g"),
+    ("sehgnn", "ogbn-mag"), ("sehgnn", "mag-year"),  # card 1c F3 (G-4)
+    # card 1c F4 (G-5 amended): Hetero2Net without a metapath list (its FreeBase branch)
+    *(("hetero2net", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
+    ("hetero2net", "ogbn-mag"), ("hetero2net", "mag-year"),  # card 1d H3: the author's embedding file in place
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
     ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
     ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
+    ("chebnetii", "ieee-cis-g"), ("chebnetii", "h-pokec"),  # card 1c F5 (G-6): projection first
 })
-_SEHGNN_MAG = ("adapter in place, pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
-               "embeddings that its README trains with dglke under dgl<1.0 (SeHGNN/ogbn/Readme.md; utils.py:345-354); "
-               "no file is offered for download and the agent does not train them (part 2 E0)")
+_PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports "
+               "sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the "
+               "label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
-                                "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
-                                "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
-    ("sehgnn", "ogbn-mag"): _SEHGNN_MAG, ("sehgnn", "mag-year"): _SEHGNN_MAG,
-    **{("chebnetii", d): ("adapter pending: part 2 E2 stop item: decision C4-c precomputes T_k(L) X_t per type block, "
-                          "but this dataset has featureless types whose identity block makes T_k(L)[:, block] a dense "
-                          "N x N_type matrix per k (cannot be stored); a different input rule is the author's call")
-       for d in ("ieee-cis-g", "h-pokec")},
+    ("pshgcn", "ogbn-mag"): _PSHGCN_MAG, ("pshgcn", "mag-year"): _PSHGCN_MAG,
 }
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
@@ -124,24 +116,20 @@ SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated fe
 #: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
 #: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
 #: Part 2 E4: large-LP cells wired (link-level sampling on the message graph, the local-LP encoder, shared decoder).
-LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset()
-_LP_NOTEBOOKS = ("adapter pending: its large-LP code path is in place and tested (part 2 E4: large_lp_training.py, "
-                 "hgb_gnn._fit_large_lp), but claiming the cell changes the generated lane notebooks "
-                 "(notebooks/baselines/, scripts/generate_baseline_notebooks.py), outside card 1b's files: stop item")
-_LP_POKEC = ("adapter pending: part 2 E4 stop item: H2GB's H-Pokec fan-out is per node type and of unequal length "
-             "(user [2048, 2048, 512, 512], clubs [128, 128, 128]), PyG's link sampler takes one list per relation; "
-             "the per-relation fan-out on H-Pokec is a design decision")
+LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
+    # card 1c F7 (G-8, G-10): large_lp_training.py; notebooks regenerated (G-9)
+    *((m, t) for m in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer") for t in ("ogbn-mag_pp", "h-pokec_uu")),
+    ("hetero2net", "h-pokec_uu"),
+    ("hetero2net", "ogbn-mag_pp"),  # card 1d H3
+})
 _LP_NOT_WIRED = ("adapter pending: part 2 E4 did not wire this method's large-LP path (its local-LP encoder on link-level "
                  "subgraphs); the sampler, the message graph and the loop are in place (large_lp_training.py)")
 LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("gcn", "h-pokec_uu"): _LP_POKEC, ("gat", "h-pokec_uu"): _LP_POKEC,
-    ("gcn", "ogbn-mag_pp"): _LP_NOTEBOOKS, ("gat", "ogbn-mag_pp"): _LP_NOTEBOOKS,
 }
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
     **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
-    "h2sgnn": "adapter pending: part 2 E0 stop S4b (H2SGNN has no relation rule for the H2GB graphs)",
-    "pshgcn": ("adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit "
-               "(card baselines-h2gb C0 stop S3)"),
+    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3: generic branch of F-1 for NC and LP)",
+    "pshgcn": "adapter pending: moved to card 3 Part B (decision G-2: generic branch of F-1 for the large LP tasks)",
     "hetero2net": ("adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the "
                    "link-level sampler on the message graph is in place (C6)"),
 }

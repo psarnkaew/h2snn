@@ -63,10 +63,9 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: this method and dataset (`src/baselines/minibatch.py`).
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 READS_BATCH_PLAN = True
-#: Part 2 E4 (decision D2): large LP tasks with a code path (link-level sampling on the message graph); H-Pokec U-U is
-#: a stop item (H2GB's per-node-type fan-out has no per-relation form for PyG's link sampler). Not claimed in
-#: `supports()`: claiming them regenerates the lane notebooks (`notebooks/baselines/`, outside card 1b's files).
-LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp"})
+#: Large LP (card 1b E4; card 1c F7, decisions D2, G-8, G-10): ogbn-mag P-P with the link sampler and H2GB's per-hop
+#: list, H-Pokec U-U with H2GB's hgt sampler and its per-type lists, seeded by the step's endpoints.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _build_dgl_graph(view: Any, device: torch.device) -> Any:
@@ -108,7 +107,7 @@ class HGBHomogeneousAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -332,16 +331,25 @@ class HGBHomogeneousAdapter:
                            decoder=decoder_type, rel_num=1)
             return GCN(in_dims, hidden_dim, n_layers=num_layers, dropout=dropout, decoder=decoder_type, rel_num=1)
 
+    def build_large_lp(self, d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+        """The local-LP encoder on HGB's reduction of each sampled batch (card 1c F7)."""
+        from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler, homogeneous_embed
+        from src.baselines.minibatch import h2gb_input_dims
+
+        node_types, counts, dims = h2gb_input_dims(d.graph)
+        sampler = sampler or h2gb_sampler(self.name, d.task, node_types)
+        encoder = self.build_lp_encoder(dims, params)
+        embed = homogeneous_embed(encoder, node_types, counts, d.node_type,
+                                  lambda model, inputs, edge_index, n: model.encode((inputs, edge_index)), device)
+        return LargeLPModel(encoder, embed, int(params.get("hidden_dim", 64))), sampler
+
     def _fit_large_lp(self, bundle: Any, params: BaselineParams, *, seed: int, device: torch.device
                       ) -> dict[str, float]:
-        """Part 2 E4: the local-LP encoder on link-level subgraphs of the message graph (D2)."""
-        from src.baselines.large_lp_training import fit_large_lp_homogeneous
+        """Card 1b E4 / 1c F7: the large-LP loop (`large_lp_training.fit_large_lp`)."""
+        from src.baselines.large_lp_training import fit_large_lp
 
-        record = fit_large_lp_homogeneous(
-            bundle, params, fanout_method=self.name, seed=seed, device=device,
-            build_encoder=lambda dims: self.build_lp_encoder(dims, params),
-            encode=lambda model, inputs, edge_index: model.encode((inputs, edge_index)),
-            embed_dim=int(params.get("hidden_dim", 64)))
+        record = fit_large_lp(bundle, params, seed=seed, device=device,
+                              build=lambda d: self.build_large_lp(d, params, device))
         record["params_source"] = params.source
         return record
 

@@ -1,0 +1,30 @@
+38220baad01bc32d src/baselines/adapters/_hetero2net_h2gb.py
+label=p3-f4-mutation job=16741 step=125 node=g2n01 start=2026-11-16T09:51:09+09:00
+git=c1eb838b4ee2a32ad8a581241cd7b293c63a90fa branch=baselines-h2gb-3
+working tree:  M src/baselines/adapters/hetero2net.py
+working tree:  M src/baselines/registry.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_baselines_h2gb_classb.py
+env=h2snn-b cmd=python -m unittest tests.test_baselines_h2gb_classb.Hetero2NetTests.test_label_channel_reads_no_held_out_label
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+F
+======================================================================
+FAIL: test_label_channel_reads_no_held_out_label (tests.test_baselines_h2gb_classb.Hetero2NetTests.test_label_channel_reads_no_held_out_label)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_h2gb_classb.py", line 321, in test_label_channel_reads_no_held_out_label
+    self.assertTrue(torch.equal(base["val"], changed["val"]), "validation/test labels reach validation targets")
+AssertionError: False is not true : validation/test labels reach validation targets
+
+----------------------------------------------------------------------
+Ran 1 test in 8.675s
+
+FAILED (failures=1)
+peak_rss_gib=0.61 elapsed_s=10.5
+end=2026-11-16T09:51:19+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1

@@ -1,0 +1,67 @@
+6bcb82cb9bec3f0a src/baselines/large_lp_training.py
+f89fe0458abadf40 src/baselines/registry.py
+a1f5cffd75297f11 src/baselines/adapters/hgb_gnn.py
+3229e3ac93b912ba src/baselines/adapters/nsd.py
+c3c57533e253934f src/baselines/adapters/csnn.py
+7ec61f001d2d6590 src/baselines/adapters/hgb_han.py
+572376a8d0f31923 src/baselines/adapters/h2gformer.py
+961531b00f017403 src/baselines/adapters/hetero2net.py
+232beb4eca48870c tests/test_baselines_large_lp.py
+21289e8b5d9a3758 tests/test_baselines.py
+label=p3-f7-tests job=16741 step=140 node=g2n01 start=2026-11-16T10:14:50+09:00
+git=08751b591f8bfcfa30a8625534da553b545705b0 branch=baselines-h2gb-3
+working tree:  M src/baselines/adapters/csnn.py
+working tree:  M src/baselines/adapters/h2gformer.py
+working tree:  M src/baselines/adapters/hetero2net.py
+working tree:  M src/baselines/adapters/hgb_gnn.py
+working tree:  M src/baselines/adapters/hgb_han.py
+working tree:  M src/baselines/adapters/nsd.py
+working tree:  M src/baselines/large_lp_training.py
+working tree:  M src/baselines/registry.py
+working tree:  M tests/test_baselines.py
+working tree:  M tests/test_baselines_large_lp.py
+env=h2snn-b cmd=python -m unittest -v tests.test_baselines_large_lp tests.test_large_lp
+test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_each_wired_method_one_lp_step_is_finite_and_moves (tests.test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+WARNING:root:Layers after message passing should be >=1
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+ok
+test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_training.py:60: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  return batch, torch.searchsorted(nodes, links)
+ok
+test_v_concat_mlp_is_refused_for_the_large_tasks (tests.test_large_lp.DecoderTests.test_v_concat_mlp_is_refused_for_the_large_tasks) ... ok
+test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it (tests.test_large_lp.EpochLoopTests.test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it) ... ok
+test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch (tests.test_large_lp.EpochLoopTests.test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch) ... ok
+test_iii_training_run_on_a_synthetic_task (tests.test_large_lp.EpochLoopTests.test_iii_training_run_on_a_synthetic_task) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts (tests.test_large_lp.HeldOutTests.test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts) ... ok
+test_chunked_two_hop_equals_unchunked (tests.test_large_lp.NegativeTests.test_chunked_two_hop_equals_unchunked) ... ok
+test_list_free_choices_equal_random_choices (tests.test_large_lp.NegativeTests.test_list_free_choices_equal_random_choices) ... ok
+test_iv_split_equals_the_derived_tasks_rule (tests.test_large_lp.SplitTests.test_iv_split_equals_the_derived_tasks_rule) ... ok
+test_iv_split_is_by_unordered_pair (tests.test_large_lp.SplitTests.test_iv_split_is_by_unordered_pair) ... ok
+test_i_negative_control_other_links_do_not_change_a_score (tests.test_large_lp.StepScopeTests.test_i_negative_control_other_links_do_not_change_a_score) ... ok
+test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope (tests.test_large_lp.StepScopeTests.test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 55.266s
+
+OK
+peak_rss_gib=0.79 elapsed_s=57.8
+end=2026-11-16T10:15:48+09:00 exit=0
