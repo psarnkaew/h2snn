@@ -163,3 +163,92 @@ peaks). The seeds 0–4 runs of the best configuration have no baseline launcher
 9. **Session 1:** the 11 H3b cells plus HAN Freebase (NC segfault; LP segfault at heads 4).
 
 branch=dry-run sha=<the commit adding this report; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=6ba6dec00369ff590b341ce3771da90528fcc1cd
+
+
+# D6 (review follow-up, card section "D6" at design-docs c065dfc, spec v1.24)
+
+Setup: HEAD = origin/dry-run = 9d48ca4; 16889 and 16875 (A6000) cancelled, 16882 (40G retries) kept; merged design-docs
+c065dfc (`f43b029`) and v3b 5ccc792 (`0944edb`), both clean. No A6000 for any D6 job (author 2026-11-17, design-docs
+840163a). No metric in any file (status, memory, time only).
+
+| unit | commit | result |
+|---|---|---|
+| D6.2 code check | `1954397` | no ready / step-down cell's path changed (`d6_code_check.md`); nothing re-run; `d6_ready_baselines.txt` = D5's 101 cells |
+| D6.3 OOM ranges | `a97bf62` | all 11 ladders fit on 24 GB; D2's 16 one-step cells carried over (`d6_ranges.md`) |
+| D6.4 central timing | `7198090` | 117 cells (`d6_central.md` / `.csv`); table below |
+| D6.5 H2SGNN LP freebase_bb | `9a577cb` | failing kernel: backward of torch_sparse `SPMMSum`; first repository file:line `src/baselines/adapters/_h2sgnn_lp.py:179` (`d6_5_h2sgnn_freebase_bb.md`); no fix |
+| D6.6 H-Pokec H2S-NN largest point | `7a306d4` | TIMEOUT at 8 h on a 3090 (60G host, MaxRSS 39.8 GiB, no OOM): one epoch does not finish (`d6_runs.md`) |
+| D6.7 batch-size axis | `68efedd` | H2S-NN sweep tunes `data.batch_size` ∈ {32, 256, 1024} on the 8 H2GB NC datasets only; D1 comments fixed; test OK (8), job 16927 |
+| D6.8 baseline final seeds | `b120529` | `run_baseline_tuning.py --final_seeds`: best seed-0 trial by the validation monitor, params unchanged on seeds 0–4; test OK (5), mutation "select last trial" caught, job 16928 |
+| D6.9 full suite | (this commit) | 729 tests OK, 1,496 s, job 17137 on g3n01 (RTX 3090, 16G host), environment E (cpu_capability AVX2); `test_v3b_golden` (bit-identical) ok, mb0 compare tests ok; no skip, no failure (`d6_suite.txt`; the golden test's `ok` sits after a warning line in the full log, so the filtered list shows 687 result lines) |
+
+## D6.3 — largest grid point that fits 24 GB (decision 1)
+
+Ladder: from D2's largest point, the step-down axis one grid step at a time, then the next memory axis.
+
+| cell | fitting range |
+|---|---|
+| H2S-NN LP freebase_bb | r ≤ 8 |
+| H2S-NN LP dblp_ap, pubmed, lastfm | r ≤ 32 (D2) |
+| NSD NC acm, LP acm_pa | d ≤ 3 |
+| NSD NC freebase, LP freebase_bb | d ≤ 2, hidden_channels ≤ 32 |
+| NSD LP pubmed | d ≤ 4 (D2) |
+| HINormer NC acm / dblp / imdb | len_seq ≤ 80 / 50 / 50 |
+| GAT LP freebase_bb | num_heads ≤ 4, hidden_dim ≤ 128 |
+| GAT LP acm_pa | num_heads ≤ 4 (D2) |
+| PSHGCN LP freebase_bb / pubmed | K ≤ 1, hidden ≤ 128 / K ≤ 2 (D2) |
+| CSNN NC freebase, LP freebase_bb | d ≤ 3 (D2) |
+| H²GFormer NC acm/dblp/imdb, LP acm_pa/dblp_ap/imdb_ma/lastfm | metapath_pe off (D2) |
+| H²GFormer LP freebase_bb | hidden_dim ≤ 256 (D2) |
+
+Not fitting: **H2S-NN Freebase NC** — mini-batch at B 1024 (the card's first step) is refused by
+`src/configs/config.py:1088-1094`; spec 1.17's Freebase mini-batch rule is not implemented (**stop item**); full batch
+fits at r ≤ 8 (information only). **H²GFormer, Hetero²Net Freebase NC** — one 25.27 GiB data tensor to the GPU before
+any model axis (40G host retry, 16882_2/3): no 24 GB point. **HAN Freebase NC / freebase_bb** — segmentation faults
+(session 1, card 1e).
+
+## D6.4 — central point: one epoch + one full validation pass (B2a)
+
+H2S-NN: d 32, ℓ_max 3, r 16, lr 1e-3, wd 5e-4, dropouts 0.45, B 256 on H2GB NC. Times in s.
+
+| H2S-NN cell | GPU | train epoch | val pass | val targets | ms/target |
+|---|---|---|---|---|---|
+| NC ogbn-mag | TITAN RTX | 164 | 113 | 64,879 | 1.75 |
+| NC mag-year | TITAN RTX | 162 | 828 | 184,097 | 4.50 |
+| NC oag-cs | 2080 Ti | 117 | 33 | 19,551 | 1.70 |
+| NC oag-eng | 2080 Ti | 63 | 38 | 28,524 | 1.34 |
+| NC oag-chem | 2080 Ti | 146 | 103 | 59,664 | 1.73 |
+| NC ieee-cis-g | 2080 Ti | 27 | 20 | 14,423 | 1.42 |
+| NC h-pokec | TITAN RTX | 209 | 3,941 | 408,160 | 9.66 |
+| NC pdns | 2080 Ti | 267 | 28 | 17,450 | 1.58 |
+| GC mutag / proteins / enzymes | TITAN RTX | 50 / 299 / 150 | 3.1 / 22.4 / 10.5 | 18 / 111 / 60 | |
+| GC nci1 | TITAN RTX | stop condition (log-weight range 31.2 > 30 at epoch 0, as at D2) | | | |
+
+Baselines: GC 33 OK (all four datasets; train ≤ 706 s, val ≤ 8.2 s per pass, `d6_central.md`); **Hetero²Net GC
+enzymes, proteins: non-finite training loss at epoch 0** (OK at D2's largest point; recorded, skipped). H2GB NC: all 70
+cells stop in `bundles._base_config` (`bundles.py:388` → `config.py:1107`, "data.batch_size (B) is required") — card
+1d's H3b, not on `v3b` yet (**stop item, session 1**); no baseline H2GB NC timing. (The D6.4 commit message says "34
+OK"; the count is 33.)
+
+Cancelled (design session 2026-11-17, H-Pokec runs only H2S-NN's central point): 16924_3 … 16924_11, the H-Pokec NC
+central lines of GCN, GAT, ChebNetII, NSD, CSNN, HAN, HINormer, H²GFormer, Hetero²Net (pending, 60G each; all would
+stop at H3b). H2S-NN's H-Pokec central ran as 16924_2 (already running at 60G when the 52G instruction arrived; kept,
+not resubmitted; MaxRSS 15.1 GiB, 2 h 14 min).
+
+## Resources
+
+Rule of 2026-11-16 applied: the pending 16923 tasks (30G, g2n01 excluded) were cancelled and resubmitted with the same
+lists as 16960 (H2S-NN H2GB NC, 20G) and 16961 (GC + H2GB NC baselines, 16G), g3an01 excluded, g2n01 allowed; 60G only
+for H-Pokec (16924). The suite ran at 16G (17137). No job requested the A6000 or g3an01.
+
+## Stop items / for the author
+
+1. H2S-NN Freebase NC: no 24 GB configuration in the current settings (mini-batch refused by config; a new setting).
+2. H3b (`bundles._base_config` batch size) not on `v3b`: blocks every H2GB NC baseline cell, so B2a has no baseline
+   H2GB NC timings yet.
+3. H-Pokec H2S-NN: the largest point does not finish one epoch in 8 h; the central point needs 3,941 s per validation
+   pass (408,160 targets).
+4. Hetero²Net GC enzymes, proteins: NaN loss at epoch 0 at the central point (session 1).
+5. H2SGNN LP freebase_bb (D6.5 kernel), HAN Freebase (segfaults): session 1.
+
+branch=dry-run sha=<the commit adding this section; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=9d48ca460d9594fce556e20f550d151a3a86bc4f
