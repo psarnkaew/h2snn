@@ -63,7 +63,9 @@ ENTRYPOINT = Path(__file__).resolve()
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--task", type=str, required=True, choices=sorted(DATASETS))
+    # Not `required`: each trial's worker is re-spawned with only --worker_context (run_unit_sweep), which
+    # argparse refused, so no baseline trial could run (card 2 D3); main() requires --task otherwise.
+    parser.add_argument("--task", type=str, default=None, choices=sorted(DATASETS))
     parser.add_argument("--models", nargs="+", default=["all"])
     parser.add_argument("--datasets", nargs="+", default=["all"])
     parser.add_argument("--output_dir", type=Path, default=Path("experiments/baselines"))
@@ -71,6 +73,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--n_trials", type=int, default=30)
     parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--dry_run", action="store_true",
+                        help="Card 2 D3: epoch budget 1 for every trial (launcher check, never a result); "
+                        "W&B runs tagged dry-run.")
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
     parser.add_argument("--base_seed", type=int, default=42)
@@ -162,13 +167,36 @@ def train_trial(
     return record
 
 
+def summarize_unit(records: list[dict[str, Any]], monitor: str, path: Path) -> dict[str, Any]:
+    """One unit's selected trial: the best validation `monitor`, written to `path` (`best_tuned_<unit>.json`).
+
+    `run_unit_sweep` calls `summarize(records, monitor, path)`; this launcher passed that monitor on as the task
+    of `summarize_cell`, so every baseline sweep raised "Unsupported task_type 'macro_f1'" after its trials (card 2
+    D3). Same selection as H2S-NN's `summarize_tuned_seed`; the cell summary over units stays `summarize_cell`.
+    """
+    from src.utils.run_reports import metric_score, write_run_record
+
+    if not records:
+        raise RuntimeError("No completed tuning records to summarize.")
+    best = max(records, key=lambda record: metric_score(record, monitor))
+    write_run_record(path, best)
+    return best
+
+
 def main() -> None:
     args = parse_args()
 
     if args.worker_context is not None:
         run_campaign_worker(args.worker_context, train_trial=train_trial, known_parameters=set())
         return
+    if args.task is None:
+        raise SystemExit("run_baseline_tuning.py: --task is required unless --worker_context is used.")
 
+    if args.dry_run:  # card 2 D3: the explicit dry-run flag (one epoch)
+        if args.epochs is not None and args.epochs != 1:
+            raise SystemExit("--dry_run sets the epoch budget to 1; do not combine it with --epochs.")
+        args.epochs = 1
+        args.wandb_tags = list(dict.fromkeys([*(args.wandb_tags or ()), "dry-run"]))
     cells = resolve_cells(args.task, args.models, args.datasets)
     if not cells:
         raise SystemExit("No runnable cells selected.")
@@ -246,7 +274,7 @@ def main() -> None:
                 monitor=monitor,
                 state_path=state_path_for(state_dir, cell, unit),
                 worker_entrypoint=ENTRYPOINT,
-                summarize=lambda recs, task, path: summarize_cell(recs, task, path),
+                summarize=summarize_unit,
             )
             records.append(best)
 

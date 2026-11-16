@@ -98,6 +98,8 @@ CONDITIONAL_PARAMETER_NAMES = frozenset(
     }
 )
 KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
+#: Card 2 D3: names that may never appear in a sweep (the --dry_run flag and the epoch budget).
+DRY_RUN_KEYS: tuple[str, ...] = ("dry_run", "epochs")
 
 
 def parse_args() -> argparse.Namespace:
@@ -131,6 +133,13 @@ def parse_args() -> argparse.Namespace:
         help="Optional positive stalk dimensions; default 16/32/64 (spec v1.15 §6).",
     )
     parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="Card 2 D3: epoch budget 1 for every trial and final seed (a check that the launcher works end "
+        "to end, never a result); W&B runs tagged dry-run. A command-line flag only: refused as a sweep "
+        "parameter and as a base-config key.",
+    )
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--decoder_type", type=str, default=None,
@@ -236,6 +245,11 @@ def validate_trial_params(
     this script, while still rejecting legacy keys rather than ignoring them.
     """
 
+    # Card 2 D3: the dry-run flag and the epoch budget are command-line settings, never sweep values.
+    for name in DRY_RUN_KEYS:
+        if name in params or name in (allowed_parameters or ()):
+            raise ValueError(f"{name!r} is not a tuning parameter: the dry run is the launcher's --dry_run "
+                             "flag (card 2 D3) and the epoch budget is the protocol's (spec §6).")
     allowed = set(KNOWN_PARAMETER_NAMES if allowed_parameters is None else allowed_parameters)
     unsupported_allowed = sorted(allowed - KNOWN_PARAMETER_NAMES)
     if unsupported_allowed:
@@ -288,6 +302,11 @@ def _apply_base_cli(raw: dict[str, Any], args: argparse.Namespace) -> dict[str, 
         payload["early_stopping_patience"] = args.patience
     if args.epochs is not None:
         payload["epochs"] = args.epochs
+    if getattr(args, "dry_run", False):  # card 2 D3: the explicit dry-run flag (one epoch)
+        if args.epochs is not None and args.epochs != 1:
+            raise ValueError("--dry_run sets the epoch budget to 1; do not combine it with --epochs.")
+        payload["epochs"] = 1
+        args.wandb_tags = list(dict.fromkeys([*(args.wandb_tags or ()), "dry-run"]))
     payload.setdefault("data", {})
     if args.decoder_type is not None:
         payload["data"]["decoder_type"] = args.decoder_type
@@ -445,6 +464,10 @@ def train_trial(
             try:
                 import wandb  # type: ignore[import-not-found]
 
+                # Card 2 D3: outside a sweep worker (the --final_seeds path) there is no W&B run, and
+                # wandb.log raised "You must call wandb.init() before wandb.log()", so every seed run failed.
+                if getattr(wandb, "run", None) is None:
+                    return
                 payload = {
                     **{f"train/{key}": value for key, value in train_metrics.items()},
                     **{f"val/{key}": value for key, value in val_metrics.items()},

@@ -41,6 +41,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train_ratio", type=float, default=None)
     parser.add_argument("--val_ratio", type=float, default=None)
     parser.add_argument("--test_ratio", type=float, default=None)
+    parser.add_argument("--dry_run", action="store_true",
+                        help="Card 2 D3: one epoch per run (launcher check, never a result); W&B tag dry-run.")
     parser.add_argument("--use_wandb", action="store_true")
     parser.add_argument("--wandb_project", type=str, default=None)
     parser.add_argument("--wandb_entity", type=str, default=None)
@@ -81,6 +83,9 @@ def _apply_common_overrides(cfg: TrainConfig, args: argparse.Namespace) -> Train
     cfg.checkpoint_mode = "max"
     if args.patience is not None:
         cfg.early_stopping_patience = args.patience
+    if getattr(args, "dry_run", False):  # card 2 D3: the explicit dry-run flag (one epoch)
+        cfg.epochs = 1
+        cfg.wandb_tags = tuple(dict.fromkeys((*cfg.wandb_tags, "dry-run")))
     if args.use_wandb:
         cfg.use_wandb = True
     if args.wandb_project is not None:
@@ -92,7 +97,8 @@ def _apply_common_overrides(cfg: TrainConfig, args: argparse.Namespace) -> Train
     if args.wandb_group is not None:
         cfg.wandb_group = args.wandb_group
     if args.wandb_tags is not None:
-        cfg.wandb_tags = tuple(args.wandb_tags)
+        cfg.wandb_tags = tuple(dict.fromkeys((*args.wandb_tags, *(("dry-run",) if getattr(args, "dry_run", False)
+                                                                  else ()))))
     if args.wandb_log_artifacts:
         cfg.wandb_log_artifacts = True
     return cfg
