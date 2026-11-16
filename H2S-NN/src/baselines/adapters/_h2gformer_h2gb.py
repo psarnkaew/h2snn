@@ -9,7 +9,7 @@ D-P6; D-P9; author decision S1).
   `pe_dir` is a run directory, never under the data root. Its `test()` fits a probe on every labelled target but only
   prints (`:488-490, 532-534`); the saved embedding is the one after 5 fixed epochs, so no label selects it.
   H2GB has no schema for `mag-year` (no branch for the name `mag-year`, `encoding_generator.py:187-436`;
-  `MAGDataset.name = 'mag-year'`, `mag_dataset.py:67`): that cell is refused (stop item, part 2 report).
+  `MAGDataset.name = 'mag-year'`, `mag_dataset.py:67`): it takes ogbn-mag's (card 1c F6, decision G-7), stated.
 * Label channel (H2GB's `Hetero_Label`): training labels only -- every non-training target gets the placeholder label
   and `val_mask` is all False (`training_label_input`), set **after** the loaders are built (their seeds come from the
   real masks); evaluation runs with `batch.split = 'val'` (H2GB masks with `train_mask` then,
@@ -27,9 +27,11 @@ import torch
 from src.baselines.adapters._h2gformer_encoders import (H2GB_STACKS, LABEL, METAPATH, metapath_dim_pe,
                                                         training_label_input)
 
-#: H2GB datasets whose H2G-former config cannot run in H2GB's own code (part 2 E1).
-UNRUNNABLE = {"mag-year": ("H2GB's mag-year H2Gformer config enables MetaPath2Vec, but H2GB's preprocess_Metapath has no "
-                           "schema for the dataset name 'mag-year' (encoding_generator.py:187-436; mag_dataset.py:67)")}
+#: H2GB datasets whose H2G-former config cannot run in H2GB's own code (part 2 E1); none since card 1c F6.
+UNRUNNABLE: dict[str, str] = {}
+#: Card 1c F6 (decision G-7): mag-year has no MetaPath2Vec schema in H2GB's code (no branch for its name,
+#: `encoding_generator.py:187-436`); it takes ogbn-mag's schema (`:263-280`) -- the same graph, only labels differ.
+SCHEMA_NAME = {"mag-year": "ogbn-mag"}
 
 
 def prepare_label_channel(data: Any, target_type: str, labels: torch.Tensor) -> None:
@@ -40,15 +42,45 @@ def prepare_label_channel(data: Any, target_type: str, labels: torch.Tensor) -> 
     data[target_type].val_mask = val
 
 
-def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path) -> None:
+class _AutoMultiClassCompat:
+    """sklearn >= 1.8 removed `LogisticRegression(multi_class=...)`; H2GB's MetaPath2Vec probe passes
+    `multi_class="auto"` with `solver="lbfgs"` (`H2GB/loader/embedding/metapath2vec.py:229-238`), which is the
+    current default behaviour. While H2GB's `preprocess_Metapath` runs, `sklearn.linear_model.LogisticRegression` is a
+    factory that drops `multi_class` when it is "auto" and returns sklearn's estimator (any other value is refused). The probe's accuracy is only
+    printed (`encoding_generator.py:488-490, 532-534`); the embedding does not depend on it (card 1c F6 finding)."""
+
+    def __enter__(self) -> None:
+        import sklearn.linear_model as linear_model
+
+        original = linear_model.LogisticRegression
+
+        def LogisticRegression(*args: Any, multi_class: str = "auto", **kwargs: Any) -> Any:  # noqa: N802
+            # a factory, not a subclass: sklearn estimators may not take varargs; the probe only instantiates it
+            if multi_class != "auto":
+                raise ValueError(f"multi_class={multi_class!r} has no equivalent in this sklearn")
+            return original(*args, **kwargs)
+
+        self._original, self._module = original, linear_model
+        linear_model.LogisticRegression = LogisticRegression
+
+    def __exit__(self, *exc: Any) -> None:
+        self._module.LogisticRegression = self._original
+
+
+def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path, schema_name: str | None = None) -> None:
     """H2GB's MetaPath2Vec embeddings (trained by H2GB's code if `pe_dir` has none) as each type's
-    `pestat_Hetero_Metapath` (`master_loader.py:262-281`). Needs H2GB's cfg configured first."""
+    `pestat_Hetero_Metapath` (`master_loader.py:262-281`). Needs H2GB's cfg configured first. `schema_name`: the
+    dataset name H2GB's `preprocess_Metapath` dispatches on, when it differs from the dataset's own (decision G-7)."""
     from H2GB.loader.encoding_generator import (check_Metapath, load_Metapath,  # type: ignore[import-not-found]
                                                 preprocess_Metapath)
 
+    from src.baselines.adapters._h2gb_network import DatasetShim
+
     pe_dir = Path(pe_dir)
     if not pe_dir.exists() or not check_Metapath(str(pe_dir)):
-        preprocess_Metapath(str(pe_dir), dataset_obj)
+        with _AutoMultiClassCompat():
+            preprocess_Metapath(str(pe_dir),
+                                dataset_obj if schema_name is None else DatasetShim(dataset_obj[0], schema_name))
     model = load_Metapath(str(pe_dir))
     emb = model["model"].weight.data.detach().cpu()
     for node_type in data.node_types:
@@ -111,7 +143,7 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
         if METAPATH in stack:
             pe_dir = Path(params.get("metapath_cache", "experiments/h2gb_metapath2vec")) / bundle.dataset / \
                 f"dim{metapath_dim_pe(int(params.get('hidden_dim', 64)))}_seed{seed}"
-            attach_h2gb_metapath(dataset_obj, data, pe_dir)
+            attach_h2gb_metapath(dataset_obj, data, pe_dir, SCHEMA_NAME.get(bundle.dataset))
         torch.manual_seed(seed)
         model = build_gtmodel(data, bundle.dataset, num_classes).to(device)
 

@@ -86,7 +86,7 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
 H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # part 2 E1 (author decisions S1, S5): class A on H2GB's hgt sampler with H2GB's YAML fan-out
     *((m, d) for m in ("gcn", "gat", "han") for d in H2GB_NC),
-    *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
+    *(("h2gformer", d) for d in H2GB_NC),  # mag-year: card 1c F6 (G-7)
     # part 2 E3 (D1 second branch, S1): class C on the hgt sampler with the dataset's GCN fan-out
     *((m, d) for m in ("nsd", "csnn") for d in H2GB_NC),
     # card 1c F1 (G-1): the original HINormer, class B
@@ -108,9 +108,6 @@ _PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
     ("pshgcn", "ogbn-mag"): _PSHGCN_MAG, ("pshgcn", "mag-year"): _PSHGCN_MAG,
-    ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
-                                "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
-                                "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
 }
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "

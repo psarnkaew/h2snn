@@ -164,5 +164,78 @@ class H2GformerTests(unittest.TestCase):
                         f"{(outputs[0] - outputs[1]).abs().max().item():.3e}")
 
 
+def _mag_typed_graph(seed: int = 0):
+    """ogbn-mag's types and the relations H2GB's ogbn-mag MetaPath2Vec schema walks (encoding_generator.py:263-274)."""
+    from torch_geometric.data import HeteroData
+
+    g = torch.Generator().manual_seed(seed)
+    n = {"paper": 120, "author": 40, "institution": 6, "field_of_study": 10}
+    data = HeteroData()
+    for t, count in n.items():
+        data[t].x = torch.randn(count, 4, generator=g)
+    data["paper"].y = torch.arange(n["paper"]) % 3
+    order = torch.randperm(n["paper"], generator=g)
+    for name, part in (("train", order[:70]), ("val", order[70:95]), ("test", order[95:])):
+        mask = torch.zeros(n["paper"], dtype=torch.bool)
+        mask[part] = True
+        data["paper"][f"{name}_mask"] = mask
+
+    def rel(src, dst, count):
+        return torch.unique(torch.stack([torch.randint(0, n[src], (count,), generator=g),
+                                         torch.randint(0, n[dst], (count,), generator=g)]), dim=1)
+
+    for (src, name, dst), count in ((("author", "writes", "paper"), 200), (("paper", "has_topic", "field_of_study"), 150),
+                                    (("author", "affiliated_with", "institution"), 50), (("paper", "cites", "paper"), 150)):
+        index = rel(src, dst, count)
+        data[src, name, dst].edge_index = index
+        data[dst, f"rev_{name}", src].edge_index = index.flip(0)
+    return data
+
+
+class H2GformerMagYearTests(unittest.TestCase):
+    """Card 1c F6 (G-7): mag-year with ogbn-mag's MetaPath2Vec schema (H2GB's own preprocess_Metapath, run on a
+    MAG-typed synthetic graph through the name shim), then one training step with the MetaPath2Vec channel."""
+
+    def test_mag_year_metapath_schema_and_step(self) -> None:
+        import tempfile
+
+        from src.baselines.adapters import _h2gformer_h2gb as h2gf
+        from src.baselines.adapters._h2gb_network import DatasetShim, configure_from_yaml, seed_predictions
+        from src.baselines.adapters._h2gformer_encoders import LABEL, METAPATH, RAW, metapath_dim_pe
+        from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
+        from src.baselines.runtime import pushd_sys_path
+
+        self.assertEqual(h2gf.SCHEMA_NAME["mag-year"], "ogbn-mag")
+        data = _mag_typed_graph()
+        labels = data["paper"].y.clone()
+        loader = None
+        from src.baselines.minibatch import hgt_loader
+
+        loader = hgt_loader(data, {t: [10 ** 6] * 2 for t in data.node_types}, "paper", "train", 8, shuffle=False,
+                            steps=1)
+        h2gf.prepare_label_channel(data, "paper", labels)
+        params = _Params(hidden_dim=16, gt_layers=2, attn_heads=2, dropout=0.0)
+        ensure_pyg_submodules()
+        with tempfile.TemporaryDirectory() as tmp, pushd_sys_path("h2gb"):
+            configure_from_yaml("h2gformer", "mag-year", data, "paper", torch.device("cpu"),
+                                {**h2gf.overrides(params, 3, (RAW, LABEL, METAPATH)), "num_workers": 0})
+            h2gf.attach_h2gb_metapath(DatasetShim(data, "mag-year"), data, __import__("pathlib").Path(tmp),
+                                      h2gf.SCHEMA_NAME["mag-year"])
+            for t in data.node_types:
+                self.assertEqual(tuple(data[t]["pestat_Hetero_Metapath"].shape),
+                                 (int(data[t].num_nodes), metapath_dim_pe(16)))
+            torch.manual_seed(0)
+            model = h2gf.build_gtmodel(data, "synthetic", 3)
+        batch = next(iter(loader))
+        size = int(batch["paper"].batch_size)
+
+        def forward():
+            b = batch.clone()
+            b.split = "train"
+            return seed_predictions(model, b, "paper")
+
+        _one_step_moves(self, model, forward, labels[batch["paper"].n_id[:size]])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -88,7 +88,8 @@ SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imd
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Part 2 E1: the H2GB NC datasets on H2GB's `hgt` batches with H2GB's own configs (`_h2gformer_h2gb.py`); mag-year
 #: cannot run under H2GB's own code (no MetaPath2Vec schema for its name) and is left out.
-H2GB_DATASETS = frozenset({"ogbn-mag", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+H2GB_DATASETS = frozenset({"ogbn-mag", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns",
+                           "mag-year"})  # card 1c F6 (G-7): mag-year with ogbn-mag's MetaPath2Vec schema
 READS_BATCH_PLAN = True
 
 
