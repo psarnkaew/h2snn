@@ -412,21 +412,25 @@ def mde_chunked(source: ChunkSource, x: torch.Tensor, chunk: int | None = None) 
 def mde_measure(data: Any, target: str, paths: list[list[Step]], x: torch.Tensor, both: bool = False,
                 max_reference_edges: int = MDE_REFERENCE_MAX_EDGES) -> dict[str, Any]:
     """MDE (spec §1) on `paths` with raw target features `x`: per `G_P` the reference `attribute_homophily` when
-    `|E(G_P)| <= max_reference_edges`, else `mde_chunked` on the `G_P` row chunks (D-a); `both`: the chunked value as
-    well wherever the reference runs (gate H0-eq). MDE = mean over meta-paths with a non-empty `G_P`."""
+    `|E(G_P)| <= max_reference_edges`, else `mde_chunked` on the `G_P` row chunks (D-a). `both` (gate H0-eq, HGB):
+    both values on every `G_P` whatever its size (the reported value still follows D-a). MDE = mean over meta-paths
+    with a non-empty `G_P`."""
     per_path = []
     for path in paths:
         rec: dict[str, Any] = {"metapath": metapath_name(path), "steps": [list(s) for s in path]}
-        whole = gp_edges_capped(data, path, max_reference_edges)
+        whole = gp_edges_capped(data, path, 2 ** 62 if both else max_reference_edges)
         if whole is not None:
             rec["edges"] = int(whole.size(1))
             if rec["edges"] == 0:
                 rec.update(value=None, code_path="empty G_P")
             else:
                 rec["reference"] = mde_reference(whole, x)
-                rec.update(value=rec["reference"], code_path="hetero2net.attribute_homophily (reference)")
                 if both:
                     rec["chunked"], _ = mde_chunked(chunks_of(whole), x)
+                if rec["edges"] <= max_reference_edges:
+                    rec.update(value=rec["reference"], code_path="hetero2net.attribute_homophily (reference)")
+                else:
+                    rec.update(value=rec["chunked"], code_path="mde_chunked (D-a); reference also computed (gate)")
         else:
             value, edges = mde_chunked(lambda p=path: iter_gp(data, p), x)
             rec.update(edges=edges, value=value, chunked=value, code_path="mde_chunked (D-a)")

@@ -207,6 +207,10 @@ class ChunkedEqualsReferenceTests(unittest.TestCase):
         mde = het.mde_measure(data, "paper", PAP, data["paper"].x, max_reference_edges=5)
         self.assertEqual(mde["per_metapath"][0]["code_path"], "mde_chunked (D-a)")
         self.assertAlmostEqual(mde["value"], HAND_MDE, places=6)
+        gate = het.mde_measure(data, "paper", PAP, data["paper"].x, both=True, max_reference_edges=5)
+        rec = gate["per_metapath"][0]  # gate H0-eq: both values above the threshold, reported value chunked
+        self.assertAlmostEqual(rec["reference"], HAND_MDE, places=6)
+        self.assertEqual(rec["value"], rec["chunked"])
         mlh = het.mlh_measure(data, "paper", PAP, data["paper"].y, max_single_call=5, chunk=3)
         self.assertTrue(mlh["per_metapath"][0]["mode"].startswith("chunked"))
         self.assertAlmostEqual(mlh["value"], 1 / 3, places=6)
