@@ -86,7 +86,8 @@ def relevance_by_group(data, carrier: str, relevant_local: torch.Tensor) -> list
     return out
 
 
-def install_oracle(model, relevant: list[torch.Tensor], beta: float, device: torch.device) -> None:
+def install_oracle(model, data, relevant: list[torch.Tensor], beta: float,
+                   device: torch.device) -> None:
     """Fixed-beta oracle (Part K K2, `k2_capacity.install_oracle`): w_f = exp(b + beta o_f); beta a
     buffer (requires_grad only to read dL/dbeta, never optimised); b its own scalar in the scalar group
     (b0 = log path_weight_init); g unused for the weights; everything else trains; nothing clamped."""
@@ -94,12 +95,17 @@ def install_oracle(model, relevant: list[torch.Tensor], beta: float, device: tor
     model.register_buffer("oracle_beta", torch.tensor(beta, device=device, requires_grad=True))
     base_scalars = model.scalar_parameters
     model.scalar_parameters = lambda: list(base_scalars()) + [model.oracle_b]
-    by_size = {int(r.numel()): r.float() for r in relevant}
-    if len(by_size) != len(relevant):
-        raise ValueError("the oracle needs distinct group sizes")
+    # Keyed by the group's cell length (one WISP group per length), not by its size as in Part K:
+    # two lengths can hold the same number of cells (S3 at r 2560: 128,000 cells of length 3 and 4).
+    lengths = [g.length for g in data.face_groups if g.num_faces]
+    by_length = dict(zip(lengths, (r.float() for r in relevant)))
+    if len(by_length) != len(relevant):
+        raise ValueError("the oracle needs one face group per cell length")
 
     def weights(latent, group, like):
-        o = by_size[group.num_faces].to(device=like.device, dtype=like.dtype)
+        o = by_length[group.length].to(device=like.device, dtype=like.dtype)
+        if o.numel() != group.num_faces:
+            raise ValueError("oracle relevance does not match the group's cells")
         return torch.exp(model.oracle_b + model.oracle_beta * o)
     model._path_weights = weights
 

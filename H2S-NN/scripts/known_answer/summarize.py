@@ -15,7 +15,8 @@ from pathlib import Path
 def load(folder: Path, prefix: str) -> list[dict]:
     if folder is None or not folder.exists():
         return []
-    return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(folder.glob(f"{prefix}_*.json"))]
+    records = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(folder.glob(f"{prefix}_*.json"))]
+    return [r for r in records if "arm" in r]          # per-run records only (not the audit)
 
 
 def k3(rows: list[dict]) -> list[str]:
@@ -84,7 +85,7 @@ def k5(rows: list[dict]) -> list[str]:
              "|---|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda r: (r["arm"], r["seed"])):
         ro = r["readout"]
-        lines.append(f"| {r['arm']} | {r['seed']} | {r['test_acc']:.3f} | {ro['planted_coverage']:.3f} | "
+        lines.append(f"| {r['arm']} | {r['seed']} | {r['test_acc']:.3f} | {ro['planted_coverage']:.4f} | "
                      f"{ro['strict_rank_mean_log_weight']} | {ro['gap_star_minus_best_other']:.4f} | {ro['best_other']} |")
     full = [r for r in rows if r["arm"] == "full"]
     passed = len(full) == 3 and all(r["readout"]["criterion_pass"] for r in full)

@@ -37,7 +37,7 @@ def run(arm: str, beta_label: str, seed: int, out_dir: Path) -> dict:
 
     def oracle(model, data):
         state["relevant"] = common.relevance_by_group(data, info["carrier"], info["relevant_cpaper"])
-        common.install_oracle(model, state["relevant"], common.BETAS[beta_label], device)
+        common.install_oracle(model, data, state["relevant"], common.BETAS[beta_label], device)
 
     def epoch_log(model):
         beta = model.oracle_beta
