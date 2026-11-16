@@ -381,5 +381,45 @@ class ChebNetIIForwardTests(unittest.TestCase):
                         data["paper"].y[idx], torch.nn.functional.nll_loss)
 
 
+class Hetero2NetHGBRouteTests(unittest.TestCase):
+    """Card 1d H2 (decision D2): the HGB adapter's evaluation reads validation from the copy hiding validation and test
+    labels and test from the copy hiding test labels (`hetero2net.evaluation_logits`, labels built by the adapter's
+    `_build_label_embedding_targets`). Mutation: validation from the test-hiding copy (the code before D2) fails."""
+
+    def _logits(self, labels: torch.Tensor):
+        from copy import copy
+
+        from src.baselines.adapters import hetero2net
+        from src.baselines.adapters import _hetero2net_h2gb as h2gb
+
+        data = typed_graph(width=6)  # an HGB-shaped heterogeneous fixture (paper targets, author, field)
+        for node_type in data.node_types:
+            data[node_type].x = data[node_type].x.float()
+        data["paper"].y = labels.clone()
+        train_y, eval_y = hetero2net._build_label_embedding_targets(
+            data, "paper", 3, mask_test=data["paper"].test_mask, mask_val=data["paper"].val_mask)
+        train_data, eval_data = copy(data), copy(data)
+        train_data["paper"].y_emb, eval_data["paper"].y_emb = train_y, eval_y
+        torch.manual_seed(0)
+        model = h2gb.build_model(data, "paper", 3, {"hidden": 8, "dropout": 0.0}).eval()
+        with torch.no_grad():
+            val_logits, test_logits = hetero2net.evaluation_logits(model, train_data, eval_data, "paper",
+                                                                   torch.device("cpu"))
+        return data, val_logits[data["paper"].val_mask], test_logits[data["paper"].test_mask]
+
+    def test_validation_and_test_read_no_held_out_label(self) -> None:
+        data, base_val, base_test = self._logits(typed_graph(width=6)["paper"].y)
+        labels = data["paper"].y.clone()
+        val, test = data["paper"].val_mask, data["paper"].test_mask
+        both = labels.clone()
+        both[val | test] = (both[val | test] + 1) % 3
+        _, val_out, _ = self._logits(both)
+        self.assertTrue(torch.equal(base_val, val_out), "validation/test labels reach validation targets")
+        only_test = labels.clone()
+        only_test[test] = (only_test[test] + 1) % 3
+        _, _, test_out = self._logits(only_test)
+        self.assertTrue(torch.equal(base_test, test_out), "test labels reach test targets")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -125,6 +125,22 @@ def _apply_canonical_split(data: Any, bundle: NodeBundle, node_type: str) -> Non
     data[node_type].test_mask = target.target_test_mask.clone()
 
 
+def evaluation_logits(model: Any, train_data: Any, eval_data: Any, node_type: str,
+                      device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+    """(validation logits, test logits) as their full-batch evaluation (`Hetero2Net/main.py:215-219`,
+    `hetero2net/utils.py:212-224`): validation from `train_data` (validation and test labels hidden in `y_emb`), test
+    from `eval_data` (their `test_data`: test labels hidden). Each copy's `edge_index` is moved to the device first
+    (`utils.py:217`)."""
+
+    def run(data: Any) -> torch.Tensor:
+        data = data.to(device, "edge_index")
+        out = model(data.x_dict, data.edge_index_dict, data[node_type].get("y_emb"))
+        out = out[0] if isinstance(out, tuple) else out
+        return out[node_type] if isinstance(out, dict) else out
+
+    return run(train_data), run(eval_data)
+
+
 def _build_label_embedding_targets(
     data: Any, node_type: str, num_classes: int, *, mask_test: torch.Tensor,
     mask_val: torch.Tensor,
@@ -309,17 +325,14 @@ class Hetero2NetAdapter:
                     # adjacency on CPU while the features are on CUDA, and DisenConv's
                     # fused sparse path then dispatches to a torch.sparse reduction that
                     # has no CUDA kernel.
-                    eval_data = eval_data.to(device, "edge_index")
-                    logits = model(
-                        eval_data.x_dict,
-                        eval_data.edge_index_dict,
-                        eval_data[node_type].get("y_emb"),
-                    )
-                    if isinstance(logits, dict):
-                        logits = logits[node_type]
+                    # Card 1d H2 (author decision D2): validation on the copy hiding validation and test
+                    # labels (their train_data), test on the copy hiding test labels (their test_data),
+                    # as Hetero2Net/main.py:217-219 evaluates; before, validation read eval_data, whose
+                    # y_emb showed each validation target its own label (card 1c finding 2).
+                    val_logits, logits = evaluation_logits(model, train_data, eval_data, node_type, device)
                     labels = eval_data[node_type].y
                     val_metrics = classification_metrics(
-                        logits[val_mask],
+                        val_logits[val_mask],
                         labels[val_mask],
                         is_multilabel=bundle.is_multilabel,
                     )

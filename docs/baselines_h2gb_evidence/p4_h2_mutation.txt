@@ -1,0 +1,26 @@
+df7b636a18393bbd src/baselines/adapters/hetero2net.py
+label=p4-h2-mutation job=16741 step=180 node=g2n01 start=2026-11-16T11:34:30+09:00
+git=afa4f5ea81fee06c602e5229ab62ef8cd271d76a branch=baselines-h2gb-4
+working tree:  M src/baselines/adapters/hetero2net.py
+working tree:  M tests/test_baselines_h2gb_classb.py
+env=h2snn-b cmd=python -m unittest tests.test_baselines_h2gb_classb.Hetero2NetHGBRouteTests
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/tensor.py:574: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  return torch.sparse_csr_tensor(rowptr, col, value, self.sizes())
+F
+======================================================================
+FAIL: test_validation_and_test_read_no_held_out_label (tests.test_baselines_h2gb_classb.Hetero2NetHGBRouteTests.test_validation_and_test_read_no_held_out_label)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_h2gb_classb.py", line 417, in test_validation_and_test_read_no_held_out_label
+    self.assertTrue(torch.equal(base_val, val_out), "validation/test labels reach validation targets")
+AssertionError: False is not true : validation/test labels reach validation targets
+
+----------------------------------------------------------------------
+Ran 1 test in 12.777s
+
+FAILED (failures=1)
+peak_rss_gib=0.67 elapsed_s=14.6
+end=2026-11-16T11:34:45+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1
