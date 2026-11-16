@@ -96,6 +96,7 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # card 1c F4 (G-5 amended): Hetero2Net without a metapath list (its FreeBase branch)
     *(("hetero2net", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
     ("hetero2net", "ogbn-mag"), ("hetero2net", "mag-year"),  # card 1d H3: the author's embedding file in place
+    ("pshgcn", "ogbn-mag"), ("pshgcn", "mag-year"),  # card 1d H1 (G-2, D1-b): their ogbn-mag code with sparse_tools
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
@@ -103,12 +104,8 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
     ("chebnetii", "ieee-cis-g"), ("chebnetii", "h-pokec"),  # card 1c F5 (G-6): projection first
 })
-_PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports "
-               "sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the "
-               "label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("pshgcn", "ogbn-mag"): _PSHGCN_MAG, ("pshgcn", "mag-year"): _PSHGCN_MAG,
 }
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
