@@ -200,5 +200,37 @@ class ChebNetIIProjectionTests(unittest.TestCase):
             data["paper"].y[idx], torch.nn.functional.nll_loss)
 
 
+class HINormerTests(unittest.TestCase):
+    """Card 1c F1: the original HINormer on target batches; no label input (its forward reads features, sequences,
+    type embeddings and node types, HINormer/model.py:198-217), so no route test."""
+
+    def test_hinormer_step_is_finite_and_moves(self) -> None:
+        import dgl
+
+        from src.baselines.adapters import hinormer
+        from src.baselines.runtime._dgl_compat import restore_legacy_message_functions
+
+        g = torch.Generator().manual_seed(0)
+        sizes, dims = (12, 7), (4, 3)
+        n = sum(sizes)
+        raw = torch.randint(0, n, (2, 40), generator=g)
+        raw = raw[:, raw[0] != raw[1]]
+        both = torch.unique(torch.cat([raw, raw.flip(0)], dim=1), dim=1)
+        restore_legacy_message_functions()
+        graph = dgl.graph((both[0], both[1]), num_nodes=n)
+        features = [torch.randn(sizes[0], dims[0], generator=g), torch.randn(sizes[1], dims[1], generator=g)]
+        node_type = torch.cat([torch.zeros(sizes[0]), torch.ones(sizes[1])]).long()
+        node_seq = hinormer.build_node_sequences_for(graph, torch.arange(sizes[0]), 6)
+        self.assertEqual(tuple(node_seq.shape), (sizes[0], 6))
+        self.assertTrue(torch.equal(node_seq[:, 0], torch.arange(sizes[0])))
+        torch.manual_seed(0)
+        model = hinormer.build_model(graph, 3, list(dims), 2, {"hidden_dim": 8, "num_layers": 1, "num_gnns": 2,
+                                                                "num_heads": 2, "dropout": 0.0})
+        idx = torch.arange(5)
+        labels = torch.randint(0, 3, (sizes[0],), generator=g)
+        _one_step_moves(self, model, lambda: model(features, node_seq[idx], torch.eye(2), node_type, True),
+                        labels[idx], torch.nn.functional.cross_entropy)
+
+
 if __name__ == "__main__":
     unittest.main()

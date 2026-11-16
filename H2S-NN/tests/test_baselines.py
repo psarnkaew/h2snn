@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 193)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8
+        self.assertEqual(summary["runnable_cells"], 201)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8
 
         per_task = {
             task: sum(
@@ -57,7 +57,7 @@ class RegistryTests(unittest.TestCase):
             )
             for task in DATASETS
         }
-        self.assertEqual(per_task["node_classification"], 103)
+        self.assertEqual(per_task["node_classification"], 111)
         self.assertEqual(per_task["link_prediction"], 54)
         self.assertEqual(per_task["graph_classification"], 36)
 

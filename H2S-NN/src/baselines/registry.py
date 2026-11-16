@@ -77,10 +77,8 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
                "code also enumerates its polynomial terms from MAG's relation list (ogbn-mag/processing.py:14-15) and "
                "fixes MAG's label keys (main.py:126) whose self-effect removal needs sparse_tools diagonals "
                "(processing.py:133-151; sparse_tools is not installed)"),
-    "hinormer": ("adapter pending: part 2 E0 stop H1: H2GB's own HINormerModel has its transformer and feature encoder "
-                 "commented out (hinormer_model.py:221-222, 274-289: a linear head on the ego node after full-graph GCN "
-                 "layers) and its `hin` loader yields the whole split as one step (custom_sampler.py:678-685); configs "
-                 "exist for 4 of the 8 datasets; decision S2 needs revisiting"),
+    "hinormer": ("not used: H2GB's own HINormerModel (transformer and encoder commented out, hinormer_model.py:221-222, "
+                 "274-289); the original HINormer runs instead (card 1c F1, decision G-1)"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
     "chebnetii": "adapter pending (card baselines-h2gb C4)",
     "hetero2net": ("adapter pending: its NeighborLoader path (Hetero2Net/main.py:147-175) is not wired (part 2 E2): its "
@@ -97,6 +95,8 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     *(("h2gformer", d) for d in H2GB_NC if d != "mag-year"),
     # part 2 E3 (D1 second branch, S1): class C on the hgt sampler with the dataset's GCN fan-out
     *((m, d) for m in ("nsd", "csnn") for d in H2GB_NC),
+    # card 1c F1 (G-1): the original HINormer, class B
+    *(("hinormer", d) for d in H2GB_NC),
     ("sehgnn", "ieee-cis-g"),
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
