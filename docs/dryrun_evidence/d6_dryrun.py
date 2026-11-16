@@ -31,6 +31,15 @@ ARGS: dict[str, Any] = {"point": "max", "set": {}}
 EXTRA: dict[str, Any] = {}
 H2GB_NC = d2.H2GB_NC
 
+import time as _time  # noqa: E402
+
+_T0 = _time.perf_counter()
+
+
+def mark(what: str) -> None:
+    """D6b: a log line with the elapsed time, so a run killed at its time limit still gives build / train times."""
+    print(f"D6MARK {what} t={_time.perf_counter() - _T0:.1f}s", flush=True)
+
 
 def parse_value(text: str) -> Any:
     if text in ("True", "False"):
@@ -224,6 +233,7 @@ def install_counters() -> None:
     def bundle(*a, **k):
         out = orig_bundle(*a, **k)
         EXTRA.setdefault("val_targets", count_val_targets(out))
+        mark(f"bundle_built val_targets={EXTRA['val_targets']}")
         return out
 
     bundles.build_bundle = bundle
@@ -248,7 +258,9 @@ def install_counters() -> None:
     orig_module_eval = torch_module_eval = __import__("torch").nn.Module.eval
 
     def marked_eval(self):
-        EXTRA.setdefault("first_eval", time.perf_counter())
+        if "first_eval" not in EXTRA:
+            EXTRA["first_eval"] = time.perf_counter()
+            mark("first_eval")
         return orig_module_eval(self)
 
     __import__("torch").nn.Module.eval = marked_eval
