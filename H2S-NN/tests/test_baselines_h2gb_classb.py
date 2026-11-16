@@ -421,5 +421,67 @@ class Hetero2NetHGBRouteTests(unittest.TestCase):
         self.assertTrue(torch.equal(base_test, test_out), "test labels reach test targets")
 
 
+class Hetero2NetMAGTests(unittest.TestCase):
+    """Card 1d H3: the MAG embedding path on a MAG-typed synthetic graph with a small fake zip under a temporary data
+    root (the real file is never read): inputs replaced, sha256 recorded at first use and a different file refused,
+    their MAG metapath list returned, one training step (metapath-drop exercised) finite and moves."""
+
+    def test_mag_embedding_path_and_step(self) -> None:
+        import io
+        import tempfile
+        import zipfile
+        from copy import copy
+        from pathlib import Path
+
+        from src.baselines.adapters import _hetero2net_h2gb as h2gb
+        from src.baselines.runtime import pushd_sys_path
+        from tests.test_baselines_h2gb_classa import _mag_typed_graph
+
+        data = _mag_typed_graph()
+        g = torch.Generator().manual_seed(3)
+        emb = {t: torch.randn(int(data[t].num_nodes), 4, generator=g) for t in ("author", "field_of_study", "institution")}
+        emb["paper"] = torch.randn(int(data["paper"].num_nodes), 4, generator=g)  # PyG's dict also holds paper: not used
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root.joinpath(*h2gb.EMBEDDING_ZIP)
+            path.parent.mkdir(parents=True)
+            buffer = io.BytesIO()
+            torch.save(emb, buffer)
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("mag/raw/mag_metapath2vec_emb.pt", buffer.getvalue())
+            paper_x = data["paper"].x.clone()
+            metapaths = h2gb.prepare_inputs(data, "ogbn-mag", root)
+            self.assertEqual(metapaths, h2gb.MAG_METAPATHS)
+            for t in ("author", "field_of_study", "institution"):
+                self.assertTrue(torch.equal(data[t].x, emb[t]))
+            self.assertTrue(torch.equal(data["paper"].x, paper_x))
+            self.assertTrue(path.with_name(path.name + ".sha256").is_file())
+            with zipfile.ZipFile(path, "w") as archive:  # a different file at the same path is refused
+                archive.writestr("mag/raw/mag_metapath2vec_emb.pt", b"other")
+            with self.assertRaises(RuntimeError):
+                h2gb.read_mag_embeddings(root)
+        train_y, test_y = h2gb.label_channel(data, "paper", 3, data["paper"].val_mask, data["paper"].test_mask)
+        train_data, test_data = copy(data), copy(data)
+        train_data["paper"].y_emb, test_data["paper"].y_emb = train_y, test_y
+        train_loader, _, _ = h2gb.loaders(train_data, test_data, "paper", 8)
+        torch.manual_seed(0)
+        model = h2gb.build_model(data, "paper", 3, {"hidden": 8, "dropout": 0.0})
+        with torch.no_grad():
+            h2gb.seed_logits(model, next(iter(train_loader)), "paper")
+        from torch.nn.parameter import UninitializedParameter
+
+        before = {k: v.detach().clone() for k, v in model.named_parameters()
+                  if not isinstance(v, UninitializedParameter)}
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+        with pushd_sys_path("hetero2net"):
+            from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
+
+            loss = train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, {}, 1), torch.device("cpu"),
+                                    p=0.7, metapaths=metapaths, r=0.5, alpha=0.2, beta=0.4)
+        self.assertTrue(torch.isfinite(torch.tensor(float(loss))).item())
+        after = dict(model.named_parameters())
+        self.assertTrue(any(not torch.equal(v, after[k]) for k, v in before.items()))
+
+
 if __name__ == "__main__":
     unittest.main()

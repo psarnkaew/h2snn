@@ -109,6 +109,7 @@ class LargeLPData:
     test_pos: torch.Tensor
     test_2hop: torch.Tensor
     test_random: torch.Tensor
+    data_root: str | None = None  # card 1d H3: adapters that read an author file under the data root (Hetero2Net MAG)
 
 
 def load_large_lp(task: str, root: Path | str) -> LargeLPData:
@@ -120,7 +121,8 @@ def load_large_lp(task: str, root: Path | str) -> LargeLPData:
     t = lambda a: torch.from_numpy(np.ascontiguousarray(a.T)).long()  # noqa: E731  - [L, 2] -> [2, L]
     return LargeLPData(task, task_message_graph(data, task, files), spec.node_type, spec.relation,
                        t(files["split_train"]), t(files["split_valid"]), t(files["negatives_valid"]),
-                       t(files["split_test"]), t(files["negatives_test_2hop"]), t(files["negatives_test_random"]))
+                       t(files["split_test"]), t(files["negatives_test_2hop"]), t(files["negatives_test_random"]),
+                       str(root))
 
 
 def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device,

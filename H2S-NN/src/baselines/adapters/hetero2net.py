@@ -71,7 +71,7 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Card 1c F4 (G-5 amended): the H2GB NC datasets with their own NeighborLoader scheme (`_hetero2net_h2gb.py`);
 #: ogbn-mag / mag-year wait for the author's `mag_metapath2vec_emb.zip`.
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
-H2GB_RUNNABLE = H2GB_DATASETS - {"ogbn-mag", "mag-year"}
+H2GB_RUNNABLE = H2GB_DATASETS  # card 1d H3: the author's mag_metapath2vec_emb.zip is in place
 READS_BATCH_PLAN = True
 #: Card 1c F7 (G-10): large LP with its HeteroGNN (as its local-LP encoder: y_emb none, disentanglement term) on
 #: link-level batches of the message graph with its own fan-out [10, 10] (D2); inputs as its NC path (FreeBase
@@ -171,7 +171,7 @@ class Hetero2NetAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS or (dataset in LARGE_LP_DATASETS and dataset != "ogbn-mag_pp")
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -584,8 +584,7 @@ def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler
     from src.data.large_lp import LARGE_LP_TASKS
 
     graph, node_type = d.graph, d.node_type
-    root = d.extra.get("data_root") if hasattr(d, "extra") else None
-    h2gb.prepare_inputs(graph, LARGE_LP_TASKS[d.task].nc_dataset, root)
+    h2gb.prepare_inputs(graph, LARGE_LP_TASKS[d.task].nc_dataset, d.data_root)  # MAG: the author's zip (card 1d H3)
     sampler = sampler or Sampler("link", list(h2gb.NUM_NEIGHBORS))
     embed_dim = int(params.get("embed_dim", 64))
     hidden = int(params.get("hidden_channels", 128))

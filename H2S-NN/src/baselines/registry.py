@@ -95,6 +95,7 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     ("sehgnn", "ogbn-mag"), ("sehgnn", "mag-year"),  # card 1c F3 (G-4)
     # card 1c F4 (G-5 amended): Hetero2Net without a metapath list (its FreeBase branch)
     *(("hetero2net", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
+    ("hetero2net", "ogbn-mag"), ("hetero2net", "mag-year"),  # card 1d H3: the author's embedding file in place
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
@@ -119,12 +120,11 @@ LARGE_LP_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # card 1c F7 (G-8, G-10): large_lp_training.py; notebooks regenerated (G-9)
     *((m, t) for m in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer") for t in ("ogbn-mag_pp", "h-pokec_uu")),
     ("hetero2net", "h-pokec_uu"),
+    ("hetero2net", "ogbn-mag_pp"),  # card 1d H3
 })
 _LP_NOT_WIRED = ("adapter pending: part 2 E4 did not wire this method's large-LP path (its local-LP encoder on link-level "
                  "subgraphs); the sampler, the message graph and the loop are in place (large_lp_training.py)")
 LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
-    ("hetero2net", "ogbn-mag_pp"): ("adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under "
-                                    "<data root>/NC/mag/hetero2net/; card 1c F7)"),
 }
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
     **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
