@@ -101,7 +101,7 @@ Part K's K2b miss (`uniform` solved it through the relation-specific fact `d`) i
 
 ---
 
-## Open decisions for the author
+## Open decisions for the author (HISTORY: all closed 2026-11-16, B-9: S3 design approved, runs on the cluster before tuning; see the Frozen settings paragraph at the top)
 **Decided 2026-11-11:** S1′-B approved as written; S2′ option (a). **Later the same day the author deferred all three tasks** (S1′-B, S3, S2′; prompt KA1 not run). S3 design choice still open.
 1. ~~Approve S1′-B as written (graph unchanged; 18 runs).~~ Approved.
 2. S3: accept the proposed 3-node, 1-bit, length-4 design in place of the spec text, or keep the spec text knowing the controls leak through fact weights.
