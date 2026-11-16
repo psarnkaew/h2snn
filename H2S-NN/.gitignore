@@ -104,3 +104,4 @@ vendor/HGB/*
 /vendor/tudataset/
 /vendor/dgl/
 /vendor/Cooperative-Sheaf-NN/
+/vendor/sparse_tools/

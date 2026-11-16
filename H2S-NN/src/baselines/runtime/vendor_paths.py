@@ -42,6 +42,8 @@ VENDOR_ROOTS: dict[str, Path] = {
     "pshgcn_lp": VENDOR_DIR / "PSHGCN" / "hgb-lp",
     # card 1c F2: PSHGCN's ogbn-mag code (model only; its processing imports sparse_tools)
     "pshgcn_mag": VENDOR_DIR / "PSHGCN" / "ogbn-mag",
+    # card 1d H1 (D1-b): sparse_tools as a vendor clone, its CPU extensions built in place
+    "sparse_tools": VENDOR_DIR / "sparse_tools",
     "h2sgnn": VENDOR_DIR / "H2SGNN",
     "hetero2net": VENDOR_DIR / "Hetero2Net",
     "chebnetii": VENDOR_DIR / "ChebNetII" / "main",

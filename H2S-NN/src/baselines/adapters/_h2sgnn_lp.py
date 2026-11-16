@@ -47,8 +47,8 @@ import torch
 
 from src.baselines.adapters._polynomial_lp import build_relation_adjacencies
 from src.baselines.adapters._target_block import (
+    block_local_ids,
     scatter_to_full_graph,
-    target_node_range,
 )
 from src.baselines.bundles import LinkBundle
 from src.baselines.runtime import pushd_sys_path
@@ -57,7 +57,7 @@ VENDOR = "h2sgnn"
 
 
 def target_features(
-    bundle: LinkBundle, node_range: tuple[int, int], device: torch.device
+    bundle: LinkBundle, block: torch.Tensor, device: torch.device
 ) -> torch.Tensor:
     """The single dense matrix ``features_list[0]`` the model projects.
 
@@ -67,9 +67,7 @@ def target_features(
     is ``nn.Linear(..., bias=False)``, so a sparse input multiplies through unchanged.
     """
 
-    low, high = node_range
     data = bundle.data
-    slices = dict(data.node_slices)
     widths = dict(data.feature_dims)
     source_type, _, destination_type = data.target_relation
     endpoints = sorted({source_type, destination_type})
@@ -77,11 +75,11 @@ def target_features(
     distinct_widths = {widths[name] for name in endpoints}
     if len(distinct_widths) == 1 and distinct_widths != {0}:
         width = distinct_widths.pop()
-        return data.x[low:high, :width].to(device)
+        return data.x[block.to(data.x.device), :width].to(device)
 
     # Featureless, or types of differing widths sharing one block: fall back to an
     # identity over the block, which is what their eye() does per type.
-    size = high - low
+    size = int(block.numel())
     index = torch.arange(size, device=device)
     return torch.sparse_coo_tensor(
         torch.stack([index, index]),
@@ -91,15 +89,15 @@ def target_features(
 
 
 def build_metapath_operators(
-    bundle: LinkBundle, node_range: tuple[int, int], device: torch.device
+    bundle: LinkBundle, block: torch.Tensor, device: torch.device
 ) -> tuple[list[Any], list[str]]:
     """Their ``adjs_list``/``lis``: length-2 meta-paths cropped to the target block."""
 
     from torch_sparse import SparseTensor
     from torch_sparse import matmul as torch_sparse_matmul
 
-    low, high = node_range
-    size = high - low
+    size = int(block.numel())
+    local = block_local_ids(block.cpu(), int(bundle.data.x.size(0)))
     # Compose on CPU, then move each finished operator across. YouTube's block is 2,000
     # nodes with 1.18M edges, so a relation operator is ~91% dense and a sparse-sparse
     # product asks for over 10 GB of intermediate on the way to a 3.6M-nnz result -- it
@@ -129,11 +127,12 @@ def build_metapath_operators(
                     continue
             product = torch_sparse_matmul(adjacencies[first], adjacencies[second])
             row, column, value = product.coo()
-            mask = (row >= low) & (row < high) & (column >= low) & (column < high)
+            local_row, local_column = local[row], local[column]
+            mask = (local_row >= 0) & (local_column >= 0)
             operators.append(
                 SparseTensor(
-                    row=row[mask] - low,
-                    col=column[mask] - low,
+                    row=local_row[mask],
+                    col=local_column[mask],
                     value=value[mask],
                     sparse_sizes=(size, size),
                 ).to(device)
@@ -159,11 +158,11 @@ class H2SGNNLinkEncoder(torch.nn.Module):
         args: Any,
         *,
         num_nodes: int,
-        node_range: tuple[int, int],
+        block: torch.Tensor,
     ) -> None:
         super().__init__()
         self.num_nodes = num_nodes
-        self.node_range = node_range
+        self.register_buffer("block", block.clone(), persistent=False)
         with pushd_sys_path(VENDOR):
             from model import H2SGNN  # type: ignore[import-not-found]
 
@@ -176,8 +175,8 @@ class H2SGNNLinkEncoder(torch.nn.Module):
     ) -> torch.Tensor:
         # The first argument (`adjs`) is unused by their forward; pass the list it does
         # read for both so the call site cannot drift.
-        block = self.vendor(metapath_operators, [features], metapath_operators)
-        return scatter_to_full_graph(block, self.node_range, self.num_nodes)
+        rows = self.vendor(metapath_operators, [features], metapath_operators)
+        return scatter_to_full_graph(rows, self.block, self.num_nodes)
 
 
 def parameter_groups(

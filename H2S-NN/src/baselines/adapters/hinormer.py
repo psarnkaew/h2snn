@@ -120,16 +120,29 @@ def build_node_sequences_for(graph: Any, nodes: torch.Tensor, len_seq: int) -> t
     return node_seq
 
 
+def allow_isolated_nodes(model: Any) -> Any:
+    """Let each `GraphConv` of `model.GCNLayers` accept nodes with no in-edge (card 1d H5, author decision 1a).
+
+    HINormer builds its graph as `adjM + adjM.T` with self-loops removed (run.py:95-96) and never adds them back, so a
+    node with no non-self edge has in-degree 0; HGB Freebase has 45 such book nodes. DGL's `GraphConv` (model.py:188,
+    default `allow_zero_in_degree=False`) refuses that graph. With the flag such a node receives no message (its degree
+    normalisation is clamped at 1); on a graph without such nodes the outputs are unchanged. The graph is not changed
+    and no self-loop is added."""
+    for layer in model.GCNLayers:
+        layer.set_allow_zero_in_degree(True)  # DGL 2.4: sets GraphConv._allow_zero_in_degree
+    return model
+
+
 def build_model(graph: Any, num_classes: int, in_dims: list[int], num_types: int, params: BaselineParams) -> Any:
-    """Their `HINormer` (model.py) with the adapter's defaults."""
+    """Their `HINormer` (model.py) with the adapter's defaults, isolated nodes allowed (`allow_isolated_nodes`)."""
     with pushd_sys_path(VENDOR):
         from model import HINormer  # type: ignore[import-not-found]
 
-        return HINormer(graph, num_classes, in_dims, int(params.get("hidden_dim", 256)),
-                        int(params.get("num_layers", 2)), int(params.get("num_gnns", 4)),
-                        int(params.get("num_heads", 2)), float(params.get("dropout", 0.5)),
-                        temper=float(params.get("temperature", 1.0)), num_type=num_types,
-                        beta=float(params.get("beta", 1.0)))
+        return allow_isolated_nodes(HINormer(graph, num_classes, in_dims, int(params.get("hidden_dim", 256)),
+                                             int(params.get("num_layers", 2)), int(params.get("num_gnns", 4)),
+                                             int(params.get("num_heads", 2)), float(params.get("dropout", 0.5)),
+                                             temper=float(params.get("temperature", 1.0)), num_type=num_types,
+                                             beta=float(params.get("beta", 1.0))))
 
 
 class HINormerAdapter:
@@ -231,6 +244,7 @@ class HINormerAdapter:
                 num_type=len(view.node_type_names),
                 beta=float(params.get("beta", 1.0)),
             ).to(device)
+            allow_isolated_nodes(model)
 
         optimizer = torch.optim.AdamW(
             model.parameters(),

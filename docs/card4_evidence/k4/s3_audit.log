@@ -1,0 +1,11 @@
+job=16741 array=none step=134 node=g2n01 start=2026-11-16T09:59:52+09:00
+git=f1601b8a83cbc671ba4d20316e079c1ffde2901a branch=ablation-prep
+dirty: ?? scripts/known_answer/ 
+473301a8a2bd38dc482c49adb375bba13beefc8031453448c6345552fa6f7f5b  scripts/known_answer/s3_audit.py
+69747f95f61f564d3b0176f928f3ca96ef06cdef5284f7d6484a224aa1a27bd3  src/models/map_operators.py
+093996a81e813ccaf63ff539c99ef2d70b534c62141dd0ab43876849759d07b3  src/models/sheaf_maps.py
+b55bfd3bacdcae846ec592e0f533fbd9b93a70f47cca2031830e7f523df00128  src/models/h2snn_model.py
+f380f0f6b36b0f5b19b5c0b9879a129f9a618eb60db71a5558b909a40eff7e97  src/configs/config.py
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+{'tag_balance_pass': True, 'tv': {'a': 0.0, 'b': 0.0, 'c': 0.0, 'q': 0.0}, 'probe': {'r1': (0.506, [np.float64(0.459), np.float64(0.541)]), 'r2': (0.492, [np.float64(0.459), np.float64(0.541)]), 'r3': (0.5, [np.float64(0.459), np.float64(0.541)]), 'r4': (0.503, [np.float64(0.459), np.float64(0.541)])}, 'chosen_r': 2560, 'audit_pass': True}
+end=2026-11-16T10:06:24+09:00 exit=0

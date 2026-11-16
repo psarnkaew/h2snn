@@ -85,6 +85,10 @@ VENDOR = "pshgcn"
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Card 1d H1 (G-2, D1-b): ogbn-mag / mag-year with their ogbn-mag code in full (`_pshgcn_mag.py`): their inputs,
+#: propagation and expander, the label part with sparse_tools' self-effect diagonals, batches of target rows.
+H2GB_MAG_DATASETS = frozenset({"ogbn-mag", "mag-year"})
+READS_BATCH_PLAN = True
 
 
 def _vendor_args(
@@ -112,7 +116,7 @@ class PSHGCNAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in VENDOR_DATASET
+            return dataset in VENDOR_DATASET or dataset in H2GB_MAG_DATASETS
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
@@ -155,6 +159,13 @@ class PSHGCNAdapter:
                 "prop_wd": {"values": [5e-5, 1e-3]},
                 "decoder_type": {"values": ["dot", "distmult"]},
             }
+        if dataset in H2GB_MAG_DATASETS:  # their ogbn-mag model's knobs (ogbn-mag/main.py:186-200); K = 2 (label keys)
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "emb_dim": {"values": [128, 256, 512]},
+                    "hidden_x": {"values": [256, 512, 1024]}, "hidden_l": {"values": [256, 512]},
+                    "layers_x": {"values": [2, 3]}, "layers_l": {"values": [2, 3]}, "dropout": grids.DROPOUT,
+                    "input_drop": grids.INPUT_DROP, "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -191,6 +202,10 @@ class PSHGCNAdapter:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_MAG_DATASETS:
+            from src.baselines.adapters import _pshgcn_mag
+
+            return _pshgcn_mag.fit(bundle, params, seed=seed, device=device)
 
         args = _vendor_args(bundle.dataset, params, device=device)
         (

@@ -19,3 +19,4 @@ tudataset	https://github.com/chrsmrrs/tudataset	26e6ef6c5f636dd53b7798da7a860dcc
 dgl	https://github.com/dmlc/dgl	3d16000b4170fa741ed9e9667f22ba84d3493026	Apache-2.0	none (DGL is used as the pip package)	clone
 Cooperative-Sheaf-NN	https://github.com/andrerg02/Cooperative-Sheaf-NN	a1a12f78f3548605b375760779a704f3c2c77a09	no licence file	none	clone
 hgbi	-	-	-	none (no adapter, test or document uses it; author 2026-11-15)	not-needed
+sparse_tools	https://github.com/Yangxc13/sparse_tools	0596f00b9f86b8f46abe9280946e8a8f999f5628	no licence file	_pshgcn_mag (PSHGCN ogbn-mag label part: self-effect diagonals; card 1d H1)	clone

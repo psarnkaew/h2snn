@@ -46,15 +46,14 @@ BLOCK_TYPE = "target"
 
 
 def build_metapath_graph(
-    bundle: LinkBundle, node_range: tuple[int, int], device: torch.device
+    bundle: LinkBundle, block: torch.Tensor, device: torch.device
 ) -> tuple[Any, list[list[str]], int]:
     """A one-node-type DGL heterograph with one edge type per meta-path."""
 
     import dgl
 
-    low, high = node_range
-    size = high - low
-    operators, names = build_metapath_operators(bundle, node_range, torch.device("cpu"))
+    size = int(block.numel())
+    operators, names = build_metapath_operators(bundle, block, torch.device("cpu"))
 
     edge_dict: dict[tuple[str, str, str], tuple[torch.Tensor, torch.Tensor]] = {}
     meta_paths: list[list[str]] = []
@@ -76,7 +75,7 @@ class HANLinkEncoder(torch.nn.Module):
     def __init__(
         self,
         bundle: LinkBundle,
-        node_range: tuple[int, int],
+        block: torch.Tensor,
         *,
         meta_paths: list[list[str]],
         hidden_dim: int,
@@ -86,9 +85,9 @@ class HANLinkEncoder(torch.nn.Module):
         vendors: tuple[str, ...],
     ) -> None:
         super().__init__()
-        self.node_range = node_range
+        self.register_buffer("block", block.clone(), persistent=False)
         self.num_nodes = int(bundle.data.x.size(0))
-        self.input = TargetBlockInput(bundle, node_range, embedding_dim=hidden_dim)
+        self.input = TargetBlockInput(bundle, block, embedding_dim=hidden_dim)
 
         with pushd_sys_path(*vendors):
             from model_hetero import HAN  # type: ignore[import-not-found]
@@ -103,8 +102,8 @@ class HANLinkEncoder(torch.nn.Module):
             )
 
     def forward(self, graph: Any) -> torch.Tensor:
-        block = self.vendor(graph, self.input())
-        return scatter_to_full_graph(block, self.node_range, self.num_nodes)
+        rows = self.vendor(graph, self.input())
+        return scatter_to_full_graph(rows, self.block, self.num_nodes)
 
 
 __all__ = ["BLOCK_TYPE", "HANLinkEncoder", "build_metapath_graph"]

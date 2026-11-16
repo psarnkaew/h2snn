@@ -1,0 +1,13 @@
+label=p5-h1-nbcheck job=16902 step=none node=g3an01 start=2026-11-16T13:18:19+09:00
+git=8c180cf95320cece00c0b8b5aa936786ff83d365 branch=baselines-h2gb-5
+working tree:  M .gitignore
+working tree:  M src/baselines/adapters/_pshgcn_mag.py
+working tree:  M src/baselines/adapters/pshgcn.py
+working tree:  M src/baselines/registry.py
+working tree:  M src/baselines/runtime/vendor_paths.py
+working tree:  M tests/test_baselines.py
+working tree:  M vendor/VENDORS.tsv
+env=h2snn-b cmd=python scripts/generate_baseline_notebooks.py --check
+13 notebooks match the generator.
+peak_rss_gib=0.39 elapsed_s=5.8
+end=2026-11-16T13:18:25+09:00 exit=0

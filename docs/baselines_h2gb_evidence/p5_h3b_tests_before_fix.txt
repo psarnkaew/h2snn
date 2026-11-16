@@ -1,0 +1,234 @@
+fccbd215918c7807 src/baselines/adapters/_target_block.py
+478afb46306aa9e5 src/baselines/adapters/_han_lp.py
+6c4b7514fbea1c5c src/baselines/adapters/_h2sgnn_lp.py
+7ec61f001d2d6590 src/baselines/adapters/hgb_han.py
+f4140e64914566ea src/baselines/adapters/h2sgnn.py
+0fb20b1b1df3165c src/baselines/campaign.py
+e19c6a7feba01eb4 tests/test_baselines_dryrun_blockers.py
+label=p5-h3b-before-fix job=16910 step=none node=g2tn01 start=2026-11-16T13:34:20+09:00
+git=d23d4550a99f9b23bd48571eff30cb16880e83a1 branch=baselines-h2gb-5
+env=h2snn-b cmd=python -m unittest -v tests.test_baselines_dryrun_blockers
+test_fit_task_runs_hgb_imdb_path (tests.test_baselines_dryrun_blockers.HANImdbNodeClassificationTests.test_fit_task_runs_hgb_imdb_path) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ERROR
+test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) ... 
+  test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) (adapter='han') ... ERROR
+  test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) (adapter='h2sgnn') ... ERROR
+test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) ... ERROR
+test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) ... 
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'ogbn-mag')) ... ERROR
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'mag-year')) ... ERROR
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-cs')) ... ERROR
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-eng')) ... ERROR
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-chem')) ... ERROR
+  test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('sehgnn', 'ieee-cis-g')) ... ERROR
+
+======================================================================
+ERROR: test_fit_task_runs_hgb_imdb_path (tests.test_baselines_dryrun_blockers.HANImdbNodeClassificationTests.test_fit_task_runs_hgb_imdb_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 107, in test_fit_task_runs_hgb_imdb_path
+    record = hgb_han.HANAdapter().fit_task(  # the dry run's error: unpacking HAN's 12 IMDB values
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 177, in fit_task
+    (
+ValueError: too many values to unpack (expected 11)
+
+======================================================================
+ERROR: test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) (adapter='han')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 143, in test_block_is_movie_and_actor_and_both_adapters_run
+    record = get_adapter(name).fit_task(self.bundle, BaselineParams({"epochs": 1, "early_stopping": 1}),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 168, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 259, in _fit_link_prediction
+    node_range = target_node_range(bundle)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_target_block.py", line 44, in target_node_range
+    raise NotImplementedError(
+NotImplementedError: imdb_ma: target node types ['actor', 'movie'] are not contiguous in the flattened layout, so a single-range block crop would include other types
+
+======================================================================
+ERROR: test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run) (adapter='h2sgnn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 143, in test_block_is_movie_and_actor_and_both_adapters_run
+    record = get_adapter(name).fit_task(self.bundle, BaselineParams({"epochs": 1, "early_stopping": 1}),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/h2sgnn.py", line 218, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/h2sgnn.py", line 294, in _fit_link_prediction
+    node_range = target_node_range(bundle)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_target_block.py", line 44, in target_node_range
+    raise NotImplementedError(
+NotImplementedError: imdb_ma: target node types ['actor', 'movie'] are not contiguous in the flattened layout, so a single-range block crop would include other types
+
+======================================================================
+ERROR: test_block_is_movie_and_actor_and_both_adapters_run (tests.test_baselines_dryrun_blockers.ImdbMovieActorBlockTests.test_block_is_movie_and_actor_and_both_adapters_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 147, in test_block_is_movie_and_actor_and_both_adapters_run
+    from src.baselines.adapters._target_block import block_local_ids, scatter_to_full_graph, target_block
+ImportError: cannot import name 'block_local_ids' from 'src.baselines.adapters._target_block' (/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_target_block.py)
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'ogbn-mag'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'mag-year'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-cs'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-eng'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('chebnetii', 'oag-chem'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+======================================================================
+ERROR: test_fit_cell_builds_a_valid_minibatch_configuration (tests.test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) (cell=('sehgnn', 'ieee-cis-g'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 186, in test_fit_cell_builds_a_valid_minibatch_configuration
+    fit_cell(raw_base, {"batch_size": 1024}, source="tuned", device=torch.device("cpu"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 214, in fit_cell
+    bundle = build_bundle(
+             ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_dryrun_blockers.py", line 178, in validate_only
+    config = bundles._base_config(dataset, run_index=run_index, seed=seed, overrides=overrides)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/bundles.py", line 388, in _base_config
+    return TrainConfig.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1524, in from_dict
+    data = DataConfig.from_dict(raw.get("data", {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 885, in from_dict
+    return config.resolved(frozenset(raw))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/configs/config.py", line 1023, in resolved
+    raise ValueError("data.batch_size (B) is required in mini-batch training.")
+ValueError: data.batch_size (B) is required in mini-batch training.
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.345s
+
+FAILED (errors=10)
+peak_rss_gib=0.69 elapsed_s=11.6
+end=2026-11-16T13:34:32+09:00 exit=1

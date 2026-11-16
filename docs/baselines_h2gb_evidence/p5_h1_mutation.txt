@@ -1,0 +1,29 @@
+b0ddb6840c342306 src/baselines/adapters/_pshgcn_mag.py
+label=p5-h1-mutation job=16899 step=none node=g2tn01 start=2026-11-16T13:16:50+09:00
+git=8c180cf95320cece00c0b8b5aa936786ff83d365 branch=baselines-h2gb-5
+working tree:  M .gitignore
+working tree:  M src/baselines/adapters/_pshgcn_mag.py
+working tree:  M src/baselines/adapters/pshgcn.py
+working tree:  M src/baselines/registry.py
+working tree:  M src/baselines/runtime/vendor_paths.py
+working tree:  M tests/test_baselines.py
+working tree:  M vendor/VENDORS.tsv
+env=h2snn-b cmd=python -m unittest -v tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_label_part_reads_training_labels_only
+test_label_part_reads_training_labels_only (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_label_part_reads_training_labels_only) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+FAIL
+
+======================================================================
+FAIL: test_label_part_reads_training_labels_only (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_label_part_reads_training_labels_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_pshgcn_mag.py", line 115, in test_label_part_reads_training_labels_only
+    self.assertTrue(torch.equal(outputs[0][key], outputs[1][key]), f"held-out labels reach {key}")
+AssertionError: False is not true : held-out labels reach PP
+
+----------------------------------------------------------------------
+Ran 1 test in 14.613s
+
+FAILED (failures=1)
+peak_rss_gib=0.69 elapsed_s=16.9
+end=2026-11-16T13:17:07+09:00 exit=1
