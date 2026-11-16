@@ -1,0 +1,125 @@
+label=p3-f8-cells job=16741 step=147 node=g2n01 start=2026-11-16T10:22:39+09:00
+git=cf289b051feded24b6bab8eb5cf65d3f13880d4b branch=baselines-h2gb-3
+env=h2snn-b cmd=python ../docs/baselines_h2gb_evidence/p3_f8_cells.py
+node_classification|gcn|ogbn-mag|RUNNABLE
+node_classification|gat|ogbn-mag|RUNNABLE
+node_classification|chebnetii|ogbn-mag|RUNNABLE
+node_classification|nsd|ogbn-mag|RUNNABLE
+node_classification|csnn|ogbn-mag|RUNNABLE
+node_classification|han|ogbn-mag|RUNNABLE
+node_classification|sehgnn|ogbn-mag|RUNNABLE
+node_classification|hinormer|ogbn-mag|RUNNABLE
+node_classification|pshgcn|ogbn-mag|adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)
+node_classification|h2gformer|ogbn-mag|RUNNABLE
+node_classification|hetero2net|ogbn-mag|adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under <data root>/NC/mag/hetero2net/, author download: https://data.pyg.org/datasets/mag_metapath2vec_emb.zip; card 1c F4)
+node_classification|h2sgnn|ogbn-mag|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|mag-year|RUNNABLE
+node_classification|gat|mag-year|RUNNABLE
+node_classification|chebnetii|mag-year|RUNNABLE
+node_classification|nsd|mag-year|RUNNABLE
+node_classification|csnn|mag-year|RUNNABLE
+node_classification|han|mag-year|RUNNABLE
+node_classification|sehgnn|mag-year|RUNNABLE
+node_classification|hinormer|mag-year|RUNNABLE
+node_classification|pshgcn|mag-year|adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)
+node_classification|h2gformer|mag-year|RUNNABLE
+node_classification|hetero2net|mag-year|adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under <data root>/NC/mag/hetero2net/, author download: https://data.pyg.org/datasets/mag_metapath2vec_emb.zip; card 1c F4)
+node_classification|h2sgnn|mag-year|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|oag-cs|RUNNABLE
+node_classification|gat|oag-cs|RUNNABLE
+node_classification|chebnetii|oag-cs|RUNNABLE
+node_classification|nsd|oag-cs|RUNNABLE
+node_classification|csnn|oag-cs|RUNNABLE
+node_classification|han|oag-cs|RUNNABLE
+node_classification|sehgnn|oag-cs|RUNNABLE
+node_classification|hinormer|oag-cs|RUNNABLE
+node_classification|pshgcn|oag-cs|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|oag-cs|RUNNABLE
+node_classification|hetero2net|oag-cs|RUNNABLE
+node_classification|h2sgnn|oag-cs|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|oag-eng|RUNNABLE
+node_classification|gat|oag-eng|RUNNABLE
+node_classification|chebnetii|oag-eng|RUNNABLE
+node_classification|nsd|oag-eng|RUNNABLE
+node_classification|csnn|oag-eng|RUNNABLE
+node_classification|han|oag-eng|RUNNABLE
+node_classification|sehgnn|oag-eng|RUNNABLE
+node_classification|hinormer|oag-eng|RUNNABLE
+node_classification|pshgcn|oag-eng|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|oag-eng|RUNNABLE
+node_classification|hetero2net|oag-eng|RUNNABLE
+node_classification|h2sgnn|oag-eng|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|oag-chem|RUNNABLE
+node_classification|gat|oag-chem|RUNNABLE
+node_classification|chebnetii|oag-chem|RUNNABLE
+node_classification|nsd|oag-chem|RUNNABLE
+node_classification|csnn|oag-chem|RUNNABLE
+node_classification|han|oag-chem|RUNNABLE
+node_classification|sehgnn|oag-chem|RUNNABLE
+node_classification|hinormer|oag-chem|RUNNABLE
+node_classification|pshgcn|oag-chem|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|oag-chem|RUNNABLE
+node_classification|hetero2net|oag-chem|RUNNABLE
+node_classification|h2sgnn|oag-chem|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|ieee-cis-g|RUNNABLE
+node_classification|gat|ieee-cis-g|RUNNABLE
+node_classification|chebnetii|ieee-cis-g|RUNNABLE
+node_classification|nsd|ieee-cis-g|RUNNABLE
+node_classification|csnn|ieee-cis-g|RUNNABLE
+node_classification|han|ieee-cis-g|RUNNABLE
+node_classification|sehgnn|ieee-cis-g|RUNNABLE
+node_classification|hinormer|ieee-cis-g|RUNNABLE
+node_classification|pshgcn|ieee-cis-g|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|ieee-cis-g|RUNNABLE
+node_classification|hetero2net|ieee-cis-g|RUNNABLE
+node_classification|h2sgnn|ieee-cis-g|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|h-pokec|RUNNABLE
+node_classification|gat|h-pokec|RUNNABLE
+node_classification|chebnetii|h-pokec|RUNNABLE
+node_classification|nsd|h-pokec|RUNNABLE
+node_classification|csnn|h-pokec|RUNNABLE
+node_classification|han|h-pokec|RUNNABLE
+node_classification|sehgnn|h-pokec|N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at num_hops 2-4, Part M3b B7; author decision 2026-11-16)
+node_classification|hinormer|h-pokec|RUNNABLE
+node_classification|pshgcn|h-pokec|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|h-pokec|RUNNABLE
+node_classification|hetero2net|h-pokec|RUNNABLE
+node_classification|h2sgnn|h-pokec|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+node_classification|gcn|pdns|RUNNABLE
+node_classification|gat|pdns|RUNNABLE
+node_classification|chebnetii|pdns|RUNNABLE
+node_classification|nsd|pdns|RUNNABLE
+node_classification|csnn|pdns|RUNNABLE
+node_classification|han|pdns|RUNNABLE
+node_classification|sehgnn|pdns|RUNNABLE
+node_classification|hinormer|pdns|RUNNABLE
+node_classification|pshgcn|pdns|adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic branch of F-1 (one row-normalised adjacency per relation, polynomial terms over all relations, no label part)
+node_classification|h2gformer|pdns|RUNNABLE
+node_classification|hetero2net|pdns|RUNNABLE
+node_classification|h2sgnn|pdns|adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1
+link_prediction|gcn|ogbn-mag_pp|RUNNABLE
+link_prediction|gat|ogbn-mag_pp|RUNNABLE
+link_prediction|chebnetii|ogbn-mag_pp|ChebNetII has no link prediction implementation
+link_prediction|nsd|ogbn-mag_pp|RUNNABLE
+link_prediction|csnn|ogbn-mag_pp|RUNNABLE
+link_prediction|han|ogbn-mag_pp|RUNNABLE
+link_prediction|sehgnn|ogbn-mag_pp|SeHGNN has no link prediction implementation
+link_prediction|hinormer|ogbn-mag_pp|HiNormer has no link prediction implementation
+link_prediction|pshgcn|ogbn-mag_pp|adapter pending: moved to card 3 Part B (decision G-2: generic branch of F-1 for the large LP tasks)
+link_prediction|h2gformer|ogbn-mag_pp|RUNNABLE
+link_prediction|hetero2net|ogbn-mag_pp|adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under <data root>/NC/mag/hetero2net/; card 1c F7)
+link_prediction|h2sgnn|ogbn-mag_pp|adapter pending: moved to card 3 Part B (decision G-3: generic branch of F-1 for NC and LP)
+link_prediction|gcn|h-pokec_uu|RUNNABLE
+link_prediction|gat|h-pokec_uu|RUNNABLE
+link_prediction|chebnetii|h-pokec_uu|ChebNetII has no link prediction implementation
+link_prediction|nsd|h-pokec_uu|RUNNABLE
+link_prediction|csnn|h-pokec_uu|RUNNABLE
+link_prediction|han|h-pokec_uu|RUNNABLE
+link_prediction|sehgnn|h-pokec_uu|SeHGNN has no link prediction implementation
+link_prediction|hinormer|h-pokec_uu|HiNormer has no link prediction implementation
+link_prediction|pshgcn|h-pokec_uu|adapter pending: moved to card 3 Part B (decision G-2: generic branch of F-1 for the large LP tasks)
+link_prediction|h2gformer|h-pokec_uu|RUNNABLE
+link_prediction|hetero2net|h-pokec_uu|RUNNABLE
+link_prediction|h2sgnn|h-pokec_uu|adapter pending: moved to card 3 Part B (decision G-3: generic branch of F-1 for NC and LP)
+peak_rss_gib=0.40 elapsed_s=1.6
+end=2026-11-16T10:22:41+09:00 exit=0
