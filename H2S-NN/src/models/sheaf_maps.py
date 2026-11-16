@@ -17,6 +17,7 @@ from torch import nn
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
+    IdentityMapOperator,
     checkpoint_if_grad,
     normalize_reflectors,
 )
@@ -143,9 +144,14 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         shared_role_relations: tuple[int, ...] = (),
         input_dim: int | None = None,
         factored_inputs: bool = False,
+        identity_maps: bool = False,
     ) -> None:
         """`input_dim`: width of the per-node geometry input (default `d`: `h0`; D12: `[h0, c]`).
-        `factored_inputs`: evaluate the MLPs' first layer per node, then gather (`gathered_linear`)."""
+        `factored_inputs`: evaluate the MLPs' first layer per node, then gather (`gathered_linear`).
+        `identity_maps` (arm "maps = I", `ablation.fact_maps_identity: true`; spec 1.23 X-11): the orthogonal
+        factor `R H` is the identity; only the per-edge scale `c_e` (hence `a_e = c_e^2`) is learned.
+        The frames and the reflector MLP are created (so every other parameter initialises exactly
+        as in `full`) and then removed: they are not parameters of this arm."""
         super().__init__()
         self.factored_inputs = factored_inputs
         if householder_k < 1:
@@ -178,6 +184,12 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
             self.scale_mlp = _build_mlp(mlp_input_dim, hidden_dim, 1)
         else:
             self.edge_scale_mlp = _build_mlp(2 * node_dim + d_r, hidden_dim, 1)
+        self.identity_maps = identity_maps
+        if identity_maps:
+            if map_scale != "per_edge":
+                raise ValueError("identity maps keep one scale per edge (D1a): map_scale per_edge.")
+            del self.rotation_params
+            del self.reflector_mlp
 
     def rotations(self) -> torch.Tensor:
         """`[num_relations, 2, d, d]`: `R_{psi, side}` with side 0 = source, 1 = target.
@@ -279,6 +291,15 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     ) -> FactorizedNodeToEdgeSheafOutput:
         src_idx = edge_index[0]
         tgt_idx = edge_index[1]
+        if self.identity_maps:
+            scale = checkpoint_if_grad(
+                lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
+                h,
+                relation_embeddings,
+                enabled=self.checkpoint,
+            )
+            return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(
+                src=IdentityMapOperator(scale, self.d), tgt=IdentityMapOperator(scale, self.d)))
         rotations = self.rotations()
         if self.map_scale == "per_edge":
             return self._forward_per_edge(

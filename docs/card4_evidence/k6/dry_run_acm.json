@@ -1,0 +1,91 @@
+{
+ "config": "configs/experiments/acm_h2snn_v3b.yaml",
+ "epochs": 1,
+ "arms": {
+  "full": {
+   "status": "ok",
+   "seconds": 4.4,
+   "peak_gpu_mb": 2779.0
+  },
+  "endpoints": {
+   "status": "ok",
+   "seconds": 3.2,
+   "peak_gpu_mb": 2802.3
+  },
+  "schema": {
+   "status": "ok",
+   "seconds": 3.2,
+   "peak_gpu_mb": 2778.6
+  },
+  "uniform": {
+   "status": "ok",
+   "seconds": 3.2,
+   "peak_gpu_mb": 2725.3
+  },
+  "no_path_cells": {
+   "status": "ok",
+   "seconds": 2.2,
+   "peak_gpu_mb": 1294.7
+  },
+  "closure_only": {
+   "status": "ok",
+   "seconds": 2.6,
+   "peak_gpu_mb": 2057.0
+  },
+  "instance_features": {
+   "status": "ok",
+   "seconds": 2.4,
+   "peak_gpu_mb": 1427.3
+  },
+  "hub_A": {
+   "status": "ok",
+   "seconds": 2.7,
+   "peak_gpu_mb": 2209.0
+  },
+  "covering_only": {
+   "status": "ok",
+   "seconds": 2.9,
+   "peak_gpu_mb": 2224.9
+  },
+  "S2": {
+   "status": "ok",
+   "seconds": 1.9,
+   "peak_gpu_mb": 827.9
+  },
+  "S0": {
+   "status": "ok",
+   "seconds": 1.7,
+   "peak_gpu_mb": 778.5
+  },
+  "direction_blind_maps": {
+   "status": "ok",
+   "seconds": 3.4,
+   "peak_gpu_mb": 2779.3
+  },
+  "free_cell_maps": {
+   "status": "ok",
+   "seconds": 3.0,
+   "peak_gpu_mb": 2986.9
+  },
+  "geometry_context_off": {
+   "status": "ok",
+   "seconds": 2.9,
+   "peak_gpu_mb": 2694.1
+  },
+  "h0_only": {
+   "status": "ok",
+   "seconds": 1.5,
+   "peak_gpu_mb": 201.2
+  },
+  "appendix_full": {
+   "status": "ok",
+   "seconds": 3.4,
+   "peak_gpu_mb": 2780.8
+  },
+  "appendix_endpoints": {
+   "status": "ok",
+   "seconds": 3.3,
+   "peak_gpu_mb": 2823.9
+  }
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "full_seeds_1_4_from_main_table": {
+  "1": "experiments/acm_h2snn_v3b/final_seeds/acm_h2snn_v3b_tune_final_seed1_final_seed1",
+  "2": "experiments/acm_h2snn_v3b/final_seeds/acm_h2snn_v3b_tune_final_seed2_final_seed2",
+  "3": "experiments/acm_h2snn_v3b/final_seeds/acm_h2snn_v3b_tune_final_seed3_final_seed3",
+  "4": "experiments/acm_h2snn_v3b/final_seeds/acm_h2snn_v3b_tune_final_seed4_final_seed4"
+ },
+ "freebase_mode": null
+}
