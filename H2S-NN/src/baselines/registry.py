@@ -94,15 +94,13 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     # card 1c F1 (G-1): the original HINormer, class B
     *(("hinormer", d) for d in H2GB_NC),
     ("sehgnn", "ieee-cis-g"),
+    ("sehgnn", "ogbn-mag"), ("sehgnn", "mag-year"),  # card 1c F3 (G-4)
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),
     ("chebnetii", "oag-cs"), ("chebnetii", "oag-eng"), ("chebnetii", "oag-chem"),
     ("chebnetii", "pdns"),  # part 2 E2: decision C4-c (per-type projection after per-block bases)
 })
-_SEHGNN_MAG = ("adapter in place, pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
-               "embeddings that its README trains with dglke under dgl<1.0 (SeHGNN/ogbn/Readme.md; utils.py:345-354); "
-               "no file is offered for download and the agent does not train them (part 2 E0)")
 _PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports "
                "sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the "
                "label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)")
@@ -112,7 +110,6 @@ H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
     ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
                                 "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
                                 "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
-    ("sehgnn", "ogbn-mag"): _SEHGNN_MAG, ("sehgnn", "mag-year"): _SEHGNN_MAG,
     **{("chebnetii", d): ("adapter pending: part 2 E2 stop item: decision C4-c precomputes T_k(L) X_t per type block, "
                           "but this dataset has featureless types whose identity block makes T_k(L)[:, block] a dense "
                           "N x N_type matrix per k (cannot be stored); a different input rule is the author's call")

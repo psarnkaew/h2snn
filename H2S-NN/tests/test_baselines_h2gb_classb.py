@@ -265,5 +265,26 @@ class PSHGCNWidthTests(unittest.TestCase):
         self.assertEqual(h2gb.embedings_x["A"].lins[0].in_features, 128)
 
 
+class SeHGNNMAGInputTests(unittest.TestCase):
+    """Card 1c F3 (G-4): their MAG branch's random inputs replace the given features of the listed types; one step."""
+
+    def test_mag_random_inputs_and_step(self) -> None:
+        from src.baselines.adapters import _sehgnn_h2gb as h2gb
+
+        data = typed_graph(width=6)
+        inputs = h2gb.node_inputs(data, 5, 0, frozenset({"author", "field"}))
+        self.assertTrue(torch.equal(inputs["paper"], data["paper"].x))
+        for node_type in ("author", "field"):
+            self.assertEqual(tuple(inputs[node_type].shape), (int(data[node_type].num_nodes), 5))
+            self.assertTrue(bool((inputs[node_type].abs() <= 0.5).all()))
+        feats = h2gb.propagate(data, "paper", 2, {k: v.float() for k, v in inputs.items()})
+        torch.manual_seed(0)
+        model = h2gb.build_model(feats, "P", 3, {"embed_size": 8, "hidden": 16})
+        idx = data["paper"].train_mask.nonzero().view(-1)
+        _one_step_moves(self, model, lambda: model({k: v[idx] for k, v in feats.items()}, {},
+                                                   torch.zeros(idx.numel(), 3)),
+                        data["paper"].y[idx], torch.nn.functional.cross_entropy)
+
+
 if __name__ == "__main__":
     unittest.main()
