@@ -129,6 +129,10 @@ for x in out:
     L.append(f"| {x['cell']} | {x['status']}{(' `' + x['error_at'] + '`') if x['error_at'] else ''} | {x['gpu']} ({x['host']}) | "
              f"{x['gpu_peak_alloc_gib']} | {x['host_peak_gib']} | {x['t_train_epoch_s']} | {x['t_val_pass_s']} | "
              f"{x['val_targets']} | {x['ms_per_val_target']} | {x['val_source']} |")
+L += ["", "Not run (design session 2026-11-17: H-Pokec runs only what B2a needs, H2S-NN's central point): array tasks "
+      "16924_3 to 16924_11 cancelled while pending (60G each, one at a time, blocking g2tn01's second GPU): the central "
+      "lines of GCN, GAT, ChebNetII, NSD, CSNN, HAN, HINormer, H²GFormer, Hetero²Net on H-Pokec NC (each would stop in "
+      "`bundles._base_config` (H3b) like the other H2GB NC baseline cells above)."]
 (ev / "d6_central.md").write_text("\n".join(L) + "\n")
 
 # ---------------------------------------------------------------- D6.5, D6.6
