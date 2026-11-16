@@ -232,5 +232,38 @@ class HINormerTests(unittest.TestCase):
                         labels[idx], torch.nn.functional.cross_entropy)
 
 
+class PSHGCNWidthTests(unittest.TestCase):
+    """Card 1c F2 (part 2 E2's PSHGCN equivalence): with MAG's widths (P 128, others 256) the adapter's width-built
+    model and their `PSHGCN` class, same state dict, give the same output on a synthetic MAG-typed input (float64)."""
+
+    def test_width_built_model_equals_their_class_on_mag_widths(self) -> None:
+        from src.baselines.adapters import _pshgcn_mag
+        from src.baselines.runtime import pushd_sys_path
+
+        keys = ["P", "PA", "PP", "PF", "AP", "API"]
+        expander = ["10P", "1011PA", "1012PP", "1013PF"]  # coefficient indices 10.. as their expander writes them
+        label_keys = ["PP", "PAP"]
+        args = dict(emb_dim=16, hidden_x=8, hidden_l=8, nclass=3, label_keys=label_keys, layers_x=2, layers_l=2,
+                    coe_num=4, expander=expander, dropout=0.0, input_drop=0.0)
+        widths = {"P": 128, "A": 256, "I": 256, "F": 256}
+        torch.manual_seed(0)
+        ours = _pshgcn_mag.build_model(widths, **args).double().eval()
+        with pushd_sys_path("pshgcn_mag"):
+            from model import PSHGCN  # type: ignore[import-not-found]
+
+            theirs = PSHGCN(16, 8, 8, 3, list(widths), label_keys, 2, 2, 4, expander, 0.0, 0.0, False).double().eval()
+        theirs.load_state_dict(ours.state_dict())
+        g = torch.Generator().manual_seed(1)
+        feats = {k: torch.randn(5, widths[k[-1]], generator=g, dtype=torch.float64) for k in keys}
+        label_feats = {k: torch.rand(5, 3, generator=g, dtype=torch.float64) for k in label_keys}
+        with torch.no_grad():
+            a = ours({k: v.clone() for k, v in feats.items()}, dict(label_feats))
+            b = theirs({k: v.clone() for k, v in feats.items()}, dict(label_feats))
+        self.assertTrue(torch.equal(a, b))
+        # and with H2GB's MAG widths (128 everywhere) the widths are the dataset's
+        h2gb = _pshgcn_mag.build_model({"P": 128, "A": 128, "I": 128, "F": 128}, **args)
+        self.assertEqual(h2gb.embedings_x["A"].lins[0].in_features, 128)
+
+
 if __name__ == "__main__":
     unittest.main()

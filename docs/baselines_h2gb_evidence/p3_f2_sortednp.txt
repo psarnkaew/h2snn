@@ -1,0 +1,46 @@
+job=16741 step=108 node=g2n01 start=2026-11-16T09:26:50+09:00 repo git=8ee1fff92acf7362521f8e4c702a83616e8cea54
+Collecting sortednp
+  Downloading sortednp-0.5.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_28_x86_64.whl.metadata (4.2 kB)
+Downloading sortednp-0.5.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_28_x86_64.whl (177 kB)
+Installing collected packages: sortednp
+Successfully installed sortednp-0.5.0
+install_exit=0
+pip freeze diff:
+80a81
+> sortednp==0.5.0
+pip check diff:
+1a2
+> sortednp 0.5.0 has requirement numpy<2,>=1.17.3, but you have numpy 2.4.6.
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "<string>", line 1, in <module>
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sortednp/__init__.py", line 11, in <module>
+    from sortednp import _internal
+Traceback (most recent call last):
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/numpy/core/_multiarray_umath.py", line 46, in __getattr__
+    raise ImportError(msg)
+ImportError: 
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sortednp/__init__.py", line 11, in <module>
+    from sortednp import _internal
+ImportError: numpy.core.multiarray failed to import
+end=2026-11-16T09:26:54+09:00

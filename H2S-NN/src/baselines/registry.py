@@ -69,14 +69,10 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "h2gformer": f"adapter pending: {_S1}",
     "nsd": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
     "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
-    "h2sgnn": ("adapter pending: part 2 E0 stop S4b: its operators come from its own preprocessing, one hand-written "
-               "branch per HGB dataset (H2SGNN/processing.py:46-121: links paired by HGB's file order, per-dataset "
-               "merges and drops); no rule exists for the H2GB datasets, so its relation set on them is a design "
-               "decision"),
-    "pshgcn": ("adapter pending: part 2 E0 stop P1: decision S3 (b) changes the input widths only, but PSHGCN's ogbn-mag "
-               "code also enumerates its polynomial terms from MAG's relation list (ogbn-mag/processing.py:14-15) and "
-               "fixes MAG's label keys (main.py:126) whose self-effect removal needs sparse_tools diagonals "
-               "(processing.py:133-151; sparse_tools is not installed)"),
+    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1",
+    "pshgcn": ("adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic "
+               "branch of F-1 (one "
+               "row-normalised adjacency per relation, polynomial terms over all relations, no label part)"),
     "hinormer": ("not used: H2GB's own HINormerModel (transformer and encoder commented out, hinormer_model.py:221-222, "
                  "274-289); the original HINormer runs instead (card 1c F1, decision G-1)"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
@@ -107,8 +103,12 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
 _SEHGNN_MAG = ("adapter in place, pending author (embeddings need training): decision C4-a takes SeHGNN's published MAG inputs, ComplEx "
                "embeddings that its README trains with dglke under dgl<1.0 (SeHGNN/ogbn/Readme.md; utils.py:345-354); "
                "no file is offered for download and the agent does not train them (part 2 E0)")
+_PSHGCN_MAG = ("adapter pending: card 1c F2 stop item: their ogbn-mag label part needs sparse_tools, which imports "
+               "sortednp (sparse_tools/utils.py:5); sortednp 0.5.0 requires numpy<2 and h2snn-b has numpy 2.4.6, so the "
+               "label part cannot run (environment restored; width model in place: _pshgcn_mag.py, tested)")
 #: Per-cell reasons on the loaded H2GB NC datasets (they win over the adapter's general reason).
 H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
+    ("pshgcn", "ogbn-mag"): _PSHGCN_MAG, ("pshgcn", "mag-year"): _PSHGCN_MAG,
     ("h2gformer", "mag-year"): ("adapter pending: part 2 E1 stop item: H2GB's mag-year H2Gformer config enables "
                                 "MetaPath2Vec, but H2GB's preprocess_Metapath has no schema for the name 'mag-year' "
                                 "(encoding_generator.py:187-436; mag_dataset.py:67), so H2GB's own code cannot run it"),
@@ -139,9 +139,8 @@ LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
 }
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
     **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
-    "h2sgnn": "adapter pending: part 2 E0 stop S4b (H2SGNN has no relation rule for the H2GB graphs)",
-    "pshgcn": ("adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit "
-               "(card baselines-h2gb C0 stop S3)"),
+    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3: generic branch of F-1 for NC and LP)",
+    "pshgcn": "adapter pending: moved to card 3 Part B (decision G-2: generic branch of F-1 for the large LP tasks)",
     "hetero2net": ("adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the "
                    "link-level sampler on the message graph is in place (C6)"),
 }
