@@ -91,8 +91,8 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: A3 (H-4): class C on the H2GB NC datasets.
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 READS_BATCH_PLAN = True
-#: A3 (D2): the large LP task wired here (H-Pokec U-U: per-type fan-out, decision G-8 of card 1c).
-HETSHEAF_LARGE_LP_TASKS = frozenset({"ogbn-mag_pp"})
+#: A3/A4: both large LP tasks (ogbn-mag P-P per-hop link sampler, D2; H-Pokec U-U hgt sampler with per-type lists, G-8).
+HETSHEAF_LARGE_LP_TASKS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 #: Their GC readouts (`graph_classifier.py:43-54`, `sheaf_graph_classifier.py:184-192`; `scripts/run_pooling_ablation.py:23`).
 GC_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention", "late_token")
 #: Their GC `output_dim` (`run_sheaf_gc.py:40`: `cfg.hidden_dim`, 64 in `configs/sheaf_config_gc.yaml`).
@@ -832,8 +832,8 @@ def _replace_in_place(target: Any, source: Any) -> None:
 def build_large_lp(d: Any, params: Any, device: torch.device, sampler: Any = None) -> tuple[Any, Any]:
     """The shared large-LP loop's `build` (card 1c F7 convention, `large_lp_training.fit_large_lp`): their chain applied
     to the task's message graph `d.graph` (the loop samples from it), HetSheaf's typed per-batch embedding (type ids
-    per subgraph, the rebinding encoder) and H2GB's sampler of the class-C reference method (`h2gb_sampler`: per-hop
-    `link` on ogbn-mag P-P); `sampler` replaces it in the tests."""
+    per subgraph, the rebinding encoder) and H2GB's sampler of the class-C reference method (`h2gb_sampler`, as NSD and
+    CSNN: per-hop `link` on ogbn-mag P-P; `hgt` with H2GB's per-type lists on H-Pokec U-U, G-8); `sampler` replaces it in the tests."""
     from src.baselines import large_lp_training as llp
     from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD
 
