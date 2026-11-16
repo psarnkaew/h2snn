@@ -140,5 +140,54 @@ class ProjectedBases(torch.nn.Module):
         return out
 
 
-__all__ = ["ProjectedBases", "block_bases", "block_inputs", "build_model", "chebyshev_bases",
+
+def forward_inputs(data: Any) -> tuple[list[torch.Tensor], torch.Tensor, dict[str, tuple[int, int]]]:
+    """Card 1c F5 (decision G-6): per-type inputs with a sparse identity block for each featureless type (HGB's identity
+    encoding; projected, it is an embedding table), the undirected edge_index and the node slices."""
+    from torch_geometric.utils import to_undirected
+
+    slices, start, features = {}, 0, []
+    for node_type in data.node_types:
+        count = int(data[node_type].num_nodes)
+        slices[node_type] = (start, start + count)
+        start += count
+        x = data[node_type].get("x")
+        if x is None:
+            index = torch.arange(count)
+            x = torch.sparse_coo_tensor(torch.stack([index, index]), torch.ones(count), (count, count)).coalesce()
+        features.append(x)
+    edges = [torch.stack([data[e].edge_index[0] + slices[e[0]][0], data[e].edge_index[1] + slices[e[2]][0]])
+             for e in data.edge_types]
+    return features, to_undirected(torch.cat(edges, dim=1), num_nodes=start), slices
+
+
+class ForwardBases(torch.nn.Module):
+    """Decision G-6: HGB's per-type projection first, then their Chebyshev bases (`processing.py:60-105`) of the
+    projected features computed in every forward over the whole graph; returns the bases' rows of `rows`. Equal to
+    the per-block precomputation by linearity (`ChebNetIIProjectionTests`)."""
+
+    def __init__(self, in_dims: list[int], hidden_dim: int, edge_index: torch.Tensor, num_nodes: int, K: int) -> None:
+        super().__init__()
+        from src.baselines.encoders import TypeProjectedInput
+
+        self.projection = TypeProjectedInput(in_dims, hidden_dim)
+        coo = (-1.0 * sys_normalized_adjacency(sp.csr_matrix(
+            (np.ones(edge_index.size(1)), (edge_index[0].numpy(), edge_index[1].numpy())),
+            shape=(num_nodes, num_nodes)))).tocoo()
+        self.register_buffer("laplacian", torch.sparse_coo_tensor(
+            np.vstack((coo.row, coo.col)), torch.from_numpy(coo.data).float(), (num_nodes, num_nodes)).coalesce())
+        self.K = int(K)
+
+    def forward(self, features: list[torch.Tensor], rows: torch.Tensor) -> list[torch.Tensor]:
+        t0 = self.projection(features)
+        t1 = torch.sparse.mm(self.laplacian, t0)
+        out = [t0[rows], t1[rows]]
+        for _ in range(1, self.K):
+            t2 = 2 * torch.sparse.mm(self.laplacian, t1) - t0
+            t0, t1 = t1, t2
+            out.append(t2[rows])
+        return out
+
+
+__all__ = ["ForwardBases", "ProjectedBases", "forward_inputs", "block_bases", "block_inputs", "build_model", "chebyshev_bases",
            "homogeneous_inputs", "sys_normalized_adjacency"]

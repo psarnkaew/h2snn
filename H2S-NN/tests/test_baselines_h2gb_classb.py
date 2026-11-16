@@ -358,5 +358,28 @@ class Hetero2NetTests(unittest.TestCase):
         self.assertTrue(any(not torch.equal(value, after[name]) for name, value in before.items()))
 
 
+class ChebNetIIForwardTests(unittest.TestCase):
+    """Card 1c F5 (G-6): projection first, propagation in the forward, on a graph with an identity (featureless) block;
+    equal to the per-block precomputation by linearity (`ChebNetIIProjectionTests`)."""
+
+    def test_forward_bases_step_is_finite_and_moves(self) -> None:
+        from src.baselines.adapters import _chebnetii_h2gb as h2gb
+
+        data = typed_graph()  # `field` has no features: a sparse identity block
+        for node_type in ("paper", "author"):
+            data[node_type].x = data[node_type].x.float()
+        features, edge_index, slices = h2gb.forward_inputs(data)
+        self.assertTrue(features[list(data.node_types).index("field")].is_sparse)
+        n = sum(int(f.size(0)) for f in features)
+        start, _ = slices["paper"]
+        torch.manual_seed(0)
+        model = torch.nn.ModuleDict({"bases": h2gb.ForwardBases([int(f.size(1)) for f in features], 8, edge_index, n,
+                                                                3),
+                                     "chebnet": h2gb.build_model(8, 3, {"K": 3, "hidden": 16})})
+        idx = data["paper"].train_mask.nonzero().view(-1)
+        _one_step_moves(self, model, lambda: model["chebnet"](model["bases"](features, idx + start), 0, idx.numel()),
+                        data["paper"].y[idx], torch.nn.functional.nll_loss)
+
+
 if __name__ == "__main__":
     unittest.main()
