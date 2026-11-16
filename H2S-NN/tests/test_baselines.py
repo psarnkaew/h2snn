@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 216)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P
+        self.assertEqual(summary["runnable_cells"], 251)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells; card 1d H3: + Hetero2Net MAG x 3; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P
 
         per_task = {
             task: sum(
@@ -57,8 +57,8 @@ class RegistryTests(unittest.TestCase):
             )
             for task in DATASETS
         }
-        self.assertEqual(per_task["node_classification"], 115)  # card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase; A3: + 8 H2GB
-        self.assertEqual(per_task["link_prediction"], 61)  # card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P
+        self.assertEqual(per_task["node_classification"], 136)  # card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase; A3: + 8 H2GB
+        self.assertEqual(per_task["link_prediction"], 75)  # card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P
         self.assertEqual(per_task["graph_classification"], 40)  # card 3 A2: + HetSheaf on the 4 TU datasets
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:
@@ -88,9 +88,9 @@ class RegistryTests(unittest.TestCase):
                         "h-pokec", "pdns"):
             self.assertNotEqual(unsupported_reason("gcn", "node_classification", dataset), pending)
         # Part M3b B6: the two large LP tasks have their split and negative files; adapter pending until wired.
+        # card 1c F7: GCN wired on both large LP tasks
         for dataset in ("ogbn-mag_pp", "h-pokec_uu"):
-            self.assertNotEqual(unsupported_reason("gcn", "link_prediction", dataset), pending)
-            self.assertIn("adapter pending", unsupported_reason("gcn", "link_prediction", dataset))
+            self.assertIsNone(unsupported_reason("gcn", "link_prediction", dataset))
         # a model without the task keeps the model-specific reason, not the dataset's
         self.assertEqual(unsupported_reason("chebnetii", "link_prediction", "ogbn-mag_pp"),
                          "ChebNetII has no link prediction implementation")

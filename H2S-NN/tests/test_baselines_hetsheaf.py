@@ -311,8 +311,10 @@ class H2GBStepTests(unittest.TestCase):
         encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=64))
         head = SharedLinkHead("dot", num_relations=1, dim=encoder.embed_dim)
         optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
-        batch = llp.step_subgraph(graph, relation, torch.cat([pos, neg], dim=1), [-1, -1])
-        scores = head(encoder(batch, schema, "user", device), batch[relation].edge_label_index)
+        model = llp.LargeLPModel(modules=encoder, embed=lambda batch, train: encoder(batch, schema, "user", device),
+                                 embed_dim=encoder.embed_dim)
+        scores = llp.step_scores(model, head, llp.Sampler("link", [-1, -1]), graph, relation, "user",
+                                 torch.cat([pos, neg], dim=1), device)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(scores, torch.cat([torch.ones(8), torch.zeros(8)]))
         assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
 
@@ -336,12 +338,12 @@ class H2GBStepTests(unittest.TestCase):
         checked = 0
         for depth in (1, 2, 3):
             for start in range(0, train.size(1), 12):
-                assert_no_held_out_facts(llp.step_subgraph(graph, relation, train[:, start:start + 12], [-1] * depth),
-                                         "user", held)
+                batch, _ = llp.Sampler("link", [-1] * depth).step(graph, relation, "user", train[:, start:start + 12])
+                assert_no_held_out_facts(batch, "user", held)
                 checked += 1
             for split in ("valid", "test"):
                 nodes = torch.unique(torch.from_numpy(files[f"split_{split}"]).reshape(-1))
-                for batch in llp.endpoint_loader(graph, "user", nodes, [-1] * depth, batch_size=5):
+                for batch in llp.Sampler("link", [-1] * depth).endpoints(graph, "user", nodes, batch_size=5):
                     assert_no_held_out_facts(batch, "user", held)
                     checked += 1
         self.assertGreater(checked, 30)

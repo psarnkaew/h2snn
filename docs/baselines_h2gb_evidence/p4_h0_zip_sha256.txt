@@ -1,0 +1,4 @@
+job=16741 step=178 node=g2n01 git=43f14a889f76e5ac2403aa6299d4ebf4a8a93155
+920582404 bytes 2021-09-04 22:25:56.000000000 +0900
+00e34ce933d7bdc12bb7d35e6a23c1057e79053f0c679f1dc2e3295be3185dbf  H2S-NN/data/NC/mag/hetero2net/mag_metapath2vec_emb.zip
+mag_metapath2vec_emb.zip

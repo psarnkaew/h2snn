@@ -815,94 +815,44 @@ class HetSheafBatchEncoder(torch.nn.Module):
         return embeddings[rows[node_type].to(device)]
 
 
-def large_lp_graph(bundle: Any) -> Any:
-    """The task data of `large_lp_training.load_large_lp` with their chain applied to the message graph (held-out
-    facts already removed in both orientations, `large_lp_minibatch.task_message_graph`)."""
-    from src.baselines.large_lp_training import load_large_lp
+def _replace_in_place(target: Any, source: Any) -> None:
+    """Make HeteroData `target` hold `source`'s node and edge stores (same object, so every holder of it sees them)."""
+    for edge_type in [t for t in target.edge_types if t not in source.edge_types]:
+        del target[edge_type]
+    for node_type in [t for t in target.node_types if t not in source.node_types]:
+        del target[node_type]
+    for stores in (source.node_types, source.edge_types):
+        for key in stores:
+            for name in [k for k in target[key].keys() if k not in source[key].keys()]:
+                del target[key][name]
+            for name, value in source[key].items():
+                target[key][name] = value
 
-    d = load_large_lp(bundle.dataset, bundle.metadata["data_root"])
-    d.graph = their_chain_on_graph(d.graph)
-    return d
+
+def build_large_lp(d: Any, params: Any, device: torch.device, sampler: Any = None) -> tuple[Any, Any]:
+    """The shared large-LP loop's `build` (card 1c F7 convention, `large_lp_training.fit_large_lp`): their chain applied
+    to the task's message graph `d.graph` (the loop samples from it), HetSheaf's typed per-batch embedding (type ids
+    per subgraph, the rebinding encoder) and H2GB's sampler of the class-C reference method (`h2gb_sampler`: per-hop
+    `link` on ogbn-mag P-P); `sampler` replaces it in the tests."""
+    from src.baselines import large_lp_training as llp
+    from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD
+
+    _replace_in_place(d.graph, their_chain_on_graph(d.graph))  # whoever samples `d.graph` sees their chain
+    schema = TypedSchema.of(d.graph)
+    encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=_LP_OUTPUT_DIM))
+    model = llp.LargeLPModel(modules=encoder, embed=lambda batch, train: encoder(batch, schema, d.node_type, device),
+                             embed_dim=encoder.embed_dim)
+    return model, sampler or llp.h2gb_sampler(CLASS_C_REFERENCE_METHOD, d.task, schema.node_types)
 
 
 def fit_large_lp(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
-    """D2 on the task's message graph: a typed copy of `large_lp_training.fit_large_lp_homogeneous`
-    (`large_lp_training.py:86-166`: steps of `LP_POSITIVES_PER_STEP` positives in a seeded continued order, one HGB
-    tail negative per positive drawn per epoch with seed `run seed + epoch`, the links seeding `step_subgraph`,
-    evaluation endpoints computed once by `endpoint_loader`, best validation AUROC, both test sets when validation
-    improves, the LP budget); the per-batch embedding is HetSheaf's typed one instead of HGB's untyped reduction."""
-    from src.baselines.budget import default_budget
-    from src.baselines.large_lp_training import endpoint_loader, per_hop_fanout, step_subgraph
-    from src.baselines.metrics import prefixed
-    from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD, h2gb_sample_sizes
-    from src.configs.config import LP_POSITIVES_PER_STEP
-    from src.data.hgb_lp_negatives import hgb_train_negatives
-    from src.data.large_lp import LARGE_LP_TASKS
-    from src.models.anchored_solve import check_finite_loss
-    from src.trainers.minibatch_trainer import TrainingOrder
-    from src.utils.misc import compute_link_prediction_metrics
+    """D2 on the task's message graph through the shared large-LP loop (`large_lp_training.fit_large_lp`, card 1c F7:
+    steps of `LP_POSITIVES_PER_STEP` positives in a seeded continued order, one HGB tail negative per positive per
+    epoch, evaluation endpoints computed once, best validation AUROC, the LP budget) with `build_large_lp`."""
+    from src.baselines import large_lp_training as llp
 
-    seed_everything(seed, device)
-    d = large_lp_graph(bundle)
-    schema = TypedSchema.of(d.graph)
-    fanout = per_hop_fanout(h2gb_sample_sizes(CLASS_C_REFERENCE_METHOD, LARGE_LP_TASKS[bundle.dataset].nc_dataset,
-                                              schema.node_types))
-    encoder = HetSheafBatchEncoder(build_rebinding_encoder(schema, params, device, output_dim=_LP_OUTPUT_DIM)).to(device)
-    embed_dim = encoder.embed_dim
-    head = SharedLinkHead(str(params.get("decoder_type", "dot")), num_relations=1, dim=embed_dim).to(device)
-    optimizer = _optimizer([encoder, head], params)
-    budget = default_budget(LINK_PREDICTION, bundle.dataset)
-    num_dst = int(d.graph[d.node_type].num_nodes)
-
-    def score_step(links: torch.Tensor) -> torch.Tensor:
-        batch = step_subgraph(d.graph, d.relation, links, fanout)
-        out = encoder(batch, schema, d.node_type, device)
-        return head(out, batch[d.relation].edge_label_index.to(device))
-
-    def score_links(links: torch.Tensor) -> torch.Tensor:
-        nodes = torch.unique(links.reshape(-1))
-        table = torch.empty(int(nodes.numel()), embed_dim, device=device)
-        position = 0
-        with torch.no_grad():
-            for batch in endpoint_loader(d.graph, d.node_type, nodes, fanout):
-                size = int(batch[d.node_type].batch_size)
-                table[position:position + size] = encoder(batch, schema, d.node_type, device)[:size]
-                position += size
-            return head(table, torch.searchsorted(nodes, links).to(device))
-
-    def metrics(pos: torch.Tensor, neg: torch.Tensor) -> dict[str, float]:
-        return compute_link_prediction_metrics(score_links(pos).float(), score_links(neg).float())
-
-    order = TrainingOrder(torch.arange(d.train_pos.size(1)), seed)
-    steps = -(-int(d.train_pos.size(1)) // LP_POSITIVES_PER_STEP)
-    best, best_epoch, stale, best_val, best_test = float("-inf"), -1, 0, {}, {}
-    for epoch in range(budget.epochs):
-        encoder.train()
-        head.train()
-        negatives = hgb_train_negatives(d.train_pos, (0, num_dst), seed + epoch)
-        for _ in range(steps):
-            index = order.next(LP_POSITIVES_PER_STEP)
-            links = torch.cat([d.train_pos[:, index], negatives[:, index]], dim=1)
-            labels = torch.cat([torch.ones(index.numel()), torch.zeros(index.numel())]).to(device)
-            optimizer.zero_grad()
-            loss = F.binary_cross_entropy_with_logits(score_step(links), labels)
-            check_finite_loss(loss, epoch)
-            loss.backward()
-            optimizer.step()
-        encoder.eval()
-        head.eval()
-        val = metrics(d.val_pos, d.val_neg)
-        if val["auroc"] > best:
-            best, best_epoch, stale, best_val = val["auroc"], epoch, 0, val
-            best_test = {**prefixed(metrics(d.test_pos, d.test_2hop), "2hop"),
-                         **prefixed(metrics(d.test_pos, d.test_random), "random")}
-        else:
-            stale += 1
-        if stale >= budget.patience:
-            break
-    record = {**prefixed(best_val, "val"), **prefixed(best_test, "test")}
-    record["best_epoch"] = float(best_epoch)
-    record["sampler_depth"] = float(len(fanout))
+    record = llp.fit_large_lp(bundle, params, seed=seed, device=device,
+                              build=lambda d: build_large_lp(d, params, device))
     record["params_source"] = params.source
     record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
     return record

@@ -98,3 +98,8 @@
 ## Slim preparation (author, 2026-11-16; paper due in about six weeks)
 - Compute for the real runs is plentiful; **preparation time is the constraint**. Cards keep only checks that protect the correctness of results: data leaks and label routes (with their mutation), one equivalence test per new mechanism (one representative method, not every method), split/protocol equality with the source code, one "finite and parameters move" test per adapter. Drop per-method test batteries, extra mutations, two-node suites (one node is enough unless a bit-exact reference changes), and housekeeping that does not affect results.
 - Bit-exact compares only when H2S-NN's own `src/` changes. Reports short (tables, decisions); evidence = job scripts and logs.
+
+## Several agents at once (author, 2026-11-16)
+- The author runs up to four agent sessions in parallel and labels their reports `[S1]`..`[S4]` in the one design chat; the design session answers per label and checks state from git, never from memory. The current mapping (session → card → branch/worktree) is in the newest `docs/handoff_*.md`.
+- Before a large card goes to an agent, the author may have another design session review it (card 4 was improved this way); treat such reviews as input to verify against code, not as decisions.
+- When the design chat gets long, the design session writes a handoff and tells the author to open a new chat in `h2snn-design`.

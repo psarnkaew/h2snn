@@ -72,6 +72,8 @@ SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 #: fan-out list unchanged; the model is rebound to each batch's HGB reduction (`_rebind_graph`).
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP on `large_lp_training.py` with the dataset's GCN fan-out (D1 / G-8 samplers).
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
@@ -205,6 +207,20 @@ def build_h2gb_model(in_dims: list[int], num_classes: int, params: BaselineParam
     return _NSDEncoder(in_dims, torch.tensor([[0, 1], [1, 0]], device=device), args, model_name)
 
 
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: its local-LP encoder (its NC encoder with `embed_dim` outputs, as `_homogeneous_lp`) on HGB's
+    reduction of each sampled batch."""
+    from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler, homogeneous_embed
+    from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD, h2gb_input_dims
+
+    node_types, counts, dims = h2gb_input_dims(d.graph)
+    sampler = sampler or h2gb_sampler(CLASS_C_REFERENCE_METHOD, d.task, node_types)
+    embed_dim = int(params.get("embed_dim", params.get("hidden_channels", 64)))
+    encoder = build_h2gb_model(dims, embed_dim, params, device)
+    return LargeLPModel(encoder, homogeneous_embed(encoder, node_types, counts, d.node_type, h2gb_forward, device),
+                        embed_dim), sampler
+
+
 def h2gb_forward(model: Any, inputs: list[torch.Tensor], edge_index: torch.Tensor, num_nodes: int) -> torch.Tensor:
     """Rebind NSD to the batch's HGB reduction without self-loops (NSD needs exact symmetric pairs, no diagonal) and run
     it; rebinding builds a MessagePassing builder, so it runs inside the vendor context."""
@@ -220,7 +236,7 @@ class NSDAdapter:
         if task == NODE_CLASSIFICATION:
             return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -278,6 +294,13 @@ class NSDAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             model_name = str(params.get("sheaf_model", "DiagSheaf"))
 

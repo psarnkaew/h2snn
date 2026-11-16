@@ -40,6 +40,8 @@ VENDOR_ROOTS: dict[str, Path] = {
     "chebnetii_ogb": VENDOR_DIR / "ChebNetII" / "ogb",
     "pshgcn": VENDOR_DIR / "PSHGCN" / "hgb",
     "pshgcn_lp": VENDOR_DIR / "PSHGCN" / "hgb-lp",
+    # card 1c F2: PSHGCN's ogbn-mag code (model only; its processing imports sparse_tools)
+    "pshgcn_mag": VENDOR_DIR / "PSHGCN" / "ogbn-mag",
     "h2sgnn": VENDOR_DIR / "H2SGNN",
     "hetero2net": VENDOR_DIR / "Hetero2Net",
     "chebnetii": VENDOR_DIR / "ChebNetII" / "main",
