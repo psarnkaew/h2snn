@@ -1,0 +1,14 @@
+sehgnn|node_classification|ieee-cis-g
+chebnetii|node_classification|oag-chem
+chebnetii|node_classification|oag-eng
+chebnetii|node_classification|oag-cs
+chebnetii|node_classification|mag-year
+chebnetii|node_classification|ogbn-mag
+h2snn|node_classification|pdns
+h2snn|node_classification|h-pokec
+h2snn|node_classification|ieee-cis-g
+h2snn|node_classification|oag-chem
+h2snn|node_classification|oag-eng
+h2snn|node_classification|oag-cs
+h2snn|node_classification|mag-year
+h2snn|node_classification|ogbn-mag
