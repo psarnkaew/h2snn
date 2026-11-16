@@ -138,6 +138,12 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
                                          "solver_warmup_tolerance", "solver_warmup_epochs",
                                          "solver_max_iterations", "tau_stop",
                                          "log_weight_range_stop")
+# Spec 1.23 X-11 (card 4 K1): `ablation.maps` = "learned" (the model) or "identity" (every fact map's
+# orthogonal factor I, hence every transport I): S2 = arm full with identity maps, S0 = arm
+# no_path_cells with identity maps. A comparison arm: refused in a tuning base config and never a
+# search-space parameter, like `model.arm`.
+ABLATION_MAPS: tuple[str, ...] = ("learned", "identity")
+IDENTITY_MAP_ARMS: tuple[str, ...] = ("full", "no_path_cells")
 
 
 #: Spec v1.22 W2 (decisions log 2026-11-13, "H2S-NN LP decoder"): the refusal of `concat_mlp`.
@@ -190,6 +196,15 @@ def reject_never_tuned_settings(
             "ablation.path_weight_input other than full is a C2 ladder arm and must not be used in "
             "tuning."
         )
+    if str(((raw_config or {}).get("ablation") or {}).get("maps", "learned")) != "learned":
+        raise ValueError(
+            "ablation.maps: identity is the maps = I comparison arm (S2/S0, spec 1.23) and must not "
+            "be used in tuning; tune the full model and report the arm separately."
+        )
+    for name in search_parameters:
+        if str(name).split(".")[-1] == "maps":
+            raise ValueError(f"tuning search space contains {name!r}: ablation.maps (maps = I arm, "
+                             "spec 1.23) is a comparison switch, never tuned.")
     dataset = str(data.get("dataset_name", "acm")).lower()
     node_classification = (str(data.get("task_type", "")) or DATASET_TASK_TYPES.get(dataset, "")
                            ) == "node_classification"
@@ -1415,12 +1430,20 @@ class AblationConfig:
     # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
     # Never tuned.
     coupling: str = "symmetric"
+    # Spec 1.23 X-11: fact maps learned (the model) or identity (arm maps = I: S2 with model.arm
+    # full, S0 with no_path_cells). Never tuned.
+    maps: str = "learned"
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
-            if name not in ("coupling", "path_weight_input") and not isinstance(
+            if name not in ("coupling", "path_weight_input", "maps") and not isinstance(
                     getattr(self, name), bool):
                 raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
+        if self.maps not in ABLATION_MAPS:
+            raise ValueError(f"ablation.maps must be one of {ABLATION_MAPS}, got {self.maps!r}.")
+        if self.maps == "identity" and (self.h0_only_readout or self.direction_blind_maps):
+            raise ValueError("ablation.maps: identity is one change from full / no_path_cells; it "
+                             "cannot be combined with h0_only_readout or direction_blind_maps.")
         _reject_removed_value("ablation", "coupling", self.coupling)
         if self.coupling not in COUPLING_MODES:
             raise ValueError(
@@ -1509,6 +1532,10 @@ class TrainConfig:
                 "ablation.path_weight_context lets g read [h0, c]; c exists only under "
                 "model.geometry_context: true."
             )
+        if self.ablation.maps == "identity" and self.model.arm not in IDENTITY_MAP_ARMS:
+            raise ValueError(
+                f"ablation.maps: identity is defined for model.arm in {IDENTITY_MAP_ARMS} (S2, S0; "
+                f"spec 1.23), got {self.model.arm!r}.")
 
     @property
     def exp_dir(self) -> Path:

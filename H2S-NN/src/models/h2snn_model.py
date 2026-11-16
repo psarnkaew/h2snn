@@ -34,6 +34,7 @@ from src.models.link_readout import LinkPredictionReadout
 from src.models.map_operators import (
     EdgeMapPair,
     FactorizedMapOperator,
+    IdentityMapOperator,
     PathTransportOperator,
     checkpoint_if_grad,
     normalize_reflectors,
@@ -399,6 +400,10 @@ class H2SNN(nn.Module):
         self.arm = model_config.arm
         anchored = self.propagation == "anchored" and not self.h0_only
         self.anchored = anchored
+        # Arm "maps = I" (spec 1.23 X-11; S2 with arm full, S0 with arm no_path_cells): every fact
+        # map's orthogonal factor is I, so every transport is I; c_e, g, beta_f, tau, solver and head
+        # unchanged; the frames and the reflector MLP are not parameters.
+        self.identity_maps = ablation.maps == "identity"
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
         self.identity_embedding: nn.Embedding | None = None
@@ -446,6 +451,7 @@ class H2SNN(nn.Module):
             shared_role_relations=self.shared_role_relations,
             input_dim=geometry_dim,
             factored_inputs=model_config.geometry_context,
+            identity_maps=self.identity_maps,
         )
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
@@ -748,13 +754,21 @@ class H2SNN(nn.Module):
         num_groups = len(groups)
         device = h0.device
 
-        def build(scale: torch.Tensor, refl_src: torch.Tensor, rot_src: torch.Tensor,
-                  refl_tgt: torch.Tensor, rot_tgt: torch.Tensor, *rest: torch.Tensor
-                  ) -> EliminatedOperator:
-            pair = EdgeMapPair(
-                src=FactorizedMapOperator(scale, refl_src, rot_src, edge_type),
-                tgt=FactorizedMapOperator(scale, refl_tgt, rot_tgt, edge_type),
-            )
+        identity_maps = self.identity_maps
+        d_stalk = self.d
+
+        def build(scale: torch.Tensor, *factors_and_rest: torch.Tensor) -> EliminatedOperator:
+            if identity_maps:  # arm maps = I (S2/S0): only the per-edge scale (a_e = c_e^2)
+                rest = factors_and_rest
+                pair = EdgeMapPair(src=IdentityMapOperator(scale, d_stalk),
+                                   tgt=IdentityMapOperator(scale, d_stalk))
+            else:
+                refl_src, rot_src, refl_tgt, rot_tgt = factors_and_rest[:4]
+                rest = factors_and_rest[4:]
+                pair = EdgeMapPair(
+                    src=FactorizedMapOperator(scale, refl_src, rot_src, edge_type),
+                    tgt=FactorizedMapOperator(scale, refl_tgt, rot_tgt, edge_type),
+                )
             group_betas, free_tensors = rest[:num_groups], rest[num_groups:]
             cell_groups, node_terms = [], []
             for i, (group, beta) in enumerate(zip(groups, group_betas)):
@@ -781,8 +795,11 @@ class H2SNN(nn.Module):
             kept = (torch.zeros(0, dtype=torch.long, device=device) if arm == "hub_A" else None)
             return EliminatedOperator(operator, kept)
 
-        params = (maps.src.scale, maps.src.reflectors, maps.src.rotations,
-                  maps.tgt.reflectors, maps.tgt.rotations, *betas, *free_params)
+        if identity_maps:
+            params = (maps.src.scale, *betas, *free_params)
+        else:
+            params = (maps.src.scale, maps.src.reflectors, maps.src.rotations,
+                      maps.tgt.reflectors, maps.tgt.rotations, *betas, *free_params)
         warmup_epochs, warmup_tolerance, final_tolerance, max_iterations = self.solver_settings
         tolerance = solver_tolerance(epoch, warmup_epochs, warmup_tolerance, final_tolerance)
         with torch.no_grad():  # layout of the solved system (for the warm start and the log)
