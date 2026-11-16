@@ -68,6 +68,11 @@ VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Fre
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Card 1c F4 (G-5 amended): the H2GB NC datasets with their own NeighborLoader scheme (`_hetero2net_h2gb.py`);
+#: ogbn-mag / mag-year wait for the author's `mag_metapath2vec_emb.zip`.
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+H2GB_RUNNABLE = H2GB_DATASETS - {"ogbn-mag", "mag-year"}
+READS_BATCH_PLAN = True
 
 
 def _load_vendor_graph(dataset: str, data_root: Path) -> tuple[Any, Any]:
@@ -144,7 +149,7 @@ class Hetero2NetAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in VENDOR_DATASET
+            return dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
@@ -177,7 +182,7 @@ class Hetero2NetAdapter:
                 "alpha": {"values": [0.0, 0.1, 0.2]},
                 "decoder_type": {"values": ["dot", "distmult"]},
             }
-        return {
+        space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
             "hidden": grids.HIDDEN,
@@ -188,6 +193,11 @@ class Hetero2NetAdapter:
             "r": {"values": [0.3, 0.5]},
             "mask_lp": {"values": [True, False]},
         }
+        if dataset in H2GB_DATASETS:  # card 1c F4: batch size from the shared range
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
+        return space
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
         return load_published_params(NAME, task, dataset)
@@ -209,6 +219,8 @@ class Hetero2NetAdapter:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         data, metapaths = _load_vendor_graph(bundle.dataset, bundle_data_root(bundle))
@@ -477,6 +489,66 @@ class Hetero2NetAdapter:
         record["alpha"] = alpha
         record["num_relation_keys"] = float(num_relations)
         record["readout"] = "shared_mean_pool_linear"
+        return record
+
+
+    def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
+                  device: torch.device) -> dict[str, float]:
+        """Card 1c F4: their NeighborLoader scheme on H2GB's graph (`_hetero2net_h2gb.py`)."""
+        from copy import copy
+
+        from src.baselines.adapters import _hetero2net_h2gb as h2gb
+        from src.baselines.minibatch import h2gb_graph, is_eval_epoch, minibatch_plan
+        from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+        seed_everything(seed, device)
+        data = h2gb_graph(bundle)
+        node_type = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+        metapaths = h2gb.prepare_inputs(data, bundle.dataset, bundle_data_root(bundle))
+        num_classes = int(data[node_type].y.max()) + 1
+        train_data, test_data = copy(data), copy(data)
+        if bool(params.get("mask_lp", True)):
+            train_y, test_y = h2gb.label_channel(data, node_type, num_classes, data[node_type].val_mask,
+                                                 data[node_type].test_mask)
+            train_data[node_type].y_emb, test_data[node_type].y_emb = train_y, test_y
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        train_loader, val_loader, test_loader = h2gb.loaders(train_data, test_data, node_type, plan.batch_size)
+        model = h2gb.build_model(data, node_type, num_classes, params).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-3)),
+                                      weight_decay=float(params.get("weight_decay", 0.0)))
+
+        def evaluate(loader: Any) -> dict[str, float]:
+            model.eval()
+            logits, labels = [], []
+            with torch.no_grad():
+                for batch in loader:
+                    batch = batch.to(device, "x", "edge_index")
+                    logits.append(h2gb.seed_logits(model, batch, node_type))
+                    labels.append(batch[node_type].y[: int(batch[node_type].batch_size)].to(device))
+            return classification_metrics(torch.cat(logits), torch.cat(labels), is_multilabel=False)
+
+        state: dict = {}
+        best_monitor, best_epoch, best_val, best_test = float("-inf"), -1, {}, {}
+        with pushd_sys_path(VENDOR):
+            from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
+
+            for epoch in range(plan.epochs):
+                train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
+                                 device, p=float(params.get("p", 0.7)), metapaths=metapaths,
+                                 r=float(params.get("r", 0.5)), alpha=float(params.get("alpha", 0.2)),
+                                 beta=float(params.get("beta", 0.4)))
+                if not is_eval_epoch(epoch, plan):
+                    continue
+                val_metrics, test_metrics = evaluate(val_loader), evaluate(test_loader)
+                if val_metrics["macro_f1"] > best_monitor:
+                    best_monitor, best_epoch, best_val, best_test = (val_metrics["macro_f1"], epoch, val_metrics,
+                                                                     test_metrics)
+                report_epoch(params.report, epoch=epoch, monitor=val_metrics["macro_f1"], running_best=best_monitor,
+                             metrics=val_metrics)
+        record = node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
+        record["params_source"] = params.source
+        record["batch_size"] = float(plan.batch_size)
+        record["metapaths"] = float(metapaths is not None)
         return record
 
 

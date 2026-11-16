@@ -77,11 +77,9 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
                  "274-289); the original HINormer runs instead (card 1c F1, decision G-1)"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
     "chebnetii": "adapter pending (card baselines-h2gb C4)",
-    "hetero2net": ("adapter pending: its NeighborLoader path (Hetero2Net/main.py:147-175) is not wired (part 2 E2): its "
-                   "metapath-drop needs a per-dataset metapath list, which its code defines for HGB, MAG and RCDD only "
-                   "(hetero2net/dataset.py:20-67; OAG, IEEE-CIS, H-Pokec, PDNS need a decision), and its label "
-                   "channel y_emb on sampled batches needs a route test; ogbn-mag/mag-year also wait for "
-                   "`mag_metapath2vec_emb.zip` (author download)"),
+    "hetero2net": ("adapter in place, pending author (waiting for `mag_metapath2vec_emb.zip` under "
+                   "<data root>/NC/mag/hetero2net/, author download: https://data.pyg.org/datasets/mag_metapath2vec_emb.zip; "
+                   "card 1c F4)"),
 }
 #: Cells wired on the loaded H2GB NC datasets (card baselines-h2gb C4): adapter and its tests in place, no open
 #: author decision.
@@ -95,6 +93,8 @@ H2GB_NC_WIRED_CELLS: frozenset[tuple[str, str]] = frozenset({
     *(("hinormer", d) for d in H2GB_NC),
     ("sehgnn", "ieee-cis-g"),
     ("sehgnn", "ogbn-mag"), ("sehgnn", "mag-year"),  # card 1c F3 (G-4)
+    # card 1c F4 (G-5 amended): Hetero2Net without a metapath list (its FreeBase branch)
+    *(("hetero2net", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
     # part 2 E2: decision C4-b (parallel relations merged)
     ("sehgnn", "oag-cs"), ("sehgnn", "oag-eng"), ("sehgnn", "oag-chem"), ("sehgnn", "pdns"),
     ("chebnetii", "ogbn-mag"), ("chebnetii", "mag-year"),

@@ -286,5 +286,77 @@ class SeHGNNMAGInputTests(unittest.TestCase):
                         data["paper"].y[idx], torch.nn.functional.cross_entropy)
 
 
+class Hetero2NetTests(unittest.TestCase):
+    """Card 1c F4: their NeighborLoader scheme with the label channel `y_emb` as main.py:125-175 builds it."""
+
+    def _outputs(self, labels: torch.Tensor):
+        from copy import copy
+
+        from src.baselines.adapters import _hetero2net_h2gb as h2gb
+
+        data = typed_graph(width=6)
+        for node_type in data.node_types:
+            data[node_type].x = data[node_type].x.float()
+        data["paper"].y = labels.clone()
+        train_y, test_y = h2gb.label_channel(data, "paper", 3, data["paper"].val_mask, data["paper"].test_mask)
+        train_data, test_data = copy(data), copy(data)
+        train_data["paper"].y_emb, test_data["paper"].y_emb = train_y, test_y
+        _, val_loader, test_loader = h2gb.loaders(train_data, test_data, "paper", 4)
+        torch.manual_seed(0)
+        model = h2gb.build_model(data, "paper", 3, {"hidden": 8, "dropout": 0.0}).eval()
+        out = {}
+        with torch.no_grad():
+            for name, loader in (("val", val_loader), ("test", test_loader)):
+                torch.manual_seed(1)
+                out[name] = torch.cat([h2gb.seed_logits(model, batch, "paper") for batch in loader])
+        return data, out
+
+    def test_label_channel_reads_no_held_out_label(self) -> None:
+        data, base = self._outputs(typed_graph(width=6)["paper"].y)
+        labels = data["paper"].y.clone()
+        val, test = data["paper"].val_mask, data["paper"].test_mask
+        both = labels.clone()
+        both[val | test] = (both[val | test] + 1) % 3   # every validation and test label changed
+        _, changed = self._outputs(both)
+        self.assertTrue(torch.equal(base["val"], changed["val"]), "validation/test labels reach validation targets")
+        only_test = labels.clone()
+        only_test[test] = (only_test[test] + 1) % 3
+        _, changed = self._outputs(only_test)
+        self.assertTrue(torch.equal(base["test"], changed["test"]), "test labels reach test targets")
+
+    def test_one_training_step_is_finite_and_moves(self) -> None:
+        from copy import copy
+
+        from src.baselines.adapters import _hetero2net_h2gb as h2gb
+        from src.baselines.runtime import pushd_sys_path
+
+        data = typed_graph(width=6)
+        for node_type in data.node_types:
+            data[node_type].x = data[node_type].x.float()
+        self.assertIsNone(h2gb.prepare_inputs(data, "pdns", None))  # FreeBase branch: no metapath list
+        train_y, test_y = h2gb.label_channel(data, "paper", 3, data["paper"].val_mask, data["paper"].test_mask)
+        train_data, test_data = copy(data), copy(data)
+        train_data["paper"].y_emb, test_data["paper"].y_emb = train_y, test_y
+        train_loader, _, _ = h2gb.loaders(train_data, test_data, "paper", 4)
+        torch.manual_seed(0)
+        model = h2gb.build_model(data, "paper", 3, {"hidden": 8, "dropout": 0.0})
+        with torch.no_grad():  # their HeteroGNN has lazy modules: one forward gives most of them their shapes
+            h2gb.seed_logits(model, next(iter(train_loader)), "paper")
+        from torch.nn.parameter import UninitializedParameter
+
+        before = {name: p.detach().clone() for name, p in model.named_parameters()
+                  if not isinstance(p, UninitializedParameter)}
+        self.assertTrue(before)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+        with pushd_sys_path("hetero2net"):
+            from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
+
+            loss = train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, {}, 1), torch.device("cpu"),
+                                    p=0.7, metapaths=None, r=0.5, alpha=0.2, beta=0.4)
+        self.assertTrue(torch.isfinite(torch.tensor(float(loss))).item())
+        after = dict(model.named_parameters())
+        self.assertTrue(any(not torch.equal(value, after[name]) for name, value in before.items()))
+
+
 if __name__ == "__main__":
     unittest.main()
