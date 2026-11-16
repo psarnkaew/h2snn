@@ -1,7 +1,7 @@
 # Card 2 D1 (dry-run): H2GB NC mag-year (mini-batch, MB1), v3-B anchored, arm `full`; built as dblp_h2snn_v3b.yaml.
 # l_max 4 and r 8 named explicitly (spec v1.18: l_max and r are tuned, no calibrated r; 8 is the lowest of the tuned range {8, 16, 32, 64}; the sweep overrides both). data.batch_size 32: H2GB's own batch size in its GNN configs (vendor/H2GB/configs/*/*-GCN.yaml
-# train.batch_size); in MINIBATCH_BATCH_SIZES; H2S-NN's sweep has no batch_size axis, so this value is
-# the batch size of every trial (decision for the author, dry-run report). Epochs: the H2GB budget. Solver settings are the fixed card values (never tuned).
+# train.batch_size); in MINIBATCH_BATCH_SIZES; the base value only: H2S-NN's sweep tunes data.batch_size in
+# {32, 256, 1024} on the H2GB NC datasets (spec 1.17 Q4; card 2 D6.7). Epochs: the H2GB budget. Solver settings are the fixed card values (never tuned).
 data:
   dataset_name: mag-year
   root: data

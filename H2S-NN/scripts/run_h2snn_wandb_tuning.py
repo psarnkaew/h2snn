@@ -14,7 +14,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.configs.config import TrainConfig, arm_search_space, reject_never_tuned_settings
+from src.configs.config import (H2GB_NC_DATASETS, MINIBATCH_BATCH_SIZES, TrainConfig, arm_search_space,
+                               reject_never_tuned_settings)
 from src.baselines import search_grids as shared_grids
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
@@ -95,6 +96,8 @@ CONDITIONAL_PARAMETER_NAMES = frozenset(
         "classifier_dropout",
         "graph_pooling",
         "decoder_type",
+        # Card 2 D6.7 (spec 1.17 Q4, author decision 4 of the card 2 review): the H2GB NC datasets only
+        "batch_size",
     }
 )
 KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
@@ -326,7 +329,8 @@ def build_sweep_config(
     """The W&B sweep of H2S-NN (spec v1.15 §6 Tuning; card Part M, M10): plain Bayes, no
     Hyperband or other early termination; the space holds only components of the method:
     d, lr, weight_decay, encoder/classifier dropout (shared ranges), l_max, r, and GC pooling;
-    on every LP task decoder_type in {dot, distmult} (spec v1.22 W2; never on NC or GC).
+    on every LP task decoder_type in {dot, distmult} (spec v1.22 W2; never on NC or GC); on the eight
+    H2GB NC datasets batch_size in {32, 256, 1024} (spec 1.17 Q4; card 2 D6.7; nowhere else).
     `decoder_type` is the base config's decoder: `concat_mlp` is refused (W2), any other value is
     replaced per trial by the tuned one. `epochs` is not used by the sweep (no early termination);
     it is kept for the callers' signature."""
@@ -362,7 +366,13 @@ def build_sweep_config(
     if task_type == "link_prediction":
         parameters["decoder_type"] = {"values": list(SPACE_DECODER_TYPE["values"])}
 
-    reject_never_tuned_settings(None, parameters)
+    # Spec 1.17 Q4 (card 2 D6.7): the batch size is tuned on the eight H2GB NC datasets, {32, 256, 1024},
+    # the range of every method (MB2); nowhere else (full batch / per graph / LP positives per step).
+    if task_type == "node_classification" and dataset_name.lower() in H2GB_NC_DATASETS:
+        parameters["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
+
+    # the dataset name lets the check accept batch_size on H2GB NC and refuse it elsewhere (config.py MB2)
+    reject_never_tuned_settings({"data": {"dataset_name": dataset_name}} if dataset_name else None, parameters)
     return {
         "method": "bayes",
         "metric": {"name": f"best/{metric.removeprefix('val_')}", "goal": "maximize"},
@@ -390,7 +400,7 @@ def apply_sweep_overrides(
         model["d"] = int(params["d"])
     if "graph_pooling" in params:
         model["graph_pooling"] = str(params["graph_pooling"])
-    for key in ("wisp_max_length", "wisp_walks_per_anchor"):
+    for key in ("wisp_max_length", "wisp_walks_per_anchor", "batch_size"):
         if key in params:
             data[key] = int(params[key])
 
