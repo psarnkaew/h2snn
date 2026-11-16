@@ -146,15 +146,23 @@ IDENTITY_MAP_ARMS: tuple[str, ...] = ("full", "no_path_cells")
 # Every arm key of a v3-B comparison arm, (section, key, value of the full model).
 ARM_KEYS: tuple[tuple[str, str, str], ...] = (("model", "arm", "full"),
                                               ("ablation", "path_weight_input", "full"),
-                                              ("ablation", "fact_maps_identity", "False"))
+                                              ("ablation", "fact_maps_identity", "False"),
+                                              # spec 1.24 Y4 (card 4b L3): two more arm switches
+                                              ("ablation", "direction_blind_maps", "False"),
+                                              ("ablation", "h0_only_readout", "False"))
 # Spec 1.23 X-6a / pre-registration §1 configuration (b) (card 4 K6, arm-tuning mode): the five arms
-# tuned on their own, and the one (section, key, value) each may set in a tuning base config.
+# tuned on their own (plus, 1.24 Y4, the two arm switches' own modes), and the one (section, key,
+# value) each may set in a tuning base config.
 ARM_TUNING_KEYS: dict[str, tuple[str, str, str]] = {
     "endpoints": ("ablation", "path_weight_input", "endpoints"),
     "closure_only": ("model", "arm", "closure_only"),
     "instance_features": ("model", "arm", "instance_features"),
     "no_path_cells": ("model", "arm", "no_path_cells"),
     "S2": ("ablation", "fact_maps_identity", "True"),
+    # spec 1.24 Y4 (card 4b L3): accepted only in their own arm mode (not configuration (b) arms of
+    # the pre-registration; the mode exists so that each arm switch has exactly one accepted place)
+    "direction_blind_maps": ("ablation", "direction_blind_maps", "True"),
+    "h0_only": ("ablation", "h0_only_readout", "True"),
 }
 # Spec 1.24 Y4 (card 4b L2): search keys with no effect in an arm-tuning sweep, dropped from that arm's
 # space by the tuning launcher (they keep the base config's value, which is never read). Each entry is
@@ -167,6 +175,8 @@ ARM_INERT_SEARCH_KEYS: dict[str, tuple[str, ...]] = {
     "instance_features": (),
     "no_path_cells": ("wisp_max_length", "wisp_walks_per_anchor"),
     "S2": (),
+    "direction_blind_maps": (),
+    "h0_only": (),
 }
 
 
@@ -247,10 +257,14 @@ def reject_never_tuned_settings(
             raise ValueError(
                 "ablation.path_weight_input other than full is a C2 ladder arm and must not be used "
                 "in tuning (endpoints only under tuning.arm: endpoints).")
+        if key == "fact_maps_identity":
+            raise ValueError(
+                "ablation.fact_maps_identity: true is the maps = I comparison arm (S2/S0, spec 1.23) "
+                "and must not be used in tuning; tune the full model and report the arm separately "
+                "(S2 only under tuning.arm: S2).")
         raise ValueError(
-            "ablation.fact_maps_identity: true is the maps = I comparison arm (S2/S0, spec 1.23) and must not "
-            "be used in tuning; tune the full model and report the arm separately (S2 only under "
-            "tuning.arm: S2).")
+            f"ablation.{key}: true is a comparison arm and must not be used in a main-table tuning "
+            "base config (spec 1.24 Y4); only under its own tuning.arm.")
     if allowed is not None:
         section, key, value = allowed
         if str(sections[section].get(key, "")) != value:

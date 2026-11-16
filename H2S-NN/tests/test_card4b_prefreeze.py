@@ -7,6 +7,8 @@ L2 arm-sweep key exclusion (`ARM_INERT_SEARCH_KEYS`, `arm_search_space`, the tun
   (3) the table check: every entry is shown unread (the arm's evaluation logits are bit-identical for two
       values of the key, shared parameters copied), and a mutated entry for a key that is read in that
       arm (`wisp_max_length` for `full`) is refused by the same check.
+L3 `ablation.direction_blind_maps` / `ablation.h0_only_readout`: refused in a main-table tuning base
+  config, accepted in their own arm-tuning mode only.
 """
 
 from __future__ import annotations
@@ -137,6 +139,25 @@ class ArmSweepKeyExclusionTests(unittest.TestCase):
         check_inert_table(ARM_INERT_SEARCH_KEYS)                      # every entry unread
         with self.assertRaises(ValueError):                           # mutation: read in `full`
             check_inert_table({"full": ("wisp_max_length",)})
+
+
+class ArmSwitchRefusalTests(unittest.TestCase):
+    def test_arm_switches_refused_in_main_table_accepted_in_own_mode(self) -> None:
+        from src.configs.config import TrainConfig, reject_never_tuned_settings
+
+        for arm, key in (("direction_blind_maps", "direction_blind_maps"),
+                         ("h0_only", "h0_only_readout")):
+            raw = yaml.safe_load(FULL.read_text(encoding="utf-8"))
+            raw["ablation"] = {**raw.get("ablation", {}), key: True}
+            with self.assertRaises(ValueError, msg=f"main table with {key}"):
+                reject_never_tuned_settings(raw)
+            raw["tuning"] = {"arm": arm}
+            reject_never_tuned_settings(raw)                          # its own mode
+            self.assertEqual(TrainConfig.from_dict(copy.deepcopy(raw)).tuning.arm, arm)
+            other = "S2" if arm != "S2" else "endpoints"
+            raw["tuning"] = {"arm": other}                            # another arm's mode
+            with self.assertRaises(ValueError):
+                reject_never_tuned_settings(raw)
 
 
 if __name__ == "__main__":

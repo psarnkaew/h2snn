@@ -94,7 +94,8 @@ class ArmTuningModeTests(unittest.TestCase):
 
         changes = ([("model", "arm", a) for a in V3B_ARMS if a != "full"]
                    + [("ablation", "path_weight_input", v) for v in ("endpoints", "schema", "uniform")]
-                   + [("ablation", "fact_maps_identity", True)])
+                   + [("ablation", "fact_maps_identity", True)]
+                   + [("ablation", "direction_blind_maps", True), ("ablation", "h0_only_readout", True)])
         self.assertTrue({(a, b, str(c)) for a, b, c in ARM_TUNING_KEYS.values()}
                         <= {(a, b, str(c)) for a, b, c in changes})
         for section, key, value in changes:
@@ -131,7 +132,7 @@ class ArmTuningModeTests(unittest.TestCase):
         from run_h2snn_wandb_tuning import apply_sweep_overrides
         from src.configs.config import ARM_TUNING_KEYS, TrainConfig, reject_never_tuned_settings
 
-        self.assertEqual(set(ARM_TUNING_KEYS), set(arms.TUNED_ARMS))
+        self.assertTrue(set(arms.TUNED_ARMS) <= set(ARM_TUNING_KEYS))   # 1.24 Y4 adds two modes
         for arm in arms.TUNED_ARMS:
             raw = arms.apply_change(self._base(), arm)
             raw["tuning"] = {"arm": arm}
