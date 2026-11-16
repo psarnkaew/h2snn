@@ -1,0 +1,31 @@
+label=p2-e1-mutation job=16741 step=89 node=g2n01 start=2026-11-16T08:01:58+09:00
+git=b3fa5086ddb921a56298486cfdb3411ef5e35ae8 branch=baselines-h2gb
+working tree:  M src/baselines/adapters/h2gformer.py
+working tree:  M src/baselines/adapters/hgb_gnn.py
+working tree:  M src/baselines/adapters/hgb_han.py
+working tree:  M src/baselines/minibatch.py
+working tree: RM ../docs/baselines_h2gb_evidence/c1_equivalence_tests.py -> tests/test_baselines_minibatch_equivalence.py
+working tree:  M ../docs/baselines_h2gb_evidence/c1_equivalence_diagnostic.py
+env=h2snn-b cmd=python -m unittest tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+WARNING:root:Layers after message passing should be >=1
+WARNING:root:Layers after message passing should be >=1
+F
+======================================================================
+FAIL: test_h2gformer_label_channel_reads_training_labels_only (tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_baselines_h2gb_classa.py", line 162, in test_h2gformer_label_channel_reads_training_labels_only
+    self.assertTrue(torch.equal(outputs[0], outputs[1]),
+AssertionError: False is not true : validation/test labels reach the output: max |diff| 7.525e-01
+
+----------------------------------------------------------------------
+Ran 1 test in 34.314s
+
+FAILED (failures=1)
+peak_rss_gib=0.75 elapsed_s=36.3
+end=2026-11-16T08:02:34+09:00 exit=1
+srun: error: g2n01: task 0: Exited with exit code 1

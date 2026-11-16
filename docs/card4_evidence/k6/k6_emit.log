@@ -1,0 +1,38 @@
+job=16886 step=none node=g2n01 git=7f3b9186f2c1c2dd097ec6ce73c116ddef4d36a0
+dirty:  M scripts/known_answer/common.py  M scripts/known_answer/s1pb.py  M scripts/known_answer/summarize.py  M src/configs/config.py  M src/models/h2snn_model.py  M src/models/sheaf_maps.py  M tests/test_card4_identity_maps.py ?? scripts/ablation/ablation_array.sbatch ?? scripts/ablation/arms.py ?? scripts/ablation/dry_run.py ?? scripts/ablation/param_table.py ?? scripts/ablation/seed_runs.py ?? scripts/ablation/sweeps.py ?? scripts/known_answer/s3.py ?? scripts/known_answer/s3_audit.py ?? scripts/known_answer/s3_graph.py ?? tests/test_card4_ablation_driver.py 
+2f31cb2beec45cdd1e653fd523073667bcb819cedbd8cd3e07f56a9f36a1267a  src/configs/config.py
+21b9eb5cc42320ec2c12668d1ad4c8fab6d90949b8372d05cfc7c17a261e1722  scripts/ablation/arms.py
+7f54e9b4afb14626468d9f1ef6d793a93579ba8c92763eb74b1ec683f53bedb5  scripts/ablation/dry_run.py
+5d8649cb7de82d777d4678464dc07974cb4db0624ad3f27c819d96a2772b49ea  scripts/ablation/param_table.py
+2ccaf03365037e6b4a2367399e5172b91468617414a1e3ba210c5bd64ea02061  scripts/ablation/seed_runs.py
+378ff9794e12b57f523fb16e7bf802cac9ef61924966c0271093598b4565ce2d  scripts/ablation/sweeps.py
+fd35bb09af00cc1960c25210632959fb9f9124e60a0f44722099d67a99f67d46  scripts/ablation/variance_gate.py
+27 rows -> ../docs/card4_evidence/k6/emitted/acm/manifest.tsv
+=== validate_only ../docs/card4_evidence/k6/emitted/acm/tune_closure_only.yaml
+ok: ['classifier_dropout', 'd', 'encoder_dropout', 'lr', 'weight_decay', 'wisp_max_length', 'wisp_walks_per_anchor']
+=== validate_only ../docs/card4_evidence/k6/emitted/acm/tune_endpoints.yaml
+ok: ['classifier_dropout', 'd', 'encoder_dropout', 'lr', 'weight_decay', 'wisp_max_length', 'wisp_walks_per_anchor']
+=== validate_only ../docs/card4_evidence/k6/emitted/acm/tune_instance_features.yaml
+ok: ['classifier_dropout', 'd', 'encoder_dropout', 'lr', 'weight_decay', 'wisp_max_length', 'wisp_walks_per_anchor']
+=== validate_only ../docs/card4_evidence/k6/emitted/acm/tune_no_path_cells.yaml
+ok: ['classifier_dropout', 'd', 'encoder_dropout', 'lr', 'weight_decay', 'wisp_max_length', 'wisp_walks_per_anchor']
+=== validate_only ../docs/card4_evidence/k6/emitted/acm/tune_S2.yaml
+ok: ['classifier_dropout', 'd', 'encoder_dropout', 'lr', 'weight_decay', 'wisp_max_length', 'wisp_walks_per_anchor']
+full {"status": "ok", "seconds": 4.4, "peak_gpu_mb": 2779.0}
+endpoints {"status": "ok", "seconds": 3.2, "peak_gpu_mb": 2802.3}
+schema {"status": "ok", "seconds": 3.2, "peak_gpu_mb": 2778.6}
+uniform {"status": "ok", "seconds": 3.2, "peak_gpu_mb": 2725.3}
+no_path_cells {"status": "ok", "seconds": 2.2, "peak_gpu_mb": 1294.7}
+closure_only {"status": "ok", "seconds": 2.6, "peak_gpu_mb": 2057.0}
+instance_features {"status": "ok", "seconds": 2.4, "peak_gpu_mb": 1427.3}
+hub_A {"status": "ok", "seconds": 2.7, "peak_gpu_mb": 2209.0}
+covering_only {"status": "ok", "seconds": 2.9, "peak_gpu_mb": 2224.9}
+S2 {"status": "ok", "seconds": 1.9, "peak_gpu_mb": 827.9}
+S0 {"status": "ok", "seconds": 1.7, "peak_gpu_mb": 778.5}
+direction_blind_maps {"status": "ok", "seconds": 3.4, "peak_gpu_mb": 2779.3}
+free_cell_maps {"status": "ok", "seconds": 3.0, "peak_gpu_mb": 2986.9}
+geometry_context_off {"status": "ok", "seconds": 2.9, "peak_gpu_mb": 2694.1}
+h0_only {"status": "ok", "seconds": 1.5, "peak_gpu_mb": 201.2}
+appendix_full {"status": "ok", "seconds": 3.4, "peak_gpu_mb": 2780.8}
+appendix_endpoints {"status": "ok", "seconds": 3.3, "peak_gpu_mb": 2823.9}
+end=2026-11-16T12:36:13+09:00 exit=0

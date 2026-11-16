@@ -86,6 +86,14 @@ SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Part 2 E1: the H2GB NC datasets on H2GB's `hgt` batches with H2GB's own configs (`_h2gformer_h2gb.py`); mag-year
+#: cannot run under H2GB's own code (no MetaPath2Vec schema for its name) and is left out.
+H2GB_DATASETS = frozenset({"ogbn-mag", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns",
+                           "mag-year"})  # card 1c F6 (G-7): mag-year with ogbn-mag's MetaPath2Vec schema
+READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP with H2GB's GTModel (raw encoder only: no label channel in link prediction, D-P3's LP
+#: rule; H2GB has no LP config for these tasks) on H2GB's hgt sampler seeded by each step's endpoints.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 class _DatasetShim:
@@ -191,9 +199,9 @@ class H2GformerAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -201,6 +209,13 @@ class H2GformerAdapter:
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task not in (NODE_CLASSIFICATION, LINK_PREDICTION, GRAPH_CLASSIFICATION):
             raise UnsupportedCell(NAME, task, dataset, "unsupported task")
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY,
+                    "hidden_dim": {"values": [64, 128, 256, 512]}, "dropout": grids.DROPOUT,
+                    "attn_dropout": {"values": [0.0, 0.2]}, "gt_layers": {"values": [2, 3]},
+                    "attn_heads": {"values": [4, 8]}, "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -238,10 +253,21 @@ class H2GformerAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            from src.baselines.adapters import _h2gformer_h2gb
+
+            return _h2gformer_h2gb.fit(bundle, params, seed=seed, device=device)
 
         seed_everything(seed, device)
         data, target_type = _build_hetero_data(bundle, device)
@@ -540,6 +566,34 @@ def _build_hetero_data(bundle: NodeBundle, device: torch.device) -> tuple[Any, s
     # target block as the batch makes the head return every target node's prediction.
     data[target_type].batch_size = int(data[target_type].num_nodes)
     return data.to(device), target_type
+
+
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: H2GB's GTModel from its H2Gformer YAML on the task's NC dataset, raw encoder only, `embed_dim`
+    outputs; the seed rows of its head are the endpoints' embeddings."""
+    from src.baselines.adapters import _h2gformer_h2gb as h2gf
+    from src.baselines.adapters._h2gb_network import configure_from_yaml, seed_predictions
+    from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler
+    from src.data.large_lp import LARGE_LP_TASKS
+
+    graph, node_type = d.graph, d.node_type
+    sampler = sampler or h2gb_sampler(NAME, d.task, tuple(graph.node_types), force_hgt=True)
+    if graph[node_type].get("y") is None:  # H2GB's head returns `y` beside the prediction; nothing reads it
+        graph[node_type].y = torch.zeros(int(graph[node_type].num_nodes), dtype=torch.long)
+    embed_dim = int(params.get("embed_dim", 64))
+    ensure_pyg_submodules()
+    with pushd_sys_path(VENDOR):
+        cfg = configure_from_yaml("h2gformer", LARGE_LP_TASKS[d.task].nc_dataset, graph, node_type, device,
+                                  h2gf.overrides(params, embed_dim, (RAW,)))
+        configure_encoders(cfg, (RAW,))
+        model = h2gf.build_gtmodel(graph, d.task, embed_dim).to(device)
+
+    def embed(batch: Any, train: bool) -> torch.Tensor:
+        batch = batch.to(device)
+        batch.split = "train" if train else "val"
+        return seed_predictions(model, batch, node_type)
+
+    return LargeLPModel(model, embed, embed_dim), sampler
 
 
 ADAPTER = H2GformerAdapter()

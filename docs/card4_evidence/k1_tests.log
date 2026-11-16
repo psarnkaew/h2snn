@@ -1,0 +1,55 @@
+job=16741 step=123 node=g2n01 start=2026-11-16T09:48:24+09:00
+git=fda7ff706c7537831d12aa6bf98afa07604ee313 branch=ablation-prep
+dirty:  M src/configs/config.py  M src/models/h2snn_model.py  M src/models/map_operators.py  M src/models/sheaf_maps.py ?? tests/test_card4_identity_maps.py 
+69747f95f61f564d3b0176f928f3ca96ef06cdef5284f7d6484a224aa1a27bd3  src/models/map_operators.py
+093996a81e813ccaf63ff539c99ef2d70b534c62141dd0ab43876849759d07b3  src/models/sheaf_maps.py
+b55bfd3bacdcae846ec592e0f533fbd9b93a70f47cca2031830e7f523df00128  src/models/h2snn_model.py
+f380f0f6b36b0f5b19b5c0b9879a129f9a618eb60db71a5558b909a40eff7e97  src/configs/config.py
+11e8ef85f9b303cd8dce3c738e44c801db07e961b9a01af1307e422f36c1dc3f  tests/test_card4_identity_maps.py
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 4
+=== v3b_golden compare
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+=== mb0_reference compare
+/mnt/data/peeradon/h2snn-ablprep/H2S-NN/../docs/partMB_evidence/mb0_reference.py:134: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  _flatten("", torch.load(path), ref)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 139 tensors; differing: none
+test_s0_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s0_one_step_finite_and_every_parameter_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_s2_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s2_one_step_finite_and_every_parameter_moves) ... ok
+test_key_validated_and_refused_in_tuning (tests.test_card4_identity_maps.IdentityConfigTests.test_key_validated_and_refused_in_tuning) ... ok
+test_s2_jacobi_diagonal_equals_dense_identity_maps (tests.test_card4_identity_maps.IdentityJacobiTests.test_s2_jacobi_diagonal_equals_dense_identity_maps) ... ok
+test_s2_every_transport_is_exactly_identity (tests.test_card4_identity_maps.IdentityTransportTests.test_s2_every_transport_is_exactly_identity) ... ok
+test_T7_eliminated_solve_matches_the_full_state_solve (tests.test_sheaf_energy.EliminationTests.test_T7_eliminated_solve_matches_the_full_state_solve) ... ok
+test_T1_fact_to_cell_maps_are_functorial_on_imdb (tests.test_sheaf_energy.FunctorialityOnRealDrawTests.test_T1_fact_to_cell_maps_are_functorial_on_imdb) ... ok
+test_T2_matrix_free_equals_dense (tests.test_sheaf_energy.OperatorTests.test_T2_matrix_free_equals_dense) ... ok
+test_T3_normalized_operator_is_symmetric_and_psd (tests.test_sheaf_energy.OperatorTests.test_T3_normalized_operator_is_symmetric_and_psd) ... ok
+test_invalid_values_are_rejected (tests.test_factorized_maps.ConfigAndScopeTests.test_invalid_values_are_rejected) ... ok
+test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence (tests.test_factorized_maps.HolonomyTests.test_T5_holonomy_is_nontrivial_and_varies_within_a_relation_sequence) ... ok
+test_T5_negative_control_tied_maps_collapse_holonomy_to_identity (tests.test_factorized_maps.HolonomyTests.test_T5_negative_control_tied_maps_collapse_holonomy_to_identity) ... ok
+test_cuda_float32_matches_cpu_float64_reference (tests.test_factorized_maps.ModelIntegrationTests.test_cuda_float32_matches_cpu_float64_reference) ... ok
+test_T10_storage_matches_the_bound_exactly (tests.test_factorized_maps.NumericalGuardTests.test_T10_storage_matches_the_bound_exactly)
+Counts the tensors the operators actually hold (found generically, after an ... ok
+test_T9_finite_gradients_with_near_zero_reflectors (tests.test_factorized_maps.NumericalGuardTests.test_T9_finite_gradients_with_near_zero_reflectors) ... ok
+test_T9_zero_reflector_mlp_keeps_model_finite (tests.test_factorized_maps.NumericalGuardTests.test_T9_zero_reflector_mlp_keeps_model_finite) ... ok
+test_normalized_reflectors_are_unit_above_eps (tests.test_factorized_maps.NumericalGuardTests.test_normalized_reflectors_are_unit_above_eps) ... ok
+test_T1_negative_control_detects_a_non_orthogonal_factor (tests.test_factorized_maps.OperatorAlgebraTests.test_T1_negative_control_detects_a_non_orthogonal_factor) ... ok
+test_T1_rotation_and_householder_factors_are_orthogonal (tests.test_factorized_maps.OperatorAlgebraTests.test_T1_rotation_and_householder_factors_are_orthogonal) ... ok
+test_T2_apply_and_apply_T_match_dense_reference (tests.test_factorized_maps.OperatorAlgebraTests.test_T2_apply_and_apply_T_match_dense_reference) ... ok
+test_T3_closed_form_inverse_is_the_true_inverse (tests.test_factorized_maps.OperatorAlgebraTests.test_T3_closed_form_inverse_is_the_true_inverse) ... ok
+test_T4_maps_are_side_specific_and_node_dependent (tests.test_factorized_maps.SideAndNodeDependenceTests.test_T4_maps_are_side_specific_and_node_dependent) ... ok
+test_T10_implicit_gradient_matches_central_finite_differences (tests.test_anchored_solve.ImplicitGradientTests.test_T10_implicit_gradient_matches_central_finite_differences) ... ok
+test_T9_pcg_matches_the_dense_solve (tests.test_anchored_solve.PCGTests.test_T9_pcg_matches_the_dense_solve) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 53.904s
+
+OK
+end=2026-11-16T09:49:34+09:00 exit=0

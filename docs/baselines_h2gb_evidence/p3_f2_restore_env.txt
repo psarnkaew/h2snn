@@ -1,0 +1,9 @@
+job=16741 step=109 node=g2n01 start=2026-11-16T09:27:16+09:00
+  Successfully uninstalled sortednp-0.5.0
+Found existing installation: sparse_tools 0.0.0
+Uninstalling sparse_tools-0.0.0:
+  Successfully uninstalled sparse_tools-0.0.0
+neither package is installed
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+numpy 2.4.6 torch 2.4.1+cu124
+end=2026-11-16T09:27:21+09:00

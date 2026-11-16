@@ -1,0 +1,14 @@
+job=16741 array=none step=162 node=g2n01 start=2026-11-16T10:57:49+09:00
+git=f1601b8a83cbc671ba4d20316e079c1ffde2901a branch=ablation-prep
+dirty:  M src/configs/config.py ?? scripts/ablation/ablation_array.sbatch ?? scripts/ablation/arms.py ?? scripts/ablation/dry_run.py ?? scripts/ablation/param_table.py ?? scripts/ablation/seed_runs.py ?? scripts/ablation/sweeps.py ?? scripts/known_answer/ ?? tests/test_card4_ablation_driver.py 
+5d8649cb7de82d777d4678464dc07974cb4db0624ad3f27c819d96a2772b49ea  scripts/ablation/param_table.py
+69747f95f61f564d3b0176f928f3ca96ef06cdef5284f7d6484a224aa1a27bd3  src/models/map_operators.py
+093996a81e813ccaf63ff539c99ef2d70b534c62141dd0ab43876849759d07b3  src/models/sheaf_maps.py
+b55bfd3bacdcae846ec592e0f533fbd9b93a70f47cca2031830e7f523df00128  src/models/h2snn_model.py
+c1ca152ec6dbb01b339382c038485ddfe4b2e86a1ca4b467446101b8f6d9e7fb  src/configs/config.py
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+acm {'full': 488678, 'endpoints': 488691, 'schema': 439526, 'uniform': 417126, 'no_path_cells': 488678, 'closure_only': 488678, 'instance_features': 492774, 'hub_A': 488678, 'covering_only': 488678, 'S2': 400294, 'S0': 400294, 'direction_blind_maps': 488678, 'free_cell_maps': 552806, 'geometry_context_off': 357606, 'h0_only': 484581, 'appendix_full': 881894, 'appendix_endpoints': 881458} endpoints g vs full: 0.0002
+dblp {'full': 359895, 'endpoints': 359908, 'schema': 310743, 'uniform': 288343, 'no_path_cells': 359895, 'closure_only': 359895, 'instance_features': 363991, 'hub_A': 359895, 'covering_only': 359895, 'S2': 288887, 'S0': 288887, 'direction_blind_maps': 359895, 'free_cell_maps': 415831, 'geometry_context_off': 261591, 'h0_only': 355798, 'appendix_full': 654807, 'appendix_endpoints': 654422} endpoints g vs full: 0.0002
+imdb {'full': 792248, 'endpoints': 792261, 'schema': 743096, 'uniform': 720696, 'no_path_cells': 792248, 'closure_only': 792248, 'instance_features': 796344, 'hub_A': 792248, 'covering_only': 792248, 'S2': 721240, 'S0': 721240, 'direction_blind_maps': 792248, 'free_cell_maps': 848184, 'geometry_context_off': 693944, 'h0_only': 788151, 'appendix_full': 1087160, 'appendix_endpoints': 1086775} endpoints g vs full: 0.0002
+freebase {'full': 7089226, 'endpoints': 7089239, 'schema': 7040074, 'uniform': 7017674, 'no_path_cells': 7089226, 'closure_only': 7089226, 'instance_features': 7093322, 'hub_A': 7089226, 'covering_only': 7089226, 'S2': 6444810, 'S0': 6444810, 'direction_blind_maps': 7089226, 'free_cell_maps': 7415498, 'geometry_context_off': 5909578, 'h0_only': 7085129, 'appendix_full': 10628170, 'appendix_endpoints': 10622188} endpoints g vs full: 0.0002
+end=2026-11-16T10:58:31+09:00 exit=0

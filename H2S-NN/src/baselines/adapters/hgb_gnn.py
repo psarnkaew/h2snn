@@ -59,6 +59,13 @@ SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Part 2 E1 (author decision S1): the H2GB NC datasets, on H2GB's `hgt` sampler with H2GB's own YAML fan-out of
+#: this method and dataset (`src/baselines/minibatch.py`).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
+#: Large LP (card 1b E4; card 1c F7, decisions D2, G-8, G-10): ogbn-mag P-P with the link sampler and H2GB's per-hop
+#: list, H-Pokec U-U with H2GB's hgt sampler and its per-type lists, seeded by the step's endpoints.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _build_dgl_graph(view: Any, device: torch.device) -> Any:
@@ -98,9 +105,9 @@ class HGBHomogeneousAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in SUPPORTED_DATASETS
+            return dataset in SUPPORTED_DATASETS or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -133,6 +140,15 @@ class HGBHomogeneousAdapter:
             return space
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(self.name, task, dataset, "search space not defined yet")
+        if dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space = {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "hidden_dim": {"values": [64, 128, 256]},
+                     "dropout": grids.DROPOUT, "num_layers": {"values": [2, 3]},
+                     "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
+            if self.model_type == "gat":
+                space["num_heads"] = {"values": [4, 8]}
+            return space
         space: dict[str, Any] = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -160,6 +176,8 @@ class HGBHomogeneousAdapter:
         seed: int,
         device: torch.device,
     ) -> dict[str, float]:
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            return self._fit_large_lp(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task == GRAPH_CLASSIFICATION:
@@ -170,6 +188,8 @@ class HGBHomogeneousAdapter:
             raise UnsupportedCell(
                 self.name, task, bundle.dataset, "unsupported task"
             )
+        if bundle.dataset in H2GB_DATASETS:
+            return self._fit_h2gb(bundle, params, seed=seed, device=device)
 
         # DGL ships separate CPU and CUDA builds; fall back rather than crash if this
         # environment has the CPU one. Recorded on the run record so a slow cell is
@@ -253,6 +273,85 @@ class HGBHomogeneousAdapter:
         record["device"] = device.type
         return record
 
+
+    def build_hgb_model(self, in_dims: list[int], num_classes: int, params: BaselineParams) -> torch.nn.Module:
+        """HGB's GCN / GAT (`HGB/NC/benchmark/methods/GNN/GNN.py`) with a placeholder graph; `model.g` is set per
+        batch (the model reads `self.g` in its forward, `GNN.py:52-54, 88-89`)."""
+        import dgl
+        import torch.nn.functional as F
+
+        hidden_dim = int(params.get("hidden_dim", 64))
+        num_layers = int(params.get("num_layers", 2))
+        dropout = float(params.get("dropout", 0.5))
+        placeholder = dgl.graph(([], []), num_nodes=0)
+        with pushd_sys_path(VENDOR):
+            from GNN import GAT, GCN  # type: ignore[import-not-found]
+
+            if self.model_type == "gat":
+                heads = [int(params.get("num_heads", 8))] * num_layers + [1]
+                return GAT(placeholder, in_dims, hidden_dim, num_classes, num_layers, heads, F.elu, dropout, dropout,
+                           float(params.get("slope", 0.05)), False)
+            return GCN(placeholder, in_dims, hidden_dim, num_classes, num_layers, F.elu, dropout)
+
+    @staticmethod
+    def hgb_forward(model: torch.nn.Module, inputs: list[torch.Tensor], edge_index: torch.Tensor,
+                    num_nodes: int) -> torch.Tensor:
+        import dgl
+
+        model.g = dgl.graph((edge_index[0], edge_index[1]), num_nodes=num_nodes, device=edge_index.device)
+        return model(inputs)
+
+    def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
+                  device: torch.device) -> dict[str, float]:
+        """Part 2 E1: HGB's model on H2GB's `hgt` batches, H2GB's YAML fan-out of this method (S1)."""
+        from src.baselines.minibatch import fit_homogeneous_on_hgt
+
+        device = resolve_dgl_device(device)
+        record = fit_homogeneous_on_hgt(
+            bundle, params, fanout_method=self.name, seed=seed, device=device,
+            build_model=lambda dims, classes: self.build_hgb_model(dims, classes, params),
+            forward=self.hgb_forward)
+        record["params_source"] = params.source
+        record["device"] = device.type
+        return record
+
+    def build_lp_encoder(self, in_dims: list[int], params: BaselineParams) -> torch.nn.Module:
+        """HGB's link-prediction GCN / GAT (`HGB/LP/benchmark/methods/GNN/GNN.py`), the local-LP encoder; its own
+        decoder is not used (the shared head scores the links)."""
+        hidden_dim = int(params.get("hidden_dim", 64))
+        num_layers = int(params.get("num_layers", 2))
+        dropout = float(params.get("dropout", 0.5))
+        decoder_type = str(params.get("decoder_type", "dot"))
+        with pushd_sys_path(VENDOR_LP), legacy_conv_attrs():
+            from GNN import GAT, GCN  # type: ignore[import-not-found]
+
+            if self.model_type == "gat":
+                heads = [int(params.get("num_heads", 8))] * max(num_layers - 1, 1) + [1]
+                return GAT(in_dims, hidden_dim, n_layers=num_layers, dropout=dropout, heads=heads,
+                           decoder=decoder_type, rel_num=1)
+            return GCN(in_dims, hidden_dim, n_layers=num_layers, dropout=dropout, decoder=decoder_type, rel_num=1)
+
+    def build_large_lp(self, d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+        """The local-LP encoder on HGB's reduction of each sampled batch (card 1c F7)."""
+        from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler, homogeneous_embed
+        from src.baselines.minibatch import h2gb_input_dims
+
+        node_types, counts, dims = h2gb_input_dims(d.graph)
+        sampler = sampler or h2gb_sampler(self.name, d.task, node_types)
+        encoder = self.build_lp_encoder(dims, params)
+        embed = homogeneous_embed(encoder, node_types, counts, d.node_type,
+                                  lambda model, inputs, edge_index, n: model.encode((inputs, edge_index)), device)
+        return LargeLPModel(encoder, embed, int(params.get("hidden_dim", 64))), sampler
+
+    def _fit_large_lp(self, bundle: Any, params: BaselineParams, *, seed: int, device: torch.device
+                      ) -> dict[str, float]:
+        """Card 1b E4 / 1c F7: the large-LP loop (`large_lp_training.fit_large_lp`)."""
+        from src.baselines.large_lp_training import fit_large_lp
+
+        record = fit_large_lp(bundle, params, seed=seed, device=device,
+                              build=lambda d: self.build_large_lp(d, params, device))
+        record["params_source"] = params.source
+        return record
 
     def _fit_link_prediction(
         self,

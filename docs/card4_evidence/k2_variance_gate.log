@@ -1,0 +1,19 @@
+job=16741 array=none step=124 node=g2n01 start=2026-11-16T09:51:07+09:00
+git=88e6500c146f4bd768782c2b918a42cca5552382 branch=ablation-prep
+dirty: ?? scripts/ablation/ 
+fd35bb09af00cc1960c25210632959fb9f9124e60a0f44722099d67a99f67d46  scripts/ablation/variance_gate.py
+69747f95f61f564d3b0176f928f3ca96ef06cdef5284f7d6484a224aa1a27bd3  src/models/map_operators.py
+093996a81e813ccaf63ff539c99ef2d70b534c62141dd0ab43876849759d07b3  src/models/sheaf_maps.py
+b55bfd3bacdcae846ec592e0f533fbd9b93a70f47cca2031830e7f523df00128  src/models/h2snn_model.py
+f380f0f6b36b0f5b19b5c0b9879a129f9a618eb60db71a5558b909a40eff7e97  src/configs/config.py
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+2026-11-16 09:51:11,292 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-16 09:52:28,099 | INFO | Early stopping at epoch 54 after 30 epochs without validation macro_f1 improvement.
+uniform {"V": 158250.1109375, "draw_seconds_median": 0.253786682151258, "cells_per_draw_mean": 40871.9}
+adaptive {"V": 30516.2609375, "draw_seconds_median": 0.22645645681768656, "cells_per_draw_mean": 27866.9}
+{
+ "checkpoint_epoch": 24,
+ "ratio": 0.19283563693394332,
+ "verdict": "ratio <= 0.8: adaptive passes the gate -> author decision (stop item)"
+}
+end=2026-11-16T09:52:43+09:00 exit=0

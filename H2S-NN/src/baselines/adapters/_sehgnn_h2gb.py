@@ -79,14 +79,26 @@ def merged_relations(data: Any, letters: dict[str, str]) -> dict[tuple[str, str,
     return out
 
 
-def node_inputs(data: Any, embed_size: int, seed: int) -> dict[str, torch.Tensor]:
-    """Each type's `x`, or their fixed random-uniform(-0.5, 0.5) vectors for a featureless type."""
+#: Card 1c F3 (decision G-4): on ogbn-mag / mag-year their README's "without extra embeddings" command feeds author,
+#: field and institution with random-uniform(-0.5, 0.5) vectors of `embed_size` (`ogbn/utils.py:352-354`), not with
+#: the graph's (H2GB's averaged) features; stated.
+MAG_RANDOM_TYPES: dict[str, frozenset[str]] = {
+    "ogbn-mag": frozenset({"author", "field_of_study", "institution"}),
+    "mag-year": frozenset({"author", "field_of_study", "institution"}),
+}
+
+
+def node_inputs(data: Any, embed_size: int, seed: int, random_types: frozenset[str] = frozenset()
+                ) -> dict[str, torch.Tensor]:
+    """Each type's `x`, or their fixed random-uniform(-0.5, 0.5) vectors for a featureless type or a type in
+    `random_types` (their MAG branch)."""
     generator = torch.Generator().manual_seed(int(seed))
     inputs = {}
     for node_type in data.node_types:
         x = data[node_type].get("x")
-        inputs[node_type] = x if x is not None else (
-            torch.rand(int(data[node_type].num_nodes), embed_size, generator=generator) - 0.5)
+        if x is None or node_type in random_types:
+            x = torch.rand(int(data[node_type].num_nodes), embed_size, generator=generator) - 0.5
+        inputs[node_type] = x
     return inputs
 
 

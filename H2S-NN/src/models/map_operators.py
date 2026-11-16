@@ -349,14 +349,85 @@ class DenseMapOperator:
         )
 
 
+class IdentityMapOperator:
+    """Arm "maps = I" (spec 1.23 X-11, card 4 K1: S2 = `full`, S0 = `no_path_cells`): every fact map
+    is `F_e = c_e I`, so its orthogonal factor is the identity and every transport
+    `T_{v,f} = Q_1 ... Q_i = I`. Only the per-edge scale `[E]` is stored (the fact weight
+    `a_e = c_e^2` is unchanged); nothing `[E, d]` or `[E, d, d]` is built, and the orthogonal
+    applications return their input unchanged, so the transports are exactly the identity.
+    """
+
+    def __init__(self, scale: torch.Tensor, d: int) -> None:
+        if scale.dim() != 1:
+            raise ValueError(f"scale must be [E], got {tuple(scale.shape)}.")
+        if d < 1:
+            raise ValueError(f"d must be positive, got {d}.")
+        self.scale = scale
+        self._d = int(d)
+
+    @property
+    def num_edges(self) -> int:
+        return int(self.scale.size(0))
+
+    @property
+    def d(self) -> int:
+        return self._d
+
+    def stored_elements(self) -> int:
+        """Only the scale: `E` elements."""
+        return int(self.scale.numel())
+
+    def select(self, rows: torch.Tensor) -> "IdentityMapOperator":
+        return IdentityMapOperator(self.scale.index_select(0, rows.reshape(-1)), self._d)
+
+    def _check_input(self, x: torch.Tensor) -> None:
+        if x.dim() < 2 or x.size(0) != self.num_edges or x.size(-1) != self._d:
+            raise ValueError(
+                f"expected [{self.num_edges}, ..., {self._d}] input, got {tuple(x.shape)}."
+            )
+
+    def apply(self, x: torch.Tensor) -> torch.Tensor:
+        """`F_e x_e = c_e x_e`."""
+        self._check_input(x)
+        return _broadcast_rows(self.scale, x) * x
+
+    def apply_T(self, y: torch.Tensor) -> torch.Tensor:
+        self._check_input(y)
+        return _broadcast_rows(self.scale, y) * y
+
+    def apply_inverse(self, y: torch.Tensor) -> torch.Tensor:
+        self._check_input(y)
+        return y / _broadcast_rows(self.scale, y)
+
+    def apply_inverse_T(self, y: torch.Tensor) -> torch.Tensor:
+        self._check_input(y)
+        return y / _broadcast_rows(self.scale, y)
+
+    def apply_orthogonal(self, x: torch.Tensor) -> torch.Tensor:
+        """The orthogonal factor is `I`: `x` itself (exact)."""
+        self._check_input(x)
+        return x
+
+    def apply_orthogonal_T(self, y: torch.Tensor) -> torch.Tensor:
+        self._check_input(y)
+        return y
+
+    def materialize(self) -> torch.Tensor:
+        """Dense `[E, d, d]` maps `c_e I`. Tests only."""
+        eye = torch.eye(self._d, dtype=self.scale.dtype, device=self.scale.device)
+        return self.scale.view(-1, 1, 1) * eye
+
+
 def _mix_rows(
-    first: FactorizedMapOperator | DenseMapOperator,
-    second: FactorizedMapOperator | DenseMapOperator,
+    first: FactorizedMapOperator | DenseMapOperator | IdentityMapOperator,
+    second: FactorizedMapOperator | DenseMapOperator | IdentityMapOperator,
     take_second: torch.Tensor,
-) -> FactorizedMapOperator | DenseMapOperator:
+) -> FactorizedMapOperator | DenseMapOperator | IdentityMapOperator:
     """Row-wise choice between two operators over the same rows: row `p` is `second`'s map
     where `take_second[p]`, else `first`'s. Used for hops traversed against their stored
     direction, whose near side is the target role."""
+    if isinstance(first, IdentityMapOperator):
+        return IdentityMapOperator(torch.where(take_second, second.scale, first.scale), first.d)
     if isinstance(first, DenseMapOperator):
         pick = take_second.view(-1, 1, 1)
         scale = None if first.scale is None else torch.where(take_second, second.scale,

@@ -1,0 +1,12 @@
+{
+ "task": "S1'-B",
+ "arm": "covering_only + oracle",
+ "beta": "log512",
+ "seed": 1,
+ "n": 2000,
+ "status": "failed",
+ "stop": "T_max (backward PCG, epoch 90)",
+ "detail": "src.models.anchored_solve.PCGConvergenceError: backward PCG reached T_max = 100; worst relative residual 1.010e-04 (tolerance 1e-4). The spec §6 stop condition fired in the training step of epoch 90 (91 epochs logged); the run is recorded as failed (spec v1.16 K5), the solver settings are fixed (never tuned) and the run is not repeated with other settings. No accuracy is taken from its partial checkpoint.",
+ "log": "H2S-NN/logs/k3_task15.log (job 16741, g2n01; git f1601b8, scripts/known_answer as committed in K3)",
+ "slurm_job": "16741"
+}

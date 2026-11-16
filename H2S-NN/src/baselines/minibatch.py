@@ -179,32 +179,36 @@ def eval_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str,
                       steps=eval_steps(count, batch_size), num_workers=num_workers)
 
 
-def seed_rows(batch: Any, target_type: str) -> tuple[torch.Tensor, torch.Tensor]:
-    """(global ids, labels) of a batch's seed targets: the first `batch_size` rows of the target type."""
+def seed_rows(batch: Any, target_type: str, labels: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
+    """(global ids, labels) of a batch's seed targets: the first `batch_size` rows of the target type. With `labels`
+    (all target nodes' true labels) they are read by global id, not from the batch (an adapter whose input channel
+    rewrites `y` in the graph, e.g. H2G-former's training-labels-only channel, part 2 E1)."""
     size = int(batch[target_type].batch_size)
-    return batch[target_type].n_id[:size], batch[target_type].y[:size]
+    ids = batch[target_type].n_id[:size]
+    return ids, (batch[target_type].y[:size] if labels is None else labels[ids.to(labels.device)])
 
 
 def evaluate_split(loader: Any, forward_seeds: Callable[[Any], torch.Tensor], target_type: str,
-                   expected: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+                   expected: torch.Tensor, labels: torch.Tensor | None = None
+                   ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """(ids, logits, labels) of every target of the split, in the loader's order; refuses a pass that does not
     cover `expected` (global ids) exactly once."""
-    ids, logits, labels = [], [], []
+    ids, logits, label_rows = [], [], []
     with torch.no_grad():
         for batch in loader:
-            batch_ids, batch_labels = seed_rows(batch, target_type)
+            batch_ids, batch_labels = seed_rows(batch, target_type, labels)
             out = forward_seeds(batch)
             if out.size(0) != batch_ids.numel():
                 raise RuntimeError(f"forward returned {out.size(0)} rows for {batch_ids.numel()} seed targets.")
             ids.append(batch_ids.cpu())
             logits.append(out)
-            labels.append(batch_labels)
+            label_rows.append(batch_labels)
     all_ids = torch.cat(ids) if ids else torch.empty(0, dtype=torch.long)
     if all_ids.numel() != expected.numel() or not torch.equal(torch.sort(all_ids).values,
                                                               torch.sort(expected.cpu().long()).values):
         raise RuntimeError(f"evaluation covered {all_ids.numel()} targets ({torch.unique(all_ids).numel()} "
                            f"distinct); the split has {expected.numel()}.")
-    return all_ids, torch.cat(logits), torch.cat(labels)
+    return all_ids, torch.cat(logits), torch.cat(label_rows)
 
 
 def train_minibatch_node_classification(
@@ -221,6 +225,7 @@ def train_minibatch_node_classification(
     criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
     plan: MinibatchPlan,
     report: Any = None,
+    labels: torch.Tensor | None = None,
 ) -> dict[str, float]:
     """The shared H2GB NC loop: `plan.steps_per_epoch` steps per epoch (loss = mean over the step's B targets),
     evaluation on whole splits by H2GB's eval-epoch rule, the best validation macro-F1 epoch kept, no early stop."""
@@ -237,18 +242,18 @@ def train_minibatch_node_classification(
     for epoch in range(plan.epochs):
         model.train()
         for batch in train_loader:
-            _, labels = seed_rows(batch, target_type)
+            _, batch_labels = seed_rows(batch, target_type, labels)
             optimizer.zero_grad()
             logits = forward_seeds(batch)
-            loss = criterion(logits, labels.to(logits.device))
+            loss = criterion(logits, batch_labels.to(logits.device))
             check_finite_loss(loss, epoch)
             loss.backward()
             optimizer.step()
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
-        _, val_logits, val_labels = evaluate_split(val_loader, forward_seeds, target_type, val_ids)
-        _, test_logits, test_labels = evaluate_split(test_loader, forward_seeds, target_type, test_ids)
+        _, val_logits, val_labels = evaluate_split(val_loader, forward_seeds, target_type, val_ids, labels)
+        _, test_logits, test_labels = evaluate_split(test_loader, forward_seeds, target_type, test_ids, labels)
         val_metrics = classification_metrics(val_logits, val_labels.to(val_logits.device), is_multilabel=False)
         test_metrics = classification_metrics(test_logits, test_labels.to(test_logits.device), is_multilabel=False)
         if val_metrics["macro_f1"] > best_monitor:
@@ -352,9 +357,80 @@ def train_index_minibatch(
     return node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
 
 
+
+def batch_type_inputs(batch: Any, node_types: tuple[str, ...], num_nodes: dict[str, int]) -> list[torch.Tensor]:
+    """Per-type input rows of a sampled batch in `node_types` order: the type's `x`, or the one-hot rows of its sampled
+    node ids for a featureless type (HGB's identity encoding of attribute-less types, `bundles.build_homogeneous_view`;
+    H2GB's rule for such types is a learned per-node vector, the same thing under a linear input layer)."""
+    rows = []
+    for node_type in node_types:
+        store = batch[node_type]
+        x = store.get("x")
+        if x is None:
+            ids = store.n_id
+            x = torch.zeros(ids.numel(), num_nodes[node_type])
+            x[torch.arange(ids.numel()), ids] = 1.0
+        rows.append(x)
+    return rows
+
+
+def h2gb_input_dims(data: Any) -> tuple[tuple[str, ...], dict[str, int], list[int]]:
+    """(node types in H2GB's order, node counts, input width per type: `x`'s width or the node count)."""
+    node_types = tuple(data.node_types)
+    counts = {t: int(data[t].num_nodes) for t in node_types}
+    dims = [int(data[t].x.size(1)) if data[t].get("x") is not None else counts[t] for t in node_types]
+    return node_types, counts, dims
+
+
+
+def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed: int, device: torch.device,
+                           build_model: Callable[[list[int], int], torch.nn.Module],
+                           forward: Callable[[torch.nn.Module, list[torch.Tensor], torch.Tensor, int], torch.Tensor],
+                           criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] | None = None
+                           ) -> dict[str, float]:
+    """A model that consumes HGB's homogeneous reduction (GCN, GAT; NSD, CSNN) trained on H2GB's `hgt` batches with
+    the YAML fan-out of `fanout_method` on the dataset, unchanged (author decision S1, part 2): each batch's subgraph is
+    reduced as HGB reduces a graph (`hgb_homogeneous_batch`), `forward(model, per-type inputs, edge_index, num_nodes)`
+    returns rows for every node, the seed targets' rows are kept."""
+    from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+    from src.utils.misc import seed_everything
+
+    seed_everything(seed, device)
+    data = h2gb_graph(bundle)
+    target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+    node_types, counts, dims = h2gb_input_dims(data)
+    fanout = h2gb_sample_sizes(fanout_method, bundle.dataset, node_types)
+    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+    labels = data[target].y.long()
+    num_classes = int(labels.max()) + 1
+    model = build_model(dims, num_classes).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-4)),
+                                  weight_decay=float(params.get("weight_decay", 1e-4)))
+
+    def forward_seeds(batch: Any) -> torch.Tensor:
+        inputs = [x.to(device) for x in batch_type_inputs(batch, node_types, counts)]
+        _, edge_index, offsets = hgb_homogeneous_batch(batch, node_types)
+        out = forward(model, inputs, edge_index.to(device), sum(x.size(0) for x in inputs))
+        start = offsets[target][0]
+        return out[start:start + int(batch[target].batch_size)]
+
+    record = train_minibatch_node_classification(
+        model=model, forward_seeds=forward_seeds,
+        train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
+                                steps=plan.steps_per_epoch),
+        val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
+        test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
+        val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        target_type=target, optimizer=optimizer, criterion=criterion or torch.nn.functional.cross_entropy,
+        plan=plan, report=getattr(params, "report", None), labels=labels)
+    record["batch_size"] = float(plan.batch_size)
+    record["sampler_depth"] = float(max(len(v) for v in fanout.values()))
+    return record
+
+
 __all__ = [
-    "CLASS_C_REFERENCE_METHOD", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "eval_loader",
-    "eval_steps", "evaluate_split", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
+    "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "eval_loader",
+    "eval_steps", "evaluate_split", "fit_homogeneous_on_hgt", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
     "is_eval_epoch", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
     "train_minibatch_node_classification",
 ]

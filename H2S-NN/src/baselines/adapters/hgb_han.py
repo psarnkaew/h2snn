@@ -75,6 +75,14 @@ VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Fre
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Part 2 E1 (author decisions S1, S5): HAN on the H2GB NC datasets as H2GB runs it -- H2GB's `HeteroGNNModel` with
+#: PyG `HANConv` on the raw relations (`hetero_gnn_model.py:127-129`), its own YAML (`<dataset>-HAN.yaml`), on H2GB's
+#: `hgt` batches with that YAML's fan-out; semantic attention averages over the sampled subgraph (stated).
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+READS_BATCH_PLAN = True
+#: Card 1c F7 (G-10): large LP with H2GB's HAN on H2GB's hgt sampler seeded by each step's endpoints (its head reads
+#: the seed rows), H2GB's per-type lists unchanged.
+LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _load_vendor_graph(dataset: str, root: Path) -> tuple[Any, ...]:
@@ -102,9 +110,9 @@ class HANAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in VENDOR_DATASET
+            return dataset in VENDOR_DATASET or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_DATASETS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -112,6 +120,13 @@ class HANAdapter:
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task not in (NODE_CLASSIFICATION, LINK_PREDICTION, GRAPH_CLASSIFICATION):
             raise UnsupportedCell(NAME, task, dataset, "unsupported task")
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY,
+                    "hidden_dim": {"values": [64, 128, 256, 512]}, "dropout": grids.DROPOUT,
+                    "num_layers": {"values": [2, 3, 4]}, "num_heads": {"values": [4, 8]},
+                    "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -142,10 +157,19 @@ class HANAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
+            from src.baselines.large_lp_training import fit_large_lp
+
+            record = fit_large_lp(bundle, params, seed=seed, device=device,
+                                  build=lambda d: build_large_lp(d, params, device))
+            record["params_source"] = params.source
+            return record
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            return fit_h2gb_han(bundle, params, seed=seed, device=device)
 
         device = resolve_dgl_device(device)
         seed_everything(seed, device)
@@ -358,6 +382,69 @@ class HANAdapter:
         record["num_relation_keys"] = float(num_relations)
         record["readout"] = "shared_mean_pool_linear"
         return record
+
+
+def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
+    """Card 1c F7: H2GB's HAN (`HeteroGNNModel`, its HAN YAML on the task's NC dataset) with `embed_dim` outputs; the
+    seed rows of its head are the endpoints' embeddings."""
+    from src.baselines.adapters._h2gb_network import build_hetero_gnn, configure_from_yaml, seed_predictions
+    from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
+    from src.baselines.large_lp_training import LargeLPModel, h2gb_sampler
+    from src.data.large_lp import LARGE_LP_TASKS
+
+    graph, node_type = d.graph, d.node_type
+    sampler = sampler or h2gb_sampler(NAME, d.task, tuple(graph.node_types), force_hgt=True)
+    if graph[node_type].get("y") is None:  # H2GB's head returns `y` beside the prediction; nothing reads it
+        graph[node_type].y = torch.zeros(int(graph[node_type].num_nodes), dtype=torch.long)
+    embed_dim = int(params.get("embed_dim", 64))
+    ensure_pyg_submodules()
+    with pushd_sys_path("h2gb"):
+        configure_from_yaml(NAME, LARGE_LP_TASKS[d.task].nc_dataset, graph, node_type, device, {
+            "gnn.dim_inner": int(params.get("hidden_dim", 64)), "gnn.layers_mp": int(params.get("num_layers", 2)),
+            "gnn.dropout": float(params.get("dropout", 0.2)), "gnn.attn_heads": int(params.get("num_heads", 8)),
+            "train.sampler": "hgt"})
+        model = build_hetero_gnn(graph, d.task, embed_dim).to(device)
+    return LargeLPModel(model, lambda batch, train: seed_predictions(model, batch.to(device), node_type),
+                        embed_dim), sampler
+
+
+def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
+    """Part 2 E1: H2GB's HAN on H2GB's `hgt` batches (S1, S5)."""
+    from src.baselines.adapters._h2gb_network import build_hetero_gnn, configure_from_yaml, seed_predictions
+    from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
+    from src.baselines.minibatch import (eval_loader, h2gb_graph, h2gb_sample_sizes, hgt_loader, minibatch_plan,
+                                         train_minibatch_node_classification)
+    from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+    seed_everything(seed, device)
+    data = h2gb_graph(bundle)
+    target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+    fanout = h2gb_sample_sizes(NAME, bundle.dataset, tuple(data.node_types))
+    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+    labels = data[target].y.long()
+    num_classes = int(labels.max()) + 1
+    loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
+               eval_loader(data, fanout, target, "val", plan.batch_size),
+               eval_loader(data, fanout, target, "test", plan.batch_size))
+    ensure_pyg_submodules()
+    with pushd_sys_path("h2gb"):  # the cfg is configured last: H2GB's model reads it in its forward
+        configure_from_yaml(NAME, bundle.dataset, data, target, device, {
+            "gnn.dim_inner": int(params.get("hidden_dim", 64)), "gnn.layers_mp": int(params.get("num_layers", 2)),
+            "gnn.dropout": float(params.get("dropout", 0.2)), "gnn.attn_heads": int(params.get("num_heads", 8)),
+            "train.sampler": "hgt"})
+        torch.manual_seed(seed)
+        model = build_hetero_gnn(data, bundle.dataset, num_classes).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-4)),
+                                  weight_decay=float(params.get("weight_decay", 1e-4)))
+    record = train_minibatch_node_classification(
+        model=model, forward_seeds=lambda batch: seed_predictions(model, batch.to(device), target),
+        train_loader=loaders[0], val_loader=loaders[1], test_loader=loaders[2],
+        val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        target_type=target, optimizer=optimizer, criterion=torch.nn.functional.cross_entropy, plan=plan,
+        report=params.report, labels=labels)
+    record["params_source"] = params.source
+    record["batch_size"] = float(plan.batch_size)
+    return record
 
 
 ADAPTER = HANAdapter()

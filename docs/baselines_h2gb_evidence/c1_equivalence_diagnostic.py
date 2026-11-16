@@ -18,8 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "H2S-NN"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tests.test_baselines_minibatch import full_fanout, synthetic_hetero  # noqa: E402
-from c1_equivalence_tests import (_H2GBHAN, build_hgb_gcn, gcn_full,  # noqa: E402
-                                                        gcn_seeds)
+# part 2 E1: the reproducer moved to tests/test_baselines_minibatch_equivalence.py (GCN only); the HAN
+# model of this diagnostic was defined in its part 1 version (git show 6ba6dec:docs/baselines_h2gb_evidence/c1_equivalence_tests.py)
+from tests.test_baselines_minibatch_equivalence import build_hgb_gcn, gcn_full, gcn_seeds  # noqa: E402
 from src.baselines.minibatch import eval_loader  # noqa: E402
 
 
