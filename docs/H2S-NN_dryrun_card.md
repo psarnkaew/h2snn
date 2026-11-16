@@ -44,6 +44,20 @@ Run `scripts/heterophily/compute_heterophily.py` as spec §1 and card M2 define 
 - **Dry run:** both cells as D2's Rule (largest memory point; status, memory, time; no metric). OOM recorded, not fixed.
 **Stop:** the bundle cannot be called without editing `src/baselines/`; a held-out positive reaches a scope; a full-batch or local-LP output changes.
 
+### D6 — Review follow-up (added 2026-11-16 after the card 2 review of `9d48ca4`; author decisions B1a, B2a, 1–9 in the decisions log row "Card 2 review")
+On `dry-run` from `9d48ca460d9594fce556e20f550d151a3a86bc4f`. Report: section "D6" appended to `docs/H2S-NN_dryrun_report.md`; evidence `docs/dryrun_evidence/d6_*`. D2's Rule applies (no metric; 24 GB GPU not shared with another session; job scripts print HEAD, hostname, job id).
+1. **Merge** the pinned `design-docs` SHA, then the current `origin/v3b` (merge, never rebase). Stop on a conflict outside generated notebooks/counts.
+2. **Re-run the baseline dry run** (D2 Rule, largest point) for every cell of `d5_ready_baselines.txt` and every step-down "fits" cell, on the merged code; update the ready list (`d6_ready_baselines.txt`, same format).
+3. **OOM rule (decision 1):** for each cell still OOM, step down one grid step at a time (the axis of D2's step-down; at its minimum, the next memory axis of `search_grids.py` / the H2S-NN sweep) until it fits on 24 GB; record the largest fitting point per cell (`d6_ranges.md`: cell, axis, full range, fitting range). H2S-NN Freebase NC: mini-batch mode at B 1024 (spec rule), then the same rule. No A6000.
+4. **Central-point timing (decision B2a):** for H2S-NN on the H2GB NC cells and the 4 GC cells, and for every baseline cell that is OK on H2GB NC and GC: one epoch + one full validation pass at the **central point** of the cell's search space (each numeric axis at the middle value of its grid, the lower middle for an even count; log-uniform axes at the geometric middle; categoricals at the adapter's default). Record train-epoch time, validation time and the number of validation targets (so time per target can be scaled to the B1a subset). No metric.
+5. **H2SGNN LP freebase_bb:** one real-data run with `CUDA_LAUNCH_BLOCKING=1`; record the failing kernel and its first file:line. No fix (session 1).
+6. **H-Pokec H2S-NN (decision 3):** check the nodes' RAM (`sinfo -o "%n %m"`); run at 60G host on a 24 GB node if one has the RAM, else on g3an01; record.
+7. **Batch-size axis (decision 4):** add `data.batch_size` ∈ {32, 256, 1024} to H2S-NN's sweep for the H2GB NC datasets only (where the sweep is defined); one test: present for H2GB NC, absent elsewhere; fix the D1 config comments that call 32 "the batch size of every trial".
+8. **Baseline final seeds (decision 6):** `run_baseline_tuning.py` gains a final-seeds step as H2S-NN's `--final_seeds` (the best configuration of a finished sweep by its validation monitor, rerun on the same seed list as H2S-NN's final seeds, the same budget, nothing re-tuned). One synthetic test: the best trial is selected by the monitor and its parameters are used unchanged for each seed; mutation: select by the last trial → fails.
+9. Full suite once on one node (pinned kernel environment E); golden/mb0 as part of the suite. Report D6 short (tables), last line `branch=dry-run sha=<full head> card=docs/H2S-NN_dryrun_card.md base=9d48ca460d9594fce556e20f550d151a3a86bc4f`.
+**Not here:** D4b (next prompt), the B1a validation subset (card 5 pre-freeze), any fix of baseline code (session 1), any metric.
+**Stop:** merge conflict outside counts/notebooks; a cell that ran OK at D2 now errors (record, stop that cell, continue the others); the suite fails.
+
 ### D5 — Suite and report
 Full suite once on one node. Report short: cell table (summary counts and the non-OK rows), fixes with their tests and commits, OOM cells with the memory needed and the GPU tried, the Monday commands, heterophily table location, decisions for the author. Last line: `branch=dry-run sha=<full head sha> card=docs/H2S-NN_dryrun_card.md base=<pinned v3b sha>` (full SHA in the report if you can, else in the final message).
 
