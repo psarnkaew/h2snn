@@ -1,0 +1,18 @@
+HEAD 2c66ffbbe507bc172c7e1912a4057cd504bc2ad8 host g2n01 job 16741
+before:
+dgl==2.4.0+cu124
+numpy==2.4.6
+torch==2.4.1+cu124
+torch-geometric==2.8.0
+torch_scatter==2.1.2+pt24cu124
+torch_sparse==0.6.18+pt24cu124
+Downloading StrEnum-0.4.15-py3-none-any.whl (8.9 kB)
+Installing collected packages: strenum
+Successfully installed strenum-0.4.15
+diff of pip freeze (before -> after):
+81a82
+> StrEnum==0.4.15
+pip check:
+dgl 2.4.0+cu124 has requirement torch<=2.4.0, but you have torch 2.4.1+cu124.
+strenum /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/strenum/__init__.py
+torch 2.4.1+cu124 pyg 2.8.0 dgl 2.4.0+cu124
