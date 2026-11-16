@@ -25,6 +25,16 @@ Validation from the copy hiding validation + test labels; test unchanged. **Test
 ### H3 — Hetero²Net on ogbn-mag, mag-year, ogbn-mag P–P (G-5, waiting cells of card 1c)
 Use the zip as their code does (read, do not unzip into git; sha256 checked at first use as card 1c set up). Flip the 3 cells. **Test:** one step finite and moves on a MAG-typed synthetic graph with the embedding path exercised (a small fake embedding file in the fixture; the real file is never read by a test).
 
+### H3b — Baseline blockers found by the dry run (added 2026-11-16; card 2 D2, `dry-run` worktree `docs/dryrun_evidence/cells.csv`, base older than `2ef9cac`)
+First check each on `baselines-h2gb-4` (some may already be fixed by cards 1b/1c); fix the rest following the source's code, each with one synthetic test that reproduces the error (dry-run rule). No real-data run here; card 2 re-runs these cells after the merge.
+| Cell(s) | Error (first file:line) |
+|---|---|
+| HAN NC imdb | `hgb_han.py:153` (`fit_task`): too many values to unpack (expected 11) |
+| HINormer NC freebase | `training.py:81` → DGL `graphconv.py:408`: 0-in-degree nodes (follow HINormer's own handling of self-loops) |
+| HAN LP imdb_ma, H2SGNN LP imdb_ma | `_target_block.py:44`: target types actor, movie not contiguous in the flattened layout |
+| H2SGNN LP freebase_bb | CUDA illegal memory access (`torch/cuda/__init__.py:892`); find the kernel with `CUDA_LAUNCH_BLOCKING=1` on a synthetic graph; stop item if it does not reproduce off real data |
+| ChebNetII NC ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem; SeHGNN NC ieee-cis-g | `bundles.py:375` (`_base_config`) → `config.py:1023`: `data.batch_size` required in mini-batch training |
+
 ### H4 — Suite and report
 Notebooks regenerated with the unchanged generator if cell claims change (`--check` after). Full suite on one node. No `src/` change outside `src/baselines/` → no golden/mb0. Report `docs/H2S-NN_baselines_h2gb_part4_report.md`: units table, cell table delta, tests/mutations, deviations, decisions; last line `branch=… sha=… card=… base=…`.
 
