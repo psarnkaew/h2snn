@@ -49,6 +49,8 @@ VENDOR_ROOTS: dict[str, Path] = {
     "hinormer": VENDOR_DIR / "HINormer",
     # CSNN is the legacy homogeneous baseline that used to live at the repository root.
     "csnn": VENDOR_DIR / "csnn",
+    # Card 3 Part A: HetSheaf (package `hetsheaf`, imported through empty package modules; adapters/hetsheaf.py).
+    "hetsheaf": VENDOR_DIR / "Heterogeneous-Sheaf-Neural-Networks",
 }
 
 #: Vendors that ship a properly namespaced package rather than flat top-level modules.
@@ -56,7 +58,7 @@ VENDOR_ROOTS: dict[str, Path] = {
 #: and must be, because re-importing them re-runs their registration decorators. H2GB
 #: raises ``KeyError: Module with 'GraphormerBias' already defined`` on a second import,
 #: which would break any loop that fits the same model twice in one process.
-NAMESPACED_VENDORS = frozenset({"h2gb"})
+NAMESPACED_VENDORS = frozenset({"h2gb", "hetsheaf"})
 
 
 def vendor_path(name: str) -> Path:

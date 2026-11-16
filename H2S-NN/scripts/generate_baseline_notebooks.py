@@ -98,6 +98,7 @@ MODEL_VENDORS: dict[str, tuple[str, ...]] = {
     "chebnetii": ("chebnetii",),
     "h2sgnn": ("h2sgnn",),
     "pshgcn": ("pshgcn", "pshgcn_lp"),
+    "hetsheaf": ("hetsheaf",),  # card 3 A1 (author-approved add-only entry)
 }
 
 #: One line per model, shown above its launch cell so the reader knows what is running.
@@ -114,6 +115,7 @@ MODEL_NOTES: dict[str, str] = {
     "chebnetii": "Polynomial spectral filter over HGB's summed, symmetrised graph.",
     "h2sgnn": "Learns per-meta-path polynomial filters with separately optimised temperature parameters.",
     "pshgcn": "Positive-spectrum heterogeneous graph convolution; its link-prediction vendor file carries a leftover `import dgl`.",
+    "hetsheaf": "HetSheaf's own sheaf encoders (map family and learner tuned) on its own preprocessing, under the shared protocol.",
 }
 
 

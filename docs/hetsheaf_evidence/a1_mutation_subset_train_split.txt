@@ -1,0 +1,26 @@
+job=16741 step=151 node=g2n01 start=2026-11-16T10:28:02+09:00
+git=3cfd4216af35dca86063298377bd35fb55986ee6 branch=hetsheaf
+working tree:  M requirements/baselines-sheaf.txt
+working tree:  M src/baselines/registry.py
+working tree:  M src/baselines/runtime/dependencies.py
+working tree:  M src/baselines/runtime/vendor_paths.py
+00a84b0bcf77d690c4548b4b65200a84761eaa6ee7824b7e57bcff47c29ce9e5  src/baselines/adapters/hetsheaf.py
+  import torch_geometric.typing
+No CUDA runtime is found, using CUDA_HOME='/usr'
+ok
+test_shared_masks_survive_the_chain (tests.test_baselines_hetsheaf.PreprocessingTests.test_shared_masks_survive_the_chain)
+Label-route protection: the shared split comes back unchanged (a split-changing transform such as their ... 
+  test_shared_masks_survive_the_chain (tests.test_baselines_hetsheaf.PreprocessingTests.test_shared_masks_survive_the_chain) (mask='val_mask')
+Label-route protection: the shared split comes back unchanged (a split-changing transform such as their ... FAIL
+======================================================================
+FAIL: test_shared_masks_survive_the_chain (tests.test_baselines_hetsheaf.PreprocessingTests.test_shared_masks_survive_the_chain) (mask='val_mask')
+Label-route protection: the shared split comes back unchanged (a split-changing transform such as their
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_baselines_hetsheaf.py", line 144, in test_shared_masks_survive_the_chain
+    self.assertTrue(torch.equal(getattr(prepared, key), expected))
+AssertionError: False is not true
+----------------------------------------------------------------------
+Ran 2 tests in 5.194s
+FAILED (failures=1)
+exit=1 end=2026-11-16T10:28:09+09:00

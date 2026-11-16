@@ -163,6 +163,15 @@ FREEBASE_VENDOR_REASON = (
     "branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code "
     "has a Freebase branch)")
 
+#: Card 3 Part A: HetSheaf cells wired in later units of the card.
+HETSHEAF_GC_PENDING = "adapter pending: card 3 A2, HetSheaf's GC readouts incl. SheafPool on the shared GC protocol"
+HETSHEAF_H2GB_PENDING = ("adapter pending: card 3 A3, class C (H-4), H2GB's hgt sampler with H2GB's YAML lists (S1), "
+                         "type ids per subgraph")
+HETSHEAF_LARGE_LP_PENDING = "adapter pending: card 3 A3, large LP by D2 on the message graph (H-4)"
+H2GB_NC_ADAPTER_PENDING["hetsheaf"] = HETSHEAF_H2GB_PENDING
+LARGE_LP_ADAPTER_PENDING["hetsheaf"] = HETSHEAF_LARGE_LP_PENDING
+
+
 @dataclass(frozen=True, slots=True)
 class ModelSpec:
     """One baseline row: where its adapter lives and which tasks it covers."""
@@ -211,13 +220,16 @@ MODELS: tuple[ModelSpec, ...] = (
     ModelSpec("hetero2net", "Hetero$^2$Net", HET_HET, "src.baselines.adapters.hetero2net", _ALL),
     ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL,
               unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
+    # Card 3 Part A (H-1..H-4): HetSheaf rerun under the shared protocol (spec v1.22 §6, C7); heterogeneous and
+    # heterophily-aimed as its paper states. GC cells: card 3 A2.
+    ModelSpec("hetsheaf", "HetSheaf", HET_HET, "src.baselines.adapters.hetsheaf", _ALL,
+              unsupported=tuple((GRAPH_CLASSIFICATION, dataset, HETSHEAF_GC_PENDING)
+                                for dataset in ("mutag", "proteins", "enzymes", "nci1"))),
 )
 
-#: Baselines of the protocol whose adapter is not written yet (spec v1.15 §6: HetSheaf is rerun
-#: on our pipeline; its adapter is the next card). Not cited: no number is quoted in a table.
-ADAPTER_PENDING: dict[str, str] = {
-    "hetsheaf": "adapter pending (next card): HetSheaf is rerun under the protocol (spec v1.15 §6)",
-}
+#: Baselines of the protocol whose adapter is not written yet. Not cited: no number is quoted in a table.
+#: Card 3 A1: HetSheaf's entry replaced by its ModelSpec row.
+ADAPTER_PENDING: dict[str, str] = {}
 
 _BY_NAME: dict[str, ModelSpec] = {spec.name: spec for spec in MODELS}
 
