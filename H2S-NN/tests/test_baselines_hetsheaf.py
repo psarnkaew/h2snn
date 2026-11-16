@@ -199,6 +199,36 @@ class StepTests(unittest.TestCase):
                 assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
 
 
+class GraphClassificationStepTests(unittest.TestCase):
+    def test_one_graph_classification_step_is_finite_and_moves(self) -> None:
+        """A2: their inductive encoder and their readouts `late_token` (SheafPool) and `mean`, one step each on a
+        batch of two typed graphs with constant features (HetSheaf's GC protocol)."""
+        from torch_geometric.data import Batch, Data
+
+        from src.baselines.adapters.hetsheaf import HetSheafGraphHead, build_inductive_encoder, gc_encoder_input
+
+        graphs = []
+        for n, y in ((5, 0), (4, 1)):
+            ring = torch.stack([torch.arange(n), (torch.arange(n) + 1) % n])
+            edge_index = torch.cat([ring, ring.flip(0)], dim=1)
+            graphs.append(Data(x=torch.ones(n, 1), edge_index=edge_index, node_type=torch.arange(n) % 3,
+                               edge_type=torch.arange(edge_index.size(1)) % 2, y=torch.tensor([y])))
+        batch = Batch.from_data_list(graphs)
+        device = torch.device("cpu")
+        for pooling in ("late_token", "mean"):
+            with self.subTest(pooling=pooling):
+                torch.manual_seed(0)
+                params = tuned(sheaf="general/type_concat", d=3, layers=2, hidden_channels=8, dropout=0.1)
+                encoder = build_inductive_encoder(params, device, graph_size=5, input_dim=1, num_node_types=3,
+                                                  num_edge_types=2)
+                head = HetSheafGraphHead(encoder, pooling, num_classes=2)
+                optimizer = torch.optim.AdamW(list(encoder.parameters()) + list(head.parameters()), lr=1e-2)
+                logits = head(encoder(gc_encoder_input(batch))[0], batch.batch)
+                self.assertEqual(tuple(logits.shape), (2, 2))
+                loss = torch.nn.functional.cross_entropy(logits, batch.y.view(-1))
+                assert_step_finite_and_moves(self, loss, optimizer, (encoder, head))
+
+
 class ImportRouteTests(unittest.TestCase):
     def test_registry_and_another_adapter_leave_no_hetsheaf_or_lightning_module(self) -> None:
         """Design-session condition 1 (S-A0-1): the empty packages and the `lightning.pytorch` alias exist only

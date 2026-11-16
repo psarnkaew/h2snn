@@ -21,6 +21,13 @@ Card 3 Part A (`docs/H2S-NN_hetsheaf_freebase_card.md`), author decisions H-1..H
   (`node_classifier.py:66-67`); LP the shared link head of every baseline (spec §6).
 * **Search space (H-3).** One row: map family x learner from their sweep lists, `d` 2-5, `layers` 2-8,
   `hidden_channels` {8, 16, 32, 64}, `input_dropout` U[0, 0.9]; lr / weight decay / dropout shared.
+* **GC (A2; D-P2).** Their inductive encoders (`models/sheaf_gnn/inductive/disc_models.py:18-58`;
+  `configs/sheaf_config_gc.yaml:4`, `configs/model/ind_*_sheaf.yaml`: `edge_weights: false`) with their readouts
+  as a categorical: mean / max / add (PyG globals), attention (`pooling.py:7-40`, heads 2) and `late_token`
+  = SheafPool (`sheaf_graph_classifier.py:33-142`), each followed by their decoder `Linear` (`graph_classifier.py:38`;
+  input `hidden_channels` for `late_token`, `hidden_dim` otherwise, `sheaf_graph_classifier.py:161-177`), on the
+  shared GC loop (HetSheaf's protocol: constant features, their seed-42 split, batch 1, AdamW on the shared axes
+  instead of their hard-coded 1e-3 / 5e-4 and cosine schedule, `graph_classifier.py:155-161`).
 
 Preprocessing per dataset, as the branch of their code that loads it (stated in the report):
 
@@ -70,6 +77,11 @@ NAME = "hetsheaf"
 VENDOR = "hetsheaf"
 SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+#: Their GC readouts (`graph_classifier.py:43-54`, `sheaf_graph_classifier.py:184-192`; `scripts/run_pooling_ablation.py:23`).
+GC_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention", "late_token")
+#: Their GC `output_dim` (`run_sheaf_gc.py:40`: `cfg.hidden_dim`, 64 in `configs/sheaf_config_gc.yaml`).
+_GC_OUTPUT_DIM = 64
 #: LP tasks built on an HGB NC graph: their HGB NC chain (module docstring).
 _HGB_NC_LP_DATASETS = frozenset({"acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 
@@ -154,10 +166,12 @@ def _vendor() -> types.SimpleNamespace:
     """Their model code (encoders, model arguments, `RemoveSelfLoops`)."""
     _register_stub_packages()
     sheaf_gnn = importlib.import_module("hetsheaf.models.sheaf_gnn")
+    inductive = importlib.import_module("hetsheaf.models.sheaf_gnn.inductive")
     config = importlib.import_module("hetsheaf.models.sheaf_gnn.config")
     utils = importlib.import_module("hetsheaf.datasets.utils")
     return types.SimpleNamespace(
         families={family: getattr(sheaf_gnn, cls) for family, cls in MAP_FAMILIES.items()},
+        inductive_families={family: getattr(inductive, f"Inductive{cls}") for family, cls in MAP_FAMILIES.items()},
         SheafModelArguments=config.SheafModelArguments,
         RemoveSelfLoops=utils.RemoveSelfLoops,
         SubsetTrainSplit=utils.SubsetTrainSplit,
@@ -387,6 +401,58 @@ def build_encoder(graph: SheafGraph, params: BaselineParams, device: torch.devic
     return vendor.families[family](index.to(device), args, learner)
 
 
+def build_inductive_encoder(params: BaselineParams, device: torch.device, *, graph_size: int, input_dim: int,
+                            num_node_types: int, num_edge_types: int) -> torch.nn.Module:
+    """Their inductive encoder for GC (`run_sheaf_gc.py:35-44`: graph size = the largest training graph, input
+    width, type counts, `output_dim` = `cfg.hidden_dim`; `configs/model/ind_*_sheaf.yaml`: `edge_weights: false`)."""
+    vendor = _vendor()
+    family, learner = parse_sheaf_choice(params.get("sheaf", "diag/type_concat"))
+    args = vendor.SheafModelArguments(
+        d=int(params.get("d", 2)),
+        layers=int(params.get("layers", 2)),
+        hidden_channels=int(params.get("hidden_channels", 32)),
+        input_dropout=float(params.get("input_dropout", 0.0)),
+        dropout=float(params.get("dropout", 0.0)),
+        device=str(device),
+        graph_size=int(graph_size),
+        input_dim=int(input_dim),
+        num_node_types=int(num_node_types),
+        num_edge_types=int(num_edge_types),
+        output_dim=_GC_OUTPUT_DIM,
+        edge_weights=False,
+    )
+    return vendor.inductive_families[family](args, learner)
+
+
+class HetSheafGraphHead(torch.nn.Module):
+    """Their readout and decoder (`SheafGraphClassifier.__init__`, `sheaf_graph_classifier.py:161-192`;
+    `GraphClassifier.__init__`, `graph_classifier.py:36-54`) on the encoder's node embeddings."""
+
+    def __init__(self, encoder: torch.nn.Module, pooling: str, num_classes: int) -> None:
+        super().__init__()
+        from torch_geometric.nn import Linear, global_add_pool, global_max_pool, global_mean_pool
+
+        if pooling not in GC_POOLINGS:
+            raise ValueError(f"pooling must be one of {GC_POOLINGS}, got {pooling!r}")
+        hidden_dim = int(encoder.hidden_dim)
+        stalk_dim = int(getattr(encoder, "final_d", getattr(encoder, "d", 1)))
+        channel_dim = int(getattr(encoder, "hidden_channels", hidden_dim // max(stalk_dim, 1)))
+        decoder_input_dim = channel_dim if pooling == "late_token" else hidden_dim
+        self.pooling = pooling
+        self.decoder = Linear(decoder_input_dim, num_classes)
+        if pooling == "late_token":
+            self.pool: Any = _vendor_gc().LateTokenSheafReadoutTransport(
+                stalk_dim=stalk_dim, channel_dim=channel_dim, hidden_dim=None, eps_whiten=1e-4, eps_eigh=1e-6,
+                proper_rot=True)
+        elif pooling == "attention":
+            self.pool = _vendor_gc().AttentionPooling(decoder_input_dim, heads=2)
+        else:
+            self.pool = {"mean": global_mean_pool, "max": global_max_pool, "add": global_add_pool}[pooling]
+
+    def forward(self, embeddings: torch.Tensor, batch: torch.Tensor) -> torch.Tensor:
+        return self.decoder(self.pool(embeddings, batch))
+
+
 class HetSheafNodeClassifier(torch.nn.Module):
     """Their encoder and their NC head `Linear(hidden_dim, C)` (`node_classifier.py:39`; PyG `Linear` as theirs),
     returning the target rows' logits."""
@@ -441,10 +507,12 @@ class HetSheafAdapter:
             return dataset in SUPPORTED_DATASETS
         if task == LINK_PREDICTION:
             return dataset in SUPPORTED_LP_DATASETS
+        if task == GRAPH_CLASSIFICATION:
+            return dataset in SUPPORTED_GC_DATASETS
         return False
 
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
-        if task not in (NODE_CLASSIFICATION, LINK_PREDICTION):
+        if task not in (NODE_CLASSIFICATION, LINK_PREDICTION, GRAPH_CLASSIFICATION):
             raise UnsupportedCell(NAME, task, dataset, "unsupported task")
         space: dict[str, Any] = {
             "lr": grids.LR,
@@ -459,6 +527,8 @@ class HetSheafAdapter:
         }
         if task == LINK_PREDICTION:
             space["decoder_type"] = {"values": ["dot", "distmult"]}  # the shared link head (spec §6)
+        if task == GRAPH_CLASSIFICATION:
+            space["pooling"] = {"values": list(GC_POOLINGS)}  # their readouts incl. late_token (D-P2)
         return space
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
@@ -470,6 +540,8 @@ class HetSheafAdapter:
             return self._fit_node_classification(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION and bundle.dataset in SUPPORTED_LP_DATASETS:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+        if task == GRAPH_CLASSIFICATION and bundle.dataset in SUPPORTED_GC_DATASETS:
+            return self._fit_graph_classification(bundle, params, seed=seed, device=device)
         raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported cell")
 
     def _fit_node_classification(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
@@ -481,6 +553,10 @@ class HetSheafAdapter:
             hetero, bundle.data.target_node_type, train_mask=bundle.data.target_train_mask,
             val_mask=bundle.data.target_val_mask, test_mask=bundle.data.target_test_mask)
         return fit_node_graph(node_graph, bundle, params, device=device)
+
+    def _fit_graph_classification(self, bundle: Any, params: BaselineParams, *, seed: int,
+                                  device: torch.device) -> dict[str, float]:
+        return _fit_graph_classification(bundle, params, seed=seed, device=device)
 
     def _fit_link_prediction(self, bundle: LinkBundle, params: BaselineParams, *, seed: int,
                              device: torch.device) -> dict[str, float]:
@@ -498,6 +574,36 @@ class HetSheafAdapter:
         record["decoder_type"] = str(params.get("decoder_type", "dot"))
         record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
         return record
+
+
+def gc_encoder_input(batch: Any) -> Any:
+    """The fields their encoder reads from one GC batch (no label)."""
+    from torch_geometric.data import Data
+
+    return Data(x=batch.x.float(), edge_index=batch.edge_index, node_type=batch.node_type.long(),
+                edge_type=batch.edge_type.long())
+
+
+def _fit_graph_classification(bundle: Any, params: BaselineParams, *, seed: int,
+                              device: torch.device) -> dict[str, float]:
+    from src.baselines.training import train_graph_classification
+
+    seed_everything(seed, device)
+    train_loader = bundle.loaders[0]
+    graph_size = max(int(graph.num_nodes) for graph in train_loader.dataset)  # their run_sheaf_gc.py:29-32
+    encoder = build_inductive_encoder(params, device, graph_size=graph_size, input_dim=bundle.in_channels,
+                                      num_node_types=bundle.num_node_types,
+                                      num_edge_types=max(int(bundle.fold.dims.num_relations), 1)).to(device)
+    pooling = str(params.get("pooling", "late_token"))
+    head = HetSheafGraphHead(encoder, pooling, bundle.num_classes).to(device)
+    record = train_graph_classification(
+        model=encoder, head=head, embed_batch=lambda batch: encoder(gc_encoder_input(batch))[0],
+        loaders=bundle.loaders, optimizer=_optimizer([encoder, head], params), device=device,
+        **budget_kwargs(GRAPH_CLASSIFICATION, params))
+    record["params_source"] = params.source
+    record["sheaf"] = str(params.get("sheaf", "diag/type_concat"))
+    record["readout"] = pooling
+    return record
 
 
 def fit_node_graph(node_graph: NodeGraph, bundle: NodeBundle, params: BaselineParams, *,

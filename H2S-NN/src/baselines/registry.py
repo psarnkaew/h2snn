@@ -164,7 +164,6 @@ FREEBASE_VENDOR_REASON = (
     "has a Freebase branch)")
 
 #: Card 3 Part A: HetSheaf cells wired in later units of the card.
-HETSHEAF_GC_PENDING = "adapter pending: card 3 A2, HetSheaf's GC readouts incl. SheafPool on the shared GC protocol"
 HETSHEAF_H2GB_PENDING = ("adapter pending: card 3 A3, class C (H-4), H2GB's hgt sampler with H2GB's YAML lists (S1), "
                          "type ids per subgraph")
 HETSHEAF_LARGE_LP_PENDING = "adapter pending: card 3 A3, large LP by D2 on the message graph (H-4)"
@@ -222,9 +221,7 @@ MODELS: tuple[ModelSpec, ...] = (
               unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
     # Card 3 Part A (H-1..H-4): HetSheaf rerun under the shared protocol (spec v1.22 §6, C7); heterogeneous and
     # heterophily-aimed as its paper states. GC cells: card 3 A2.
-    ModelSpec("hetsheaf", "HetSheaf", HET_HET, "src.baselines.adapters.hetsheaf", _ALL,
-              unsupported=tuple((GRAPH_CLASSIFICATION, dataset, HETSHEAF_GC_PENDING)
-                                for dataset in ("mutag", "proteins", "enzymes", "nci1"))),
+    ModelSpec("hetsheaf", "HetSheaf", HET_HET, "src.baselines.adapters.hetsheaf", _ALL),
 )
 
 #: Baselines of the protocol whose adapter is not written yet. Not cited: no number is quoted in a table.

@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 203)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 3 A1: + HetSheaf NC 4, LP 6
+        self.assertEqual(summary["runnable_cells"], 207)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4
 
         per_task = {
             task: sum(
@@ -59,7 +59,7 @@ class RegistryTests(unittest.TestCase):
         }
         self.assertEqual(per_task["node_classification"], 107)  # card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase
         self.assertEqual(per_task["link_prediction"], 60)  # card 3 A1: + HetSheaf on the 6 local LP tasks
-        self.assertEqual(per_task["graph_classification"], 36)
+        self.assertEqual(per_task["graph_classification"], 40)  # card 3 A2: + HetSheaf on the 4 TU datasets
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:
         from src.baselines.registry import iter_cells
