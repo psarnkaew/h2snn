@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.baselines.budget import TASK_EPOCHS, record_budget
+from src.baselines.budget import TASK_EPOCHS, batch_plan, record_budget
 from src.baselines.link_audit import record_link_split_overlap
 from src.baselines.progress import EpochReport
 from src.baselines.protocol import (
@@ -155,6 +155,25 @@ def bundle_overrides(raw_base: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
+#: B when a mini-batch cell's parameters carry none: the default of every `minibatch_plan(...)` call site.
+DEFAULT_MINIBATCH_BATCH_SIZE = 256
+
+
+def _with_batch_size(cell: Cell, overrides: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+    """`overrides` plus `data.batch_size` = the run's B when `cell` trains in mini-batches.
+
+    The bundle is built from a validated TrainConfig, and a dataset whose node-classification mode is mini-batch
+    (the H2GB datasets, MB1) requires `data.batch_size` there (`src/configs/config.py`, "data.batch_size (B) is
+    required in mini-batch training"). The adapter reads B from the same parameter (`minibatch_plan`), so the
+    bundle's configuration records the B the run trains with (dry run, card 1d H3b)."""
+
+    if cell.task != NODE_CLASSIFICATION or batch_plan(cell.task, cell.dataset).mode != "minibatch":
+        return overrides
+    merged = copy.deepcopy(overrides)
+    merged.setdefault("data", {})["batch_size"] = int(params.get("batch_size", DEFAULT_MINIBATCH_BATCH_SIZE))
+    return merged
+
+
 def build_sweep_config(
     cell: Cell,
     *,
@@ -216,7 +235,7 @@ def fit_cell(
         cell.dataset,
         run_index=int(raw_base.get("run_index", 0)),
         seed=seed,
-        overrides=bundle_overrides(raw_base) or None,
+        overrides=_with_batch_size(cell, bundle_overrides(raw_base), params) or None,
     )
     adapter = get_adapter(cell.model)
     values = dict(params)

@@ -38,7 +38,7 @@ import torch
 from src.baselines.adapters._gc_typed import batch_metapath_operators
 from src.baselines.adapters._gc_typed import relation_key as _gc_relation_key
 from src.baselines.adapters._han_lp import HANLinkEncoder, build_metapath_graph
-from src.baselines.adapters._target_block import target_node_range
+from src.baselines.adapters._target_block import target_block
 from src.baselines.bundles import (
     GraphBundle,
     LinkBundle,
@@ -100,9 +100,24 @@ def _load_vendor_graph(dataset: str, root: Path) -> tuple[Any, ...]:
         original = han_utils.data_loader
         han_utils.data_loader = lambda _path: original(str(raw_dir))
         try:
-            return han_utils.load_data(VENDOR_DATASET[dataset], feat_type=0)
+            loaded = han_utils.load_data(VENDOR_DATASET[dataset], feat_type=0)
         finally:
             han_utils.data_loader = original
+    # HAN's IMDB loader also returns HGB's data_loader `dl` (HAN/utils.py:333), which only its test scorer reads
+    # (HAN/main_multi.py:15-16, 70); the other loaders return the first 11 values (utils.py:171, 236, 285).
+    return tuple(loaded[:11])
+
+
+def _vendor_model_classes(dataset: str) -> tuple[Any, Any]:
+    """(HAN, HAN_freebase) as HGB's HAN runs `dataset`; call inside `pushd_sys_path(*VENDORS)`.
+
+    IMDB (multi-label) runs `main_multi.py` (HAN/README.md), whose model is `model_hetero_multi.HAN` (sigmoid
+    semantic attention, model_hetero_multi.py:29); the other datasets run `main.py` with `model_hetero`."""
+    if dataset == "imdb":
+        from model_hetero_multi import HAN, HAN_freebase  # type: ignore[import-not-found]
+    else:
+        from model_hetero import HAN, HAN_freebase  # type: ignore[import-not-found]
+    return HAN, HAN_freebase
 
 
 class HANAdapter:
@@ -207,8 +222,7 @@ class HANAdapter:
         graph = graph.to(device)
 
         with pushd_sys_path(*VENDORS):
-            from model_hetero import HAN, HAN_freebase  # type: ignore[import-not-found]
-
+            HAN, HAN_freebase = _vendor_model_classes(bundle.dataset)
             num_heads = int(params.get("num_heads", 8))
             # HGB's own HAN script uses HAN_freebase on Freebase (an FC layer on the sparse
             # identity features, HAN/main.py:45-52); Part P P3.
@@ -256,16 +270,16 @@ class HANAdapter:
         device = resolve_dgl_device(device)
         seed_everything(seed, device)
 
-        node_range = target_node_range(bundle)
+        block = target_block(bundle)
         graph, meta_paths, num_metapaths = build_metapath_graph(
-            bundle, node_range, device
+            bundle, block, device
         )
 
         hidden_dim = int(params.get("hidden_dim", 128))
         embed_dim = int(params.get("embed_dim", 64))
         model = HANLinkEncoder(
             bundle,
-            node_range,
+            block,
             meta_paths=meta_paths,
             hidden_dim=hidden_dim,
             embed_dim=embed_dim,

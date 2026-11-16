@@ -7,10 +7,10 @@ being re-derived for each (LatGRL, removed in spec v1.15, used it too).
 
 **The block.** For node classification the target is the classified node type. Here it is
 the set of node types the target relation connects -- ``user`` and ``artist`` on LastFM,
-``disease`` alone on PubMed. HGB lays node types out in contiguous blocks and on all four
-link-prediction datasets that set is a single contiguous range, so a half-open ``[lo, hi)``
-describes it exactly. :func:`target_node_range` refuses anything else rather than quietly
-dragging in unrelated types.
+``disease`` alone on PubMed, ``movie`` and ``actor`` on IMDB movie-actor. HGB lays node types out in
+contiguous blocks, but the endpoint types need not be adjacent (IMDB: movie, director, actor, keyword), so
+:func:`target_block` returns the sorted global ids of exactly those types' nodes (their ranges concatenated
+in layout order) and never includes another type. Block-local id ``i`` is global id ``block[i]``.
 
 **Featureless blocks.** LastFM and YouTube carry no node attributes at all. The vendors'
 convention is ``torch.eye`` plus a bias-free ``nn.Linear``, which is fine while the
@@ -29,23 +29,22 @@ from torch import nn
 from src.baselines.bundles import LinkBundle
 
 
-def target_node_range(bundle: LinkBundle) -> tuple[int, int]:
-    """Half-open ``[lo, hi)`` covering every node type the target relation connects."""
+def target_block(bundle: LinkBundle) -> torch.Tensor:
+    """Sorted global ids (CPU, int64) of every node of the types the target relation connects."""
 
     data = bundle.data
     slices = dict(data.node_slices)
     source_type, _, destination_type = data.target_relation
-    endpoints = sorted({source_type, destination_type})
+    ranges = sorted(slices[name] for name in {source_type, destination_type})
+    return torch.cat([torch.arange(low, high, dtype=torch.long) for low, high in ranges])
 
-    low = min(slices[name][0] for name in endpoints)
-    high = max(slices[name][1] for name in endpoints)
-    covered = sum(slices[name][1] - slices[name][0] for name in endpoints)
-    if high - low != covered:
-        raise NotImplementedError(
-            f"{bundle.dataset}: target node types {endpoints} are not contiguous in the "
-            "flattened layout, so a single-range block crop would include other types"
-        )
-    return low, high
+
+def block_local_ids(block: torch.Tensor, num_nodes: int) -> torch.Tensor:
+    """Global id -> block-local id, ``-1`` for a node outside the block."""
+
+    local = torch.full((num_nodes,), -1, dtype=torch.long, device=block.device)
+    local[block] = torch.arange(block.numel(), device=block.device)
+    return local
 
 
 def target_block_feature_width(bundle: LinkBundle) -> int:
@@ -75,23 +74,21 @@ class TargetBlockInput(nn.Module):
     """
 
     def __init__(
-        self, bundle: LinkBundle, node_range: tuple[int, int], embedding_dim: int
+        self, bundle: LinkBundle, block: torch.Tensor, embedding_dim: int
     ) -> None:
         super().__init__()
-        low, high = node_range
-        self.node_range = node_range
         width = target_block_feature_width(bundle)
         self.mode = "attributes" if width else "embedding"
 
         if width:
             self.register_buffer(
-                "features", bundle.data.x[low:high, :width].clone(), persistent=False
+                "features", bundle.data.x[block.to(bundle.data.x.device), :width].clone(), persistent=False
             )
             self.lookup: nn.Module | None = None
             self.output_dim = width
         else:
             self.features = None
-            self.lookup = nn.Embedding(high - low, embedding_dim)
+            self.lookup = nn.Embedding(block.numel(), embedding_dim)
             self.output_dim = embedding_dim
 
     def forward(self) -> torch.Tensor:
@@ -183,7 +180,7 @@ def node_type_metadata(
 
 
 def scatter_to_full_graph(
-    block: torch.Tensor, node_range: tuple[int, int], num_nodes: int
+    rows: torch.Tensor, block: torch.Tensor, num_nodes: int
 ) -> torch.Tensor:
     """Place block-local embeddings at their global node ids.
 
@@ -192,18 +189,18 @@ def scatter_to_full_graph(
     at zero are never read.
     """
 
-    low, high = node_range
-    embeddings = block.new_zeros((num_nodes, block.size(1)))
-    embeddings[low:high] = block
+    embeddings = rows.new_zeros((num_nodes, rows.size(1)))
+    embeddings[block.to(rows.device)] = rows
     return embeddings
 
 
 __all__ = [
     "TargetBlockInput",
     "TypedNodeInput",
+    "block_local_ids",
     "build_edge_index_dict",
     "node_type_metadata",
     "scatter_to_full_graph",
     "target_block_feature_width",
-    "target_node_range",
+    "target_block",
 ]

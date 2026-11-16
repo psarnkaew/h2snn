@@ -1,0 +1,19 @@
+label=p5-h3b-fbb job=16906 step=none node=g2tn01 start=2026-11-16T13:24:50+09:00
+git=d23d4550a99f9b23bd48571eff30cb16880e83a1 branch=baselines-h2gb-5
+working tree:  M src/baselines/adapters/_h2sgnn_lp.py
+working tree:  M src/baselines/adapters/_han_lp.py
+working tree:  M src/baselines/adapters/_target_block.py
+working tree:  M src/baselines/adapters/h2sgnn.py
+working tree:  M src/baselines/adapters/hgb_han.py
+working tree:  M src/baselines/campaign.py
+env=h2snn-b cmd=python ../docs/baselines_h2gb_evidence/p5_h3b_h2sgnn_freebase_bb_repro.py
+CUDA_LAUNCH_BLOCKING 1 device NVIDIA TITAN RTX
+[test-size] sizes={'n_book': 50, 'n_film': 10, 'n_pairs': 120, 'n_loops': 5} nodes=60 message_edges=206
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[test-size] no error; test_random_auroc=0.5017301038062283
+[large] sizes={'n_book': 20000, 'n_film': 500, 'n_pairs': 120000, 'n_loops': 200} nodes=20500 message_edges=175826
+[large] no error; test_random_auroc=0.4996040099374885
+RESULT not reproduced off real data
+peak_rss_gib=1.73 elapsed_s=24.3
+end=2026-11-16T13:25:14+09:00 exit=0
