@@ -1,0 +1,54 @@
+{
+ "arm": "no_path_cells",
+ "base_config": "../docs/card4_evidence/k6/emitted/acm/tune_no_path_cells.yaml",
+ "n_trials": 100,
+ "seed": 0,
+ "method": "bayes",
+ "metric": {
+  "name": "best/macro_f1",
+  "goal": "maximize"
+ },
+ "parameters": {
+  "d": {
+   "values": [
+    16,
+    32,
+    64
+   ]
+  },
+  "lr": {
+   "distribution": "log_uniform_values",
+   "min": 0.0001,
+   "max": 0.01
+  },
+  "weight_decay": {
+   "values": [
+    0.0,
+    1e-05,
+    5e-05,
+    0.0001,
+    0.0005,
+    0.001,
+    0.01,
+    0.1,
+    0.8
+   ]
+  },
+  "encoder_dropout": {
+   "distribution": "uniform",
+   "min": 0.0,
+   "max": 0.9
+  },
+  "classifier_dropout": {
+   "distribution": "uniform",
+   "min": 0.0,
+   "max": 0.9
+  }
+ },
+ "removed_keys": [
+  "wisp_max_length",
+  "wisp_walks_per_anchor"
+ ],
+ "launcher_space_matches": false,
+ "command": "python scripts/run_h2snn_wandb_tuning.py --config ../docs/card4_evidence/k6/emitted/acm/tune_no_path_cells.yaml --n_trials 100 --num_runs 1 --base_seed 0"
+}

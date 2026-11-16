@@ -148,7 +148,7 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
     ) -> None:
         """`input_dim`: width of the per-node geometry input (default `d`: `h0`; D12: `[h0, c]`).
         `factored_inputs`: evaluate the MLPs' first layer per node, then gather (`gathered_linear`).
-        `identity_maps` (arm "maps = I", `ablation.maps: identity`; spec 1.23 X-11): the orthogonal
+        `identity_maps` (arm "maps = I", `ablation.fact_maps_identity: true`; spec 1.23 X-11): the orthogonal
         factor `R H` is the identity; only the per-edge scale `c_e` (hence `a_e = c_e^2`) is learned.
         The frames and the reflector MLP are created (so every other parameter initialises exactly
         as in `full`) and then removed: they are not parameters of this arm."""

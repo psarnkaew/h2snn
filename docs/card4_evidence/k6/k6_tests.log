@@ -1,0 +1,105 @@
+job=16741 step=185 node=g2n01 start=2026-11-16T12:22:25+09:00
+git=065ec169f48c50f0eda56abcb39584a3d357840c branch=ablation-prep
+dirty:  M scripts/known_answer/common.py  M scripts/known_answer/s1pb.py  M src/configs/config.py  M src/models/h2snn_model.py  M src/models/sheaf_maps.py  M tests/test_card4_identity_maps.py ?? scripts/ablation/ablation_array.sbatch ?? scripts/ablation/arms.py ?? scripts/ablation/dry_run.py ?? scripts/ablation/param_table.py ?? scripts/ablation/seed_runs.py ?? scripts/ablation/sweeps.py ?? scripts/known_answer/s2p.py ?? scripts/known_answer/s3.py ?? scripts/known_answer/s3_audit.py ?? scripts/known_answer/s3_graph.py ?? tests/test_card4_ablation_driver.py 
+69747f95f61f564d3b0176f928f3ca96ef06cdef5284f7d6484a224aa1a27bd3  src/models/map_operators.py
+983ab0373690522bc14345722aa2e930d197a2da2a2050d8c72e1c51dd6d6fa7  src/models/sheaf_maps.py
+7ad20530704b3731572d484c77c3c5530683faf360fb2af46999fb11a4c00d4d  src/models/h2snn_model.py
+2f31cb2beec45cdd1e653fd523073667bcb819cedbd8cd3e07f56a9f36a1267a  src/configs/config.py
+a02c9587da54cf57c84cbb4fedf113008e57529c61e3bc5c6586a1de33b03220  tests/test_card4_ablation_driver.py
+78797c7d05e49dc2d7170c46a017f19f2961d05b38568f5c95811d6f6b5b5e1a  tests/test_card4_identity_maps.py
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 4
+=== v3b_golden compare
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1365 tensors in 24 configurations; differing: none
+=== mb0_reference compare
+/mnt/data/peeradon/h2snn-ablprep/H2S-NN/../docs/partMB_evidence/mb0_reference.py:134: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  _flatten("", torch.load(path), ref)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 139 tensors; differing: none
+test_s0_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s0_one_step_finite_and_every_parameter_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_s2_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s2_one_step_finite_and_every_parameter_moves) ... ok
+test_key_validated_and_refused_in_tuning (tests.test_card4_identity_maps.IdentityConfigTests.test_key_validated_and_refused_in_tuning) ... ok
+test_s2_jacobi_diagonal_equals_dense_identity_maps (tests.test_card4_identity_maps.IdentityJacobiTests.test_s2_jacobi_diagonal_equals_dense_identity_maps) ... ok
+test_s2_every_transport_is_exactly_identity (tests.test_card4_identity_maps.IdentityTransportTests.test_s2_every_transport_is_exactly_identity) ... ok
+test_arm_mode_builds_for_each_of_the_five_arms (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_builds_for_each_of_the_five_arms) ... ok
+test_arm_mode_refuses_another_arms_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_refuses_another_arms_key) ... ok
+test_main_table_refuses_every_arm_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_main_table_refuses_every_arm_key) ... ok
+test_each_arm_differs_from_full_in_exactly_its_keys (tests.test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys) ... ok
+test_full_and_uniform_get_the_same_draws_at_one_seed (tests.test_card4_ablation_driver.PairingTests.test_full_and_uniform_get_the_same_draws_at_one_seed) ... ok
+test_T11_h0_only_readout_ignores_the_graph (tests.test_v2_model.AblationTests.test_T11_h0_only_readout_ignores_the_graph) ... ok
+test_T11_no_path_cells_makes_logits_independent_of_path_data (tests.test_v2_model.AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data) ... ok
+test_T11_uniform_gate_gives_w_identically_one (tests.test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one) ... ok
+test_every_ablation_trains_one_step (tests.test_v2_model.AblationTests.test_every_ablation_trains_one_step) ... ok
+test_defaults_are_the_full_model (tests.test_v2_model.ConfigTests.test_defaults_are_the_full_model) ... ok
+test_invalid_values_and_conflicting_ablations_are_rejected (tests.test_v2_model.ConfigTests.test_invalid_values_and_conflicting_ablations_are_rejected) ... ok
+test_unknown_keys_fail_loudly (tests.test_v2_model.ConfigTests.test_unknown_keys_fail_loudly)
+Old (v1 / AMPSS) settings and typos are rejected in every section. ... ok
+test_dense_operator_closed_form_inverse_and_shapes (tests.test_v2_model.DenseOperatorTests.test_dense_operator_closed_form_inverse_and_shapes) ... ok
+test_path_transport_accepts_dense_operators (tests.test_v2_model.DenseOperatorTests.test_path_transport_accepts_dense_operators) ... ok
+test_T7_cell_state_is_the_least_squares_minimizer (tests.test_v2_model.PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer) ... ok
+test_T12a_both_sides_share_exactly_one_scale_per_edge (tests.test_v2_model.PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge) ... ok
+test_T12a_per_side_ablation_keeps_two_scales (tests.test_v2_model.PerEdgeScaleTests.test_T12a_per_side_ablation_keeps_two_scales) ... ok
+test_T12b_edge_transports_are_orthogonal (tests.test_v2_model.PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal) ... ok
+test_T12b_negative_control_per_side_scales_break_orthogonality (tests.test_v2_model.PerEdgeScaleTests.test_T12b_negative_control_per_side_scales_break_orthogonality) ... ok
+test_T12b_path_transports_are_orthogonal_at_every_length (tests.test_v2_model.PerEdgeScaleTests.test_T12b_path_transports_are_orthogonal_at_every_length) ... ok
+test_T12b_shared_scale_path_uses_no_scale (tests.test_v2_model.PerEdgeScaleTests.test_T12b_shared_scale_path_uses_no_scale)
+The fast path never touches `c`: transports are bit-identical for any shared scale, ... ok
+test_T12c_scale_lower_bound_and_finite_gradients_at_extremes (tests.test_v2_model.PerEdgeScaleTests.test_T12c_scale_lower_bound_and_finite_gradients_at_extremes) ... ok
+test_T10_per_edge_storage_matches_the_bound_exactly (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T10_per_edge_storage_matches_the_bound_exactly)
+Unique float storage held by both operators: `2 M k d + M + 2 |R| d^2`. ... ok
+test_T4_per_edge_maps_are_side_specific_and_node_dependent (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T4_per_edge_maps_are_side_specific_and_node_dependent) ... ok
+test_T5_per_edge_holonomy_is_nontrivial_and_varies (tests.test_v2_model.PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies) ... ok
+test_b_g_reads_h0_only_unless_the_appendix_switch (tests.test_v2_model.TwoLatentContextTests.test_b_g_reads_h0_only_unless_the_appendix_switch) ... ok
+test_T10_gradients_reach_every_learned_component (tests.test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) ... ok
+test_T8_no_dense_map_tensor_in_v2_forward_or_backward (tests.test_v2_model.V2ModelTests.test_T8_no_dense_map_tensor_in_v2_forward_or_backward)
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4 ... ok
+test_T9_deleted_components_are_absent (tests.test_v2_model.V2ModelTests.test_T9_deleted_components_are_absent) ... ok
+test_build_model_builds_the_node_classification_head (tests.test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
+test_checkpointing_switch_does_not_change_outputs_or_gradients (tests.test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
+test_gate_initialization_is_near_one_half (tests.test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
+test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload (tests.test_v2_model.V2ModelTests.test_trainer_logs_eta_gamma_uses_scalar_group_and_checkpoints_reload) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 12:22:48,293 | INFO | Epoch 0000 | train_loss: 1.2068 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0817 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.2167 | val_micro_f1: 0.2500 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-16 12:22:48,311 | INFO | Checkpoint metric acc: 0.2500
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-16 12:22:48,542 | INFO | Epoch 0001 | train_loss: 1.1866 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0781 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3175 | val_micro_f1: 0.3750 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-16 12:22:48,560 | INFO | Checkpoint metric acc: 0.3750
+2026-11-16 12:22:48,560 | INFO | Best epoch 1 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750 | test_acc: 0.3750
+/mnt/data/peeradon/h2snn-ablprep/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (the legacy propagation, where ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_kept_values_still_load (tests.test_legacy_removal.FailClosedTests.test_kept_values_still_load)
+Control: the kept values next to the removed ones load. ... ok
+test_removed_keys_raise (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise) ... ok
+test_removed_keys_raise_in_a_tuning_space (tests.test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) ... ok
+test_removed_values_raise (tests.test_legacy_removal.FailClosedTests.test_removed_values_raise) ... ok
+test_removed_values_raise_on_direct_construction (tests.test_legacy_removal.FailClosedTests.test_removed_values_raise_on_direct_construction) ... ok
+test_empty_model_section_is_the_anchored_v3b_model (tests.test_legacy_removal.V3BDefaultTests.test_empty_model_section_is_the_anchored_v3b_model) ... ok
+test_h2snn_notebooks_reference_existing_configs_only (tests.test_notebook_configs.NotebookConfigTests.test_h2snn_notebooks_reference_existing_configs_only) ... ok
+
+----------------------------------------------------------------------
+Ran 56 tests in 8.209s
+
+OK
+end=2026-11-16T12:22:49+09:00 exit=0

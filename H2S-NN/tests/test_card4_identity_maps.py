@@ -1,6 +1,6 @@
 """Card 4 K1 (`docs/H2S-NN_card4_ablation_prep_card.md`; spec 1.23 X-11, pre-registration §2): the
-identity-map arms S2 (`model.arm: full`, `ablation.maps: identity`) and S0 (`no_path_cells` with
-`maps: identity`). Synthetic graphs only (the real data root is unreachable).
+identity-map arms S2 (`model.arm: full`, `ablation.fact_maps_identity: true`) and S0 (`no_path_cells`
+with `fact_maps_identity: true`). Synthetic graphs only (the real data root is unreachable).
 
 (1) S2: every transport is exactly `I` (`torch.equal`) on a synthetic ACM-shaped WISP draw, through the
     model's own map operator.
@@ -33,17 +33,17 @@ def tearDownModule() -> None:
     restore_real_data()
 
 
-def _config(arm: str = "full", maps: str = "identity"):
+def _config(arm: str = "full", maps=True):
     from src.configs.config import TrainConfig
 
     return TrainConfig.from_dict({
         "device": "cpu", "seed": 3,
         "data": {"dataset_name": "acm", "wisp_max_length": 3, "wisp_walks_per_anchor": 5},
         "model": {**SMALL, "arm": arm},
-        "ablation": {"maps": maps}})
+        "ablation": {"fact_maps_identity": maps}})
 
 
-def _data_and_model(arm: str = "full", maps: str = "identity"):
+def _data_and_model(arm: str = "full", maps=True):
     from src.data.dataset import build_dataset
     from src.models.h2snn_model import build_model
     from tests.partO_fixtures import acm_like_hetero, patched_acm_loader
@@ -155,16 +155,16 @@ class IdentityConfigTests(unittest.TestCase):
     def test_key_validated_and_refused_in_tuning(self) -> None:
         from src.configs.config import reject_never_tuned_settings
 
-        self.assertEqual(_config(maps="learned").ablation.maps, "learned")
+        self.assertFalse(_config(maps=False).ablation.fact_maps_identity)
         with self.assertRaises(ValueError):
-            _config(maps="diagonal")
+            _config(maps="identity")          # not a boolean
         with self.assertRaises(ValueError):
             _config(arm="closure_only")            # maps = I is defined for full and no_path_cells
         with self.assertRaises(ValueError):
-            reject_never_tuned_settings({"ablation": {"maps": "identity"}})
+            reject_never_tuned_settings({"ablation": {"fact_maps_identity": True}})
         with self.assertRaises(ValueError):
-            reject_never_tuned_settings(None, {"maps": {"values": ["learned", "identity"]}})
-        reject_never_tuned_settings({"ablation": {"maps": "learned"}})
+            reject_never_tuned_settings(None, {"fact_maps_identity": {"values": [False, True]}})
+        reject_never_tuned_settings({"ablation": {"fact_maps_identity": False}})
 
 
 if __name__ == "__main__":

@@ -403,7 +403,7 @@ class H2SNN(nn.Module):
         # Arm "maps = I" (spec 1.23 X-11; S2 with arm full, S0 with arm no_path_cells): every fact
         # map's orthogonal factor is I, so every transport is I; c_e, g, beta_f, tau, solver and head
         # unchanged; the frames and the reflector MLP are not parameters.
-        self.identity_maps = ablation.maps == "identity"
+        self.identity_maps = ablation.fact_maps_identity
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
         self.identity_embedding: nn.Embedding | None = None

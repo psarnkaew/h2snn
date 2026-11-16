@@ -138,12 +138,24 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
                                          "solver_warmup_tolerance", "solver_warmup_epochs",
                                          "solver_max_iterations", "tau_stop",
                                          "log_weight_range_stop")
-# Spec 1.23 X-11 (card 4 K1): `ablation.maps` = "learned" (the model) or "identity" (every fact map's
+# Spec 1.23 X-11 (card 4 K1): `ablation.fact_maps_identity` = false (the model) or true (every fact map's
 # orthogonal factor I, hence every transport I): S2 = arm full with identity maps, S0 = arm
 # no_path_cells with identity maps. A comparison arm: refused in a tuning base config and never a
 # search-space parameter, like `model.arm`.
-ABLATION_MAPS: tuple[str, ...] = ("learned", "identity")
 IDENTITY_MAP_ARMS: tuple[str, ...] = ("full", "no_path_cells")
+# Every arm key of a v3-B comparison arm, (section, key, value of the full model).
+ARM_KEYS: tuple[tuple[str, str, str], ...] = (("model", "arm", "full"),
+                                              ("ablation", "path_weight_input", "full"),
+                                              ("ablation", "fact_maps_identity", "False"))
+# Spec 1.23 X-6a / pre-registration §1 configuration (b) (card 4 K6, arm-tuning mode): the five arms
+# tuned on their own, and the one (section, key, value) each may set in a tuning base config.
+ARM_TUNING_KEYS: dict[str, tuple[str, str, str]] = {
+    "endpoints": ("ablation", "path_weight_input", "endpoints"),
+    "closure_only": ("model", "arm", "closure_only"),
+    "instance_features": ("model", "arm", "instance_features"),
+    "no_path_cells": ("model", "arm", "no_path_cells"),
+    "S2": ("ablation", "fact_maps_identity", "True"),
+}
 
 
 #: Spec v1.22 W2 (decisions log 2026-11-13, "H2S-NN LP decoder"): the refusal of `concat_mlp`.
@@ -186,24 +198,39 @@ def reject_never_tuned_settings(
         raise ValueError(
             "model.geometry_context: false is the C9 comparison arm and must not be used in tuning."
         )
-    if str(model.get("arm", "full")) != "full":
+    # Card 4 K6 (b), spec 1.23 X-6a: `tuning.arm` names one of the five separately tuned arms; then
+    # exactly that arm's key (and value) is accepted, every other arm key is still refused. Without
+    # it (the main table) every arm key is refused.
+    arm_mode = str(((raw_config or {}).get("tuning") or {}).get("arm", ""))
+    if arm_mode and arm_mode not in ARM_TUNING_KEYS:
+        raise ValueError(f"tuning.arm must be one of {tuple(ARM_TUNING_KEYS)}, got {arm_mode!r}.")
+    allowed = ARM_TUNING_KEYS.get(arm_mode)
+    sections = {"model": model, "ablation": (raw_config or {}).get("ablation") or {}}
+    for section, key, default in ARM_KEYS:
+        value = str(sections[section].get(key, default))
+        if value == default or (allowed is not None and (section, key, value) == allowed):
+            continue
+        if section == "model":
+            raise ValueError(
+                f"model.arm: {value} is a v3-B comparison arm (spec v1.11 §6) and must not be used "
+                "in tuning; tune the full model and report the arm separately (or tune that arm "
+                "on its own with tuning.arm, spec 1.23).")
+        if key == "path_weight_input":
+            raise ValueError(
+                "ablation.path_weight_input other than full is a C2 ladder arm and must not be used "
+                "in tuning (endpoints only under tuning.arm: endpoints).")
         raise ValueError(
-            f"model.arm: {model.get('arm')} is a v3-B comparison arm (spec v1.11 §6) and must not be "
-            "used in tuning; tune the full model and report the arm separately."
-        )
-    if str(((raw_config or {}).get("ablation") or {}).get("path_weight_input", "full")) != "full":
-        raise ValueError(
-            "ablation.path_weight_input other than full is a C2 ladder arm and must not be used in "
-            "tuning."
-        )
-    if str(((raw_config or {}).get("ablation") or {}).get("maps", "learned")) != "learned":
-        raise ValueError(
-            "ablation.maps: identity is the maps = I comparison arm (S2/S0, spec 1.23) and must not "
-            "be used in tuning; tune the full model and report the arm separately."
-        )
+            "ablation.fact_maps_identity: true is the maps = I comparison arm (S2/S0, spec 1.23) and must not "
+            "be used in tuning; tune the full model and report the arm separately (S2 only under "
+            "tuning.arm: S2).")
+    if allowed is not None:
+        section, key, value = allowed
+        if str(sections[section].get(key, "")) != value:
+            raise ValueError(f"tuning.arm: {arm_mode} needs {section}.{key}: {value} in the base "
+                             "config (the arm being tuned).")
     for name in search_parameters:
-        if str(name).split(".")[-1] == "maps":
-            raise ValueError(f"tuning search space contains {name!r}: ablation.maps (maps = I arm, "
+        if str(name).split(".")[-1] == "fact_maps_identity":
+            raise ValueError(f"tuning search space contains {name!r}: ablation.fact_maps_identity (maps = I arm, "
                              "spec 1.23) is a comparison switch, never tuned.")
     dataset = str(data.get("dataset_name", "acm")).lower()
     node_classification = (str(data.get("task_type", "")) or DATASET_TASK_TYPES.get(dataset, "")
@@ -1430,19 +1457,17 @@ class AblationConfig:
     # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
     # Never tuned.
     coupling: str = "symmetric"
-    # Spec 1.23 X-11: fact maps learned (the model) or identity (arm maps = I: S2 with model.arm
+    # Spec 1.23 X-11: fact maps learned (false, the model) or identity (true; arm maps = I: S2 with model.arm
     # full, S0 with no_path_cells). Never tuned.
-    maps: str = "learned"
+    fact_maps_identity: bool = False
 
     def __post_init__(self) -> None:
         for name in type(self).__dataclass_fields__:
-            if name not in ("coupling", "path_weight_input", "maps") and not isinstance(
+            if name not in ("coupling", "path_weight_input") and not isinstance(
                     getattr(self, name), bool):
                 raise ValueError(f"ablation.{name} must be a boolean, got {getattr(self, name)!r}.")
-        if self.maps not in ABLATION_MAPS:
-            raise ValueError(f"ablation.maps must be one of {ABLATION_MAPS}, got {self.maps!r}.")
-        if self.maps == "identity" and (self.h0_only_readout or self.direction_blind_maps):
-            raise ValueError("ablation.maps: identity is one change from full / no_path_cells; it "
+        if self.fact_maps_identity and (self.h0_only_readout or self.direction_blind_maps):
+            raise ValueError("ablation.fact_maps_identity is one change from full / no_path_cells; it "
                              "cannot be combined with h0_only_readout or direction_blind_maps.")
         _reject_removed_value("ablation", "coupling", self.coupling)
         if self.coupling not in COUPLING_MODES:
@@ -1504,11 +1529,30 @@ class OptimConfig:
 
 
 @dataclass(slots=True)
+class TuningConfig:
+    """Card 4 K6 (b), spec 1.23 X-6a: `arm` names one of the five arms tuned on their own
+    (`ARM_TUNING_KEYS`); empty (default) = the main table, where every arm key is refused in a tuning
+    base config (`reject_never_tuned_settings`). Read only by that validation."""
+
+    arm: str = ""
+
+    def __post_init__(self) -> None:
+        if self.arm and self.arm not in ARM_TUNING_KEYS:
+            raise ValueError(f"tuning.arm must be one of {tuple(ARM_TUNING_KEYS)}, got {self.arm!r}.")
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "TuningConfig":
+        _reject_unknown_keys("tuning", raw, cls)
+        return cls(arm=str(raw.get("arm", "")))
+
+
+@dataclass(slots=True)
 class TrainConfig:
     data: DataConfig = field(default_factory=DataConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
     ablation: AblationConfig = field(default_factory=AblationConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
+    tuning: TuningConfig = field(default_factory=TuningConfig)
     epochs: int = 200
     seed: int = 42
     device: str = "cuda"
@@ -1532,9 +1576,15 @@ class TrainConfig:
                 "ablation.path_weight_context lets g read [h0, c]; c exists only under "
                 "model.geometry_context: true."
             )
-        if self.ablation.maps == "identity" and self.model.arm not in IDENTITY_MAP_ARMS:
+        if self.tuning.arm:
+            section, key, value = ARM_TUNING_KEYS[self.tuning.arm]
+            current = str(getattr(getattr(self, section), key))
+            if current != value:
+                raise ValueError(f"tuning.arm: {self.tuning.arm} needs {section}.{key}: {value}, "
+                                 f"got {current!r}.")
+        if self.ablation.fact_maps_identity and self.model.arm not in IDENTITY_MAP_ARMS:
             raise ValueError(
-                f"ablation.maps: identity is defined for model.arm in {IDENTITY_MAP_ARMS} (S2, S0; "
+                f"ablation.fact_maps_identity is defined for model.arm in {IDENTITY_MAP_ARMS} (S2, S0; "
                 f"spec 1.23), got {self.model.arm!r}.")
 
     @property
@@ -1559,6 +1609,7 @@ class TrainConfig:
             model=ModelConfig.from_dict(raw.get("model", {})),
             ablation=AblationConfig.from_dict(raw.get("ablation", {})),
             optim=OptimConfig.from_dict(raw.get("optim", {})),
+            tuning=TuningConfig.from_dict(raw.get("tuning", {}) or {}),
             epochs=int(raw.get("epochs", default_epochs)),
             seed=int(raw.get("seed", 42)),
             device=str(raw.get("device", "cuda")),
