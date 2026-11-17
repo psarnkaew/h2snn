@@ -129,12 +129,16 @@ not observed.
   - **Device.** The source's README runs Freebase on CPU (`HAN/README.md:17`,
     `python main.py --dataset Freebase --device cpu --num_epochs 1000`); our adapter runs on CUDA.
   - **Width.** The source's configuration is `hidden_units 8, num_heads [8]` (`HAN/utils.py:97-101`). The dry-run
-    point is `hidden_dim 256, num_heads 8` (the maximum of our search space, `hgb_han.py:148-150`), 32 times wider
-    per head.
+    point is `hidden_dim 256, num_heads 8` (the maximum of our search space, `hgb_han.py:148-150`). The heads are the
+    same (8), and the edge-sized tensors (edges × heads: attention scores, softmax, dropout mask) do not depend on
+    the width. In GAT layer 1, allocation grew 3.2 GiB for 49.3M × 8 edge values, while one node-sized tensor at
+    width 256 is 0.31 GiB (40,402 × 8 × 256 × 4 B). So the width is a secondary term. Whether the source's width 8
+    would fit on 24 GB is **UNVERIFIED** (one GPU epoch at hidden 8 would settle it). The source's own choice of CPU
+    for Freebase is consistent with it not fitting.
 - **Source path on CPU:** run on CPU at the dry-run point, it completes one epoch (17161: forward through all 7 GAT
   layers, backward, eval pass; 352 s; peak RSS 33.5 GiB). At 24G it was OOM-killed at layer 7 (17158).
 
-**Cause:** GPU memory at this scale with our search-space width. DGL turns the out-of-memory in its native SpMM into a
+**Cause:** GPU memory at this scale: the edge × head tensors of 7 meta-path graphs, 140.0M edges in total. DGL turns the out-of-memory in its native SpMM into a
 segfault. The operands and code path are the source's. It is not an adapter defect in layout, dtype or coalescing.
 
 ## Summary
@@ -143,4 +147,4 @@ segfault. The operands and code path are the source's. It is not an adapter defe
 |---|---|---|---|---|
 | H2SGNN LP freebase_bb | torch_sparse `spmm_value_bw_kernel` (backward of `A·x`, `model.py:116`) | thread index E × 32 = 5.33e9 (int) | no Freebase path in the source; operators are ours, the call is the source's | library at this scale (int32 thread index) |
 | HAN LP freebase_bb | `GATConv.forward` (bias add), graph 5 of 8 | no | HAN has no LP; graphs are ours | GPU memory > 24 GB at heads 4 |
-| HAN NC freebase | DGL `_gspmm` max in `edge_softmax`, graph 7 of 7 | no | yes, same loader, meta-paths and model; source runs on CPU, hidden 8 | GPU memory > 24 GB at hidden 256 × 8 heads; DGL segfaults instead of raising OOM |
+| HAN NC freebase | DGL `_gspmm` max in `edge_softmax`, graph 7 of 7 | no | yes, same loader, meta-paths and model; source runs it on CPU (hidden 8) | GPU memory > 24 GB (edges × 8 heads); DGL segfaults instead of raising OOM; on CPU one epoch completes |
