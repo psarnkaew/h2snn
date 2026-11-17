@@ -20,8 +20,13 @@ For each failure, on real data (allowed: a diagnosis, no metric), one run with `
 ### F2 — Suite and report
 Full suite once on one node. Report short: per failure — cause, file:line, source comparison, fix or options; tests; last line `branch=baselines-h2gb-6 sha=<full head> card=docs/H2S-NN_baselines_freebase_sparse_card.md base=ae7aef026f4a08f50634a2ea154cbfa31e998b92`.
 
+### F3 — Fixes (added 2026-11-18 after the F0/F1 review; author decisions "1e: a, a, b"; decisions log row "Card 1e review; F3; 1f merged")
+1. **H2SGNN: row-block product** (F1 option a). New module `src/baselines/runtime/blocked_spmm.py` (shared, so card 3 Part B's H2SGNN NC can import it): `blocked_matmul(A, x, max_nnz=2**26 - 1)` — for a `SparseTensor` with nnz > `max_nnz`, split by rows (`A.narrow(0, start, length)`, each block ≤ `max_nnz` nnz; a single row above the limit is a stop item), the same `torch_sparse.matmul` per block, `torch.cat`; otherwise the plain call. `_h2sgnn_lp.py` binds it in place of `torch_sparse_matmul` in the vendor model module's namespace during the vendor forward/backward of that cell only, through a context manager that restores the attribute (vendor file not edited). **Test:** forward and the gradients w.r.t. the sparse values and `x` equal the unblocked product on a synthetic matrix with a small `max_nnz` (several blocks, uneven sizes): forward exact, gradients atol 1e-6 (design session check, n = 50: 0, 0, 4.8e-7); the attribute is restored after the context (no leak). **Mutation:** drop the last block (or shift a boundary by one row) → the test fails.
+2. **HAN on Freebase on CPU** (F1 option a for NC, b for LP): the HAN adapters run `freebase` NC and `freebase_bb` LP on CPU, as the source runs Freebase (`HAN/README.md:17`); the record states `device: cpu (source HAN/README.md:17)`, and the cell's resource line (registry or the field the tuning launcher reads) says CPU, so the TSUBAME launcher submits a CPU job. If the launcher has no per-cell device field, report it (no launcher edit: card 2 owns it). **Test:** device resolution for these two cells is CPU, every other HAN cell unchanged. No real-data run (author 2026-11-18); the first TSUBAME trial is the check.
+3. No suite here: card 1f's U4 suite covers F3 (same branch).
+
 ## Files
-`src/baselines/**`, baseline tests, evidence `docs/baselines_h2gb_evidence/p6_*`, the report. Nothing else (a needed change elsewhere is a stop item).
+`src/baselines/**` (incl. the new `src/baselines/runtime/blocked_spmm.py`), baseline tests, evidence `docs/baselines_h2gb_evidence/p6_*`, the report. Nothing else (a needed change elsewhere is a stop item).
 
 ## Rules and stop conditions
 - One commit per unit; push `baselines-h2gb-6` after each; never push another branch, never `v3b`, never force-push; after the report line, no further push.
