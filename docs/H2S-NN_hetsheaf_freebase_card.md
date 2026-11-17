@@ -48,8 +48,8 @@ On `hetsheaf` from `d11810cc2108e8374435fed8c715a17821427858` (= `v3b`). A4's Ru
 Branch from the new `v3b`, merge the pinned `design-docs`. Record file:line of each source's dataset branch (F-1).
 ### B1 — Wiring
 SeHGNN Freebase branch as their code; PSHGCN and H2SGNN generic branch per F-1. Registry: the three `FREEBASE_VENDOR_REASON` entries removed. **Tests (Slim):** per adapter one step finite and moves on a synthetic graph with Freebase's schema shape (8 types, parallel relations); **equivalence:** on a synthetic ACM-shaped graph the generic construction gives exactly the adjacency dictionary their ACM branch builds (keys and values; PSHGCN and H2SGNN; ACM's `PP` merge included as their code does it).
-### B2 — Real-data one-epoch check and report
-As A4 for the three Freebase cells (largest memory point of each method's grid). Full suite once. Last line: `branch=freebase-baselines sha=<full head sha> card=docs/H2S-NN_hetsheaf_freebase_card.md base=<pinned v3b sha>`.
+### B2 — Suite and report (amended 2026-11-18, author: no real-data run on the lab cluster; the first tuning trial of each cell on TSUBAME is the real-data check)
+Full suite once. **H2GB NC paths of PSHGCN and H2SGNN use one of the two shared loops of `src/baselines/minibatch.py`** (no own loop), so card 1f's B1a subset covers them; an own loop is a stop item. If H2SGNN fails in the same `torch_sparse` SPMM path as card 1e's freebase_bb item, record it and refer to card 1e's options (no fix here). Last line: `branch=freebase-baselines sha=<full head sha> card=docs/H2S-NN_hetsheaf_freebase_card.md base=<pinned v3b sha>`.
 
 ## Rules and stop conditions
 - Data, cluster, git as card 2 (env `h2snn-b`; SLURM only; one commit per unit, explicit paths; push only the card's branch; never push or move `v3b`, `design-docs` or another branch; never force-push, rebase, amend, stash or reset; never stage `data/`, W&B folders, checkpoints, `Claude outputs/`, `H2S-NN/paper/`, vendor clones, `docs/lab-gpu-cluster.html`). Do not edit the spec, cards or vendor code. Never download data.

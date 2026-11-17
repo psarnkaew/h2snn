@@ -47,6 +47,15 @@ All rows of these tasks; gate H0-eq on the HGB `G_P`s first. Output into `docs/h
 ### H2 — H2GB NC and large LP (CPU jobs)
 The 8 H2GB NC datasets and the 2 large LP tasks; D-b limits; blanks with reasons. One array, throttled to 3 concurrent jobs.
 
+### H2b — Closed form on complete meta-path graphs (added 2026-11-18, author; decisions log row "Card 6 H2b")
+**Why:** the H2 logs show that on OAG the paper–field–paper `G_P` is complete: oag-eng 370,624 edges per row = its paper count (job 17388_13), oag-cs 546,704 per row = its paper count (17388_15), so the reference pass enumerates n² pairs (≈ 3·10¹¹) for a value that depends only on class shares and feature moments.
+**Rule.** For one meta-path `src→mid→dst` with both ends the target type: `G_P` is complete (every ordered pair, self-pairs included, as the harness's `G_P` keeps them) if some `mid` node is adjacent to all n targets on both steps (exact check from the two adjacencies; the union of the step's stored relations as now). Then, with the labels after the same fill (`fill_like_h2gb` / the vendor fill) and the same features as the reference call:
+- MLH and H2GB `h_edge`: Σₖ pₖ², pₖ = nₖ / n; H2GB `h_insensitive` = 0 and `h_adj` = 0 (every node has degree n); return every value the reference returns, in its form.
+- MDE (Hetero²Net `attribute_homophily`, degrees n): (mean_u ‖x_u‖² − ‖x̄‖²) / (2n), float64.
+No hub node → the reference path as before (no other shortcut). The record states `gp_complete: true` and the hub node id per meta-path. Definitions are unchanged; only the computation differs (DERIVED, checked by the design session with Hetero²Net's own functions on a complete graph n = 37: MLH 0.2607743 both, MDE 0.0603155 both).
+**Gate H2b-eq (before any real value is written):** on synthetic graphs with a hub (several sizes, labels with a filled `-1` part, features d ≥ 3), closed form = the reference functions called unchanged (`label_homophily`, `attribute_homophily`, `calcHomophily` all three returned values) to rtol 1e-5; a graph without a hub is refused by the closed form. **Mutation:** drop self-pairs (n(n−1) pairs) → the gate fails. **Real-data check:** let 17388_15 (oag-cs MLH, reference path) finish; the closed form on oag-cs must equal it to rtol 1e-5, else stop.
+**Jobs:** cancel 17388_13 (oag-eng MDE) and 17388_14 (oag-eng ℋ²) and the pending tasks of 17388 for ogbn-mag, mag-year and OAG; rerun them through H2b (closed form where a hub exists, the reference elsewhere). At most **2 CPU jobs at once**, `--mem` = measured host peak + 30 % (≥ 16G), so the GPU nodes keep RAM for GPU jobs. A non-hub meta-path whose reference pass would exceed 12 h may run the reference code unchanged on one 24 GB GPU (its device follows the inputs; `chunk_size` is its own argument and does not change the value), one GPU job at a time, after S2's jobs, never the A6000; else "–" with the reason.
+
 ### H3 — Report
 Table (dataset × measure, with "–" and reasons), per-meta-path detail in `stats.json`, cost per row. Last line `branch=heterophily sha=<full head> card=docs/H2S-NN_heterophily_harness_card.md base=1867681dc197ab536ad5cf1fbede4a9df9abffab`.
 
