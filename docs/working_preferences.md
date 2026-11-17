@@ -103,3 +103,4 @@
 - The author runs up to four agent sessions in parallel and labels their reports `[S1]`..`[S4]` in the one design chat; the design session answers per label and checks state from git, never from memory. The current mapping (session → card → branch/worktree) is in the newest `docs/handoff_*.md`.
 - Before a large card goes to an agent, the author may have another design session review it (card 4 was improved this way); treat such reviews as input to verify against code, not as decisions.
 - When the design chat gets long, the design session writes a handoff and tells the author to open a new chat in `h2snn-design`.
+- **No A6000** (author 2026-11-17): no job of any session or agent requests the A6000 or g3an01. A cell that OOMs on a 24 GB GPU steps down one grid step at a time on 24 GB (decision 1); an A6000 result is never awaited or recorded.

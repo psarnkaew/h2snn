@@ -30,7 +30,6 @@
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\method}{\textsc{H2S-NN}}
-\newcommand{\wisp}{\textsc{WISP}}
 \newcommand{\norm}[1]{\left\lVert #1\right\rVert}
 \newcommand{\transpose}{\mathsf{T}}
 \newcommand{\concat}{\mathbin\Vert}
@@ -67,17 +66,20 @@ To handle the situation where nodes of the target type are linked only through n
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.92\textwidth]{figure/h2snn_example_v3b3.pdf}
-  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph: papers P1, P4, P9 (colour = label), author A7, subject S3. \textbf{(b)} Splitting by meta-path schema builds one paper graph per schema (PAP, PSP); A7 and S3 appear in neither. \textbf{(c)} \method{} keeps the meta-path instances P1--A7--P9 and P1--A7--P4 as faces of the original graph. Each face stalk (dots) is coupled to every node and edge of its instance, including A7, and the two faces share the stalk of the edge P1--A7 (dashed). No edge P1--P9 is added.}
+  \includegraphics[width=0.92\textwidth]{figure/h2snn_example_v3b5.pdf}
+  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph: papers P1, P4, P9 (colour = label), author A7, subject S3. \textbf{(b)} Splitting by meta-path schema builds one paper graph per schema (PAP, PSP); A7 and S3 (greyed) appear in neither. \textbf{(c)} \method{} keeps the meta-path instances P1--A7--P9 and P1--A7--P4 as faces $z_f$, $z_g$ of the original graph. Each face stalk (dots) is coupled (arrows) to every node and edge of its instance, including A7, and the two faces share the stalk of the edge P1--A7 (dashed circle). No edge P1--P9 is added. Squares, diamonds and circles are authors, subjects and papers; paper colour is its label.}
   \label{fig:example}
 \end{figure*}
 
 However, existing neural networks methods for heterogeneous heterophilic graphs address heterophily and meta-paths indirectly. They decompose the graph into one view per meta-path schema and then fuse the views \cite{lu2026addressing,chen2025adaptive,li2025hetero2net,guo2023homophily,shen2025heterophily,wang2025homophily}, as shown in Figure~\ref{fig:example}(b). Propagation therefore runs on derived graphs instead of the original one, and node pairs that follow the same schema are distinguished only by their endpoints, so the meta-path instances that connect them, and the nodes and edges in between, are ignored. Instance encoders such as MAGNN \cite{fu2020magnn} keep the intermediate nodes but write the result only to the target node, and sheaf-based models \cite{braithwaite2024heterogeneous} use edges information alone. These gaps lead to two research questions: \textbf{RQ1}, can a single model on the original graph predict under heterophily using meta-path instances, without per-schema branches?” \textbf{RQ2}, given the same meta-path instances, does using them as structure, by coupling the nodes and edges they traverse and the instances that share an edge, improve prediction over using them as features at their endpoints?
 
-To address these questions, we introduce the \textbf{Heterogeneous Heterophilic Sheaf Neural Network (\method{})}, which handles heterophily on the original graph and treats meta-paths as part of the structure the model operates on, not as extra input. \method{} represents each sampled meta-path instance as a two-dimensional cell (2-cell), which we call a face, attached to the nodes and edges it traverses (nodes and edges are the 0- and 1-cells). A face is never closed into a loop, so an instance does not need to return to its start. Node representations are obtained by solving one energy problem over this structure, in which a node is influenced by its edges and by every meta-path instance through it, including intermediate nodes. Instances that share an edge interact through that edge’s stalk. Each instance carries a learned weight computed from its own nodes and relations. Edges act through learned, direction-aware transformations, and each instance acts through the composition of the transformations of its edges, so neighbors of different classes need not be pulled toward the same representation. Our main contributions are summarized as follows:
+To address these questions, we introduce the \textbf{Heterogeneous Heterophilic Sheaf Neural Network (\method{})}. Instead of splitting the graph by schema, \method{} keeps the original graph and places a face above every sampled meta-path instance, so that an instance such as P1--A7--P9 acts on all of its nodes, A7 included, and on the edges between them. Each edge carries learned transformations and a face composes those of its edges, so two papers linked through A7 are compared through A7's own transformations and need not be pulled toward the same representation, which is what heterophily requires. Node representations are the minimiser of one energy over nodes, edges and faces, so no per-schema branch is needed. Our main contributions are summarized as follows:
+
+
 \begin{enumerate}
-\item We propose \method{}, a single model on the original graph that handles heterophily without per-schema branches (RQ1). Its sampler, \wisp{}, draws meta-path instances by random walks without a meta-path list, so the model without pre-defined schemas.
-\item We retain each meta-path instance as a face whose maps are fixed by the maps of its edges, so that every node of the instance, including intermediate ones, is coupled to it with no added parameters (RQ2). Controlled variants on identical sampled instances is coupled to it with no added parameters, and instances that share an edge interact through its stalk (RQ2). Controlled variants on identical sampled instances test whether this coupling improves prediction.
+\item We propose \method{}, a model on the heterogeneous graph that handles heterophily and meta-paths information structurally. 
+\item We retain each meta-path instance as a face whose maps are fixed by the maps of its edges, so that every node of the instance, including intermediate ones, is coupled to the calculation.
+\item We conduct experiment on several tasks including node classification, link prediction, and graph classification with wide range of heterophily, graph size, and characteristics to ensure the model generalizability and scalability.
 \end{enumerate}
 
 
@@ -86,11 +88,10 @@ To address these questions, we introduce the \textbf{Heterogeneous Heterophilic 
 \section{Preliminaries and Related Work}
 \label{sec:background}
 
-\subsection{Relations between Heterogeneous Graph and Meta-Paths}
-\subsection{Heterogeneous Graphs}
+\subsection{Heterogeneous Graph and Meta-Paths}
 A heterogeneous graph is a tuple $G=(V,E,\phi,\psi)$, where $V$ and $E$ are the node and edge sets, $\phi:V\rightarrow\mathcal{T}$ assigns each node a type, and $\psi:E\rightarrow\mathcal{R}$ assigns each edge a relation type. The graph is heterogeneous when $|\mathcal{T}|>1$ or $|\mathcal{R}|>1$; it reduces to a homogeneous graph when $|\mathcal{T}|=|\mathcal{R}|=1$ \cite{lu2026addressing}. Benchmarks often store each fact twice, once per direction; we keep one oriented edge per fact.
 
-\subsubsection{Meta-Path Schemas and Path Instances}
+
 A meta-path schema of length $\ell$ is a typed relation sequence
 \begin{equation}
   \pi:\;
@@ -101,44 +102,51 @@ A meta-path schema of length $\ell$ is a typed relation sequence
 \end{equation}
 which specifies a composite relation between its endpoint types \cite{sun2011pathsim}. A path instance is an ordered sequence $f=(v_0,e_1,v_1,\ldots,e_\ell,v_\ell)$ of nodes and edges with $\phi(v_i)=t_i$ and $\psi(e_i)=r_i$. Thus, $\pi$ describes a type-level pattern, whereas $f$ identifies one occurrence of that pattern in the observed graph; we call $v_1,\ldots,v_{\ell-1}$ the intermediate nodes of $f$. For example, PAP is a schema and P1--A7--P9 is one of its instances, with A7 as its intermediate node.
 
-Most heterogeneous graph neural networks use schemas to decide which nodes exchange messages. HAN \cite{wang2019han} learns attention over the neighbours that each schema links to a target node, and SeHGNN \cite{yang2023sehgnn} and LMSPS \cite{li2024lmsps} precompute neighbour averages per schema, LMSPS also searching for the useful schemas. In these models an instance is reduced to a link between its endpoints, so A7 does not take part in the computation. Instance encoders keep the intermediate nodes: MAGNN \cite{fu2020magnn} and MECCH \cite{fu2024mecch} encode each instance and add the result to its target node, and MF2Vec \cite{kim2024mf2vec} turns instances into weights of the link between their endpoints. In every case the instance informs only its endpoints; A7 itself receives nothing from it.
+Existing work ignores meta-paths and lets message passing identify the useful relations, through relation-specific transformations \cite{schlichtkrull2018rgcn,lv2021hgb}, type-aware attention \cite{hu2020heterogeneous}, or sampled typed neighbourhoods \cite{zhang2019heterogeneous,mao2023hinormer}. Although this spares the user from specifying schemas, the connection between two target nodes is never represented explicitly: it emerges only through stacked layers, where it is mixed with the signals of all other neighbours of the nodes in between. Meta-paths make such connections explicit.
 
-\subsection{Homophily and Heterophily}
-Homophily refers to the prevalence of edges between nodes that share the same label. In a heterogeneous graph, labels are usually comparable only between nodes of the target type, so heterophily is measured on the graphs induced by meta-paths. Let $\mathcal{P}_2$ be the set of length-two schemas from the target type to itself and $G_p$ the graph that $p\in\mathcal{P}_2$ induces on target nodes. We report two measures exactly as their sources define and implement them. The primary measure is the $\mathcal{H}^2$ index of H2GB \cite{lin2025heterophily},
+Some heterogeneous graph neural networks use meta-path schemas to decide which nodes exchange messages. HAN \cite{wang2019han} learns attention over the neighbours that each schema links to a target node, whereas SeHGNN \cite{yang2023sehgnn} and LMSPS \cite{li2024lmsps} precompute neighbour averages per schema, with LMSPS also searching for the useful ones. These models reduce an instance to a link between its endpoints. Instance encoders are the exception: they retain the intermediate nodes, but only to compute a message for the target node (MAGNN \cite{fu2020magnn}, MECCH \cite{fu2024mecch}) or a weight on the endpoint link (MF2Vec \cite{kim2024mf2vec}).In every case, an instance informs only its endpoints and not the intermediate nodes it traverses, so the entities that determine whether two target nodes agree are not updated by the instances that pass through them. Consequently, none of these methods uses meta-path instances as part of the structure on which a single model operates.
+
+
+\subsection{Heterophily}
+Heterophily is the tendency of connected nodes in a graph to be dissimilar from one another. It is typically measured in two ways: through node labels or node features. First, label heterophily measures the tendency of connected nodes to belong to different classes.  In a heterogeneous graph, labels are usually comparable only between nodes of the target type, so it is measured on the graphs induced by meta-paths. Let $\mathcal{P}_2$ be the set of length-two schemas from the target type to itself and $G_p$ the graph that $p\in\mathcal{P}_2$ induces on target nodes. We use two label-based measures. The first is the $\mathcal{H}^2$ index of H2GB \cite{lin2025heterophily},
 \begin{equation}
   \mathcal{H}^2(G)=\frac{1}{|\mathcal{P}_2|}\sum_{p\in\mathcal{P}_2}\bigl(1-h_{\mathrm{adj}}(G_p)\bigr),
   \label{eq:h2}
 \end{equation}
-where $h_{\mathrm{adj}}$ is the adjusted homophily of Platonov et al.~\shortcite{platonov2023characterizing}, which corrects edge homophily for class imbalance. Values near $0$ indicate homophily, and values near or above $1$ indicate heterophily. Next to it we report the metapath-based label heterophily (MLH) \cite{li2025hetero2net}, which averages the uncorrected edge heterophily over the same graphs.
+where $h_{\mathrm{adj}}$ is the adjusted homophily of Platonov et al.~\shortcite{platonov2023characterizing}, which corrects edge homophily for class imbalance; values near $0$ indicate homophily, and values near or above $1$ indicate heterophily. The second is the metapath-based label heterophily (MLH) \cite{li2025hetero2net}, the share of edges of $G_p$ whose endpoints have different labels, averaged over $\mathcal{P}_2$. Hetero$^2$Net reports the complementary homophily share, so its published values correspond to $1-\mathrm{MLH}$. 
 
-Models designed for heterophilic heterogeneous graphs follow the same view. Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing} and LatGRL \cite{shen2025heterophily} first build one homogeneous graph per schema, induced or latent, and handle heterophily on it. Heterophily is then judged on derived graphs rather than on the observed one, and two pairs joined by the same schema are told apart only by their endpoints. H2G-former \cite{lin2025heterophily} works on the original graph with attention restricted to $k$-hop neighbourhoods, but meta-paths enter only its heterophily measure, not the model.
+Second, feature heterophily measures how different the attributes of connected nodes are. It needs no labels and therefore also applies beyond node classification. We use the metapath-based Dirichlet energy (MDE) \cite{li2025hetero2net}, which averages over the edges $(u,v)$ of each $G_p$ the squared distance $\tfrac14\norm{x_u/\sqrt{|N_u|}-x_v/\sqrt{|N_v|}}^2$ between the node features of the two endpoints, each scaled by the square root of its degree, where $N_u$ is the neighbourhood of $u$ in $G_p$, and then averages over $\mathcal{P}_2$. A larger MDE indicates stronger heterophily.
+
+There are several models assessing heterophilic heterogeneous graphs. Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing} and LatGRL \cite{shen2025heterophily} first build one homogeneous graph per schema, induced or latent, and handle heterophily on it. Heterophily is then judged on derived graphs rather than on the observed one, and two pairs joined by the same schema are told apart only by their endpoints. H2G-former \cite{lin2025heterophily} works on the original graph with attention restricted to $k$-hop neighbourhoods. However, meta-paths enter only its heterophily measure, not the model.
 
 \subsection{Cellular Sheaves on Graphs}
+Plain neighbour aggregation pulls every node toward the average of its neighbours, so repeated aggregation makes node representations similar and erases their individual characteristics. Under heterophily, where neighbours tend to differ in features and labels, this is particularly harmful. Cellular sheaves address it by letting each edge compare its two endpoints through learned maps instead of requiring them to be equal, so that a node can keep its own characteristics while remaining consistent with its neighbours \cite{hansen2020sheaf,bodnar2022neural}.
+
 A cellular sheaf $\mathcal{F}$ on a graph assigns a vector space, or \emph{stalk}, to every node and edge, and a linear restriction map $F_{v\inc e}:\mathcal{F}(v)\rightarrow\mathcal{F}(e)$ to every incident pair. We call these maps \emph{edge maps}: $F_{v\inc e}$ expresses the state of node $v$ in the space of edge $e$. With $d$-dimensional stalks, the coboundary compares the two endpoints of an oriented edge $e=(u\rightarrow v)$ after both are mapped into the edge stalk:
 \begin{equation}
   (\delta x)_e = F_{v\inc e}x_v-F_{u\inc e}x_u .
   \label{eq:coboundary}
 \end{equation}
-The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $x^{\transpose}\Delta_0x=\norm{\delta x}^2$; when all maps are identities, it recovers the graph Laplacian. Sheaf neural networks can address heterophily and oversmoothing by diffusing through learned edge maps instead of averaging raw features \cite{hansen2020sheaf,bodnar2022neural}, which has led to numerous extensions \cite{barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}. These models define the sheaf only over node--edge incidences.
+The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $x^{\transpose}\Delta_0x=\norm{\delta x}^2$; when all maps are identities, it recovers the graph Laplacian. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural}, which has led to numerous extensions \cite{barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}. A sheaf is not tied to a graph, however: it can be placed on any partially ordered set, assigning a vector space to each element and a linear map to each pair $a\le b$, such that the maps compose along chains \cite{curry2014sheaves}. We place it on the incidence poset of nodes, edges and faces, which is not a cell complex because a face is not closed. Some models look beyond edges and learn their higher-order maps freely such as using hypergraph \cite{duta2023sheafhyper} or cell-complex and topological networks \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}. Nevertheless, in none of them are the maps of a higher-order cell determined by the edge maps of the edges it contains, which is the property our construction adds (Section~\ref{sec:method}).
 
-Models that look beyond edges do not tie their higher-order maps to the graph. Sheaf hypergraph networks \cite{duta2023sheafhyper} couple the members of a hyperedge, an unordered set of nodes, through a shared stalk with a freely learned map per node and hyperedge. Cell-complex and topological networks \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn} attach higher-dimensional cells to cycles or to general complexes and learn their messages or maps freely. In none of these models are the maps of a higher-order cell determined by the edge maps of the edges it contains, which is the property our construction adds (Section~\ref{sec:method}).
 \section{Methodology}
 \label{sec:method}
+Given a heterogeneous graph with type-dependent node features $x^{\mathrm{raw}}_v\in\R^{d_{\phi(v)}}$ (types without features receive a learned vector per node) and no list of meta-path schemas, we learn a predictor $p_\theta(o;G)$ for an object $o$: a target node (node classification) or a typed node pair (link prediction) or graph type (graph classification). 
 
-\subsection{Problem}
-Given a heterogeneous graph with type-dependent node features $x^{\mathrm{raw}}_v\in\R^{d_{\phi(v)}}$ (types without features receive a learned vector per node) and no list of meta-path schemas, we learn a predictor $p_\theta(o;G)$ for an object $o$: a target node (classification) or a typed node pair (link prediction). The parameters minimise the average of a loss $\mathcal{L}$, cross-entropy or binary cross-entropy, over labelled training objects.
+
 
 \subsection{Overview}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b2.pdf}
-  \caption{Overview of \method{}: (1) encode nodes, (2) learn restriction maps on edges, (3) sample faces with \wisp{}, (4) derive face maps from edge maps and weight each face, (5) combine node, edge and face stalks in one energy, (6) propagate by minimising the energy and predict.}
+  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b4.pdf}
+  \caption{Overview of \method{}, from input graph to prediction. \emph{Top row:} zooming into one neighbourhood of the input graph, (1) a per-type encoder maps raw features to a shared stalk space, giving $h_v$; (2) restriction maps $F_u,F_v$ on each edge compare neighbours in the edge stalk $s_e$; (3) random walks on the original graph, with no meta-path list, give one face each. \emph{Bottom row:} (4) the maps of a face are composed from the maps of its edges, with no new parameters, and the face receives a weight $\beta_f$; (5) node, edge and face stalks are tied in one energy; (6) minimising it, anchored at $h_v$, gives node representations that an MLP head turns into a node-classification prediction $\hat y_v$ or, for a node pair, a link score.}
   \label{fig:pipeline}
 \end{figure*}
-We introduce \method{}, a Heterogeneous Heterophilic Sheaf Neural Network, for supervised learning on heterogeneous heterophilic graphs. As shown in Figure~\ref{fig:pipeline}, \method{} consists of six stages. First, \emph{node encoding} maps typed features into a shared stalk space. Second, \emph{restriction maps} are learned on every edge, so that neighbours are compared in the coordinates of the edge instead of the raw space and need not have similar embeddings. Third, \wisp{} samples meta-path instances by random walks as \emph{faces}, and fourth, the maps of each face are composed from the maps of its edges and the face receives a weight. Fifth, node, edge and face stalks interact through \emph{one energy}, in which a node is influenced by its edges and by every face through it, and faces that share an edge are coupled through its stalk. Finally, the node representations are obtained by minimising the energy anchored at the node encodings, and a prediction head reads them together with the encodings. Together, these stages allow \method{} to handle heterophily on the original graph and to use meta-path instances as part of its structure.
+We introduce \method{}, a Heterogeneous Heterophilic Sheaf Neural Network, for supervised learning on heterogeneous heterophilic graphs. As shown in Figure~\ref{fig:pipeline}, \method{} consists of six stages. First, \emph{node encoding} maps typed features into a shared stalk space. Second, \emph{restriction maps} are learned on every edge, so that neighbours are compared in the coordinates of the edge instead of the raw space and need not have similar embeddings. Third, a random-walk sampler draws meta-path instances as \emph{faces}, and fourth, the maps of each face are composed from the maps of its edges and the face receives a weight. Fifth, node, edge and face stalks interact through \emph{one energy}, in which a node is influenced by its edges and by every face through it, and faces that share an edge are coupled through its stalk. Finally, the node representations are obtained by minimising the energy anchored at the node encodings, and a prediction head reads them together with the encodings. Together, these stages allow \method{} to handle heterophily on the original graph and to use meta-path instances as part of its structure.
 
 \subsection{Encoding and Restriction Maps}
-Because nodes of different types must be compared by the same maps, each node is first encoded into a $d$-dimensional vector, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})$ with type-specific $W,b$ and a type embedding $q$. Two nodes with similar features can play different roles, so $c_v$ adds the mean of $h$ over the neighbours of $v$ under every relation and direction.
+
+Because nodes of different types must be compared by the same maps, each node is first encoded into a $d$-dimensional vector, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})$ with type-specific $W,b$ and a type embedding $q$. Two nodes with similar features can play different roles, so $c_v$ concatenates, for every relation and direction, the mean of $h$ over the neighbours of $v$ (zero if there are none).
 
 Because neighbours under heterophily should not be forced to agree in the raw space, an edge $e=(u\xrightarrow{r}v)$ carries one learned restriction map per endpoint, and the two endpoint values are compared in the coordinates of the edge, as in sheaf neural networks \cite{hansen2020sheaf,bodnar2022neural}. Each map is orthogonal and depends on both endpoints, the relation and the role of the endpoint:
 \begin{equation}
@@ -148,11 +156,11 @@ Because neighbours under heterophily should not be forced to agree in the raw sp
 \end{aligned}
   \label{eq:maps}
 \end{equation}
-where $v'$ is the other endpoint, $\zeta_r$ a relation embedding, $\rho$ the role, $R_{r,\rho}$ a learned rotation, and $H_1,H_2$ Householder reflections. Orthogonality keeps all compositions of maps orthogonal, and the pair conditioning lets the identity of an intermediate node enter the geometry, which relation-only maps cannot do. Each edge also has a positive weight $a_e=c_e^2$.
+where $v'$ is the other endpoint, $\zeta_r$ a relation embedding, $\rho$ the role, $R_{r,\rho}$ a learned orthogonal matrix, and $H_1,H_2$ Householder reflections. Orthogonality keeps all compositions of maps orthogonal, and the pair conditioning lets the identity of an intermediate node enter the geometry, which relation-only maps cannot do. Each edge also has a positive weight $a_e$, computed from the encodings of its two endpoints and its relation.
 
 \subsection{Faces: Meta-Path Instances with Forced Maps}
-\label{sec:wisp}
-\wisp{} supplies the faces without a meta-path list. From every anchor node it draws $r$ random walks on the original graph; anchors are the nodes of the target type for node classification, the nodes of both endpoint types of the target relation for link prediction, and every node for graph classification. A walk draws its length uniformly from $\{2,\ldots,\ell_{\max}\}$, chooses uniformly among relation--direction pairs that lead to an unvisited node, then uniformly among those neighbours, and is discarded at a dead end. A walk and its reversal give one instance. Each walk $\omega$ has probability $p(\omega)$, and each instance receives the sampling weight $m_f=\sum_{\omega\to f}\frac1r\,p(\omega)/q_{\mathrm{mix}}(\omega)$, where $q_{\mathrm{mix}}$ is the distribution the walks were drawn from. The weighted sum of instance terms is then an unbiased estimate of the one defined by $p$ (Appendix~\ref{app:proofs}); this concerns the sum before normalisation (Section~\ref{sec:prop}). Training draws new walks every epoch, and evaluation uses one fixed draw shared by all compared models.
+\label{sec:faces}
+A random-walk sampler supplies the faces without a meta-path list. From every anchor node it draws $r$ random walks on the original graph; anchors are the nodes of the target type for node classification, the nodes of both endpoint types of the target relation for link prediction, and every node for graph classification. A walk draws its length uniformly from $\{2,\ldots,\ell_{\max}\}$, chooses uniformly among relation--direction pairs that lead to an unvisited node, then uniformly among the facts of that choice that lead to an unvisited node, and is discarded at a dead end. A walk and its reversal give one instance. Each walk $\omega$ has probability $p(\omega)$, and each instance receives the sampling weight $m_f=\sum_{\omega\to f}\frac1r\,p(\omega)/q_{\mathrm{mix}}(\omega)$, where $q_{\mathrm{mix}}$ is the distribution the walks were drawn from. The weighted sum of instance terms is then an unbiased estimate of the one defined by $p$ (Appendix~\ref{app:proofs}); this concerns the sum before normalisation (Section~\ref{sec:prop}). Training draws new walks every epoch, and evaluation uses one fixed draw shared by all compared models.
 
 A face is one instance $f=(v_0,e_1,\ldots,v_\ell)$. It is \emph{not} closed: there is no edge between $v_0$ and $v_\ell$. A face has a stalk $z_f$, and its restriction maps are not new parameters. We fix $F_{v_0\inc f}=I$ and compose the edge maps along the path,
 \begin{equation}
@@ -205,11 +213,15 @@ The bound on the condition number concerns $\hat S$ only. The solver is precondi
 
 \paragraph{What this establishes for heterophily.} The node-level map $h\mapsto x^\star$ is a resolvent, the same form as personalised PageRank propagation \cite{gasteiger2019appnp}; what is new is the operator inside it. Edge and face stalks have no input features, so they carry no information beyond what the nodes supply; they change the geometry in which nodes interact. For heterophily, it can be shown that maps of the form of Equation~\eqref{eq:maps} admit configurations in which nodes of different classes are consistent in the edge coordinates without being equal (existence only; it does not imply that training finds them), a mechanism that edge-level sheaf models share. What faces add is a comparison that no edge expresses: P1 and P9 are compared \emph{through} A7 with A7's own maps, and instances sharing an edge inform each other. Whether this coupling improves prediction under heterophily is an empirical question, which we test by removing it (Section~\ref{sec:discussion}); we do not claim it from the construction.
 
-\subsection{Variants and Cost}
+\subsection{Variants}
 \label{sec:cases}
-The model contains the following configurations, which we compare on identical sampled instances. \emph{No faces}: $\beta_f=0$, an edge-sheaf model. \emph{No edge--face term}: faces are coupled only to their nodes and edge stalks are eliminated, so each edge acts as a direct term between its endpoints; with \emph{Free face maps} this is close to a sheaf hypergraph network. \emph{No node--face term}: faces are coupled only to their edges. \emph{Endpoint edge}: each face is replaced by one edge between $v_0$ and $v_\ell$ that carries the composed map and the weight $\beta_f$. \emph{Face as feature}: $\beta_f=0$ in the solve, and a weighted mean of the transported encodings of each instance is passed to the prediction head; with relation-only maps this equals the instance encoder of MAGNN, as we checked numerically. \emph{Free face maps}: the maps into the face are learned instead of forced. The weight ladder restricts $g$ to a constant (\emph{Uniform}), to the relation sequence (\emph{Schema}) or to the endpoints and relation sequence (\emph{Endpoints}); the full model additionally sees the intermediate nodes.
+To find out which parts of the construction matter, the model contains configurations that change one component and nothing else; all of them are compared on identical sampled instances. They fall into four groups.
 
-Edges that lie on at most one face are eliminated exactly, so the cost depends on the edges shared by several faces. On ACM, DBLP and IMDB with $d=32$, the solver converged in 9, 11 and 10 iterations at tolerance $10^{-4}$, on one RTX 4060 (8 GB) card; peak memory and time per epoch are in Table~\ref{tab:cost}. The cost does not depend on the number of schemas.
+\emph{Faces.} \emph{No faces} sets $\beta_f=0$, which leaves an edge-sheaf model. \emph{Endpoint edge} replaces each face by one edge between $v_0$ and $v_\ell$ that carries the composed map and the weight $\beta_f$. \emph{Face as feature} sets $\beta_f=0$ in the solve and passes to the prediction head the sum, over the instances of an anchor, of the mean transported encoding of each instance weighted by $\beta_f$; with relation-only maps this equals the instance encoder of MAGNN, as we checked numerically.
+\emph{Coupling.} \emph{No edge--face term} couples faces only to their nodes, so edge stalks are eliminated and each edge acts as a direct term between its endpoints; together with free maps, this is close to a sheaf hypergraph network. \emph{No node--face term} couples faces only to their edges, and \emph{Free face maps} learns the maps into a face instead of composing them from its edges.
+\emph{Maps.} \emph{Identity maps} sets every edge map to the identity, so that no transport remains while faces, weights and solver are unchanged. \emph{Direction-blind maps} gives the two roles of a relation a common frame, and \emph{No relational context} lets the maps and the edge weights read the encoding of a node alone, without the mean of its neighbours.
+\emph{Weights.} The weight function $g$ is restricted to a constant (\emph{Uniform}), to the relation sequence (\emph{Schema}) or to the end nodes and the relation sequence (\emph{Endpoints}); the full model also sees the intermediate nodes.
+Two further configurations serve as references: \emph{No propagation} skips the solve and reads the encodings only, and \emph{Published meta-paths} restricts the sampled walks to the meta-path lists published with HGB.
 
 %======================================================================
 \section{Experiments}
@@ -218,11 +230,11 @@ Edges that lie on at most one face are eliminated exactly, so the cost depends o
 \subsection{Experiment Settings}
 We evaluate on node classification (main task) and link prediction; graph classification checks that the model covers the task and is reported in Appendix~\ref{app:data}.
 
-\paragraph{Datasets.} For node classification we use four HGB benchmarks \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase (24\%/6\%/70\% splits), and eight H2GB benchmarks \cite{lin2025heterophily}: ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, IEEE-CIS-G, H-Pokec and PDNS, with their official loaders and splits; PDNS is evaluated on later time windows and is the one inductive dataset. They cover a wide range of heterophily (Table~\ref{tab:hetero}). For link prediction we use eight tasks: ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, PubMed disease--disease, LastFM user--artist, ogbn-mag paper--paper and H-Pokec user--user. The target relation is split by fact into 81\%/9\%/10\% (Freebase by unordered pair), and held-out facts are removed in both directions from the message graph and from every sampled instance. Features computed from the target relation or describing the other endpoint are removed, and a leakage audit is run before any result.
+\paragraph{Datasets.} For node classification we use four HGB benchmarks \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase (24\%/6\%/70\% splits), and eight H2GB benchmarks \cite{lin2025heterophily}: ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, IEEE-CIS-G, H-Pokec and PDNS, with their official loaders and splits; PDNS is evaluated on later time windows and is the one inductive dataset. They cover a wide range of heterophily (Table~\ref{tab:hetero}). For link prediction we use the eight tasks of Table~\ref{tab:link-pred}, in which held-out facts are removed from the message graph and from every sampled instance, and a leakage audit is run before any result (Appendix~\ref{app:data}).
 
 \paragraph{Baselines.} We compare with homogeneous homophilic (GCN \cite{kipf2017gcn}, GAT \cite{velickovic2018gat}, ChebNetII \cite{he2022chebnetii}), homogeneous heterophilic (NSD \cite{bodnar2022neural}, CSNN \cite{ribeiro2026cooperative}), heterogeneous homophilic (R-GCN \cite{schlichtkrull2018rgcn}, HAN \cite{wang2019han}, MAGNN \cite{fu2020magnn}, SeHGNN \cite{yang2023sehgnn}, HiNormer \cite{mao2023hinormer}, PSHGCN \cite{he2024spectral}) and heterogeneous heterophilic models (H2G-former \cite{lin2025heterophily}, Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing}, HetSheaf \cite{braithwaite2024heterogeneous}). Following HGB, the groups are named Hom./hom., Hom./het., Het./hom. and Het./het. by whether the graph is modeled as homogeneous or heterogeneous and the method designed for homophilic or heterophilic settings. Link prediction uses a subset covering all groups.
 
-\paragraph{Protocol.} Node classification is scored by Macro-F1 and Micro-F1, with Macro-F1 averaged over the classes present in each split's true labels; IMDB is multi-label (binary cross-entropy per genre, threshold at logit zero, 4,573 labelled movies). For link prediction we follow the HGB protocol: each test positive is paired with one negative whose tail is a two-hop neighbour of the head within the target type, validation uses random tail negatives, and we report ROC-AUC and MRR. Every method, baselines included (HetSheaf through an adapter), is rerun under one protocol: the same optimiser, learning-rate and dropout ranges, no scheduler, epochs and early stopping on the validation metric as in each benchmark's source protocol, and the original feature preprocessing of each method. Hyperparameters are found by plain Bayesian search with 100 trials on seed 0, and the best configuration is run on seeds 0--4. For \method{} the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $r\in\{8,\dots,64\}$, besides the shared axes; the proposal distribution of \wisp{} is uniform. We report mean $\pm$ standard deviation over five seeds and test \method{} against the best other method on each dataset and metric with Welch's $t$-test (about 48 tests), reporting raw and adjusted $p$-values with the adjustment chosen after the results.
+\paragraph{Protocol.} Node classification is scored by Macro-F1 and Micro-F1, and link prediction by ROC-AUC and MRR, following the HGB protocol (Appendix~\ref{app:data}). Every method, baselines included (HetSheaf through an adapter), is rerun under one protocol: the same optimiser, learning-rate and dropout ranges, no scheduler, epochs and early stopping on the validation metric as in each benchmark's source protocol, and the original feature preprocessing of each method. Hyperparameters are found by plain Bayesian search with 100 trials on seed 0, and the best configuration is run on seeds 0--4. We report mean $\pm$ standard deviation over five seeds and test \method{} against the best other method on each dataset and metric with Welch's $t$-test, reporting raw and adjusted $p$-values.
 
 \begin{table*}[t]
   \centering
@@ -306,11 +318,21 @@ Table~\ref{tab:node-cls} reports node classification and Table~\ref{tab:link-pre
 \label{sec:discussion}
 
 \subsection{What the Faces Contribute}
-To separate the contribution of faces from that of weighting and capacity, the variants of Section~\ref{sec:cases} are compared on identical sampled instances, the same evaluation draw and parameter counts within 5\% (Table~\ref{tab:ablation}). \emph{Endpoint edge} tests whether the intermediate nodes matter, \emph{Face as feature} whether coupling a face to all its cells matters beyond a MAGNN-type encoding, \emph{No edge--face term} whether the shared edge stalk matters, and \emph{Free face maps} whether forcing the maps matters. The criteria are fixed before running. If the full model is not significantly better than the \emph{Endpoints} weight variant on at least two of ACM, DBLP and IMDB, we do not claim that intermediate nodes contribute through the weights. If it is not significantly better than \emph{No edge--face term}, we report that coupling faces through shared edge stalks does not by itself improve accuracy, and that the contribution is the geometry in which the face maps are forced. \res{}
+Our central claim is that a meta-path instance is more useful as part of the structure than as a feature at its endpoints. We test it with the variants of Section~\ref{sec:cases}, each of which changes one component of the full model while the sampled instances, the evaluation draw, the prediction head and the training budget stay fixed (Table~\ref{tab:ablation}). The variants are run on ACM, DBLP, IMDB and Freebase, two homophilic and two heterophilic datasets, with seeds 1--10 so that every comparison is paired by seed. Each variant is tested against the full model with a two-sided Wilcoxon signed-rank test on the ten paired differences, corrected over the four datasets by Holm's method. The full model wins on a dataset if the corrected $p$-value is below $0.05$ and the median difference is in its favour, and a claim holds if it wins on at least three of the four datasets. The variants that remove or reshape the faces are tuned on their own, so that the full model is not credited with a configuration that only it was tuned for; the remaining variants reuse the configuration of the full model, which favours it, and we state this as a limitation. All criteria, and what we conclude if one of them fails, were fixed before the runs.
+
+\paragraph{Do faces help, and do the intermediate nodes matter?} If the full model does not beat \emph{No faces}, faces add nothing to the edge sheaf at tuned settings. The intermediate nodes reach the model through the face weight and through the energy, and we separate the two. \emph{Endpoints}, whose hidden width is within 5\% of the full model, tests the weight, and \emph{Endpoint edge} tests the energy. If the full model does not beat \emph{Endpoints}, we withdraw the claim that the weights carry information beyond the maps and the stalks; if it does not beat \emph{Endpoint edge}, a face is in practice no more than the edge it composes.
+
+\paragraph{Is structure better than a feature?} If the full model does not beat \emph{Face as feature}, faces act as instance encoders, and the contribution lies in the geometry rather than in the structure.
+
+\paragraph{How should a face be coupled?} A coupling of Proposition~\ref{prop:reach} whose removal does not hurt is kept for its theory and not claimed as a source of gains. For \emph{Free face maps} we fix three readings in advance: composition helps if the full model wins on three datasets; no difference was found if no variant wins; and composition has a cost if the free maps win on three datasets.
+
+\paragraph{Do the learned maps matter?} We attribute the handling of heterophily to the learned maps only if the full model beats \emph{Identity maps} on both heterophilic datasets, IMDB and Freebase. Only ACM and Freebase have relations between nodes of one type, so only these two can test \emph{Direction-blind maps}, and we call the maps direction-aware only if the full model wins on both.
+
+The weight variants form a ladder, from a constant weight through one that depends on the relation sequence alone, as in schema-level encoders, to one that also sees the end nodes; we report it without a decision rule. \emph{No propagation} checks that propagation helps at all. \emph{Published meta-paths} shows what is lost when the schemas are fixed by hand; it is run with five seeds, as in the main tables, and reported without a claim. \res{}
 
 \begin{table}[t]
   \centering
-  \caption{Controlled variants on identical sampled instances (Macro-F1, mean over five seeds).}
+  \caption{Controlled variants of the full model, Macro-F1 (mean over seeds 1--10; IMDB is the mean per-genre F1). Bold marks a variant that is significantly worse than the full model after Holm's correction. $^{\dagger}$Seeds 0--4, as the main tables; no test.}
   \label{tab:ablation}
   \footnotesize
   \setlength{\tabcolsep}{3pt}
@@ -319,38 +341,34 @@ To separate the contribution of faces from that of weighting and capacity, the v
     \textbf{Variant} & ACM & DBLP & IMDB & Freebase \\
     \midrule
     \method{} (full) & \res & \res & \res & \res \\
+    \midrule
     No faces & \res & \res & \res & \res \\
-    No edge--face term & \res & \res & \res & \res \\
-    No node--face term & \res & \res & \res & \res \\
     Endpoint edge & \res & \res & \res & \res \\
     Face as feature & \res & \res & \res & \res \\
+    \midrule
+    No edge--face term & \res & \res & \res & \res \\
+    No node--face term & \res & \res & \res & \res \\
     Free face maps & \res & \res & \res & \res \\
-    Uniform / Schema / Endpoints weights & \res & \res & \res & \res \\
+    \midrule
+    Identity maps & \res & \res & \res & \res \\
+    Direction-blind maps & \res & \res & \res & \res \\
+    No relational context & \res & \res & \res & \res \\
+    \midrule
+    Uniform weights & \res & \res & \res & \res \\
+    Schema weights & \res & \res & \res & \res \\
+    Endpoints weights & \res & \res & \res & \res \\
+    \midrule
+    Published meta-paths$^{\dagger}$ & \res & \res & \res & \res \\
+    No propagation & \res & \res & \res & \res \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \subsection{Heterophily and Cost}
-Reviewers of an earlier version asked for heterophily to be established and analysed, and for cost to be reported against graph size. We therefore report the accuracy of the full model against the baselines by $\mathcal{H}^2$ and by node degree, and time and memory per epoch with graph size (Table~\ref{tab:cost}). \res{}
-
-\begin{table}[t]
-  \centering
-  \caption{Cost per epoch with graph size.}
-  \label{tab:cost}
-  \footnotesize
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lccc}
-    \toprule
-    & ACM & DBLP & IMDB \\
-    \midrule
-    Time per epoch (s) & \res & \res & \res \\
-    Peak memory (MB) & \res & \res & \res \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+Whether faces help under heterophily is a different question from whether they help on average. Within each of the twelve node-classification datasets, we measure for every test node the share of its target-type neighbours, reached through the meta-paths of Table~\ref{tab:hetero}, whose label differs from its own. We centre this share by class, so that class imbalance does not drive the result, and regress the per-node gain of the full model over \emph{Endpoints} on it. We claim that faces help under heterophily if the slope is positive and significant on at least six datasets and significantly negative on none; otherwise we remove ``heterophilic'' from the title. Two further analyses support this claim without deciding it: a perturbation study on ACM and DBLP that removes facts to change the homophily of the graph while keeping every remaining fact real, and an analysis of the transports and of the weights of the intermediate nodes (Appendix~\ref{app:data}). Finally, because faces enlarge the problem, we report time and memory per epoch on one GPU type and their growth with graph size on subgraphs of ogbn-mag (Appendix~\ref{app:data}); growth is called super-linear if the log--log slope exceeds $1.15$, in which case we state the largest graph that fits in memory. \res{}
 
 \subsection{Limitations}
-Edges, faces and the energy are symmetric, so the strength of influence between two nodes is the same in both directions; the energy is quadratic and the propagation linear, so no band-pass response is built in; faces are simple walks, so branching meta-structures are not represented; and the weights scale a face but cannot change its maps, which the edges fix. Edge and face stalks have no input features. Existence results do not imply that training finds a class-separating configuration.
+Edges, faces and the energy are symmetric, so the strength of influence between two nodes is the same in both directions; the energy is quadratic and the propagation linear, so no band-pass response is built in; faces are simple walks, so branching meta-structures are not represented; and the weights scale a face but cannot change its maps, which the edges fix. Edge and face stalks have no input features. Existence results do not imply that training finds a class-separating configuration. Moreover, the controlled variants cover node classification and four datasets only.
 
 %======================================================================
 \section{Conclusion}
@@ -376,5 +394,30 @@ Every edge map is orthogonal, so the maps of Equation~\eqref{eq:forced} are orth
 \section{Datasets, Settings and Full Results}
 \label{app:data}
 This appendix reports dataset statistics, the Micro-F1 and MRR tables, search spaces, graph classification and further results. Graph classification follows HetSheaf's protocol (TU MUTAG, PROTEINS, ENZYMES, NCI1 with node types taken from the label one-hot, constant features, 80/10/10 split, seeds 0--4); because node types are derived from labels, it checks generalisability only. \res{}
+
+\paragraph{Link prediction.} The eight tasks are ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, PubMed disease--disease, LastFM user--artist, ogbn-mag paper--paper and H-Pokec user--user. The target relation is split by fact into 81\%/9\%/10\% (Freebase by unordered pair), and held-out facts are removed in both directions from the message graph. Features computed from the target relation or describing the other endpoint are removed. Each test positive is paired with one negative whose tail is a two-hop neighbour of the head within the target type, and validation uses random tail negatives.
+
+\paragraph{Metrics and search.} Macro-F1 is averaged over the classes present in each split's true labels. IMDB is multi-label, with binary cross-entropy per genre, a threshold at logit zero and 4,573 labelled movies. For \method{}, the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $r\in\{8,\dots,64\}$, besides the axes shared with the baselines; the proposal distribution of the walk sampler is uniform. The main tables involve about 48 tests of \method{} against the best other method.
+
+\paragraph{Further heterophily analyses.} \emph{Perturbation.} On ACM and DBLP, we remove facts from the relations that form the meta-paths, either those that join nodes of different classes or those that join nodes of one class, and compare each graph with one from which the same number of facts was removed at random. A perturbed graph is therefore an incomplete graph rather than a fabricated one, and the accuracy of \method{}, GCN, HAN, SeHGNN, Hetero$^2$Net and HetSheaf, each with its configuration fixed beforehand, is compared across homophily levels. \emph{Mechanism.} For target nodes joined by one face, we compare their distance before and after transport, by class, for the full model and \emph{Identity maps}. We also replace the encodings of the intermediate nodes in the face weight by those of random nodes of the same type, to measure how far the learned weights use them, and we check whether the ranking of schemas by the weight their instances receive, relative to how often they are sampled, is stable across seeds; we interpret this ranking only if it is stable. \res{}
+
+\paragraph{Cost.} Edges that lie on at most one face are eliminated exactly, so the cost depends on the edges shared by several faces and on the number and length of the sampled walks, not on the number of schemas. Table~\ref{tab:cost} gives time and peak memory per epoch on one GPU type. We also track how time, memory and solver iterations grow with the size of subgraphs of ogbn-mag, in full-batch and mini-batch training, and we report accuracy at several values of the number and the length of the sampled walks. \res{}
+
+\begin{table}[h]
+  \centering
+  \caption{Cost per epoch, measured on one GPU type.}
+  \label{tab:cost}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lcccc}
+    \toprule
+    & ACM & DBLP & IMDB & ogbn-mag \\
+    \midrule
+    Time per epoch (s) & \res & \res & \res & \res \\
+    Peak memory (MB) & \res & \res & \res & \res \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 
 \end{document}
