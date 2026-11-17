@@ -49,8 +49,8 @@ In both shared loops:
 | **Mutation 2** | draw the subset with the training seed → determinism / same-nodes test fails |
 | Existing tests | `test_baselines*`, golden and mb0 `differing: none` (H2S-NN untouched) |
 
-### U4 — One real step and suite
-One H2GB NC dry-run step per loop class (one A/C, one B adapter) on a real dataset with the subset (status, time of the subset pass vs the whole pass; **no metric**). Full suite once (pinned kernel environment E). Report short; last line `branch=baselines-h2gb-7 sha=<full head> card=docs/H2S-NN_b1a_baselines_card.md base=<v3b sha>`.
+### U4 — Suite (amended 2026-11-18, author: the real-data step is dropped; the first tuning trial on TSUBAME is the real-data check)
+~~One H2GB NC dry-run step per loop class~~ (dropped). Full suite once (pinned kernel environment E). Report short; last line `branch=baselines-h2gb-7 sha=<full head> card=docs/H2S-NN_b1a_baselines_card.md base=<v3b sha>`.
 
 ## Files
 `src/baselines/minibatch.py`, `src/evaluation/validation_subset.py` (new; `src/evaluation/__init__.py` only if the package does not exist), adapters only if a caller must pass the dataset name (stated per file), `tests/test_b1a_validation_subset.py`, `docs/b1a_evidence/**`, the report. Anything else: stop and ask. Never `src/trainers/`, `src/config.py` (card 5).
