@@ -234,4 +234,24 @@ matched.
 Only `docs/` changed in A5 (no file outside `docs/`; no suite). Decisions table item 4 above (A6000 retries) is
 superseded by A5.1.
 
-branch=hetsheaf sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=1867681dc197ab536ad5cf1fbede4a9df9abffab
+
+## A6 — H-Pokec U–U central-point status; ranges recorded (2026-11-17/18; base `d11810c`; docs only, no suite)
+Merged design-docs `f39c4e8` (`--no-ff`, `630e857`); the merge also brings design-docs' own commits under
+`H2S-NN/paper/` (author's files; nothing staged by this session). Author decisions A5-1a, A5-2a, A5-3.
+
+**A6.1** H-Pokec U–U at the A5.3 central point (`d` 3, `layers` 5, `hidden_channels` 16, lr 1e-3, weight_decay 5e-4,
+dropout / input_dropout 0.45, `sheaf` diag/type_concat, `decoder_type` dot = adapter default `large_lp_training.py:144`),
+seed 0, one run, `--mem 60G`; job 17382, TITAN RTX on g2tn01, HEAD `630e857` (`a6_job.sh`, log `a6_pokec_uu_central.txt`):
+
+| Status | First error | Peak GPU GiB | Peak host GiB | Train epoch s | Epoch + evaluation s |
+|---|---|---|---|---|---|
+| **OK (finite)** | none | 2.49 | 9.48 (sacct MaxRSS 9.5 GiB) | 7,324 | 13,245 |
+
+The large-LP loop's evaluation is not split into validation / test by the A5 timers (no `evaluate_split` call), so only
+the whole evaluation (13,245 − 7,324 = 5,921 s, validation + test) is given. Consequence (card A6.1): the cell is tuned
+with `hidden_channels` <= 16; a non-finite run is a failed trial. Not a stop item.
+
+**A6.2** `a5_ranges.md`: ogbn-mag P–P = N/A for HetSheaf (OOM on 24 GB at the smallest grid point under the shared
+large-LP sampler; A5-1a); H-Pokec U–U `hidden_channels` <= 16, `d` and `layers` full (A5-2a); categoricals as recorded (A5-3).
+
+branch=hetsheaf sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=d11810cc2108e8374435fed8c715a17821427858

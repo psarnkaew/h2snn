@@ -20,8 +20,8 @@ point); assumes memory does not increase when an axis decreases (not measured po
 | LP dblp_ap | hidden_channels | h 32, d 5, layers 8 | hidden_channels <= 32; d, layers full | A4 16974 |
 | LP freebase_bb | hidden_channels | h 8, d 5, layers 8 | hidden_channels <= 8; d, layers full | 17121 |
 | LP pubmed | hidden_channels | h 16, d 5, layers 8 | hidden_channels <= 16; d, layers full | 17122 |
-| LP ogbn-mag P-P | hidden_channels, d, layers | none | **none: OOM at the bottom (h 8, d 2, layers 2); stop item** | 17123 |
-| LP H-Pokec U-U | hidden_channels | not established | **h 16, d 5, layers 8 not OOM: vendor finite assertion; stop item** | 17124 |
+| LP ogbn-mag P-P | hidden_channels, d, layers | none | **N/A for HetSheaf**: OOM on a 24 GB GPU at the smallest grid point (`hidden_channels` 8, `d` 2, `layers` 2) under the shared large-LP sampler (author A5-1a, 2026-11-17; range rule 1 kept at 24 GB although tuning runs on TSUBAME) | 17123 |
+| LP H-Pokec U-U | hidden_channels | not established (h 16, d 5, layers 8: vendor finite assertion, not OOM) | **hidden_channels <= 16; d, layers full**; a non-finite run is a failed trial (author A5-2a, 2026-11-17); central-point status: A6.1 | 17124 |
 
 Stop items (reported, not fixed):
 - **ogbn-mag P-P, OOM at the ladder's bottom.** Sites `sheaf_models.py:1236-1238` (the sheaf learner's per-edge input:
@@ -34,3 +34,9 @@ Stop items (reported, not fixed):
   commented "To detect the numerical instabilities of SVD") after 4,070 s at h 16, d 5, layers 8, peak GPU 12.13 GiB;
   not an OOM, so the ladder did not step past it (one run, seed 0; not rerun). Whether the cell fits at h 16 is not
   established.
+
+## A6 update (2026-11-17, author decisions A5-1a, A5-2a, A5-3; card 3 A6)
+- ogbn-mag P-P: **N/A for HetSheaf** (reason in the table; A5-1a). The A5 stop item is closed by this decision.
+- H-Pokec U-U: range `hidden_channels` <= 16 (`d`, `layers` full); a non-finite run is a failed trial (A5-2a).
+  Central-point status run (A6.1): `a6_pokec_uu_central.txt`.
+- Categoricals at the adapter's default (A5.3) stay as recorded (A5-3).
