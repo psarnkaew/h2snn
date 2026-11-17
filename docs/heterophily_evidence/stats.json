@@ -1,0 +1,6064 @@
+[
+ {
+  "dataset": "enzymes",
+  "task": "gc",
+  "measure": "gc_types",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17260",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py gc_type_statistics",
+  "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+  "num_node_types": 3,
+  "num_edge_types": 1,
+  "graphs": 600,
+  "edges": 74564,
+  "cross_type_edges": 24960,
+  "type_mixing_ratio": 0.3347459900219945,
+  "mean_per_graph_ratio": 0.3312025846228255,
+  "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+  "value": 0.3347459900219945,
+  "wall_s": 2.12,
+  "peak_rss_gb": 0.601
+ },
+ {
+  "dataset": "mutag",
+  "task": "gc",
+  "measure": "gc_types",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17258",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py gc_type_statistics",
+  "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+  "num_node_types": 7,
+  "num_edge_types": 4,
+  "graphs": 188,
+  "edges": 7442,
+  "cross_type_edges": 2076,
+  "type_mixing_ratio": 0.27895726955119593,
+  "mean_per_graph_ratio": 0.2984368693014074,
+  "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+  "value": 0.27895726955119593,
+  "wall_s": 1.86,
+  "peak_rss_gb": 0.6
+ },
+ {
+  "dataset": "nci1",
+  "task": "gc",
+  "measure": "gc_types",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17235",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py gc_type_statistics",
+  "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+  "num_node_types": 37,
+  "num_edge_types": 1,
+  "graphs": 4110,
+  "edges": 265506,
+  "cross_type_edges": 98002,
+  "type_mixing_ratio": 0.36911406898525834,
+  "mean_per_graph_ratio": 0.376023470209195,
+  "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+  "value": 0.36911406898525834,
+  "wall_s": 2.95,
+  "peak_rss_gb": 0.64
+ },
+ {
+  "dataset": "proteins",
+  "task": "gc",
+  "measure": "gc_types",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17259",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py gc_type_statistics",
+  "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+  "num_node_types": 3,
+  "num_edge_types": 1,
+  "graphs": 1113,
+  "edges": 162088,
+  "cross_type_edges": 55624,
+  "type_mixing_ratio": 0.34317161048319433,
+  "mean_per_graph_ratio": 0.33951545497622915,
+  "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+  "value": 0.34317161048319433,
+  "wall_s": 2.02,
+  "peak_rss_gb": 0.605
+ },
+ {
+  "dataset": "acm_pa",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17247",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "paper-rel_2-author",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "author-rel_3-paper": "kept (reverse partner paper-rel_2-author)",
+   "paper-rel_0-paper": "kept (reverse partner paper-rel_1-paper)",
+   "paper-rel_1-paper": "kept (reverse partner paper-rel_0-paper)",
+   "paper-rel_2-author": "kept (reverse partner author-rel_3-paper)",
+   "paper-rel_4-subject": "kept (reverse partner subject-rel_5-paper)",
+   "paper-rel_6-term": "kept (reverse partner term-rel_7-paper)",
+   "subject-rel_5-paper": "kept (reverse partner paper-rel_4-subject)",
+   "term-rel_7-paper": "kept (reverse partner paper-rel_6-term)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 3025,
+    "author": 5959,
+    "subject": 56,
+    "term": 1902
+   },
+   "edge_types": {
+    "author-rel_3-paper": 8059,
+    "paper-rel_0-paper": 5343,
+    "paper-rel_1-paper": 5343,
+    "paper-rel_2-author": 8059,
+    "paper-rel_4-subject": 3025,
+    "paper-rel_6-term": 255619,
+    "subject-rel_5-paper": 3025,
+    "term-rel_7-paper": 255619
+   }
+  },
+  "per_endpoint_type": {
+   "author": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   },
+   "paper": {
+    "value": 0.8653737388599206,
+    "form": "MDE, mean over M2 (raw features)",
+    "feature_dim": 1902,
+    "feature_dtype": "torch.float32",
+    "per_metapath": [
+     {
+      "metapath": "paper-author-paper",
+      "steps": [
+       [
+        "paper",
+        "author"
+       ],
+       [
+        "author",
+        "paper"
+       ]
+      ],
+      "edges": 21665,
+      "reference": 2.5427470207214355,
+      "value": 2.5427470207214355,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     },
+     {
+      "metapath": "paper-subject-paper",
+      "steps": [
+       [
+        "paper",
+        "subject"
+       ],
+       [
+        "subject",
+        "paper"
+       ]
+      ],
+      "edges": 2217089,
+      "value": 0.04272257399931073,
+      "chunked": 0.04272257399931073,
+      "code_path": "mde_chunked (D-a)"
+     },
+     {
+      "metapath": "paper-term-paper",
+      "steps": [
+       [
+        "paper",
+        "term"
+       ],
+       [
+        "term",
+        "paper"
+       ]
+      ],
+      "edges": 9150595,
+      "value": 0.010651621859015746,
+      "chunked": 0.010651621859015746,
+      "code_path": "mde_chunked (D-a)"
+     }
+    ],
+    "m2": [
+     "paper-author-paper",
+     "paper-subject-paper",
+     "paper-term-paper"
+    ],
+    "m2_source": "Hetero2Net predefined list 'acm' (App. B.1)"
+   }
+  },
+  "value": {
+   "author": null,
+   "paper": 0.8653737388599206
+  },
+  "wall_s": 44.45,
+  "peak_rss_gb": 3.046
+ },
+ {
+  "dataset": "acm_pa",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17246",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "value": null,
+  "reason": "not both endpoint types labeled (or no labels)",
+  "wall_s": 0.02,
+  "peak_rss_gb": 0.387
+ },
+ {
+  "dataset": "dblp_ap",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17249",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "author-rel_0-paper",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "author-rel_0-paper": "kept (reverse partner paper-rel_3-author)",
+   "paper-rel_1-term": "kept (reverse partner term-rel_4-paper)",
+   "paper-rel_2-venue": "kept (reverse partner venue-rel_5-paper)",
+   "paper-rel_3-author": "kept (reverse partner author-rel_0-paper)",
+   "term-rel_4-paper": "kept (reverse partner paper-rel_1-term)",
+   "venue-rel_5-paper": "kept (reverse partner paper-rel_2-venue)"
+  },
+  "graph": {
+   "node_types": {
+    "author": 4057,
+    "paper": 14328,
+    "term": 7723,
+    "venue": 20
+   },
+   "edge_types": {
+    "author-rel_0-paper": 15913,
+    "paper-rel_1-term": 85810,
+    "paper-rel_2-venue": 14328,
+    "paper-rel_3-author": 15913,
+    "term-rel_4-paper": 85810,
+    "venue-rel_5-paper": 14328
+   }
+  },
+  "per_endpoint_type": {
+   "author": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   },
+   "paper": {
+    "value": 0.03857939770821734,
+    "form": "MDE, mean over M2 (raw features)",
+    "feature_dim": 4231,
+    "feature_dtype": "torch.float32",
+    "per_metapath": [
+     {
+      "metapath": "paper-term-paper",
+      "steps": [
+       [
+        "paper",
+        "term"
+       ],
+       [
+        "term",
+        "paper"
+       ]
+      ],
+      "edges": 19522527,
+      "value": 0.001846709364751849,
+      "chunked": 0.001846709364751849,
+      "code_path": "mde_chunked (D-a)"
+     },
+     {
+      "metapath": "paper-venue-paper",
+      "steps": [
+       [
+        "paper",
+        "venue"
+       ],
+       [
+        "venue",
+        "paper"
+       ]
+      ],
+      "edges": 16379950,
+      "value": 0.0024593859076700907,
+      "chunked": 0.0024593859076700907,
+      "code_path": "mde_chunked (D-a)"
+     },
+     {
+      "metapath": "paper-author-paper",
+      "steps": [
+       [
+        "paper",
+        "author"
+       ],
+       [
+        "author",
+        "paper"
+       ]
+      ],
+      "edges": 232785,
+      "reference": 0.11143209785223007,
+      "value": 0.11143209785223007,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     }
+    ],
+    "m2": [
+     "paper-term-paper",
+     "paper-venue-paper",
+     "paper-author-paper"
+    ],
+    "m2_source": "get_metapaths (homophily.py:51-63)"
+   }
+  },
+  "value": {
+   "author": null,
+   "paper": 0.03857939770821734
+  },
+  "wall_s": 287.23,
+  "peak_rss_gb": 3.722
+ },
+ {
+  "dataset": "dblp_ap",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17248",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "value": null,
+  "reason": "not both endpoint types labeled (or no labels)",
+  "wall_s": 0.02,
+  "peak_rss_gb": 0.387
+ },
+ {
+  "dataset": "freebase_bb",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17253",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "book-rel_0-book",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "book-rel_0-book": "no reverse partner: made undirected (to_undirected)",
+   "book-rel_1-film": "no reverse partner: added film-rev_rel_1-book",
+   "book-rel_2-sports": "no reverse partner: added sports-rev_rel_2-book",
+   "book-rel_3-location": "no reverse partner: added location-rev_rel_3-book",
+   "book-rel_4-organization": "no reverse partner: added organization-rev_rel_4-book",
+   "business-rel_30-book": "no reverse partner: added book-rev_rel_30-business",
+   "business-rel_31-film": "no reverse partner: added film-rev_rel_31-business",
+   "business-rel_32-music": "no reverse partner: added music-rev_rel_32-business",
+   "business-rel_33-sports": "no reverse partner: added sports-rev_rel_33-business",
+   "business-rel_34-location": "no reverse partner: added location-rev_rel_34-business",
+   "business-rel_35-business": "kept",
+   "film-rel_5-film": "kept",
+   "location-rel_22-film": "no reverse partner: added film-rev_rel_22-location",
+   "location-rel_23-location": "kept",
+   "music-rel_10-location": "no reverse partner: added location-rev_rel_10-music",
+   "music-rel_6-book": "no reverse partner: added book-rev_rel_6-music",
+   "music-rel_7-film": "no reverse partner: added film-rev_rel_7-music",
+   "music-rel_8-music": "kept",
+   "music-rel_9-sports": "no reverse partner: added sports-rev_rel_9-music",
+   "organization-rel_24-film": "no reverse partner: added film-rev_rel_24-organization",
+   "organization-rel_25-music": "no reverse partner: added music-rev_rel_25-organization",
+   "organization-rel_26-sports": "no reverse partner: added sports-rev_rel_26-organization",
+   "organization-rel_27-location": "no reverse partner: added location-rev_rel_27-organization",
+   "organization-rel_28-organization": "kept",
+   "organization-rel_29-business": "no reverse partner: added business-rev_rel_29-organization",
+   "people-rel_14-book": "no reverse partner: added book-rev_rel_14-people",
+   "people-rel_15-film": "no reverse partner: added film-rev_rel_15-people",
+   "people-rel_16-music": "no reverse partner: added music-rev_rel_16-people",
+   "people-rel_17-sports": "no reverse partner: added sports-rev_rel_17-people",
+   "people-rel_18-people": "kept",
+   "people-rel_19-location": "no reverse partner: added location-rev_rel_19-people",
+   "people-rel_20-organization": "no reverse partner: added organization-rev_rel_20-people",
+   "people-rel_21-business": "no reverse partner: added business-rev_rel_21-people",
+   "sports-rel_11-film": "no reverse partner: added film-rev_rel_11-sports",
+   "sports-rel_12-sports": "kept",
+   "sports-rel_13-location": "no reverse partner: added location-rev_rel_13-sports"
+  },
+  "graph": {
+   "node_types": {
+    "book": 40402,
+    "film": 19427,
+    "music": 82351,
+    "sports": 1025,
+    "people": 17641,
+    "location": 9368,
+    "organization": 2731,
+    "business": 7153
+   },
+   "edge_types": {
+    "book-rel_0-book": 221642,
+    "book-rel_1-film": 38299,
+    "film-rev_rel_1-book": 38299,
+    "book-rel_2-sports": 6615,
+    "sports-rev_rel_2-book": 6615,
+    "book-rel_3-location": 26921,
+    "location-rev_rel_3-book": 26921,
+    "book-rel_4-organization": 21900,
+    "organization-rev_rel_4-book": 21900,
+    "business-rel_30-book": 18625,
+    "book-rev_rel_30-business": 18625,
+    "business-rel_31-film": 8397,
+    "film-rev_rel_31-business": 8397,
+    "business-rel_32-music": 24764,
+    "music-rev_rel_32-business": 24764,
+    "business-rel_33-sports": 610,
+    "sports-rev_rel_33-business": 610,
+    "business-rel_34-location": 6647,
+    "location-rev_rel_34-business": 6647,
+    "business-rel_35-business": 4448,
+    "film-rel_5-film": 87838,
+    "location-rel_22-film": 21299,
+    "film-rev_rel_22-location": 21299,
+    "location-rel_23-location": 47817,
+    "music-rel_10-location": 42915,
+    "location-rev_rel_10-music": 42915,
+    "music-rel_6-book": 31486,
+    "book-rev_rel_6-music": 31486,
+    "music-rel_7-film": 11291,
+    "film-rev_rel_7-music": 11291,
+    "music-rel_8-music": 283670,
+    "music-rel_9-sports": 8975,
+    "sports-rev_rel_9-music": 8975,
+    "organization-rel_24-film": 13128,
+    "film-rev_rel_24-organization": 13128,
+    "organization-rel_25-music": 10702,
+    "music-rev_rel_25-organization": 10702,
+    "organization-rel_26-sports": 559,
+    "sports-rev_rel_26-organization": 559,
+    "organization-rel_27-location": 2696,
+    "location-rev_rel_27-organization": 2696,
+    "organization-rel_28-organization": 1101,
+    "organization-rel_29-business": 1073,
+    "business-rev_rel_29-organization": 1073,
+    "people-rel_14-book": 35587,
+    "book-rev_rel_14-people": 35587,
+    "people-rel_15-film": 17604,
+    "film-rev_rel_15-people": 17604,
+    "people-rel_16-music": 10948,
+    "music-rev_rel_16-people": 10948,
+    "people-rel_17-sports": 14850,
+    "sports-rev_rel_17-people": 14850,
+    "people-rel_18-people": 22813,
+    "people-rel_19-location": 15134,
+    "location-rev_rel_19-people": 15134,
+    "people-rel_20-organization": 2215,
+    "organization-rev_rel_20-people": 2215,
+    "people-rel_21-business": 5378,
+    "business-rev_rel_21-people": 5378,
+    "sports-rel_11-film": 6763,
+    "film-rev_rel_11-sports": 6763,
+    "sports-rel_12-sports": 1290,
+    "sports-rel_13-location": 656,
+    "location-rev_rel_13-sports": 656
+   }
+  },
+  "per_endpoint_type": {
+   "book": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   }
+  },
+  "value": {
+   "book": null
+  },
+  "wall_s": 5.83,
+  "peak_rss_gb": 0.789
+ },
+ {
+  "dataset": "freebase_bb",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17252",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "symmetrisation": {
+   "book-and-book": "no reverse partner: made undirected (to_undirected)",
+   "book-to-film": "no reverse partner: added film-rev_to-book",
+   "book-on-sports": "no reverse partner: added sports-rev_on-book",
+   "book-on-location": "no reverse partner: added location-rev_on-book",
+   "book-about-organization": "no reverse partner: added organization-rev_about-book",
+   "film-and-film": "kept",
+   "music-in-book": "no reverse partner: added book-rev_in-music",
+   "music-in-film": "no reverse partner: added film-rev_in-music",
+   "music-and-music": "kept",
+   "music-for-sports": "no reverse partner: added sports-rev_for-music",
+   "music-on-location": "no reverse partner: added location-rev_on-music",
+   "sports-in-film": "no reverse partner: added film-rev_in-sports",
+   "sports-and-sports": "kept",
+   "sports-on-location": "no reverse partner: added location-rev_on-sports",
+   "people-to-book": "no reverse partner: added book-rev_to-people",
+   "people-to-film": "no reverse partner: added film-rev_to-people",
+   "people-to-music": "no reverse partner: added music-rev_to-people",
+   "people-to-sports": "no reverse partner: added sports-rev_to-people",
+   "people-and-people": "kept",
+   "people-on-location": "no reverse partner: added location-rev_on-people",
+   "people-in-organization": "no reverse partner: added organization-rev_in-people",
+   "people-in-business": "no reverse partner: added business-rev_in-people",
+   "location-in-film": "no reverse partner: added film-rev_in-location",
+   "location-and-location": "kept",
+   "organization-in-film": "no reverse partner: added film-rev_in-organization",
+   "organization-to-music": "no reverse partner: added music-rev_to-organization",
+   "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+   "organization-on-location": "no reverse partner: added location-rev_on-organization",
+   "organization-and-organization": "kept",
+   "organization-for-business": "no reverse partner: added business-rev_for-organization",
+   "business-about-book": "no reverse partner: added book-rev_about-business",
+   "business-about-film": "no reverse partner: added film-rev_about-business",
+   "business-about-music": "no reverse partner: added music-rev_about-business",
+   "business-about-sports": "no reverse partner: added sports-rev_about-business",
+   "business-on-location": "no reverse partner: added location-rev_on-business",
+   "business-and-business": "kept"
+  },
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset) (labels of freebase; full target relation: all task positives)",
+  "relation": "book-and-book",
+  "labels_of": "book",
+  "relation_check": {
+   "nc_pairs": 142571,
+   "lp_pairs_train_valid_test": 142571,
+   "equal": true,
+   "lp_book_local_ids_equal_raw_ids": true,
+   "books_lp": 40402,
+   "books_nc": 40402
+  },
+  "value": 0.7794125229120255,
+  "form": "heterophily: 1 - label_homophily",
+  "fill_seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "value_over_fill_seeds": [
+   0.7794125229120255,
+   0.781545028090477,
+   0.7829074561595917,
+   0.7827741652727127,
+   0.7810193002223969
+  ],
+  "spread": [
+   0.7794125229120255,
+   0.7829074561595917
+  ],
+  "edges": 270106,
+  "self_loops": 15036,
+  "labeled_only": 0.32291334867477417,
+  "labeled_only_edges": 15707,
+  "wall_s": 5.97,
+  "peak_rss_gb": 0.823
+ },
+ {
+  "dataset": "imdb_ma",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17251",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "movie-rel_2-actor",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "actor-rel_3-movie": "kept (reverse partner movie-rel_2-actor)",
+   "director-rel_1-movie": "kept (reverse partner movie-rel_0-director)",
+   "keyword-rel_5-movie": "kept (reverse partner movie-rel_4-keyword)",
+   "movie-rel_0-director": "kept (reverse partner director-rel_1-movie)",
+   "movie-rel_2-actor": "kept (reverse partner actor-rel_3-movie)",
+   "movie-rel_4-keyword": "kept (reverse partner keyword-rel_5-movie)"
+  },
+  "graph": {
+   "node_types": {
+    "movie": 4932,
+    "director": 2393,
+    "actor": 6124,
+    "keyword": 7971
+   },
+   "edge_types": {
+    "actor-rel_3-movie": 11971,
+    "director-rel_1-movie": 4932,
+    "keyword-rel_5-movie": 23610,
+    "movie-rel_0-director": 4932,
+    "movie-rel_2-actor": 11971,
+    "movie-rel_4-keyword": 23610
+   }
+  },
+  "per_endpoint_type": {
+   "actor": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   },
+   "movie": {
+    "value": 0.516830804447333,
+    "form": "MDE, mean over M2 (raw features)",
+    "feature_dim": 3485,
+    "feature_dtype": "torch.float32",
+    "per_metapath": [
+     {
+      "metapath": "movie-director-movie",
+      "steps": [
+       [
+        "movie",
+        "director"
+       ],
+       [
+        "director",
+        "movie"
+       ]
+      ],
+      "edges": 21282,
+      "reference": 0.9368745684623718,
+      "value": 0.9368745684623718,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     },
+     {
+      "metapath": "movie-actor-movie",
+      "steps": [
+       [
+        "movie",
+        "actor"
+       ],
+       [
+        "actor",
+        "movie"
+       ]
+      ],
+      "edges": 67004,
+      "reference": 0.5100351572036743,
+      "value": 0.5100351572036743,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     },
+     {
+      "metapath": "movie-keyword-movie",
+      "steps": [
+       [
+        "movie",
+        "keyword"
+       ],
+       [
+        "keyword",
+        "movie"
+       ]
+      ],
+      "edges": 403848,
+      "reference": 0.10358268767595291,
+      "value": 0.10358268767595291,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     }
+    ],
+    "m2": [
+     "movie-director-movie",
+     "movie-actor-movie",
+     "movie-keyword-movie"
+    ],
+    "m2_source": "Hetero2Net predefined list 'imdb' (App. B.1)"
+   }
+  },
+  "value": {
+   "actor": null,
+   "movie": 0.516830804447333
+  },
+  "wall_s": 21.56,
+  "peak_rss_gb": 1.692
+ },
+ {
+  "dataset": "imdb_ma",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17250",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "value": null,
+  "reason": "not both endpoint types labeled (or no labels)",
+  "wall_s": 0.02,
+  "peak_rss_gb": 0.387
+ },
+ {
+  "dataset": "lastfm",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17257",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "user-rel_0-artist",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "artist-rel_2-tag": "no reverse partner: added tag-rev_rel_2-artist",
+   "user-rel_0-artist": "no reverse partner: added artist-rev_rel_0-user",
+   "user-rel_1-user": "kept"
+  },
+  "graph": {
+   "node_types": {
+    "user": 1892,
+    "artist": 17632,
+    "tag": 1088
+   },
+   "edge_types": {
+    "artist-rel_2-tag": 23253,
+    "tag-rev_rel_2-artist": 23253,
+    "user-rel_0-artist": 66966,
+    "artist-rev_rel_0-user": 66966,
+    "user-rel_1-user": 25434
+   }
+  },
+  "per_endpoint_type": {
+   "artist": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   },
+   "user": {
+    "value": null,
+    "reason": "features removed (F17) or absent"
+   }
+  },
+  "value": {
+   "artist": null,
+   "user": null
+  },
+  "wall_s": 2.76,
+  "peak_rss_gb": 0.628
+ },
+ {
+  "dataset": "lastfm",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17256",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "value": null,
+  "reason": "not both endpoint types labeled (or no labels)",
+  "wall_s": 0.02,
+  "peak_rss_gb": 0.387
+ },
+ {
+  "dataset": "pubmed",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17255",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "target_relation": "disease-rel_2-disease",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "disease-rel_2-disease": "kept",
+   "pubmed_type_0-rel_0-pubmed_type_0": "kept",
+   "pubmed_type_0-rel_1-disease": "no reverse partner: added disease-rev_rel_1-pubmed_type_0",
+   "pubmed_type_2-rel_3-pubmed_type_0": "no reverse partner: added pubmed_type_0-rev_rel_3-pubmed_type_2",
+   "pubmed_type_2-rel_4-disease": "no reverse partner: added disease-rev_rel_4-pubmed_type_2",
+   "pubmed_type_2-rel_5-pubmed_type_2": "kept",
+   "pubmed_type_2-rel_6-pubmed_type_3": "no reverse partner: added pubmed_type_3-rev_rel_6-pubmed_type_2",
+   "pubmed_type_3-rel_7-pubmed_type_0": "no reverse partner: added pubmed_type_0-rev_rel_7-pubmed_type_3",
+   "pubmed_type_3-rel_8-disease": "no reverse partner: added disease-rev_rel_8-pubmed_type_3",
+   "pubmed_type_3-rel_9-pubmed_type_3": "kept"
+  },
+  "graph": {
+   "node_types": {
+    "pubmed_type_0": 13561,
+    "disease": 20163,
+    "pubmed_type_2": 26522,
+    "pubmed_type_3": 2863
+   },
+   "edge_types": {
+    "disease-rel_2-disease": 32167,
+    "pubmed_type_0-rel_0-pubmed_type_0": 16105,
+    "pubmed_type_0-rel_1-disease": 25962,
+    "disease-rev_rel_1-pubmed_type_0": 25962,
+    "pubmed_type_2-rel_3-pubmed_type_0": 31277,
+    "pubmed_type_0-rev_rel_3-pubmed_type_2": 31277,
+    "pubmed_type_2-rel_4-disease": 51323,
+    "disease-rev_rel_4-pubmed_type_2": 51323,
+    "pubmed_type_2-rel_5-pubmed_type_2": 62187,
+    "pubmed_type_2-rel_6-pubmed_type_3": 6297,
+    "pubmed_type_3-rev_rel_6-pubmed_type_2": 6297,
+    "pubmed_type_3-rel_7-pubmed_type_0": 3155,
+    "pubmed_type_0-rev_rel_7-pubmed_type_3": 3155,
+    "pubmed_type_3-rel_8-disease": 5245,
+    "disease-rev_rel_8-pubmed_type_3": 5245,
+    "pubmed_type_3-rel_9-pubmed_type_3": 798
+   }
+  },
+  "per_endpoint_type": {
+   "disease": {
+    "value": 0.07802329867573583,
+    "form": "MDE, mean over M2 (raw features)",
+    "feature_dim": 200,
+    "feature_dtype": "torch.float32",
+    "per_metapath": [
+     {
+      "metapath": "disease-pubmed_type_0-disease",
+      "steps": [
+       [
+        "disease",
+        "pubmed_type_0"
+       ],
+       [
+        "pubmed_type_0",
+        "disease"
+       ]
+      ],
+      "edges": 1197351,
+      "reference": 0.07407817244529724,
+      "value": 0.07407817244529724,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     },
+     {
+      "metapath": "disease-pubmed_type_2-disease",
+      "steps": [
+       [
+        "disease",
+        "pubmed_type_2"
+       ],
+       [
+        "pubmed_type_2",
+        "disease"
+       ]
+      ],
+      "edges": 5490970,
+      "value": 0.024498549386620654,
+      "chunked": 0.024498549386620654,
+      "code_path": "mde_chunked (D-a)"
+     },
+     {
+      "metapath": "disease-pubmed_type_3-disease",
+      "steps": [
+       [
+        "disease",
+        "pubmed_type_3"
+       ],
+       [
+        "pubmed_type_3",
+        "disease"
+       ]
+      ],
+      "edges": 210471,
+      "reference": 0.1354931741952896,
+      "value": 0.1354931741952896,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     }
+    ],
+    "m2": [
+     "disease-pubmed_type_0-disease",
+     "disease-pubmed_type_2-disease",
+     "disease-pubmed_type_3-disease"
+    ],
+    "m2_source": "get_metapaths (homophily.py:51-63)"
+   }
+  },
+  "value": {
+   "disease": 0.07802329867573583
+  },
+  "wall_s": 47.29,
+  "peak_rss_gb": 2.144
+ },
+ {
+  "dataset": "pubmed",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17254",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "value": null,
+  "reason": "not both endpoint types labeled (or no labels)",
+  "wall_s": 0.02,
+  "peak_rss_gb": 0.387
+ },
+ {
+  "dataset": "acm",
+  "task": "nc",
+  "measure": "h2",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17236",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "H2GB/calcHomophily.py calcHomophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+   "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-subject": "kept (reverse partner subject-to-paper)",
+   "subject-to-paper": "kept (reverse partner paper-to-subject)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 3025,
+    "author": 5959,
+    "subject": 56,
+    "term": 1902
+   },
+   "edge_types": {
+    "paper-cite-paper": 5343,
+    "paper-ref-paper": 5343,
+    "paper-to-author": 9949,
+    "author-to-paper": 9949,
+    "paper-to-subject": 3025,
+    "subject-to-paper": 3025,
+    "paper-to-term": 255619,
+    "term-to-paper": 255619
+   }
+  },
+  "target": "paper",
+  "value": 0.3994066586863758,
+  "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+  "value_over_fill_seeds": [
+   0.3994066586863758
+  ],
+  "spread": null,
+  "h2gb_metapaths": [
+   "paper-cite-paper-cite-paper",
+   "paper-cite-paper-ref-paper",
+   "paper-ref-paper-cite-paper",
+   "paper-ref-paper-ref-paper",
+   "paper-to-author-to-paper",
+   "paper-to-subject-to-paper",
+   "paper-to-term-to-paper"
+  ],
+  "per_problem": {
+   "label": {
+    "seeds": [
+     0
+    ],
+    "runs": [
+     {
+      "seed": 0,
+      "per_metapath": [
+       {
+        "metapath": "paper-cite-paper-cite-paper",
+        "edge_types": [
+         [
+          "paper",
+          "cite",
+          "paper"
+         ],
+         [
+          "paper",
+          "cite",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.8434375664752181,
+        "h_insensitive": 0.7356435418884106,
+        "h_adj": 0.7526431679725647
+       },
+       {
+        "metapath": "paper-cite-paper-ref-paper",
+        "edge_types": [
+         [
+          "paper",
+          "cite",
+          "paper"
+         ],
+         [
+          "paper",
+          "ref",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.813263955861574,
+        "h_insensitive": 0.7148431050572226,
+        "h_adj": 0.7152084112167358
+       },
+       {
+        "metapath": "paper-ref-paper-cite-paper",
+        "edge_types": [
+         [
+          "paper",
+          "ref",
+          "paper"
+         ],
+         [
+          "paper",
+          "cite",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.8766162310866575,
+        "h_insensitive": 0.7807604929467401,
+        "h_adj": 0.8079737424850464
+       },
+       {
+        "metapath": "paper-ref-paper-ref-paper",
+        "edge_types": [
+         [
+          "paper",
+          "ref",
+          "paper"
+         ],
+         [
+          "paper",
+          "ref",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.8434375664752181,
+        "h_insensitive": 0.7299886758800243,
+        "h_adj": 0.7534899115562439
+       },
+       {
+        "metapath": "paper-to-author-to-paper",
+        "edge_types": [
+         [
+          "paper",
+          "to",
+          "author"
+         ],
+         [
+          "author",
+          "to",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.8144925588739208,
+        "h_insensitive": 0.7418844479680602,
+        "h_adj": 0.718071460723877
+       },
+       {
+        "metapath": "paper-to-subject-to-paper",
+        "edge_types": [
+         [
+          "paper",
+          "to",
+          "subject"
+         ],
+         [
+          "subject",
+          "to",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.6403175515281525,
+        "h_insensitive": 0.48578732078379333,
+        "h_adj": 0.4567660689353943
+       },
+       {
+        "metapath": "paper-to-term-to-paper",
+        "edge_types": [
+         [
+          "paper",
+          "to",
+          "term"
+         ],
+         [
+          "term",
+          "to",
+          "paper"
+         ]
+        ],
+        "h_edge": 0.3338199319279238,
+        "h_insensitive": 6.558672125955844e-07,
+        "h_adj": 6.263055070121482e-07
+       }
+      ],
+      "h2": 0.3994066586863758
+     }
+    ],
+    "labeled_only": null
+   }
+  },
+  "labeled_targets": 3025,
+  "targets": 3025,
+  "wall_s": 3.28,
+  "peak_rss_gb": 0.738
+ },
+ {
+  "dataset": "acm",
+  "task": "nc",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17210",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+   "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-subject": "kept (reverse partner subject-to-paper)",
+   "subject-to-paper": "kept (reverse partner paper-to-subject)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 3025,
+    "author": 5959,
+    "subject": 56,
+    "term": 1902
+   },
+   "edge_types": {
+    "paper-cite-paper": 5343,
+    "paper-ref-paper": 5343,
+    "paper-to-author": 9949,
+    "author-to-paper": 9949,
+    "paper-to-subject": 3025,
+    "subject-to-paper": 3025,
+    "paper-to-term": 255619,
+    "term-to-paper": 255619
+   }
+  },
+  "target": "paper",
+  "m2": [
+   "paper-author-paper",
+   "paper-subject-paper",
+   "paper-term-paper"
+  ],
+  "m2_source": "Hetero2Net predefined list 'acm' (App. B.1)",
+  "value": 0.7368905228921064,
+  "form": "MDE, mean over M2 (raw features)",
+  "feature_dim": 1902,
+  "feature_dtype": "torch.float32",
+  "per_metapath": [
+   {
+    "metapath": "paper-author-paper",
+    "steps": [
+     [
+      "paper",
+      "author"
+     ],
+     [
+      "author",
+      "paper"
+     ]
+    ],
+    "edges": 29767,
+    "reference": 2.157297372817993,
+    "chunked": 2.1572974563790317,
+    "value": 2.157297372817993,
+    "code_path": "hetero2net.attribute_homophily (reference)"
+   },
+   {
+    "metapath": "paper-subject-paper",
+    "steps": [
+     [
+      "paper",
+      "subject"
+     ],
+     [
+      "subject",
+      "paper"
+     ]
+    ],
+    "edges": 2217089,
+    "reference": 0.04272257536649704,
+    "chunked": 0.04272257399931073,
+    "value": 0.04272257399931073,
+    "code_path": "mde_chunked (D-a); reference also computed (gate)"
+   },
+   {
+    "metapath": "paper-term-paper",
+    "steps": [
+     [
+      "paper",
+      "term"
+     ],
+     [
+      "term",
+      "paper"
+     ]
+    ],
+    "edges": 9150595,
+    "reference": 0.010651621036231518,
+    "chunked": 0.010651621859015746,
+    "value": 0.010651621859015746,
+    "code_path": "mde_chunked (D-a); reference also computed (gate)"
+   }
+  ],
+  "wall_s": 378.28,
+  "peak_rss_gb": 11.941
+ },
+ {
+  "dataset": "acm",
+  "task": "nc",
+  "measure": "mlh",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17237",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+   "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-subject": "kept (reverse partner subject-to-paper)",
+   "subject-to-paper": "kept (reverse partner paper-to-subject)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 3025,
+    "author": 5959,
+    "subject": 56,
+    "term": 1902
+   },
+   "edge_types": {
+    "paper-cite-paper": 5343,
+    "paper-ref-paper": 5343,
+    "paper-to-author": 9949,
+    "author-to-paper": 9949,
+    "paper-to-subject": 3025,
+    "subject-to-paper": 3025,
+    "paper-to-term": 255619,
+    "term-to-paper": 255619
+   }
+  },
+  "target": "paper",
+  "m2": [
+   "paper-author-paper",
+   "paper-subject-paper",
+   "paper-term-paper"
+  ],
+  "m2_source": "Hetero2Net predefined list 'acm' (App. B.1)",
+  "value": 0.40378997675050177,
+  "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+  "fill_seeds": {
+   "label": [
+    0
+   ]
+  },
+  "value_over_fill_seeds": [
+   0.40378997675050177
+  ],
+  "spread": null,
+  "per_metapath": [
+   {
+    "metapath": "paper-author-paper",
+    "steps": [
+     [
+      "paper",
+      "author"
+     ],
+     [
+      "author",
+      "paper"
+     ]
+    ],
+    "edges": 29767,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "label@0": 0.8144925832748413
+    },
+    "labeled_only_h_edge_homophily": null,
+    "labeled_only_edges": null,
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "paper-subject-paper",
+    "steps": [
+     [
+      "paper",
+      "subject"
+     ],
+     [
+      "subject",
+      "paper"
+     ]
+    ],
+    "edges": 2217089,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.640317554797297
+    },
+    "labeled_only_h_edge_homophily": null,
+    "labeled_only_edges": null,
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "paper-term-paper",
+    "steps": [
+     [
+      "paper",
+      "term"
+     ],
+     [
+      "term",
+      "paper"
+     ]
+    ],
+    "edges": 9150595,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.33381993167635643
+    },
+    "labeled_only_h_edge_homophily": null,
+    "labeled_only_edges": null,
+    "exact_match_h_edge_homophily": null
+   }
+  ],
+  "labeled_targets": 3025,
+  "targets": 3025,
+  "wall_s": 2.99,
+  "peak_rss_gb": 0.754
+ },
+ {
+  "dataset": "dblp",
+  "task": "nc",
+  "measure": "h2",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17238",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "H2GB/calcHomophily.py calcHomophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "paper-to-venue": "kept (reverse partner venue-to-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)",
+   "venue-to-paper": "kept (reverse partner paper-to-venue)"
+  },
+  "graph": {
+   "node_types": {
+    "author": 4057,
+    "paper": 14328,
+    "term": 7723,
+    "venue": 20
+   },
+   "edge_types": {
+    "author-to-paper": 19645,
+    "paper-to-term": 85810,
+    "paper-to-venue": 14328,
+    "paper-to-author": 19645,
+    "term-to-paper": 85810,
+    "venue-to-paper": 14328
+   }
+  },
+  "target": "author",
+  "value": 0.17323631048202515,
+  "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+  "value_over_fill_seeds": [
+   0.17323631048202515
+  ],
+  "spread": null,
+  "h2gb_metapaths": [
+   "author-to-paper-to-author"
+  ],
+  "per_problem": {
+   "label": {
+    "seeds": [
+     0
+    ],
+    "runs": [
+     {
+      "seed": 0,
+      "per_metapath": [
+       {
+        "metapath": "author-to-paper-to-author",
+        "edge_types": [
+         [
+          "author",
+          "to",
+          "paper"
+         ],
+         [
+          "paper",
+          "to",
+          "author"
+         ]
+        ],
+        "h_edge": 0.8722217223072077,
+        "h_insensitive": 0.822406199914159,
+        "h_adj": 0.8267636895179749
+       }
+      ],
+      "h2": 0.17323631048202515
+     }
+    ],
+    "labeled_only": null
+   }
+  },
+  "labeled_targets": 4057,
+  "targets": 4057,
+  "wall_s": 1.91,
+  "peak_rss_gb": 0.87
+ },
+ {
+  "dataset": "dblp",
+  "task": "nc",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17211",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "paper-to-venue": "kept (reverse partner venue-to-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)",
+   "venue-to-paper": "kept (reverse partner paper-to-venue)"
+  },
+  "graph": {
+   "node_types": {
+    "author": 4057,
+    "paper": 14328,
+    "term": 7723,
+    "venue": 20
+   },
+   "edge_types": {
+    "author-to-paper": 19645,
+    "paper-to-term": 85810,
+    "paper-to-venue": 14328,
+    "paper-to-author": 19645,
+    "term-to-paper": 85810,
+    "venue-to-paper": 14328
+   }
+  },
+  "target": "author",
+  "m2": [
+   "author-paper-author"
+  ],
+  "m2_source": "Hetero2Net predefined list 'dblp' (App. B.1)",
+  "value": 0.8004068732261658,
+  "form": "MDE, mean over M2 (raw features)",
+  "feature_dim": 334,
+  "feature_dtype": "torch.float32",
+  "per_metapath": [
+   {
+    "metapath": "author-paper-author",
+    "steps": [
+     [
+      "author",
+      "paper"
+     ],
+     [
+      "paper",
+      "author"
+     ]
+    ],
+    "edges": 11113,
+    "reference": 0.8004068732261658,
+    "chunked": 0.8004068840186298,
+    "value": 0.8004068732261658,
+    "code_path": "hetero2net.attribute_homophily (reference)"
+   }
+  ],
+  "wall_s": 2.59,
+  "peak_rss_gb": 0.917
+ },
+ {
+  "dataset": "dblp",
+  "task": "nc",
+  "measure": "mlh",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17240",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "paper-to-venue": "kept (reverse partner venue-to-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)",
+   "venue-to-paper": "kept (reverse partner paper-to-venue)"
+  },
+  "graph": {
+   "node_types": {
+    "author": 4057,
+    "paper": 14328,
+    "term": 7723,
+    "venue": 20
+   },
+   "edge_types": {
+    "author-to-paper": 19645,
+    "paper-to-term": 85810,
+    "paper-to-venue": 14328,
+    "paper-to-author": 19645,
+    "term-to-paper": 85810,
+    "venue-to-paper": 14328
+   }
+  },
+  "target": "author",
+  "m2": [
+   "author-paper-author"
+  ],
+  "m2_source": "Hetero2Net predefined list 'dblp' (App. B.1)",
+  "value": 0.1277782917022705,
+  "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+  "fill_seeds": {
+   "label": [
+    0
+   ]
+  },
+  "value_over_fill_seeds": [
+   0.1277782917022705
+  ],
+  "spread": null,
+  "per_metapath": [
+   {
+    "metapath": "author-paper-author",
+    "steps": [
+     [
+      "author",
+      "paper"
+     ],
+     [
+      "paper",
+      "author"
+     ]
+    ],
+    "edges": 11113,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "label@0": 0.8722217082977295
+    },
+    "labeled_only_h_edge_homophily": null,
+    "labeled_only_edges": null,
+    "exact_match_h_edge_homophily": null
+   }
+  ],
+  "labeled_targets": 4057,
+  "targets": 4057,
+  "wall_s": 2.19,
+  "peak_rss_gb": 0.869
+ },
+ {
+  "dataset": "freebase",
+  "task": "nc",
+  "measure": "h2",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17243",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "H2GB/calcHomophily.py calcHomophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "book-and-book": "no reverse partner: made undirected (to_undirected)",
+   "book-to-film": "no reverse partner: added film-rev_to-book",
+   "book-on-sports": "no reverse partner: added sports-rev_on-book",
+   "book-on-location": "no reverse partner: added location-rev_on-book",
+   "book-about-organization": "no reverse partner: added organization-rev_about-book",
+   "film-and-film": "kept",
+   "music-in-book": "no reverse partner: added book-rev_in-music",
+   "music-in-film": "no reverse partner: added film-rev_in-music",
+   "music-and-music": "kept",
+   "music-for-sports": "no reverse partner: added sports-rev_for-music",
+   "music-on-location": "no reverse partner: added location-rev_on-music",
+   "sports-in-film": "no reverse partner: added film-rev_in-sports",
+   "sports-and-sports": "kept",
+   "sports-on-location": "no reverse partner: added location-rev_on-sports",
+   "people-to-book": "no reverse partner: added book-rev_to-people",
+   "people-to-film": "no reverse partner: added film-rev_to-people",
+   "people-to-music": "no reverse partner: added music-rev_to-people",
+   "people-to-sports": "no reverse partner: added sports-rev_to-people",
+   "people-and-people": "kept",
+   "people-on-location": "no reverse partner: added location-rev_on-people",
+   "people-in-organization": "no reverse partner: added organization-rev_in-people",
+   "people-in-business": "no reverse partner: added business-rev_in-people",
+   "location-in-film": "no reverse partner: added film-rev_in-location",
+   "location-and-location": "kept",
+   "organization-in-film": "no reverse partner: added film-rev_in-organization",
+   "organization-to-music": "no reverse partner: added music-rev_to-organization",
+   "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+   "organization-on-location": "no reverse partner: added location-rev_on-organization",
+   "organization-and-organization": "kept",
+   "organization-for-business": "no reverse partner: added business-rev_for-organization",
+   "business-about-book": "no reverse partner: added book-rev_about-business",
+   "business-about-film": "no reverse partner: added film-rev_about-business",
+   "business-about-music": "no reverse partner: added music-rev_about-business",
+   "business-about-sports": "no reverse partner: added sports-rev_about-business",
+   "business-on-location": "no reverse partner: added location-rev_on-business",
+   "business-and-business": "kept"
+  },
+  "graph": {
+   "node_types": {
+    "book": 40402,
+    "film": 19427,
+    "music": 82351,
+    "sports": 1025,
+    "people": 17641,
+    "location": 9368,
+    "organization": 2731,
+    "business": 7153
+   },
+   "edge_types": {
+    "book-and-book": 270106,
+    "book-to-film": 38299,
+    "film-rev_to-book": 38299,
+    "book-on-sports": 6615,
+    "sports-rev_on-book": 6615,
+    "book-on-location": 26921,
+    "location-rev_on-book": 26921,
+    "book-about-organization": 21900,
+    "organization-rev_about-book": 21900,
+    "film-and-film": 87838,
+    "music-in-book": 31486,
+    "book-rev_in-music": 31486,
+    "music-in-film": 11291,
+    "film-rev_in-music": 11291,
+    "music-and-music": 283670,
+    "music-for-sports": 8975,
+    "sports-rev_for-music": 8975,
+    "music-on-location": 42915,
+    "location-rev_on-music": 42915,
+    "sports-in-film": 6763,
+    "film-rev_in-sports": 6763,
+    "sports-and-sports": 1290,
+    "sports-on-location": 656,
+    "location-rev_on-sports": 656,
+    "people-to-book": 35587,
+    "book-rev_to-people": 35587,
+    "people-to-film": 17604,
+    "film-rev_to-people": 17604,
+    "people-to-music": 10948,
+    "music-rev_to-people": 10948,
+    "people-to-sports": 14850,
+    "sports-rev_to-people": 14850,
+    "people-and-people": 22813,
+    "people-on-location": 15134,
+    "location-rev_on-people": 15134,
+    "people-in-organization": 2215,
+    "organization-rev_in-people": 2215,
+    "people-in-business": 5378,
+    "business-rev_in-people": 5378,
+    "location-in-film": 21299,
+    "film-rev_in-location": 21299,
+    "location-and-location": 47817,
+    "organization-in-film": 13128,
+    "film-rev_in-organization": 13128,
+    "organization-to-music": 10702,
+    "music-rev_to-organization": 10702,
+    "organization-to-sports": 559,
+    "sports-rev_to-organization": 559,
+    "organization-on-location": 2696,
+    "location-rev_on-organization": 2696,
+    "organization-and-organization": 1101,
+    "organization-for-business": 1073,
+    "business-rev_for-organization": 1073,
+    "business-about-book": 18625,
+    "book-rev_about-business": 18625,
+    "business-about-film": 8397,
+    "film-rev_about-business": 8397,
+    "business-about-music": 24764,
+    "music-rev_about-business": 24764,
+    "business-about-sports": 610,
+    "sports-rev_about-business": 610,
+    "business-on-location": 6647,
+    "location-rev_on-business": 6647,
+    "business-and-business": 4448
+   }
+  },
+  "target": "book",
+  "value": 0.9953457173232891,
+  "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+  "value_over_fill_seeds": [
+   0.9953457173232891,
+   0.9948084104335067,
+   0.9947763568870869,
+   0.994402213502326,
+   0.9955789476989594
+  ],
+  "spread": [
+   0.994402213502326,
+   0.9955789476989594
+  ],
+  "h2gb_metapaths": [
+   "book-and-book-and-book",
+   "book-to-film-rev_to-book",
+   "book-on-sports-rev_on-book",
+   "book-on-location-rev_on-book",
+   "book-about-organization-rev_about-book",
+   "book-rev_in-music-in-book",
+   "book-rev_to-people-to-book",
+   "book-rev_about-business-about-book"
+  ],
+  "per_problem": {
+   "label": {
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "runs": [
+     {
+      "seed": 0,
+      "per_metapath": [
+       {
+        "metapath": "book-and-book-and-book",
+        "edge_types": [
+         [
+          "book",
+          "and",
+          "book"
+         ],
+         [
+          "book",
+          "and",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14880314859340713,
+        "h_insensitive": 0.0047195833804012655,
+        "h_adj": 0.0014887421857565641
+       },
+       {
+        "metapath": "book-to-film-rev_to-book",
+        "edge_types": [
+         [
+          "book",
+          "to",
+          "film"
+         ],
+         [
+          "film",
+          "rev_to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14827508253296312,
+        "h_insensitive": 0.008521193742742817,
+        "h_adj": 0.0038667540065944195
+       },
+       {
+        "metapath": "book-on-sports-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "sports"
+         ],
+         [
+          "sports",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.16649681974363573,
+        "h_insensitive": 0.011841134133237905,
+        "h_adj": 0.00028487227973528206
+       },
+       {
+        "metapath": "book-on-location-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "location"
+         ],
+         [
+          "location",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14731537711580703,
+        "h_insensitive": 0.0039021214062100185,
+        "h_adj": 0.0003618058399297297
+       },
+       {
+        "metapath": "book-about-organization-rev_about-book",
+        "edge_types": [
+         [
+          "book",
+          "about",
+          "organization"
+         ],
+         [
+          "organization",
+          "rev_about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14540891459903146,
+        "h_insensitive": 0.01122532986915043,
+        "h_adj": 0.0004535990592557937
+       },
+       {
+        "metapath": "book-rev_in-music-in-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_in",
+          "music"
+         ],
+         [
+          "music",
+          "in",
+          "book"
+         ]
+        ],
+        "h_edge": 0.18001516515804938,
+        "h_insensitive": 0.02481290293428823,
+        "h_adj": 0.027222013100981712
+       },
+       {
+        "metapath": "book-rev_to-people-to-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_to",
+          "people"
+         ],
+         [
+          "people",
+          "to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14757562772505853,
+        "h_insensitive": 0.011826987294500607,
+        "h_adj": 0.003317256225273013
+       },
+       {
+        "metapath": "book-rev_about-business-about-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_about",
+          "business"
+         ],
+         [
+          "business",
+          "about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14457618803346323,
+        "h_insensitive": 0.007826205312106491,
+        "h_adj": 0.00023921871616039425
+       }
+      ],
+      "h2": 0.9953457173232891
+     },
+     {
+      "seed": 1,
+      "per_metapath": [
+       {
+        "metapath": "book-and-book-and-book",
+        "edge_types": [
+         [
+          "book",
+          "and",
+          "book"
+         ],
+         [
+          "book",
+          "and",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1486193107170177,
+        "h_insensitive": 0.005098676228216942,
+        "h_adj": 0.0015320450766012073
+       },
+       {
+        "metapath": "book-to-film-rev_to-book",
+        "edge_types": [
+         [
+          "book",
+          "to",
+          "film"
+         ],
+         [
+          "film",
+          "rev_to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14936868602562647,
+        "h_insensitive": 0.007782192995175102,
+        "h_adj": 0.004665673710405827
+       },
+       {
+        "metapath": "book-on-sports-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "sports"
+         ],
+         [
+          "sports",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.16942758162232227,
+        "h_insensitive": 0.013375871365293642,
+        "h_adj": 9.005486936075613e-05
+       },
+       {
+        "metapath": "book-on-location-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "location"
+         ],
+         [
+          "location",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.148208942597023,
+        "h_insensitive": 0.003413610135236537,
+        "h_adj": 0.00038440345088019967
+       },
+       {
+        "metapath": "book-about-organization-rev_about-book",
+        "edge_types": [
+         [
+          "book",
+          "about",
+          "organization"
+         ],
+         [
+          "organization",
+          "rev_about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14570280027870353,
+        "h_insensitive": 0.010888000082263543,
+        "h_adj": 0.0004557242209557444
+       },
+       {
+        "metapath": "book-rev_in-music-in-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_in",
+          "music"
+         ],
+         [
+          "music",
+          "in",
+          "book"
+         ]
+        ],
+        "h_edge": 0.18354580351642102,
+        "h_insensitive": 0.027484747041874116,
+        "h_adj": 0.030283352360129356
+       },
+       {
+        "metapath": "book-rev_to-people-to-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_to",
+          "people"
+         ],
+         [
+          "people",
+          "to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14751840864847268,
+        "h_insensitive": 0.011965384206994117,
+        "h_adj": 0.00384926819242537
+       },
+       {
+        "metapath": "book-rev_about-business-about-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_about",
+          "business"
+         ],
+         [
+          "business",
+          "about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14495939103877917,
+        "h_insensitive": 0.006793177338742626,
+        "h_adj": 0.00027219465118832886
+       }
+      ],
+      "h2": 0.9948084104335067
+     },
+     {
+      "seed": 2,
+      "per_metapath": [
+       {
+        "metapath": "book-and-book-and-book",
+        "edge_types": [
+         [
+          "book",
+          "and",
+          "book"
+         ],
+         [
+          "book",
+          "and",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14835188191106533,
+        "h_insensitive": 0.004211829992675893,
+        "h_adj": 0.0014519297983497381
+       },
+       {
+        "metapath": "book-to-film-rev_to-book",
+        "edge_types": [
+         [
+          "book",
+          "to",
+          "film"
+         ],
+         [
+          "film",
+          "rev_to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14879350686638007,
+        "h_insensitive": 0.008654303863810256,
+        "h_adj": 0.004667582456022501
+       },
+       {
+        "metapath": "book-on-sports-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "sports"
+         ],
+         [
+          "sports",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.16539346266135227,
+        "h_insensitive": 0.011433268956626616,
+        "h_adj": 0.00023565447190776467
+       },
+       {
+        "metapath": "book-on-location-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "location"
+         ],
+         [
+          "location",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1464859544952597,
+        "h_insensitive": 0.0042809782826991605,
+        "h_adj": 0.0004774915869347751
+       },
+       {
+        "metapath": "book-about-organization-rev_about-book",
+        "edge_types": [
+         [
+          "book",
+          "about",
+          "organization"
+         ],
+         [
+          "organization",
+          "rev_about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14567713261218113,
+        "h_insensitive": 0.009234052612654415,
+        "h_adj": 0.0005831493763253093
+       },
+       {
+        "metapath": "book-rev_in-music-in-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_in",
+          "music"
+         ],
+         [
+          "music",
+          "in",
+          "book"
+         ]
+        ],
+        "h_edge": 0.18702905075588835,
+        "h_insensitive": 0.02992555003800078,
+        "h_adj": 0.031048763543367386
+       },
+       {
+        "metapath": "book-rev_to-people-to-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_to",
+          "people"
+         ],
+         [
+          "people",
+          "to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14682224321667847,
+        "h_insensitive": 0.010011833441266877,
+        "h_adj": 0.0030844148714095354
+       },
+       {
+        "metapath": "book-rev_about-business-about-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_about",
+          "business"
+         ],
+         [
+          "business",
+          "about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14476182606418442,
+        "h_insensitive": 0.007325325042827471,
+        "h_adj": 0.0002401587989879772
+       }
+      ],
+      "h2": 0.9947763568870869
+     },
+     {
+      "seed": 3,
+      "per_metapath": [
+       {
+        "metapath": "book-and-book-and-book",
+        "edge_types": [
+         [
+          "book",
+          "and",
+          "book"
+         ],
+         [
+          "book",
+          "and",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1480689627500219,
+        "h_insensitive": 0.004381943903661219,
+        "h_adj": 0.001489710877649486
+       },
+       {
+        "metapath": "book-to-film-rev_to-book",
+        "edge_types": [
+         [
+          "book",
+          "to",
+          "film"
+         ],
+         [
+          "film",
+          "rev_to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14777287386406884,
+        "h_insensitive": 0.00863360706381322,
+        "h_adj": 0.00400725519284606
+       },
+       {
+        "metapath": "book-on-sports-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "sports"
+         ],
+         [
+          "sports",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.16767306753539435,
+        "h_insensitive": 0.014676130502265178,
+        "h_adj": 0.0003346922167111188
+       },
+       {
+        "metapath": "book-on-location-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "location"
+         ],
+         [
+          "location",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14645464855585516,
+        "h_insensitive": 0.004521919531470922,
+        "h_adj": 0.0003848522319458425
+       },
+       {
+        "metapath": "book-about-organization-rev_about-book",
+        "edge_types": [
+         [
+          "book",
+          "about",
+          "organization"
+         ],
+         [
+          "organization",
+          "rev_about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14496866860812527,
+        "h_insensitive": 0.009438762098669567,
+        "h_adj": 0.0005555277457460761
+       },
+       {
+        "metapath": "book-rev_in-music-in-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_in",
+          "music"
+         ],
+         [
+          "music",
+          "in",
+          "book"
+         ]
+        ],
+        "h_edge": 0.18558362162930667,
+        "h_insensitive": 0.03308161292584404,
+        "h_adj": 0.03446240350604057
+       },
+       {
+        "metapath": "book-rev_to-people-to-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_to",
+          "people"
+         ],
+         [
+          "people",
+          "to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1482698858542999,
+        "h_insensitive": 0.010877962227845067,
+        "h_adj": 0.003225608030334115
+       },
+       {
+        "metapath": "book-rev_about-business-about-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_about",
+          "business"
+         ],
+         [
+          "business",
+          "about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14419549596369963,
+        "h_insensitive": 0.007769698882132738,
+        "h_adj": 0.0003222421801183373
+       }
+      ],
+      "h2": 0.994402213502326
+     },
+     {
+      "seed": 4,
+      "per_metapath": [
+       {
+        "metapath": "book-and-book-and-book",
+        "edge_types": [
+         [
+          "book",
+          "and",
+          "book"
+         ],
+         [
+          "book",
+          "and",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14846715294811377,
+        "h_insensitive": 0.004596908825163742,
+        "h_adj": 0.0013856954174116254
+       },
+       {
+        "metapath": "book-to-film-rev_to-book",
+        "edge_types": [
+         [
+          "book",
+          "to",
+          "film"
+         ],
+         [
+          "film",
+          "rev_to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14775856592478412,
+        "h_insensitive": 0.010717446872408146,
+        "h_adj": 0.003994352649897337
+       },
+       {
+        "metapath": "book-on-sports-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "sports"
+         ],
+         [
+          "sports",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1683478272459641,
+        "h_insensitive": 0.01393112269786576,
+        "h_adj": 0.0003066721255891025
+       },
+       {
+        "metapath": "book-on-location-rev_on-book",
+        "edge_types": [
+         [
+          "book",
+          "on",
+          "location"
+         ],
+         [
+          "location",
+          "rev_on",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14598923007054262,
+        "h_insensitive": 0.005168193153985673,
+        "h_adj": 0.0003839800483547151
+       },
+       {
+        "metapath": "book-about-organization-rev_about-book",
+        "edge_types": [
+         [
+          "book",
+          "about",
+          "organization"
+         ],
+         [
+          "organization",
+          "rev_about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1452163160800194,
+        "h_insensitive": 0.009719030863150799,
+        "h_adj": 0.0004577117506414652
+       },
+       {
+        "metapath": "book-rev_in-music-in-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_in",
+          "music"
+         ],
+         [
+          "music",
+          "in",
+          "book"
+         ]
+        ],
+        "h_edge": 0.17890147386379793,
+        "h_insensitive": 0.024413315306990858,
+        "h_adj": 0.025426015257835388
+       },
+       {
+        "metapath": "book-rev_to-people-to-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_to",
+          "people"
+         ],
+         [
+          "people",
+          "to",
+          "book"
+         ]
+        ],
+        "h_edge": 0.1481980441248088,
+        "h_insensitive": 0.009887999433139874,
+        "h_adj": 0.003032231004908681
+       },
+       {
+        "metapath": "book-rev_about-business-about-book",
+        "edge_types": [
+         [
+          "book",
+          "rev_about",
+          "business"
+         ],
+         [
+          "business",
+          "about",
+          "book"
+         ]
+        ],
+        "h_edge": 0.14437685399063843,
+        "h_insensitive": 0.008506126471158925,
+        "h_adj": 0.00038176015368662775
+       }
+      ],
+      "h2": 0.9955789476989594
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.8821211086469702,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "h_adj": 0.09390183538198471,
+       "h_edge": 0.4867048955265374
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "h_adj": 0.16164471209049225,
+       "h_edge": 0.47356746765249536
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "h_adj": 0.007343618664890528,
+       "h_edge": 0.9531006669015196
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "h_adj": 0.02936668135225773,
+       "h_edge": 0.4112019112894752
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "h_adj": 0.01042167842388153,
+       "h_edge": 0.2359716472871318
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "h_adj": 0.21478331089019775,
+       "h_edge": 0.5259352404904118
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "h_adj": 0.3949795663356781,
+       "h_edge": 0.7389591408781852
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "h_adj": 0.03058972768485546,
+       "h_edge": 0.35417189051482906
+      }
+     ]
+    }
+   }
+  },
+  "labeled_targets": 7954,
+  "targets": 40402,
+  "labeled_only": 0.8821211086469702,
+  "wall_s": 70.58,
+  "peak_rss_gb": 0.707
+ },
+ {
+  "dataset": "freebase",
+  "task": "nc",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17245",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "book-and-book": "no reverse partner: made undirected (to_undirected)",
+   "book-to-film": "no reverse partner: added film-rev_to-book",
+   "book-on-sports": "no reverse partner: added sports-rev_on-book",
+   "book-on-location": "no reverse partner: added location-rev_on-book",
+   "book-about-organization": "no reverse partner: added organization-rev_about-book",
+   "film-and-film": "kept",
+   "music-in-book": "no reverse partner: added book-rev_in-music",
+   "music-in-film": "no reverse partner: added film-rev_in-music",
+   "music-and-music": "kept",
+   "music-for-sports": "no reverse partner: added sports-rev_for-music",
+   "music-on-location": "no reverse partner: added location-rev_on-music",
+   "sports-in-film": "no reverse partner: added film-rev_in-sports",
+   "sports-and-sports": "kept",
+   "sports-on-location": "no reverse partner: added location-rev_on-sports",
+   "people-to-book": "no reverse partner: added book-rev_to-people",
+   "people-to-film": "no reverse partner: added film-rev_to-people",
+   "people-to-music": "no reverse partner: added music-rev_to-people",
+   "people-to-sports": "no reverse partner: added sports-rev_to-people",
+   "people-and-people": "kept",
+   "people-on-location": "no reverse partner: added location-rev_on-people",
+   "people-in-organization": "no reverse partner: added organization-rev_in-people",
+   "people-in-business": "no reverse partner: added business-rev_in-people",
+   "location-in-film": "no reverse partner: added film-rev_in-location",
+   "location-and-location": "kept",
+   "organization-in-film": "no reverse partner: added film-rev_in-organization",
+   "organization-to-music": "no reverse partner: added music-rev_to-organization",
+   "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+   "organization-on-location": "no reverse partner: added location-rev_on-organization",
+   "organization-and-organization": "kept",
+   "organization-for-business": "no reverse partner: added business-rev_for-organization",
+   "business-about-book": "no reverse partner: added book-rev_about-business",
+   "business-about-film": "no reverse partner: added film-rev_about-business",
+   "business-about-music": "no reverse partner: added music-rev_about-business",
+   "business-about-sports": "no reverse partner: added sports-rev_about-business",
+   "business-on-location": "no reverse partner: added location-rev_on-business",
+   "business-and-business": "kept"
+  },
+  "graph": {
+   "node_types": {
+    "book": 40402,
+    "film": 19427,
+    "music": 82351,
+    "sports": 1025,
+    "people": 17641,
+    "location": 9368,
+    "organization": 2731,
+    "business": 7153
+   },
+   "edge_types": {
+    "book-and-book": 270106,
+    "book-to-film": 38299,
+    "film-rev_to-book": 38299,
+    "book-on-sports": 6615,
+    "sports-rev_on-book": 6615,
+    "book-on-location": 26921,
+    "location-rev_on-book": 26921,
+    "book-about-organization": 21900,
+    "organization-rev_about-book": 21900,
+    "film-and-film": 87838,
+    "music-in-book": 31486,
+    "book-rev_in-music": 31486,
+    "music-in-film": 11291,
+    "film-rev_in-music": 11291,
+    "music-and-music": 283670,
+    "music-for-sports": 8975,
+    "sports-rev_for-music": 8975,
+    "music-on-location": 42915,
+    "location-rev_on-music": 42915,
+    "sports-in-film": 6763,
+    "film-rev_in-sports": 6763,
+    "sports-and-sports": 1290,
+    "sports-on-location": 656,
+    "location-rev_on-sports": 656,
+    "people-to-book": 35587,
+    "book-rev_to-people": 35587,
+    "people-to-film": 17604,
+    "film-rev_to-people": 17604,
+    "people-to-music": 10948,
+    "music-rev_to-people": 10948,
+    "people-to-sports": 14850,
+    "sports-rev_to-people": 14850,
+    "people-and-people": 22813,
+    "people-on-location": 15134,
+    "location-rev_on-people": 15134,
+    "people-in-organization": 2215,
+    "organization-rev_in-people": 2215,
+    "people-in-business": 5378,
+    "business-rev_in-people": 5378,
+    "location-in-film": 21299,
+    "film-rev_in-location": 21299,
+    "location-and-location": 47817,
+    "organization-in-film": 13128,
+    "film-rev_in-organization": 13128,
+    "organization-to-music": 10702,
+    "music-rev_to-organization": 10702,
+    "organization-to-sports": 559,
+    "sports-rev_to-organization": 559,
+    "organization-on-location": 2696,
+    "location-rev_on-organization": 2696,
+    "organization-and-organization": 1101,
+    "organization-for-business": 1073,
+    "business-rev_for-organization": 1073,
+    "business-about-book": 18625,
+    "book-rev_about-business": 18625,
+    "business-about-film": 8397,
+    "film-rev_about-business": 8397,
+    "business-about-music": 24764,
+    "music-rev_about-business": 24764,
+    "business-about-sports": 610,
+    "sports-rev_about-business": 610,
+    "business-on-location": 6647,
+    "location-rev_on-business": 6647,
+    "business-and-business": 4448
+   }
+  },
+  "target": "book",
+  "m2": [
+   "book-film-book",
+   "book-sports-book",
+   "book-location-book",
+   "book-organization-book",
+   "book-music-book",
+   "book-people-book",
+   "book-business-book"
+  ],
+  "m2_source": "get_metapaths (homophily.py:51-63)",
+  "value": null,
+  "reason": "target type has no features",
+  "wall_s": 1.91,
+  "peak_rss_gb": 0.699
+ },
+ {
+  "dataset": "freebase",
+  "task": "nc",
+  "measure": "mlh",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17244",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "book-and-book": "no reverse partner: made undirected (to_undirected)",
+   "book-to-film": "no reverse partner: added film-rev_to-book",
+   "book-on-sports": "no reverse partner: added sports-rev_on-book",
+   "book-on-location": "no reverse partner: added location-rev_on-book",
+   "book-about-organization": "no reverse partner: added organization-rev_about-book",
+   "film-and-film": "kept",
+   "music-in-book": "no reverse partner: added book-rev_in-music",
+   "music-in-film": "no reverse partner: added film-rev_in-music",
+   "music-and-music": "kept",
+   "music-for-sports": "no reverse partner: added sports-rev_for-music",
+   "music-on-location": "no reverse partner: added location-rev_on-music",
+   "sports-in-film": "no reverse partner: added film-rev_in-sports",
+   "sports-and-sports": "kept",
+   "sports-on-location": "no reverse partner: added location-rev_on-sports",
+   "people-to-book": "no reverse partner: added book-rev_to-people",
+   "people-to-film": "no reverse partner: added film-rev_to-people",
+   "people-to-music": "no reverse partner: added music-rev_to-people",
+   "people-to-sports": "no reverse partner: added sports-rev_to-people",
+   "people-and-people": "kept",
+   "people-on-location": "no reverse partner: added location-rev_on-people",
+   "people-in-organization": "no reverse partner: added organization-rev_in-people",
+   "people-in-business": "no reverse partner: added business-rev_in-people",
+   "location-in-film": "no reverse partner: added film-rev_in-location",
+   "location-and-location": "kept",
+   "organization-in-film": "no reverse partner: added film-rev_in-organization",
+   "organization-to-music": "no reverse partner: added music-rev_to-organization",
+   "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+   "organization-on-location": "no reverse partner: added location-rev_on-organization",
+   "organization-and-organization": "kept",
+   "organization-for-business": "no reverse partner: added business-rev_for-organization",
+   "business-about-book": "no reverse partner: added book-rev_about-business",
+   "business-about-film": "no reverse partner: added film-rev_about-business",
+   "business-about-music": "no reverse partner: added music-rev_about-business",
+   "business-about-sports": "no reverse partner: added sports-rev_about-business",
+   "business-on-location": "no reverse partner: added location-rev_on-business",
+   "business-and-business": "kept"
+  },
+  "graph": {
+   "node_types": {
+    "book": 40402,
+    "film": 19427,
+    "music": 82351,
+    "sports": 1025,
+    "people": 17641,
+    "location": 9368,
+    "organization": 2731,
+    "business": 7153
+   },
+   "edge_types": {
+    "book-and-book": 270106,
+    "book-to-film": 38299,
+    "film-rev_to-book": 38299,
+    "book-on-sports": 6615,
+    "sports-rev_on-book": 6615,
+    "book-on-location": 26921,
+    "location-rev_on-book": 26921,
+    "book-about-organization": 21900,
+    "organization-rev_about-book": 21900,
+    "film-and-film": 87838,
+    "music-in-book": 31486,
+    "book-rev_in-music": 31486,
+    "music-in-film": 11291,
+    "film-rev_in-music": 11291,
+    "music-and-music": 283670,
+    "music-for-sports": 8975,
+    "sports-rev_for-music": 8975,
+    "music-on-location": 42915,
+    "location-rev_on-music": 42915,
+    "sports-in-film": 6763,
+    "film-rev_in-sports": 6763,
+    "sports-and-sports": 1290,
+    "sports-on-location": 656,
+    "location-rev_on-sports": 656,
+    "people-to-book": 35587,
+    "book-rev_to-people": 35587,
+    "people-to-film": 17604,
+    "film-rev_to-people": 17604,
+    "people-to-music": 10948,
+    "music-rev_to-people": 10948,
+    "people-to-sports": 14850,
+    "sports-rev_to-people": 14850,
+    "people-and-people": 22813,
+    "people-on-location": 15134,
+    "location-rev_on-people": 15134,
+    "people-in-organization": 2215,
+    "organization-rev_in-people": 2215,
+    "people-in-business": 5378,
+    "business-rev_in-people": 5378,
+    "location-in-film": 21299,
+    "film-rev_in-location": 21299,
+    "location-and-location": 47817,
+    "organization-in-film": 13128,
+    "film-rev_in-organization": 13128,
+    "organization-to-music": 10702,
+    "music-rev_to-organization": 10702,
+    "organization-to-sports": 559,
+    "sports-rev_to-organization": 559,
+    "organization-on-location": 2696,
+    "location-rev_on-organization": 2696,
+    "organization-and-organization": 1101,
+    "organization-for-business": 1073,
+    "business-rev_for-organization": 1073,
+    "business-about-book": 18625,
+    "book-rev_about-business": 18625,
+    "business-about-film": 8397,
+    "film-rev_about-business": 8397,
+    "business-about-music": 24764,
+    "music-rev_about-business": 24764,
+    "business-about-sports": 610,
+    "sports-rev_about-business": 610,
+    "business-on-location": 6647,
+    "location-rev_on-business": 6647,
+    "business-and-business": 4448
+   }
+  },
+  "target": "book",
+  "m2": [
+   "book-film-book",
+   "book-sports-book",
+   "book-location-book",
+   "book-organization-book",
+   "book-music-book",
+   "book-people-book",
+   "book-business-book"
+  ],
+  "m2_source": "get_metapaths (homophily.py:51-63)",
+  "value": 0.8457624041517953,
+  "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+  "fill_seeds": {
+   "label": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "value_over_fill_seeds": [
+   0.8457624041517953,
+   0.8444669130812725,
+   0.8450052607199029,
+   0.845011677018527,
+   0.8458873835633703
+  ],
+  "spread": [
+   0.8444669130812725,
+   0.8458873835633703
+  ],
+  "per_metapath": [
+   {
+    "metapath": "book-film-book",
+    "steps": [
+     [
+      "book",
+      "film"
+     ],
+     [
+      "film",
+      "book"
+     ]
+    ],
+    "edges": 4193476,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.14827508240968093,
+     "label@1": 0.14936868582806015,
+     "label@2": 0.1487935068719234,
+     "label@3": 0.14777287408671164,
+     "label@4": 0.14775856614777869
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.4735674687399869
+    },
+    "labeled_only_edges": {
+     "label": 45985
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-sports-book",
+    "steps": [
+     [
+      "book",
+      "sports"
+     ],
+     [
+      "sports",
+      "book"
+     ]
+    ],
+    "edges": 14405128,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.16649681982259878,
+     "label@1": 0.1694275813865374,
+     "label@2": 0.16539346244785946,
+     "label@3": 0.16767306742934307,
+     "label@4": 0.16834782705487505
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.9531006662457191
+    },
+    "labeled_only_edges": {
+     "label": 411605
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-location-book",
+    "steps": [
+     [
+      "book",
+      "location"
+     ],
+     [
+      "location",
+      "book"
+     ]
+    ],
+    "edges": 37884185,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.1473153768333684,
+     "label@1": 0.14820894295237486,
+     "label@2": 0.14648595424887273,
+     "label@3": 0.1464546481400049,
+     "label@4": 0.1459892297163287
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.4112019109069617
+    },
+    "labeled_only_edges": {
+     "label": 542461
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-organization-book",
+    "steps": [
+     [
+      "book",
+      "organization"
+     ],
+     [
+      "organization",
+      "book"
+     ]
+    ],
+    "edges": 54932925,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.14540891419189605,
+     "label@1": 0.1457028006092999,
+     "label@2": 0.14567713272191354,
+     "label@3": 0.1449686677669869,
+     "label@4": 0.14521631631290702
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.23597164747313135
+    },
+    "labeled_only_edges": {
+     "label": 1312467
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-music-book",
+    "steps": [
+     [
+      "book",
+      "music"
+     ],
+     [
+      "music",
+      "book"
+     ]
+    ],
+    "edges": 84404,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "label@0": 0.18001516163349152,
+     "label@1": 0.1835457980632782,
+     "label@2": 0.18702904880046844,
+     "label@3": 0.18558362126350403,
+     "label@4": 0.17890147864818573
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.5259352326393127
+    },
+    "labeled_only_edges": {
+     "label": 6362
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-people-book",
+    "steps": [
+     [
+      "book",
+      "people"
+     ],
+     [
+      "people",
+      "book"
+     ]
+    ],
+    "edges": 3145804,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.1475756278608826,
+     "label@1": 0.1475184087618773,
+     "label@2": 0.14682224320952586,
+     "label@3": 0.14826988594607138,
+     "label@4": 0.14819804376104811
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.7389591400534465
+    },
+    "labeled_only_edges": {
+     "label": 15737
+    },
+    "exact_match_h_edge_homophily": null
+   },
+   {
+    "metapath": "book-business-book",
+    "steps": [
+     [
+      "book",
+      "business"
+     ],
+     [
+      "business",
+      "book"
+     ]
+    ],
+    "edges": 35046698,
+    "mode": "chunked (weighted chunk means)",
+    "h_edge_homophily": {
+     "label@0": 0.14457618818551532,
+     "label@1": 0.14495939082966494,
+     "label@2": 0.14476182666011653,
+     "label@3": 0.14419549623768957,
+     "label@4": 0.1443768534152842
+    },
+    "labeled_only_h_edge_homophily": {
+     "label": 0.35417188958263773
+    },
+    "labeled_only_edges": {
+     "label": 199406
+    },
+    "exact_match_h_edge_homophily": null
+   }
+  ],
+  "labeled_targets": 7954,
+  "targets": 40402,
+  "labeled_only": 0.4724417206226863,
+  "wall_s": 12.05,
+  "peak_rss_gb": 0.708
+ },
+ {
+  "dataset": "h-pokec",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17224",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "user-has_friend-user": "kept",
+   "user-lists-life_style": "kept (reverse partner life_style-rev_lists-user)",
+   "user-lists-music": "kept (reverse partner music-rev_lists-user)",
+   "user-lists-cars": "kept (reverse partner cars-rev_lists-user)",
+   "user-lists-politics": "kept (reverse partner politics-rev_lists-user)",
+   "user-lists-relationships": "kept (reverse partner relationships-rev_lists-user)",
+   "user-lists-art_culture": "kept (reverse partner art_culture-rev_lists-user)",
+   "user-lists-hobbies_interests": "kept (reverse partner hobbies_interests-rev_lists-user)",
+   "user-lists-science_technologies": "kept (reverse partner science_technologies-rev_lists-user)",
+   "user-lists-computers_internet": "kept (reverse partner computers_internet-rev_lists-user)",
+   "user-lists-education": "kept (reverse partner education-rev_lists-user)",
+   "user-lists-sport": "kept (reverse partner sport-rev_lists-user)",
+   "user-lists-movies": "kept (reverse partner movies-rev_lists-user)",
+   "user-lists-travelling": "kept (reverse partner travelling-rev_lists-user)",
+   "user-lists-health": "kept (reverse partner health-rev_lists-user)",
+   "user-lists-companies_brands": "kept (reverse partner companies_brands-rev_lists-user)",
+   "life_style-rev_lists-user": "kept (reverse partner user-lists-life_style)",
+   "music-rev_lists-user": "kept (reverse partner user-lists-music)",
+   "cars-rev_lists-user": "kept (reverse partner user-lists-cars)",
+   "politics-rev_lists-user": "kept (reverse partner user-lists-politics)",
+   "relationships-rev_lists-user": "kept (reverse partner user-lists-relationships)",
+   "art_culture-rev_lists-user": "kept (reverse partner user-lists-art_culture)",
+   "hobbies_interests-rev_lists-user": "kept (reverse partner user-lists-hobbies_interests)",
+   "science_technologies-rev_lists-user": "kept (reverse partner user-lists-science_technologies)",
+   "computers_internet-rev_lists-user": "kept (reverse partner user-lists-computers_internet)",
+   "education-rev_lists-user": "kept (reverse partner user-lists-education)",
+   "sport-rev_lists-user": "kept (reverse partner user-lists-sport)",
+   "movies-rev_lists-user": "kept (reverse partner user-lists-movies)",
+   "travelling-rev_lists-user": "kept (reverse partner user-lists-travelling)",
+   "health-rev_lists-user": "kept (reverse partner user-lists-health)",
+   "companies_brands-rev_lists-user": "kept (reverse partner user-lists-companies_brands)"
+  },
+  "graph": {
+   "node_types": {
+    "user": 1632803,
+    "life_style": 21579,
+    "music": 20080,
+    "cars": 2587,
+    "politics": 1423,
+    "relationships": 22067,
+    "art_culture": 1619,
+    "hobbies_interests": 6826,
+    "science_technologies": 756,
+    "computers_internet": 2236,
+    "education": 2347,
+    "sport": 7430,
+    "movies": 5870,
+    "travelling": 1251,
+    "health": 2390,
+    "companies_brands": 713
+   },
+   "edge_types": {
+    "user-has_friend-user": 44603928,
+    "user-lists-life_style": 827974,
+    "user-lists-music": 580378,
+    "user-lists-cars": 92972,
+    "user-lists-politics": 40188,
+    "user-lists-relationships": 1010495,
+    "user-lists-art_culture": 51209,
+    "user-lists-hobbies_interests": 275117,
+    "user-lists-science_technologies": 41177,
+    "user-lists-computers_internet": 76867,
+    "user-lists-education": 82974,
+    "user-lists-sport": 165616,
+    "user-lists-movies": 180064,
+    "user-lists-travelling": 49697,
+    "user-lists-health": 74056,
+    "user-lists-companies_brands": 36670,
+    "life_style-rev_lists-user": 827974,
+    "music-rev_lists-user": 580378,
+    "cars-rev_lists-user": 92972,
+    "politics-rev_lists-user": 40188,
+    "relationships-rev_lists-user": 1010495,
+    "art_culture-rev_lists-user": 51209,
+    "hobbies_interests-rev_lists-user": 275117,
+    "science_technologies-rev_lists-user": 41177,
+    "computers_internet-rev_lists-user": 76867,
+    "education-rev_lists-user": 82974,
+    "sport-rev_lists-user": 165616,
+    "movies-rev_lists-user": 180064,
+    "travelling-rev_lists-user": 49697,
+    "health-rev_lists-user": 74056,
+    "companies_brands-rev_lists-user": 36670
+   }
+  },
+  "target": "user",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "user-life_style-user": 2590618976,
+    "user-music-user": 661899596,
+    "user-cars-user": 321919530,
+    "user-politics-user": 13951790,
+    "user-relationships-user": 5774332945,
+    "user-art_culture-user": 19956303,
+    "user-hobbies_interests-user": 4315504625,
+    "user-science_technologies-user": 364173793,
+    "user-computers_internet-user": 455452343,
+    "user-education-user": 41790472,
+    "user-sport-user": 73143352,
+    "user-movies-user": 145831206,
+    "user-travelling-user": 31488149,
+    "user-health-user": 27933906,
+    "user-companies_brands-user": 39889774
+   },
+   "h2gb": {
+    "user-has_friend-user-has_friend-user": 4216751044,
+    "user-lists-life_style-rev_lists-user": 2590618976,
+    "user-lists-music-rev_lists-user": 661899596,
+    "user-lists-cars-rev_lists-user": 321919530,
+    "user-lists-politics-rev_lists-user": 13951790,
+    "user-lists-relationships-rev_lists-user": 5774332945,
+    "user-lists-art_culture-rev_lists-user": 19956303,
+    "user-lists-hobbies_interests-rev_lists-user": 4315504625,
+    "user-lists-science_technologies-rev_lists-user": 364173793,
+    "user-lists-computers_internet-rev_lists-user": 455452343,
+    "user-lists-education-rev_lists-user": 41790472,
+    "user-lists-sport-rev_lists-user": 73143352,
+    "user-lists-movies-rev_lists-user": 145831206,
+    "user-lists-travelling-rev_lists-user": 31488149,
+    "user-lists-health-rev_lists-user": 27933906,
+    "user-lists-companies_brands-rev_lists-user": 39889774
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63)"
+  },
+  "wall_s": 17.01,
+  "peak_rss_gb": 7.391
+ },
+ {
+  "dataset": "ieee-cis-g",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17223",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "transaction-to-card1": "kept (reverse partner card1-rev_to-transaction)",
+   "transaction-to-card2": "kept (reverse partner card2-rev_to-transaction)",
+   "transaction-to-card3": "kept (reverse partner card3-rev_to-transaction)",
+   "transaction-to-card4": "kept (reverse partner card4-rev_to-transaction)",
+   "transaction-to-card5": "kept (reverse partner card5-rev_to-transaction)",
+   "transaction-to-card6": "kept (reverse partner card6-rev_to-transaction)",
+   "transaction-to-ProductCD": "kept (reverse partner ProductCD-rev_to-transaction)",
+   "transaction-to-addr1": "kept (reverse partner addr1-rev_to-transaction)",
+   "transaction-to-addr2": "kept (reverse partner addr2-rev_to-transaction)",
+   "transaction-to-P_emaildomain": "kept (reverse partner P_emaildomain-rev_to-transaction)",
+   "transaction-to-R_emaildomain": "kept (reverse partner R_emaildomain-rev_to-transaction)",
+   "card1-rev_to-transaction": "kept (reverse partner transaction-to-card1)",
+   "card2-rev_to-transaction": "kept (reverse partner transaction-to-card2)",
+   "card3-rev_to-transaction": "kept (reverse partner transaction-to-card3)",
+   "card4-rev_to-transaction": "kept (reverse partner transaction-to-card4)",
+   "card5-rev_to-transaction": "kept (reverse partner transaction-to-card5)",
+   "card6-rev_to-transaction": "kept (reverse partner transaction-to-card6)",
+   "ProductCD-rev_to-transaction": "kept (reverse partner transaction-to-ProductCD)",
+   "addr1-rev_to-transaction": "kept (reverse partner transaction-to-addr1)",
+   "addr2-rev_to-transaction": "kept (reverse partner transaction-to-addr2)",
+   "P_emaildomain-rev_to-transaction": "kept (reverse partner transaction-to-P_emaildomain)",
+   "R_emaildomain-rev_to-transaction": "kept (reverse partner transaction-to-R_emaildomain)"
+  },
+  "graph": {
+   "node_types": {
+    "transaction": 144233,
+    "card1": 8499,
+    "card2": 482,
+    "card3": 103,
+    "card4": 4,
+    "card5": 106,
+    "card6": 3,
+    "ProductCD": 4,
+    "addr1": 255,
+    "addr2": 72,
+    "P_emaildomain": 59,
+    "R_emaildomain": 60
+   },
+   "edge_types": {
+    "transaction-to-card1": 144233,
+    "transaction-to-card2": 143331,
+    "transaction-to-card3": 144061,
+    "transaction-to-card4": 144049,
+    "transaction-to-card5": 143277,
+    "transaction-to-card6": 144055,
+    "transaction-to-ProductCD": 144233,
+    "transaction-to-addr1": 83786,
+    "transaction-to-addr2": 83786,
+    "transaction-to-P_emaildomain": 130842,
+    "transaction-to-R_emaildomain": 131083,
+    "card1-rev_to-transaction": 144233,
+    "card2-rev_to-transaction": 143331,
+    "card3-rev_to-transaction": 144061,
+    "card4-rev_to-transaction": 144049,
+    "card5-rev_to-transaction": 143277,
+    "card6-rev_to-transaction": 144055,
+    "ProductCD-rev_to-transaction": 144233,
+    "addr1-rev_to-transaction": 83786,
+    "addr2-rev_to-transaction": 83786,
+    "P_emaildomain-rev_to-transaction": 130842,
+    "R_emaildomain-rev_to-transaction": 131083
+   }
+  },
+  "target": "transaction",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "transaction-card1-transaction": 213720395,
+    "transaction-card2-transaction": 811536307,
+    "transaction-card3-transaction": 9538366081,
+    "transaction-card4-transaction": 10000705557,
+    "transaction-card5-transaction": 4102834227,
+    "transaction-card6-transaction": 10392610825,
+    "transaction-ProductCD-transaction": 6494845857,
+    "transaction-addr1-transaction": 344049308,
+    "transaction-addr2-transaction": 6537815520,
+    "transaction-P_emaildomain-transaction": 4086829248,
+    "transaction-R_emaildomain-transaction": 4218661273
+   },
+   "h2gb": {
+    "transaction-to-card1-rev_to-transaction": 213720395,
+    "transaction-to-card2-rev_to-transaction": 811536307,
+    "transaction-to-card3-rev_to-transaction": 9538366081,
+    "transaction-to-card4-rev_to-transaction": 10000705557,
+    "transaction-to-card5-rev_to-transaction": 4102834227,
+    "transaction-to-card6-rev_to-transaction": 10392610825,
+    "transaction-to-ProductCD-rev_to-transaction": 6494845857,
+    "transaction-to-addr1-rev_to-transaction": 344049308,
+    "transaction-to-addr2-rev_to-transaction": 6537815520,
+    "transaction-to-P_emaildomain-rev_to-transaction": 4086829248,
+    "transaction-to-R_emaildomain-rev_to-transaction": 4218661273
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63)"
+  },
+  "wall_s": 11.25,
+  "peak_rss_gb": 6.175
+ },
+ {
+  "dataset": "imdb",
+  "task": "nc",
+  "measure": "h2",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17241",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "H2GB/calcHomophily.py calcHomophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "movie-to-director": "kept (reverse partner director-to-movie)",
+   "director-to-movie": "kept (reverse partner movie-to-director)",
+   "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+   "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+   "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+   "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+  },
+  "graph": {
+   "node_types": {
+    "movie": 4932,
+    "director": 2393,
+    "actor": 6124,
+    "keyword": 7971
+   },
+   "edge_types": {
+    "movie-to-director": 4932,
+    "director-to-movie": 4932,
+    "movie->actorh-actor": 14779,
+    "actor-to-movie": 14779,
+    "movie-to-keyword": 23610,
+    "keyword-to-movie": 23610
+   }
+  },
+  "target": "movie",
+  "value": 0.7372715150316557,
+  "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+  "value_over_fill_seeds": [
+   0.7372715150316557,
+   0.738697140912215,
+   0.7343412150939306,
+   0.7385645086566608,
+   0.7359371865789096
+  ],
+  "spread": [
+   0.7343412150939306,
+   0.738697140912215
+  ],
+  "h2gb_metapaths": [
+   "movie-to-director-to-movie",
+   "movie->actorh-actor-to-movie",
+   "movie-to-keyword-to-movie"
+  ],
+  "per_problem": {
+   "genre_0": {
+    "seeds": [
+     0,
+     10,
+     20,
+     30,
+     40
+    ],
+    "runs": [
+     {
+      "seed": 0,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7628982238511418,
+        "h_insensitive": 0.3611546950011242,
+        "h_adj": 0.3611546456813812
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.671443747369265,
+        "h_insensitive": 0.09992611325545636,
+        "h_adj": 0.09992604702711105
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6493284602127534,
+        "h_insensitive": 0.17771489728369927,
+        "h_adj": 0.17771489918231964
+       }
+      ],
+      "h2": 0.787068136036396
+     },
+     {
+      "seed": 10,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7626162954609529,
+        "h_insensitive": 0.35623834754955885,
+        "h_adj": 0.35623833537101746
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6754725301156521,
+        "h_insensitive": 0.1035045104383377,
+        "h_adj": 0.10350454598665237
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.65290406291476,
+        "h_insensitive": 0.18090143251639973,
+        "h_adj": 0.18090124428272247
+       }
+      ],
+      "h2": 0.7864519581198692
+     },
+     {
+      "seed": 20,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.764777746452401,
+        "h_insensitive": 0.36375848047027404,
+        "h_adj": 0.3637584149837494
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6750315688200277,
+        "h_insensitive": 0.1035109263784269,
+        "h_adj": 0.10351084917783737
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6493680790792575,
+        "h_insensitive": 0.17376866332670038,
+        "h_adj": 0.17376872897148132
+       }
+      ],
+      "h2": 0.786320668955644
+     },
+     {
+      "seed": 30,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7631801522413307,
+        "h_insensitive": 0.36273269934674157,
+        "h_adj": 0.3627327084541321
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6719849271411678,
+        "h_insensitive": 0.10258526920809719,
+        "h_adj": 0.10258534550666809
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6467779956815436,
+        "h_insensitive": 0.17436583899748015,
+        "h_adj": 0.1743657886981964
+       }
+      ],
+      "h2": 0.7867720524470011
+     },
+     {
+      "seed": 40,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7580114650878677,
+        "h_insensitive": 0.35131092307499767,
+        "h_adj": 0.3513109087944031
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6708223928163396,
+        "h_insensitive": 0.10167468192685225,
+        "h_adj": 0.10167467594146729
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6472682791545334,
+        "h_insensitive": 0.17625363388688808,
+        "h_adj": 0.17625358700752258
+       }
+      ],
+      "h2": 0.790253609418869
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.7712263390421867,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "h_adj": 0.3791528642177582,
+       "h_edge": 0.7792725203083769
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "h_adj": 0.10683130472898483,
+       "h_edge": 0.6842829351132321
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "h_adj": 0.20033681392669678,
+       "h_edge": 0.6635929232037158
+      }
+     ]
+    }
+   },
+   "genre_1": {
+    "seeds": [
+     1,
+     11,
+     21,
+     31,
+     41
+    ],
+    "runs": [
+     {
+      "seed": 1,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7531247063245936,
+        "h_insensitive": 0.4500362822033881,
+        "h_adj": 0.45003631711006165
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.616985027359644,
+        "h_insensitive": 0.13909884624669844,
+        "h_adj": 0.13909879326820374
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6428705849725639,
+        "h_insensitive": 0.19720288284364418,
+        "h_adj": 0.1972028762102127
+       }
+      ],
+      "h2": 0.7378873378038406
+     },
+     {
+      "seed": 11,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7502114462926417,
+        "h_insensitive": 0.44450938814292995,
+        "h_adj": 0.444509357213974
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6188891784089314,
+        "h_insensitive": 0.14084544691187095,
+        "h_adj": 0.140845388174057
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6427814425229295,
+        "h_insensitive": 0.19739675246367827,
+        "h_adj": 0.19739677011966705
+       }
+      ],
+      "h2": 0.7390828281641006
+     },
+     {
+      "seed": 21,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.757259656047364,
+        "h_insensitive": 0.45645193296599174,
+        "h_adj": 0.45645198225975037
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6214347277064,
+        "h_insensitive": 0.14367960332903518,
+        "h_adj": 0.14367960393428802
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6449307660307838,
+        "h_insensitive": 0.20232293413587582,
+        "h_adj": 0.20232294499874115
+       }
+      ],
+      "h2": 0.7325151562690735
+     },
+     {
+      "seed": 31,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7536885631049713,
+        "h_insensitive": 0.44830361496732607,
+        "h_adj": 0.44830361008644104
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6193902707903229,
+        "h_insensitive": 0.1385493159251407,
+        "h_adj": 0.13854920864105225
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6446286721736891,
+        "h_insensitive": 0.20101012202248542,
+        "h_adj": 0.201010063290596
+       }
+      ],
+      "h2": 0.7373790393273036
+     },
+     {
+      "seed": 41,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7547223005356639,
+        "h_insensitive": 0.45348545610265634,
+        "h_adj": 0.4534854292869568
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.619330139704556,
+        "h_insensitive": 0.14356146809663944,
+        "h_adj": 0.14356151223182678
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6438263901269785,
+        "h_insensitive": 0.19935441305622476,
+        "h_adj": 0.199354350566864
+       }
+      ],
+      "h2": 0.7345329026381175
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.7186798304319382,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "h_adj": 0.4770088195800781,
+       "h_edge": 0.7697521601904072
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "h_adj": 0.14831127226352692,
+       "h_edge": 0.6255978675609153
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "h_adj": 0.21864041686058044,
+       "h_edge": 0.6578074812314259
+      }
+     ]
+    }
+   },
+   "genre_2": {
+    "seeds": [
+     2,
+     12,
+     22,
+     32,
+     42
+    ],
+    "runs": [
+     {
+      "seed": 2,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.8082886946715534,
+        "h_insensitive": 0.5930807745028897,
+        "h_adj": 0.5930808186531067
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6421799522960053,
+        "h_insensitive": 0.2521176877419078,
+        "h_adj": 0.2521176338195801
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5687337810265248,
+        "h_insensitive": 0.11068462768143256,
+        "h_adj": 0.1106845960021019
+       }
+      ],
+      "h2": 0.6813723171750705
+     },
+     {
+      "seed": 12,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.8025561507377126,
+        "h_insensitive": 0.5820032213066739,
+        "h_adj": 0.5820032954216003
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6420997775149827,
+        "h_insensitive": 0.25142721823038283,
+        "h_adj": 0.25142720341682434
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5678175947386145,
+        "h_insensitive": 0.10914947746555598,
+        "h_adj": 0.10914944112300873
+       }
+      ],
+      "h2": 0.6858066866795223
+     },
+     {
+      "seed": 22,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.8116718353538201,
+        "h_insensitive": 0.5993508505607771,
+        "h_adj": 0.5993508696556091
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6421799522960053,
+        "h_insensitive": 0.2522022253679288,
+        "h_adj": 0.25220224261283875
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5672530258909293,
+        "h_insensitive": 0.10755046572738242,
+        "h_adj": 0.10755050927400589
+       }
+      ],
+      "h2": 0.6802987928191822
+     },
+     {
+      "seed": 32,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.8044356733389719,
+        "h_insensitive": 0.584159703224478,
+        "h_adj": 0.5841596722602844
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6424806077248402,
+        "h_insensitive": 0.25207268979165687,
+        "h_adj": 0.25207263231277466
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5688476852677244,
+        "h_insensitive": 0.10927295111474988,
+        "h_adj": 0.10927289724349976
+       }
+      ],
+      "h2": 0.6848315993944805
+     },
+     {
+      "seed": 42,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.8099802650126868,
+        "h_insensitive": 0.5961066601115967,
+        "h_adj": 0.5961066484451294
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.642721132067908,
+        "h_insensitive": 0.25297537381888435,
+        "h_adj": 0.25297537446022034
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5676838810641628,
+        "h_insensitive": 0.10899604707566873,
+        "h_adj": 0.10899603366851807
+       }
+      ],
+      "h2": 0.6806406478087108
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.6589374194542568,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "h_adj": 0.6327199339866638,
+       "h_edge": 0.8273917317742019
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "h_adj": 0.268177330493927,
+       "h_edge": 0.6511140489472157
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "h_adj": 0.1222904771566391,
+       "h_edge": 0.5753048955209218
+      }
+     ]
+    }
+   },
+   "genre_3": {
+    "seeds": [
+     3,
+     13,
+     23,
+     33,
+     43
+    ],
+    "runs": [
+     {
+      "seed": 3,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7818814021238606,
+        "h_insensitive": 0.47305066972583865,
+        "h_adj": 0.47305065393447876
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6570122867851917,
+        "h_insensitive": 0.1642922420784098,
+        "h_adj": 0.16429218649864197
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7095887561656861,
+        "h_insensitive": 0.21747854353349289,
+        "h_adj": 0.21747848391532898
+       }
+      ],
+      "h2": 0.7150595585505168
+     },
+     {
+      "seed": 13,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7809416408232309,
+        "h_insensitive": 0.47182264913164307,
+        "h_adj": 0.4718226492404938
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6573530296045379,
+        "h_insensitive": 0.16772819698734892,
+        "h_adj": 0.16772818565368652
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7085834274281413,
+        "h_insensitive": 0.21818054139557708,
+        "h_adj": 0.21818050742149353
+       }
+      ],
+      "h2": 0.7140895525614421
+     },
+     {
+      "seed": 23,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7843247815054976,
+        "h_insensitive": 0.47954113692262246,
+        "h_adj": 0.47954103350639343
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.6565713254895672,
+        "h_insensitive": 0.16715610501675005,
+        "h_adj": 0.16715602576732635
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7048146827519265,
+        "h_insensitive": 0.21196426614022768,
+        "h_adj": 0.2119642198085785
+       }
+      ],
+      "h2": 0.7137795736392338
+     },
+     {
+      "seed": 33,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7783103091814679,
+        "h_insensitive": 0.4676096673922966,
+        "h_adj": 0.4676096439361572
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.655769577679341,
+        "h_insensitive": 0.16223285947980753,
+        "h_adj": 0.1622328907251358
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7035964026069215,
+        "h_insensitive": 0.2119010528721727,
+        "h_adj": 0.21190106868743896
+       }
+      ],
+      "h2": 0.7194187988837559
+     },
+     {
+      "seed": 43,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7818814021238606,
+        "h_insensitive": 0.47786530081886924,
+        "h_adj": 0.4778652787208557
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.65711250526147,
+        "h_insensitive": 0.1660846127941496,
+        "h_adj": 0.16608457267284393
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7060874388383749,
+        "h_insensitive": 0.21392348666446626,
+        "h_adj": 0.2139233946800232
+       }
+      ],
+      "h2": 0.714042251308759
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.6933364719152451,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "h_adj": 0.5053666234016418,
+       "h_edge": 0.8004863662234181
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "h_adj": 0.17494697868824005,
+       "h_edge": 0.6662259912509808
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "h_adj": 0.23967698216438293,
+       "h_edge": 0.726212145607567
+      }
+     ]
+    }
+   },
+   "genre_4": {
+    "seeds": [
+     4,
+     14,
+     24,
+     34,
+     44
+    ],
+    "runs": [
+     {
+      "seed": 4,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7361150267831971,
+        "h_insensitive": 0.4688247493894462,
+        "h_adj": 0.4688248038291931
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5762562386001483,
+        "h_insensitive": 0.14560786040131668,
+        "h_adj": 0.1456078141927719
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5531883282819279,
+        "h_insensitive": 0.09065678132189314,
+        "h_adj": 0.09065670520067215
+       }
+      ],
+      "h2": 0.7649702255924543
+     },
+     {
+      "seed": 14,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7306644112395452,
+        "h_insensitive": 0.4586682427719917,
+        "h_adj": 0.4586682915687561
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5768775931530737,
+        "h_insensitive": 0.14611913679274968,
+        "h_adj": 0.14611905813217163
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5535151839305877,
+        "h_insensitive": 0.09104864037215066,
+        "h_adj": 0.09104861319065094
+       }
+      ],
+      "h2": 0.7680546790361404
+     },
+     {
+      "seed": 24,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7438210694483601,
+        "h_insensitive": 0.4846113879510977,
+        "h_adj": 0.484611451625824
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5773586418392095,
+        "h_insensitive": 0.14751432751594395,
+        "h_adj": 0.14751440286636353
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5545106079515065,
+        "h_insensitive": 0.09149861143695287,
+        "h_adj": 0.0914984941482544
+       }
+      ],
+      "h2": 0.7587918837865194
+     },
+     {
+      "seed": 34,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7369608119537637,
+        "h_insensitive": 0.47070912799637676,
+        "h_adj": 0.4707091748714447
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.57615602012387,
+        "h_insensitive": 0.14492238213637965,
+        "h_adj": 0.1449223905801773
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5534508032725184,
+        "h_insensitive": 0.09110533539865961,
+        "h_adj": 0.09110527485609055
+       }
+      ],
+      "h2": 0.7644210532307625
+     },
+     {
+      "seed": 44,
+      "per_metapath": [
+       {
+        "metapath": "movie-to-director-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "director"
+         ],
+         [
+          "director",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.7414716661967861,
+        "h_insensitive": 0.4791508922484381,
+        "h_adj": 0.47915083169937134
+       },
+       {
+        "metapath": "movie->actorh-actor-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          ">actorh",
+          "actor"
+         ],
+         [
+          "actor",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5762361949048926,
+        "h_insensitive": 0.1455239473681993,
+        "h_adj": 0.14552389085292816
+       },
+       {
+        "metapath": "movie-to-keyword-to-movie",
+        "edge_types": [
+         [
+          "movie",
+          "to",
+          "keyword"
+         ],
+         [
+          "keyword",
+          "to",
+          "movie"
+         ]
+        ],
+        "h_edge": 0.5550702244408787,
+        "h_insensitive": 0.09467580444177892,
+        "h_adj": 0.094675712287426
+       }
+      ],
+      "h2": 0.7602165217200915
+     }
+    ],
+    "labeled_only": {
+     "h2": 0.7481970960895221,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "h_adj": 0.5016946792602539,
+       "h_edge": 0.7525741191079837
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "h_adj": 0.1542735993862152,
+       "h_edge": 0.5809499242253249
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "h_adj": 0.09944043308496475,
+       "h_edge": 0.5593403504558765
+      }
+     ]
+    }
+   }
+  },
+  "labeled_targets": 4573,
+  "targets": 4932,
+  "labeled_only": 0.7180754313866298,
+  "per_genre": {
+   "genre_0": 0.787068136036396,
+   "genre_1": 0.7378873378038406,
+   "genre_2": 0.6813723171750705,
+   "genre_3": 0.7150595585505168,
+   "genre_4": 0.7649702255924543
+  },
+  "wall_s": 5.33,
+  "peak_rss_gb": 0.79
+ },
+ {
+  "dataset": "imdb",
+  "task": "nc",
+  "measure": "mde",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17205",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "movie-to-director": "kept (reverse partner director-to-movie)",
+   "director-to-movie": "kept (reverse partner movie-to-director)",
+   "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+   "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+   "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+   "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+  },
+  "graph": {
+   "node_types": {
+    "movie": 4932,
+    "director": 2393,
+    "actor": 6124,
+    "keyword": 7971
+   },
+   "edge_types": {
+    "movie-to-director": 4932,
+    "director-to-movie": 4932,
+    "movie->actorh-actor": 14779,
+    "actor-to-movie": 14779,
+    "movie-to-keyword": 23610,
+    "keyword-to-movie": 23610
+   }
+  },
+  "target": "movie",
+  "m2": [
+   "movie-director-movie",
+   "movie-actor-movie",
+   "movie-keyword-movie"
+  ],
+  "m2_source": "Hetero2Net predefined list 'imdb' (App. B.1)",
+  "value": 0.5927698860565821,
+  "form": "MDE, mean over M2 (raw features)",
+  "feature_dim": 3489,
+  "feature_dtype": "torch.float32",
+  "per_metapath": [
+   {
+    "metapath": "movie-director-movie",
+    "steps": [
+     [
+      "movie",
+      "director"
+     ],
+     [
+      "director",
+      "movie"
+     ]
+    ],
+    "edges": 21282,
+    "reference": 1.2095433473587036,
+    "chunked": 1.2095433647239027,
+    "value": 1.2095433473587036,
+    "code_path": "hetero2net.attribute_homophily (reference)"
+   },
+   {
+    "metapath": "movie-actor-movie",
+    "steps": [
+     [
+      "movie",
+      "actor"
+     ],
+     [
+      "actor",
+      "movie"
+     ]
+    ],
+    "edges": 99782,
+    "reference": 0.4429570138454437,
+    "chunked": 0.44295702701802153,
+    "value": 0.4429570138454437,
+    "code_path": "hetero2net.attribute_homophily (reference)"
+   },
+   {
+    "metapath": "movie-keyword-movie",
+    "steps": [
+     [
+      "movie",
+      "keyword"
+     ],
+     [
+      "keyword",
+      "movie"
+     ]
+    ],
+    "edges": 403848,
+    "reference": 0.12580929696559906,
+    "chunked": 0.12580930890285336,
+    "value": 0.12580929696559906,
+    "code_path": "hetero2net.attribute_homophily (reference)"
+   }
+  ],
+  "wall_s": 22.05,
+  "peak_rss_gb": 3.347
+ },
+ {
+  "dataset": "imdb",
+  "task": "nc",
+  "measure": "mlh",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17242",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+  "symmetrisation": {
+   "movie-to-director": "kept (reverse partner director-to-movie)",
+   "director-to-movie": "kept (reverse partner movie-to-director)",
+   "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+   "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+   "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+   "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+  },
+  "graph": {
+   "node_types": {
+    "movie": 4932,
+    "director": 2393,
+    "actor": 6124,
+    "keyword": 7971
+   },
+   "edge_types": {
+    "movie-to-director": 4932,
+    "director-to-movie": 4932,
+    "movie->actorh-actor": 14779,
+    "actor-to-movie": 14779,
+    "movie-to-keyword": 23610,
+    "keyword-to-movie": 23610
+   }
+  },
+  "target": "movie",
+  "m2": [
+   "movie-director-movie",
+   "movie-actor-movie",
+   "movie-keyword-movie"
+  ],
+  "m2_source": "Hetero2Net predefined list 'imdb' (App. B.1)",
+  "value": 0.3246736526489258,
+  "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+  "fill_seeds": {
+   "genre_0": [
+    0,
+    10,
+    20,
+    30,
+    40
+   ],
+   "genre_1": [
+    1,
+    11,
+    21,
+    31,
+    41
+   ],
+   "genre_2": [
+    2,
+    12,
+    22,
+    32,
+    42
+   ],
+   "genre_3": [
+    3,
+    13,
+    23,
+    33,
+    43
+   ],
+   "genre_4": [
+    4,
+    14,
+    24,
+    34,
+    44
+   ]
+  },
+  "value_over_fill_seeds": [
+   0.3246736526489258,
+   0.32511441707611083,
+   0.32297943035761517,
+   0.32535610596338904,
+   0.3245182951291402
+  ],
+  "spread": [
+   0.32297943035761517,
+   0.32535610596338904
+  ],
+  "per_metapath": [
+   {
+    "metapath": "movie-director-movie",
+    "steps": [
+     [
+      "movie",
+      "director"
+     ],
+     [
+      "director",
+      "movie"
+     ]
+    ],
+    "edges": 21282,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "genre_0@0": 0.7628982067108154,
+     "genre_0@10": 0.7626162767410278,
+     "genre_0@20": 0.7647777199745178,
+     "genre_0@30": 0.763180136680603,
+     "genre_0@40": 0.7580114603042603,
+     "genre_1@1": 0.7531247138977051,
+     "genre_1@11": 0.7502114176750183,
+     "genre_1@21": 0.7572596669197083,
+     "genre_1@31": 0.7536885738372803,
+     "genre_1@41": 0.7547222971916199,
+     "genre_2@2": 0.8082886934280396,
+     "genre_2@12": 0.8025561571121216,
+     "genre_2@22": 0.8116718530654907,
+     "genre_2@32": 0.804435670375824,
+     "genre_2@42": 0.8099802732467651,
+     "genre_3@3": 0.7818813920021057,
+     "genre_3@13": 0.7809416651725769,
+     "genre_3@23": 0.7843247652053833,
+     "genre_3@33": 0.7783102989196777,
+     "genre_3@43": 0.7818813920021057,
+     "genre_4@4": 0.736115038394928,
+     "genre_4@14": 0.7306644320487976,
+     "genre_4@24": 0.7438210844993591,
+     "genre_4@34": 0.7369608283042908,
+     "genre_4@44": 0.7414716482162476
+    },
+    "labeled_only_h_edge_homophily": {
+     "genre_0": 0.7792724967002869,
+     "genre_1": 0.7697521448135376,
+     "genre_2": 0.8273917436599731,
+     "genre_3": 0.8004863858222961,
+     "genre_4": 0.7525741457939148
+    },
+    "labeled_only_edges": {
+     "genre_0": 19327,
+     "genre_1": 19327,
+     "genre_2": 19327,
+     "genre_3": 19327,
+     "genre_4": 19327
+    },
+    "exact_match_h_edge_homophily": 0.404379278421402
+   },
+   {
+    "metapath": "movie-actor-movie",
+    "steps": [
+     [
+      "movie",
+      "actor"
+     ],
+     [
+      "actor",
+      "movie"
+     ]
+    ],
+    "edges": 99782,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "genre_0@0": 0.67144376039505,
+     "genre_0@10": 0.6754725575447083,
+     "genre_0@20": 0.6750315427780151,
+     "genre_0@30": 0.6719849109649658,
+     "genre_0@40": 0.6708223819732666,
+     "genre_1@1": 0.616985023021698,
+     "genre_1@11": 0.6188891530036926,
+     "genre_1@21": 0.62143474817276,
+     "genre_1@31": 0.6193902492523193,
+     "genre_1@41": 0.6193301677703857,
+     "genre_2@2": 0.6421799659729004,
+     "genre_2@12": 0.6420997977256775,
+     "genre_2@22": 0.6421799659729004,
+     "genre_2@32": 0.6424806118011475,
+     "genre_2@42": 0.6427211165428162,
+     "genre_3@3": 0.6570122838020325,
+     "genre_3@13": 0.6573530435562134,
+     "genre_3@23": 0.6565713286399841,
+     "genre_3@33": 0.6557695865631104,
+     "genre_3@43": 0.6571124792098999,
+     "genre_4@4": 0.5762562155723572,
+     "genre_4@14": 0.5768775939941406,
+     "genre_4@24": 0.5773586630821228,
+     "genre_4@34": 0.5761560201644897,
+     "genre_4@44": 0.5762361884117126
+    },
+    "labeled_only_h_edge_homophily": {
+     "genre_0": 0.6842829585075378,
+     "genre_1": 0.6255978941917419,
+     "genre_2": 0.6511140465736389,
+     "genre_3": 0.6662259697914124,
+     "genre_4": 0.5809499025344849
+    },
+    "labeled_only_edges": {
+     "genre_0": 93039,
+     "genre_1": 93039,
+     "genre_2": 93039,
+     "genre_3": 93039,
+     "genre_4": 93039
+    },
+    "exact_match_h_edge_homophily": 0.1725962609052658
+   },
+   {
+    "metapath": "movie-keyword-movie",
+    "steps": [
+     [
+      "movie",
+      "keyword"
+     ],
+     [
+      "keyword",
+      "movie"
+     ]
+    ],
+    "edges": 403848,
+    "mode": "single call",
+    "h_edge_homophily": {
+     "genre_0@0": 0.6493284702301025,
+     "genre_0@10": 0.6529040336608887,
+     "genre_0@20": 0.6493681073188782,
+     "genre_0@30": 0.6467779874801636,
+     "genre_0@40": 0.6472682952880859,
+     "genre_1@1": 0.6428706049919128,
+     "genre_1@11": 0.6427814364433289,
+     "genre_1@21": 0.6449307799339294,
+     "genre_1@31": 0.644628643989563,
+     "genre_1@41": 0.6438263654708862,
+     "genre_2@2": 0.5687337517738342,
+     "genre_2@12": 0.5678175687789917,
+     "genre_2@22": 0.567253053188324,
+     "genre_2@32": 0.56884765625,
+     "genre_2@42": 0.5676838755607605,
+     "genre_3@3": 0.7095887660980225,
+     "genre_3@13": 0.708583414554596,
+     "genre_3@23": 0.7048146724700928,
+     "genre_3@33": 0.7035964131355286,
+     "genre_3@43": 0.7060874104499817,
+     "genre_4@4": 0.5531883239746094,
+     "genre_4@14": 0.5535151958465576,
+     "genre_4@24": 0.5545105934143066,
+     "genre_4@34": 0.5534508228302002,
+     "genre_4@44": 0.5550702214241028
+    },
+    "labeled_only_h_edge_homophily": {
+     "genre_0": 0.6635929346084595,
+     "genre_1": 0.657807469367981,
+     "genre_2": 0.5753048658370972,
+     "genre_3": 0.7262121438980103,
+     "genre_4": 0.5593403577804565
+    },
+    "labeled_only_edges": {
+     "genre_0": 366437,
+     "genre_1": 366437,
+     "genre_2": 366437,
+     "genre_3": 366437,
+     "genre_4": 366437
+    },
+    "exact_match_h_edge_homophily": 0.13387709856033325
+   }
+  ],
+  "labeled_targets": 4573,
+  "targets": 4932,
+  "labeled_only": 0.31200630267461144,
+  "per_genre": {
+   "genre_0": 0.30544318755467736,
+   "genre_1": 0.329006552696228,
+   "genre_2": 0.3269325296084086,
+   "genre_3": 0.28383918603261316,
+   "genre_4": 0.3781468073527018
+  },
+  "reproduction_exact_match": {
+   "rule": "Hetero2Net label_homophily on the multilabel vectors as loaded (all genres equal; unlabeled movies = all-zero rows, no fill); reproduction field only, never the reported MLH",
+   "homophily": 0.23695087929566702,
+   "heterophily": 0.763049120704333
+  },
+  "wall_s": 2.36,
+  "peak_rss_gb": 0.819
+ },
+ {
+  "dataset": "mag-year",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17216",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "author-affiliated_with-institution": "kept (reverse partner institution-rev_affiliated_with-author)",
+   "institution-rev_affiliated_with-author": "kept (reverse partner author-affiliated_with-institution)",
+   "author-writes-paper": "kept (reverse partner paper-rev_writes-author)",
+   "paper-rev_writes-author": "kept (reverse partner author-writes-paper)",
+   "paper-cites-paper": "kept",
+   "paper-has_topic-field_of_study": "kept (reverse partner field_of_study-rev_has_topic-paper)",
+   "field_of_study-rev_has_topic-paper": "kept (reverse partner paper-has_topic-field_of_study)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "edge_types": {
+    "author-affiliated_with-institution": 1043998,
+    "institution-rev_affiliated_with-author": 1043998,
+    "author-writes-paper": 7145660,
+    "paper-rev_writes-author": 7145660,
+    "paper-cites-paper": 10792672,
+    "paper-has_topic-field_of_study": 7505078,
+    "field_of_study-rev_has_topic-paper": 7505078
+   }
+  },
+  "target": "paper",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "paper-author-paper": 859984170,
+    "paper-field_of_study-paper": 667345030246
+   },
+   "h2gb": {
+    "paper-rev_writes-author-writes-paper": 859984170,
+    "paper-cites-paper-cites-paper": 613021520,
+    "paper-has_topic-field_of_study-rev_has_topic-paper": 667345030246
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63)"
+  },
+  "wall_s": 14.31,
+  "peak_rss_gb": 6.327
+ },
+ {
+  "dataset": "oag-chem",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17221",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "paper-PP_cite-paper": "kept",
+   "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+   "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+   "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+   "field-FF_in-field": "kept",
+   "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+   "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+   "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+   "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+   "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+   "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+   "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+   "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+   "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+   "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+   "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+   "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+   "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+   "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+   "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+   "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+   "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 747290,
+    "field": 65290,
+    "author": 1097433,
+    "affiliation": 8868
+   },
+   "edge_types": {
+    "paper-PP_cite-paper": 14452754,
+    "author-AP_write_last-paper": 664930,
+    "author-AP_write_other-paper": 1634514,
+    "author-AP_write_first-paper": 630999,
+    "field-FF_in-field": 821818,
+    "paper-PF_in_L3-field": 1710391,
+    "paper-PF_in_L2-field": 3108157,
+    "paper-PF_in_L1-field": 1332023,
+    "paper-PF_in_L0-field": 747417,
+    "paper-PF_in_L4-field": 398183,
+    "paper-PF_in_L5-field": 87674,
+    "author-in-affiliation": 1097433,
+    "paper-rev_AP_write_last-author": 664930,
+    "paper-rev_AP_write_other-author": 1634514,
+    "paper-rev_AP_write_first-author": 630999,
+    "field-rev_PF_in_L3-paper": 1710391,
+    "field-rev_PF_in_L2-paper": 3108157,
+    "field-rev_PF_in_L1-paper": 1332023,
+    "field-rev_PF_in_L0-paper": 747417,
+    "field-rev_PF_in_L4-paper": 398183,
+    "field-rev_PF_in_L5-paper": 87674,
+    "affiliation-rev_in-author": 1097433
+   }
+  },
+  "target": "paper",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "paper-field-paper": 775149432207,
+    "paper-author-paper": 40148283
+   },
+   "h2gb": {
+    "paper-PP_cite-paper-PP_cite-paper": 706947114,
+    "paper-PF_in_L3-field-rev_PF_in_L3-paper": 4020905423,
+    "paper-PF_in_L3-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L2-paper": 32926357701,
+    "paper-PF_in_L2-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L1-paper": 179530634249,
+    "paper-PF_in_L1-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L0-paper": 558442348411,
+    "paper-PF_in_L0-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L4-paper": 214895857,
+    "paper-PF_in_L4-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L5-paper": 14290566,
+    "paper-rev_AP_write_last-author-AP_write_last-paper": 10445294,
+    "paper-rev_AP_write_last-author-AP_write_other-paper": 5461330,
+    "paper-rev_AP_write_last-author-AP_write_first-paper": 1293618,
+    "paper-rev_AP_write_other-author-AP_write_last-paper": 5461330,
+    "paper-rev_AP_write_other-author-AP_write_other-paper": 12103548,
+    "paper-rev_AP_write_other-author-AP_write_first-paper": 1958820,
+    "paper-rev_AP_write_first-author-AP_write_last-paper": 1293618,
+    "paper-rev_AP_write_first-author-AP_write_other-paper": 1958820,
+    "paper-rev_AP_write_first-author-AP_write_first-paper": 1976981
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once"
+  },
+  "wall_s": 15.9,
+  "peak_rss_gb": 10.384
+ },
+ {
+  "dataset": "oag-cs",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17219",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "paper-PP_cite-paper": "kept",
+   "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+   "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+   "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+   "field-FF_in-field": "kept",
+   "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+   "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+   "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+   "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+   "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+   "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+   "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+   "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+   "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+   "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+   "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+   "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+   "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+   "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+   "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+   "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+   "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 546704,
+    "field": 45775,
+    "author": 511122,
+    "affiliation": 9090
+   },
+   "edge_types": {
+    "paper-PP_cite-paper": 11729984,
+    "author-AP_write_last-paper": 431027,
+    "author-AP_write_other-paper": 664266,
+    "author-AP_write_first-paper": 456903,
+    "field-FF_in-field": 525678,
+    "paper-PF_in_L0-field": 546831,
+    "paper-PF_in_L3-field": 869729,
+    "paper-PF_in_L1-field": 1202487,
+    "paper-PF_in_L2-field": 2347239,
+    "paper-PF_in_L5-field": 203338,
+    "paper-PF_in_L4-field": 304912,
+    "author-in-affiliation": 614161,
+    "paper-rev_AP_write_last-author": 431027,
+    "paper-rev_AP_write_other-author": 664266,
+    "paper-rev_AP_write_first-author": 456903,
+    "field-rev_PF_in_L0-paper": 546831,
+    "field-rev_PF_in_L3-paper": 869729,
+    "field-rev_PF_in_L1-paper": 1202487,
+    "field-rev_PF_in_L2-paper": 2347239,
+    "field-rev_PF_in_L5-paper": 203338,
+    "field-rev_PF_in_L4-paper": 304912,
+    "affiliation-rev_in-author": 614161
+   }
+  },
+  "target": "paper",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "paper-field-paper": 388793072514,
+    "paper-author-paper": 30899344
+   },
+   "h2gb": {
+    "paper-PP_cite-paper-PP_cite-paper": 905972164,
+    "paper-PF_in_L0-field-rev_PF_in_L0-paper": 298885266369,
+    "paper-PF_in_L0-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L3-paper": 1098668321,
+    "paper-PF_in_L3-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L1-paper": 79614727173,
+    "paper-PF_in_L1-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L2-paper": 8958287679,
+    "paper-PF_in_L2-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L5-paper": 65987700,
+    "paper-PF_in_L5-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L4-paper": 170135272,
+    "paper-rev_AP_write_last-author-AP_write_last-paper": 7981359,
+    "paper-rev_AP_write_last-author-AP_write_other-paper": 4095230,
+    "paper-rev_AP_write_last-author-AP_write_first-paper": 1478532,
+    "paper-rev_AP_write_other-author-AP_write_last-paper": 4095230,
+    "paper-rev_AP_write_other-author-AP_write_other-paper": 5995106,
+    "paper-rev_AP_write_other-author-AP_write_first-paper": 1851510,
+    "paper-rev_AP_write_first-author-AP_write_last-paper": 1478532,
+    "paper-rev_AP_write_first-author-AP_write_other-paper": 1851510,
+    "paper-rev_AP_write_first-author-AP_write_first-paper": 2072335
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once"
+  },
+  "wall_s": 14.94,
+  "peak_rss_gb": 6.984
+ },
+ {
+  "dataset": "oag-eng",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17220",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "paper-PP_cite-paper": "kept",
+   "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+   "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+   "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+   "field-FF_in-field": "kept",
+   "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+   "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+   "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+   "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+   "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+   "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+   "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+   "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+   "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+   "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+   "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+   "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+   "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+   "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+   "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+   "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+   "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 370624,
+    "field": 44714,
+    "author": 504888,
+    "affiliation": 9089
+   },
+   "edge_types": {
+    "paper-PP_cite-paper": 2105372,
+    "author-AP_write_first-paper": 288440,
+    "author-AP_write_other-paper": 402095,
+    "author-AP_write_last-paper": 283131,
+    "field-FF_in-field": 480652,
+    "paper-PF_in_L1-field": 686302,
+    "paper-PF_in_L5-field": 58205,
+    "paper-PF_in_L0-field": 370755,
+    "paper-PF_in_L2-field": 1569093,
+    "paper-PF_in_L3-field": 577152,
+    "paper-PF_in_L4-field": 140354,
+    "author-in-affiliation": 504888,
+    "paper-rev_AP_write_first-author": 288440,
+    "paper-rev_AP_write_other-author": 402095,
+    "paper-rev_AP_write_last-author": 283131,
+    "field-rev_PF_in_L1-paper": 686302,
+    "field-rev_PF_in_L5-paper": 58205,
+    "field-rev_PF_in_L0-paper": 370755,
+    "field-rev_PF_in_L2-paper": 1569093,
+    "field-rev_PF_in_L3-paper": 577152,
+    "field-rev_PF_in_L4-paper": 140354,
+    "affiliation-rev_in-author": 504888
+   }
+  },
+  "target": "paper",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "paper-field-paper": 166382551201,
+    "paper-author-paper": 7281492
+   },
+   "h2gb": {
+    "paper-PP_cite-paper-PP_cite-paper": 36058194,
+    "paper-PF_in_L1-field-rev_PF_in_L1-paper": 25278920988,
+    "paper-PF_in_L1-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L1-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L5-paper": 16149227,
+    "paper-PF_in_L5-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L5-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L0-paper": 137362154429,
+    "paper-PF_in_L0-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L0-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L2-paper": 3129679809,
+    "paper-PF_in_L2-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L2-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L3-field-rev_PF_in_L3-paper": 533097082,
+    "paper-PF_in_L3-field-rev_PF_in_L4-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L1-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L5-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L0-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L2-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L3-paper": 0,
+    "paper-PF_in_L4-field-rev_PF_in_L4-paper": 62549666,
+    "paper-rev_AP_write_first-author-AP_write_first-paper": 744114,
+    "paper-rev_AP_write_first-author-AP_write_other-paper": 403636,
+    "paper-rev_AP_write_first-author-AP_write_last-paper": 346692,
+    "paper-rev_AP_write_other-author-AP_write_first-paper": 403636,
+    "paper-rev_AP_write_other-author-AP_write_other-paper": 1625429,
+    "paper-rev_AP_write_other-author-AP_write_last-paper": 891057,
+    "paper-rev_AP_write_last-author-AP_write_first-paper": 346692,
+    "paper-rev_AP_write_last-author-AP_write_other-paper": 891057,
+    "paper-rev_AP_write_last-author-AP_write_last-paper": 1774169
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once"
+  },
+  "wall_s": 11.56,
+  "peak_rss_gb": 4.681
+ },
+ {
+  "dataset": "ogbn-mag",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17213",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "author-affiliated_with-institution": "kept (reverse partner institution-rev_affiliated_with-author)",
+   "institution-rev_affiliated_with-author": "kept (reverse partner author-affiliated_with-institution)",
+   "author-writes-paper": "kept (reverse partner paper-rev_writes-author)",
+   "paper-rev_writes-author": "kept (reverse partner author-writes-paper)",
+   "paper-cites-paper": "kept",
+   "paper-has_topic-field_of_study": "kept (reverse partner field_of_study-rev_has_topic-paper)",
+   "field_of_study-rev_has_topic-paper": "kept (reverse partner paper-has_topic-field_of_study)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 736389,
+    "author": 1134649,
+    "field_of_study": 59965,
+    "institution": 8740
+   },
+   "edge_types": {
+    "author-affiliated_with-institution": 1043998,
+    "institution-rev_affiliated_with-author": 1043998,
+    "author-writes-paper": 7145660,
+    "paper-rev_writes-author": 7145660,
+    "paper-cites-paper": 10792672,
+    "paper-has_topic-field_of_study": 7505078,
+    "field_of_study-rev_has_topic-paper": 7505078
+   }
+  },
+  "target": "paper",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "paper-field_of_study-paper": 667345030246,
+    "paper-author-paper": 859984170
+   },
+   "h2gb": {
+    "paper-rev_writes-author-writes-paper": 859984170,
+    "paper-cites-paper-cites-paper": 613021520,
+    "paper-has_topic-field_of_study-rev_has_topic-paper": 667345030246
+   },
+   "hetero2net_source": "Hetero2Net predefined list 'ogbn-mag' (App. B.1)"
+  },
+  "wall_s": 14.04,
+  "peak_rss_gb": 6.327
+ },
+ {
+  "dataset": "pdns",
+  "task": "nc",
+  "measure": "plan",
+  "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+  "job": "17206",
+  "node": "g2n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "src/analysis/heterophily.py (instance counts)",
+  "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+  "symmetrisation": {
+   "domain_node-apex-domain_node": "kept",
+   "domain_node-resolves-ip_node": "kept (reverse partner ip_node-rev_resolves-domain_node)",
+   "domain_node-similar-domain_node": "kept",
+   "ip_node-rev_resolves-domain_node": "kept (reverse partner domain_node-resolves-ip_node)"
+  },
+  "graph": {
+   "node_types": {
+    "domain_node": 897635,
+    "ip_node": 275923
+   },
+   "edge_types": {
+    "domain_node-apex-domain_node": 787236,
+    "domain_node-resolves-ip_node": 37390522,
+    "domain_node-similar-domain_node": 1228824,
+    "ip_node-rev_resolves-domain_node": 37390522
+   }
+  },
+  "target": "domain_node",
+  "value": null,
+  "plan": {
+   "hetero2net": {
+    "domain_node-ip_node-domain_node": 301981464
+   },
+   "h2gb": {
+    "domain_node-apex-domain_node-apex-domain_node": 6786806,
+    "domain_node-apex-domain_node-similar-domain_node": 2357130,
+    "domain_node-resolves-ip_node-rev_resolves-domain_node": 204101464520,
+    "domain_node-similar-domain_node-apex-domain_node": 2357130,
+    "domain_node-similar-domain_node-similar-domain_node": 6856036
+   },
+   "hetero2net_source": "get_metapaths (homophily.py:51-63)"
+  },
+  "wall_s": 41.52,
+  "peak_rss_gb": 7.951
+ }
+]

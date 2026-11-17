@@ -1,0 +1,5 @@
+job=17256 array=17235_20 node=g2n01 start=2026-11-17T06:19:57+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=16384M cpus=8
+task: dataset=lastfm task=lp measure=task_h_edge deadline_h=11.500
+[06:19:58] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/lp__lastfm__task_h_edge.json: value None
+end=2026-11-17T06:19:58+09:00 exit=0

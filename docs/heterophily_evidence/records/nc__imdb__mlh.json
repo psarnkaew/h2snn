@@ -1,0 +1,286 @@
+{
+ "dataset": "imdb",
+ "task": "nc",
+ "measure": "mlh",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17242",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "movie-to-director": "kept (reverse partner director-to-movie)",
+  "director-to-movie": "kept (reverse partner movie-to-director)",
+  "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+  "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+  "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+  "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+ },
+ "graph": {
+  "node_types": {
+   "movie": 4932,
+   "director": 2393,
+   "actor": 6124,
+   "keyword": 7971
+  },
+  "edge_types": {
+   "movie-to-director": 4932,
+   "director-to-movie": 4932,
+   "movie->actorh-actor": 14779,
+   "actor-to-movie": 14779,
+   "movie-to-keyword": 23610,
+   "keyword-to-movie": 23610
+  }
+ },
+ "target": "movie",
+ "m2": [
+  "movie-director-movie",
+  "movie-actor-movie",
+  "movie-keyword-movie"
+ ],
+ "m2_source": "Hetero2Net predefined list 'imdb' (App. B.1)",
+ "value": 0.3246736526489258,
+ "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+ "fill_seeds": {
+  "genre_0": [
+   0,
+   10,
+   20,
+   30,
+   40
+  ],
+  "genre_1": [
+   1,
+   11,
+   21,
+   31,
+   41
+  ],
+  "genre_2": [
+   2,
+   12,
+   22,
+   32,
+   42
+  ],
+  "genre_3": [
+   3,
+   13,
+   23,
+   33,
+   43
+  ],
+  "genre_4": [
+   4,
+   14,
+   24,
+   34,
+   44
+  ]
+ },
+ "value_over_fill_seeds": [
+  0.3246736526489258,
+  0.32511441707611083,
+  0.32297943035761517,
+  0.32535610596338904,
+  0.3245182951291402
+ ],
+ "spread": [
+  0.32297943035761517,
+  0.32535610596338904
+ ],
+ "per_metapath": [
+  {
+   "metapath": "movie-director-movie",
+   "steps": [
+    [
+     "movie",
+     "director"
+    ],
+    [
+     "director",
+     "movie"
+    ]
+   ],
+   "edges": 21282,
+   "mode": "single call",
+   "h_edge_homophily": {
+    "genre_0@0": 0.7628982067108154,
+    "genre_0@10": 0.7626162767410278,
+    "genre_0@20": 0.7647777199745178,
+    "genre_0@30": 0.763180136680603,
+    "genre_0@40": 0.7580114603042603,
+    "genre_1@1": 0.7531247138977051,
+    "genre_1@11": 0.7502114176750183,
+    "genre_1@21": 0.7572596669197083,
+    "genre_1@31": 0.7536885738372803,
+    "genre_1@41": 0.7547222971916199,
+    "genre_2@2": 0.8082886934280396,
+    "genre_2@12": 0.8025561571121216,
+    "genre_2@22": 0.8116718530654907,
+    "genre_2@32": 0.804435670375824,
+    "genre_2@42": 0.8099802732467651,
+    "genre_3@3": 0.7818813920021057,
+    "genre_3@13": 0.7809416651725769,
+    "genre_3@23": 0.7843247652053833,
+    "genre_3@33": 0.7783102989196777,
+    "genre_3@43": 0.7818813920021057,
+    "genre_4@4": 0.736115038394928,
+    "genre_4@14": 0.7306644320487976,
+    "genre_4@24": 0.7438210844993591,
+    "genre_4@34": 0.7369608283042908,
+    "genre_4@44": 0.7414716482162476
+   },
+   "labeled_only_h_edge_homophily": {
+    "genre_0": 0.7792724967002869,
+    "genre_1": 0.7697521448135376,
+    "genre_2": 0.8273917436599731,
+    "genre_3": 0.8004863858222961,
+    "genre_4": 0.7525741457939148
+   },
+   "labeled_only_edges": {
+    "genre_0": 19327,
+    "genre_1": 19327,
+    "genre_2": 19327,
+    "genre_3": 19327,
+    "genre_4": 19327
+   },
+   "exact_match_h_edge_homophily": 0.404379278421402
+  },
+  {
+   "metapath": "movie-actor-movie",
+   "steps": [
+    [
+     "movie",
+     "actor"
+    ],
+    [
+     "actor",
+     "movie"
+    ]
+   ],
+   "edges": 99782,
+   "mode": "single call",
+   "h_edge_homophily": {
+    "genre_0@0": 0.67144376039505,
+    "genre_0@10": 0.6754725575447083,
+    "genre_0@20": 0.6750315427780151,
+    "genre_0@30": 0.6719849109649658,
+    "genre_0@40": 0.6708223819732666,
+    "genre_1@1": 0.616985023021698,
+    "genre_1@11": 0.6188891530036926,
+    "genre_1@21": 0.62143474817276,
+    "genre_1@31": 0.6193902492523193,
+    "genre_1@41": 0.6193301677703857,
+    "genre_2@2": 0.6421799659729004,
+    "genre_2@12": 0.6420997977256775,
+    "genre_2@22": 0.6421799659729004,
+    "genre_2@32": 0.6424806118011475,
+    "genre_2@42": 0.6427211165428162,
+    "genre_3@3": 0.6570122838020325,
+    "genre_3@13": 0.6573530435562134,
+    "genre_3@23": 0.6565713286399841,
+    "genre_3@33": 0.6557695865631104,
+    "genre_3@43": 0.6571124792098999,
+    "genre_4@4": 0.5762562155723572,
+    "genre_4@14": 0.5768775939941406,
+    "genre_4@24": 0.5773586630821228,
+    "genre_4@34": 0.5761560201644897,
+    "genre_4@44": 0.5762361884117126
+   },
+   "labeled_only_h_edge_homophily": {
+    "genre_0": 0.6842829585075378,
+    "genre_1": 0.6255978941917419,
+    "genre_2": 0.6511140465736389,
+    "genre_3": 0.6662259697914124,
+    "genre_4": 0.5809499025344849
+   },
+   "labeled_only_edges": {
+    "genre_0": 93039,
+    "genre_1": 93039,
+    "genre_2": 93039,
+    "genre_3": 93039,
+    "genre_4": 93039
+   },
+   "exact_match_h_edge_homophily": 0.1725962609052658
+  },
+  {
+   "metapath": "movie-keyword-movie",
+   "steps": [
+    [
+     "movie",
+     "keyword"
+    ],
+    [
+     "keyword",
+     "movie"
+    ]
+   ],
+   "edges": 403848,
+   "mode": "single call",
+   "h_edge_homophily": {
+    "genre_0@0": 0.6493284702301025,
+    "genre_0@10": 0.6529040336608887,
+    "genre_0@20": 0.6493681073188782,
+    "genre_0@30": 0.6467779874801636,
+    "genre_0@40": 0.6472682952880859,
+    "genre_1@1": 0.6428706049919128,
+    "genre_1@11": 0.6427814364433289,
+    "genre_1@21": 0.6449307799339294,
+    "genre_1@31": 0.644628643989563,
+    "genre_1@41": 0.6438263654708862,
+    "genre_2@2": 0.5687337517738342,
+    "genre_2@12": 0.5678175687789917,
+    "genre_2@22": 0.567253053188324,
+    "genre_2@32": 0.56884765625,
+    "genre_2@42": 0.5676838755607605,
+    "genre_3@3": 0.7095887660980225,
+    "genre_3@13": 0.708583414554596,
+    "genre_3@23": 0.7048146724700928,
+    "genre_3@33": 0.7035964131355286,
+    "genre_3@43": 0.7060874104499817,
+    "genre_4@4": 0.5531883239746094,
+    "genre_4@14": 0.5535151958465576,
+    "genre_4@24": 0.5545105934143066,
+    "genre_4@34": 0.5534508228302002,
+    "genre_4@44": 0.5550702214241028
+   },
+   "labeled_only_h_edge_homophily": {
+    "genre_0": 0.6635929346084595,
+    "genre_1": 0.657807469367981,
+    "genre_2": 0.5753048658370972,
+    "genre_3": 0.7262121438980103,
+    "genre_4": 0.5593403577804565
+   },
+   "labeled_only_edges": {
+    "genre_0": 366437,
+    "genre_1": 366437,
+    "genre_2": 366437,
+    "genre_3": 366437,
+    "genre_4": 366437
+   },
+   "exact_match_h_edge_homophily": 0.13387709856033325
+  }
+ ],
+ "labeled_targets": 4573,
+ "targets": 4932,
+ "labeled_only": 0.31200630267461144,
+ "per_genre": {
+  "genre_0": 0.30544318755467736,
+  "genre_1": 0.329006552696228,
+  "genre_2": 0.3269325296084086,
+  "genre_3": 0.28383918603261316,
+  "genre_4": 0.3781468073527018
+ },
+ "reproduction_exact_match": {
+  "rule": "Hetero2Net label_homophily on the multilabel vectors as loaded (all genres equal; unlabeled movies = all-zero rows, no fill); reproduction field only, never the reported MLH",
+  "homophily": 0.23695087929566702,
+  "heterophily": 0.763049120704333
+ },
+ "wall_s": 2.36,
+ "peak_rss_gb": 0.819
+}

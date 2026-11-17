@@ -1,0 +1,5 @@
+job=17258 array=17235_22 node=g2n01 start=2026-11-17T06:20:57+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=16384M cpus=8
+task: dataset=mutag task=gc measure=gc_types deadline_h=11.500
+[06:21:00] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/gc__mutag__gc_types.json: value 0.27895726955119593
+end=2026-11-17T06:21:00+09:00 exit=0
