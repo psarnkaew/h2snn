@@ -140,8 +140,8 @@ REQUIREMENT_GROUPS: dict[str, RequirementGroup] = {
     "sheaf": RequirementGroup(
         name="sheaf",
         filename="baselines-sheaf.txt",
-        modules=("torch_householder",),
-        summary="Householder orthogonal maps used by the two sheaf baselines",
+        modules=("torch_householder", "strenum"),
+        summary="Householder orthogonal maps used by the sheaf baselines; strenum for HetSheaf's model code",
     ),
     "h2gb": RequirementGroup(
         name="h2gb",
@@ -176,6 +176,7 @@ _MODEL_GROUPS: dict[str, tuple[str, ...]] = {
     "hinormer": ("dgl",),
     "csnn": ("sheaf",),
     "nsd": ("sheaf",),
+    "hetsheaf": ("sheaf",),  # card 3 A1: torch_householder (orth=householder default) and strenum
     "h2gformer": ("h2gb",),
     "hetero2net": ("hetero2net",),
     "chebnetii": (),

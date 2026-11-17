@@ -1,0 +1,1 @@
+{"cell": "node_classification:mag-year", "host": "g3n01", "job": "16948", "step": null, "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "status": "OK", "load_s": 34.9, "epoch_and_eval_s": 358.7, "peak_gpu_gib": 4.02, "peak_host_gib": 7.97, "total_s": 393.6}

@@ -1,0 +1,8 @@
+job=17131 node=g2tn01 start=2026-11-17T09:41:51+09:00 mode=central index=6
+git=1867681dc197ab536ad5cf1fbede4a9df9abffab branch=hetsheaf
+4d355a1e6ab95d5e60994b61efcaaf1be324501d9c7a77bfee6fbc400c7641e5  src/baselines/adapters/hetsheaf.py
+e1f70c033002375c0cb74d6c3c6c7056fba0f9a3b6d0f088c2dc9d0d5075621c  ../docs/hetsheaf_evidence/a4_dryrun.py
+10867edabcc32543644a50d0be192c5c47a558d43e5692424d6ae8a251ccc5ab  ../docs/hetsheaf_evidence/a5_dryrun.py
+NVIDIA TITAN RTX, 24576 MiB, 1 MiB
+{"cell": "node_classification:h-pokec", "kind": "central", "host": "g2tn01", "job": "17131", "gpu": "NVIDIA TITAN RTX", "gpu_total_gib": 23.6, "point": {"lr": 0.001, "weight_decay": 0.0005, "dropout": 0.45, "input_dropout": 0.45, "sheaf": "diag/type_concat", "d": 3, "layers": 5, "hidden_channels": 16, "batch_size": 256}, "rule": {"lr": "geometric middle", "weight_decay": "middle of the grid", "dropout": "middle", "input_dropout": "middle", "sheaf": "categorical: adapter code default", "d": "middle of the grid", "layers": "middle of the grid", "hidden_channels": "middle of the grid", "batch_size": "middle of the grid"}, "load_s": 15.7, "status": "OK", "epoch_and_eval_s": 2635.9, "train_epoch_s": 28.7, "val_s": 1277.5, "test_s": 1285.65, "val_targets": 408160, "peak_gpu_gib": 0.83, "peak_host_gib": 10.37, "total_s": 2651.6}
+end=2026-11-17T10:26:10+09:00

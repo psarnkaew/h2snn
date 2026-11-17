@@ -1,0 +1,82 @@
+HEAD 3cfd4216af35dca86063298377bd35fb55986ee6 host g2n01 job 16741
+pubmed target ('disease', 'rel_2', 'disease') N 63109 E 234516
+  types ['pubmed_type_0', 'disease', 'pubmed_type_2', 'pubmed_type_3'] dims {'pubmed_type_0': 200, 'disease': 200, 'pubmed_type_2': 200, 'pubmed_type_3': 200} slices {'pubmed_type_0': (0, 13561), 'disease': (13561, 33724), 'pubmed_type_2': (33724, 60246), 'pubmed_type_3': (60246, 63109)}
+    ('disease', 'rel_2', 'disease') 32167
+    ('pubmed_type_0', 'rel_0', 'pubmed_type_0') 16105
+    ('pubmed_type_0', 'rel_1', 'disease') 25962
+    ('pubmed_type_2', 'rel_3', 'pubmed_type_0') 31277
+    ('pubmed_type_2', 'rel_4', 'disease') 51323
+    ('pubmed_type_2', 'rel_5', 'pubmed_type_2') 62187
+    ('pubmed_type_2', 'rel_6', 'pubmed_type_3') 6297
+    ('pubmed_type_3', 'rel_7', 'pubmed_type_0') 3155
+    ('pubmed_type_3', 'rel_8', 'disease') 5245
+    ('pubmed_type_3', 'rel_9', 'pubmed_type_3') 798
+lastfm target ('user', 'rel_0', 'artist') N 20612 E 115653
+  types ['user', 'artist', 'tag'] dims {'user': 0, 'artist': 0, 'tag': 0} slices {'user': (0, 1892), 'artist': (1892, 19524), 'tag': (19524, 20612)}
+    ('artist', 'rel_2', 'tag') 23253
+    ('user', 'rel_0', 'artist') 66966
+    ('user', 'rel_1', 'user') 25434
+acm_pa target ('paper', 'rel_2', 'author') N 10942 E 544092
+  types ['paper', 'author', 'subject', 'term'] dims {'paper': 1902, 'author': 0, 'subject': 1902, 'term': 0} slices {'paper': (0, 3025), 'author': (3025, 8984), 'subject': (8984, 9040), 'term': (9040, 10942)}
+    ('author', 'rel_3', 'paper') 8059
+    ('paper', 'rel_0', 'paper') 5343
+    ('paper', 'rel_1', 'paper') 5343
+    ('paper', 'rel_2', 'author') 8059
+    ('paper', 'rel_4', 'subject') 3025
+    ('paper', 'rel_6', 'term') 255619
+    ('subject', 'rel_5', 'paper') 3025
+    ('term', 'rel_7', 'paper') 255619
+dblp_ap target ('author', 'rel_0', 'paper') N 26128 E 232102
+  types ['author', 'paper', 'term', 'venue'] dims {'author': 0, 'paper': 4231, 'term': 50, 'venue': 0} slices {'author': (0, 4057), 'paper': (4057, 18385), 'term': (18385, 26108), 'venue': (26108, 26128)}
+    ('author', 'rel_0', 'paper') 15913
+    ('paper', 'rel_1', 'term') 85810
+    ('paper', 'rel_2', 'venue') 14328
+    ('paper', 'rel_3', 'author') 15913
+    ('term', 'rel_4', 'paper') 85810
+    ('venue', 'rel_5', 'paper') 14328
+imdb_ma target ('movie', 'rel_2', 'actor') N 21420 E 81026
+  types ['movie', 'director', 'actor', 'keyword'] dims {'movie': 3485, 'director': 3341, 'actor': 0, 'keyword': 0} slices {'movie': (0, 4932), 'director': (4932, 7325), 'actor': (7325, 13449), 'keyword': (13449, 21420)}
+    ('actor', 'rel_3', 'movie') 11971
+    ('director', 'rel_1', 'movie') 4932
+    ('keyword', 'rel_5', 'movie') 23610
+    ('movie', 'rel_0', 'director') 4932
+    ('movie', 'rel_2', 'actor') 11971
+    ('movie', 'rel_4', 'keyword') 23610
+freebase_bb target ('book', 'rel_0', 'book') N 180098 E 1022071
+  types ['book', 'film', 'music', 'sports', 'people', 'location', 'organization', 'business'] dims {'book': 0, 'film': 0, 'music': 0, 'sports': 0, 'people': 0, 'location': 0, 'organization': 0, 'business': 0} slices {'book': (0, 40402), 'film': (40402, 59829), 'music': (59829, 142180), 'sports': (142180, 143205), 'people': (143205, 160846), 'location': (160846, 170214), 'organization': (170214, 172945), 'business': (172945, 180098)}
+    ('book', 'rel_0', 'book') 167057
+    ('book', 'rel_1', 'film') 38299
+    ('book', 'rel_2', 'sports') 6615
+    ('book', 'rel_3', 'location') 26921
+    ('book', 'rel_4', 'organization') 21900
+    ('business', 'rel_30', 'book') 18625
+    ('business', 'rel_31', 'film') 8397
+    ('business', 'rel_32', 'music') 24764
+    ('business', 'rel_33', 'sports') 610
+    ('business', 'rel_34', 'location') 6647
+    ('business', 'rel_35', 'business') 4448
+    ('film', 'rel_5', 'film') 87838
+    ('location', 'rel_22', 'film') 21299
+    ('location', 'rel_23', 'location') 47817
+    ('music', 'rel_10', 'location') 42915
+    ('music', 'rel_6', 'book') 31486
+    ('music', 'rel_7', 'film') 11291
+    ('music', 'rel_8', 'music') 283670
+    ('music', 'rel_9', 'sports') 8975
+    ('organization', 'rel_24', 'film') 13128
+    ('organization', 'rel_25', 'music') 10702
+    ('organization', 'rel_26', 'sports') 559
+    ('organization', 'rel_27', 'location') 2696
+    ('organization', 'rel_28', 'organization') 1101
+    ('organization', 'rel_29', 'business') 1073
+    ('people', 'rel_14', 'book') 35587
+    ('people', 'rel_15', 'film') 17604
+    ('people', 'rel_16', 'music') 10948
+    ('people', 'rel_17', 'sports') 14850
+    ('people', 'rel_18', 'people') 22813
+    ('people', 'rel_19', 'location') 15134
+    ('people', 'rel_20', 'organization') 2215
+    ('people', 'rel_21', 'business') 5378
+    ('sports', 'rel_11', 'film') 6763
+    ('sports', 'rel_12', 'sports') 1290
+    ('sports', 'rel_13', 'location') 656

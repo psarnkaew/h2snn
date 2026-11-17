@@ -1,0 +1,1 @@
+{"cell": "node_classification:h-pokec", "host": "g3n01", "job": "16956", "step": null, "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "status": "OK", "load_s": 25.4, "epoch_and_eval_s": 796.8, "peak_gpu_gib": 13.21, "peak_host_gib": 10.37, "total_s": 822.3}

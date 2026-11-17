@@ -1,0 +1,9 @@
+job=17118 node=g3n01 start=2026-11-17T01:42:25+09:00 mode=ladder index=0
+git=1867681dc197ab536ad5cf1fbede4a9df9abffab branch=hetsheaf
+4d355a1e6ab95d5e60994b61efcaaf1be324501d9c7a77bfee6fbc400c7641e5  src/baselines/adapters/hetsheaf.py
+e1f70c033002375c0cb74d6c3c6c7056fba0f9a3b6d0f088c2dc9d0d5075621c  ../docs/hetsheaf_evidence/a4_dryrun.py
+10867edabcc32543644a50d0be192c5c47a558d43e5692424d6ae8a251ccc5ab  ../docs/hetsheaf_evidence/a5_dryrun.py
+NVIDIA GeForce RTX 3090, 24576 MiB, 2 MiB
+{"cell": "node_classification:acm", "kind": "ladder", "host": "g3n01", "job": "17118", "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "point": {"hidden_channels": 16, "d": 5, "layers": 8}, "load_s": 7.1, "status": "OOM", "error": "CUDA out of memory. Tried to allocate 1.78 GiB. GPU 0 has a total capacity of 23.68 GiB of which 1.54 GiB is free. Including non-PyTorch memory, this process has 22.13 GiB memory in use. Of the allocated memory 21.72 GiB is allocated by PyTorch, and 79.92 MiB is reserved by PyTorch but unallocated. ", "where": "src/baselines/training.py:89", "peak_gpu_gib": 21.72, "peak_host_gib": 1.65, "total_s": 9.3}
+{"cell": "node_classification:acm", "kind": "ladder", "host": "g3n01", "job": "17118", "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "point": {"hidden_channels": 8, "d": 5, "layers": 8}, "load_s": 6.0, "status": "OK", "epoch_and_eval_s": 2.4, "peak_gpu_gib": 12.82, "peak_host_gib": 1.75, "total_s": 8.4}
+end=2026-11-17T01:42:47+09:00
