@@ -58,7 +58,7 @@ class RegistryTests(unittest.TestCase):
             for task in DATASETS
         }
         self.assertEqual(per_task["node_classification"], 138)  # card 1d H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase; A3: + 8 H2GB
-        self.assertEqual(per_task["link_prediction"], 76)  # card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P; A4: + H-Pokec U-U
+        self.assertEqual(per_task["link_prediction"], 75)  # card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P; A4: + H-Pokec U-U; card 1e F3.2: - HAN freebase_bb (N/A)
         self.assertEqual(per_task["graph_classification"], 40)  # card 3 A2: + HetSheaf on the 4 TU datasets
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:

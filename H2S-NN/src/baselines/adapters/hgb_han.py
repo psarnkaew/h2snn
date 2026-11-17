@@ -73,7 +73,8 @@ NAME = "han"
 VENDORS = ("hgb_nc_han", "hgb_nc")
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "Freebase"}  # HAN/utils.py:337-341
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+# freebase_bb: N/A (card 1e F3.2, registry.HAN_FREEBASE_LP_NA): OOM on a 24 GB GPU at num_heads 4, the grid minimum.
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Part 2 E1 (author decisions S1, S5): HAN on the H2GB NC datasets as H2GB runs it -- H2GB's `HeteroGNNModel` with
 #: PyG `HANConv` on the raw relations (`hetero_gnn_model.py:127-129`), its own YAML (`<dataset>-HAN.yaml`), on H2GB's
@@ -149,6 +150,11 @@ class HANAdapter:
             "dropout": grids.DROPOUT,
             "num_heads": {"values": [4, 8]},
         }
+        if task == NODE_CLASSIFICATION and dataset == "freebase":
+            # Card 1e F3.2 (author 2026-11-18): heads 8 exhausts a 24 GB GPU in edge_softmax with 1.01 GiB free
+            # before the last meta-path graph (F0, job 17160); heads 4 halves the edge x head tensors (DERIVED, not
+            # measured). hidden_dim keeps its full range.
+            space["num_heads"] = {"values": [4]}
         if task == LINK_PREDICTION:
             space["embed_dim"] = {"values": [16, 64, 128]}
             space["decoder_type"] = {"values": ["dot", "distmult"]}
