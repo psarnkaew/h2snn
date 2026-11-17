@@ -179,4 +179,59 @@ records are in `a4_cells_rerun_harness/` and `a4_cells_big.jsonl`.
 ## Out of scope (not done)
 - `requirements.txt`'s comment line still says `baselines-sheaf.txt  CSNN, NSD` (the comment omits HetSheaf).
 
-branch=hetsheaf sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=ae7aef026f4a08f50634a2ea154cbfa31e998b92
+
+## A5 — OOM ladder and central-point timing (2026-11-17; base `1867681`; docs only, no suite)
+A5.1: A6000 jobs 16963, 16981, 17091 cancelled; no record of them is used. Evidence `hetsheaf_evidence/a5_*`
+(`a5_dryrun.py`, `a5_job.sh`, `a5_table.py`, `a5_ladder/`, `a5_central/`). One cell per job; all jobs print HEAD
+(`1867681`), hostname, job id, sha256 of the adapter and scripts. `--mem` = A4 host peak + 30 %, >= 16G (oag-cs 20G,
+oag-chem 33G, H-Pokec 60G); g3an01 excluded; g2n01 excluded except for the GC jobs (which ran on g3n01). No metric.
+
+**A5.2 ladder** (`hidden_channels` 32 -> 16 -> 8, then `d`, then `layers`; A4's 64 and 32 OOM records reused; full
+attempt table `a5_ladder_table.md`, ranges `a5_ranges.md`):
+
+| Cell | Largest fitting point (other axes at A4's) | Peak GPU GiB |
+|---|---|---|
+| NC acm, NC freebase, LP acm_pa, LP freebase_bb | `hidden_channels` 8 (16: OOM) | 12.8 / 19.6 / 12.9 / 19.6 |
+| LP pubmed | `hidden_channels` 16 | 12.2 |
+| NC dblp, LP dblp_ap | `hidden_channels` 32 (A4) | 21.9 / 21.8 |
+| LP ogbn-mag P-P | **none** (stop item) | |
+| LP H-Pokec U-U | **not established** (stop item) | |
+
+**Stop items (not fixed):**
+1. ogbn-mag P-P is OOM at the bottom of the ladder (`hidden_channels` 8, `d` 2, `layers` 2): `sheaf_models.py:1238`
+   (`h_cat`, the sheaf learner's per-edge input), 15.81 GiB allocated + 9.65 GiB requested on 23.68 GiB; identical at
+   every `layers` 8..2; sites 1236-1238 at the higher points. DERIVED: about 5.7e7-8.1e7 edges per sampled step
+   subgraph, so the 3.4 GiB estimate does not hold.
+2. H-Pokec U-U at `hidden_channels` 16, `d` 5, `layers` 8: not OOM; `AssertionError` at
+   `transductive/disc_models.py:571` (their finite check on the forward output, "numerical instabilities of SVD")
+   after 4,070 s, peak GPU 12.13 GiB. The ladder steps only on OOM, so it stopped; one run, not rerun.
+
+**A5.3 central point** (card 2's `central_point` rule over `search_space`: `d` 3, `layers` 5, `hidden_channels` 16,
+`lr` 1e-3 (geometric middle), `weight_decay` 5e-4 (middle of 9), dropout / input_dropout 0.45, H2GB `batch_size` 256,
+`sheaf` `diag/type_concat`, GC `pooling` `late_token`). Categoricals: no published HetSheaf value exists for these
+cells, so the adapter's value when the parameter is absent is used (`hetsheaf.py:401`, `:620`; prompt "at the
+adapter's default"); card 2's fallback (first grid value: `diag/local_concat`, `mean`) was not used. Timing:
+train epoch = last `train()` -> first `eval()`; validation = first `evaluate_split` (H2GB NC) or first `eval()` ->
+first metric call (GC); CUDA synchronised. Columns of `a5_central.csv` follow card 2's D6 record fields
+(`val_targets`, phase times); card 2's D6.4 central table is not published yet, so its exact columns could not be
+matched.
+
+| Cell | Train epoch s | Validation s | Val targets | GPU, job |
+|---|---|---|---|---|
+| ogbn-mag | 26.2 | 206.9 | 64,879 | 3090, 17125 |
+| mag-year | 27.1 | 595.4 | 184,097 | 3090, 17126 |
+| oag-cs | 5.9 | 13.2 | 19,551 | 3090, 17127 |
+| oag-eng | 5.1 | 16.5 | 28,524 | 3090, 17128 |
+| oag-chem | 5.3 | 35.8 | 59,664 | 3090, 17129 |
+| ieee-cis-g | 3.2 | 4.8 | 14,423 | 3090, 17130 |
+| h-pokec | 28.7 | 1,277.5 | 408,160 | TITAN RTX, 17131 |
+| pdns | 4.1 | 6.9 | 17,450 | 3090, 17132 |
+| GC mutag | 3.0 | 0.09 | 18 | 3090, 17133 |
+| GC proteins | 9.6 | 0.57 | 111 | 3090, 17134 |
+| GC enzymes | 5.2 | 0.30 | 60 | 3090, 17135 |
+| GC nci1 | 34.8 | 2.15 | 411 | 3090, 17136 |
+
+Only `docs/` changed in A5 (no file outside `docs/`; no suite). Decisions table item 4 above (A6000 retries) is
+superseded by A5.1.
+
+branch=hetsheaf sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=1867681dc197ab536ad5cf1fbede4a9df9abffab
