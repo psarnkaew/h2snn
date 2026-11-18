@@ -96,6 +96,7 @@ NEVER_TUNED_LEGACY_KEYS: tuple[str, ...] = (
     "path_sampler", "face_sample_k", "exclude_identity_metapaths", "metapath_templates",
     "feature_normalization", "per_side_scale", "identity_maps", "h0_only_readout",
     "direction_blind_maps", "free_path_maps", "endpoint_edges", "holonomy_edges",
+    "ego_head",  # spec 1.25 Z3: an arm switch (C18), never a search key
     "no_path_cells", "uniform_path_gate", "num_label_prop_steps",
     "compute_relation_diagnostics", "checkpointing", "node_edge_memory_guard_fraction",
     "overlap_sampling", "resample_paths")
@@ -173,7 +174,10 @@ ARM_KEYS: tuple[tuple[str, str, str], ...] = (("model", "arm", "full"),
                                               ("ablation", "fact_maps_identity", "False"),
                                               # spec 1.24 Y4 (card 4b L3): two more arm switches
                                               ("ablation", "direction_blind_maps", "False"),
-                                              ("ablation", "h0_only_readout", "False"))
+                                              ("ablation", "h0_only_readout", "False"),
+                                              # spec 1.25 Z3 (C18): an arm of configuration (a),
+                                              # not tuned on its own (no tuning.arm mode)
+                                              ("ablation", "ego_head", "False"))
 # Spec 1.23 X-6a / pre-registration §1 configuration (b) (card 4 K6, arm-tuning mode): the five arms
 # tuned on their own (plus, 1.24 Y4, the two arm switches' own modes), and the one (section, key,
 # value) each may set in a tuning base config.
@@ -1507,9 +1511,12 @@ class AblationConfig:
     path_weight_input: str = "full"
     # Read out from h0 only (sanity control: is diffusion used at all?; D12 G0b diagnostic).
     h0_only_readout: bool = False
-    # Same frame on both sides, no side code and a symmetrized c_e for EVERY relation
-    # (shared roles everywhere; the analogue of DSNN's q = 0).
+    # Every relation treated as one with rho(r) = r (spec 1.25 Z-13): no frame, antisymmetric C_e and
+    # a symmetrized c_e for EVERY relation (shared roles everywhere; the analogue of DSNN's q = 0).
     direction_blind_maps: bool = False
+    # Spec 1.25 Z3 (C18): the head reads [x*, h0] (the 1.24 readout, same widths) instead of x* alone.
+    # An arm of configuration (a); refused in a main-table tuning base config; never tuned.
+    ego_head: bool = False
     # v3-B has no listen / broadcast gates (spec v1.11 D-B1): `symmetric` is the only value (the
     # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
     # Never tuned.
@@ -1526,6 +1533,9 @@ class AblationConfig:
         if self.fact_maps_identity and (self.h0_only_readout or self.direction_blind_maps):
             raise ValueError("ablation.fact_maps_identity is one change from full / no_path_cells; it "
                              "cannot be combined with h0_only_readout or direction_blind_maps.")
+        if self.ego_head and self.h0_only_readout:
+            raise ValueError("ablation.ego_head (head reads [x*, h0]) and ablation.h0_only_readout (head "
+                             "reads h0 only) are two different readout arms; they cannot be combined.")
         _reject_removed_value("ablation", "coupling", self.coupling)
         if self.coupling not in COUPLING_MODES:
             raise ValueError(

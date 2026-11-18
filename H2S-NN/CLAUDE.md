@@ -886,7 +886,8 @@ Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
 
 Config sections: `data`, `model` (`propagation: anchored`; the v3-B arms are `model.arm`),
 `ablation` (switches, all off by default: `path_weight_input`,
-`h0_only_readout`, `direction_blind_maps`; `coupling: symmetric` only; spec 1.25 Z1 removed the
+`h0_only_readout`, `direction_blind_maps`, `ego_head` (spec 1.25 Z3: the head reads `x*`; `ego_head`
+is the 1.24 readout `[x*, h0]`); `coupling: symmetric` only; spec 1.25 Z1 removed the
 relational context `c`: `model.geometry_context` and `ablation.path_weight_context` raise), `optim` (`scalar_lr_scale`:
 learning-rate multiple for the scalars `θ_τ` and the bias of `g`, which get their own group with no
 weight decay). Unknown keys are errors. `orthogonal_map` accepts only `fasthpp`

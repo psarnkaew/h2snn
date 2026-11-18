@@ -43,6 +43,7 @@ ARM_CHANGES: dict[str, dict[str, dict[str, Any]]] = {
     "direction_blind_maps": {"ablation": {"direction_blind_maps": True}},
     "free_cell_maps": {"model": {"arm": "free_cell_maps"}},
     "h0_only": {"ablation": {"h0_only_readout": True}},
+    "ego_head": {"ablation": {"ego_head": True}},  # spec 1.25 Z3, C18 (pre-registration Z-32)
 }
 # Arms with configuration (b) (tuned on their own; B-2, B-4) and their `tuning.arm` name.
 TUNED_ARMS: tuple[str, ...] = ("endpoints", "closure_only", "instance_features", "no_path_cells",

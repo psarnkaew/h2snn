@@ -2,7 +2,7 @@
 sheaf energy (`src/models/sheaf_energy.py`),
 
     h0 = TypeEncoder(x),   (P^T P + tau L_hat) Y* = P^T h0,   Y = (x, s, z),   tau = exp(theta_tau),
-    representation = [x*, h0],
+    representation = x*            (spec 1.25 Z3; [x*, h0] under the arm `ablation.ego_head`),
 
 solved by PCG with an implicit backward (`src/models/anchored_solve.py`). `Delta_0` runs over the
 observed facts with the D1 map operators (one conformal scale per fact, D1a); every path 2-cell
@@ -10,9 +10,10 @@ couples to every node on it through ordered parallel transport, with weight `bet
 `w_f = exp(g(path_latent_f))`. The arms of spec §6 are configurations of this one path (`model.arm`).
 
 One encoder, three task heads (plan §4.8), selected by `data.task_type`:
-- node classification: `MLP([x*, h0])` on the target nodes;
-- link prediction: the `dot` / `distmult` decoders on `[x*, h0]` (spec v1.22 W2);
-- graph classification: pooling of `[x*, h0]` per graph -> one Linear layer.
+- node classification: `MLP(x*)` on the target nodes;
+- link prediction: the `dot` / `distmult` decoders on `x*` (spec v1.22 W2);
+- graph classification: pooling of `x*` per graph -> one Linear layer
+(spec 1.25 Z3; `[x*, h0]` under the arm `ablation.ego_head`, the 1.24 readout).
 The v2 propagation (Chebyshev filter bank / first-order update, listen/broadcast gates, pair
 attention, the v2 path switches, identity maps, the dense map family) was removed by the
 legacy-removal card (v1/v2).
@@ -174,7 +175,9 @@ class EncodedState(NamedTuple):
 
     h0: torch.Tensor
     x_star: torch.Tensor  # x* (h0 under ablation.h0_only_readout)
-    representation: torch.Tensor  # [x*, h0] (h0 under ablation.h0_only_readout)
+    # x* (spec 1.25 Z3); [x*, h0] under ablation.ego_head; h0 under ablation.h0_only_readout;
+    # the instance feature appended under the arm instance_features
+    representation: torch.Tensor
     operator: "AnchoredState | None"  # None under ablation.h0_only_readout
 
 
@@ -461,11 +464,13 @@ class H2SNN(nn.Module):
         self.last_path_stats: dict[str, float] = {}
         self.last_path_weights: tuple[torch.Tensor, ...] = ()
 
-        # Task head on the node representation [x*, h0] (h0 under h0_only_readout); the v3-B arm
-        # `instance_features` adds the anchor's cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
-        representation_dim = d if self.h0_only else 2 * d
+        # Task head on the node representation x* (spec 1.25 Z3; h0 under h0_only_readout; [x*, h0]
+        # under the arm ego_head, the 1.24 readout); the v3-B arm `instance_features` adds the anchor's
+        # cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
+        self.ego_head = ablation.ego_head
+        representation_dim = d if self.h0_only else (2 * d if self.ego_head else d)
         if anchored and self.arm == "instance_features":
-            representation_dim = 3 * d
+            representation_dim += d
         self.readout: nn.Sequential | None = None
         self.link_readout: LinkPredictionReadout | None = None
         self.graph_readout: GraphReadout | None = None
@@ -811,7 +816,7 @@ class H2SNN(nn.Module):
             self._warm_start = y_star.detach()
             self._warm_start_key = draw_key
         x_star = y_star[:num_nodes]
-        parts = [x_star, h0]
+        parts = [x_star, h0] if self.ego_head else [x_star]
         if arm == "instance_features":
             parts.append(self._instance_features(h0, maps, edge_index, groups, betas, num_nodes))
         tau = self.tau().detach()  # type: ignore[union-attr]
