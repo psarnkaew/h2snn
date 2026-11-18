@@ -1,0 +1,71 @@
+unit=b2_full_suite job=17658 node=g2n01 start=2026-11-18T13:05:41+09:00
+git=2c588ef60959f1409b9d2375b4210f80e50d50e5 branch=freebase-baselines
+0fd41e0bd434c5d0f0c1f1bcada2cc52d11e14f6055c716d145d65d05e900b74  src/baselines/adapters/_hgb_generic.py
+3b48e1e74230e56b5cdd17a33e7b6e3b5c1c034bd2c141d424d06da30292d176  src/baselines/adapters/pshgcn.py
+bb3c5c7f479f6804ceea3891a36f7721ead9e1e68ddfc24b83b78ea23e841ab9  src/baselines/adapters/h2sgnn.py
+67c43c1ef265264c8e0b3149083ead67ea8536dbdf0485bc3d3234882a28d4ea  src/baselines/adapters/sehgnn.py
+3e525a8690f28ee6bf28411ff94b3bf532715c20a832167b3b8aa3fd70aa384b  src/baselines/registry.py
+68769d92cc246b6fc131801ba9bbaff1dd7d832873c334e7ecfc8d8c83850790  src/baselines/minibatch.py
+cpu_capability AVX2 MKL_CBWR AVX2
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB, 1 MiB
+2026-11-18 13:35:08,004 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-18 13:35:08,004 | INFO | Best epoch 0 | test_macro_f1: 0.2771 | test_micro_f1: 0.4000 | test_acc: 0.4000
+2026-11-18 13:35:08,013 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 13:35:08,256 | INFO | Epoch 0000 | train_loss: 1.1165 | train_acc: 0.4545 | train_auroc: 0.0000 | train_macro_f1: 0.2083 | train_micro_f1: 0.4545 | val_loss: 1.0452 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.2500 | val_micro_f1: 0.3333 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000
+2026-11-18 13:35:08,411 | INFO | Checkpoint metric macro_f1: 0.2500
+2026-11-18 13:35:08,411 | INFO | Best epoch 0 | test_macro_f1: 0.1111 | test_micro_f1: 0.2000 | test_acc: 0.2000
+  payload = torch.load(path, map_location="cpu")
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 13:36:54,565 | INFO | Epoch 0000 | train_loss: 1.2636 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.2085 | val_acc: 0.1250 | val_auroc: 0.0000 | val_macro_f1: 0.0741 | val_micro_f1: 0.1250 | test_acc: 0.6250 | test_auroc: 0.0000 | test_macro_f1: 0.4444 | test_micro_f1: 0.6250
+2026-11-18 13:36:54,579 | INFO | Checkpoint metric acc: 0.1250
+2026-11-18 13:36:54,579 | INFO | Best epoch 0 | test_macro_f1: 0.4444 | test_micro_f1: 0.6250 | test_acc: 0.6250
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 13:36:59,486 | INFO | Epoch 0000 | train_loss: 1.2068 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0817 | val_acc: 0.2500 | val_auroc: 0.0000 | val_macro_f1: 0.2167 | val_micro_f1: 0.2500 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-18 13:36:59,504 | INFO | Checkpoint metric acc: 0.2500
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 13:36:59,729 | INFO | Epoch 0001 | train_loss: 1.1866 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0781 | val_acc: 0.3750 | val_auroc: 0.0000 | val_macro_f1: 0.3175 | val_micro_f1: 0.3750 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750
+2026-11-18 13:36:59,747 | INFO | Checkpoint metric acc: 0.3750
+2026-11-18 13:36:59,747 | INFO | Best epoch 1 | test_macro_f1: 0.3333 | test_micro_f1: 0.3750 | test_acc: 0.3750
+  payload = torch.load(path, map_location="cpu")
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...........................Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+Total labeled 60
+Labeled node count for 0, 60: 48
+Labeled node count for 0, 6: 4
+W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+.......2026-11-18 13:38:14,385 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-18 13:38:14,385 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...............................
+----------------------------------------------------------------------
+Ran 750 tests in 2010.014s
+OK
+tests_exit=0 end=2026-11-18T13:39:17+09:00
