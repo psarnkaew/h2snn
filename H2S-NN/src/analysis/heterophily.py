@@ -208,6 +208,88 @@ def gp_edge_index(data: Any, path: list[Step]) -> torch.Tensor:
     return index
 
 
+# ----------------------------------------------------------------------------------------------- H2b: complete G_P
+def _hub(first: torch.Tensor, second: torch.Tensor, n_src: int, n_mid: int, n_dst: int) -> int | None:
+    """Smallest intermediate node adjacent to all `n_src` sources on the first step (`first`: [2, E] src→mid) and to
+    all `n_dst` destinations on the second (`second`: [2, E] mid→dst), counted on the support (duplicates once)."""
+    def covered(index: torch.Tensor, mid_row: int, n_mid_side: int) -> torch.Tensor:
+        if index.size(1) == 0:
+            return torch.zeros(n_mid, dtype=torch.long)
+        mid, other = index[mid_row], index[1 - mid_row]
+        pairs = torch.unique(mid * n_mid_side + other)
+        return torch.bincount(pairs // n_mid_side, minlength=n_mid)
+
+    hubs = (covered(first, 1, n_src) == n_src) & (covered(second, 0, n_dst) == n_dst)
+    found = hubs.nonzero()
+    return None if found.numel() == 0 else int(found[0, 0])
+
+
+def complete_gp_hub(data: Any, path: list) -> int | None:
+    """H2b (card): the hub that makes `G_P` complete, or None. `G_P` of a length-2 meta-path `t→m→t` contains every
+    ordered target pair, self-pairs included, iff some `m` node is adjacent to all n targets on both steps (exact,
+    from the two adjacencies). `path` is a Hetero²Net step list (a step is the union of its stored relations, as in
+    `step_adjacency`) or an H2GB relation list (a step is that one relation, as in `calcHomophily`)."""
+    path = [tuple(s) for s in path]
+    if len(path) != 2:
+        return None
+    if len(path[0]) == 2:
+        (t, m), (m2, t2) = path
+        first = torch.cat([data[e].edge_index for e in step_relations(data.edge_types, t, m)], dim=1)
+        second = torch.cat([data[e].edge_index for e in step_relations(data.edge_types, m2, t2)], dim=1)
+    else:
+        (t, _, m), (m2, _, t2) = path
+        first, second = data[path[0]].edge_index, data[path[1]].edge_index
+    if t != t2 or m != m2:
+        return None
+    n, n_mid = int(data[t].num_nodes), int(data[m].num_nodes)
+    return _hub(first, second, n, n_mid, n)
+
+
+def _complete_pairs(counts: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """(same-label pairs, all pairs) of a complete `G_P` whose label classes have sizes `counts`; self-pairs are
+    pairs (the harness's `G_P` keeps them)."""
+    n = counts.sum()
+    return (counts * counts).sum(), n * n
+
+
+def _class_counts(y: torch.Tensor) -> torch.Tensor:
+    """Class sizes for `label_homophily`'s equality: per value (single label) or per distinct row (multilabel exact
+    match)."""
+    if y.dim() == 2:
+        return torch.unique(y, dim=0, return_counts=True)[1].to(torch.float64)
+    return torch.unique(y, return_counts=True)[1].to(torch.float64)
+
+
+def complete_label_homophily(y: torch.Tensor) -> float | None:
+    """H2b: `label_homophily` (and H2GB `h_edge`) on a complete `G_P` over the nodes labeled `y`: Σₖ pₖ²."""
+    if y.numel() == 0:
+        return None
+    same, pairs = _complete_pairs(_class_counts(y))
+    return float(same / pairs)
+
+
+def complete_mde(x: torch.Tensor, rows: int = 65_536) -> float:
+    """H2b: `attribute_homophily` on a complete `G_P` (every degree n, n² pairs): (mean‖x‖² − ‖x̄‖²)/(2n), as
+    Σ_{u,v}‖x_u − x_v‖² / (4·deg·pairs), accumulated in float64 over row blocks."""
+    n = x.size(0)
+    deg, pairs = n, n * n  # complete G_P with self-pairs: every degree n, n² pairs
+    sq = torch.zeros((), dtype=torch.float64)
+    total = torch.zeros(x.size(1), dtype=torch.float64)
+    for start in range(0, n, rows):
+        block = x[start:start + rows].to(torch.float64)
+        sq += block.square().sum()
+        total += block.sum(dim=0)
+    spread = 2 * n * sq - 2 * total.square().sum()  # Σ_{u,v} ‖x_u − x_v‖²
+    return float(spread / (4 * deg * pairs))
+
+
+def complete_calc_row(path: list[EdgeType], labels: torch.Tensor) -> dict[str, Any]:
+    """H2b: what `calcHomophily` returns for one meta-path with a complete `G_P`, in its form: `h_edge` = Σₖ pₖ²,
+    `h_insensitive` = 0 (every class ratio equals its share), `h_adj` = 0 (every degree n, so p̄ₖ = pₖ)."""
+    return {"metapath": metapath_name(path), "edge_types": [list(s) for s in path],
+            "h_edge": complete_label_homophily(labels), "h_insensitive": 0.0, "h_adj": 0.0}
+
+
 def chunks_of(edge_index: torch.Tensor, size: int = EDGE_CHUNK) -> ChunkSource:
     """A re-iterable chunk source over a stored edge index."""
     def source() -> Iterator[tuple[torch.Tensor, torch.Tensor]]:
@@ -302,7 +384,7 @@ def _mean(values: Iterable[float | None]) -> float | None:
 
 def mlh_measure(data: Any, target: str, paths: list[list[Step]], y: torch.Tensor,
                 fill_seeds: Iterable[int] = FILL_SEEDS, max_single_call: int = MDE_REFERENCE_MAX_EDGES,
-                chunk: int = EDGE_CHUNK) -> dict[str, Any]:
+                chunk: int = EDGE_CHUNK, closed_form: bool = True) -> dict[str, Any]:
     """MLH (spec §1) on `paths`: per label problem (IMDB: per genre) and fill seed, `label_homophily` on each `G_P`
     with H2GB's fill; MLH = 1 − mean over meta-paths with a non-empty `G_P`; multilabel: mean over genres. Also the
     labeled-only diagnostic (edges with both endpoints labeled; raw labels) and, for multilabel, Hetero²Net's
@@ -327,6 +409,19 @@ def mlh_measure(data: Any, target: str, paths: list[list[Step]], y: torch.Tensor
             if exact is not None:
                 exact.add(row, col, y)
 
+        hub = complete_gp_hub(data, path) if closed_form else None
+        if hub is not None:
+            n = int(keep.numel())
+            per_path.append({
+                "metapath": metapath_name(path), "steps": [list(s) for s in path], "edges": n * n,
+                "mode": "closed form (H2b: complete G_P)", "gp_complete": True, "hub": hub,
+                "h_edge_homophily": {f"{nm}@{s}": complete_label_homophily(lab) for (nm, s), lab in filled.items()},
+                "labeled_only_h_edge_homophily": {
+                    p["name"]: complete_label_homophily(p["labels"][keep]) for p in problems} if any_unlabeled else None,
+                "labeled_only_edges": {p["name"]: int(keep.sum()) ** 2 for p in problems} if any_unlabeled else None,
+                "exact_match_h_edge_homophily": None if exact is None else complete_label_homophily(y),
+            })
+            continue
         whole = gp_edges_capped(data, path, max_single_call)
         if whole is not None:
             mode = "single call"
@@ -341,6 +436,7 @@ def mlh_measure(data: Any, target: str, paths: list[list[Step]], y: torch.Tensor
                     feed(row[start:start + chunk], col[start:start + chunk])
         per_path.append({
             "metapath": metapath_name(path), "steps": [list(s) for s in path], "edges": edges, "mode": mode,
+            "gp_complete": False if closed_form else None, "hub": None,
             "h_edge_homophily": {f"{n}@{s}": acc.value for (n, s), acc in accs.items()},
             "labeled_only_h_edge_homophily": {n: acc.value for n, acc in lab_accs.items()} or None,
             "labeled_only_edges": {n: acc.edges for n, acc in lab_accs.items()} or None,
@@ -410,14 +506,20 @@ def mde_chunked(source: ChunkSource, x: torch.Tensor, chunk: int | None = None) 
 
 
 def mde_measure(data: Any, target: str, paths: list[list[Step]], x: torch.Tensor, both: bool = False,
-                max_reference_edges: int = MDE_REFERENCE_MAX_EDGES) -> dict[str, Any]:
-    """MDE (spec §1) on `paths` with raw target features `x`: per `G_P` the reference `attribute_homophily` when
-    `|E(G_P)| <= max_reference_edges`, else `mde_chunked` on the `G_P` row chunks (D-a). `both` (gate H0-eq, HGB):
-    both values on every `G_P` whatever its size (the reported value still follows D-a). MDE = mean over meta-paths
-    with a non-empty `G_P`."""
+                max_reference_edges: int = MDE_REFERENCE_MAX_EDGES, closed_form: bool = True) -> dict[str, Any]:
+    """MDE (spec §1) on `paths` with raw target features `x`: per `G_P` the closed form when a hub makes it complete
+    (H2b, `closed_form`), else the reference `attribute_homophily` when `|E(G_P)| <= max_reference_edges`, else
+    `mde_chunked` on the `G_P` row chunks (D-a). `both` (gate H0-eq, HGB): both values on every `G_P` whatever its
+    size (the reported value still follows D-a). MDE = mean over meta-paths with a non-empty `G_P`."""
     per_path = []
     for path in paths:
         rec: dict[str, Any] = {"metapath": metapath_name(path), "steps": [list(s) for s in path]}
+        hub = complete_gp_hub(data, path) if closed_form else None
+        rec.update(gp_complete=(hub is not None) if closed_form else None, hub=hub)
+        if hub is not None:
+            rec.update(edges=x.size(0) ** 2, value=complete_mde(x), code_path="closed form (H2b: complete G_P)")
+            per_path.append(rec)
+            continue
         whole = gp_edges_capped(data, path, 2 ** 62 if both else max_reference_edges)
         if whole is not None:
             rec["edges"] = int(whole.size(1))
@@ -519,28 +621,65 @@ def labeled_only_metapath_data(data: Any, path: list[EdgeType], target: str, kee
     return out
 
 
+def _per_path_calc(data: Any, target: str, paths: list[list[EdgeType]], hubs: list[int | None],
+                   labels: torch.Tensor, seed: int) -> list[dict[str, Any]]:
+    """H2b: `calcHomophily`'s per-meta-path results, in its order, with the closed form on a meta-path whose `G_P`
+    is complete (`hubs[i]` not None) and `calcHomophily` unchanged on a two-type graph holding only that meta-path
+    elsewhere (`labeled_only_metapath_data` with every target kept: the same two adjacencies, the same labels and
+    the same fill seed). Each fill is checked equal to `fill_like_h2gb`."""
+    filled = fill_like_h2gb(labels, seed)
+    everyone = torch.ones(labels.size(0), dtype=torch.bool)
+    rows = []
+    for path, hub in zip(paths, hubs):
+        if hub is not None:
+            rows.append({**complete_calc_row(path, filled), "gp_complete": True, "hub": hub})
+            continue
+        got, used, _ = calc_homophily(labeled_only_metapath_data(data, path, target, everyone), "tgt", labels, seed)
+        if not torch.equal(used, filled):
+            raise AssertionError("calcHomophily's fill differs from fill_like_h2gb")
+        rows.extend({**r, "metapath": metapath_name(path), "edge_types": [list(s) for s in path],
+                     "gp_complete": False, "hub": None} for r in got)
+    return rows
+
+
 def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int] = FILL_SEEDS,
-               labeled_only: bool = True) -> dict[str, Any]:
+               labeled_only: bool = True, closed_form: bool = True) -> dict[str, Any]:
     """ℋ² (spec §1): per label problem (IMDB: per genre) and fill seed, `calcHomophily` on the whole graph;
     ℋ² = 1 − mean over its meta-paths of the adjusted homophily (multilabel: mean over genres). The fill
     `calcHomophily` applied is checked equal to `fill_like_h2gb`. Labeled-only diagnostic when targets are
-    unlabeled: `calcHomophily` per enumerated meta-path on `labeled_only_metapath_data` (no fill needed)."""
+    unlabeled: `calcHomophily` per enumerated meta-path on `labeled_only_metapath_data` (no fill needed).
+    H2b (`closed_form`): when some meta-path's `G_P` is complete (a hub), every meta-path is computed on its own
+    (`_per_path_calc`): the closed form there, `calcHomophily` unchanged elsewhere; with no hub, the single
+    whole-graph call as before."""
     problems = label_tasks(y, fill_seeds)
     keep = labeled_mask(y)
     per_problem: dict[str, Any] = {}
     enumerated: list[list[EdgeType]] = []
+    hubs: list[int | None] = []
+    if closed_form:
+        enumerated = h2gb_metapaths(data.edge_types, target)
+        hubs = [complete_gp_hub(data, path) for path in enumerated]
+    split = any(h is not None for h in hubs)
     for p in problems:
         runs = []
         for seed in p["seeds"]:
-            rows, used, enumerated = calc_homophily(data, target, p["labels"], seed)
-            if not torch.equal(used, fill_like_h2gb(p["labels"], seed)):
-                raise AssertionError("calcHomophily's fill differs from fill_like_h2gb")
+            if split:
+                rows = _per_path_calc(data, target, enumerated, hubs, p["labels"], seed)
+            else:
+                rows, used, enumerated = calc_homophily(data, target, p["labels"], seed)
+                if not torch.equal(used, fill_like_h2gb(p["labels"], seed)):
+                    raise AssertionError("calcHomophily's fill differs from fill_like_h2gb")
             runs.append({"seed": seed, "per_metapath": rows,
                          "h2": None if not rows else 1 - sum(r["h_adj"] for r in rows) / len(rows)})
         lab = None
         if labeled_only and not bool(keep.all()):
             lab_rows = []
-            for path in enumerated:
+            for i, path in enumerate(enumerated):
+                if split and hubs[i] is not None:
+                    row = complete_calc_row(path, p["labels"][keep])
+                    lab_rows.append({"metapath": metapath_name(path), "h_adj": row["h_adj"],
+                                     "h_edge": row["h_edge"], "gp_complete": True, "hub": hubs[i]})
+                    continue
                 mini = labeled_only_metapath_data(data, path, target, keep)
                 rows, _, _ = calc_homophily(mini, "tgt", p["labels"][keep], seed=0)
                 lab_rows.append({"metapath": metapath_name(path),
@@ -556,6 +695,10 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
         "homophily", "value_over_fill_seeds": over_seeds,
         "spread": None if len(over_seeds) < 2 else [min(over_seeds), max(over_seeds)],
         "h2gb_metapaths": [metapath_name(m) for m in enumerated], "per_problem": per_problem,
+        "h2b": None if not closed_form else {
+            "complete_gp": {metapath_name(m): h for m, h in zip(enumerated, hubs) if h is not None},
+            "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)" if split
+            else "single whole-graph calcHomophily call (no complete G_P)"},
         "labeled_targets": int(keep.sum()), "targets": int(keep.numel()),
     }
     if labeled_only and not bool(keep.all()):

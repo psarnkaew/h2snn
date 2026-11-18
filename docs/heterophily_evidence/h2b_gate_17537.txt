@@ -1,0 +1,41 @@
+job=17537 node=g2tn01 start=2026-11-18T09:22:53+09:00
+git=b472c30b182feed28119f7c7ce0fa272ff282071 branch=heterophily
+status:  M scripts/heterophily_stats.py
+status:  M src/analysis/heterophily.py
+status:  M tests/test_heterophily_harness.py
+=== 1. harness tests (H0 + gate H2b-eq)
+test_chunked_label_homophily_equals_one_call (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_label_homophily_equals_one_call) ... ok
+test_chunked_mde_equals_the_reference_function (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function) ... ok
+test_measures_take_the_chunked_path_above_the_threshold (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_measures_take_the_chunked_path_above_the_threshold) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+ok
+test_gc_type_mixing_hand_value (tests.test_heterophily_harness.GraphTests.test_gc_type_mixing_hand_value) ... ok
+test_symmetrise_adds_only_missing_reverses (tests.test_heterophily_harness.GraphTests.test_symmetrise_adds_only_missing_reverses) ... ok
+test_a_graph_without_a_hub_is_refused (tests.test_heterophily_harness.H2bClosedFormTests.test_a_graph_without_a_hub_is_refused) ... ok
+test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) ... ok
+test_closed_form_equals_the_reference_on_multilabel_exact_match (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_on_multilabel_exact_match) ... ok
+test_fill_replica_equals_calc_homophily_in_place_fill (tests.test_heterophily_harness.HandGraphTests.test_fill_replica_equals_calc_homophily_in_place_fill) ... ok
+test_gp_is_the_support_of_the_product_with_self_pairs (tests.test_heterophily_harness.HandGraphTests.test_gp_is_the_support_of_the_product_with_self_pairs) ... ok
+test_labeled_only_graph_keeps_intermediate_targets (tests.test_heterophily_harness.HandGraphTests.test_labeled_only_graph_keeps_intermediate_targets) ... ok
+test_mlh_h2_mde_equal_the_hand_values (tests.test_heterophily_harness.HandGraphTests.test_mlh_h2_mde_equal_the_hand_values) ... ok
+test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value (tests.test_heterophily_harness.HandGraphTests.test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value) ... ok
+test_acm_uses_the_predefined_list_even_when_the_schema_offers_more (tests.test_heterophily_harness.MetapathSetTests.test_acm_uses_the_predefined_list_even_when_the_schema_offers_more) ... ok
+test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once (tests.test_heterophily_harness.MetapathSetTests.test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once) ... ok
+test_h2gb_rule_includes_a_same_type_relation (tests.test_heterophily_harness.MetapathSetTests.test_h2gb_rule_includes_a_same_type_relation) ... ok
+test_lists_resolve_on_the_loader_schemas (tests.test_heterophily_harness.MetapathSetTests.test_lists_resolve_on_the_loader_schemas) ... ok
+test_imdb_per_genre_binary_then_mean_and_exact_match_separate (tests.test_heterophily_harness.MultilabelTests.test_imdb_per_genre_binary_then_mean_and_exact_match_separate) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.114s
+
+OK
+=== 2. self-pair mutations (copy in /tmp; target: the gate test)
+MUTATION M3a: label closed form without self-pairs (n(n-1) pairs): KILLED (gate failed)
+FAIL: test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) (n=7)
+AssertionError: 0.09523809949556988 not less than or equal to 4.285714328289032e-06 : 0.3333333333333333 vs 0.4285714328289032
+FAIL: test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) (n=37)
+MUTATION M3b: MDE closed form without self-pairs (degree n-1, n(n-1) pairs): KILLED (gate failed)
+FAIL: test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) (n=7)
+AssertionError: 0.10646382384256264 not less than or equal to 2.948229312896729e-06 : 0.4012867551322355 vs 0.29482293128967285
+FAIL: test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) (n=37)
+end=2026-11-18T09:23:10+09:00 tests=0

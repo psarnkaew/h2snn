@@ -1,0 +1,9 @@
+oag-cs nc hubs
+oag-eng nc hubs
+oag-chem nc hubs
+ogbn-mag nc hubs
+mag-year nc hubs
+h-pokec nc hubs
+ieee-cis-g nc hubs
+pdns nc hubs
+ogbn-mag_pp lp hubs

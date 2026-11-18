@@ -6,7 +6,7 @@
 Measures: `h2` (ℋ², H2GB calcHomophily), `mlh` (Hetero²Net label_homophily on M₂), `mde` (Hetero²Net
 attribute_homophily on M₂; HGB NC: reference and chunked values both, gate H0-eq), `task_h_edge` (LP target relation),
 `gc_types` (GC type counts and type-mixing ratio), `plan` (path-instance counts per meta-path: the size bound of each
-`G_P`, no measure). One JSON record per call in `--out-dir/records/`: value(s), per-meta-path values, per-genre
+`G_P`, no measure), `hubs` (H2b: the hub of every meta-path, or none). One JSON record per call in `--out-dir/records/`: value(s), per-meta-path values, per-genre
 values (IMDB), fill seeds and spread, labeled-only value, `M₂` used, code path and vendor commits, harness commit,
 loader file:line, what symmetrisation did, peak host memory, wall time, job id and node. A value that cannot be
 computed within the job's limits is written as `"value": null` with the reason (card, author 2026-11-17).
@@ -138,6 +138,15 @@ def plan_counts(data: Any, target: str, list_key: str | None) -> dict[str, Any]:
     return out
 
 
+def hub_survey(data: Any, target: str, list_key: str | None) -> dict[str, Any]:
+    """H2b: the hub (or None) of every meta-path of both sets: a hub makes `G_P` complete (closed form)."""
+    paths, note = het.hetero2net_m2(list_key, data.edge_types, target)
+    return {"hetero2net_source": note,
+            "hetero2net": {het.metapath_name(p): het.complete_gp_hub(data, p) for p in paths},
+            "h2gb": {het.metapath_name(p): het.complete_gp_hub(data, p)
+                     for p in het.h2gb_metapaths(data.edge_types, target)}}
+
+
 def run(args: argparse.Namespace, record: dict[str, Any]) -> None:
     data_root = Path(args.data_root)
     measure, task, dataset = args.measure, args.task, args.dataset
@@ -186,7 +195,7 @@ def run(args: argparse.Namespace, record: dict[str, Any]) -> None:
     record["graph"] = graph_summary(sym)
 
     if task == "lp":
-        if measure != "mde":
+        if measure not in ("mde", "hubs"):
             record.update(value=None, reason="LP: label measures are the task-level H_edge only (card scope)")
             return
         key, list_target = (LP_LOCAL | LP_LARGE)[dataset]
@@ -197,11 +206,15 @@ def run(args: argparse.Namespace, record: dict[str, Any]) -> None:
             if x is None:
                 record["per_endpoint_type"][t] = {"value": None, "reason": "features removed (F17) or absent"}
                 continue
+            if measure == "hubs":
+                record["per_endpoint_type"][t] = {"value": None,
+                                                  "hubs": hub_survey(sym, t, key if t == list_target else None)}
+                continue
             paths, note = het.hetero2net_m2(key if t == list_target else None, sym.edge_types, t)
             rec = het.mde_measure(sym, t, paths, x.float())
             rec.update(m2=[het.metapath_name(p) for p in paths], m2_source=note)
             record["per_endpoint_type"][t] = rec
-        vals = {t: r["value"] for t, r in record["per_endpoint_type"].items()}
+        vals = None if measure == "hubs" else {t: r["value"] for t, r in record["per_endpoint_type"].items()}
         record["value"] = vals
         return
 
@@ -209,6 +222,9 @@ def run(args: argparse.Namespace, record: dict[str, Any]) -> None:
     record["target"] = target
     if measure == "plan":
         record.update(value=None, plan=plan_counts(sym, target, list_key))
+        return
+    if measure == "hubs":
+        record.update(value=None, hubs=hub_survey(sym, target, list_key))
         return
     if measure == "h2":
         record.update(het.h2_measure(sym, target, y, seeds))
@@ -265,7 +281,18 @@ def _cell(rec: dict[str, Any] | None, digits: int = 4) -> str:
         text += f" [{_fmt(rec['spread'][0], digits)}, {_fmt(rec['spread'][1], digits)}]"
     if rec.get("labeled_only") is not None:
         text += f"; lab. {_fmt(rec['labeled_only'], digits)}"
+    complete, total = _h2b_count(rec)
+    if complete:
+        text += f" (H2b closed form on {complete}/{total} G_P)"
     return text
+
+
+def _h2b_count(rec: dict[str, Any]) -> tuple[int, int]:
+    """Meta-paths computed by the H2b closed form (complete `G_P`) and all meta-paths of a record."""
+    if rec.get("h2b"):
+        return len(rec["h2b"]["complete_gp"]), len(rec.get("h2gb_metapaths", []))
+    rows = rec.get("per_metapath") or []
+    return sum(1 for r in rows if r.get("gp_complete")), len(rows)
 
 
 def _cost(rec: dict[str, Any] | None) -> str:
@@ -325,7 +352,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dataset")
     parser.add_argument("--task", choices=["nc", "lp", "gc"])
-    parser.add_argument("--measure", choices=["h2", "mlh", "mde", "task_h_edge", "gc_types", "plan"])
+    parser.add_argument("--measure", choices=["h2", "mlh", "mde", "task_h_edge", "gc_types", "plan", "hubs"])
     parser.add_argument("--data-root", default=str(REPO_DATA_ROOT))
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--fill-seeds", type=int, nargs="+", default=list(het.FILL_SEEDS))
@@ -345,11 +372,14 @@ def main(argv: list[str] | None = None) -> int:
         "harness_commit": git_head(), "job": os.environ.get("SLURM_JOB_ID"), "node": socket.gethostname(),
         "threads": torch.get_num_threads(),
         "vendor_commits": {"hetero2net": het.vendor_commit("hetero2net"), "h2gb": het.vendor_commit("h2gb")},
-        "code": {"h2": "H2GB/calcHomophily.py calcHomophily", "mlh": "hetero2net/homophily.py label_homophily",
-                 "mde": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+        "code": {"h2": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P)",
+                 "mlh": "hetero2net/homophily.py label_homophily (H2b: closed form on a complete G_P)",
+                 "mde": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed "
+                        "form on a complete G_P)",
                  "task_h_edge": "hetero2net/homophily.py label_homophily",
                  "gc_types": "src/analysis/heterophily.py gc_type_statistics",
-                 "plan": "src/analysis/heterophily.py (instance counts)"}[args.measure],
+                 "plan": "src/analysis/heterophily.py (instance counts)",
+                 "hubs": "src/analysis/heterophily.py complete_gp_hub (H2b)"}[args.measure],
     }
     signal.signal(signal.SIGALRM, _alarm)
     signal.alarm(int(args.deadline_h * 3600))

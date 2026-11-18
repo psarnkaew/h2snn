@@ -266,5 +266,120 @@ class GraphTests(unittest.TestCase):
         self.assertNotIn(("b", "rev_x", "a"), out.edge_types)
 
 
+PFP = [[("paper", "field"), ("field", "paper")]]
+
+
+def field_graph(n: int, n_fields: int, seed: int, hub: bool, d: int = 5, classes: int = 3,
+                unlabeled: float = 0.3) -> HeteroData:
+    """Papers with labels (a `-1` part) and d-dim features; each paper has 1-3 random fields; with `hub`, field 0 is
+    linked to every paper (so paper-field-paper is complete); a sparse same-type `cites` relation (no hub) gives
+    H2GB a second meta-path that stays on calcHomophily."""
+    g = torch.Generator().manual_seed(seed)
+    data = HeteroData()
+    data["paper"].num_nodes = n
+    data["paper"].x = torch.randn(n, d, generator=g) + torch.arange(d, dtype=torch.float32)
+    y = torch.arange(n) % classes
+    y = y[torch.randperm(n, generator=g)]
+    y[torch.rand(n, generator=g) < unlabeled] = -1
+    y[:classes] = torch.arange(classes)  # every class present among labeled papers
+    data["paper"].y = y
+    data["field"].num_nodes = n_fields
+    papers = torch.arange(n).repeat_interleave(3)
+    fields = torch.randint(1, n_fields, (3 * n,), generator=g)
+    keep = torch.rand(3 * n, generator=g) < 0.7
+    keep[::3] = True
+    has = torch.stack([papers[keep], fields[keep]])
+    if hub:
+        has = torch.cat([has, torch.stack([torch.arange(n), torch.zeros(n, dtype=torch.long)])], dim=1)
+    data["paper", "has", "field"].edge_index = has
+    data["field", "rev_has", "paper"].edge_index = has.flip(0)
+    data["paper", "cites", "paper"].edge_index = torch.randint(0, n, (2, 2 * n), generator=g)
+    return data
+
+
+class H2bClosedFormTests(unittest.TestCase):
+    """Gate H2b-eq (card 6 H2b): on graphs with a hub, the closed form equals the reference functions called
+    unchanged (`label_homophily`, `attribute_homophily`, all three values of `calcHomophily`) to rtol 1e-5; a graph
+    without a hub is refused (reference path)."""
+
+    def assertClose(self, got: float, want: float, rtol: float = 1e-5, atol: float = 0.0) -> None:
+        self.assertLessEqual(abs(got - want), atol + rtol * abs(want), f"{got} vs {want}")
+
+    def test_closed_form_equals_the_reference_functions(self) -> None:
+        for n, n_fields, seed in ((7, 3, 0), (37, 6, 1), (150, 20, 2)):
+            with self.subTest(n=n):
+                data = field_graph(n, n_fields, seed, hub=True)
+                y, x = data["paper"].y, data["paper"].x
+                self.assertEqual(het.complete_gp_hub(data, PFP[0]), 0)
+                fast = het.mlh_measure(data, "paper", PFP, y)
+                ref = het.mlh_measure(data, "paper", PFP, y, closed_form=False)
+                self.assertTrue(fast["per_metapath"][0]["gp_complete"])
+                self.assertEqual(fast["per_metapath"][0]["hub"], 0)
+                self.assertEqual(ref["per_metapath"][0]["edges"], n * n)
+                self.assertEqual(fast["per_metapath"][0]["edges"], n * n)
+                for key, want in ref["per_metapath"][0]["h_edge_homophily"].items():
+                    self.assertClose(fast["per_metapath"][0]["h_edge_homophily"][key], want)
+                for a, b in zip(fast["value_over_fill_seeds"], ref["value_over_fill_seeds"]):
+                    self.assertClose(a, b)
+                self.assertClose(fast["labeled_only"], ref["labeled_only"])
+                mde_fast = het.mde_measure(data, "paper", PFP, x)
+                mde_ref = het.mde_measure(data, "paper", PFP, x, closed_form=False)
+                self.assertEqual(mde_ref["per_metapath"][0]["code_path"], "hetero2net.attribute_homophily (reference)")
+                self.assertTrue(mde_fast["per_metapath"][0]["gp_complete"])
+                self.assertClose(mde_fast["value"], mde_ref["value"])
+                h2_fast = het.h2_measure(data, "paper", y)
+                h2_ref = het.h2_measure(data, "paper", y, closed_form=False)
+                self.assertEqual(h2_fast["h2b"]["complete_gp"], {"paper-has-field-rev_has-paper": 0})
+                runs_f, runs_r = h2_fast["per_problem"]["label"]["runs"], h2_ref["per_problem"]["label"]["runs"]
+                self.assertEqual(len(runs_f), 5)
+                for rf, rr in zip(runs_f, runs_r):
+                    self.assertEqual([r["metapath"] for r in rf["per_metapath"]],
+                                     [r["metapath"] for r in rr["per_metapath"]])
+                    self.assertEqual(len(rf["per_metapath"]), 2)
+                    for a, b in zip(rf["per_metapath"], rr["per_metapath"]):
+                        self.assertClose(a["h_edge"], b["h_edge"])
+                        self.assertClose(a["h_insensitive"], b["h_insensitive"], atol=1e-6)
+                        self.assertClose(a["h_adj"], b["h_adj"], atol=1e-6)
+                    self.assertClose(rf["h2"], rr["h2"], atol=1e-6)
+                lab_f = h2_fast["per_problem"]["label"]["labeled_only"]["per_metapath"]
+                lab_r = h2_ref["per_problem"]["label"]["labeled_only"]["per_metapath"]
+                for a, b in zip(lab_f, lab_r):
+                    self.assertClose(a["h_edge"], b["h_edge"])
+                    self.assertClose(a["h_adj"], b["h_adj"], atol=1e-6)
+
+    def test_closed_form_equals_the_reference_on_multilabel_exact_match(self) -> None:
+        data = field_graph(37, 6, 3, hub=True)
+        g = torch.Generator().manual_seed(4)
+        y = (torch.rand(37, 3, generator=g) < 0.4).long()
+        fast = het.mlh_measure(data, "paper", PFP, y)
+        ref = het.mlh_measure(data, "paper", PFP, y, closed_form=False)
+        self.assertClose(fast["value"], ref["value"])
+        self.assertClose(fast["reproduction_exact_match"]["homophily"], ref["reproduction_exact_match"]["homophily"])
+
+    def test_a_graph_without_a_hub_is_refused(self) -> None:
+        # every paper pair shares a field (G_P complete), but no single field reaches every paper
+        data = HeteroData()
+        data["paper"].num_nodes = 4
+        data["paper"].x = torch.randn(4, 3)
+        data["paper"].y = torch.tensor([0, 1, 0, 1])
+        data["field"].num_nodes = 3
+        has = torch.tensor([[0, 1, 2, 1, 2, 3, 0, 3], [0, 0, 0, 1, 1, 1, 2, 2]])
+        data["paper", "has", "field"].edge_index = has
+        data["field", "rev_has", "paper"].edge_index = has.flip(0)
+        self.assertEqual(het.gp_edge_index(data, PFP[0]).size(1), 16)
+        self.assertIsNone(het.complete_gp_hub(data, PFP[0]))
+        rec = het.mlh_measure(data, "paper", PFP, data["paper"].y)["per_metapath"][0]
+        self.assertFalse(rec["gp_complete"])
+        self.assertNotIn("closed form", rec["mode"])
+        mde = het.mde_measure(data, "paper", PFP, data["paper"].x)["per_metapath"][0]
+        self.assertEqual(mde["code_path"], "hetero2net.attribute_homophily (reference)")
+        self.assertEqual(het.h2_measure(data, "paper", data["paper"].y)["h2b"]["complete_gp"], {})
+        # a field linked to every paper on the first step but not on the second is not a hub
+        one_way = field_graph(10, 3, 5, hub=True)
+        back = one_way["field", "rev_has", "paper"].edge_index
+        one_way["field", "rev_has", "paper"].edge_index = back[:, ~((back[0] == 0) & (back[1] == 9))]
+        self.assertIsNone(het.complete_gp_hub(one_way, PFP[0]))
+
+
 if __name__ == "__main__":
     unittest.main()
