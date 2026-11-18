@@ -1,6 +1,6 @@
 # Spec v1.25 — draft edits (part Z: relational context `c` removed; restriction maps → TD-1), for the author's approval
 
-**Status:** DRAFT (Z-1–Z-9: `c` removed; Z-10–Z-19: maps → TD-1, m = 4). Decision: `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Relational context `c` removed" (author). The other pending 1.25 items (B1a, B2a, OOM range rule 1, §1 GC heterophily line) are drafted with card 5 and are added to this file then; part Z is independent of them.
+**Status:** APPROVED by the author and APPLIED (2026-11-18; spec v1.25). (Z-1–Z-9: `c` removed; Z-10–Z-19: maps → TD-1, m = 4). Decision: `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Relational context `c` removed" (author). The other pending 1.25 items (B1a, B2a, OOM range rule 1, §1 GC heterophily line) are drafted with card 5 and are added to this file then; part Z is independent of them.
 
 **Scope:** spec v1.24 (`docs/H2S-NN_methodology_spec.md`) and the pre-registration that is frozen with it (`docs/ablation_analysis_preregistration_draft.md`). The positioning table (§8, row "Identity of intermediates in geometry … yes (pair-conditioned maps)") needs no edit: it now holds exactly. Change logs of earlier versions are not edited.
 
@@ -117,3 +117,11 @@ Q_e = F_srcᵀ F_tgt / c_e² ∈ SO(d)
 - **Tests:** orthogonality and det +1 of every transport; `C_e = 0` gives `Q_e = R_r`; antisymmetry for `ρ(r) = r` (stored orientation does not matter); closed form `I + U(exp C − I)Uᵀ` vs `torch.matrix_exp` on the d×d matrix; adjoint and inverse identities; Thm 4 construction checked numerically on the operator; gradient check through the 4×4 exp; mutation checks. Golden and mb0 fingerprints change by design (old/new hashes in the report).
 - **Reruns before the freeze (bundled with Z-1–Z-9):** card 4 known-answer (S1′-B, S3, S2′), the card 2 central-point timings (B2a's `N`), `scripts/v3b_cost_smoke.py` cost table (predicted: solve ≈ 0.5×, build ≈ 0.2×, stored geometry 257 → 17 numbers per edge).
 - **Paper:** Eq. (maps) and the sentence after it; Thm 4 statement and its appendix proof; L4′ wording ("SO(d) transports"); variants paragraph (identity maps, direction-blind maps).
+
+---
+
+## Z-20 (found while applying; same decision as Z-1) two stale `c` references
+- §4 L5: **replace** `degrees, relational context and normalisation are the scope's` **with** `degrees and normalisation are the scope's`.
+- §6 WISP settings: **replace** the sentence beginning `Context: C2 runs with `geometry_context: true`` and the following "Appendix pair" sentence **with** `Context: maps and fact weights read `h₀` only (1.25 Z1) and `g` reads `h₀` only (1.4, R12) in every arm, so `endpoints` sees no intermediate through `g`.`
+
+**Applied 2026-11-18** (author approval of Z-1–Z-19 the same day): spec v1.24 → v1.25 (backup `docs/spec_backups/H2S-NN_methodology_spec_v1.24.md`); pre-registration edits Z-9 and Z-19 applied to `docs/ablation_analysis_preregistration_draft.md`. Card-5 items move to 1.26.
