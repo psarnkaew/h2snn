@@ -1,0 +1,12 @@
+label=m3b job=17692 node=g2tn01 start=2026-11-18T18:35:29+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m3b head=1c47c9a1b9fb56f494016d7f7124845d6cb343b4 diff_sha256=14c61685ff525202 untracked=10 snapshot_at=2026-11-18T18:35:27+09:00
+git=1c47c9a1b9fb56f494016d7f7124845d6cb343b4 branch=model-td1
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+............
+----------------------------------------------------------------------
+Ran 13 tests in 5.098s
+
+OK
+exit=0 end=2026-11-18T18:35:37+09:00

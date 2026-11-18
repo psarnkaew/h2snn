@@ -14,6 +14,8 @@ ln -s "${WT}/H2S-NN/vendor" "${SNAP}/H2S-NN/vendor"
 ln -s "${WT}/H2S-NN/data" "${SNAP}/H2S-NN/data"
 mkdir -p "${SNAP}/H2S-NN/logs"
 rsync -a --exclude '__pycache__' "${WT}/docs/" "${SNAP}/docs/"
+# the worktree's gitdir pointer, so `git rev-parse HEAD` inside the snapshot reports the branch head
+cp "${WT}/.git" "${SNAP}/.git"
 ( cd "${WT}" && echo "head=$(git rev-parse HEAD) diff_sha256=$(git diff HEAD -- . ':!docs/model_change_td1_evidence' | sha256sum | cut -c1-16) untracked=$(git status --short | grep -c '^??' || true) snapshot_at=$(date -Is)" ) > "${SNAP}/SNAPSHOT.txt"
 cat "${SNAP}/SNAPSHOT.txt"
 SNAP="${SNAP}" sbatch --export=ALL,SNAP="${SNAP}" "${JOB}" "$@"
