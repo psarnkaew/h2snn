@@ -187,7 +187,7 @@ Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `
 
 ---
 
-# Part Z (continued 3): bounded cell weights (Z-35 – Z-38) — DRAFT, awaiting approval with the card review
+# Part Z (continued 3): bounded cell weights (Z-35 – Z-38) — APPROVED and APPLIED 2026-11-18
 
 **Decision:** `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Model change: `R_r` init, H2GB timing, bounded `g`" (author, option c1).
 
@@ -205,3 +205,5 @@ Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `
 ## Z-38 §6 failed trials and OPEN-5
 - **Replace** `(`T_max`, `τ > 50`, log-weight range > 30, non-finite `g`)` **with** `(`T_max`, `τ > 50`, log-weight range > 30 (unreachable since 1.25), non-finite `g`)`.
 - OPEN-5: **replace** `τ`'s initialisation and the map rank `m` (= 4, 1.25) are never in a search space` **with** `τ`'s initialisation, the map rank `m` (= 4, 1.25) and the weight bound `L` (= 10, 1.25) are never in a search space`.
+
+**Applied 2026-11-18** (author approval of Z-35–Z-38 with the card review): spec v1.25 now includes Z4 (change line range Z-1–Z-38).
