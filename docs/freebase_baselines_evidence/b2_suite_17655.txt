@@ -1,0 +1,71 @@
+unit=b2_full_suite job=17655 node=g2n01 start=2026-11-18T12:30:05+09:00
+git=29ec0196159783550dd106659f96dd9cb11b2d21 branch=freebase-baselines
+0fd41e0bd434c5d0f0c1f1bcada2cc52d11e14f6055c716d145d65d05e900b74  src/baselines/adapters/_hgb_generic.py
+3b48e1e74230e56b5cdd17a33e7b6e3b5c1c034bd2c141d424d06da30292d176  src/baselines/adapters/pshgcn.py
+99c9e579a57626eeb519f7b0c956ce921bcc14ef0e4aa07f0950e6b84a6d86bd  src/baselines/adapters/h2sgnn.py
+67c43c1ef265264c8e0b3149083ead67ea8536dbdf0485bc3d3234882a28d4ea  src/baselines/adapters/sehgnn.py
+3e525a8690f28ee6bf28411ff94b3bf532715c20a832167b3b8aa3fd70aa384b  src/baselines/registry.py
+68769d92cc246b6fc131801ba9bbaff1dd7d832873c334e7ecfc8d8c83850790  src/baselines/minibatch.py
+cpu_capability AVX2 MKL_CBWR AVX2
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB, 1 MiB
+AssertionError: False is not true : h2sgnn runs on mag-year without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='oag-cs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on oag-cs without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='oag-eng')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on oag-eng without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='oag-chem')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on oag-chem without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='ieee-cis-g')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on ieee-cis-g without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='h-pokec')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on h-pokec without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='node_classification', dataset='pdns')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on pdns without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='link_prediction', dataset='ogbn-mag_pp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on ogbn-mag_pp without reading batch_plan
+======================================================================
+FAIL: test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) (model='h2sgnn', task='link_prediction', dataset='h-pokec_uu')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_budget_table.py", line 81, in test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not
+    self.assertTrue(getattr(module, "READS_BATCH_PLAN", False),
+AssertionError: False is not true : h2sgnn runs on h-pokec_uu without reading batch_plan
+----------------------------------------------------------------------
+Ran 750 tests in 2051.686s
+FAILED (failures=10)
+tests_exit=1 end=2026-11-18T13:04:23+09:00

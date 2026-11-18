@@ -1,0 +1,80 @@
+job=17611 node=g3n01 git=d37abbbebfe46a6fb346e8791ff9547674b62269 start=2026-11-18T11:44:54+09:00
+ M notebooks/baselines/link_prediction_core.ipynb
+ M notebooks/baselines/link_prediction_dgl.ipynb
+ M src/baselines/adapters/h2sgnn.py
+ M src/baselines/adapters/pshgcn.py
+ M src/baselines/adapters/sehgnn.py
+ M src/baselines/registry.py
+ M tests/test_baselines.py
+ M tests/test_baselines_large_lp.py
+ M tests/test_partP_freebase.py
+ M ../docs/freebase_baselines_evidence/b0_preconditions.md
+0fd41e0bd434c5d0f0c1f1bcada2cc52d11e14f6055c716d145d65d05e900b74  src/baselines/adapters/_hgb_generic.py
+3b48e1e74230e56b5cdd17a33e7b6e3b5c1c034bd2c141d424d06da30292d176  src/baselines/adapters/pshgcn.py
+99c9e579a57626eeb519f7b0c956ce921bcc14ef0e4aa07f0950e6b84a6d86bd  src/baselines/adapters/h2sgnn.py
+67c43c1ef265264c8e0b3149083ead67ea8536dbdf0485bc3d3234882a28d4ea  src/baselines/adapters/sehgnn.py
+3e525a8690f28ee6bf28411ff94b3bf532715c20a832167b3b8aa3fd70aa384b  src/baselines/registry.py
+0b23423b5a8c2dab8fb9fa03013aac547f17132d759259ae94a74bde384765c8  tests/test_freebase_baselines.py
+compiled
+13 notebooks match the generator.
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+Using sheaf learner: type_concat
+.2026-11-18 11:50:24,896 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'book__and__book': None, 'book__to__film': None, 'book__on__sports': None, 'book__on__location': None, 'book__about__organization': None, 'film__and__film': None, 'music__in__book': None, 'music__in__film': None, 'music__and__music': None, 'music__for__sports': None, 'music__on__location': None, 'sports__in__film': None, 'sports__and__sports': 'sports__and__sports', 'sports__on__location': None, 'people__to__book': None, 'people__to__film': None, 'people__to__music': None, 'people__to__sports': None, 'people__and__people': None, 'people__on__location': None, 'people__in__organization': None, 'people__in__business': None, 'location__in__film': None, 'location__and__location': None, 'organization__in__film': None, 'organization__to__music': None, 'organization__to__sports': None, 'organization__on__location': None, 'organization__and__organization': 'organization__and__organization', 'organization__for__business': None, 'business__about__book': None, 'business__about__film': None, 'business__about__music': None, 'business__about__sports': None, 'business__on__location': None, 'business__and__business': 'business__and__business'}, 'kept_relations': ['book__and__book', 'book__to__film', 'book__on__sports', 'book__on__location', 'book__about__organization', 'film__and__film', 'music__in__book', 'music__in__film', 'music__and__music', 'music__for__sports', 'music__on__location', 'sports__in__film', 'sports__and__sports', 'sports__on__location', 'people__to__book', 'people__to__film', 'people__to__music', 'people__to__sports', 'people__and__people', 'people__on__location', 'people__in__organization', 'people__in__business', 'location__in__film', 'location__and__location', 'organization__in__film', 'organization__to__music', 'organization__to__sports', 'organization__on__location', 'organization__and__organization', 'organization__for__business', 'business__about__book', 'business__about__film', 'business__about__music', 'business__about__sports', 'business__on__location', 'business__and__business'], 'self_inverse_relations': ['sports__and__sports', 'organization__and__organization', 'business__and__business'], 'unmatched_edges': {'book__and__book': 30, 'book__to__film': 30, 'book__on__sports': 30, 'book__on__location': 30, 'book__about__organization': 30, 'film__and__film': 30, 'music__in__book': 30, 'music__in__film': 30, 'music__and__music': 30, 'music__for__sports': 30, 'music__on__location': 30, 'sports__in__film': 30, 'sports__and__sports': 0, 'sports__on__location': 30, 'people__to__book': 30, 'people__to__film': 30, 'people__to__music': 30, 'people__to__sports': 30, 'people__and__people': 30, 'people__on__location': 30, 'people__in__organization': 30, 'people__in__business': 30, 'location__in__film': 30, 'location__and__location': 30, 'organization__in__film': 30, 'organization__to__music': 30, 'organization__to__sports': 30, 'organization__on__location': 30, 'organization__and__organization': 0, 'organization__for__business': 30, 'business__about__book': 30, 'business__about__film': 30, 'business__about__music': 30, 'business__about__sports': 30, 'business__on__location': 30, 'business__and__business': 0}, 'facts_before': 1080, 'facts_after': 1035}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 11:50:25,258 | INFO | Epoch 0000 | train_loss: 1.9380 | train_acc: 0.1000 | train_auroc: 0.0000 | train_macro_f1: 0.0417 | train_micro_f1: 0.1000 | val_loss: 2.4042 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.1765 | test_auroc: 0.0000 | test_macro_f1: 0.0996 | test_micro_f1: 0.1765
+2026-11-18 11:50:25,264 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-18 11:50:25,264 | INFO | Best epoch 0 | test_macro_f1: 0.0996 | test_micro_f1: 0.1765 | test_acc: 0.1765
+/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+.WARNING:root:Layers after message passing should be >=1
+Using sheaf learner: type_concat
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/src/baselines/large_lp_training.py:60: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  return batch, torch.searchsorted(nodes, links)
+......................................................................................WARNING:root:Layers after message passing should be >=1
+/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/vendor/H2GB/H2GB/loader/encoding_generator.py:571: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  emb = torch.load(embedding_path, map_location='cpu')
+.WARNING:root:Layers after message passing should be >=1
+WARNING:root:Layers after message passing should be >=1
+.WARNING:root:Layers after message passing should be >=1
+........./mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/src/baselines/adapters/_hetero2net_h2gb.py:57: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  return torch.load(io.BytesIO(archive.read(name)), map_location="cpu")
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+[coverage] 275/275 runnable cells have an adapter; no adapter yet: none
+Preparing MetaPath2Vec encoding for dataset ogbn-mag using pre-defined metapath [('author', 'writes', 'paper'), ('paper', 'has_topic', 'field_of_study'), ('field_of_study', 'rev_has_topic', 'paper'), ('paper', 'rev_writes', 'author'), ('author', 'affiliated_with', 'institution'), ('institution', 'rev_affiliated_with', 'author'), ('author', 'writes', 'paper'), ('paper', 'cites', 'paper'), ('paper', 'rev_writes', 'author')].
+Epoch: 1, Accuracy: 0.2778
+Epoch: 2, Accuracy: 0.5926
+Epoch: 3, Accuracy: 0.3889
+Epoch: 4, Accuracy: 0.4074
+Epoch: 5, Accuracy: 0.4259
+0it [00:00, ?it/s]1it [00:00, 53.66it/s]
+../mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+0it [00:00, ?it/s]1it [00:00, 92.23it/s]
+.......
+======================================================================
+ERROR: setUpClass (tests.test_freebase_baselines.EquivalenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_freebase_baselines.py", line 95, in setUpClass
+    cls.folder = _write_acm_shaped_release(cls.root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_freebase_baselines.py", line 30, in _write_acm_shaped_release
+    folder = hgb_raw_dir("acm", root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/src/baselines/bundles.py", line 99, in hgb_raw_dir
+    raise FileNotFoundError(f"Raw HGB directory for {dataset!r} is missing: {path}")
+FileNotFoundError: Raw HGB directory for 'acm' is missing: /tmp/tmpsa1h9o1a/NC/acm/raw/ACM
+
+----------------------------------------------------------------------
+Ran 124 tests in 769.295s
+
+FAILED (errors=1)
+end=2026-11-18T11:57:49+09:00

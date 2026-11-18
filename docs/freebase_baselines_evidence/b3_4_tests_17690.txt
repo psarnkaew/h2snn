@@ -1,0 +1,40 @@
+unit=b3_4 job=17690 node=g2n01 start=2026-11-18T17:51:15+09:00
+git=9ed2f2bfde1aed87485082a5cc67f745adb1a187 branch=freebase-baselines
+ee942d06d3de25a42295109d7595350563d4d78439a22b1a9656870280a3f649  src/baselines/adapters/h2sgnn.py
+debc9b830c3d01287b75be3acd9ad58c1bc7e2c92564b523381d62c6d9377869  src/baselines/adapters/pshgcn.py
+6e094630ce0336d5080e5130b2aa872d6111a46ece089a95f7d74b5129b8c568  src/baselines/minibatch.py
+599d586740eaac115c9b530be24290392726adb41ad980d1ba2fbc983b90a7d7  src/evaluation/validation_subset.py
+6a972c449262bcfc5af12b30d63253fc0f1af65c3f134c1c2af52a9b602856cf  tests/test_freebase_baselines.py
+4eaa2c975338c32cf7b3b9a21a7048e3b3fb7c358f701b9bd64e11518d6f323b  ../docs/freebase_baselines_evidence/b3_mutation.py
+  import torch_geometric.typing
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+  C = torch.sparse.mm(A, B)
+  neighbor_sampler = NeighborSampler(
+.No CUDA runtime is found, using CUDA_HOME='/usr'
+ACM
+[coverage] 274/274 runnable cells have an adapter; no adapter yet: none
+  neighbor_sampler = NeighborSampler(
+WARNING:root:Layers after message passing should be >=1
+Using sheaf learner: type_concat
+  neighbor_sampler = NeighborSampler(
+  return batch, torch.searchsorted(nodes, links)
+.....Processing...
+Done!
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+Using sheaf learner: type_concat
+.2026-11-18 18:07:31,313 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'book__and__book': None, 'book__to__film': None, 'book__on__sports': None, 'book__on__location': None, 'book__about__organization': None, 'film__and__film': None, 'music__in__book': None, 'music__in__film': None, 'music__and__music': None, 'music__for__sports': None, 'music__on__location': None, 'sports__in__film': None, 'sports__and__sports': 'sports__and__sports', 'sports__on__location': None, 'people__to__book': None, 'people__to__film': None, 'people__to__music': None, 'people__to__sports': None, 'people__and__people': None, 'people__on__location': None, 'people__in__organization': None, 'people__in__business': None, 'location__in__film': None, 'location__and__location': None, 'organization__in__film': None, 'organization__to__music': None, 'organization__to__sports': None, 'organization__on__location': None, 'organization__and__organization': 'organization__and__organization', 'organization__for__business': None, 'business__about__book': None, 'business__about__film': None, 'business__about__music': None, 'business__about__sports': None, 'business__on__location': None, 'business__and__business': 'business__and__business'}, 'kept_relations': ['book__and__book', 'book__to__film', 'book__on__sports', 'book__on__location', 'book__about__organization', 'film__and__film', 'music__in__book', 'music__in__film', 'music__and__music', 'music__for__sports', 'music__on__location', 'sports__in__film', 'sports__and__sports', 'sports__on__location', 'people__to__book', 'people__to__film', 'people__to__music', 'people__to__sports', 'people__and__people', 'people__on__location', 'people__in__organization', 'people__in__business', 'location__in__film', 'location__and__location', 'organization__in__film', 'organization__to__music', 'organization__to__sports', 'organization__on__location', 'organization__and__organization', 'organization__for__business', 'business__about__book', 'business__about__film', 'business__about__music', 'business__about__sports', 'business__on__location', 'business__and__business'], 'self_inverse_relations': ['sports__and__sports', 'organization__and__organization', 'business__and__business'], 'unmatched_edges': {'book__and__book': 30, 'book__to__film': 30, 'book__on__sports': 30, 'book__on__location': 30, 'book__about__organization': 30, 'film__and__film': 30, 'music__in__book': 30, 'music__in__film': 30, 'music__and__music': 30, 'music__for__sports': 30, 'music__on__location': 30, 'sports__in__film': 30, 'sports__and__sports': 0, 'sports__on__location': 30, 'people__to__book': 30, 'people__to__film': 30, 'people__to__music': 30, 'people__to__sports': 30, 'people__and__people': 30, 'people__on__location': 30, 'people__in__organization': 30, 'people__in__business': 30, 'location__in__film': 30, 'location__and__location': 30, 'organization__in__film': 30, 'organization__to__music': 30, 'organization__to__sports': 30, 'organization__on__location': 30, 'organization__and__organization': 0, 'organization__for__business': 30, 'business__about__book': 30, 'business__about__film': 30, 'business__about__music': 30, 'business__about__sports': 30, 'business__on__location': 30, 'business__and__business': 0}, 'facts_before': 1080, 'facts_after': 1035}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 18:07:31,641 | INFO | Epoch 0000 | train_loss: 1.9380 | train_acc: 0.1000 | train_auroc: 0.0000 | train_macro_f1: 0.0417 | train_micro_f1: 0.1000 | val_loss: 2.4042 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.1765 | test_auroc: 0.0000 | test_macro_f1: 0.0996 | test_micro_f1: 0.1765
+2026-11-18 18:07:31,645 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-18 18:07:31,645 | INFO | Best epoch 0 | test_macro_f1: 0.0996 | test_micro_f1: 0.1765 | test_acc: 0.1765
+  payload = torch.load(path, map_location="cpu")
+........
+----------------------------------------------------------------------
+Ran 130 tests in 974.313s
+OK
+tests_exit=0
+===== mutation
+mutant (pshgcn without run_seed): pshgcn test FAIL (expected FAIL); h2sgnn test pass (expected pass)
+real: pshgcn test pass (expected pass); h2sgnn test pass (expected pass)
+mutation check OK
+mutation_exit=0 end=2026-11-18T18:09:06+09:00

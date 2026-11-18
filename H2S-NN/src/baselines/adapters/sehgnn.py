@@ -66,11 +66,15 @@ H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-che
 H2GB_RUNNABLE = frozenset({"ieee-cis-g", "oag-cs", "oag-eng", "oag-chem", "pdns",  # part 2 E2: C4-b decided
                            "ogbn-mag", "mag-year"})  # card 1c F3: G-4 (README's command without extra embeddings)
 #: Target node type and the type set, from SeHGNN/hgb/main.py:31-44.
-TARGET_TYPE = {"ACM": "P", "DBLP": "A", "IMDB": "M"}
+TARGET_TYPE = {"ACM": "P", "DBLP": "A", "IMDB": "M", "Freebase": "0"}
+#: Card 3 Part B (F-1): Freebase NC on their own Freebase branch (`_freebase_inputs`).
+FREEBASE = "freebase"
+#: Their Freebase label keys (`hgb/main.py:284`).
+FREEBASE_LABEL_KEYS = ["00", "000", "0000", "0010", "0030", "0040", "0050", "0060", "0070"]
 
 
 def _vendor_args(dataset: str, params: BaselineParams, root: Path) -> SimpleNamespace:
-    vendor_name = VENDOR_DATASET[dataset]
+    vendor_name = VENDOR_DATASET[dataset] if dataset != FREEBASE else "Freebase"
     raw_dir = hgb_raw_dir(dataset, root)
     return SimpleNamespace(
         # load_dataset reads f'{root}/{dataset}', so root is the raw tree's parent.
@@ -158,11 +162,82 @@ def _precompute_features(
     return feats, label_feats, init_labels, num_classes, trainval_nid, test_nid
 
 
+def _freebase_inputs(raw_dir: Path, args: SimpleNamespace, label_onehot: torch.Tensor | None,
+                     device: torch.device) -> tuple[dict[str, Any], dict[str, torch.Tensor], dict[str, int]]:
+    """Their Freebase branch: relations named `f'{dst}{src}'` in type-local indices (`hgb/utils.py:251-288`), `00`
+    symmetrised (`:446`), each cross-type relation's transpose added (`:461-467`), row-normalised (`main.py:22-24`),
+    their sparse meta-path propagation from the target `'0'` (`main.py:80-124`, `prop_feats=True`; no cache files),
+    `raw_feats['0']` = identity; label features as `main.py:237-300` (their `left_keys`, `remove_diag`). Their
+    `load_dataset` is not called: it builds a dense `torch.eye` per featureless type first (`utils.py:241-250`, ~37 GB
+    on Freebase), which their Freebase branch never reads."""
+    import numpy as np
+
+    with pushd_sys_path(*VENDORS):
+        from data_loader import data_loader  # type: ignore[import-not-found]
+        from torch_sparse import SparseTensor, remove_diag
+        from utils import hg_propagate_sparse_pyg  # type: ignore[import-not-found]
+
+        dl = data_loader(str(raw_dir))
+        idx_shift = np.zeros(len(dl.nodes["count"]) + 1, dtype=np.int32)
+        for i in range(len(dl.nodes["count"])):
+            idx_shift[i + 1] = idx_shift[i] + dl.nodes["count"][i]
+        adjs: dict[str, Any] = {}
+        for link_type, v in dl.links["data"].items():
+            v = v.tocoo()
+            dst_type_idx, src_type_idx = dl.links["meta"][link_type]  # rows = start type (their v.row), cols = end
+            row = v.row - idx_shift[dst_type_idx]
+            col = v.col - idx_shift[src_type_idx]
+            name = f"{dst_type_idx}{src_type_idx}"
+            assert name not in adjs
+            adjs[name] = SparseTensor(row=torch.LongTensor(row), col=torch.LongTensor(col),
+                                      sparse_sizes=(dl.nodes["count"][dst_type_idx], dl.nodes["count"][src_type_idx]))
+        adjs["00"] = adjs["00"].to_symmetric()
+        new_adjs = {}
+        for rtype, adj in adjs.items():
+            dtype, stype = rtype
+            if dtype != stype:
+                new_name = f"{stype}{dtype}"
+                assert new_name not in adjs
+                new_adjs[new_name] = adj.t()
+        adjs.update(new_adjs)
+        for k in adjs.keys():
+            adjs[k].storage._value = None
+            adjs[k].storage._value = torch.ones(adjs[k].nnz()) / adjs[k].sum(dim=-1)[adjs[k].storage.row()]
+
+        prop_device = str(device)
+        max_length = args.num_hops + 1
+        if args.num_hops == 1:
+            raw_meta_adjs = {k: v.clone() for k, v in adjs.items() if k[0] == "0"}
+        else:
+            raw_meta_adjs = hg_propagate_sparse_pyg(adjs, "0", args.num_hops, max_length, [], prop_feats=True,
+                                                    echo=False, prop_device=prop_device)
+        feats = {k: v.clone() for k, v in raw_meta_adjs.items() if len(k) <= args.num_hops + 1}
+        assert "0" not in feats
+        feats["0"] = SparseTensor.eye(dl.nodes["count"][0])
+        data_size = dict(dl.nodes["count"])
+
+        label_feats: dict[str, torch.Tensor] = {}
+        if label_onehot is not None:
+            label_length = args.num_label_hops + 1
+            if args.num_label_hops <= args.num_hops:
+                meta_adjs = {k: v for k, v in raw_meta_adjs.items() if k[-1] == "0" and len(k) < label_length}
+            else:
+                meta_adjs = hg_propagate_sparse_pyg(adjs, "0", args.num_label_hops, label_length, [],
+                                                    prop_feats=False, echo=False, prop_device=prop_device)
+            for k in list(set(meta_adjs.keys()) - set(FREEBASE_LABEL_KEYS)):
+                meta_adjs.pop(k)
+            for k, v in meta_adjs.items():
+                label_feats[k] = (remove_diag(v).to(prop_device) @ label_onehot.to(prop_device)).to("cpu")
+    feats = {k: v.to("cpu") for k, v in feats.items()}
+    return feats, label_feats, data_size
+
+
 class SeHGNNAdapter:
     name = NAME
 
     def supports(self, task: str, dataset: str) -> bool:
-        return task == NODE_CLASSIFICATION and (dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE)
+        return task == NODE_CLASSIFICATION and (dataset in VENDOR_DATASET or dataset in H2GB_RUNNABLE
+                                                or dataset == FREEBASE)
 
     def search_space(self, task: str, dataset: str) -> dict[str, Any]:
         if task != NODE_CLASSIFICATION:
@@ -223,6 +298,8 @@ class SeHGNNAdapter:
         args = _vendor_args(bundle.dataset, params, bundle_data_root(bundle))
         data = bundle.data
         use_label_feats = bool(params.get("label_feats", True))
+        if bundle.dataset == FREEBASE:
+            return self._fit_freebase(bundle, params, args, seed=seed, device=device)
 
         # One-hot over target nodes, populated at OUR training rows only -- never
         # validation or test. Mirrors main.py:210-214, but keyed to the campaign split.
@@ -287,77 +364,47 @@ class SeHGNNAdapter:
                 data_size=data_size,
             ).to(device)
 
-        criterion = (
-            torch.nn.BCEWithLogitsLoss()
-            if bundle.is_multilabel
-            else torch.nn.CrossEntropyLoss()
-        )
-        optimizer = torch.optim.AdamW(
-            model.parameters(), lr=args.lr, weight_decay=args.weight_decay
-        )
+        return _train_loop(bundle, params, args, model, feats, label_feats, labels, train_idx, val_idx, test_idx,
+                           device)
 
-        def forward(indices: torch.Tensor) -> torch.Tensor:
-            # SeHGNN.forward(batch, feature_dict, label_dict, mask); the leading `batch`
-            # carries the node ids.
-            batch_feats = {key: value[indices] for key, value in feats.items()}
-            batch_labels = {key: value[indices] for key, value in label_feats.items()}
-            return model(indices, batch_feats, batch_labels, None)
 
-        def evaluate(indices: torch.Tensor) -> dict[str, float]:
-            model.eval()
-            with torch.no_grad():
-                logits = forward(indices.to(device))
-            return classification_metrics(
-                logits, labels[indices.to(device)], is_multilabel=bundle.is_multilabel
-            )
+    def _fit_freebase(self, bundle: NodeBundle, params: BaselineParams, args: SimpleNamespace, *, seed: int,
+                      device: torch.device) -> dict[str, float]:
+        """Their Freebase branch (`_freebase_inputs`), their Freebase model (`model.py:157-170, 198-202`), the HGB
+        loop; label features from our training rows only (as the HGB path)."""
+        from src.baselines.adapters._hgb_generic import hgb_target_rows
 
-        budget = resolve_budget(NODE_CLASSIFICATION, params)
-        epochs, patience = budget.epochs, budget.patience
-        batch_size = args.batch_size
-        best_monitor = float("-inf")
-        best_epoch, stale = 0, 0
-        best_val: dict[str, float] = {}
-        best_test: dict[str, float] = {}
+        data = bundle.data
+        raw_dir = hgb_raw_dir(FREEBASE, bundle_data_root(bundle))
+        # their rows are in HGB id order, the bundle's in node.dat order (HGB Freebase's node.dat is not sorted)
+        rows = hgb_target_rows(raw_dir)
+        n = int(data.target_y.shape[0])
+        if rows.numel() != n:
+            raise RuntimeError(f"SeHGNN: {rows.numel()} target rows in node.dat, the bundle has {n}")
+        train_idx, val_idx, test_idx = (rows[m.nonzero(as_tuple=False).view(-1).cpu()] for m in (
+            data.target_train_mask, data.target_val_mask, data.target_test_mask))
+        labels = torch.zeros(n, dtype=torch.long)
+        labels[rows] = data.target_y.long().cpu()
+        num_classes = int(bundle.num_classes)
+        label_onehot = None
+        if bool(params.get("label_feats", True)):  # our training rows only, in their order
+            label_onehot = torch.zeros((n, num_classes), dtype=torch.float32)
+            label_onehot[train_idx] = torch.nn.functional.one_hot(labels[train_idx], num_classes).float()
+        feats, label_feats, data_size = _freebase_inputs(raw_dir, args, label_onehot, device)
+        if int(feats["0"].size(0)) != int(data.target_y.shape[0]):
+            raise RuntimeError(f"SeHGNN propagated {feats['0'].size(0)} target rows, the bundle has "
+                               f"{data.target_y.shape[0]}")
+        seed_everything(seed, device)
+        with pushd_sys_path(*VENDORS):
+            from model import SeHGNN  # type: ignore[import-not-found]
 
-        for epoch in range(epochs):
-            model.train()
-            permutation = train_idx[torch.randperm(train_idx.numel())]
-            for start in range(0, permutation.numel(), batch_size):
-                batch = permutation[start : start + batch_size].to(device)
-                optimizer.zero_grad()
-                loss = criterion(forward(batch), labels[batch])
-                loss.backward()
-                optimizer.step()
-
-            val_metrics = evaluate(val_idx)
-            test_metrics = evaluate(test_idx)
-            monitor = val_metrics["macro_f1"]
-            if monitor > best_monitor:
-                best_monitor = monitor
-                best_epoch, stale = epoch, 0
-                best_val, best_test = val_metrics, test_metrics
-            else:
-                stale += 1
-
-            report_epoch(
-                params.report,
-                epoch=epoch,
-                monitor=monitor,
-                running_best=best_monitor,
-                metrics=val_metrics,
-            )
-            if stale >= patience:
-                break
-
-        record = node_classification_record(
-            val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch
-        )
-        record["params_source"] = params.source
-        record["device"] = device.type
-        record["num_metapaths"] = float(len(feats))
-        record["num_label_metapaths"] = float(len(label_feats))
-        return record
-
+            model = SeHGNN("Freebase", args.embed_size, args.hidden, num_classes, feats.keys(), label_feats.keys(),
+                           "0", args.dropout, args.input_drop, args.att_drop, args.n_fp_layers, args.n_task_layers,
+                           args.act, args.residual, data_size=data_size).to(device)
+        feats = {key: value.to(device) for key, value in feats.items()}
+        label_feats = {key: value.to(device) for key, value in label_feats.items()}
+        return _train_loop(bundle, params, args, model, feats, label_feats, labels.to(device), train_idx, val_idx,
+                           test_idx, device)
 
     def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
                   device: torch.device) -> dict[str, float]:
@@ -400,3 +447,80 @@ class SeHGNNAdapter:
 
 
 ADAPTER = SeHGNNAdapter()
+
+
+def _train_loop(bundle: NodeBundle, params: BaselineParams, args: SimpleNamespace, model: torch.nn.Module,
+                feats: dict[str, Any], label_feats: dict[str, Any], labels: torch.Tensor, train_idx: torch.Tensor,
+                val_idx: torch.Tensor, test_idx: torch.Tensor, device: torch.device) -> dict[str, float]:
+    """The HGB loop (their batches of target rows; selection on validation macro-F1), shared by ACM/DBLP/IMDB and
+    Freebase."""
+    criterion = (
+        torch.nn.BCEWithLogitsLoss()
+        if bundle.is_multilabel
+        else torch.nn.CrossEntropyLoss()
+    )
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=args.lr, weight_decay=args.weight_decay
+    )
+
+    def forward(indices: torch.Tensor) -> torch.Tensor:
+        # SeHGNN.forward(batch, feature_dict, label_dict, mask); the leading `batch`
+        # carries the node ids.
+        batch_feats = {key: value[indices] for key, value in feats.items()}
+        batch_labels = {key: value[indices] for key, value in label_feats.items()}
+        return model(indices, batch_feats, batch_labels, None)
+
+    def evaluate(indices: torch.Tensor) -> dict[str, float]:
+        model.eval()
+        with torch.no_grad():
+            logits = forward(indices.to(device))
+        return classification_metrics(
+            logits, labels[indices.to(device)], is_multilabel=bundle.is_multilabel
+        )
+
+    budget = resolve_budget(NODE_CLASSIFICATION, params)
+    epochs, patience = budget.epochs, budget.patience
+    batch_size = args.batch_size
+    best_monitor = float("-inf")
+    best_epoch, stale = 0, 0
+    best_val: dict[str, float] = {}
+    best_test: dict[str, float] = {}
+
+    for epoch in range(epochs):
+        model.train()
+        permutation = train_idx[torch.randperm(train_idx.numel())]
+        for start in range(0, permutation.numel(), batch_size):
+            batch = permutation[start : start + batch_size].to(device)
+            optimizer.zero_grad()
+            loss = criterion(forward(batch), labels[batch])
+            loss.backward()
+            optimizer.step()
+
+        val_metrics = evaluate(val_idx)
+        test_metrics = evaluate(test_idx)
+        monitor = val_metrics["macro_f1"]
+        if monitor > best_monitor:
+            best_monitor = monitor
+            best_epoch, stale = epoch, 0
+            best_val, best_test = val_metrics, test_metrics
+        else:
+            stale += 1
+
+        report_epoch(
+            params.report,
+            epoch=epoch,
+            monitor=monitor,
+            running_best=best_monitor,
+            metrics=val_metrics,
+        )
+        if stale >= patience:
+            break
+
+    record = node_classification_record(
+        val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch
+    )
+    record["params_source"] = params.source
+    record["device"] = device.type
+    record["num_metapaths"] = float(len(feats))
+    record["num_label_metapaths"] = float(len(label_feats))
+    return record

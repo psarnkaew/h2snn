@@ -1,0 +1,12 @@
+job=17668 node=g2tn01 HEAD=d2f52823504b35486291e972e87717a66393faf8 MERGE_HEAD=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c start=2026-11-18T16:40:19+09:00
+ebe302362699ab4ecfb3fc332226b02bb66616c824937c08cc8b97ac420df209  src/baselines/registry.py
+1b6da0c27d1a89510399cb4db19ea20aea76321e188a712182870f91d29f4dca  tests/test_baselines.py
+runnable 274
+node_classification 155
+link_prediction 79
+graph_classification 40
+notebooks/baselines/graph_classification_sheaf.ipynb: 12 cells, csnn, hetsheaf, nsd
+
+13 notebooks, 129 cells total.
+13 notebooks match the generator.
+end=2026-11-18T16:40:25+09:00

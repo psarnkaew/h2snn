@@ -1,0 +1,13 @@
+job=17674 step=none node=g2n01 start=2026-11-18T16:46:54+09:00
+repo git=2d5c348299bbada09272881af3f11a4e5b2e87ad
+sparse_tools commit=0596f00b9f86b8f46abe9280946e8a8f999f5628
+torch 2.4.1+cu124
+build_ext exit=0 (log: /mnt/data/peeradon/h2snn-tsubame/H2S-NN/vendor/sparse_tools/build.log)
+g++ -pthread -B /mnt/home/peeradon/.conda/envs/h2snn-b/compiler_compat -fno-strict-overflow -Wsign-compare -DNDEBUG -O2 -Wall -fPIC -O2 -fno-merge-constants -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/include -fdebug-prefix-map=/home/conda/feedstock_root/build_artifacts/python-split_1793013978562/work=/usr/local/src/conda/python-split-3.12.16 -fPIC -O2 -fno-merge-constants -isystem /mnt/home/peeradon/.conda/envs/h2snn-b/include -fdebug-prefix-map=/home/conda/feedstock_root/build_artifacts/python-split_1793013978562/work=/usr/local/src/conda/python-split-3.12.16 -shared -Wl,--allow-shlib-undefined -Wl,-rpath,/mnt/home/peeradon/.conda/envs/h2snn-b/lib -Wl,-rpath-link,/mnt/home/peeradon/.conda/envs/h2snn-b/lib -L/mnt/home/peeradon/.conda/envs/h2snn-b/lib -Wl,--allow-shlib-undefined -Wl,-rpath,/mnt/home/peeradon/.conda/envs/h2snn-b/lib -Wl,-rpath-link,/mnt/home/peeradon/.conda/envs/h2snn-b/lib -L/mnt/home/peeradon/.conda/envs/h2snn-b/lib build/temp.linux-x86_64-cpython-312/csrc/cpu/spspmm_diag_cpu.o build/temp.linux-x86_64-cpython-312/csrc/spspmm_diag.o -L/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/lib -lc10 -ltorch -ltorch_cpu -ltorch_python -o build/lib.linux-x86_64-cpython-312/sparse_tools/_spspmm_diag_cpu.so -s
+copying build/lib.linux-x86_64-cpython-312/sparse_tools/_spspmm_diag_unsym_cpu.so -> sparse_tools
+copying build/lib.linux-x86_64-cpython-312/sparse_tools/_spspmm_diag_cpu.so -> sparse_tools
+pip freeze: identical before and after
+extensions:
+  /mnt/data/peeradon/h2snn-tsubame/H2S-NN/vendor/sparse_tools/sparse_tools/_spspmm_diag_unsym_cpu.so 155528 bytes
+  /mnt/data/peeradon/h2snn-tsubame/H2S-NN/vendor/sparse_tools/sparse_tools/_spspmm_diag_cpu.so 180200 bytes
+end=2026-11-18T16:47:50+09:00 exit=0
