@@ -1,0 +1,38 @@
+# Model change TD-1 card M6: ACM at the card 2 central configuration (d 32, l_max 3, r 16) for the cost
+# smoke of v3b 9b7ae0b and the 1.25 model in one job (scripts/v3b_cost_smoke.py --any_r). Same keys as
+# configs/experiments/acm_h2snn_v3b.yaml otherwise (no key that only one of the two trees knows).
+data:
+  dataset_name: acm
+  root: data
+  acm_val_ratio: 0.2
+  acm_split_seed: 42
+  face_sample_k: 50
+  wisp_max_length: 3
+  wisp_walks_per_anchor: 16
+model:
+  d: 32
+  d_r: 16
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  orthogonal_map: fasthpp
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+ablation:
+  coupling: symmetric
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.0001
+seed: 42
+device: cuda
+exp_name: acm_h2snn_cost_central
+output_dir: experiments
+log_every: 10
+checkpoint_metric: macro_f1
+checkpoint_mode: max

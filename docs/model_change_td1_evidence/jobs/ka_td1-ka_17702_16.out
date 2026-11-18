@@ -1,0 +1,28 @@
+kind=s1pb job=17723 array=16 node=g2tn01 start=2026-11-18T19:25:36+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m6 head=321e017fa79098a866f574f9bbc41600c4ebe4f6 diff_sha256=496cb44b301a622b untracked=4 snapshot_at=2026-11-18T19:13:09+09:00
+git=321e017fa79098a866f574f9bbc41600c4ebe4f6
+95baa9604db9ffd2945417b34cec0126857a8b736dacf5af4944ba27085bd7e6  scripts/known_answer/common.py
+12a752d0c8505d69fce994fd147117bd3c7e6b442677956e6fb6ad9dd04f8124  scripts/known_answer/s1pb.py
+bbd0bf1eeab12ebc7456c3c26cd3c9afcfa6f42180e5b0792c4776e563fa4d6e  scripts/known_answer/s2p.py
+d83cfdf6cc6d255f31fe93ce36b7bd608d97d60dc68376729deec1b03162fde2  scripts/known_answer/s3_audit.py
+3ed1c1f678a6a90e22a2e262ad5a7d4557264836cb1c34bbc4c3ce918f6ad313  scripts/known_answer/s3_graph.py
+7d1107eb8f60ab7e8f46d7133304b8d6c99ceb801d5cb3efa7ececec5fb08d8d  scripts/known_answer/s3.py
+5e27f5481cb32ce9b8c496a29b9f18c40f03881a566a56f9e7d6f0a89c9ee6bd  scripts/known_answer/summarize.py
+21aa77a4a47d8c19c9d42cd3601b3fb8c9b02c48a68a2114fdf162407b083423  src/models/anchored_solve.py
+5ed1a03a051844cfda8d8c549ea33e398090832e5f09e3e5f25b8cd826b7453b  src/models/fasthpp.py
+8bfd09a3777c85aec0bb8ed1c53aba52556f0896991ea3aebc082c9ed40795ab  src/models/graph_readout.py
+2ca8edbb59739b4b0a86a535971b9575cd650b6155a520972d94b5af3f82cf93  src/models/h2snn_model.py
+73f72f70883e5dfef194487dd0383806937d27b0dec4e7ced7484979145ef826  src/models/__init__.py
+d163d3b67915c02b574dfcc0e10864d90d4dbb8ab4455dc2789e5ab89ba569cf  src/models/link_readout.py
+aed26ba09b8674745ac8d79bad79e87beac23771de914547a7415b08c88cffb8  src/models/map_operators.py
+d86a70db135e964c462f2621872d05fbadd143a89f820a0df0e803c4f99a47f6  src/models/node_encoder.py
+04851298f5ce3ce5d6fc4663e600e259622ba3c1c41df759133a1b5953a7c244  src/models/orthogonal.py
+68217286d1a674a1b805de0937cab57daf61a3cc8494707b0cca6f481451eb7c  src/models/sheaf_energy.py
+3ce6837d583415df5663cd0a14a9c2e1d68ae3a9e4eb65cdcb4fefd42a62ae82  src/models/sheaf_maps.py
+debf30591ceacfe93b64f2d13b1cdc47d7dd709c2cd6c715db2c317321d4690c  src/models/vertex_path_laplacian.py
+1199a04db4a4fd8c424513026ae02e6dd7f9c94cf7ab4a8c5787eba52bfc341f  src/configs/config.py
+NVIDIA TITAN RTX, 24576 MiB
+2026-11-18 19:25:44,914 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__writes__paper': 'paper__writes_rev__author', 'paper__writes_rev__author': 'author__writes__paper', 'author__writes_c__cpaper': 'cpaper__writes_c_rev__author', 'cpaper__writes_c_rev__author': 'author__writes_c__cpaper'}, 'kept_relations': ['author__writes__paper', 'author__writes_c__cpaper'], 'self_inverse_relations': [], 'unmatched_edges': {'author__writes__paper': 0, 'paper__writes_rev__author': 0, 'author__writes_c__cpaper': 0, 'cpaper__writes_c_rev__author': 0}, 'facts_before': 544000, 'facts_after': 272000}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+slurmstepd-g2tn01: error: *** JOB 17723 ON g2tn01 CANCELLED AT 2026-11-18T19:25:46 ***
