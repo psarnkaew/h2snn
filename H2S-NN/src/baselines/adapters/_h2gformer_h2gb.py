@@ -113,7 +113,7 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.bundles import bundle_data_root
     from src.baselines.minibatch import (eval_loader, h2gb_sample_sizes, hgt_loader, minibatch_plan,
-                                         train_minibatch_node_classification)
+                                         train_minibatch_node_classification, val_subset_loader)
     from src.baselines.runtime import pushd_sys_path
     from src.data.h2gb_nc import ALL_H2GB_NC_SPECS, RAW_ONLY, load_h2gb_dataset
     from src.utils.misc import seed_everything
@@ -133,6 +133,8 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
+    # card 1f B1a: built from the split masks, before the label channel rewrites them (as the loaders above)
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)
     val_ids = data[target].val_mask.nonzero().view(-1).clone()   # before the label channel rewrites the masks
     test_ids = data[target].test_mask.nonzero().view(-1).clone()
     if LABEL in stack:
@@ -156,7 +158,8 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
                                   weight_decay=float(params.get("weight_decay", 1e-5)))
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds, train_loader=loaders[0], val_loader=loaders[1],
-        test_loader=loaders[2], val_ids=val_ids, test_ids=test_ids, target_type=target, optimizer=optimizer,
+        test_loader=loaders[2], val_ids=val_ids, test_ids=test_ids, val_subset_loader=subset_loader,
+        val_subset_ids=subset_ids, target_type=target, optimizer=optimizer,
         criterion=torch.nn.functional.cross_entropy, plan=plan, report=getattr(params, "report", None), labels=labels)
     record["params_source"] = params.source
     record["node_encoder"] = "+".join(stack)

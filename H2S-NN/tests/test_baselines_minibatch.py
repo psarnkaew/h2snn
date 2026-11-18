@@ -144,7 +144,7 @@ class EvaluationCoverageTests(unittest.TestCase):
 class LoopTests(unittest.TestCase):
     def test_loop_runs_plan_and_keeps_best_validation_epoch(self) -> None:
         from src.baselines.minibatch import MinibatchPlan, eval_loader, hgt_loader, \
-            train_minibatch_node_classification
+            train_minibatch_node_classification, val_subset_loader
 
         torch.manual_seed(0)
         data = synthetic_hetero()
@@ -157,17 +157,19 @@ class LoopTests(unittest.TestCase):
             steps.append(int(batch["a"].batch_size))
             return model(batch["a"].x[: int(batch["a"].batch_size)].double())
 
+        subset_loader, subset_ids = val_subset_loader(data, fanout, "a", "ogbn-mag", 4)  # B1a: all 13 (< 16,384)
         record = train_minibatch_node_classification(
-            model=model, forward_seeds=forward,
+            model=model, forward_seeds=forward, val_subset_loader=subset_loader, val_subset_ids=subset_ids,
             train_loader=hgt_loader(data, fanout, "a", "train", 4, shuffle=True, steps=plan.steps_per_epoch),
             val_loader=eval_loader(data, fanout, "a", "val", 4), test_loader=eval_loader(data, fanout, "a", "test", 4),
             val_ids=data["a"].val_mask.nonzero().view(-1), test_ids=data["a"].test_mask.nonzero().view(-1),
             target_type="a", optimizer=torch.optim.AdamW(model.parameters(), lr=0.01),
             criterion=torch.nn.functional.cross_entropy, plan=plan)
-        # 5 epochs x 3 training steps of 4 targets; evaluations at epochs 0, 1, 3, 4 (val 4 batches, test 3)
-        self.assertEqual(len(steps), 5 * 3 + 4 * (4 + 3))
+        # 5 epochs x 3 training steps of 4 targets; subset evaluations at epochs 0, 1, 3, 4 (4 batches each); card 1f
+        # B1a: then one whole-split pass (val 4 batches, test 3)
+        self.assertEqual(len(steps), 5 * 3 + 4 * 4 + (4 + 3))
         self.assertIn(record["best_epoch"], (0.0, 1.0, 3.0, 4.0))
-        self.assertTrue(all(torch.isfinite(torch.tensor(v)) for v in record.values()))
+        self.assertTrue(all(torch.isfinite(torch.tensor(v)) for v in record.values() if isinstance(v, float)))
 
 
 if __name__ == "__main__":

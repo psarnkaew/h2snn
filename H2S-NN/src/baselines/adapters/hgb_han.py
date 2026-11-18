@@ -433,7 +433,7 @@ def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torc
     from src.baselines.adapters._h2gb_network import build_hetero_gnn, configure_from_yaml, seed_predictions
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.minibatch import (eval_loader, h2gb_graph, h2gb_sample_sizes, hgt_loader, minibatch_plan,
-                                         train_minibatch_node_classification)
+                                         train_minibatch_node_classification, val_subset_loader)
     from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
 
     seed_everything(seed, device)
@@ -446,6 +446,7 @@ def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torc
     loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)  # card 1f B1a
     ensure_pyg_submodules()
     with pushd_sys_path("h2gb"):  # the cfg is configured last: H2GB's model reads it in its forward
         configure_from_yaml(NAME, bundle.dataset, data, target, device, {
@@ -460,6 +461,7 @@ def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torc
         model=model, forward_seeds=lambda batch: seed_predictions(model, batch.to(device), target),
         train_loader=loaders[0], val_loader=loaders[1], test_loader=loaders[2],
         val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        val_subset_loader=subset_loader, val_subset_ids=subset_ids,
         target_type=target, optimizer=optimizer, criterion=torch.nn.functional.cross_entropy, plan=plan,
         report=params.report, labels=labels)
     record["params_source"] = params.source

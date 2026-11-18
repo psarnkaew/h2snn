@@ -17,6 +17,11 @@
   split (MB3; H2GB itself evaluates at most `val.iter_per_epoch` x B shuffled targets, `custom_sampler.py:20-55`, a
   stated difference). Every `eval_period` epochs by H2GB's rule (`H2GB/graphgym/utils/epoch.py:9-12`: epoch 0,
   every `eval_period`-th, and the last).
+* **B1a** (card 1f, author decision; `src/evaluation/validation_subset.py`): during training, an evaluation epoch
+  scores the fixed validation subset only (the same ids for every method, drawn once from a fixed seed) and runs no
+  test pass; the best subset macro-F1 epoch's weights are kept (CPU copy), restored after the last epoch, and scored
+  once on the whole validation and test splits. The record carries the whole-split metrics plus
+  `val_subset_macro_f1`, `val_subset_size` and `val_subset_fingerprint`.
 * AdamW, no scheduler, no clipping (M9) stay with the adapters.
 
 `convert_batch` (`custom_sampler.py:58-63`, H2GB's transform) casts every batch's `x` to float32.
@@ -179,6 +184,35 @@ def eval_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str,
                       steps=eval_steps(count, batch_size), num_workers=num_workers)
 
 
+def val_subset_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, dataset: str,
+                      batch_size: int, num_workers: int = 0) -> tuple[Any, torch.Tensor]:
+    """(loader, ids) over the B1a validation subset of `dataset`: H2GB's loader, called unchanged, on a shallow copy
+    of `data` whose target `val_mask` holds the subset ids only (the caller's graph is not modified)."""
+    from copy import copy
+
+    from src.evaluation.validation_subset import validation_subset
+
+    mask = data[target_type].val_mask
+    ids = validation_subset(dataset, mask.nonzero().view(-1))
+    subset_mask = torch.zeros_like(mask)
+    subset_mask[ids.to(mask.device)] = True
+    view = copy(data)
+    view[target_type].val_mask = subset_mask
+    return eval_loader(view, sample_sizes, target_type, "val", batch_size, num_workers=num_workers), ids
+
+
+def _cpu_state(model: torch.nn.Module) -> dict[str, torch.Tensor]:
+    """A CPU copy of `model`'s state_dict (the best epoch's weights, B1a)."""
+    return {key: value.detach().to("cpu", copy=True) for key, value in model.state_dict().items()}
+
+
+def _subset_fields(ids: torch.Tensor, macro_f1: float) -> dict[str, Any]:
+    from src.evaluation.validation_subset import subset_fingerprint
+
+    return {"val_subset_macro_f1": float(macro_f1), "val_subset_size": float(ids.numel()),
+            "val_subset_fingerprint": subset_fingerprint(ids)}
+
+
 def seed_rows(batch: Any, target_type: str, labels: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
     """(global ids, labels) of a batch's seed targets: the first `batch_size` rows of the target type. With `labels`
     (all target nodes' true labels) they are read by global id, not from the batch (an adapter whose input channel
@@ -220,6 +254,8 @@ def train_minibatch_node_classification(
     test_loader: Any,
     val_ids: torch.Tensor,
     test_ids: torch.Tensor,
+    val_subset_loader: Any,
+    val_subset_ids: torch.Tensor,
     target_type: str,
     optimizer: torch.optim.Optimizer,
     criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
@@ -227,8 +263,10 @@ def train_minibatch_node_classification(
     report: Any = None,
     labels: torch.Tensor | None = None,
 ) -> dict[str, float]:
-    """The shared H2GB NC loop: `plan.steps_per_epoch` steps per epoch (loss = mean over the step's B targets),
-    evaluation on whole splits by H2GB's eval-epoch rule, the best validation macro-F1 epoch kept, no early stop."""
+    """The shared H2GB NC loop: `plan.steps_per_epoch` steps per epoch (loss = mean over the step's B targets); at
+    H2GB's eval epochs the B1a validation subset only (`val_subset_loader` over `val_subset_ids`, no test pass); the
+    best subset macro-F1 epoch's weights restored after the last epoch and scored once on the whole validation and
+    test splits (`val_loader`, `test_loader`); no early stop."""
     from src.baselines.metrics import classification_metrics, node_classification_record
     from src.baselines.progress import report_epoch
     from src.models.anchored_solve import check_finite_loss
@@ -237,8 +275,7 @@ def train_minibatch_node_classification(
         raise ValueError(f"training loader has {len(train_loader)} steps per pass; the plan needs "
                          f"{plan.steps_per_epoch}.")
     best_monitor, best_epoch = float("-inf"), -1
-    best_val: dict[str, float] = {}
-    best_test: dict[str, float] = {}
+    best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
         model.train()
         for batch in train_loader:
@@ -252,17 +289,25 @@ def train_minibatch_node_classification(
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
-        _, val_logits, val_labels = evaluate_split(val_loader, forward_seeds, target_type, val_ids, labels)
-        _, test_logits, test_labels = evaluate_split(test_loader, forward_seeds, target_type, test_ids, labels)
-        val_metrics = classification_metrics(val_logits, val_labels.to(val_logits.device), is_multilabel=False)
-        test_metrics = classification_metrics(test_logits, test_labels.to(test_logits.device), is_multilabel=False)
-        if val_metrics["macro_f1"] > best_monitor:
-            best_monitor, best_epoch, best_val, best_test = val_metrics["macro_f1"], epoch, val_metrics, test_metrics
-        report_epoch(report, epoch=epoch, monitor=val_metrics["macro_f1"], running_best=best_monitor,
-                     metrics=val_metrics)
-    if not best_val:
+        _, sub_logits, sub_labels = evaluate_split(val_subset_loader, forward_seeds, target_type, val_subset_ids,
+                                                   labels)
+        sub_metrics = classification_metrics(sub_logits, sub_labels.to(sub_logits.device), is_multilabel=False)
+        if sub_metrics["macro_f1"] > best_monitor:
+            best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+        report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
+                     metrics=sub_metrics)
+    if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
-    return node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
+    model.load_state_dict(best_state)
+    model.eval()
+    _, val_logits, val_labels = evaluate_split(val_loader, forward_seeds, target_type, val_ids, labels)
+    _, test_logits, test_labels = evaluate_split(test_loader, forward_seeds, target_type, test_ids, labels)
+    val_metrics = classification_metrics(val_logits, val_labels.to(val_logits.device), is_multilabel=False)
+    test_metrics = classification_metrics(test_logits, test_labels.to(test_logits.device), is_multilabel=False)
+    record: dict[str, Any] = node_classification_record(val_metrics=val_metrics, test_metrics=test_metrics,
+                                                        best_epoch=best_epoch)
+    record.update(_subset_fields(val_subset_ids, best_monitor))
+    return record
 
 
 def hgb_homogeneous_batch(batch: Any, node_types: tuple[str, ...]) -> tuple[list[torch.Tensor], torch.Tensor,
@@ -318,13 +363,18 @@ def train_index_minibatch(
     """The shared H2GB NC loop for methods whose source batches target rows of precomputed inputs (class B): each
     epoch takes `plan.steps_per_epoch` batches of B training targets from a seeded order continued across epochs
     (`TrainingOrder`, as H2S-NN's trainer), loss = mean over the batch; evaluation on whole splits in contiguous
-    batches by H2GB's eval-epoch rule; the best validation macro-F1 epoch is kept; no early stopping."""
+    batches by H2GB's eval-epoch rule on the B1a validation subset of `plan.dataset` only (no test pass); the best subset
+    macro-F1 epoch's weights restored after the last epoch and scored once on the whole validation and test splits;
+    no early stopping."""
     from src.baselines.metrics import classification_metrics, node_classification_record
     from src.baselines.progress import report_epoch
     from src.models.anchored_solve import check_finite_loss
     from src.trainers.minibatch_trainer import TrainingOrder
 
+    from src.evaluation.validation_subset import validation_subset
+
     order = TrainingOrder(train_idx.cpu(), base_seed)
+    subset_idx = validation_subset(plan.dataset, val_idx).to(val_idx.device)
 
     def evaluate(index: torch.Tensor) -> dict[str, float]:
         with torch.no_grad():
@@ -332,8 +382,7 @@ def train_index_minibatch(
         return classification_metrics(logits, labels[index.to(labels.device)], is_multilabel=False)
 
     best_monitor, best_epoch = float("-inf"), -1
-    best_val: dict[str, float] = {}
-    best_test: dict[str, float] = {}
+    best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
         model.train()
         for _ in range(plan.steps_per_epoch):
@@ -347,14 +396,19 @@ def train_index_minibatch(
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
-        val_metrics, test_metrics = evaluate(val_idx), evaluate(test_idx)
-        if val_metrics["macro_f1"] > best_monitor:
-            best_monitor, best_epoch, best_val, best_test = val_metrics["macro_f1"], epoch, val_metrics, test_metrics
-        report_epoch(report, epoch=epoch, monitor=val_metrics["macro_f1"], running_best=best_monitor,
-                     metrics=val_metrics)
-    if not best_val:
+        sub_metrics = evaluate(subset_idx)
+        if sub_metrics["macro_f1"] > best_monitor:
+            best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+        report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
+                     metrics=sub_metrics)
+    if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
-    return node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
+    model.load_state_dict(best_state)
+    model.eval()
+    record: dict[str, Any] = node_classification_record(val_metrics=evaluate(val_idx), test_metrics=evaluate(test_idx),
+                                                        best_epoch=best_epoch)
+    record.update(_subset_fields(subset_idx, best_monitor))
+    return record
 
 
 
@@ -414,10 +468,12 @@ def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed
         start = offsets[target][0]
         return out[start:start + int(batch[target].batch_size)]
 
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds,
         train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
                                 steps=plan.steps_per_epoch),
+        val_subset_loader=subset_loader, val_subset_ids=subset_ids,
         val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
         test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
         val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
@@ -432,5 +488,5 @@ __all__ = [
     "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "eval_loader",
     "eval_steps", "evaluate_split", "fit_homogeneous_on_hgt", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
     "is_eval_epoch", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
-    "train_minibatch_node_classification",
+    "train_minibatch_node_classification", "val_subset_loader",
 ]
