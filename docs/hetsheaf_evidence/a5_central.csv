@@ -1,0 +1,13 @@
+cell,status,sheaf,d,layers,hidden_channels,batch_size,pooling,lr,weight_decay,dropout,input_dropout,train_epoch_s,val_s,test_s,val_targets,val_ms_per_target,load_s,peak_gpu_gib,peak_host_gib,gpu,host,job
+node_classification:ogbn-mag,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,26.23,206.85,135.67,64879,3.188,11.2,0.27,7.97,RTX 3090,g3n01,17125
+node_classification:mag-year,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,27.06,595.37,595.64,184097,3.234,34.0,0.24,7.97,RTX 3090,g3n01,17126
+node_classification:oag-cs,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,5.89,13.22,18.19,19551,0.676,42.3,1.0,14.99,RTX 3090,g3n01,17127
+node_classification:oag-eng,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,5.09,16.49,3.51,28524,0.578,35.2,0.87,12.09,RTX 3090,g3n01,17128
+node_classification:oag-chem,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,5.26,35.76,6.35,59664,0.599,64.9,1.35,24.81,RTX 3090,g3n01,17129
+node_classification:ieee-cis-g,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,3.22,4.77,4.55,14423,0.331,32.0,0.08,11.37,RTX 3090,g3n01,17130
+node_classification:h-pokec,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,28.7,1277.5,1285.65,408160,3.13,15.7,0.83,10.37,TITAN RTX,g2tn01,17131
+node_classification:pdns,OK,diag/type_concat,3,5,16,256,,0.001,0.0005,0.45,0.45,4.13,6.94,3.6,17450,0.398,45.5,0.09,7.53,RTX 3090,g3n01,17132
+graph_classification:mutag,OK,diag/type_concat,3,5,16,,late_token,0.001,0.0005,0.45,0.45,2.99,0.09,0.22,18,5.0,0.1,0.02,1.53,RTX 3090,g3n01,17133
+graph_classification:proteins,OK,diag/type_concat,3,5,16,,late_token,0.001,0.0005,0.45,0.45,9.6,0.57,0.6,111,5.135,0.5,0.03,1.51,RTX 3090,g3n01,17134
+graph_classification:enzymes,OK,diag/type_concat,3,5,16,,late_token,0.001,0.0005,0.45,0.45,5.23,0.3,0.33,60,5.0,0.2,0.02,1.51,RTX 3090,g3n01,17135
+graph_classification:nci1,OK,diag/type_concat,3,5,16,,late_token,0.001,0.0005,0.45,0.45,34.79,2.15,2.17,411,5.231,1.1,0.02,1.52,RTX 3090,g3n01,17136
