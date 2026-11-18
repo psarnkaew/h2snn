@@ -80,6 +80,9 @@ POLY_CHOICES = ("GPR_GPR", "GPR_legendre", "GPR_jaco")
 #: Card 3 Part B (F-1, G-3): Freebase NC, the 8 H2GB NC datasets and the two large LP tasks on the generic branch of
 #: their HGB code (`_hgb_generic`, reverses completed). H2GB NC and large LP: class C, not node-wise (part 1 C0), so
 #: H2GB's `hgt` sampler with the dataset's GCN fan-out (D1 second branch, S4 = S1) in the shared loops.
+#: Card 3 B1: the H2GB NC path reads the budget table's batch plan (`minibatch.minibatch_plan`); large LP: the shared
+#: `large_lp_training.fit_large_lp` (budget table).
+READS_BATCH_PLAN = True
 FREEBASE = "freebase"
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 LARGE_LP_TASKS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
