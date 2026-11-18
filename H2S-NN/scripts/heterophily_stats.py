@@ -2,6 +2,8 @@
 
     python scripts/heterophily_stats.py --dataset acm --task nc --measure h2 [--out-dir DIR]
     python scripts/heterophily_stats.py --collect [--out-dir DIR]        # stats.json + table.md from the records
+    python scripts/heterophily_stats.py --dataset h-pokec --task nc --measure h2 --metapath-index I [--no-labeled-only]
+    python scripts/heterophily_stats.py --dataset h-pokec --task nc --collect-h2-parts   # H2c-2: ℋ² from the parts
 
 Measures: `h2` (ℋ², H2GB calcHomophily), `mlh` (Hetero²Net label_homophily on M₂), `mde` (Hetero²Net
 attribute_homophily on M₂; HGB NC: reference and chunked values both, gate H0-eq), `task_h_edge` (LP target relation),
@@ -227,7 +229,8 @@ def run(args: argparse.Namespace, record: dict[str, Any]) -> None:
         record.update(value=None, hubs=hub_survey(sym, target, list_key))
         return
     if measure == "h2":
-        record.update(het.h2_measure(sym, target, y, seeds))
+        record.update(het.h2_measure(sym, target, y, seeds, labeled_only=not args.no_labeled_only,
+                                     metapath_index=args.metapath_index))
         return
     paths, note = het.hetero2net_m2(list_key, sym.edge_types, target)
     record.update(m2=[het.metapath_name(p) for p in paths], m2_source=note)
@@ -287,6 +290,8 @@ def _cell(rec: dict[str, Any] | None, digits: int = 4) -> str:
     cliques = _h2c1_count(rec)
     if cliques:
         text += f" (H2c-1 clique closed form on {cliques}/{len(rec['per_metapath'])} G_P)"
+    if rec.get("h2c_parts"):
+        text += f" (H2c-2: {len(rec['h2c_parts'])} per-meta-path tasks; fill seed {rec.get('fill_seeds_used')})"
     return text
 
 
@@ -353,7 +358,41 @@ def git_head() -> str:
 
 
 def record_path(out_dir: Path, args: argparse.Namespace) -> Path:
+    if getattr(args, "metapath_index", None) is not None:
+        name = f"{args.task}__{args.dataset}__{args.measure}__mp{args.metapath_index:02d}.json"
+        return out_dir / "records" / "parts" / name
     return out_dir / "records" / f"{args.task}__{args.dataset}__{args.measure}.json"
+
+
+def collect_h2_parts(out_dir: Path, task: str, dataset: str) -> Path:
+    """H2c-2: the ℋ² record of `dataset` from its parts (`records/parts/`, one per meta-path index): `h2_collect`
+    when every part has its rows; else value null with the reason and every part's time."""
+    files = sorted((out_dir / "records" / "parts").glob(f"{task}__{dataset}__h2__mp*.json"))
+    parts = [json.loads(f.read_text(encoding="utf-8")) for f in files]
+    first = parts[0]
+    times = [{"metapath_index": int(f.stem.rsplit("mp", 1)[1]), "metapath": q.get("part", {}).get("metapath"),
+              "job": q.get("job"), "node": q.get("node"), "harness_commit": q.get("harness_commit"),
+              "wall_s": q.get("wall_s"), "peak_rss_gb": q.get("peak_rss_gb"),
+              **({"reason": q["reason"]} if "part" not in q else {})} for f, q in zip(files, parts)]
+    record: dict[str, Any] = {k: first.get(k) for k in ("dataset", "task", "harness_commit", "vendor_commits",
+                                                        "loader", "symmetrisation", "graph", "target")}
+    record.update(measure="h2", job=",".join(str(t["job"]) for t in times),
+                  code="H2GB/calcHomophily.py calcHomophily (H2c-2: one meta-path per task, collected by h2_collect)",
+                  fill_seeds_used=first.get("per_problem", {}).get("label", {}).get("seeds"), h2c_parts=times)
+    failed = [t for t in times if "reason" in t]
+    n = len(first.get("h2gb_metapaths") or [])
+    if failed or len(parts) != n or n == 0:
+        record.update(value=None, reason=f"H2c-2: {len(failed)} meta-path task(s) without a result "
+                      f"({'; '.join(str(t['metapath_index']) + ': ' + t['reason'] for t in failed)}); "
+                      f"{len(parts)} of {n} parts")
+    else:
+        record.update(het.h2_collect(parts))
+    record.update(wall_s=max(t["wall_s"] or 0 for t in times), wall_s_sum=sum(t["wall_s"] or 0 for t in times),
+                  peak_rss_gb=max(t["peak_rss_gb"] or 0 for t in times))
+    path = out_dir / "records" / f"{task}__{dataset}__h2.json"
+    path.write_text(json.dumps(record, indent=1, default=str), encoding="utf-8")
+    het.log(f"wrote {path}: value {record.get('value')}")
+    return path
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -367,10 +406,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--deadline-h", type=float, default=11.5,
                         help="write a blank record with the reason when this wall time is reached")
     parser.add_argument("--collect", action="store_true")
+    parser.add_argument("--metapath-index", type=int, default=None,
+                        help="H2c-2 (h2 only): that enumerated meta-path only; writes a part to records/parts/")
+    parser.add_argument("--no-labeled-only", action="store_true", help="h2: skip the labeled-only diagnostic")
+    parser.add_argument("--collect-h2-parts", action="store_true", help="H2c-2: the h2 record from its parts")
     args = parser.parse_args(argv)
     if args.collect:
         collect(args.out_dir)
         return 0
+    if args.collect_h2_parts:
+        if not (args.dataset and args.task):
+            parser.error("--collect-h2-parts needs --dataset and --task")
+        collect_h2_parts(args.out_dir, args.task, args.dataset)
+        return 0
+    if args.metapath_index is not None and args.measure != "h2":
+        parser.error("--metapath-index is for --measure h2")
     if not (args.dataset and args.task and args.measure):
         parser.error("--dataset, --task and --measure are required (or --collect)")
     torch.set_num_threads(int(os.environ.get("SLURM_CPUS_PER_TASK", torch.get_num_threads())))
@@ -380,7 +430,8 @@ def main(argv: list[str] | None = None) -> int:
         "harness_commit": git_head(), "job": os.environ.get("SLURM_JOB_ID"), "node": socket.gethostname(),
         "threads": torch.get_num_threads(),
         "vendor_commits": {"hetero2net": het.vendor_commit("hetero2net"), "h2gb": het.vendor_commit("h2gb")},
-        "code": {"h2": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P)",
+        "code": {"h2": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P"
+                       + ("; H2c-2: one meta-path per task)" if args.metapath_index is not None else ")"),
                  "mlh": "hetero2net/homophily.py label_homophily (H2b: closed form on a complete G_P)",
                  "mde": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed "
                         "form on a complete G_P; H2c-1: closed form on a disjoint union of cliques)",

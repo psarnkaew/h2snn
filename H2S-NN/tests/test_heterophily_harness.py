@@ -477,5 +477,50 @@ class H2cCliqueTests(unittest.TestCase):
         self.assertFalse(het.mde_measure(data, "txn", [TCT], data["txn"].x)["per_metapath"][0]["gp_cliques"])
 
 
+class H2cPerMetapathTests(unittest.TestCase):
+    """H2c-2 (card): `h2_measure(..., metapath_index=i)` for every i, then `h2_collect`, equals the single whole-graph
+    `calcHomophily` call (no hub; one meta-path with an empty `G_P`, which has no row and is not in the mean)."""
+
+    def assertClose(self, got: float, want: float, atol: float = 1e-6) -> None:
+        self.assertLessEqual(abs(got - want), atol + 1e-5 * abs(want), f"{got} vs {want}")
+
+    def test_parts_and_collect_equal_the_whole_graph_call(self) -> None:
+        for n, n_fields, seed in ((40, 6, 4), (90, 12, 5)):
+            with self.subTest(n=n):
+                data = field_graph(n, n_fields, seed, hub=False)
+                papers = torch.arange(n)
+                g = torch.Generator().manual_seed(seed)
+                data["paper", "L5", "field"].edge_index = torch.stack([papers, torch.full((n,), n_fields - 1)])
+                l0 = torch.stack([papers, torch.randint(1, n_fields - 1, (n,), generator=g)])
+                data["field", "rev_L0", "paper"].edge_index = l0.flip(0)
+                y = data["paper"].y
+                names = [het.metapath_name(m) for m in het.h2gb_metapaths(data.edge_types, "paper")]
+                parts = [het.h2_measure(data, "paper", y, metapath_index=i) for i in range(len(names))]
+                self.assertTrue(all(q["value"] is None for q in parts))
+                got = het.h2_collect(list(reversed(parts)))  # order of the parts does not matter
+                ref = het.h2_measure(data, "paper", y, closed_form=False)
+                self.assertEqual(got["h2gb_metapaths"], names)
+                self.assertEqual(ref["h2gb_metapaths"], names)
+                self.assertEqual(got["h2b"]["empty_gp_skipped"], ["paper-L5-field-rev_L0-paper"])
+                self.assertEqual(got["h2b"]["complete_gp"], {})
+                runs_g, runs_r = got["per_problem"]["label"]["runs"], ref["per_problem"]["label"]["runs"]
+                self.assertEqual(len(runs_g), 5)
+                for rg, rr in zip(runs_g, runs_r):
+                    self.assertEqual(rg["seed"], rr["seed"])
+                    self.assertEqual([r["metapath"] for r in rg["per_metapath"]],
+                                     [r["metapath"] for r in rr["per_metapath"]])
+                    self.assertEqual(len(rg["per_metapath"]), len(names) - 1)
+                    for a, b in zip(rg["per_metapath"], rr["per_metapath"]):
+                        for key in ("h_edge", "h_insensitive", "h_adj"):
+                            self.assertClose(a[key], b[key])
+                    self.assertClose(rg["h2"], rr["h2"])
+                for a, b in zip(got["value_over_fill_seeds"], ref["value_over_fill_seeds"]):
+                    self.assertClose(a, b)
+                self.assertClose(got["value"], ref["value"])
+                self.assertClose(got["labeled_only"], ref["labeled_only"])
+        with self.assertRaises(ValueError):
+            het.h2_collect(parts[:-1])  # a missing meta-path is refused
+
+
 if __name__ == "__main__":
     unittest.main()

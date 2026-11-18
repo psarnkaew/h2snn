@@ -43,5 +43,10 @@ mutate "M4: clique closed form without the self-pair term (degree n-1, n(n-1) pa
     's/d = size if self_pairs else size - 1  #/d = size - 1  #/' \
     tests.test_heterophily_harness.H2cCliqueTests.test_clique_closed_form_equals_the_chunked_and_reference_mde ;;
 esac
+case "$SET" in *2*)
+mutate "M5: collect divides by every meta-path, empty G_P included" src/analysis/heterophily.py \
+    's|/ len(rows)  # non-empty paths only|/ len(names)  # non-empty paths only|' \
+    tests.test_heterophily_harness.H2cPerMetapathTests.test_parts_and_collect_equal_the_whole_graph_call ;;
+esac
 rm -rf "$T"
 echo "end=$(date -Is) tests=$t1"

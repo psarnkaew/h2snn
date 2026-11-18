@@ -726,33 +726,40 @@ def _per_path_calc(data: Any, target: str, paths: list[list[EdgeType]], hubs: li
 
 
 def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int] = FILL_SEEDS,
-               labeled_only: bool = True, closed_form: bool = True) -> dict[str, Any]:
+               labeled_only: bool = True, closed_form: bool = True,
+               metapath_index: int | None = None) -> dict[str, Any]:
     """ℋ² (spec §1): per label problem (IMDB: per genre) and fill seed, `calcHomophily` on the whole graph;
     ℋ² = 1 − mean over its meta-paths of the adjusted homophily (multilabel: mean over genres). The fill
     `calcHomophily` applied is checked equal to `fill_like_h2gb`. Labeled-only diagnostic when targets are
     unlabeled: `calcHomophily` per enumerated meta-path on `labeled_only_metapath_data` (no fill needed).
     H2b (`closed_form`): when some meta-path's `G_P` is complete (a hub), every meta-path is computed on its own
     (`_per_path_calc`): the closed form there, `calcHomophily` unchanged elsewhere; with no hub, the single
-    whole-graph call as before."""
+    whole-graph call as before.
+    H2c-2 (`metapath_index`): only that enumerated meta-path, by the same per-path computation; the result is one
+    part (no ℋ² value); `h2_collect` over the parts of every index gives the record."""
     problems = label_tasks(y, fill_seeds)
     keep = labeled_mask(y)
     per_problem: dict[str, Any] = {}
     enumerated: list[list[EdgeType]] = []
     hubs: list[int | None] = []
-    if closed_form:
+    if closed_form or metapath_index is not None:
         enumerated = h2gb_metapaths(data.edge_types, target)
-        hubs = [complete_gp_hub(data, path) for path in enumerated]
-    split = any(h is not None for h in hubs)
+        hubs = [complete_gp_hub(data, path) if closed_form else None for path in enumerated]
+    names = [metapath_name(m) for m in enumerated]
+    split = metapath_index is not None or any(h is not None for h in hubs)
+    chosen = list(range(len(enumerated))) if metapath_index is None else [metapath_index]
+    paths, path_hubs = [enumerated[i] for i in chosen], [hubs[i] for i in chosen]
     everyone = torch.ones(int(data[target].num_nodes), dtype=torch.bool)
-    empty = [metapath_name(m) for m, h in zip(enumerated, hubs)
+    empty = [metapath_name(m) for m, h in zip(paths, path_hubs)
              if split and h is None and _mini_gp_empty(labeled_only_metapath_data(data, m, target, everyone))]
     for p in problems:
         runs = []
         for seed in p["seeds"]:
             if split:
-                rows = _per_path_calc(data, target, enumerated, hubs, p["labels"], seed)
+                rows = _per_path_calc(data, target, paths, path_hubs, p["labels"], seed)
             else:
-                rows, used, enumerated = calc_homophily(data, target, p["labels"], seed)
+                rows, used, paths = calc_homophily(data, target, p["labels"], seed)
+                names = [metapath_name(m) for m in paths]
                 if not torch.equal(used, fill_like_h2gb(p["labels"], seed)):
                     raise AssertionError("calcHomophily's fill differs from fill_like_h2gb")
             runs.append({"seed": seed, "per_metapath": rows,
@@ -760,11 +767,11 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
         lab = None
         if labeled_only and not bool(keep.all()):
             lab_rows = []
-            for i, path in enumerate(enumerated):
-                if split and hubs[i] is not None:
+            for path, hub in zip(paths, path_hubs if split else [None] * len(paths)):
+                if hub is not None:
                     row = complete_calc_row(path, p["labels"][keep])
                     lab_rows.append({"metapath": metapath_name(path), "h_adj": row["h_adj"],
-                                     "h_edge": row["h_edge"], "gp_complete": True, "hub": hubs[i]})
+                                     "h_edge": row["h_edge"], "gp_complete": True, "hub": hub})
                     continue
                 mini = labeled_only_metapath_data(data, path, target, keep)
                 rows = [] if _mini_gp_empty(mini) else calc_homophily(mini, "tgt", p["labels"][keep], seed=0)[0]
@@ -774,24 +781,71 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
             vals = [r["h_adj"] for r in lab_rows if r["h_adj"] is not None]
             lab = {"h2": None if not vals else 1 - sum(vals) / len(vals), "per_metapath": lab_rows}
         per_problem[p["name"]] = {"seeds": p["seeds"], "runs": runs, "labeled_only": lab}
-    n_seeds = len(problems[0]["seeds"])
-    over_seeds = [_mean(per_problem[p["name"]]["runs"][k]["h2"] for p in problems) for k in range(n_seeds)]
+    h2b = None if not closed_form else {
+        "complete_gp": {metapath_name(m): h for m, h in zip(paths, path_hubs) if h is not None},
+        "empty_gp_skipped": empty,
+        "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)" if split
+        else "single whole-graph calcHomophily call (no complete G_P)"}
+    lab_on = labeled_only and not bool(keep.all())
+    if metapath_index is not None:
+        return {"value": None, "reason": f"H2c-2 part: meta-path {metapath_index} of {len(enumerated)}; the value is "
+                "h2_collect over every part", "part": {"metapath_index": metapath_index, "of": len(enumerated),
+                                                      "metapath": names[metapath_index]},
+                "h2gb_metapaths": names, "per_problem": per_problem, "h2b": h2b, "labeled_only_on": lab_on,
+                "multilabel": y.dim() == 2, "labeled_targets": int(keep.sum()), "targets": int(keep.numel())}
+    return _h2_summary(per_problem, names, h2b, lab_on, y.dim() == 2, int(keep.sum()), int(keep.numel()))
+
+
+def _h2_summary(per_problem: dict[str, Any], names: list[str], h2b: dict[str, Any] | None, lab_on: bool,
+                multilabel: bool, labeled_targets: int, targets: int) -> dict[str, Any]:
+    problems = list(per_problem)
+    n_seeds = len(per_problem[problems[0]]["seeds"])
+    over_seeds = [_mean(per_problem[p]["runs"][k]["h2"] for p in problems) for k in range(n_seeds)]
     out: dict[str, Any] = {
         "value": over_seeds[0], "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted "
         "homophily", "value_over_fill_seeds": over_seeds,
         "spread": None if len(over_seeds) < 2 else [min(over_seeds), max(over_seeds)],
-        "h2gb_metapaths": [metapath_name(m) for m in enumerated], "per_problem": per_problem,
-        "h2b": None if not closed_form else {
-            "complete_gp": {metapath_name(m): h for m, h in zip(enumerated, hubs) if h is not None},
-            "empty_gp_skipped": empty,
-            "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)" if split
-            else "single whole-graph calcHomophily call (no complete G_P)"},
-        "labeled_targets": int(keep.sum()), "targets": int(keep.numel()),
+        "h2gb_metapaths": names, "per_problem": per_problem, "h2b": h2b,
+        "labeled_targets": labeled_targets, "targets": targets,
     }
-    if labeled_only and not bool(keep.all()):
-        out["labeled_only"] = _mean(per_problem[p["name"]]["labeled_only"]["h2"] for p in problems)
-    if y.dim() == 2:
-        out["per_genre"] = {p["name"]: per_problem[p["name"]]["runs"][0]["h2"] for p in problems}
+    if lab_on:
+        out["labeled_only"] = _mean(per_problem[p]["labeled_only"]["h2"] for p in problems)
+    if multilabel:
+        out["per_genre"] = {p: per_problem[p]["runs"][0]["h2"] for p in problems}
+    return out
+
+
+def h2_collect(parts: list[dict[str, Any]]) -> dict[str, Any]:
+    """H2c-2: ℋ² from the parts of `h2_measure(..., metapath_index=i)`, one per enumerated meta-path: their rows in
+    `calcHomophily`'s order; per fill seed 1 − the mean adjusted homophily over the meta-paths with a row (an empty
+    `G_P` has none: `calcHomophily` divides by the non-empty paths only); labeled-only likewise."""
+    parts = sorted(parts, key=lambda q: q["part"]["metapath_index"])
+    names = parts[0]["h2gb_metapaths"]
+    if [q["part"]["metapath_index"] for q in parts] != list(range(len(names))):
+        raise ValueError("H2c-2: the parts do not cover every meta-path index exactly once")
+    if any(q["h2gb_metapaths"] != names for q in parts):
+        raise ValueError("H2c-2: the parts enumerate different meta-paths")
+    per_problem: dict[str, Any] = {}
+    for name, first in parts[0]["per_problem"].items():
+        runs = []
+        for k, run in enumerate(first["runs"]):
+            rows = [r for q in parts for r in q["per_problem"][name]["runs"][k]["per_metapath"]]
+            if any(q["per_problem"][name]["runs"][k]["seed"] != run["seed"] for q in parts):
+                raise ValueError("H2c-2: the parts used different fill seeds")
+            h2 = None if not rows else 1 - sum(r["h_adj"] for r in rows) / len(rows)  # non-empty paths only
+            runs.append({"seed": run["seed"], "per_metapath": rows, "h2": h2})
+        lab = None
+        if first["labeled_only"] is not None:
+            lab_rows = [r for q in parts for r in q["per_problem"][name]["labeled_only"]["per_metapath"]]
+            vals = [r["h_adj"] for r in lab_rows if r["h_adj"] is not None]
+            lab = {"h2": None if not vals else 1 - sum(vals) / len(vals), "per_metapath": lab_rows}
+        per_problem[name] = {"seeds": first["seeds"], "runs": runs, "labeled_only": lab}
+    h2b = None if parts[0]["h2b"] is None else {
+        "complete_gp": {k: v for q in parts for k, v in q["h2b"]["complete_gp"].items()},
+        "empty_gp_skipped": [m for q in parts for m in q["h2b"]["empty_gp_skipped"]],
+        "computation": "H2c-2: one meta-path per task (per-path computation), collected"}
+    out = _h2_summary(per_problem, names, h2b, parts[0]["labeled_only_on"], parts[0]["multilabel"],
+                      parts[0]["labeled_targets"], parts[0]["targets"])
     return out
 
 
@@ -902,7 +956,7 @@ class Timer:
 __all__ = ["EDGE_CHUNK", "FILL_SEEDS", "GP_CHUNK_ROWS", "HETERO2NET_LISTS", "LabelHomophily",
            "MDE_REFERENCE_MAX_EDGES", "Timer", "calc_homophily", "chunks_of", "clique_gp_mid", "clique_mde",
            "fill_like_h2gb", "gc_type_statistics", "genre_fill_seed", "genre_labels", "gp_edge_index",
-           "gp_edges_capped", "h2_measure", "h2gb_calc_homophily", "h2gb_metapaths",
+           "gp_edges_capped", "h2_collect", "h2_measure", "h2gb_calc_homophily", "h2gb_metapaths",
            "hetero2net_homophily", "hetero2net_m2", "iter_gp", "label_tasks", "label_homophily_chunked",
            "labeled_mask", "labeled_only_metapath_data", "mde_chunked", "mde_measure", "mde_reference",
            "metapath_name", "mlh_measure", "step_adjacency", "step_relations", "symmetrise_facts", "task_h_edge",
