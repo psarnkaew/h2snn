@@ -621,6 +621,20 @@ def labeled_only_metapath_data(data: Any, path: list[EdgeType], target: str, kee
     return out
 
 
+def _mini_gp_empty(mini: Any) -> bool:
+    """True iff the `G_P` of a `labeled_only_metapath_data` graph has no edge: no `mid` node has an edge on both
+    steps (exact). `calcHomophily` skips such a meta-path ("No existing edge within this metapath subgraph"), and on
+    a graph holding only that meta-path it then divides by zero in its overall print (`:185`), so the harness skips
+    it here the same way."""
+    (e1,), (e2,) = ([mini[e].edge_index for e in mini.edge_types if e[0] == s] for s in ("tgt", "mid"))
+    n_mid = int(mini["mid"].num_nodes)
+    a = torch.zeros(n_mid, dtype=torch.bool)
+    b = torch.zeros(n_mid, dtype=torch.bool)
+    a[e1[1]] = True
+    b[e2[0]] = True
+    return not bool((a & b).any())
+
+
 def _per_path_calc(data: Any, target: str, paths: list[list[EdgeType]], hubs: list[int | None],
                    labels: torch.Tensor, seed: int) -> list[dict[str, Any]]:
     """H2b: `calcHomophily`'s per-meta-path results, in its order, with the closed form on a meta-path whose `G_P`
@@ -634,7 +648,10 @@ def _per_path_calc(data: Any, target: str, paths: list[list[EdgeType]], hubs: li
         if hub is not None:
             rows.append({**complete_calc_row(path, filled), "gp_complete": True, "hub": hub})
             continue
-        got, used, _ = calc_homophily(labeled_only_metapath_data(data, path, target, everyone), "tgt", labels, seed)
+        mini = labeled_only_metapath_data(data, path, target, everyone)
+        if _mini_gp_empty(mini):
+            continue  # calcHomophily skips a meta-path with an empty G_P (no row), as in the whole-graph call
+        got, used, _ = calc_homophily(mini, "tgt", labels, seed)
         if not torch.equal(used, filled):
             raise AssertionError("calcHomophily's fill differs from fill_like_h2gb")
         rows.extend({**r, "metapath": metapath_name(path), "edge_types": [list(s) for s in path],
@@ -660,6 +677,9 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
         enumerated = h2gb_metapaths(data.edge_types, target)
         hubs = [complete_gp_hub(data, path) for path in enumerated]
     split = any(h is not None for h in hubs)
+    everyone = torch.ones(int(data[target].num_nodes), dtype=torch.bool)
+    empty = [metapath_name(m) for m, h in zip(enumerated, hubs)
+             if split and h is None and _mini_gp_empty(labeled_only_metapath_data(data, m, target, everyone))]
     for p in problems:
         runs = []
         for seed in p["seeds"]:
@@ -681,7 +701,7 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
                                      "h_edge": row["h_edge"], "gp_complete": True, "hub": hubs[i]})
                     continue
                 mini = labeled_only_metapath_data(data, path, target, keep)
-                rows, _, _ = calc_homophily(mini, "tgt", p["labels"][keep], seed=0)
+                rows = [] if _mini_gp_empty(mini) else calc_homophily(mini, "tgt", p["labels"][keep], seed=0)[0]
                 lab_rows.append({"metapath": metapath_name(path),
                                  "h_adj": rows[0]["h_adj"] if rows else None,
                                  "h_edge": rows[0]["h_edge"] if rows else None})
@@ -697,6 +717,7 @@ def h2_measure(data: Any, target: str, y: torch.Tensor, fill_seeds: Iterable[int
         "h2gb_metapaths": [metapath_name(m) for m in enumerated], "per_problem": per_problem,
         "h2b": None if not closed_form else {
             "complete_gp": {metapath_name(m): h for m, h in zip(enumerated, hubs) if h is not None},
+            "empty_gp_skipped": empty,
             "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)" if split
             else "single whole-graph calcHomophily call (no complete G_P)"},
         "labeled_targets": int(keep.sum()), "targets": int(keep.numel()),

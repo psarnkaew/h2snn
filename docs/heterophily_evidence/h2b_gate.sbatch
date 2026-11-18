@@ -30,12 +30,12 @@ echo "=== 2. self-pair mutations (copy in /tmp; target: the gate test)"
 T=$(mktemp -d /tmp/s5_h2b_XXXX)
 cp -r src tests "$T"/ && ln -s "$WT/vendor" "$T/vendor" && ln -s "$WT/data" "$T/data"
 GATE=tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions
-mutate() {  # name, sed expression
+mutate() {  # name, sed expression[, test]
     cp "$WT/src/analysis/heterophily.py" "$T/src/analysis/heterophily.py"
     sed -i "$2" "$T/src/analysis/heterophily.py"
     if cmp -s "$WT/src/analysis/heterophily.py" "$T/src/analysis/heterophily.py"; then
         echo "MUTATION $1: sed did not change the file"; return; fi
-    (cd "$T" && python -m unittest "$GATE" > "$T/out.txt" 2>&1)
+    (cd "$T" && python -m unittest "${3:-$GATE}" > "$T/out.txt" 2>&1)
     if [ $? -eq 0 ]; then echo "MUTATION $1: SURVIVED (gate passed)"; else echo "MUTATION $1: KILLED (gate failed)"
         grep -E "^(FAIL|ERROR|AssertionError)" "$T/out.txt" | head -3; fi
 }
@@ -43,6 +43,9 @@ mutate "M3a: label closed form without self-pairs (n(n-1) pairs)" \
     's/return (counts \* counts).sum(), n \* n/return (counts * counts - counts).sum(), n * n - n/'
 mutate "M3b: MDE closed form without self-pairs (degree n-1, n(n-1) pairs)" \
     's/deg, pairs = n, n \* n  #/deg, pairs = n - 1, n * (n - 1)  #/'
+mutate "M3c: no skip of a meta-path with an empty G_P (calcHomophily on a one-path graph without edges)" \
+    's/        if _mini_gp_empty(mini):/        if False:/' \
+    tests.test_heterophily_harness.H2bClosedFormTests.test_a_meta_path_with_an_empty_gp_is_skipped_as_calchomophily_does
 rm -rf "$T"
 
 echo "end=$(date -Is) tests=$t1"

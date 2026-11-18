@@ -356,6 +356,33 @@ class H2bClosedFormTests(unittest.TestCase):
         self.assertClose(fast["value"], ref["value"])
         self.assertClose(fast["reproduction_exact_match"]["homophily"], ref["reproduction_exact_match"]["homophily"])
 
+    def test_a_meta_path_with_an_empty_gp_is_skipped_as_calchomophily_does(self) -> None:
+        # OAG-like: two paper->field levels on disjoint fields (paper-L5-field-rev_L0-paper has no edge); the split
+        # computation skips it as the whole-graph calcHomophily call does, and equals that call.
+        for n, n_fields, seed in ((7, 4, 0), (60, 10, 3)):
+            with self.subTest(n=n):
+                data = field_graph(n, n_fields, seed, hub=True)
+                g = torch.Generator().manual_seed(seed)
+                papers = torch.arange(n)
+                l5 = torch.stack([papers, torch.full((n,), n_fields - 1)])
+                l0 = torch.stack([papers, torch.randint(1, n_fields - 1, (n,), generator=g)])
+                data["paper", "L5", "field"].edge_index = l5
+                data["field", "rev_L0", "paper"].edge_index = l0.flip(0)
+                y = data["paper"].y
+                fast = het.h2_measure(data, "paper", y)
+                ref = het.h2_measure(data, "paper", y, closed_form=False)
+                self.assertEqual(fast["h2b"]["empty_gp_skipped"], ["paper-L5-field-rev_L0-paper"])
+                self.assertIn("per meta-path", fast["h2b"]["computation"])
+                runs_f, runs_r = fast["per_problem"]["label"]["runs"], ref["per_problem"]["label"]["runs"]
+                for rf, rr in zip(runs_f, runs_r):
+                    self.assertEqual([r["metapath"] for r in rf["per_metapath"]],
+                                     [r["metapath"] for r in rr["per_metapath"]])
+                    for a, b in zip(rf["per_metapath"], rr["per_metapath"]):
+                        self.assertClose(a["h_edge"], b["h_edge"])
+                        self.assertClose(a["h_adj"], b["h_adj"], atol=1e-6)
+                    self.assertClose(rf["h2"], rr["h2"], atol=1e-6)
+                self.assertClose(fast["labeled_only"], ref["labeled_only"], atol=1e-6)
+
     def test_a_graph_without_a_hub_is_refused(self) -> None:
         # every paper pair shares a field (G_P complete), but no single field reaches every paper
         data = HeteroData()
