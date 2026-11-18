@@ -284,7 +284,15 @@ def _cell(rec: dict[str, Any] | None, digits: int = 4) -> str:
     complete, total = _h2b_count(rec)
     if complete:
         text += f" (H2b closed form on {complete}/{total} G_P)"
+    cliques = _h2c1_count(rec)
+    if cliques:
+        text += f" (H2c-1 clique closed form on {cliques}/{len(rec['per_metapath'])} G_P)"
     return text
+
+
+def _h2c1_count(rec: dict[str, Any]) -> int:
+    """Meta-paths computed by the H2c-1 clique closed form."""
+    return sum(1 for r in rec.get("per_metapath") or [] if r.get("gp_cliques"))
 
 
 def _h2b_count(rec: dict[str, Any]) -> tuple[int, int]:
@@ -375,7 +383,7 @@ def main(argv: list[str] | None = None) -> int:
         "code": {"h2": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P)",
                  "mlh": "hetero2net/homophily.py label_homophily (H2b: closed form on a complete G_P)",
                  "mde": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed "
-                        "form on a complete G_P)",
+                        "form on a complete G_P; H2c-1: closed form on a disjoint union of cliques)",
                  "task_h_edge": "hetero2net/homophily.py label_homophily",
                  "gc_types": "src/analysis/heterophily.py gc_type_statistics",
                  "plan": "src/analysis/heterophily.py (instance counts)",

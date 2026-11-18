@@ -1,0 +1,49 @@
+job=17735 node=g2tn01 start=2026-11-18T19:40:15+09:00
+git=c74bb20bdd27ad95f3d20c2b5f8294a2b8311aac branch=HEAD
+status:  M src/analysis/heterophily.py
+status:  M tests/test_heterophily_harness.py
+/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/vendor/H2GB/H2GB/datasets/ieee_cis_dataset.py:170: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/vendor/H2GB/H2GB/loader/master_loader.py:767: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  data = dataset.data
+{"metapath": "transaction-card1-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 144233, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 8499, "gp_edges_with_self_pairs": 213720395, "self_pairs": 144233}
+{"metapath": "transaction-card2-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 902, "targets_with_1": 143331, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 482, "gp_edges_with_self_pairs": 811536307, "self_pairs": 143331}
+{"metapath": "transaction-card3-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 172, "targets_with_1": 144061, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 103, "gp_edges_with_self_pairs": 9538366081, "self_pairs": 144061}
+{"metapath": "transaction-card4-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 184, "targets_with_1": 144049, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 4, "gp_edges_with_self_pairs": 10000705557, "self_pairs": 144049}
+{"metapath": "transaction-card5-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 956, "targets_with_1": 143277, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 106, "gp_edges_with_self_pairs": 4102834227, "self_pairs": 143277}
+{"metapath": "transaction-card6-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 178, "targets_with_1": 144055, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 3, "gp_edges_with_self_pairs": 10392610825, "self_pairs": 144055}
+{"metapath": "transaction-ProductCD-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 144233, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 4, "gp_edges_with_self_pairs": 6494845857, "self_pairs": 144233}
+{"metapath": "transaction-addr1-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 60447, "targets_with_1": 83786, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 255, "gp_edges_with_self_pairs": 344049308, "self_pairs": 83786}
+{"metapath": "transaction-addr2-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 60447, "targets_with_1": 83786, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 72, "gp_edges_with_self_pairs": 6537815520, "self_pairs": 83786}
+{"metapath": "transaction-P_emaildomain-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 13391, "targets_with_1": 130842, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 59, "gp_edges_with_self_pairs": 4086829248, "self_pairs": 130842}
+{"metapath": "transaction-R_emaildomain-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 13150, "targets_with_1": 131083, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 60, "gp_edges_with_self_pairs": 4218661273, "self_pairs": 131083}
+{"metapath": "paper-subject-paper", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 3025, "targets_with_2_or_more": 0, "clique_condition": true, "dataset": "acm", "record_job": "17210", "recorded": 0.04272257399931073, "recorded_edges": 2217089, "closed_form": 0.0427225686757869, "edges": 2217089, "rel_diff": 1.2460681395689837e-07, "edges_equal": true, "ok": true}
+{"metapath": "paper-term-paper", "max_mid_edges_per_target": 196, "targets_with_0": 0, "targets_with_1": 0, "targets_with_2_or_more": 3025, "clique_condition": false, "dataset": "acm", "record_job": "17210", "recorded": 0.010651621859015746, "recorded_edges": 9150595}
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/../docs/heterophily_evidence/h2c/h2c1_check.py", line 64, in <module>
+    sym, target, paths = load(dataset)
+                         ^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/../docs/heterophily_evidence/h2c/h2c1_check.py", line 26, in load
+    raw, target, _ = stats.load_nc(dataset, Path(stats.REPO_DATA_ROOT))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/scripts/heterophily_stats.py", line 83, in load_nc
+    return load_h2gb_nc(dataset, data_root, seed=0), ALL_H2GB_NC_SPECS[dataset].target_node_type, LOADERS["h2gb"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/src/data/h2gb_nc.py", line 181, in load_h2gb_nc
+    return load_h2gb_dataset(key, root, seed if key in RAW_ONLY else None)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/src/data/h2gb_nc.py", line 156, in load_h2gb_dataset
+    import H2GB  # noqa: F401  - H2GB's package registers its config groups (cfg.dataset.rand_split)
+    ^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/vendor/H2GB/H2GB/__init__.py", line 4, in <module>
+    from .encoder import * # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily-h2c/H2S-NN/vendor/H2GB/H2GB/encoder/graphormer_encoder.py", line 255, in <module>
+    @register_node_encoder("GraphormerBias")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 40, in bounded_register
+    register_base(mapping, key, module)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/graphgym/register.py", line 34, in register_base
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+end=2026-11-18T19:40:38+09:00 exit=1

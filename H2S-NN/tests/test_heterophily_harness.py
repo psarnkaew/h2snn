@@ -408,5 +408,74 @@ class H2bClosedFormTests(unittest.TestCase):
         self.assertIsNone(het.complete_gp_hub(one_way, PFP[0]))
 
 
+TCT = [("txn", "card"), ("card", "txn")]
+
+
+def card_graph(n: int, n_cards: int, seed: int, none: float = 0.2, d: int = 6) -> HeteroData:
+    """IEEE-CIS-like: each transaction has at most one card (a `none` part has none); `rev_to` is the reverse, so
+    `G_P` of txn-card-txn is one clique per card."""
+    g = torch.Generator().manual_seed(seed)
+    data = HeteroData()
+    data["txn"].num_nodes = n
+    data["txn"].x = torch.randn(n, d, generator=g) * 2 + torch.arange(d, dtype=torch.float32)
+    data["card"].num_nodes = n_cards
+    card = torch.randint(0, n_cards, (n,), generator=g)
+    has = torch.rand(n, generator=g) >= none
+    to = torch.stack([torch.arange(n)[has], card[has]])
+    data["txn", "to", "card"].edge_index = to
+    data["card", "rev_to", "txn"].edge_index = to.flip(0)
+    return data
+
+
+class H2cCliqueTests(unittest.TestCase):
+    """H2c-1 (card): on graphs with one mid per target, the clique closed form equals `mde_chunked` and the reference
+    `attribute_homophily` within 1e-6, with self-pairs (as the `G_P` builder makes them) and without; other graphs are
+    refused."""
+
+    def assertClose(self, got: float, want: float, rtol: float = 1e-6) -> None:
+        self.assertLessEqual(abs(got - want), rtol * abs(want), f"{got} vs {want}")
+
+    def test_clique_closed_form_equals_the_chunked_and_reference_mde(self) -> None:
+        for n, n_cards, seed in ((9, 3, 0), (80, 7, 1), (300, 40, 2)):
+            with self.subTest(n=n):
+                data = card_graph(n, n_cards, seed)
+                x = data["txn"].x
+                mid = het.clique_gp_mid(data, TCT)
+                self.assertIsNotNone(mid)
+                gp = het.gp_edge_index(data, TCT)
+                with_mid = int((mid >= 0).sum())
+                self.assertEqual(int((gp[0] == gp[1]).sum()), with_mid)  # the builder keeps self-pairs
+                sizes = torch.bincount(mid[mid >= 0])
+                self.assertEqual(gp.size(1), int((sizes * sizes).sum()))
+                value, edges = het.clique_mde(mid, x)
+                self.assertEqual(edges, gp.size(1))
+                self.assertClose(value, het.mde_chunked(het.chunks_of(gp), x)[0])
+                self.assertClose(value, het.mde_reference(gp, x))
+                no_self = gp[:, gp[0] != gp[1]]
+                value_ns, edges_ns = het.clique_mde(mid, x, self_pairs=False)
+                self.assertEqual(edges_ns, no_self.size(1))
+                self.assertClose(value_ns, het.mde_chunked(het.chunks_of(no_self), x)[0])
+                self.assertClose(value_ns, het.mde_reference(no_self, x))
+                rec = het.mde_measure(data, "txn", [TCT], x)["per_metapath"][0]
+                self.assertEqual(rec["code_path"], "closed form (H2c-1: disjoint cliques)")
+                self.assertTrue(rec["gp_cliques"])
+                self.assertEqual(rec["edges"], gp.size(1))
+                self.assertClose(rec["value"], het.mde_reference(gp, x))
+                gate = het.mde_measure(data, "txn", [TCT], x, both=True)["per_metapath"][0]
+                self.assertIsNone(gate["gp_cliques"])  # gate H0-eq keeps the reference and chunked values
+
+    def test_a_graph_that_is_not_cliques_is_refused(self) -> None:
+        data = card_graph(30, 4, 3)
+        to = data["txn", "to", "card"].edge_index
+        two = torch.cat([to, torch.tensor([[int(to[0, 0])], [(int(to[1, 0]) + 1) % 4]])], dim=1)
+        data["txn", "to", "card"].edge_index = two
+        data["card", "rev_to", "txn"].edge_index = two.flip(0)
+        self.assertIsNone(het.clique_gp_mid(data, TCT))  # a transaction with two cards
+        data = card_graph(30, 4, 3)
+        data["card", "rev_to", "txn"].edge_index = data["card", "rev_to", "txn"].edge_index[:, 1:]
+        self.assertIsNone(het.clique_gp_mid(data, TCT))  # step 2 is not the transpose of step 1
+        self.assertFalse(het.mde_measure(data, "txn", [TCT], data["txn"].x)["per_metapath"][0]["gp_cliques"])
+
+
 if __name__ == "__main__":
     unittest.main()

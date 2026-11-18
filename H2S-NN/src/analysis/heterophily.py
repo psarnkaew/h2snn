@@ -290,6 +290,63 @@ def complete_calc_row(path: list[EdgeType], labels: torch.Tensor) -> dict[str, A
             "h_edge": complete_label_homophily(labels), "h_insensitive": 0.0, "h_adj": 0.0}
 
 
+# ----------------------------------------------------------------------------------------------- H2c-1: cliques
+def _unique_pairs(index: torch.Tensor, n_cols: int) -> torch.Tensor:
+    key = torch.unique(index[0] * n_cols + index[1])
+    return torch.stack([key // n_cols, key % n_cols])
+
+
+def clique_gp_mid(data: Any, path: list) -> torch.Tensor | None:
+    """H2c-1 (card): the mid node of each target (-1: none) when `G_P` of the length-2 meta-path `t→m→t` is a
+    disjoint union of cliques, else None. Exact, from the two adjacencies (supports, as `step_adjacency`): every
+    target has at most one `m` on step 1, and step 2 is the transpose of step 1; then `G_P = A₁A₂` has 0/1 entries
+    and is one clique per `m` (self-pairs included, as the `G_P` builder keeps them). `path` as `complete_gp_hub`."""
+    path = [tuple(s) for s in path]
+    if len(path) != 2:
+        return None
+    if len(path[0]) == 2:
+        (t, m), (m2, t2) = path
+        first = torch.cat([data[e].edge_index for e in step_relations(data.edge_types, t, m)], dim=1)
+        second = torch.cat([data[e].edge_index for e in step_relations(data.edge_types, m2, t2)], dim=1)
+    else:
+        (t, _, m), (m2, _, t2) = path
+        first, second = data[path[0]].edge_index, data[path[1]].edge_index
+    if t != t2 or m != m2:
+        return None
+    n, n_mid = int(data[t].num_nodes), int(data[m].num_nodes)
+    first = _unique_pairs(first, n_mid)
+    if first.size(1) == 0 or int(torch.bincount(first[0], minlength=n).max()) > 1:
+        return None
+    if not torch.equal(_unique_pairs(second.flip(0), n_mid), first):
+        return None
+    mid = torch.full((n,), -1, dtype=torch.long)
+    mid[first[0]] = first[1]
+    return mid
+
+
+def clique_mde(mid: torch.Tensor, x: torch.Tensor, self_pairs: bool = True) -> tuple[float | None, int]:
+    """H2c-1: `attribute_homophily` / `mde_chunked` on a `G_P` that is one clique per mid node (`clique_gp_mid`).
+    Per clique of size n with S₁ = Σx, S₂ = Σ‖x‖² (float64), the energy sum is (2nS₂ − 2‖S₁‖²)/(4d) with every
+    degree d = n with self-pairs (n − 1 without; a self-pair's energy is 0); MDE = Σ energies / Σ n·d edges.
+    Returns (value, edges), as `mde_chunked`."""
+    keep = mid >= 0
+    m = mid[keep]
+    if m.numel() == 0:
+        return None, 0
+    xk = x[keep].to(torch.float64)
+    n_mid = int(m.max()) + 1
+    size = torch.bincount(m, minlength=n_mid).to(torch.float64)
+    s2 = torch.zeros(n_mid, dtype=torch.float64).index_add_(0, m, xk.square().sum(dim=1))
+    s1 = torch.zeros(n_mid, xk.size(1), dtype=torch.float64).index_add_(0, m, xk)
+    d = size if self_pairs else size - 1  # degree in the clique: n with self-pairs, n - 1 without
+    used = d > 0
+    energy = (2 * size * s2 - 2 * s1.square().sum(dim=1))[used] / (4 * d[used])
+    edges = int((size * d)[used].sum())
+    if edges == 0:
+        return None, 0
+    return float(energy.sum() / edges), edges
+
+
 def chunks_of(edge_index: torch.Tensor, size: int = EDGE_CHUNK) -> ChunkSource:
     """A re-iterable chunk source over a stored edge index."""
     def source() -> Iterator[tuple[torch.Tensor, torch.Tensor]]:
@@ -508,9 +565,10 @@ def mde_chunked(source: ChunkSource, x: torch.Tensor, chunk: int | None = None) 
 def mde_measure(data: Any, target: str, paths: list[list[Step]], x: torch.Tensor, both: bool = False,
                 max_reference_edges: int = MDE_REFERENCE_MAX_EDGES, closed_form: bool = True) -> dict[str, Any]:
     """MDE (spec §1) on `paths` with raw target features `x`: per `G_P` the closed form when a hub makes it complete
-    (H2b, `closed_form`), else the reference `attribute_homophily` when `|E(G_P)| <= max_reference_edges`, else
-    `mde_chunked` on the `G_P` row chunks (D-a). `both` (gate H0-eq, HGB): both values on every `G_P` whatever its
-    size (the reported value still follows D-a). MDE = mean over meta-paths with a non-empty `G_P`."""
+    (H2b, `closed_form`), or when it is a disjoint union of cliques (H2c-1, `closed_form` and not `both`), else the
+    reference `attribute_homophily` when `|E(G_P)| <= max_reference_edges`, else `mde_chunked` on the `G_P` row
+    chunks (D-a). `both` (gate H0-eq, HGB): both values on every `G_P` whatever its size (the reported value still
+    follows D-a). MDE = mean over meta-paths with a non-empty `G_P`."""
     per_path = []
     for path in paths:
         rec: dict[str, Any] = {"metapath": metapath_name(path), "steps": [list(s) for s in path]}
@@ -518,6 +576,14 @@ def mde_measure(data: Any, target: str, paths: list[list[Step]], x: torch.Tensor
         rec.update(gp_complete=(hub is not None) if closed_form else None, hub=hub)
         if hub is not None:
             rec.update(edges=x.size(0) ** 2, value=complete_mde(x), code_path="closed form (H2b: complete G_P)")
+            per_path.append(rec)
+            continue
+        mid = clique_gp_mid(data, path) if closed_form and not both else None
+        rec["gp_cliques"] = (mid is not None) if closed_form and not both else None
+        if mid is not None:
+            value, edges = clique_mde(mid, x)
+            rec.update(edges=edges, value=value, cliques=int(torch.unique(mid[mid >= 0]).numel()),
+                       code_path="closed form (H2c-1: disjoint cliques)")
             per_path.append(rec)
             continue
         whole = gp_edges_capped(data, path, 2 ** 62 if both else max_reference_edges)
@@ -833,9 +899,11 @@ class Timer:
                 "peak_rss_gb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6, 3)}
 
 
-__all__ = ["EDGE_CHUNK", "FILL_SEEDS", "GP_CHUNK_ROWS", "HETERO2NET_LISTS", "LabelHomophily", "MDE_REFERENCE_MAX_EDGES",
-           "Timer", "calc_homophily", "chunks_of", "fill_like_h2gb", "gc_type_statistics", "genre_fill_seed",
-           "genre_labels", "gp_edge_index", "gp_edges_capped", "h2_measure", "h2gb_calc_homophily", "h2gb_metapaths",
-           "hetero2net_homophily", "hetero2net_m2", "iter_gp", "label_tasks", "label_homophily_chunked", "labeled_mask",
-           "labeled_only_metapath_data", "mde_chunked", "mde_measure", "mde_reference", "metapath_name", "mlh_measure",
-           "step_adjacency", "step_relations", "symmetrise_facts", "task_h_edge", "type_mixing", "vendor_commit"]
+__all__ = ["EDGE_CHUNK", "FILL_SEEDS", "GP_CHUNK_ROWS", "HETERO2NET_LISTS", "LabelHomophily",
+           "MDE_REFERENCE_MAX_EDGES", "Timer", "calc_homophily", "chunks_of", "clique_gp_mid", "clique_mde",
+           "fill_like_h2gb", "gc_type_statistics", "genre_fill_seed", "genre_labels", "gp_edge_index",
+           "gp_edges_capped", "h2_measure", "h2gb_calc_homophily", "h2gb_metapaths",
+           "hetero2net_homophily", "hetero2net_m2", "iter_gp", "label_tasks", "label_homophily_chunked",
+           "labeled_mask", "labeled_only_metapath_data", "mde_chunked", "mde_measure", "mde_reference",
+           "metapath_name", "mlh_measure", "step_adjacency", "step_relations", "symmetrise_facts", "task_h_edge",
+           "type_mixing", "vendor_commit"]

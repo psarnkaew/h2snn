@@ -1,0 +1,127 @@
+{
+ "which": "survey",
+ "rows": [
+  {
+   "metapath": "transaction-card1-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 0,
+   "targets_with_1": 144233,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 8499,
+   "gp_edges_with_self_pairs": 213720395,
+   "self_pairs": 144233
+  },
+  {
+   "metapath": "transaction-card2-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 902,
+   "targets_with_1": 143331,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 482,
+   "gp_edges_with_self_pairs": 811536307,
+   "self_pairs": 143331
+  },
+  {
+   "metapath": "transaction-card3-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 172,
+   "targets_with_1": 144061,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 103,
+   "gp_edges_with_self_pairs": 9538366081,
+   "self_pairs": 144061
+  },
+  {
+   "metapath": "transaction-card4-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 184,
+   "targets_with_1": 144049,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 4,
+   "gp_edges_with_self_pairs": 10000705557,
+   "self_pairs": 144049
+  },
+  {
+   "metapath": "transaction-card5-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 956,
+   "targets_with_1": 143277,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 106,
+   "gp_edges_with_self_pairs": 4102834227,
+   "self_pairs": 143277
+  },
+  {
+   "metapath": "transaction-card6-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 178,
+   "targets_with_1": 144055,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 3,
+   "gp_edges_with_self_pairs": 10392610825,
+   "self_pairs": 144055
+  },
+  {
+   "metapath": "transaction-ProductCD-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 0,
+   "targets_with_1": 144233,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 4,
+   "gp_edges_with_self_pairs": 6494845857,
+   "self_pairs": 144233
+  },
+  {
+   "metapath": "transaction-addr1-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 60447,
+   "targets_with_1": 83786,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 255,
+   "gp_edges_with_self_pairs": 344049308,
+   "self_pairs": 83786
+  },
+  {
+   "metapath": "transaction-addr2-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 60447,
+   "targets_with_1": 83786,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 72,
+   "gp_edges_with_self_pairs": 6537815520,
+   "self_pairs": 83786
+  },
+  {
+   "metapath": "transaction-P_emaildomain-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 13391,
+   "targets_with_1": 130842,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 59,
+   "gp_edges_with_self_pairs": 4086829248,
+   "self_pairs": 130842
+  },
+  {
+   "metapath": "transaction-R_emaildomain-transaction",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 13150,
+   "targets_with_1": 131083,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "cliques": 60,
+   "gp_edges_with_self_pairs": 4218661273,
+   "self_pairs": 131083
+  }
+ ],
+ "mismatch": false
+}
