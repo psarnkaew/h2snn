@@ -29,6 +29,7 @@
 | No per-schema branches; schemas still readable | Fixed-literature-schema row, C2b, N4, N4b | 3, 4 |
 | Scales | C5, C13, cost figure, per-dataset table, U3 | 4 |
 | Propagation helps at all (sanity) | `h₀`-only | 3 |
+| The head needs no ego input (1.25) | C18 (`ego_head`) | 3 |
 
 Removed: **C3 (relation order)**, author 2026-11-15 (B-5): order is not a difference from MAGNN (withdrawn 2026-11-10), most literature meta-paths are palindromes, and the diagonal-map arm confounds order with rotation capacity. Spec v1.23 deletes "and the order of their relations" from thesis H.
 
@@ -71,9 +72,10 @@ Removed: **C3 (relation order)**, author 2026-11-15 (B-5): order is not a differ
 | `covering_only` | node–cell term dropped | exists | (a) |
 | **S2** (maps = I) | every fact map `F = I`, hence every transport `I`; cells, `g`, `a_e`, `β_f`, `τ`, solver, head unchanged; geometry network unused | **new** (identity map operator under `anchored`; own card) | (a)+(b) |
 | **S0** | `no_path_cells` with maps = I | **new** (same operator) | (a) |
-| `direction_blind_maps` | the two roles of a relation share one frame and a symmetrised scale (`sheaf_maps.py:128`) | exists | (a) |
+| `direction_blind_maps` | every relation is treated as one with `ρ(r) = r`: no frame, antisymmetric `C_e`, symmetrised scale (1.25) | exists | (a) |
 | `free_cell_maps` | node→cell maps free per incidence instead of composed from the edge maps (Thm 3 control) | exists | (a) |
 | `h₀`-only | no propagation; head reads `h₀` (`h0_only_readout`) | exists | (a) |
+| `ego_head` (1.25) | head reads `[x*, h₀]` (the 1.24 readout); everything else as `full` | **new** (switch) | (a) |
 | Fixed-literature-schema row | path source = HGB's published meta-path list (`path_source: schemas`), spec §6 | exists | spec §6 (seeds 0–4, Welch; reported, not a claim) |
 
 The parameter table (§4.8) lists every arm's count.
@@ -98,6 +100,7 @@ Notation: "better on d" = passes on dataset d in the sense of §1.
 | **C15 learned transports (new)** | `full` vs S2 (b); 2×2 with `no_path_cells` and S0 reported | better on **both** IMDB and Freebase (heterophilic); a tie on ACM/DBLP is allowed | The paper drops the claim that its heterophily mechanism comes from the transports (Thm 4 stays a capacity result); **warning signal** |
 | **C16 direction-aware maps (new)** | `full` vs `direction_blind_maps` (a). Same-type relations exist only on ACM (paper–cite–paper) and Freebase (8 of 36 types, e.g. book–book 202,674 facts); none on DBLP, IMDB (`link.dat`, VERIFIED-RUN) | better on **both** ACM and Freebase | "Direction-aware" is not a selling point; direction is mostly carried by node types |
 | **C17 composition (new)** | `full` vs `free_cell_maps` (a), two-sided | three fixed readings: `full` better on ≥ 3 of 4 → composition helps; no difference → "no difference found" (never "equal"), kept for Thm 3; `free_cell_maps` better on ≥ 3 of 4 → composition has a cost, stated, kept for theory | no kill rule |
+| **C18 ego input (1.25)** | `full` vs `ego_head` (a) | `ego_head` better on ≥ 3 of 4 | The paper states that the ego input improves accuracy; main table unchanged |
 | Sanity | `full` vs `h₀`-only (a) | better on ≥ 3 of 4 | Warning signal (stop and discuss). Freebase has no features: `h₀`-only near chance there is also a leak control |
 | C5, C13 | §4.6 | §4.6 | spec |
 

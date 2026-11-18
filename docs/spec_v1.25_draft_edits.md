@@ -128,7 +128,7 @@ Q_e = F_srcᵀ F_tgt / c_e² ∈ SO(d)
 
 ---
 
-# Part Z (continued 2): the head reads `x*` only (Z-21 – Z-33) — DRAFT, awaiting author approval of the wording
+# Part Z (continued 2): the head reads `x*` only (Z-21 – Z-34) — APPROVED by the author and APPLIED (2026-11-18, spec v1.25)
 
 **Decision:** `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Readout: head reads `x*` only" (author). Applies on top of spec v1.25 as committed (`8acd764`); same version 1.25 (no implementation has started).
 
@@ -179,3 +179,8 @@ Q_e = F_srcᵀ F_tgt / c_e² ∈ SO(d)
 
 ## Z-33 Not spec text (card)
 Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `Linear(d, d)`, GC pooling over `x*`); `instance_features` keeps its concatenation to the head input (`[x*, instance feature]`); new switch `ablation.ego_head: bool = False` (refused in a main-table tuning base config; an arm of configuration (a)); `h0_only_readout` unchanged; tests: head input widths, `ego_head` reproduces the 1.24 head input, golden list gains `ego_head`.
+
+## Z-34 (found while applying; same decision) GC readout in §6
+§6 graph-classification bullet: **replace** `Readout: `[x*, h₀]` pooled over the graph's nodes` **with** `Readout: `x*` pooled over the graph's nodes (1.25)`.
+
+**Applied 2026-11-18** (author approval of Z-21–Z-33 the same day): spec v1.25 now includes Z1–Z3 (change line updated); pre-registration Z-32 applied.
