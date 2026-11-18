@@ -296,3 +296,36 @@ per step and still crosses 30 within 5 epochs. No metric read or written.
 748 tests OK in 1,730 s at `200a892` (`d6b_suite.txt`); `test_v3b_golden` (bit-identical) ok; no failure, no skip.
 
 branch=dry-run sha=<the commit adding this section; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=9d48ca460d9594fce556e20f550d151a3a86bc4f
+
+
+# D4b (H2S-NN on the large LP tasks; card §D4b as amended 2026-11-18: code, 3 tests, mutation; no real-data run)
+
+On `dry-run` from v3b `714b08d`; merged design-docs `d63ec81` (`de9ba8d`, clean). Code commit `45c38ea`.
+`src/baselines/` and the model components (maps, RelCtx, readout, solver, g, stop rule) unchanged.
+
+| piece | file | what |
+|---|---|---|
+| data | `src/data/large_lp_h2snn.py` (new) | `build_bundle` → `LargeLinkBundle` → `load_large_lp` (the baselines' loader, as `fit_large_lp`); the message graph flattened into H2S-NN's layout (as `build_dataset`: stacked features, flattened facts, fact layer), pairs to global ids; refuses a message graph holding a held-out pair |
+| tasks | `src/configs/config.py`; `configs/experiments/{ogbn-mag_pp,h-pokec_uu}_h2snn_v3b.yaml` (new) | `ogbn-mag_pp`, `h-pokec_uu` in `DATASET_TASK_TYPES` (link prediction) and the LP presets (target relation = `LARGE_LP_TASKS`); mode mini-batch by the existing MB1 rule; YAMLs built as lastfm's (D1: l_max 4, r 8 named, both tuned) |
+| entry | `src/builders.py` | `build_experiment_components` routes the two tasks to the bundle data, `build_large_link_model` (dims from the message graph, one target relation, WISP lengths 2..l_max) and `LargeLinkTrainer`; a scheduler is refused (the loop steps none; `none` is the LP default) |
+| trainer | `src/trainers/large_lp_trainer.py` (new) | `LinkEpochLoop` + `LinkScopes` on the message graph; `cfg.epochs` / `early_stopping_patience` (40/40); test sets (2-hop, random) when validation AUROC improves, as `fit_large_lp`; logger, checkpointer, the tuning launcher's `epoch_callback` |
+| loop | `src/trainers/minibatch_lp.py` | `LinkScopes`: the CPU-built scope batch moved to the model's device (no-op on the CPU); finite-loss check (spec K5) in `train_step` |
+
+Tests (`tests/test_large_lp_h2snn.py`, synthetic H-Pokec U–U task through the real `build_bundle` / `load_large_lp`,
+only H2GB's loader and the task-file reader replaced; job 17646, CPU, 27 targeted tests OK, `d4b_tests.txt`):
+
+| test | result |
+|---|---|
+| (1) held-out route: no validation/test positive (either orientation, any relation) is a fact of any scope of the train, validation, test and negative links | OK |
+| mutation: scopes on the full graph instead of the message graph | **caught** (the test fails; job 17647, `d4b_mutation.txt`) |
+| (2) same data: H2S-NN's message graph = the bundle's (`torch.equal` on facts and fact types in H2S-NN's layout); every split and negative set equal (`torch.equal`) | OK |
+| (3) one LP step through `LargeLinkTrainer`: loss finite, both parameter groups move, scopes on the message graph | OK |
+| task tables: presets = `LARGE_LP_TASKS`, YAMLs resolve to mini-batch | OK |
+
+Full suite (job 17648, CPU job without a GPU, 32G, environment E, `d4b_suite.txt`): **752 tests OK** in 1,728 s at
+`45c38ea`; 1 skipped (`test_cuda_float32_matches_cpu_float64_reference`: CUDA not available on a CPU job);
+`test_v3b_golden` bit-identical ok. No full-batch or local-LP output changed (their tests and golden unchanged).
+
+Not done (amendment): the real-data dry run of the two cells (the first TSUBAME trial is the check).
+
+branch=dry-run sha=<the commit adding this section; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=714b08d

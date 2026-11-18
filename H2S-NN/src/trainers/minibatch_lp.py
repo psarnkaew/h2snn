@@ -24,6 +24,7 @@ import torch.nn as nn
 # table's value (`src/configs/config.py`, Part M3b B8), re-exported here.
 from src.configs.config import EVAL_BATCH_TARGETS, LP_POSITIVES_PER_STEP
 from src.data.large_lp import held_out_fact_mask
+from src.models.anchored_solve import check_finite_loss
 from src.data.scopes import build_scope_batch
 from src.data.structures import PreparedH2SData
 from src.data.wisp_sampler import AnchorCells, build_wisp_anchor_cells
@@ -56,6 +57,9 @@ class LinkScopes:
         self.walks_per_anchor = walks_per_anchor
         self.max_length = max_length
 
+    def _device(self) -> torch.device:
+        return next(self.model.parameters()).device
+
     def cells(self, endpoints: torch.Tensor, seed: int) -> AnchorCells:
         g = self.graph
         return build_wisp_anchor_cells(g.edge_index, g.edge_type, g.node_type,
@@ -72,19 +76,21 @@ class LinkScopes:
         for start in range(0, unique.numel(), size):
             part = unique[start:start + size]
             batch = build_scope_batch(self.graph, part, [cells.of(int(t)) for t in part.tolist()])
-            data = batch.data
+            device = self._device()
+            # card 2 D4b: the scope batch is built on the CPU; it moves to the model's device (a no-op on the CPU)
+            data = batch.data if device.type == "cpu" else batch.data.to(device)
             encoded = self.model.encode(data.x, data.node_type, data.edge_index, data.edge_type,
                                         data.face_groups, data.num_nodes, epoch=epoch,
                                         global_node_id=data.global_node_id,
                                         scope_index=data.scope_index)
-            parts.append(encoded.representation[batch.target_rows])
+            parts.append(encoded.representation[batch.target_rows.to(device)])
         return unique, torch.cat(parts)
 
     def score(self, links: torch.Tensor, cells: AnchorCells, epoch: int = -1,
               relation: torch.Tensor | None = None, batch_size: int | None = None) -> torch.Tensor:
         """Decoder scores of `links` [2, L] as in full batch, from the endpoints' scopes."""
         unique, representation = self.representations(links.reshape(-1), cells, epoch, batch_size)
-        rows = torch.searchsorted(unique, links)
+        rows = torch.searchsorted(unique, links).to(representation.device)
         return self.model.link_readout(representation, rows, relation)  # type: ignore[misc]
 
     def train_step(self, positives: torch.Tensor, negatives: torch.Tensor, seed: int, epoch: int,
@@ -96,7 +102,8 @@ class LinkScopes:
         optimizer.zero_grad()
         scores = self.score(links, cells, epoch)
         labels = torch.cat([torch.ones(positives.size(1)), torch.zeros(negatives.size(1))])
-        loss = nn.functional.binary_cross_entropy_with_logits(scores, labels.to(scores.dtype))
+        loss = nn.functional.binary_cross_entropy_with_logits(scores, labels.to(scores))
+        check_finite_loss(loss, epoch)  # spec v1.16 K5, as every other trainer
         loss.backward()
         optimizer.step()
         return float(loss)
