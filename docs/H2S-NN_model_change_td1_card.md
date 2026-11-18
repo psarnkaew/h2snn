@@ -1,7 +1,8 @@
-# Task card — Model change 1.25: remove `c`, TD-1 maps (rank 4, one frame per relation), N2c read-out; regenerate golden/mb0; rerun known-answer and cost
+# Task card — Model change 1.25: remove `c`, TD-1 maps (rank 4, one frame per relation), head reads `x*` only, N2c read-out; regenerate golden/mb0; rerun known-answer and cost
 
 **Owner (design):** model session. **Executor:** S4 (or a fresh coding session), new worktree.
 **Branch:** new branch `model-td1` from `v3b` `80e045a` (D4b included), in a new worktree `/mnt/data/peeradon/h2snn-model` (`git worktree add`). Then `git merge --no-ff` of `design-docs` at the SHA given in the prompt (brings spec 1.25 and this card). Merge, never rebase.
+**Depends on:** spec items Z-21–Z-33 (head reads `x*` only) being approved and applied before the agent starts; the prompt gives the design-docs SHA that contains them.
 **Binding (in this order):**
 1. Spec **v1.25** (`docs/H2S-NN_methodology_spec.md`; items Z-1–Z-20 in `docs/spec_v1.25_draft_edits.md`).
 2. `docs/thm4_td1_proof.md` and `docs/thm4_td1_evidence/check_thm4_td1.py`.
@@ -86,6 +87,11 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
   - `free_cell_maps`: as in §0.
 - **N2c read-out (pre-registration §4.3).** Add `evaluation.type_only_maps: bool = False`. When true, `C_e ≡ 0` (skip the exp part) in evaluation forwards only. It is refused in any training or tuning config, so it can be set only by evaluation and analysis scripts.
 
+### M2b — Head reads `x*` only (spec Z-21–Z-33; author decision 2026-11-18 "Readout: head reads `x*` only")
+- NC head: `x*` → Linear(d, 128) → GELU → Dropout → Linear (was Linear(2d, 128) on `[x*, h0]`). LP: per endpoint Linear(d, d) → GELU → decoder. GC: pooling over `x*` of every node, then one Linear.
+- `instance_features` keeps its concatenation: head input `[x*, instance feature]`.
+- New arm switch `ablation.ego_head: bool = False`: the head reads `[x*, h0]` (the 1.24 readout, same widths as 1.24). Refused in a main-table tuning base config, like the other arm keys; an arm of configuration (a) (not separately tuned). `h0_only_readout` is unchanged.
+
 ### M3 — Tests (float64 unless stated; each with the tolerance given)
 | # | Test | Tolerance |
 |---|---|---|
@@ -102,6 +108,7 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 | T11 | One training step on ACM-like fixture: loss finite; `W_r`, frames and both MLP layers receive nonzero gradients | — |
 | T12 | `free_cell_maps`, `fact_maps_identity`, `direction_blind_maps`: one step finite; direction-blind transports have no frame (`Q = exp(A)`) | ≤ 1e-12 |
 | T13 | Factored vs unfactored first layer give the same maps | ≤ 1e-12 |
+| T14 | Head input widths: NC/LP/GC read `x*` (width d); `ego_head` reads `[x*, h0]` (2d) and equals the 1.24 head input on a fixture; `instance_features` reads `[x*, inst]`; `ego_head` refused in a main-table tuning base config | exact |
 
 **Mutation checks** (each must make at least one test fail; report which):
 1. Drop the antisymmetrisation (T4).
@@ -113,7 +120,7 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 - **References.** `docs/legacy_evidence/v3b_golden_cluster.pt` (script `docs/legacy_evidence/v3b_golden.py`, job template `docs/legacy_evidence/lr1_job.sh`) and the mb0 reference (`docs/partMB_evidence/mb0_reference.py`, `docs/partMB_evidence/mb0_reference_cluster.pt`).
 - **Re-capture** both on one node with environment E and 1 thread, exactly as LR-1 / CS8. Then compare on a second node of the other CPU type if one is free without g3an01; otherwise compare on the same node again and say so.
 - **Report.** Old and new SHA-256, the node(s), the job ids, and `differing: none` for the compare.
-- The golden configurations are the same list as before minus the removed arms (`geometry_context_off`, appendix pair). List any configuration that was dropped or added.
+- The golden configurations are the same list as before minus the removed arms (`geometry_context_off`, appendix pair) plus `ego_head`. List any configuration that was dropped or added.
 
 ### M5 — Full suite
 Full suite on one node (sbatch, one GPU not shared, environment E). Expected: everything passes, the new golden and mb0 compare `differing: none`. Report the count vs 752 OK + 1 skipped at the base.
