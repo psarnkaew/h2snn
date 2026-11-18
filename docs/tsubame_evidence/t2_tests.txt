@@ -1,0 +1,68 @@
+head=3bb6a417719cc536e82741fa4ab284d83b6a976d host=g2tn01 job=17667 start=2026-11-18T16:39:13+09:00
+worktree:  M src/utils/wandb_campaign.py ?? tests/test_tsubame_guard.py ?? ../docs/tsubame_evidence/t2_mutation.py ?? ../docs/tsubame_evidence/t2_tests.txt ?? ../docs/tsubame_evidence/t_unit.sbatch 
+command: python -m unittest -v tests.test_tsubame_guard 2>&1; echo "--- mutation"; python ../docs/tsubame_evidence/t2_mutation.py 2>&1
+test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) ... exceeds_24h: attempt 0 of /tmp/tmp52qrqsxq/state/tuning_state_run0.json was started 2 times and its job never let it finish; it is not started again (TSUBAME card T2)
+ok
+test_state_written_before_the_guard_resumes_as_before (tests.test_tsubame_guard.GuardTests.test_state_written_before_the_guard_resumes_as_before) ... W&B run 0: attempted=3 succeeded=3 pruned=0 failed=0
+ok
+test_trial_dying_once_then_finishing_completes_the_sweep (tests.test_tsubame_guard.GuardTests.test_trial_dying_once_then_finishing_completes_the_sweep) ... W&B run 0: attempted=2 succeeded=2 pruned=0 failed=0
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+OK
+--- mutation
+test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) ... 
+  test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) (resume=2) ... ERROR
+test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) ... FAIL
+
+======================================================================
+ERROR: test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) (resume=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_guard.py", line 92, in test_always_dying_trial_is_started_twice_then_exceeds_24h
+    sweep(tmp, 3, dying_worker(calls))
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_guard.py", line 49, in sweep
+    return wc.run_unit_sweep(
+           ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/src/utils/wandb_campaign.py", line 706, in run_unit_sweep
+    result = subprocess.run(
+             ^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/unittest/mock.py", line 1204, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_guard.py", line 73, in worker
+    raise JobKilled()
+tests.test_tsubame_guard.JobKilled
+
+======================================================================
+FAIL: test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_guard.py", line 94, in test_always_dying_trial_is_started_twice_then_exceeds_24h
+    self.assertEqual(calls, [0, 0])  # attempt 0 started exactly twice, never a third time
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [0, 0, 0] != [0, 0]
+
+First list contains 1 additional elements.
+First extra element 2:
+0
+
+- [0, 0, 0]
+?     ---
+
++ [0, 0]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+FAILED (failures=1, errors=1)
+MUTATION T2 (limit = inf): caught (test (1) fails)
+exit=0 seconds=3
