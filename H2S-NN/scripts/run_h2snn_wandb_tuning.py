@@ -14,7 +14,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.configs.config import TrainConfig, arm_search_space, reject_never_tuned_settings
+from src.configs.config import (H2GB_NC_DATASETS, MINIBATCH_BATCH_SIZES, TrainConfig, arm_search_space,
+                               reject_never_tuned_settings)
 from src.baselines import search_grids as shared_grids
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
@@ -95,9 +96,13 @@ CONDITIONAL_PARAMETER_NAMES = frozenset(
         "classifier_dropout",
         "graph_pooling",
         "decoder_type",
+        # Card 2 D6.7 (spec 1.17 Q4, author decision 4 of the card 2 review): the H2GB NC datasets only
+        "batch_size",
     }
 )
 KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
+#: Card 2 D3: names that may never appear in a sweep (the --dry_run flag and the epoch budget).
+DRY_RUN_KEYS: tuple[str, ...] = ("dry_run", "epochs")
 
 
 def parse_args() -> argparse.Namespace:
@@ -131,6 +136,13 @@ def parse_args() -> argparse.Namespace:
         help="Optional positive stalk dimensions; default 16/32/64 (spec v1.15 §6).",
     )
     parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="Card 2 D3: epoch budget 1 for every trial and final seed (a check that the launcher works end "
+        "to end, never a result); W&B runs tagged dry-run. A command-line flag only: refused as a sweep "
+        "parameter and as a base-config key.",
+    )
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--decoder_type", type=str, default=None,
@@ -236,6 +248,11 @@ def validate_trial_params(
     this script, while still rejecting legacy keys rather than ignoring them.
     """
 
+    # Card 2 D3: the dry-run flag and the epoch budget are command-line settings, never sweep values.
+    for name in DRY_RUN_KEYS:
+        if name in params or name in (allowed_parameters or ()):
+            raise ValueError(f"{name!r} is not a tuning parameter: the dry run is the launcher's --dry_run "
+                             "flag (card 2 D3) and the epoch budget is the protocol's (spec §6).")
     allowed = set(KNOWN_PARAMETER_NAMES if allowed_parameters is None else allowed_parameters)
     unsupported_allowed = sorted(allowed - KNOWN_PARAMETER_NAMES)
     if unsupported_allowed:
@@ -288,6 +305,11 @@ def _apply_base_cli(raw: dict[str, Any], args: argparse.Namespace) -> dict[str, 
         payload["early_stopping_patience"] = args.patience
     if args.epochs is not None:
         payload["epochs"] = args.epochs
+    if getattr(args, "dry_run", False):  # card 2 D3: the explicit dry-run flag (one epoch)
+        if args.epochs is not None and args.epochs != 1:
+            raise ValueError("--dry_run sets the epoch budget to 1; do not combine it with --epochs.")
+        payload["epochs"] = 1
+        args.wandb_tags = list(dict.fromkeys([*(args.wandb_tags or ()), "dry-run"]))
     payload.setdefault("data", {})
     if args.decoder_type is not None:
         payload["data"]["decoder_type"] = args.decoder_type
@@ -307,7 +329,8 @@ def build_sweep_config(
     """The W&B sweep of H2S-NN (spec v1.15 §6 Tuning; card Part M, M10): plain Bayes, no
     Hyperband or other early termination; the space holds only components of the method:
     d, lr, weight_decay, encoder/classifier dropout (shared ranges), l_max, r, and GC pooling;
-    on every LP task decoder_type in {dot, distmult} (spec v1.22 W2; never on NC or GC).
+    on every LP task decoder_type in {dot, distmult} (spec v1.22 W2; never on NC or GC); on the eight
+    H2GB NC datasets batch_size in {32, 256, 1024} (spec 1.17 Q4; card 2 D6.7; nowhere else).
     `decoder_type` is the base config's decoder: `concat_mlp` is refused (W2), any other value is
     replaced per trial by the tuned one. `epochs` is not used by the sweep (no early termination);
     it is kept for the callers' signature."""
@@ -343,7 +366,13 @@ def build_sweep_config(
     if task_type == "link_prediction":
         parameters["decoder_type"] = {"values": list(SPACE_DECODER_TYPE["values"])}
 
-    reject_never_tuned_settings(None, parameters)
+    # Spec 1.17 Q4 (card 2 D6.7): the batch size is tuned on the eight H2GB NC datasets, {32, 256, 1024},
+    # the range of every method (MB2); nowhere else (full batch / per graph / LP positives per step).
+    if task_type == "node_classification" and dataset_name.lower() in H2GB_NC_DATASETS:
+        parameters["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
+
+    # the dataset name lets the check accept batch_size on H2GB NC and refuse it elsewhere (config.py MB2)
+    reject_never_tuned_settings({"data": {"dataset_name": dataset_name}} if dataset_name else None, parameters)
     return {
         "method": "bayes",
         "metric": {"name": f"best/{metric.removeprefix('val_')}", "goal": "maximize"},
@@ -371,7 +400,7 @@ def apply_sweep_overrides(
         model["d"] = int(params["d"])
     if "graph_pooling" in params:
         model["graph_pooling"] = str(params["graph_pooling"])
-    for key in ("wisp_max_length", "wisp_walks_per_anchor"):
+    for key in ("wisp_max_length", "wisp_walks_per_anchor", "batch_size"):
         if key in params:
             data[key] = int(params[key])
 
@@ -445,6 +474,10 @@ def train_trial(
             try:
                 import wandb  # type: ignore[import-not-found]
 
+                # Card 2 D3: outside a sweep worker (the --final_seeds path) there is no W&B run, and
+                # wandb.log raised "You must call wandb.init() before wandb.log()", so every seed run failed.
+                if getattr(wandb, "run", None) is None:
+                    return
                 payload = {
                     **{f"train/{key}": value for key, value in train_metrics.items()},
                     **{f"val/{key}": value for key, value in val_metrics.items()},

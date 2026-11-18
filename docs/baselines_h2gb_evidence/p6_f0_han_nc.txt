@@ -1,0 +1,43 @@
+d7625736eaa8f794 ../docs/baselines_h2gb_evidence/p6_f0_diag.py
+label=p6-f0-han_nc job=17139 step=none node=g3n01 start=2026-11-17T03:01:56+09:00
+git=457c223b13ff3e63bf64b34e7e470e102ac90a49 branch=baselines-h2gb-6
+env=h2snn-b cmd=python -X faulthandler ../docs/baselines_h2gb_evidence/p6_f0_diag.py han_nc
+[03:02:01] cell han|node_classification|freebase params={'lr': 0.001, 'weight_decay': 0.0, 'hidden_dim': 256, 'dropout': 0.45, 'num_heads': 8} torch=2.4.1+cu124 gpu=NVIDIA GeForce RTX 3090 CUDA_LAUNCH_BLOCKING=None
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/utils.py:213: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:641.)
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+[03:02:18] CALL F.linear on a sparse input #1
+[03:02:18]    input: COO shape=(40402, 40402) nnz=40,402 indices=torch.int64 max=40401 coalesced=False device=cuda:0 values=torch.float32
+[03:02:18]    weight: dense shape=(256, 40402) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:18] CALL dgl.metapath_reachable_graph ('00', '00') on cuda:0
+[03:02:20]    -> nodes=40,402 edges=49,275,062 idtype=torch.int64
+[03:02:20] CALL dgl.metapath_reachable_graph ('01', '10') on cuda:0
+[03:02:20]    -> nodes=40,402 edges=4,193,476 idtype=torch.int64
+[03:02:20] CALL dgl.metapath_reachable_graph ('05', '52', '20') on cuda:0
+[03:02:21]    -> nodes=40,402 edges=4,021,889 idtype=torch.int64
+[03:02:21] CALL dgl.metapath_reachable_graph ('04', '40') on cuda:0
+[03:02:21]    -> nodes=40,402 edges=3,145,804 idtype=torch.int64
+[03:02:21] CALL dgl.metapath_reachable_graph ('04', '43', '30') on cuda:0
+[03:02:21]    -> nodes=40,402 edges=13,745,798 idtype=torch.int64
+[03:02:21] CALL dgl.metapath_reachable_graph ('06', '61', '10') on cuda:0
+[03:02:24]    -> nodes=40,402 edges=30,573,570 idtype=torch.int64
+[03:02:24] CALL dgl.metapath_reachable_graph ('07', '70') on cuda:0
+[03:02:25]    -> nodes=40,402 edges=35,046,698 idtype=torch.int64
+[03:02:25] CALL GATConv.forward #1 graph nodes=40,402 edges=49,275,062 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 100,915,326,976 > 2^31-1 !
+[03:02:25]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #2 graph nodes=40,402 edges=4,193,476 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 8,588,238,848 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #3 graph nodes=40,402 edges=4,021,889 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 8,236,828,672 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #4 graph nodes=40,402 edges=3,145,804 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 6,442,606,592 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #5 graph nodes=40,402 edges=13,745,798 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 28,151,394,304 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #6 graph nodes=40,402 edges=30,573,570 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 62,614,671,360 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:02:26] CALL GATConv.forward #7 graph nodes=40,402 edges=35,046,698 idtype=torch.int64 device=cuda:0 heads=8 out=256; edges x heads x out = 71,775,637,504 > 2^31-1 !
+[03:02:26]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+Fatal Python error: Segmentation fault
+
+Current thread 0x00001511df7e9740 (most recent call first):
+  File peak_rss_gib=2.30 elapsed_s=43.2
+end=2026-11-17T03:02:39+09:00 exit=245

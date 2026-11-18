@@ -1,0 +1,21 @@
+# Card 2 D6.7 tests (job 16927, g2n01, CPU; working tree on 1954397 with the D6.7 changes). Trainer console lines filtered.
+head=1954397d02dc1e0b267cc6985b99afbf6dd62293 host=g2n01 job=16927
+worktree:  M configs/experiments/h-pokec_h2snn_v3b.yaml
+worktree:  M configs/experiments/ieee-cis-g_h2snn_v3b.yaml
+worktree:  M configs/experiments/mag-year_h2snn_v3b.yaml
+worktree:  M configs/experiments/oag-chem_h2snn_v3b.yaml
+worktree:  M configs/experiments/oag-cs_h2snn_v3b.yaml
+worktree:  M configs/experiments/oag-eng_h2snn_v3b.yaml
+worktree:  M configs/experiments/ogbn-mag_h2snn_v3b.yaml
+worktree:  M configs/experiments/pdns_h2snn_v3b.yaml
+worktree:  M scripts/run_h2snn_wandb_tuning.py
+worktree: ?? tests/test_sweep_batch_size.py
+test_batch_size_axis_on_h2gb_nc_only (tests.test_sweep_batch_size.SweepBatchSizeTests.test_batch_size_axis_on_h2gb_nc_only) ... ok
+test_flag_cannot_be_set_in_a_sweep_config (tests.test_dry_run_flag.DryRunFlagTests.test_flag_cannot_be_set_in_a_sweep_config) ... ok
+test_flag_sets_one_epoch_and_tags_the_runs (tests.test_dry_run_flag.DryRunFlagTests.test_flag_sets_one_epoch_and_tags_the_runs) ... ok
+`run_unit_sweep` calls `summarize(records, monitor, path)`; the baseline launcher passed the monitor as the ... ok
+`run_unit_sweep` re-spawns `run_baseline_tuning.py --worker_context <file>` only; with `--task` required ... ok
+`--final_seeds` trains outside a sweep worker: no W&B run exists, and the epoch callback's wandb.log ... Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmp_ojcwrcl/exp/final_seeds/exp_tune_final_seed0_final_seed0
+test_every_h2snn_cell_resolves_a_valid_configuration (tests.test_experiment_configs.ExperimentConfigTests.test_every_h2snn_cell_resolves_a_valid_configuration) ... ok
+Ran 8 tests in 3.658s
+OK

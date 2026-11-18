@@ -1,0 +1,17 @@
+head=de9ba8d6a3056b65910482269efa08e24529a9df host=g2n01 job=17647
+test_no_held_out_positive_is_a_fact_of_any_scope (tests.test_large_lp_h2snn.HeldOutRouteTests.test_no_held_out_positive_is_a_fact_of_any_scope) ... FAIL
+
+======================================================================
+FAIL: test_no_held_out_positive_is_a_fact_of_any_scope (tests.test_large_lp_h2snn.HeldOutRouteTests.test_no_held_out_positive_is_a_fact_of_any_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+AssertionError: Items in the first set but not the second:
+(13, 24) : links set 0
+
+----------------------------------------------------------------------
+Ran 1 test in 0.052s
+
+FAILED (failures=1)
+MUTATION scopes on the full graph: caught (test fails)
+(13, 24) : links set 0
+exit=0

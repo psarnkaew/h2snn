@@ -1,0 +1,269 @@
+d7625736eaa8f794 ../docs/baselines_h2gb_evidence/p6_f0_diag.py
+label=p6-f0-h2sgnn_lp job=17140 step=none node=g3n01 start=2026-11-17T03:02:56+09:00
+git=457c223b13ff3e63bf64b34e7e470e102ac90a49 branch=baselines-h2gb-6
+env=h2snn-b cmd=python -X faulthandler ../docs/baselines_h2gb_evidence/p6_f0_diag.py h2sgnn_lp
+[03:02:57] cell h2sgnn|link_prediction|freebase_bb params={'K': 6, 'alpha': 0.1, 'alpha_list': 0.1, 'beta_lr': 1e-05, 'beta_wd': 0.0, 'decoder_type': 'dot', 'dropout': 0.45, 'emb_dim': 256, 'embed_dim': 128, 'hidden': 256, 'input_drop': 0.45, 'lr': 0.001, 'poly': 'GPR_GPR', 'temp_lr': 0.001, 'temp_wd': 0.1, 'weight_decay': 0.0} torch=2.4.1+cu124 gpu=NVIDIA GeForce RTX 3090 CUDA_LAUNCH_BLOCKING=1
+[03:05:08] CALL torch.sparse.mm #1
+[03:05:08]    a: COO shape=(180098, 180098) nnz=386,704 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:05:08]    b: COO shape=(180098, 180098) nnz=386,704 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+/mnt/data/peeradon/h2snn/H2S-NN/../docs/baselines_h2gb_evidence/p6_f0_diag.py:110: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  out = original_mm(a, b, *args, **kwargs)
+[03:05:10]    -> out: COO shape=(180098, 180098) nnz=52,998,866 indices=torch.int64 max=180097 coalesced=True device=cpu values=torch.float32
+[03:05:10] CALL torch.sparse.mm #2
+[03:05:10]    a: COO shape=(180098, 180098) nnz=38,299 indices=torch.int64 max=59827 coalesced=False device=cpu values=torch.float32
+[03:05:10]    b: COO shape=(180098, 180098) nnz=38,299 indices=torch.int64 max=59827 coalesced=False device=cpu values=torch.float32
+[03:05:10]    -> out: COO shape=(180098, 180098) nnz=4,193,476 indices=torch.int64 max=40385 coalesced=True device=cpu values=torch.float32
+[03:05:10] CALL torch.sparse.mm #3
+[03:05:10]    a: COO shape=(180098, 180098) nnz=6,615 indices=torch.int64 max=143204 coalesced=False device=cpu values=torch.float32
+[03:05:10]    b: COO shape=(180098, 180098) nnz=6,615 indices=torch.int64 max=143204 coalesced=False device=cpu values=torch.float32
+[03:05:11]    -> out: COO shape=(180098, 180098) nnz=14,405,128 indices=torch.int64 max=40371 coalesced=True device=cpu values=torch.float32
+[03:05:11] CALL torch.sparse.mm #4
+[03:05:11]    a: COO shape=(180098, 180098) nnz=26,921 indices=torch.int64 max=170213 coalesced=False device=cpu values=torch.float32
+[03:05:11]    b: COO shape=(180098, 180098) nnz=26,921 indices=torch.int64 max=170213 coalesced=False device=cpu values=torch.float32
+[03:05:12]    -> out: COO shape=(180098, 180098) nnz=37,884,185 indices=torch.int64 max=40388 coalesced=True device=cpu values=torch.float32
+[03:05:12] CALL torch.sparse.mm #5
+[03:05:12]    a: COO shape=(180098, 180098) nnz=21,900 indices=torch.int64 max=172944 coalesced=False device=cpu values=torch.float32
+[03:05:12]    b: COO shape=(180098, 180098) nnz=21,900 indices=torch.int64 max=172944 coalesced=False device=cpu values=torch.float32
+[03:05:13]    -> out: COO shape=(180098, 180098) nnz=54,932,925 indices=torch.int64 max=40399 coalesced=True device=cpu values=torch.float32
+[03:05:14] CALL torch.sparse.mm #6
+[03:05:14]    a: COO shape=(180098, 180098) nnz=18,625 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:05:14]    b: COO shape=(180098, 180098) nnz=18,625 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:05:15]    -> out: COO shape=(180098, 180098) nnz=35,046,698 indices=torch.int64 max=40384 coalesced=True device=cpu values=torch.float32
+[03:05:15] CALL torch.sparse.mm #7
+[03:05:15]    a: COO shape=(180098, 180098) nnz=31,486 indices=torch.int64 max=142179 coalesced=False device=cpu values=torch.float32
+[03:05:15]    b: COO shape=(180098, 180098) nnz=31,486 indices=torch.int64 max=142179 coalesced=False device=cpu values=torch.float32
+[03:05:15]    -> out: COO shape=(180098, 180098) nnz=84,404 indices=torch.int64 max=40382 coalesced=True device=cpu values=torch.float32
+[03:05:15] CALL torch.sparse.mm #8
+[03:05:15]    a: COO shape=(180098, 180098) nnz=35,587 indices=torch.int64 max=160845 coalesced=False device=cpu values=torch.float32
+[03:05:15]    b: COO shape=(180098, 180098) nnz=35,587 indices=torch.int64 max=160845 coalesced=False device=cpu values=torch.float32
+[03:05:15]    -> out: COO shape=(180098, 180098) nnz=3,145,804 indices=torch.int64 max=40400 coalesced=True device=cpu values=torch.float32
+[03:05:21] CALL F.linear on a sparse input #1
+[03:05:21]    input: COO shape=(40402, 40402) nnz=40,402 indices=torch.int64 max=40401 coalesced=True device=cuda:0 values=torch.float32
+[03:05:21]    weight: dense shape=(256, 40402) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:05:21] CALL torch_sparse spmm_sum #1 (matmul.py:27) other.requires_grad=True
+[03:05:21]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=False csr2csc=False
+[03:05:21]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:21]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:21] CALL torch_sparse spmm_sum #2 (matmul.py:27) other.requires_grad=True
+[03:05:21]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=166,467,166 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=True csr2csc=True
+[03:05:21]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:21]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:21] CALL torch_sparse spmm_sum #3 (matmul.py:27) other.requires_grad=True
+[03:05:21]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=166,467,166 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=True csr2csc=True
+[03:05:21]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:21]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:21] CALL torch_sparse spmm_sum #4 (matmul.py:27) other.requires_grad=True
+[03:05:21]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=166,467,166 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=True csr2csc=True
+[03:05:21]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:21]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:21] CALL torch_sparse spmm_sum #5 (matmul.py:27) other.requires_grad=True
+[03:05:21]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=166,467,166 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=True csr2csc=True
+[03:05:21]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:21]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #6 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=166,467,166 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=166,467,166 row=torch.int64 max=40401 value=(torch.float32, (166467166,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 21,307,797,248 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #7 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #8 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=52,859,170 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #9 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=52,859,170 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #10 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=52,859,170 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #11 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=52,859,170 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #12 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=52,859,170 device=cuda:0 col=torch.int64 max=40401 rowptr=torch.int64 last=52,859,170 row=torch.int64 max=40401 value=(torch.float32, (52859170,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 6,765,973,760 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #13 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #14 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 rowptr=torch.int64 last=4,193,476 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #15 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 rowptr=torch.int64 last=4,193,476 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #16 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 rowptr=torch.int64 last=4,193,476 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #17 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 rowptr=torch.int64 last=4,193,476 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #18 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=4,193,476 device=cuda:0 col=torch.int64 max=40385 rowptr=torch.int64 last=4,193,476 row=torch.int64 max=40385 value=(torch.float32, (4193476,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 536,764,928; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #19 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #20 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 rowptr=torch.int64 last=14,405,128 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #21 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 rowptr=torch.int64 last=14,405,128 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #22 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 rowptr=torch.int64 last=14,405,128 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #23 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 rowptr=torch.int64 last=14,405,128 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #24 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=14,405,128 device=cuda:0 col=torch.int64 max=40371 rowptr=torch.int64 last=14,405,128 row=torch.int64 max=40371 value=(torch.float32, (14405128,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 1,843,856,384; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #25 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #26 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 rowptr=torch.int64 last=37,884,185 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #27 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 rowptr=torch.int64 last=37,884,185 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #28 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 rowptr=torch.int64 last=37,884,185 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #29 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 rowptr=torch.int64 last=37,884,185 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #30 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=37,884,185 device=cuda:0 col=torch.int64 max=40388 rowptr=torch.int64 last=37,884,185 row=torch.int64 max=40388 value=(torch.float32, (37884185,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,849,175,680 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #31 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #32 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 rowptr=torch.int64 last=54,932,925 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #33 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 rowptr=torch.int64 last=54,932,925 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #34 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 rowptr=torch.int64 last=54,932,925 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #35 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 rowptr=torch.int64 last=54,932,925 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #36 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=54,932,925 device=cuda:0 col=torch.int64 max=40399 rowptr=torch.int64 last=54,932,925 row=torch.int64 max=40399 value=(torch.float32, (54932925,)) cached colptr=True csr2csc=True
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 7,031,414,400 > 2^31-1 !; rows x width = 5,171,456
+[03:05:22] CALL torch_sparse spmm_sum #37 (matmul.py:27) other.requires_grad=True
+[03:05:22]    src: SparseTensor sizes=(40402, 40402) nnz=35,046,698 device=cuda:0 col=torch.int64 max=40384 row=torch.int64 max=40384 value=(torch.float32, (35046698,)) cached colptr=False csr2csc=False
+[03:05:22]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:22]    nnz x width = 4,485,977,344 > 2^31-1 !; rows x width = 5,171,456
+[03:05:23] CALL torch_sparse spmm_sum #38 (matmul.py:27) other.requires_grad=True
+[03:05:23]    src: SparseTensor sizes=(40402, 40402) nnz=35,046,698 device=cuda:0 col=torch.int64 max=40384 rowptr=torch.int64 last=35,046,698 row=torch.int64 max=40384 value=(torch.float32, (35046698,)) cached colptr=True csr2csc=True
+[03:05:23]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23]    nnz x width = 4,485,977,344 > 2^31-1 !; rows x width = 5,171,456
+[03:05:23] CALL torch_sparse spmm_sum #39 (matmul.py:27) other.requires_grad=True
+[03:05:23]    src: SparseTensor sizes=(40402, 40402) nnz=35,046,698 device=cuda:0 col=torch.int64 max=40384 rowptr=torch.int64 last=35,046,698 row=torch.int64 max=40384 value=(torch.float32, (35046698,)) cached colptr=True csr2csc=True
+[03:05:23]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23]    nnz x width = 4,485,977,344 > 2^31-1 !; rows x width = 5,171,456
+[03:05:23] CALL torch_sparse spmm_sum #40 (matmul.py:27) other.requires_grad=True
+[03:05:23]    src: SparseTensor sizes=(40402, 40402) nnz=35,046,698 device=cuda:0 col=torch.int64 max=40384 rowptr=torch.int64 last=35,046,698 row=torch.int64 max=40384 value=(torch.float32, (35046698,)) cached colptr=True csr2csc=True
+[03:05:23]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23]    nnz x width = 4,485,977,344 > 2^31-1 !; rows x width = 5,171,456
+[03:05:23] CALL torch_sparse spmm_sum #50 (matmul.py:27) other.requires_grad=True
+[03:05:23]    src: SparseTensor sizes=(40402, 40402) nnz=3,145,804 device=cuda:0 col=torch.int64 max=40400 rowptr=torch.int64 last=3,145,804 row=torch.int64 max=40400 value=(torch.float32, (3145804,)) cached colptr=True csr2csc=True
+[03:05:23]    other: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23]    nnz x width = 402,662,912; rows x width = 5,171,456
+[03:05:23] BACKWARD into spmm_sum #50: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #40: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #39: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #38: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #37: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #36: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #35: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #34: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #33: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #32: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #31: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #30: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #29: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #28: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #27: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #26: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #25: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #24: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #23: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #22: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #21: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #20: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #19: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #18: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #17: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #16: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #15: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #14: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #13: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:23] BACKWARD into spmm_sum #12: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #11: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #10: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #9: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #8: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #7: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+[03:05:24] BACKWARD into spmm_sum #6: grad grad: dense shape=(40402, 128) dtype=torch.float32 device=cuda:0 numel=5,171,456
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/../docs/baselines_h2gb_evidence/p6_f0_diag.py", line 205, in main
+    fit_cell(raw_base, params, source="tuned", device=torch.device("cuda"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 247, in fit_cell
+    record = adapter.fit_task(
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/h2sgnn.py", line 218, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/h2sgnn.py", line 320, in _fit_link_prediction
+    record = train_link_prediction(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/training.py", line 239, in train_link_prediction
+    loss.backward()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/_tensor.py", line 521, in backward
+    torch.autograd.backward(
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/__init__.py", line 289, in backward
+    _engine_run_backward(
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/graph.py", line 769, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: CUDA error: an illegal memory access was encountered
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+[03:05:24] RESULT exception RuntimeError after 144.9 s
+peak_rss_gib=5.10 elapsed_s=148.6
+end=2026-11-17T03:05:25+09:00 exit=1

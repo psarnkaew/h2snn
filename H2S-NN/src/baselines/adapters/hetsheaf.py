@@ -764,7 +764,8 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
                                  device: torch.device) -> dict[str, float]:
     """Class C on H2GB's `hgt` batches (module docstring, A3)."""
     from src.baselines.minibatch import (CLASS_C_REFERENCE_METHOD, eval_loader, h2gb_graph, h2gb_sample_sizes,
-                                         hgt_loader, minibatch_plan, train_minibatch_node_classification)
+                                         hgt_loader, minibatch_plan, train_minibatch_node_classification,
+                                         val_subset_loader)
     from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
 
     seed_everything(seed, device)
@@ -782,6 +783,8 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
         graph, rows = typed_batch(batch, schema)
         return model(graph, rows[target][:int(batch[target].batch_size)], device)
 
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))  # card 1f B1a
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds,
         train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
@@ -789,6 +792,7 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
         val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
         test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
         val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        val_subset_loader=subset_loader, val_subset_ids=subset_ids,
         target_type=target, optimizer=_optimizer([model], params), criterion=F.cross_entropy, plan=plan,
         report=getattr(params, "report", None), labels=labels)
     record["params_source"] = params.source

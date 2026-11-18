@@ -106,6 +106,9 @@ H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
                     "num_hops 2-4, Part M3b B7; author decision 2026-11-16)")
+#: HAN on Freebase LP (card 1e F3.2, author 2026-11-18; F0 `p6_f0_diagnosis.md` item 3, F1 `p6_f1_stop_items.md`).
+HAN_FREEBASE_LP_NA = ("N/A: OOM on a 24 GB GPU at num_heads 4, the grid minimum; the width is a secondary memory term "
+                      "(card 1e F0 item 3; author decision 2026-11-18)")
 #: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
 #: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
 #: Part 2 E4: large-LP cells wired (link-level sampling on the message graph, the local-LP encoder, shared decoder).
@@ -189,7 +192,8 @@ MODELS: tuple[ModelSpec, ...] = (
     ),
     ModelSpec("nsd", "NSD", HOM_HET, "src.baselines.adapters.nsd", _ALL),
     ModelSpec("csnn", "CSNN", HOM_HET, "src.baselines.adapters.csnn", _ALL),
-    ModelSpec("han", "HAN", HET_HOM, "src.baselines.adapters.hgb_han", _ALL),
+    ModelSpec("han", "HAN", HET_HOM, "src.baselines.adapters.hgb_han", _ALL,
+              unsupported=((LINK_PREDICTION, "freebase_bb", HAN_FREEBASE_LP_NA),)),  # card 1e F3.2
     ModelSpec(
         "sehgnn", "SeHGNN", HET_HOM, "src.baselines.adapters.sehgnn",
         (NODE_CLASSIFICATION,),
