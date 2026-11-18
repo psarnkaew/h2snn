@@ -436,7 +436,8 @@ def fit_h2gb_generic(bundle: Any, params: BaselineParams, *, seed: int, device: 
         model=model, forward_rows=forward_rows, labels=labels.to(device),
         train_idx=data[target].train_mask.nonzero().view(-1), val_idx=data[target].val_mask.nonzero().view(-1),
         test_idx=data[target].test_mask.nonzero().view(-1), optimizer=optimizer,
-        criterion=torch.nn.functional.cross_entropy, plan=plan, base_seed=seed, report=getattr(params, "report", None))
+        criterion=torch.nn.functional.cross_entropy, plan=plan, base_seed=seed, report=getattr(params, "report", None),
+        run_seed=bundle.metadata.get("seed"))  # card 1f B1a: the seed that drew the split (PDNS)
     record["params_source"] = params.source
     record["batch_size"] = float(plan.batch_size)
     record["polynomial_terms"] = float(inputs["coe_num"])

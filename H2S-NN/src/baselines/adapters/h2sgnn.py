@@ -475,7 +475,8 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
 
     from src.baselines.adapters._hgb_generic import h2sgnn_metapath_names
     from src.baselines.minibatch import (CLASS_C_REFERENCE_METHOD, eval_loader, h2gb_graph, h2gb_sample_sizes,
-                                         hgt_loader, minibatch_plan, train_minibatch_node_classification)
+                                         hgt_loader, minibatch_plan, train_minibatch_node_classification,
+                                         val_subset_loader)
     from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
 
     seed_everything(seed, device)
@@ -489,6 +490,9 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
     args = _vendor_args(bundle.dataset, params, device=device)
     model = _vendor_model(int(data[target].x.size(1)), num_classes, names, args).to(device)
 
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))  # card 1f B1a
+
     def forward_seeds(batch: Any) -> torch.Tensor:
         return batch_forward(model, batch, target, names, device)[: int(batch[target].batch_size)]
 
@@ -497,6 +501,7 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
         train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
                                 steps=plan.steps_per_epoch),
         val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
+        val_subset_loader=subset_loader, val_subset_ids=subset_ids,
         test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
         val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
         target_type=target, optimizer=_optimizer(model, args), criterion=F.cross_entropy, plan=plan,
