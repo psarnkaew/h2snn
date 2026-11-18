@@ -1,6 +1,6 @@
 # Card 1f — B1a on the baseline side: fixed validation subset in the shared H2GB NC loops
 
-Written 2026-11-17 by the design session. Author decision **B1a** (decisions log row "Card 2 review", 2026-11-16). For session 1 **after card 1e** is approved. Branch `baselines-h2gb-7` from the then-current `v3b` (pin the SHA in the prompt). Report `docs/H2S-NN_b1a_baselines_report.md`; evidence `docs/b1a_evidence/`.
+Written 2026-11-17 by the design session. Author decision **B1a** (decisions log row "Card 2 review", 2026-11-16). For session 1. **Amended 2026-11-18 (author, "รวม 1f"):** runs on `baselines-h2gb-6` right after card 1e F3, after merging `v3b` (SHA in the prompt); one suite (U4) and one review cover card 1e F3 and card 1f. Report `docs/H2S-NN_b1a_baselines_report.md`; evidence `docs/b1a_evidence/`.
 
 ## Why
 Card 2 found that whole-split validation at every evaluation epoch dominates H2GB NC trial cost (mag-year 128 GPU-h per trial for H2S-NN at the largest point). B1a: on the 8 H2GB NC datasets, validation **during training** (checkpoint selection; tuning objective) uses a fixed subset of the validation split of H2GB's own size, drawn once with a fixed seed, **the same nodes for every method** (baselines and H2S-NN); the selected checkpoint is evaluated on the **whole** validation and test split (MB3 kept for reported numbers).
@@ -37,7 +37,7 @@ In both shared loops:
 4. Record: whole-split val/test metrics (as now) **plus** `val_subset_macro_f1` at the best epoch and `val_subset_size`, `val_subset_fingerprint`. The tuning objective (what the sweep reads) is `val_subset_macro_f1`.
 5. Datasets outside the table are refused by `validation_subset` (no silent whole-split fallback).
 
-### U3 — Tests and mutations (`tests/test_b1a_validation_subset.py`)
+### U3 — Tests and mutations (`tests/test_b1a_validation_subset.py`) (cut 2026-11-18, author: keep (1) determinism + same nodes for every method, as one test; (2) no test pass during training; (3) best weights restored + Mutation 1; existing tests. The other rows below are dropped)
 | Test | Expectation |
 |---|---|
 | Subset determinism | two calls equal; size per table; subset ⊂ val ids; independent of training seed and method |
@@ -50,7 +50,7 @@ In both shared loops:
 | Existing tests | `test_baselines*`, golden and mb0 `differing: none` (H2S-NN untouched) |
 
 ### U4 — Suite (amended 2026-11-18, author: the real-data step is dropped; the first tuning trial on TSUBAME is the real-data check)
-~~One H2GB NC dry-run step per loop class~~ (dropped). Full suite once (pinned kernel environment E). Report short; last line `branch=baselines-h2gb-7 sha=<full head> card=docs/H2S-NN_b1a_baselines_card.md base=<v3b sha>`.
+~~One H2GB NC dry-run step per loop class~~ (dropped). Full suite once **as a CPU job** (no GPU request; CUDA-only tests skip; allowed because H2S-NN `src/` is untouched: golden/mb0 cannot change) (author 2026-11-18). Report short; last line `branch=baselines-h2gb-6 sha=<full head> card=docs/H2S-NN_baselines_freebase_sparse_card.md+docs/H2S-NN_b1a_baselines_card.md base=<v3b sha>`.
 
 ## Files
 `src/baselines/minibatch.py`, `src/evaluation/validation_subset.py` (new; `src/evaluation/__init__.py` only if the package does not exist), adapters only if a caller must pass the dataset name (stated per file), `tests/test_b1a_validation_subset.py`, `docs/b1a_evidence/**`, the report. Anything else: stop and ask. Never `src/trainers/`, `src/config.py` (card 5).
