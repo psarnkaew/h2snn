@@ -190,12 +190,13 @@ def summarize_unit(records: list[dict[str, Any]], monitor: str, path: Path) -> d
 
 
 def select_best_trial(records: list[dict[str, Any]], monitor: str) -> dict[str, Any]:
-    """The trial with the best validation `monitor` (`metric_score`, as H2S-NN's selection); the first on a tie."""
-    from src.utils.run_reports import metric_score
+    """The trial with the best sweep objective (`sweep_objective`: `val_subset_macro_f1` on the 8 H2GB NC datasets,
+    the whole-split validation `monitor` elsewhere; card 1f U6, option A); the first on a tie."""
+    from src.utils.wandb_campaign import sweep_objective
 
     if not records:
         raise RuntimeError("No completed tuning records to summarize.")
-    return max(records, key=lambda record: metric_score(record, monitor))
+    return max(records, key=lambda record: sweep_objective(record, monitor))
 
 
 def run_final_seeds(cell: Cell, *, seeds: list[int], output_dir: Path, monitor: str, device: str | None,
