@@ -736,7 +736,8 @@ class AblationTests(unittest.TestCase):
             operator = model.encode(self.data.x, self.data.node_type, self.data.edge_index,
                                     self.data.edge_type, self.data.face_groups,
                                     self.data.num_nodes).operator
-        constant = torch.exp(model.path_log_weight.detach())
+        bound = model.log_weight_bound  # spec 1.25 Z4: w = exp(L tanh(b / L))
+        constant = torch.exp(bound * torch.tanh(model.path_log_weight.detach() / bound))
         for weights in operator.path_weights:
             self.assertTrue(torch.equal(weights, constant.expand_as(weights)))
         learned = self._model()

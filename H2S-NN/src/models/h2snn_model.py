@@ -7,7 +7,8 @@ sheaf energy (`src/models/sheaf_energy.py`),
 solved by PCG with an implicit backward (`src/models/anchored_solve.py`). `Delta_0` runs over the
 observed facts with the D1 map operators (one conformal scale per fact, D1a); every path 2-cell
 couples to every node on it through ordered parallel transport, with weight `beta_f = w_f m_f`,
-`w_f = exp(g(path_latent_f))`. The arms of spec §6 are configurations of this one path (`model.arm`).
+`w_f = exp(L tanh(g(path_latent_f) / L))` (spec 1.25 Z4, L = 10). The arms of spec §6 are
+configurations of this one path (`model.arm`).
 
 One encoder, three task heads (plan §4.8), selected by `data.task_type`:
 - node classification: `MLP(x*)` on the target nodes;
@@ -437,8 +438,9 @@ class H2SNN(nn.Module):
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
         self.path_log_weight: nn.Parameter | None = None
-        # Part H: w_f = exp(g) without gamma; the C2 ladder restricts the inputs of g on identical
-        # cells.
+        # Part H: w_f = exp(g) without gamma; spec 1.25 Z4 bounds it, w_f = exp(L tanh(g / L)); the C2
+        # ladder restricts the inputs of g on identical cells.
+        self.log_weight_bound = float(model_config.path_log_weight_bound)
         self.path_weight_input = ablation.path_weight_input
         # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0.
         path_input_dim = d
@@ -458,7 +460,7 @@ class H2SNN(nn.Module):
             self.path_gate = nn.Linear(hidden, 1)
             nn.init.constant_(self.path_gate.bias, math.log(model_config.path_weight_init))
         else:
-            # uniform: w_f = exp(b) for every cell (b alone; no g input).
+            # uniform: w_f = exp(L tanh(b / L)) for every cell (b alone; no g input; spec 1.25 Z4).
             self.path_log_weight = nn.Parameter(
                 torch.tensor(math.log(model_config.path_weight_init)))
         self.last_path_stats: dict[str, float] = {}
@@ -627,16 +629,23 @@ class H2SNN(nn.Module):
         tokens = torch.cat([relation_weight[relations], onehot], dim=-1)
         return tokens.reshape(relations.size(0), -1)
 
+    def _bounded(self, logits: torch.Tensor) -> torch.Tensor:
+        """`L tanh(g / L)` (spec 1.25 Z4): the log-weight range is at most `2L`."""
+        bound = self.log_weight_bound
+        return bound * torch.tanh(logits / bound)
+
     def _path_weights(self, latent: torch.Tensor | None, group: FaceGroup,
                       like: torch.Tensor) -> torch.Tensor:
-        """`w_f = exp(g(latent_f))`; under `path_weight_input: uniform`, `exp(b)`."""
+        """`w_f = exp(L tanh(g(latent_f) / L))` (spec 1.25 Z4, every rung of the C2 ladder); under
+        `path_weight_input: uniform`, `exp(L tanh(b / L))`."""
         if self.path_gate is None:
-            return torch.exp(self.path_log_weight).expand(group.num_faces)  # type: ignore[arg-type]
+            return torch.exp(self._bounded(self.path_log_weight)).expand(  # type: ignore[arg-type]
+                group.num_faces)
         logits = self.path_gate(latent).squeeze(-1)
         if self.anchored and not bool(torch.isfinite(logits).all()):  # spec v1.16 K5, before exp
             bad = logits[~torch.isfinite(logits)][0]
             raise NonFiniteLogWeightError(float(bad), self._current_epoch)
-        return torch.exp(logits)
+        return torch.exp(self._bounded(logits))
 
     # ------------------------------------------------------------------ encoder
     def encode(
@@ -664,7 +673,8 @@ class H2SNN(nn.Module):
     def _cell_weights(self, h0: torch.Tensor, geometry: torch.Tensor,
                       groups: tuple[FaceGroup, ...]
                       ) -> tuple[list[torch.Tensor], list[torch.Tensor], list[torch.Tensor | None]]:
-        """Per group: `beta_f = w_f m_f`, `w_f = exp(g(xi_f))` and g's latent (spec §3.2c)."""
+        """Per group: `beta_f = w_f m_f`, `w_f = exp(L tanh(g(xi_f) / L))` and g's latent (spec §3.2c,
+        1.25 Z4)."""
         path_input = self.path_inputs(h0, geometry)
         betas, weights, latents = [], [], []
         for group in groups:

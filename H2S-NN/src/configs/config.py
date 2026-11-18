@@ -159,7 +159,9 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
 # Spec 1.25 (Z2, Z-18): the TD-1 map rank m is a fixed method constant (4), never in a search space;
 # a tuning base config must carry 4 (other values exist for unit tests only).
 MAP_RANK: int = 4
-NEVER_TUNED_TD1_KEYS: tuple[str, ...] = ("map_rank",)
+# Spec 1.25 Z4 (Z-35 - Z-38): log w_f = L tanh(g / L), L = 10 fixed, never tuned.
+PATH_LOG_WEIGHT_BOUND: float = 10.0
+NEVER_TUNED_TD1_KEYS: tuple[str, ...] = ("map_rank", "path_log_weight_bound")
 # Spec 1.25 Z2 / pre-registration §4.3 N2c: the type-only read-out (C_e = 0) is an evaluation switch of
 # analysis scripts; refused in any training forward (the model raises) and in any tuning setup.
 EVALUATION_ONLY_KEYS: tuple[str, ...] = ("type_only_maps",)
@@ -269,6 +271,11 @@ def reject_never_tuned_settings(
     if "map_rank" in model and model.get("map_rank") != MAP_RANK:
         raise ValueError(f"model.map_rank: {model.get('map_rank')!r} in a tuning base config; the TD-1 "
                          f"rank is fixed at {MAP_RANK} and never tuned (spec 1.25 Z2, Z-18).")
+    if ("path_log_weight_bound" in model
+            and float(model.get("path_log_weight_bound")) != PATH_LOG_WEIGHT_BOUND):
+        raise ValueError(f"model.path_log_weight_bound: {model.get('path_log_weight_bound')!r} in a "
+                         f"tuning base config; L is fixed at {PATH_LOG_WEIGHT_BOUND} and never tuned "
+                         "(spec 1.25 Z4, Z-38).")
     evaluation = (raw_config or {}).get("evaluation") or {}
     if evaluation.get("type_only_maps", False) is not False:
         raise ValueError("evaluation.type_only_maps is the N2c type-only read-out (pre-registration "
@@ -363,8 +370,9 @@ def reject_never_tuned_settings(
             )
         if str(name).split(".")[-1] in NEVER_TUNED_TD1_KEYS + EVALUATION_ONLY_KEYS:
             raise ValueError(
-                f"tuning search space contains {name!r}: the TD-1 rank m (= {MAP_RANK}) and the N2c "
-                "type-only read-out are never tuned (spec 1.25 Z2, Z-18; pre-registration §4.3).")
+                f"tuning search space contains {name!r}: the TD-1 rank m (= {MAP_RANK}), the weight "
+                f"bound L (= {PATH_LOG_WEIGHT_BOUND}) and the N2c type-only read-out are never tuned "
+                "(spec 1.25 Z2, Z4, Z-18, Z-38; pre-registration §4.3).")
         if str(name).split(".")[-1] in NEVER_TUNED_V3B_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the v3-B propagation, arm, tau init and "
@@ -1384,6 +1392,9 @@ class ModelConfig:
     # log(path_weight_init) and no gamma (`sigmoid_gamma` removed by the legacy-removal card).
     path_weight: str = "exp"
     path_weight_init: float = 0.5
+    # Spec 1.25 Z4: bounded cell weights, log w_f = L tanh(g(xi_f) / L) with L = path_log_weight_bound
+    # (10, fixed, never tuned): the log-weight range is at most 2L = 20 < log_weight_range_stop.
+    path_log_weight_bound: float = PATH_LOG_WEIGHT_BOUND
     # v3-B (spec v1.11 R13; card Part L): "anchored", Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
     # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward. The
     # only value (the v2 `chebyshev` propagation was removed by the legacy-removal card); the key
@@ -1437,6 +1448,9 @@ class ModelConfig:
             raise ValueError(
                 f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
             )
+        if not self.path_log_weight_bound > 0.0:
+            raise ValueError(f"model.path_log_weight_bound must be positive, got "
+                             f"{self.path_log_weight_bound}.")
         if not self.path_weight_init > 0.0:
             raise ValueError(
                 f"model.path_weight_init must be positive, got {self.path_weight_init}."
@@ -1482,6 +1496,7 @@ class ModelConfig:
             checkpointing=raw.get("checkpointing", True),
             path_weight=path_weight,
             path_weight_init=float(raw.get("path_weight_init", 0.5)),
+            path_log_weight_bound=float(raw.get("path_log_weight_bound", PATH_LOG_WEIGHT_BOUND)),
             propagation=str(raw.get("propagation", "anchored")),
             arm=str(raw.get("arm", "full")),
             tau_init=float(raw.get("tau_init", 1.0)),
