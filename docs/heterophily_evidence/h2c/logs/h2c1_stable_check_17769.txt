@@ -1,0 +1,13 @@
+job=17769 node=g3n01 git=b35dddaad3b14bba90503ce70e2ed82a8dc52812
+{"x_shape": [144233, 4785], "dtype": "torch.float32", "abs_max": 0.000440844742115587, "abs_mean": 0.00020898641515191426, "nonzero_frac": 0.9999999971020999, "row_norm_mean": 0.014456370505262653, "row_norm_max": 0.014476541881556525, "distinct_rows_in_first_20000": 19927}
+{"metapath": "transaction-card1-transaction", "closed_form": 4.872294491425769e-14, "stable": 4.872294491166426e-14, "edges": 213720395, "max_clique": 9522, "sum_sq_dev": 2.082617406416825e-05}
+{"metapath": "transaction-card2-transaction", "closed_form": 1.5119407026428875e-14, "stable": 1.5119407029822456e-14, "edges": 811536307, "max_clique": 14774, "sum_sq_dev": 2.453989549002391e-05}
+{"metapath": "transaction-card3-transaction", "closed_form": 1.4616474764617826e-15, "stable": 1.4616474723119392e-15, "edges": 9538366081, "max_clique": 83537, "sum_sq_dev": 2.7883457344559173e-05}
+{"metapath": "transaction-card4-transaction", "closed_form": 1.5594798888793145e-15, "stable": 1.5594798859566623e-15, "edges": 10000705557, "max_clique": 89299, "sum_sq_dev": 3.119179832303304e-05}
+{"metapath": "transaction-card5-transaction", "closed_form": 3.49858338099702e-15, "stable": 3.498583393465214e-15, "edges": 4102834227, "max_clique": 54713, "sum_sq_dev": 2.8708215385445777e-05}
+{"metapath": "transaction-card6-transaction", "closed_form": 1.5099671734824567e-15, "stable": 1.5099671715856902e-15, "edges": 10392610825, "max_clique": 75090, "sum_sq_dev": 3.138500234563215e-05}
+{"metapath": "transaction-ProductCD-transaction", "closed_form": 2.0521991740810775e-15, "stable": 2.052199163062506e-15, "edges": 6494845857, "max_clique": 62192, "sum_sq_dev": 2.6657434463910773e-05}
+{"metapath": "transaction-addr1-transaction", "closed_form": 2.70851438551776e-14, "stable": 2.7085143858200297e-14, "edges": 344049308, "max_clique": 10709, "sum_sq_dev": 1.8637250002988524e-05}
+{"metapath": "transaction-addr2-transaction", "closed_form": 1.5086173549059237e-15, "stable": 1.508617359402385e-15, "edges": 6537815520, "max_clique": 80835, "sum_sq_dev": 1.972612397208466e-05}
+{"metapath": "transaction-P_emaildomain-transaction", "closed_form": 2.3082261669491135e-15, "stable": 2.3082261601722947e-15, "edges": 4086829248, "max_clique": 54140, "sum_sq_dev": 1.8866652364781734e-05}
+{"metapath": "transaction-R_emaildomain-transaction", "closed_form": 3.308192340744357e-15, "stable": 3.3081923319044662e-15, "edges": 4218661273, "max_clique": 55079, "sum_sq_dev": 2.791228574848187e-05}

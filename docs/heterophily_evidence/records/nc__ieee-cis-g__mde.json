@@ -1,0 +1,322 @@
+{
+ "dataset": "ieee-cis-g",
+ "task": "nc",
+ "measure": "mde",
+ "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+ "job": "17739",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed form on a complete G_P; H2c-1: closed form on a disjoint union of cliques)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "transaction-to-card1": "kept (reverse partner card1-rev_to-transaction)",
+  "transaction-to-card2": "kept (reverse partner card2-rev_to-transaction)",
+  "transaction-to-card3": "kept (reverse partner card3-rev_to-transaction)",
+  "transaction-to-card4": "kept (reverse partner card4-rev_to-transaction)",
+  "transaction-to-card5": "kept (reverse partner card5-rev_to-transaction)",
+  "transaction-to-card6": "kept (reverse partner card6-rev_to-transaction)",
+  "transaction-to-ProductCD": "kept (reverse partner ProductCD-rev_to-transaction)",
+  "transaction-to-addr1": "kept (reverse partner addr1-rev_to-transaction)",
+  "transaction-to-addr2": "kept (reverse partner addr2-rev_to-transaction)",
+  "transaction-to-P_emaildomain": "kept (reverse partner P_emaildomain-rev_to-transaction)",
+  "transaction-to-R_emaildomain": "kept (reverse partner R_emaildomain-rev_to-transaction)",
+  "card1-rev_to-transaction": "kept (reverse partner transaction-to-card1)",
+  "card2-rev_to-transaction": "kept (reverse partner transaction-to-card2)",
+  "card3-rev_to-transaction": "kept (reverse partner transaction-to-card3)",
+  "card4-rev_to-transaction": "kept (reverse partner transaction-to-card4)",
+  "card5-rev_to-transaction": "kept (reverse partner transaction-to-card5)",
+  "card6-rev_to-transaction": "kept (reverse partner transaction-to-card6)",
+  "ProductCD-rev_to-transaction": "kept (reverse partner transaction-to-ProductCD)",
+  "addr1-rev_to-transaction": "kept (reverse partner transaction-to-addr1)",
+  "addr2-rev_to-transaction": "kept (reverse partner transaction-to-addr2)",
+  "P_emaildomain-rev_to-transaction": "kept (reverse partner transaction-to-P_emaildomain)",
+  "R_emaildomain-rev_to-transaction": "kept (reverse partner transaction-to-R_emaildomain)"
+ },
+ "graph": {
+  "node_types": {
+   "transaction": 144233,
+   "card1": 8499,
+   "card2": 482,
+   "card3": 103,
+   "card4": 4,
+   "card5": 106,
+   "card6": 3,
+   "ProductCD": 4,
+   "addr1": 255,
+   "addr2": 72,
+   "P_emaildomain": 59,
+   "R_emaildomain": 60
+  },
+  "edge_types": {
+   "transaction-to-card1": 144233,
+   "transaction-to-card2": 143331,
+   "transaction-to-card3": 144061,
+   "transaction-to-card4": 144049,
+   "transaction-to-card5": 143277,
+   "transaction-to-card6": 144055,
+   "transaction-to-ProductCD": 144233,
+   "transaction-to-addr1": 83786,
+   "transaction-to-addr2": 83786,
+   "transaction-to-P_emaildomain": 130842,
+   "transaction-to-R_emaildomain": 131083,
+   "card1-rev_to-transaction": 144233,
+   "card2-rev_to-transaction": 143331,
+   "card3-rev_to-transaction": 144061,
+   "card4-rev_to-transaction": 144049,
+   "card5-rev_to-transaction": 143277,
+   "card6-rev_to-transaction": 144055,
+   "ProductCD-rev_to-transaction": 144233,
+   "addr1-rev_to-transaction": 83786,
+   "addr2-rev_to-transaction": 83786,
+   "P_emaildomain-rev_to-transaction": 130842,
+   "R_emaildomain-rev_to-transaction": 131083
+  }
+ },
+ "target": "transaction",
+ "m2": [
+  "transaction-card1-transaction",
+  "transaction-card2-transaction",
+  "transaction-card3-transaction",
+  "transaction-card4-transaction",
+  "transaction-card5-transaction",
+  "transaction-card6-transaction",
+  "transaction-ProductCD-transaction",
+  "transaction-addr1-transaction",
+  "transaction-addr2-transaction",
+  "transaction-P_emaildomain-transaction",
+  "transaction-R_emaildomain-transaction"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63)",
+ "value": 9.830400795669565e-15,
+ "form": "MDE, mean over M2 (raw features)",
+ "feature_dim": 4785,
+ "feature_dtype": "torch.float32",
+ "per_metapath": [
+  {
+   "metapath": "transaction-card1-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card1"
+    ],
+    [
+     "card1",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 213720395,
+   "value": 4.872294491425769e-14,
+   "cliques": 8499,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-card2-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card2"
+    ],
+    [
+     "card2",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 811536307,
+   "value": 1.5119407026428875e-14,
+   "cliques": 482,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-card3-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card3"
+    ],
+    [
+     "card3",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 9538366081,
+   "value": 1.4616474764617826e-15,
+   "cliques": 103,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-card4-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card4"
+    ],
+    [
+     "card4",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 10000705557,
+   "value": 1.5594798888793145e-15,
+   "cliques": 4,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-card5-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card5"
+    ],
+    [
+     "card5",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 4102834227,
+   "value": 3.49858338099702e-15,
+   "cliques": 106,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-card6-transaction",
+   "steps": [
+    [
+     "transaction",
+     "card6"
+    ],
+    [
+     "card6",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 10392610825,
+   "value": 1.5099671734824567e-15,
+   "cliques": 3,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-ProductCD-transaction",
+   "steps": [
+    [
+     "transaction",
+     "ProductCD"
+    ],
+    [
+     "ProductCD",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 6494845857,
+   "value": 2.0521991740810775e-15,
+   "cliques": 4,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-addr1-transaction",
+   "steps": [
+    [
+     "transaction",
+     "addr1"
+    ],
+    [
+     "addr1",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 344049308,
+   "value": 2.70851438551776e-14,
+   "cliques": 255,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-addr2-transaction",
+   "steps": [
+    [
+     "transaction",
+     "addr2"
+    ],
+    [
+     "addr2",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 6537815520,
+   "value": 1.5086173549059237e-15,
+   "cliques": 72,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-P_emaildomain-transaction",
+   "steps": [
+    [
+     "transaction",
+     "P_emaildomain"
+    ],
+    [
+     "P_emaildomain",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 4086829248,
+   "value": 2.3082261669491135e-15,
+   "cliques": 59,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath": "transaction-R_emaildomain-transaction",
+   "steps": [
+    [
+     "transaction",
+     "R_emaildomain"
+    ],
+    [
+     "R_emaildomain",
+     "transaction"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 4218661273,
+   "value": 3.308192340744357e-15,
+   "cliques": 60,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  }
+ ],
+ "wall_s": 35.01,
+ "peak_rss_gb": 14.365
+}
