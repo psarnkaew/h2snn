@@ -1,0 +1,28 @@
+head=c04b835959d5e48c0c92e3a0da25c118362ca3e0 host=g2tn01 job=17670 start=2026-11-18T16:42:32+09:00
+worktree:  M scripts/tsubame/lines.py  M scripts/tsubame/sweep_slots.sh ?? scripts/tsubame/collect.py ?? scripts/tsubame/status.py ?? tests/test_tsubame_collect.py ?? ../docs/tsubame_evidence/t4_mutation.py ?? ../docs/tsubame_evidence/t4_tests.txt 
+command: python -m unittest -v tests.test_tsubame_collect 2>&1; echo "--- mutation"; python ../docs/tsubame_evidence/t4_mutation.py 2>&1 | tail -25
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.754s
+
+OK
+--- mutation
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... FAIL
+
+======================================================================
+FAIL: test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_collect.py", line 104, in test_rows_equal_records_values_unchanged_provenance_filled
+    self.assertEqual(len(rows), n_records)
+AssertionError: 4 != 6
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+FAILED (failures=1)
+MUTATION T4 (a record skipped): caught (the test fails)
+exit=0 seconds=3
