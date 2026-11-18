@@ -60,3 +60,12 @@ In both shared loops:
 - Resource rule (`working_preferences.md`): `--mem` from recorded peak + 30 %, ≥ 16G; no A6000 / g3an01; one cell per job on a 24 GB GPU not shared for timing.
 - Stop: a path with its own loop (U0); a loader that cannot take a subset mask without editing H2GB; PDNS validation not a single id set.
 - Git: one commit per unit; merge (never rebase) `v3b`; stage by explicit path; never stash/reset others' work; push only the branch; wait for review.
+
+### U5 — Review follow-up (2026-11-18, design session; decisions log row "Card 1e F3 + 1f review")
+On `baselines-h2gb-6` from `08b5a16`. No GPU job; nothing trained on real data.
+1. **Merge** `origin/v3b` (`714b08d`; merge, never rebase).
+2. **Suite fixes** (files added to this card's list): `tests/test_baselines.py:52` total runnable cells 254 → 253; regenerate the notebooks with `scripts/generate_baseline_notebooks.py` and commit only the generator's output.
+3. **PDNS (stop item, decided (a)):** the subset is drawn from **each run seed's** validation split: `validation_subset(dataset, split_ids, run_seed)` for PDNS takes the validation ids of that seed's split and draws the B1a size with an RNG seeded by (fixed subset seed, run seed); the other 7 datasets keep the single fixed subset. Same run seed → same nodes for every method. Record the per-seed fingerprint. Tests: same seed and split → identical subset across two calls and across both shared loops; different run seeds → subsets inside their own validation split; mutation: draw from the seed-0 split for every seed → the inside-split test fails.
+4. **Hetero²Net (stop item, decided (a)):** apply the U2 rule inside its own loop (subset during training, no test pass during training, best weights restored, one whole-split val/test pass at the end); one test as U3 (no test pass during training) with Mutation 1.
+5. **Sweep objective (card text holds):** the end-of-trial value the sweep reads is `val_subset_macro_f1` at the best epoch (`wandb_campaign.py:434`, added to this card's list); whole-split val/test stay recorded. One test: the sweep's objective key equals the subset metric.
+6. **Suite once** as a CPU job (no `--gres`, 32G). Report section "U5"; last line `branch=baselines-h2gb-6 sha=<sha> card=docs/H2S-NN_baselines_freebase_sparse_card.md+docs/H2S-NN_b1a_baselines_card.md base=714b08d`.
