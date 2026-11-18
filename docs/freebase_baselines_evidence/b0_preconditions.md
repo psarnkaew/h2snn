@@ -22,8 +22,9 @@ SeHGNN `e92bd37`, PSHGCN `f87406c`, H2SGNN `93c33fa`.
 ordered type pair. Author decision (this session, 2026-11-18, question "Freebase dir"): the generic branch **completes
 missing reverses**: the transpose of each relation whose reverse is not stored is added (cross-type: a reverse key;
 same-type: merged into the key, which gets `set_diag` as ACM's `PP`). A no-op where reverses are stored (ACM, IMDB,
-H2GB's `ToUndirected` graphs), so the ACM-branch equivalence holds. As SeHGNN's Freebase branch (`hgb/utils.py:446,
-461-467`) and PSHGCN's `hgb-lp` processing.
+H2GB's `ToUndirected` graphs), so the ACM-branch equivalence holds. As SeHGNN's Freebase branch (`hgb/utils.py:450,
+461-469`; lines corrected in B1) and PSHGCN's `hgb-lp` processing (`hgb-lp/scripts/data_loader.py:44, 514-517`).
+Stated deviation D1 in `deviations.md`.
 
 ## Batching (card Part B, part 1 classes; prompt: one of the two shared loops of `minibatch.py`)
 - PSHGCN, 6 non-MAG H2GB NC: class B, their decoupled scheme (per-monomial propagation of the inputs once, batches of

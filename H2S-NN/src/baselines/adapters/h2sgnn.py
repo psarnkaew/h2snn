@@ -77,6 +77,12 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 #: Polynomial bases H2SGNN implements (H2SGNN/model.py:80-86).
 POLY_CHOICES = ("GPR_GPR", "GPR_legendre", "GPR_jaco")
+#: Card 3 Part B (F-1, G-3): Freebase NC, the 8 H2GB NC datasets and the two large LP tasks on the generic branch of
+#: their HGB code (`_hgb_generic`, reverses completed). H2GB NC and large LP: class C, not node-wise (part 1 C0), so
+#: H2GB's `hgt` sampler with the dataset's GCN fan-out (D1 second branch, S4 = S1) in the shared loops.
+FREEBASE = "freebase"
+H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+LARGE_LP_TASKS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 
 
 def _vendor_args(
@@ -119,9 +125,9 @@ class H2SGNNAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in VENDOR_DATASET
+            return dataset in VENDOR_DATASET or dataset == FREEBASE or dataset in H2GB_DATASETS
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_TASKS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -170,7 +176,7 @@ class H2SGNNAdapter:
                 "beta_wd": {"values": [0.0, 0.3, 1.0]},
                 "decoder_type": {"values": ["dot", "distmult"]},
             }
-        return {
+        space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
             "hidden": grids.HIDDEN,
@@ -197,6 +203,11 @@ class H2SGNNAdapter:
             "a": {"distribution": "uniform", "min": -1.0, "max": 0.5},
             "b": {"distribution": "uniform", "min": -0.5, "max": 1.5},
         }
+        if dataset in H2GB_DATASETS:  # the shared batch range on H2GB NC
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            space["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
+        return space
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
         return load_published_params(NAME, task, dataset)
@@ -214,29 +225,47 @@ class H2SGNNAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_TASKS:
+            return fit_large_lp(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
             raise UnsupportedCell(NAME, task, bundle.dataset, "unsupported task")
+        if bundle.dataset in H2GB_DATASETS:
+            return fit_h2gb_node_classification(bundle, params, seed=seed, device=device)
 
         args = _vendor_args(bundle.dataset, params, device=device)
-        (
-            feature_list,
-            adjs,
-            lis,
-            lis_t,
-            labels,
-            num_classes,
-            _train_idx,
-            _val_idx,
-            vendor_test_idx,
-            adjs_list,
-        ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
+        if bundle.dataset == FREEBASE:
+            from src.baselines.adapters._hgb_generic import (hgb_features, hgb_generic_inputs, hgb_target_rows,
+                                                             project_bundle_split, read_hgb_raw)
+            from src.baselines.bundles import hgb_raw_dir
 
-        verify_labels(bundle, labels, vendor=NAME)
-        train_idx, val_idx, test_idx = canonical_split(
-            bundle, vendor_test_idx, vendor=NAME
-        )
+            raw = read_hgb_raw(VENDOR, hgb_raw_dir(FREEBASE, bundle_data_root(bundle)))
+            generic = hgb_generic_inputs(raw)
+            adjs, lis, lis_t = generic["adjs"], generic["metapath_names"], {}  # their lis_t = {} (processing.py:160)
+            adjs_list = generic["metapath_operators"]
+            feature_list, labels, num_classes = hgb_features(raw), raw["labels"], raw["num_classes"]
+            # bundle rows (node.dat order) -> their rows (HGB id order)
+            train_idx, val_idx, test_idx = project_bundle_split(
+                bundle, raw, hgb_target_rows(hgb_raw_dir(FREEBASE, bundle_data_root(bundle))), vendor=NAME)
+        else:
+            (
+                feature_list,
+                adjs,
+                lis,
+                lis_t,
+                labels,
+                num_classes,
+                _train_idx,
+                _val_idx,
+                vendor_test_idx,
+                adjs_list,
+            ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
+
+            verify_labels(bundle, labels, vendor=NAME)
+            train_idx, val_idx, test_idx = canonical_split(
+                bundle, vendor_test_idx, vendor=NAME
+            )
 
         # Seed every RNG, not just torch: H2SGNN builds its temperature tensors through
         # numpy (model.py:36-42), so seeding torch alone leaves the run irreproducible.
@@ -245,6 +274,7 @@ class H2SGNNAdapter:
             from model import H2SGNN  # type: ignore[import-not-found]
 
             feature_list = [feature.to(device) for feature in feature_list]
+            adjs_list = [adj.to(device) for adj in adjs_list]
             model = H2SGNN(
                 int(feature_list[0].shape[1]), num_classes, lis, lis_t, args
             ).to(device)
@@ -400,6 +430,105 @@ class H2SGNNAdapter:
         record["poly"] = args.poly
         record["readout"] = "shared_mean_pool_linear"
         return record
+
+
+def _optimizer(model: torch.nn.Module, args: SimpleNamespace) -> torch.optim.Optimizer:
+    """The six parameter groups of H2SGNN/main.py:23-29."""
+    return torch.optim.AdamW([
+        {"params": model.feat_project.parameters(), "weight_decay": args.wd, "lr": args.lr},
+        {"params": model.lin1.parameters(), "weight_decay": args.wd, "lr": args.lr},
+        {"params": model.lin2.parameters(), "weight_decay": args.wd, "lr": args.lr},
+        {"params": model.temp, "weight_decay": args.temp_wd, "lr": args.temp_lr},
+        {"params": model.temp_list, "weight_decay": args.temp_list_wd, "lr": args.temp_list_lr},
+        {"params": model.beta, "weight_decay": args.beta_wd, "lr": args.beta_lr},
+    ])
+
+
+def _vendor_model(in_dim: int, out_dim: int, names: list[str], args: SimpleNamespace) -> torch.nn.Module:
+    with pushd_sys_path(VENDOR):
+        from model import H2SGNN  # type: ignore[import-not-found]
+
+        return H2SGNN(in_dim, out_dim, names, {}, args)  # their lis_t = {} (processing.py:160)
+
+
+def batch_forward(model: torch.nn.Module, batch: Any, target: str, names: list[str],
+                  device: torch.device) -> torch.Tensor:
+    """Their forward on a sampled batch (`_hgb_generic.h2sgnn_hetero_operators`: the generic branch on the batch,
+    target block = the batch's target-type rows): one output row per target-type row of the batch."""
+    from src.baselines.adapters._hgb_generic import h2sgnn_hetero_operators
+
+    batch_names, operators = h2sgnn_hetero_operators(batch, target)
+    if batch_names != names:
+        raise RuntimeError(f"meta-paths of the batch {batch_names} differ from the model's {names}")
+    operators = [op.to(device) for op in operators]
+    return model(operators, [batch[target].x.float().to(device)], operators)
+
+
+def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: int,
+                                 device: torch.device) -> dict[str, float]:
+    """G-3: class C on H2GB's `hgt` batches (D1 second branch, S4 = S1: the dataset's GCN fan-out) in the shared
+    H2GB NC loop `minibatch.train_minibatch_node_classification`."""
+    import torch.nn.functional as F
+
+    from src.baselines.adapters._hgb_generic import h2sgnn_metapath_names
+    from src.baselines.minibatch import (CLASS_C_REFERENCE_METHOD, eval_loader, h2gb_graph, h2gb_sample_sizes,
+                                         hgt_loader, minibatch_plan, train_minibatch_node_classification)
+    from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+    seed_everything(seed, device)
+    data = h2gb_graph(bundle)
+    target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+    fanout = h2gb_sample_sizes(CLASS_C_REFERENCE_METHOD, bundle.dataset, tuple(data.node_types))
+    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+    labels = data[target].y.long()
+    num_classes = int(labels.max()) + 1
+    names = h2sgnn_metapath_names(list(data.node_types), list(data.edge_types), target)
+    args = _vendor_args(bundle.dataset, params, device=device)
+    model = _vendor_model(int(data[target].x.size(1)), num_classes, names, args).to(device)
+
+    def forward_seeds(batch: Any) -> torch.Tensor:
+        return batch_forward(model, batch, target, names, device)[: int(batch[target].batch_size)]
+
+    record = train_minibatch_node_classification(
+        model=model, forward_seeds=forward_seeds,
+        train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
+                                steps=plan.steps_per_epoch),
+        val_loader=eval_loader(data, fanout, target, "val", plan.batch_size),
+        test_loader=eval_loader(data, fanout, target, "test", plan.batch_size),
+        val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+        target_type=target, optimizer=_optimizer(model, args), criterion=F.cross_entropy, plan=plan,
+        report=getattr(params, "report", None), labels=labels)
+    record["params_source"] = params.source
+    record["batch_size"] = float(plan.batch_size)
+    record["num_metapaths"] = float(len(names))
+    return record
+
+
+def build_large_lp(d: Any, params: Any, device: torch.device, sampler: Any = None) -> tuple[Any, Any]:
+    """G-3 on a large LP task (shared loop `large_lp_training.fit_large_lp`): the generic branch on each sampled
+    subgraph of the message graph, target block = the endpoint type's rows; H2GB's sampler of the class-C reference
+    method (D2, G-8) unless one is given."""
+    from src.baselines import large_lp_training as llp
+    from src.baselines.adapters._hgb_generic import h2sgnn_metapath_names
+    from src.baselines.minibatch import CLASS_C_REFERENCE_METHOD
+
+    names = h2sgnn_metapath_names(list(d.graph.node_types), list(d.graph.edge_types), d.node_type)
+    args = _vendor_args(d.task, params, device=device)
+    embed_dim = int(params.get("embed_dim", 64))
+    model = _vendor_model(int(d.graph[d.node_type].x.size(1)), embed_dim, names, args).to(device)
+    return (llp.LargeLPModel(modules=model, embed=lambda batch, train: batch_forward(model, batch, d.node_type, names,
+                                                                                     device),
+                             embed_dim=embed_dim, extra={"num_metapaths": len(names)}),
+            sampler or llp.h2gb_sampler(CLASS_C_REFERENCE_METHOD, d.task, tuple(d.graph.node_types)))
+
+
+def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[str, float]:
+    from src.baselines import large_lp_training as llp
+
+    record = llp.fit_large_lp(bundle, params, seed=seed, device=device,
+                              build=lambda d: build_large_lp(d, params, device))
+    record["params_source"] = params.source
+    return record
 
 
 ADAPTER = H2SGNNAdapter()

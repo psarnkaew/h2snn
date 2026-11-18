@@ -157,12 +157,7 @@ class TinyReleaseTests(unittest.TestCase):
     def test_every_nc_adapter_runs_one_epoch(self) -> None:
         import src.data.data_layout as layout
         from src.baselines.bundles import build_bundle
-        from src.baselines.registry import (
-            FREEBASE_VENDOR_REASON,
-            get_adapter,
-            models_for_task,
-            unsupported_reason,
-        )
+        from src.baselines.registry import get_adapter, models_for_task, unsupported_reason
         from tests.test_partP_derived_lp import environment_blocker
 
         blocked = {"chebnetii": "chebnetii", "nsd": "nsd", "h2sgnn": "h2sgnn"}
@@ -175,11 +170,7 @@ class TinyReleaseTests(unittest.TestCase):
             for spec in models_for_task(NODE_CLASSIFICATION):
                 with self.subTest(adapter=spec.name):
                     reason = unsupported_reason(spec.name, NODE_CLASSIFICATION, "freebase")
-                    if spec.name in ("sehgnn", "pshgcn", "h2sgnn"):
-                        self.assertEqual(reason, FREEBASE_VENDOR_REASON)
-                        self.assertFalse(get_adapter(spec.name).supports(
-                            NODE_CLASSIFICATION, "freebase"))
-                        continue
+                    # card 3 Part B: SeHGNN (its Freebase branch), PSHGCN and H2SGNN (the generic branch) wired
                     self.assertIsNone(reason)
                     adapter = get_adapter(spec.name)
                     self.assertTrue(adapter.supports(NODE_CLASSIFICATION, "freebase"))

@@ -88,6 +88,12 @@ SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Card 1d H1 (G-2, D1-b): ogbn-mag / mag-year with their ogbn-mag code in full (`_pshgcn_mag.py`): their inputs,
 #: propagation and expander, the label part with sparse_tools' self-effect diagonals, batches of target rows.
 H2GB_MAG_DATASETS = frozenset({"ogbn-mag", "mag-year"})
+#: Card 3 Part B (F-1): Freebase NC on the generic branch of their HGB code (`_hgb_generic`, reverses completed).
+FREEBASE = "freebase"
+#: Card 3 Part B (G-2): the 6 non-MAG H2GB NC datasets on the generic decoupled scheme (`_hgb_generic`), class B.
+H2GB_GENERIC_DATASETS = frozenset({"oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
+#: Card 3 Part B (G-2): the two large LP tasks on the shared loop, the same decoupled scheme on the message graph.
+LARGE_LP_TASKS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 READS_BATCH_PLAN = True
 
 
@@ -97,7 +103,7 @@ def _vendor_args(
     """The argparse-shaped namespace PSHGCN's model and processing expect."""
 
     return SimpleNamespace(
-        dataset=VENDOR_DATASET[dataset],
+        dataset=VENDOR_DATASET.get(dataset, dataset),
         device=device,
         K=int(params.get("K", 5)),
         emb_dim=int(params.get("emb_dim", 64)),
@@ -116,9 +122,10 @@ class PSHGCNAdapter:
 
     def supports(self, task: str, dataset: str) -> bool:
         if task == NODE_CLASSIFICATION:
-            return dataset in VENDOR_DATASET or dataset in H2GB_MAG_DATASETS
+            return (dataset in VENDOR_DATASET or dataset in H2GB_MAG_DATASETS or dataset == FREEBASE
+                    or dataset in H2GB_GENERIC_DATASETS)
         if task == LINK_PREDICTION:
-            return dataset in SUPPORTED_LP_DATASETS
+            return dataset in SUPPORTED_LP_DATASETS or dataset in LARGE_LP_TASKS
         if task == GRAPH_CLASSIFICATION:
             return dataset in SUPPORTED_GC_DATASETS
         return False
@@ -141,6 +148,11 @@ class PSHGCNAdapter:
                 "prop_lr": grids.PROP_LR,
                 "prop_wd": {"values": [5e-5, 1e-3]},
             }
+        if task == LINK_PREDICTION and dataset in LARGE_LP_TASKS:  # the decoupled scheme's knobs (G-2), no label part
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "emb_dim": {"values": [128, 256, 512]},
+                    "hidden_x": {"values": [256, 512, 1024]}, "layers_x": {"values": [2, 3]},
+                    "embed_dim": {"values": [16, 64, 256]}, "dropout": grids.DROPOUT, "input_drop": grids.INPUT_DROP,
+                    "decoder_type": {"values": ["dot", "distmult"]}}
         if task == LINK_PREDICTION:
             # Centred on the two published link-prediction runners, whose values differ
             # sharply from the node-classification ones (hgb-lp/training.py and
@@ -166,6 +178,14 @@ class PSHGCNAdapter:
                     "hidden_x": {"values": [256, 512, 1024]}, "hidden_l": {"values": [256, 512]},
                     "layers_x": {"values": [2, 3]}, "layers_l": {"values": [2, 3]}, "dropout": grids.DROPOUT,
                     "input_drop": grids.INPUT_DROP, "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
+        if dataset in H2GB_GENERIC_DATASETS:
+            # G-2: their ogbn-mag knobs (main.py:186-200) without the label part; K = 2, their default (stated).
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "emb_dim": {"values": [128, 256, 512]},
+                    "hidden_x": {"values": [256, 512, 1024]}, "layers_x": {"values": [2, 3]},
+                    "dropout": grids.DROPOUT, "input_drop": grids.INPUT_DROP,
+                    "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
         space = {
             "lr": grids.LR,
             "weight_decay": grids.WEIGHT_DECAY,
@@ -198,6 +218,8 @@ class PSHGCNAdapter:
             return self._fit_graph_classification(
                 bundle, params, seed=seed, device=device
             )
+        if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_TASKS:
+            return fit_large_lp(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         if task != NODE_CLASSIFICATION:
@@ -206,24 +228,42 @@ class PSHGCNAdapter:
             from src.baselines.adapters import _pshgcn_mag
 
             return _pshgcn_mag.fit(bundle, params, seed=seed, device=device)
+        if bundle.dataset in H2GB_GENERIC_DATASETS:
+            return fit_h2gb_generic(bundle, params, seed=seed, device=device)
 
         args = _vendor_args(bundle.dataset, params, device=device)
-        (
-            feature_list,
-            adjs,
-            lis,
-            lis_t,
-            labels,
-            num_classes,
-            _train_idx,
-            _val_idx,
-            vendor_test_idx,
-        ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
+        if bundle.dataset == FREEBASE:
+            from src.baselines.adapters._hgb_generic import hgb_features, hgb_generic_inputs, read_hgb_raw
+            from src.baselines.bundles import hgb_raw_dir
 
-        verify_labels(bundle, labels, vendor=NAME)
-        train_idx, val_idx, test_idx = canonical_split(
-            bundle, vendor_test_idx, vendor=NAME
-        )
+            raw = read_hgb_raw(VENDOR, hgb_raw_dir(FREEBASE, bundle_data_root(bundle)))
+            adjs = hgb_generic_inputs(raw)["adjs"]
+            lis, lis_t = build_term_lists(adjs, args.K, enforce_type_chaining=True)  # their rule, processing.py:109-128
+            feature_list, labels, num_classes = hgb_features(raw), raw["labels"], raw["num_classes"]
+            vendor_test_idx = raw["test_idx"]
+        else:
+            (
+                feature_list,
+                adjs,
+                lis,
+                lis_t,
+                labels,
+                num_classes,
+                _train_idx,
+                _val_idx,
+                vendor_test_idx,
+            ) = load_vendor_dataset(VENDOR, bundle.dataset, args, bundle_data_root(bundle))
+
+        if bundle.dataset == FREEBASE:  # bundle rows (node.dat order) -> their rows (HGB id order)
+            from src.baselines.adapters._hgb_generic import hgb_target_rows, project_bundle_split
+
+            train_idx, val_idx, test_idx = project_bundle_split(
+                bundle, raw, hgb_target_rows(hgb_raw_dir(FREEBASE, bundle_data_root(bundle))), vendor=NAME)
+        else:
+            verify_labels(bundle, labels, vendor=NAME)
+            train_idx, val_idx, test_idx = canonical_split(
+                bundle, vendor_test_idx, vendor=NAME
+            )
 
         # Seed every RNG, not just torch: PSHGCN initialises its propagation coefficients
         # with np.random.uniform (model.py:init_coe), so seeding torch alone leaves the
@@ -234,6 +274,7 @@ class PSHGCNAdapter:
 
             in_dims = [feature.shape[1] for feature in feature_list]
             feature_list = [feature.to(device) for feature in feature_list]
+            adjs = {key: adj.to(device) for key, adj in adjs.items()}
             model = PSHGCN(in_dims, num_classes, lis, lis_t, args).to(device)
 
         # Four parameter groups, as PSHGCN/hgb/main.py:23-26: the propagation
@@ -365,6 +406,71 @@ class PSHGCNAdapter:
         record["num_relation_keys"] = float(num_relations)
         record["readout"] = "shared_mean_pool_linear"
         return record
+
+
+def fit_h2gb_generic(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
+    """G-2: the generic decoupled scheme (`_hgb_generic`, class B) on an H2GB NC graph: their propagation once, batches
+    of B target rows in the shared H2GB NC loop (`minibatch.train_index_minibatch`)."""
+    from src.baselines.adapters._hgb_generic import build_decoupled_model, decoupled_forward, decoupled_inputs
+    from src.baselines.minibatch import h2gb_graph, minibatch_plan, train_index_minibatch
+    from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+    seed_everything(seed, device)
+    data = h2gb_graph(bundle)
+    target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+    labels = data[target].y.long()
+    num_classes = int(labels.max()) + 1
+    inputs = decoupled_inputs(data, target, seed)
+    torch.manual_seed(seed)
+    model = build_decoupled_model(inputs, num_classes, params).to(device)
+    feats = inputs["feats"]
+    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+    optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 1e-3)),
+                                  weight_decay=float(params.get("weight_decay", 5e-5)))
+
+    def forward_rows(index: torch.Tensor) -> torch.Tensor:
+        rows = index.cpu()
+        return decoupled_forward(model, {k: v[rows].to(device) for k, v in feats.items()})
+
+    record = train_index_minibatch(
+        model=model, forward_rows=forward_rows, labels=labels.to(device),
+        train_idx=data[target].train_mask.nonzero().view(-1), val_idx=data[target].val_mask.nonzero().view(-1),
+        test_idx=data[target].test_mask.nonzero().view(-1), optimizer=optimizer,
+        criterion=torch.nn.functional.cross_entropy, plan=plan, base_seed=seed, report=getattr(params, "report", None))
+    record["params_source"] = params.source
+    record["batch_size"] = float(plan.batch_size)
+    record["polynomial_terms"] = float(inputs["coe_num"])
+    return record
+
+
+def build_large_lp(d: Any, params: Any, device: torch.device, sampler: Any = None) -> tuple[Any, Any]:
+    """G-2 on a large LP task (shared loop `large_lp_training.fit_large_lp`): the decoupled per-node table of the
+    endpoint type computed once on the **message graph** `d.graph` (held-out facts removed), its model's output as the
+    embedding; a batch's rows are read by `n_id`, so the default sampler takes the endpoints only (fan-out 0)."""
+    from src.baselines import large_lp_training as llp
+    from src.baselines.adapters._hgb_generic import build_decoupled_model, decoupled_forward, decoupled_inputs
+
+    inputs = decoupled_inputs(d.graph, d.node_type, int(torch.initial_seed()))  # the loop seeded every RNG
+    embed_dim = int(params.get("embed_dim", 64))
+    model = build_decoupled_model(inputs, embed_dim, params).to(device)
+    feats = inputs["feats"]
+
+    def embed(batch: Any, train: bool) -> torch.Tensor:  # noqa: ARG001 - train mode is set by the loop
+        rows = batch[d.node_type].n_id.cpu()
+        return decoupled_forward(model, {k: v[rows].to(device) for k, v in feats.items()})
+
+    return (llp.LargeLPModel(modules=model, embed=embed, embed_dim=embed_dim,
+                             extra={"polynomial_terms": inputs["coe_num"]}),
+            sampler or llp.Sampler("link", [0]))
+
+
+def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[str, float]:
+    from src.baselines import large_lp_training as llp
+
+    record = llp.fit_large_lp(bundle, params, seed=seed, device=device,
+                              build=lambda d: build_large_lp(d, params, device))
+    record["params_source"] = params.source
+    return record
 
 
 ADAPTER = PSHGCNAdapter()

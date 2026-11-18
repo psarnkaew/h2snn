@@ -1,0 +1,12 @@
+job=17653 node=g2n01 git=d37abbbebfe46a6fb346e8791ff9547674b62269 start=2026-11-18T12:27:13+09:00
+0fd41e0bd434c5d0f0c1f1bcada2cc52d11e14f6055c716d145d65d05e900b74  src/baselines/adapters/_hgb_generic.py
+baa92b6ab3419b236d909ba03b150b64734d13819171e3b50d653c2ae9f47cb1  tests/test_freebase_baselines.py
+f07b29518980827bf7ee3c8660f8555796012177fc9fe8e50141fddfb76f7535  ../docs/freebase_baselines_evidence/b1_h2sgnn_equiv_diag.py
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+ACM
+PPPP (3025, 3025) (20, 20) pattern_eq False maxdiff None nnz 202 180 dtype torch.float32 torch.float32
+PAAP (3025, 3025) (20, 20) pattern_eq False maxdiff None nnz 92 92 dtype torch.float32 torch.float32
+PCCP (3025, 3025) (20, 20) pattern_eq False maxdiff None nnz 55 55 dtype torch.float32 torch.float32
+PKKP (3025, 3025) (20, 20) pattern_eq False maxdiff None nnz 97 97 dtype torch.float32 torch.float32
+exit=0 end=2026-11-18T12:27:26+09:00
