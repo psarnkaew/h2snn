@@ -95,4 +95,19 @@ Golden configurations: dropped `nc_geometry_context_false`, `nc_path_weight_cont
 - Stale wording left untouched (not in the card's files): `AGENTS.md:133` (D1 row, `householder_k`), `src/models/link_readout.py` and `graph_readout.py` docstrings (`[x*, h₀]`), `src/analysis/model_loading.py` docstring (`exp(g)`).
 - S3 oracle seed 2 is 0.926 (card 4: 0.996); still the capacity side of the pre-registered reading.
 
-branch=model-td1 sha=<see final message> card=docs/H2S-NN_model_change_td1_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c
+## M8 (review of `13563ee`, accepted 2026-11-18)
+Answers recorded: operator apply 1.08× accepted, no profile; W_r's zero gradient at step 1 accepted (the card's T11 wording was wrong); `free_cell_maps` in the TD-1 family confirmed (option A); deviations accepted.
+
+| Step | Commit | Result |
+|---|---|---|
+| 1 Stale wording (docs only) | `893bbe7` | `AGENTS.md` D1 row (TD-1, `map_rank` 4, `householder_k` raises); `link_readout.py`, `graph_readout.py` docstrings (`x*`; `[x*, h0]` only under `ablation.ego_head`); `model_loading.py` docstring (`w_f = exp(L tanh(g/L))`). No behaviour change |
+| 2 Merge `v3b` `87c2e4a` (`--no-ff`) | `83a7ff4` | Clean, no conflict; 60 files, no model file |
+| 3 Suite + compares on `83a7ff4` | `06a617e` | Job **17765** (g2n01, RTX 2080 Ti, worktree, E, `--mem 35G` = 26.9 GiB recorded peak of the merged freebase tests + 30 %): **777 OK**, 2,312 s, MaxRSS 28.2 GiB. Golden 1,238 tensors / 23 configs and mb0 136 tensors: differing: none (same SHA-256 as M4) |
+
+Count 777 − 751 = +26, all from the merged `v3b` files: `test_freebase_baselines` +14, `test_tsubame_slots` +4, `test_tsubame_collect` +3, `test_tsubame_guard` +3, `test_tsubame_cell_list` +2; no other file changed its count.
+
+Void job kept as a record: **17756** ran the same script in a snapshot (`m8_suite_17756.txt`): 777 run, 2 failures + 84 errors, all baseline/vendor tests (golden/mb0 differing: none there too). Cause: the snapshot's `vendor` is a symlink; `runtime/vendor_paths._module_root` resolves module files through it while `VENDOR_ROOTS` keeps the unresolved path, so no vendor module is evicted (leak, then `GraphormerBias already defined`; `git check-ignore` 128 beyond a symlink). Not a code fault; 17765 reran it in the worktree as M5 did.
+
+Last line: `sha` is the evidence commit `06a617e` (the tested tree `83a7ff4` + logs); this report commit sits on top of it and changes only this file.
+
+branch=model-td1 sha=06a617ea614939fbc111436a37391f9006345930 card=docs/H2S-NN_model_change_td1_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c
