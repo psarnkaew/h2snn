@@ -33,7 +33,7 @@ prediction: their own loop adds it on every step.
 from __future__ import annotations
 
 from copy import copy as shallow_copy
-from typing import Any
+from typing import Any, Callable
 
 from pathlib import Path
 
@@ -522,8 +522,9 @@ class Hetero2NetAdapter:
         from copy import copy
 
         from src.baselines.adapters import _hetero2net_h2gb as h2gb
-        from src.baselines.minibatch import h2gb_graph, is_eval_epoch, minibatch_plan
+        from src.baselines.minibatch import h2gb_graph, minibatch_plan
         from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+        from src.evaluation.validation_subset import validation_subset
 
         seed_everything(seed, device)
         data = h2gb_graph(bundle)
@@ -551,29 +552,55 @@ class Hetero2NetAdapter:
                     labels.append(batch[node_type].y[: int(batch[node_type].batch_size)].to(device))
             return classification_metrics(torch.cat(logits), torch.cat(labels), is_multilabel=False)
 
+        # Card 1f U5.4 (B1a, decision (a)): the subset of the run seed's split, on train_data as their validation.
+        subset_ids = validation_subset(bundle.dataset, data[node_type].val_mask.nonzero().view(-1),
+                                       bundle.metadata.get("seed"))
+        subset_loader = h2gb.index_loader(train_data, node_type, subset_ids, plan.batch_size)
         state: dict = {}
-        best_monitor, best_epoch, best_val, best_test = float("-inf"), -1, {}, {}
         with pushd_sys_path(VENDOR):
             from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
 
-            for epoch in range(plan.epochs):
+            def train_epoch(epoch: int) -> None:
                 train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
                                  device, p=float(params.get("p", 0.7)), metapaths=metapaths,
                                  r=float(params.get("r", 0.5)), alpha=float(params.get("alpha", 0.2)),
                                  beta=float(params.get("beta", 0.4)))
-                if not is_eval_epoch(epoch, plan):
-                    continue
-                val_metrics, test_metrics = evaluate(val_loader), evaluate(test_loader)
-                if val_metrics["macro_f1"] > best_monitor:
-                    best_monitor, best_epoch, best_val, best_test = (val_metrics["macro_f1"], epoch, val_metrics,
-                                                                     test_metrics)
-                report_epoch(params.report, epoch=epoch, monitor=val_metrics["macro_f1"], running_best=best_monitor,
-                             metrics=val_metrics)
-        record = node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
+
+            record = train_h2gb_epochs(model=model, plan=plan, train_epoch=train_epoch, evaluate=evaluate,
+                                       subset_loader=subset_loader, subset_ids=subset_ids, val_loader=val_loader,
+                                       test_loader=test_loader, report=params.report)
         record["params_source"] = params.source
         record["batch_size"] = float(plan.batch_size)
         record["metapaths"] = float(metapaths is not None)
         return record
+
+
+def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callable[[int], None],
+                      evaluate: Callable[[Any], dict[str, float]], subset_loader: Any, subset_ids: torch.Tensor,
+                      val_loader: Any, test_loader: Any, report: Any = None) -> dict[str, Any]:
+    """Hetero2Net's H2GB NC epoch loop under the U2 rule (card 1f U5.4): at H2GB's eval epochs the B1a validation
+    subset only (no test pass); the best subset macro-F1 epoch's weights (CPU copy, ties: earliest) restored after the
+    last epoch; one whole-split validation and test pass."""
+    from src.baselines.minibatch import _cpu_state, _subset_fields, is_eval_epoch
+
+    best_monitor, best_epoch = float("-inf"), -1
+    best_state: dict[str, torch.Tensor] | None = None
+    for epoch in range(plan.epochs):
+        train_epoch(epoch)
+        if not is_eval_epoch(epoch, plan):
+            continue
+        sub_metrics = evaluate(subset_loader)
+        if sub_metrics["macro_f1"] > best_monitor:
+            best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+        report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
+                     metrics=sub_metrics)
+    if best_state is None:
+        raise RuntimeError("mini-batch training produced no evaluated epoch.")
+    model.load_state_dict(best_state)
+    record: dict[str, Any] = node_classification_record(val_metrics=evaluate(val_loader),
+                                                        test_metrics=evaluate(test_loader), best_epoch=best_epoch)
+    record.update(_subset_fields(subset_ids, best_monitor))
+    return record
 
 
 def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler: Any = None) -> tuple:
