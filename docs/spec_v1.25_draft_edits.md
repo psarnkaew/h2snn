@@ -184,3 +184,24 @@ Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `
 §6 graph-classification bullet: **replace** `Readout: `[x*, h₀]` pooled over the graph's nodes` **with** `Readout: `x*` pooled over the graph's nodes (1.25)`.
 
 **Applied 2026-11-18** (author approval of Z-21–Z-33 the same day): spec v1.25 now includes Z1–Z3 (change line updated); pre-registration Z-32 applied.
+
+---
+
+# Part Z (continued 3): bounded cell weights (Z-35 – Z-38) — DRAFT, awaiting approval with the card review
+
+**Decision:** `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Model change: `R_r` init, H2GB timing, bounded `g`" (author, option c1).
+
+## Z-35 Header: extend the 1.25 change line
+**Insert before** ` The 1.25 items planned with card 5` **:**
+> (Z4) Bounded cell weights: `log w_f = L·tanh(g(ξ_f)/L)`, `L = 10` fixed, so the log-weight range is at most 2L = 20 < 30 by construction (D6b: the range grew with optimizer steps past 30 at lr 1e-3 and 1e-4 on nci1); the stop stays as a guard and cannot fire.
+
+## Z-36 §3 component table, WISP instance weight row
+**Replace the row beginning** `| **WISP instance weight** `w_f = exp(g(ξ_f))` |` **with:**
+> | **WISP instance weight** `w_f = exp(L·tanh(g(ξ_f)/L))`, `L = 10` (1.25) | R12 | Positive per-cell weights within a ratio of `e^{2L}` ≈ 5·10⁸ (no practical ceiling; node–cell term); contains uniform, schema-only and endpoint weights as restrictions (C2 ladder) | One encoder per path length; log-weight range logged; the stop at 30 is unreachable under the bound |
+
+## Z-37 §3.2 (c) Weights
+**Replace** `**(c) Weights.** `w_f = exp(g(ξ_f))`;` **with** `**(c) Weights.** `w_f = exp(L·tanh(g(ξ_f)/L))`, `L = 10` fixed and never tuned (1.25; identical to `exp(g)` up to 0.2 % at initialisation, where `g = b = log 0.5`);`.
+
+## Z-38 §6 failed trials and OPEN-5
+- **Replace** `(`T_max`, `τ > 50`, log-weight range > 30, non-finite `g`)` **with** `(`T_max`, `τ > 50`, log-weight range > 30 (unreachable since 1.25), non-finite `g`)`.
+- OPEN-5: **replace** `τ`'s initialisation and the map rank `m` (= 4, 1.25) are never in a search space` **with** `τ`'s initialisation, the map rank `m` (= 4, 1.25) and the weight bound `L` (= 10, 1.25) are never in a search space`.

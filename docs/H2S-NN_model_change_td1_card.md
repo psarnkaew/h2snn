@@ -1,4 +1,4 @@
-# Task card — Model change 1.25: remove `c`, TD-1 maps (rank 4, one frame per relation), head reads `x*` only, N2c read-out; regenerate golden/mb0; rerun known-answer and cost
+# Task card — Model change 1.25: remove `c`, TD-1 maps (rank 4, one frame per relation), head reads `x*` only, bounded cell weights, N2c read-out; regenerate golden/mb0; rerun known-answer and cost
 
 **Owner (design):** model session. **Executor:** S4 (or a fresh coding session), new worktree.
 **Branch:** new branch `model-td1` from `v3b` `80e045a` (D4b included), in a new worktree `/mnt/data/peeradon/h2snn-model` (`git worktree add`). Then `git merge --no-ff` of `design-docs` at the SHA given in the prompt (brings spec 1.25 and this card). Merge, never rebase.
@@ -91,6 +91,9 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 - `instance_features` keeps its concatenation: head input `[x*, instance feature]`.
 - New arm switch `ablation.ego_head: bool = False`: the head reads `[x*, h0]` (the 1.24 readout, same widths as 1.24). Refused in a main-table tuning base config, like the other arm keys; an arm of configuration (a) (not separately tuned). `h0_only_readout` is unchanged.
 
+### M2c — Bounded cell weights (spec Z-35–Z-38; author decision 2026-11-18, option c1)
+`log w_f = L·tanh(g(ξ_f)/L)` with `L = 10` (config `model.path_log_weight_bound: float = 10.0`, never tuned, refused as a search key), applied wherever `w_f = exp(g)` is formed today (every ladder rung: `full`, `endpoints`, `schema`, `uniform`; GC and LP paths). The log-weight range stop stays; it cannot fire.
+
 ### M3 — Tests (float64 unless stated; each with the tolerance given)
 | # | Test | Tolerance |
 |---|---|---|
@@ -107,6 +110,7 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 | T11 | One training step on ACM-like fixture: loss finite; `W_r`, frames and both MLP layers receive nonzero gradients | — |
 | T12 | `free_cell_maps`, `fact_maps_identity`, `direction_blind_maps`: one step finite; direction-blind transports have no frame (`Q = exp(A)`) | ≤ 1e-12 |
 | T13 | Factored vs unfactored first layer give the same maps | ≤ 1e-12 |
+| T15 | Bounded weights: for random large `g` (|g| up to 1e3) the log-weight range ≤ 2L and gradients are finite; at initialisation `w_f` equals `exp(L·tanh(b/L))` for every rung | exact / ≤ 1e-12 |
 | T14 | Head input widths: NC/LP/GC read `x*` (width d); `ego_head` reads `[x*, h0]` (2d) and equals the 1.24 head input on a fixture; `instance_features` reads `[x*, inst]`; `ego_head` refused in a main-table tuning base config | exact |
 
 **Mutation checks** (each must make at least one test fail; report which):
