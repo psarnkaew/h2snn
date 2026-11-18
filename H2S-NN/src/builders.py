@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from src.configs.config import TrainConfig
+from src.configs.config import LARGE_LP_DATASETS, TrainConfig
 from src.data.dataset import build_dataset
 from src.data.graph_classification_dataset import (
     GraphClassificationFold,
@@ -87,6 +87,20 @@ def build_scheduler(
     raise ValueError(f"Unsupported scheduler '{cfg.optim.scheduler}'.")
 
 
+def build_large_link_model(cfg: TrainConfig, data) -> H2SNN:
+    """H2S-NN for a large LP task (card 2 D4b): sized from the message graph as node classification is, with the
+    link readout of one target relation and every WISP length of the support (spec v1.15 J1, as
+    `build_link_prediction_model`)."""
+    from src.models.h2snn_model import ModelDims
+
+    if cfg.data.path_source != "wisp":
+        raise ValueError("the large LP tasks run H2S-NN with path_source: wisp (LinkScopes draws WISP cells).")
+    dims = ModelDims.from_prepared_data(data.graph)._replace(
+        num_classes=0, num_target_relations=data.num_target_relations,
+        face_lengths=tuple(range(2, cfg.data.wisp_max_length + 1)), path_actions=True)
+    return H2SNN(config=cfg, dims=dims)
+
+
 def _checkpointer(cfg: TrainConfig) -> Checkpointer:
     return Checkpointer(exp_dir=cfg.exp_dir, metric=cfg.checkpoint_metric, mode=cfg.checkpoint_mode)
 
@@ -118,6 +132,22 @@ def build_experiment_components(
             checkpointer=checkpointer,
         )
         return fold, model, optimizer, scheduler, logger, checkpointer, trainer
+
+    if cfg.task_type == "link_prediction" and cfg.data.dataset_name in LARGE_LP_DATASETS:
+        # card 2 D4b: the two large LP tasks -- the baselines' LargeLinkBundle data, LinkEpochLoop + LinkScopes
+        from src.data.large_lp_h2snn import build_large_link_dataset
+        from src.trainers.large_lp_trainer import LargeLinkTrainer
+
+        large = build_large_link_dataset(cfg)
+        model = build_large_link_model(cfg, large)
+        optimizer = build_optimizer(model, cfg)
+        scheduler = build_scheduler(optimizer, cfg)
+        if scheduler is not None:  # LinkEpochLoop steps no scheduler (none is the LP default)
+            raise ValueError("optim.scheduler is not supported on the large LP tasks (LinkEpochLoop).")
+        logger = build_logger(cfg)
+        checkpointer = _checkpointer(cfg)
+        trainer_large = LargeLinkTrainer(model, optimizer, cfg, logger, checkpointer)
+        return large, model, optimizer, scheduler, logger, checkpointer, trainer_large  # type: ignore[return-value]
 
     if cfg.task_type == "link_prediction":
         data = build_link_prediction_dataset(cfg)

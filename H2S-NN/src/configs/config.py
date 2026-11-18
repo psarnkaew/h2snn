@@ -597,6 +597,12 @@ LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
         "neg_sampling_mode": "resample_each_epoch",
         "link_val_ratio": 0.10,
     },
+    # card 2 D4b: the large LP tasks' target relations, as `src/data/large_lp.py: LARGE_LP_TASKS` (a test checks
+    # they are equal); split, negatives and message graph are the task files' (`LargeLinkBundle`), never these ratios.
+    "ogbn-mag_pp": {"target_relation": ("paper", "cites", "paper"),
+                    "neg_sampling_mode": "resample_each_epoch"},
+    "h-pokec_uu": {"target_relation": ("user", "has_friend", "user"),
+                   "neg_sampling_mode": "resample_each_epoch"},
     "amazon": {
         # HGB's official Amazon LP benchmark (data/amazon): single node type
         # "product", two relations (rel_0 = co-view, rel_1 = co-purchase) both
@@ -773,6 +779,8 @@ DATASET_TASK_TYPES: dict[str, str] = {
     "pubmed": "link_prediction",
     "youtube": "link_prediction",
     "amazon": "link_prediction",
+    # card 2 D4b: the two large LP tasks (mini-batch, MB1; data from the baselines' LargeLinkBundle)
+    **{name: "link_prediction" for name in LARGE_LP_DATASETS},
     "mutag": "graph_classification",
     "proteins": "graph_classification",
     "enzymes": "graph_classification",
