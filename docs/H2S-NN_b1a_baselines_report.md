@@ -85,4 +85,22 @@ New tests (`tests/test_b1a_validation_subset.py`, `B1aReviewTests`):
 - `scripts/run_baseline_tuning.py:198` picks the best trial after a sweep with `metric_score`, which reads `val_macro_f1` (now the whole-split validation at the selected checkpoint), not `val_subset_macro_f1`. If the selection should match the sweep objective, that line needs the same rule: a one-line change plus one test.
 - Hetero2Net, PDNS and H2SGNN Freebase have not run on real data under the new rules. The first TSUBAME trial is the real-data check.
 
-branch=baselines-h2gb-6 sha=6edaeb390b5e1488c54902851bf1324dfae08bf5 card=docs/H2S-NN_baselines_freebase_sparse_card.md+docs/H2S-NN_b1a_baselines_card.md base=714b08d
+(U5 review line, superseded: branch baselines-h2gb-6 sha=6edaeb390b5e1488c54902851bf1324dfae08bf5 card=docs/H2S-NN_baselines_freebase_sparse_card.md+docs/H2S-NN_b1a_baselines_card.md base=714b08d)
+
+## U6 — review follow-up of U5 (option A: trial selection = sweep objective)
+
+Preconditions met: design-docs contains `709e3eb`; v3b was `80e045a`; head was `6878cd3`. No GPU job, no real data, no metric, no full suite.
+
+| Item | Commit | Content |
+|---|---|---|
+| U6.1 merges | `184f70f`, `431c424` | design-docs `709e3eb`, v3b `80e045a` (merge, no conflicts) |
+| U6.2 selection | `59d175f` | `select_best_trial` (`scripts/run_baseline_tuning.py`) ranks by `sweep_objective(record, monitor)`; `max` keeps the first on a tie. The seed-0 sweep, the `--final_seeds` pick and the sweep's end-of-trial value now use one criterion. |
+| U6.3 no fallback | `60a9824` | `sweep_objective` raises `ValueError` ("… card 1f U6 …") when the monitor is macro-F1, the record's `dataset` is in `SUBSET_SIZES` and `val_subset_macro_f1` is missing. Other datasets and monitors use `metric_score`. H2S-NN's tuning does not use `wandb_campaign`, so it is unaffected. |
+| U6.4 tests | `0efe19a` | `B1aSelectionTests`: (i) H2GB NC records whose rankings disagree → the subset winner; an HGB pair → the whole-split winner; a tie → the first. (ii) An H2GB NC record without the subset key raises; HGB and LP records do not. Mutation added to `u5_mutations.py`: `sweep_objective` patched to `metric_score` → (i) fails. |
+| U6.5 targeted job | `86628b6` | CPU job 17662 (no `--gres`, 16G, clean tree at `0efe19a`, `u6_tests.txt`). It ran the U5 set, the U6 tests, `test_baseline_final_seeds`, `test_wandb_and_runs` and `test_failed_trials`: **37 tests OK**. Mutations: **PDNS seed-0 split CAUGHT, Hetero2Net Mutation 1 CAUGHT, U6 selection by `metric_score` CAUGHT**. |
+
+No file outside the card's list changed. Test and mutation outcomes were as expected.
+
+(The sha below is the evidence head `86628b6`; the report commit on top of it is named in the hand-off message.)
+
+branch=baselines-h2gb-6 sha=86628b6ee4d96f570eb523b70749ea7c7d304683 card=docs/H2S-NN_baselines_freebase_sparse_card.md+docs/H2S-NN_b1a_baselines_card.md base=80e045a
