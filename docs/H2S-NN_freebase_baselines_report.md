@@ -67,10 +67,12 @@ B0–B2 head (reviewed and accepted): `59822692b1182a5e958ee07dd13213a5f3c0a1dd`
 | B3.2 B1a wiring | `34689e8` | `h2sgnn.py`: `val_subset_loader(..., run_seed=bundle.metadata.get("seed"))` passed as `val_subset_loader=` and `val_subset_ids=`. `pshgcn.py` (H2GB path): `run_seed=` passed to `train_index_minibatch`. `minibatch.py` and `validation_subset.py` are not edited. |
 | B3.3 test + mutation | `f953cbe` | `B1aSubsetTests`, run on a synthetic graph registered as `pdns` with seed 1, for both paths. The ids evaluated during training equal `validation_subset("pdns", val ids, 1)`; test ids appear only in the final test pass; the record has `val_subset_macro_f1` and the matching fingerprint. Mutation (`b3_mutation.py`): PSHGCN without `run_seed` makes its test fail (`ValueError`: PDNS needs `run_seed`); H2SGNN still passes; the real code passes both. |
 | B3.4 targeted job | (this commit) | **Stop: OOM.** Job 17676 (g2tn01, CPU, `--mem 16G` as prescribed) was killed at MaxRSS 16.0 GiB after 17 min, `OUT_OF_MEMORY` (`b3_4_tests_17676.txt`, `b3_4_sacct_17676.txt`). Unittest printed no summary, so there is no pass/fail result for the 8 modules. The mutation, run after it in the same job, gave the expected outcome (`mutation_exit=0`). |
+| B3.4 rerun, 32G (ops 2026-11-18) | `d0af22b` | Job **17686** (g2n01, CPU, `--mem 32G` as an `sbatch` override; the script is unchanged): **130 tests OK**; mutation as expected. Peak MaxRSS **28,210,588 KiB (26.9 GiB)** (`b3_4_tests_17686.txt`, `b3_4_sacct_17686.txt`). |
+| v3b merge + rerun, 32G | `9ed2f2b` (merge of v3b `0b0219b`, no conflict) | Job **17690** (g2n01, CPU, 32G) on the merged head: **130 tests OK**; mutation as expected. Peak MaxRSS **28,211,052 KiB (26.9 GiB)** (`b3_4_tests_17690.txt`, `b3_4_sacct_17690.txt`). |
 
 **Stop item for review.** The 8 modules together need more than 16G in one process. This is consistent with B1: the
 same group of tests was OOM-killed at 16G and passed at 32G (`b1_tests_dev3.txt`), and B2 ran at 32G. Proposed:
 rerun `b3_4_job.sh` unchanged except `--mem 32G` (or split the modules over two 16G jobs). I did not rerun it,
 because the prompt fixes 16G.
 
-branch=freebase-baselines sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c
+branch=freebase-baselines sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=0b0219bba24276396fcbd8af8f9b8a59b610c748
