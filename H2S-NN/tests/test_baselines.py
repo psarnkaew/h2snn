@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 254)  # part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells; card 1d H3: + Hetero2Net MAG x 3; H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P; A4: H-Pokec U-U
+        self.assertEqual(summary["runnable_cells"], 253)  # card 1e F3.2: - HAN freebase_bb (N/A); part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells; card 1d H3: + Hetero2Net MAG x 3; H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P; A4: H-Pokec U-U
 
         per_task = {
             task: sum(
