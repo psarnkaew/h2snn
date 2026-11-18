@@ -252,3 +252,47 @@ for H-Pokec (16924). The suite ran at 16G (17137). No job requested the A6000 or
 5. H2SGNN LP freebase_bb (D6.5 kernel), HAN Freebase (segfaults): session 1.
 
 branch=dry-run sha=<the commit adding this section; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=9d48ca460d9594fce556e20f550d151a3a86bc4f
+
+
+# D6b (review of a6c1841; amended 2026-11-18, card "D6b amendment" at design-docs 35c3d78)
+
+Kept: (a) merge of v3b 1867681 (H3b e26d659) and the driver change (`50eebc9`; the driver goes through
+`campaign.fit_cell`, which now passes B, so no override was needed); (b) nci1 log-weight diagnosis; (c) full suite.
+Merged design-docs 35c3d78 (`cc5c83f`, clean). No A6000 / g3an01.
+
+**Cancelled (dropped by the amendment, not re-run):** 17455 (pending: 60G retries of SeHGNN NC ogbn-mag and HINormer
+NC ogbn-mag / pdns / h-pokec central). Jobs of the dropped lists that had already ended before the amendment (17187,
+17188, 17189, 17190, 17233, 17234, 17520: H3b re-runs at the largest point and H2GB NC central points) are not
+reported; their records stay outside the repository. The `sparse_tools` clone (pinned 0596f00) was built in place in
+this worktree by `scripts/setup/build_sparse_tools.sh` (job 17453; pip freeze unchanged, nothing installed).
+
+## nci1 log-weight range (H2S-NN GC nci1, central point; `d6b_nci1_logw.md`, job 17535)
+
+Largest `path_log_w_range` (max − min of log w_f over one training forward) per window; 3,288 steps per epoch. The
+50-step table is in `d6b_nci1_logw.md`; below, the largest per 500 steps.
+
+| lr | steps run | stop (> 30) | value | epoch | step |
+|---|---|---|---|---|---|
+| 1e-3 | 1,876 | yes | 32.17 | 0 | 1,877 |
+| 1e-4 | 14,345 | yes | 30.36 | 4 (5th) | 14,346 |
+
+| steps | 1e-3 | 1e-4 |
+|---|---|---|
+| 1–500 | 3.98 | 2.63 |
+| 501–1000 | 12.50 | 4.98 |
+| 1001–1500 | 19.06 | 7.37 |
+| 1501–2000 (1e-3: to 1,876) | 27.83 | 9.43 |
+| 2001–3250 (epoch 0 ends at 3,288) | | 14.14 |
+| 3251–6600 (≈ epoch 1) | | 22.92 |
+| 6601–9850 (≈ epoch 2) | | 25.81 |
+| 9851–13150 (≈ epoch 3) | | 28.95 |
+| 13151–14345 (epoch 4) | | 29.86 |
+
+Range at the first step 0.75 (both). The range grows steadily under both lr; at lr 1e-4 it grows about 8× slower
+per step and still crosses 30 within 5 epochs. No metric read or written.
+
+## Full suite (job 17536, g3n01, 32G, environment E)
+
+748 tests OK in 1,730 s at `200a892` (`d6b_suite.txt`); `test_v3b_golden` (bit-identical) ok; no failure, no skip.
+
+branch=dry-run sha=<the commit adding this section; full sha in the final message> card=docs/H2S-NN_dryrun_card.md base=9d48ca460d9594fce556e20f550d151a3a86bc4f
