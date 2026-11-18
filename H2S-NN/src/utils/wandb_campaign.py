@@ -152,6 +152,22 @@ def is_sweep_prune(exc: BaseException) -> bool:
     return type(exc) is Exception and not exc.args
 
 
+#: Card 1f U5.5 (B1a): on the H2GB NC datasets the baseline loops record the selection score on the fixed validation
+#: subset; the sweep's end-of-trial objective is that value at the best epoch. Records without it (H2S-NN, other
+#: datasets) keep the whole-split validation metric.
+B1A_OBJECTIVE_KEY = "val_subset_macro_f1"
+
+
+def sweep_objective(record: dict[str, Any], monitor: str) -> float:
+    """The end-of-trial value logged under the sweep metric: `val_subset_macro_f1` when the record carries it and the
+    monitor is macro-F1, else `metric_score(record, monitor)`."""
+    from src.utils.run_reports import metric_score
+
+    if monitor.removeprefix("val_") == "macro_f1" and B1A_OBJECTIVE_KEY in record:
+        return float(record[B1A_OBJECTIVE_KEY])
+    return metric_score(record, monitor)
+
+
 def canonical_fingerprint(payload: Any) -> str:
     # `separators` is load-bearing: it must stay byte-identical or every previously
     # written tuning state stops resuming.
@@ -342,8 +358,6 @@ def run_campaign_worker(
     part-way through a trial.
     """
 
-    from src.utils.run_reports import metric_score
-
     with context_path.open("r", encoding="utf-8") as handle:
         context = json.load(handle)
     if not isinstance(context, dict):
@@ -431,7 +445,7 @@ def run_campaign_worker(
                             run.summary[f"best/{key}"] = value
                     wandb.log(
                         {
-                            f"best/{str(context['monitor']).removeprefix('val_')}": metric_score(
+                            f"best/{str(context['monitor']).removeprefix('val_')}": sweep_objective(
                                 record, str(context["monitor"])
                             )
                         }
