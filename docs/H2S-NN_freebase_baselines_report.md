@@ -58,4 +58,19 @@ was used. `minibatch.py` is not edited.
      H2GB path already read `minibatch_plan`; only the flag was missing. Fixed in `2c588ef`.
    - Run 17658 at `2c588ef`: 750 tests OK.
 
-branch=freebase-baselines sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=a8828a8c002e17714cbd588d147b8c9f128fca1f
+B0–B2 head (reviewed and accepted): `59822692b1182a5e958ee07dd13213a5f3c0a1dd` on base `a8828a8`.
+
+## B3 — review follow-up (card section "Part B — B3", design-docs `ca98dba`): **stopped at B3.4**
+| Item | Commit | Result |
+|---|---|---|
+| B3.1 merges | `d2f5282` (design-docs `ca98dba`), `2e0b48b` (v3b `9b7ae0b`) | Only the two named conflicts. `test_baselines.py` keeps both sides' comments; `link_prediction_dgl.ipynb` comes from the generator (`--check` OK). Registry after the merge: **274 / NC 155 / LP 79 / GC 40** (job 17668, `b3_1_merge.txt`). The auto-merged `sehgnn.py` and `registry.py` carry exactly v3b's own hunks. |
+| B3.2 B1a wiring | `34689e8` | `h2sgnn.py`: `val_subset_loader(..., run_seed=bundle.metadata.get("seed"))` passed as `val_subset_loader=` and `val_subset_ids=`. `pshgcn.py` (H2GB path): `run_seed=` passed to `train_index_minibatch`. `minibatch.py` and `validation_subset.py` are not edited. |
+| B3.3 test + mutation | `f953cbe` | `B1aSubsetTests`, run on a synthetic graph registered as `pdns` with seed 1, for both paths. The ids evaluated during training equal `validation_subset("pdns", val ids, 1)`; test ids appear only in the final test pass; the record has `val_subset_macro_f1` and the matching fingerprint. Mutation (`b3_mutation.py`): PSHGCN without `run_seed` makes its test fail (`ValueError`: PDNS needs `run_seed`); H2SGNN still passes; the real code passes both. |
+| B3.4 targeted job | (this commit) | **Stop: OOM.** Job 17676 (g2tn01, CPU, `--mem 16G` as prescribed) was killed at MaxRSS 16.0 GiB after 17 min, `OUT_OF_MEMORY` (`b3_4_tests_17676.txt`, `b3_4_sacct_17676.txt`). Unittest printed no summary, so there is no pass/fail result for the 8 modules. The mutation, run after it in the same job, gave the expected outcome (`mutation_exit=0`). |
+
+**Stop item for review.** The 8 modules together need more than 16G in one process. This is consistent with B1: the
+same group of tests was OOM-killed at 16G and passed at 32G (`b1_tests_dev3.txt`), and B2 ran at 32G. Proposed:
+rerun `b3_4_job.sh` unchanged except `--mem 32G` (or split the modules over two 16G jobs). I did not rerun it,
+because the prompt fixes 16G.
+
+branch=freebase-baselines sha=<see final message> card=docs/H2S-NN_hetsheaf_freebase_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c
