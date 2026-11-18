@@ -1,4 +1,4 @@
-# Spec v1.25 — draft edits (part Z: relational context `c` removed), for the author's approval
+# Spec v1.25 — draft edits (part Z: relational context `c` removed; restriction maps → TD-1), for the author's approval
 
 **Status:** DRAFT (Z-1–Z-9: `c` removed; Z-10–Z-19: maps → TD-1, m = 4). Decision: `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Relational context `c` removed" (author). The other pending 1.25 items (B1a, B2a, OOM range rule 1, §1 GC heterophily line) are drafted with card 5 and are added to this file then; part Z is independent of them.
 
