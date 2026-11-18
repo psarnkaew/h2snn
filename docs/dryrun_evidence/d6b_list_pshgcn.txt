@@ -1,0 +1,1 @@
+RUN pshgcn|node_classification|ogbn-mag D6b-central-sparse_tools --point central

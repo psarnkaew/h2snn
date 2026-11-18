@@ -1,0 +1,4 @@
+RUN sehgnn|node_classification|ogbn-mag D6b-central-60G --point central
+RUN hinormer|node_classification|ogbn-mag D6b-central-60G --point central
+RUN hinormer|node_classification|pdns D6b-central-60G --point central
+RUN hinormer|node_classification|h-pokec D6b-central-60G --point central

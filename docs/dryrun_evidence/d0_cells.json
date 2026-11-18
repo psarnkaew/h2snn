@@ -1,0 +1,3239 @@
+{
+ "baseline_cells": [
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "acm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "runnable": false,
+   "reason": "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code has a Freebase branch)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-a): SeHGNN's own MAG branch feeds author/field/institution with random-uniform or ComplEx embeddings (SeHGNN/ogbn/utils.py:345-354), H2GB's graph carries averaged paper features",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-a): SeHGNN's own MAG branch feeds author/field/institution with random-uniform or ComplEx embeddings (SeHGNN/ogbn/utils.py:345-354), H2GB's graph carries averaged paper features",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between one pair of node types are merged into one (SeHGNN names keys by one letter per type, SeHGNN/ogbn/utils.py:56-63, and would keep only the last)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between one pair of node types are merged into one (SeHGNN names keys by one letter per type, SeHGNN/ogbn/utils.py:56-63, and would keep only the last)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between one pair of node types are merged into one (SeHGNN names keys by one letter per type, SeHGNN/ogbn/utils.py:56-63, and would keep only the last)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "pending author decision (card baselines-h2gb C4-c): ChebNetII's ogb scheme takes one feature matrix (ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "pending author decision (card baselines-h2gb C4-c): ChebNetII's ogb scheme takes one feature matrix (ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at num_hops 2-4, Part M3b B7; author decision 2026-11-16)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "pending author decision (card baselines-h2gb C4-c): ChebNetII's ogb scheme takes one feature matrix (ChebNetII/ogb/processing.py:73-75); this dataset has featureless types or several feature widths",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: class C, D1 second branch (H2GB's hgt sampler): sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1); and HAN's semantic attention averages over every node of the sampled subgraph (C0 S5: HGB model_hetero.py:28, PyG HANConv), so no sampled output equals the full-batch one",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter in place, pending author decision (card baselines-h2gb C4-b): parallel relations between one pair of node types are merged into one (SeHGNN names keys by one letter per type, SeHGNN/ogbn/utils.py:56-63, and would keep only the last)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S2: every forward runs num_gnns GCN layers on the whole graph before the per-node sequences are read (HINormer/model.py:204-208), so it is not 'batches of targets'; H2GB benchmarks HINormer with its own `hin` sampler (custom_sampler.py:602)",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C0 stop S3: its large-graph scheme (PSHGCN/ogbn-mag) builds a model with MAG's node type P and input widths 128/256 hard-coded (ogbn-mag/model.py:57-66); its HGB model propagates inside the forward (hgb/model.py:45-110); reaching a batched scheme needs a model edit",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb C4 did not wire its NeighborLoader path (Hetero2Net/main.py:147-175); on ogbn-mag/mag-year it also waits for `mag_metapath2vec_emb.zip` (author download)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "runnable": false,
+   "reason": "adapter pending: its forward propagates inside the model (H2SGNN/model.py:67-86; C0 S4), so D1 sends it to H2GB's hgt sampler: sampler depth undecided (card baselines-h2gb C0 stop S1: H2GB's hgt sampler runs as many iterations as its YAML list is long, not the method's layers; at depth = propagation steps HGB's GCN differs from its full-batch output under full fan-out, C1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit (card baselines-h2gb C0 stop S3)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the link-level sampler on the message graph is in place (C6)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1); H2SGNN is not decoupled (C0 S4), so D2's per-node precomputation does not apply",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "ChebNetII has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "SeHGNN has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "HiNormer has no link prediction implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: D2's decoupled branch needs PSHGCN's batched scheme, which needs a model edit (card baselines-h2gb C0 stop S3)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1)",
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the link-level sampler on the message graph is in place (C6)",
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "runnable": false,
+   "reason": "adapter pending: link-level neighbour sampling on the message graph is in place (card baselines-h2gb C6), but its fan-out and depth are the class's, undecided (C0 stop S1); H2SGNN is not decoupled (C0 S4), so D2's per-node precomputation does not apply",
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gcn",
+   "display": "GCN",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "gat",
+   "display": "GAT",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "chebnetii",
+   "display": "ChebNetII",
+   "group": "Hom./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "ChebNetII has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "nsd",
+   "display": "NSD",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "csnn",
+   "display": "CSNN",
+   "group": "Hom./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "han",
+   "display": "HAN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "sehgnn",
+   "display": "SeHGNN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "SeHGNN has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "hinormer",
+   "display": "HiNormer",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": false,
+   "reason": "HiNormer has no graph classification implementation",
+   "kind": "baseline"
+  },
+  {
+   "model": "pshgcn",
+   "display": "PSHGCN",
+   "group": "Het./hom.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2gformer",
+   "display": "H2G-former",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "hetero2net",
+   "display": "Hetero$^2$Net",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  },
+  {
+   "model": "h2sgnn",
+   "display": "H2SGNN",
+   "group": "Het./het.",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "runnable": true,
+   "reason": null,
+   "kind": "baseline"
+  }
+ ],
+ "h2snn_cells": [
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "acm",
+   "config_source": "configs/experiments/acm_h2snn_v3b.yaml",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "node_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 42,
+    "epochs": 300
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "dblp",
+   "config_source": "configs/experiments/dblp_h2snn_v3b.yaml",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "node_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 65,
+    "epochs": 300
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "imdb",
+   "config_source": "configs/experiments/imdb_h2snn_v3b.yaml",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "node_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 12,
+    "epochs": 300
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "freebase",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'freebase' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "ogbn-mag",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ogbn-mag' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "mag-year",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'mag-year' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "oag-cs",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-cs' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "oag-eng",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-eng' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "oag-chem",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-chem' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "ieee-cis-g",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ieee-cis-g' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "h-pokec",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'h-pokec' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "node_classification",
+   "dataset": "pdns",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'pdns' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).",
+   "resolved": {},
+   "h2gb_nc": true,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "acm_pa",
+   "config_source": "configs/experiments/acm_pa_h2snn_v3b.yaml",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 8,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "dblp_ap",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "imdb_ma",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "freebase_bb",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "pubmed",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "lastfm",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "link_prediction",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 40
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "ogbn-mag_pp",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: Unknown dataset 'ogbn-mag_pp'; set data.task_type explicitly.",
+   "resolved": {},
+   "h2gb_nc": false,
+   "large_lp": true
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "link_prediction",
+   "dataset": "h-pokec_uu",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "does not resolve",
+   "error": "ValueError: Unknown dataset 'h-pokec_uu'; set data.task_type explicitly.",
+   "resolved": {},
+   "h2gb_nc": false,
+   "large_lp": true
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "graph_classification",
+   "dataset": "mutag",
+   "config_source": "configs/experiments/mutag_h2snn_v3b.yaml",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "graph_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 8,
+    "epochs": 200
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "graph_classification",
+   "dataset": "proteins",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "graph_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 200
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "graph_classification",
+   "dataset": "enzymes",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "graph_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 200
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  },
+  {
+   "kind": "h2snn",
+   "model": "h2snn",
+   "task": "graph_classification",
+   "dataset": "nci1",
+   "config_source": "dataset preset only ({'data': {'dataset_name': ...}})",
+   "config_status": "resolves",
+   "error": "",
+   "resolved": {
+    "task_type": "graph_classification",
+    "training_mode": "full_batch",
+    "wisp_walks_per_anchor": 0,
+    "epochs": 200
+   },
+   "h2gb_nc": false,
+   "large_lp": false
+  }
+ ]
+}

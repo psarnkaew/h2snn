@@ -1,0 +1,11 @@
+RUN h2snn|node_classification|h-pokec D6.6-60G --point max
+RUN h2snn|node_classification|h-pokec D6.4-central --point central
+RUN gcn|node_classification|h-pokec D6.4-central --point central
+RUN gat|node_classification|h-pokec D6.4-central --point central
+RUN chebnetii|node_classification|h-pokec D6.4-central --point central
+RUN nsd|node_classification|h-pokec D6.4-central --point central
+RUN csnn|node_classification|h-pokec D6.4-central --point central
+RUN han|node_classification|h-pokec D6.4-central --point central
+RUN hinormer|node_classification|h-pokec D6.4-central --point central
+RUN h2gformer|node_classification|h-pokec D6.4-central --point central
+RUN hetero2net|node_classification|h-pokec D6.4-central --point central

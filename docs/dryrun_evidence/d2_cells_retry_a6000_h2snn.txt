@@ -1,0 +1,5 @@
+h2snn|node_classification|freebase
+h2snn|link_prediction|dblp_ap
+h2snn|link_prediction|freebase_bb
+h2snn|link_prediction|pubmed
+h2snn|link_prediction|lastfm

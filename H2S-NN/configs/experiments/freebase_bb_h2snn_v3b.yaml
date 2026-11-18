@@ -1,0 +1,39 @@
+# Card 2 D1 (dry-run): link prediction on freebase_bb (target book -rel_0-> book, the dataset's preset),
+# v3-B anchored, arm `full`, WISP from both endpoint types; built as acm_pa_h2snn_v3b.yaml. l_max 4 and r 8 named explicitly (spec v1.18: l_max and r are tuned, no calibrated r; 8 is the lowest of the tuned range {8, 16, 32, 64}; the sweep overrides both).
+# Solver settings are the fixed card values (never tuned).
+data:
+  dataset_name: freebase_bb
+  task_type: link_prediction
+  root: data
+  target_relation: [book, rel_0, book]
+  decoder_type: dot
+  wisp_max_length: 4
+  wisp_walks_per_anchor: 8
+model:
+  d: 32
+  d_r: 16
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  orthogonal_map: fasthpp
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+ablation:
+  coupling: symmetric
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.0001
+epochs: 40
+seed: 0
+device: cuda
+exp_name: freebase_bb_h2snn_v3b
+output_dir: experiments
+log_every: 1
+checkpoint_metric: auroc
+checkpoint_mode: max

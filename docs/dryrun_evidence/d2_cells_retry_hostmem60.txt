@@ -1,0 +1,3 @@
+han|node_classification|freebase
+h2gformer|node_classification|freebase
+hetero2net|node_classification|freebase

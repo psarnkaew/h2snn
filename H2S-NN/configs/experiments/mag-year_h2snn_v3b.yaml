@@ -1,0 +1,38 @@
+# Card 2 D1 (dry-run): H2GB NC mag-year (mini-batch, MB1), v3-B anchored, arm `full`; built as dblp_h2snn_v3b.yaml.
+# l_max 4 and r 8 named explicitly (spec v1.18: l_max and r are tuned, no calibrated r; 8 is the lowest of the tuned range {8, 16, 32, 64}; the sweep overrides both). data.batch_size 32: H2GB's own batch size in its GNN configs (vendor/H2GB/configs/*/*-GCN.yaml
+# train.batch_size); in MINIBATCH_BATCH_SIZES; the base value only: H2S-NN's sweep tunes data.batch_size in
+# {32, 256, 1024} on the H2GB NC datasets (spec 1.17 Q4; card 2 D6.7). Epochs: the H2GB budget. Solver settings are the fixed card values (never tuned).
+data:
+  dataset_name: mag-year
+  root: data
+  face_sample_k: 50
+  batch_size: 32
+  wisp_max_length: 4
+  wisp_walks_per_anchor: 8
+model:
+  d: 32
+  d_r: 16
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  orthogonal_map: fasthpp
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+ablation:
+  coupling: symmetric
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.0001
+seed: 42
+device: cuda
+exp_name: mag-year_h2snn_v3b
+output_dir: experiments
+log_every: 10
+checkpoint_metric: macro_f1
+checkpoint_mode: max

@@ -1,0 +1,12 @@
+RUN chebnetii|node_classification|ogbn-mag D6b-central --point central
+RUN csnn|node_classification|ogbn-mag D6b-central --point central
+RUN gat|node_classification|ogbn-mag D6b-central --point central
+RUN gcn|node_classification|ogbn-mag D6b-central --point central
+RUN h2gformer|node_classification|ogbn-mag D6b-central --point central
+RUN han|node_classification|ogbn-mag D6b-central --point central
+RUN hetero2net|node_classification|ogbn-mag D6b-central --point central
+RUN hetsheaf|node_classification|ogbn-mag D6b-central --point central
+RUN hinormer|node_classification|ogbn-mag D6b-central --point central
+RUN nsd|node_classification|ogbn-mag D6b-central --point central
+RUN pshgcn|node_classification|ogbn-mag D6b-central --point central
+RUN sehgnn|node_classification|ogbn-mag D6b-central --point central

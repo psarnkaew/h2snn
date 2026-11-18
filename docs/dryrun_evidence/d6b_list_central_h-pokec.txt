@@ -1,0 +1,10 @@
+RUN chebnetii|node_classification|h-pokec D6b-central --point central
+RUN csnn|node_classification|h-pokec D6b-central --point central
+RUN gat|node_classification|h-pokec D6b-central --point central
+RUN gcn|node_classification|h-pokec D6b-central --point central
+RUN h2gformer|node_classification|h-pokec D6b-central --point central
+RUN han|node_classification|h-pokec D6b-central --point central
+RUN hetero2net|node_classification|h-pokec D6b-central --point central
+RUN hetsheaf|node_classification|h-pokec D6b-central --point central
+RUN hinormer|node_classification|h-pokec D6b-central --point central
+RUN nsd|node_classification|h-pokec D6b-central --point central
