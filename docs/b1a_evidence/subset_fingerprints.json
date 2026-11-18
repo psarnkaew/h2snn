@@ -1,0 +1,58 @@
+{
+  "seed": 0,
+  "datasets": {
+    "ogbn-mag": {
+      "target_type": "paper",
+      "split_size": 64879,
+      "subset_size": 16384,
+      "split_fingerprint": "04cc212c922a5dea96c5a8ec2fa131384e68c40cb263c107d05b9dd6ebb455f0",
+      "subset_fingerprint": "f788cdf001bb1eee846a3ddddc33dcdc72cc22e84c9cbc41be785600dd98dd15"
+    },
+    "mag-year": {
+      "target_type": "paper",
+      "split_size": 184097,
+      "subset_size": 8192,
+      "split_fingerprint": "879fb0a1ba54ac84155750ed88b67d0e322a713c0e1cca93114c4797faaf2c2f",
+      "subset_fingerprint": "5092f866286d53a712564f405ec80b247494e934f46cbdf5d0c4cda2b28c86d5"
+    },
+    "oag-cs": {
+      "target_type": "paper",
+      "split_size": 19551,
+      "subset_size": 4096,
+      "split_fingerprint": "3fb61ac9b0ec3cdb4ec36ba03ec74d0980906530880e00636b0ac25240045168",
+      "subset_fingerprint": "0044f6a735789f523961cc17554a23e4538900849e60a8d21e76ebb847f7d5ce"
+    },
+    "oag-eng": {
+      "target_type": "paper",
+      "split_size": 28524,
+      "subset_size": 4096,
+      "split_fingerprint": "7b8f96ef5f4c4cce2a0a17d5f04f3ebd5e9e89c519b8d23f78c5287e1a9c549d",
+      "subset_fingerprint": "485db56568b58a95b3546c860ab2d75308f0e9702e716450ae58d338d3b362e5"
+    },
+    "oag-chem": {
+      "target_type": "paper",
+      "split_size": 59664,
+      "subset_size": 4096,
+      "split_fingerprint": "ef0d3d0b2fbfea16df18b0c97b02af89dfac1a0285565177635459d569611277",
+      "subset_fingerprint": "038376b754b3750dfc389f9632f3165841b072d2de86324c20c728eca89568fc"
+    },
+    "ieee-cis-g": {
+      "target_type": "transaction",
+      "split_size": 14423,
+      "subset_size": 8192,
+      "split_fingerprint": "84eb5d26816f7498ecf8a016be69dd1e3e053c1677cd0d93665c7530831d082c",
+      "subset_fingerprint": "00825eee995a44a8aa97f1ee387e580053d786609f8b3582b36683b36aba1e35"
+    },
+    "pdns": {
+      "status": "refused",
+      "reason": "pdns: the validation split is drawn from the run seed (src/data/h2gb_nc.py:74-81), so it is not a single id set across seeds (card 1f stop item; design-session decision pending)"
+    },
+    "h-pokec": {
+      "target_type": "user",
+      "split_size": 408160,
+      "subset_size": 16384,
+      "split_fingerprint": "830b31c68de6405ee9e843844fe1c7e1e3759f5b90117df9781890c2717b2f3c",
+      "subset_fingerprint": "20ba5716985bdf730156b46670e7bc0ec887385d93586b88378d48dd085244b6"
+    }
+  }
+}
