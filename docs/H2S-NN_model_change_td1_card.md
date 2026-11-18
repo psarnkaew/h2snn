@@ -131,7 +131,7 @@ Full suite on one node (sbatch, one GPU not shared, environment E). Expected: ev
 ### M7 — Report
 - **File:** `docs/H2S-NN_model_change_td1_report.md`.
 - **Content:** M0 scope list; files changed per unit; test table with measured errors; mutation results; golden/mb0 hashes; suite count; known-answer side-by-side table; cost table; deviations; decisions for the author.
-- **Last line:** `branch=model-td1 sha=<full head sha> card=docs/H2S-NN_model_change_td1_card.md base=80e045a<full sha>`.
+- **Last line:** `branch=model-td1 sha=<full head sha> card=docs/H2S-NN_model_change_td1_card.md base=80e045a834820fef925d7241c1c4912a2f5eea92`.
 
 ## Files
 - `src/configs/config.py`
