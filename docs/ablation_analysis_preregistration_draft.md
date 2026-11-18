@@ -25,11 +25,11 @@
 | Learned transports keep different-class neighbours apart | C15 (S2), N2, N2b | 3, 4 |
 | Direction-aware maps | C16 (`direction_blind_maps`) | 3 |
 | A path acts through the composition of its edges' maps | C17 (`free_cell_maps`) | 3 |
-| Relational context in the maps | C9 (`geometry_context: false`) | 3 |
 | Handles heterophily on the original graph | C6 (within-dataset), controlled sweep, N1 | 3, 4 |
 | No per-schema branches; schemas still readable | Fixed-literature-schema row, C2b, N4, N4b | 3, 4 |
 | Scales | C5, C13, cost figure, per-dataset table, U3 | 4 |
 | Propagation helps at all (sanity) | `h₀`-only | 3 |
+| The head needs no ego input (1.25) | C18 (`ego_head`) | 3 |
 
 Removed: **C3 (relation order)**, author 2026-11-15 (B-5): order is not a difference from MAGNN (withdrawn 2026-11-10), most literature meta-paths are palindromes, and the diagonal-map arm confounds order with rotation capacity. Spec v1.23 deletes "and the order of their relations" from thesis H.
 
@@ -72,12 +72,11 @@ Removed: **C3 (relation order)**, author 2026-11-15 (B-5): order is not a differ
 | `covering_only` | node–cell term dropped | exists | (a) |
 | **S2** (maps = I) | every fact map `F = I`, hence every transport `I`; cells, `g`, `a_e`, `β_f`, `τ`, solver, head unchanged; geometry network unused | **new** (identity map operator under `anchored`; own card) | (a)+(b) |
 | **S0** | `no_path_cells` with maps = I | **new** (same operator) | (a) |
-| `direction_blind_maps` | the two roles of a relation share one frame and a symmetrised scale (`sheaf_maps.py:128`) | exists | (a) |
+| `direction_blind_maps` | every relation is treated as one with `ρ(r) = r`: no frame, antisymmetric `C_e`, symmetrised scale (1.25) | exists | (a) |
 | `free_cell_maps` | node→cell maps free per incidence instead of composed from the edge maps (Thm 3 control) | exists | (a) |
-| geometry context off | maps and fact weights read `h₀` instead of `[h₀, c]` (`geometry_context: false`) | exists | (a) |
 | `h₀`-only | no propagation; head reads `h₀` (`h0_only_readout`) | exists | (a) |
+| `ego_head` (1.25) | head reads `[x*, h₀]` (the 1.24 readout); everything else as `full` | **new** (switch) | (a) |
 | Fixed-literature-schema row | path source = HGB's published meta-path list (`path_source: schemas`), spec §6 | exists | spec §6 (seeds 0–4, Welch; reported, not a claim) |
-| Appendix pair | `g` reads `[h₀, c]` (`path_weight_context: true`) in `full` and `endpoints` (spec §6) | exists | (a), seeds 1–10, reported without a claim (author 2026-11-16) |
 
 The parameter table (§4.8) lists every arm's count.
 
@@ -94,7 +93,6 @@ Notation: "better on d" = passes on dataset d in the sense of §1.
 | C2 (cells) | `full` vs `no_path_cells` (b) | better on ≥ 3 of 4 | Cells add nothing over the edge sheaf at tuned settings; warning signal (stop and discuss) |
 | **C2b schema read-out** | Stability of `ρ_σ = I_σ / c_σ` rankings across seeds (§4.4) and S2′ | stable on ≥ 3 of 4 **and** S2′ passes | Read-out reported without interpretation; no interpretability claim |
 | **C6 heterophily** | Within-dataset slope of per-node gain (`full` − `endpoints`) on per-node heterophily, 12 NC datasets (§4.1) | positive and significant on ≥ 6 of 12, significantly negative on none | Remove "heterophilic" from the title (spec) |
-| C9 relational context | `full` vs geometry context off (a) | better on ≥ 3 of 4 | Drop `c` (spec) |
 | **C10 face ≠ closure** | `full` vs `closure_only` (b) | better on ≥ 3 of 4 | The cell equals its holonomy edge in practice; the W3 fix is structural only (spec) |
 | **C11 fact–cell coupling** | `full` vs `hub_A` (a) | better on ≥ 3 of 4 | The coupling is kept for Thm 3, not as a source of gains (spec) |
 | **C12 node–cell term** | `full` vs `covering_only` (a) and S1′-B (§5) | as spec: falsified if `covering_only` is not worse **and** S1′-B passes without the term | Revert to covering pairs; report the ceiling as harmless (spec) |
@@ -102,6 +100,7 @@ Notation: "better on d" = passes on dataset d in the sense of §1.
 | **C15 learned transports (new)** | `full` vs S2 (b); 2×2 with `no_path_cells` and S0 reported | better on **both** IMDB and Freebase (heterophilic); a tie on ACM/DBLP is allowed | The paper drops the claim that its heterophily mechanism comes from the transports (Thm 4 stays a capacity result); **warning signal** |
 | **C16 direction-aware maps (new)** | `full` vs `direction_blind_maps` (a). Same-type relations exist only on ACM (paper–cite–paper) and Freebase (8 of 36 types, e.g. book–book 202,674 facts); none on DBLP, IMDB (`link.dat`, VERIFIED-RUN) | better on **both** ACM and Freebase | "Direction-aware" is not a selling point; direction is mostly carried by node types |
 | **C17 composition (new)** | `full` vs `free_cell_maps` (a), two-sided | three fixed readings: `full` better on ≥ 3 of 4 → composition helps; no difference → "no difference found" (never "equal"), kept for Thm 3; `free_cell_maps` better on ≥ 3 of 4 → composition has a cost, stated, kept for theory | no kill rule |
+| **C18 ego input (1.25)** | `full` vs `ego_head` (a) | `ego_head` better on ≥ 3 of 4 | The paper states that the ego input improves accuracy; main table unchanged |
 | Sanity | `full` vs `h₀`-only (a) | better on ≥ 3 of 4 | Warning signal (stop and discuss). Freebase has no features: `h₀`-only near chance there is also a leak control |
 | C5, C13 | §4.6 | §4.6 | spec |
 
@@ -136,6 +135,7 @@ Notation: "better on d" = passes on dataset d in the sense of §1.
 ### 4.3 Mechanism analyses on the ablation checkpoints
 - **N2 transport separation.** For path-connected target pairs (u, v) in a cell, distance after transport `‖T_{u,f} x*_u − T_{v,f} x*_v‖` and plain distance `‖x*_u − x*_v‖`, split by same-class vs different-class pairs; `full` vs S2. Linear probe (logistic regression, fixed `C = 1`, training targets → test targets) on `x*` only, and the within/between-class distance ratio on `x*`. Expected: in `full` different-class pairs agree after transport while staying apart before it; in S2 they are pulled together. Descriptive.
 - **N2b non-collapse under fixed `τ`.** `τ` fixed ∈ {1, 10, 100} (retrained), `full` vs S2, DBLP and IMDB, seeds 1–3; probe accuracy and distance ratio on `x*`; t-SNE illustrative only. Protocol exceptions (stated): the `τ > 50` stop is lifted and `T_max` = 500 for these runs; `τ` = 1000 is not run. Expected: S2's probe accuracy falls as `τ` grows, `full`'s stays or falls less; otherwise reported as is and no non-collapse claim.
+- **N2c type-only read-out (1.25).** On `full`'s checkpoints (configuration (a), seeds 1–10, the four ablation datasets), evaluate once more with `C_e ≡ 0` (relation frames only; no training, same evaluation draw); report the change in test Macro-F1 per dataset with its paired spread. Reading fixed now: a drop means the instance rotations carry information beyond the relation frames; no drop means the maps act through their relation frames only, and the "identity of intermediates in the geometry" sentence (spec §8 positioning) is weakened to the cells' weights. No claim, no kill rule.
 - **N3 intermediate-node intervention — corrected version, approved by the author 2026-11-16 (see note).** On each trained checkpoint, the `h₀` of every **intermediate** cell node is replaced, **in `g`'s input only**, by the `h₀` of a random node of the same type (fixed seed); the graph, the maps, the edge terms and the endpoints are untouched. Measured: mean `|Δ log w_f|` over cells and the share of test targets whose predicted class changes. Exact control: `endpoints` gives 0 (its `g` never reads intermediates; VERIFIED-CODE `EndpointEncoder`, `h2snn_model.py:617`). Rule fixed now: in `full`, mean `|Δ log w_f|` < 0.1 on ≥ 3 of 4 datasets is a warning signal (stop and discuss: the trained weights do not use intermediates). *Note:* the version approved on 2026-11-15 swapped intermediate features in the whole model with `closure_only` as a zero control; that control is wrong — A7 is a one-hop neighbour of P1, so its features reach P1 through the edge terms and the fact maps in every arm, `closure_only` included (its holonomy map is composed of fact maps that read A7). The corrected version isolates the weight channel; the value of intermediates through the solve is what C2 and C10 measure.
 - **N4 learned weights by instance type.** Distribution of `log w_f` by (endpoint labels equal / different) and by the intermediate's class where labelled; descriptive.
 - **N4b schema weights vs schema homophily.** Per dataset, Spearman between `ρ_σ` and the homophily of σ's induced target-type graph, seeds 1–10; in the perturbation study, `ρ_σ` of the perturbed schemas per level. Two fixed readings: positive → the weights favour homophilous schemas; near zero → the weights do not follow homophily (the transports handle heterophilous schemas). Descriptive.
@@ -211,5 +211,5 @@ Per-run time is UNVERIFIED until the first tuning trials; H2GB runs (500 epochs 
 §1 thesis H without "order"; §5 table: C2 rule "≥ 3 of 4" on four HGB datasets, C2b on `ρ_σ`, C3 removed, C6 within-dataset rule, C15–C17 added, `h₀`-only sanity; §5 note (1.14) replaced by the statistics of §1 here; §6 ablation bullet (datasets, seeds 1–10, configurations (a)/(b)), schema read-out (`ρ_σ`, seeds), known-answer settings, WISP gate (i) closed, proposal variance before tuning, U3 without E11, C5 criteria, timing on one GPU type; §6 v3-B arms list + S2/S0; §7 OPEN-5 closed for arms.
 
 ## 8. Open points for the author
-Closed 2026-11-16 (author): N3 corrected version; appendix pair (a), seeds 1–10, no claim; perturbed relations = the `M₂` relations; N6 fixed case rule; sweep by edge removal with a density-matched random control (replaces swaps).
+Closed 2026-11-16 (author): N3 corrected version; appendix pair (a), seeds 1–10, no claim; perturbed relations = the `M₂` relations; N6 fixed case rule; sweep by edge removal with a density-matched random control (replaces swaps). Withdrawn 2026-11-18 (author): the appendix pair and C9, with `c` (spec 1.25 Z1).
 Open: approval of this draft as a whole, then the spec v1.23 draft.
