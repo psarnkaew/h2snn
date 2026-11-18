@@ -1,0 +1,14 @@
+job=17390 array=17388_2 node=g3n01 start=2026-11-17T12:54:46+09:00
+git=4b3fb07f19dcb4da297611a9414ca9c2dde641e9 branch=heterophily mem=28672M cpus=8
+task: dataset=pdns task=nc measure=mde deadline_h=11.500
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[13:00:39] G_P domain_node-ip_node-domain_node: rows 398000/897635 (44.3 %), edges so far 130197185, 300 s
+[13:05:39] G_P domain_node-ip_node-domain_node: rows 800200/897635 (89.1 %), edges so far 208870879, 600 s
+[13:11:54] G_P domain_node-ip_node-domain_node: rows 401200/897635 (44.7 %), edges so far 130427643, 300 s
+[13:16:54] G_P domain_node-ip_node-domain_node: rows 809000/897635 (90.1 %), edges so far 209488645, 600 s
+[13:17:58] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__pdns__mde.json: value 0.001994947127010549
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+end=2026-11-17T13:17:59+09:00 exit=0

@@ -1,0 +1,21 @@
+job=17418 array=17388_8 node=g3n01 start=2026-11-17T15:07:47+09:00
+git=4b3fb07f19dcb4da297611a9414ca9c2dde641e9 branch=heterophily mem=28672M cpus=8
+task: dataset=h-pokec_uu task=lp measure=mde deadline_h=11.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/pokec_dataset.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[15:13:07] G_P user-life_style-user: rows 972800/1632803 (59.6 %), edges so far 2032958332, 300 s
+[15:20:33] G_P user-life_style-user: rows 426800/1632803 (26.1 %), edges so far 1268507916, 300 s
+[15:25:33] G_P user-life_style-user: rows 1204000/1632803 (73.7 %), edges so far 2160775780, 600 s
+[15:36:40] G_P user-music-user: rows 1539000/1632803 (94.3 %), edges so far 576060577, 300 s
+[15:47:20] G_P user-relationships-user: rows 562200/1632803 (34.4 %), edges so far 3122733644, 300 s
+[15:52:20] G_P user-relationships-user: rows 1518800/1632803 (93.0 %), edges so far 4431693425, 600 s
+[15:57:49] G_P user-relationships-user: rows 209400/1632803 (12.8 %), edges so far 1451412673, 300 s
+[16:02:49] G_P user-relationships-user: rows 476200/1632803 (29.2 %), edges so far 2832720803, 600 s
+[16:07:49] G_P user-relationships-user: rows 911400/1632803 (55.8 %), edges so far 3993502270, 900 s
+[16:18:57] G_P user-hobbies_interests-user: rows 1329800/1632803 (81.4 %), edges so far 4186741462, 300 s
+[16:24:29] G_P user-hobbies_interests-user: rows 286000/1632803 (17.5 %), edges so far 1717225796, 300 s
+[16:29:29] G_P user-hobbies_interests-user: rows 719000/1632803 (44.0 %), edges so far 3366066653, 600 s
+[16:56:12] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/lp__h-pokec_uu__mde.json: value {'user': 0.005758286118336879}
+end=2026-11-17T16:56:12+09:00 exit=0

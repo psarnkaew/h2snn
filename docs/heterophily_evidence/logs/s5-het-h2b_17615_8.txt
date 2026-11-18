@@ -1,0 +1,17 @@
+job=17640 array=17615_8 node=g2n01 start=2026-11-18T11:37:24+09:00
+git=503f9c47c53f7b2dcee4ab12f98da215b6dac052 branch=heterophily mem=16384M cpus=4
+task: dataset=mag-year task=nc measure=mde out=default deadline_h=11.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/mag_dataset.py:71: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[11:43:22] G_P paper-author-paper: rows 179000/736389 (24.3 %), edges so far 13556475, 300 s
+[11:48:22] G_P paper-author-paper: rows 358000/736389 (48.6 %), edges so far 26023949, 600 s
+[11:53:22] G_P paper-author-paper: rows 536600/736389 (72.9 %), edges so far 45098971, 900 s
+[11:58:23] G_P paper-author-paper: rows 716200/736389 (97.3 %), edges so far 63571738, 1201 s
+[12:03:57] G_P paper-author-paper: rows 176400/736389 (24.0 %), edges so far 13374065, 300 s
+[12:08:57] G_P paper-author-paper: rows 353600/736389 (48.0 %), edges so far 25741158, 600 s
+[12:13:57] G_P paper-author-paper: rows 526600/736389 (71.5 %), edges so far 44135511, 901 s
+[12:18:57] G_P paper-author-paper: rows 698800/736389 (94.9 %), edges so far 61625922, 1201 s
+[12:20:03] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__mag-year__mde.json: value 0.004010810813319158
+end=2026-11-18T12:20:04+09:00 exit=0

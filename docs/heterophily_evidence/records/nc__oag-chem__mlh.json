@@ -1,0 +1,168 @@
+{
+ "dataset": "oag-chem",
+ "task": "nc",
+ "measure": "mlh",
+ "harness_commit": "503f9c47c53f7b2dcee4ab12f98da215b6dac052",
+ "job": "17625",
+ "node": "g2n01",
+ "threads": 4,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily (H2b: closed form on a complete G_P)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "paper-PP_cite-paper": "kept",
+  "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+  "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+  "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+  "field-FF_in-field": "kept",
+  "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+  "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+  "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+  "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+  "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+  "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+  "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+  "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+  "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+  "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+  "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+  "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+  "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+  "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+  "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+  "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+  "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 747290,
+   "field": 65290,
+   "author": 1097433,
+   "affiliation": 8868
+  },
+  "edge_types": {
+   "paper-PP_cite-paper": 14452754,
+   "author-AP_write_last-paper": 664930,
+   "author-AP_write_other-paper": 1634514,
+   "author-AP_write_first-paper": 630999,
+   "field-FF_in-field": 821818,
+   "paper-PF_in_L3-field": 1710391,
+   "paper-PF_in_L2-field": 3108157,
+   "paper-PF_in_L1-field": 1332023,
+   "paper-PF_in_L0-field": 747417,
+   "paper-PF_in_L4-field": 398183,
+   "paper-PF_in_L5-field": 87674,
+   "author-in-affiliation": 1097433,
+   "paper-rev_AP_write_last-author": 664930,
+   "paper-rev_AP_write_other-author": 1634514,
+   "paper-rev_AP_write_first-author": 630999,
+   "field-rev_PF_in_L3-paper": 1710391,
+   "field-rev_PF_in_L2-paper": 3108157,
+   "field-rev_PF_in_L1-paper": 1332023,
+   "field-rev_PF_in_L0-paper": 747417,
+   "field-rev_PF_in_L4-paper": 398183,
+   "field-rev_PF_in_L5-paper": 87674,
+   "affiliation-rev_in-author": 1097433
+  }
+ },
+ "target": "paper",
+ "m2": [
+  "paper-field-paper",
+  "paper-author-paper"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once",
+ "value": 0.9213634122511659,
+ "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+ "fill_seeds": {
+  "label": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "value_over_fill_seeds": [
+  0.9213634122511659,
+  0.9213639108714882,
+  0.9213641442210588,
+  0.9213641654009486,
+  0.9213641494140747
+ ],
+ "spread": [
+  0.9213634122511659,
+  0.9213641654009486
+ ],
+ "per_metapath": [
+  {
+   "metapath": "paper-field-paper",
+   "steps": [
+    [
+     "paper",
+     "field"
+    ],
+    [
+     "field",
+     "paper"
+    ]
+   ],
+   "edges": 558442344100,
+   "mode": "closed form (H2b: complete G_P)",
+   "gp_complete": true,
+   "hub": 43687,
+   "h_edge_homophily": {
+    "label@0": 0.007001914717448089,
+    "label@1": 0.007001978043591555,
+    "label@2": 0.007001842770898146,
+    "label@3": 0.007001734125841694,
+    "label@4": 0.007001832384866246
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.007006052060281757
+   },
+   "labeled_only_edges": {
+    "label": 558088184809
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "paper-author-paper",
+   "steps": [
+    [
+     "paper",
+     "author"
+    ],
+    [
+     "author",
+     "paper"
+    ]
+   ],
+   "edges": 30172629,
+   "mode": "chunked (weighted chunk means)",
+   "gp_complete": false,
+   "hub": null,
+   "h_edge_homophily": {
+    "label@0": 0.15027126078022013,
+    "label@1": 0.15027020021343218,
+    "label@2": 0.15026986878698417,
+    "label@3": 0.15026993507226122,
+    "label@4": 0.15026986878698417
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.150344743568113
+   },
+   "labeled_only_edges": {
+    "label": 30156179
+   },
+   "exact_match_h_edge_homophily": null
+  }
+ ],
+ "labeled_targets": 747053,
+ "targets": 747290,
+ "labeled_only": 0.9213246021858026,
+ "wall_s": 560.69,
+ "peak_rss_gb": 10.388
+}
