@@ -153,18 +153,25 @@ def is_sweep_prune(exc: BaseException) -> bool:
 
 
 #: Card 1f U5.5 (B1a): on the H2GB NC datasets the baseline loops record the selection score on the fixed validation
-#: subset; the sweep's end-of-trial objective is that value at the best epoch. Records without it (H2S-NN, other
-#: datasets) keep the whole-split validation metric.
+#: subset; the sweep's end-of-trial objective (and, card 1f U6, the trial selection) is that value at the best epoch.
+#: Datasets outside the subset table keep the whole-split validation metric.
 B1A_OBJECTIVE_KEY = "val_subset_macro_f1"
 
 
 def sweep_objective(record: dict[str, Any], monitor: str) -> float:
-    """The end-of-trial value logged under the sweep metric: `val_subset_macro_f1` when the record carries it and the
-    monitor is macro-F1, else `metric_score(record, monitor)`."""
+    """The value a sweep ranks a trial by: `val_subset_macro_f1` when the monitor is macro-F1 and the record carries
+    it, else `metric_score(record, monitor)`. A macro-F1 record of a dataset in the B1a subset table without the
+    subset key is refused (card 1f U6: no silent whole-split fallback)."""
+    from src.evaluation.validation_subset import SUBSET_SIZES
     from src.utils.run_reports import metric_score
 
-    if monitor.removeprefix("val_") == "macro_f1" and B1A_OBJECTIVE_KEY in record:
-        return float(record[B1A_OBJECTIVE_KEY])
+    if monitor.removeprefix("val_") == "macro_f1":
+        if B1A_OBJECTIVE_KEY in record:
+            return float(record[B1A_OBJECTIVE_KEY])
+        if record.get("dataset") in SUBSET_SIZES:
+            raise ValueError(
+                f"{record.get('dataset')}: the trial record has no {B1A_OBJECTIVE_KEY!r}; on the H2GB NC datasets the "
+                "sweep objective is the B1a validation-subset metric (card 1f U6), there is no whole-split fallback.")
     return metric_score(record, monitor)
 
 
