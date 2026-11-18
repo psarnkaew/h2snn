@@ -1,7 +1,7 @@
 # Task card — Model change 1.25: remove `c`, TD-1 maps (rank 4, one frame per relation), head reads `x*` only, bounded cell weights, N2c read-out; regenerate golden/mb0; rerun known-answer and cost
 
-**Owner (design):** model session. **Executor:** S4 (or a fresh coding session), new worktree.
-**Branch:** new branch `model-td1` from `v3b` `80e045a` (D4b included), in a new worktree `/mnt/data/peeradon/h2snn-model` (`git worktree add`). Then `git merge --no-ff` of `design-docs` at the SHA given in the prompt (brings spec 1.25 and this card). Merge, never rebase.
+**Owner (design):** model session. **Executor:** S6 (a new coding session, named S6 so it is not confused with S1–S5), new worktree.
+**Branch:** new branch `model-td1` from `v3b` `9b7ae0b` (D4b and card 1f U5/U6 included; 80e045a → 9b7ae0b touches only `src/baselines/`, `src/evaluation/validation_subset.py`, `src/utils/wandb_campaign.py`, `scripts/run_baseline_tuning.py` and their tests, no model file), in a new worktree `/mnt/data/peeradon/h2snn-model` (`git worktree add`). Then `git merge --no-ff` of `design-docs` at the SHA given in the prompt (brings spec 1.25 and this card). Merge, never rebase.
 **Binding (in this order):**
 1. Spec **v1.25** (`docs/H2S-NN_methodology_spec.md`; items Z-1–Z-38 in `docs/spec_v1.25_draft_edits.md`).
 2. `docs/thm4_td1_proof.md` and `docs/thm4_td1_evidence/check_thm4_td1.py`.
@@ -48,7 +48,7 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 
 ### M0 — Worktree, merge, preconditions
 - Create the branch and worktree as above. Merge `design-docs` at the given SHA.
-- Record `git rev-parse HEAD`, the suite count at base (no run needed: take D4b's 752 OK + 1 skipped at `45c38ea`), and the golden/mb0 reference SHA-256 at base.
+- Record `git rev-parse HEAD`, the suite count at base (no run needed: D4b's 752 OK + 1 skipped at `45c38ea`, plus the test functions card 1f added between `80e045a` and `9b7ae0b`; count them with `pytest --collect-only -q` on the base, no GPU needed), and the golden/mb0 reference SHA-256 at base.
 - List every file that references `geometry_context`, `path_weight_context`, `RelationalContext`, `relational_context`, `householder_k`, `reflector`, `normalize_reflectors`, `FactorizedNodeToEdgeSheaf`, `FactorizedMapOperator`, `FreeIncidenceMaps` (src, scripts, tests, configs, CLAUDE.md), with a one-line plan per file. This list is the M1/M2 scope; anything outside it needs a stop.
 
 ### M1 — Remove `c` (spec Z-1–Z-9, Z-20)
@@ -123,14 +123,14 @@ Q_e   = F_{u<e}^T F_{v<e} / c_e^2  in SO(d);   a_e = c_e^2  (unchanged)
 - The golden configurations are the same list as before minus the removed arms (`geometry_context_off`, appendix pair) plus `ego_head`. List any configuration that was dropped or added.
 
 ### M5 — Full suite
-Full suite on one node (sbatch, one GPU not shared, environment E). Expected: everything passes, the new golden and mb0 compare `differing: none`. Report the count vs 752 OK + 1 skipped at the base.
+Full suite on one node (sbatch, one GPU not shared, environment E). Expected: everything passes, the new golden and mb0 compare `differing: none`. Report the count vs the base count recorded in M0, with the tests removed and added by this card listed per file.
 
 ### M6 — Reruns (one round, no tuning)
 - **Known-answer.** Rerun card 4 K3 S1′-B (the `full` runs only; `covering_only` is not rerun) and K4 S3 (after the new audit (ii)) with exactly card 4's frozen settings (`scripts/known_answer/common.py`), seeds and run counts. The only change is the model. K5 S2′ is **not** rerun: the report states that its card 4 result was obtained on the 1.24 model.
   - Report each pre-registered quantity next to card 4's value.
   - The criteria are unchanged and are read exactly as in `docs/known_answer_preregistration_draft.md`.
   - A different outcome is a finding, **not a stop**.
-- **Cost smoke.** `scripts/v3b_cost_smoke.py` on ACM only at the card 2 central configuration (`d` 32, `ℓ_max` 3, `r` 16). Run both `v3b` `80e045a` and the new head in the same job on the same GPU.
+- **Cost smoke.** `scripts/v3b_cost_smoke.py` on ACM only at the card 2 central configuration (`d` 32, `ℓ_max` 3, `r` 16). Run both `v3b` `9b7ae0b` and the new head in the same job on the same GPU.
   - Report time per epoch (forward, backward), PCG iterations (forward, adjoint), peak memory, and `stored_elements` of the map operators.
   - Design-session prediction (FLOP model): operator apply ≈ 0.5×, map build ≈ 0.2×, stored geometry per fact 257 → 17 numbers at d 64. Report measured/predicted. The prediction is **not** a gate.
 - **H2GB central-point timing (B2a's `N`). Not run in this card.** The author's 2026-11-18 decision dropped real-data dry runs on the lab cluster. It is measured by the first TSUBAME trial unless the author says otherwise.
@@ -138,7 +138,7 @@ Full suite on one node (sbatch, one GPU not shared, environment E). Expected: ev
 ### M7 — Report
 - **File:** `docs/H2S-NN_model_change_td1_report.md`.
 - **Content (short):** files changed per unit; test table with measured errors; mutation results; golden/mb0 hashes; suite count; known-answer side-by-side table; cost table; deviations; decisions for the author. No narrative beyond one line per item.
-- **Last line:** `branch=model-td1 sha=<full head sha> card=docs/H2S-NN_model_change_td1_card.md base=80e045a834820fef925d7241c1c4912a2f5eea92`.
+- **Last line:** `branch=model-td1 sha=<full head sha> card=docs/H2S-NN_model_change_td1_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c`.
 
 ## Files
 - `src/configs/config.py`
