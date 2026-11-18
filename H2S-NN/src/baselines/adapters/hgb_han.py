@@ -446,7 +446,8 @@ def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torc
     loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
-    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)  # card 1f B1a
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))  # card 1f B1a
     ensure_pyg_submodules()
     with pushd_sys_path("h2gb"):  # the cfg is configured last: H2GB's model reads it in its forward
         configure_from_yaml(NAME, bundle.dataset, data, target, device, {

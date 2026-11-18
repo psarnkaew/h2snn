@@ -44,8 +44,9 @@
       "subset_fingerprint": "00825eee995a44a8aa97f1ee387e580053d786609f8b3582b36683b36aba1e35"
     },
     "pdns": {
-      "status": "refused",
-      "reason": "pdns: the validation split is drawn from the run seed (src/data/h2gb_nc.py:74-81), so it is not a single id set across seeds (card 1f stop item; design-session decision pending)"
+      "status": "per_run_seed",
+      "rule": "card 1f U5.3 decision (a): subset of each run seed's validation split, RNG seeded by subset_generator_seed(run_seed) = sha256('b1a:<SEED>:<run_seed>')[:8]; size min(split, 8192)",
+      "fingerprint": "per run: val_subset_fingerprint in each run record (no real-data run in U5)"
     },
     "h-pokec": {
       "target_type": "user",

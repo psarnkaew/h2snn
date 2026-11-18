@@ -185,15 +185,17 @@ def eval_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str,
 
 
 def val_subset_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, dataset: str,
-                      batch_size: int, num_workers: int = 0) -> tuple[Any, torch.Tensor]:
+                      batch_size: int, num_workers: int = 0, *, run_seed: int | None = None
+                      ) -> tuple[Any, torch.Tensor]:
     """(loader, ids) over the B1a validation subset of `dataset`: H2GB's loader, called unchanged, on a shallow copy
-    of `data` whose target `val_mask` holds the subset ids only (the caller's graph is not modified)."""
+    of `data` whose target `val_mask` holds the subset ids only (the caller's graph is not modified). `run_seed`: the
+    seed that drew `data`'s split (PDNS, card 1f U5.3; ignored for the other datasets)."""
     from copy import copy
 
     from src.evaluation.validation_subset import validation_subset
 
     mask = data[target_type].val_mask
-    ids = validation_subset(dataset, mask.nonzero().view(-1))
+    ids = validation_subset(dataset, mask.nonzero().view(-1), run_seed)
     subset_mask = torch.zeros_like(mask)
     subset_mask[ids.to(mask.device)] = True
     view = copy(data)
@@ -359,13 +361,14 @@ def train_index_minibatch(
     plan: MinibatchPlan,
     base_seed: int,
     report: Any = None,
+    run_seed: int | None = None,
 ) -> dict[str, float]:
     """The shared H2GB NC loop for methods whose source batches target rows of precomputed inputs (class B): each
     epoch takes `plan.steps_per_epoch` batches of B training targets from a seeded order continued across epochs
     (`TrainingOrder`, as H2S-NN's trainer), loss = mean over the batch; evaluation on whole splits in contiguous
     batches by H2GB's eval-epoch rule on the B1a validation subset of `plan.dataset` only (no test pass); the best subset
     macro-F1 epoch's weights restored after the last epoch and scored once on the whole validation and test splits;
-    no early stopping."""
+    no early stopping. `run_seed`: the seed that drew the split (PDNS, card 1f U5.3)."""
     from src.baselines.metrics import classification_metrics, node_classification_record
     from src.baselines.progress import report_epoch
     from src.models.anchored_solve import check_finite_loss
@@ -374,7 +377,7 @@ def train_index_minibatch(
     from src.evaluation.validation_subset import validation_subset
 
     order = TrainingOrder(train_idx.cpu(), base_seed)
-    subset_idx = validation_subset(plan.dataset, val_idx).to(val_idx.device)
+    subset_idx = validation_subset(plan.dataset, val_idx, run_seed).to(val_idx.device)
 
     def evaluate(index: torch.Tensor) -> dict[str, float]:
         with torch.no_grad():
@@ -468,7 +471,8 @@ def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed
         start = offsets[target][0]
         return out[start:start + int(batch[target].batch_size)]
 
-    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds,
         train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,

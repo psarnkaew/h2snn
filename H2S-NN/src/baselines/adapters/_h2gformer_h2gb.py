@@ -134,7 +134,8 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
     # card 1f B1a: built from the split masks, before the label channel rewrites them (as the loaders above)
-    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))
     val_ids = data[target].val_mask.nonzero().view(-1).clone()   # before the label channel rewrites the masks
     test_ids = data[target].test_mask.nonzero().view(-1).clone()
     if LABEL in stack:

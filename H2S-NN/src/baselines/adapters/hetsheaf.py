@@ -783,7 +783,8 @@ def fit_h2gb_node_classification(bundle: Any, params: BaselineParams, *, seed: i
         graph, rows = typed_batch(batch, schema)
         return model(graph, rows[target][:int(batch[target].batch_size)], device)
 
-    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size)  # card 1f B1a
+    subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                  run_seed=bundle.metadata.get("seed"))  # card 1f B1a
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds,
         train_loader=hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True,
