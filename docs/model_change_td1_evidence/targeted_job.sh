@@ -9,12 +9,14 @@
 #SBATCH --output=/mnt/data/peeradon/h2snn-model/docs/model_change_td1_evidence/targeted_%j.txt
 set -uo pipefail
 LABEL="${1:?label}"; shift
-cd /mnt/data/peeradon/h2snn-model/H2S-NN || exit 2
+# SNAP (snapshot_submit.sh): run in the frozen copy; otherwise in the worktree itself.
+ROOT="${SNAP:-/mnt/data/peeradon/h2snn-model}"
+cd "${ROOT}/H2S-NN" || exit 2
 . ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b || exit 2
 export CUDA_VISIBLE_DEVICES="" TORCH_EXTENSIONS_DIR=~/.cache/torch_extensions/h2snn-b
 export ATEN_CPU_CAPABILITY=avx2 MKL_CBWR=AVX2 ONEDNN_MAX_CPU_ISA=AVX2
 echo "label=${LABEL} job=${SLURM_JOB_ID:-none} node=$(hostname) start=$(date -Is)"
-echo "git=$(git rev-parse HEAD) branch=$(git rev-parse --abbrev-ref HEAD)"
-git status --short -- . ../docs | grep -v '^??' | sed 's/^/working tree: /'
+if [ -n "${SNAP:-}" ]; then echo "snapshot=${SNAP} $(cat ${SNAP}/SNAPSHOT.txt)"; fi
+echo "git=$(git -C /mnt/data/peeradon/h2snn-model rev-parse HEAD) branch=model-td1"
 python -m unittest "$@" 2>&1 | grep -vE "GBWarning|FutureWarning|warnings.warn|UserWarning" | tail -n 120
 echo "exit=${PIPESTATUS[0]} end=$(date -Is)"

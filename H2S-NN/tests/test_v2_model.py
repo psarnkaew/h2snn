@@ -17,13 +17,9 @@ except ImportError as exc:  # pragma: no cover - environment specific
 
 from src.configs.config import AblationConfig, ModelConfig, OptimConfig, TrainConfig
 from src.models.h2snn_model import H2SNN
-from src.models.map_operators import (
-    EdgeMapPair,
-    FactorizedMapOperator,
-    PathTransportOperator,
-    normalize_reflectors,
-)
-from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
+from src.models.map_operators import EdgeMapPair, PathTransportOperator, TD1MapOperator
+from src.models.sheaf_maps import TD1NodeToEdgeSheaf, td1_edge_maps
+from tests.td1_fixtures import random_td1_factors
 from tests.test_factorized_maps import (
     _holonomy_statistics,
     _holonomies,
@@ -36,14 +32,19 @@ EPS = 0.1  # map_scale_eps used throughout
 
 
 # ----------------------------------------------------------------------------- fixtures
-def _per_edge_module(data, d: int = 8, k: int = 2, seed: int = 0,
-                     dtype: torch.dtype = torch.float64, map_scale: str = "per_edge"):
+def _per_edge_module(data, d: int = 8, rank: int = 4, seed: int = 0,
+                     dtype: torch.dtype = torch.float64, angle: float = 0.3):
+    """TD-1 builder (spec 1.25 Z2) with the skew rows of the edge MLP drawn N(0, angle^2) (zero at
+    init) so that the instance rotations are not the identity."""
     torch.manual_seed(seed)
     num_relations = len(data.relation_names)
-    module = FactorizedNodeToEdgeSheaf(
-        d=d, d_r=4, num_relations=num_relations, hidden_dim=16, householder_k=k,
-        scale_eps=EPS, orthogonal_map="fasthpp", map_scale=map_scale,
+    module = TD1NodeToEdgeSheaf(
+        d=d, d_r=4, num_relations=num_relations, hidden_dim=16, map_rank=rank,
+        scale_eps=EPS, orthogonal_map="fasthpp",
     ).to(dtype)
+    if angle:
+        with torch.no_grad():
+            module.edge_mlp[-1].weight[:module.num_skew].normal_(0.0, angle)
     h = torch.randn(data.num_nodes, d, dtype=dtype)
     relation_embeddings = torch.randn(num_relations + 1, 4, dtype=dtype)
     output = module(h, data.edge_index, data.edge_type, relation_embeddings)
@@ -71,27 +72,40 @@ def _spanning_scale(num_edges: int, generator: torch.Generator, dtype: torch.dty
     return scale.to(dtype)
 
 
+def _with_scale(operator: TD1MapOperator, scale: torch.Tensor) -> TD1MapOperator:
+    """The same TD-1 maps with another scale."""
+    return TD1MapOperator(scale, operator.rotation, operator.group_ids, operator.subspaces,
+                          operator.frames, operator.instance_groups, operator.frame_index)
+
+
+def _td1_pair(num_edges: int, group_ids: torch.Tensor, num_groups: int, rank: int, d: int,
+              generator: torch.Generator, dtype: torch.dtype, src_scale: torch.Tensor,
+              tgt_scale: torch.Tensor) -> EdgeMapPair:
+    """Random TD-1 maps (spec 1.25 Z2) with the given per-side scales; the last group has
+    rho(r) = r (half angles on both roles), the others a frame on the target role."""
+    shared = (num_groups - 1,)
+    factors = random_td1_factors(num_edges, group_ids, d, rank, generator, torch.float64,
+                                 shared_role_relations=shared, num_relations=num_groups)
+    factors = factors._replace(scale=src_scale.to(torch.float64))
+    pair = td1_edge_maps(factors._replace(rotation=factors.rotation.to(dtype),
+                                          subspaces=factors.subspaces.to(dtype),
+                                          frames=factors.frames.to(dtype),
+                                          scale=src_scale),
+                         group_ids, num_groups, shared)
+    if tgt_scale is src_scale:
+        return pair
+    return EdgeMapPair(src=pair.src, tgt=_with_scale(pair.tgt, tgt_scale))
+
+
 def _chain_operators(num_edges: int, k: int, d: int, seed: int, dtype: torch.dtype,
                      shared: bool) -> EdgeMapPair:
-    """Random factorized maps on a chain; scales span [eps, 50]; shared or per side."""
+    """Random TD-1 maps of rank `k` on a chain; scales span [eps, 50]; shared or per side (the
+    per-side case is a negative control: the model has one scale per fact, D1a)."""
     generator = torch.Generator().manual_seed(seed)
     group_ids = torch.arange(num_edges) % 2
-
-    def side(scale: torch.Tensor) -> FactorizedMapOperator:
-        rotations, _ = torch.linalg.qr(torch.randn(2, d, d, generator=generator,
-                                                   dtype=torch.float64))
-        return FactorizedMapOperator(
-            scale=scale,
-            reflectors=normalize_reflectors(
-                torch.randn(num_edges, k, d, generator=generator, dtype=torch.float64), 1e-6
-            ).to(dtype),
-            rotations=rotations.to(dtype),
-            group_ids=group_ids,
-        )
-
     src_scale = _spanning_scale(num_edges, generator, dtype)
     tgt_scale = src_scale if shared else _spanning_scale(num_edges, generator, dtype).flip(0)
-    return EdgeMapPair(src=side(src_scale), tgt=side(tgt_scale))
+    return _td1_pair(num_edges, group_ids, 2, k, d, generator, dtype, src_scale, tgt_scale)
 
 
 def _materialize_transports(operator: PathTransportOperator, num_nodes: int, d: int,
@@ -125,7 +139,7 @@ def _orthogonality_error(matrices: torch.Tensor) -> float:
 
 # ----------------------------------------------------------------------------- D1a (T12)
 class PerEdgeScaleTests(unittest.TestCase):
-    """D1a: `F_src = c_e R_src H(u_src)`, `F_tgt = c_e R_tgt H(u_tgt)`, one `c_e` per edge."""
+    """D1a under TD-1 (spec 1.25 Z2): `F_src = c_e I`, `F_tgt = c_e R_r exp(A_e)`, one `c_e` per edge."""
 
     def test_T12a_both_sides_share_exactly_one_scale_per_edge(self) -> None:
         data = _random_pap_data()
@@ -138,12 +152,6 @@ class PerEdgeScaleTests(unittest.TestCase):
         for side in (output.maps.src, output.maps.tgt):
             singular = torch.linalg.svdvals(side.materialize())
             self.assertLess(float((singular - c.unsqueeze(-1)).abs().max()), F64_TOL)
-
-    def test_T12a_per_side_ablation_keeps_two_scales(self) -> None:
-        data = _random_pap_data()
-        _, _, _, output = _per_edge_module(data, map_scale="per_side")
-        self.assertIsNot(output.maps.src.scale, output.maps.tgt.scale)
-        self.assertGreater(float((output.maps.src.scale - output.maps.tgt.scale).abs().max()), 1e-3)
 
     def test_T12b_edge_transports_are_orthogonal(self) -> None:
         data = _random_pap_data()
@@ -199,12 +207,8 @@ class PerEdgeScaleTests(unittest.TestCase):
         fast = PathTransportOperator(maps.src, maps.tgt, face_nodes, face_edges, edge_index,
                                      shared_scale=True)
         rescaled_scale = maps.src.scale * 7.3 + 1.0
-
-        def with_scale(operator: FactorizedMapOperator) -> FactorizedMapOperator:
-            return FactorizedMapOperator(rescaled_scale, operator.reflectors,
-                                         operator.rotations, operator.group_ids)
-
-        rescaled = PathTransportOperator(with_scale(maps.src), with_scale(maps.tgt), face_nodes,
+        rescaled = PathTransportOperator(_with_scale(maps.src, rescaled_scale),
+                                         _with_scale(maps.tgt, rescaled_scale), face_nodes,
                                          face_edges, edge_index, shared_scale=True)
         self.assertTrue(torch.equal(fast.apply(x), rescaled.apply(x)))
         w = torch.randn(face_nodes.size(0), 4, 5, dtype=torch.float64)
@@ -226,10 +230,11 @@ class PerEdgeScaleTests(unittest.TestCase):
             for raw in (-50.0, 50.0):
                 with self.subTest(dtype=dtype, raw=raw):
                     module, h, relation_embeddings, _ = _per_edge_module(data, dtype=dtype)
-                    last = module.edge_scale_mlp[-1]
+                    last = module.edge_mlp[-1]
                     with torch.no_grad():
                         last.weight.zero_()
-                        last.bias.fill_(raw)
+                        last.bias.zero_()
+                        last.bias[-1] = raw  # the scale output (spec 1.25: last row)
                     h.requires_grad_(True)
                     maps = module(h, data.edge_index, data.edge_type, relation_embeddings).maps
                     c = maps.src.scale
@@ -250,11 +255,16 @@ class PerEdgeVersionsOfD1Tests(unittest.TestCase):
     """D1 tests whose formulas change under per-edge scales; D1 thresholds unchanged."""
 
     def test_T10_per_edge_storage_matches_the_bound_exactly(self) -> None:
-        """Unique float storage held by both operators: `2 M k d + M + 2 |R| d^2`."""
+        """Unique float map storage held by both operators (spec 1.25 Z2): `M (m^2 + 1) + |R| d m +
+        |R_f| d^2` (the source side reads the target's blocks transposed: same storage). The lazily
+        built group layout (index permutations, the group-sorted copy of the blocks) is a cache of
+        `apply`, not map storage, and is left out."""
 
-        def held_tensors(operator: FactorizedMapOperator) -> list[torch.Tensor]:
+        def held_tensors(operator: TD1MapOperator) -> list[torch.Tensor]:
             found: list[torch.Tensor] = []
-            for value in vars(operator).values():
+            for name, value in vars(operator).items():
+                if name == "_layout":
+                    continue
                 items = value if isinstance(value, (tuple, list)) else (value,)
                 found.extend(item for item in items if isinstance(item, torch.Tensor))
             return found
@@ -262,19 +272,19 @@ class PerEdgeVersionsOfD1Tests(unittest.TestCase):
         data = _random_pap_data()
         num_relations = len(data.relation_names)
         M = data.num_edges
-        for d, k in ((8, 1), (8, 2), (32, 2), (32, 4)):
-            with self.subTest(d=d, k=k):
-                _, _, _, output = _per_edge_module(data, d=d, k=k)
-                unique: dict[tuple[int, tuple[int, ...], tuple[int, ...]], torch.Tensor] = {}
+        for d, rank in ((8, 2), (8, 4), (32, 4)):
+            with self.subTest(d=d, rank=rank):
+                _, _, _, output = _per_edge_module(data, d=d, rank=rank)
+                unique: dict[tuple[int, int], torch.Tensor] = {}
                 for side in (output.maps.src, output.maps.tgt):
                     side.apply(torch.zeros(M, d, dtype=torch.float64))  # builds the layout
                     for tensor in held_tensors(side):
                         if tensor.is_floating_point():
-                            unique[(tensor.data_ptr(), tuple(tensor.shape),
-                                    tuple(tensor.stride()))] = tensor
+                            unique[(tensor.data_ptr(), tensor.numel())] = tensor
                 floats = sum(t.numel() for t in unique.values())
-                self.assertEqual(floats, 2 * M * k * d + M + 2 * num_relations * d * d)
-                if (d, k) == (32, 2):
+                self.assertEqual(floats, M * (rank ** 2 + 1) + num_relations * (d * rank + d * d))
+                self.assertEqual(output.maps.tgt.stored_elements(), floats)
+                if (d, rank) == (32, 4):
                     self.assertGreaterEqual(2 * M * d * d / floats, 10.0)
 
     def test_T4_per_edge_maps_are_side_specific_and_node_dependent(self) -> None:
@@ -314,24 +324,13 @@ class PerEdgeVersionsOfD1Tests(unittest.TestCase):
 
 
 # ----------------------------------------------------------------------------- operators (T2-T5, T7, T14)
-def _operators(num_edges: int, d: int, k: int, generator: torch.Generator,
+def _operators(num_edges: int, d: int, rank: int, generator: torch.Generator,
                src_scale: torch.Tensor, tgt_scale: torch.Tensor,
                num_groups: int = 3) -> EdgeMapPair:
-    """Random factorized maps (float64) with the given per-side scales."""
+    """Random TD-1 maps (float64) with the given per-side scales (last group: rho(r) = r)."""
     group_ids = torch.randint(num_groups, (num_edges,), generator=generator)
-
-    def side(scale: torch.Tensor) -> FactorizedMapOperator:
-        rotations, _ = torch.linalg.qr(torch.randn(num_groups, d, d, generator=generator,
-                                                   dtype=torch.float64))
-        return FactorizedMapOperator(
-            scale=scale,
-            reflectors=normalize_reflectors(
-                torch.randn(num_edges, k, d, generator=generator, dtype=torch.float64), 1e-6),
-            rotations=rotations,
-            group_ids=group_ids,
-        )
-
-    return EdgeMapPair(src=side(src_scale), tgt=side(tgt_scale))
+    return _td1_pair(num_edges, group_ids, num_groups, rank, d, generator, torch.float64,
+                     src_scale, tgt_scale)
 
 
 class _Complex:
@@ -401,7 +400,7 @@ class DenseOperatorTests(unittest.TestCase):
 
         g = torch.Generator().manual_seed(0)
         c = 0.1 + 5 * torch.rand(12, generator=g, dtype=torch.float64)
-        maps = _operators(12, 5, 2, g, c, c).src
+        maps = _operators(12, 5, 2, g, c, c).tgt  # the target side: frame and rotation
         dense = DenseMapOperator(maps.materialize(), maps.scale)
         x = torch.randn(12, 5, generator=g, dtype=torch.float64)
         inverse = torch.linalg.inv(maps.materialize())
@@ -536,7 +535,8 @@ class V2ModelTests(unittest.TestCase):
             for deleted in ("edge_initializer", "edge_to_face", "map_head", "edge_norm",
                             "node_norm", "diffusion.eta_1"):
                 self.assertNotIn(deleted, name)
-        for deleted in ("EdgeInitializer", "SequenceEdgeToFaceSheaf", "NodeToEdgeSheaf"):
+        for deleted in ("EdgeInitializer", "SequenceEdgeToFaceSheaf", "NodeToEdgeSheaf",
+                        "FactorizedNodeToEdgeSheaf"):  # (Householder family: spec 1.25 Z2)
             self.assertFalse(hasattr(sheaf_maps, deleted), deleted)
         for name, module in model.named_modules():
             if isinstance(module, torch.nn.LayerNorm):
@@ -563,13 +563,18 @@ class V2ModelTests(unittest.TestCase):
     def test_T10_gradients_reach_every_learned_component(self) -> None:
         data = _random_pap_data()
         model = _v2_model(data)
+        # Spec 1.25 Z2: at initialisation C_e = 0, so W_r gets an exactly zero gradient (dA/dU = 0 at
+        # C = 0; it receives one from the first step on); the skew rows are drawn here so that every
+        # TD-1 parameter is reached in this one backward.
+        with torch.no_grad():
+            model.node_to_edge.edge_mlp[-1].weight[:model.node_to_edge.num_skew].normal_(0.0, 0.3)
         model(data).logits.square().sum().backward()
         # the encoder's own parameters: theta_tau of the anchored solve (legacy-removal B3: was
         # theta_eta (first_order) or the filter bank V of the v2 model)
         groups = ["theta_tau",
                   "path_gate", "path_encoder",
-                  "node_to_edge.reflector_mlp", "node_to_edge.edge_scale_mlp",
-                  "node_to_edge.rotation_params", "node_encoder", "relation_embedding",
+                  "node_to_edge.edge_mlp", "node_to_edge.subspace_params",
+                  "node_to_edge.frame_params", "node_encoder", "relation_embedding",
                   "readout"]
         named = dict(model.named_parameters())
         for prefix in groups:

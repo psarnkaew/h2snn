@@ -1,7 +1,7 @@
 """Three-level sheaf energy operator (spec v1.11 §3 Eq. E; v3-B card U1-U2).
 
 States live on nodes `x` (N), facts `s` (E) and path 2-cells `z` (F); `Y = (x, s, z)`. With the
-fact maps `F_{v<|e}` (orthogonal, `FactorizedMapOperator` without its scale), the fact weight
+fact maps `F_{v<|e}` (orthogonal, `TD1MapOperator` without its scale), the fact weight
 `a_e = c_e^2`, the cell weight `beta_f = w_f m_f`, the forced transports `T_{v_i,f} = Q_1 ... Q_i`
 (`PathTransportOperator`) and the fact->cell maps `R_{e_i,f} = T_{v_{i-1},f} F_{v_{i-1}<|e_i}^T`
 (Thm 1), the energy is
@@ -40,7 +40,7 @@ from src.data.structures import FaceGroup
 from src.models.map_operators import (
     DenseMapOperator,
     EdgeMapPair,
-    FactorizedMapOperator,
+    TD1MapOperator,
     PathTransportOperator,
 )
 from src.models.vertex_path_laplacian import PathTerm
@@ -151,7 +151,7 @@ class FactCellTransport:
         self.face_edge_index = face_edge_index
         self.length = transport.length
 
-    def _near(self, j: int) -> FactorizedMapOperator | DenseMapOperator:
+    def _near(self, j: int) -> TD1MapOperator | DenseMapOperator:
         return self.transport._src[j]
 
     def up(self, s: torch.Tensor) -> torch.Tensor:
@@ -187,7 +187,7 @@ class FreeFactCellMaps:
     """Arm `free_cell_maps` (Thm 3 control): one free orthogonal map per fact-cell incidence,
     row `p * L + i` of `maps` for hop `i` of cell `p`; not forced by functoriality."""
 
-    def __init__(self, maps: FactorizedMapOperator, face_edge_index: torch.Tensor) -> None:
+    def __init__(self, maps: TD1MapOperator, face_edge_index: torch.Tensor) -> None:
         if maps.num_edges != face_edge_index.numel():
             raise ValueError("free fact->cell maps need one row per fact-cell incidence.")
         self.maps = maps
@@ -228,7 +228,7 @@ class CellGroup(NamedTuple):
 
 
 def build_cell_group(maps: EdgeMapPair, group: FaceGroup, edge_index: torch.Tensor,
-                     beta: torch.Tensor, free_maps: FactorizedMapOperator | None = None
+                     beta: torch.Tensor, free_maps: TD1MapOperator | None = None
                      ) -> CellGroup:
     """Forced transports of `group` from the fact maps (`T`, and `R` unless `free_maps`)."""
     transport = PathTransportOperator(

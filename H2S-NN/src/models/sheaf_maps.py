@@ -1,14 +1,18 @@
-"""Node->edge restriction maps (decision D1, with the D1a per-edge scale).
+"""Node->edge restriction maps (spec 1.25 Z2, TD-1; D1a per-fact scale).
 
-`FactorizedNodeToEdgeSheaf`: `F = c R_{relation,side} H_k(u)`, returned as matrix-free
-operators. (The dense family `DenseConformalNodeToEdgeSheaf` ran only in the v2 model and was
-removed by the legacy-removal card, B4.)
+`TD1NodeToEdgeSheaf` builds, per fact `e = (u -> v)` of relation `r`,
+
+    rho(r) != r:   F_{u<|e} = c_e I,                    F_{v<|e} = c_e R_r exp(U_r C_e U_r^T)
+    rho(r) == r:   F_{u<|e} = c_e exp(-U_r C_e U_r^T/2), F_{v<|e} = c_e exp(+U_r C_e U_r^T/2)
+
+and returns them as matrix-free `TD1MapOperator`s (one per side). (The Householder family
+`F = c R_{relation,side} H_k(u)` of spec 1.24 was replaced by spec 1.25 Z2.)
 """
 
 from __future__ import annotations
 
 import math
-from typing import Callable, NamedTuple
+from typing import NamedTuple
 
 import torch
 import torch.nn.functional as F
@@ -16,16 +20,13 @@ from torch import nn
 
 from src.models.map_operators import (
     EdgeMapPair,
-    FactorizedMapOperator,
     IdentityMapOperator,
+    TD1MapOperator,
     checkpoint_if_grad,
-    normalize_reflectors,
+    orthonormal_subspaces,
+    skew_from_coefficients,
 )
 from src.models.orthogonal import Orthogonal
-
-# Numerical guard of the Householder normalization (see `normalize_reflectors`): below this
-# norm a reflection vector is not normalized exactly. Not a modelling hyperparameter.
-REFLECTOR_NORM_EPS = 1e-6
 
 
 def _build_mlp(input_dim: int, hidden_dim: int, output_dim: int) -> nn.Sequential:
@@ -34,16 +35,6 @@ def _build_mlp(input_dim: int, hidden_dim: int, output_dim: int) -> nn.Sequentia
         nn.GELU(),
         nn.Linear(hidden_dim, output_dim),
     )
-
-
-Block = tuple[torch.Tensor, "torch.Tensor | None"]
-
-
-def mlp_on_blocks(mlp: nn.Sequential, blocks: tuple[Block, ...]) -> torch.Tensor:
-    """`mlp` on the row-wise concatenation of the gathered blocks (`index` None: the block is
-    already per row). Spec 1.25 Z1: the factored first layer existed only for `[h0, c]`."""
-    return mlp(torch.cat([source if index is None else source[index]
-                          for source, index in blocks], dim=-1))
 
 
 def _relation_mask(relations: tuple[int, ...], num_relations: int,
@@ -55,23 +46,6 @@ def _relation_mask(relations: tuple[int, ...], num_relations: int,
     return mask
 
 
-def _symmetrize_shared(
-    raw: torch.Tensor,
-    apply_reversed: Callable[[torch.Tensor], torch.Tensor],
-    edge_type: torch.Tensor,
-    shared_role_relations: tuple[int, ...],
-    num_relations: int,
-) -> torch.Tensor:
-    """`raw` with `(g(h_u, h_v) + g(h_v, h_u)) / 2` on the edges of shared-role relations;
-    `apply_reversed(rows)` is `g` on the swapped inputs of those rows, `[len(rows)]`."""
-    shared = _relation_mask(shared_role_relations, num_relations, edge_type.device)[edge_type]
-    rows = shared.nonzero(as_tuple=True)[0]
-    if rows.numel() == 0:
-        return raw
-    averaged = 0.5 * (raw[rows] + apply_reversed(rows))
-    return raw.index_put((rows,), averaged)
-
-
 def _validate_shared(shared_role_relations: tuple[int, ...], num_relations: int) -> tuple[int, ...]:
     shared = tuple(sorted(set(int(r) for r in shared_role_relations)))
     if any(r < 0 or r >= num_relations for r in shared):
@@ -81,32 +55,77 @@ def _validate_shared(shared_role_relations: tuple[int, ...], num_relations: int)
     return shared
 
 
-class FactorizedNodeToEdgeSheafOutput(NamedTuple):
-    maps: EdgeMapPair  # FactorizedMapOperator per side over the observed edges
+def validate_map_rank(rank: int, d: int) -> None:
+    """`2 <= m <= d` (spec 1.25 Z2; m = 4 outside unit tests, enforced by the config)."""
+    if isinstance(rank, bool) or not isinstance(rank, int) or not 2 <= rank <= d:
+        raise ValueError(f"map_rank must be an integer in [2, d={d}], got {rank!r}.")
 
 
-class FactorizedNodeToEdgeSheaf(nn.Module):
-    """Factorized node->edge maps (v2 decision D1), returned as operators, not tensors.
+class TD1Factors(NamedTuple):
+    """What the operators of one edge set are built from (the tensors the anchored solve
+    differentiates): the shared scale `[E]`, the target side's `exp(.) - I` `[E, m, m]`, the
+    orthonormal subspaces `[R, d, m]` and the frames `[R_f, d, d]` (rows of the relations with
+    rho(r) != r, in ascending relation order)."""
 
-        F_{v<|e} = c_{v<|e} * R_{psi(e),side} * H_k(u_{v<|e})
-        c        = softplus(scale_mlp(z)) + scale_eps
-        u        = reflector_mlp(z),   z = [h_v, h_other, rel_emb(psi(e)), onehot(side)]
+    scale: torch.Tensor
+    rotation: torch.Tensor
+    subspaces: torch.Tensor
+    frames: torch.Tensor
 
-    `R_{psi,side}` is one FastHPP orthogonal matrix per (relation, side), shared by all
-    edges of that relation. The two sides differ in their frame `R`, in the side code, and
-    in the order of the endpoint states, so `F_src != F_tgt` and the edge transport
-    `F_src^-1 F_tgt` is not the identity (a shared map would collapse path holonomy).
 
-    `map_scale="per_edge"` (v2 decision D1a) replaces the per-incidence `c` by one scale per
-    edge shared by both sides, `c_e = softplus(edge_scale_mlp([h_u, h_v, rel_emb])) + eps`
-    from the ordered edge input; both operators then hold the same `[E]` tensor, and every
-    edge transport `F_src^-1 F_tgt` is exactly orthogonal.
+def td1_edge_maps(factors: TD1Factors, edge_type: torch.Tensor, num_relations: int,
+                  shared_role_relations: tuple[int, ...], type_only: bool = False) -> EdgeMapPair:
+    """The source and target operators of one edge set (spec 1.25 Z2):
 
-    Shared roles (D7, plan §9.1): for the relations in `shared_role_relations` (those with
-    `rho(r) = r`, or every relation under `ablation.direction_blind_maps`) the two roles
-    coincide: the target side uses the source frame `R_{psi,0}`, the side code is zero, and
-    `c_e = softplus((g(h_u, h_v) + g(h_v, h_u)) / 2) + eps` is symmetrized over both input
-    orders, so the operator does not depend on the stored orientation of these edges.
+    - relation with rho(r) != r: source `c_e I`, target `c_e R_r exp(A_e)` (frame row = the
+      relation's rank among the relations with rho(r) != r);
+    - relation with rho(r) = r: source `c_e exp(-A_e/2)`, target `c_e exp(A_e/2)`; `factors.rotation`
+      holds `exp(C_e/2) - I` on these rows and the source reads it transposed
+      (`exp(-A/2) = exp(A/2)^T`, no second block is stored);
+    - `type_only` (N2c): `C_e = 0` on every row (frames alone)."""
+    shared = set(int(r) for r in shared_role_relations)
+    framed = [r for r in range(num_relations) if r not in shared]
+    frame_row = {r: i for i, r in enumerate(framed)}
+    tgt_frames = tuple(frame_row.get(r, -1) for r in range(num_relations))
+    tgt_instance = tuple(not type_only for _ in range(num_relations))
+    src_instance = tuple((r in shared) and not type_only for r in range(num_relations))
+    tgt = TD1MapOperator(factors.scale, factors.rotation, edge_type, factors.subspaces,
+                         factors.frames, tgt_instance, tgt_frames)
+    src = TD1MapOperator(factors.scale, factors.rotation.transpose(-2, -1), edge_type,
+                         factors.subspaces, factors.frames, src_instance,
+                         tuple(-1 for _ in range(num_relations)))
+    return EdgeMapPair(src=src, tgt=tgt)
+
+
+class TD1NodeToEdgeSheafOutput(NamedTuple):
+    maps: EdgeMapPair  # TD1MapOperator (IdentityMapOperator under maps = I) per side
+    factors: "TD1Factors | None"  # None under maps = I
+
+
+class TD1NodeToEdgeSheaf(nn.Module):
+    """TD-1 node->edge maps (spec 1.25 Z2), returned as operators, not tensors.
+
+        [k_e, s_e] = edge_mlp([h_u, h_v, rel_emb(r)])          one MLP, m(m-1)/2 + 1 outputs
+        C_e        = skew(k_e) in so(m),   c_e = softplus(s_e) + scale_eps
+        U_r        = thin-QR(W_r).Q  (sign(diag R) > 0),  R_r = FastHPP(theta_r)  (rho(r) != r only)
+
+    Initialisation (card §0): the skew rows of the MLP's last layer (weights and bias) are zero, so
+    `C_e = 0` and `Q_e = R_r` at init; the scale row keeps `nn.Linear`'s default initialisation (that
+    of the former `edge_scale_mlp`); `R_r`'s FastHPP parameters are drawn N(0, 1/d) as before; `W_r`
+    is N(0, 1).
+
+    Shared roles (D7): for the relations in `shared_role_relations` (rho(r) = r, or every relation
+    under `ablation.direction_blind_maps`) the MLP is evaluated in both input orders; the skew part
+    is `(k(u, v) - k(v, u)) / 2` (antisymmetric in the endpoints) and the scale input
+    `(s(u, v) + s(v, u)) / 2`, so the operator does not depend on the stored orientation; no frame.
+
+    `identity_maps` (arm "maps = I", `ablation.fact_maps_identity: true`; spec 1.25 Z-17): `R_r = I`
+    and `C_e = 0`, only `c_e` is learned. The frames, `W_r` and the skew rows are created (so every
+    other parameter initialises exactly as in `full`) and then removed: they are not parameters of
+    this arm.
+
+    `type_only=True` in `forward` (N2c read-out, evaluation only): `C_e = 0`, i.e. the relation frames
+    alone.
     """
 
     def __init__(
@@ -115,143 +134,112 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         d_r: int,
         num_relations: int,
         hidden_dim: int,
-        householder_k: int,
+        map_rank: int,
         scale_eps: float,
         orthogonal_map: str,
-        map_scale: str = "per_side",
         checkpoint: bool = True,
         shared_role_relations: tuple[int, ...] = (),
         identity_maps: bool = False,
     ) -> None:
-        """The per-node geometry input is `h0` (width `d`; spec 1.25 Z1).
-        `identity_maps` (arm "maps = I", `ablation.fact_maps_identity: true`; spec 1.23 X-11): the orthogonal
-        factor `R H` is the identity; only the per-edge scale `c_e` (hence `a_e = c_e^2`) is learned.
-        The frames and the reflector MLP are created (so every other parameter initialises exactly
-        as in `full`) and then removed: they are not parameters of this arm."""
         super().__init__()
-        if householder_k < 1:
-            raise ValueError(f"householder_k must be >= 1, got {householder_k}.")
+        validate_map_rank(map_rank, d)
         if scale_eps <= 0.0:
             raise ValueError(f"scale_eps must be positive, got {scale_eps}.")
-        if map_scale not in {"per_side", "per_edge"}:
-            raise ValueError(f"map_scale must be 'per_side' or 'per_edge', got {map_scale!r}.")
         self.d = d
         self.d_r = d_r
         self.num_relations = num_relations
-        self.householder_k = householder_k
+        self.map_rank = map_rank
+        self.num_skew = map_rank * (map_rank - 1) // 2
         self.scale_eps = scale_eps
-        self.map_scale = map_scale
         self.checkpoint = checkpoint
-        # Plain tuple, not a buffer: the state_dict is the same with or without shared roles.
+        # Plain tuples, not buffers: the state_dict is the same with or without shared roles.
         self.shared_role_relations = _validate_shared(shared_role_relations, num_relations)
+        shared = set(self.shared_role_relations)
+        self.framed_relations = tuple(r for r in range(num_relations) if r not in shared)
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
-        # Row 2 * relation + side holds the FastHPP *parameters* (strictly-lower Householder
-        # entries) of R_{relation, side}, drawn N(0, 1/d) so the two sides start in
-        # different frames. The std is an initialization choice, not a config key.
-        self.rotation_params = nn.Parameter(
-            torch.empty(2 * num_relations, self.orthogonal.parameter_count)
-        )
-        nn.init.normal_(self.rotation_params, mean=0.0, std=1.0 / math.sqrt(d))
-        node_dim = d
-        mlp_input_dim = 2 * node_dim + d_r + 2
-        self.reflector_mlp = _build_mlp(mlp_input_dim, hidden_dim, householder_k * d)
-        if map_scale == "per_side":
-            self.scale_mlp = _build_mlp(mlp_input_dim, hidden_dim, 1)
-        else:
-            self.edge_scale_mlp = _build_mlp(2 * node_dim + d_r, hidden_dim, 1)
+        # One FastHPP frame per relation with rho(r) != r (spec 1.25 Z2: the second frame per
+        # (relation, side) of 1.24 was a gauge). N(0, 1/d), the 1.24 initialisation (author, (a)).
+        self.frame_params = nn.Parameter(
+            torch.empty(len(self.framed_relations), self.orthogonal.parameter_count))
+        nn.init.normal_(self.frame_params, mean=0.0, std=1.0 / math.sqrt(d))
+        # W_r per relation, N(0, 1); U_r = thin-QR(W_r).Q.
+        self.subspace_params = nn.Parameter(torch.empty(num_relations, d, map_rank))
+        nn.init.normal_(self.subspace_params, mean=0.0, std=1.0)
+        self.edge_mlp = _build_mlp(2 * d + d_r, hidden_dim, self.num_skew + 1)
+        last = self.edge_mlp[-1]
+        with torch.no_grad():  # C_e = 0 at init; the scale row keeps the default Linear init
+            last.weight[:self.num_skew].zero_()
+            last.bias[:self.num_skew].zero_()
         self.identity_maps = identity_maps
         if identity_maps:
-            if map_scale != "per_edge":
-                raise ValueError("identity maps keep one scale per edge (D1a): map_scale per_edge.")
-            del self.rotation_params
-            del self.reflector_mlp
+            del self.frame_params
+            del self.subspace_params
+            scale_row = nn.Linear(hidden_dim, 1)
+            with torch.no_grad():
+                scale_row.weight.copy_(last.weight[self.num_skew:])
+                scale_row.bias.copy_(last.bias[self.num_skew:])
+            self.edge_mlp[-1] = scale_row
 
-    def rotations(self) -> torch.Tensor:
-        """`[num_relations, 2, d, d]`: `R_{psi, side}` with side 0 = source, 1 = target.
+    # ------------------------------------------------------------------ factors
+    def frames(self) -> torch.Tensor:
+        """`[R_f, d, d]` frames `R_r` of the relations with rho(r) != r (ascending relation id)."""
+        if not self.framed_relations:
+            return self.frame_params.new_zeros((0, self.d, self.d))
+        return self.orthogonal(self.frame_params)
 
-        A shared-role relation uses its source frame on both sides."""
-        frames = self.orthogonal(self.rotation_params).view(
-            self.num_relations, 2, self.d, self.d
-        )
-        if not self.shared_role_relations:
-            return frames
-        shared = _relation_mask(self.shared_role_relations, self.num_relations, frames.device)
-        target = torch.where(shared.view(-1, 1, 1), frames[:, 0], frames[:, 1])
-        return torch.stack([frames[:, 0], target], dim=1)
+    def subspaces(self) -> torch.Tensor:
+        """`[R, d, m]` orthonormal `U_r`."""
+        return orthonormal_subspaces(self.subspace_params)
 
-    def _side_code(self, like: torch.Tensor, edge_type: torch.Tensor, side: int) -> torch.Tensor:
-        """`[M, 2]` one-hot side code; all zero on edges of shared-role relations."""
-        side_code = like.new_zeros((edge_type.numel(), 2), dtype=like.dtype)
-        if not self.shared_role_relations:
-            side_code[:, side] = 1.0
-            return side_code
-        shared = _relation_mask(self.shared_role_relations, self.num_relations, edge_type.device)
-        side_code[:, side] = (~shared[edge_type]).to(like.dtype)
-        return side_code
+    def operators(self, factors: TD1Factors, edge_type: torch.Tensor,
+                  type_only: bool = False) -> EdgeMapPair:
+        """The two sides' operators from `factors` (also the anchored solve's `build`)."""
+        return td1_edge_maps(factors, edge_type, self.num_relations, self.shared_role_relations,
+                             type_only)
 
-    def _side_factors(
-        self,
-        h: torch.Tensor,
-        relation_embeddings: torch.Tensor,
-        self_idx: torch.Tensor,
-        other_idx: torch.Tensor,
-        edge_type: torch.Tensor,
-        side: int,
-        rotations: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        """`(c, unit u)` per incidence on one side: `z = [h_v, h_other, rel_emb, onehot(side)]`."""
-        side_code = self._side_code(h, edge_type, side)
-        # one input tensor shared by both MLPs (the D11 computation; same gradient order)
-        inputs = torch.cat([h[self_idx], h[other_idx], relation_embeddings[edge_type], side_code],
-                           dim=-1)
-        raw_reflectors, raw_scale = self.reflector_mlp(inputs), self.scale_mlp(inputs)
-        operator = FactorizedMapOperator.from_raw(
-            raw_reflectors=raw_reflectors.view(-1, self.householder_k, self.d),
-            raw_scale=raw_scale.squeeze(-1),
-            rotations=rotations,
-            group_ids=edge_type,
-            scale_eps=self.scale_eps,
-            reflector_eps=REFLECTOR_NORM_EPS,
-        )
-        return operator.scale, operator.reflectors
-
-    def _side_reflectors(
-        self,
-        h: torch.Tensor,
-        relation_embeddings: torch.Tensor,
-        self_idx: torch.Tensor,
-        other_idx: torch.Tensor,
-        edge_type: torch.Tensor,
-        side: int,
-    ) -> torch.Tensor:
-        """Unit reflectors only (per-edge scale mode); same input `z` as `_side_factors`."""
-        side_code = self._side_code(h, edge_type, side)
-        blocks = ((h, self_idx), (h, other_idx), (relation_embeddings, edge_type), (side_code, None))
-        raw = mlp_on_blocks(self.reflector_mlp, blocks).view(
-            -1, self.householder_k, self.d)
-        return normalize_reflectors(raw, REFLECTOR_NORM_EPS)
-
-    def _edge_scale(
-        self,
-        h: torch.Tensor,
-        relation_embeddings: torch.Tensor,
-        src_idx: torch.Tensor,
-        tgt_idx: torch.Tensor,
-        edge_type: torch.Tensor,
-    ) -> torch.Tensor:
-        """`c_e = softplus(edge_scale_mlp([h_src, h_tgt, rel_emb])) + eps`, one per edge;
-        on shared-role edges the MLP output is averaged over both input orders."""
-        blocks = ((h, src_idx), (h, tgt_idx), (relation_embeddings, edge_type))
-        raw = mlp_on_blocks(self.edge_scale_mlp, blocks).squeeze(-1)
+    def _edge_outputs(self, h: torch.Tensor, relation_embeddings: torch.Tensor,
+                      src_idx: torch.Tensor, tgt_idx: torch.Tensor,
+                      edge_type: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """`(raw skew coefficients [E, m(m-1)/2] (or [E, 0] under maps = I), raw scale [E])`; on
+        shared-role edges the skew part is antisymmetrised and the scale input symmetrised over both
+        input orders."""
+        raw = self.edge_mlp(torch.cat([h[src_idx], h[tgt_idx], relation_embeddings[edge_type]],
+                                      dim=-1))
+        skew, scale = raw[:, :-1], raw[:, -1]
         if self.shared_role_relations:
-            raw = _symmetrize_shared(
-                raw,
-                lambda rows: mlp_on_blocks(
-                    self.edge_scale_mlp,
-                    ((h, tgt_idx[rows]), (h, src_idx[rows]), (relation_embeddings, edge_type[rows]))
-                ).squeeze(-1),
-                edge_type, self.shared_role_relations, self.num_relations)
+            shared = _relation_mask(self.shared_role_relations, self.num_relations,
+                                    edge_type.device)[edge_type]
+            rows = shared.nonzero(as_tuple=True)[0]
+            if rows.numel():
+                swapped = self.edge_mlp(torch.cat(
+                    [h[tgt_idx[rows]], h[src_idx[rows]], relation_embeddings[edge_type[rows]]],
+                    dim=-1))
+                scale = scale.index_put((rows,), 0.5 * (scale[rows] + swapped[:, -1]))
+                if skew.size(-1):
+                    skew = skew.index_put((rows,), 0.5 * (skew[rows] - swapped[:, :-1]))
+        return skew, scale
+
+    def _scale(self, h: torch.Tensor, relation_embeddings: torch.Tensor, src_idx: torch.Tensor,
+               tgt_idx: torch.Tensor, edge_type: torch.Tensor) -> torch.Tensor:
+        """`c_e = softplus(s_e) + eps` (maps = I)."""
+        _, raw = self._edge_outputs(h, relation_embeddings, src_idx, tgt_idx, edge_type)
         return F.softplus(raw) + self.scale_eps
+
+    def _factors(self, h: torch.Tensor, relation_embeddings: torch.Tensor, src_idx: torch.Tensor,
+                 tgt_idx: torch.Tensor, edge_type: torch.Tensor
+                 ) -> tuple[torch.Tensor, torch.Tensor]:
+        """`(c_e [E], exp(.) - I [E, m, m])` of the target side: `exp(C_e)` for rho(r) != r,
+        `exp(C_e / 2)` for rho(r) = r (batched m x m `torch.linalg.matrix_exp`)."""
+        skew, raw_scale = self._edge_outputs(h, relation_embeddings, src_idx, tgt_idx, edge_type)
+        scale = F.softplus(raw_scale) + self.scale_eps
+        generator = skew_from_coefficients(skew, self.map_rank)
+        if self.shared_role_relations:
+            shared = _relation_mask(self.shared_role_relations, self.num_relations,
+                                    edge_type.device)[edge_type]
+            half = torch.where(shared, 0.5, 1.0).to(generator.dtype)
+            generator = generator * half.view(-1, 1, 1)
+        eye = torch.eye(self.map_rank, dtype=generator.dtype, device=generator.device)
+        return scale, torch.linalg.matrix_exp(generator) - eye
 
     def forward(
         self,
@@ -259,83 +247,23 @@ class FactorizedNodeToEdgeSheaf(nn.Module):
         edge_index: torch.Tensor,
         edge_type: torch.Tensor,
         relation_embeddings: torch.Tensor,
-    ) -> FactorizedNodeToEdgeSheafOutput:
+        type_only: bool = False,
+    ) -> TD1NodeToEdgeSheafOutput:
         src_idx = edge_index[0]
         tgt_idx = edge_index[1]
+        # Checkpointed: autograd keeps h and the factors (the map storage itself), not the
+        # [E, hidden] MLP activations, which are replayed in backward.
         if self.identity_maps:
             scale = checkpoint_if_grad(
-                lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
-                h,
-                relation_embeddings,
-                enabled=self.checkpoint,
-            )
-            return FactorizedNodeToEdgeSheafOutput(maps=EdgeMapPair(
-                src=IdentityMapOperator(scale, self.d), tgt=IdentityMapOperator(scale, self.d)))
-        rotations = self.rotations()
-        if self.map_scale == "per_edge":
-            return self._forward_per_edge(
-                h, src_idx, tgt_idx, edge_type, relation_embeddings, rotations
-            )
-        operators: list[FactorizedMapOperator] = []
-        for side, (self_idx, other_idx) in enumerate(((src_idx, tgt_idx), (tgt_idx, src_idx))):
-            # Checkpointed per side: autograd keeps h and the factors (the map storage
-            # itself), not the [M, hidden] MLP activations, which are replayed in backward.
-            side_rotations = rotations[:, side]
-            scale, reflectors = checkpoint_if_grad(
-                lambda h_in, rel_in, i=self_idx, j=other_idx, s=side, r=side_rotations: (
-                    self._side_factors(h_in, rel_in, i, j, edge_type, s, r)
-                ),
-                h,
-                relation_embeddings,
-                enabled=self.checkpoint,
-            )
-            operators.append(
-                FactorizedMapOperator(
-                    scale=scale,
-                    reflectors=reflectors,
-                    rotations=side_rotations,
-                    group_ids=edge_type,
-                )
-            )
-        return FactorizedNodeToEdgeSheafOutput(
-            maps=EdgeMapPair(src=operators[0], tgt=operators[1])
-        )
-
-    def _forward_per_edge(
-        self,
-        h: torch.Tensor,
-        src_idx: torch.Tensor,
-        tgt_idx: torch.Tensor,
-        edge_type: torch.Tensor,
-        relation_embeddings: torch.Tensor,
-        rotations: torch.Tensor,
-    ) -> FactorizedNodeToEdgeSheafOutput:
-        # Checkpointed like the per-side factors: only h and the factors are kept for backward.
-        scale = checkpoint_if_grad(
-            lambda h_in, rel_in: self._edge_scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
-            h,
-            relation_embeddings,
-            enabled=self.checkpoint,
-        )
-        operators: list[FactorizedMapOperator] = []
-        for side, (self_idx, other_idx) in enumerate(((src_idx, tgt_idx), (tgt_idx, src_idx))):
-            reflectors = checkpoint_if_grad(
-                lambda h_in, rel_in, i=self_idx, j=other_idx, s=side: (
-                    self._side_reflectors(h_in, rel_in, i, j, edge_type, s)
-                ),
-                h,
-                relation_embeddings,
-                enabled=self.checkpoint,
-            )
-            # The same `scale` tensor object on both sides: one c_e per edge (D1a).
-            operators.append(
-                FactorizedMapOperator(
-                    scale=scale,
-                    reflectors=reflectors,
-                    rotations=rotations[:, side],
-                    group_ids=edge_type,
-                )
-            )
-        return FactorizedNodeToEdgeSheafOutput(
-            maps=EdgeMapPair(src=operators[0], tgt=operators[1])
-        )
+                lambda h_in, rel_in: self._scale(h_in, rel_in, src_idx, tgt_idx, edge_type),
+                h, relation_embeddings, enabled=self.checkpoint)
+            return TD1NodeToEdgeSheafOutput(maps=EdgeMapPair(
+                src=IdentityMapOperator(scale, self.d), tgt=IdentityMapOperator(scale, self.d)),
+                factors=None)
+        scale, rotation = checkpoint_if_grad(
+            lambda h_in, rel_in: self._factors(h_in, rel_in, src_idx, tgt_idx, edge_type),
+            h, relation_embeddings, enabled=self.checkpoint)
+        factors = TD1Factors(scale=scale, rotation=rotation, subspaces=self.subspaces(),
+                             frames=self.frames())
+        return TD1NodeToEdgeSheafOutput(maps=self.operators(factors, edge_type, type_only),
+                                        factors=factors)

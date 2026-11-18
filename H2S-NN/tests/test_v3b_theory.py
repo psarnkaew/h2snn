@@ -6,10 +6,11 @@ Kernel (Thm 3)
   K1 flat sheaf (every fact map I, a_e > 0, beta_f > 0): dim ker L_hat = d (eigenvalues <= 1e-10;
      the next eigenvalue is reported); every kernel vector of L, and D^{-1/2} times every kernel
      vector of L_hat, has x constant, s_e = x and z_f = x.
-  K2 arm free_cell_maps (random orthogonal R_{e,f} per incidence) on the same flat fact maps:
+  K2 arm free_cell_maps (random TD-1 maps R exp(U C U^T) per incidence, spec 1.25) on the same
+     flat fact maps:
      dim ker L_hat = 0 (smallest eigenvalue reported).
   K3 random orthogonal fact maps: dim ker L_hat = dim ker Delta_0, computed independently, for
-     (a) the fixture's factorized maps and (b) a gauge transform of the flat sheaf
+     (a) the fixture's TD-1 maps (spec 1.25 Z2) and (b) a gauge transform of the flat sheaf
      (F_{v<|e} = G_e O_v^T, dense random orthogonal G_e, O_v), whose node kernel is d.
 Fixed point (Thm 6 with Thm 4's maps)
   F1 maps that are I or one reflection per incidence make x_v = a_{y(v)} a global section for a
@@ -31,12 +32,8 @@ except ImportError as exc:  # pragma: no cover - environment specific
     raise unittest.SkipTest(f"torch is required for these tests: {exc}") from exc
 
 from src.models.anchored_solve import AnchoredSystem, SolveStats, anchored_solve, pcg, solve_anchored
-from src.models.map_operators import (
-    DenseMapOperator,
-    EdgeMapPair,
-    FactorizedMapOperator,
-    normalize_reflectors,
-)
+from src.models.map_operators import DenseMapOperator, EdgeMapPair, TD1MapOperator
+from src.models.sheaf_maps import TD1Factors, td1_edge_maps
 from src.models.sheaf_energy import (
     EliminatedOperator,
     SheafEnergyOperator,
@@ -45,6 +42,7 @@ from src.models.sheaf_energy import (
 )
 from tests.test_anchored_solve import Parameters, build_operator
 from tests.test_sheaf_energy import Fixture
+from tests.td1_fixtures import random_rotation, random_subspaces, random_td1_factors
 
 F64 = torch.float64
 KERNEL_EIG_TOL = 1e-10      # an eigenvalue <= this counts as kernel
@@ -59,19 +57,14 @@ TAU_FIXED_POINT = 3.0
 
 # ----------------------------------------------------------------------------- builders
 def flat_maps(fixture: Fixture) -> EdgeMapPair:
-    """Every fact map is I (k = 2 equal reflectors, identity frames), scales from the fixture."""
+    """Every fact map is I (TD-1 with C_e = 0 and identity frames; random U), scales from the
+    fixture."""
     g = torch.Generator().manual_seed(21)
-    E, d = fixture.edge_index.size(1), fixture.d
-    num_relations = int(fixture.edge_type.max()) + 1
-    v = normalize_reflectors(torch.randn(E, 1, d, generator=g, dtype=F64), 1e-6)
-    reflectors = torch.cat([v, v], dim=1)  # H(v) H(v) = I
-    frames = torch.eye(d, dtype=F64).expand(num_relations, d, d).clone()
-    scale = fixture.maps.src.scale
-
-    def side() -> FactorizedMapOperator:
-        return FactorizedMapOperator(scale, reflectors.clone(), frames.clone(), fixture.edge_type)
-
-    return EdgeMapPair(src=side(), tgt=side())
+    E, d, m = fixture.edge_index.size(1), fixture.d, 2
+    factors = TD1Factors(scale=fixture.maps.src.scale, rotation=torch.zeros(E, m, m, dtype=F64),
+                         subspaces=random_subspaces(2, d, m, g),
+                         frames=torch.eye(d, dtype=F64).expand(1, d, d).clone())
+    return td1_edge_maps(factors, fixture.edge_type, 2, (1,))
 
 
 def dense_maps(src: torch.Tensor, tgt: torch.Tensor, scale: torch.Tensor) -> EdgeMapPair:
@@ -80,22 +73,23 @@ def dense_maps(src: torch.Tensor, tgt: torch.Tensor, scale: torch.Tensor) -> Edg
                        tgt=DenseMapOperator(scale.view(-1, 1, 1) * tgt, scale))
 
 
-def free_incidence_maps(fixture: Fixture, seed: int = 31) -> list[FactorizedMapOperator]:
-    """One random orthogonal map per fact-cell incidence of each face group (arm free_cell_maps)."""
+def free_incidence_maps(fixture: Fixture, seed: int = 31) -> list[TD1MapOperator]:
+    """One random TD-1 map `R exp(U C U^T)` per fact-cell incidence of each face group (arm
+    free_cell_maps; spec 1.25: the free maps are in the fact maps' family), one frame and one U."""
     g = torch.Generator().manual_seed(seed)
     out = []
     for group in fixture.groups:
         rows = group.face_edge_index.numel()
-        rotation, _ = torch.linalg.qr(torch.randn(1, fixture.d, fixture.d, generator=g, dtype=F64))
-        reflectors = normalize_reflectors(torch.randn(rows, 2, fixture.d, generator=g, dtype=F64),
-                                          1e-6)
-        out.append(FactorizedMapOperator(torch.ones(rows, dtype=F64), reflectors, rotation,
-                                         torch.zeros(rows, dtype=torch.long)))
+        group_ids = torch.zeros(rows, dtype=torch.long)
+        factors = random_td1_factors(rows, group_ids, fixture.d, 2, g, F64, num_relations=1)
+        out.append(TD1MapOperator(torch.ones(rows, dtype=F64), factors.rotation, group_ids,
+                                  factors.subspaces, random_rotation(1, fixture.d, g), (True,),
+                                  (0,)))
     return out
 
 
 def energy_operator(fixture: Fixture, maps: EdgeMapPair,
-                    free_maps: list[FactorizedMapOperator] | None = None) -> SheafEnergyOperator:
+                    free_maps: list[TD1MapOperator] | None = None) -> SheafEnergyOperator:
     cells = [build_cell_group(maps, group, fixture.edge_index, beta,
                               free_maps=None if free_maps is None else free_maps[i])
              for i, (group, beta) in enumerate(zip(fixture.groups, fixture.beta_by_group))]
@@ -184,7 +178,7 @@ class KernelTests(unittest.TestCase):
         fixture = self.fixture
         d, n, E = fixture.d, fixture.num_nodes, fixture.edge_index.size(1)
         scale = fixture.maps.src.scale
-        # (a) the fixture's random factorized maps
+        # (a) the fixture's random TD-1 maps
         src_a = fixture.maps.src.materialize() / scale.view(-1, 1, 1)
         tgt_a = fixture.maps.tgt.materialize() / scale.view(-1, 1, 1)
         # (b) gauge transform of the flat sheaf: F_{v<|e} = G_e O_v^T (dense, random orthogonal)
@@ -194,7 +188,7 @@ class KernelTests(unittest.TestCase):
         src_b = G @ O[fixture.edge_index[0]].transpose(-2, -1)
         tgt_b = G @ O[fixture.edge_index[1]].transpose(-2, -1)
         cases = {
-            "factorized random": (fixture.maps, src_a, tgt_a, None),
+            "TD-1 random": (fixture.maps, src_a, tgt_a, None),
             "gauge of flat": (dense_maps(src_b, tgt_b, scale), src_b, tgt_b, d),
         }
         self.numbers = {}
@@ -316,7 +310,8 @@ def unroll_vs_implicit(fixture: Fixture | None = None) -> dict[str, float]:
         return {k: [t.clone().requires_grad_(True) for t in v] for k, v in groups.items()}
 
     def operator_params(v: dict[str, list[torch.Tensor]]) -> tuple[torch.Tensor, ...]:
-        return (v["fact_scales"][0], *v["reflectors"], *v["rotations"], *v["cell_weights"])
+        return (v["fact_scales"][0], v["instance_coefficients"][0], v["subspaces"][0],
+                v["frames"][0], *v["cell_weights"])
 
     implicit = leaves()
     stats = SolveStats()
@@ -356,7 +351,8 @@ def unroll_vs_implicit(fixture: Fixture | None = None) -> dict[str, float]:
     return out
 
 
-GROUPS = ("fact_scales", "reflectors", "rotations", "cell_weights", "theta_tau", "h0")
+GROUPS = ("fact_scales", "instance_coefficients", "subspaces", "frames", "cell_weights",
+          "theta_tau", "h0")
 
 
 class UnrollTests(unittest.TestCase):

@@ -37,7 +37,7 @@ _REMOVED_KEY_NAMES = frozenset(key for keys in REMOVED_KEYS.values() for key in 
 # Spec 1.25 (model change TD-1): keys of the method removed by the 1.25 change (Z1: the relational context
 # `c`; Z2: the Householder instance maps). A configuration or search space that names one raises.
 REMOVED_BY_SPEC_125: dict[str, dict[str, str]] = {
-    "model": {"geometry_context": "Z1"},
+    "model": {"geometry_context": "Z1", "householder_k": "Z2"},
     "ablation": {"path_weight_context": "Z1"},
 }
 _REMOVED_125_REASONS = {
@@ -155,6 +155,13 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
                                          "solver_warmup_tolerance", "solver_warmup_epochs",
                                          "solver_max_iterations", "tau_stop",
                                          "log_weight_range_stop")
+# Spec 1.25 (Z2, Z-18): the TD-1 map rank m is a fixed method constant (4), never in a search space;
+# a tuning base config must carry 4 (other values exist for unit tests only).
+MAP_RANK: int = 4
+NEVER_TUNED_TD1_KEYS: tuple[str, ...] = ("map_rank",)
+# Spec 1.25 Z2 / pre-registration §4.3 N2c: the type-only read-out (C_e = 0) is an evaluation switch of
+# analysis scripts; refused in any training forward (the model raises) and in any tuning setup.
+EVALUATION_ONLY_KEYS: tuple[str, ...] = ("type_only_maps",)
 # Spec 1.23 X-11 (card 4 K1): `ablation.fact_maps_identity` = false (the model) or true (every fact map's
 # orthogonal factor I, hence every transport I): S2 = arm full with identity maps, S0 = arm
 # no_path_cells with identity maps. A comparison arm: refused in a tuning base config and never a
@@ -254,6 +261,14 @@ def reject_never_tuned_settings(
             "(plan §9.1); tune the tied model and report untied separately."
         )
     model = (raw_config or {}).get("model") or {}
+    # Spec 1.25 Z2 (Z-18): m = 4 is fixed; N2c's type-only switch is evaluation-only.
+    if "map_rank" in model and model.get("map_rank") != MAP_RANK:
+        raise ValueError(f"model.map_rank: {model.get('map_rank')!r} in a tuning base config; the TD-1 "
+                         f"rank is fixed at {MAP_RANK} and never tuned (spec 1.25 Z2, Z-18).")
+    evaluation = (raw_config or {}).get("evaluation") or {}
+    if evaluation.get("type_only_maps", False) is not False:
+        raise ValueError("evaluation.type_only_maps is the N2c type-only read-out (pre-registration "
+                         "§4.3), set only by evaluation and analysis scripts; refused in tuning.")
     # Card 4 K6 (b), spec 1.23 X-6a: `tuning.arm` names one of the five separately tuned arms; then
     # exactly that arm's key (and value) is accepted, every other arm key is still refused. Without
     # it (the main table) every arm key is refused.
@@ -342,6 +357,10 @@ def reject_never_tuned_settings(
                 f"tuning search space contains {name!r}: feature_normalization "
                 "are D12 diagnostics, never tuned."
             )
+        if str(name).split(".")[-1] in NEVER_TUNED_TD1_KEYS + EVALUATION_ONLY_KEYS:
+            raise ValueError(
+                f"tuning search space contains {name!r}: the TD-1 rank m (= {MAP_RANK}) and the N2c "
+                "type-only read-out are never tuned (spec 1.25 Z2, Z-18; pre-registration §4.3).")
         if str(name).split(".")[-1] in NEVER_TUNED_V3B_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the v3-B propagation, arm, tau init and "
@@ -1346,11 +1365,13 @@ class ModelConfig:
     # ("mean" | "max" | "add" | "attention" = HetSheaf's AttentionPooling); tuned (M10).
     graph_pooling: str = "mean"
     orthogonal_map: str = "fasthpp"
-    # Node->edge restriction maps (decision D1): "factorized", F = c R_{relation,side} H_k(u),
-    # matrix-free (the dense family was removed by the legacy-removal card, B4).
+    # Node->edge restriction maps: "factorized" = matrix-free TD-1 maps (spec 1.25 Z2),
+    # F_src = c I, F_tgt = c R_r exp(U_r C_e U_r^T) (the dense family was removed by the legacy-removal
+    # card, B4; the Householder instance maps by spec 1.25 Z2).
     map_family: str = "factorized"
-    # Householder reflections k per incidence in the factorized family, 1 <= k <= d.
-    householder_k: int = 2
+    # TD-1 rank m: U_r in R^{d x m}, C_e in so(m). Fixed at 4, never tuned (spec 1.25 Z2, Z-18);
+    # 2 <= m <= d accepted for unit tests.
+    map_rank: int = MAP_RANK
     # Lower bound eps of the conformal scale c = softplus(.) + eps.
     map_scale_eps: float = 0.1
     # Activation checkpointing of the matrix-free map and Laplacian applications.
@@ -1425,18 +1446,10 @@ class ModelConfig:
             raise ValueError(
                 f"Unsupported model.map_family '{self.map_family}'. Supported value: factorized."
             )
-        if isinstance(self.householder_k, bool) or not isinstance(self.householder_k, int):
-            raise ValueError(
-                f"model.householder_k must be an integer, got {self.householder_k!r}."
-            )
-        if self.householder_k < 1:
-            raise ValueError(f"model.householder_k must be >= 1, got {self.householder_k}.")
-        if self.householder_k > self.d:
-            # d reflections already generate O(d), so k > d adds parameters, not reach.
-            raise ValueError(
-                f"model.householder_k must be <= d={self.d} for map_family='factorized', "
-                f"got {self.householder_k}."
-            )
+        if isinstance(self.map_rank, bool) or not isinstance(self.map_rank, int):
+            raise ValueError(f"model.map_rank must be an integer, got {self.map_rank!r}.")
+        if not 2 <= self.map_rank <= self.d:
+            raise ValueError(f"model.map_rank must be in [2, d={self.d}], got {self.map_rank}.")
         if not self.map_scale_eps > 0.0:
             raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
         if not isinstance(self.checkpointing, bool):
@@ -1459,7 +1472,7 @@ class ModelConfig:
             orthogonal_map=str(raw.get("orthogonal_map", "fasthpp")),
             map_family=str(raw.get("map_family", "factorized")),
             # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
-            householder_k=raw.get("householder_k", 2),
+            map_rank=raw.get("map_rank", MAP_RANK),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
@@ -1568,6 +1581,24 @@ class OptimConfig:
 
 
 @dataclass(slots=True)
+class EvaluationConfig:
+    """Evaluation-only switches (spec 1.25 Z2; pre-registration §4.3 N2c). `type_only_maps`: evaluate
+    with `C_e = 0` (the relation frames alone) on a trained checkpoint; set only by evaluation and
+    analysis scripts: a training forward raises (`H2SNN`) and the tuner refuses it."""
+
+    type_only_maps: bool = False
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.type_only_maps, bool):
+            raise ValueError(f"evaluation.type_only_maps must be a boolean, got {self.type_only_maps!r}.")
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "EvaluationConfig":
+        _reject_unknown_keys("evaluation", raw, cls)
+        return cls(type_only_maps=raw.get("type_only_maps", False))
+
+
+@dataclass(slots=True)
 class TuningConfig:
     """Card 4 K6 (b), spec 1.23 X-6a: `arm` names one of the five arms tuned on their own
     (`ARM_TUNING_KEYS`); empty (default) = the main table, where every arm key is refused in a tuning
@@ -1592,6 +1623,7 @@ class TrainConfig:
     ablation: AblationConfig = field(default_factory=AblationConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
     tuning: TuningConfig = field(default_factory=TuningConfig)
+    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
     epochs: int = 200
     seed: int = 42
     device: str = "cuda"
@@ -1644,6 +1676,7 @@ class TrainConfig:
             ablation=AblationConfig.from_dict(raw.get("ablation", {})),
             optim=OptimConfig.from_dict(raw.get("optim", {})),
             tuning=TuningConfig.from_dict(raw.get("tuning", {}) or {}),
+            evaluation=EvaluationConfig.from_dict(raw.get("evaluation", {}) or {}),
             epochs=int(raw.get("epochs", default_epochs)),
             seed=int(raw.get("seed", 42)),
             device=str(raw.get("device", "cuda")),

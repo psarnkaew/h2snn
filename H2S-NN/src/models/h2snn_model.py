@@ -33,11 +33,12 @@ from src.models.graph_readout import GraphReadout
 from src.models.link_readout import LinkPredictionReadout
 from src.models.map_operators import (
     EdgeMapPair,
-    FactorizedMapOperator,
     IdentityMapOperator,
     PathTransportOperator,
+    TD1MapOperator,
     checkpoint_if_grad,
-    normalize_reflectors,
+    orthonormal_subspaces,
+    skew_from_coefficients,
 )
 from src.models.anchored_solve import (LogWeightRangeStopError, NonFiniteLogWeightError,
                                        PCGConvergenceError, SolveStats, TauStopError,
@@ -50,10 +51,7 @@ from src.models.sheaf_energy import (
 )
 from src.models.node_encoder import TypeSpecificNodeEncoder
 from src.models.orthogonal import Orthogonal
-from src.models.sheaf_maps import (
-    REFLECTOR_NORM_EPS,
-    FactorizedNodeToEdgeSheaf,
-)
+from src.models.sheaf_maps import TD1Factors, TD1NodeToEdgeSheaf, validate_map_rank
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm
 
 
@@ -301,27 +299,36 @@ def _rotation_parameters(count: int, orthogonal: Orthogonal, d: int) -> nn.Param
 
 
 class FreeIncidenceMaps(nn.Module):
-    """Arm `free_cell_maps` (Thm 3 control): one orthogonal map `R_{position} H_k(u_{v,f})` per
-    incidence, `u` from `[h_v, path_latent_f, onehot(position)]` (same factorized family as
-    the node->edge maps, but not forced by functoriality)."""
+    """Arm `free_cell_maps` (C17; Thm 3 control): one free map per fact-cell incidence from the TD-1
+    family of the fact maps (spec 1.25; author 2026-11-18, option A),
+    `R_position exp(U_position C_{v,f} U_position^T)`, with one FastHPP frame and one `U` per hop
+    position and `C_{v,f}` in so(m) from an MLP over `[h_v, path_latent_f, onehot(position)]` whose
+    output layer is zero-initialised (`C = 0` at init). Not forced by functoriality."""
 
-    def __init__(self, d: int, latent_dim: int, hidden_dim: int, householder_k: int,
+    def __init__(self, d: int, latent_dim: int, hidden_dim: int, map_rank: int,
                  max_positions: int, orthogonal_map: str) -> None:
         super().__init__()
+        validate_map_rank(map_rank, d)
         self.d = d
-        node_dim = d
-        self.householder_k = householder_k
+        self.map_rank = map_rank
+        self.num_skew = map_rank * (map_rank - 1) // 2
         self.max_positions = max_positions
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
-        self.rotation_params = _rotation_parameters(max_positions, self.orthogonal, d)
-        self.reflector_mlp = nn.Sequential(
-            nn.Linear(node_dim + latent_dim + max_positions, hidden_dim),
+        self.frame_params = _rotation_parameters(max_positions, self.orthogonal, d)
+        self.subspace_params = nn.Parameter(torch.empty(max_positions, d, map_rank))
+        nn.init.normal_(self.subspace_params, mean=0.0, std=1.0)
+        self.skew_mlp = nn.Sequential(
+            nn.Linear(d + latent_dim + max_positions, hidden_dim),
             nn.GELU(),
-            nn.Linear(hidden_dim, householder_k * d),
+            nn.Linear(hidden_dim, self.num_skew),
         )
+        nn.init.zeros_(self.skew_mlp[-1].weight)
+        nn.init.zeros_(self.skew_mlp[-1].bias)
 
-    def forward(self, h0: torch.Tensor, face_node_index: torch.Tensor,
-                latent: torch.Tensor) -> FactorizedMapOperator:
+    def factors(self, h0: torch.Tensor, face_node_index: torch.Tensor, latent: torch.Tensor
+                ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """`(exp(C) - I [P * size, m, m], U [positions, d, m], frames [positions, d, d])`; row
+        `p * size + i` is incidence `i` of cell `p`."""
         num_paths, size = face_node_index.shape
         positions = torch.arange(size, device=h0.device)
         onehot = nn.functional.one_hot(positions, self.max_positions).to(h0.dtype)
@@ -333,16 +340,26 @@ class FreeIncidenceMaps(nn.Module):
             ],
             dim=-1,
         ).reshape(num_paths * size, -1)
-        raw = self.reflector_mlp(inputs)
-        reflectors = normalize_reflectors(
-            raw.view(-1, self.householder_k, self.d), REFLECTOR_NORM_EPS
-        )
-        return FactorizedMapOperator(
-            scale=h0.new_ones(num_paths * size),  # unused: free maps are orthogonal
-            reflectors=reflectors,
-            rotations=self.orthogonal(self.rotation_params),
-            group_ids=positions.repeat(num_paths),
-        )
+        generator = skew_from_coefficients(self.skew_mlp(inputs), self.map_rank)
+        eye = torch.eye(self.map_rank, dtype=generator.dtype, device=generator.device)
+        return (torch.linalg.matrix_exp(generator) - eye,
+                orthonormal_subspaces(self.subspace_params), self.orthogonal(self.frame_params))
+
+    def operator(self, rotation: torch.Tensor, subspaces: torch.Tensor, frames: torch.Tensor,
+                 num_paths: int, length: int) -> TD1MapOperator:
+        """The free maps of `num_paths` cells of `length` hops (scale 1: free maps are orthogonal)."""
+        positions = int(subspaces.size(0))
+        return TD1MapOperator(
+            scale=rotation.new_ones(num_paths * length), rotation=rotation,
+            group_ids=torch.arange(length, device=rotation.device).repeat(num_paths),
+            subspaces=subspaces, frames=frames,
+            instance_groups=tuple(True for _ in range(positions)),
+            frame_index=tuple(range(positions)))
+
+    def forward(self, h0: torch.Tensor, face_node_index: torch.Tensor,
+                latent: torch.Tensor) -> TD1MapOperator:
+        num_paths, size = face_node_index.shape
+        return self.operator(*self.factors(h0, face_node_index, latent), num_paths, size)
 
 
 _LINK_PREDICTION = "link_prediction"
@@ -369,7 +386,7 @@ class H2SNN(nn.Module):
         self.anchored = anchored
         # Arm "maps = I" (spec 1.23 X-11; S2 with arm full, S0 with arm no_path_cells): every fact
         # map's orthogonal factor is I, so every transport is I; c_e, g, beta_f, tau, solver and head
-        # unchanged; the frames and the reflector MLP are not parameters.
+        # unchanged; the frames, W_r and the skew rows of the edge MLP are not parameters.
         self.identity_maps = ablation.fact_maps_identity
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
@@ -399,19 +416,21 @@ class H2SNN(nn.Module):
         )
         # Spec 1.25 Z1: the geometry (maps, fact weights, g) reads each endpoint's h0 only; the
         # relational context c is removed.
-        self.node_to_edge = FactorizedNodeToEdgeSheaf(
+        # Spec 1.25 Z2: TD-1 maps, one frame per relation with rho(r) != r, rank m = map_rank.
+        self.node_to_edge = TD1NodeToEdgeSheaf(
             d=d,
             d_r=model_config.d_r,
             num_relations=dims.num_relations,
             hidden_dim=model_config.edge_mlp_hidden_dim,
-            householder_k=model_config.householder_k,
+            map_rank=model_config.map_rank,
             scale_eps=model_config.map_scale_eps,
             orthogonal_map=model_config.orthogonal_map,
-            map_scale=self.map_scale,
             checkpoint=model_config.checkpointing,
             shared_role_relations=self.shared_role_relations,
             identity_maps=self.identity_maps,
         )
+        # N2c (pre-registration §4.3): C_e = 0 in evaluation forwards only (a training forward raises).
+        self.type_only_maps = config.evaluation.type_only_maps
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
         self.path_log_weight: nn.Parameter | None = None
@@ -494,10 +513,19 @@ class H2SNN(nn.Module):
                               else model_config.face_mlp_hidden_dim)
                 self.free_cell_maps = FreeIncidenceMaps(
                     d=d, latent_dim=latent_dim, hidden_dim=model_config.edge_mlp_hidden_dim,
-                    householder_k=model_config.householder_k,
+                    map_rank=model_config.map_rank,
                     max_positions=max(dims.face_lengths, default=1),
                     orthogonal_map=model_config.orthogonal_map,
                 )
+
+    def _type_only(self) -> bool:
+        """N2c type-only read-out (`evaluation.type_only_maps`): evaluation forwards only."""
+        if not self.type_only_maps:
+            return False
+        if self.training:
+            raise ValueError("evaluation.type_only_maps (N2c, C_e = 0) is an evaluation-only read-out "
+                             "of a trained checkpoint; a training forward with it is refused.")
+        return True
 
     # ------------------------------------------------------------------ scalars
     def tau(self) -> torch.Tensor | None:
@@ -673,10 +701,12 @@ class H2SNN(nn.Module):
         if tau_value > tau_stop:  # spec §6 stop condition (J10)
             raise TauStopError(tau_value, tau_stop, epoch)
         geometry = self.geometry_inputs(h0, edge_index, edge_type)
-        maps = self.node_to_edge(
+        type_only = self._type_only()
+        sheaf = self.node_to_edge(
             h=geometry, edge_index=edge_index, edge_type=edge_type,
-            relation_embeddings=self.relation_embedding.weight,
-        ).maps
+            relation_embeddings=self.relation_embedding.weight, type_only=type_only,
+        )
+        maps, factors = sheaf.maps, sheaf.factors
         groups = tuple(group for group in face_groups if group.num_faces > 0)
         arm = self.arm
         cells_in_solve = arm not in ("closure_only", "no_path_cells", "instance_features")
@@ -697,13 +727,15 @@ class H2SNN(nn.Module):
             for group, latent in zip(groups, latents):
                 # one free map per fact-cell incidence, indexed by the hop's near node and position
                 # (its latent is g's; the v2 map encoder never existed under anchored)
-                free = self.free_cell_maps(geometry, group.face_node_index[:, :-1], latent)
-                free_params.extend([free.reflectors, free.rotations])
+                free_params.extend(self.free_cell_maps.factors(
+                    geometry, group.face_node_index[:, :-1], latent))
         num_groups = len(groups)
         device = h0.device
 
         identity_maps = self.identity_maps
         d_stalk = self.d
+        node_to_edge = self.node_to_edge
+        free_cell_maps = self.free_cell_maps
 
         def build(scale: torch.Tensor, *factors_and_rest: torch.Tensor) -> EliminatedOperator:
             if identity_maps:  # arm maps = I (S2/S0): only the per-edge scale (a_e = c_e^2)
@@ -711,12 +743,10 @@ class H2SNN(nn.Module):
                 pair = EdgeMapPair(src=IdentityMapOperator(scale, d_stalk),
                                    tgt=IdentityMapOperator(scale, d_stalk))
             else:
-                refl_src, rot_src, refl_tgt, rot_tgt = factors_and_rest[:4]
-                rest = factors_and_rest[4:]
-                pair = EdgeMapPair(
-                    src=FactorizedMapOperator(scale, refl_src, rot_src, edge_type),
-                    tgt=FactorizedMapOperator(scale, refl_tgt, rot_tgt, edge_type),
-                )
+                rotation, subspaces, frames = factors_and_rest[:3]
+                rest = factors_and_rest[3:]
+                pair = node_to_edge.operators(TD1Factors(scale, rotation, subspaces, frames),
+                                              edge_type, type_only)
             group_betas, free_tensors = rest[:num_groups], rest[num_groups:]
             cell_groups, node_terms = [], []
             for i, (group, beta) in enumerate(zip(groups, group_betas)):
@@ -724,11 +754,8 @@ class H2SNN(nn.Module):
                     free_maps = None
                     if arm == "free_cell_maps":
                         num_paths, length = group.face_edge_index.shape
-                        free_maps = FactorizedMapOperator(
-                            scale=beta.new_ones(num_paths * length),
-                            reflectors=free_tensors[2 * i], rotations=free_tensors[2 * i + 1],
-                            group_ids=torch.arange(length, device=device).repeat(num_paths),
-                        )
+                        free_maps = free_cell_maps.operator(
+                            *free_tensors[3 * i:3 * i + 3], num_paths, length)
                     cell_groups.append(build_cell_group(pair, group, edge_index, beta, free_maps))
                 elif arm == "closure_only":
                     transport = PathTransportOperator(
@@ -746,8 +773,8 @@ class H2SNN(nn.Module):
         if identity_maps:
             params = (maps.src.scale, *betas, *free_params)
         else:
-            params = (maps.src.scale, maps.src.reflectors, maps.src.rotations,
-                      maps.tgt.reflectors, maps.tgt.rotations, *betas, *free_params)
+            params = (factors.scale, factors.rotation, factors.subspaces, factors.frames, *betas,
+                      *free_params)
         warmup_epochs, warmup_tolerance, final_tolerance, max_iterations = self.solver_settings
         tolerance = solver_tolerance(epoch, warmup_epochs, warmup_tolerance, final_tolerance)
         with torch.no_grad():  # layout of the solved system (for the warm start and the log)

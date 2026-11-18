@@ -18,7 +18,7 @@ from src.data.data_layout import REPO_DATA_ROOT, gc_root, lp_root, nc_root
 from src.data.face_geometry import validate_face_orientation
 from src.data.fact_layer import apply_fact_layer, build_fact_layer
 from src.models.map_operators import DenseMapOperator, EdgeMapPair, PathTransportOperator
-from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
+from src.models.sheaf_maps import TD1NodeToEdgeSheaf
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm, PathCellTerm
 from tests.test_v2_model import _chain_operators
 
@@ -441,11 +441,15 @@ def _map_module(family: str, map_scale: str, shared: tuple[int, ...], num_relati
     # legacy-removal B4: the dense family (DenseConformalNodeToEdgeSheaf) was deleted; factorized only
     if family != "factorized":
         raise ValueError(f"unknown map family {family!r}")
+    if map_scale != "per_edge":  # spec 1.25 Z2: one scale per fact (D1a) only
+        raise ValueError(f"unknown map scale {map_scale!r}")
     torch.manual_seed(seed)
-    module = FactorizedNodeToEdgeSheaf(
-        d=d, d_r=2, num_relations=num_relations, hidden_dim=8, householder_k=2,
-        scale_eps=0.1, orthogonal_map="fasthpp", map_scale=map_scale, checkpoint=False,
+    module = TD1NodeToEdgeSheaf(
+        d=d, d_r=2, num_relations=num_relations, hidden_dim=8, map_rank=2,
+        scale_eps=0.1, orthogonal_map="fasthpp", checkpoint=False,
         shared_role_relations=shared)
+    with torch.no_grad():  # nonzero instance rotations (C_e = 0 at init would make T5 trivial)
+        module.edge_mlp[-1].weight[:module.num_skew].normal_(0.0, 0.5)
     return module.double()
 
 
@@ -489,7 +493,8 @@ def _two_relation_graph(seed: int):
 
 
 # legacy-removal B4: the dense subcases were deleted with `map_family: dense`
-FAMILIES = [("factorized", scale) for scale in ("per_edge", "per_side")]
+# spec 1.25 Z2: TD-1 maps with one scale per fact (the per-side scale was removed with v2)
+FAMILIES = [("factorized", "per_edge")]
 
 
 class SharedRoleTests(unittest.TestCase):
@@ -545,11 +550,11 @@ class SharedRoleTests(unittest.TestCase):
 
 # ----------------------------------------------------------------------------- D7 (T6)
 def _moderate_scales(maps: EdgeMapPair, generator: torch.Generator, shared: bool) -> EdgeMapPair:
-    """Same frames and reflectors, scales log-uniform in [0.5, 2]. With `_chain_operators`'
+    """Same TD-1 factors, scales log-uniform in [0.5, 2]. With `_chain_operators`'
     per-side scales spanning [0.1, 50] the normalized Delta_0 of the tree has genuine
     non-kernel eigenvalues down to ~1e-9 (docs/D7_evidence/u3_checks_output.txt), which no
     fixed kernel threshold can separate; the property itself is scale-free."""
-    from src.models.map_operators import FactorizedMapOperator
+    from tests.test_v2_model import _with_scale
 
     def draw():
         return torch.exp((torch.rand(maps.src.num_edges, generator=generator,
@@ -558,11 +563,7 @@ def _moderate_scales(maps: EdgeMapPair, generator: torch.Generator, shared: bool
     src_scale = draw()
     tgt_scale = src_scale if shared else draw()
 
-    def side(op, scale):
-        return FactorizedMapOperator(scale=scale, reflectors=op.reflectors,
-                                     rotations=op.rotations, group_ids=op.group_ids)
-
-    return EdgeMapPair(src=side(maps.src, src_scale), tgt=side(maps.tgt, tgt_scale))
+    return EdgeMapPair(src=_with_scale(maps.src, src_scale), tgt=_with_scale(maps.tgt, tgt_scale))
 
 
 class SectionPreservationTests(unittest.TestCase):

@@ -1,0 +1,40 @@
+label=m2 job=17688 node=g2tn01 start=2026-11-18T17:45:25+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m2 head=5b5e8bd9f3d705e6695c19861ccd2f47da75d7c0 diff_sha256=2639d7f78c0b3259 untracked=4 snapshot_at=2026-11-18T17:45:23+09:00
+git=5b5e8bd9f3d705e6695c19861ccd2f47da75d7c0 branch=model-td1
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:48:27,536 | INFO | Epoch 0000 | train_loss: 1.2876 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1721 | val_acc: 0.1250 | val_auroc: 0.0000 | val_macro_f1: 0.0741 | val_micro_f1: 0.1250 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750
+2026-11-18 17:48:27,549 | INFO | Checkpoint metric acc: 0.1250
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:48:27,659 | INFO | Epoch 0001 | train_loss: 1.2306 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1689 | val_acc: 0.1250 | val_auroc: 0.0000 | val_macro_f1: 0.0741 | val_micro_f1: 0.1250 | test_acc: 0.3750 | test_auroc: 0.0000 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750
+2026-11-18 17:48:27,665 | INFO | Checkpoint metric acc: 0.1250
+2026-11-18 17:48:27,665 | INFO | Best epoch 0 | test_macro_f1: 0.1818 | test_micro_f1: 0.3750 | test_acc: 0.3750
+  payload = torch.load(path, map_location="cpu")
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+..................
+----------------------------------------------------------------------
+Ran 157 tests in 255.746s
+
+OK (skipped=1)
+exit=0 end=2026-11-18T17:49:44+09:00
