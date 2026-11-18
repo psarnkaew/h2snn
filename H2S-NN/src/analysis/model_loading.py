@@ -44,7 +44,7 @@ def nonempty_groups(face_groups: tuple[FaceGroup, ...]) -> tuple[FaceGroup, ...]
 
 
 def evaluation_cell_weights(model: H2SNN, data: PreparedH2SData) -> tuple[torch.Tensor, ...]:
-    """`w_f = exp(g(xi_f))` of every cell of `data.face_groups` (one tensor per non-empty group,
+    """`w_f = exp(L tanh(g(xi_f) / L))` (spec 1.25 Z4, L = 10) of every cell of `data.face_groups` (one tensor per non-empty group,
     in group order), computed by the model's own code (`H2SNN._cell_weights`) in eval mode without
     gradients. Evaluation only: the model's training flag is restored."""
     was_training = model.training

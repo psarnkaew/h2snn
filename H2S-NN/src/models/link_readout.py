@@ -5,7 +5,8 @@ from torch import nn
 
 
 class LinkPredictionReadout(nn.Module):
-    """Scores node pairs from the node representation `[x_K, h0]` (plan §4.8).
+    """Scores node pairs from the node representation `x*` (spec 1.25 Z3; `[x*, h0]` only under
+    `ablation.ego_head`, the 1.24 readout; plan §4.8).
 
     The endpoint projection `Linear(2d, d) + GELU` (unchanged from the submitted model) maps
     each node's representation to `d` dimensions; one of two decoders (selected by
@@ -30,8 +31,9 @@ class LinkPredictionReadout(nn.Module):
         num_relations: int = 1,
         input_dim: int | None = None,
     ) -> None:
-        """`input_dim` is the representation width: `2d` for `[x_K, h0]` (the default),
-        `d` under the `h0_only_readout` ablation. (The former `hidden_dim` and `dropout` belonged
+        """`input_dim` is the representation width the model passes: `d` for `x*` (spec 1.25 Z3),
+        `2d` for `[x*, h0]` under `ablation.ego_head`, `d` under the `h0_only_readout` ablation
+        (`None` means `2d`; the model always passes it). (The former `hidden_dim` and `dropout` belonged
         to the removed concat+MLP decoder; removed by the legacy-removal card, LR-3.)"""
         super().__init__()
         self.decoder_type = decoder_type

@@ -42,8 +42,8 @@ def pool_nodes(x: torch.Tensor, batch: torch.Tensor, num_graphs: int, pooling: s
 
 
 class GraphReadout(nn.Module):
-    """Graph classification head (spec v1.15 §3 readouts, §6 GC; J6): `[x*, h0]` of every node ->
-    pooling over the graph's nodes (mean, max, add, or HetSheaf's attention pooling) -> one Linear
+    """Graph classification head (spec v1.15 §3 readouts, §6 GC; J6): `x*` of every node (spec 1.25
+    Z3; `[x*, h0]` only under `ablation.ego_head`) -> pooling over the graph's nodes (mean, max, add, or HetSheaf's attention pooling) -> one Linear
     layer. No BatchNorm and no MLP, as HetSheaf's GraphClassifier (pool, then `Linear(hidden,
     out)`, graph_classifier.py:24-50, 98-110) and every GC baseline there."""
 
