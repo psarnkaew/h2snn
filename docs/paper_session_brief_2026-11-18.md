@@ -42,7 +42,8 @@ geometry reads h only: no relational context c (no neighbour means)
 fact e = (u -> v), relation r:
   F_{u<e} = c_e I,   F_{v<e} = c_e R_r exp(U_r C_e U_r^T)          (roles differ)
   F_{u<e} = c_e exp(-U_r C_e U_r^T / 2), F_{v<e} = c_e exp(+... / 2)  (symmetric relation, C antisymmetric in u,v)
-  R_r in SO(d): one learned frame per relation;  U_r: d x 4, orthonormal (QR) per relation
+  R_r in SO(d): one learned frame per relation with two distinct roles; NO frame for a relation that is its own reverse (rho(r) = r)
+  U_r: d x 4, orthonormal (QR) per relation
   C_e in so(4) (6 numbers) and c_e from ONE per-edge MLP over [h_u, h_v, rel_emb]; C_e = 0 at init
   transports Q_e = F_u^T F_v / c_e^2 in SO(d)
 faces: forced maps (unchanged, Prop. forced); weight beta_f = w_f m_f with
@@ -61,7 +62,7 @@ head:  reads x* only (was [x* || h]);  [x*, h] is the variant "ego head" (C18)
 | 190 | `w_f = \exp g(\xi_f)` | `w_f = \exp(L\tanh(g(\xi_f)/L))`, `L=10` (Z4). One clause on why: it keeps the weight range finite during long training. |
 | 206 | `\hat y_v = MLP([x^\star_v \concat h_v])` with the `zhu2020beyond` ego-separation reason | `\hat y_v = MLP(x^\star_v)`. The anchor already keeps each node's own encoding inside the solve, and `h − x^\star = τ\hat S x^\star` (Prop. 11). Drop or move the `zhu2020beyond` reason to the `ego head` variant. |
 | 214 | "maps of the form of Eq. admit configurations in which nodes of different classes are consistent … (existence only)" | Still true for TD-1 maps of any rank `m ≥ 2` and any number of classes (Thm 4, `docs/thm4_td1_proof.md`). Keep "existence only". |
-| 222 (variants, Maps) | "Direction-blind maps gives the two roles of a relation a common frame"; "No relational context …" | Direction-blind: every relation is treated as symmetric (no frame, antisymmetric `C`; spec S2 row). **Remove "No relational context"**. **Add "Ego head"**: the head reads `[x^\star, h]` (C18). If maps are discussed in the mechanism paragraph, add the type-only read-out (`C_e = 0` at evaluation, N2c). |
+| 222 (variants, Maps) | "Direction-blind maps gives the two roles of a relation a common frame"; "No relational context …" | Direction-blind: every relation is treated as symmetric (no frame, antisymmetric `C`; spec §3.1 "Direction" and C16; S2 is the identity-maps arm of C15). **Remove "No relational context"**. **Add "Ego head"**: the head reads `[x^\star, h]` (C18). If maps are discussed in the mechanism paragraph, add the type-only read-out (`C_e = 0` at evaluation, N2c). |
 | 355 (ablation table) | row "No relational context" | Remove it and add a row "Ego head" (C18). The row set must match spec §6 and the pre-registration. |
 | 402 (mechanism) | transport distance, intermediate-node replacement, schema ranking | Add the type-only maps read-out (N2c) if the author wants it in the text. |
 | Appendix (proofs 388–392) | Props. forced / reach / unique | These are unchanged, but check every use of the map form and of `c`. |
@@ -85,3 +86,5 @@ Also grep the whole `.tex` for `c_v`, `context`, `Householder`, `H_1`, `R_{r,\rh
 - **Code.** Model 1.25 is implemented on branch `model-td1` (S6). Follow-up M8 is running (docs fixes, merge of `v3b` `87c2e4a`, full suite). After review the author fast-forwards `v3b`.
 - **Results.** No main-table result exists yet: tuning runs on TSUBAME after card 5. Every result cell stays `\res{}`.
 - **Spec v1.26 / card 5.** Not written yet (B1a, PDNS validation subset, Freebase NC mini-batch). Nothing in it changes the method text above.
+
+**Corrections (model session, 2026-11-18, after the paper session's check):** §3 frame line (no frame for `ρ(r) = r`) and the §4 direction-blind source (§3.1 and C16, not S2) fixed; spec §3.2 ACM example changed to the bounded weight (Z-39, editorial).
