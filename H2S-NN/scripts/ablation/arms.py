@@ -2,8 +2,8 @@
 spec 1.23 X-6, X-11) and configurations (a): `full`'s tuned configuration file + the arm's one change.
 
 Per the card (amended 2026-11-16): the fixed-literature-schema row is NOT an ablation configuration (a
-main-table row, seeds 0-4, Welch); the appendix pair is two configurations (`full` and `endpoints`, each
-with `path_weight_context: true`; seeds 1-10, no claim).
+main-table row, seeds 0-4, Welch). Spec 1.25 Z1 withdrew C9 (`geometry_context_off`) and the appendix
+pair with the relational context `c`.
 
     python scripts/ablation/arms.py --full_config <full tuned yaml> --dataset acm --out_dir <dir>
 
@@ -42,11 +42,7 @@ ARM_CHANGES: dict[str, dict[str, dict[str, Any]]] = {
     "S0": {"model": {"arm": "no_path_cells"}, "ablation": {"fact_maps_identity": True}},
     "direction_blind_maps": {"ablation": {"direction_blind_maps": True}},
     "free_cell_maps": {"model": {"arm": "free_cell_maps"}},
-    "geometry_context_off": {"model": {"geometry_context": False}},
     "h0_only": {"ablation": {"h0_only_readout": True}},
-    "appendix_full": {"ablation": {"path_weight_context": True}},
-    "appendix_endpoints": {"ablation": {"path_weight_input": "endpoints",
-                                        "path_weight_context": True}},
 }
 # Arms with configuration (b) (tuned on their own; B-2, B-4) and their `tuning.arm` name.
 TUNED_ARMS: tuple[str, ...] = ("endpoints", "closure_only", "instance_features", "no_path_cells",

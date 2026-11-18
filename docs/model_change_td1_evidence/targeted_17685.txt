@@ -1,0 +1,72 @@
+label=m1 job=17685 node=g2tn01 start=2026-11-18T17:30:43+09:00
+git=29a24886d54a67bd26e5747cdaabb47687b312bb branch=model-td1
+working tree:  M CLAUDE.md
+working tree:  M scripts/ablation/arms.py
+working tree:  M scripts/known_answer/s3_audit.py
+working tree:  M scripts/v3b_cost_smoke.py
+working tree:  M src/configs/config.py
+working tree:  M src/models/h2snn_model.py
+working tree: D  src/models/relational_context.py
+working tree:  M src/models/sheaf_maps.py
+working tree: D  tests/test_relational_context.py
+working tree:  M tests/test_v2_model.py
+working tree:  M tests/test_wisp.py
+.........../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:31:57,902 | INFO | Epoch 0000 | train_loss: 1.1245 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.4000 | train_micro_f1: 0.5000 | val_loss: 1.0795 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-18 17:31:57,916 | INFO | Checkpoint metric acc: 0.5000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:31:58,148 | INFO | Epoch 0001 | train_loss: 1.0723 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.4000 | train_micro_f1: 0.5000 | val_loss: 1.0739 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.2222 | val_micro_f1: 0.5000 | test_acc: 0.2500 | test_auroc: 0.0000 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500
+2026-11-18 17:31:58,155 | INFO | Checkpoint metric acc: 0.5000
+2026-11-18 17:31:58,155 | INFO | Best epoch 0 | test_macro_f1: 0.2500 | test_micro_f1: 0.2500 | test_acc: 0.2500
+  payload = torch.load(path, map_location="cpu")
+..............2026-11-18 17:31:58,251 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:31:58,499 | INFO | Epoch 0000 | train_loss: 1.0826 | train_acc: 0.5455 | train_auroc: 0.0000 | train_macro_f1: 0.4318 | train_micro_f1: 0.5455 | val_loss: 1.0927 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.2500 | val_micro_f1: 0.3333 | test_acc: 0.2000 | test_auroc: 0.0000 | test_macro_f1: 0.1786 | test_micro_f1: 0.2000
+2026-11-18 17:31:58,506 | INFO | Checkpoint metric macro_f1: 0.2500
+2026-11-18 17:31:58,506 | INFO | Best epoch 0 | test_macro_f1: 0.1786 | test_micro_f1: 0.2000 | test_acc: 0.2000
+2026-11-18 17:31:58,516 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 17:31:58,762 | INFO | Epoch 0000 | train_loss: 1.1165 | train_acc: 0.3636 | train_auroc: 0.0000 | train_macro_f1: 0.1778 | train_micro_f1: 0.3636 | val_loss: 1.0222 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.1000 | test_auroc: 0.0000 | test_macro_f1: 0.0606 | test_micro_f1: 0.1000
+2026-11-18 17:31:58,769 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-18 17:31:58,769 | INFO | Best epoch 0 | test_macro_f1: 0.0606 | test_micro_f1: 0.1000 | test_acc: 0.1000
+  payload = torch.load(path, map_location="cpu")
+2026-11-18 17:31:58,794 | INFO | wrote /tmp/tmprfx21pgx/readout/acm/run0.json
+2026-11-18 17:31:58,818 | INFO | wrote /tmp/tmprfx21pgx/readout/acm/run1.json
+2026-11-18 17:31:58,819 | INFO | wrote /tmp/tmprfx21pgx/readout/acm/schema_readout.json
+2026-11-18 17:31:58,820 | INFO | wrote /tmp/tmprfx21pgx/readout/acm/schema_readout.md
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+.....
+======================================================================
+FAIL: test_gate_initialization_is_near_one_half (tests.test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_v2_model.py", line 590, in test_gate_initialization_is_near_one_half
+    self.assertLess(float(output.path_gate_max), 0.75)
+AssertionError: 0.7889403104782104 not less than 0.75
+
+----------------------------------------------------------------------
+Ran 87 tests in 72.272s
+
+FAILED (failures=1)
+exit=1 end=2026-11-18T17:31:59+09:00

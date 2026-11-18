@@ -49,12 +49,10 @@ from src.models.sheaf_energy import (
     build_cell_group,
 )
 from src.models.node_encoder import TypeSpecificNodeEncoder
-from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
 from src.models.sheaf_maps import (
     REFLECTOR_NORM_EPS,
     FactorizedNodeToEdgeSheaf,
-    gathered_linear,
 )
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm
 
@@ -194,26 +192,14 @@ class H2SNNOutput(NamedTuple):
     max_edge_scale: torch.Tensor | None
 
 
-def _hop_block(hop_tokens: torch.Tensor, num_paths: int, reference: torch.Tensor
-               ) -> tuple[torch.Tensor, torch.Tensor]:
-    """`(tokens, index)` for `gathered_linear`: one shared row (schema groups, index 0) or one
-    row per cell (WISP groups)."""
-    if hop_tokens.size(0) == 1:
-        return hop_tokens, reference.new_zeros(num_paths)
-    return hop_tokens, torch.arange(num_paths, device=reference.device)
-
-
 class PathEncoder(nn.Module):
     """Positional `concat` encoder over the ordered `h0` of a path and its hop tokens (the schema's
     relation embeddings, or per-cell action embeddings under WISP): one `Linear + GELU` per path
     length; its output feeds the path gate."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
-                 factored_inputs: bool = False) -> None:
-        """`d`: width of the per-node input (`h0`; `[h0, c]` only under the spec v1.4 appendix
-        switch `ablation.path_weight_context`).
-        `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions).
-        `factored_inputs`: project per node, then gather (`gathered_linear`; D12, R7)."""
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
+        """`d`: width of the per-node input (`h0`; spec 1.25 Z1: no relational context).
+        `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions)."""
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {
@@ -223,7 +209,6 @@ class PathEncoder(nn.Module):
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
-        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -241,10 +226,6 @@ class PathEncoder(nn.Module):
                 f"{available}). ModelDims.face_lengths must list every length in the data."
             )
         num_paths = face_node_index.size(0)
-        if self.factored_inputs:
-            blocks = [(h0, face_node_index[:, j]) for j in range(length + 1)]
-            blocks.append(_hop_block(hop_tokens, num_paths, face_node_index))
-            return self.activation(gathered_linear(self.input_proj[key], blocks))
         inputs = torch.cat(
             [h0[face_node_index].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)],
             dim=-1,
@@ -257,15 +238,13 @@ class EndpointEncoder(nn.Module):
     (ablation `path_mode: endpoint_edges`, and the `endpoints` arm of the C2 weight ladder: no
     intermediate node enters)."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
-                 factored_inputs: bool = False) -> None:
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {str(length): nn.Linear(2 * d + length * d_r, hidden_dim) for length in face_lengths}
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
-        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -276,10 +255,6 @@ class EndpointEncoder(nn.Module):
         length = int(face_node_index.size(1)) - 1
         num_paths = face_node_index.size(0)
         endpoints = face_node_index[:, [0, length]]
-        if self.factored_inputs:
-            blocks = [(h0, endpoints[:, 0]), (h0, endpoints[:, 1]),
-                      _hop_block(hop_tokens, num_paths, face_node_index)]
-            return self.activation(gathered_linear(self.input_proj[str(length)], blocks))
         inputs = torch.cat(
             [h0[endpoints].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)], dim=-1
         )
@@ -331,12 +306,10 @@ class FreeIncidenceMaps(nn.Module):
     the node->edge maps, but not forced by functoriality)."""
 
     def __init__(self, d: int, latent_dim: int, hidden_dim: int, householder_k: int,
-                 max_positions: int, orthogonal_map: str, node_dim: int | None = None,
-                 factored_inputs: bool = False) -> None:
+                 max_positions: int, orthogonal_map: str) -> None:
         super().__init__()
         self.d = d
-        self.factored_inputs = factored_inputs
-        node_dim = d if node_dim is None else node_dim
+        node_dim = d
         self.householder_k = householder_k
         self.max_positions = max_positions
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
@@ -352,21 +325,15 @@ class FreeIncidenceMaps(nn.Module):
         num_paths, size = face_node_index.shape
         positions = torch.arange(size, device=h0.device)
         onehot = nn.functional.one_hot(positions, self.max_positions).to(h0.dtype)
-        if self.factored_inputs:
-            blocks = [(h0, face_node_index.reshape(-1)),
-                      (latent, torch.arange(num_paths, device=h0.device).repeat_interleave(size)),
-                      (onehot, positions.repeat(num_paths))]
-            raw = self.reflector_mlp[1:](gathered_linear(self.reflector_mlp[0], blocks))
-        else:
-            inputs = torch.cat(
-                [
-                    h0[face_node_index],
-                    latent.unsqueeze(1).expand(num_paths, size, -1),
-                    onehot.unsqueeze(0).expand(num_paths, size, -1),
-                ],
-                dim=-1,
-            ).reshape(num_paths * size, -1)
-            raw = self.reflector_mlp(inputs)
+        inputs = torch.cat(
+            [
+                h0[face_node_index],
+                latent.unsqueeze(1).expand(num_paths, size, -1),
+                onehot.unsqueeze(0).expand(num_paths, size, -1),
+            ],
+            dim=-1,
+        ).reshape(num_paths * size, -1)
+        raw = self.reflector_mlp(inputs)
         reflectors = normalize_reflectors(
             raw.view(-1, self.householder_k, self.d), REFLECTOR_NORM_EPS
         )
@@ -430,14 +397,8 @@ class H2SNN(nn.Module):
             tuple(range(dims.num_relations)) if ablation.direction_blind_maps
             else tuple(dims.self_inverse_relations)
         )
-        # D12 G1: geometry inputs [h0, c] (parameter-free context; false = the D11 model).
-        self.relational_context: RelationalContext | None = None
-        geometry_dim = d
-        if model_config.geometry_context:
-            self.relational_context = RelationalContext(dims.num_relations,
-                                                        self.shared_role_relations)
-            geometry_dim = d + self.relational_context.output_dim(d)
-        self.geometry_dim = geometry_dim
+        # Spec 1.25 Z1: the geometry (maps, fact weights, g) reads each endpoint's h0 only; the
+        # relational context c is removed.
         self.node_to_edge = FactorizedNodeToEdgeSheaf(
             d=d,
             d_r=model_config.d_r,
@@ -449,8 +410,6 @@ class H2SNN(nn.Module):
             map_scale=self.map_scale,
             checkpoint=model_config.checkpointing,
             shared_role_relations=self.shared_role_relations,
-            input_dim=geometry_dim,
-            factored_inputs=model_config.geometry_context,
             identity_maps=self.identity_maps,
         )
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
@@ -459,23 +418,16 @@ class H2SNN(nn.Module):
         # Part H: w_f = exp(g) without gamma; the C2 ladder restricts the inputs of g on identical
         # cells.
         self.path_weight_input = ablation.path_weight_input
-        # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0;
-        # [h0, c] only under the appendix switch. Maps and gates keep geometry_dim.
-        self.path_weight_context = ablation.path_weight_context
-        path_input_dim = geometry_dim if self.path_weight_context else d
-        self.path_input_dim = path_input_dim
+        # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0.
+        path_input_dim = d
         self.path_actions = dims.path_actions
         hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
         hidden = model_config.face_mlp_hidden_dim
         if self.path_weight_input == "full":
-            self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden,
-                                            dims.face_lengths,
-                                            factored_inputs=model_config.geometry_context)
+            self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden, dims.face_lengths)
         elif self.path_weight_input == "endpoints":
             hidden = endpoint_hidden_width(hidden, path_input_dim, hop_dim, dims.face_lengths)
-            self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
-                                                dims.face_lengths,
-                                                factored_inputs=model_config.geometry_context)
+            self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden, dims.face_lengths)
         elif self.path_weight_input == "schema":
             self.path_encoder = SchemaEncoder(hop_dim, hidden, dims.face_lengths)
         if self.path_weight_input != "uniform":
@@ -545,8 +497,6 @@ class H2SNN(nn.Module):
                     householder_k=model_config.householder_k,
                     max_positions=max(dims.face_lengths, default=1),
                     orthogonal_map=model_config.orthogonal_map,
-                    node_dim=geometry_dim,
-                    factored_inputs=model_config.geometry_context,
                 )
 
     # ------------------------------------------------------------------ scalars
@@ -603,16 +553,14 @@ class H2SNN(nn.Module):
 
     def geometry_inputs(self, h0: torch.Tensor, edge_index: torch.Tensor,
                         edge_type: torch.Tensor) -> torch.Tensor:
-        """[h0, c] under geometry_context (D12 G1), else h0: the input of the map MLPs, the gate
-        heads and the path encoder. Computed once per forward, before any propagation."""
-        if self.relational_context is None:
-            return h0
-        return torch.cat([h0, self.relational_context(h0, edge_index, edge_type)], dim=-1)
+        """The input of the map MLPs: `h0` itself (spec 1.25 Z1, the geometry is a function of the
+        incidence alone; the relational context `c` is removed). Kept as a method so that analysis
+        and known-answer code reads the geometry the way the model does."""
+        return h0
 
     def path_inputs(self, h0: torch.Tensor, geometry: torch.Tensor) -> torch.Tensor:
-        """The per-node input of g (spec v1.4 R12): each node's own h0, or the v1.3 geometry
-        [h0, c] under `ablation.path_weight_context` (appendix pair)."""
-        return geometry if self.path_weight_context else h0
+        """The per-node input of g (spec v1.4 R12): each node's own h0."""
+        return h0
 
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
         """`[P, hidden]` path latent of g, or None (`path_weight_input: uniform`)."""
@@ -717,7 +665,7 @@ class H2SNN(nn.Module):
                          num_nodes: int, epoch: int,
                          scope_index: ScopeIndex | None = None) -> EncodedState:
         """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
-        geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
+        geometry once from `h0`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
         tau_stop, range_stop = self.stop_limits
         self._current_epoch = epoch  # for the stop conditions raised inside g (K5)

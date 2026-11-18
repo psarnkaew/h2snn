@@ -834,10 +834,9 @@ class ConfigTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     ModelConfig.from_dict(raw)
         # legacy-removal B3: the conflicts among the removed v2 path switches are gone with them;
-        # the non-boolean switch check moves to a kept switch, and the kept conflict
-        # (path_weight_context without a node input) replaces the switch conflicts.
+        # the non-boolean switch check moves to a kept switch (spec 1.25 Z1 removed the
+        # path_weight_context conflict with the key; tests/test_td1_maps.py T8).
         for raw in ({"h0_only_readout": "true"},
-                    {"path_weight_context": True, "path_weight_input": "uniform"},
                     {"path_weight_input": "nope"}):
             with self.subTest(ablation=raw):
                 with self.assertRaises(ValueError):
@@ -846,60 +845,6 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(scalar_lr_scale=value):
                 with self.assertRaises(ValueError):
                     OptimConfig.from_dict({"scalar_lr_scale": value})
-
-
-class TwoLatentContextTests(unittest.TestCase):
-    """T11-ctx (Part K, K1; spec v1.6 E10) under the default geometry_context: only g reads h0
-    (the v2 path-specific maps and pair-attention scores that read [h0, c] were removed by the
-    legacy-removal card). Geometry rows are injected directly, because perturbing h0 moves the
-    neighbours' context c by design."""
-
-    def setUp(self) -> None:
-        self.data = _float64_pap()
-
-    def _model(self, ablation: dict | None = None, **model):
-        built = _v2_model(self.data, ablation=ablation, **model).double().eval()
-        self.assertIsNotNone(built.relational_context, "default geometry_context is on")
-        return built
-
-    def _inputs(self, model):
-        with torch.no_grad():
-            h0 = model.encode_nodes(self.data.x, self.data.node_type)
-            return h0, model.geometry_inputs(h0, self.data.edge_index, self.data.edge_type)
-
-    def _maps(self, model, geometry):
-        with torch.no_grad():
-            return model.node_to_edge(geometry, self.data.edge_index, self.data.edge_type,
-                                      model.relation_embedding.weight).maps
-
-    @staticmethod
-    def _moved(model, geometry, nodes, c_only: bool = True):
-        moved = geometry.clone()
-        start = model.d if c_only else 0
-        generator = torch.Generator().manual_seed(11)
-        for node in nodes:
-            moved[node, start:] += torch.randn(moved.size(1) - start, generator=generator,
-                                               dtype=moved.dtype)
-        return moved
-
-    def test_b_g_reads_h0_only_unless_the_appendix_switch(self) -> None:
-        # legacy-removal B4/B5: the endpoint_edges / free_path_maps subcases were deleted with the
-        # v2 switches.
-        for appendix, expect_change in ((False, False), (True, True)):
-            with self.subTest(path_weight_context=appendix):
-                model = self._model({"path_weight_context": appendix})
-                h0, geometry = self._inputs(model)
-                maps = self._maps(model, geometry)
-                cell_nodes = sorted({n for g in self.data.face_groups
-                                     for n in g.face_node_index[0].tolist()})
-                moved = self._moved(model, geometry, cell_nodes)  # c parts only
-                # legacy-removal B3: g's w_f as the anchored model computes them
-                groups = tuple(g for g in self.data.face_groups if g.num_faces > 0)
-                with torch.no_grad():
-                    before = model._cell_weights(h0, geometry, groups)[1]
-                    after = model._cell_weights(h0, moved, groups)[1]
-                changed = any(not torch.equal(a, b) for a, b in zip(before, after))
-                self.assertEqual(changed, expect_change)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -1,15 +1,17 @@
 """Card 4 K4: the S3 audit, run before any S3 training run (spec §0 rule 6; card K4 (i)-(iii)).
 
 (i)  Tag balance on the generated graph: for every node type and every (relation, role), the node's own
-     tag and its context tag mean (mean over that relation's neighbours, `RelationalContext` on a
-     [tag, tagged] feature) have the same empirical distribution on the relevant cell's nodes as on the
+     tag and its context tag mean (mean over that relation's neighbours, `neighbour_means` on a
+     [tag, tagged] feature: the definition of the former `RelationalContext`, kept here because graph
+     structure still reaches each node through the solve) have the same empirical distribution on the relevant cell's nodes as on the
      other nodes of that type. Statistic per type: total-variation distance between the two empirical
      distributions of the full vector (own + every relation slot). Passes iff TV <= 1e-12 for every type
      (the balanced design makes them equal exactly).
 (ii) Fact-input probe: on the training targets, for each hop position (relation r1..r4) a logistic probe
      (Part K K0 solver, lambda 1e-3) predicts "the fact lies on the relevant cell" from the fact's input
-     [x_u, c_u, x_v, c_v, one-hot relation] (x = the prepared node features, c = `RelationalContext` on
-     x, the model's parameter-free context). Positives: the relevant cell's fact; negatives: the same
+     [x_u, x_v, one-hot relation] (x = the prepared node features; spec 1.25 Z1: the map MLP reads the
+     endpoints' h0 and the relation only, no relational context `c`; card 4 used [x_u, c_u, x_v, c_v,
+     rel]). Positives: the relevant cell's fact; negatives: the same
      hop of one irrelevant length-4 cell of the same target (fixed seed 0). The training targets are
      split in two halves (seed 0): fit on one, accuracy on the other. Passes iff every hop's held-out
      accuracy lies in the binomial 99 % interval of chance (p = 0.5, n = held-out samples).
@@ -36,13 +38,32 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common  # noqa: E402
 import s3_graph  # noqa: E402
 from src.data.dataset import build_dataset, build_node_classification_paths  # noqa: E402
-from src.models.relational_context import RelationalContext  # noqa: E402
 
 R_LADDER = (640, 1280, 2560, 5120, 10240)
 SEEDS = (1, 2, 3)
 TV_TOLERANCE = 1e-12
 PROBE_SEED = 0
 CELLS_PER_TARGET = s3_graph.FAN ** 3
+
+
+def neighbour_means(h: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor,
+                    num_relations: int, shared_role_relations: tuple[int, ...]) -> torch.Tensor:
+    """`[N, 2R d]`: slot `2 r + s` = mean of `h` over the node's (relation r, role s) neighbours (zeros if
+    none; one role for rho(r) = r). The definition of the former `RelationalContext` (spec 1.24, removed
+    from the model by spec 1.25 Z1), used only for audit (i)."""
+    num_nodes, d = h.shape
+    slots_per_node = 2 * num_relations
+    src, tgt = edge_index[0], edge_index[1]
+    shared = torch.zeros(num_relations, dtype=torch.bool)
+    if shared_role_relations:
+        shared[list(shared_role_relations)] = True
+    target_role = (~shared[edge_type]).long()
+    slots = torch.cat([src * slots_per_node + 2 * edge_type,
+                       tgt * slots_per_node + 2 * edge_type + target_role])
+    values = torch.cat([h[tgt], h[src]])
+    sums = h.new_zeros((num_nodes * slots_per_node, d)).index_add(0, slots, values)
+    counts = h.new_zeros(num_nodes * slots_per_node).index_add(0, slots, h.new_ones(slots.numel()))
+    return (sums / counts.clamp_min(1.0).unsqueeze(-1)).view(num_nodes, slots_per_node * d)
 
 
 def global_ids(data, node_type: str, local: torch.Tensor) -> torch.Tensor:
@@ -57,8 +78,8 @@ def tag_balance(data, info) -> dict:
         ids = global_ids(data, node_type, torch.arange(info[key].numel()))
         tag[ids, 0] = info[key].double() * 2 - 1
         tag[ids, 1] = 1.0
-    context = RelationalContext(len(data.relation_names), tuple(data.fact_layer.self_inverse))(
-        tag, data.edge_index, data.edge_type)
+    context = neighbour_means(tag, data.edge_index, data.edge_type, len(data.relation_names),
+                              tuple(data.fact_layer.self_inverse))
     vector = torch.cat([tag, context], dim=1)
     relevant = {"a": info["a_rel"], "b": info["b_rel"], "c": info["c_rel"], "q": info["c_rel"]}
     out = {}
@@ -84,8 +105,6 @@ def tag_balance(data, info) -> dict:
 def fact_probe(data, info) -> dict:
     """(ii): one probe per hop position on the training targets."""
     x = data.x.double()
-    c = RelationalContext(len(data.relation_names), tuple(data.fact_layer.self_inverse))(
-        x, data.edge_index, data.edge_type)
     n = info["n"]
     train_targets = torch.nonzero(data.target_train_mask).flatten()          # local target ids
     g = torch.Generator().manual_seed(PROBE_SEED)
@@ -117,8 +136,7 @@ def fact_probe(data, info) -> dict:
             for label in (1, 0):
                 u = chains[label][hop][targets]
                 v = chains[label][hop + 1][targets]
-                rows.append(torch.cat([x[u], c[u], x[v], c[v],
-                                       onehot.expand(targets.numel(), -1)], dim=1))
+                rows.append(torch.cat([x[u], x[v], onehot.expand(targets.numel(), -1)], dim=1))
                 labels.append(torch.full((targets.numel(),), label))
                 split.append(torch.full((targets.numel(),), is_test))
         features = torch.cat(rows)
@@ -131,7 +149,7 @@ def fact_probe(data, info) -> dict:
                         "chance_interval_99": [lo / n_test, hi / n_test],
                         "within": bool(lo / n_test <= accuracy <= hi / n_test)}
     results["pass"] = all(v["within"] for k, v in results.items() if k != "pass")
-    results["features"] = "[x_u, c_u, x_v, c_v, onehot(r1..r4)] along the chain P->Q"
+    results["features"] = "[x_u, x_v, onehot(r1..r4)] along the chain P->Q (spec 1.25 Z1: no c)"
     return results
 
 

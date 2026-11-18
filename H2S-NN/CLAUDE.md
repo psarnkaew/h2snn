@@ -885,8 +885,9 @@ Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
 - Graph classification: `mutag`, `enzymes`, `nci1`, `proteins`.
 
 Config sections: `data`, `model` (`propagation: anchored`; the v3-B arms are `model.arm`),
-`ablation` (switches, all off by default: `path_weight_input`, `path_weight_context`,
-`h0_only_readout`, `direction_blind_maps`; `coupling: symmetric` only), `optim` (`scalar_lr_scale`:
+`ablation` (switches, all off by default: `path_weight_input`,
+`h0_only_readout`, `direction_blind_maps`; `coupling: symmetric` only; spec 1.25 Z1 removed the
+relational context `c`: `model.geometry_context` and `ablation.path_weight_context` raise), `optim` (`scalar_lr_scale`:
 learning-rate multiple for the scalars `θ_τ` and the bias of `g`, which get their own group with no
 weight decay). Unknown keys are errors. `orthogonal_map` accepts only `fasthpp`
 (`src/models/fasthpp.py`). v1/v2 settings are removed (legacy-removal card); a configuration that names one raises.

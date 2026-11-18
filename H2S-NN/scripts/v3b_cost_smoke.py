@@ -70,7 +70,7 @@ def group_gradient_norms(model) -> dict[str, float]:
         "node_encoder": model.node_encoder,
         "relation_embedding": model.relation_embedding,
         "fact_maps": model.node_to_edge,
-        "relational_context": model.relational_context,
+        "relational_context": getattr(model, "relational_context", None),  # base code only (1.24)
         "g_path_encoder": model.path_encoder,
         "g_path_gate": model.path_gate,
         "free_cell_maps": model.free_cell_maps,

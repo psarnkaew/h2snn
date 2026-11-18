@@ -222,8 +222,7 @@ class WispSamplerTests(unittest.TestCase):
         base = groups({})
         # legacy-removal B4/B5: the v2 subcases (encoder first_order, the v2 path switches) were
         # deleted with the v2 model; the v3-B arms are the counterpart of its path switches
-        for extra in ({"model": {"geometry_context": False}},
-                      {"ablation": {"coupling": "symmetric"}},
+        for extra in ({"ablation": {"coupling": "symmetric"}},
                       {"model": {"arm": "no_path_cells"}}, {"model": {"arm": "closure_only"}}):
             with self.subTest(extra=extra):
                 other = groups(extra)
@@ -255,8 +254,7 @@ class WispSamplerTests(unittest.TestCase):
 
 
 # ============================================================================= H2: weights
-def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "exp",
-                  d: int = 4, path_weight_context: bool = False):
+def _ladder_model(arm: str, path_weight: str = "exp", d: int = 4):
     """The anchored v3-B default model (legacy-removal: the v2 `legacy` variant was removed)."""
     from src.configs.config import TrainConfig
     from src.models.h2snn_model import H2SNN, ModelDims
@@ -264,9 +262,8 @@ def _ladder_model(arm: str, geometry_context: bool = True, path_weight: str = "e
     config = TrainConfig.from_dict({
         "device": "cpu",
         "model": {"d": d, "d_r": 2, "classifier_hidden_dim": 8, "face_mlp_hidden_dim": 8,
-                  "edge_mlp_hidden_dim": 8, "geometry_context": geometry_context,
-                  "path_weight": path_weight},
-        "ablation": {"path_weight_input": arm, "path_weight_context": path_weight_context},
+                  "edge_mlp_hidden_dim": 8, "path_weight": path_weight},
+        "ablation": {"path_weight_input": arm},
     })
     dims = ModelDims(in_channels=5, num_node_types=3, num_relations=4, num_classes=2,
                      face_lengths=(2, 3), self_inverse_relations=SELF_INVERSE, path_actions=True)
@@ -361,10 +358,10 @@ class WispLadderTests(unittest.TestCase):
                 self.assertEqual(reloaded.model, config.model)
                 self.assertEqual(reloaded.data.path_source, "wisp")
 
-    def test_TH7_intermediate_and_its_neighbourhood_under_the_default_context(self) -> None:
-        """Spec v1.4 (R12), under geometry_context: true (the default): perturbing an
-        intermediate's h0 and the h0 of all its neighbours outside the instance leaves the
-        endpoints, schema and uniform weights unchanged and changes full's."""
+    def test_TH7_intermediate_and_its_neighbourhood(self) -> None:
+        """Spec v1.4 (R12; 1.25 Z1: no relational context): perturbing an intermediate's h0 and the
+        h0 of all its neighbours outside the instance leaves the endpoints, schema and uniform
+        weights unchanged and changes full's."""
         cell = 0
         nodes = self.group.face_node_index[cell].tolist()
         for position in range(1, len(nodes) - 1):
@@ -372,7 +369,6 @@ class WispLadderTests(unittest.TestCase):
             for arm in ARMS:
                 with self.subTest(position=position, arm=arm):
                     model = _ladder_model(arm)
-                    self.assertIsNotNone(model.relational_context, "the default context is on")
                     h0 = self._h0(model, 2)
                     moved = h0.clone()
                     moved[sorted(moved_nodes)] += 1.0
@@ -383,24 +379,22 @@ class WispLadderTests(unittest.TestCase):
                     else:
                         self.assertEqual(float(before), float(after), f"{arm} must not see it")
 
-    def test_TH7_a_node_outside_the_instance_reaches_no_arm_but_the_appendix(self) -> None:
+    def test_TH7_a_node_outside_the_instance_reaches_no_arm(self) -> None:
         """g reads instance nodes only: a neighbour of the endpoints outside the cell changes no
-        arm's weight. Control (spec v1.4 appendix pair, path_weight_context: true): it reaches
-        full and endpoints through the endpoints' context c."""
+        arm's weight (spec 1.25 Z1 withdrew the appendix pair, the former positive control)."""
         cell = 0
         nodes = self.group.face_node_index[cell].tolist()
         outside = sorted(self._outside_neighbours([nodes[0], nodes[-1]], nodes))
         self.assertTrue(outside, "fixture: an endpoint has a neighbour outside the cell")
         for arm in ARMS:
-            for appendix in ((False, True) if arm in ("full", "endpoints") else (False,)):
-                with self.subTest(arm=arm, path_weight_context=appendix):
-                    model = _ladder_model(arm, path_weight_context=appendix)
-                    h0 = self._h0(model, 5)
-                    moved = h0.clone()
-                    moved[outside] += 1.0
-                    changed = float(self._weights(model, h0)[cell]) != float(
-                        self._weights(model, moved)[cell])
-                    self.assertEqual(changed, appendix, (arm, appendix))
+            with self.subTest(arm=arm):
+                model = _ladder_model(arm)
+                h0 = self._h0(model, 5)
+                moved = h0.clone()
+                moved[outside] += 1.0
+                changed = float(self._weights(model, h0)[cell]) != float(
+                    self._weights(model, moved)[cell])
+                self.assertFalse(changed, arm)
 
     def test_TH7_positions_l_minus_1_and_l_separately(self) -> None:
         """Review MINOR-6: v_{l-1} (an intermediate) must not reach endpoints, v_l must; full sees
@@ -447,58 +441,14 @@ class WispLadderTests(unittest.TestCase):
                     for i, j in same:
                         self.assertEqual(float(before[i]), float(before[j]))
 
-    def test_TH7_intermediate_reaches_endpoints_only_under_the_appendix_switch(self) -> None:
-        """The v1.3 behaviour is the appendix pair: with path_weight_context: true an
-        intermediate's h0 reaches the endpoints weight through c; with the context off entirely
-        (geometry_context: false) g reads h0 either way and it does not."""
-        cell = 0
-        middle = int(self.group.face_node_index[cell, 1])
-        for context, appendix, expect_change in ((True, True, True), (True, False, False),
-                                                 (False, False, False)):
-            with self.subTest(geometry_context=context, path_weight_context=appendix):
-                model = _ladder_model("endpoints", geometry_context=context,
-                                      path_weight_context=appendix)
-                self.assertEqual(model.path_input_dim,
-                                 model.geometry_dim if appendix else model.d)
-                h0 = self._h0(model, 4)
-                moved = h0.clone()
-                moved[middle] += 1.0
-                w = [self._weights(model, h)[cell] for h in (h0, moved)]
-                self.assertEqual(float(w[0]) != float(w[1]), expect_change)
-
     def test_TH7_capacity_rule_endpoints_vs_full_within_5_percent(self) -> None:
         def g_params(model):
             modules = [m for m in (model.path_encoder, model.path_gate) if m is not None]
             return sum(p.numel() for m in modules for p in m.parameters())
 
-        for context, appendix in ((True, False), (False, False), (True, True)):
-            full = g_params(_ladder_model("full", geometry_context=context,
-                                          path_weight_context=appendix))
-            endpoints = g_params(_ladder_model("endpoints", geometry_context=context,
-                                               path_weight_context=appendix))
-            self.assertLessEqual(abs(endpoints - full) / full, 0.05,
-                                 (context, appendix, full, endpoints))
-
-    def test_path_weight_context_is_an_appendix_arm_never_tuned(self) -> None:
-        from src.configs.config import TrainConfig, reject_never_tuned_settings
-
-        bad = [({"model": {"geometry_context": False}}, {"path_weight_context": True}),
-               ({}, {"path_weight_context": True, "path_weight_input": "schema"}),
-               ({}, {"path_weight_context": True, "path_weight_input": "uniform"}),
-               # (legacy-removal B1: the no_path_cells subcase was deleted with the v2 switch)
-               ({}, {"path_weight_context": "true"})]
-        for extra, ablation in bad:
-            with self.subTest(extra=extra, ablation=ablation), self.assertRaises(ValueError):
-                TrainConfig.from_dict({**extra, "ablation": ablation})
-        for arm in ("full", "endpoints"):  # the appendix pair loads
-            TrainConfig.from_dict({"ablation": {"path_weight_context": True,
-                                                "path_weight_input": arm}})
-        with self.assertRaises(ValueError):
-            reject_never_tuned_settings({"ablation": {"path_weight_context": True}})
-        for name in ("ablation.path_weight_context", "path_weight_context"):
-            with self.subTest(name=name), self.assertRaises(ValueError):
-                reject_never_tuned_settings({}, [name])
-        reject_never_tuned_settings({"ablation": {"path_weight_context": False}})
+        full = g_params(_ladder_model("full"))
+        endpoints = g_params(_ladder_model("endpoints"))
+        self.assertLessEqual(abs(endpoints - full) / full, 0.05, (full, endpoints))
 
     def test_TH8_length_neutral_initialisation(self) -> None:
         """Constant g (`uniform`): the expected total cell weight per anchor is equal across
@@ -1101,7 +1051,7 @@ class WispConfigValidationTests(unittest.TestCase):
 
         # spec v1.15 J2 (Part M, M10): l_max and r are tuned; the rest stays fixed
         expected = {"path_source", "path_weight", "path_weight_init",
-                    "path_weight_input", "wisp_proposal", "path_weight_context"}
+                    "path_weight_input", "wisp_proposal"}
         self.assertEqual(set(NEVER_TUNED_WISP_KEYS), expected)
         for name in ("data.wisp_max_length", "data.wisp_walks_per_anchor"):
             reject_never_tuned_settings({}, [name])
@@ -1114,7 +1064,6 @@ class WispConfigValidationTests(unittest.TestCase):
         reject_never_tuned_settings({}, ["model.d"])  # ordinary hyperparameters still pass
         # (legacy-removal B4/B5: the sigmoid_gamma subcase was deleted with v2)
         for base in ({"ablation": {"path_weight_input": "endpoints"}},
-                     {"ablation": {"path_weight_context": True}},
                      {"data": {"dataset_name": "dblp", "path_source": "schemas"}}):
             with self.subTest(base=base), self.assertRaises(ValueError):
                 reject_never_tuned_settings(base)
@@ -1202,8 +1151,8 @@ class WispOverlapSamplingTests(unittest.TestCase):
 # ============================================================================= K3: guards
 class WispGuardTests(unittest.TestCase):
     """Part K, K3 (spec v1.6 E11, I7 review m1 and NIT): r is never tuned; the tuning base config
-    carries the pre-registered WISP settings; path_weight_context is the ladder's appendix pair
-    only; r resolves from the per-l_max calibration table; an unresolved path source is refused."""
+    carries the pre-registered WISP settings (spec 1.25 Z1 removed path_weight_context); r resolves
+    from the per-l_max calibration table; an unresolved path source is refused."""
 
     def test_r_is_in_the_search_space(self) -> None:
         """Spec v1.15 J2 supersedes E11 (r never tuned): r in {8, 16, 32, 64} is tuned."""
@@ -1233,19 +1182,6 @@ class WispGuardTests(unittest.TestCase):
                                                           "wisp_walks_per_anchor": r}})
         # link prediction is not a WISP task: its base configs are not judged by these rules
         reject_never_tuned_settings({"data": {"dataset_name": "amazonbook"}})
-
-    def test_path_weight_context_is_the_ladder_appendix_pair_only(self) -> None:
-        from src.configs.config import TrainConfig
-
-        # legacy-removal B4/B5: the endpoint_edges / free_path_maps / pair_attention subcases were
-        # deleted with the v2 arms; the kept rejection (no node input) is the counterpart
-        for arm in ("schema", "uniform"):
-            with self.subTest(arm=arm), self.assertRaises(ValueError):
-                TrainConfig.from_dict({"ablation": {"path_weight_input": arm,
-                                                    "path_weight_context": True}})
-        for arm in ("full", "endpoints"):
-            TrainConfig.from_dict({"ablation": {"path_weight_input": arm,
-                                                "path_weight_context": True}})
 
     def test_r_resolves_from_the_table_for_its_l_max(self) -> None:
         from src.configs.config import WISP_WALKS_PER_ANCHOR, TrainConfig
