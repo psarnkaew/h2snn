@@ -11,6 +11,7 @@ The paths a line writes are the launcher's (`docs/tsubame_evidence/t0_inventory.
 paths against `state_path_for` on every phase-1 line, so the two cannot drift.
 
     python scripts/tsubame/lines.py snapshot -- <line words...>     (prints one JSON object)
+    python scripts/tsubame/lines.py complete -- <line words...>     (exit 0: a final-seeds line with every seed file)
 """
 
 from __future__ import annotations
@@ -109,11 +110,21 @@ def snapshot(line: Line) -> dict[str, Any]:
     return {"token": line.token, "kind": line.kind, "units": units, "final_seed_files": seeds}
 
 
+def complete(line: Line) -> bool:
+    """A `--final_seeds` line whose seed files all exist (the launcher has no resume for final seeds)."""
+    if line.final_seeds is None:
+        return False
+    return set(line.final_seeds) <= set(snapshot(line)["final_seed_files"])
+
+
 def main(argv: list[str]) -> None:
-    if len(argv) >= 2 and argv[0] == "snapshot" and argv[1] == "--":
-        print(json.dumps(snapshot(parse_line(shlex.join(argv[2:])))))
-        return
-    raise SystemExit("usage: lines.py snapshot -- <line words...>")
+    if len(argv) >= 2 and argv[0] in ("snapshot", "complete") and argv[1] == "--":
+        line = parse_line(shlex.join(argv[2:]))
+        if argv[0] == "snapshot":
+            print(json.dumps(snapshot(line)))
+            return
+        raise SystemExit(0 if complete(line) else 1)
+    raise SystemExit("usage: lines.py {snapshot,complete} -- <line words...>")
 
 
 if __name__ == "__main__":

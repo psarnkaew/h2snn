@@ -9,8 +9,9 @@
 # Runnable lines of <list> are numbered 1, 2, ... with blank and '#' lines skipped (as scripts/slurm/
 # run_sweep_agents.sbatch's header states). Slot k (0-based, k < S) of task t is global slot g = (t-1)*S + k and runs
 # lines g+1, g+1+G, g+1+2G, ... one after another, each as `python <line> --resume` with CUDA_VISIBLE_DEVICES=k and
-# its own log file <out>/logs/lines/line<NNN>.<job>.<task>.<k>.log. A finished line exits at once (--resume); a line
-# killed by the 24 h limit resumes in the next leg (src/utils/wandb_campaign.py; T2 guard).
+# its own log file <out>/logs/lines/<list name>.line<NNN>.<job>.<task>.<k>.log. A finished line exits at once (--resume); a line
+# killed by the 24 h limit resumes in the next leg (src/utils/wandb_campaign.py; T2 guard). A --final_seeds line whose
+# seed files all exist is skipped (the launcher has no resume for final seeds).
 # Provenance of every line run (sha, host, job, task, slot, GPU, start/end, exit code, the line's state before and
 # after) goes to <out>/logs/prov/<job>.<task>.<k>.jsonl (one writer per file); collect.py joins it to the records.
 #$ -cwd
@@ -46,6 +47,7 @@ if command -v module > /dev/null 2>&1; then module purge; echo "module purge: do
 
 mapfile -t LINES < <(grep -v -E '^[[:space:]]*(#|$)' "${LIST}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
 N="${#LINES[@]}"
+LISTNAME="$(basename "${LIST}" .txt)"
 mkdir -p "${OUT}/logs/lines" "${OUT}/logs/prov"
 echo "list=${LIST} runnable_lines=${N}"
 
@@ -57,9 +59,14 @@ run_slot() {
     gpu="$(nvidia-smi -i "${k}" --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)"
     for (( i = g; i < N; i += G )); do
         line="${LINES[$i]}"
-        log="$(printf '%s/logs/lines/line%03d.%s.%s.%s.log' "${OUT}" $((i + 1)) "${JOB}" "${TASK}" "${k}")"
+        log="$(printf '%s/logs/lines/%s.line%03d.%s.%s.%s.log' "${OUT}" "${LISTNAME}" $((i + 1)) "${JOB}" "${TASK}" "${k}")"
         # shellcheck disable=SC2086  # the line is a list of arguments
         before="$(python scripts/tsubame/lines.py snapshot -- ${line} 2>/dev/null || echo null)"
+        # a --final_seeds line has no resume: once every seed file exists it is not run again in a later leg
+        # shellcheck disable=SC2086
+        if python scripts/tsubame/lines.py complete -- ${line} > /dev/null 2>&1; then
+            echo "slot ${k} (global ${g}): line $((i + 1)) complete (all final seeds written), skipped"; continue
+        fi
         start="$(date -Is)"; t0=${SECONDS}
         # the start event is written first: a run killed by the 24 h limit still has its provenance
         printf '{"event":"start","line_no":%d,"line":%s,"sha":"%s","host":"%s","job_id":"%s","task_id":"%s","slot":%d,"cuda_visible_devices":"%s","gpu_name":%s,"start":"%s","log":%s,"before":%s}\n' \
