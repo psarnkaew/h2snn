@@ -16,6 +16,8 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
+from unittest import mock
 
 import torch
 
@@ -321,6 +323,93 @@ class H2GBStepTests(unittest.TestCase):
         self.assertEqual(tuple(logits.shape), (size, 3))
         loss = torch.nn.functional.cross_entropy(logits, batch["a"].y[:size])
         _step_moves(self, model, loss, _optimizer(model, args))
+
+
+class B1aSubsetTests(unittest.TestCase):
+    """Card 3 B3.3 (card 1f B1a in the two new H2GB NC paths): a synthetic H2GB-shaped graph registered as `pdns` with
+    run seed 1, one epoch, one evaluation. During training the loop evaluates exactly
+    `validation_subset("pdns", seed 1's val ids, 1)`, no test id is touched before the final test pass, and the record
+    carries the subset metric and fingerprint. Mutation (`b3_mutation.py`): PSHGCN without `run_seed` -> fails."""
+
+    SEED = 1
+
+    def _run(self, fit) -> tuple[dict, list, list, Any]:
+        import src.baselines.minibatch as mb
+        from src.baselines.protocol import BaselineParams
+        from tests.partMB_fixtures import restore_real_data, unreachable_real_data
+        from tests.test_baselines_minibatch import full_fanout, synthetic_hetero
+
+        data = synthetic_hetero(seed=self.SEED)  # the split drawn from the run seed, as PDNS
+        calls: list = []  # (model.training, target ids) per forward
+        reports: list = []  # len(calls) at each per-epoch report
+        real_c, real_b = mb.train_minibatch_node_classification, mb.train_index_minibatch
+
+        def loop_c(**kw):
+            inner = kw["forward_seeds"]
+
+            def forward_seeds(batch):
+                calls.append((_training(kw["model"]), batch["a"].n_id[: int(batch["a"].batch_size)].clone()))
+                return inner(batch)
+            return real_c(**{**kw, "forward_seeds": forward_seeds})
+
+        def loop_b(**kw):
+            inner = kw["forward_rows"]
+
+            def forward_rows(index):
+                calls.append((_training(kw["model"]), index.detach().cpu().clone()))
+                return inner(index)
+            return real_b(**{**kw, "forward_rows": forward_rows})
+
+        bundle = SimpleNamespace(dataset="pdns", metadata={"seed": self.SEED})
+        params = BaselineParams({"K": 2, "hidden": 8, "emb_dim": 8, "hidden_x": 8, "layers_x": 2, "dropout": 0.0,
+                                 "input_drop": 0.0, "batch_size": 4},
+                                report=lambda **kw: reports.append(len(calls)))
+        unreachable_real_data()
+        try:
+            with mock.patch.dict("src.evaluation.validation_subset.SUBSET_SIZES", {"pdns": 5}), \
+                    mock.patch.dict("src.data.h2gb_nc.ALL_H2GB_NC_SPECS",
+                                    {"pdns": SimpleNamespace(target_node_type="a")}), \
+                    mock.patch.object(mb, "h2gb_graph", lambda _bundle: data), \
+                    mock.patch.object(mb, "h2gb_sample_sizes", lambda *_a: full_fanout(data, 2)), \
+                    mock.patch.object(mb, "minibatch_plan", lambda dataset, b: mb.MinibatchPlan(dataset, 4, 8, 2, 1, 1)), \
+                    mock.patch.object(mb, "train_minibatch_node_classification", loop_c), \
+                    mock.patch.object(mb, "train_index_minibatch", loop_b):
+                record = fit(bundle, params, seed=0, device=torch.device("cpu"))
+        finally:
+            restore_real_data()
+        return record, calls, reports, data
+
+    def _check(self, fit) -> None:
+        from src.evaluation.validation_subset import subset_fingerprint, validation_subset
+
+        record, calls, reports, data = self._run(fit)
+        val_ids = data["a"].val_mask.nonzero().view(-1)
+        test_ids = data["a"].test_mask.nonzero().view(-1)
+        with mock.patch.dict("src.evaluation.validation_subset.SUBSET_SIZES", {"pdns": 5}):
+            expected = validation_subset("pdns", val_ids, self.SEED)
+        self.assertEqual(len(reports), 1)  # 1 epoch, 1 evaluation
+        during = [ids for training, ids in calls[: reports[-1]] if not training]
+        self.assertTrue(during, "no evaluation during training")
+        self.assertTrue(torch.equal(torch.unique(torch.cat(during)), torch.sort(expected).values))
+        touching = [i for i, (_, ids) in enumerate(calls) if bool(torch.isin(ids, test_ids).any())]
+        self.assertTrue(touching and touching == list(range(touching[0], len(calls))), "test ids before the end")
+        self.assertEqual(sorted(torch.cat([calls[i][1] for i in touching]).tolist()), sorted(test_ids.tolist()))
+        self.assertIn("val_subset_macro_f1", record)
+        self.assertEqual(record["val_subset_fingerprint"], subset_fingerprint(expected))
+
+    def test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset(self) -> None:
+        from src.baselines.adapters.h2sgnn import fit_h2gb_node_classification
+
+        self._check(fit_h2gb_node_classification)
+
+    def test_pshgcn_h2gb_path_evaluates_the_run_seeds_subset(self) -> None:
+        from src.baselines.adapters.pshgcn import fit_h2gb_generic
+
+        self._check(fit_h2gb_generic)
+
+
+def _training(model: torch.nn.Module) -> bool:
+    return bool(model.training)
 
 
 class LargeLPHeldOutTests(unittest.TestCase):
