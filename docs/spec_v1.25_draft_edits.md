@@ -125,3 +125,57 @@ Q_e = F_srcᵀ F_tgt / c_e² ∈ SO(d)
 - §6 WISP settings: **replace** the sentence beginning `Context: C2 runs with `geometry_context: true`` and the following "Appendix pair" sentence **with** `Context: maps and fact weights read `h₀` only (1.25 Z1) and `g` reads `h₀` only (1.4, R12) in every arm, so `endpoints` sees no intermediate through `g`.`
 
 **Applied 2026-11-18** (author approval of Z-1–Z-19 the same day): spec v1.24 → v1.25 (backup `docs/spec_backups/H2S-NN_methodology_spec_v1.24.md`); pre-registration edits Z-9 and Z-19 applied to `docs/ablation_analysis_preregistration_draft.md`. Card-5 items move to 1.26.
+
+---
+
+# Part Z (continued 2): the head reads `x*` only (Z-21 – Z-33) — DRAFT, awaiting author approval of the wording
+
+**Decision:** `docs/experiment_settings_decisions.md`, row of 2026-11-18 "Readout: head reads `x*` only" (author). Applies on top of spec v1.25 as committed (`8acd764`); same version 1.25 (no implementation has started).
+
+## Z-21 Header: extend the 1.25 change line
+**Insert before** ` The 1.25 items planned with card 5` **:**
+> (Z3) The head reads `x*` only (was `[x*, h₀]`): the anchor keeps node locality inside the solve and Thm 4 makes a class-separating section linearly separable on `x*`; R11 withdrawn, R9′ and Prop. 11 restated; the 1.24 readout becomes the arm `ego_head` (claim C18).
+
+## Z-22 §2 R9′ row
+**Replace the row beginning** `| R9′ | Propagation gives, per stalk coordinate,` **with:**
+> | R9′ | Propagation is the resolvent `x* = (I+τŜ)⁻¹h₀`: a low-pass response in the sheaf spectrum, whose strength the one learned `τ` sets against the anchor (1.25: no high-pass is formed at the head) | Heterophily is carried by the transports: a sheaf-smooth signal can be anti-aligned across classes (Thm 4), so separation is available at λ = 0 without a high-pass; band-pass is **not** required and is a designated extension (L13) |
+
+## Z-23 §2 R11 row and the withdrawn line
+**Delete the row beginning** `| R11 | A node's own features reach the nonlinear head separately from propagated ones |`.
+**Replace** `Withdrawn in 1.11: **R4** (asymmetric influence) → limitation L1′; **R9** (band-selective filter bank) → R9′.` **with** `Withdrawn in 1.11: **R4** (asymmetric influence) → limitation L1′; **R9** (band-selective filter bank) → R9′. Withdrawn in 1.25: **R11** (ego/neighbour separation at the head) → the head reads `x*` only; the ego input is the arm `ego_head` (C18).`
+
+## Z-24 §3 pipeline block
+**Replace** `y   = head([x*, h₀])                                            # MLP` **with** `y   = head(x*)                                                  # MLP (1.25: x* only)`.
+
+## Z-25 §3 component table, readout row
+**Replace the row beginning** `| Readout `[x*, h₀]` | R11, R9′ |` **with:**
+> | Readout `x*` (1.25) | R13, R9′ | The anchor keeps each node's own encoding in `x*`; a class-separating section is linearly separable on `x*` (Thm 4) | — |
+
+## Z-26 §3 task readouts
+**In the paragraph beginning** `**Task readouts and losses (1.15).**` **replace** `NC: `[x*, h₀]` → Linear(2d, 128)` **with** `NC: `x*` → Linear(d, 128)`; **replace** `LP: per endpoint Linear(2d, d) → GELU` **with** `LP: per endpoint Linear(d, d) → GELU`; **replace** `GC: `[x*, h₀]` of every node → pooling` **with** `GC: `x*` of every node → pooling`.
+
+## Z-27 §3 "Heterophily" bullet
+**Replace** `is handled at three levels, each with a proof of what it can express: rotations in the maps (nodes of different classes agree after transport without being equal, Thm 4), instance-conditioned trust in cells (`β_f`, R12), and ego separation plus the complementary high-pass at the head (R11, Prop. 11).` **with** `is handled at two levels, each with a proof of what it can express: rotations in the maps (nodes of different classes agree after transport without being equal, Thm 4) and instance-conditioned trust in cells (`β_f`, R12); the anchor keeps each node's own encoding in the solve (R13). Since 1.25 the head reads `x*` only; ego separation at the head is the arm `ego_head` (C18).`
+
+## Z-28 §4 Prop. 11 row
+**Replace the row beginning** `| **Prop. 11 (low- and high-pass at the head)** |` **with:**
+> | **Prop. 11 (resolvent response; 1.25)** | `x* = (I+τŜ)⁻¹h₀` and `h₀ − x* = τŜx*` (the transported disagreement). With the head reading `x*` only (1.25), the output is low-pass in Ŝ's spectrum; the arm `ego_head` adds `h₀`, whose first linear layer then spans `x*` and `τŜx*`. The per-coordinate frequency reading is exact only when the head's weights commute with Ŝ; the identity `h₀ − x* = τŜx*` holds always. Band-pass needs a second `τ` (L13) | DERIVED |
+
+## Z-29 §5 new claim C18 (insert after the C17 row)
+> | **C18 Ego input at the head is not needed** (1.25) | `full` (head reads `x*`) vs `ego_head` (head reads `[x*, h₀]`, the 1.24 readout), configuration (a), seeds 1–10 | `ego_head` better on ≥ 3 of 4 ablation datasets (Wilcoxon, Holm m = 4) | The paper states that the ego input improves accuracy and that the 1.25 readout costs accuracy there; the main table is not changed (tuned on `full`) |
+
+## Z-30 §6 ablation table bullet
+**Replace** `exactly the comparisons of §5 (C2, C2b, C10–C17)` **with** `exactly the comparisons of §5 (C2, C2b, C10–C18)`.
+
+## Z-31 §6 v3-B arms bullet
+**Replace** `` `direction_blind_maps`; `h₀`-only; `` **with** `` `direction_blind_maps`; `h₀`-only; (1.25) `ego_head` (the head reads `[x*, h₀]`); ``.
+
+## Z-32 Pre-registration (`docs/ablation_analysis_preregistration_draft.md`)
+- Claim map: **insert after** the row `| Propagation helps at all (sanity) | `h₀`-only | 3 |` the row `| The head needs no ego input (1.25) | C18 (`ego_head`) | 3 |`.
+- Arms table: **insert after** the `h₀`-only row the row `| `ego_head` (1.25) | head reads `[x*, h₀]` (the 1.24 readout); everything else as `full` | **new** (switch) | (a) |`.
+- Arms table: **replace** in the `direction_blind_maps` row `the two roles of a relation share one frame and a symmetrised scale (`sheaf_maps.py:128`)` **with** `every relation is treated as one with `ρ(r) = r`: no frame, antisymmetric `C_e`, symmetrised scale (1.25)`.
+- Decision rules: **insert after** the C17 row the row `| **C18 ego input (1.25)** | `full` vs `ego_head` (a) | `ego_head` better on ≥ 3 of 4 | The paper states that the ego input improves accuracy; main table unchanged |`.
+- Budget: one more arm × 4 ablation datasets × seeds 1–10 at configuration (a) (no separate tuning).
+
+## Z-33 Not spec text (card)
+Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `Linear(d, d)`, GC pooling over `x*`); `instance_features` keeps its concatenation to the head input (`[x*, instance feature]`); new switch `ablation.ego_head: bool = False` (refused in a main-table tuning base config; an arm of configuration (a)); `h0_only_readout` unchanged; tests: head input widths, `ego_head` reproduces the 1.24 head input, golden list gains `ego_head`.
