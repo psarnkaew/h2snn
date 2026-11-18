@@ -1,0 +1,24 @@
+head=2d5c348299bbada09272881af3f11a4e5b2e87ad host=g2n01 job=17677 start=2026-11-18T17:05:16+09:00
+worktree: ?? data ?? tests/test_tsubame_slots.py ?? ../docs/H2S-NN_tsubame_report.md ?? ../docs/tsubame_evidence/t5_build_sparse_tools.txt ?? ../docs/tsubame_evidence/t5_mutation.py ?? ../docs/tsubame_evidence/t5_slots_rerun.txt ?? ../docs/tsubame_evidence/t5_targeted.txt ?? ../docs/tsubame_evidence/t5_targeted_verbose.log 
+command: python -m unittest -v tests.test_tsubame_slots 2>&1 | grep -E "\.\.\. |^Ran|^OK|^FAILED"; echo "--- mutation t5"; python ../docs/tsubame_evidence/t5_mutation.py > /tmp/m5_$$.log 2>&1; mc=$?; grep -E "^(MUTATION|Ran|FAILED)|^AssertionError" /tmp/m5_$$.log | head -10; echo "mutation exit=$mc"; rm -f /tmp/m5_$$.log
+test_legs_held_group_on_command_line_second_chain_refused (tests.test_tsubame_slots.ChainTests.test_legs_held_group_on_command_line_second_chain_refused) ... ok
+test_dirty_checkout_or_wrong_directory_is_refused (tests.test_tsubame_slots.SlotTests.test_dirty_checkout_or_wrong_directory_is_refused) ... ok
+test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) ... 
+  test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) (type='gpu_1', lines=1) ... FAIL
+  test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) (type='gpu_1', lines=4) ... FAIL
+  test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) (type='gpu_1', lines=5) ... FAIL
+  test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) (type='gpu_1', lines=13) ... FAIL
+test_fewer_slots_than_lines_stride_by_g (tests.test_tsubame_slots.SlotTests.test_fewer_slots_than_lines_stride_by_g) ... ok
+Ran 4 tests in 10.004s
+FAILED (failures=4)
+--- mutation t5
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[1752 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3918 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[684 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[684 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[951 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3111 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+Ran 1 test in 8.752s
+FAILED (failures=5)
+MUTATION T5 (slot index without the task offset): caught (a line runs twice)
+mutation exit=0
+exit=0 seconds=19

@@ -1,0 +1,37 @@
+head=2d5c348299bbada09272881af3f11a4e5b2e87ad host=g2tn01 job=17683 start=2026-11-18T17:09:03+09:00
+worktree: ?? data ?? tests/test_tsubame_slots.py ?? ../docs/H2S-NN_tsubame_report.md ?? ../docs/tsubame_evidence/t5_build_sparse_tools.txt ?? ../docs/tsubame_evidence/t5_mutation.py ?? ../docs/tsubame_evidence/t5_slots_rerun.txt ?? ../docs/tsubame_evidence/t5_targeted.txt ?? ../docs/tsubame_evidence/t5_targeted_verbose.log 
+command: md5sum tests/test_tsubame_slots.py; python -m unittest -v tests.test_tsubame_guard tests.test_tsubame_cell_list tests.test_tsubame_collect tests.test_tsubame_slots tests.test_wandb_and_runs tests.test_failed_trials tests.test_dry_run_flag tests.test_baseline_final_seeds tests.test_b1a_validation_subset tests.test_sweep_batch_size tests.test_baselines tests.test_baselines_blocked_spmm tests.test_baselines_dryrun_blockers tests.test_baselines_h2gb_classa tests.test_baselines_h2gb_classb tests.test_baselines_h2gb_classc tests.test_baselines_hetsheaf tests.test_baselines_hinormer_isolated tests.test_baselines_large_lp tests.test_baselines_minibatch_equivalence tests.test_baselines_minibatch tests.test_baselines_pshgcn_mag  > ../docs/tsubame_evidence/t5_targeted_verbose.log 2>&1; code=$?; tail -4 ../docs/tsubame_evidence/t5_targeted_verbose.log; echo "ok lines: $(grep -cE '\.\.\. ok$' ../docs/tsubame_evidence/t5_targeted_verbose.log)"; grep -E '\.\.\. (FAIL|ERROR|skipped)' ../docs/tsubame_evidence/t5_targeted_verbose.log; echo "tests exit=$code"; for m in t2 t3 t4 t5; do echo "--- mutation $m"; python ../docs/tsubame_evidence/${m}_mutation.py > ../mut_$m.tmp 2>&1; mc=$?; grep -E '^(MUTATION|Ran|FAILED|OK)|^AssertionError' ../mut_$m.tmp | head -6 | cut -c1-200; echo "mutation exit=$mc"; rm -f ../mut_$m.tmp; done; exit $code
+10ce04236a5d68c30a6e2e26c0149670  tests/test_tsubame_slots.py
+----------------------------------------------------------------------
+Ran 186 tests in 1125.601s
+
+OK
+ok lines: 160
+tests exit=0
+--- mutation t2
+AssertionError: Lists differ: [0, 0, 0] != [0, 0]
+Ran 1 test in 0.006s
+FAILED (failures=1, errors=1)
+MUTATION T2 (limit = inf): caught (test (1) fails)
+mutation exit=0
+--- mutation t3
+AssertionError: Items in the first set but not the second:
+Ran 1 test in 1.426s
+FAILED (failures=1)
+MUTATION T3 (runnable filter dropped): caught (the test fails)
+mutation exit=0
+--- mutation t4
+AssertionError: 4 != 6
+Ran 1 test in 0.018s
+FAILED (failures=1)
+MUTATION T4 (a record skipped): caught (the test fails)
+mutation exit=0
+--- mutation t5
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[1752 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3918 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[684 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[684 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[951 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3111 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+Ran 1 test in 10.377s
+mutation exit=0
+exit=0 seconds=1144
