@@ -15,6 +15,10 @@ U5 (2026-11-18 review): 4. PDNS per run seed (decision (a)): same seed and split
 across both shared loops; different run seeds -> each subset inside its own validation split (mutation: draw from the
 seed-0 split for every seed -> fails); 5. Hetero2Net's loop: no test pass during training and best weights restored
 (Mutation 1 -> fails); 6. the sweep's end-of-trial objective is `val_subset_macro_f1`.
+
+U6 (option A): 7. trial selection ranks by the sweep objective (H2GB NC: the subset winner; HGB: the whole-split
+winner; ties: the first) -- mutation: `select_best_trial` back to `metric_score` -> fails; 8. an H2GB NC macro-F1 record
+without `val_subset_macro_f1` is refused.
 """
 
 from __future__ import annotations
@@ -277,6 +281,32 @@ class B1aReviewTests(unittest.TestCase):
         source = inspect.getsource(wandb_campaign.run_campaign_worker)
         self.assertIn("sweep_objective(", source)  # the end-of-trial sweep metric (wandb_campaign.py:434)
         self.assertNotIn("metric_score(", source)
+
+
+
+class B1aSelectionTests(unittest.TestCase):
+    def test_trial_selection_uses_the_sweep_objective(self) -> None:
+        import scripts.run_baseline_tuning as launcher
+
+        h2gb = [  # whole-split and subset rankings disagree
+            {"trial_name": "whole", "dataset": "ogbn-mag", "val_macro_f1": 0.90, "val_subset_macro_f1": 0.40},
+            {"trial_name": "subset", "dataset": "ogbn-mag", "val_macro_f1": 0.50, "val_subset_macro_f1": 0.80},
+        ]
+        self.assertEqual(launcher.select_best_trial(h2gb, "macro_f1")["trial_name"], "subset")
+        hgb = [{"trial_name": "low", "dataset": "acm", "val_macro_f1": 0.30},
+               {"trial_name": "high", "dataset": "acm", "val_macro_f1": 0.60}]
+        self.assertEqual(launcher.select_best_trial(hgb, "macro_f1")["trial_name"], "high")
+        tie = [{"trial_name": "first", "dataset": "oag-cs", "val_macro_f1": 0.1, "val_subset_macro_f1": 0.7},
+               {"trial_name": "second", "dataset": "oag-cs", "val_macro_f1": 0.9, "val_subset_macro_f1": 0.7}]
+        self.assertEqual(launcher.select_best_trial(tie, "macro_f1")["trial_name"], "first")
+
+    def test_h2gb_record_without_subset_metric_is_refused(self) -> None:
+        from src.utils.wandb_campaign import sweep_objective
+
+        with self.assertRaisesRegex(ValueError, "card 1f U6"):
+            sweep_objective({"dataset": "ogbn-mag", "val_macro_f1": 0.5}, "macro_f1")
+        self.assertEqual(sweep_objective({"dataset": "acm", "val_macro_f1": 0.5}, "macro_f1"), 0.5)
+        self.assertEqual(sweep_objective({"dataset": "ogbn-mag_pp", "val_auroc": 0.7}, "auroc"), 0.7)
 
 
 if __name__ == "__main__":
