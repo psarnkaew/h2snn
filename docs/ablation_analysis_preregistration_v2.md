@@ -136,7 +136,8 @@ If either expectation fails, it is reported as it is, and the paper makes no rob
 ### 4.3 Face effect (A1)
 Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–10, and card 5 hooks (b) and (d).
 
-- **η_v:** the share of v's target-type neighbours through `M₂` meta-paths with a different label (IMDB: mean over genres). Nodes without such neighbours are excluded and counted. Quartiles are taken over the test targets.
+- **η_v** (amended 2026-11-20 by the author, before any run; reason: on ACM the union of the `M₂` neighbours is dominated by P–T–P, a median of 3,024 neighbours per paper, so η_v took 7 distinct values; card 7 report, job 17862): the mean, over the `M₂` paths on which v has at least one labelled target-type neighbour, of the share of those neighbours (distinct, u ≠ v) whose label differs from v's — the node-level counterpart of h = 1 − MLH, which also averages over `M₂`. IMDB: per path, the mean over genres of the binary disagreement, then the mean over paths. Nodes with no labelled neighbour on any path are excluded and counted.
+- **η groups** (amended 2026-11-20; replaces quartiles, which leave empty bins under ties, e.g. 1,280 of 1,820 DBLP test authors have η_v = 0): G0 = {η_v = 0}; G1–G3 = tertiles of η_v over the test targets with η_v > 0, value bins (−∞, t1], (t1, t2], (t2, ∞). The same rule on every dataset; an empty or small G0 is reported with its count, never merged. Every "η_v quartile" below means an η group.
 - **F1, flips:** per test node, wrong→right and right→wrong from `no_path_cells` to `full`, per η_v quartile (mean and range over seeds).
 - **F2, margin** (single-label datasets): margin_v = distance from x*_v to the nearest other-class centroid − distance to its own-class centroid, with centroids from the test x* of the same model. Reported for both models by η_v quartile.
 - **F3, knockout:** on trained `full`, seeds 1–3, every cell through test node v gets `β_f = 0` at evaluation only. Report the share of correct predictions that turn wrong, and the margin change, by η_v quartile. At most 2,000 test nodes per (dataset, seed), drawn with a fixed seed.
@@ -161,7 +162,7 @@ Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–10
 | **R3** energy vs representation | `full` and S2 (a): normalised energy Ẽ; a linear probe (logistic regression, `C = 1`, trained on training targets, scored on test targets) on x* and on h₀; the within/between-class distance ratio on x* and h₀ | At low η both models separate classes better on x* than on h₀. At high η, `full` keeps the separation while S2 loses it |
 
 **Two axes:**
-1. Nodes, by η_v quartile, on the 4 datasets.
+1. Nodes, by η group (G0–G3), on the 4 datasets.
 2. Graphs, by perturbation level (§4.2), with `full` and S2 on the targeted graphs.
 
 ### 4.5 Scalability (Q5)
