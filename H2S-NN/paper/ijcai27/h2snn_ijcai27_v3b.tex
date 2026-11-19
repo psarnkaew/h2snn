@@ -266,9 +266,9 @@ For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^
 \begin{proof}
 $E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge--face block is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ thus satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex in $x$, and $I+\tau\hat S$ has eigenvalues in $[1,1+\tau]$.
 \end{proof}
-The representation is therefore defined for every parameter value and takes the form of personalised PageRank propagation \cite{gasteiger2019appnp}, with $\hat S$ carrying the maps and faces. Conjugate gradients need a number of iterations bounded by $\tau$ rather than by the graph size.
+The representation thus exists for every parameter value and generalises personalised PageRank propagation \cite{gasteiger2019appnp}, with $\hat S$ carrying the maps and faces.
 
-\paragraph{Prediction.} A prediction head reads the propagated states: $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, from the encoder and the edge maps to $g$, $\tau$ and the head, are trained end to end by one task loss whose gradient passes through the solve. The head reads $x^\star$ alone, since the anchor already retains each node's own encoding in $x^\star$.
+\paragraph{Prediction.} A head reads $x^\star$ alone, as the anchor already retains each node's encoding: an MLP of $x^\star_v$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters are trained end to end by one task loss through the solve.
 
 \paragraph{Homophily and heterophily.} Under heterophily, a single propagated state can still separate classes, because the maps are rotations:
 \begin{proposition}[Class-separating states]\label{prop:separate}
