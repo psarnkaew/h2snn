@@ -1,0 +1,16 @@
+label=v2 job=17807 node=g3n01 start=2026-11-19T14:50:20+09:00
+git=7ee3db7bea9adf037b5047856b094c7484536388 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+test_missing_dataset_leaves_the_claim_undecided (tests.test_card7_stats.ClaimRuleTests.test_missing_dataset_leaves_the_claim_undecided) ... ok
+test_three_of_four_and_c15_rules (tests.test_card7_stats.ClaimRuleTests.test_three_of_four_and_c15_rules) ... ok
+test_bootstrap_ci_is_fixed_and_contains_the_mean (tests.test_card7_stats.TwoByTwoAndCITests.test_bootstrap_ci_is_fixed_and_contains_the_mean) ... ok
+test_markdown_and_json_are_written (tests.test_card7_stats.TwoByTwoAndCITests.test_markdown_and_json_are_written) ... ok
+test_two_by_two_differences (tests.test_card7_stats.TwoByTwoAndCITests.test_two_by_two_differences) ... ok
+test_holm_hand_checked_example (tests.test_card7_stats.WilcoxonAndHolmTests.test_holm_hand_checked_example) ... ok
+test_holm_is_per_claim_over_four_datasets (tests.test_card7_stats.WilcoxonAndHolmTests.test_holm_is_per_claim_over_four_datasets) ... ok
+test_wilcoxon_matches_scipy_and_the_exact_value (tests.test_card7_stats.WilcoxonAndHolmTests.test_wilcoxon_matches_scipy_and_the_exact_value) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.234s
+
+OK
+exit=0 end=2026-11-19T14:50:22+09:00
