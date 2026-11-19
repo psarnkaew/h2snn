@@ -1,0 +1,42 @@
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/graph.py:769: UserWarning: Error detected in torch::autograd::CppNode<SPMMSum>. Traceback of forward call that caused the error:
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/../docs/dryrun_evidence/d6_dryrun.py", line 328, in <module>
+    main()
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/../docs/dryrun_evidence/d6_dryrun.py", line 322, in main
+    d2.main()
+  File "/mnt/data/peeradon/h2snn-dryrun/docs/dryrun_evidence/d2_dryrun.py", line 430, in main
+    run_baseline(model, task, dataset, args.out, record)
+  File "/mnt/data/peeradon/h2snn-dryrun/docs/dryrun_evidence/d2_dryrun.py", line 367, in run_baseline
+    fit_cell(raw_base, params, source="tuned", device=torch.device("cuda"), report=report)
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/campaign.py", line 228, in fit_cell
+    record = adapter.fit_task(
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/adapters/h2sgnn.py", line 218, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/adapters/h2sgnn.py", line 320, in _fit_link_prediction
+    record = train_link_prediction(
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/training.py", line 227, in train_link_prediction
+    embeddings = embed()
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/adapters/h2sgnn.py", line 323, in <lambda>
+    embed=lambda: model(features, operators),
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/src/baselines/adapters/_h2sgnn_lp.py", line 179, in forward
+    block = self.vendor(metapath_operators, [features], metapath_operators)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/vendor/H2SGNN/model.py", line 81, in forward
+    res = self.GPR_GPR(adjs_list,A,x)
+  File "/mnt/data/peeradon/h2snn-dryrun/H2S-NN/vendor/H2SGNN/model.py", line 116, in GPR_GPR
+    x = torch_sparse_matmul(A,x)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py", line 160, in matmul
+    return spmm(src, other, reduce)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py", line 83, in spmm
+    return spmm_sum(src, other)
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py", line 27, in spmm_sum
+    return torch.ops.torch_sparse.spmm_sum(row, rowptr, col, value, colptr,
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/_ops.py", line 1061, in __call__
+    return self_._op(*args, **(kwargs or {}))
+ (Triggered internally at ../torch/csrc/autograd/python_anomaly_mode.cpp:111.)

@@ -1,0 +1,7 @@
+head=3bfbbdb7f9dced22d2a951108103f55182b06455 (D1 working tree) host=g2tn01 job=16795 step=7
+test_h2snn_notebooks_reference_existing_configs_only (tests.test_notebook_configs.NotebookConfigTests.test_h2snn_notebooks_reference_existing_configs_only) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.059s
+
+OK

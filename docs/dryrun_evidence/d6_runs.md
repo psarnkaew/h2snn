@@ -1,0 +1,5 @@
+# Card 2 D6.5 / D6.6 runs
+
+- **h2snn|node_classification|h-pokec** attempt `D6.6-60G` (largest point: d 64, l_max 5, r 64, B 1024): TIMEOUT at the 8 h limit on NVIDIA GeForce RTX 3090 (g3n01, job 16924_1 = 16966, 60G host): sacct MaxRSS 39.79 GiB (41722788K), no host OOM, no CUDA OOM; the training epoch did not finish in 8 h (no record written). The node's RAM (64 GB, `sinfo`) allowed 60G, so g3an01 was not used.
+- **h2sgnn|link_prediction|freebase_bb** attempt `D6.5-CLB-anomaly`: error on NVIDIA GeForce RTX 3090 (g3n01, job 16930_1); GPU peak 0.00 GiB, host peak 4.26 GiB; times {"build": 126.7}; error `/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/cuda/__init__.py:892 (synchronize)` CUDA error: an illegal memory access was encountered
+- **h2sgnn|link_prediction|freebase_bb** attempt `D6.5-CLB`: error on NVIDIA TITAN RTX (g2tn01, job 16923_1); GPU peak 0.00 GiB, host peak 4.24 GiB; times {"build": 136.7}; error `/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/cuda/__init__.py:892 (synchronize)` CUDA error: an illegal memory access was encountered

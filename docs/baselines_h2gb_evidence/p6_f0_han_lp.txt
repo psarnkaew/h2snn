@@ -1,0 +1,126 @@
+d7625736eaa8f794 ../docs/baselines_h2gb_evidence/p6_f0_diag.py
+label=p6-f0-han_lp job=17156 step=none node=g3n01 start=2026-11-17T03:06:26+09:00
+git=457c223b13ff3e63bf64b34e7e470e102ac90a49 branch=baselines-h2gb-6
+env=h2snn-b cmd=python -X faulthandler ../docs/baselines_h2gb_evidence/p6_f0_diag.py han_lp
+[03:06:28] cell han|link_prediction|freebase_bb params={'decoder_type': 'dot', 'dropout': 0.45, 'embed_dim': 128, 'hidden_dim': 256, 'lr': 0.001, 'num_heads': 4, 'weight_decay': 0.0} torch=2.4.1+cu124 gpu=NVIDIA GeForce RTX 3090 CUDA_LAUNCH_BLOCKING=None
+[03:08:39] CALL torch.sparse.mm #1
+[03:08:39]    a: COO shape=(180098, 180098) nnz=386,704 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:08:39]    b: COO shape=(180098, 180098) nnz=386,704 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+/mnt/data/peeradon/h2snn/H2S-NN/../docs/baselines_h2gb_evidence/p6_f0_diag.py:110: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  out = original_mm(a, b, *args, **kwargs)
+[03:08:41]    -> out: COO shape=(180098, 180098) nnz=52,998,866 indices=torch.int64 max=180097 coalesced=True device=cpu values=torch.float32
+[03:08:41] CALL torch.sparse.mm #2
+[03:08:41]    a: COO shape=(180098, 180098) nnz=38,299 indices=torch.int64 max=59827 coalesced=False device=cpu values=torch.float32
+[03:08:41]    b: COO shape=(180098, 180098) nnz=38,299 indices=torch.int64 max=59827 coalesced=False device=cpu values=torch.float32
+[03:08:42]    -> out: COO shape=(180098, 180098) nnz=4,193,476 indices=torch.int64 max=40385 coalesced=True device=cpu values=torch.float32
+[03:08:42] CALL torch.sparse.mm #3
+[03:08:42]    a: COO shape=(180098, 180098) nnz=6,615 indices=torch.int64 max=143204 coalesced=False device=cpu values=torch.float32
+[03:08:42]    b: COO shape=(180098, 180098) nnz=6,615 indices=torch.int64 max=143204 coalesced=False device=cpu values=torch.float32
+[03:08:42]    -> out: COO shape=(180098, 180098) nnz=14,405,128 indices=torch.int64 max=40371 coalesced=True device=cpu values=torch.float32
+[03:08:42] CALL torch.sparse.mm #4
+[03:08:42]    a: COO shape=(180098, 180098) nnz=26,921 indices=torch.int64 max=170213 coalesced=False device=cpu values=torch.float32
+[03:08:42]    b: COO shape=(180098, 180098) nnz=26,921 indices=torch.int64 max=170213 coalesced=False device=cpu values=torch.float32
+[03:08:43]    -> out: COO shape=(180098, 180098) nnz=37,884,185 indices=torch.int64 max=40388 coalesced=True device=cpu values=torch.float32
+[03:08:43] CALL torch.sparse.mm #5
+[03:08:43]    a: COO shape=(180098, 180098) nnz=21,900 indices=torch.int64 max=172944 coalesced=False device=cpu values=torch.float32
+[03:08:43]    b: COO shape=(180098, 180098) nnz=21,900 indices=torch.int64 max=172944 coalesced=False device=cpu values=torch.float32
+[03:08:45]    -> out: COO shape=(180098, 180098) nnz=54,932,925 indices=torch.int64 max=40399 coalesced=True device=cpu values=torch.float32
+[03:08:45] CALL torch.sparse.mm #6
+[03:08:45]    a: COO shape=(180098, 180098) nnz=18,625 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:08:45]    b: COO shape=(180098, 180098) nnz=18,625 indices=torch.int64 max=180097 coalesced=False device=cpu values=torch.float32
+[03:08:46]    -> out: COO shape=(180098, 180098) nnz=35,046,698 indices=torch.int64 max=40384 coalesced=True device=cpu values=torch.float32
+[03:08:46] CALL torch.sparse.mm #7
+[03:08:46]    a: COO shape=(180098, 180098) nnz=31,486 indices=torch.int64 max=142179 coalesced=False device=cpu values=torch.float32
+[03:08:46]    b: COO shape=(180098, 180098) nnz=31,486 indices=torch.int64 max=142179 coalesced=False device=cpu values=torch.float32
+[03:08:46]    -> out: COO shape=(180098, 180098) nnz=84,404 indices=torch.int64 max=40382 coalesced=True device=cpu values=torch.float32
+[03:08:46] CALL torch.sparse.mm #8
+[03:08:46]    a: COO shape=(180098, 180098) nnz=35,587 indices=torch.int64 max=160845 coalesced=False device=cpu values=torch.float32
+[03:08:46]    b: COO shape=(180098, 180098) nnz=35,587 indices=torch.int64 max=160845 coalesced=False device=cpu values=torch.float32
+[03:08:46]    -> out: COO shape=(180098, 180098) nnz=3,145,804 indices=torch.int64 max=40400 coalesced=True device=cpu values=torch.float32
+[03:08:53] CALL dgl.metapath_reachable_graph ('mp0_AAAA',) on cuda:0
+[03:08:53]    -> nodes=40,402 edges=52,859,170 idtype=torch.int64
+[03:08:53] CALL dgl.metapath_reachable_graph ('mp1_ABBA',) on cuda:0
+[03:08:54]    -> nodes=40,402 edges=4,193,476 idtype=torch.int64
+[03:08:54] CALL dgl.metapath_reachable_graph ('mp2_ADDA',) on cuda:0
+[03:08:54]    -> nodes=40,402 edges=14,405,128 idtype=torch.int64
+[03:08:54] CALL dgl.metapath_reachable_graph ('mp3_AFFA',) on cuda:0
+[03:08:54]    -> nodes=40,402 edges=37,884,185 idtype=torch.int64
+[03:08:54] CALL dgl.metapath_reachable_graph ('mp4_AGGA',) on cuda:0
+[03:08:55]    -> nodes=40,402 edges=54,932,925 idtype=torch.int64
+[03:08:55] CALL dgl.metapath_reachable_graph ('mp5_AHHA',) on cuda:0
+[03:08:56]    -> nodes=40,402 edges=35,046,698 idtype=torch.int64
+[03:08:56] CALL dgl.metapath_reachable_graph ('mp6_ACCA',) on cuda:0
+[03:08:56]    -> nodes=40,402 edges=84,404 idtype=torch.int64
+[03:08:56] CALL dgl.metapath_reachable_graph ('mp7_AEEA',) on cuda:0
+[03:08:56]    -> nodes=40,402 edges=3,145,804 idtype=torch.int64
+[03:08:56] CALL GATConv.forward #1 graph nodes=40,402 edges=52,859,170 idtype=torch.int64 device=cuda:0 heads=4 out=256; edges x heads x out = 54,127,790,080 > 2^31-1 !
+[03:08:56]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:08:56] CALL GATConv.forward #2 graph nodes=40,402 edges=4,193,476 idtype=torch.int64 device=cuda:0 heads=4 out=256; edges x heads x out = 4,294,119,424 > 2^31-1 !
+[03:08:56]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:08:56] CALL GATConv.forward #3 graph nodes=40,402 edges=14,405,128 idtype=torch.int64 device=cuda:0 heads=4 out=256; edges x heads x out = 14,750,851,072 > 2^31-1 !
+[03:08:56]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:08:56] CALL GATConv.forward #4 graph nodes=40,402 edges=37,884,185 idtype=torch.int64 device=cuda:0 heads=4 out=256; edges x heads x out = 38,793,405,440 > 2^31-1 !
+[03:08:56]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+[03:08:57] CALL GATConv.forward #5 graph nodes=40,402 edges=54,932,925 idtype=torch.int64 device=cuda:0 heads=4 out=256; edges x heads x out = 56,251,315,200 > 2^31-1 !
+[03:08:57]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cuda:0 numel=10,342,912
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/../docs/baselines_h2gb_evidence/p6_f0_diag.py", line 205, in main
+    fit_cell(raw_base, params, source="tuned", device=torch.device("cuda"))
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/campaign.py", line 247, in fit_cell
+    record = adapter.fit_task(
+             ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 183, in fit_task
+    return self._fit_link_prediction(bundle, params, seed=seed, device=device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 304, in _fit_link_prediction
+    record = train_link_prediction(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/training.py", line 227, in train_link_prediction
+    embeddings = embed()
+                 ^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/hgb_han.py", line 307, in <lambda>
+    embed=lambda: model(graph),
+                  ^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/_han_lp.py", line 105, in forward
+    rows = self.vendor(graph, self.input())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/model_hetero.py", line 106, in forward
+    h = gnn(g, h)
+        ^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/model_hetero.py", line 87, in forward
+    semantic_embeddings.append(self.gat_layers[i](new_g, h).flatten(1))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/../docs/baselines_h2gb_evidence/p6_f0_diag.py", line 152, in gat_forward
+    return original_gat(self, graph, feat, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/nn/pytorch/conv/gatconv.py", line 357, in forward
+    rst = rst + self.bias.view(
+          ^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 158.00 MiB. GPU 0 has a total capacity of 23.68 GiB of which 87.81 MiB is free. Including non-PyTorch memory, this process has 23.59 GiB memory in use. Of the allocated memory 23.21 GiB is allocated by PyTorch, and 89.31 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[03:08:57] RESULT exception OutOfMemoryError after 148.5 s
+peak_rss_gib=7.30 elapsed_s=152.0
+end=2026-11-17T03:08:58+09:00 exit=1

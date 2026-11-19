@@ -1,0 +1,10 @@
+RUN han|node_classification|imdb D6b-max --point max
+RUN han|link_prediction|imdb_ma D6b-max --point max
+RUN h2sgnn|link_prediction|imdb_ma D6b-max --point max
+RUN chebnetii|node_classification|ogbn-mag D6b-max --point max
+RUN chebnetii|node_classification|mag-year D6b-max --point max
+RUN chebnetii|node_classification|oag-cs D6b-max --point max
+RUN chebnetii|node_classification|oag-eng D6b-max --point max
+RUN chebnetii|node_classification|oag-chem D6b-max --point max
+RUN sehgnn|node_classification|ieee-cis-g D6b-max --point max
+RUN hinormer|node_classification|freebase D6b-max --point max

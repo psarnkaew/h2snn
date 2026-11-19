@@ -2,17 +2,19 @@
 sheaf energy (`src/models/sheaf_energy.py`),
 
     h0 = TypeEncoder(x),   (P^T P + tau L_hat) Y* = P^T h0,   Y = (x, s, z),   tau = exp(theta_tau),
-    representation = [x*, h0],
+    representation = x*            (spec 1.25 Z3; [x*, h0] under the arm `ablation.ego_head`),
 
 solved by PCG with an implicit backward (`src/models/anchored_solve.py`). `Delta_0` runs over the
 observed facts with the D1 map operators (one conformal scale per fact, D1a); every path 2-cell
 couples to every node on it through ordered parallel transport, with weight `beta_f = w_f m_f`,
-`w_f = exp(g(path_latent_f))`. The arms of spec §6 are configurations of this one path (`model.arm`).
+`w_f = exp(L tanh(g(path_latent_f) / L))` (spec 1.25 Z4, L = 10). The arms of spec §6 are
+configurations of this one path (`model.arm`).
 
 One encoder, three task heads (plan §4.8), selected by `data.task_type`:
-- node classification: `MLP([x*, h0])` on the target nodes;
-- link prediction: the `dot` / `distmult` decoders on `[x*, h0]` (spec v1.22 W2);
-- graph classification: pooling of `[x*, h0]` per graph -> one Linear layer.
+- node classification: `MLP(x*)` on the target nodes;
+- link prediction: the `dot` / `distmult` decoders on `x*` (spec v1.22 W2);
+- graph classification: pooling of `x*` per graph -> one Linear layer
+(spec 1.25 Z3; `[x*, h0]` under the arm `ablation.ego_head`, the 1.24 readout).
 The v2 propagation (Chebyshev filter bank / first-order update, listen/broadcast gates, pair
 attention, the v2 path switches, identity maps, the dense map family) was removed by the
 legacy-removal card (v1/v2).
@@ -33,11 +35,12 @@ from src.models.graph_readout import GraphReadout
 from src.models.link_readout import LinkPredictionReadout
 from src.models.map_operators import (
     EdgeMapPair,
-    FactorizedMapOperator,
     IdentityMapOperator,
     PathTransportOperator,
+    TD1MapOperator,
     checkpoint_if_grad,
-    normalize_reflectors,
+    orthonormal_subspaces,
+    skew_from_coefficients,
 )
 from src.models.anchored_solve import (LogWeightRangeStopError, NonFiniteLogWeightError,
                                        PCGConvergenceError, SolveStats, TauStopError,
@@ -49,13 +52,8 @@ from src.models.sheaf_energy import (
     build_cell_group,
 )
 from src.models.node_encoder import TypeSpecificNodeEncoder
-from src.models.relational_context import RelationalContext
 from src.models.orthogonal import Orthogonal
-from src.models.sheaf_maps import (
-    REFLECTOR_NORM_EPS,
-    FactorizedNodeToEdgeSheaf,
-    gathered_linear,
-)
+from src.models.sheaf_maps import TD1Factors, TD1NodeToEdgeSheaf, validate_map_rank
 from src.models.vertex_path_laplacian import HolonomyEdgeTerm
 
 
@@ -178,7 +176,9 @@ class EncodedState(NamedTuple):
 
     h0: torch.Tensor
     x_star: torch.Tensor  # x* (h0 under ablation.h0_only_readout)
-    representation: torch.Tensor  # [x*, h0] (h0 under ablation.h0_only_readout)
+    # x* (spec 1.25 Z3); [x*, h0] under ablation.ego_head; h0 under ablation.h0_only_readout;
+    # the instance feature appended under the arm instance_features
+    representation: torch.Tensor
     operator: "AnchoredState | None"  # None under ablation.h0_only_readout
 
 
@@ -194,26 +194,14 @@ class H2SNNOutput(NamedTuple):
     max_edge_scale: torch.Tensor | None
 
 
-def _hop_block(hop_tokens: torch.Tensor, num_paths: int, reference: torch.Tensor
-               ) -> tuple[torch.Tensor, torch.Tensor]:
-    """`(tokens, index)` for `gathered_linear`: one shared row (schema groups, index 0) or one
-    row per cell (WISP groups)."""
-    if hop_tokens.size(0) == 1:
-        return hop_tokens, reference.new_zeros(num_paths)
-    return hop_tokens, torch.arange(num_paths, device=reference.device)
-
-
 class PathEncoder(nn.Module):
     """Positional `concat` encoder over the ordered `h0` of a path and its hop tokens (the schema's
     relation embeddings, or per-cell action embeddings under WISP): one `Linear + GELU` per path
     length; its output feeds the path gate."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
-                 factored_inputs: bool = False) -> None:
-        """`d`: width of the per-node input (`h0`; `[h0, c]` only under the spec v1.4 appendix
-        switch `ablation.path_weight_context`).
-        `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions).
-        `factored_inputs`: project per node, then gather (`gathered_linear`; D12, R7)."""
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
+        """`d`: width of the per-node input (`h0`; spec 1.25 Z1: no relational context).
+        `d_r`: width of one hop token (d_r, or d_r + 3 with per-cell actions)."""
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {
@@ -223,7 +211,6 @@ class PathEncoder(nn.Module):
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
-        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -241,10 +228,6 @@ class PathEncoder(nn.Module):
                 f"{available}). ModelDims.face_lengths must list every length in the data."
             )
         num_paths = face_node_index.size(0)
-        if self.factored_inputs:
-            blocks = [(h0, face_node_index[:, j]) for j in range(length + 1)]
-            blocks.append(_hop_block(hop_tokens, num_paths, face_node_index))
-            return self.activation(gathered_linear(self.input_proj[key], blocks))
         inputs = torch.cat(
             [h0[face_node_index].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)],
             dim=-1,
@@ -257,15 +240,13 @@ class EndpointEncoder(nn.Module):
     (ablation `path_mode: endpoint_edges`, and the `endpoints` arm of the C2 weight ladder: no
     intermediate node enters)."""
 
-    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...],
-                 factored_inputs: bool = False) -> None:
+    def __init__(self, d: int, d_r: int, hidden_dim: int, face_lengths: tuple[int, ...]) -> None:
         super().__init__()
         self.input_proj = nn.ModuleDict(
             {str(length): nn.Linear(2 * d + length * d_r, hidden_dim) for length in face_lengths}
         )
         self.activation = nn.GELU()
         self.latent_dim = hidden_dim
-        self.factored_inputs = factored_inputs
 
     def forward(
         self,
@@ -276,10 +257,6 @@ class EndpointEncoder(nn.Module):
         length = int(face_node_index.size(1)) - 1
         num_paths = face_node_index.size(0)
         endpoints = face_node_index[:, [0, length]]
-        if self.factored_inputs:
-            blocks = [(h0, endpoints[:, 0]), (h0, endpoints[:, 1]),
-                      _hop_block(hop_tokens, num_paths, face_node_index)]
-            return self.activation(gathered_linear(self.input_proj[str(length)], blocks))
         inputs = torch.cat(
             [h0[endpoints].reshape(num_paths, -1), hop_tokens.expand(num_paths, -1)], dim=-1
         )
@@ -326,56 +303,67 @@ def _rotation_parameters(count: int, orthogonal: Orthogonal, d: int) -> nn.Param
 
 
 class FreeIncidenceMaps(nn.Module):
-    """Arm `free_cell_maps` (Thm 3 control): one orthogonal map `R_{position} H_k(u_{v,f})` per
-    incidence, `u` from `[h_v, path_latent_f, onehot(position)]` (same factorized family as
-    the node->edge maps, but not forced by functoriality)."""
+    """Arm `free_cell_maps` (C17; Thm 3 control): one free map per fact-cell incidence from the TD-1
+    family of the fact maps (spec 1.25; author 2026-11-18, option A),
+    `R_position exp(U_position C_{v,f} U_position^T)`, with one FastHPP frame and one `U` per hop
+    position and `C_{v,f}` in so(m) from an MLP over `[h_v, path_latent_f, onehot(position)]` whose
+    output layer is zero-initialised (`C = 0` at init). Not forced by functoriality."""
 
-    def __init__(self, d: int, latent_dim: int, hidden_dim: int, householder_k: int,
-                 max_positions: int, orthogonal_map: str, node_dim: int | None = None,
-                 factored_inputs: bool = False) -> None:
+    def __init__(self, d: int, latent_dim: int, hidden_dim: int, map_rank: int,
+                 max_positions: int, orthogonal_map: str) -> None:
         super().__init__()
+        validate_map_rank(map_rank, d)
         self.d = d
-        self.factored_inputs = factored_inputs
-        node_dim = d if node_dim is None else node_dim
-        self.householder_k = householder_k
+        self.map_rank = map_rank
+        self.num_skew = map_rank * (map_rank - 1) // 2
         self.max_positions = max_positions
         self.orthogonal = Orthogonal(d=d, orthogonal_map=orthogonal_map)
-        self.rotation_params = _rotation_parameters(max_positions, self.orthogonal, d)
-        self.reflector_mlp = nn.Sequential(
-            nn.Linear(node_dim + latent_dim + max_positions, hidden_dim),
+        self.frame_params = _rotation_parameters(max_positions, self.orthogonal, d)
+        self.subspace_params = nn.Parameter(torch.empty(max_positions, d, map_rank))
+        nn.init.normal_(self.subspace_params, mean=0.0, std=1.0)
+        self.skew_mlp = nn.Sequential(
+            nn.Linear(d + latent_dim + max_positions, hidden_dim),
             nn.GELU(),
-            nn.Linear(hidden_dim, householder_k * d),
+            nn.Linear(hidden_dim, self.num_skew),
         )
+        nn.init.zeros_(self.skew_mlp[-1].weight)
+        nn.init.zeros_(self.skew_mlp[-1].bias)
 
-    def forward(self, h0: torch.Tensor, face_node_index: torch.Tensor,
-                latent: torch.Tensor) -> FactorizedMapOperator:
+    def factors(self, h0: torch.Tensor, face_node_index: torch.Tensor, latent: torch.Tensor
+                ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """`(exp(C) - I [P * size, m, m], U [positions, d, m], frames [positions, d, d])`; row
+        `p * size + i` is incidence `i` of cell `p`."""
         num_paths, size = face_node_index.shape
         positions = torch.arange(size, device=h0.device)
         onehot = nn.functional.one_hot(positions, self.max_positions).to(h0.dtype)
-        if self.factored_inputs:
-            blocks = [(h0, face_node_index.reshape(-1)),
-                      (latent, torch.arange(num_paths, device=h0.device).repeat_interleave(size)),
-                      (onehot, positions.repeat(num_paths))]
-            raw = self.reflector_mlp[1:](gathered_linear(self.reflector_mlp[0], blocks))
-        else:
-            inputs = torch.cat(
-                [
-                    h0[face_node_index],
-                    latent.unsqueeze(1).expand(num_paths, size, -1),
-                    onehot.unsqueeze(0).expand(num_paths, size, -1),
-                ],
-                dim=-1,
-            ).reshape(num_paths * size, -1)
-            raw = self.reflector_mlp(inputs)
-        reflectors = normalize_reflectors(
-            raw.view(-1, self.householder_k, self.d), REFLECTOR_NORM_EPS
-        )
-        return FactorizedMapOperator(
-            scale=h0.new_ones(num_paths * size),  # unused: free maps are orthogonal
-            reflectors=reflectors,
-            rotations=self.orthogonal(self.rotation_params),
-            group_ids=positions.repeat(num_paths),
-        )
+        inputs = torch.cat(
+            [
+                h0[face_node_index],
+                latent.unsqueeze(1).expand(num_paths, size, -1),
+                onehot.unsqueeze(0).expand(num_paths, size, -1),
+            ],
+            dim=-1,
+        ).reshape(num_paths * size, -1)
+        generator = skew_from_coefficients(self.skew_mlp(inputs), self.map_rank)
+        eye = torch.eye(self.map_rank, dtype=generator.dtype, device=generator.device)
+        return (torch.linalg.matrix_exp(generator) - eye,
+                orthonormal_subspaces(self.subspace_params), self.orthogonal(self.frame_params))
+
+    def operator(self, rotation: torch.Tensor, subspaces: torch.Tensor, frames: torch.Tensor,
+                 num_paths: int, length: int) -> TD1MapOperator:
+        """The free maps of `num_paths` cells of `length` hops (scale 1: free maps are orthogonal)."""
+        positions = int(subspaces.size(0))
+        return TD1MapOperator(
+            scale=rotation.new_ones(num_paths * length), rotation=rotation,
+            group_ids=torch.arange(length, device=rotation.device).repeat(num_paths),
+            subspaces=subspaces, frames=frames,
+            instance_groups=tuple(True for _ in range(positions)),
+            frame_index=tuple(range(positions)))
+
+    def forward(self, h0: torch.Tensor, face_node_index: torch.Tensor,
+                latent: torch.Tensor) -> TD1MapOperator:
+        num_paths, size = face_node_index.shape
+        return self.operator(*self.factors(h0, face_node_index, latent), num_paths, size)
 
 
 _LINK_PREDICTION = "link_prediction"
@@ -402,7 +390,7 @@ class H2SNN(nn.Module):
         self.anchored = anchored
         # Arm "maps = I" (spec 1.23 X-11; S2 with arm full, S0 with arm no_path_cells): every fact
         # map's orthogonal factor is I, so every transport is I; c_e, g, beta_f, tau, solver and head
-        # unchanged; the frames and the reflector MLP are not parameters.
+        # unchanged; the frames, W_r and the skew rows of the edge MLP are not parameters.
         self.identity_maps = ablation.fact_maps_identity
 
         self.node_encoder: TypeSpecificNodeEncoder | None = None
@@ -430,52 +418,40 @@ class H2SNN(nn.Module):
             tuple(range(dims.num_relations)) if ablation.direction_blind_maps
             else tuple(dims.self_inverse_relations)
         )
-        # D12 G1: geometry inputs [h0, c] (parameter-free context; false = the D11 model).
-        self.relational_context: RelationalContext | None = None
-        geometry_dim = d
-        if model_config.geometry_context:
-            self.relational_context = RelationalContext(dims.num_relations,
-                                                        self.shared_role_relations)
-            geometry_dim = d + self.relational_context.output_dim(d)
-        self.geometry_dim = geometry_dim
-        self.node_to_edge = FactorizedNodeToEdgeSheaf(
+        # Spec 1.25 Z1: the geometry (maps, fact weights, g) reads each endpoint's h0 only; the
+        # relational context c is removed.
+        # Spec 1.25 Z2: TD-1 maps, one frame per relation with rho(r) != r, rank m = map_rank.
+        self.node_to_edge = TD1NodeToEdgeSheaf(
             d=d,
             d_r=model_config.d_r,
             num_relations=dims.num_relations,
             hidden_dim=model_config.edge_mlp_hidden_dim,
-            householder_k=model_config.householder_k,
+            map_rank=model_config.map_rank,
             scale_eps=model_config.map_scale_eps,
             orthogonal_map=model_config.orthogonal_map,
-            map_scale=self.map_scale,
             checkpoint=model_config.checkpointing,
             shared_role_relations=self.shared_role_relations,
-            input_dim=geometry_dim,
-            factored_inputs=model_config.geometry_context,
             identity_maps=self.identity_maps,
         )
+        # N2c (pre-registration §4.3): C_e = 0 in evaluation forwards only (a training forward raises).
+        self.type_only_maps = config.evaluation.type_only_maps
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
         self.path_log_weight: nn.Parameter | None = None
-        # Part H: w_f = exp(g) without gamma; the C2 ladder restricts the inputs of g on identical
-        # cells.
+        # Part H: w_f = exp(g) without gamma; spec 1.25 Z4 bounds it, w_f = exp(L tanh(g / L)); the C2
+        # ladder restricts the inputs of g on identical cells.
+        self.log_weight_bound = float(model_config.path_log_weight_bound)
         self.path_weight_input = ablation.path_weight_input
-        # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0;
-        # [h0, c] only under the appendix switch. Maps and gates keep geometry_dim.
-        self.path_weight_context = ablation.path_weight_context
-        path_input_dim = geometry_dim if self.path_weight_context else d
-        self.path_input_dim = path_input_dim
+        # Spec v1.4 (R12): g, i.e. the path encoder and its gate, reads each instance node's h0.
+        path_input_dim = d
         self.path_actions = dims.path_actions
         hop_dim = model_config.d_r + (3 if dims.path_actions else 0)
         hidden = model_config.face_mlp_hidden_dim
         if self.path_weight_input == "full":
-            self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden,
-                                            dims.face_lengths,
-                                            factored_inputs=model_config.geometry_context)
+            self.path_encoder = PathEncoder(path_input_dim, hop_dim, hidden, dims.face_lengths)
         elif self.path_weight_input == "endpoints":
             hidden = endpoint_hidden_width(hidden, path_input_dim, hop_dim, dims.face_lengths)
-            self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden,
-                                                dims.face_lengths,
-                                                factored_inputs=model_config.geometry_context)
+            self.path_encoder = EndpointEncoder(path_input_dim, hop_dim, hidden, dims.face_lengths)
         elif self.path_weight_input == "schema":
             self.path_encoder = SchemaEncoder(hop_dim, hidden, dims.face_lengths)
         if self.path_weight_input != "uniform":
@@ -484,17 +460,19 @@ class H2SNN(nn.Module):
             self.path_gate = nn.Linear(hidden, 1)
             nn.init.constant_(self.path_gate.bias, math.log(model_config.path_weight_init))
         else:
-            # uniform: w_f = exp(b) for every cell (b alone; no g input).
+            # uniform: w_f = exp(L tanh(b / L)) for every cell (b alone; no g input; spec 1.25 Z4).
             self.path_log_weight = nn.Parameter(
                 torch.tensor(math.log(model_config.path_weight_init)))
         self.last_path_stats: dict[str, float] = {}
         self.last_path_weights: tuple[torch.Tensor, ...] = ()
 
-        # Task head on the node representation [x*, h0] (h0 under h0_only_readout); the v3-B arm
-        # `instance_features` adds the anchor's cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
-        representation_dim = d if self.h0_only else 2 * d
+        # Task head on the node representation x* (spec 1.25 Z3; h0 under h0_only_readout; [x*, h0]
+        # under the arm ego_head, the 1.24 readout); the v3-B arm `instance_features` adds the anchor's
+        # cell feature sum_f beta_f mean_v T_{v,f} h_v (C14).
+        self.ego_head = ablation.ego_head
+        representation_dim = d if self.h0_only else (2 * d if self.ego_head else d)
         if anchored and self.arm == "instance_features":
-            representation_dim = 3 * d
+            representation_dim += d
         self.readout: nn.Sequential | None = None
         self.link_readout: LinkPredictionReadout | None = None
         self.graph_readout: GraphReadout | None = None
@@ -542,12 +520,19 @@ class H2SNN(nn.Module):
                               else model_config.face_mlp_hidden_dim)
                 self.free_cell_maps = FreeIncidenceMaps(
                     d=d, latent_dim=latent_dim, hidden_dim=model_config.edge_mlp_hidden_dim,
-                    householder_k=model_config.householder_k,
+                    map_rank=model_config.map_rank,
                     max_positions=max(dims.face_lengths, default=1),
                     orthogonal_map=model_config.orthogonal_map,
-                    node_dim=geometry_dim,
-                    factored_inputs=model_config.geometry_context,
                 )
+
+    def _type_only(self) -> bool:
+        """N2c type-only read-out (`evaluation.type_only_maps`): evaluation forwards only."""
+        if not self.type_only_maps:
+            return False
+        if self.training:
+            raise ValueError("evaluation.type_only_maps (N2c, C_e = 0) is an evaluation-only read-out "
+                             "of a trained checkpoint; a training forward with it is refused.")
+        return True
 
     # ------------------------------------------------------------------ scalars
     def tau(self) -> torch.Tensor | None:
@@ -603,16 +588,14 @@ class H2SNN(nn.Module):
 
     def geometry_inputs(self, h0: torch.Tensor, edge_index: torch.Tensor,
                         edge_type: torch.Tensor) -> torch.Tensor:
-        """[h0, c] under geometry_context (D12 G1), else h0: the input of the map MLPs, the gate
-        heads and the path encoder. Computed once per forward, before any propagation."""
-        if self.relational_context is None:
-            return h0
-        return torch.cat([h0, self.relational_context(h0, edge_index, edge_type)], dim=-1)
+        """The input of the map MLPs: `h0` itself (spec 1.25 Z1, the geometry is a function of the
+        incidence alone; the relational context `c` is removed). Kept as a method so that analysis
+        and known-answer code reads the geometry the way the model does."""
+        return h0
 
     def path_inputs(self, h0: torch.Tensor, geometry: torch.Tensor) -> torch.Tensor:
-        """The per-node input of g (spec v1.4 R12): each node's own h0, or the v1.3 geometry
-        [h0, c] under `ablation.path_weight_context` (appendix pair)."""
-        return geometry if self.path_weight_context else h0
+        """The per-node input of g (spec v1.4 R12): each node's own h0."""
+        return h0
 
     def _path_latent(self, h0: torch.Tensor, group: FaceGroup) -> torch.Tensor | None:
         """`[P, hidden]` path latent of g, or None (`path_weight_input: uniform`)."""
@@ -646,16 +629,23 @@ class H2SNN(nn.Module):
         tokens = torch.cat([relation_weight[relations], onehot], dim=-1)
         return tokens.reshape(relations.size(0), -1)
 
+    def _bounded(self, logits: torch.Tensor) -> torch.Tensor:
+        """`L tanh(g / L)` (spec 1.25 Z4): the log-weight range is at most `2L`."""
+        bound = self.log_weight_bound
+        return bound * torch.tanh(logits / bound)
+
     def _path_weights(self, latent: torch.Tensor | None, group: FaceGroup,
                       like: torch.Tensor) -> torch.Tensor:
-        """`w_f = exp(g(latent_f))`; under `path_weight_input: uniform`, `exp(b)`."""
+        """`w_f = exp(L tanh(g(latent_f) / L))` (spec 1.25 Z4, every rung of the C2 ladder); under
+        `path_weight_input: uniform`, `exp(L tanh(b / L))`."""
         if self.path_gate is None:
-            return torch.exp(self.path_log_weight).expand(group.num_faces)  # type: ignore[arg-type]
+            return torch.exp(self._bounded(self.path_log_weight)).expand(  # type: ignore[arg-type]
+                group.num_faces)
         logits = self.path_gate(latent).squeeze(-1)
         if self.anchored and not bool(torch.isfinite(logits).all()):  # spec v1.16 K5, before exp
             bad = logits[~torch.isfinite(logits)][0]
             raise NonFiniteLogWeightError(float(bad), self._current_epoch)
-        return torch.exp(logits)
+        return torch.exp(self._bounded(logits))
 
     # ------------------------------------------------------------------ encoder
     def encode(
@@ -683,7 +673,8 @@ class H2SNN(nn.Module):
     def _cell_weights(self, h0: torch.Tensor, geometry: torch.Tensor,
                       groups: tuple[FaceGroup, ...]
                       ) -> tuple[list[torch.Tensor], list[torch.Tensor], list[torch.Tensor | None]]:
-        """Per group: `beta_f = w_f m_f`, `w_f = exp(g(xi_f))` and g's latent (spec §3.2c)."""
+        """Per group: `beta_f = w_f m_f`, `w_f = exp(L tanh(g(xi_f) / L))` and g's latent (spec §3.2c,
+        1.25 Z4)."""
         path_input = self.path_inputs(h0, geometry)
         betas, weights, latents = [], [], []
         for group in groups:
@@ -717,7 +708,7 @@ class H2SNN(nn.Module):
                          num_nodes: int, epoch: int,
                          scope_index: ScopeIndex | None = None) -> EncodedState:
         """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
-        geometry once from `[h0, c]`, cell weights from g, then `AnchoredSolve` on the eliminated
+        geometry once from `h0`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
         tau_stop, range_stop = self.stop_limits
         self._current_epoch = epoch  # for the stop conditions raised inside g (K5)
@@ -725,10 +716,12 @@ class H2SNN(nn.Module):
         if tau_value > tau_stop:  # spec §6 stop condition (J10)
             raise TauStopError(tau_value, tau_stop, epoch)
         geometry = self.geometry_inputs(h0, edge_index, edge_type)
-        maps = self.node_to_edge(
+        type_only = self._type_only()
+        sheaf = self.node_to_edge(
             h=geometry, edge_index=edge_index, edge_type=edge_type,
-            relation_embeddings=self.relation_embedding.weight,
-        ).maps
+            relation_embeddings=self.relation_embedding.weight, type_only=type_only,
+        )
+        maps, factors = sheaf.maps, sheaf.factors
         groups = tuple(group for group in face_groups if group.num_faces > 0)
         arm = self.arm
         cells_in_solve = arm not in ("closure_only", "no_path_cells", "instance_features")
@@ -749,13 +742,15 @@ class H2SNN(nn.Module):
             for group, latent in zip(groups, latents):
                 # one free map per fact-cell incidence, indexed by the hop's near node and position
                 # (its latent is g's; the v2 map encoder never existed under anchored)
-                free = self.free_cell_maps(geometry, group.face_node_index[:, :-1], latent)
-                free_params.extend([free.reflectors, free.rotations])
+                free_params.extend(self.free_cell_maps.factors(
+                    geometry, group.face_node_index[:, :-1], latent))
         num_groups = len(groups)
         device = h0.device
 
         identity_maps = self.identity_maps
         d_stalk = self.d
+        node_to_edge = self.node_to_edge
+        free_cell_maps = self.free_cell_maps
 
         def build(scale: torch.Tensor, *factors_and_rest: torch.Tensor) -> EliminatedOperator:
             if identity_maps:  # arm maps = I (S2/S0): only the per-edge scale (a_e = c_e^2)
@@ -763,12 +758,10 @@ class H2SNN(nn.Module):
                 pair = EdgeMapPair(src=IdentityMapOperator(scale, d_stalk),
                                    tgt=IdentityMapOperator(scale, d_stalk))
             else:
-                refl_src, rot_src, refl_tgt, rot_tgt = factors_and_rest[:4]
-                rest = factors_and_rest[4:]
-                pair = EdgeMapPair(
-                    src=FactorizedMapOperator(scale, refl_src, rot_src, edge_type),
-                    tgt=FactorizedMapOperator(scale, refl_tgt, rot_tgt, edge_type),
-                )
+                rotation, subspaces, frames = factors_and_rest[:3]
+                rest = factors_and_rest[3:]
+                pair = node_to_edge.operators(TD1Factors(scale, rotation, subspaces, frames),
+                                              edge_type, type_only)
             group_betas, free_tensors = rest[:num_groups], rest[num_groups:]
             cell_groups, node_terms = [], []
             for i, (group, beta) in enumerate(zip(groups, group_betas)):
@@ -776,11 +769,8 @@ class H2SNN(nn.Module):
                     free_maps = None
                     if arm == "free_cell_maps":
                         num_paths, length = group.face_edge_index.shape
-                        free_maps = FactorizedMapOperator(
-                            scale=beta.new_ones(num_paths * length),
-                            reflectors=free_tensors[2 * i], rotations=free_tensors[2 * i + 1],
-                            group_ids=torch.arange(length, device=device).repeat(num_paths),
-                        )
+                        free_maps = free_cell_maps.operator(
+                            *free_tensors[3 * i:3 * i + 3], num_paths, length)
                     cell_groups.append(build_cell_group(pair, group, edge_index, beta, free_maps))
                 elif arm == "closure_only":
                     transport = PathTransportOperator(
@@ -798,8 +788,8 @@ class H2SNN(nn.Module):
         if identity_maps:
             params = (maps.src.scale, *betas, *free_params)
         else:
-            params = (maps.src.scale, maps.src.reflectors, maps.src.rotations,
-                      maps.tgt.reflectors, maps.tgt.rotations, *betas, *free_params)
+            params = (factors.scale, factors.rotation, factors.subspaces, factors.frames, *betas,
+                      *free_params)
         warmup_epochs, warmup_tolerance, final_tolerance, max_iterations = self.solver_settings
         tolerance = solver_tolerance(epoch, warmup_epochs, warmup_tolerance, final_tolerance)
         with torch.no_grad():  # layout of the solved system (for the warm start and the log)
@@ -836,7 +826,7 @@ class H2SNN(nn.Module):
             self._warm_start = y_star.detach()
             self._warm_start_key = draw_key
         x_star = y_star[:num_nodes]
-        parts = [x_star, h0]
+        parts = [x_star, h0] if self.ego_head else [x_star]
         if arm == "instance_features":
             parts.append(self._instance_features(h0, maps, edge_index, groups, betas, num_nodes))
         tau = self.tau().detach()  # type: ignore[union-attr]

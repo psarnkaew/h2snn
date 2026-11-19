@@ -1,0 +1,37 @@
+head=f255a6351da9a18bd82ce7d0b1b1780d8e594627 host=g2n01 job=16741 step=83
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'freebase' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ogbn-mag' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'mag-year' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-cs' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-eng' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-chem' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ieee-cis-g' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'h-pokec' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'pdns' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+ValueError: Unknown dataset 'ogbn-mag_pp'; set data.task_type explicitly.
+ValueError: Unknown dataset 'h-pokec_uu'; set data.task_type explicitly.
+baseline cells 288 runnable 141
+h2snn node_classification    acm          resolves           configs/experiments/acm_h2snn_v3b.yaml   
+h2snn node_classification    dblp         resolves           configs/experiments/dblp_h2snn_v3b.yaml  
+h2snn node_classification    imdb         resolves           configs/experiments/imdb_h2snn_v3b.yaml  
+h2snn node_classification    freebase     does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'freebase' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    ogbn-mag     does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ogbn-mag' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    mag-year     does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'mag-year' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    oag-cs       does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-cs' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    oag-eng      does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-eng' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    oag-chem     does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'oag-chem' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    ieee-cis-g   does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'ieee-cis-g' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    h-pokec      does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'h-pokec' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn node_classification    pdns         does not resolve   dataset preset only ({'data': {'dataset_ ValueError: no calibrated data.wisp_walks_per_anchor for dataset 'pdns' at wisp_max_length 4 (calibrated: []); set r explicitly (spec v1.6 E11).
+h2snn link_prediction        acm_pa       resolves           configs/experiments/acm_pa_h2snn_v3b.yam 
+h2snn link_prediction        dblp_ap      resolves           dataset preset only ({'data': {'dataset_ 
+h2snn link_prediction        imdb_ma      resolves           dataset preset only ({'data': {'dataset_ 
+h2snn link_prediction        freebase_bb  resolves           dataset preset only ({'data': {'dataset_ 
+h2snn link_prediction        pubmed       resolves           dataset preset only ({'data': {'dataset_ 
+h2snn link_prediction        lastfm       resolves           dataset preset only ({'data': {'dataset_ 
+h2snn link_prediction        ogbn-mag_pp  does not resolve   dataset preset only ({'data': {'dataset_ ValueError: Unknown dataset 'ogbn-mag_pp'; set data.task_type explicitly.
+h2snn link_prediction        h-pokec_uu   does not resolve   dataset preset only ({'data': {'dataset_ ValueError: Unknown dataset 'h-pokec_uu'; set data.task_type explicitly.
+h2snn graph_classification   mutag        resolves           configs/experiments/mutag_h2snn_v3b.yaml 
+h2snn graph_classification   proteins     resolves           dataset preset only ({'data': {'dataset_ 
+h2snn graph_classification   enzymes      resolves           dataset preset only ({'data': {'dataset_ 
+h2snn graph_classification   nci1         resolves           dataset preset only ({'data': {'dataset_ 

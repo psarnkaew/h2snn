@@ -1,0 +1,212 @@
+{
+ "graph": "s3_graph.graph_s3(n = 2000, seed 0)",
+ "num_nodes": 298000,
+ "num_facts": 296000,
+ "relations": [
+  "p__r1__a",
+  "a__r2__b",
+  "b__r3__c",
+  "c__r4__q"
+ ],
+ "tag_balance": {
+  "a": {
+   "relevant_nodes": 2000,
+   "other_nodes": 6000,
+   "tv_distance": 0.0,
+   "distinct_vectors": 2,
+   "relevant_distribution": {
+    "(0.0, 0.0, 0.0, 0.0, -1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5,
+    "(0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5
+   }
+  },
+  "b": {
+   "relevant_nodes": 2000,
+   "other_nodes": 30000,
+   "tv_distance": 0.0,
+   "distinct_vectors": 2,
+   "relevant_distribution": {
+    "(-1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5,
+    "(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5
+   }
+  },
+  "c": {
+   "relevant_nodes": 2000,
+   "other_nodes": 126000,
+   "tv_distance": 0.0,
+   "distinct_vectors": 4,
+   "relevant_distribution": {
+    "(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0, -1.0, 1.0, 0.0, 0.0)": 0.25,
+    "(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0, 1.0, 1.0, 0.0, 0.0)": 0.25,
+    "(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, -1.0, 1.0, 0.0, 0.0)": 0.25,
+    "(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0)": 0.25
+   }
+  },
+  "q": {
+   "relevant_nodes": 2000,
+   "other_nodes": 126000,
+   "tv_distance": 0.0,
+   "distinct_vectors": 2,
+   "relevant_distribution": {
+    "(-1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5,
+    "(1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)": 0.5
+   }
+  },
+  "pass": true,
+  "slot_layout": "vector = [own tag, own tagged] + per relation r (fact-layer order ['p__r1__a', 'a__r2__b', 'b__r3__c', 'c__r4__q']) and role s: [mean tag, mean tagged]"
+ },
+ "fact_probe": {
+  "r1": {
+   "held_out_accuracy": 0.49,
+   "n_fit": 1000,
+   "n_test": 1000,
+   "chance_interval_99": [
+    0.459,
+    0.541
+   ],
+   "within": true
+  },
+  "r2": {
+   "held_out_accuracy": 0.515,
+   "n_fit": 1000,
+   "n_test": 1000,
+   "chance_interval_99": [
+    0.459,
+    0.541
+   ],
+   "within": true
+  },
+  "r3": {
+   "held_out_accuracy": 0.514,
+   "n_fit": 1000,
+   "n_test": 1000,
+   "chance_interval_99": [
+    0.459,
+    0.541
+   ],
+   "within": true
+  },
+  "r4": {
+   "held_out_accuracy": 0.51,
+   "n_fit": 1000,
+   "n_test": 1000,
+   "chance_interval_99": [
+    0.459,
+    0.541
+   ],
+   "within": true
+  },
+  "pass": true,
+  "features": "[x_u, x_v, onehot(r1..r4)] along the chain P->Q (spec 1.25 Z1: no c)"
+ },
+ "reachability": {
+  "scalar_reach": 1.0,
+  "needed_gap": 6.238324625039508,
+  "statement": "b and theta_tau move at most 1.0 each in 100 epochs (lr 1e-2 constant): tau in [0.37, 2.72], b shifts every cell alike; a relevant/irrelevant gap ~ log 512 = 6.24 must come from g (one projection + GELU + linear per length; a 3-input XOR of +-1 tags is representable by one GELU hidden layer, DERIVED)"
+ },
+ "git": "321e017fa79098a866f574f9bbc41600c4ebe4f6",
+ "host": "g3n01",
+ "slurm_job": "17700",
+ "array_task": "",
+ "r_choice": {
+  "chosen_r": 2560,
+  "ladder": {
+   "640": {
+    "1": {
+     "targets_with_all_64": 0.0825,
+     "length4_cells_share": 0.9640703125,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 123433,
+      "4": 123401
+     }
+    },
+    "2": {
+     "targets_with_all_64": 0.0985,
+     "length4_cells_share": 0.9645546875,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 123391,
+      "4": 123463
+     }
+    },
+    "3": {
+     "targets_with_all_64": 0.0925,
+     "length4_cells_share": 0.9644453125,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 123439,
+      "4": 123449
+     }
+    }
+   },
+   "1280": {
+    "1": {
+     "targets_with_all_64": 0.923,
+     "length4_cells_share": 0.9987578125,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 127853,
+      "4": 127841
+     }
+    },
+    "2": {
+     "targets_with_all_64": 0.931,
+     "length4_cells_share": 0.9988984375,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 127836,
+      "4": 127859
+     }
+    },
+    "3": {
+     "targets_with_all_64": 0.9255,
+     "length4_cells_share": 0.9988125,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 127833,
+      "4": 127848
+     }
+    }
+   },
+   "2560": {
+    "1": {
+     "targets_with_all_64": 1.0,
+     "length4_cells_share": 1.0,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 128000,
+      "4": 128000
+     }
+    },
+    "2": {
+     "targets_with_all_64": 1.0,
+     "length4_cells_share": 1.0,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 127999,
+      "4": 128000
+     }
+    },
+    "3": {
+     "targets_with_all_64": 1.0,
+     "length4_cells_share": 1.0,
+     "max_per_target": 64,
+     "cells": {
+      "2": 32000,
+      "3": 128000,
+      "4": 128000
+     }
+    }
+   }
+  }
+ },
+ "audit_pass": true
+}

@@ -8,8 +8,9 @@ with `fact_maps_identity: true`). Synthetic graphs only (the real data root is u
     atol 1e-12).
 (3) `full` bit-identical: run separately (`v3b_golden.py compare`, `mb0_reference.py compare`; E, 1
     thread, one node), not here.
-(4) S2 (and S0): one training step is finite and every parameter moves; the frames and the reflector
-    MLP do not exist in the arm (so they receive no gradient); the tuning validation refuses the key.
+(4) S2 (and S0): one training step is finite and every parameter moves; the frames, `W_r` and the skew
+    rows of the edge MLP do not exist in the arm (spec 1.25 Z-17: `R_r = I`, `C_e = 0`, `c_e` kept);
+    the tuning validation refuses the key.
 """
 
 from __future__ import annotations
@@ -118,9 +119,11 @@ class IdentityArmStepTests(unittest.TestCase):
 
         data, model = _data_and_model(arm=arm)
         names = dict(model.named_parameters())
-        self.assertFalse([n for n in names if "reflector_mlp" in n or "rotation_params" in n],
-                         "the frames and the reflector MLP are not parameters of maps = I")
-        self.assertIn("node_to_edge.edge_scale_mlp.0.weight", names)   # a_e = c_e^2 stays learned
+        self.assertFalse([n for n in names if "frame_params" in n or "subspace_params" in n],
+                         "the frames and W_r are not parameters of maps = I")
+        self.assertIn("node_to_edge.edge_mlp.0.weight", names)   # a_e = c_e^2 stays learned
+        self.assertEqual(tuple(names["node_to_edge.edge_mlp.2.weight"].shape)[0], 1,
+                         "only the scale row of the edge MLP (no skew rows) under maps = I")
         cfg = _config(arm)
         optimizer = build_optimizer(model, cfg)
         before = {n: p.detach().clone() for n, p in names.items()}

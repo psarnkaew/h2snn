@@ -1,0 +1,39 @@
+head=de9ba8d6a3056b65910482269efa08e24529a9df host=g2n01 job=17646
+worktree:  M src/builders.py
+worktree:  M src/configs/config.py
+worktree:  M src/trainers/minibatch_lp.py
+worktree: ?? configs/experiments/h-pokec_uu_h2snn_v3b.yaml
+worktree: ?? configs/experiments/ogbn-mag_pp_h2snn_v3b.yaml
+worktree: ?? src/data/large_lp_h2snn.py
+worktree: ?? src/trainers/large_lp_trainer.py
+worktree: ?? tests/test_large_lp_h2snn.py
+worktree: ?? ../docs/dryrun_evidence/d4b_tests.sbatch
+test_no_held_out_positive_is_a_fact_of_any_scope (tests.test_large_lp_h2snn.HeldOutRouteTests.test_no_held_out_positive_is_a_fact_of_any_scope) ... (warning lines cut)
+test_one_lp_step_is_finite_and_parameters_move (tests.test_large_lp_h2snn.OneStepTests.test_one_lp_step_is_finite_and_parameters_move) ... (warning lines cut)
+test_message_graph_and_pairs_are_the_bundles (tests.test_large_lp_h2snn.SameDataTests.test_message_graph_and_pairs_are_the_bundles) ... ok
+test_task_tables (tests.test_large_lp_h2snn.SameDataTests.test_task_tables) ... ok
+test_evaluation_scores_every_link (tests.test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... (warning lines cut)
+test_no_held_out_fact_in_any_scope (tests.test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (tests.test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (tests.test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+test_v_concat_mlp_is_refused_for_the_large_tasks (tests.test_large_lp.DecoderTests.test_v_concat_mlp_is_refused_for_the_large_tasks) ... ok
+test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it (tests.test_large_lp.EpochLoopTests.test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it) ... ok
+test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch (tests.test_large_lp.EpochLoopTests.test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch) ... ok
+test_iii_training_run_on_a_synthetic_task (tests.test_large_lp.EpochLoopTests.test_iii_training_run_on_a_synthetic_task) ... (warning lines cut)
+test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts (tests.test_large_lp.HeldOutTests.test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts) ... ok
+test_chunked_two_hop_equals_unchunked (tests.test_large_lp.NegativeTests.test_chunked_two_hop_equals_unchunked) ... ok
+test_list_free_choices_equal_random_choices (tests.test_large_lp.NegativeTests.test_list_free_choices_equal_random_choices) ... ok
+test_iv_split_equals_the_derived_tasks_rule (tests.test_large_lp.SplitTests.test_iv_split_equals_the_derived_tasks_rule) ... ok
+test_iv_split_is_by_unordered_pair (tests.test_large_lp.SplitTests.test_iv_split_is_by_unordered_pair) ... ok
+test_i_negative_control_other_links_do_not_change_a_score (tests.test_large_lp.StepScopeTests.test_i_negative_control_other_links_do_not_change_a_score) ... ok
+test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope (tests.test_large_lp.StepScopeTests.test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope) ... ok
+test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph) ... (warning lines cut)
+test_each_wired_method_one_lp_step_is_finite_and_moves (tests.test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) ... No CUDA runtime is found, using CUDA_HOME='/usr'
+test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) ... (warning lines cut)
+test_dataset_classes (tests.test_budget_table.BudgetTableTests.test_dataset_classes) ... ok
+test_one_row_per_task_and_dataset_class (tests.test_budget_table.BudgetTableTests.test_one_row_per_task_and_dataset_class) ... ok
+test_baseline_budget_follows_the_source_protocol (tests.test_budget_table.ReadersTests.test_baseline_budget_follows_the_source_protocol) ... ok
+test_h2snn_reads_the_table (tests.test_budget_table.ReadersTests.test_h2snn_reads_the_table) ... ok
+test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) ... ok
+Ran 27 tests in 56.631s
+OK

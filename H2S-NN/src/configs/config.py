@@ -34,6 +34,24 @@ REMOVED_VALUES: dict[tuple[str, str], tuple[str, ...]] = {
     ("data", "path_sampler"): ("uniform_instance",),
 }
 _REMOVED_KEY_NAMES = frozenset(key for keys in REMOVED_KEYS.values() for key in keys)
+# Spec 1.25 (model change TD-1): keys of the method removed by the 1.25 change (Z1: the relational context
+# `c`; Z2: the Householder instance maps). A configuration or search space that names one raises.
+REMOVED_BY_SPEC_125: dict[str, dict[str, str]] = {
+    "model": {"geometry_context": "Z1", "householder_k": "Z2"},
+    "ablation": {"path_weight_context": "Z1"},
+}
+_REMOVED_125_REASONS = {
+    "Z1": "the relational context c is removed: maps, fact weights and g read h0 only",
+    "Z2": "the Householder instance maps are replaced by TD-1 (model.map_rank, fixed at 4)",
+}
+_REMOVED_125_KEY_NAMES = {key: item for keys in REMOVED_BY_SPEC_125.values()
+                          for key, item in keys.items()}
+
+
+def removed_by_spec_125_message(section: str, key: str) -> str:
+    item = REMOVED_BY_SPEC_125[section][key]
+    return (f"{section}.{key} is removed by spec 1.25 {item} ({_REMOVED_125_REASONS[item]}); a "
+            "configuration that names it raises.")
 
 
 def _reject_removed_value(section: str, key: str, value: Any) -> None:
@@ -48,6 +66,9 @@ def _reject_removed_settings(section: str, raw: Mapping[str, Any]) -> None:
         if key in raw:
             raise ValueError(f"{section}.{key} is {REMOVED_BY_LEGACY_CARD}; a configuration that "
                              "names it raises.")
+    for key in REMOVED_BY_SPEC_125.get(section, {}):
+        if key in raw:
+            raise ValueError(removed_by_spec_125_message(section, key))
     for (value_section, key), _ in REMOVED_VALUES.items():
         if value_section == section and key in raw:
             _reject_removed_value(section, key, raw[key])
@@ -62,16 +83,12 @@ NEVER_TUNED_MODEL_KEYS: tuple[str, ...] = ("coupling",)
 COUPLING_MODES: tuple[str, ...] = ("symmetric",)
 # D12 G0b diagnostic (gap ladder): never a search-space parameter (identity_maps removed, B1).
 NEVER_TUNED_DIAGNOSTIC_KEYS: tuple[str, ...] = ("feature_normalization",)
-# D12 comparison arms (C8, C9): never a search-space parameter; the non-default values are refused
-# in a tuning base config (evidence rows, never tuned, never defaults).
-NEVER_TUNED_D12_KEYS: tuple[str, ...] = ("geometry_context",)
 # Part H (WISP, spec v1.3 §3.2): the path source and the WISP method constants are never tuned.
 # Spec v1.15 J2 (card Part M, M10): the support `wisp_max_length` (l_max in {2, 3, 4, 5}) and the
 # precision `wisp_walks_per_anchor` (r in {8, 16, 32, 64}) ARE tuned; they left this list.
 PATH_SOURCES: tuple[str, ...] = ("schemas", "wisp")
 NEVER_TUNED_WISP_KEYS: tuple[str, ...] = ("path_source", "path_weight", "path_weight_init",
-                                           "path_weight_input", "wisp_proposal",
-                                           "path_weight_context")
+                                           "path_weight_input", "wisp_proposal")
 # Spec v1.15 J3 / experiment_settings.html §4.2 (second table): keys that are not components of
 # the method are never in H2S-NN's search space (the tuner refuses them by exact name).
 NEVER_TUNED_LEGACY_KEYS: tuple[str, ...] = (
@@ -79,6 +96,7 @@ NEVER_TUNED_LEGACY_KEYS: tuple[str, ...] = (
     "path_sampler", "face_sample_k", "exclude_identity_metapaths", "metapath_templates",
     "feature_normalization", "per_side_scale", "identity_maps", "h0_only_readout",
     "direction_blind_maps", "free_path_maps", "endpoint_edges", "holonomy_edges",
+    "ego_head",  # spec 1.25 Z3: an arm switch (C18), never a search key
     "no_path_cells", "uniform_path_gate", "num_label_prop_steps",
     "compute_relation_diagnostics", "checkpointing", "node_edge_memory_guard_fraction",
     "overlap_sampling", "resample_paths")
@@ -138,6 +156,15 @@ NEVER_TUNED_V3B_KEYS: tuple[str, ...] = ("propagation", "arm", "tau_init", "solv
                                          "solver_warmup_tolerance", "solver_warmup_epochs",
                                          "solver_max_iterations", "tau_stop",
                                          "log_weight_range_stop")
+# Spec 1.25 (Z2, Z-18): the TD-1 map rank m is a fixed method constant (4), never in a search space;
+# a tuning base config must carry 4 (other values exist for unit tests only).
+MAP_RANK: int = 4
+# Spec 1.25 Z4 (Z-35 - Z-38): log w_f = L tanh(g / L), L = 10 fixed, never tuned.
+PATH_LOG_WEIGHT_BOUND: float = 10.0
+NEVER_TUNED_TD1_KEYS: tuple[str, ...] = ("map_rank", "path_log_weight_bound")
+# Spec 1.25 Z2 / pre-registration §4.3 N2c: the type-only read-out (C_e = 0) is an evaluation switch of
+# analysis scripts; refused in any training forward (the model raises) and in any tuning setup.
+EVALUATION_ONLY_KEYS: tuple[str, ...] = ("type_only_maps",)
 # Spec 1.23 X-11 (card 4 K1): `ablation.fact_maps_identity` = false (the model) or true (every fact map's
 # orthogonal factor I, hence every transport I): S2 = arm full with identity maps, S0 = arm
 # no_path_cells with identity maps. A comparison arm: refused in a tuning base config and never a
@@ -149,7 +176,10 @@ ARM_KEYS: tuple[tuple[str, str, str], ...] = (("model", "arm", "full"),
                                               ("ablation", "fact_maps_identity", "False"),
                                               # spec 1.24 Y4 (card 4b L3): two more arm switches
                                               ("ablation", "direction_blind_maps", "False"),
-                                              ("ablation", "h0_only_readout", "False"))
+                                              ("ablation", "h0_only_readout", "False"),
+                                              # spec 1.25 Z3 (C18): an arm of configuration (a),
+                                              # not tuned on its own (no tuning.arm mode)
+                                              ("ablation", "ego_head", "False"))
 # Spec 1.23 X-6a / pre-registration §1 configuration (b) (card 4 K6, arm-tuning mode): the five arms
 # tuned on their own (plus, 1.24 Y4, the two arm switches' own modes), and the one (section, key,
 # value) each may set in a tuning base config.
@@ -219,6 +249,11 @@ def reject_never_tuned_settings(
     for name in search_parameters:
         if str(name).split(".")[-1] in _REMOVED_KEY_NAMES:
             raise ValueError(f"tuning search space contains {name!r}: {REMOVED_BY_LEGACY_CARD}.")
+        last = str(name).split(".")[-1]
+        if last in _REMOVED_125_KEY_NAMES:
+            section = next(s for s, keys in REMOVED_BY_SPEC_125.items() if last in keys)
+            raise ValueError(f"tuning search space contains {name!r}: "
+                             + removed_by_spec_125_message(section, last))
     optim = (raw_config or {}).get("optim") or {}
     # Spec v1.15 §6 (J4): no learning-rate scheduler and no gradient clipping for any method.
     if str(optim.get("scheduler", "none")) != "none" or float(optim.get("grad_clip", 0.0)) > 0:
@@ -232,10 +267,19 @@ def reject_never_tuned_settings(
             "(plan §9.1); tune the tied model and report untied separately."
         )
     model = (raw_config or {}).get("model") or {}
-    if model.get("geometry_context", True) is not True:
-        raise ValueError(
-            "model.geometry_context: false is the C9 comparison arm and must not be used in tuning."
-        )
+    # Spec 1.25 Z2 (Z-18): m = 4 is fixed; N2c's type-only switch is evaluation-only.
+    if "map_rank" in model and model.get("map_rank") != MAP_RANK:
+        raise ValueError(f"model.map_rank: {model.get('map_rank')!r} in a tuning base config; the TD-1 "
+                         f"rank is fixed at {MAP_RANK} and never tuned (spec 1.25 Z2, Z-18).")
+    if ("path_log_weight_bound" in model
+            and float(model.get("path_log_weight_bound")) != PATH_LOG_WEIGHT_BOUND):
+        raise ValueError(f"model.path_log_weight_bound: {model.get('path_log_weight_bound')!r} in a "
+                         f"tuning base config; L is fixed at {PATH_LOG_WEIGHT_BOUND} and never tuned "
+                         "(spec 1.25 Z4, Z-38).")
+    evaluation = (raw_config or {}).get("evaluation") or {}
+    if evaluation.get("type_only_maps", False) is not False:
+        raise ValueError("evaluation.type_only_maps is the N2c type-only read-out (pre-registration "
+                         "§4.3), set only by evaluation and analysis scripts; refused in tuning.")
     # Card 4 K6 (b), spec 1.23 X-6a: `tuning.arm` names one of the five separately tuned arms; then
     # exactly that arm's key (and value) is accepted, every other arm key is still refused. Without
     # it (the main table) every arm key is refused.
@@ -297,11 +341,6 @@ def reject_never_tuned_settings(
     if str(data.get("wisp_proposal", "uniform")) != "uniform":
         raise ValueError("data.wisp_proposal: adaptive is not the pre-registered proposal "
                          "(spec §6) and must not be used in a tuning base config.")
-    if ((raw_config or {}).get("ablation") or {}).get("path_weight_context", False) is not False:
-        raise ValueError(
-            "ablation.path_weight_context: true is the spec v1.4 appendix pair (g reads [h0, c]) "
-            "and must not be used in tuning."
-        )
     # Spec v1.22 W2: H2S-NN's LP decoder is tuned in {dot, DistMult}, the LP head shared with every
     # baseline; `concat_mlp` (removed from the model and refused by `DataConfig` validation, M3a-fix)
     # is refused in a base config, in a search space and in a trial's values.
@@ -324,17 +363,16 @@ def reject_never_tuned_settings(
         if last == "batch_size" and dataset not in H2GB_NC_DATASETS:
             raise ValueError(f"tuning search space contains {name!r} on {dataset!r}: the batch "
                              "size is tuned on the H2GB node-classification datasets only (MB2).")
-        # exact last component: `model.encoder_dropout` is an ordinary hyperparameter
-        if str(name).split(".")[-1] in NEVER_TUNED_D12_KEYS:
-            raise ValueError(
-                f"tuning search space contains {name!r}: the D12 comparison switches "
-                "(geometry_context) are never tuned."
-            )
         if any(key in str(name) for key in NEVER_TUNED_DIAGNOSTIC_KEYS):
             raise ValueError(
                 f"tuning search space contains {name!r}: feature_normalization "
                 "are D12 diagnostics, never tuned."
             )
+        if str(name).split(".")[-1] in NEVER_TUNED_TD1_KEYS + EVALUATION_ONLY_KEYS:
+            raise ValueError(
+                f"tuning search space contains {name!r}: the TD-1 rank m (= {MAP_RANK}), the weight "
+                f"bound L (= {PATH_LOG_WEIGHT_BOUND}) and the N2c type-only read-out are never tuned "
+                "(spec 1.25 Z2, Z4, Z-18, Z-38; pre-registration §4.3).")
         if str(name).split(".")[-1] in NEVER_TUNED_V3B_KEYS:
             raise ValueError(
                 f"tuning search space contains {name!r}: the v3-B propagation, arm, tau init and "
@@ -597,6 +635,12 @@ LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
         "neg_sampling_mode": "resample_each_epoch",
         "link_val_ratio": 0.10,
     },
+    # card 2 D4b: the large LP tasks' target relations, as `src/data/large_lp.py: LARGE_LP_TASKS` (a test checks
+    # they are equal); split, negatives and message graph are the task files' (`LargeLinkBundle`), never these ratios.
+    "ogbn-mag_pp": {"target_relation": ("paper", "cites", "paper"),
+                    "neg_sampling_mode": "resample_each_epoch"},
+    "h-pokec_uu": {"target_relation": ("user", "has_friend", "user"),
+                   "neg_sampling_mode": "resample_each_epoch"},
     "amazon": {
         # HGB's official Amazon LP benchmark (data/amazon): single node type
         # "product", two relations (rel_0 = co-view, rel_1 = co-purchase) both
@@ -773,6 +817,8 @@ DATASET_TASK_TYPES: dict[str, str] = {
     "pubmed": "link_prediction",
     "youtube": "link_prediction",
     "amazon": "link_prediction",
+    # card 2 D4b: the two large LP tasks (mini-batch, MB1; data from the baselines' LargeLinkBundle)
+    **{name: "link_prediction" for name in LARGE_LP_DATASETS},
     "mutag": "graph_classification",
     "proteins": "graph_classification",
     "enzymes": "graph_classification",
@@ -1331,23 +1377,24 @@ class ModelConfig:
     # ("mean" | "max" | "add" | "attention" = HetSheaf's AttentionPooling); tuned (M10).
     graph_pooling: str = "mean"
     orthogonal_map: str = "fasthpp"
-    # Node->edge restriction maps (decision D1): "factorized", F = c R_{relation,side} H_k(u),
-    # matrix-free (the dense family was removed by the legacy-removal card, B4).
+    # Node->edge restriction maps: "factorized" = matrix-free TD-1 maps (spec 1.25 Z2),
+    # F_src = c I, F_tgt = c R_r exp(U_r C_e U_r^T) (the dense family was removed by the legacy-removal
+    # card, B4; the Householder instance maps by spec 1.25 Z2).
     map_family: str = "factorized"
-    # Householder reflections k per incidence in the factorized family, 1 <= k <= d.
-    householder_k: int = 2
+    # TD-1 rank m: U_r in R^{d x m}, C_e in so(m). Fixed at 4, never tuned (spec 1.25 Z2, Z-18);
+    # 2 <= m <= d accepted for unit tests.
+    map_rank: int = MAP_RANK
     # Lower bound eps of the conformal scale c = softplus(.) + eps.
     map_scale_eps: float = 0.1
     # Activation checkpointing of the matrix-free map and Laplacian applications.
     checkpointing: bool = True
-    # D12 (spec v1.2 R10, Eq. 9): the geometry (map MLPs, gate heads, path encoder) is computed
-    # once from [h0, c], c = per-(relation, role) mean of the neighbours' h0 over facts. false =
-    # geometry from h0 alone (the D11 model; comparison arm C9). Never tuned.
-    geometry_context: bool = True
     # Part H (spec v1.3 §3.2c): "exp" = w_f = exp(g(xi_f)) with the bias b of g initialised to
     # log(path_weight_init) and no gamma (`sigmoid_gamma` removed by the legacy-removal card).
     path_weight: str = "exp"
     path_weight_init: float = 0.5
+    # Spec 1.25 Z4: bounded cell weights, log w_f = L tanh(g(xi_f) / L) with L = path_log_weight_bound
+    # (10, fixed, never tuned): the log-weight range is at most 2L = 20 < log_weight_range_stop.
+    path_log_weight_bound: float = PATH_LOG_WEIGHT_BOUND
     # v3-B (spec v1.11 R13; card Part L): "anchored", Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y
     # on the three-level energy (nodes, facts, cells), solved by PCG with an implicit backward. The
     # only value (the v2 `chebyshev` propagation was removed by the legacy-removal card); the key
@@ -1401,13 +1448,12 @@ class ModelConfig:
             raise ValueError(
                 f"model.path_weight must be one of {PATH_WEIGHTS}, got {self.path_weight!r}."
             )
+        if not self.path_log_weight_bound > 0.0:
+            raise ValueError(f"model.path_log_weight_bound must be positive, got "
+                             f"{self.path_log_weight_bound}.")
         if not self.path_weight_init > 0.0:
             raise ValueError(
                 f"model.path_weight_init must be positive, got {self.path_weight_init}."
-            )
-        if not isinstance(self.geometry_context, bool):
-            raise ValueError(
-                f"model.geometry_context must be a boolean, got {self.geometry_context!r}."
             )
         if self.orthogonal_map != "fasthpp":
             raise ValueError(
@@ -1418,18 +1464,10 @@ class ModelConfig:
             raise ValueError(
                 f"Unsupported model.map_family '{self.map_family}'. Supported value: factorized."
             )
-        if isinstance(self.householder_k, bool) or not isinstance(self.householder_k, int):
-            raise ValueError(
-                f"model.householder_k must be an integer, got {self.householder_k!r}."
-            )
-        if self.householder_k < 1:
-            raise ValueError(f"model.householder_k must be >= 1, got {self.householder_k}.")
-        if self.householder_k > self.d:
-            # d reflections already generate O(d), so k > d adds parameters, not reach.
-            raise ValueError(
-                f"model.householder_k must be <= d={self.d} for map_family='factorized', "
-                f"got {self.householder_k}."
-            )
+        if isinstance(self.map_rank, bool) or not isinstance(self.map_rank, int):
+            raise ValueError(f"model.map_rank must be an integer, got {self.map_rank!r}.")
+        if not 2 <= self.map_rank <= self.d:
+            raise ValueError(f"model.map_rank must be in [2, d={self.d}], got {self.map_rank}.")
         if not self.map_scale_eps > 0.0:
             raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
         if not isinstance(self.checkpointing, bool):
@@ -1452,13 +1490,13 @@ class ModelConfig:
             orthogonal_map=str(raw.get("orthogonal_map", "fasthpp")),
             map_family=str(raw.get("map_family", "factorized")),
             # Not cast with int(): 2.9 or `true` must fail validation, not become 2 or 1.
-            householder_k=raw.get("householder_k", 2),
+            map_rank=raw.get("map_rank", MAP_RANK),
             map_scale_eps=float(raw.get("map_scale_eps", 0.1)),
             # Not cast with bool(): a string such as "false" must fail validation.
             checkpointing=raw.get("checkpointing", True),
-            geometry_context=raw.get("geometry_context", True),
             path_weight=path_weight,
             path_weight_init=float(raw.get("path_weight_init", 0.5)),
+            path_log_weight_bound=float(raw.get("path_log_weight_bound", PATH_LOG_WEIGHT_BOUND)),
             propagation=str(raw.get("propagation", "anchored")),
             arm=str(raw.get("arm", "full")),
             tau_init=float(raw.get("tau_init", 1.0)),
@@ -1486,15 +1524,14 @@ class AblationConfig:
     # parameter count within 5 %); "schema" = the actions only; "uniform" = no input (w_f = exp(b):
     # the former `uniform_path_gate`). Same cells, same transports. Never tuned.
     path_weight_input: str = "full"
-    # Spec v1.4 (E1-E2, R12): g reads each instance node's own h0 (false, the model), or the
-    # v1.3 input [h0, c] (true: the appendix pair, full and endpoints only; needs
-    # geometry_context). Maps read [h0, c] either way. Never tuned.
-    path_weight_context: bool = False
     # Read out from h0 only (sanity control: is diffusion used at all?; D12 G0b diagnostic).
     h0_only_readout: bool = False
-    # Same frame on both sides, no side code and a symmetrized c_e for EVERY relation
-    # (shared roles everywhere; the analogue of DSNN's q = 0).
+    # Every relation treated as one with rho(r) = r (spec 1.25 Z-13): no frame, antisymmetric C_e and
+    # a symmetrized c_e for EVERY relation (shared roles everywhere; the analogue of DSNN's q = 0).
     direction_blind_maps: bool = False
+    # Spec 1.25 Z3 (C18): the head reads [x*, h0] (the 1.24 readout, same widths) instead of x* alone.
+    # An arm of configuration (a); refused in a main-table tuning base config; never tuned.
+    ego_head: bool = False
     # v3-B has no listen / broadcast gates (spec v1.11 D-B1): `symmetric` is the only value (the
     # D10/D11 modes `cooperative`, `listen_only`, `pair_attention` were removed, legacy-removal B2).
     # Never tuned.
@@ -1511,6 +1548,9 @@ class AblationConfig:
         if self.fact_maps_identity and (self.h0_only_readout or self.direction_blind_maps):
             raise ValueError("ablation.fact_maps_identity is one change from full / no_path_cells; it "
                              "cannot be combined with h0_only_readout or direction_blind_maps.")
+        if self.ego_head and self.h0_only_readout:
+            raise ValueError("ablation.ego_head (head reads [x*, h0]) and ablation.h0_only_readout (head "
+                             "reads h0 only) are two different readout arms; they cannot be combined.")
         _reject_removed_value("ablation", "coupling", self.coupling)
         if self.coupling not in COUPLING_MODES:
             raise ValueError(
@@ -1520,11 +1560,6 @@ class AblationConfig:
             raise ValueError(
                 f"ablation.path_weight_input must be one of {PATH_WEIGHT_INPUTS}, got "
                 f"{self.path_weight_input!r}."
-            )
-        if self.path_weight_context and self.path_weight_input not in ("full", "endpoints"):
-            raise ValueError(
-                "ablation.path_weight_context (g reads [h0, c], the spec v1.4 appendix pair) needs "
-                "path_weight_input full or endpoints; schema and uniform read no node at all."
             )
 
     @classmethod
@@ -1571,6 +1606,24 @@ class OptimConfig:
 
 
 @dataclass(slots=True)
+class EvaluationConfig:
+    """Evaluation-only switches (spec 1.25 Z2; pre-registration §4.3 N2c). `type_only_maps`: evaluate
+    with `C_e = 0` (the relation frames alone) on a trained checkpoint; set only by evaluation and
+    analysis scripts: a training forward raises (`H2SNN`) and the tuner refuses it."""
+
+    type_only_maps: bool = False
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.type_only_maps, bool):
+            raise ValueError(f"evaluation.type_only_maps must be a boolean, got {self.type_only_maps!r}.")
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> "EvaluationConfig":
+        _reject_unknown_keys("evaluation", raw, cls)
+        return cls(type_only_maps=raw.get("type_only_maps", False))
+
+
+@dataclass(slots=True)
 class TuningConfig:
     """Card 4 K6 (b), spec 1.23 X-6a: `arm` names one of the five arms tuned on their own
     (`ARM_TUNING_KEYS`); empty (default) = the main table, where every arm key is refused in a tuning
@@ -1595,6 +1648,7 @@ class TrainConfig:
     ablation: AblationConfig = field(default_factory=AblationConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)
     tuning: TuningConfig = field(default_factory=TuningConfig)
+    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
     epochs: int = 200
     seed: int = 42
     device: str = "cuda"
@@ -1613,11 +1667,6 @@ class TrainConfig:
     wandb_log_artifacts: bool = False
 
     def __post_init__(self) -> None:
-        if self.ablation.path_weight_context and not self.model.geometry_context:
-            raise ValueError(
-                "ablation.path_weight_context lets g read [h0, c]; c exists only under "
-                "model.geometry_context: true."
-            )
         if self.tuning.arm:
             section, key, value = ARM_TUNING_KEYS[self.tuning.arm]
             current = str(getattr(getattr(self, section), key))
@@ -1652,6 +1701,7 @@ class TrainConfig:
             ablation=AblationConfig.from_dict(raw.get("ablation", {})),
             optim=OptimConfig.from_dict(raw.get("optim", {})),
             tuning=TuningConfig.from_dict(raw.get("tuning", {}) or {}),
+            evaluation=EvaluationConfig.from_dict(raw.get("evaluation", {}) or {}),
             epochs=int(raw.get("epochs", default_epochs)),
             seed=int(raw.get("seed", 42)),
             device=str(raw.get("device", "cuda")),

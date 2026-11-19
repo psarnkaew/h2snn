@@ -1,0 +1,29 @@
+# Card 2 D3 tests (16741 steps 97, 99, 101; g2n01). Lines printed by the trainers of synthetic tests are removed (they carry metric values).
+## step 97: first run (flag test + tuning/runs tests + Part O reload) before the launcher fixes
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 (D3 working tree) host=g2n01 job=16741 step=97
+.
+----------------------------------------------------------------------
+Ran 18 tests in 16.326s
+
+OK
+## step 99: fixed tree, then the two launcher fixes reverted to HEAD (each test must fail)
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 (D3 working tree) host=g2n01 job=16741 step=99
+== fixed tree
+Ran 20 tests in 12.194s
+OK
+== mutation: HEAD launchers (both bugs back)
+run_baseline_tuning.py: error: the following arguments are required: --task
+ERROR: test_baseline_worker_is_spawned_without_task (tests.test_dry_run_flag.LauncherFixTests.test_baseline_worker_is_spawned_without_task)
+SystemExit: 2
+ERROR: test_final_seeds_run_without_a_wandb_run (tests.test_dry_run_flag.LauncherFixTests.test_final_seeds_run_without_a_wandb_run)
+wandb.errors.errors.Error: You must call wandb.init() before wandb.log()
+Ran 2 tests in 4.569s
+FAILED (errors=2)
+## step 101: third fix (summarize_unit), fixed tree, then the old lambda restored (the test must fail; source dump truncated)
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 (D3 working tree) host=g2n01 job=16741 step=101
+== fixed tree
+Ran 21 tests in 12.083s
+OK
+== mutation: old summarize lambda
+FAIL: test_baseline_unit_summary_selects_by_the_monitor (tests.test_dry_run_flag.LauncherFixTests.test_baseline_unit_summary_selects_by_the_monitor)
+AssertionError: 'summarize=summarize_unit' not found in 'def main() -> None:\n    args = parse_args()\n\n    if args.worker_context is not None:\n        run_campaign_worker(args.worker_context, train

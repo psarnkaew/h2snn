@@ -1,8 +1,9 @@
 """Card 4 K6 (4): parameter table of every ablation arm (pre-registration §4.8, B-13) on ACM, DBLP, IMDB and
 Freebase at `full`'s configuration: total and the part each arm removes or adds. Parts:
 - `g`: path encoder + gate (`path_encoder.*`, `path_gate.*`, or the uniform arm's `path_log_weight`);
-- map network: frames and reflector MLP (`node_to_edge.rotation_params`, `node_to_edge.reflector_mlp.*`);
-- fact-weight MLP: `node_to_edge.edge_scale_mlp.*` (a_e = c_e^2);
+- map network (spec 1.25 TD-1): frames, `W_r` and the one per-edge MLP (`node_to_edge.frame_params`,
+  `node_to_edge.subspace_params`, `node_to_edge.edge_mlp.*`); the MLP also gives c_e (a_e = c_e^2);
+- fact-weight MLP: none since 1.25 (the scale is one output of the map network's MLP; reported as 0);
 - head input: the first readout Linear (`readout.0.*`; 3d input under `instance_features`);
 - free cell maps: `free_cell_maps.*` (arm free_cell_maps only).
 `endpoints`' g must be within 5 % of `full`'s (`endpoint_hidden_width`); `uniform` and `schema` report
@@ -30,8 +31,9 @@ from src.models.h2snn_model import build_model  # noqa: E402
 
 PARTS = {
     "g": ("path_encoder.", "path_gate.", "path_log_weight"),
-    "map_network": ("node_to_edge.rotation_params", "node_to_edge.reflector_mlp."),
-    "fact_weight_mlp": ("node_to_edge.edge_scale_mlp.",),
+    "map_network": ("node_to_edge.frame_params", "node_to_edge.subspace_params",
+                    "node_to_edge.edge_mlp."),
+    "fact_weight_mlp": (),  # spec 1.25: c_e is an output of node_to_edge.edge_mlp (map_network)
     "head_input": ("readout.0.",),
     "free_cell_maps": ("free_cell_maps.",),
 }

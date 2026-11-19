@@ -1,0 +1,21 @@
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 (D3 working tree) host=g2n01 job=16741 step=102
+1
+STEP gcn_n_trials_1 exit=0
+Create sweep with ID: jwxnvcqo
+W&B run 0: attempted=1 succeeded=1 pruned=0 failed=0
+STEP gcn_n_trials_2 exit=0
+W&B run 0: attempted=2 succeeded=2 pruned=0 failed=0
+best_tuned_run0.json
+tuning_failures_run0.json
+tuning_summary.json
+tuning_trials_run0.json
+state sweep jwxnvcqo attempted 2 ok 2 run ids ['jwxnvcqo', 'jwxnvcqo']
+## kill and resume (step 104, d3_kill_resume.sh)
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 host=g2n01 job=16741 step=104
+state: sweep jwxnvcqo attempted 3 ok 3 failed 0
+killed process group 317542 after 25s
+killed agent exit=137
+state: sweep jwxnvcqo attempted 4 ok 4 failed 0
+resumed agent exit=0
+W&B run 0: attempted=5 succeeded=5 pruned=0 failed=0
+state: sweep jwxnvcqo attempted 5 ok 5 failed 0

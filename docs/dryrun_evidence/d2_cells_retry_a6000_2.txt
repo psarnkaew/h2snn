@@ -1,0 +1,4 @@
+gat|link_prediction|acm_pa
+nsd|link_prediction|acm_pa
+h2gformer|link_prediction|acm_pa
+h2gformer|link_prediction|dblp_ap

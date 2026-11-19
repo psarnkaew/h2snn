@@ -1,0 +1,1090 @@
+job=17756 node=g2n01 start=2026-11-18T22:08:23+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m8 head=83a7ff4cddb8d44f919c824d3d5217a6c4453a8a diff_sha256=e3b0c44298fc1c14 untracked=2 snapshot_at=2026-11-18T20:51:48+09:00
+git=83a7ff4cddb8d44f919c824d3d5217a6c4453a8a
+NVIDIA GeForce RTX 2080 Ti, 550.163.01, 11264 MiB
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+===== suite
+test_T10_implicit_gradient_matches_central_finite_differences (test_anchored_solve.ImplicitGradientTests.test_T10_implicit_gradient_matches_central_finite_differences) ... ok
+test_T9_pcg_matches_the_dense_solve (test_anchored_solve.PCGTests.test_T9_pcg_matches_the_dense_solve) ... ok
+  test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=0, loop='ac') ... ERROR
+  test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=1, loop='ac') ... ERROR
+  test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=2, loop='ac') ... ERROR
+test_sweep_objective_is_the_subset_metric (test_b1a_validation_subset.B1aReviewTests.test_sweep_objective_is_the_subset_metric) ... ok
+test_h2gb_record_without_subset_metric_is_refused (test_b1a_validation_subset.B1aSelectionTests.test_h2gb_record_without_subset_metric_is_refused) ... ok
+test_trial_selection_uses_the_sweep_objective (test_b1a_validation_subset.B1aSelectionTests.test_trial_selection_uses_the_sweep_objective) ... ok
+test_best_weights_are_restored (test_b1a_validation_subset.B1aTests.test_best_weights_are_restored) ... 
+  test_best_weights_are_restored (test_b1a_validation_subset.B1aTests.test_best_weights_are_restored) (loop='ac') ... ERROR
+test_no_test_pass_during_training (test_b1a_validation_subset.B1aTests.test_no_test_pass_during_training) ... 
+  test_no_test_pass_during_training (test_b1a_validation_subset.B1aTests.test_no_test_pass_during_training) (loop='ac') ... ERROR
+test_subset_is_deterministic_and_the_same_for_every_method (test_b1a_validation_subset.B1aTests.test_subset_is_deterministic_and_the_same_for_every_method) ... ERROR
+test_best_trial_by_monitor_and_its_params_unchanged_per_seed (test_baseline_final_seeds.BaselineFinalSeedsTests.test_best_trial_by_monitor_and_its_params_unchanged_per_seed) ... ok
+test_trial_record_keeps_its_params (test_baseline_final_seeds.BaselineFinalSeedsTests.test_trial_record_keeps_its_params) ... ok
+test_supported_cells_are_runnable_in_the_registry (test_baselines.AdapterContractTests.test_supported_cells_are_runnable_in_the_registry) ... ok
+test_supports_agrees_with_search_space (test_baselines.AdapterContractTests.test_supports_agrees_with_search_space) ... ok
+Outputs and execution counts must not be committed. ... ok
+The notebooks must call the scripts, not reimplement the campaign. ... ok
+Under HINPool's holdout there is no repetition structure to average over. ... ok
+test_seed_tasks_report_one_standard_deviation (test_baselines.CampaignSummaryTests.test_seed_tasks_report_one_standard_deviation) ... ok
+A search space that fails to resolve must fail now, not mid-campaign. ... ok
+Spec v1.15 §6: no Hyperband (it feeds unconverged scores to the surrogate); the ... ok
+The split position travels as run_index/seed, which build_bundle takes. ... ok
+HINPool's protocol: five seeded stratified 80/10/10 holdouts, not folds. ... ok
+test_link_units_carry_no_split_overrides (test_baselines.CampaignUnitTests.test_link_units_carry_no_split_overrides) ... ok
+test_node_and_link_units_are_seeds (test_baselines.CampaignUnitTests.test_node_and_link_units_are_seeds) ... ok
+Not a pass/fail gate -- prints how much of the matrix is actually implemented. ... ok
+test_a_machine_without_a_gpu_has_no_defect (test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+`unavailable_reason` has to say which of the two problems this is. ... ok
+Linux has a CUDA build (the DGL 2.4.0+cu124 conda package), so a CPU build there is a ... ok
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+The warning must reach the user even where the defect check stays silent. ... ok
+test_scripts_importing_src_bootstrap_the_project_root (test_baselines.EntryPointBootstrapTests.test_scripts_importing_src_bootstrap_the_project_root) ... ok
+W&B terminates a pruned run thread with a bare ``Exception``. ... ok
+Live series and sweep metric must share a key, or nothing can prune. ... ok
+test_shared_loops_accept_a_report (test_baselines.EpochReportingTests.test_shared_loops_accept_a_report) ... ok
+test_splits_are_disjoint (test_baselines.HGBSplitTests.test_splits_are_disjoint) ... ok
+test_train_plus_val_equals_hgb_train_and_test_is_untouched (test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) ... ok
+test_validation_is_twenty_percent_of_hgb_train (test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) ... ok
+test_graph_head_pools_per_graph (test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_featureless_type_falls_back_to_identity (test_baselines.HomogeneousViewTests.test_featureless_type_falls_back_to_identity) ... ok
+Regression: the default view once replaced real features with an identity. ... ok
+test_symmetrization_adds_self_loops_and_drops_duplicates (test_baselines.HomogeneousViewTests.test_symmetrization_adds_self_loops_and_drops_duplicates) ... ok
+test_a_lane_declares_the_vendor_clones_its_models_read (test_baselines.LaneNotebookTests.test_a_lane_declares_the_vendor_clones_its_models_read) ... ok
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... ok
+The whole reason for the split: one optional group per runtime. ... ok
+test_every_lane_drives_the_entry_scripts_and_can_resume (test_baselines.LaneNotebookTests.test_every_lane_drives_the_entry_scripts_and_can_resume) ... ok
+test_every_lane_model_needs_that_lane_group (test_baselines.LaneNotebookTests.test_every_lane_model_needs_that_lane_group) ... ok
+No cell may be dropped between lanes, and none may be run twice. ... ok
+`--epochs` reaches the training loops now, so a notebook must not set it. ... ok
+HINormer on ACM alone; the other four on all three datasets. ... ok
+test_notebooks_are_committed_clean_and_parse (test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) ... ok
+A CPU-only DGL wastes the whole session; the lane must stop, not warn. ... ok
+test_an_explicit_ratio_survives_the_preset (test_baselines.LinkProtocolTests.test_an_explicit_ratio_survives_the_preset) ... ok
+HGB draws validation at 1 - train_ratio = 0.10 on every link dataset. ... ok
+GCN/GAT read ``view.edge_index``, the reduction NSD and CSNN already got. ... ok
+HGB's split leaves part of each held-out set visible; it must be recorded. ... ok
+A second fit in the same process must not fail on import side effects. ... ERROR
+test_oracle_topk_matches_the_vendor_implementation (test_baselines.MultiLabelProtocolTests.test_oracle_topk_matches_the_vendor_implementation) ... ok
+src/utils/misc.py must be able to reproduce PSHGCN/H2SGNN's convention. ... ok
+test_rejects_an_unknown_protocol (test_baselines.MultiLabelProtocolTests.test_rejects_an_unknown_protocol) ... ok
+test_topk_selects_exactly_the_true_label_count (test_baselines.MultiLabelProtocolTests.test_topk_selects_exactly_the_true_label_count) ... ok
+test_no_cell_reads_a_name_no_earlier_cell_defines (test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines) ... ok
+A core lane neither defines nor reads the install-status variables. ... ok
+A gate reading GROUP_OK with no install cell above it must be flagged. ... ok
+The invariant behind the palindrome rule, checked on the LP datasets of the campaign ... ok
+The model slices adjs[j[:2]]; a longer key would index the wrong operator. ... ok
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations. ... ok
+Ten relations over four types, every type pair unique, so chaining applies. ... ok
+test_published_cells_are_declared_runnable (test_baselines.PublishedParamsTests.test_published_cells_are_declared_runnable) ... ok
+test_published_files_declare_a_source (test_baselines.PublishedParamsTests.test_published_files_declare_a_source) ... ok
+test_campaign_matrix_matches_planned_cell_counts (test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts) ... ok
+test_every_cell_is_runnable_or_has_a_reason (test_baselines.RegistryTests.test_every_cell_is_runnable_or_has_a_reason) ... ok
+test_every_model_module_declares_an_adapter (test_baselines.RegistryTests.test_every_model_module_declares_an_adapter) ... ok
+H2GB datasets without a loader and the two large LP tasks: data pending; LatGRL, ... ok
+Seeding torch alone is not enough for these vendored models. ... ok
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_every_published_value_is_reachable (test_baselines.SearchSpaceCoverageTests.test_every_published_value_is_reachable) ... ok
+Read the loops' source: the stopping rule must use the expected key. ... ok
+test_monitor_matches_the_reported_headline_metric (test_baselines.SelectionMetricTests.test_monitor_matches_the_reported_headline_metric) ... ok
+test_sweeps_optimise_the_same_metric_training_selects_on (test_baselines.SelectionMetricTests.test_sweeps_optimise_the_same_metric_training_selects_on) ... ok
+test_the_module_docstring_does_not_contradict_the_code (test_baselines.SelectionMetricTests.test_the_module_docstring_does_not_contradict_the_code) ... ok
+test_every_code_cell_parses (test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+A tuned trial must not be able to buy itself a longer run. ... ok
+test_hyperband_bracket_matches_the_real_epoch_budget (test_baselines.TrainingBudgetTests.test_hyperband_bracket_matches_the_real_epoch_budget) ... ok
+test_no_adapter_sets_its_own_budget (test_baselines.TrainingBudgetTests.test_no_adapter_sets_its_own_budget) ... ok
+Reproducing a reported number means using the budget it was reported at. ... ok
+test_tuned_params_get_the_shared_budget (test_baselines.TrainingBudgetTests.test_tuned_params_get_the_shared_budget) ... ok
+test_all_declared_vendor_clones_are_present (test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present) ... ok
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own. ... FAIL
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+test_binding_is_restored (test_baselines_blocked_spmm.BlockedMatmulTest.test_binding_is_restored) ... ok
+test_forward_exact_and_gradients_match_unblocked (test_baselines_blocked_spmm.BlockedMatmulTest.test_forward_exact_and_gradients_match_unblocked) ... ok
+test_fit_task_runs_hgb_imdb_path (test_baselines_dryrun_blockers.HANImdbNodeClassificationTests.test_fit_task_runs_hgb_imdb_path) ... ok
+test_fit_cell_builds_a_valid_minibatch_configuration (test_baselines_dryrun_blockers.MinibatchBundleBatchSizeTests.test_fit_cell_builds_a_valid_minibatch_configuration) ... ok
+test_mag_year_metapath_schema_and_step (test_baselines_h2gb_classa.H2GformerMagYearTests.test_mag_year_metapath_schema_and_step) ... ERROR
+test_h2gformer_label_channel_reads_training_labels_only (test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only) ... ERROR
+test_h2gformer_step (test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_step) ... ERROR
+test_gat_step (test_baselines_h2gb_classa.OneStepTests.test_gat_step) ... ERROR
+test_gcn_step (test_baselines_h2gb_classa.OneStepTests.test_gcn_step) ... ERROR
+test_han_step (test_baselines_h2gb_classa.OneStepTests.test_han_step) ... ERROR
+test_forward_bases_step_is_finite_and_moves (test_baselines_h2gb_classb.ChebNetIIForwardTests.test_forward_bases_step_is_finite_and_moves) ... ok
+test_block_bases_then_projection_equals_projection_then_propagation (test_baselines_h2gb_classb.ChebNetIIProjectionTests.test_block_bases_then_projection_equals_projection_then_propagation) ... ok
+test_projected_chebnetii_step_is_finite_and_moves (test_baselines_h2gb_classb.ChebNetIIProjectionTests.test_projected_chebnetii_step_is_finite_and_moves) ... ok
+test_hinormer_step_is_finite_and_moves (test_baselines_h2gb_classb.HINormerTests.test_hinormer_step_is_finite_and_moves) ... ok
+test_validation_and_test_read_no_held_out_label (test_baselines_h2gb_classb.Hetero2NetHGBRouteTests.test_validation_and_test_read_no_held_out_label) ... ok
+test_label_channel_reads_no_held_out_label (test_baselines_h2gb_classb.Hetero2NetTests.test_label_channel_reads_no_held_out_label) ... ok
+test_one_training_step_is_finite_and_moves (test_baselines_h2gb_classb.Hetero2NetTests.test_one_training_step_is_finite_and_moves) ... 0it [00:00, ?it/s]1it [00:00, 93.23it/s]
+test_chebnetii_step_is_finite_and_moves (test_baselines_h2gb_classb.OneStepTests.test_chebnetii_step_is_finite_and_moves) ... ok
+test_sehgnn_step_is_finite_and_moves (test_baselines_h2gb_classb.OneStepTests.test_sehgnn_step_is_finite_and_moves) ... ok
+test_width_built_model_equals_their_class_on_mag_widths (test_baselines_h2gb_classb.PSHGCNWidthTests.test_width_built_model_equals_their_class_on_mag_widths) ... ok
+test_mag_random_inputs_and_step (test_baselines_h2gb_classb.SeHGNNMAGInputTests.test_mag_random_inputs_and_step) ... ok
+test_batching_target_rows_is_exact_in_eval (test_baselines_h2gb_classb.SeHGNNPrecomputationTests.test_batching_target_rows_is_exact_in_eval) ... ok
+test_stored_features_equal_independent_meta_path_means (test_baselines_h2gb_classb.SeHGNNPrecomputationTests.test_stored_features_equal_independent_meta_path_means) ... ok
+test_csnn_step (test_baselines_h2gb_classc.ClassCStepTests.test_csnn_step) ... ERROR
+test_nsd_step (test_baselines_h2gb_classc.ClassCStepTests.test_nsd_step) ... ERROR
+A2: their inductive encoder and their readouts `late_token` (SheafPool) and `mean`, one step each on a ... Using sheaf learner: type_concat
+test_one_large_lp_step_is_finite_and_moves (test_baselines_hetsheaf.H2GBStepTests.test_one_large_lp_step_is_finite_and_moves) ... Using sheaf learner: edge_type_concat
+test_one_sampled_node_classification_step_is_finite_and_moves (test_baselines_hetsheaf.H2GBStepTests.test_one_sampled_node_classification_step_is_finite_and_moves) ... ERROR
+The rebinding mechanism (A3): their encoder, built on a placeholder and rebound to a sampled batch (after a ... ERROR
+Design-session condition 1 (S-A0-1): the empty packages and the `lightning.pytorch` alias exist only ... ok
+test_chain_equals_their_hgb_chain_without_subset_train_split (test_baselines_hetsheaf.PreprocessingTests.test_chain_equals_their_hgb_chain_without_subset_train_split) ... ok
+Label-route protection: the shared split comes back unchanged (a split-changing transform such as their ... ok
+test_one_link_prediction_step_is_finite_and_moves (test_baselines_hetsheaf.StepTests.test_one_link_prediction_step_is_finite_and_moves) ... Using sheaf learner: type_concat
+test_one_node_classification_step_is_finite_and_moves (test_baselines_hetsheaf.StepTests.test_one_node_classification_step_is_finite_and_moves) ... Using sheaf learner: attention_type_concat
+test_flag_leaves_outputs_unchanged_without_isolated_nodes (test_baselines_hinormer_isolated.HINormerIsolatedNodeTests.test_flag_leaves_outputs_unchanged_without_isolated_nodes) ... ok
+test_isolated_node_gives_finite_outputs_at_both_build_sites (test_baselines_hinormer_isolated.HINormerIsolatedNodeTests.test_isolated_node_gives_finite_outputs_at_both_build_sites) ... ok
+test_each_wired_method_one_lp_step_is_finite_and_moves (test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) ... 
+  test_each_wired_method_one_lp_step_is_finite_and_moves (test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) (method='h2gformer') ... ERROR
+  test_each_wired_method_one_lp_step_is_finite_and_moves (test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) (method='han') ... ERROR
+test_eval_epoch_rule_is_h2gbs (test_baselines_minibatch.BatchPlanTests.test_eval_epoch_rule_is_h2gbs) ... ok
+test_steps_per_epoch_for_each_batch_size (test_baselines_minibatch.BatchPlanTests.test_steps_per_epoch_for_each_batch_size) ... ok
+test_evaluation_covers_split_once (test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once) ... ERROR
+test_incomplete_pass_is_refused (test_baselines_minibatch.EvaluationCoverageTests.test_incomplete_pass_is_refused) ... ERROR
+test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) ... 
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='ogbn-mag') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='mag-year') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-cs') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-eng') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-chem') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='ieee-cis-g') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='h-pokec') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='pdns') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='ogbn-mag') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='mag-year') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-cs') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-eng') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-chem') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='ieee-cis-g') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='h-pokec') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='pdns') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='ogbn-mag') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='mag-year') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-cs') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-eng') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-chem') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='ieee-cis-g') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='h-pokec') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='pdns') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='ogbn-mag') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='mag-year') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-cs') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-eng') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-chem') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='ieee-cis-g') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='h-pokec') ... ERROR
+  test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='pdns') ... ERROR
+test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) ... FAIL
+test_repeat_fanout_refuses_non_uniform_lists (test_baselines_minibatch.FanoutTests.test_repeat_fanout_refuses_non_uniform_lists) ... ok
+test_loop_runs_plan_and_keeps_best_validation_epoch (test_baselines_minibatch.LoopTests.test_loop_runs_plan_and_keeps_best_validation_epoch) ... ERROR
+test_gcn_full_fanout_equals_full_batch (test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_gcn_full_fanout_equals_full_batch) ... ERROR
+test_diagonals_equal_their_dense_formula (test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_diagonals_equal_their_dense_formula) ... ok
+test_label_part_reads_training_labels_only (test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_label_part_reads_training_labels_only) ... ok
+test_no_sortednp_or_sparse_tools_left_in_sys_modules (test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_no_sortednp_or_sparse_tools_left_in_sys_modules) ... ok
+test_one_step_is_finite_and_moves (test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_one_step_is_finite_and_moves) ... ok
+test_dataset_classes (test_budget_table.BudgetTableTests.test_dataset_classes) ... ok
+test_one_row_per_task_and_dataset_class (test_budget_table.BudgetTableTests.test_one_row_per_task_and_dataset_class) ... ok
+test_baseline_budget_follows_the_source_protocol (test_budget_table.ReadersTests.test_baseline_budget_follows_the_source_protocol) ... ok
+test_h2snn_reads_the_table (test_budget_table.ReadersTests.test_h2snn_reads_the_table) ... ok
+test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) ... ok
+test_arm_mode_builds_for_each_of_the_five_arms (test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_builds_for_each_of_the_five_arms) ... ok
+test_arm_mode_refuses_another_arms_key (test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_refuses_another_arms_key) ... ok
+test_main_table_refuses_every_arm_key (test_card4_ablation_driver.ArmTuningModeTests.test_main_table_refuses_every_arm_key) ... ok
+test_each_arm_differs_from_full_in_exactly_its_keys (test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys) ... ok
+test_full_and_uniform_get_the_same_draws_at_one_seed (test_card4_ablation_driver.PairingTests.test_full_and_uniform_get_the_same_draws_at_one_seed) ... ok
+test_s2_one_step_finite_and_every_parameter_moves (test_card4_identity_maps.IdentityArmStepTests.test_s2_one_step_finite_and_every_parameter_moves) ... ok
+test_key_validated_and_refused_in_tuning (test_card4_identity_maps.IdentityConfigTests.test_key_validated_and_refused_in_tuning) ... ok
+test_s2_jacobi_diagonal_equals_dense_identity_maps (test_card4_identity_maps.IdentityJacobiTests.test_s2_jacobi_diagonal_equals_dense_identity_maps) ... ok
+test_s2_every_transport_is_exactly_identity (test_card4_identity_maps.IdentityTransportTests.test_s2_every_transport_is_exactly_identity) ... ok
+test_arm_spaces_drop_exactly_their_inert_keys (test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_arm_spaces_drop_exactly_their_inert_keys) ... ok
+test_main_table_sweep_keeps_every_key_and_refuses_the_exclusion (test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_main_table_sweep_keeps_every_key_and_refuses_the_exclusion) ... ok
+test_table_entries_are_unread_and_a_read_key_is_refused (test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_table_entries_are_unread_and_a_read_key_is_refused) ... ok
+test_arm_switches_refused_in_main_table_accepted_in_own_mode (test_card4b_prefreeze.ArmSwitchRefusalTests.test_arm_switches_refused_in_main_table_accepted_in_own_mode) ... ok
+test_different (test_check_env.CompareTests.test_different) ... ok
+test_equal (test_check_env.CompareTests.test_equal) ... ok
+test_extra_local_tag_is_a_note_not_a_difference (test_check_env.CompareTests.test_extra_local_tag_is_a_note_not_a_difference) ... ok
+test_locked_local_tag_must_match_exactly (test_check_env.CompareTests.test_locked_local_tag_must_match_exactly) ... ok
+test_missing (test_check_env.CompareTests.test_missing) ... ok
+test_non_exact_pin_is_rejected (test_check_env.CompareTests.test_non_exact_pin_is_rejected) ... ok
+test_parse_normalises_names_and_drops_options (test_check_env.CompareTests.test_parse_normalises_names_and_drops_options) ... ok
+test_repository_lock_parses (test_check_env.CompareTests.test_repository_lock_parses) ... ok
+test_wrong_version_with_local_tag_is_different (test_check_env.CompareTests.test_wrong_version_with_local_tag_is_different) ... ok
+test_cpu_seeding_does_not_touch_cuda_seed_state (test_cuda_hardening.CudaHardeningTests.test_cpu_seeding_does_not_touch_cuda_seed_state) ... ok
+test_fasthpp_has_finite_orthogonal_parameterisation (test_cuda_hardening.CudaHardeningTests.test_fasthpp_has_finite_orthogonal_parameterisation) ... ok
+Non-power-of-two and non-square inputs must fall back to the sequential builder. ... ok
+The compact-WY builder is an implementation swap, not a reparameterisation. ... ok
+test_householder_wy_routes_through_fasthpp (test_cuda_hardening.CudaHardeningTests.test_householder_wy_routes_through_fasthpp) ... ok
+test_matrix_exp_config_is_rejected_before_seeding (test_cuda_hardening.CudaHardeningTests.test_matrix_exp_config_is_rejected_before_seeding) ... ok
+test_deterministic_validation_split_is_reproducible (test_data.DataPipelineTests.test_deterministic_validation_split_is_reproducible) ... ok
+test_encoder_gives_featureless_types_distinct_embeddings (test_data.DataPipelineTests.test_encoder_gives_featureless_types_distinct_embeddings) ... ok
+test_encoder_normalises_featureless_and_featured_types_alike (test_data.DataPipelineTests.test_encoder_normalises_featureless_and_featured_types_alike) ... ok
+test_encoder_sizes_each_type_to_its_own_width (test_data.DataPipelineTests.test_encoder_sizes_each_type_to_its_own_width) ... ok
+test_featureless_node_types_are_padded_to_common_dim (test_data.DataPipelineTests.test_featureless_node_types_are_padded_to_common_dim) ... ok
+test_flatten_and_face_enumeration_build_path_cells (test_data.DataPipelineTests.test_flatten_and_face_enumeration_build_path_cells) ... ok
+test_graph_classification_metrics_include_binary_and_multiclass_auroc (test_data.DataPipelineTests.test_graph_classification_metrics_include_binary_and_multiclass_auroc) ... ok
+test_graph_face_builder_excludes_identity_backtracking (test_data.DataPipelineTests.test_graph_face_builder_excludes_identity_backtracking) ... ok
+test_graph_face_builder_uses_typed_two_hop_paths (test_data.DataPipelineTests.test_graph_face_builder_uses_typed_two_hop_paths) ... ok
+test_graph_holdout_split_is_stratified_and_reproducible (test_data.DataPipelineTests.test_graph_holdout_split_is_stratified_and_reproducible) ... ok
+test_hgb_link_split_uses_81_9_10_ratios (test_data.DataPipelineTests.test_hgb_link_split_uses_81_9_10_ratios) ... ok
+test_hgb_multilabel_target_labels_are_preserved (test_data.DataPipelineTests.test_hgb_multilabel_target_labels_are_preserved) ... ok
+test_hgb_two_hop_negatives_are_grouped_by_source (test_data.DataPipelineTests.test_hgb_two_hop_negatives_are_grouped_by_source) ... ok
+LastFM and PubMed target a single relation, so selection must not shift. ... ok
+test_link_prediction_metrics_include_hgb_mrr (test_data.DataPipelineTests.test_link_prediction_metrics_include_hgb_mrr) ... ok
+HGB scores each test relation separately and averages the results. ... ok
+test_local_hgb_train_valid_split_keeps_each_head_in_train (test_data.DataPipelineTests.test_local_hgb_train_valid_split_keeps_each_head_in_train) ... ok
+test_multilabel_classification_metrics_follow_hgb_threshold (test_data.DataPipelineTests.test_multilabel_classification_metrics_follow_hgb_threshold) ... ok
+test_multilabel_label_propagation_accepts_multi_hot_labels (test_data.DataPipelineTests.test_multilabel_label_propagation_accepts_multi_hot_labels) ... ok
+test_relation_diagnostics_are_a_single_global_vector (test_data.DataPipelineTests.test_relation_diagnostics_are_a_single_global_vector) ... ok
+test_repeated_kfold_config_validates_indices (test_data.DataPipelineTests.test_repeated_kfold_config_validates_indices) ... ok
+test_repeated_kfold_splits_cover_each_repetition_once (test_data.DataPipelineTests.test_repeated_kfold_splits_cover_each_repetition_once) ... ok
+Real data: every PyG edge's type equals the raw label of the same (graph, src, dst) ... ok
+test_tu_type_tensors_fallback_to_single_edge_type (test_data.DataPipelineTests.test_tu_type_tensors_fallback_to_single_edge_type) ... ok
+Edge labels follow PyG's edge order (its `edge_attr`), not the raw file order. ... ok
+test_loader_specs_live_under_lp (test_data_layout.DataLayoutTests.test_loader_specs_live_under_lp) ... ok
+No loader, adapter or script builds a path of the pre-M1 layout (`data/<key>/<key>/raw`, ... ok
+test_roots (test_data_layout.DataLayoutTests.test_roots) ... ok
+test_flag_cannot_be_set_in_a_sweep_config (test_dry_run_flag.DryRunFlagTests.test_flag_cannot_be_set_in_a_sweep_config) ... ok
+test_flag_sets_one_epoch_and_tags_the_runs (test_dry_run_flag.DryRunFlagTests.test_flag_sets_one_epoch_and_tags_the_runs) ... ok
+test_seeds_launcher_flag_sets_one_epoch (test_dry_run_flag.DryRunFlagTests.test_seeds_launcher_flag_sets_one_epoch) ... ok
+`run_unit_sweep` calls `summarize(records, monitor, path)`; the baseline launcher passed the monitor as the ... ok
+`run_unit_sweep` re-spawns `run_baseline_tuning.py --worker_context <file>` only; with `--task` required ... ok
+`--final_seeds` trains outside a sweep worker: no W&B run exists, and the epoch callback's wandb.log ... Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmp9fw19pot/exp/final_seeds/exp_tune_final_seed0_final_seed0
+test_checker_catches_script_violations (test_env_b_install.InstallScriptBTests.test_checker_catches_script_violations) ... ok
+test_repository_install_script (test_env_b_install.InstallScriptBTests.test_repository_install_script) ... ok
+test_checker_catches_lock_violations (test_env_b_install.LockBTests.test_checker_catches_lock_violations) ... ok
+test_repository_lock_b (test_env_b_install.LockBTests.test_repository_lock_b) ... ok
+test_every_h2snn_cell_resolves_a_valid_configuration (test_experiment_configs.ExperimentConfigTests.test_every_h2snn_cell_resolves_a_valid_configuration) ... ok
+test_cuda_float32_matches_cpu_float64_reference (test_factorized_maps.ModelIntegrationTests.test_cuda_float32_matches_cpu_float64_reference) ... ok
+test_campaign_summary_counts_failed_trials_per_cell (test_failed_trials.FailedTrialTests.test_campaign_summary_counts_failed_trials_per_cell) ... ok
+test_each_condition_is_a_failed_trial_without_score (test_failed_trials.FailedTrialTests.test_each_condition_is_a_failed_trial_without_score) ... ok
+test_nan_loss_in_a_baseline_loop_fails_the_trial (test_failed_trials.FailedTrialTests.test_nan_loss_in_a_baseline_loop_fails_the_trial) ... ok
+test_other_errors_are_failed_trials_named_other (test_failed_trials.FailedTrialTests.test_other_errors_are_failed_trials_named_other) ... ok
+test_non_finite_g_raises_before_exp (test_failed_trials.NonFiniteGTests.test_non_finite_g_raises_before_exp) ... ok
+test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset (test_freebase_baselines.B1aSubsetTests.test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset) ... ERROR
+test_pshgcn_h2gb_path_evaluates_the_run_seeds_subset (test_freebase_baselines.B1aSubsetTests.test_pshgcn_h2gb_path_evaluates_the_run_seeds_subset) ... ok
+test_h2sgnn_generic_branch_equals_their_acm_branch (test_freebase_baselines.EquivalenceTests.test_h2sgnn_generic_branch_equals_their_acm_branch) ... ok
+test_pshgcn_generic_branch_equals_their_acm_branch (test_freebase_baselines.EquivalenceTests.test_pshgcn_generic_branch_equals_their_acm_branch) ... ok
+test_h2sgnn_generic_branch_step (test_freebase_baselines.FreebaseStepTests.test_h2sgnn_generic_branch_step) ... ok
+test_pshgcn_generic_branch_step (test_freebase_baselines.FreebaseStepTests.test_pshgcn_generic_branch_step) ... ok
+test_sehgnn_freebase_branch_step (test_freebase_baselines.FreebaseStepTests.test_sehgnn_freebase_branch_step) ... ok
+test_h2sgnn_sampled_batch_step (test_freebase_baselines.H2GBStepTests.test_h2sgnn_sampled_batch_step) ... ERROR
+test_pshgcn_decoupled_rows_step_and_batching_is_exact (test_freebase_baselines.H2GBStepTests.test_pshgcn_decoupled_rows_step_and_batching_is_exact) ... ok
+Every user-user edge PSHGCN propagates over is a message-graph edge: no held-out fact in either ... ok
+test_h2sgnn_names_from_the_schema_equal_the_operators_names (test_freebase_baselines.RelationPlanTests.test_h2sgnn_names_from_the_schema_equal_the_operators_names) ... ok
+2 relations, each stored one way (P -> A, P -> P): the generic branch's operators hold A -> P as the ... ok
+test_parallel_relations_merged_and_missing_reverses_completed (test_freebase_baselines.RelationPlanTests.test_parallel_relations_merged_and_missing_reverses_completed) ... ok
+test_stored_reverses_leave_the_plan_unchanged (test_freebase_baselines.RelationPlanTests.test_stored_reverses_leave_the_plan_unchanged) ... ok
+test_config_rejects_nonpositive_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_config_rejects_nonpositive_patience) ... ok
+test_link_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_link_trainer_honors_patience) ... ok
+test_node_trainer_honors_patience (test_full_graph_early_stopping.FullGraphEarlyStoppingTests.test_node_trainer_honors_patience) ... ok
+test_config_values (test_gap_ladder.FeatureNormalizationTests.test_config_values) ... ok
+build_dataset applies PyG's transform to the HeteroData before stacking; checked here ... ok
+test_diagnostics_rejected_in_search_spaces (test_gap_ladder.NeverTunedTests.test_diagnostics_rejected_in_search_spaces) ... ok
+C = 3, class 2 in neither truth nor prediction. torchmetrics 1.8.2 (the version in ... ok
+test_every_class_present_equals_sklearn (test_gc_metrics.HetSheafF1Tests.test_every_class_present_equals_sklearn) ... ok
+test_h2snn_and_baselines_use_the_same_function (test_gc_metrics.HetSheafF1Tests.test_h2snn_and_baselines_use_the_same_function) ... ok
+Validation loss 1.0, 0.9, 0.95, 0.96, 0.97 with patience 3: stops after epoch 4; the ... ok
+Scores s = W2 tanh(W1 x + b1): W1 = I, b1 = 0, W2 = I (2 heads); per head a softmax ... ok
+test_config_pooling_values (test_gc_protocol.PoolingTests.test_config_pooling_values) ... ok
+test_mean_max_add_by_hand (test_gc_protocol.PoolingTests.test_mean_max_add_by_hand) ... ok
+No BatchNorm, no MLP: the only parameterised layer after pooling is one Linear ... ok
+test_constant_feature_and_batch_size_one (test_gc_protocol.ProtocolOnMutagTests.test_constant_feature_and_batch_size_one) ... ok
+test_node_and_edge_types_are_the_one_hot_argmax (test_gc_protocol.ProtocolOnMutagTests.test_node_and_edge_types_are_the_one_hot_argmax) ... ok
+test_split_is_hetsheaf_randperm_seed_42_for_every_training_seed (test_gc_protocol.ProtocolOnMutagTests.test_split_is_hetsheaf_randperm_seed_42_for_every_training_seed) ... ok
+Spec v1.15 §6 GC (HetSheaf, Part M M5): early stopping on the validation loss; the ... 2026-11-18 22:25:20,805 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0000 | val_acc: 0.0000 | val_auroc: 0.2000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.7000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+`build_dataset` (the H2S-NN and baseline-bundle path) reads the loader: target type, labels and ... ERROR
+test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) ... 
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ogbn-mag') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='mag-year') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-cs') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-eng') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-chem') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ieee-cis-g') ... ERROR
+  test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='h-pokec') ... ERROR
+test_ieee_cis_features_are_normalised_as_h2gb_does (test_h2gb_nc.H2GBLoaderTests.test_ieee_cis_features_are_normalised_as_h2gb_does) ... ERROR
+test_missing_processed_file_is_refused_without_download (test_h2gb_nc.H2GBLoaderTests.test_missing_processed_file_is_refused_without_download) ... ok
+H2GB's OAGDataset downloads when `raw/` is empty (oag_dataset.py:87-88; PyG _download). ... ERROR
+test_loaded_datasets_say_adapter_pending_until_wired (test_h2gb_nc.RegistryTests.test_loaded_datasets_say_adapter_pending_until_wired) ... ok
+test_nc_cell_is_runnable_only_with_a_loader_and_a_count_record (test_h2gb_nc.RegistryTests.test_nc_cell_is_runnable_only_with_a_loader_and_a_count_record) ... ok
+test_heuristics_read_training_facts_only (test_heart_negatives.CrossTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ok
+test_mask_and_scores_use_the_kept_endpoint (test_heart_negatives.CrossTypeWithFeaturesTests.test_mask_and_scores_use_the_kept_endpoint) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.CrossTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.CrossTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.CrossTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+C4: 20 zero-score candidates, 20 needed: the fill must be a permutation (a draw with ... ok
+test_heart_cn_is_common_neighbours_over_candidate_degree (test_heart_negatives.PieceTests.test_heart_cn_is_common_neighbours_over_candidate_degree) ... ok
+test_l3_equals_kovacs_eq1_by_hand (test_heart_negatives.PieceTests.test_l3_equals_kovacs_eq1_by_hand) ... ok
+test_ppr_push_approximates_exact_ppr (test_heart_negatives.PieceTests.test_ppr_push_approximates_exact_ppr) ... ok
+test_rank_score_matrix_matches_heart (test_heart_negatives.PieceTests.test_rank_score_matrix_matches_heart) ... ok
+test_select_top_k_and_fill_without_replacement (test_heart_negatives.PieceTests.test_select_top_k_and_fill_without_replacement) ... ok
+test_textbook_ra_differs (test_heart_negatives.PieceTests.test_textbook_ra_differs) ... ok
+test_too_few_candidates_stop_the_run (test_heart_negatives.PoolTooSmallTests.test_too_few_candidates_stop_the_run) ... ok
+test_heuristics_read_training_facts_only (test_heart_negatives.SameTypeByPairTests.test_heuristics_read_training_facts_only) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.SameTypeByPairTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.SameTypeByPairTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_self_loops_are_never_negatives (test_heart_negatives.SameTypeByPairTests.test_self_loops_are_never_negatives) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.SameTypeByPairTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+test_heuristics_read_training_facts_only (test_heart_negatives.SameTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (test_heart_negatives.SameTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (test_heart_negatives.SameTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (test_heart_negatives.SameTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+test_fully_labeled_graph_has_no_diagnostic_and_one_seed (test_heterophily_metrics.FillConventionTests.test_fully_labeled_graph_has_no_diagnostic_and_one_seed) ... ok
+test_primary_is_the_filled_reference_value (test_heterophily_metrics.FillConventionTests.test_primary_is_the_filled_reference_value) ... ok
+test_jaccard_appendix_equals_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_jaccard_appendix_equals_hand_values) ... ok
+test_per_genre_reference_values_equal_hand_values (test_heterophily_metrics.MultilabelPerGenreTests.test_per_genre_reference_values_equal_hand_values) ... ok
+test_primary_values_are_per_genre_means_not_exact_match (test_heterophily_metrics.MultilabelPerGenreTests.test_primary_values_are_per_genre_means_not_exact_match) ... ok
+test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic (test_heterophily_metrics.MultilabelPerGenreTests.test_unlabeled_movies_are_filled_per_genre_and_labeled_only_is_a_diagnostic) ... ok
+test_exact_match_reproduction_row_equals_hetero2net (test_heterophily_metrics.RandomGraphTests.test_exact_match_reproduction_row_equals_hetero2net) ... ok
+test_own_equals_reference_on_a_random_graph (test_heterophily_metrics.RandomGraphTests.test_own_equals_reference_on_a_random_graph) ... ok
+test_random_fill_matches_the_reference_and_labels_are_restored (test_heterophily_metrics.RandomGraphTests.test_random_fill_matches_the_reference_and_labels_are_restored) ... ok
+test_unlabeled_target_without_fill_raises (test_heterophily_metrics.RandomGraphTests.test_unlabeled_target_without_fill_raises) ... ok
+test_same_type_undirected_cross_type_reversed (test_heterophily_metrics.SymmetriseTests.test_same_type_undirected_cross_type_reversed) ... ok
+test_hand_values_fill_and_labeled_only (test_heterophily_metrics.TaskLevelHEdgeTests.test_hand_values_fill_and_labeled_only) ... ok
+test_adjusted_homophily_applies_the_class_imbalance_correction (test_heterophily_metrics.ToyGraphTests.test_adjusted_homophily_applies_the_class_imbalance_correction) ... ok
+test_aggregates (test_heterophily_metrics.ToyGraphTests.test_aggregates) ... ok
+test_metapath_sets (test_heterophily_metrics.ToyGraphTests.test_metapath_sets) ... ok
+test_own_counts_equal_hand_values (test_heterophily_metrics.ToyGraphTests.test_own_counts_equal_hand_values) ... ok
+test_reference_h2gb_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_h2gb_equals_hand_values) ... ok
+test_reference_hetero2net_equals_hand_values (test_heterophily_metrics.ToyGraphTests.test_reference_hetero2net_equals_hand_values) ... ok
+test_an_empty_2hop_set_gives_none_with_the_reason (test_hgb_lp_negatives.EmptySetMetricTests.test_an_empty_2hop_set_gives_none_with_the_reason) ... ok
+User 0 loses its two friendship facts (0-1, 11-0): its neighbours are artists only, so ... ok
+test_both_test_sets_are_hgb_on_the_release (test_hgb_lp_negatives.LoaderNegativeTests.test_both_test_sets_are_hgb_on_the_release) ... ok
+test_validation_negatives_are_hgb_get_valid_neg (test_hgb_lp_negatives.LoaderNegativeTests.test_validation_negatives_are_hgb_get_valid_neg) ... ok
+test_written_files_are_read_and_must_match_the_positives (test_hgb_lp_negatives.LoaderNegativeTests.test_written_files_are_read_and_must_match_the_positives) ... ok
+Head 0: positive 0.2 below negatives 0.9 and 0.5 -> rank 3, RR 1/3. Head 1: positive ... ok
+test_random_set_by_hand (test_hgb_lp_negatives.RandomSetTests.test_random_set_by_hand) ... ok
+Independent re-implementation of HGB's loop; no negative is a known neighbour (train, ... ok
+test_count_type_range_and_order (test_hgb_lp_negatives.TrainNegativeTests.test_count_type_range_and_order) ... ok
+test_h2snn_and_the_baseline_loop_call_the_same_function (test_hgb_lp_negatives.TrainNegativeTests.test_h2snn_and_the_baseline_loop_call_the_same_function) ... ok
+With a one-node tail type every negative is that node, a known positive: HGB does not ... ok
+test_seed_is_run_seed_plus_epoch (test_hgb_lp_negatives.TrainNegativeTests.test_seed_is_run_seed_plus_epoch) ... ok
+test_candidates_by_hand (test_hgb_lp_negatives.TwoHopCandidateTests.test_candidates_by_hand) ... ok
+No random fallback (mutation target: a fallback gives head 2 a negative). ... ok
+test_no_candidate_is_known_positive_or_self_loop (test_hgb_lp_negatives.TwoHopCandidateTests.test_no_candidate_is_known_positive_or_self_loop) ... ok
+Random graph with a one-way validation set: equal to the independent re-implementation ... ok
+test_test_negatives_by_hand (test_hgb_lp_negatives.TwoHopCandidateTests.test_test_negatives_by_hand) ... ok
+The validation fact 1->6 stored as 6->1 removes head 0's only candidate, exactly as ... ok
+test_one_uniform_tail_per_positive_in_order (test_hgb_lp_negatives.ValidNegativeTests.test_one_uniform_tail_per_positive_in_order) ... ok
+test_loader_reads_the_fixed_validation_file_exactly (test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) ... ok
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ok
+The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12): ... ok
+test_random_set_equals_get_test_neigh_w_random (test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... ok
+test_training_negatives_equal_get_train_neg (test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... ok
+test_validation_negatives_equal_get_valid_neg (test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+test_classification_metrics_default_is_threshold (test_imdb_protocol.BaselineProtocolTests.test_classification_metrics_default_is_threshold) ... ok
+test_split_is_hgb_24_6_70 (test_imdb_protocol.RealIMDBSplitTests.test_split_is_hgb_24_6_70) ... ok
+test_unlabelled_movies_are_in_no_split (test_imdb_protocol.RealIMDBSplitTests.test_unlabelled_movies_are_in_no_split) ... ok
+test_default_is_not_oracle_topk (test_imdb_protocol.TrainerProtocolTests.test_default_is_not_oracle_topk) ... ok
+test_f1_uses_logit_above_zero_on_labelled_rows_only (test_imdb_protocol.TrainerProtocolTests.test_f1_uses_logit_above_zero_on_labelled_rows_only) ... ok
+test_loss_is_bce_over_labelled_rows_only (test_imdb_protocol.TrainerProtocolTests.test_loss_is_bce_over_labelled_rows_only) ... ok
+test_v_concat_mlp_is_refused_for_the_large_tasks (test_large_lp.DecoderTests.test_v_concat_mlp_is_refused_for_the_large_tasks) ... ok
+test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it (test_large_lp.EpochLoopTests.test_iii_one_epoch_is_one_pass_and_a_step_never_crosses_it) ... ok
+test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch (test_large_lp.EpochLoopTests.test_iii_patience_counted_in_epochs_stops_at_the_expected_epoch) ... ok
+test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts (test_large_lp.HeldOutTests.test_ii_no_held_out_fact_in_any_scope_of_a_step_with_duplicate_facts) ... ok
+test_chunked_two_hop_equals_unchunked (test_large_lp.NegativeTests.test_chunked_two_hop_equals_unchunked) ... ok
+test_list_free_choices_equal_random_choices (test_large_lp.NegativeTests.test_list_free_choices_equal_random_choices) ... ok
+test_iv_split_equals_the_derived_tasks_rule (test_large_lp.SplitTests.test_iv_split_equals_the_derived_tasks_rule) ... ok
+test_iv_split_is_by_unordered_pair (test_large_lp.SplitTests.test_iv_split_is_by_unordered_pair) ... ok
+test_i_negative_control_other_links_do_not_change_a_score (test_large_lp.StepScopeTests.test_i_negative_control_other_links_do_not_change_a_score) ... ok
+test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope (test_large_lp.StepScopeTests.test_i_shared_endpoint_computed_once_and_equal_to_its_own_scope) ... ok
+test_no_held_out_positive_is_a_fact_of_any_scope (test_large_lp_h2snn.HeldOutRouteTests.test_no_held_out_positive_is_a_fact_of_any_scope) ... ok
+test_message_graph_and_pairs_are_the_bundles (test_large_lp_h2snn.SameDataTests.test_message_graph_and_pairs_are_the_bundles) ... ok
+test_task_tables (test_large_lp_h2snn.SameDataTests.test_task_tables) ... ok
+test_label_carrier_with_an_innocent_name_is_caught_by_the_probe (test_leak_audit.LeakAuditTests.test_label_carrier_with_an_innocent_name_is_caught_by_the_probe) ... ok
+test_majority_share_on_a_known_example (test_leak_audit.LeakAuditTests.test_majority_share_on_a_known_example) ... ok
+test_negative_control_without_the_venue_relation_passes (test_leak_audit.LeakAuditTests.test_negative_control_without_the_venue_relation_passes) ... ok
+test_venue_relation_left_in_is_reported (test_leak_audit.LeakAuditTests.test_venue_relation_left_in_is_reported) ... ok
+Control: the kept values next to the removed ones load. ... ok
+test_removed_keys_raise (test_legacy_removal.FailClosedTests.test_removed_keys_raise) ... ok
+test_removed_keys_raise_in_a_tuning_space (test_legacy_removal.FailClosedTests.test_removed_keys_raise_in_a_tuning_space) ... ok
+test_removed_values_raise (test_legacy_removal.FailClosedTests.test_removed_values_raise) ... ok
+test_removed_values_raise_on_direct_construction (test_legacy_removal.FailClosedTests.test_removed_values_raise_on_direct_construction) ... ok
+test_empty_model_section_is_the_anchored_v3b_model (test_legacy_removal.V3BDefaultTests.test_empty_model_section_is_the_anchored_v3b_model) ... ok
+test_every_stored_row_of_a_held_out_pair_is_in_its_file (test_lp_derived.FreebasePairSplitTests.test_every_stored_row_of_a_held_out_pair_is_in_its_file) ... ok
+test_loader_leak_checks_pass_and_positives_exclude_self_loops (test_lp_derived.FreebasePairSplitTests.test_loader_leak_checks_pass_and_positives_exclude_self_loops) ... ok
+Independent review, finding 3 (B): link.dat.valid lists one row of a two-row pair. ... ok
+Independent review, finding 3 (A): the reverse row of a one-row test pair put back. ... ok
+test_no_unordered_pair_has_rows_in_two_parts (test_lp_derived.FreebasePairSplitTests.test_no_unordered_pair_has_rows_in_two_parts) ... ok
+test_proportions_are_81_9_10_by_pair (test_lp_derived.FreebasePairSplitTests.test_proportions_are_81_9_10_by_pair) ... ok
+test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation (test_lp_derived.FreebasePairSplitTests.test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation) ... ok
+test_same_seed_gives_byte_identical_files (test_lp_derived.FreebasePairSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_self_loops_are_in_no_part_and_stay_in_link_dat (test_lp_derived.FreebasePairSplitTests.test_self_loops_are_in_no_part_and_stay_in_link_dat) ... ok
+test_disjoint_by_unordered_pair (test_lp_derived.RealFreebasePairTests.test_disjoint_by_unordered_pair) ... ok
+test_no_reciprocal_leak_and_no_held_out_self_loop (test_lp_derived.RealFreebasePairTests.test_no_reciprocal_leak_and_no_held_out_self_loop) ... ok
+test_proportions_by_pair (test_lp_derived.RealFreebasePairTests.test_proportions_by_pair) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_acm_pa.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_acm_pa.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_acm_pa.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_acm_pa.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_dblp_ap.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_dblp_ap.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_dblp_ap.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_dblp_ap.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.RealSplitTests_imdb_ma.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.RealSplitTests_imdb_ma.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.RealSplitTests_imdb_ma.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.RealSplitTests_imdb_ma.test_proportions_are_81_9_10) ... ok
+test_loads_and_its_test_set_is_link_dat_test (test_lp_derived.SyntheticLoaderTests.test_loads_and_its_test_set_is_link_dat_test) ... ok
+test_mutation_a_test_fact_back_as_its_target_row_is_caught (test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_as_its_target_row_is_caught) ... ok
+test_mutation_a_test_fact_back_in_link_dat_is_caught (test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_in_link_dat_is_caught) ... ok
+test_validation_split_does_not_depend_on_the_training_seed (test_lp_derived.SyntheticLoaderTests.test_validation_split_does_not_depend_on_the_training_seed) ... ok
+Route 2 of the pre-registration: a test fact back in link.dat only as an r' row. ... ok
+test_counts_and_reverse_relation (test_lp_derived.SyntheticSplitTests.test_counts_and_reverse_relation) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (test_lp_derived.SyntheticSplitTests.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_link_dat_is_the_release_minus_the_test_rows (test_lp_derived.SyntheticSplitTests.test_link_dat_is_the_release_minus_the_test_rows) ... ok
+test_no_test_fact_is_left_in_link_dat (test_lp_derived.SyntheticSplitTests.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (test_lp_derived.SyntheticSplitTests.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (test_lp_derived.SyntheticSplitTests.test_proportions_are_81_9_10) ... ok
+test_same_seed_gives_byte_identical_files (test_lp_derived.SyntheticSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_all_ties_rank_251_of_500 (test_lp_feature_leak.LeakMeasureTests.test_all_ties_rank_251_of_500) ... ok
+test_containment_is_the_share_of_the_contribution_inside_the_kept_feature (test_lp_feature_leak.LeakMeasureTests.test_containment_is_the_share_of_the_contribution_inside_the_kept_feature) ... ok
+test_contribution_follows_the_column_map (test_lp_feature_leak.LeakMeasureTests.test_contribution_follows_the_column_map) ... ok
+test_strictly_first_is_rank_1_and_one_tie_is_1_5 (test_lp_feature_leak.LeakMeasureTests.test_strictly_first_is_rank_1_and_one_tie_is_1_5) ... ok
+test_mean_rule_over_mapped_tokens_is_rebuilt (test_lp_feature_rebuild.FeatureRebuildTests.test_mean_rule_over_mapped_tokens_is_rebuilt) ... ok
+test_or_rule_is_rebuilt_from_training_facts_only (test_lp_feature_rebuild.FeatureRebuildTests.test_or_rule_is_rebuilt_from_training_facts_only) ... ok
+test_other_rows_byte_identical_and_release_untouched (test_lp_feature_rebuild.FeatureRebuildTests.test_other_rows_byte_identical_and_release_untouched) ... ok
+test_rebuild_is_idempotent (test_lp_feature_rebuild.FeatureRebuildTests.test_rebuild_is_idempotent) ... ok
+test_type_without_exact_rule_is_dropped (test_lp_feature_rebuild.FeatureRebuildTests.test_type_without_exact_rule_is_dropped) ... ok
+test_hand_edited_value_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_hand_edited_value_is_refused) ... ok
+test_missing_record_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_missing_record_is_refused) ... ok
+test_removed_type_with_features_is_refused_even_with_a_matching_md5 (test_lp_feature_rule.FeatureRuleAndGuardTests.test_removed_type_with_features_is_refused_even_with_a_matching_md5) ... ok
+test_rerun_of_the_split_builder_is_refused (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rerun_of_the_split_builder_is_refused) ... ok
+test_rule_applied_task_loads (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_applied_task_loads) ... ok
+test_rule_removes_single_columns (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_single_columns) ... ok
+test_rule_removes_the_block_and_keeps_every_other_row (test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_the_block_and_keeps_every_other_row) ... ok
+test_mean_of_keyword_token_counts_is_found (test_lp_feature_rules.FeatureRuleTests.test_mean_of_keyword_token_counts_is_found) ... ok
+test_or_of_neighbour_features_is_found_exactly (test_lp_feature_rules.FeatureRuleTests.test_or_of_neighbour_features_is_found_exactly) ... ok
+test_own_features_have_no_rule (test_lp_feature_rules.FeatureRuleTests.test_own_features_have_no_rule) ... ok
+test_permuted_vocabulary_is_matched_by_column (test_lp_feature_rules.FeatureRuleTests.test_permuted_vocabulary_is_matched_by_column) ... ok
+test_a_validation_fact_missing_from_link_dat_raises (test_lp_valid_files.DerivedTaskValidFileTests.test_a_validation_fact_missing_from_link_dat_raises) ... ok
+test_non_target_relations_absent_from_the_file_stay_whole (test_lp_valid_files.DerivedTaskValidFileTests.test_non_target_relations_absent_from_the_file_stay_whole) ... ok
+J1.3 finding 2: a test fact back in link.dat only as its r' row breaks rho; the ... ok
+test_validation_facts_leave_the_message_graph_in_both_orientations (test_lp_valid_files.DerivedTaskValidFileTests.test_validation_facts_leave_the_message_graph_in_both_orientations) ... ok
+test_validation_is_the_file_and_the_split_is_81_9_10 (test_lp_valid_files.DerivedTaskValidFileTests.test_validation_is_the_file_and_the_split_is_81_9_10) ... ok
+test_self_inverse_relation_listed_in_one_orientation_raises (test_lp_valid_files.FileWrittenFromTheCarveTests.test_self_inverse_relation_listed_in_one_orientation_raises) ... ok
+test_written_file_reproduces_the_loaders_carve (test_lp_valid_files.FileWrittenFromTheCarveTests.test_written_file_reproduces_the_loaders_carve) ... ok
+test_derived_tasks_evaluate_81_9_10 (test_lp_valid_files.RealValidFileTests.test_derived_tasks_evaluate_81_9_10) ... ok
+test_lastfm_file_is_target_only (test_lp_valid_files.RealValidFileTests.test_lastfm_file_is_target_only) ... ok
+test_pubmed_file_is_target_only (test_lp_valid_files.RealValidFileTests.test_pubmed_file_is_target_only) ... ok
+test_target_only_file_keeps_the_target_split_and_completes_the_rest (test_lp_valid_files.TargetOnlyFileTests.test_target_only_file_keeps_the_target_split_and_completes_the_rest) ... ok
+test_one_perturbed_tensor_exits_1_with_its_name (test_mb0_reference_compare.Mb0CompareExitCodeTests.test_one_perturbed_tensor_exits_1_with_its_name) ... ok
+test_unperturbed_reference_exits_0 (test_mb0_reference_compare.Mb0CompareExitCodeTests.test_unperturbed_reference_exits_0) ... ok
+test_pshgcn_terms (test_metapath_counts.MetapathCountTests.test_pshgcn_terms) ... ok
+test_sehgnn_feature_keys (test_metapath_counts.MetapathCountTests.test_sehgnn_feature_keys) ... ok
+test_sehgnn_label_keys (test_metapath_counts.MetapathCountTests.test_sehgnn_label_keys) ... ok
+True labels {0, 1}; the model predicts class 2 once. F1(0) = 2/3, F1(1) = 1, so ... ok
+On a split that contains every class (HGB's case) the value is sklearn's default. ... ok
+M8 is node classification; GC uses HetSheaf's torchmetrics call (Part N, N3), which ... ok
+Genre 2 has no positive in the split; the model predicts it for one movie. Macro-F1 is ... ok
+test_h2snn_notebooks_reference_existing_configs_only (test_notebook_configs.NotebookConfigTests.test_h2snn_notebooks_reference_existing_configs_only) ... ok
+test_concat_mlp_is_refused_by_the_tuner (test_partM3a_decoder.ConcatMlpRefusalTests.test_concat_mlp_is_refused_by_the_tuner) ... ok
+test_concat_mlp_is_refused_on_the_command_lines (test_partM3a_decoder.ConcatMlpRefusalTests.test_concat_mlp_is_refused_on_the_command_lines) ... ok
+test_include_decoder_type_flag_is_gone (test_partM3a_decoder.ConcatMlpRefusalTests.test_include_decoder_type_flag_is_gone) ... ok
+test_lp_sweeps_tune_the_decoder (test_partM3a_decoder.LinkDecoderSweepTests.test_lp_sweeps_tune_the_decoder) ... ok
+test_nc_and_gc_sweeps_have_no_decoder (test_partM3a_decoder.LinkDecoderSweepTests.test_nc_and_gc_sweeps_have_no_decoder) ... ok
+test_values_equal_the_baselines_shared_head (test_partM3a_decoder.LinkDecoderSweepTests.test_values_equal_the_baselines_shared_head) ... ok
+test_each_graph_gets_its_own_index_built_once (test_partM3a_scopes.IncidenceIndexTests.test_each_graph_gets_its_own_index_built_once) ... ok
+test_index_lists_each_nodes_facts_ascending (test_partM3a_scopes.IncidenceIndexTests.test_index_lists_each_nodes_facts_ascending) ... ok
+test_equal_to_the_reference_builder (test_partM3a_scopes.ReferenceEqualityTests.test_equal_to_the_reference_builder) ... ok
+test_config_refuses_concat_mlp (test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_config_refuses_concat_mlp) ... ok
+test_readout_has_no_concat_mlp (test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_readout_has_no_concat_mlp) ... ok
+test_tuning_refusal_stays (test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_tuning_refusal_stays) ... ok
+test_yaml_and_run_scripts_refuse_concat_mlp (test_partM3afix_concat_mlp.ConcatMlpConfigTests.test_yaml_and_run_scripts_refuse_concat_mlp) ... ok
+test_chunks_use_distinct_generator_states (test_partMB_draws.ChunkedDrawTests.test_chunks_use_distinct_generator_states) ... ok
+test_log_p_and_frequencies_equal_the_exact_target (test_partMB_draws.ChunkedDrawTests.test_log_p_and_frequencies_equal_the_exact_target) ... ok
+test_same_seed_and_chunk_size_give_the_same_draw (test_partMB_draws.ChunkedDrawTests.test_same_seed_and_chunk_size_give_the_same_draw) ... ok
+test_one_instance_from_two_anchors_gives_two_cells (test_partMB_draws.PerAnchorMergeTests.test_one_instance_from_two_anchors_gives_two_cells) ... ok
+test_per_anchor_mass_is_the_anchors_walks_only (test_partMB_draws.PerAnchorMergeTests.test_per_anchor_mass_is_the_anchors_walks_only) ... ok
+test_evaluation_scores_every_link (test_partMB_link.LinkScopeTests.test_evaluation_scores_every_link) ... ok
+test_no_held_out_fact_in_any_scope (test_partMB_link.LinkScopeTests.test_no_held_out_fact_in_any_scope) ... ok
+test_repeated_endpoint_is_solved_once (test_partMB_link.LinkScopeTests.test_repeated_endpoint_is_solved_once) ... ok
+test_scores_equal_each_endpoint_alone (test_partMB_link.LinkScopeTests.test_scores_equal_each_endpoint_alone) ... ok
+test_a_batch_equals_scopes_alone (test_partMB_model.BatchTests.test_a_batch_equals_scopes_alone) ... ok
+test_b_every_scope_meets_its_own_tolerance (test_partMB_model.BatchTests.test_b_every_scope_meets_its_own_tolerance) ... ok
+test_c_logits_do_not_depend_on_the_batching (test_partMB_model.BatchTests.test_c_logits_do_not_depend_on_the_batching) ... ok
+test_d_whole_graph_harness (test_partMB_model.BatchTests.test_d_whole_graph_harness) ... ok
+test_e_context_and_degrees_are_the_scopes (test_partMB_model.BatchTests.test_e_context_and_degrees_are_the_scopes) ... ok
+test_f_no_warm_start_in_mini_batch (test_partMB_model.BatchTests.test_f_no_warm_start_in_mini_batch) ... ok
+test_featureless_node_in_two_scopes_has_its_global_h0 (test_partMB_scopes.ScopeTests.test_featureless_node_in_two_scopes_has_its_global_h0) ... ok
+test_forced_cell_maps_are_defined_on_scope_cells (test_partMB_scopes.ScopeTests.test_forced_cell_maps_are_defined_on_scope_cells) ... ok
+test_lower_set_and_no_induced_facts (test_partMB_scopes.ScopeTests.test_lower_set_and_no_induced_facts) ... ok
+test_scope_of_p1_equals_the_hand_lists (test_partMB_scopes.ScopeTests.test_scope_of_p1_equals_the_hand_lists) ... ok
+test_scope_on_a_second_graph_uses_its_facts (test_partMB_scopes.ScopeTests.test_scope_on_a_second_graph_uses_its_facts) ... ok
+test_training_draw_seeds (test_partMB_trainer.EpochTests.test_training_draw_seeds) ... ok
+test_training_order_passes (test_partMB_trainer.EpochTests.test_training_order_passes) ... ok
+test_evaluation_graph_is_used_for_its_scopes (test_partMB_trainer.EvaluationTests.test_evaluation_graph_is_used_for_its_scopes) ... ok
+test_predictions_do_not_depend_on_the_evaluation_batch_size (test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size) ... ok
+test_whole_split_and_metric_on_the_concatenation (test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation) ... ok
+test_mode_per_dataset_and_tuner_refusals (test_partMB_trainer.StopAndConfigTests.test_mode_per_dataset_and_tuner_refusals) ... ok
+test_flag_resolves_to_whole_passes_with_the_full_batch_budget (test_partMBfix_flag.FlagConfigTests.test_flag_resolves_to_whole_passes_with_the_full_batch_budget) ... ok
+test_tuner_refusal_and_h2gb_without_b (test_partMBfix_flag.FlagConfigTests.test_tuner_refusal_and_h2gb_without_b) ... ok
+test_evaluation_every_epoch (test_partMBfix_flag.FlagTrainerTests.test_evaluation_every_epoch) ... 2026-11-18 22:28:25,979 | INFO | Epoch 0000 | train_loss: 1.1014 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1149 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+test_T1_on_a_batch_of_scopes (test_partMBfix_functoriality.ScopeFunctorialityTests.test_T1_on_a_batch_of_scopes) ... ok
+test_batches_stop_at_the_pass_boundary (test_partMBfix_order.PassBoundaryTests.test_batches_stop_at_the_pass_boundary) ... ok
+test_steps_and_the_short_batch_loss (test_partMBfix_order.PassBoundaryTests.test_steps_and_the_short_batch_loss) ... ok
+test_forward_is_finite_on_an_acm_sized_graph (test_partO_literature_row.AnchoredForwardTests.test_forward_is_finite_on_an_acm_sized_graph) ... ok
+test_any_other_difference_raises (test_partO_literature_row.BuilderTests.test_any_other_difference_raises) ... ok
+test_builder_changes_only_the_path_source (test_partO_literature_row.BuilderTests.test_builder_changes_only_the_path_source) ... ok
+test_builder_refuses_other_inputs (test_partO_literature_row.BuilderTests.test_builder_refuses_other_inputs) ... ok
+test_row_configuration_rules (test_partO_literature_row.BuilderTests.test_row_configuration_rules) ... ok
+test_row_is_refused_in_tuning (test_partO_literature_row.BuilderTests.test_row_is_refused_in_tuning) ... ok
+test_evaluation_draw_is_deterministic_per_base_seed (test_partO_literature_row.DrawTests.test_evaluation_draw_is_deterministic_per_base_seed) ... ok
+test_every_cell_is_a_listed_meta_path (test_partO_literature_row.DrawTests.test_every_cell_is_a_listed_meta_path) ... ok
+test_sampler_asks_for_the_split (test_partO_literature_row.DrawTests.test_sampler_asks_for_the_split) ... ok
+test_lists_resolve_and_have_instances_on_the_real_graphs (test_partO_literature_row.RealListTests.test_lists_resolve_and_have_instances_on_the_real_graphs) ... ok
+test_split_sums_to_r_and_is_even (test_partO_literature_row.SplitTests.test_split_sums_to_r_and_is_even) ... ok
+test_constant_weights_give_ratio_one (test_partO_readout.HandTests.test_constant_weights_give_ratio_one) ... ok
+test_hand_values (test_partO_readout.HandTests.test_hand_values) ... ok
+test_acm_list_maps_to_the_expected_signatures (test_partO_readout.LiteratureMappingTests.test_acm_list_maps_to_the_expected_signatures) ... ok
+test_listed_path_absent_from_the_draw_is_stated (test_partO_readout.LiteratureMappingTests.test_listed_path_absent_from_the_draw_is_stated) ... ok
+test_misspelled_entry_raises (test_partO_readout.LiteratureMappingTests.test_misspelled_entry_raises) ... ok
+test_constant_g_of_a_model_gives_ratio_one (test_partO_readout.ModelWeightTests.test_constant_g_of_a_model_gives_ratio_one) ... ok
+test_weights_equal_the_models_path_weights (test_partO_readout.ModelWeightTests.test_weights_equal_the_models_path_weights) ... ok
+test_script_writes_run_json_and_dataset_table (test_partO_readout.ScriptTests.test_script_writes_run_json_and_dataset_table) ... 2026-11-18 22:28:31,720 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+test_reload_rebuilds_cells_and_weights_exactly (test_partO_reload.ReloadTests.test_reload_rebuilds_cells_and_weights_exactly) ... 2026-11-18 22:28:32,301 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+test_final_seed_runs_keep_config_and_best_checkpoint (test_partO_reload.RetentionTests.test_final_seed_runs_keep_config_and_best_checkpoint) ... ACM
+test_empty_two_hop_set_yields_none_with_a_reason (test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... 
+  test_every_lp_adapter_runs_one_epoch (test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2gformer') ... ERROR
+test_no_held_out_pair_reaches_any_message_graph (test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+test_counts_equal_the_m1_gate (test_partP_freebase.RealLoaderTests.test_counts_equal_the_m1_gate) ... ok
+test_literature_row_draws_every_listed_path (test_partP_freebase.RealLoaderTests.test_literature_row_draws_every_listed_path) ... ok
+test_split_sizes_and_disjointness (test_partP_freebase.RealLoaderTests.test_split_sizes_and_disjointness) ... ok
+test_untied_fallback_relations_equal_a_direct_check (test_partP_freebase.RealLoaderTests.test_untied_fallback_relations_equal_a_direct_check) ... ok
+test_every_nc_adapter_runs_one_epoch (test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) ... Processing...
+  test_every_nc_adapter_runs_one_epoch (test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='h2gformer') ... ERROR
+test_schema_readout_runs_on_a_freebase_run (test_partP_freebase.TinyReleaseTests.test_schema_readout_runs_on_a_freebase_run) ... 2026-11-18 22:33:59,890 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'book__and__book': None, 'book__to__film': None, 'book__on__sports': None, 'book__on__location': None, 'book__about__organization': None, 'film__and__film': None, 'music__in__book': None, 'music__in__film': None, 'music__and__music': None, 'music__for__sports': None, 'music__on__location': None, 'sports__in__film': None, 'sports__and__sports': 'sports__and__sports', 'sports__on__location': None, 'people__to__book': None, 'people__to__film': None, 'people__to__music': None, 'people__to__sports': None, 'people__and__people': None, 'people__on__location': None, 'people__in__organization': None, 'people__in__business': None, 'location__in__film': None, 'location__and__location': None, 'organization__in__film': None, 'organization__to__music': None, 'organization__to__sports': None, 'organization__on__location': None, 'organization__and__organization': 'organization__and__organization', 'organization__for__business': None, 'business__about__book': None, 'business__about__film': None, 'business__about__music': None, 'business__about__sports': None, 'business__on__location': None, 'business__and__business': 'business__and__business'}, 'kept_relations': ['book__and__book', 'book__to__film', 'book__on__sports', 'book__on__location', 'book__about__organization', 'film__and__film', 'music__in__book', 'music__in__film', 'music__and__music', 'music__for__sports', 'music__on__location', 'sports__in__film', 'sports__and__sports', 'sports__on__location', 'people__to__book', 'people__to__film', 'people__to__music', 'people__to__sports', 'people__and__people', 'people__on__location', 'people__in__organization', 'people__in__business', 'location__in__film', 'location__and__location', 'organization__in__film', 'organization__to__music', 'organization__to__sports', 'organization__on__location', 'organization__and__organization', 'organization__for__business', 'business__about__book', 'business__about__film', 'business__about__music', 'business__about__sports', 'business__on__location', 'business__and__business'], 'self_inverse_relations': ['sports__and__sports', 'organization__and__organization', 'business__and__business'], 'unmatched_edges': {'book__and__book': 30, 'book__to__film': 30, 'book__on__sports': 30, 'book__on__location': 30, 'book__about__organization': 30, 'film__and__film': 30, 'music__in__book': 30, 'music__in__film': 30, 'music__and__music': 30, 'music__for__sports': 30, 'music__on__location': 30, 'sports__in__film': 30, 'sports__and__sports': 0, 'sports__on__location': 30, 'people__to__book': 30, 'people__to__film': 30, 'people__to__music': 30, 'people__to__sports': 30, 'people__and__people': 30, 'people__on__location': 30, 'people__in__organization': 30, 'people__in__business': 30, 'location__in__film': 30, 'location__and__location': 30, 'organization__in__film': 30, 'organization__to__music': 30, 'organization__to__sports': 30, 'organization__on__location': 30, 'organization__and__organization': 0, 'organization__for__business': 30, 'business__about__book': 30, 'business__about__film': 30, 'business__about__music': 30, 'business__about__sports': 30, 'business__on__location': 30, 'business__and__business': 0}, 'facts_before': 1080, 'facts_after': 1035}
+test_embeddings_are_produced_and_consumed (test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed) ... ERROR
+test_hidden_width_128_builds_with_metapath (test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath) ... ERROR
+test_the_label_channel_reads_training_labels (test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels) ... ERROR
+test_validation_and_test_labels_do_not_reach_the_label_channel (test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel) ... ERROR
+test_hops_exist_on_the_real_graphs (test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) ... ok
+test_schemas_are_cyclic_edge_types_of_the_graph (test_partP_h2gformer.SchemaTests.test_schemas_are_cyclic_edge_types_of_the_graph) ... ok
+test_schemas_equal_the_table_concatenation (test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) ... ok
+test_metapath2vec_settings_equal_h2gbs (test_partP_h2gformer.SettingsTests.test_metapath2vec_settings_equal_h2gbs) ... ok
+test_h2gb_stacks_equal_their_configs (test_partP_h2gformer.StackTests.test_h2gb_stacks_equal_their_configs) ... ok
+test_stack_per_cell_is_t2 (test_partP_h2gformer.StackTests.test_stack_per_cell_is_t2) ... ok
+test_dead_end_discards (test_partP_literature_row.HopRuleTests.test_dead_end_discards) ... ok
+test_instance_probability_is_wisps (test_partP_literature_row.HopRuleTests.test_instance_probability_is_wisps) ... ok
+test_expected_mass_is_share_times_survival (test_partP_literature_row.MassTests.test_expected_mass_is_share_times_survival) ... ok
+test_total_mass_without_dead_ends_is_one (test_partP_literature_row.MassTests.test_total_mass_without_dead_ends_is_one) ... ok
+test_at_most_one_with_dead_ends (test_partP_literature_row.RowVersusFullTests.test_at_most_one_with_dead_ends) ... ok
+test_equal_one_without_dead_ends (test_partP_literature_row.RowVersusFullTests.test_equal_one_without_dead_ends) ... ok
+test_row_has_its_own_run_directory (test_partP_literature_row.RunDirectoryTests.test_row_has_its_own_run_directory) ... ok
+test_bundle_carries_its_root_and_raw_dirs_resolve_under_it (test_partPfix_data_root.RootTests.test_bundle_carries_its_root_and_raw_dirs_resolve_under_it) ... Processing...
+test_fixed_adapters_run_from_the_bundle_root (test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) ... 
+  test_fixed_adapters_run_from_the_bundle_root (test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) (adapter='h2gformer') ... ERROR
+test_no_baseline_module_reads_repo_data_root (test_partPfix_data_root.SourceTests.test_no_baseline_module_reads_repo_data_root) ... ok
+test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) ... 
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=64, metapath_pe=False) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=64, metapath_pe=True) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=128, metapath_pe=False) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=128, metapath_pe=True) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=256, metapath_pe=False) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=256, metapath_pe=True) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=512, metapath_pe=False) ... ERROR
+  test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=512, metapath_pe=True) ... ERROR
+test_grid_and_dim_pe_per_width (test_partPfix_h2gformer_width.WidthRuleTests.test_grid_and_dim_pe_per_width) ... ok
+test_h2gb_config_pairs_are_reachable (test_partPfix_h2gformer_width.WidthRuleTests.test_h2gb_config_pairs_are_reachable) ... ok
+test_one_tau_block_over_length_two_schemas (test_partPfix_readout_tau.LengthTwoTauTests.test_one_tau_block_over_length_two_schemas) ... 2026-11-18 22:36:33,626 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+Training and test passes (capture inactive) add no rows. ... ok
+test_capture_shorter_than_the_validation_set_raises (test_partn_smoke.GCCollapseCheckTests.test_capture_shorter_than_the_validation_set_raises) ... ok
+test_constant_head_fails_c1_only (test_partn_smoke.GCCollapseCheckTests.test_constant_head_fails_c1_only) ... ok
+Every graph has the same nodes, so the same pooled embedding and, through one Linear ... ok
+Majority-class prediction early in training is not collapse: not a gate. ... ok
+`checks` gates GC on (c1) and (c2) only; the class count is recorded. ... ok
+test_defaults_are_the_model (test_paths_and_facts.BaselineBundleIdentityTests.test_defaults_are_the_model) ... ok
+test_graph_bundle_equals_explicit_untied (test_paths_and_facts.BaselineBundleIdentityTests.test_graph_bundle_equals_explicit_untied) ... ok
+test_node_bundle_equals_explicit_untied_dfs (test_paths_and_facts.BaselineBundleIdentityTests.test_node_bundle_equals_explicit_untied_dfs) ... ok
+test_pins_cannot_be_overridden (test_paths_and_facts.BaselineBundleIdentityTests.test_pins_cannot_be_overridden) ... ok
+test_T8_mean_of_draws_matches_the_exact_target (test_paths_and_facts.EstimatorTests.test_T8_mean_of_draws_matches_the_exact_target) ... ok
+test_T8_negative_control_dropping_duplicates_is_biased (test_paths_and_facts.EstimatorTests.test_T8_negative_control_dropping_duplicates_is_biased) ... ok
+test_T4_a_missing_reverse_edge_leaves_the_pair_untied (test_paths_and_facts.FactLayerDefinitionTests.test_T4_a_missing_reverse_edge_leaves_the_pair_untied) ... ok
+test_T4_exact_mirror_pair_gives_one_cell_per_fact (test_paths_and_facts.FactLayerDefinitionTests.test_T4_exact_mirror_pair_gives_one_cell_per_fact) ... ok
+test_T4_real_hgb_counts (test_paths_and_facts.FactLayerDefinitionTests.test_T4_real_hgb_counts) ... ok
+test_T4_real_tu_relations_are_self_inverse (test_paths_and_facts.FactLayerDefinitionTests.test_T4_real_tu_relations_are_self_inverse) ... ok
+test_T4_reciprocal_facts_of_a_directed_relation_stay_two_cells (test_paths_and_facts.FactLayerDefinitionTests.test_T4_reciprocal_facts_of_a_directed_relation_stay_two_cells) ... ok
+test_T4_self_inverse_relation_gives_one_cell_per_unordered_pair (test_paths_and_facts.FactLayerDefinitionTests.test_T4_self_inverse_relation_gives_one_cell_per_unordered_pair) ... ok
+test_T4_two_exact_partners_are_an_error (test_paths_and_facts.FactLayerDefinitionTests.test_T4_two_exact_partners_are_an_error) ... ok
+test_T4_untied_is_rejected_by_the_tuning_check (test_paths_and_facts.FactLayerDefinitionTests.test_T4_untied_is_rejected_by_the_tuning_check) ... ok
+test_T4_untied_keeps_every_stored_edge_and_relation (test_paths_and_facts.FactLayerDefinitionTests.test_T4_untied_keeps_every_stored_edge_and_relation) ... ok
+test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight (test_paths_and_facts.IdentityTests.test_T9_a_path_and_its_reversal_are_one_cell_with_summed_weight) ... ok
+test_T9_no_two_cells_share_a_key_in_real_draws (test_paths_and_facts.IdentityTests.test_T9_no_two_cells_share_a_key_in_real_draws) ... ok
+test_T9_paths_through_different_reciprocal_facts_are_different_cells (test_paths_and_facts.IdentityTests.test_T9_paths_through_different_reciprocal_facts_are_different_cells) ... ok
+test_T11_config (test_paths_and_facts.LinkPredictionFactTests.test_T11_config) ... ok
+test_T11_no_held_out_fact_in_message_graph_or_paths (test_paths_and_facts.LinkPredictionFactTests.test_T11_no_held_out_fact_in_message_graph_or_paths) ... ok
+test_T11_split_is_by_fact (test_paths_and_facts.LinkPredictionFactTests.test_T11_split_is_by_fact) ... ok
+test_T11_tied_layer_on_link_prediction (test_paths_and_facts.LinkPredictionFactTests.test_T11_tied_layer_on_link_prediction) ... ok
+test_T12_link_prediction_resampling (test_paths_and_facts.LinkPredictionFactTests.test_T12_link_prediction_resampling) ... ok
+test_T1_matches_dense_reference_mixed_lengths_scales_families_and_signs (test_paths_and_facts.OLPathTermTests.test_T1_matches_dense_reference_mixed_lengths_scales_families_and_signs) ... ok
+test_T1_uses_2L_transport_steps_per_path (test_paths_and_facts.OLPathTermTests.test_T1_uses_2L_transport_steps_per_path) ... ok
+test_T12_config_rules (test_paths_and_facts.ProtocolTests.test_T12_config_rules) ... ok
+test_T12_graph_classification (test_paths_and_facts.ProtocolTests.test_T12_graph_classification) ... ok
+test_T12_node_classification (test_paths_and_facts.ProtocolTests.test_T12_node_classification) ... ok
+test_batch_without_the_highest_self_inverse_relation (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_batch_without_the_highest_self_inverse_relation) ... ok
+test_config_rules (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_config_rules) ... ok
+test_schema_free_walks_on_a_self_inverse_relation (test_paths_and_facts.SamplerConfigAndFreeWalkTests.test_schema_free_walks_on_a_self_inverse_relation) ... ok
+test_T10_a_schema_and_its_reverse_share_one_group (test_paths_and_facts.SchemaTests.test_T10_a_schema_and_its_reverse_share_one_group) ... ok
+test_T10_ambiguous_transition_without_hops_raises (test_paths_and_facts.SchemaTests.test_T10_ambiguous_transition_without_hops_raises) ... ok
+test_T10_citation_chain_and_co_citation_are_distinct (test_paths_and_facts.SchemaTests.test_T10_citation_chain_and_co_citation_are_distinct) ... ok
+test_T10_every_default_schema_resolves_on_real_data (test_paths_and_facts.SchemaTests.test_T10_every_default_schema_resolves_on_real_data) ... ok
+test_T10_self_inverse_hops_have_no_direction (test_paths_and_facts.SchemaTests.test_T10_self_inverse_hops_have_no_direction) ... ok
+test_T10_untied_rejects_minus_hops (test_paths_and_facts.SchemaTests.test_T10_untied_rejects_minus_hops) ... ok
+test_T6_sections_are_preserved_with_signed_hops (test_paths_and_facts.SectionPreservationTests.test_T6_sections_are_preserved_with_signed_hops) ... ok
+test_T16_direction_blind_maps_make_delta0_invariant_to_flipping_any_cell (test_paths_and_facts.SharedRoleTests.test_T16_direction_blind_maps_make_delta0_invariant_to_flipping_any_cell) ... ok
+test_T16_model_shares_roles_per_fact_layer_and_ablation (test_paths_and_facts.SharedRoleTests.test_T16_model_shares_roles_per_fact_layer_and_ablation) ... ok
+test_T5_flipping_cells_of_a_self_inverse_relation_leaves_delta0_unchanged (test_paths_and_facts.SharedRoleTests.test_T5_flipping_cells_of_a_self_inverse_relation_leaves_delta0_unchanged) ... ok
+test_T5_negative_control_separate_roles_change_delta0 (test_paths_and_facts.SharedRoleTests.test_T5_negative_control_separate_roles_change_delta0) ... ok
+test_T2_every_method_is_consistent_and_apply_T_is_the_exact_adjoint (test_paths_and_facts.SignedTransportTests.test_T2_every_method_is_consistent_and_apply_T_is_the_exact_adjoint) ... ok
+`T_{v_{j-1}} F_{v_{j-1}<|e_j}^-1 = T_{v_j} F_{v_j<|e_j}^-1` for every hop, where ... ok
+test_T2_holonomy_term_uses_the_signed_step (test_paths_and_facts.SignedTransportTests.test_T2_holonomy_term_uses_the_signed_step) ... ok
+test_T2_orientation_check_accepts_signed_hops_and_rejects_the_rest (test_paths_and_facts.SignedTransportTests.test_T2_orientation_check_accepts_signed_hops_and_rejects_the_rest) ... ok
+test_T2_signed_transport_matches_dense_product (test_paths_and_facts.SignedTransportTests.test_T2_signed_transport_matches_dense_product) ... ok
+test_split_equals_h2gb_code_and_is_a_function_of_the_seed (test_pdns_loader.PDNSLoaderTests.test_split_equals_h2gb_code_and_is_a_function_of_the_seed) ... ERROR
+test_baseline_sweeps_are_plain_bayes (test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+v3-B has no gates: `coupling: symmetric` is its own setting (the legacy propagation, where ... ok
+test_wisp_support_and_precision_are_tunable (test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_baseline_budgets_come_from_the_table (test_shared_protocol.BudgetTableTests.test_baseline_budgets_come_from_the_table) ... ok
+test_h2snn_defaults_follow_the_protocol (test_shared_protocol.BudgetTableTests.test_h2snn_defaults_follow_the_protocol) ... ok
+test_protocol_budgets (test_shared_protocol.BudgetTableTests.test_protocol_budgets) ... ok
+Every model optimizer constructed by a registered adapter module or one of its ... ok
+test_h2snn_default_optimizer_is_adamw_with_the_scalar_group (test_shared_protocol.OptimizerTests.test_h2snn_default_optimizer_is_adamw_with_the_scalar_group) ... ok
+test_no_scheduler_object_is_created (test_shared_protocol.SchedulerAndClippingTests.test_no_scheduler_object_is_created) ... ok
+test_T7_eliminated_solve_matches_the_full_state_solve (test_sheaf_energy.EliminationTests.test_T7_eliminated_solve_matches_the_full_state_solve) ... ok
+test_T1_fact_to_cell_maps_are_functorial_on_imdb (test_sheaf_energy.FunctorialityOnRealDrawTests.test_T1_fact_to_cell_maps_are_functorial_on_imdb) ... ok
+test_T2_matrix_free_equals_dense (test_sheaf_energy.OperatorTests.test_T2_matrix_free_equals_dense) ... ok
+test_T3_normalized_operator_is_symmetric_and_psd (test_sheaf_energy.OperatorTests.test_T3_normalized_operator_is_symmetric_and_psd) ... ok
+test_checker_catches_each_violation (test_slurm_scripts.SbatchScriptTests.test_checker_catches_each_violation) ... ok
+test_script_follows_cluster_rules (test_slurm_scripts.SbatchScriptTests.test_script_follows_cluster_rules) ... ok
+test_limits_are_fixed_and_never_tuned (test_stop_conditions.StopConditionTests.test_limits_are_fixed_and_never_tuned) ... ok
+Forced log-weights: the range max - min over the cells of one forward is the value. ... ok
+test_normal_forward_does_not_stop (test_stop_conditions.StopConditionTests.test_normal_forward_does_not_stop) ... ok
+test_tau_above_50_stops (test_stop_conditions.StopConditionTests.test_tau_above_50_stops) ... ok
+test_trainer_logs_and_reraises (test_stop_conditions.TrainerLoggingTests.test_trainer_logs_and_reraises) ... ok
+test_batch_size_axis_on_h2gb_nc_only (test_sweep_batch_size.SweepBatchSizeTests.test_batch_size_axis_on_h2gb_nc_only) ... ok
+test_logits_are_invariant_to_node_permutation_within_a_graph (test_task_heads.GraphClassificationHeadTests.test_logits_are_invariant_to_node_permutation_within_a_graph) ... ok
+test_no_path_cell_or_message_edge_is_a_held_out_positive (test_task_heads.LinkPredictionHeadTests.test_no_path_cell_or_message_edge_is_a_held_out_positive) ... ok
+test_T5_adjoint_and_inverse_on_both_sides_and_relation_kinds (test_td1_maps.AdjointInverseTests.test_T5_adjoint_and_inverse_on_both_sides_and_relation_kinds) ... ok
+test_T3_closed_form_equals_the_dense_matrix_exponential (test_td1_maps.ClosedFormTests.test_T3_closed_form_equals_the_dense_matrix_exponential) ... ok
+test_T7_gradcheck_through_the_mlp_exponential_and_qr (test_td1_maps.GradcheckTests.test_T7_gradcheck_through_the_mlp_exponential_and_qr) ... ok
+test_T14_head_reads_x_star_and_ego_head_is_the_1_24_input (test_td1_maps.HeadInputTests.test_T14_head_reads_x_star_and_ego_head_is_the_1_24_input) ... ok
+test_T4_flipping_shared_role_facts_leaves_the_operator_unchanged (test_td1_maps.OrientationTests.test_T4_flipping_shared_role_facts_leaves_the_operator_unchanged) ... ok
+test_T8_removed_keys_raise_and_no_context_import (test_td1_maps.RemovedKeyTests.test_T8_removed_keys_raise_and_no_context_import) ... ok
+test_T6_class_separating_section_on_the_production_operator (test_td1_maps.Thm4ProductionTests.test_T6_class_separating_section_on_the_production_operator) ... ok
+test_T11_one_training_step_reaches_the_td1_parameters (test_td1_maps.TrainingStepTests.test_T11_one_training_step_reaches_the_td1_parameters) ... ok
+test_T12_arms_train_one_step_and_direction_blind_has_no_frame (test_td1_maps.TrainingStepTests.test_T12_arms_train_one_step_and_direction_blind_has_no_frame) ... ok
+test_T1_every_transport_is_in_SO_d_and_storage_is_exact (test_td1_maps.TransportTests.test_T1_every_transport_is_in_SO_d_and_storage_is_exact) ... ok
+test_T2_fresh_model_transports_are_the_frames (test_td1_maps.TransportTests.test_T2_fresh_model_transports_are_the_frames) ... ok
+test_T10_type_only_read_out (test_td1_maps.TypeOnlyTests.test_T10_type_only_read_out) ... ok
+test_every_line_passes_validate_only (test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_line_paths_are_the_launchers (test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+test_always_dying_trial_is_started_twice_then_exceeds_24h (test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) ... /tmp/tmpk0fih5gj/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+test_state_written_before_the_guard_resumes_as_before (test_tsubame_guard.GuardTests.test_state_written_before_the_guard_resumes_as_before) ... W&B run 0: attempted=3 succeeded=3 pruned=0 failed=0
+test_trial_dying_once_then_finishing_completes_the_sweep (test_tsubame_guard.GuardTests.test_trial_dying_once_then_finishing_completes_the_sweep) ... W&B run 0: attempted=2 succeeded=2 pruned=0 failed=0
+test_legs_held_group_on_command_line_second_chain_refused (test_tsubame_slots.ChainTests.test_legs_held_group_on_command_line_second_chain_refused) ... ok
+test_dirty_checkout_or_wrong_directory_is_refused (test_tsubame_slots.SlotTests.test_dirty_checkout_or_wrong_directory_is_refused) ... ok
+test_every_line_runs_exactly_once (test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) ... ok
+test_fewer_slots_than_lines_stride_by_g (test_tsubame_slots.SlotTests.test_fewer_slots_than_lines_stride_by_g) ... ok
+test_T11_h0_only_readout_ignores_the_graph (test_v2_model.AblationTests.test_T11_h0_only_readout_ignores_the_graph) ... ok
+test_T11_no_path_cells_makes_logits_independent_of_path_data (test_v2_model.AblationTests.test_T11_no_path_cells_makes_logits_independent_of_path_data) ... ok
+test_T11_uniform_gate_gives_w_identically_one (test_v2_model.AblationTests.test_T11_uniform_gate_gives_w_identically_one) ... ok
+test_defaults_are_the_full_model (test_v2_model.ConfigTests.test_defaults_are_the_full_model) ... ok
+test_invalid_values_and_conflicting_ablations_are_rejected (test_v2_model.ConfigTests.test_invalid_values_and_conflicting_ablations_are_rejected) ... ok
+Old (v1 / AMPSS) settings and typos are rejected in every section. ... ok
+test_dense_operator_closed_form_inverse_and_shapes (test_v2_model.DenseOperatorTests.test_dense_operator_closed_form_inverse_and_shapes) ... ok
+test_path_transport_accepts_dense_operators (test_v2_model.DenseOperatorTests.test_path_transport_accepts_dense_operators) ... ok
+test_T7_cell_state_is_the_least_squares_minimizer (test_v2_model.PathLaplacianTests.test_T7_cell_state_is_the_least_squares_minimizer) ... ok
+test_T12a_both_sides_share_exactly_one_scale_per_edge (test_v2_model.PerEdgeScaleTests.test_T12a_both_sides_share_exactly_one_scale_per_edge) ... ok
+test_T12b_edge_transports_are_orthogonal (test_v2_model.PerEdgeScaleTests.test_T12b_edge_transports_are_orthogonal) ... ok
+test_T12b_negative_control_per_side_scales_break_orthogonality (test_v2_model.PerEdgeScaleTests.test_T12b_negative_control_per_side_scales_break_orthogonality) ... ok
+test_T12b_path_transports_are_orthogonal_at_every_length (test_v2_model.PerEdgeScaleTests.test_T12b_path_transports_are_orthogonal_at_every_length) ... ok
+The fast path never touches `c`: transports are bit-identical for any shared scale, ... ok
+test_T12c_scale_lower_bound_and_finite_gradients_at_extremes (test_v2_model.PerEdgeScaleTests.test_T12c_scale_lower_bound_and_finite_gradients_at_extremes) ... ok
+Unique float map storage held by both operators (spec 1.25 Z2): `M (m^2 + 1) + |R| d m + ... ok
+test_T4_per_edge_maps_are_side_specific_and_node_dependent (test_v2_model.PerEdgeVersionsOfD1Tests.test_T4_per_edge_maps_are_side_specific_and_node_dependent) ... ok
+test_T5_per_edge_holonomy_is_nontrivial_and_varies (test_v2_model.PerEdgeVersionsOfD1Tests.test_T5_per_edge_holonomy_is_nontrivial_and_varies) ... ok
+test_T10_gradients_reach_every_learned_component (test_v2_model.V2ModelTests.test_T10_gradients_reach_every_learned_component) ... ok
+Flags `[M|F|F_g|F_g(L+1), d, d]` shapes and any tensor with >= min(M, F) d^2 / 4 ... ok
+test_T9_deleted_components_are_absent (test_v2_model.V2ModelTests.test_T9_deleted_components_are_absent) ... ok
+test_build_model_builds_the_node_classification_head (test_v2_model.V2ModelTests.test_build_model_builds_the_node_classification_head) ... ok
+test_checkpointing_switch_does_not_change_outputs_or_gradients (test_v2_model.V2ModelTests.test_checkpointing_switch_does_not_change_outputs_or_gradients) ... ok
+test_gate_initialization_is_near_one_half (test_v2_model.V2ModelTests.test_gate_initialization_is_near_one_half) ... ok
+test_T14_config_keys_are_validated_and_never_tuned (test_v3b_model.ArmTests.test_T14_config_keys_are_validated_and_never_tuned) ... ok
+test_T14_every_arm_trains_and_gradients_reach_the_right_groups (test_v3b_model.ArmTests.test_T14_every_arm_trains_and_gradients_reach_the_right_groups) ... ok
+test_m1_forward_map_on_reversed_hop_breaks_T1 (test_v3b_mutations.MutationTests.test_m1_forward_map_on_reversed_hop_breaks_T1) ... ok
+test_m2_perturbed_fact_cell_map_breaks_T1_and_the_flat_kernel (test_v3b_mutations.MutationTests.test_m2_perturbed_fact_cell_map_breaks_T1_and_the_flat_kernel) ... ok
+test_m3_dropped_node_cell_term_breaks_T2 (test_v3b_mutations.MutationTests.test_m3_dropped_node_cell_term_breaks_T2) ... ok
+test_m4_missing_plus_one_in_cell_degree_breaks_T2 (test_v3b_mutations.MutationTests.test_m4_missing_plus_one_in_cell_degree_breaks_T2) ... ok
+test_m5_backward_without_tau_breaks_the_unroll_check (test_v3b_mutations.MutationTests.test_m5_backward_without_tau_breaks_the_unroll_check) ... ok
+test_m6_wrong_schur_weight_breaks_T7 (test_v3b_mutations.MutationTests.test_m6_wrong_schur_weight_breaks_T7) ... ok
+test_F1_global_section_is_the_fixed_point (test_v3b_theory.FixedPointTests.test_F1_global_section_is_the_fixed_point) ... ok
+test_K1_flat_sheaf_kernel_is_the_constant_sections (test_v3b_theory.KernelTests.test_K1_flat_sheaf_kernel_is_the_constant_sections) ... ok
+test_K2_free_cell_maps_collapse_the_kernel (test_v3b_theory.KernelTests.test_K2_free_cell_maps_collapse_the_kernel) ... ok
+test_K3_kernel_equals_the_node_sheaf_kernel (test_v3b_theory.KernelTests.test_K3_kernel_equals_the_node_sheaf_kernel) ... ok
+test_U1_unrolled_gradient_equals_the_implicit_gradient (test_v3b_theory.UnrollTests.test_U1_unrolled_gradient_equals_the_implicit_gradient) ... ok
+test_every_clone_directory_is_ignored (test_vendor_manifest.VendorIgnoreTests.test_every_clone_directory_is_ignored) ... fatal: pathspec 'vendor/HGB/ignore_probe.txt' is beyond a symbolic link
+test_clone_rows_pin_a_full_hash_and_a_url (test_vendor_manifest.VendorManifestTests.test_clone_rows_pin_a_full_hash_and_a_url) ... ok
+test_every_row_has_a_commit (test_vendor_manifest.VendorManifestTests.test_every_row_has_a_commit) ... ok
+test_every_vendor_root_has_a_row (test_vendor_manifest.VendorManifestTests.test_every_vendor_root_has_a_row) ... ok
+test_manifest_parses_with_unique_names_and_known_kinds (test_vendor_manifest.VendorManifestTests.test_manifest_parses_with_unique_names_and_known_kinds) ... ok
+test_not_needed_rows_carry_no_url_or_commit (test_vendor_manifest.VendorManifestTests.test_not_needed_rows_carry_no_url_or_commit) ... ok
+test_clean_clone_gets_the_patch (test_vendor_patches.ApplyVendorPatchesTests.test_clean_clone_gets_the_patch) ... ok
+test_clone_at_another_commit_is_refused (test_vendor_patches.ApplyVendorPatchesTests.test_clone_at_another_commit_is_refused) ... ok
+test_conflicting_clone_is_refused_unchanged (test_vendor_patches.ApplyVendorPatchesTests.test_conflicting_clone_is_refused_unchanged) ... ok
+test_second_run_is_a_no_op (test_vendor_patches.ApplyVendorPatchesTests.test_second_run_is_a_no_op) ... ok
+test_h2gb_patch_touches_exactly_the_two_dataset_files (test_vendor_patches.RecordedPatchTests.test_h2gb_patch_touches_exactly_the_two_dataset_files) ... ok
+test_agent_worker_runs_exactly_one_trial_and_records_pid (test_wandb_and_runs.WandbAndRunReportingTests.test_agent_worker_runs_exactly_one_trial_and_records_pid) ... ok
+test_campaign_resume_selects_compatible_continuation_or_new_state (test_wandb_and_runs.WandbAndRunReportingTests.test_campaign_resume_selects_compatible_continuation_or_new_state) ... ok
+test_failed_worker_does_not_prevent_next_isolated_attempt (test_wandb_and_runs.WandbAndRunReportingTests.test_failed_worker_does_not_prevent_next_isolated_attempt) ... W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+test_fresh_validation_refuses_to_overwrite_existing_state (test_wandb_and_runs.WandbAndRunReportingTests.test_fresh_validation_refuses_to_overwrite_existing_state) ... ok
+M3a-fix F2 (spec v1.22 W2): the LP decoder is tuned in {dot, distmult} without a flag and ... ok
+test_notebooks_reference_repeated_run_and_wandb_tuning_scripts (test_wandb_and_runs.WandbAndRunReportingTests.test_notebooks_reference_repeated_run_and_wandb_tuning_scripts) ... ok
+test_repeated_cv_notebook_is_clean_and_uses_fold_campaign (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_notebook_is_clean_and_uses_fold_campaign) ... ok
+test_repeated_cv_unit_mapping_config_and_population_summary (test_wandb_and_runs.WandbAndRunReportingTests.test_repeated_cv_unit_mapping_config_and_population_summary) ... ok
+test_run_summary_uses_task_metrics_and_mean_std (test_wandb_and_runs.WandbAndRunReportingTests.test_run_summary_uses_task_metrics_and_mean_std) ... ok
+test_wandb_disabled_preserves_local_metrics_jsonl (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_disabled_preserves_local_metrics_jsonl) ... 2026-11-18 22:39:27,774 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+test_wandb_enabled_logs_flattened_metrics_and_finishes (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_enabled_logs_flattened_metrics_and_finishes) ... 2026-11-18 22:39:27,774 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+test_wandb_sweep_config_and_tuning_selection (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_sweep_config_and_tuning_selection) ... ok
+test_wandb_tuning_resume_requires_matching_fingerprints (test_wandb_and_runs.WandbAndRunReportingTests.test_wandb_tuning_resume_requires_matching_fingerprints) ... ok
+test_direct_construction_is_validated (test_wisp.WispConfigValidationTests.test_direct_construction_is_validated) ... ok
+test_every_never_tuned_wisp_key_is_rejected (test_wisp.WispConfigValidationTests.test_every_never_tuned_wisp_key_is_rejected) ... ok
+test_wisp_keys_are_rejected_under_schemas_through_from_dict (test_wisp.WispConfigValidationTests.test_wisp_keys_are_rejected_under_schemas_through_from_dict) ... ok
+test_default_path_source_and_r_per_dataset (test_wisp.WispDefaultTests.test_default_path_source_and_r_per_dataset) ... ok
+test_explicit_values_are_kept (test_wisp.WispDefaultTests.test_explicit_values_are_kept) ... ok
+test_resolved_configs_round_trip (test_wisp.WispDefaultTests.test_resolved_configs_round_trip) ... ok
+test_schemas_row_is_never_tuned_for_node_classification (test_wisp.WispDefaultTests.test_schemas_row_is_never_tuned_for_node_classification) ... ok
+test_an_unresolved_path_source_is_refused_by_its_consumers (test_wisp.WispGuardTests.test_an_unresolved_path_source_is_refused_by_its_consumers) ... ok
+Spec v1.15 J2 supersedes E11 (r never tuned): r in {8, 16, 32, 64} is tuned. ... ok
+test_r_resolves_from_the_table_for_its_l_max (test_wisp.WispGuardTests.test_r_resolves_from_the_table_for_its_l_max) ... ok
+test_tuning_base_config_carries_the_pre_registered_wisp_settings (test_wisp.WispGuardTests.test_tuning_base_config_carries_the_pre_registered_wisp_settings) ... ok
+test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter (test_wisp.WispLadderTests.test_TH6_exp_has_no_gamma_and_b_is_a_scalar_parameter) ... ok
+g reads instance nodes only: a neighbour of the endpoints outside the cell changes no ... ok
+test_TH7_capacity_rule_endpoints_vs_full_within_5_percent (test_wisp.WispLadderTests.test_TH7_capacity_rule_endpoints_vs_full_within_5_percent) ... ok
+test_TH7_endpoint_perturbation_and_schema_equality (test_wisp.WispLadderTests.test_TH7_endpoint_perturbation_and_schema_equality) ... ok
+Spec v1.4 (R12; 1.25 Z1: no relational context): perturbing an intermediate's h0 and the ... ok
+Review MINOR-6: v_{l-1} (an intermediate) must not reach endpoints, v_l must; full sees ... ok
+Constant g (`uniform`): the expected total cell weight per anchor is equal across ... ok
+test_saved_configs_round_trip_under_both_path_weights (test_wisp.WispLadderTests.test_saved_configs_round_trip_under_both_path_weights) ... ok
+test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect (test_wisp.WispOverlapSamplingTests.test_overlap_switch_is_a_boolean_and_rejected_where_it_has_no_effect) ... ok
+test_TH2_unbiased_under_a_strongly_biased_q_with_control (test_wisp.WispProposalTests.test_TH2_unbiased_under_a_strongly_biased_q_with_control) ... ok
+test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control (test_wisp.WispProposalTests.test_TH3_ratio_is_walk_level_and_at_most_two_with_per_step_control) ... ok
+test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms (test_wisp.WispProposalTests.test_TH9_evaluation_draw_identical_across_proposals_and_ladder_arms) ... ok
+test_proposal_from_mass_tables (test_wisp.WispProposalTests.test_proposal_from_mass_tables) ... ok
+Prop. K: 1/2 x^T L_f x (production PathCellTerm, one cell at a time) equals ... ok
+With a random symmetric pair mask, 1/2 x^T L_keep x equals the kept pairs' energy ... ok
+test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders (test_wisp.WispReadoutTests.test_TH11_schema_mask_drops_exactly_that_schema_in_both_orders) ... ok
+test_TH11_shares_sum_to_one (test_wisp.WispReadoutTests.test_TH11_shares_sum_to_one) ... ok
+test_kendall_tau_and_permutation_null (test_wisp.WispReadoutTests.test_kendall_tau_and_permutation_null) ... ok
+test_readouts_import_no_training_code (test_wisp.WispReadoutTests.test_readouts_import_no_training_code) ... ok
+test_TH1_exact_distribution_no_revisits_and_dead_end_mass (test_wisp.WispSamplerTests.test_TH1_exact_distribution_no_revisits_and_dead_end_mass) ... ok
+test_TH2_unbiased_path_laplacian_for_q_equal_p (test_wisp.WispSamplerTests.test_TH2_unbiased_path_laplacian_for_q_equal_p) ... ok
+test_TH4_identity_and_summed_merge (test_wisp.WispSamplerTests.test_TH4_identity_and_summed_merge) ... ok
+test_TH9_determinism_and_draw_seeds (test_wisp.WispSamplerTests.test_TH9_determinism_and_draw_seeds) ... ok
+test_TH9_evaluation_draw_ignores_model_and_ablation_settings (test_wisp.WispSamplerTests.test_TH9_evaluation_draw_ignores_model_and_ablation_settings) ... ok
+test_reference_fixture_has_the_required_structures (test_wisp.WispSamplerTests.test_reference_fixture_has_the_required_structures) ... ok
+test_wisp_config_rejections (test_wisp.WispSamplerTests.test_wisp_config_rejections) ... ok
+test_adaptive_training_draws_leave_the_evaluation_cells_unchanged (test_wisp.WispTrainerDrawTests.test_adaptive_training_draws_leave_the_evaluation_cells_unchanged) ... ok
+test_transported_TH2_for_q_equal_p (test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_for_q_equal_p) ... ok
+test_transported_TH2_under_a_biased_q_with_control (test_wisp.WispTransportedUnbiasednessTests.test_transported_TH2_under_a_biased_q_with_control) ... ok
+test_cells_of_a_graph_do_not_depend_on_other_graphs (test_wisp_tasks.GraphClassificationWispTests.test_cells_of_a_graph_do_not_depend_on_other_graphs) ... ok
+test_evaluation_draw_is_fixed_and_training_draws_change (test_wisp_tasks.GraphClassificationWispTests.test_evaluation_draw_is_fixed_and_training_draws_change) ... ok
+test_every_node_is_an_anchor (test_wisp_tasks.GraphClassificationWispTests.test_every_node_is_an_anchor) ... ok
+test_anchor_set_is_both_endpoint_types (test_wisp_tasks.LinkPredictionAnchorTests.test_anchor_set_is_both_endpoint_types) ... ok
+test_config_resolves_wisp_for_link_prediction (test_wisp_tasks.LinkPredictionWispTests.test_config_resolves_wisp_for_link_prediction) ... ok
+The loader's cells equal a WISP draw (seed of the run) whose anchors are every user and ... ok
+test_evaluation_draw_fixed_training_draws_resampled (test_wisp_tasks.LinkPredictionWispTests.test_evaluation_draw_fixed_training_draws_resampled) ... ok
+Evaluation draw and three training draws: every hop of every cell is a message-graph ... ok
+No calibrated r outside node classification: the config loads (data-only uses), the ... ok
+ERROR: test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=0, loop='ac')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=1, loop='ac')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_pdns_subset_is_drawn_per_run_seed (test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) (seed=2, loop='ac')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_best_weights_are_restored (test_b1a_validation_subset.B1aTests.test_best_weights_are_restored) (loop='ac')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_no_test_pass_during_training (test_b1a_validation_subset.B1aTests.test_no_test_pass_during_training) (loop='ac')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_subset_is_deterministic_and_the_same_for_every_method (test_b1a_validation_subset.B1aTests.test_subset_is_deterministic_and_the_same_for_every_method)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_adapters_can_be_called_twice_in_one_process (test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_mag_year_metapath_schema_and_step (test_baselines_h2gb_classa.H2GformerMagYearTests.test_mag_year_metapath_schema_and_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_h2gformer_label_channel_reads_training_labels_only (test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_h2gformer_step (test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_gat_step (test_baselines_h2gb_classa.OneStepTests.test_gat_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_gcn_step (test_baselines_h2gb_classa.OneStepTests.test_gcn_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_han_step (test_baselines_h2gb_classa.OneStepTests.test_han_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_csnn_step (test_baselines_h2gb_classc.ClassCStepTests.test_csnn_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_nsd_step (test_baselines_h2gb_classc.ClassCStepTests.test_nsd_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_one_sampled_node_classification_step_is_finite_and_moves (test_baselines_hetsheaf.H2GBStepTests.test_one_sampled_node_classification_step_is_finite_and_moves)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph (test_baselines_hetsheaf.H2GBStepTests.test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_each_wired_method_one_lp_step_is_finite_and_moves (test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) (method='h2gformer')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_each_wired_method_one_lp_step_is_finite_and_moves (test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) (method='han')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_evaluation_covers_split_once (test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_incomplete_pass_is_refused (test_baselines_minibatch.EvaluationCoverageTests.test_incomplete_pass_is_refused)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='ogbn-mag')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='mag-year')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-cs')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-eng')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='oag-chem')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='ieee-cis-g')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='h-pokec')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gcn', dataset='pdns')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='ogbn-mag')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='mag-year')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-cs')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-eng')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='oag-chem')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='ieee-cis-g')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='h-pokec')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='gat', dataset='pdns')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='ogbn-mag')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='mag-year')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-cs')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-eng')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='oag-chem')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='ieee-cis-g')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='h-pokec')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='han', dataset='pdns')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='ogbn-mag')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='mag-year')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-cs')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-eng')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='oag-chem')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='ieee-cis-g')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='h-pokec')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) (method='h2gformer', dataset='pdns')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_loop_runs_plan_and_keeps_best_validation_epoch (test_baselines_minibatch.LoopTests.test_loop_runs_plan_and_keeps_best_validation_epoch)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_gcn_full_fanout_equals_full_batch (test_baselines_minibatch_equivalence.FullFanoutEquivalenceTests.test_gcn_full_fanout_equals_full_batch)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset (test_freebase_baselines.B1aSubsetTests.test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_h2sgnn_sampled_batch_step (test_freebase_baselines.H2GBStepTests.test_h2sgnn_sampled_batch_step)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_build_dataset_meets_the_h2snn_contract (test_h2gb_nc.H2GBLoaderTests.test_build_dataset_meets_the_h2snn_contract)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ogbn-mag')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='mag-year')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-cs')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-eng')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='oag-chem')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='ieee-cis-g')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_dataset_loads_with_h2gb_types_counts_labels_and_split (test_h2gb_nc.H2GBLoaderTests.test_every_dataset_loads_with_h2gb_types_counts_labels_and_split) (key='h-pokec')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_ieee_cis_features_are_normalised_as_h2gb_does (test_h2gb_nc.H2GBLoaderTests.test_ieee_cis_features_are_normalised_as_h2gb_does)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_oag_with_empty_raw_never_downloads (test_h2gb_nc.H2GBLoaderTests.test_oag_with_empty_raw_never_downloads)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_lp_adapter_runs_one_epoch (test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2gformer')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_nc_adapter_runs_one_epoch (test_partP_freebase.TinyReleaseTests.test_every_nc_adapter_runs_one_epoch) (adapter='h2gformer')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_embeddings_are_produced_and_consumed (test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_hidden_width_128_builds_with_metapath (test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_the_label_channel_reads_training_labels (test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels)
+    self.assertFalse(torch.equal(_output((RAW, LABEL)), _output((RAW, LABEL),
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_validation_and_test_labels_do_not_reach_the_label_channel (test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_fixed_adapters_run_from_the_bundle_root (test_partPfix_data_root.RootTests.test_fixed_adapters_run_from_the_bundle_root) (adapter='h2gformer')
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=64, metapath_pe=False)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=64, metapath_pe=True)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=128, metapath_pe=False)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=128, metapath_pe=True)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=256, metapath_pe=False)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=256, metapath_pe=True)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=512, metapath_pe=False)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_pair_of_the_space_runs_one_forward (test_partPfix_h2gformer_width.ForwardTests.test_every_pair_of_the_space_runs_one_forward) (hidden_dim=512, metapath_pe=True)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_split_equals_h2gb_code_and_is_a_function_of_the_seed (test_pdns_loader.PDNSLoaderTests.test_split_equals_h2gb_code_and_is_a_function_of_the_seed)
+    raise KeyError(f"Module with '{key}' already defined")
+KeyError: "Module with 'GraphormerBias' already defined"
+ERROR: test_every_clone_directory_is_ignored (test_vendor_manifest.VendorIgnoreTests.test_every_clone_directory_is_ignored)
+    self.assertEqual(ignore_problems(read_manifest(MANIFEST)), [])
+    raise RuntimeError(f"git check-ignore failed ({done.returncode}) for {rel}")
+RuntimeError: git check-ignore failed (128) for vendor/HGB/ignore_probe.txt
+FAIL: test_colliding_vendor_module_names_do_not_leak (test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+    self.assertFalse(leaked, f"vendor modules leaked out of the block: {leaked}")
+AssertionError: {'dataset_loader', 'utils', 'model', 'processing'} is not false : vendor modules leaked out of the block: {'dataset_loader', 'utils', 'model', 'processing'}
+FAIL: test_fanouts_equal_h2gb_yaml (test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml)
+    self.assertEqual(checked, 32)
+AssertionError: 0 != 32
+Ran 777 tests in 1931.103s
+FAILED (failures=2, errors=84)
+suite_exit=1
+golden sha256: 29215150935b6bb1412f36baec52842a78d5edb779ef9d15c3ea59266155a564
+mb0 sha256:    194868fce96fd658123165205d258392f7505b652bc974db26b5b1005dcbda37
+===== compare golden
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1238 tensors in 23 configurations; differing: none
+golden_compare_exit=0
+===== compare mb0
+compared 136 tensors; differing: none
+mb0_compare_exit=0
+end=2026-11-18T22:40:53+09:00

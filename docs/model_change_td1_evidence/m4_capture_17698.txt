@@ -1,0 +1,24 @@
+job=17698 node=g2n01 start=2026-11-18T18:40:11+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m4b head=59c2a778c562dc57ebfff1abc9260cf109daa204 diff_sha256=14c61685ff525202 untracked=6 snapshot_at=2026-11-18T18:40:09+09:00
+git=59c2a778c562dc57ebfff1abc9260cf109daa204
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2
+old golden sha256: 6198d18d29ca0df9488e15d350030d0deebd9529a73cb93d053834c6968b1687
+old mb0 sha256:    83f5f57d4feee19624f5bb9e38e935032813546c7a159c4f523d36d183c91700
+===== capture golden
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+captured 23 configurations, 1238 tensors, skipped 1 -> /mnt/data/peeradon/h2snn-model/docs/legacy_evidence/v3b_golden_cluster.pt
+capture_exit=0
+===== save mb0
+saved /mnt/data/peeradon/h2snn-model/docs/partMB_evidence/mb0_reference_cluster.pt
+save_exit=0
+new golden sha256: 29215150935b6bb1412f36baec52842a78d5edb779ef9d15c3ea59266155a564
+new mb0 sha256:    194868fce96fd658123165205d258392f7505b652bc974db26b5b1005dcbda37
+===== compare golden (second run, same node)
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1238 tensors in 23 configurations; differing: none
+golden_compare_exit=0
+===== compare mb0 (second run, same node)
+compared 136 tensors; differing: none
+mb0_compare_exit=0
+end=2026-11-18T18:40:36+09:00

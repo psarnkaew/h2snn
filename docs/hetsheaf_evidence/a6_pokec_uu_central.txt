@@ -1,0 +1,12 @@
+job=17382 node=g2tn01 start=2026-11-17T21:24:10+09:00
+git=630e857d21e1ac6be4609ae3e8b684588142ba86 branch=hetsheaf
+working tree:  M ../docs/hetsheaf_evidence/a5_ranges.md
+4d355a1e6ab95d5e60994b61efcaaf1be324501d9c7a77bfee6fbc400c7641e5  src/baselines/adapters/hetsheaf.py
+e1f70c033002375c0cb74d6c3c6c7056fba0f9a3b6d0f088c2dc9d0d5075621c  ../docs/hetsheaf_evidence/a4_dryrun.py
+10867edabcc32543644a50d0be192c5c47a558d43e5692424d6ae8a251ccc5ab  ../docs/hetsheaf_evidence/a5_dryrun.py
+NVIDIA TITAN RTX, 24576 MiB, 1 MiB
+/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/vendor/H2GB/H2GB/datasets/pokec_dataset.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+Using sheaf learner: type_concat
+RESULT {"cell": "link_prediction:h-pokec_uu", "kind": "central", "host": "g2tn01", "job": "17382", "gpu": "NVIDIA TITAN RTX", "gpu_total_gib": 23.6, "point": {"lr": 0.001, "weight_decay": 0.0005, "dropout": 0.45, "input_dropout": 0.45, "sheaf": "diag/type_concat", "d": 3, "layers": 5, "hidden_channels": 16, "decoder_type": "dot"}, "rule": {"lr": "geometric middle", "weight_decay": "middle of the grid", "dropout": "middle", "input_dropout": "middle", "sheaf": "categorical: adapter code default", "d": "middle of the grid", "layers": "middle of the grid", "hidden_channels": "middle of the grid", "decoder_type": "categorical: first grid value"}, "load_s": 0.0, "status": "OK", "epoch_and_eval_s": 13245.1, "train_epoch_s": 7324.22, "val_targets": null, "peak_gpu_gib": 2.49, "peak_host_gib": 9.48, "total_s": 13245.1}
+end=2026-11-18T01:05:03+09:00

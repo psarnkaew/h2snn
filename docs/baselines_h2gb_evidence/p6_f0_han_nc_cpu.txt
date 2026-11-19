@@ -1,0 +1,86 @@
+2ecb2f5ccfc45b26 ../docs/baselines_h2gb_evidence/p6_f0_diag.py
+label=p6-f0-han_nc_cpu job=17158 step=none node=g2n01 start=2026-11-17T03:10:26+09:00
+git=457c223b13ff3e63bf64b34e7e470e102ac90a49 branch=baselines-h2gb-6
+env=h2snn-b cmd=python -X faulthandler ../docs/baselines_h2gb_evidence/p6_f0_diag.py han_nc
+[03:10:31] cell han|node_classification|freebase params={'lr': 0.001, 'weight_decay': 0.0, 'hidden_dim': 256, 'dropout': 0.45, 'num_heads': 8} torch=2.4.1+cu124 gpu=None CUDA_LAUNCH_BLOCKING=None
+[03:10:31] device=cpu
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/HGB/NC/benchmark/methods/HAN/utils.py:213: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:641.)
+  features = th.sparse.FloatTensor(indices, values, th.Size([book_num, book_num]))
+[03:10:49] CALL F.linear on a sparse input #1
+[03:10:49]    input: COO shape=(40402, 40402) nnz=40,402 indices=torch.int64 max=40401 coalesced=False device=cpu values=torch.float32
+[03:10:49]    weight: dense shape=(256, 40402) dtype=torch.float32 device=cpu numel=10,342,912
+[03:10:49] CALL dgl.metapath_reachable_graph ('00', '00') on cpu
+[03:10:50]    -> nodes=40,402 edges=49,275,062 idtype=torch.int64
+[03:10:50] CALL dgl.metapath_reachable_graph ('01', '10') on cpu
+[03:10:50]    -> nodes=40,402 edges=4,193,476 idtype=torch.int64
+[03:10:50] CALL dgl.metapath_reachable_graph ('05', '52', '20') on cpu
+[03:10:52]    -> nodes=40,402 edges=4,021,889 idtype=torch.int64
+[03:10:52] CALL dgl.metapath_reachable_graph ('04', '40') on cpu
+[03:10:52]    -> nodes=40,402 edges=3,145,804 idtype=torch.int64
+[03:10:52] CALL dgl.metapath_reachable_graph ('04', '43', '30') on cpu
+[03:10:52]    -> nodes=40,402 edges=13,745,798 idtype=torch.int64
+[03:10:52] CALL dgl.metapath_reachable_graph ('06', '61', '10') on cpu
+[03:10:54]    -> nodes=40,402 edges=30,573,570 idtype=torch.int64
+[03:10:54] CALL dgl.metapath_reachable_graph ('07', '70') on cpu
+[03:10:55]    -> nodes=40,402 edges=35,046,698 idtype=torch.int64
+[03:10:55] CALL GATConv.forward #1 graph nodes=40,402 edges=49,275,062 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 100,915,326,976 > 2^31-1 !; edges x heads = 394,200,496
+[03:10:55]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:10:55] CALL DGLGraph.apply_edges #1 edges=49,275,062 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:10:56]    DGLGraph.apply_edges #1 returned
+[03:10:56] CALL edge_softmax #1 edges=49,275,062 logits: dense shape=(49275062, 8, 1) dtype=torch.float32 device=cpu numel=394,200,496
+[03:10:57]    edge_softmax #1 returned
+[03:10:58] CALL DGLGraph.update_all #1 edges=49,275,062 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:11:29]    DGLGraph.update_all #1 returned
+[03:11:29]    GATConv.forward #1 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:11:29] CALL GATConv.forward #2 graph nodes=40,402 edges=4,193,476 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 8,588,238,848 > 2^31-1 !; edges x heads = 33,547,808
+[03:11:29]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:11:29] CALL DGLGraph.apply_edges #2 edges=4,193,476 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:11:29]    DGLGraph.apply_edges #2 returned
+[03:11:29] CALL edge_softmax #2 edges=4,193,476 logits: dense shape=(4193476, 8, 1) dtype=torch.float32 device=cpu numel=33,547,808
+[03:11:30]    edge_softmax #2 returned
+[03:11:30] CALL DGLGraph.update_all #2 edges=4,193,476 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:11:33]    DGLGraph.update_all #2 returned
+[03:11:33]    GATConv.forward #2 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:11:33] CALL GATConv.forward #3 graph nodes=40,402 edges=4,021,889 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 8,236,828,672 > 2^31-1 !; edges x heads = 32,175,112
+[03:11:33]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:11:33] CALL DGLGraph.apply_edges #3 edges=4,021,889 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:11:33]    DGLGraph.apply_edges #3 returned
+[03:11:33] CALL edge_softmax #3 edges=4,021,889 logits: dense shape=(4021889, 8, 1) dtype=torch.float32 device=cpu numel=32,175,112
+[03:11:33]    edge_softmax #3 returned
+[03:11:33] CALL DGLGraph.update_all #3 edges=4,021,889 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:11:36]    DGLGraph.update_all #3 returned
+[03:11:36]    GATConv.forward #3 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:11:36] CALL GATConv.forward #4 graph nodes=40,402 edges=3,145,804 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 6,442,606,592 > 2^31-1 !; edges x heads = 25,166,432
+[03:11:36]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:11:36] CALL DGLGraph.apply_edges #4 edges=3,145,804 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:11:36]    DGLGraph.apply_edges #4 returned
+[03:11:36] CALL edge_softmax #4 edges=3,145,804 logits: dense shape=(3145804, 8, 1) dtype=torch.float32 device=cpu numel=25,166,432
+[03:11:36]    edge_softmax #4 returned
+[03:11:36] CALL DGLGraph.update_all #4 edges=3,145,804 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:11:38]    DGLGraph.update_all #4 returned
+[03:11:38]    GATConv.forward #4 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:11:38] CALL GATConv.forward #5 graph nodes=40,402 edges=13,745,798 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 28,151,394,304 > 2^31-1 !; edges x heads = 109,966,384
+[03:11:38]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:11:38] CALL DGLGraph.apply_edges #5 edges=13,745,798 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:11:38]    DGLGraph.apply_edges #5 returned
+[03:11:38] CALL edge_softmax #5 edges=13,745,798 logits: dense shape=(13745798, 8, 1) dtype=torch.float32 device=cpu numel=109,966,384
+[03:11:39]    edge_softmax #5 returned
+[03:11:39] CALL DGLGraph.update_all #5 edges=13,745,798 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:11:47]    DGLGraph.update_all #5 returned
+[03:11:47]    GATConv.forward #5 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:11:47] CALL GATConv.forward #6 graph nodes=40,402 edges=30,573,570 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 62,614,671,360 > 2^31-1 !; edges x heads = 244,588,560
+[03:11:47]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:11:47] CALL DGLGraph.apply_edges #6 edges=30,573,570 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:11:47]    DGLGraph.apply_edges #6 returned
+[03:11:48] CALL edge_softmax #6 edges=30,573,570 logits: dense shape=(30573570, 8, 1) dtype=torch.float32 device=cpu numel=244,588,560
+[03:11:49]    edge_softmax #6 returned
+[03:11:49] CALL DGLGraph.update_all #6 edges=30,573,570 formats={'created': ['coo', 'csc'], 'not created': ['csr']} device=cpu
+[03:12:10]    DGLGraph.update_all #6 returned
+[03:12:10]    GATConv.forward #6 returned out: dense shape=(40402, 8, 256) dtype=torch.float32 device=cpu numel=82,743,296
+[03:12:10] CALL GATConv.forward #7 graph nodes=40,402 edges=35,046,698 idtype=torch.int64 device=cpu heads=8 out=256; edges x heads x out = 71,775,637,504 > 2^31-1 !; edges x heads = 280,373,584
+[03:12:10]    feat: dense shape=(40402, 256) dtype=torch.float32 device=cpu numel=10,342,912
+[03:12:10] CALL DGLGraph.apply_edges #7 edges=35,046,698 formats={'created': ['coo'], 'not created': ['csr', 'csc']} device=cpu
+[03:12:10]    DGLGraph.apply_edges #7 returned
+peak_rss_gib=24.22 elapsed_s=105.0
+end=2026-11-17T03:12:11+09:00 exit=247
+slurmstepd-g2n01: error: Detected 1 oom_kill event in StepId=17158.batch. Some of the step tasks have been OOM Killed.

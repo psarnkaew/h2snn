@@ -104,6 +104,14 @@ def loaders(train_data: Any, test_data: Any, node_type: str, batch_size: int) ->
             make(test_data, test_data[node_type].test_mask, False))    # main.py:155-163: test on test_data
 
 
+def index_loader(data: Any, node_type: str, ids: torch.Tensor, batch_size: int) -> Any:
+    """Their evaluation NeighborLoader over explicit target ids (card 1f B1a validation subset), no shuffling."""
+    from torch_geometric.loader import NeighborLoader
+
+    return NeighborLoader(data, num_neighbors=NUM_NEIGHBORS, batch_size=batch_size, input_nodes=(node_type, ids),
+                          shuffle=False)
+
+
 def seed_logits(model: Any, batch: Any, node_type: str) -> torch.Tensor:
     """Their `evaluate_mini_batch` forward (`hetero2net/utils.py:108-118`): logits of the first `batch_size` targets."""
     out = model(batch.x_dict, batch.edge_index_dict, batch[node_type].get("y_emb"))

@@ -152,6 +152,50 @@ def is_sweep_prune(exc: BaseException) -> bool:
     return type(exc) is Exception and not exc.args
 
 
+#: TSUBAME card T2 (24 h guard): a trial whose job is killed (the 24 h job limit, `qdel`, a SLURM time limit) leaves
+#: no bookkeeping, so `--resume` starts the same attempt again (docs/tsubame_evidence/t0_inventory.md section 3). The
+#: state counts the unfinished starts of the open attempt (`open_attempt`: set when the worker starts, removed when
+#: it returns, whatever its outcome); an attempt started this many times without finishing is not started again and
+#: the line ends with `line_status` = `exceeds_24h`. States without the key (written before T2) count 0.
+MAX_UNFINISHED_ATTEMPTS = 2
+EXCEEDS_24H = "exceeds_24h"
+
+
+class TrialExceedsJobLimitError(RuntimeError):
+    """The open attempt was started `MAX_UNFINISHED_ATTEMPTS` times and never finished (TSUBAME card T2)."""
+
+
+def unfinished_starts(state: dict[str, Any] | None, attempt_index: int) -> int:
+    """How often attempt `attempt_index` was started without finishing (0 when the state has no open attempt)."""
+    entry = state.get("open_attempt") if isinstance(state, dict) else None
+    if isinstance(entry, dict) and entry.get("attempt_index") == attempt_index:
+        return int(entry.get("starts", 0))
+    return 0
+
+
+#: Card 1f U5.5 (B1a): on the H2GB NC datasets the baseline loops record the selection score on the fixed validation
+#: subset; the sweep's end-of-trial objective (and, card 1f U6, the trial selection) is that value at the best epoch.
+#: Datasets outside the subset table keep the whole-split validation metric.
+B1A_OBJECTIVE_KEY = "val_subset_macro_f1"
+
+
+def sweep_objective(record: dict[str, Any], monitor: str) -> float:
+    """The value a sweep ranks a trial by: `val_subset_macro_f1` when the monitor is macro-F1 and the record carries
+    it, else `metric_score(record, monitor)`. A macro-F1 record of a dataset in the B1a subset table without the
+    subset key is refused (card 1f U6: no silent whole-split fallback)."""
+    from src.evaluation.validation_subset import SUBSET_SIZES
+    from src.utils.run_reports import metric_score
+
+    if monitor.removeprefix("val_") == "macro_f1":
+        if B1A_OBJECTIVE_KEY in record:
+            return float(record[B1A_OBJECTIVE_KEY])
+        if record.get("dataset") in SUBSET_SIZES:
+            raise ValueError(
+                f"{record.get('dataset')}: the trial record has no {B1A_OBJECTIVE_KEY!r}; on the H2GB NC datasets the "
+                "sweep objective is the B1a validation-subset metric (card 1f U6), there is no whole-split fallback.")
+    return metric_score(record, monitor)
+
+
 def canonical_fingerprint(payload: Any) -> str:
     # `separators` is load-bearing: it must stay byte-identical or every previously
     # written tuning state stops resuming.
@@ -342,8 +386,6 @@ def run_campaign_worker(
     part-way through a trial.
     """
 
-    from src.utils.run_reports import metric_score
-
     with context_path.open("r", encoding="utf-8") as handle:
         context = json.load(handle)
     if not isinstance(context, dict):
@@ -431,7 +473,7 @@ def run_campaign_worker(
                             run.summary[f"best/{key}"] = value
                     wandb.log(
                         {
-                            f"best/{str(context['monitor']).removeprefix('val_')}": metric_score(
+                            f"best/{str(context['monitor']).removeprefix('val_')}": sweep_objective(
                                 record, str(context["monitor"])
                             )
                         }
@@ -646,6 +688,19 @@ def run_unit_sweep(
         }
         save_tuning_state(context_path, worker_context)
 
+        # TSUBAME card T2: count this start; refuse an attempt that never finished MAX_UNFINISHED_ATTEMPTS times
+        guard_state = load_tuning_state(state_path)
+        starts = unfinished_starts(guard_state, attempt_index)
+        if starts >= MAX_UNFINISHED_ATTEMPTS:
+            guard_state["line_status"] = EXCEEDS_24H
+            save_tuning_state(state_path, guard_state)
+            message = (f"{EXCEEDS_24H}: attempt {attempt_index} of {state_path} was started {starts} times and its job "
+                       "never let it finish; it is not started again (TSUBAME card T2)")
+            print(message, flush=True)
+            raise TrialExceedsJobLimitError(message)
+        guard_state["open_attempt"] = {"attempt_index": attempt_index, "starts": starts + 1}
+        save_tuning_state(state_path, guard_state)
+
         before_state = load_tuning_state(state_path)
         before_successes = len(completed_records_from_state(before_state))
         result = subprocess.run(
@@ -697,6 +752,7 @@ def run_unit_sweep(
         after_state["failed_trials"] = len(after_state.get("failures", []))
         after_state["failed_by_condition"] = count_failures(after_state.get("failures", []))
         after_state["pruned_trials"] = len(after_state.get("pruned", []))
+        after_state.pop("open_attempt", None)  # TSUBAME card T2: the attempt finished (whatever its outcome)
         save_tuning_state(state_path, after_state)
 
     final_state = validate_resume_state(

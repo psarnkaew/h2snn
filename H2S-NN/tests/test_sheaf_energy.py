@@ -22,7 +22,7 @@ except ImportError as exc:  # pragma: no cover - environment specific
 
 from src.data.data_layout import REPO_DATA_ROOT, nc_root
 from src.data.structures import FaceGroup
-from src.models.map_operators import EdgeMapPair, FactorizedMapOperator, normalize_reflectors
+from src.models.map_operators import EdgeMapPair
 from src.models.sheaf_energy import (
     EliminatedOperator,
     IncidenceComplex,
@@ -42,21 +42,12 @@ T7_TOL = 1e-10
 # ----------------------------------------------------------------------------- fixture
 def _orthogonal_maps(num_edges: int, edge_type: torch.Tensor, d: int, k: int,
                      generator: torch.Generator, dtype: torch.dtype) -> EdgeMapPair:
-    """Random factorized maps, one shared scale per fact in [0.5, 2] (log-uniform)."""
-    num_relations = int(edge_type.max()) + 1
-    log_scale = math.log(0.5) + math.log(4.0) * torch.rand(num_edges, generator=generator,
-                                                            dtype=torch.float64)
-    scale = log_scale.exp().to(dtype)
+    """Random TD-1 maps of rank `k` (spec 1.25 Z2), one shared scale per fact in [0.5, 2]
+    (log-uniform); relation 1 has rho(r) = r (exp(-+A/2) on the two roles), relation 0 a frame."""
+    from tests.td1_fixtures import random_td1_maps
 
-    def side() -> FactorizedMapOperator:
-        rotations, _ = torch.linalg.qr(torch.randn(num_relations, d, d, generator=generator,
-                                                   dtype=torch.float64))
-        reflectors = normalize_reflectors(
-            torch.randn(num_edges, k, d, generator=generator, dtype=torch.float64), 1e-6)
-        return FactorizedMapOperator(scale=scale, reflectors=reflectors.to(dtype),
-                                     rotations=rotations.to(dtype), group_ids=edge_type)
-
-    return EdgeMapPair(src=side(), tgt=side())
+    return random_td1_maps(num_edges, edge_type, d, k, generator, dtype,
+                           shared_role_relations=(1,), num_relations=2)
 
 
 class Fixture:
@@ -303,7 +294,7 @@ class FunctorialityOnRealDrawTests(unittest.TestCase):
         from src.configs.config import TrainConfig
         from src.data.dataset import build_dataset
         from src.data.wisp_sampler import build_wisp_path_groups
-        from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
+        from src.models.sheaf_maps import TD1NodeToEdgeSheaf
 
         config = TrainConfig.from_dict({
             "data": {"dataset_name": "imdb", "root": str(REPO_DATA_ROOT),
@@ -321,10 +312,12 @@ class FunctorialityOnRealDrawTests(unittest.TestCase):
         self.assertTrue(groups)
         torch.manual_seed(0)
         d = 32
-        module = FactorizedNodeToEdgeSheaf(
-            d=d, d_r=16, num_relations=len(data.relation_names), hidden_dim=64, householder_k=2,
-            scale_eps=0.1, orthogonal_map="fasthpp", map_scale="per_edge",
+        module = TD1NodeToEdgeSheaf(
+            d=d, d_r=16, num_relations=len(data.relation_names), hidden_dim=64, map_rank=4,
+            scale_eps=0.1, orthogonal_map="fasthpp",
             shared_role_relations=data.fact_layer.self_inverse)
+        with torch.no_grad():  # nonzero instance rotations (C_e = 0 at init)
+            module.edge_mlp[-1].weight[:module.num_skew].normal_(0.0, 0.3)
         h = torch.randn(data.num_nodes, d)
         relation_embeddings = torch.randn(len(data.relation_names), 16)
         with torch.no_grad():

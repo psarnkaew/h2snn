@@ -792,7 +792,7 @@ number improved, or a bug is fixed without showing the run output.
 
 | ID | Decision (details in `../docs/H2S-NN_v2_plan.md`) | State |
 |---|---|---|
-| D1 | Factorized, matrix-free, conformal-orthogonal restriction maps `F = c · R_{ψ,side} · H_k(u)`, never materialized at `[M, d, d]`; `model.map_family: factorized`, `model.householder_k`. D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested; accuracy experiments (plan §1.6) not run |
+| D1 | Matrix-free, conformal-orthogonal restriction maps, never materialized at `[M, d, d]`; since spec 1.25 Z2 the TD-1 family `F_src = c_e I`, `F_tgt = c_e R_r exp(U_r C_e U_rᵀ)` (one FastHPP frame per relation, `U_r` d×4, `C_e ∈ so(4)` from one per-edge MLP; `model.map_rank` = 4, never tuned; `model.householder_k` raises). D1a: one scale `c_e` per edge, shared by both sides | Implemented, unit-tested (`tests/test_td1_maps.py`); accuracy experiments not run |
 | D2 | WISP (spec v1.3 §3.2): Walk-sampled, Instance-weighted Sheaf Paths replace AMPSS — schema-free self-avoiding walks from a stated target measure, walk-level defensive importance sampling (ratio ≤ 2), `w_f = exp(g(ξ_f))` (γ removed), schemas read out (`I_π`, `I_σ`, `ΔL_σ`), never selected; knobs `ℓ_max` (support), `r` (precision). Default (spec v1.4 E7): `path_source: wisp` for node classification; `path_source: schemas` (fixed literature presets) is the comparison row | Agreed 2026-11-08; implementation: task card Part H, branch `wisp`. "AMPSS" = deleted v1 only |
 | D3 | Scalability: normalized Laplacians with full-graph degrees, per-batch path cells, `NeighborLoader` mini-batching | Normalization and bounded step implemented (D4); mini-batching not started |
 | D4 | Path 2-cells couple to **every** boundary node through the **vertex–2-cell sheaf Laplacian** | Implemented with the §4.6 ablation switches; ACM memory and smoke run only |
@@ -885,8 +885,10 @@ Configs in `configs/experiments/` (the task follows from `data.dataset_name`):
 - Graph classification: `mutag`, `enzymes`, `nci1`, `proteins`.
 
 Config sections: `data`, `model` (`propagation: anchored`; the v3-B arms are `model.arm`),
-`ablation` (switches, all off by default: `path_weight_input`, `path_weight_context`,
-`h0_only_readout`, `direction_blind_maps`; `coupling: symmetric` only), `optim` (`scalar_lr_scale`:
+`ablation` (switches, all off by default: `path_weight_input`,
+`h0_only_readout`, `direction_blind_maps`, `ego_head` (spec 1.25 Z3: the head reads `x*`; `ego_head`
+is the 1.24 readout `[x*, h0]`); `coupling: symmetric` only; spec 1.25 Z1 removed the
+relational context `c`: `model.geometry_context` and `ablation.path_weight_context` raise), `optim` (`scalar_lr_scale`:
 learning-rate multiple for the scalars `θ_τ` and the bias of `g`, which get their own group with no
 weight decay). Unknown keys are errors. `orthogonal_map` accepts only `fasthpp`
 (`src/models/fasthpp.py`). v1/v2 settings are removed (legacy-removal card); a configuration that names one raises.

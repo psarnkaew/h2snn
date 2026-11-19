@@ -45,8 +45,10 @@ class ConfigurationsATests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             paths = arms.emit_configurations_a(FULL, "acm", Path(tmp))
             self.assertNotIn("literature_row", paths)
-            self.assertIn("appendix_full", paths)
-            self.assertIn("appendix_endpoints", paths)
+            # spec 1.25 Z1 withdrew C9 and the appendix pair with c; Z3 added ego_head (C18)
+            for withdrawn in ("appendix_full", "appendix_endpoints", "geometry_context_off"):
+                self.assertNotIn(withdrawn, paths)
+            self.assertIn("ego_head", paths)
             for arm, path in paths.items():
                 emitted = arms.flatten(yaml.safe_load(path.read_text(encoding="utf-8")))
                 differing = {k for k in set(full) | set(emitted)

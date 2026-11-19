@@ -1,0 +1,38 @@
+job=17641 node=g2n01 git=d37abbbebfe46a6fb346e8791ff9547674b62269 start=2026-11-18T11:48:57+09:00
+0fd41e0bd434c5d0f0c1f1bcada2cc52d11e14f6055c716d145d65d05e900b74  src/baselines/adapters/_hgb_generic.py
+0b23423b5a8c2dab8fb9fa03013aac547f17132d759259ae94a74bde384765c8  tests/test_freebase_baselines.py
+3949bc5e13c888ad930351fa888c623d4c450a9ac79be07f9517f4cdb02b00dd  ../docs/freebase_baselines_evidence/b1_reverse_mutation.py
+======================================================================
+FAIL: test_one_direction_toy_graph_gets_both_directions_and_a_symmetric_same_type_key (tests.test_freebase_baselines.RelationPlanTests.test_one_direction_toy_graph_gets_both_directions_and_a_symmetric_same_type_key)
+2 relations, each stored one way (P -> A, P -> P): the generic branch's operators hold A -> P as the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-hetsheaf/H2S-NN/tests/test_freebase_baselines.py", line 165, in test_one_direction_toy_graph_gets_both_directions_and_a_symmetric_same_type_key
+    self.assertEqual(sorted(adjs), ["AP", "PA", "PP"])
+AssertionError: Lists differ: ['PA', 'PP'] != ['AP', 'PA', 'PP']
+
+First differing element 0:
+'PA'
+'AP'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'PP'
+
+- ['PA', 'PP']
++ ['AP', 'PA', 'PP']
+?  ++++++
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.320s
+
+FAILED (failures=1)
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+mutant (transpose dropped): FAIL (expected FAIL)
+real: pass (expected pass)
+mutation check OK
+exit=0 end=2026-11-18T11:48:59+09:00

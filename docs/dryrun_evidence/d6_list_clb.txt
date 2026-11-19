@@ -1,0 +1,1 @@
+CLB h2sgnn|link_prediction|freebase_bb D6.5-CLB-anomaly --point max

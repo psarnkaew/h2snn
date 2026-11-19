@@ -1,0 +1,221 @@
+{
+  "code_root": "/mnt/data/peeradon/h2snn-model-snap/m6cost/H2S-NN",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "config": "acm_h2snn_cost_central",
+  "device": "cuda",
+  "dataset": "acm",
+  "d": 32,
+  "arm": "full",
+  "walks_per_anchor": 16,
+  "l_max": 3,
+  "solver": {
+    "tolerance": 0.0001,
+    "warmup_tolerance": 0.001,
+    "warmup_epochs": 10,
+    "max_iterations": 100
+  },
+  "num_nodes": 10942,
+  "num_facts": 273936,
+  "num_parameters": 303596,
+  "optimizer_groups": [
+    {
+      "lr": 0.001,
+      "num_params": 303594
+    },
+    {
+      "lr": 0.01,
+      "num_params": 2
+    }
+  ],
+  "load_seconds": 0.39,
+  "epochs": [
+    {
+      "epoch": 0,
+      "loss": 1.1001240015029907,
+      "loss_finite": true,
+      "gradient_norms": {
+        "node_encoder": 0.4238006825348426,
+        "relation_embedding": 8.702048944542184e-05,
+        "fact_maps": 0.008160254041809279,
+        "g_path_encoder": 8.513972766085534e-05,
+        "g_path_gate": 8.083887482102443e-05,
+        "readout": 0.1528116617868282,
+        "theta_tau": 0.004082098137587309
+      },
+      "all_groups_nonzero": true,
+      "tau_after_step": 1.0,
+      "path_log_w_max": -0.2443181425333023,
+      "path_log_w_mean": -0.785889744758606,
+      "train_solve": {
+        "pcg_fwd_iters": 6.0,
+        "pcg_bwd_iters": 5.0,
+        "pcg_fwd_rel_residual": 0.0009101101313717663,
+        "pcg_bwd_rel_residual": 0.0008454680209979415,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.001,
+        "num_path_facts": 46122.0,
+        "num_shared_facts": 14112.0,
+        "num_fact_states": 14112.0,
+        "num_cells": 40903.0,
+        "eliminated_share": 0.9484843175048187
+      },
+      "eval_solve": {
+        "pcg_fwd_iters": 8.0,
+        "pcg_bwd_iters": 0.0,
+        "pcg_fwd_rel_residual": 8.061804692260921e-05,
+        "pcg_bwd_rel_residual": 0.0,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.0001,
+        "num_path_facts": 46122.0,
+        "num_shared_facts": 14112.0,
+        "num_fact_states": 14112.0,
+        "num_cells": 40903.0,
+        "eliminated_share": 0.9484843175048187
+      },
+      "draw_seconds": 0.302,
+      "train_step_seconds": 1.472,
+      "train_forward_seconds": 1.1239,
+      "train_backward_seconds": 0.3248,
+      "forward_solve_seconds": 0.1603,
+      "forward_solve_seconds_per_pcg_iteration": 0.026721,
+      "eval_forward_seconds": 0.194,
+      "epoch_seconds": 1.774,
+      "peak_memory_mb": 1409.8
+    },
+    {
+      "epoch": 1,
+      "loss": 1.0987666845321655,
+      "loss_finite": true,
+      "gradient_norms": {
+        "node_encoder": 0.4423111739065219,
+        "relation_embedding": 6.336730439215899e-05,
+        "fact_maps": 0.00844196917206475,
+        "g_path_encoder": 7.721762060006742e-05,
+        "g_path_gate": 8.804986977011224e-05,
+        "readout": 0.14818288613092734,
+        "theta_tau": 0.0034426143392920494
+      },
+      "all_groups_nonzero": true,
+      "tau_after_step": 1.0,
+      "path_log_w_max": -0.21483218669891357,
+      "path_log_w_mean": -0.7858309149742126,
+      "train_solve": {
+        "pcg_fwd_iters": 6.0,
+        "pcg_bwd_iters": 5.0,
+        "pcg_fwd_rel_residual": 0.0009041735902428627,
+        "pcg_bwd_rel_residual": 0.000865699490532279,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.001,
+        "num_path_facts": 45552.0,
+        "num_shared_facts": 14026.0,
+        "num_fact_states": 14026.0,
+        "num_cells": 40791.0,
+        "eliminated_share": 0.9487982594474622
+      },
+      "eval_solve": {
+        "pcg_fwd_iters": 0.0,
+        "pcg_bwd_iters": 0.0,
+        "pcg_fwd_rel_residual": 8.068387978710234e-05,
+        "pcg_bwd_rel_residual": 0.0,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.0001,
+        "num_path_facts": 46122.0,
+        "num_shared_facts": 14112.0,
+        "num_fact_states": 14112.0,
+        "num_cells": 40903.0,
+        "eliminated_share": 0.9484843175048187
+      },
+      "draw_seconds": 0.289,
+      "train_step_seconds": 0.485,
+      "train_forward_seconds": 0.1734,
+      "train_backward_seconds": 0.3095,
+      "forward_solve_seconds": 0.1557,
+      "forward_solve_seconds_per_pcg_iteration": 0.025948,
+      "eval_forward_seconds": 0.038,
+      "epoch_seconds": 0.774,
+      "peak_memory_mb": 1420.5
+    },
+    {
+      "epoch": 2,
+      "loss": 1.0975658893585205,
+      "loss_finite": true,
+      "gradient_norms": {
+        "node_encoder": 0.44396852324471586,
+        "relation_embedding": 6.328309973469004e-05,
+        "fact_maps": 0.00838964817230303,
+        "g_path_encoder": 5.538588519409124e-05,
+        "g_path_gate": 3.9456448111501495e-05,
+        "readout": 0.151610791017077,
+        "theta_tau": 0.0036007347516715527
+      },
+      "all_groups_nonzero": true,
+      "tau_after_step": 1.0,
+      "path_log_w_max": -0.23241744935512543,
+      "path_log_w_mean": -0.782442569732666,
+      "train_solve": {
+        "pcg_fwd_iters": 6.0,
+        "pcg_bwd_iters": 5.0,
+        "pcg_fwd_rel_residual": 0.0009174011647701263,
+        "pcg_bwd_rel_residual": 0.0008492898778058589,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.001,
+        "num_path_facts": 46078.0,
+        "num_shared_facts": 13927.0,
+        "num_fact_states": 13927.0,
+        "num_cells": 40812.0,
+        "eliminated_share": 0.9491596577302728
+      },
+      "eval_solve": {
+        "pcg_fwd_iters": 0.0,
+        "pcg_bwd_iters": 0.0,
+        "pcg_fwd_rel_residual": 8.072398486547172e-05,
+        "pcg_bwd_rel_residual": 0.0,
+        "pcg_converged": 1.0,
+        "solver_tolerance": 0.0001,
+        "num_path_facts": 46122.0,
+        "num_shared_facts": 14112.0,
+        "num_fact_states": 14112.0,
+        "num_cells": 40903.0,
+        "eliminated_share": 0.9484843175048187
+      },
+      "draw_seconds": 0.281,
+      "train_step_seconds": 0.471,
+      "train_forward_seconds": 0.1681,
+      "train_backward_seconds": 0.3007,
+      "forward_solve_seconds": 0.15,
+      "forward_solve_seconds_per_pcg_iteration": 0.025002,
+      "eval_forward_seconds": 0.039,
+      "epoch_seconds": 0.752,
+      "peak_memory_mb": 1420.5
+    }
+  ],
+  "map_storage": {
+    "stored_elements_src": 273936,
+    "stored_elements_tgt": 4661520,
+    "unique_floats": 4661520,
+    "per_fact_floats": 17.0,
+    "per_relation_floats": 4608
+  },
+  "map_build_seconds": 0.009836,
+  "final_tolerance_step": {
+    "draw_seed_offset": 3,
+    "model_epoch": 10,
+    "loss_finite": true,
+    "train_solve": {
+      "pcg_fwd_iters": 8.0,
+      "pcg_bwd_iters": 7.0,
+      "pcg_fwd_rel_residual": 8.009497105376795e-05,
+      "pcg_bwd_rel_residual": 8.139708370435983e-05,
+      "pcg_converged": 1.0,
+      "solver_tolerance": 0.0001,
+      "num_path_facts": 46027.0,
+      "num_shared_facts": 14125.0,
+      "num_fact_states": 14125.0,
+      "num_cells": 40906.0,
+      "eliminated_share": 0.9484368611646516
+    },
+    "draw_seconds": 0.284,
+    "forward_backward_seconds": 0.547,
+    "peak_memory_mb_this_step": 1434.7
+  }
+}

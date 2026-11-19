@@ -34,7 +34,7 @@ def tearDownModule() -> None:
 
 class ScopeFunctorialityTests(unittest.TestCase):
     def test_T1_on_a_batch_of_scopes(self) -> None:
-        from src.models.sheaf_maps import FactorizedNodeToEdgeSheaf
+        from src.models.sheaf_maps import TD1NodeToEdgeSheaf
 
         graph = example_graph()
         targets = torch.tensor([0, 1, 3, 4])
@@ -59,10 +59,11 @@ class ScopeFunctorialityTests(unittest.TestCase):
         torch.manual_seed(0)
         d = 32
         num_relations = len(data.relation_names)
-        module = FactorizedNodeToEdgeSheaf(
-            d=d, d_r=16, num_relations=num_relations, hidden_dim=64, householder_k=2,
-            scale_eps=0.1, orthogonal_map="fasthpp", map_scale="per_edge",
-            shared_role_relations=())
+        module = TD1NodeToEdgeSheaf(
+            d=d, d_r=16, num_relations=num_relations, hidden_dim=64, map_rank=4,
+            scale_eps=0.1, orthogonal_map="fasthpp", shared_role_relations=())
+        with torch.no_grad():  # nonzero instance rotations (C_e = 0 at init; spec 1.25 Z2)
+            module.edge_mlp[-1].weight[:module.num_skew].normal_(0.0, 0.3)
         h = torch.randn(data.num_nodes, d)
         relation_embeddings = torch.randn(num_relations, 16)
         num_edges = int(data.edge_index.size(1))

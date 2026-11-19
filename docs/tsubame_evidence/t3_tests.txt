@@ -1,0 +1,152 @@
+head=9b2a564252e74db4ee9919fa48d85c63387e97ac host=g2n01 job=17669 start=2026-11-18T16:40:24+09:00
+worktree: ?? scripts/tsubame/make_cell_list.py ?? tests/test_tsubame_cell_list.py ?? ../docs/tsubame_evidence/t3_mutation.py ?? ../docs/tsubame_evidence/t3_tests.txt 
+command: python -m unittest -v tests.test_tsubame_cell_list 2>&1 | grep -vE "^  (node|link)_|^task |^monitor |validate_only|tunable parameters|^skip " ; echo "--- mutation"; python ../docs/tsubame_evidence/t3_mutation.py 2>&1 | tail -40; echo "--- list"; python scripts/tsubame/make_cell_list.py --phase baselines-1 --out /tmp/t4_list_$$/cells_tuning.txt && sed "s#/tmp/t4_list_$$#<out>#g" /tmp/t4_list_$$/cells_tuning.txt; rm -rf /tmp/t4_list_$$
+  import torch_geometric.typing
+ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.198s
+
+OK
+/tmp/tmp1lotqyou/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+--- mutation
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... FAIL
+
+======================================================================
+FAIL: test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-tsubame/H2S-NN/tests/test_tsubame_cell_list.py", line 45, in test_phase1_lines_are_the_registry_runnable_cells
+    self.assertEqual(set(cells), expected_cells())
+AssertionError: Items in the first set but not the second:
+('link_prediction', 'dblp_ap', 'chebnetii')
+('link_prediction', 'imdb_ma', 'sehgnn')
+('link_prediction', 'acm_pa', 'hinormer')
+('link_prediction', 'dblp_ap', 'hinormer')
+('link_prediction', 'imdb_ma', 'chebnetii')
+('link_prediction', 'pubmed', 'hinormer')
+('link_prediction', 'lastfm', 'chebnetii')
+('link_prediction', 'imdb_ma', 'hinormer')
+('link_prediction', 'lastfm', 'hinormer')
+('link_prediction', 'pubmed', 'chebnetii')
+('link_prediction', 'acm_pa', 'sehgnn')
+('link_prediction', 'dblp_ap', 'sehgnn')
+('link_prediction', 'lastfm', 'sehgnn')
+('link_prediction', 'acm_pa', 'chebnetii')
+('link_prediction', 'pubmed', 'sehgnn')
+
+----------------------------------------------------------------------
+Ran 1 test in 1.167s
+
+FAILED (failures=1)
+/tmp/tmpe7zsv1e9/cells_tuning.txt: 104 runnable line(s), 0 comment line(s)
+MUTATION T3 (runnable filter dropped): caught (the test fails)
+--- list
+/tmp/t4_list_368814/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+# TSUBAME phase baselines-1: one tuning line per runnable registry cell (make_cell_list.py)
+# unsupported link_prediction acm_pa chebnetii: ChebNetII has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models csnn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gat --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2gformer --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2sgnn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models han --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetero2net --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetsheaf --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction acm_pa hinormer: HiNormer has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models nsd --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models pshgcn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction acm_pa sehgnn: SeHGNN has no link prediction implementation
+# unsupported link_prediction dblp_ap chebnetii: ChebNetII has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models csnn --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gat --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2gformer --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2sgnn --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models han --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetero2net --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetsheaf --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction dblp_ap hinormer: HiNormer has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models nsd --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models pshgcn --datasets dblp_ap --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction dblp_ap sehgnn: SeHGNN has no link prediction implementation
+# unsupported link_prediction imdb_ma chebnetii: ChebNetII has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models csnn --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gat --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2gformer --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2sgnn --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models han --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetero2net --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetsheaf --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction imdb_ma hinormer: HiNormer has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models nsd --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models pshgcn --datasets imdb_ma --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction imdb_ma sehgnn: SeHGNN has no link prediction implementation
+# unsupported link_prediction lastfm chebnetii: ChebNetII has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models csnn --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gat --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2gformer --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2sgnn --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models han --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetero2net --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetsheaf --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction lastfm hinormer: HiNormer has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models nsd --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models pshgcn --datasets lastfm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction lastfm sehgnn: SeHGNN has no link prediction implementation
+# unsupported link_prediction pubmed chebnetii: ChebNetII has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models csnn --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gat --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2gformer --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models h2sgnn --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models han --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetero2net --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models hetsheaf --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction pubmed hinormer: HiNormer has no link prediction implementation
+scripts/run_baseline_tuning.py --task link_prediction --models nsd --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task link_prediction --models pshgcn --datasets pubmed --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+# unsupported link_prediction pubmed sehgnn: SeHGNN has no link prediction implementation
+scripts/run_baseline_tuning.py --task node_classification --models chebnetii --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models csnn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gat --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2gformer --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2sgnn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models han --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetero2net --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetsheaf --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hinormer --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models nsd --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models pshgcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models sehgnn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models chebnetii --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models csnn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gat --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2gformer --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2sgnn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models han --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetero2net --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetsheaf --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hinormer --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models nsd --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models pshgcn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models sehgnn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models chebnetii --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models csnn --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gat --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2gformer --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models h2sgnn --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models han --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetero2net --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hetsheaf --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models hinormer --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models nsd --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models pshgcn --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_tuning.py --task node_classification --models sehgnn --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <out>/experiments/baselines --state_dir <out>/state --wandb_project h2snn_baseline_t4
+exit=0 seconds=9

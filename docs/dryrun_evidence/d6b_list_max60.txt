@@ -1,0 +1,4 @@
+RUN chebnetii|node_classification|oag-cs D6b-max-60G --point max
+RUN chebnetii|node_classification|oag-eng D6b-max-60G --point max
+RUN chebnetii|node_classification|oag-chem D6b-max-60G --point max
+RUN sehgnn|node_classification|ieee-cis-g D6b-max-60G --point max

@@ -1,0 +1,52 @@
+head=e41937035bbbbc0fca75ed1a7fb4a242e4d829b1 host=g2n01 job=16741 step=100
+worktree:  M scripts/run_baseline_tuning.py
+worktree:  M scripts/run_h2snn_runs.py
+worktree:  M scripts/run_h2snn_wandb_tuning.py
+worktree: ?? scripts/slurm/run_sweep_agents.sbatch
+worktree: ?? tests/test_dry_run_flag.py
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+STEP tune_h2snn_acm exit=0 seconds=14
+STEP tune_h2snn_acm_pa exit=0 seconds=20
+STEP tune_h2snn_mutag exit=0 seconds=120
+STEP tune_gcn_acm exit=1 seconds=26
+STEP resume_h2snn_acm exit=0 seconds=1
+STEP resume_gcn_acm_more exit=1 seconds=25
+TRIAL acm /mnt/data/peeradon/dryrun_scratch/d3b/h2snn/acm_h2snn_v3b_tune_run0_likely-sweep-1/ config=yes best=yes
+STEP runs_acm exit=0 seconds=12
+STEP final_seeds_acm exit=0 seconds=8
+TRIAL acm_pa /mnt/data/peeradon/dryrun_scratch/d3b/h2snn/acm_pa_h2snn_v3b_tune_run0_skilled-sweep-1/ config=yes best=yes
+STEP runs_acm_pa exit=0 seconds=21
+STEP final_seeds_acm_pa exit=0 seconds=14
+TRIAL mutag /mnt/data/peeradon/dryrun_scratch/d3b/h2snn/mutag_h2snn_v3b_tune_run0_volcanic-sweep-1/ config=yes best=yes
+STEP runs_mutag exit=0 seconds=116
+STEP final_seeds_mutag exit=0 seconds=114
+STEP schema_readout_acm exit=0 seconds=4
+STEP eval_draw_acm exit=0 seconds=18
+EVAL_DRAW {"trial_dir": "/mnt/data/peeradon/dryrun_scratch/d3b/h2snn/acm_h2snn_v3b_tune_run0_likely-sweep-1", "seed": 0, "epochs": 1, "best_epoch": 0, "device": "cuda", "groups": 4, "cells": 19606, "reload_equal": true, "reload_first_difference": null, "trial_reload_cells_equal": true, "negative_control_detected": true}
+eval_draw/eval_draw_check/config.yaml
+eval_draw/eval_draw_check_other_seed/config.yaml
+h2snn/acm_h2snn_v3b/best_tuned_run0.json
+h2snn/acm_h2snn_v3b/final_seed0.json
+h2snn/acm_h2snn_v3b/final_seeds_summary.json
+h2snn/acm_h2snn_v3b_tune_run0_likely-sweep-1/config.yaml
+h2snn/acm_h2snn_v3b/tuning_state_run0.json
+h2snn/acm_h2snn_v3b/tuning_state_run0_worker_context.json
+h2snn/acm_h2snn_v3b/tuning_state_run0_worker_status_0.json
+h2snn/acm_pa_h2snn_v3b/best_tuned_run0.json
+h2snn/acm_pa_h2snn_v3b/final_seed0.json
+h2snn/acm_pa_h2snn_v3b/final_seeds_summary.json
+h2snn/acm_pa_h2snn_v3b_tune_run0_skilled-sweep-1/config.yaml
+h2snn/acm_pa_h2snn_v3b/tuning_state_run0.json
+h2snn/acm_pa_h2snn_v3b/tuning_state_run0_worker_context.json
+h2snn/acm_pa_h2snn_v3b/tuning_state_run0_worker_status_0.json
+h2snn/mutag_h2snn_v3b/best_tuned_run0.json
+h2snn/mutag_h2snn_v3b/final_seed0.json
+h2snn/mutag_h2snn_v3b/final_seeds_summary.json
+h2snn/mutag_h2snn_v3b_tune_run0_volcanic-sweep-1/config.yaml
+h2snn/mutag_h2snn_v3b/tuning_state_run0.json
+h2snn/mutag_h2snn_v3b/tuning_state_run0_worker_context.json
+h2snn/mutag_h2snn_v3b/tuning_state_run0_worker_status_0.json
+readout/acm/schema_readout.md
+runs/acm_pa_seed0_run0/config.yaml
+runs/acm_seed0_run0/config.yaml
+runs/mutag_seed0_run0/config.yaml

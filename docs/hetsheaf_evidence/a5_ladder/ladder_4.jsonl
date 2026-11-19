@@ -1,0 +1,1 @@
+{"cell": "link_prediction:pubmed", "kind": "ladder", "host": "g3n01", "job": "17122", "gpu": "NVIDIA GeForce RTX 3090", "gpu_total_gib": 23.7, "point": {"hidden_channels": 16, "d": 5, "layers": 8}, "load_s": 21.9, "status": "OK", "epoch_and_eval_s": 2.2, "peak_gpu_gib": 12.22, "peak_host_gib": 1.69, "total_s": 24.1}

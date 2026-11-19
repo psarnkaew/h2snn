@@ -1,0 +1,182 @@
+{
+ "cell": "h2snn|graph_classification|nci1",
+ "lr": 0.001,
+ "point": {
+  "model.d": 32,
+  "data.wisp_max_length": 3,
+  "data.wisp_walks_per_anchor": 16,
+  "optim.lr": 0.001,
+  "optim.weight_decay": 0.0005,
+  "model.encoder_dropout": 0.45,
+  "model.classifier_dropout": 0.45,
+  "model.graph_pooling": "mean"
+ },
+ "epochs_max": 5,
+ "steps_completed": 1876,
+ "steps_per_epoch_cumulative": [],
+ "stop": {
+  "value": 32.172,
+  "limit": 30.0,
+  "epoch": 0,
+  "at_step": 1877
+ },
+ "windows": [
+  {
+   "steps": "1-50",
+   "max_range": 2.3542
+  },
+  {
+   "steps": "51-100",
+   "max_range": 3.3332
+  },
+  {
+   "steps": "101-150",
+   "max_range": 3.4992
+  },
+  {
+   "steps": "151-200",
+   "max_range": 3.6433
+  },
+  {
+   "steps": "201-250",
+   "max_range": 3.551
+  },
+  {
+   "steps": "251-300",
+   "max_range": 3.759
+  },
+  {
+   "steps": "301-350",
+   "max_range": 3.3919
+  },
+  {
+   "steps": "351-400",
+   "max_range": 3.2771
+  },
+  {
+   "steps": "401-450",
+   "max_range": 3.4456
+  },
+  {
+   "steps": "451-500",
+   "max_range": 3.9828
+  },
+  {
+   "steps": "501-550",
+   "max_range": 4.4357
+  },
+  {
+   "steps": "551-600",
+   "max_range": 3.2643
+  },
+  {
+   "steps": "601-650",
+   "max_range": 2.7827
+  },
+  {
+   "steps": "651-700",
+   "max_range": 2.9234
+  },
+  {
+   "steps": "701-750",
+   "max_range": 3.1268
+  },
+  {
+   "steps": "751-800",
+   "max_range": 5.2348
+  },
+  {
+   "steps": "801-850",
+   "max_range": 7.8172
+  },
+  {
+   "steps": "851-900",
+   "max_range": 8.7546
+  },
+  {
+   "steps": "901-950",
+   "max_range": 11.7633
+  },
+  {
+   "steps": "951-1000",
+   "max_range": 12.497
+  },
+  {
+   "steps": "1001-1050",
+   "max_range": 18.0111
+  },
+  {
+   "steps": "1051-1100",
+   "max_range": 16.0763
+  },
+  {
+   "steps": "1101-1150",
+   "max_range": 13.2495
+  },
+  {
+   "steps": "1151-1200",
+   "max_range": 13.1507
+  },
+  {
+   "steps": "1201-1250",
+   "max_range": 12.0811
+  },
+  {
+   "steps": "1251-1300",
+   "max_range": 14.2579
+  },
+  {
+   "steps": "1301-1350",
+   "max_range": 16.2251
+  },
+  {
+   "steps": "1351-1400",
+   "max_range": 15.4862
+  },
+  {
+   "steps": "1401-1450",
+   "max_range": 16.0665
+  },
+  {
+   "steps": "1451-1500",
+   "max_range": 19.0565
+  },
+  {
+   "steps": "1501-1550",
+   "max_range": 21.9032
+  },
+  {
+   "steps": "1551-1600",
+   "max_range": 21.0876
+  },
+  {
+   "steps": "1601-1650",
+   "max_range": 21.8293
+  },
+  {
+   "steps": "1651-1700",
+   "max_range": 22.561
+  },
+  {
+   "steps": "1701-1750",
+   "max_range": 23.7069
+  },
+  {
+   "steps": "1751-1800",
+   "max_range": 25.7205
+  },
+  {
+   "steps": "1801-1850",
+   "max_range": 27.8338
+  },
+  {
+   "steps": "1851-1876",
+   "max_range": 25.7356
+  }
+ ],
+ "first_step_range": 0.7493,
+ "seconds": 600.6,
+ "host": "g2tn01",
+ "gpu": "NVIDIA TITAN RTX",
+ "head": "200a8926630b97a017589b72e5fcde06382749b5"
+}

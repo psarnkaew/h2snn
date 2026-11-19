@@ -1,0 +1,111 @@
+Baseline cells ready to tune now: 101 (OK at 24 GB, not changed by card 1d or card 3); held back although OK: 3.
+
+| # | task | model | dataset | GPU peak GiB | train epoch s |
+|---|---|---|---|---|---|
+| 1 | graph_classification | csnn | enzymes | 0.04 | 26.42 |
+| 2 | graph_classification | csnn | mutag | 0.03 | 11.49 |
+| 3 | graph_classification | csnn | nci1 | 0.04 | 147.15 |
+| 4 | graph_classification | csnn | proteins | 0.10 | 43.81 |
+| 5 | graph_classification | gat | enzymes | 0.17 | 2.73 |
+| 6 | graph_classification | gat | mutag | 0.17 | 1.01 |
+| 7 | graph_classification | gat | nci1 | 0.17 | 17.32 |
+| 8 | graph_classification | gat | proteins | 0.28 | 4.88 |
+| 9 | graph_classification | gcn | enzymes | 0.02 | 1.81 |
+| 10 | graph_classification | gcn | mutag | 0.02 | 0.70 |
+| 11 | graph_classification | gcn | nci1 | 0.02 | 11.17 |
+| 12 | graph_classification | gcn | proteins | 0.03 | 3.10 |
+| 13 | graph_classification | h2gformer | enzymes | 0.16 | 13.90 |
+| 14 | graph_classification | h2gformer | mutag | 0.19 | 9.85 |
+| 15 | graph_classification | h2gformer | nci1 | 0.16 | 47.70 |
+| 16 | graph_classification | h2gformer | proteins | 0.20 | 19.47 |
+| 17 | graph_classification | h2sgnn | enzymes | 0.02 | 8.02 |
+| 18 | graph_classification | h2sgnn | mutag | 0.02 | 10.15 |
+| 19 | graph_classification | h2sgnn | nci1 | 0.02 | 29.89 |
+| 20 | graph_classification | h2sgnn | proteins | 0.03 | 11.10 |
+| 21 | graph_classification | han | enzymes | 0.03 | 7.79 |
+| 22 | graph_classification | han | mutag | 0.04 | 11.42 |
+| 23 | graph_classification | han | nci1 | 0.03 | 25.19 |
+| 24 | graph_classification | han | proteins | 0.05 | 10.28 |
+| 25 | graph_classification | hetero2net | enzymes | 0.02 | 7.09 |
+| 26 | graph_classification | hetero2net | mutag | 0.05 | 6.36 |
+| 27 | graph_classification | hetero2net | nci1 | 0.02 | 22.90 |
+| 28 | graph_classification | hetero2net | proteins | 0.04 | 9.42 |
+| 29 | graph_classification | nsd | enzymes | 0.04 | 16.39 |
+| 30 | graph_classification | nsd | mutag | 0.02 | 7.26 |
+| 31 | graph_classification | nsd | nci1 | 0.04 | 66.18 |
+| 32 | graph_classification | nsd | proteins | 0.17 | 27.66 |
+| 33 | graph_classification | pshgcn | enzymes | 0.02 | 7.62 |
+| 34 | graph_classification | pshgcn | mutag | 0.09 | 73.82 |
+| 35 | graph_classification | pshgcn | nci1 | 0.02 | 23.05 |
+| 36 | graph_classification | pshgcn | proteins | 0.03 | 10.33 |
+| 37 | link_prediction | csnn | acm_pa | 6.73 | 7.15 |
+| 38 | link_prediction | csnn | dblp_ap | 4.46 | 6.95 |
+| 39 | link_prediction | csnn | imdb_ma | 2.39 | 6.31 |
+| 40 | link_prediction | csnn | lastfm | 3.43 | 5.52 |
+| 41 | link_prediction | csnn | pubmed | 7.51 | 6.27 |
+| 42 | link_prediction | gat | dblp_ap | 11.58 | 7.65 |
+| 43 | link_prediction | gat | imdb_ma | 5.14 | 5.88 |
+| 44 | link_prediction | gat | lastfm | 9.50 | 5.75 |
+| 45 | link_prediction | gat | pubmed | 18.52 | 7.15 |
+| 46 | link_prediction | gcn | acm_pa | 1.35 | 7.25 |
+| 47 | link_prediction | gcn | dblp_ap | 1.45 | 7.81 |
+| 48 | link_prediction | gcn | freebase_bb | 5.24 | 10.36 |
+| 49 | link_prediction | gcn | imdb_ma | 0.81 | 6.04 |
+| 50 | link_prediction | gcn | lastfm | 0.66 | 5.61 |
+| 51 | link_prediction | gcn | pubmed | 1.55 | 7.01 |
+| 52 | link_prediction | h2gformer | pubmed | 9.41 | 8.94 |
+| 53 | link_prediction | h2sgnn | acm_pa | 1.40 | 6.48 |
+| 54 | link_prediction | h2sgnn | dblp_ap | 4.31 | 7.98 |
+| 55 | link_prediction | h2sgnn | lastfm | 1.30 | 5.62 |
+| 56 | link_prediction | h2sgnn | pubmed | 2.60 | 6.73 |
+| 57 | link_prediction | han | acm_pa | 4.56 | 7.12 |
+| 58 | link_prediction | han | dblp_ap | 9.55 | 8.69 |
+| 59 | link_prediction | han | lastfm | 6.33 | 6.28 |
+| 60 | link_prediction | han | pubmed | 7.15 | 7.65 |
+| 61 | link_prediction | hetero2net | acm_pa | 1.07 | 5.01 |
+| 62 | link_prediction | hetero2net | dblp_ap | 2.55 | 5.39 |
+| 63 | link_prediction | hetero2net | freebase_bb | 12.33 | 6.57 |
+| 64 | link_prediction | hetero2net | imdb_ma | 1.61 | 4.72 |
+| 65 | link_prediction | hetero2net | lastfm | 1.10 | 4.81 |
+| 66 | link_prediction | hetero2net | pubmed | 2.75 | 5.08 |
+| 67 | link_prediction | nsd | dblp_ap | 17.16 | 30.76 |
+| 68 | link_prediction | nsd | imdb_ma | 7.15 | 12.43 |
+| 69 | link_prediction | nsd | lastfm | 14.61 | 23.20 |
+| 70 | link_prediction | pshgcn | acm_pa | 1.69 | 8.08 |
+| 71 | link_prediction | pshgcn | dblp_ap | 2.85 | 7.35 |
+| 72 | link_prediction | pshgcn | imdb_ma | 2.15 | 5.62 |
+| 73 | link_prediction | pshgcn | lastfm | 1.77 | 5.61 |
+| 74 | node_classification | chebnetii | acm | 0.10 | 7.35 |
+| 75 | node_classification | chebnetii | dblp | 0.20 | 5.77 |
+| 76 | node_classification | chebnetii | freebase | 1.25 | 9.17 |
+| 77 | node_classification | chebnetii | imdb | 0.16 | 4.89 |
+| 78 | node_classification | csnn | acm | 6.64 | 8.54 |
+| 79 | node_classification | csnn | dblp | 4.07 | 6.49 |
+| 80 | node_classification | csnn | imdb | 2.13 | 5.55 |
+| 81 | node_classification | gat | acm | 1.23 | 7.56 |
+| 82 | node_classification | gat | dblp | 2.49 | 6.46 |
+| 83 | node_classification | gat | freebase | 16.83 | 11.15 |
+| 84 | node_classification | gat | imdb | 2.01 | 5.69 |
+| 85 | node_classification | gcn | acm | 0.14 | 7.76 |
+| 86 | node_classification | gcn | dblp | 0.27 | 5.92 |
+| 87 | node_classification | gcn | freebase | 1.77 | 10.31 |
+| 88 | node_classification | gcn | imdb | 0.21 | 5.55 |
+| 89 | node_classification | h2sgnn | acm | 4.30 | 12.36 |
+| 90 | node_classification | h2sgnn | dblp | 1.43 | 16.64 |
+| 91 | node_classification | h2sgnn | imdb | 0.50 | 15.24 |
+| 92 | node_classification | han | acm | 3.35 | 13.80 |
+| 93 | node_classification | han | dblp | 2.54 | 19.32 |
+| 94 | node_classification | nsd | dblp | 17.15 | 28.92 |
+| 95 | node_classification | nsd | imdb | 7.18 | 13.60 |
+| 96 | node_classification | pshgcn | acm | 8.13 | 12.79 |
+| 97 | node_classification | pshgcn | dblp | 6.86 | 17.78 |
+| 98 | node_classification | pshgcn | imdb | 5.75 | 17.26 |
+| 99 | node_classification | sehgnn | acm | 4.26 | 18.27 |
+| 100 | node_classification | sehgnn | dblp | 1.55 | 22.78 |
+| 101 | node_classification | sehgnn | imdb | 5.70 | 21.14 |
+
+OK but held back (changed by card 1d / card 3):
+
+- hetero2net node_classification acm: card 1d D2 (Hetero2Net HGB NC validation route)
+- hetero2net node_classification dblp: card 1d D2 (Hetero2Net HGB NC validation route)
+- hetero2net node_classification imdb: card 1d D2 (Hetero2Net HGB NC validation route)

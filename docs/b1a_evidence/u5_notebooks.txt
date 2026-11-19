@@ -1,0 +1,21 @@
+label=b1a-u5-notebooks job=17659 step=none node=g2tn01 start=2026-11-18T13:10:43+09:00
+git=a75896abd0be3fd243397728d853a70ce29cb315 branch=baselines-h2gb-6
+working tree:  M tests/test_baselines.py
+env=h2snn-b cmd=python scripts/generate_baseline_notebooks.py
+notebooks/baselines/node_classification_dgl.ipynb: 1 cells, hinormer
+notebooks/baselines/node_classification_h2gb.ipynb: 3 cells, h2gformer
+notebooks/baselines/node_classification_sheaf.ipynb: 6 cells, csnn, nsd
+notebooks/baselines/link_prediction_core.ipynb: 6 cells, h2sgnn
+notebooks/baselines/link_prediction_dgl.ipynb: 29 cells, gat, gcn, han, pshgcn
+notebooks/baselines/link_prediction_h2gb.ipynb: 8 cells, h2gformer
+notebooks/baselines/link_prediction_hetero2net.ipynb: 8 cells, hetero2net
+notebooks/baselines/link_prediction_sheaf.ipynb: 24 cells, csnn, hetsheaf, nsd
+notebooks/baselines/graph_classification_core.ipynb: 8 cells, h2sgnn, pshgcn
+notebooks/baselines/graph_classification_dgl.ipynb: 12 cells, gat, gcn, han
+notebooks/baselines/graph_classification_h2gb.ipynb: 4 cells, h2gformer
+notebooks/baselines/graph_classification_hetero2net.ipynb: 4 cells, hetero2net
+notebooks/baselines/graph_classification_sheaf.ipynb: 12 cells, csnn, hetsheaf, nsd
+
+13 notebooks, 125 cells total.
+peak_rss_gib=0.40 elapsed_s=2.0
+end=2026-11-18T13:10:46+09:00 exit=0

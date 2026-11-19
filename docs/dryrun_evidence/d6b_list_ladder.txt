@@ -1,0 +1,1 @@
+LADDER hinormer|node_classification|freebase D6b.3 len_seq=100 len_seq=80 len_seq=50 len_seq=30 len_seq=20 len_seq=20,hidden_dim=128 len_seq=20,hidden_dim=64 len_seq=20,hidden_dim=64,num_heads=2

@@ -1,0 +1,17 @@
+job=17703 node=g3n01 start=2026-11-18T19:25:51+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m6 head=321e017fa79098a866f574f9bbc41600c4ebe4f6 diff_sha256=496cb44b301a622b untracked=4 snapshot_at=2026-11-18T19:13:09+09:00
+git(model-td1)=321e017fa79098a866f574f9bbc41600c4ebe4f6 git(base)=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c
+NVIDIA GeForce RTX 3090, 24576 MiB
+===== v3b rep 1 (code_root /mnt/data/peeradon/h2snn-model-base/H2S-NN)
+Traceback (most recent call last):
+AttributeError: 'EdgeMapPair' object has no attribute 'maps'
+===== td1 rep 1 (code_root /mnt/data/peeradon/h2snn-model-snap/m6/H2S-NN)
+Traceback (most recent call last):
+AttributeError: 'EdgeMapPair' object has no attribute 'maps'
+===== v3b rep 2 (code_root /mnt/data/peeradon/h2snn-model-base/H2S-NN)
+Traceback (most recent call last):
+AttributeError: 'EdgeMapPair' object has no attribute 'maps'
+===== td1 rep 2 (code_root /mnt/data/peeradon/h2snn-model-snap/m6/H2S-NN)
+Traceback (most recent call last):
+AttributeError: 'EdgeMapPair' object has no attribute 'maps'
+end=2026-11-18T19:26:11+09:00

@@ -13,6 +13,12 @@ on CUDA out-of-memory the error is written to the JSON and the script exits with
 
 L7 (ACM / DBLP / IMDB cost gate): add `--final_tolerance_step` for one extra training forward +
 backward at the final tolerance 1e-4 (PCG iterations of the spec §6 gate), recorded separately.
+
+Model change TD-1 (card M6): `--code_root <H2S-NN dir>` imports `src` from that tree (the same script
+times `v3b` and the TD-1 head in one job); `--any_r` accepts an r that is not the calibrated value (the
+card 2 central point, r = 16; spec 1.15 J2 made r a tuned axis). Per epoch it also records the forward
+and backward time of the training step, the forward solve's time per PCG iteration (one system apply)
+and the map build time, and once the float storage of the map operators (per side, unique, per fact).
 """
 
 from __future__ import annotations
@@ -28,6 +34,8 @@ import torch
 import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if "--code_root" in sys.argv:  # before any `src` import: the tree to time (card M6)
+    PROJECT_ROOT = Path(sys.argv[sys.argv.index("--code_root") + 1]).resolve()
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -41,13 +49,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--epochs", type=int, default=2)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--code_root", type=Path, default=PROJECT_ROOT,
+                        help="H2S-NN tree whose src is timed (default: this script's tree)")
+    parser.add_argument("--any_r", action="store_true",
+                        help="accept a non-calibrated r (central point of the tuned r axis)")
     parser.add_argument("--final_tolerance_step", action="store_true",
                         help="after the epochs, one extra training forward + backward (fresh draw, "
                              "no optimizer step) at the final solver tolerance, recorded separately")
     return parser.parse_args()
 
 
-def load_config(path: Path, device: str) -> TrainConfig:
+def load_config(path: Path, device: str, any_r: bool = False) -> TrainConfig:
     """The config as written (only the device is set). `r` comes from the config and must be the
     dataset's calibrated value when a table exists (spec v1.6 E11, v1.7 E14); it is never
     overridden or halved here."""
@@ -57,7 +69,7 @@ def load_config(path: Path, device: str) -> TrainConfig:
     cfg = TrainConfig.from_dict(payload)
     table = WISP_WALKS_PER_ANCHOR.get(cfg.data.dataset_name, {})
     calibrated = table.get(cfg.data.wisp_max_length)
-    if table and cfg.data.wisp_walks_per_anchor != calibrated:
+    if table and cfg.data.wisp_walks_per_anchor != calibrated and not any_r:
         raise ValueError(
             f"resolved r = {cfg.data.wisp_walks_per_anchor} is not the calibrated value "
             f"{calibrated} for {cfg.data.dataset_name!r} at l_max {cfg.data.wisp_max_length} "
@@ -70,7 +82,7 @@ def group_gradient_norms(model) -> dict[str, float]:
         "node_encoder": model.node_encoder,
         "relation_embedding": model.relation_embedding,
         "fact_maps": model.node_to_edge,
-        "relational_context": model.relational_context,
+        "relational_context": getattr(model, "relational_context", None),  # base code only (1.24)
         "g_path_encoder": model.path_encoder,
         "g_path_gate": model.path_gate,
         "free_cell_maps": model.free_cell_maps,
@@ -89,7 +101,76 @@ def group_gradient_norms(model) -> dict[str, float]:
     return norms
 
 
+def _sync(device: torch.device) -> None:
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+
+
+def map_storage(maps, num_facts: int) -> dict:
+    """Float elements the two map operators hold (the lazily built layout cache excluded): per
+    side, unique over both sides (shared tensors counted once), and per fact (tensors with one row
+    per fact). Works for the Householder (v3b) and the TD-1 operators."""
+    def tensors(operator):
+        found = []
+        for name, value in vars(operator).items():
+            if name == "_layout":
+                continue
+            for item in (value if isinstance(value, (tuple, list)) else (value,)):
+                if isinstance(item, torch.Tensor) and item.is_floating_point():
+                    found.append(item)
+        return found
+
+    unique = {}
+    out = {}
+    for side in ("src", "tgt"):
+        operator = getattr(maps, side)
+        out[f"stored_elements_{side}"] = int(operator.stored_elements())
+        for tensor in tensors(operator):
+            unique[(tensor.data_ptr(), tensor.numel())] = tensor
+    out["unique_floats"] = int(sum(t.numel() for t in unique.values()))
+    per_fact = sum(t.numel() for t in unique.values() if t.dim() >= 1 and t.size(0) == num_facts)
+    out["per_fact_floats"] = per_fact / num_facts
+    out["per_relation_floats"] = out["unique_floats"] - per_fact
+    return out
+
+
+class SolveTimer:
+    """Wraps the model module's `anchored_solve`: wall time of each forward solve (synchronized)."""
+
+    def __init__(self, module, device: torch.device) -> None:
+        self.module, self.device, self.seconds = module, device, []
+        self.original = module.anchored_solve
+
+        def timed(*args, **kwargs):
+            _sync(self.device)
+            start = time.perf_counter()
+            result = self.original(*args, **kwargs)
+            _sync(self.device)
+            self.seconds.append(time.perf_counter() - start)
+            return result
+
+        module.anchored_solve = timed
+
+
+def map_build_seconds(model, data, device: torch.device, repeats: int = 10) -> float:
+    """Mean time of the node->edge map build (eval, no grad) on the evaluation graph."""
+    model.eval()
+    with torch.no_grad():
+        h0 = model.encode_nodes(data.x, data.node_type)
+        geometry = model.geometry_inputs(h0, data.edge_index, data.edge_type)
+        model.node_to_edge(h=geometry, edge_index=data.edge_index, edge_type=data.edge_type,
+                           relation_embeddings=model.relation_embedding.weight)
+        _sync(device)
+        start = time.perf_counter()
+        for _ in range(repeats):
+            model.node_to_edge(h=geometry, edge_index=data.edge_index, edge_type=data.edge_type,
+                               relation_embeddings=model.relation_embedding.weight)
+        _sync(device)
+    return (time.perf_counter() - start) / repeats
+
+
 def run(cfg: TrainConfig, epochs: int, final_tolerance_step: bool = False) -> dict:
+    import src.models.h2snn_model as model_module
     from src.builders import build_dataset, build_model, build_optimizer
     from src.trainers.trainer import Trainer
 
@@ -106,7 +187,16 @@ def run(cfg: TrainConfig, epochs: int, final_tolerance_step: bool = False) -> di
     trainer = Trainer(model=model, optimizer=optimizer, scheduler=None,
                       criterion=torch.nn.CrossEntropyLoss(), cfg=cfg, logger=None,  # type: ignore[arg-type]
                       checkpointer=None)  # type: ignore[arg-type]
+    timer = SolveTimer(model_module, device)
+    captured = {}
+
+    def keep_maps(module, inputs, output):  # returns None: the module's output is not replaced
+        captured.setdefault("maps", output.maps)
+
+    hook = model.node_to_edge.register_forward_hook(keep_maps)
     record: dict = {
+        "code_root": str(PROJECT_ROOT),
+        "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu",
         "config": str(cfg.exp_name), "device": str(device), "dataset": cfg.data.dataset_name,
         "d": cfg.model.d, "arm": cfg.model.arm, "walks_per_anchor": cfg.data.wisp_walks_per_anchor,
         "l_max": cfg.data.wisp_max_length, "solver": {
@@ -129,9 +219,16 @@ def run(cfg: TrainConfig, epochs: int, final_tolerance_step: bool = False) -> di
         t_train = time.perf_counter()
         model.train()
         optimizer.zero_grad()
+        timer.seconds.clear()
         output = model(train_data, epoch=epoch)
         loss, _ = trainer._compute_metrics(output, train_data, train_data.target_train_mask, epoch)
+        _sync(device)
+        forward_seconds = time.perf_counter() - t_train
+        solve_seconds = sum(timer.seconds)
+        t_backward = time.perf_counter()
         loss.backward()
+        _sync(device)
+        backward_seconds = time.perf_counter() - t_backward
         norms = group_gradient_norms(model)
         torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.optim.grad_clip)
         optimizer.step()
@@ -163,11 +260,20 @@ def run(cfg: TrainConfig, epochs: int, final_tolerance_step: bool = False) -> di
             "eval_solve": eval_stats,
             "draw_seconds": round(draw_seconds, 3),
             "train_step_seconds": round(train_seconds, 3),
+            "train_forward_seconds": round(forward_seconds, 4),
+            "train_backward_seconds": round(backward_seconds, 4),
+            "forward_solve_seconds": round(solve_seconds, 4),
+            "forward_solve_seconds_per_pcg_iteration": round(
+                solve_seconds / max(train_stats.get("pcg_fwd_iters", 0.0), 1.0), 6),
             "eval_forward_seconds": round(eval_seconds, 3),
             "epoch_seconds": round(draw_seconds + train_seconds, 3),
             "peak_memory_mb": round(peak_mb, 1),
         })
         print(json.dumps(record["epochs"][-1], indent=None), flush=True)
+    hook.remove()
+    if "maps" in captured:
+        record["map_storage"] = map_storage(captured["maps"], int(prepared.edge_index.size(1)))
+    record["map_build_seconds"] = round(map_build_seconds(model, prepared, device), 6)
     if final_tolerance_step:
         record["final_tolerance_step"] = final_tolerance_probe(model, trainer, data, prepared,
                                                                cfg, epochs, device)
@@ -219,7 +325,7 @@ def write_record(path: Path, record: dict) -> None:
 
 def main() -> int:
     args = parse_args()
-    cfg = load_config(args.config, args.device)
+    cfg = load_config(args.config, args.device, args.any_r)
     try:
         record = run(cfg, args.epochs, args.final_tolerance_step)
     except torch.cuda.OutOfMemoryError as exc:  # r is never changed (spec E11/E14): record, fail

@@ -69,10 +69,6 @@ H2GB_NC_ADAPTER_PENDING: dict[str, str] = {
     "h2gformer": f"adapter pending: {_S1}",
     "nsd": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
     "csnn": f"adapter pending: class C, D1 second branch (H2GB's hgt sampler): {_S1}",
-    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3): H2SGNN on H2GB uses the generic branch of F-1",
-    "pshgcn": ("adapter pending: moved to card 3 Part B (decision G-2): PSHGCN on this dataset uses the generic "
-               "branch of F-1 (one "
-               "row-normalised adjacency per relation, polynomial terms over all relations, no label part)"),
     "hinormer": ("not used: H2GB's own HINormerModel (transformer and encoder commented out, hinormer_model.py:221-222, "
                  "274-289); the original HINormer runs instead (card 1c F1, decision G-1)"),
     "sehgnn": "adapter pending (card baselines-h2gb C4)",
@@ -110,6 +106,9 @@ H2GB_NC_CELL_REASONS: dict[tuple[str, str], str] = {
 #: SeHGNN on H-Pokec (author, 2026-11-16; Part M3b B7).
 SEHGNN_HPOKEC_NA = ("N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at "
                     "num_hops 2-4, Part M3b B7; author decision 2026-11-16)")
+#: HAN on Freebase LP (card 1e F3.2, author 2026-11-18; F0 `p6_f0_diagnosis.md` item 3, F1 `p6_f1_stop_items.md`).
+HAN_FREEBASE_LP_NA = ("N/A: OOM on a 24 GB GPU at num_heads 4, the grid minimum; the width is a secondary memory term "
+                      "(card 1e F0 item 3; author decision 2026-11-18)")
 #: Card baselines-h2gb C6: link-level sampling on the task's message graph and the task files are in place
 #: (`src/baselines/large_lp_minibatch.py`, held-out-fact test and mutation); no LP adapter is wired yet.
 #: Part 2 E4: large-LP cells wired (link-level sampling on the message graph, the local-LP encoder, shared decoder).
@@ -125,8 +124,6 @@ LARGE_LP_CELL_REASONS: dict[tuple[str, str], str] = {
 }
 LARGE_LP_ADAPTER_PENDING: dict[str, str] = {
     **{name: _LP_NOT_WIRED for name in ("gcn", "gat", "nsd", "csnn", "han", "h2gformer")},
-    "h2sgnn": "adapter pending: moved to card 3 Part B (decision G-3: generic branch of F-1 for NC and LP)",
-    "pshgcn": "adapter pending: moved to card 3 Part B (decision G-2: generic branch of F-1 for the large LP tasks)",
     "hetero2net": ("adapter pending: card baselines-h2gb did not wire Hetero2Net's NeighborLoader path (C4); the "
                    "link-level sampler on the message graph is in place (C6)"),
 }
@@ -140,9 +137,8 @@ DATASET_PENDING: dict[tuple[str, str], str] = {
 }
 
 
-#: Part P P3: Freebase NC needs the authors' own Freebase preprocessing for these three (their
-#: HGB data_loader branch: SeHGNN's hgb/, PSHGCN's and H2SGNN's loaders via _hgb_vendor); their
-#: clones were empty where Part P ran, so it is not wired.
+#: Part P P3: Freebase NC needed the authors' own Freebase preprocessing for SeHGNN, PSHGCN and H2SGNN; wired in card 3
+#: Part B (no cell uses this reason any more; kept for the record).
 FREEBASE_VENDOR_REASON = (
     "Freebase NC not wired: needs the authors' own Freebase preprocessing (their HGB loader "
     "branch); the vendor clone was not available when Part P ran (UNVERIFIED whether their code "
@@ -153,6 +149,16 @@ FREEBASE_VENDOR_REASON = (
 #: ogbn-mag P-P per-hop link sampler, D2; H-Pokec U-U H2GB's hgt sampler with its per-type lists, G-8; author 2026-11-16).
 H2GB_NC_WIRED_CELLS = H2GB_NC_WIRED_CELLS | frozenset(("hetsheaf", dataset) for dataset in H2GB_NC)
 LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset({("hetsheaf", "ogbn-mag_pp"), ("hetsheaf", "h-pokec_uu")})
+
+#: Card 3 Part B (G-2, G-3; F-1 generic branch, `adapters/_hgb_generic.py`): PSHGCN on the 6 non-MAG H2GB NC datasets
+#: (their decoupled scheme, `minibatch.train_index_minibatch`) and H2SGNN on all 8 (class C on H2GB's `hgt` sampler,
+#: `minibatch.train_minibatch_node_classification`); both on the two large LP tasks (shared loop). Freebase NC: the
+#: three `FREEBASE_VENDOR_REASON` entries removed (SeHGNN its own Freebase branch; PSHGCN, H2SGNN the generic branch).
+H2GB_NC_WIRED_CELLS = H2GB_NC_WIRED_CELLS | frozenset(
+    {*(("pshgcn", d) for d in ("oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")),
+     *(("h2sgnn", d) for d in H2GB_NC)})
+LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset(
+    (m, t) for m in ("pshgcn", "h2sgnn") for t in ("ogbn-mag_pp", "h-pokec_uu"))
 
 
 @dataclass(frozen=True, slots=True)
@@ -186,23 +192,21 @@ MODELS: tuple[ModelSpec, ...] = (
     ),
     ModelSpec("nsd", "NSD", HOM_HET, "src.baselines.adapters.nsd", _ALL),
     ModelSpec("csnn", "CSNN", HOM_HET, "src.baselines.adapters.csnn", _ALL),
-    ModelSpec("han", "HAN", HET_HOM, "src.baselines.adapters.hgb_han", _ALL),
+    ModelSpec("han", "HAN", HET_HOM, "src.baselines.adapters.hgb_han", _ALL,
+              unsupported=((LINK_PREDICTION, "freebase_bb", HAN_FREEBASE_LP_NA),)),  # card 1e F3.2
     ModelSpec(
         "sehgnn", "SeHGNN", HET_HOM, "src.baselines.adapters.sehgnn",
         (NODE_CLASSIFICATION,),
-        unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),
-                     (NODE_CLASSIFICATION, "h-pokec", SEHGNN_HPOKEC_NA)),
+        unsupported=((NODE_CLASSIFICATION, "h-pokec", SEHGNN_HPOKEC_NA),),
     ),
     ModelSpec(
         "hinormer", "HiNormer", HET_HOM, "src.baselines.adapters.hinormer",
         (NODE_CLASSIFICATION,),
     ),
-    ModelSpec("pshgcn", "PSHGCN", HET_HOM, "src.baselines.adapters.pshgcn", _ALL,
-              unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
+    ModelSpec("pshgcn", "PSHGCN", HET_HOM, "src.baselines.adapters.pshgcn", _ALL),
     ModelSpec("h2gformer", "H2G-former", HET_HET, "src.baselines.adapters.h2gformer", _ALL),
     ModelSpec("hetero2net", "Hetero$^2$Net", HET_HET, "src.baselines.adapters.hetero2net", _ALL),
-    ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL,
-              unsupported=((NODE_CLASSIFICATION, "freebase", FREEBASE_VENDOR_REASON),)),
+    ModelSpec("h2sgnn", "H2SGNN", HET_HET, "src.baselines.adapters.h2sgnn", _ALL),
     # Card 3 Part A (H-1..H-4): HetSheaf rerun under the shared protocol (spec v1.22 §6, C7); heterogeneous and
     # heterophily-aimed as its paper states. GC cells: card 3 A2.
     ModelSpec("hetsheaf", "HetSheaf", HET_HET, "src.baselines.adapters.hetsheaf", _ALL),

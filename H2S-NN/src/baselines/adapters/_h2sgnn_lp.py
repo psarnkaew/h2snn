@@ -52,6 +52,7 @@ from src.baselines.adapters._target_block import (
 )
 from src.baselines.bundles import LinkBundle
 from src.baselines.runtime import pushd_sys_path
+from src.baselines.runtime.blocked_spmm import blocked_matmul, bound_attribute
 
 VENDOR = "h2sgnn"
 
@@ -175,7 +176,13 @@ class H2SGNNLinkEncoder(torch.nn.Module):
     ) -> torch.Tensor:
         # The first argument (`adjs`) is unused by their forward; pass the list it does
         # read for both so the call site cannot drift.
-        rows = self.vendor(metapath_operators, [features], metapath_operators)
+        # Card 1e F3.1: their model module calls `torch_sparse_matmul` by module-global
+        # name; bind the row-blocked product there for this call (the autograd graph built
+        # here carries it into the backward). Operators with nnz <= 2**26 - 1 take the
+        # plain call, so every cell but Freebase is unchanged. Vendor file not edited.
+        namespace = type(self.vendor).forward.__globals__
+        with bound_attribute(namespace, "torch_sparse_matmul", blocked_matmul):
+            rows = self.vendor(metapath_operators, [features], metapath_operators)
         return scatter_to_full_graph(rows, self.block, self.num_nodes)
 
 

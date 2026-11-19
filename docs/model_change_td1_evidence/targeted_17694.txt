@@ -1,0 +1,51 @@
+label=m3c job=17694 node=g2tn01 start=2026-11-18T18:36:25+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/m3c head=1c47c9a1b9fb56f494016d7f7124845d6cb343b4 diff_sha256=14c61685ff525202 untracked=14 snapshot_at=2026-11-18T18:36:23+09:00
+git=1c47c9a1b9fb56f494016d7f7124845d6cb343b4 branch=model-td1
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+....................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 18:36:33,466 | INFO | Epoch 0000 | train_loss: 1.2067 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0872 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.3833 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-18 18:36:33,478 | INFO | Checkpoint metric acc: 0.5000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-18 18:36:33,586 | INFO | Epoch 0001 | train_loss: 1.1760 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2500 | val_loss: 1.0829 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.3833 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1250
+2026-11-18 18:36:33,592 | INFO | Checkpoint metric acc: 0.5000
+2026-11-18 18:36:33,592 | INFO | Best epoch 0 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250 | test_acc: 0.1250
+  payload = torch.load(path, map_location="cpu")
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  rows = torch.searchsorted(unique, links).to(representation.device)
+...........................
+======================================================================
+FAIL: test_each_arm_differs_from_full_in_exactly_its_keys (tests.test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model-snap/m3c/H2S-NN/tests/test_card4_ablation_driver.py", line 48, in test_each_arm_differs_from_full_in_exactly_its_keys
+    self.assertIn("appendix_full", paths)
+AssertionError: 'appendix_full' not found in {'full': PosixPath('/tmp/tmp2manqy6l/acm/full.yaml'), 'endpoints': PosixPath('/tmp/tmp2manqy6l/acm/endpoints.yaml'), 'schema': PosixPath('/tmp/tmp2manqy6l/acm/schema.yaml'), 'uniform': PosixPath('/tmp/tmp2manqy6l/acm/uniform.yaml'), 'no_path_cells': PosixPath('/tmp/tmp2manqy6l/acm/no_path_cells.yaml'), 'closure_only': PosixPath('/tmp/tmp2manqy6l/acm/closure_only.yaml'), 'instance_features': PosixPath('/tmp/tmp2manqy6l/acm/instance_features.yaml'), 'hub_A': PosixPath('/tmp/tmp2manqy6l/acm/hub_A.yaml'), 'covering_only': PosixPath('/tmp/tmp2manqy6l/acm/covering_only.yaml'), 'S2': PosixPath('/tmp/tmp2manqy6l/acm/S2.yaml'), 'S0': PosixPath('/tmp/tmp2manqy6l/acm/S0.yaml'), 'direction_blind_maps': PosixPath('/tmp/tmp2manqy6l/acm/direction_blind_maps.yaml'), 'free_cell_maps': PosixPath('/tmp/tmp2manqy6l/acm/free_cell_maps.yaml'), 'h0_only': PosixPath('/tmp/tmp2manqy6l/acm/h0_only.yaml'), 'ego_head': PosixPath('/tmp/tmp2manqy6l/acm/ego_head.yaml')}
+
+----------------------------------------------------------------------
+Ran 120 tests in 85.426s
+
+FAILED (failures=1)
+exit=1 end=2026-11-18T18:37:54+09:00

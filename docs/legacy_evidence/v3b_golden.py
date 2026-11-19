@@ -6,9 +6,10 @@ after every unit (same pattern as `docs/partMB_evidence/mb0_reference.py`).
 For every configuration (synthetic data only, the anchored v3-B model): evaluation logits (or scores), one
 training step's loss, every parameter gradient, and the anchored solver's statistics of both forwards
 (PCG iterations and residuals of the forward and backward solve, tolerance, system sizes). Configurations:
-NC full batch: the 7 values of V3B_ARMS; path_weight_input endpoints / schema / uniform; geometry_context
-false; path_weight_context true; direction_blind_maps; map_family dense; h0_only_readout; path_source
-schemas; an IMDB-style multilabel head. LP: decoder dot and distmult. GC: each pooling. Mini-batch: one NC
+NC full batch: the 7 values of V3B_ARMS; path_weight_input endpoints / schema / uniform;
+direction_blind_maps; map_family dense; h0_only_readout; ego_head (spec 1.25 Z3); path_source schemas;
+an IMDB-style multilabel head. (Model change TD-1, M4: geometry_context false and path_weight_context
+true were dropped with the relational context, spec 1.25 Z1; ego_head added.) LP: decoder dot and distmult. GC: each pooling. Mini-batch: one NC
 batch of scopes and one LP batch with scopes (as the Part MB tests).
 
 `compare` prints every differing tensor name and exits 1 on any difference; both modes exit 2 unless the
@@ -327,11 +328,10 @@ def cases() -> dict:
     nc.update({f"nc_path_weight_input_{v}": dict(ablation={"path_weight_input": v})
                for v in ("endpoints", "schema", "uniform")})
     nc.update({
-        "nc_geometry_context_false": dict(model={"geometry_context": False}),
-        "nc_path_weight_context": dict(ablation={"path_weight_context": True}),
         "nc_direction_blind_maps": dict(ablation={"direction_blind_maps": True}),
         "nc_map_family_dense": dict(model={"map_family": "dense"}),
         "nc_h0_only_readout": dict(ablation={"h0_only_readout": True}),
+        "nc_ego_head": dict(ablation={"ego_head": True}),
         # the literature row needs r >= the number of listed meta-paths (6 on ACM, spec v1.19 §6)
         "nc_path_source_schemas": dict(data={"path_source": "schemas", "wisp_walks_per_anchor": 12}),
     })
