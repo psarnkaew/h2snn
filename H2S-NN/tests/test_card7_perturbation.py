@@ -207,50 +207,80 @@ class LoaderTests(_ToyCase):
 
 
 class ManifestTests(_ToyCase):
-    """The perturbation manifest: 7 methods on every graph, S2 on the targeted graphs only, seeds 1-5, tuned or
-    (flag) published baseline configurations, no out-of-scope arm."""
+    """The perturbation manifest (amendments 1, 3, 4, 7): 8 methods on every ACM/DBLP graph at the levels 0.2-0.6,
+    S2 on the targeted graphs only, seeds 1-5, the fixed configuration source per baseline (HetSheaf / CSNN "needs
+    tuned config" without a sweep), every command through the fingerprint check, IMDB and 0.80 excluded, no
+    out-of-scope arm."""
 
     def test_manifest_rows(self) -> None:
+        import json as _json
+
+        import yaml
+
+        import baseline_configs as bc
         import manifest
         from tests.test_card7_ablation import out_of_scope_in
 
-        mg.generate(self.root, self.dataset, MAX_ADD, levels=(0.20, 0.60), log=lambda *_: None)
+        records = mg.generate(self.root, self.dataset, MAX_ADD, levels=(0.20, 0.60), log=lambda *_: None)
+        # graphs on disk that get no rows: Phase A's 0.80 and an IMDB graph
+        for name, dataset, level in (("DBLP_pert/targeted_h0.80", "dblp", 0.8), ("IMDB_pert/targeted_h0.40", "imdb",
+                                                                                   0.4)):
+            folder = self.root / "NC" / name
+            folder.mkdir(parents=True)
+            (folder / "graph.json").write_text(_json.dumps({**records[0], "dataset": dataset, "level": level}),
+                                               encoding="utf-8")
         full = ROOT / "configs" / "experiments" / "dblp_h2snn_v3b.yaml"
         baselines = Path(self.tmp.name) / "baselines"
-        trials = baselines / "gcn_node_classification_dblp" / "tuning_trials_run0.json"
+        trials = baselines / "hetsheaf_node_classification_dblp" / "tuning_trials_run0.json"
         trials.parent.mkdir(parents=True)
         trials.write_text("[]", encoding="utf-8")
         out = Path(self.tmp.name) / "manifest"
-        rows, missing = manifest.build(self.root / "NC", {"dblp": full}, baselines, out, False, False)
+        rows, missing = manifest.build(self.root / "NC", {"dblp": full}, baselines, out)
+        self.assertEqual(manifest.LEVELS, mg.LEVELS)
+        self.assertEqual(sorted(missing["excluded_graphs"]), ["dblp/targeted_h0.80", "imdb/targeted_h0.40"])
         graphs = {(r["graph_kind"], r["level"]) for r in rows}
         self.assertEqual(graphs, {(k, l) for k in ("targeted", "random") for l in ("0.20", "0.60")})
+        expected_source = {"gcn": "hgb_command", "han": "hgb_command", "sehgnn": "published",
+                           "hetero2net": "published", "hetsheaf": "tuned", "csnn": bc.NEEDS_TUNED}
+        by_graph = {r["fingerprint"] for r in rows}
+        self.assertEqual(by_graph, {r["edge_fingerprint"] for r in records})
         for kind, level in graphs:
-            methods = {r["method"] for r in rows if (r["graph_kind"], r["level"]) == (kind, level)}
+            here = [r for r in rows if (r["graph_kind"], r["level"]) == (kind, level)]
             h2snn = {"h2snn_full", "h2snn_no_path_cells"} | ({"h2snn_S2"} if kind == "targeted" else set())
-            self.assertEqual({m for m in methods if m.startswith("h2snn")}, h2snn)
-            self.assertEqual(methods - h2snn, {"gcn"})             # tuned; the others need --published_config
-        gcn = [r for r in rows if r["method"] == "gcn"][0]
-        self.assertEqual(gcn["configuration"], "tuned")
-        self.assertIn("--final_seeds 1 2 3 4 5", gcn["command"])
-        self.assertEqual(Path(gcn["cwd"]) / "data", Path(gcn["graph_root"]))
-        self.assertEqual(sorted(missing["baselines_without_configuration"]),
-                         sorted(f"{m}/dblp" for m in ("han", "sehgnn", "hetero2net", "hetsheaf")))
-        for r in rows:
-            if r["method"].startswith("h2snn"):
-                self.assertIn("--base_seed 1 --num_runs 5", r["command"])
-                cfg = r["command"].split("--config ")[1].split(" ")[0]
-                import yaml
-
-                self.assertEqual(yaml.safe_load(Path(cfg).read_text(encoding="utf-8"))["data"]["root"],
-                                 r["graph_root"])
+            self.assertEqual({r["method"] for r in here if r["method"].startswith("h2snn")}, h2snn)
+            self.assertEqual({r["method"]: r["configuration"] for r in here if not r["method"].startswith("h2snn")},
+                             expected_source)
+            record = [g for g in records if (g["kind"], f"{g['level']:.2f}") == (kind, level)][0]
+            for r in here:
+                self.assertEqual((r["fingerprint"], r["h"], r["h2_index"]),
+                                 (record["edge_fingerprint"], f"{record['h']:.4f}", f"{record['h2_index']:.4f}"))
+                if r["configuration"] == bc.NEEDS_TUNED:
+                    self.assertEqual((r["command"], r["summary"]), ("", ""))
+                    continue
+                checker = f"run_checked.py --graph_json {Path(record['data_root']).parent / 'graph.json'} "
+                self.assertIn(checker, r["command"])
+                self.assertIn(f"--expected_fingerprint {record['edge_fingerprint']} ", r["command"])
+                self.assertIn("fingerprint_checks.jsonl -- ", r["command"])
+                if r["method"].startswith("h2snn"):
+                    self.assertIn("--base_seed 1 --num_runs 5", r["command"])
+                    self.assertTrue(r["summary"].endswith("runs_summary.json"))
+                    cfg = r["command"].split("--config ")[1].split(" ")[0]
+                    self.assertEqual(yaml.safe_load(Path(cfg).read_text(encoding="utf-8"))["data"]["root"],
+                                     r["graph_root"])
+                else:
+                    self.assertEqual(Path(r["cwd"]) / "data", Path(r["graph_root"]))
+                    launcher = {"hgb_command": "run_hgb_command.py --model", "published": "run_baseline_published.py",
+                                "tuned": "run_baseline_tuning.py"}[r["configuration"]]
+                    self.assertIn(launcher, r["command"])
+                    seeds = ("--final_seeds 1 2 3 4 5" if r["configuration"] == "tuned"
+                             else "--num_runs 5 --base_seed 1")
+                    self.assertIn(seeds, r["command"])
+        self.assertEqual(missing["needs_tuned_config"], ["csnn/dblp"])
         manifest.write(rows, missing, out)
         self.assertEqual(out_of_scope_in((out / "manifest.tsv").read_text(encoding="utf-8")), [])
-        rows_pub, missing_pub = manifest.build(self.root / "NC", {"dblp": full}, baselines, out, True, False)
-        published = {r["method"] for r in rows_pub if r["configuration"] == "published"}
-        self.assertEqual(published, {m.split("/")[0] for m in missing_pub["published_configuration_used"]})
-        for r in rows_pub:
-            if r["configuration"] == "published":
-                self.assertIn("--num_runs 5 --base_seed 1", r["command"])
+        summary = _json.loads((out / "missing.json").read_text(encoding="utf-8"))
+        self.assertEqual(summary["rows"], 4 * 8 + 2)
+        self.assertEqual(summary["runnable_rows"], 4 * 7 + 2)
 
 
 if __name__ == "__main__":
