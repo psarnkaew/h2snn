@@ -6,7 +6,7 @@
   training draw, `torch.equal`); full batch has no batch order;
 - (i) a main-table tuning base config with any arm key is refused (one test over all arm keys);
 - (ii) arm-tuning mode with another arm's key is refused;
-- (iii) arm-tuning mode builds for each of the five arms (the validation, the configuration and the
+- (iii) arm-tuning mode builds for each of the tuned arms (card 7: four) (the validation, the configuration and the
   launcher's per-trial merge).
 """
 
@@ -41,16 +41,19 @@ class ConfigurationsATests(unittest.TestCase):
     def test_each_arm_differs_from_full_in_exactly_its_keys(self) -> None:
         import arms
 
-        full = arms.flatten(yaml.safe_load(FULL.read_text(encoding="utf-8")))
+        full_raw = arms.flatten(yaml.safe_load(FULL.read_text(encoding="utf-8")))
         with tempfile.TemporaryDirectory() as tmp:
             paths = arms.emit_configurations_a(FULL, "acm", Path(tmp))
-            self.assertNotIn("literature_row", paths)
-            # spec 1.25 Z1 withdrew C9 and the appendix pair with c; Z3 added ego_head (C18)
-            for withdrawn in ("appendix_full", "appendix_endpoints", "geometry_context_off"):
-                self.assertNotIn(withdrawn, paths)
-            self.assertIn("ego_head", paths)
+            # card 7 (plan v2): exactly the 7 rows; the literature row is compared with the resolved `full`
+            self.assertEqual(set(paths), set(arms.ARM_CHANGES))
+            from src.configs.config import TrainConfig
+            from src.utils.misc import dataclass_to_dict
+
+            resolved_full = arms.flatten(dataclass_to_dict(TrainConfig.from_dict(
+                yaml.safe_load(FULL.read_text(encoding="utf-8")))))
             for arm, path in paths.items():
                 emitted = arms.flatten(yaml.safe_load(path.read_text(encoding="utf-8")))
+                full = resolved_full if arm == arms.LITERATURE_ROW else full_raw
                 differing = {k for k in set(full) | set(emitted)
                              if k != "exp_name" and full.get(k, "<absent>") != emitted.get(k, "<absent>")}
                 expected = set(arms.flatten(arms.ARM_CHANGES[arm]))
@@ -129,7 +132,7 @@ class ArmTuningModeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             reject_never_tuned_settings(raw)
 
-    def test_arm_mode_builds_for_each_of_the_five_arms(self) -> None:
+    def test_arm_mode_builds_for_each_tuned_arm(self) -> None:
         import arms
         from run_h2snn_wandb_tuning import apply_sweep_overrides
         from src.configs.config import ARM_TUNING_KEYS, TrainConfig, reject_never_tuned_settings

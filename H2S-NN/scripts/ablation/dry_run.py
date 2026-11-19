@@ -1,4 +1,4 @@
-"""Card 4 K6: one-epoch dry run of every ablation arm (configurations (a)) on ACM with a placeholder
+"""Card 4 K6, card 7 V1: one-epoch dry run of the 7 ablation rows (configurations (a), `arms.ARM_CHANGES`) on ACM with a placeholder
 configuration (no tuned `full` exists yet). Records status, wall time and peak GPU memory only; no
 metric is read or written (the trainer's own log files stay under `experiments/`, outside git).
 

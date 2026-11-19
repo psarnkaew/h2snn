@@ -1,14 +1,15 @@
-"""Card 4 K6 (2): configurations (b), the five arms tuned on their own (pre-registration §1, B-2, B-4;
-spec 1.23 X-6a): plain Bayes, 100 trials, seed 0, the validation metric, through the existing tuning
-launcher `scripts/run_h2snn_wandb_tuning.py` (not edited). The base configuration is `full`'s tuning
-base file + the arm's key + `tuning: {arm: <name>}` (the arm-tuning mode of `src/configs/config.py`).
+"""Card 7 V1 (ablation plan v2): configurations (b), exactly the four arms tuned on their own (`endpoints`,
+`no_path_cells`, `instance_features`, S2; `arms.TUNED_ARMS`; `closure_only` removed by the plan): plain Bayes,
+100 trials, seed 0, the validation metric, through the existing tuning launcher `scripts/run_h2snn_wandb_tuning.py`
+(not edited). The base configuration is `full`'s tuning base file + the arm's key + `tuning: {arm: <name>}` (the
+arm-tuning mode of `src/configs/config.py`).
 
 Search space: §6's space (the launcher's `build_sweep_config`) restricted to the keys that act in the
 arm. Removed keys (DERIVED from `h2snn_model.py`):
 - `no_path_cells`: `wisp_max_length`, `wisp_walks_per_anchor` (cells are not in the solve and g's
   weights are unused, `h2snn_model.py` `cells_in_solve`); every other key acts.
-- `endpoints`, `closure_only` (holonomy edges of the drawn cells), `instance_features` (cell features
-  in the head), `S2` (cells, g, transports = I): every key acts; nothing removed.
+- `endpoints`, `instance_features` (cell features in the head), `S2` (cells, g, transports = I): every key
+  acts; nothing removed.
 Card 4b L2: the launcher drops these keys itself in arm-tuning mode (`ARM_INERT_SEARCH_KEYS`,
 `arm_search_space`); they keep the base config's value, which the arm never reads.
 

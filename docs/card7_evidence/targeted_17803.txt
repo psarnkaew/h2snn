@@ -1,0 +1,26 @@
+label=v1 job=17803 node=g3n01 start=2026-11-19T14:47:20+09:00
+git=5045152b68e7cd3db202fbf159f77030024f2f0d branch=card7 uncommitted_sha256=c84f57580703bc49
+working tree:  M scripts/ablation/arms.py
+working tree:  M scripts/ablation/dry_run.py
+working tree:  M scripts/ablation/param_table.py
+working tree:  M scripts/ablation/seed_runs.py
+working tree:  M scripts/ablation/sweeps.py
+working tree:  M tests/test_card4_ablation_driver.py
+test_arms_writes_exactly_the_seven_rows (tests.test_card7_ablation.LauncherTests.test_arms_writes_exactly_the_seven_rows) ... ok
+test_freebase_mode_is_an_input_written_into_every_configuration (tests.test_card7_ablation.LauncherTests.test_freebase_mode_is_an_input_written_into_every_configuration) ... ok
+test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm (tests.test_card7_ablation.LauncherTests.test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm) ... ok
+test_sweeps_writes_exactly_the_four_b_arms (tests.test_card7_ablation.LauncherTests.test_sweeps_writes_exactly_the_four_b_arms) ... ok
+test_the_out_of_scope_check_catches_an_arm (tests.test_card7_ablation.LauncherTests.test_the_out_of_scope_check_catches_an_arm) ... ok
+test_arm_mode_builds_for_each_tuned_arm (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_builds_for_each_tuned_arm) ... ok
+test_arm_mode_refuses_another_arms_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_refuses_another_arms_key) ... ok
+test_main_table_refuses_every_arm_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_main_table_refuses_every_arm_key) ... ok
+test_each_arm_differs_from_full_in_exactly_its_keys (tests.test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys) ... ok
+test_full_and_uniform_get_the_same_draws_at_one_seed (tests.test_card4_ablation_driver.PairingTests.test_full_and_uniform_get_the_same_draws_at_one_seed) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 2.819s
+
+OK
+exit=0 end=2026-11-19T14:47:26+09:00

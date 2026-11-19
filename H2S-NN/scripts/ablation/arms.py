@@ -1,14 +1,19 @@
-"""Card 4 K6 (1): the ablation arms of pre-registration §2 (`docs/ablation_analysis_preregistration_draft.md`;
-spec 1.23 X-6, X-11) and configurations (a): `full`'s tuned configuration file + the arm's one change.
+"""Card 7 V1 (ablation plan v2, `docs/ablation_plan_v2_2026-11-19.html`; author scope rule 2026-11-19): the 7
+rows of the ablation table and their configurations (a): `full`'s tuned configuration file + the row's one change.
 
-Per the card (amended 2026-11-16): the fixed-literature-schema row is NOT an ablation configuration (a
-main-table row, seeds 0-4, Welch). Spec 1.25 Z1 withdrew C9 (`geometry_context_off`) and the appendix
-pair with the relational context `c`.
+Rows: `full`, `no_path_cells` (C2-cells), `S2` (maps = I; C15), `S0` (`no_path_cells` + maps = I; 2x2, no claim),
+`endpoints` (C2, kill rule), `instance_features` (C14), and `literature` (the fixed-literature-schema row,
+`path_source: schemas`, reported without a claim). Card 7 makes the literature row a configuration (a) with seeds
+1-10 (it supersedes the card 4 note that called it a main-table row; spec 1.27 will record the change); it is built
+by the existing `fixed_literature_schema_config` (only `data.path_source` and the run name change). Every other arm
+of the old pre-registration (`closure_only`, `hub_A`, `covering_only`, `schema`, `uniform`, `direction_blind_maps`,
+`free_cell_maps`, `ego_head`, `h0_only_readout`) is out of scope: it stays in the frozen `src/` and is in no list
+here.
 
     python scripts/ablation/arms.py --full_config <full tuned yaml> --dataset acm --out_dir <dir>
 
-writes `<dir>/<dataset>/<arm>.yaml` (the configuration the seed-run launcher reads) for every arm and
-checks each with `TrainConfig.from_dict`.
+writes `<dir>/<dataset>/<row>.yaml` (the configuration the seed-run launcher reads) for every row and checks each
+with `TrainConfig.from_dict`.
 """
 
 from __future__ import annotations
@@ -27,37 +32,44 @@ sys.path.insert(0, str(ROOT))
 
 from src.configs.config import TrainConfig  # noqa: E402
 
-# arm -> {section: {key: value}}: the arm's one change from `full` (S0: no_path_cells with maps = I).
+# row -> {section: {key: value}}: the row's one change from `full` (S0: no_path_cells with maps = I). The
+# literature row's change is applied by `fixed_literature_schema_config` (`LITERATURE_ROW`), not by a raw merge.
+LITERATURE_ROW = "literature"
 ARM_CHANGES: dict[str, dict[str, dict[str, Any]]] = {
     "full": {},
-    "endpoints": {"ablation": {"path_weight_input": "endpoints"}},
-    "schema": {"ablation": {"path_weight_input": "schema"}},
-    "uniform": {"ablation": {"path_weight_input": "uniform"}},
     "no_path_cells": {"model": {"arm": "no_path_cells"}},
-    "closure_only": {"model": {"arm": "closure_only"}},
-    "instance_features": {"model": {"arm": "instance_features"}},
-    "hub_A": {"model": {"arm": "hub_A"}},
-    "covering_only": {"model": {"arm": "covering_only"}},
     "S2": {"ablation": {"fact_maps_identity": True}},
     "S0": {"model": {"arm": "no_path_cells"}, "ablation": {"fact_maps_identity": True}},
-    "direction_blind_maps": {"ablation": {"direction_blind_maps": True}},
-    "free_cell_maps": {"model": {"arm": "free_cell_maps"}},
-    "h0_only": {"ablation": {"h0_only_readout": True}},
-    "ego_head": {"ablation": {"ego_head": True}},  # spec 1.25 Z3, C18 (pre-registration Z-32)
+    "endpoints": {"ablation": {"path_weight_input": "endpoints"}},
+    "instance_features": {"model": {"arm": "instance_features"}},
+    LITERATURE_ROW: {"data": {"path_source": "schemas"}},
 }
-# Arms with configuration (b) (tuned on their own; B-2, B-4) and their `tuning.arm` name.
-TUNED_ARMS: tuple[str, ...] = ("endpoints", "closure_only", "instance_features", "no_path_cells",
-                               "S2")
-# Seeds of every ablation run (B-1); `full`'s seeds 1-4 are the main table's (looked up).
+# Arms with configuration (b) (tuned on their own: 100 trials, seed 0; plan v2) and their `tuning.arm` name.
+TUNED_ARMS: tuple[str, ...] = ("endpoints", "no_path_cells", "instance_features", "S2")
+# Seeds of every ablation run (plan v2); `full`'s seeds 1-4 are the main table's (looked up).
 SEEDS: tuple[int, ...] = tuple(range(1, 11))
 REUSED_FULL_SEEDS: tuple[int, ...] = (1, 2, 3, 4)
 
 
 def apply_change(full_raw: dict[str, Any], arm: str) -> dict[str, Any]:
+    if arm == LITERATURE_ROW:
+        return literature_row(full_raw)
     raw = copy.deepcopy(full_raw)
     for section, values in ARM_CHANGES[arm].items():
         raw[section] = {**(raw.get(section) or {}), **values}
     return raw
+
+
+def literature_row(full_raw: dict[str, Any]) -> dict[str, Any]:
+    """The fixed-literature-schema row of `full_raw` through the project's own builder
+    (`fixed_literature_schema_config`: the resolved configuration with `data.path_source: schemas`; it raises if any
+    other setting differs). Returned as the saved-configuration dict (`dataclass_to_dict`), the form a run's
+    `config.yaml` takes."""
+    from src.configs.config import fixed_literature_schema_config
+    from src.utils.misc import dataclass_to_dict
+
+    row = fixed_literature_schema_config(TrainConfig.from_dict(copy.deepcopy(full_raw)))
+    return dataclass_to_dict(row)
 
 
 def flatten(raw: dict[str, Any], prefix: str = "") -> dict[str, Any]:

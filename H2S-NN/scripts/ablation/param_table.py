@@ -1,13 +1,11 @@
-"""Card 4 K6 (4): parameter table of every ablation arm (pre-registration §4.8, B-13) on ACM, DBLP, IMDB and
-Freebase at `full`'s configuration: total and the part each arm removes or adds. Parts:
-- `g`: path encoder + gate (`path_encoder.*`, `path_gate.*`, or the uniform arm's `path_log_weight`);
+"""Card 4 K6 (4), card 7 V1: parameter table of the 7 ablation rows (`arms.ARM_CHANGES`, plan v2) on ACM, DBLP, IMDB
+and Freebase at `full`'s configuration: total and the part each arm removes or adds. Parts:
+- `g`: path encoder + gate (`path_encoder.*`, `path_gate.*`);
 - map network (spec 1.25 TD-1): frames, `W_r` and the one per-edge MLP (`node_to_edge.frame_params`,
   `node_to_edge.subspace_params`, `node_to_edge.edge_mlp.*`); the MLP also gives c_e (a_e = c_e^2);
 - fact-weight MLP: none since 1.25 (the scale is one output of the map network's MLP; reported as 0);
-- head input: the first readout Linear (`readout.0.*`; 3d input under `instance_features`);
-- free cell maps: `free_cell_maps.*` (arm free_cell_maps only).
-`endpoints`' g must be within 5 % of `full`'s (`endpoint_hidden_width`); `uniform` and `schema` report
-g's share of the model. Until `full` is tuned the configuration is the experiment file given (a
+- head input: the first readout Linear (`readout.0.*`; 2d input under `instance_features`).
+`endpoints`' g must be within 5 % of `full`'s (`endpoint_hidden_width`). Until `full` is tuned the configuration is the experiment file given (a
 placeholder; d and the hidden widths fix the counts, r does not).
 
     python scripts/ablation/param_table.py --config acm=configs/experiments/acm_h2snn_v3b.yaml ... --out <json>
@@ -30,12 +28,11 @@ from src.data.dataset import build_dataset  # noqa: E402
 from src.models.h2snn_model import build_model  # noqa: E402
 
 PARTS = {
-    "g": ("path_encoder.", "path_gate.", "path_log_weight"),
+    "g": ("path_encoder.", "path_gate."),
     "map_network": ("node_to_edge.frame_params", "node_to_edge.subspace_params",
                     "node_to_edge.edge_mlp."),
     "fact_weight_mlp": (),  # spec 1.25: c_e is an output of node_to_edge.edge_mlp (map_network)
     "head_input": ("readout.0.",),
-    "free_cell_maps": ("free_cell_maps.",),
 }
 
 

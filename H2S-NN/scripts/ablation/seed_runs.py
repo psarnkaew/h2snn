@@ -1,19 +1,22 @@
-"""Card 4 K6 (3), (3b), (5): the ablation run manifest (pre-registration §1, B-1, B-2).
+"""Card 7 V1 (ablation plan v2; built on card 4 K6 (3), (3b), (5)): the ablation run manifest.
+
+Rows: the 7 rows of `arms.ARM_CHANGES` with configuration (a) and seeds 1-10, and the 4 arms of `arms.TUNED_ARMS`
+with configuration (b) (one `tune` row each, then seeds 1-10 after the sweep). Nothing else (author scope rule).
 
 Rows of `manifest.tsv` (one SLURM array task each, `ablation_array.sbatch`):
 - `tune`  configuration (b) of a tuned arm on a dataset: the launcher command of `sweeps.py`;
 - `runs`  seeds 1-10 of an arm through `scripts/run_h2snn_runs.py` (seed = base_seed + run index; every
   run has its own `exp_dir` `<exp_name>_run<i>` with `checkpoints/best.pt` and `config.yaml`,
-  `run_h2snn_runs.py:112-113, 130-131`), for configuration (a) of every arm and (b) of the five tuned
+  `run_h2snn_runs.py:112-113, 130-131`), for configuration (a) of every row and (b) of the four tuned
   arms. `full` (a) runs seeds 5-10 only: seeds 1-4 are the main table's runs, looked up (not re-run)
   at `<output_dir>/<main exp>/final_seeds/<main exp>_tune_final_seed<s>_final_seed<s>/`
   (`run_h2snn_wandb_tuning.py:410-411, 711-718`); `lookup.json` lists those folders.
 A (b) `runs` row needs the arm's tuned configuration: `tuned_config()` writes it from the sweep's
 `best_tuned_run0.json` (`sweep_params`, the launcher's `apply_sweep_overrides`) before the row runs.
 
-(3b) Freebase: full batch if card 2's dry run (`docs/dryrun_evidence/cells.csv`, Freebase NC at the
-largest configuration) fits, else mini-batch (pre-registration §1). The mode is an input
-(`--freebase_mode`) and is written into every Freebase configuration and the manifest.
+Freebase: full batch if the largest configuration fits on one H100 94 GB, else mini-batch (plan v2; card 5 U3
+sets it). The mode is an input (`--freebase_mode`) and is written into every Freebase configuration and the
+manifest.
 
     python scripts/ablation/seed_runs.py --dataset acm --full_config <full tuned yaml> \
         --tuning_base configs/experiments/acm_h2snn_v3b.yaml --main_output_dir experiments \
