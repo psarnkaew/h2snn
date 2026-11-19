@@ -246,14 +246,21 @@ There are no node--node terms, so the node block of $\hat L$ is $I$, and the blo
 \end{proof}
 The node-level map is a resolvent, the form of personalised PageRank propagation \cite{gasteiger2019appnp}; what is new is the operator $\hat S$, which carries the edge maps and the faces. We solve Equation~\eqref{eq:solve} with conjugate gradients and differentiate through its solution implicitly, so memory does not grow with the number of iterations.
 
-A head then reads the propagated states: $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node, and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, namely the encoder, the edge maps, the face scorer $g$, $\tau$ and the head, are trained end to end by one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head needs no separate copy of $h_v$: the anchor already keeps each node's encoding in $x^\star$, and since $h-x^\star=\tau\hat Sx^\star$, adding $h$ would only pass the disagreement left after diffusion, an input we test as a variant (Section~\ref{sec:discussion}). A single propagated state can suffice under heterophily because the maps are rotations:
+A head then reads the propagated states: $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node, and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, namely the encoder, the edge maps, the face scorer $g$, $\tau$ and the head, are trained end to end by one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head needs no separate copy of $h_v$: the anchor already keeps each node's encoding in $x^\star$, and since $h-x^\star=\tau\hat Sx^\star$, adding $h$ would only pass the disagreement left after diffusion. A single propagated state can suffice under heterophily because the maps are rotations:
 \begin{proposition}[Class-separating states]\label{prop:separate}
 For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
 \end{proposition}
 \begin{proof}[Proof sketch]
 Place the class vectors on a circle in a plane $P$, take $R_r=I$ and let every $U_r$ contain $P$. Choosing $C_e$ as the rotation of $P$ by the angle between the classes of $u$ and $v$ makes every edge consistent; Proposition~\ref{prop:forced} extends this to the faces, and the solve returns such an encoding unchanged by Proposition~\ref{prop:unique} (Appendix~\ref{app:proofs}).
 \end{proof}
-Nodes of different classes can therefore agree after their maps without being equal. This shows existence only: training need not find such maps, and edge-level sheaf models share the mechanism. What faces add is a comparison that no edge expresses, since P1 and P9 are compared through A7 with A7's own maps. Edge and face states have no input features, so they change how nodes interact but bring no new information; whether this improves prediction is the empirical question of Section~\ref{sec:discussion}.
+Nodes of different classes can therefore agree after their maps without being equal; this is existence only, and edge-level sheaf models share the mechanism. Together with Proposition~\ref{prop:unique}, it places both regimes in one model:
+\begin{proposition}[Two regimes]\label{prop:regimes}
+(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$, where $\hat S_I$ is the normalised Laplacian of the weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form, which pulls neighbouring encodings together. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
+\end{proposition}
+\begin{proof}[Proof sketch]
+With identity maps every face map is $I$ by Equation~\eqref{eq:forced}, so eliminating edge and face states leaves a weighted graph Laplacian; (ii) is Proposition~\ref{prop:separate}.
+\end{proof}
+Which regime an edge takes is learned, and we measure it rather than claim it. What faces add is a comparison that no edge expresses, since P1 and P9 are compared through A7 with A7's own maps. Edge and face states have no input features, so they change how nodes interact but bring no new information; whether this improves prediction is the empirical question of Section~\ref{sec:discussion}.
 
 
 %======================================================================
@@ -302,19 +309,17 @@ We evaluate node classification and link prediction; graph classification, whose
 \label{sec:discussion}
 
 \subsection{Which Components Matter}
-Our central claim is that a path instance is more useful as part of the structure than as a feature at its endpoints. We test it with variants that each change one component of the full model while the sampled instances, the evaluation draw and the training budget stay fixed (Table~\ref{tab:ablation}). They run on ACM and DBLP (homophilic) and IMDB and Freebase (heterophilic) with seeds 1--10, paired by seed. A model wins on a dataset if a two-sided Wilcoxon signed-rank test, Holm-corrected over the four datasets, gives $p<0.05$ with the median difference in its favour; a claim holds if the full model wins on at least three datasets. Variants that remove or reshape faces are tuned on their own; the others reuse the configuration of the full model, which favours it. All criteria were fixed before the runs.
+Our central claim is that a path instance is more useful as part of the structure than as a feature at its endpoints (RQ2). We test it with six variants of the full model, each changing one component while the sampled instances, the evaluation draw and the training budget stay fixed (Table~\ref{tab:ablation}), on ACM and DBLP (homophilic) and IMDB and Freebase (heterophilic) with seeds 1--10 paired by seed. The full model passes on a dataset if a two-sided Wilcoxon signed-rank test, Holm-corrected over the four datasets, gives $p<0.05$ with the median difference in its favour; a claim holds if it passes on three datasets. Variants marked in Table~\ref{tab:ablation} are tuned on their own, and all criteria were fixed before the runs.
 
-\paragraph{Faces and intermediate nodes (RQ2).} \emph{No faces} sets $\beta_f=0$, leaving an edge-sheaf model. Intermediate nodes enter through the face weight and through the energy, and two variants separate these routes: \emph{Endpoints} lets $g$ see only the end nodes and the relations, with a hidden width matched to the full model, and \emph{Endpoint edge} replaces each face by one edge between $v_0$ and $v_\ell$ with the composed map and the weight $\beta_f$. \emph{Face as feature} removes faces from the energy and gives the head, for each target, the $\beta_f$-weighted sum of each instance's mean transported encoding; with relation-only maps this equals the instance encoder of MAGNN \cite{fu2020magnn}, so it compares structure with features directly. \emph{Uniform} and \emph{Schema} weights, constant or a function of the relation sequence, complete a ladder of weights.
+\paragraph{Faces and their weights.} \emph{No faces} sets $\beta_f=0$, leaving an edge sheaf; if it is not beaten, faces add nothing at tuned settings. \emph{Endpoints} lets $g$ see only the end nodes and relations, hiding A7 from the weight of P1--A7--P9; if it is not beaten, we withdraw the claim that instance-level weights carry information beyond the endpoints. \emph{Face as feature} removes faces from the energy and gives the head the $\beta_f$-weighted mean transported encodings of a target's instances, MAGNN's instance encoder under relation-only maps \cite{fu2020magnn}; if it is not beaten, faces act as instance encoders and the contribution is the geometry and the theory.
 
-\paragraph{Coupling, maps and head.} \emph{No edge--face term} and \emph{No node--face term} each remove one coupling of Proposition~\ref{prop:reach}, and \emph{Free face maps} learns face maps of the form of Equation~\eqref{eq:maps} instead of composing them. \emph{Identity maps} removes all transport and, with \emph{No faces} and \emph{No faces, identity maps}, forms a $2\times2$ design over faces and maps; \emph{Direction-blind maps} treats every relation as its own reverse, which only ACM and Freebase can test. \emph{Ego head} gives the head $[x^\star_v\concat h_v]$, like heterophily models that keep a node's own representation apart from its neighbours' \cite{zhu2020beyond}.
-
-What we conclude when the full model does not win was fixed for every variant before the runs (Appendix~\ref{app:data}). In particular, we withdraw the claim that the weights use intermediate nodes if \emph{Endpoints} is not beaten, call a face no more than the edge it composes if \emph{Endpoint edge} is not beaten, conclude that faces act as instance encoders if \emph{Face as feature} is not beaten, and attribute the handling of heterophily to the maps only if the full model beats \emph{Identity maps} on both IMDB and Freebase. \emph{No propagation} and \emph{Published meta-paths}, the latter on seeds 0--4, serve as references without a claim. \res{}
+\paragraph{Maps and meta-path lists.} \emph{Identity maps} sets every edge map to $I$; we attribute the handling of heterophily to the learned rotations only if the full model beats it on both IMDB and Freebase, and otherwise Proposition~\ref{prop:separate} remains a statement of capacity. With \emph{No faces} and \emph{No faces, identity maps} it forms a $2\times2$ design that shows whether faces and maps are complementary. \emph{Published meta-paths} draws faces only along HGB's published meta-paths; if it clearly wins, expert schemas still add information, and random walks remain the choice when no list exists. \res{}
 
 \begin{table}[t]
   \centering
-  \caption{Controlled variants of the full model, Macro-F1 (mean over seeds 1--10; IMDB is the mean per-genre F1). After Holm's correction, bold marks a variant that is significantly worse than the full model and italics one that is significantly better. $^{\dagger}$Seeds 0--4, as the main tables; no test. $^{\ddagger}$Reported without a decision rule.}
+  \caption{Controlled variants of the full model, Macro-F1 (mean over seeds 1--10; IMDB is the mean per-genre F1). $^{*}$Tuned on its own and decided on that configuration. Bold marks a variant that is significantly worse than the full model after Holm's correction. $^{\ddagger}$Reported without a decision rule.}
   \label{tab:ablation}
-  \scriptsize
+  \footnotesize
   \setlength{\tabcolsep}{3pt}
   \begin{tabular}{lcccc}
     \toprule
@@ -322,34 +327,28 @@ What we conclude when the full model does not win was fixed for every variant be
     \midrule
     \method{} (full) & \res & \res & \res & \res \\
     \midrule
-    No faces & \res & \res & \res & \res \\
-    Endpoint edge & \res & \res & \res & \res \\
-    Face as feature & \res & \res & \res & \res \\
+    No faces$^{*}$ & \res & \res & \res & \res \\
+    Endpoints$^{*}$ & \res & \res & \res & \res \\
+    Face as feature$^{*}$ & \res & \res & \res & \res \\
     \midrule
-    No edge--face term & \res & \res & \res & \res \\
-    No node--face term & \res & \res & \res & \res \\
-    Free face maps & \res & \res & \res & \res \\
-    \midrule
-    Identity maps & \res & \res & \res & \res \\
+    Identity maps$^{*}$ & \res & \res & \res & \res \\
     No faces, identity maps$^{\ddagger}$ & \res & \res & \res & \res \\
-    Direction-blind maps & \res & \res & \res & \res \\
     \midrule
-    Uniform weights & \res & \res & \res & \res \\
-    Schema weights & \res & \res & \res & \res \\
-    Endpoints weights & \res & \res & \res & \res \\
-    \midrule
-    Ego head & \res & \res & \res & \res \\
-    \midrule
-    Published meta-paths$^{\dagger}$ & \res & \res & \res & \res \\
-    No propagation & \res & \res & \res & \res \\
+    Published meta-paths$^{\ddagger}$ & \res & \res & \res & \res \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\subsection{Heterophily, Cost and Limitations}
-Helping on average is not the same as helping under heterophily. Within each of the twelve node-classification datasets, we regress the per-node gain of the full model over \emph{Endpoints} on the node's heterophily: the share of its target-type meta-path neighbours with another label, centred by class so that class imbalance does not drive the result. Faces help under heterophily if the slope is significantly positive on at least six datasets and significantly negative on none; otherwise we remove ``heterophilic'' from the title. A perturbation study, an analysis of the transports and the cost, measured on one GPU type and on growing subgraphs of ogbn-mag, are in Appendix~\ref{app:data}. \res{}
+\subsection{Meta-Paths and Heterophily}
+Per schema $\sigma$, the ratio $\rho_\sigma$ of its learned to its sampled share of face weight shows which meta-paths the model favours; we interpret its ranking only if it is stable across seeds, and relate it to the label homophily of each schema. We also perturb ACM and DBLP to heterophily levels of 0.2--0.8, adding typed edges that join different classes or removing them, each against a random change of the same size. We expect \method{} to lose less accuracy than GCN, HAN and SeHGNN as heterophily rises, and the gain of faces to grow with it; otherwise we make no robustness claim (Appendix~\ref{app:data}). \res{}
 
-\emph{Limitations.} Influence between two nodes is equally strong in both directions, because edges, faces and the energy are symmetric; propagation is linear, so there is no band-pass response; faces are simple walks, so branching meta-structures are missed; and a weight scales a face but cannot change its maps. Proposition~\ref{prop:separate} is an existence result, and the variants cover node classification on four datasets only.
+\subsection{How Faces Change the Representation}
+Grouping test nodes by the share $\eta_v$ of their meta-path neighbours with another label, we count the predictions that faces fix and break, compare class margins with and without faces, and remove a node's faces at evaluation, with a case study on ACM. For Proposition~\ref{prop:regimes}, we check whether transports between same-class endpoints stay closer to $I$ than between different-class ones, whether node energy separates correct from wrong predictions, and whether a linear probe separates classes better on $x^\star$ than on $h$, with learned and identity maps. These analyses are descriptive; their expected outcomes are fixed in Appendix~\ref{app:data}. \res{}
+
+\subsection{Cost and Limitations}
+One conjugate-gradient iteration costs $O\bigl((|E|+\sum_f\ell_f)\,d^2\bigr)$ time, linear in edges and face incidences and independent of the number of schemas, and memory $O\bigl((N+|E_{\mathrm{sh}}|+F)\,d\bigr)$ for $N$ nodes, $F$ faces and the edges $E_{\mathrm{sh}}$ shared by several faces, independent of the number of iterations. Time, memory and parameters of every method on IMDB and ogbn-mag are in Appendix~\ref{app:data}. \res{}
+
+\emph{Limitations.} Influence is equally strong in both directions, since edges, faces and the energy are symmetric; propagation is linear, so there is no band-pass response; faces are simple walks; and a weight scales a face but cannot change its maps. Propositions~\ref{prop:separate} and~\ref{prop:regimes} are existence results, and the variants and analyses cover node classification on four datasets.
 
 %======================================================================
 \section{Conclusion}
@@ -386,24 +385,44 @@ This appendix reports dataset statistics, the Micro-F1 and MRR tables, search sp
 
 \paragraph{Metrics and search.} Macro-F1 is averaged over the classes present in each split's true labels. IMDB is multi-label, with binary cross-entropy per genre, a threshold at logit zero and 4,573 labelled movies. For \method{}, the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $n\in\{8,\dots,64\}$, besides the axes shared with the baselines; the rank~4 of the edge rotations and the constant~10 in $w_f$ are fixed. A walk that reaches a dead end before its drawn length is discarded, and for graph classification every node is an anchor. The main tables involve about 48 tests of \method{} against the best other method.
 
-\paragraph{Readings of the controlled variants.} Each reading was fixed before the runs; ``wins'' is the rule of Section~\ref{sec:discussion}. If the full model does not beat \emph{No faces}, faces add nothing to the edge sheaf at tuned settings. If it does not beat \emph{Endpoints}, we withdraw the claim that the weights carry information beyond the maps and the states; if it does not beat \emph{Endpoint edge}, a face is in practice no more than the edge it composes; and if it does not beat \emph{Face as feature}, faces act as instance encoders and the contribution lies in the geometry rather than in the structure. A coupling whose removal does not hurt is kept for its theory, not claimed as a source of gains. For \emph{Free face maps}, composition helps if the full model wins on three datasets, has a cost if the free maps do, and otherwise no difference is found. The maps are called direction-aware only if the full model beats \emph{Direction-blind maps} on both ACM and Freebase. If \emph{Ego head} wins on at least three datasets, we state that the encoding at the head improves accuracy and that our readout costs accuracy there; the main tables keep the full model. The weight ladder and the $2\times2$ design are reported without a decision rule, and \emph{Published meta-paths} is reported without a claim.
+\paragraph{Controlled variants.} \emph{No faces}, \emph{Endpoints}, \emph{Face as feature} and \emph{Identity maps} are tuned on their own (100 trials on seed 0, restricted to the keys that act in the variant) and decided on that configuration; their values on the configuration of the full model are reported beside, and if the two disagree the paper follows the tuned one. \emph{No faces, identity maps} and \emph{Published meta-paths} use the configuration of the full model. For every comparison we report the mean and standard deviation per variant, raw and adjusted $p$-values, the median difference and a bootstrap 95\% interval of the mean paired difference. If the full model beats a variant with fewer parameters whose tuned $d$ is the largest in the search space, capacity is not excluded as an explanation. The $2\times2$ design reports $\text{full}-\text{No faces}$, $\text{Identity maps}-\text{No faces, identity maps}$, $\text{full}-\text{Identity maps}$ and $\text{No faces}-\text{No faces, identity maps}$.
 
-\paragraph{Further heterophily analyses.} \emph{Perturbation.} On ACM and DBLP, we remove edges from the relations that form the meta-paths, either those that join nodes of different classes or those that join nodes of one class, and compare each graph with one from which the same number of edges was removed at random. A perturbed graph is therefore an incomplete graph rather than a fabricated one, and the accuracy of \method{}, GCN, HAN, SeHGNN, Hetero$^2$Net and HetSheaf, each with its configuration fixed beforehand, is compared across homophily levels. \emph{Mechanism.} For target nodes joined by one face, we compare their distance before and after transport, by class, for the full model and \emph{Identity maps}. We also replace the encodings of the intermediate nodes in the face weight by those of random nodes of the same type, to measure how far the learned weights use them, and we check whether the ranking of schemas by the weight their instances receive, relative to how often they are sampled, is stable across seeds; we interpret this ranking only if it is stable. \res{}
+\paragraph{Schema read-out.} Schemas are the length-2 sub-paths with mean coverage of at least 1\%, at most the ten largest. A ranking is stable if the mean pairwise Kendall $\tau_b$ of the $\rho_\sigma$ rankings over seeds 1--10 is at least 0.5 and significant against a permutation null (schema labels shuffled within each seed, 10{,}000 draws, Holm over the four datasets). We say that the learned weights favour a published meta-path only if $\rho_\sigma>1$ in all ten seeds. The link to heterophily is the Spearman correlation between $\rho_\sigma$ and the label homophily of $\sigma$'s induced graph.
 
-\paragraph{Cost.} Every time and memory number comes from separate timing runs on one H100 GPU (94\,GB). Edges that lie on at most one face are eliminated exactly, so the cost depends on the edges shared by several faces and on the number and length of the sampled walks, not on the number of schemas. No $d\times d$ matrix is stored per edge: an edge keeps 17 numbers for any $d$, and the frames and subspaces are shared by the edges of a relation. Table~\ref{tab:cost} gives time and peak memory per epoch on one GPU type. We also track how time, memory and solver iterations grow with the size of subgraphs of ogbn-mag, in full-batch and mini-batch training, and we report accuracy at several values of the number and the length of the sampled walks. \res{}
+\paragraph{Perturbation.} Heterophily is $1-\mathrm{MLH}$ over the length-2 meta-paths, and each target is met within $\pm0.01$ when reachable. Added edges belong to relations already in the graph, with typed endpoints whose meta-path partner is drawn uniformly from the other classes, without duplicates or self-loops. Removal is capped at half of a relation's edges, and a level that the cap prevents is reported as unreached; same-class edges are never added, since that would build test labels into the graph. The compared methods are \method{} with and without faces, GCN, HAN, SeHGNN, Hetero$^2$Net and HetSheaf, each with the configuration tuned on the original graph and never retuned, on seeds 1--5. The perturbed graphs are semi-synthetic, so curves are compared across methods only, never with the main tables.
+
+\paragraph{Face effect and two regimes.} $\eta_v$ is the share of a test node's target-type meta-path neighbours with a different label (IMDB: mean over genres); nodes without such neighbours are excluded and counted, and results are given per quartile of $\eta_v$. The margin is the distance from $x^\star_v$ to the nearest other-class centroid minus the distance to its own-class centroid. Removing faces at evaluation uses seeds 1--3 and at most 2{,}000 test nodes per dataset and seed. The case study takes, on ACM with seed 1, the test node with a different-class neighbour whose correct prediction turns wrong when its faces are removed and whose margin drops most; it shows the node, the neighbour, its three faces with the largest $w_f$, a two-dimensional PCA of $h$, $x^\star$ without its faces and $x^\star$, and the true-class probability with and without its faces. Expected outcomes, fixed before the runs: faces fix more nodes than they break, more so at high $\eta_v$; the margin is larger with faces; removing faces turns a non-zero share of correct predictions wrong; same-class transports are closer to $I$ than different-class ones (AUROC above 0.5); correct predictions have lower node energy; and at high $\eta_v$ the full model keeps the class separation of $x^\star$ while \emph{Identity maps} loses it.
+
+\paragraph{Cost.} Every time and memory number comes from separate timing runs on one H100 GPU (94\,GB), with every method at its tuned configuration: time per epoch is the median of epochs 2--4 after one warm-up epoch, and an epoch on ogbn-mag is 8{,}192 training targets. Edges that lie on at most one face are eliminated exactly, so the cost depends on the edges shared by several faces and on the number and length of the sampled walks, not on the number of schemas. No $d\times d$ matrix is stored per edge: an edge keeps 17 numbers for any $d$, and the frames and subspaces are shared by the edges of a relation. Accuracy against time and memory on ogbn-mag combines Table~\ref{tab:node-cls} with Table~\ref{tab:cost}. \res{}
 
 \begin{table}[h]
   \centering
-  \caption{Cost per epoch, measured on one GPU type.}
+  \caption{Cost on one H100 GPU: time per epoch (s), peak memory (GB) and parameters (M).}
   \label{tab:cost}
-  \footnotesize
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lcccc}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lcccccc}
     \toprule
-    & ACM & DBLP & IMDB & ogbn-mag \\
+    & \multicolumn{3}{c}{IMDB} & \multicolumn{3}{c}{ogbn-mag} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    \textbf{Model} & Time & Mem. & Par. & Time & Mem. & Par. \\
     \midrule
-    Time per epoch (s) & \res & \res & \res & \res \\
-    Peak memory (MB) & \res & \res & \res & \res \\
+    GCN & \res & \res & \res & \res & \res & \res \\
+    GAT & \res & \res & \res & \res & \res & \res \\
+    ChebNetII & \res & \res & \res & \res & \res & \res \\
+    NSD & \res & \res & \res & \res & \res & \res \\
+    CSNN & \res & \res & \res & \res & \res & \res \\
+    R-GCN & \res & \res & \res & \res & \res & \res \\
+    HAN & \res & \res & \res & \res & \res & \res \\
+    MAGNN & \res & \res & \res & \res & \res & \res \\
+    SeHGNN & \res & \res & \res & \res & \res & \res \\
+    HiNormer & \res & \res & \res & \res & \res & \res \\
+    PSHGCN & \res & \res & \res & \res & \res & \res \\
+    H2G-former & \res & \res & \res & \res & \res & \res \\
+    Hetero$^2$Net & \res & \res & \res & \res & \res & \res \\
+    H2SGNN & \res & \res & \res & \res & \res & \res \\
+    HetSheaf & \res & \res & \res & \res & \res & \res \\
+    \method{} & \res & \res & \res & \res & \res & \res \\
     \bottomrule
   \end{tabular}
 \end{table}
