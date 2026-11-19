@@ -1,0 +1,27 @@
+job=17833 node=g3n01 git=1df64c522c1c0253c6b264b8b42141302009054a start=2026-11-19T16:38:51+09:00
+=== M1: subset_mask -> whole validation split during training
+ H2S-NN/src/trainers/minibatch_trainer.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+test_T1_subset_only_during_training_then_one_whole_split_pass (tests.test_card5_protocol_hooks.B1aTests.test_T1_subset_only_during_training_then_one_whole_split_pass) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+test_T2_pdns_subset_follows_the_run_seed (tests.test_card5_protocol_hooks.B1aTests.test_T2_pdns_subset_follows_the_run_seed) ... ok
+test_T3_selection_by_the_subset_metric (tests.test_card5_protocol_hooks.B1aTests.test_T3_selection_by_the_subset_metric) ... ok
+FAIL: test_T1_subset_only_during_training_then_one_whole_split_pass (tests.test_card5_protocol_hooks.B1aTests.test_T1_subset_only_during_training_then_one_whole_split_pass)
+AssertionError: False is not true
+Ran 3 tests in 4.253s
+FAILED (failures=1)
+restored src/trainers/minibatch_trainer.py (= HEAD)
+=== M2: knockout removes every cell (node filter ignored)
+ H2S-NN/src/models/h2snn_model.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch) ... FAIL
+test_T6_refused_in_training_and_tuning_configs (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_refused_in_training_and_tuning_configs) ... ok
+FAIL: test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch)
+AssertionError: False is not true
+FAIL: test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch)
+AssertionError: False is not true
+Ran 3 tests in 2.067s
+FAILED (failures=2)
+restored src/models/h2snn_model.py (= HEAD)
+worktree clean after mutations
+end=2026-11-19T16:39:01+09:00
