@@ -175,7 +175,12 @@ class HgbUnchangedTests(unittest.TestCase):
             torch.set_num_threads(threads)
         self.assertEqual(now["hgb_full_batch"], reference["hgb_full_batch"])
         self.assertEqual(now["acm_minibatch_flag"], reference["acm_minibatch_flag"])
-        self.assertEqual(now["baselines_1_cell_list"], reference["baselines_1_cell_list"])   # T9 part
+        # T9 part. Ops card T7.4 (v3b 1646efd) moved HetSheaf and CSNN on ACM/DBLP NC to phase `baselines-early` on
+        # purpose, which puts 4 `# in phase baselines-early` lines in the baselines-1 list; the list is compared with
+        # its capture at 1646efd (same capture_base.py; docs/card7_evidence/capture_1646efd_*.txt shows that this is
+        # the only difference from 894fd74). The model parts above stay compared with 894fd74.
+        cells = json.loads((EVIDENCE / "base_capture_1646efd.json").read_text(encoding="utf-8"))
+        self.assertEqual(now["baselines_1_cell_list"], cells["baselines_1_cell_list"])
 
 
 # ----------------------------------------------------------------------------- T5 (energy)

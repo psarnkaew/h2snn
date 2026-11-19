@@ -1,0 +1,67 @@
+job=17889 node=g3n01 start=2026-11-20T07:09:20+09:00
+git=09262bf04adc016dafc7ebe9f8d8d04853efec45 branch=card7 uncommitted_sha256=552e9832f2acb86c
+working tree:  M tests/test_card5_protocol_hooks.py
+== 1. capture at v3b 1646efd
+make_cell_list: /mnt/data/peeradon/h2snn-model-snap/cap1646efd/H2S-NN/scripts/tsubame/make_cell_list.py; baselines_1_cell_list: 21085 chars
+== 2. 894fd74 vs 1646efd
+--- 894fd74
++++ 1646efd
+@@ -68 +68 @@
+-scripts/run_baseline_tuning.py --task node_classification --models csnn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /OUT/experiments/baselines --state_dir /OUT/state --wandb_project h2snn_baseline_t4
++# in phase baselines-early: node_classification acm csnn
+@@ -75 +75 @@
+-scripts/run_baseline_tuning.py --task node_classification --models hetsheaf --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /OUT/experiments/baselines --state_dir /OUT/state --wandb_project h2snn_baseline_t4
++# in phase baselines-early: node_classification acm hetsheaf
+@@ -81 +81 @@
+-scripts/run_baseline_tuning.py --task node_classification --models csnn --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /OUT/experiments/baselines --state_dir /OUT/state --wandb_project h2snn_baseline_t4
++# in phase baselines-early: node_classification dblp csnn
+@@ -88 +88 @@
+-scripts/run_baseline_tuning.py --task node_classification --models hetsheaf --datasets dblp --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /OUT/experiments/baselines --state_dir /OUT/state --wandb_project h2snn_baseline_t4
++# in phase baselines-early: node_classification dblp hetsheaf
+lines 894fd74 105, 1646efd 105; removed 4, added 4
+added = the 4 '# in phase baselines-early' comments of [('node_classification', 'acm', 'csnn'), ('node_classification', 'acm', 'hetsheaf'), ('node_classification', 'dblp', 'csnn'), ('node_classification', 'dblp', 'hetsheaf')]: True
+removed = the 4 tuning lines of the same cells (now in baselines-early): True
+every other line identical: True
+== 3. tests.test_card5_protocol_hooks
+test_T1_subset_only_during_training_then_one_whole_split_pass (tests.test_card5_protocol_hooks.B1aTests.test_T1_subset_only_during_training_then_one_whole_split_pass) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:27,051 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1434 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:27,366 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1332 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:27,670 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1239 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_T2_pdns_subset_follows_the_run_seed (tests.test_card5_protocol_hooks.B1aTests.test_T2_pdns_subset_follows_the_run_seed) ... ok
+test_T3_selection_by_the_subset_metric (tests.test_card5_protocol_hooks.B1aTests.test_T3_selection_by_the_subset_metric) ... ok
+test_T9_h2snn_phase (tests.test_card5_protocol_hooks.CellListTests.test_T9_h2snn_phase) ... ok
+test_T5_energy_at_a_model_solution (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_at_a_model_solution) ... ok
+test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section) ... ok
+test_T4_records_equal_the_base_commit (tests.test_card5_protocol_hooks.HgbUnchangedTests.test_T4_records_equal_the_base_commit) ... 2026-11-20 07:09:28,119 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 480, 'facts_after': 240}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:28,370 | INFO | Epoch 0000 | train_loss: 1.1106 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1905 | train_micro_f1: 0.2857 | val_loss: 1.1146 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-20 07:09:28,376 | INFO | Checkpoint metric macro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:28,595 | INFO | Epoch 0001 | train_loss: 1.1065 | train_acc: 0.2143 | train_auroc: 0.0000 | train_macro_f1: 0.1333 | train_micro_f1: 0.2143 | val_loss: 1.1139 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:28,800 | INFO | Epoch 0002 | train_loss: 1.0944 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1778 | train_micro_f1: 0.2857 | val_loss: 1.1132 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-20 07:09:28,803 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-20 07:09:28,803 | INFO | Best epoch 0 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167 | test_acc: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:29,172 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1161 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:29,537 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1149 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.3333 | test_auroc: 0.0000 | test_macro_f1: 0.2545 | test_micro_f1: 0.3333
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:09:29,897 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1138 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.3718 | test_micro_f1: 0.5000
+ok
+test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch) ... ok
+test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch) ... ok
+test_T6_refused_in_training_and_tuning_configs (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_refused_in_training_and_tuning_configs) ... ok
+test_T7_transports_per_fact (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T7_transports_per_fact) ... ok
+test_T8_cells_per_target (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T8_cells_per_target) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 6.288s
+
+OK
+tests exit=0 end=2026-11-20T07:09:30+09:00
