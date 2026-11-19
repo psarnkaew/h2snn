@@ -181,4 +181,17 @@ h-pokec_uu; GC mutag, enzymes, nci1, proteins) and **24 final-seeds lines** (`--
 | D2 | `scripts/tsubame/lines.py` `parse_line` accepts only `run_baseline_tuning.py` lines and the baseline state layout. `sweep_slots.sh` runs each line as `python <line> --resume` (the H2S-NN launcher has `--resume`), but its `lines.py snapshot`/`complete` calls do not recognise `h2snn` lines: provenance gets `before: null`, and a finished final-seeds line is not skipped, so it would run again in a later leg. `status.py` cannot report them | (a) ops session extends `lines.py` (`parse_line`, `snapshot`, `complete`) and `status.py` for the H2S-NN launcher's state layout (TSUBAME card); (b) leave until H2S-NN runs | (a), before the first `h2snn` leg: H2S-NN runs first on TSUBAME |
 | D3 | The guide's data copy (§3) lists only `data/NC/{acm,dblp,imdb}` and `data/LP/` | ops session adds `data/NC/freebase`, the eight H2GB datasets and `data/GC` for the `h2snn` phase (and the probe) | needed before any `h2snn` line runs |
 
-branch=card5 sha=dc1668f60049e8d538e4b44d6a41c427975c7a52 card=docs/H2S-NN_card5_card.md base=894fd7421ce8581d38b967906bde5593e881518a
+## Merge of v3b
+- `git merge --no-ff 59ab5826885a5c5e255b76266adb51a5426a7671` (`origin/v3b`, card 6 heterophily) into `card5` at
+  `04b8816` → **`f1f8b9ba62d0031383476c79f79d3a0e2eb2f8d5`**, no conflict. It adds only card 6's
+  `src/analysis/heterophily.py`, `scripts/heterophily_stats.py`, `tests/test_heterophily_harness.py` and `docs/`
+  files; no card 5 file changed. The vendor folder is complete (`sparse_tools` present; the two missing rows,
+  HeaRT and hgbi, are `no-clone` / `not-needed`).
+- **Job 17844** (g2tn01, TITAN RTX 24 GB, sbatch, GPU not shared, env E, `--mem 16G`, peak RSS 0.43 GiB; in the
+  worktree itself, clean head `f1f8b9b`): `Ran 55 tests … OK` = `test_card5_protocol_hooks` 12 +
+  `test_heterophily_harness` 22 + `test_td1_maps` 13 + `test_partMB_trainer` 8. Golden `compared 1238 tensors
+  in 23 configurations; differing: none`; mb0 `compared 136 tensors; differing: none`. Log
+  `docs/card5_evidence/merge_v3b_17844.log` (commit `66453e2`).
+- Not merged into `v3b`.
+
+branch=card5 sha=66453e29b23df812cbe025ea232f4c38c0acf86f card=docs/H2S-NN_card5_card.md base=894fd7421ce8581d38b967906bde5593e881518a
