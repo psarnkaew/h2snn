@@ -1,6 +1,38 @@
-# Paper session brief — bring the IJCAI-27 text to model 1.25 (2026-11-18)
+# Paper session brief — IJCAI-27 text: model 1.25, spec 1.27 (2026-11-18; updated 2026-11-19, §0)
 
 Written by the model session for a new **paper session**. Read this first, then the sources in §2. The paper file is `H2S-NN/paper/ijcai27/h2snn_ijcai27_v3b.tex`; its text still describes model 1.24.
+
+## 0. Update 2026-11-19 (read first; supersedes §2–§4 and §6 where they differ)
+**Binding now:**
+- spec **v1.27** (§4 Prop. 12 two regimes; §5 claims C1, C2, C2b, C5, C7, C14, C15; §6 ablation and analyses);
+- `docs/ablation_analysis_preregistration_v2.md` (the ablation study and analyses are exactly what it lists);
+- `docs/ablation_plan_v2_2026-11-19.html` (the same plan, in Thai, for the author);
+- decisions log rows of 2026-11-19.
+
+The `.tex` at `5a4ba21` already follows spec 1.27: 7-row ablation, Prop. "Two regimes", face effect, cost table, 7-page structure. These points in it are now stale:
+
+| Where (`5a4ba21`) | Now says | Change to (source) |
+|---|---|---|
+| Discussion, "Meta-Paths and Heterophily" | "perturb ACM and DBLP to heterophily levels of 0.2–0.8" | **0.2, 0.3, 0.4, 0.5, 0.6** (h = 1 − MLH ∈ [0, 1]; the original graph is a reference point). Add one sentence on the ceiling: an intermediate node with n target neighbours makes a clique in the meta-path graph, so h ≤ (1 − 1/C)·n/(n−1) → 1 − 1/C (≈ 0.667 ACM, 0.75 DBLP); the figure draws it dashed; higher heterophily is covered by the real heterophilic datasets of the main tables. (Decisions row "Card 7 Phase A review; perturbation levels"; pre-reg v2 §4.2.) |
+| Appendix, "Perturbation" | methods "\method{} with and without faces, GCN, HAN, SeHGNN, Hetero²Net and HetSheaf" | Add **CSNN** (the homogeneous heterophily sheaf model). Configurations: GCN and HAN use HGB's published run commands; SeHGNN and Hetero²Net their published configurations; HetSheaf and CSNN their configurations tuned on the original graph. Never retuned. Add: levels unreached under the 50 % cap are not run; ℋ² is reported beside h. (Decisions rows "Perturbation study: CSNN added" and "Card 7 Phase A review".) |
+| Expected outcome sentence | "lose less accuracy than GCN, HAN and SeHGNN" | Keep. Add that the comparisons with CSNN and HetSheaf are reported without a fixed expectation. |
+
+**Published numbers as placeholders (spec 1.26):**
+- A baseline cell we have not run may hold the published number until our run exists.
+- Whoever puts such a number into a table adds a row to `docs/published_number_register.md` **in the same commit**: dataset, task, method, metric, value, source (paper, table, page) and protocol differences.
+- A placeholder enters no test and carries no claim.
+- Before submission each placeholder is replaced by our run or kept by an author decision.
+- Do not mark placeholders in the `.tex` unless the author asks; the register is the record.
+
+**Advisor meeting 2026-11-19 (for content decisions):**
+- IJCAI allows **7 pages including figures and tables, plus 2 pages of references**.
+- The advisor and the Murata lab find the model too complex: focus on one or two contributions and keep minor modules short.
+- The main comment is a **case study** showing how a face changes the embedding of a node with a heterophilic edge until it is classified correctly. The pre-registered rule-chosen case (ACM, seed 1; pre-reg v2 §4.3) may become Fig. 1 once its numbers exist.
+- IJCAI values proofs: keep Props and proof sketches.
+- The advisor asked for the energy–performance relation; this is R2 in the text.
+- The advisor wants H2S-NN results by the end of November. The next meeting is 2026-12-01.
+
+**Still no results:** every result cell stays `\res{}` except placeholders entered under the register rule.
 
 ## 1. Rules (author)
 - **Text goes to chat first.** Show proposed LaTeX in a code block with short notes. Edit the `.tex` only when the author says so (e.g. "แก้ลงไฟล์เลย"). Compiling to check is fine.
