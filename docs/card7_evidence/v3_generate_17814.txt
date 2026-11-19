@@ -1,0 +1,79 @@
+job=17814 node=g2tn01 start=2026-11-19T14:59:50+09:00
+git=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+acm: search h 0.2621, reference h 0.2621, H2 0.3994, M_2 relations ['paper-cite-paper', 'paper-to-author', 'paper-to-subject', 'paper-to-term']
+acm targeted 0.20: h 0.1978 H2 0.3008 reached True lower alpha 0.0781 {'paper-cite-paper': {'added': 0, 'removed': 417}, 'paper-to-author': {'added': 0, 'removed': 777}, 'paper-to-subject': {'added': 0, 'removed': 236}, 'paper-to-term': {'added': 0, 'removed': 19970}}
+acm random 0.20: h 0.2605 H2 0.3970 reached True lower alpha 0.0781 {'paper-cite-paper': {'added': 0, 'removed': 417}, 'paper-to-author': {'added': 0, 'removed': 777}, 'paper-to-subject': {'added': 0, 'removed': 236}, 'paper-to-term': {'added': 0, 'removed': 19970}}
+acm targeted 0.40: h 0.4086 H2 0.6202 reached True raise alpha 0.1875 {'paper-cite-paper': {'added': 1002, 'removed': 0}, 'paper-to-author': {'added': 1865, 'removed': 0}, 'paper-to-subject': {'added': 567, 'removed': 0}, 'paper-to-term': {'added': 47929, 'removed': 0}}
+acm random 0.40: h 0.3392 H2 0.5153 reached True raise alpha 0.1875 {'paper-cite-paper': {'added': 1002, 'removed': 0}, 'paper-to-author': {'added': 1865, 'removed': 0}, 'paper-to-subject': {'added': 567, 'removed': 0}, 'paper-to-term': {'added': 47929, 'removed': 0}}
+acm targeted 0.60: h 0.6011 H2 0.9046 reached True raise alpha 1.0000 {'paper-cite-paper': {'added': 5343, 'removed': 0}, 'paper-to-author': {'added': 9949, 'removed': 0}, 'paper-to-subject': {'added': 3025, 'removed': 0}, 'paper-to-term': {'added': 255619, 'removed': 0}}
+acm random 0.60: h 0.4996 H2 0.7524 reached True raise alpha 1.0000 {'paper-cite-paper': {'added': 5343, 'removed': 0}, 'paper-to-author': {'added': 9949, 'removed': 0}, 'paper-to-subject': {'added': 3025, 'removed': 0}, 'paper-to-term': {'added': 255619, 'removed': 0}}
+acm targeted 0.80: h 0.6376 H2 0.9576 reached False raise alpha 2.0000 {'paper-cite-paper': {'added': 10686, 'removed': 0}, 'paper-to-author': {'added': 19898, 'removed': 0}, 'paper-to-subject': {'added': 6050, 'removed': 0}, 'paper-to-term': {'added': 511238, 'removed': 0}}
+acm random 0.80: h 0.5730 H2 0.8609 reached False raise alpha 2.0000 {'paper-cite-paper': {'added': 10686, 'removed': 0}, 'paper-to-author': {'added': 19898, 'removed': 0}, 'paper-to-subject': {'added': 6050, 'removed': 0}, 'paper-to-term': {'added': 511238, 'removed': 0}}
+dblp: search h 0.1278, reference h 0.1278, H2 0.1732, M_2 relations ['author-to-paper']
+dblp targeted 0.20: h 0.1977 H2 0.2675 reached True raise alpha 0.0156 {'author-to-paper': {'added': 307, 'removed': 0}}
+dblp random 0.20: h 0.1693 H2 0.2294 reached True raise alpha 0.0156 {'author-to-paper': {'added': 307, 'removed': 0}}
+dblp targeted 0.40: h 0.3969 H2 0.5346 reached True raise alpha 0.0781 {'author-to-paper': {'added': 1535, 'removed': 0}}
+dblp random 0.40: h 0.3039 H2 0.4109 reached True raise alpha 0.0781 {'author-to-paper': {'added': 1535, 'removed': 0}}
+dblp targeted 0.60: h 0.6080 H2 0.8168 reached True raise alpha 0.2188 {'author-to-paper': {'added': 4297, 'removed': 0}}
+dblp random 0.60: h 0.4643 H2 0.6267 reached True raise alpha 0.2188 {'author-to-paper': {'added': 4297, 'removed': 0}}
+dblp targeted 0.80: h 0.7477 H2 1.0096 reached False raise alpha 2.0000 {'author-to-paper': {'added': 39290, 'removed': 0}}
+dblp random 0.80: h 0.7122 H2 0.9602 reached False raise alpha 2.0000 {'author-to-paper': {'added': 39290, 'removed': 0}}
+acm_dblp_exit=0 t=2026-11-19T15:09:17+09:00
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+imdb: search h 0.3247, reference h 0.3247, H2 0.7373, M_2 relations ['movie-to-director', 'movie->actorh-actor', 'movie-to-keyword']
+imdb targeted 0.20: h 0.2383 H2 0.5310 reached False lower alpha 0.4999 {'movie-to-director': {'added': 0, 'removed': 2465}, 'movie->actorh-actor': {'added': 0, 'removed': 7388}, 'movie-to-keyword': {'added': 0, 'removed': 11802}}
+imdb random 0.20: h 0.2903 H2 0.6614 reached False lower alpha 0.4999 {'movie-to-director': {'added': 0, 'removed': 2465}, 'movie->actorh-actor': {'added': 0, 'removed': 7388}, 'movie-to-keyword': {'added': 0, 'removed': 11802}}
+imdb targeted 0.40: h 0.4019 H2 0.9139 reached True raise alpha 0.5000 {'movie-to-director': {'added': 2466, 'removed': 0}, 'movie->actorh-actor': {'added': 7390, 'removed': 0}, 'movie-to-keyword': {'added': 11805, 'removed': 0}}
+imdb random 0.40: h 0.3601 H2 0.8183 reached True raise alpha 0.5000 {'movie-to-director': {'added': 2466, 'removed': 0}, 'movie->actorh-actor': {'added': 7390, 'removed': 0}, 'movie-to-keyword': {'added': 11805, 'removed': 0}}
+imdb targeted 0.60: h 0.4301 H2 0.9946 reached False raise alpha 3.0000 {'movie-to-director': {'added': 14796, 'removed': 0}, 'movie->actorh-actor': {'added': 44337, 'removed': 0}, 'movie-to-keyword': {'added': 70830, 'removed': 0}}
+imdb random 0.60: h 0.4193 H2 0.9570 reached False raise alpha 3.0000 {'movie-to-director': {'added': 14796, 'removed': 0}, 'movie->actorh-actor': {'added': 44337, 'removed': 0}, 'movie-to-keyword': {'added': 70830, 'removed': 0}}
+imdb targeted 0.80: h 0.4284 H2 0.9955 reached False raise alpha 3.0000 {'movie-to-director': {'added': 14796, 'removed': 0}, 'movie->actorh-actor': {'added': 44337, 'removed': 0}, 'movie-to-keyword': {'added': 70830, 'removed': 0}}
+imdb random 0.80: h 0.4196 H2 0.9583 reached False raise alpha 3.0000 {'movie-to-director': {'added': 14796, 'removed': 0}, 'movie->actorh-actor': {'added': 44337, 'removed': 0}, 'movie-to-keyword': {'added': 70830, 'removed': 0}}
+imdb_exit=0 end=2026-11-19T15:20:44+09:00

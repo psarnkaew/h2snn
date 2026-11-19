@@ -1,0 +1,40 @@
+job=17819 node=g3n01 start=2026-11-19T15:21:20+09:00
+git=9df8a93cf24151affc6d6b6308a5e848d1e9c9e1 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/ablation/acm/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/ablation/dblp/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/ablation/imdb/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/ablation/freebase/manifest.tsv
+ablation runs/a rows 28 runs 264
+ablation runs/b rows 16 runs 160
+ablation tune/b rows 16 runs 0
+35 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/pert_tuned_only/manifest.tsv; {"baselines_without_configuration": ["gcn/acm", "han/acm", "sehgnn/acm", "hetero2net/acm", "hetsheaf/acm", "gcn/dblp", "han/dblp", "sehgnn/dblp", "hetero2net/dblp", "hetsheaf/dblp", "gcn/imdb", "han/imdb", "sehgnn/imdb", "hetero2net/imdb", "hetsheaf/imdb"], "published_configuration_used": [], "unreached_graphs_without_rows": ["acm/random_h0.80", "acm/targeted_h0.80", "dblp/random_h0.80", "dblp/targeted_h0.80", "imdb/random_h0.20", "imdb/random_h0.60", "imdb/random_h0.80", "imdb/targeted_h0.20", "imdb/t
+63 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests/pert_published/manifest.tsv; {"baselines_without_configuration": ["gcn/acm", "han/acm", "hetsheaf/acm", "gcn/dblp", "han/dblp", "hetsheaf/dblp", "gcn/imdb", "han/imdb", "hetsheaf/imdb"], "published_configuration_used": ["sehgnn/acm", "hetero2net/acm", "sehgnn/dblp", "hetero2net/dblp", "sehgnn/imdb", "hetero2net/imdb"], "unreached_graphs_without_rows": ["acm/random_h0.80", "acm/targeted_h0.80", "dblp/random_h0.80", "dblp/targeted_h0.80", "imdb/random_h0.20", "imdb/random_h0.60", "imdb/random_h0.80", "imdb/targeted_h0.20", "imdb/targ
+== perturbation rows (published flag) per dataset, graph kind, method
+      3 acm random h2snn_full
+      3 acm random h2snn_no_path_cells
+      3 acm random hetero2net
+      3 acm random sehgnn
+      3 acm targeted h2snn_full
+      3 acm targeted h2snn_no_path_cells
+      3 acm targeted h2snn_S2
+      3 acm targeted hetero2net
+      3 acm targeted sehgnn
+      3 dblp random h2snn_full
+      3 dblp random h2snn_no_path_cells
+      3 dblp random hetero2net
+      3 dblp random sehgnn
+      3 dblp targeted h2snn_full
+      3 dblp targeted h2snn_no_path_cells
+      3 dblp targeted h2snn_S2
+      3 dblp targeted hetero2net
+      3 dblp targeted sehgnn
+      1 imdb random h2snn_full
+      1 imdb random h2snn_no_path_cells
+      1 imdb random hetero2net
+      1 imdb random sehgnn
+      1 imdb targeted h2snn_full
+      1 imdb targeted h2snn_no_path_cells
+      1 imdb targeted h2snn_S2
+      1 imdb targeted hetero2net
+      1 imdb targeted sehgnn
+end=2026-11-19T15:21:37+09:00

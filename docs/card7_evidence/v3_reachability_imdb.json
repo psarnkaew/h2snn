@@ -1,0 +1,314 @@
+[
+ {
+  "dataset": "imdb",
+  "kind": "targeted",
+  "level": 0.2,
+  "seed": 2000,
+  "direction": "lower",
+  "alpha": 0.4998779296875,
+  "reached": false,
+  "search_h": 0.23828787756940562,
+  "h": 0.23828787756940573,
+  "h_at_bound": 0.2382898660807068,
+  "h2_index": 0.5309987584749858,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 0,
+    "removed": 2465
+   },
+   "movie->actorh-actor": {
+    "added": 0,
+    "removed": 7388
+   },
+   "movie-to-keyword": {
+    "added": 0,
+    "removed": 11802
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/targeted_h0.20/data",
+  "link_sha256": "1dcfee8839b10706b223ed052de0e1a70b7f7bc8aa112767740fc3f84df16a9f"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "random",
+  "level": 0.2,
+  "seed": 2001,
+  "direction": "lower",
+  "alpha": 0.4998779296875,
+  "reached": false,
+  "search_h": 0.2903421707608218,
+  "h": 0.2903421707608217,
+  "h_at_bound": null,
+  "h2_index": 0.6613591656088829,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 0,
+    "removed": 2465
+   },
+   "movie->actorh-actor": {
+    "added": 0,
+    "removed": 7388
+   },
+   "movie-to-keyword": {
+    "added": 0,
+    "removed": 11802
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/random_h0.20/data",
+  "link_sha256": "62c072c87415cb65a085b5a29fb0521bcdaaab6efc0e8ca118e811e1bd755f6e"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "targeted",
+  "level": 0.4,
+  "seed": 2010,
+  "direction": "raise",
+  "alpha": 0.5,
+  "reached": true,
+  "search_h": 0.40193142392160874,
+  "h": 0.40193142392160874,
+  "h_at_bound": null,
+  "h2_index": 0.9139239393174649,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 2466,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 7390,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 11805,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/targeted_h0.40/data",
+  "link_sha256": "341b866b6a2e4320b494524eaa48906c6dab7dbf743efa934442551dc5ade6c7"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "random",
+  "level": 0.4,
+  "seed": 2011,
+  "direction": "raise",
+  "alpha": 0.5,
+  "reached": true,
+  "search_h": 0.36013330986640624,
+  "h": 0.36013330986640624,
+  "h_at_bound": null,
+  "h2_index": 0.8183171783884367,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 2466,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 7390,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 11805,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/random_h0.40/data",
+  "link_sha256": "7f9556e897c178dc2712828d4abebd9b6f9a1f9ee300c3020c05f8b36ce5ee88"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "targeted",
+  "level": 0.6,
+  "seed": 2020,
+  "direction": "raise",
+  "alpha": 3.0,
+  "reached": false,
+  "search_h": 0.43006585742652914,
+  "h": 0.43006585742652914,
+  "h_at_bound": 0.4295372517009628,
+  "h2_index": 0.994582346919924,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 14796,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 44337,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 70830,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/targeted_h0.60/data",
+  "link_sha256": "b7ba0deb93ee530ed2afdbd326205550c0f01b230d163c6ef57ac27c657d5754"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "random",
+  "level": 0.6,
+  "seed": 2021,
+  "direction": "raise",
+  "alpha": 3.0,
+  "reached": false,
+  "search_h": 0.41928230708721803,
+  "h": 0.4192823070872179,
+  "h_at_bound": null,
+  "h2_index": 0.9570094894617796,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 14796,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 44337,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 70830,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/random_h0.60/data",
+  "link_sha256": "6f119d31748d8601652a52f345189c454f17f368e832c8c8cf7d80d0783dd033"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "targeted",
+  "level": 0.8,
+  "seed": 2030,
+  "direction": "raise",
+  "alpha": 3.0,
+  "reached": false,
+  "search_h": 0.4283944297044646,
+  "h": 0.4283944297044645,
+  "h_at_bound": 0.4280646727860288,
+  "h2_index": 0.9955092299613171,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 14796,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 44337,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 70830,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/targeted_h0.80/data",
+  "link_sha256": "70c310dedb5b8be0f82d35ba32b07fc9f730611481be09cac049fa1c6dc3c580"
+ },
+ {
+  "dataset": "imdb",
+  "kind": "random",
+  "level": 0.8,
+  "seed": 2031,
+  "direction": "raise",
+  "alpha": 3.0,
+  "reached": false,
+  "search_h": 0.4196476496553496,
+  "h": 0.4196476496553495,
+  "h_at_bound": null,
+  "h2_index": 0.9583336334054668,
+  "original_h": 0.3246736522117296,
+  "original_h2_index": 0.7372715150316556,
+  "facts": {
+   "movie-to-director": {
+    "added": 14796,
+    "removed": 0
+   },
+   "movie->actorh-actor": {
+    "added": 44337,
+    "removed": 0
+   },
+   "movie-to-keyword": {
+    "added": 70830,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "movie-to-director": 4932,
+   "movie->actorh-actor": 14779,
+   "movie-to-keyword": 23610
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/IMDB_pert/random_h0.80/data",
+  "link_sha256": "993ad81cdd32004308f32e24e04a4d4cd1c819f680179dea5becda12ec04c44d"
+ }
+]
