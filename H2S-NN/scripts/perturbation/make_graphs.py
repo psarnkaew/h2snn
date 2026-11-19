@@ -1,4 +1,8 @@
-"""Card 7 V3 (ablation plan v2, Q4): semi-synthetic graphs at heterophily h in {0.20, 0.40, 0.60, 0.80}.
+"""Card 7 V3 (ablation plan v2, Q4): semi-synthetic graphs at heterophily h in {0.20, 0.30, 0.40, 0.50, 0.60}.
+
+Levels (card 7 amendment 1, author 2026-11-19): 0.20-0.60 in steps of 0.1 on ACM and DBLP; 0.80 is dropped (an
+intermediate node with n target neighbours caps h at (1 - 1/C) n/(n-1), the ceiling 1 - 1/C is recorded per graph
+as `ceiling`); IMDB graphs may stay on disk but are not run (`manifest.py`).
 
 h = 1 - MLH over the dataset's length-2 meta-paths M_2 (spec §1): the mean over M_2 of the edge heterophily of the
 meta-path graph G_P, exactly as `scripts/heterophily/compute_heterophily.py` computes it. No second implementation:
@@ -28,16 +32,22 @@ Rules (card 7 V3):
 - **Random control** for every targeted graph: the same number of facts added or removed per relation, drawn
   uniformly at random (additions: uniform endpoints of the relation's two types, new, no self-loop; removals: uniform
   facts of the relation).
-- One fixed seed per (dataset, level, kind): `1000 * dataset index + 10 * level index + kind index`.
+- One fixed seed per (dataset, level, kind): `1000 * dataset index + 10 * level index + kind index`. The level index
+  is fixed per level (`LEVEL_SEED_INDEX`): 0.20, 0.40, 0.60, 0.80 keep their Phase A indices 0-3 (so the graphs
+  generated then are unchanged), 0.30 and 0.50 take 4 and 5.
 
 Output: `<data_root>/NC/<DATASET>_pert/<kind>_h<level>/data/NC/<name>/raw/<NAME>/` in HGB's own file format (every
 file of the release unchanged (hard-linked, else copied) except `link.dat`: the original lines minus the removed facts, then the added
 facts). `<...>/<kind>_h<level>/data` is the data root of that graph: H2S-NN reads it with `data.root` set to it, and the
 baseline launchers read it as `./data` from `<...>/<kind>_h<level>/` (their bundles' `data.root` default), so every
 method uses its normal loader with only the data directory changed. Per graph `graph.json` (reached h, H^2, facts
-added / removed per relation, seed, alpha, SHA-256 of `link.dat`); `reachability.json` / `.md` per run.
+added / removed per relation, seed, alpha, SHA-256 of `link.dat`, the edge-list fingerprint `edge_fingerprint`
+(`fingerprint.py`; amendment 3: every run checks its loaded graph against it), C and the ceiling 1 - 1/C);
+`reachability.json` / `.md` per run. `--backfill` adds the fingerprint, C and the ceiling to graphs written before
+(their `link.dat` SHA-256 is checked unchanged).
 
-    python scripts/perturbation/make_graphs.py --datasets acm dblp [--include_imdb] [--data_root data]
+    python scripts/perturbation/make_graphs.py --datasets acm dblp [--levels 0.30 0.50] [--data_root data] --out <json>
+    python scripts/perturbation/make_graphs.py --datasets acm dblp --backfill --out <json>
 """
 
 from __future__ import annotations
@@ -62,9 +72,12 @@ if str(PROJECT_ROOT) not in sys.path:
 sys.path.insert(0, str(PROJECT_ROOT / "scripts" / "heterophily"))
 
 import compute_heterophily as ref  # noqa: E402  (the reference functions; never re-implemented here)
+import fingerprint as fp  # noqa: E402
 from src.data.data_layout import REPO_DATA_ROOT, nc_root  # noqa: E402
 
-LEVELS: tuple[float, ...] = (0.20, 0.40, 0.60, 0.80)
+LEVELS: tuple[float, ...] = (0.20, 0.30, 0.40, 0.50, 0.60)
+#: seed index per level: Phase A's 0.20/0.40/0.60/0.80 keep 0-3 (their graphs stay as generated), new levels follow
+LEVEL_SEED_INDEX: dict[float, int] = {0.20: 0, 0.40: 1, 0.60: 2, 0.80: 3, 0.30: 4, 0.50: 5}
 KINDS: tuple[str, ...] = ("targeted", "random")
 DATASET_INDEX: dict[str, int] = {"acm": 0, "dblp": 1, "imdb": 2}
 TOLERANCE = 0.01
@@ -78,7 +91,7 @@ BISECTION_STEPS = 40
 
 
 def graph_seed(dataset: str, level: float, kind: str) -> int:
-    return 1000 * DATASET_INDEX[dataset] + 10 * LEVELS.index(level) + KINDS.index(kind)
+    return 1000 * DATASET_INDEX[dataset] + 10 * LEVEL_SEED_INDEX[round(float(level), 2)] + KINDS.index(kind)
 
 
 def level_dir(data_root: Path, dataset: str, kind: str, level: float) -> Path:
@@ -498,9 +511,43 @@ def write_graph(graph: Graph, perturbation: Perturbation, out_dir: Path) -> Path
     return root
 
 
+def raw_dir_of(root: Path, dataset: str) -> Path:
+    return nc_root(root) / dataset / "raw" / ref.HGB_DATASETS[dataset]
+
+
 def fingerprint(root: Path, dataset: str) -> str:
-    path = nc_root(root) / dataset / "raw" / ref.HGB_DATASETS[dataset] / "link.dat"
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """SHA-256 of the written `link.dat` (the file every vendor loader reads)."""
+    return hashlib.sha256((raw_dir_of(root, dataset) / "link.dat").read_bytes()).hexdigest()
+
+
+def class_ceiling(root: Path, dataset: str) -> dict[str, Any]:
+    """C (PyG's `num_classes`: the classes listed in `info.dat`'s `label.dat` block) and the ceiling 1 - 1/C."""
+    info = json.loads((raw_dir_of(root, dataset) / "info.dat").read_text(encoding="utf-8"))
+    c = len(info["label.dat"]["node type"]["0"])
+    return {"num_classes": c, "ceiling": 1.0 - 1.0 / c}
+
+
+def edge_fields(root: Path, dataset: str) -> dict[str, Any]:
+    edge = fp.from_raw(raw_dir_of(root, dataset))
+    return {"edge_fingerprint": edge["sha256"], "edge_pairs": edge["pairs"], **class_ceiling(root, dataset)}
+
+
+def backfill(data_root: Path, dataset: str, log=print) -> list[dict[str, Any]]:
+    """Adds `edge_fingerprint`, `edge_pairs`, C and the ceiling to every graph of `dataset` already written; refuses a
+    graph whose `link.dat` changed since `graph.json` was written."""
+    records = []
+    folder = nc_root(data_root) / f"{ref.HGB_DATASETS[dataset]}_pert"
+    for path in sorted(folder.glob("*_h*/graph.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        root = path.parent / "data"
+        if fingerprint(root, dataset) != record["link_sha256"]:
+            raise RuntimeError(f"{path.parent}: link.dat changed since graph.json was written")
+        record.update(edge_fields(root, dataset))
+        path.write_text(json.dumps(record, indent=1), encoding="utf-8")
+        records.append(record)
+        log(f"{dataset} {record['kind']} {record['level']:.2f}: edge fingerprint {record['edge_fingerprint'][:12]} "
+            f"({record['edge_pairs']} pairs), C {record['num_classes']}")
+    return records
 
 
 def generate(data_root: Path, dataset: str, max_add_ratio: float = DEFAULT_MAX_ADD_RATIO,
@@ -524,7 +571,8 @@ def generate(data_root: Path, dataset: str, max_add_ratio: float = DEFAULT_MAX_A
                       "facts": p.counts(), "facts_per_relation_before": {r.name: int(graph.facts[r.name].shape[0])
                                                                          for r in graph.relations},
                       "removal_cap": REMOVAL_CAP, "max_add_ratio": max_add_ratio, "tolerance": TOLERANCE,
-                      "data_root": str(root), "link_sha256": fingerprint(root, dataset)}
+                      "data_root": str(root), "link_sha256": fingerprint(root, dataset),
+                      **edge_fields(root, dataset)}
             if abs(values["h"] - p.search_h) > 1e-5:
                 raise AssertionError(f"{out_dir}: reference h {values['h']} != search h {p.search_h}")
             (out_dir / "graph.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
@@ -536,13 +584,16 @@ def generate(data_root: Path, dataset: str, max_add_ratio: float = DEFAULT_MAX_A
 
 def markdown(records: list[dict[str, Any]]) -> str:
     lines = ["# Perturbation reachability (card 7 V3)", "",
-             "| dataset | level | kind | reached | h | H^2 | direction | facts added / removed per relation | "
-             "seed |", "|---|---|---|---|---|---|---|---|---|"]
+             "| dataset | level | kind | reached | h | H^2 | ceiling 1 - 1/C | direction | "
+             "facts added / removed per relation | seed | edge fingerprint (pairs) |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in records:
         counts = "; ".join(f"{n}: +{c['added']} / -{c['removed']}" for n, c in r["facts"].items())
         status = "yes" if r["reached"] else f"**unreached** (closest {r['h']:.4f})"
+        ceiling = f"{r['ceiling']:.4f}" if r.get("ceiling") is not None else "-"
+        edge = f"`{r['edge_fingerprint'][:12]}` ({r['edge_pairs']})" if r.get("edge_fingerprint") else "-"
         lines.append(f"| {r['dataset']} | {r['level']:.2f} | {r['kind']} | {status} | {r['h']:.4f} | "
-                     f"{r['h2_index']:.4f} | {r['direction']} | {counts} | {r['seed']} |")
+                     f"{r['h2_index']:.4f} | {ceiling} | {r['direction']} | {counts} | {r['seed']} | {edge} |")
     return "\n".join(lines) + "\n"
 
 
@@ -552,12 +603,18 @@ def main() -> None:
     parser.add_argument("--include_imdb", action="store_true")
     parser.add_argument("--data_root", type=Path, default=REPO_DATA_ROOT)
     parser.add_argument("--max_add_ratio", type=float, default=DEFAULT_MAX_ADD_RATIO)
+    parser.add_argument("--levels", type=float, nargs="+", default=list(LEVELS), choices=list(LEVELS))
+    parser.add_argument("--backfill", action="store_true",
+                        help="add the edge fingerprint, C and the ceiling to graphs already written; generate nothing")
     parser.add_argument("--out", type=Path, required=True, help="reachability JSON (a .md is written beside it)")
     args = parser.parse_args()
     datasets = list(args.datasets) + (["imdb"] if args.include_imdb else [])
     records = []
     for dataset in datasets:
-        records += generate(args.data_root, dataset, args.max_add_ratio)
+        if args.backfill:
+            records += backfill(args.data_root, dataset)
+        else:
+            records += generate(args.data_root, dataset, args.max_add_ratio, tuple(args.levels))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(records, indent=1), encoding="utf-8")
     args.out.with_suffix(".md").write_text(markdown(records), encoding="utf-8")
