@@ -1,0 +1,42 @@
+job=17827 node=g3n01 start=2026-11-19T15:36:20+09:00 root=/mnt/data/peeradon/h2snn-heterophily set=12
+git=d0b9f62872a026c8928f3dc58b8d0affba882ec0 branch=heterophily
+=== 1. harness tests
+test_chunked_label_homophily_equals_one_call (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_label_homophily_equals_one_call) ... ok
+test_chunked_mde_equals_the_reference_function (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function) ... ok
+test_measures_take_the_chunked_path_above_the_threshold (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_measures_take_the_chunked_path_above_the_threshold) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+ok
+test_gc_type_mixing_hand_value (tests.test_heterophily_harness.GraphTests.test_gc_type_mixing_hand_value) ... ok
+test_symmetrise_adds_only_missing_reverses (tests.test_heterophily_harness.GraphTests.test_symmetrise_adds_only_missing_reverses) ... ok
+test_a_graph_without_a_hub_is_refused (tests.test_heterophily_harness.H2bClosedFormTests.test_a_graph_without_a_hub_is_refused) ... ok
+test_a_meta_path_with_an_empty_gp_is_skipped_as_calchomophily_does (tests.test_heterophily_harness.H2bClosedFormTests.test_a_meta_path_with_an_empty_gp_is_skipped_as_calchomophily_does) ... ok
+test_closed_form_equals_the_reference_functions (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_functions) ... ok
+test_closed_form_equals_the_reference_on_multilabel_exact_match (tests.test_heterophily_harness.H2bClosedFormTests.test_closed_form_equals_the_reference_on_multilabel_exact_match) ... ok
+test_a_graph_that_is_not_cliques_is_refused (tests.test_heterophily_harness.H2cCliqueTests.test_a_graph_that_is_not_cliques_is_refused) ... ok
+test_clique_closed_form_equals_the_chunked_and_reference_mde (tests.test_heterophily_harness.H2cCliqueTests.test_clique_closed_form_equals_the_chunked_and_reference_mde) ... ok
+test_parts_and_collect_equal_the_whole_graph_call (tests.test_heterophily_harness.H2cPerMetapathTests.test_parts_and_collect_equal_the_whole_graph_call) ... ok
+test_fill_replica_equals_calc_homophily_in_place_fill (tests.test_heterophily_harness.HandGraphTests.test_fill_replica_equals_calc_homophily_in_place_fill) ... ok
+test_gp_is_the_support_of_the_product_with_self_pairs (tests.test_heterophily_harness.HandGraphTests.test_gp_is_the_support_of_the_product_with_self_pairs) ... ok
+test_labeled_only_graph_keeps_intermediate_targets (tests.test_heterophily_harness.HandGraphTests.test_labeled_only_graph_keeps_intermediate_targets) ... ok
+test_mlh_h2_mde_equal_the_hand_values (tests.test_heterophily_harness.HandGraphTests.test_mlh_h2_mde_equal_the_hand_values) ... ok
+test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value (tests.test_heterophily_harness.HandGraphTests.test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value) ... ok
+test_acm_uses_the_predefined_list_even_when_the_schema_offers_more (tests.test_heterophily_harness.MetapathSetTests.test_acm_uses_the_predefined_list_even_when_the_schema_offers_more) ... ok
+test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once (tests.test_heterophily_harness.MetapathSetTests.test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once) ... ok
+test_h2gb_rule_includes_a_same_type_relation (tests.test_heterophily_harness.MetapathSetTests.test_h2gb_rule_includes_a_same_type_relation) ... ok
+test_lists_resolve_on_the_loader_schemas (tests.test_heterophily_harness.MetapathSetTests.test_lists_resolve_on_the_loader_schemas) ... ok
+test_imdb_per_genre_binary_then_mean_and_exact_match_separate (tests.test_heterophily_harness.MultilabelTests.test_imdb_per_genre_binary_then_mean_and_exact_match_separate) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 1.675s
+
+OK
+=== 2. H2c mutations (copy in /tmp)
+MUTATION M4: clique closed form without the self-pair term (degree n-1, n(n-1) pairs): KILLED (gate failed)
+FAIL: test_clique_closed_form_equals_the_chunked_and_reference_mde (tests.test_heterophily_harness.H2cCliqueTests.test_clique_closed_form_equals_the_chunked_and_reference_mde) (n=9)
+AssertionError: 8 != 14
+FAIL: test_clique_closed_form_equals_the_chunked_and_reference_mde (tests.test_heterophily_harness.H2cCliqueTests.test_clique_closed_form_equals_the_chunked_and_reference_mde) (n=80)
+MUTATION M5: collect divides by every meta-path, empty G_P included: KILLED (gate failed)
+FAIL: test_parts_and_collect_equal_the_whole_graph_call (tests.test_heterophily_harness.H2cPerMetapathTests.test_parts_and_collect_equal_the_whole_graph_call) (n=40)
+AssertionError: 0.006180147733539254 not less than or equal to 1.1309007386676968e-05 : 1.0247205909341575 vs 1.0309007386676967
+FAIL: test_parts_and_collect_equal_the_whole_graph_call (tests.test_heterophily_harness.H2cPerMetapathTests.test_parts_and_collect_equal_the_whole_graph_call) (n=90)
+end=2026-11-19T15:36:33+09:00 tests=0
