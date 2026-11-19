@@ -258,3 +258,10 @@ Review of Phase A (`card7` `f1f66ed`, evidence `84d7efe`). Phase A is accepted, 
 5. **Timing list:** H2S-NN + the 13 main-table baselines × ogbn-mag and IMDB = 28 runs (confirmed).
 6. **Budget:** perturbation ≈ 7 × 2 × 5 × 2 × 5 = 700 runs + S2 on the targeted graphs 2 × 5 × 5 = 50.
 7. **CSNN added (author, 2026-11-19)** to the perturbation methods (homogeneous heterophily sheaf model). Use its published ACM/DBLP configuration if the vendor or paper has one (state where); otherwise mark its rows "needs tuned config", as for HetSheaf. Budget: 8 × 2 × 5 × 2 × 5 = 800 + S2 50.
+8. **Original-graph reference point (author, 2026-11-19; after the Phase A+ review of `e5dfd0b`).** Phase A+ is accepted.
+   - **H2S-NN rows (`full`, `no_path_cells`, S2):** the figure reuses the ablation configuration (a) runs at seeds 1–5 on the original graphs. They have the same configuration, graph and seeds, so no new runs are needed.
+   - **The six baselines (GCN, HAN, SeHGNN, Hetero²Net, HetSheaf, CSNN):** add manifest rows on the original ACM and DBLP graphs, at seeds 1–5, through the same checked launcher and with the same configuration source as their perturbation rows. That is 6 × 2 × 5 = 60 runs.
+   - **Do not use main-table results.** Their configurations and seeds differ, and the baseline cells may be published placeholders.
+   - HetSheaf and CSNN reference rows are marked "needs tuned config", like their perturbation rows.
+   - These are manifest entries only. Nothing runs before `full` is tuned.
+   - **Run budget:** about 910 small runs in total.
