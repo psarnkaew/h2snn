@@ -1,4 +1,4 @@
-# Spec 1.27 — draft edits (AB-1 – AB-9), DRAFT, awaiting author approval
+# Spec 1.27 — draft edits (AB-1 – AB-9), APPROVED and APPLIED 2026-11-19
 
 Written 2026-11-19 by the model session. Base: spec v1.26. **Source:** the author-approved ablation plan v2 (`docs/ablation_plan_v2_2026-11-19.html`; decisions log rows of 2026-11-19) and its pre-registration `docs/ablation_analysis_preregistration_v2.md` (draft, approved with this file). **The method is unchanged.** 1.27 changes the claims (§5), the ablation and analysis protocol (§6), and adds one corollary to §4.
 
@@ -57,3 +57,5 @@ Replace `Analysis N4b: per dataset, Spearman` with `(1.27: part of Q3 of the pre
 - back up v1.26 to `docs/spec_backups/`;
 - mark `docs/ablation_analysis_preregistration_draft.md` as superseded (one header line);
 - mark the pre-registration v2 as approved.
+
+**Applied 2026-11-19** (author: approve both; keep the cost-vs-accuracy figure). AB-4 C5 and AB-8 keep the cost-vs-accuracy figure on ogbn-mag. Backup: `docs/spec_backups/H2S-NN_methodology_spec_v1.26.md`.

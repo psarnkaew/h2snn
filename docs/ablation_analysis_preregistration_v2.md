@@ -1,4 +1,4 @@
-# H2S-NN — Ablation and analysis pre-registration v2 (DRAFT, awaiting author approval)
+# H2S-NN — Ablation and analysis pre-registration v2 (APPROVED 2026-11-19; binding with spec 1.27)
 
 **Status:**
 - Written 2026-11-19 by the model session from the author-approved plan `docs/ablation_plan_v2_2026-11-19.html` (decisions log rows of 2026-11-19).
@@ -163,6 +163,7 @@ Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–10
 ### 4.5 Scalability (Q5)
 - **Complexity:** big-O of the WISP draw, the map build, one PCG iteration and memory, in |E|, the face incidences, d and m = 4. Compared with meta-path enumeration (HAN, SeHGNN) and d² per edge (NSD). Written in the paper; no run.
 - **Timing:** on ogbn-mag (8,192 training targets per epoch) and IMDB, for every main-table method at its tuned configuration (the card 2 central point if not tuned, flagged).
+- **Cost-vs-accuracy figure (author, 2026-11-19: kept):** on ogbn-mag, test Macro-F1 (main table) vs time per epoch and vs peak memory (timing runs), one point per main-table method at its tuned configuration. No extra training: it combines the main-table results with the timing runs.
   - Measures: time per epoch (median of epochs 2–4 after one warm-up), peak GPU memory, parameter count.
   - Separate timing runs on one H100.
 
