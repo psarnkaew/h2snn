@@ -136,7 +136,7 @@ Given a directed heterogeneous graph with no list of meta-path schemas, where \(
 \label{sec:maps}
 The first step builds a sheaf on the edges of the original graph, whose restriction maps decide how two neighbours are compared. Each node is encoded into a shared $d$-dimensional stalk space, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})\in\R^d$, with type-specific $W_t\in\R^{d\times d_t}$ and $b_t\in\R^d$ and a learned type embedding $q_t\in\R^d$, and each relation $r$ has a learned embedding $\zeta_r\in\R^{d_r}$. These encodings and relation embeddings then determine the maps.
 
-For an oriented edge $e=(u\xrightarrow{r}v)$, the maps should let neighbours of different classes agree in the edge stalk without being equal, and they should depend on both the relation and the endpoints. We therefore build each map as a rotation that combines a frame shared by the edges of relation $r$ with a rotation specific to the edge:
+For an oriented edge $e=(u\xrightarrow{r}v)$, the maps should let neighbours of different classes agree in the edge stalk without being equal, and they should depend on both the relation and the endpoints. We use rotations in $\mathrm{SO}(d)$, which align a neighbour with a node without shrinking or amplifying it and compose along paths, as the faces of Section~\ref{sec:faces} require. Each map combines a rotation shared by all edges of the relation with a rotation specific to the edge:
 \begin{equation}
 \begin{aligned}
   F_{u\inc e}&=I,\qquad F_{v\inc e}=R_r\exp\bigl(U_rC_eU_r^{\transpose}\bigr),\\
@@ -144,13 +144,13 @@ For an oriented edge $e=(u\xrightarrow{r}v)$, the maps should let neighbours of 
 \end{aligned}
   \label{eq:maps}
 \end{equation}
-Each part of this map has its own role. Every map is a $d\times d$ rotation in $\mathrm{SO}(d)$ that sends the $d$-dimensional node stalk to the $d$-dimensional edge stalk. The frame $R_r\in\mathrm{SO}(d)$ is learned once per relation and captures how that relation relates its endpoints in general, for instance how a paper relates to its author. The term $\exp(U_rC_eU_r^{\transpose})$ then adjusts this frame to the particular edge: $C_e$, a skew-symmetric $4\times4$ matrix with six free entries that the MLP predicts from $[h_u,h_v,\zeta_r]\in\R^{2d+d_r}$, rotates within the subspace spanned by $U_r\in\R^{d\times4}$, a learned matrix with four orthonormal columns for each relation that selects the few directions of the stalk in which edges of $r$ may differ from one another, so that edges of one relation, such as P1--A7 and A7--P9, can be compared differently depending on who A7 is. Only the target endpoint is rotated, since a common rotation of both maps would only change the coordinates of the edge stalk; hence $F_{u\inc e}=I$ loses no generality. We use rotations because they change the direction of a representation without changing its length, so a neighbour of another class can be aligned with a node without being shrunk or amplified, and because rotations compose along a path, which the faces of Section~\ref{sec:faces} rely on. Finally, the same MLP gives each edge a positive scalar weight $a_e$, which sets how strongly the edge counts in the energy.
+The frame $R_r\in\mathrm{SO}(d)$, learned once per relation from all its edges, captures how $r$ relates its endpoints in general, e.g., a paper to its author. The term $\exp(U_rC_eU_r^{\transpose})$ adjusts it to the edge within a learned four-dimensional subspace $U_r\in\R^{d\times4}$ (orthonormal columns), where $C_e$ is a skew-symmetric $4\times4$ matrix predicted from $[h_u,h_v,\zeta_r]\in\R^{2d+d_r}$; hence P1--A7 and A7--P9 are compared differently depending on who A7 is. Only the target side needs a map: rotations preserve length, so $\norm{F_{v\inc e}x_v-F_{u\inc e}x_u}=\norm{F_{u\inc e}^{\transpose}F_{v\inc e}x_v-x_u}$, and any pair of maps gives the same energy as the identity on the source and one rotation on the target. Finally, the same MLP gives each edge a positive weight $a_e$; maps and weights are computed once from the encodings $h$ before diffusion.
 
 \subsection{Meta-Path Faces}
 \label{sec:faces}
-The second step adds meta-path instances to the sheaf as faces, so that an instance acts on all of its nodes, including the intermediate ones, rather than only linking its endpoints. Instances are obtained by random walks on the original graph, so no meta-path list is needed. From each anchor node, which is a node of the target type or of either endpoint type of the target relation, we draw $n$ walks; each walk picks its length uniformly from $\{2,\ldots,\ell_{\max}\}$ and, at every step, a relation and then an unvisited neighbour, both uniformly. A walk and its reverse give the same instance $f$, whose sampling weight $m_f>0$ is the number of walks that produced it divided by $n$. Hence, the weighted sum over faces is an unbiased estimate of its expectation over walks (Appendix~\ref{app:proofs}), and the cost grows with the number and length of the walks rather than with the number of schemas.
+An edge compares only two neighbours, whereas the meaning of a meta-path such as P--A--P lies in the whole instance: two papers are related through a particular author. The second step therefore adds meta-path instances to the sheaf as faces, where all nodes and edges of an instance, the intermediate ones included, meet in one stalk. Instances are sampled by random walks on the original graph, so no meta-path list is needed: from each anchor node, a node of the target type or of an endpoint type of the target relation, we draw $n$ walks of length uniform in $\{2,\ldots,\ell_{\max}\}$, each step choosing a relation and then an unvisited neighbour uniformly. A walk and its reverse give the same instance $f$, whose sampling weight $m_f>0$ is the fraction of walks that produced it; the weighted sum over faces is thus an unbiased estimate over walks (Appendix~\ref{app:proofs}), and the cost grows with the walks rather than with the number of schemas.
 
-Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, a new element placed above its nodes and edges in the incidence poset; it is not closed, so no edge joins $v_0$ and $v_\ell$. A face has its own stalk $z_f\in\R^d$, which serves as a common meeting point for all nodes and edges of the instance. Its restriction maps, however, are not learned; they are composed from the edge maps along the path, starting from $F_{v_0\inc f}=I$:
+Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, an element placed above its nodes and edges in the incidence poset, with a stalk $z_f\in\R^d$; it is not closed, so no edge joins $v_0$ and $v_\ell$. Its maps are not learned but composed from the edge maps along the path, starting from $F_{v_0\inc f}=I$:
 \begin{equation}
 \begin{aligned}
   F_{e_i\inc f}&=F_{v_{i-1}\inc f}\,F_{v_{i-1}\inc e_i}^{\transpose},\\
@@ -158,9 +158,11 @@ Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, a new element p
 \end{aligned}
 \label{eq:forced}
 \end{equation}
-Thus, each map into the face is the product of the edge maps along the path, so the face sees every element of the instance in one common frame. Since all edge maps are $d\times d$ rotations, every composed map is again a rotation, and the face adds no parameters of its own.
+Each map thus carries an element along the path into the frame of $v_0$, so the face sees the whole instance in one frame, including how A7 relates P1 to P9. Composed rotations are rotations, so faces add no map parameters, and the maps on nodes, edges and faces form one sheaf (Proposition~\ref{prop:forced}). Finally, each face carries a positive weight $\beta_f=w_fm_f$: $m_f$ says how often the instance was sampled and $w_f=\exp\bigl(10\tanh(g(\xi_f)/10)\bigr)$ how much it is trusted. The scorer $g$, an MLP per path length, reads $\xi_f\in\R^{(\ell+1)d+\ell d_r}$, the encodings and relation embeddings along the instance, so two P--A--P instances through different authors can receive different weights; the $\tanh$ only keeps the weights in a fixed range during training.
 
-The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and one energy asks every connected pair to agree after their maps:
+\subsection{Anchored Diffusion and Prediction}
+\label{sec:prop}
+The last step turns the sheaf into node representations. Rather than stacking message-passing layers, we let nodes, edges and faces settle into the state that best satisfies all their comparisons. The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and one energy asks every comparable pair to agree after their maps:
 \begin{equation}
 \begin{aligned}
   E(Y)=&\tfrac12\sum_{e}a_e\!\!\sum_{v\in e}\!\norm{F_{v\inc e}x_v-s_e}^2\\
@@ -168,22 +170,20 @@ The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum compares each node with its edges, as the sheaf energy of Equation~\eqref{eq:coboundary}, and the second compares each face with its edges and with all of its nodes. Each face carries a positive scalar weight $\beta_f=w_fm_f$, which combines how often the instance was sampled with how much it should be trusted. The trust score $w_f=\exp\bigl(10\tanh(g(\xi_f)/10)\bigr)$ comes from a scorer $g$, an MLP for each path length that reads $\xi_f\in\R^{(\ell+1)d+\ell d_r}$, the encodings of all nodes of the instance together with its relation embeddings. Therefore, two instances of the same schema, such as two P--A--P instances through different authors, can receive different weights, while the $\tanh$ only keeps the weights within a fixed range during training.
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the second ties each face to its edges and to all of its nodes, so an instance pulls its nodes, intermediate ones included, toward one shared state.
 
 \begin{proposition}[Forced maps]\label{prop:forced}
-With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$: faces add no constraint where the edges agree.
+With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
 \end{proposition}
 \begin{proof}[Proof sketch]
 Substituting Equation~\eqref{eq:forced} and $F^{\transpose}F=I$ shows that every chain $v<e<f$ commutes. If $\delta x=0$, setting $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$ makes every face term vanish by induction along the path. Conversely, every term of $E$ is a square with a positive weight, so $E=0$ forces $\delta x=0$ and fixes $s$ and $z$ (Appendix~\ref{app:proofs}).
 \end{proof}
-Intuitively, faces never work against the edges: wherever the edge maps already agree, every face is satisfied at no cost, so faces act only where the graph itself is inconsistent.
-
-To see how faces interact, consider the instances $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:example}(c), which share the edge $e=$ P1--A7. Face $f$ pulls P1, A7 and P9 toward $z_f$, $f'$ does the same for P1, A7 and P4, and both faces are compared with the same edge state $s_e$. With $L=\nabla^2E$ and $D_e=2a_e+\sum_{h\ni e}\beta_h$, this coupling can be stated exactly:
+Intuitively, faces never work against the edges: wherever the edge maps agree, every face is satisfied at no cost, so faces act only where the graph itself is inconsistent. Where they act, they interact through shared elements. The instances $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 of Figure~\ref{fig:example}(c) share the edge $e=$ P1--A7: each pulls its own nodes toward its stalk, and both are compared with the same edge state $s_e$. With $L=\nabla^2E$ and $D_e=2a_e+\sum_{h\ni e}\beta_h$:
 
 \begin{proposition}[Coupling]\label{prop:reach}
 (i) For every node $v$ of face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For two faces $f,f'$ that contain the edge $e$, eliminating $s_e$ adds to the $(z_f,z_{f'})$ block the coupling $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face $f$ is coupled to an endpoint of an edge $e$ that lies on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
 \end{proposition}
-The proof is a block computation followed by a Schur complement over $s_e$ (Appendix~\ref{app:proofs}). Intuitively, part (i) means that a face speaks directly to each of its nodes, including A7, and part (ii) means that instances sharing an edge exchange information through that edge. Part (iii) explains why faces are also tied to nodes directly: without that term, a face could never pull a node harder than its own edges, however trusted it is. Part (i) alone would not distinguish a face from a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}; the forced maps and part (ii) do.
+The proof is a block computation followed by a Schur complement over $s_e$ (Appendix~\ref{app:proofs}). Part (i) means that a face speaks directly to each of its nodes, A7 included; part (ii), that instances sharing an edge exchange information through it; and part (iii), that without the node--face term a face could never pull a node harder than its own edges, however trusted it is. Part (i) alone would not distinguish a face from a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}; the forced maps and part (ii) do.
 
 \begin{table*}[t]
   \centering
@@ -247,14 +247,12 @@ The proof is a block computation followed by a Schur complement over $s_e$ (Appe
   \end{tabular}
 \end{table*}
 
-\subsection{Anchored Diffusion and Prediction}
-\label{sec:prop}
-The last step turns the sheaf into node representations by letting nodes, edges and faces settle into the state that best satisfies the energy, rather than by stacking message-passing layers. Let $D$ be the block diagonal of $L$ and $\hat L=D^{-1/2}LD^{-1/2}$, which puts all stalks on one scale so that influence does not grow with degree. Since only nodes have an input, the encoding $h$, the propagated states are
+Only nodes have an input, the encoding $h$, so the representation is the state of lowest energy anchored at $h$. With $D$ the block diagonal of $L$ and $\hat L=D^{-1/2}LD^{-1/2}$, which keeps influence from growing with degree,
 \begin{equation}
   Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
   \label{eq:solve}
 \end{equation}
-Here, the first term anchors each node to its encoding, the second asks all comparable pairs to agree, and one learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly gives an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone.
+The anchor keeps each node close to its own encoding, the energy asks comparable pairs to agree, and one learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly gives an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone.
 \begin{proposition}[Unique solution]\label{prop:unique}
 For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
 \end{proposition}
@@ -263,7 +261,7 @@ There are no node--node terms, so the node block of $\hat L$ is $I$, and the blo
 \end{proof}
 Thus, the representation is well defined for every parameter value and takes the form of personalised PageRank propagation \cite{gasteiger2019appnp}, except that $\hat S$ now carries the edge maps and the faces. We compute $x^\star$ with conjugate gradients and differentiate through it implicitly, so memory does not grow with the number of iterations.
 
-A prediction head reads the propagated states, $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, from the encoder and the edge maps to the scorer $g$, $\tau$ and the head, are trained end to end by one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head reads $x^\star$ alone, because the anchor already keeps each node's own encoding in $x^\star$. Moreover, a single propagated state can still separate classes under heterophily, because the maps are rotations:
+A prediction head reads the propagated states, $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link, and all parameters, from the encoder and the edge maps to $g$, $\tau$ and the head, are trained end to end by one task loss whose gradient passes through the solve. The head reads $x^\star$ alone, because the anchor already keeps each node's own encoding in $x^\star$. Moreover, a single propagated state can still separate classes under heterophily, because the maps are rotations:
 \begin{proposition}[Class-separating states]\label{prop:separate}
 For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
 \end{proposition}
