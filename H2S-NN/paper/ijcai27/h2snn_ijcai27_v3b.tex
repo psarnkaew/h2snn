@@ -206,24 +206,24 @@ Part (i) lets a face reach each of its nodes, A7 included, directly; part (ii) l
     \midrule
     \textbf{Group} & \textbf{Model} & & & & & & & & & & & & \\
     \midrule
-    \multirow{3}{*}{Hom./hom.} & GCN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
-    & GAT & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    \multirow{3}{*}{Hom./hom.} & GCN & 92.17$\pm$0.24 & 90.84$\pm$0.32 & 57.88$\pm$1.18 & 27.84$\pm$3.13 & \res & \res & \res & \res & \res & 28.79$\pm$1.07 & \res & \res \\
+    & GAT & 92.26$\pm$0.94 & 93.83$\pm$0.27 & 58.94$\pm$1.35 & 40.74$\pm$2.58 & \res & \res & \res & \res & \res & 28.51$\pm$0.45 & \res & \res \\
     & ChebNetII & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     \midrule
-    \multirow{2}{*}{Hom./het.} & NSD & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    \multirow{2}{*}{Hom./het.} & NSD & 92.07$\pm$2.09 & 92.91$\pm$1.21 & 61.94$\pm$0.34 & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     & CSNN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     \midrule
-    \multirow{6}{*}{Het./hom.} & R-GCN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
-    & HAN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
-    & MAGNN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
-    & SeHGNN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    \multirow{6}{*}{Het./hom.} & R-GCN & 91.55$\pm$0.74 & 91.52$\pm$0.50 & 58.85$\pm$0.26 & 46.78$\pm$0.77 & \res & \res & \res & \res & \res & 31.44$\pm$0.96 & \res & \res \\
+    & HAN & 90.89$\pm$0.43 & 91.67$\pm$0.49 & 57.74$\pm$0.96 & 21.31$\pm$1.68 & \res & \res & \res & \res & \res & 23.15$\pm$0.43 & \res & \res \\
+    & MAGNN & 90.88$\pm$0.64 & 93.28$\pm$0.51 & 56.49$\pm$3.20 & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    & SeHGNN & 92.95$\pm$0.38 & 93.81$\pm$0.29 & 66.87$\pm$0.11 & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     & HiNormer & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     & PSHGCN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     \midrule
-    \multirow{4}{*}{Het./het.} & H2G-former & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    \multirow{4}{*}{Het./het.} & H2G-former & \res & \res & \res & \res & \res & \res & \res & \res & \res & 31.55$\pm$0.92 & \res & \res \\
     & Hetero$^2$Net & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     & H2SGNN & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
-    & HetSheaf & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
+    & HetSheaf & 94.30$\pm$0.24 & 94.93$\pm$0.36 & 64.51$\pm$0.68 & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     \midrule
     Ours & \method{} & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res & \res \\
     \bottomrule
@@ -280,10 +280,10 @@ We evaluate node classification and link prediction; graph classification, whose
     \toprule
     \textbf{Model} & ACM & DBLP & IMDB & Freebase & PubMed & LastFM & ogbn-mag & H-Pokec \\
     \midrule
-    GCN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    GCN & \res & \res & \res & \res & 80.48$\pm$0.81 & 59.17$\pm$0.31 & \res & \res \\
     NSD & \res & \res & \res & \res & \res & \res & \res & \res \\
-    R-GCN & \res & \res & \res & \res & \res & \res & \res & \res \\
-    MAGNN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    R-GCN & \res & \res & \res & \res & 78.29$\pm$0.18 & 57.21$\pm$0.09 & \res & \res \\
+    MAGNN & \res & \res & \res & \res & \res & 56.81$\pm$0.05 & \res & \res \\
     HetSheaf & \res & \res & \res & \res & \res & \res & \res & \res \\
     H2G-former & \res & \res & \res & \res & \res & \res & \res & \res \\
     \midrule
