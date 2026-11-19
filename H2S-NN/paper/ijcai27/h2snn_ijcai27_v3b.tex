@@ -165,12 +165,13 @@ Each map thus carries an element along the path into the frame of $v_0$, so the 
 The last step turns the sheaf into node representations. Rather than stacking message-passing layers, we let nodes, edges and faces settle into the state that best satisfies all their comparisons. The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and one energy asks every comparable pair to agree after their maps:
 \begin{equation}
 \begin{aligned}
-  E(Y)=&\tfrac12\sum_{e}a_e\!\!\sum_{v\in e}\!\norm{F_{v\inc e}x_v-s_e}^2\\
-  +&\tfrac12\sum_{f}\beta_f\Bigl[\sum_{e\in f}\norm{F_{e\inc f}s_e-z_f}^2+\!\sum_{v\in f}\norm{F_{v\inc f}x_v-z_f}^2\Bigr].
+  E(Y)={}&\tfrac12\sum_{e}a_e\sum_{v\in e}\norm{F_{v\inc e}x_v-s_e}^2\\
+  &+\tfrac12\sum_{f}\beta_f\sum_{e\in f}\norm{F_{e\inc f}s_e-z_f}^2\\
+  &+\tfrac12\sum_{f}\beta_f\sum_{v\in f}\norm{F_{v\inc f}x_v-z_f}^2.
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum is the edge sheaf of Section~\ref{sec:maps}; the second ties each face to its edges and to all of its nodes, so an instance pulls its nodes, intermediate ones included, toward one shared state.
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so an instance pulls its nodes, intermediate ones included, toward one shared state.
 
 \begin{proposition}[Forced maps]\label{prop:forced}
 With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
