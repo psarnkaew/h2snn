@@ -80,6 +80,6 @@ The addition bound (`--max_add_ratio 4`) is not what stops 0.80: h peaks and the
 - Confirm the timing list = H2S-NN + the 13 registry NC baselines on both datasets (28 timing runs).
 - V8 (TSUBAME phases) is Phase B; the ops session owns the TSUBAME card.
 
-The `sha` below is the evidence commit (`84d7efe`: code, tests and evidence of Phase A); this report commit sits on top of it and changes only this file.
+The `sha` below is the evidence commit (`84d7efe`: code, tests and evidence of Phase A); the report commits on top of it change only this file.
 
-branch=card7 sha=84d7efe11e8209fc3289a0b1e6dfa82a9b17aa7c card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
+branch=card7 sha=84d7efe469fe0094c1c11c5221e34225d94e3830 card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
