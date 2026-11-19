@@ -257,3 +257,4 @@ Review of Phase A (`card7` `f1f66ed`, evidence `84d7efe`). Phase A is accepted, 
    - If an HGB command has no counterpart key in our adapter, report it; do not add a key in `src/`.
 5. **Timing list:** H2S-NN + the 13 main-table baselines × ogbn-mag and IMDB = 28 runs (confirmed).
 6. **Budget:** perturbation ≈ 7 × 2 × 5 × 2 × 5 = 700 runs + S2 on the targeted graphs 2 × 5 × 5 = 50.
+7. **CSNN added (author, 2026-11-19)** to the perturbation methods (homogeneous heterophily sheaf model). Use its published ACM/DBLP configuration if the vendor or paper has one (state where); otherwise mark its rows "needs tuned config", as for HetSheaf. Budget: 8 × 2 × 5 × 2 × 5 = 800 + S2 50.

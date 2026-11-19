@@ -121,14 +121,14 @@ Computed from the main-table runs (seeds 0–4) and `full` (a) (seeds 1–10). N
 
 **Methods:**
 - H2S-NN `full` and `no_path_cells`;
-- GCN, HAN, SeHGNN, Hetero²Net and HetSheaf, each with its configuration tuned on the original graph, or its published configuration if not tuned (listed); never retuned. GCN and HAN use HGB's published run commands (`vendor/HGB/NC/benchmark/methods/GNN/README.md`, HAN `main.py` defaults); SeHGNN and Hetero²Net use their published configurations; HetSheaf has only sweep files, so it waits for its ACM/DBLP tuning;
+- GCN, HAN, SeHGNN, Hetero²Net, HetSheaf and CSNN (added 2026-11-19 as the homogeneous heterophily model, so the categories are homophily-assuming, meta-path, heterogeneous heterophilic, heterogeneous sheaf and homogeneous sheaf), each with its configuration tuned on the original graph, or its published configuration if not tuned (listed); never retuned. GCN and HAN use HGB's published run commands (`vendor/HGB/NC/benchmark/methods/GNN/README.md`, HAN `main.py` defaults); SeHGNN and Hetero²Net use their published configurations; HetSheaf has only sweep files, so it waits for its ACM/DBLP tuning; CSNN uses a published ACM/DBLP configuration if one exists, else it waits for its ACM/DBLP tuning;
 - seeds 1–5;
 - in addition, H2S-NN S2 on the targeted graphs only, for R3's perturbation axis.
 
 **Labels:** all labels are used to build the graphs. The graphs are semi-synthetic, and curves are compared across methods only, never with the main table.
 
 **Expected (fixed now):**
-- H2S-NN loses less Macro-F1 than GCN, HAN and SeHGNN as h rises;
+- H2S-NN loses less Macro-F1 than GCN, HAN and SeHGNN as h rises; the comparisons with CSNN and HetSheaf are reported (no expectation fixed);
 - `full − no_path_cells` grows with h.
 
 If either expectation fails, it is reported as it is, and the paper makes no robustness claim.
@@ -179,7 +179,7 @@ Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–10
 |---|---|
 | Ablation (a): 6 rows × 4 datasets × 10 seeds + `full` seeds 5–10 × 4 | ≈ 264 small |
 | Ablation (b): 4 arms × 4 datasets × 100 trials, then × 10 seeds | 1,600 trials + 160 small |
-| Perturbation: 7 methods × 2 datasets × 5 levels × 2 kinds × 5 seeds + S2 on the targeted graphs (50) | ≈ 750 small |
+| Perturbation: 8 methods × 2 datasets × 5 levels × 2 kinds × 5 seeds + S2 on the targeted graphs (50) | ≈ 850 small |
 | §4.1, §4.3, §4.4 | read from checkpoints (F3 is evaluation only) |
 | Timing | a few hours on one H100 |
 
