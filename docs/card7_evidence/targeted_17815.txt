@@ -1,0 +1,45 @@
+label=v4 job=17815 node=g3n01 start=2026-11-19T15:01:50+09:00
+git=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+test_schema_maps_to_the_target_meta_path (tests.test_card7_q3.SchemaMappingTests.test_schema_maps_to_the_target_meta_path) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_literature_count (tests.test_card7_q3.SelectionAndLiteratureTests.test_literature_count) ... ok
+test_top_schemas_by_mean_coverage_threshold_and_cap (tests.test_card7_q3.SelectionAndLiteratureTests.test_top_schemas_by_mean_coverage_threshold_and_cap) ... ok
+test_fewer_than_four_schemas_is_na (tests.test_card7_q3.StabilityTests.test_fewer_than_four_schemas_is_na) ... ok
+test_holm_over_datasets_and_the_stable_rule (tests.test_card7_q3.StabilityTests.test_holm_over_datasets_and_the_stable_rule) ... ERROR
+test_perfectly_stable_rankings_give_tau_one_and_the_smallest_p (tests.test_card7_q3.StabilityTests.test_perfectly_stable_rankings_give_tau_one_and_the_smallest_p) ... ok
+test_shuffled_rankings_give_a_large_p (tests.test_card7_q3.StabilityTests.test_shuffled_rankings_give_a_large_p) ... ok
+
+======================================================================
+ERROR: test_holm_over_datasets_and_the_stable_rule (tests.test_card7_q3.StabilityTests.test_holm_over_datasets_and_the_stable_rule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_q3.py", line 71, in test_holm_over_datasets_and_the_stable_rule
+    result = q3.analyse(by_dataset, Path(tmp), None, draws=DRAWS, make_figures=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/scripts/analysis/q3_schema.py", line 293, in analyse
+    entry["figures"] = figures(dataset, records, schemas, out_dir)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/scripts/analysis/q3_schema.py", line 241, in figures
+    ax.bar(range(len(order)), [means[i] for i in order], yerr=[[lows[i] for i in order], [highs[i] for i in order]],
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/matplotlib/__init__.py", line 1528, in inner
+    return func(
+           ^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/matplotlib/axes/_axes.py", line 2633, in bar
+    errorbar = self.errorbar(ex, ey, yerr=yerr, xerr=xerr, fmt='none',
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/matplotlib/_api/deprecation.py", line 477, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/matplotlib/__init__.py", line 1528, in inner
+    return func(
+           ^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/matplotlib/axes/_axes.py", line 4232, in errorbar
+    raise ValueError(
+ValueError: 'yerr' must not contain negative values
+
+----------------------------------------------------------------------
+Ran 7 tests in 13.002s
+
+FAILED (errors=1)
+exit=1 end=2026-11-19T15:02:04+09:00
