@@ -123,7 +123,7 @@ The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delt
 \label{sec:method}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b11.pdf}
+  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b12.pdf}
   \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$. The relation $r$ of a directed edge selects a row of two learned per-relation tables, the relation embedding $\zeta_r$ and the frame $R_r$ with subspace $U_r$; an MLP over $[h_u,h_v,\zeta_r]$ gives the edge weight $a_e$ and $C_e$, which with $R_r,U_r$ forms the maps $F_{v\inc e}$ into the edge stalk $s_e$. (2) Sampled random walks (shaded) become faces (triangles) such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4, linked to every node and edge they traverse, with maps composed from the edge maps; the scorer $g$ reads the encodings and relation embeddings along a walk and gives its face the weight $\beta_f$. (3) The three couplings form one energy $E$, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss updates the parameters listed beside each arrow through the solve.}
   \label{fig:pipeline}
 \end{figure*}
