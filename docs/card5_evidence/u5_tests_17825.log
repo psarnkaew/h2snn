@@ -1,0 +1,161 @@
+job=17825 node=g3an01 start=2026-11-19T16:33:51+09:00
+git=762f29985e399e1966776d7c848214a970e598fa branch=card5
+dirty:  M scripts/tsubame/make_cell_list.py  M src/configs/config.py  M src/models/h2snn_model.py ?? scripts/freebase_memory_probe.py ?? src/analysis/mechanism_hooks.py ?? tests/test_card5_protocol_hooks.py 
+4a49db0b7252b119695494d35b929811bda7ef768832588f71903db197d02fdc  src/trainers/minibatch_trainer.py
+0c103dcc9166a0655953607e4304efe28a301c67f0e0ec09590d697640eff8f8  src/models/h2snn_model.py
+e1db2bcc503d99d343b1551ebb502506e1c9282ab2c838d40a0869dabb332d33  src/configs/config.py
+dcdbe2951faeb820cd08b11e28dfdb36bd81dab0c723e1aed86f8e3d5f88eee7  src/analysis/mechanism_hooks.py
+fd5ea2eb38021b331bc507ba2d1bdcb63d49880eb851b702ce8734ea00cb94f5  scripts/run_h2snn_wandb_tuning.py
+f0975715f4c0e7d3936c684918d8e0f55c1b6d1798bb4aef4035b159d7365435  scripts/tsubame/make_cell_list.py
+aeef374ff99795a88d3ae7aa1968d47f0b2e56e50a09b5caff659a4b00a570bf  tests/test_card5_protocol_hooks.py
+29215150935b6bb1412f36baec52842a78d5edb779ef9d15c3ea59266155a564  ../docs/legacy_evidence/v3b_golden_cluster.pt
+194868fce96fd658123165205d258392f7505b652bc974db26b5b1005dcbda37  ../docs/partMB_evidence/mb0_reference_cluster.pt
+NVIDIA RTX A6000, 49140 MiB
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 4
+=== v3b_golden compare
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+compared 1238 tensors in 23 configurations; differing: none
+=== mb0_reference compare
+/mnt/data/peeradon/h2snn-ablprep/H2S-NN/../docs/partMB_evidence/mb0_reference.py:134: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  _flatten("", torch.load(path), ref)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 136 tensors; differing: none
+test_T1_subset_only_during_training_then_one_whole_split_pass (tests.test_card5_protocol_hooks.B1aTests.test_T1_subset_only_during_training_then_one_whole_split_pass) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:14,048 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1434 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:14,366 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1332 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:14,669 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1239 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_T2_pdns_subset_follows_the_run_seed (tests.test_card5_protocol_hooks.B1aTests.test_T2_pdns_subset_follows_the_run_seed) ... ok
+test_T3_selection_by_the_subset_metric (tests.test_card5_protocol_hooks.B1aTests.test_T3_selection_by_the_subset_metric) ... ok
+test_T9_h2snn_phase (tests.test_card5_protocol_hooks.CellListTests.test_T9_h2snn_phase) ... ok
+test_T5_energy_at_a_model_solution (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_at_a_model_solution) ... ok
+test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section) ... ok
+test_T4_records_equal_the_base_commit (tests.test_card5_protocol_hooks.HgbUnchangedTests.test_T4_records_equal_the_base_commit) ... 2026-11-19 16:34:15,180 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 480, 'facts_after': 240}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:15,441 | INFO | Epoch 0000 | train_loss: 1.1106 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1905 | train_micro_f1: 0.2857 | val_loss: 1.1146 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-19 16:34:15,447 | INFO | Checkpoint metric macro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:15,672 | INFO | Epoch 0001 | train_loss: 1.1065 | train_acc: 0.2143 | train_auroc: 0.0000 | train_macro_f1: 0.1333 | train_micro_f1: 0.2143 | val_loss: 1.1139 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:15,885 | INFO | Epoch 0002 | train_loss: 1.0944 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1778 | train_micro_f1: 0.2857 | val_loss: 1.1132 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-19 16:34:15,888 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-19 16:34:15,888 | INFO | Best epoch 0 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167 | test_acc: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:16,264 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1161 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:16,634 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1149 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.3333 | test_auroc: 0.0000 | test_macro_f1: 0.2545 | test_micro_f1: 0.3333
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:16,999 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1138 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.3718 | test_micro_f1: 0.5000
+ok
+test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch) ... ok
+test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch) ... ok
+test_T6_refused_in_training_and_tuning_configs (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_refused_in_training_and_tuning_configs) ... ok
+test_T7_transports_per_fact (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T7_transports_per_fact) ... ok
+test_T8_cells_per_target (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T8_cells_per_target) ... ok
+test_steps_per_epoch_follow_the_batch_size (tests.test_partMB_trainer.EpochTests.test_steps_per_epoch_follow_the_batch_size) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_training_draw_seeds (tests.test_partMB_trainer.EpochTests.test_training_draw_seeds) ... ok
+test_training_order_passes (tests.test_partMB_trainer.EpochTests.test_training_order_passes) ... ok
+test_evaluation_graph_is_used_for_its_scopes (tests.test_partMB_trainer.EvaluationTests.test_evaluation_graph_is_used_for_its_scopes) ... ok
+test_predictions_do_not_depend_on_the_evaluation_batch_size (tests.test_partMB_trainer.EvaluationTests.test_predictions_do_not_depend_on_the_evaluation_batch_size) ... ok
+test_whole_split_and_metric_on_the_concatenation (tests.test_partMB_trainer.EvaluationTests.test_whole_split_and_metric_on_the_concatenation) ... ok
+test_mode_per_dataset_and_tuner_refusals (tests.test_partMB_trainer.StopAndConfigTests.test_mode_per_dataset_and_tuner_refusals) ... ok
+test_stop_condition_in_one_batch_stops_the_run (tests.test_partMB_trainer.StopAndConfigTests.test_stop_condition_in_one_batch_stops_the_run) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 16:34:25,130 | INFO | STOP CONDITION log_weight_range: 31 > 30 at epoch 0 (spec v1.16 §6); run stopped.
+ok
+test_T5_adjoint_and_inverse_on_both_sides_and_relation_kinds (tests.test_td1_maps.AdjointInverseTests.test_T5_adjoint_and_inverse_on_both_sides_and_relation_kinds) ... ok
+test_T15_bounded_cell_weights (tests.test_td1_maps.BoundedWeightTests.test_T15_bounded_cell_weights) ... ok
+test_T3_closed_form_equals_the_dense_matrix_exponential (tests.test_td1_maps.ClosedFormTests.test_T3_closed_form_equals_the_dense_matrix_exponential) ... ok
+test_T7_gradcheck_through_the_mlp_exponential_and_qr (tests.test_td1_maps.GradcheckTests.test_T7_gradcheck_through_the_mlp_exponential_and_qr) ... ok
+test_T14_head_reads_x_star_and_ego_head_is_the_1_24_input (tests.test_td1_maps.HeadInputTests.test_T14_head_reads_x_star_and_ego_head_is_the_1_24_input) ... ok
+test_T4_flipping_shared_role_facts_leaves_the_operator_unchanged (tests.test_td1_maps.OrientationTests.test_T4_flipping_shared_role_facts_leaves_the_operator_unchanged) ... ok
+test_T8_removed_keys_raise_and_no_context_import (tests.test_td1_maps.RemovedKeyTests.test_T8_removed_keys_raise_and_no_context_import) ... ok
+test_T6_class_separating_section_on_the_production_operator (tests.test_td1_maps.Thm4ProductionTests.test_T6_class_separating_section_on_the_production_operator) ... ok
+test_T11_one_training_step_reaches_the_td1_parameters (tests.test_td1_maps.TrainingStepTests.test_T11_one_training_step_reaches_the_td1_parameters) ... ok
+test_T12_arms_train_one_step_and_direction_blind_has_no_frame (tests.test_td1_maps.TrainingStepTests.test_T12_arms_train_one_step_and_direction_blind_has_no_frame) ... ok
+test_T1_every_transport_is_in_SO_d_and_storage_is_exact (tests.test_td1_maps.TransportTests.test_T1_every_transport_is_in_SO_d_and_storage_is_exact) ... ok
+test_T2_fresh_model_transports_are_the_frames (tests.test_td1_maps.TransportTests.test_T2_fresh_model_transports_are_the_frames) ... ok
+test_T10_type_only_read_out (tests.test_td1_maps.TypeOnlyTests.test_T10_type_only_read_out) ... ok
+test_T7_eliminated_solve_matches_the_full_state_solve (tests.test_sheaf_energy.EliminationTests.test_T7_eliminated_solve_matches_the_full_state_solve) ... ok
+test_T1_fact_to_cell_maps_are_functorial_on_imdb (tests.test_sheaf_energy.FunctorialityOnRealDrawTests.test_T1_fact_to_cell_maps_are_functorial_on_imdb) ... ok
+test_T2_matrix_free_equals_dense (tests.test_sheaf_energy.OperatorTests.test_T2_matrix_free_equals_dense) ... ok
+test_T3_normalized_operator_is_symmetric_and_psd (tests.test_sheaf_energy.OperatorTests.test_T3_normalized_operator_is_symmetric_and_psd) ... ok
+test_hetero2net_loop_has_no_test_pass_and_restores_best_weights (tests.test_b1a_validation_subset.B1aReviewTests.test_hetero2net_loop_has_no_test_pass_and_restores_best_weights) ... ok
+test_pdns_subset_is_drawn_per_run_seed (tests.test_b1a_validation_subset.B1aReviewTests.test_pdns_subset_is_drawn_per_run_seed) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_sweep_objective_is_the_subset_metric (tests.test_b1a_validation_subset.B1aReviewTests.test_sweep_objective_is_the_subset_metric) ... ok
+test_h2gb_record_without_subset_metric_is_refused (tests.test_b1a_validation_subset.B1aSelectionTests.test_h2gb_record_without_subset_metric_is_refused) ... ok
+test_trial_selection_uses_the_sweep_objective (tests.test_b1a_validation_subset.B1aSelectionTests.test_trial_selection_uses_the_sweep_objective) ... ok
+test_best_weights_are_restored (tests.test_b1a_validation_subset.B1aTests.test_best_weights_are_restored) ... ok
+test_no_test_pass_during_training (tests.test_b1a_validation_subset.B1aTests.test_no_test_pass_during_training) ... ok
+test_subset_is_deterministic_and_the_same_for_every_method (tests.test_b1a_validation_subset.B1aTests.test_subset_is_deterministic_and_the_same_for_every_method) ... ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (the legacy propagation, where ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_s0_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s0_one_step_finite_and_every_parameter_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_s2_one_step_finite_and_every_parameter_moves (tests.test_card4_identity_maps.IdentityArmStepTests.test_s2_one_step_finite_and_every_parameter_moves) ... ok
+test_key_validated_and_refused_in_tuning (tests.test_card4_identity_maps.IdentityConfigTests.test_key_validated_and_refused_in_tuning) ... ok
+test_s2_jacobi_diagonal_equals_dense_identity_maps (tests.test_card4_identity_maps.IdentityJacobiTests.test_s2_jacobi_diagonal_equals_dense_identity_maps) ... ok
+test_s2_every_transport_is_exactly_identity (tests.test_card4_identity_maps.IdentityTransportTests.test_s2_every_transport_is_exactly_identity) ... ok
+test_arm_mode_builds_for_each_of_the_five_arms (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_builds_for_each_of_the_five_arms) ... ok
+test_arm_mode_refuses_another_arms_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_refuses_another_arms_key) ... ok
+test_main_table_refuses_every_arm_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_main_table_refuses_every_arm_key) ... ok
+test_each_arm_differs_from_full_in_exactly_its_keys (tests.test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys) ... ok
+test_full_and_uniform_get_the_same_draws_at_one_seed (tests.test_card4_ablation_driver.PairingTests.test_full_and_uniform_get_the_same_draws_at_one_seed) ... ok
+test_arm_spaces_drop_exactly_their_inert_keys (tests.test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_arm_spaces_drop_exactly_their_inert_keys) ... ok
+test_main_table_sweep_keeps_every_key_and_refuses_the_exclusion (tests.test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_main_table_sweep_keeps_every_key_and_refuses_the_exclusion) ... ok
+test_table_entries_are_unread_and_a_read_key_is_refused (tests.test_card4b_prefreeze.ArmSweepKeyExclusionTests.test_table_entries_are_unread_and_a_read_key_is_refused) ... ok
+test_arm_switches_refused_in_main_table_accepted_in_own_mode (tests.test_card4b_prefreeze.ArmSwitchRefusalTests.test_arm_switches_refused_in_main_table_accepted_in_own_mode) ... ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+test_always_dying_trial_is_started_twice_then_exceeds_24h (tests.test_tsubame_guard.GuardTests.test_always_dying_trial_is_started_twice_then_exceeds_24h) ... /tmp/tmpk1v_j8kj/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+exceeds_24h: attempt 0 of /tmp/tmp_jhkn78p/state/tuning_state_run0.json was started 2 times and its job never let it finish; it is not started again (TSUBAME card T2)
+ok
+test_state_written_before_the_guard_resumes_as_before (tests.test_tsubame_guard.GuardTests.test_state_written_before_the_guard_resumes_as_before) ... W&B run 0: attempted=3 succeeded=3 pruned=0 failed=0
+ok
+test_trial_dying_once_then_finishing_completes_the_sweep (tests.test_tsubame_guard.GuardTests.test_trial_dying_once_then_finishing_completes_the_sweep) ... W&B run 0: attempted=2 succeeded=2 pruned=0 failed=0
+ok
+test_legs_held_group_on_command_line_second_chain_refused (tests.test_tsubame_slots.ChainTests.test_legs_held_group_on_command_line_second_chain_refused) ... ok
+test_dirty_checkout_or_wrong_directory_is_refused (tests.test_tsubame_slots.SlotTests.test_dirty_checkout_or_wrong_directory_is_refused) ... ok
+test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) ... ok
+test_fewer_slots_than_lines_stride_by_g (tests.test_tsubame_slots.SlotTests.test_fewer_slots_than_lines_stride_by_g) ... ok
+
+----------------------------------------------------------------------
+Ran 82 tests in 187.868s
+
+OK
+end=2026-11-19T16:37:19+09:00 exit=0
