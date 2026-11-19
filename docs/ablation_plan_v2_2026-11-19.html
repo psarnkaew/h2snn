@@ -165,7 +165,7 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
     <tr><td>เพิ่ม heterophily</td><td><b>เพิ่ม edge</b> เฉพาะ relation ที่มีอยู่จริง (เช่น paper–author) ที่ทำให้เกิดคู่ meta-path ต่าง class และสุ่มปลายแบบสม่ำเสมอจาก class อื่นทั้งหมด edge ใหม่จึงบอกได้แค่ว่า "ไม่ใช่ class เดียวกัน" ไม่ได้ชี้ไป class ใด</td></tr>
     <tr><td>ลด heterophily</td><td><b>ตัด edge</b> ที่สร้างคู่ต่าง class ได้ไม่เกิน 50 % ของ relation ห้ามเพิ่ม edge ระหว่าง node class เดียวกัน เพราะเท่ากับเอา test label ไปสร้างกราฟ ซึ่งทำให้ทุกโมเดลดูดีขึ้นจากการรั่ว</td></tr>
     <tr><td>Control</td><td>ทุกระดับมีกราฟคู่ที่เพิ่มหรือตัด edge จำนวนเท่ากันแบบสุ่ม ผลของ heterophily = ผลบนกราฟตามเป้า − ผลบนกราฟสุ่ม</td></tr>
-    <tr><td>Method</td><td>H2S-NN <code>full</code> และ <code>no_path_cells</code> กับ GCN, HAN, SeHGNN, Hetero²Net และ HetSheaf ใช้ config จากกราฟเดิม (ถ้า baseline ยังไม่ได้ tune เองให้ใช้ config ที่ตีพิมพ์ไว้ และบอกในเปเปอร์) ไม่ tune ใหม่ และ 5 seed</td></tr>
+    <tr><td>Method</td><td>H2S-NN <code>full</code> และ <code>no_path_cells</code> กับ GCN, HAN, SeHGNN, Hetero²Net และ HetSheaf ใช้ config จากกราฟเดิม (ถ้า baseline ยังไม่ได้ tune เองให้ใช้ config ที่ตีพิมพ์ไว้ และบอกในเปเปอร์) ไม่ tune ใหม่ และ 5 seed นอกจากนี้ <code>S2</code> รันบนกราฟตามเป้าเท่านั้น สำหรับ R3 บนแกน perturbation</td></tr>
     <tr><td>ที่คาดไว้ (ตั้งไว้ก่อนรัน)</td><td>H2S-NN เสียความแม่นน้อยกว่า GCN, HAN และ SeHGNN เมื่อ heterophily สูงขึ้น และ full − no_path_cells โตขึ้นตาม heterophily ถ้าไม่เป็นตามนี้ก็รายงานตามจริงและไม่เคลมเรื่อง robustness</td></tr>
   </table></div>
   <div class="callout warn">ระดับที่ไปไม่ถึงจะรายงานตามจริง เช่น ACM อาจลงไม่ถึง 20 % เพราะติดเพดานการตัด เราจะไม่ขยายเพดาน 50 % หลังเห็นผล ในเปเปอร์จะเขียนว่าเป็นกราฟ semi-synthetic และเทียบ curve ระหว่าง method เท่านั้น ไม่เทียบกับตารางหลัก</div>
@@ -292,7 +292,7 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
     <tr><th>ก้อน</th><th>นับอย่างไร</th><th>จำนวน</th></tr>
     <tr><td>Ablation (a)</td><td>6 แถว × 4 dataset × 10 seed บวก <code>full</code> seed 5–10 × 4 dataset</td><td class="mono">≈ 264 run เล็ก</td></tr>
     <tr><td>Ablation (b)</td><td>4 arm (<code>endpoints</code>, <code>no_path_cells</code>, <code>instance_features</code>, S2) × 4 × 100 trial แล้ว × 10 seed</td><td class="mono">1,600 trial + 160 run</td></tr>
-    <tr><td>Perturbation</td><td>7 method × 2 dataset × 4 ระดับ × 2 (ตามเป้า/สุ่ม) × 5 seed (ถ้าเพิ่ม IMDB จะเป็น ≈ 840)</td><td class="mono">≈ 560 run เล็ก</td></tr>
+    <tr><td>Perturbation</td><td>7 method × 2 dataset × 4 ระดับ × 2 (ตามเป้า/สุ่ม) × 5 seed (ถ้าเพิ่ม IMDB จะเป็น ≈ 840) บวก <code>S2</code> บนกราฟตามเป้า 2 × 4 × 5 = 40 สำหรับ R3</td><td class="mono">≈ 600 run เล็ก</td></tr>
     <tr><td>คำถาม 3, face effect, two-regime</td><td>อ่านจาก checkpoint และ F3 เป็น evaluation อย่างเดียว</td><td class="mono">0 run เทรน</td></tr>
     <tr><td>Scalability</td><td>timing run บน ogbn-mag และ IMDB</td><td class="mono">ไม่กี่ ชม. บน H100</td></tr>
   </table></div>
