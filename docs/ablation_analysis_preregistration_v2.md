@@ -103,9 +103,13 @@ Computed from the main-table runs (seeds 0–4) and `full` (a) (seeds 1–10). N
 **Reading:** descriptive. If the rankings are not stable, the read-out is reported without interpretation. S2′ is not used: its card 4 result was on the 1.24 model and it is not a paper claim.
 
 ### 4.2 Perturbation study (Q4)
-**Graphs:** ACM (heterophily ≈ 40 % now) and DBLP (≈ 13 %). IMDB is optional; there, heterophily is the mean over genres. Heterophily is h = 1 − MLH over `M₂` (spec §1), computed with the reference code.
+**Graphs:** ACM (h = 0.262 now) and DBLP (h = 0.128). IMDB is not used. Heterophily is h = 1 − MLH ∈ [0, 1] over the spec §1 `M₂` set, computed with the reference code. ℋ² is reported beside it at every level. (Amended 2026-11-19 by the author: h, not ℋ², sets the levels because it has fixed bounds; the earlier "ACM ≈ 40 %" was the Hetero²Net three-path set.)
 
-**Targets:** h ∈ {0.20, 0.40, 0.60, 0.80}, each within ±0.01 when reachable.
+**Targets:** h ∈ {0.20, 0.30, 0.40, 0.50, 0.60}, each within ±0.01, plus the original graph as a reference point.
+
+**Ceiling (DERIVED, checked against card 7 job 17814):** an intermediate node with n target neighbours makes a clique in the meta-path graph, and at most (1 − 1/C)·n/(n−1) of its pairs can be different-class. For large n this is 1 − 1/C: ≈ 0.667 for ACM (C = 3) and 0.75 for DBLP (C = 4). Edge addition reached 0.638 and 0.748. Higher levels would need new intermediate nodes with at most C neighbours, i.e. fabricated nodes, which are not used. Higher heterophily is covered by the real heterophilic datasets of the main table (IMDB, Freebase, H2GB). The figure draws 1 − 1/C as a dashed line.
+
+**Generator rules (card 7 V3, accepted):** additions are split across the `M₂` relations in proportion to their size. For an author or term fact, a paper of another class is drawn uniformly, and the new fact links the labelled paper to one of that paper's neighbours. Unreached levels are written but not run. Every run logs the fingerprint of the edge list it loaded, and the manifest checks it against the generator's fingerprint.
 
 | Direction | Rule |
 |---|---|
@@ -117,7 +121,7 @@ Computed from the main-table runs (seeds 0–4) and `full` (a) (seeds 1–10). N
 
 **Methods:**
 - H2S-NN `full` and `no_path_cells`;
-- GCN, HAN, SeHGNN, Hetero²Net and HetSheaf, each with its configuration tuned on the original graph, or its published configuration if not tuned (listed); never retuned;
+- GCN, HAN, SeHGNN, Hetero²Net and HetSheaf, each with its configuration tuned on the original graph, or its published configuration if not tuned (listed); never retuned. GCN and HAN use HGB's published run commands (`vendor/HGB/NC/benchmark/methods/GNN/README.md`, HAN `main.py` defaults); SeHGNN and Hetero²Net use their published configurations; HetSheaf has only sweep files, so it waits for its ACM/DBLP tuning;
 - seeds 1–5;
 - in addition, H2S-NN S2 on the targeted graphs only, for R3's perturbation axis.
 
@@ -175,7 +179,7 @@ Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–10
 |---|---|
 | Ablation (a): 6 rows × 4 datasets × 10 seeds + `full` seeds 5–10 × 4 | ≈ 264 small |
 | Ablation (b): 4 arms × 4 datasets × 100 trials, then × 10 seeds | 1,600 trials + 160 small |
-| Perturbation: 7 methods × 2 datasets × 4 levels × 2 kinds × 5 seeds + S2 on the targeted graphs (40) | ≈ 600 small |
+| Perturbation: 7 methods × 2 datasets × 5 levels × 2 kinds × 5 seeds + S2 on the targeted graphs (50) | ≈ 750 small |
 | §4.1, §4.3, §4.4 | read from checkpoints (F3 is evaluation only) |
 | Timing | a few hours on one H100 |
 

@@ -63,14 +63,14 @@ ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
   <span class="eyebrow">H2S-NN · IJCAI-27 · แผน version 2 (ยังไม่เริ่มงาน) · 2026-11-19</span>
   <h1>แผน ablation และ model analysis ฉบับกระชับ</h1>
   <p class="lede">แกนคือตารางห้าคำถามของคุณ เพิ่ม analysis สองชุดตามที่อาจารย์ขอในการประชุม 2026-11-19 คือ face effect และ two-regime analysis ท้ายหน้ามีตารางตรวจว่าแต่ละชิ้นตอบคำถามต่างกันและไม่ซ้ำซ้อน ทั้งหมดใช้โมเดล 1.25 และกติกาของ spec 1.26</p>
-  <p class="lede"><b>เปลี่ยนจาก version 1:</b> perturbation ทั้งเพิ่มและตัด edge ไปที่ 20/40/60/80 %, scalability บน IMDB, เพิ่มแถว literature meta-path, case study ยกเป็น face effect F1–F3, และเพิ่ม two-regime analysis โดยรวม energy E1–E4 เดิมเข้าไว้ในนั้น</p>
+  <p class="lede"><b>เปลี่ยนจาก version 1:</b> perturbation ทั้งเพิ่มและตัด edge ไปที่ h = 0.2–0.6 ทีละ 0.1 (แก้ 2026-11-19), scalability บน IMDB, เพิ่มแถว literature meta-path, case study ยกเป็น face effect F1–F3, และเพิ่ม two-regime analysis โดยรวม energy E1–E4 เดิมเข้าไว้ในนั้น</p>
 </header>
 
 <div class="stats">
   <div class="stat"><b>7</b><span>แถวในตาราง ablation (เดิม 15)</span></div>
   <div class="stat"><b>4</b><span>dataset ของ ablation</span></div>
   <div class="stat"><b>≈ 424</b><span>run เล็ก + 1,600 trial ของ config (b)</span></div>
-  <div class="stat"><b>≈ 560</b><span>run เล็กของ perturbation</span></div>
+  <div class="stat"><b>≈ 750</b><span>run เล็กของ perturbation</span></div>
   <div class="stat"><b>0</b><span>run ใหญ่บน H2GB (เดิม 128)</span></div>
 </div>
 
@@ -158,17 +158,18 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
 <section>
   <span class="q">คำถาม 4</span>
   <h2>โมเดลเกี่ยวกับระดับ heterophily ไหม และ robust เมื่อ heterophily เปลี่ยนไหม</h2>
-  <p>Perturbation study แบบ semi-synthetic: ใช้กราฟจริงแล้วเปลี่ยนแค่ระดับ heterophily ไปที่เป้าหมาย <b>20 / 40 / 60 / 80 %</b> (heterophily = 1 − MLH บน meta-path ความยาว 2)</p>
+  <p>Perturbation study แบบ semi-synthetic: ใช้กราฟจริงแล้วเปลี่ยนแค่ระดับ heterophily ไปที่เป้าหมาย <b>h = 0.2, 0.3, 0.4, 0.5, 0.6</b> (h = 1 − MLH บน meta-path ความยาว 2 มีค่าใน [0, 1] และรายงาน ℋ² คู่กัน) โดยใช้กราฟต้นฉบับเป็นจุดอ้างอิงอีกหนึ่งจุด</p>
+  <div class="callout"><b>เพดาน 1 − 1/C:</b> node กลางที่ต่อกับ target n ตัวสร้าง clique ในกราฟ meta-path และคู่ใน clique เป็นต่าง class ได้ไม่เกิน (1 − 1/C)·n/(n−1) เมื่อ n ใหญ่ค่านี้เข้าหา 1 − 1/C คือ ≈ 0.667 สำหรับ ACM (3 class) และ 0.75 สำหรับ DBLP (4 class) S6 ดันได้สูงสุด 0.638 และ 0.748 ระดับที่สูงกว่านี้ต้องสร้าง node กลางปลอม ซึ่งเราไม่ทำ ช่วง heterophily สูงมีข้อมูลจริงในตารางหลักอยู่แล้ว (IMDB, Freebase, H2GB) ในรูปจะวาดเส้นประที่ 1 − 1/C</div>
   <div class="tbl"><table>
     <tr><th style="width:24%">ขั้น</th><th>ทำอย่างไร</th></tr>
-    <tr><td>กราฟ</td><td>ACM (ตอนนี้ heterophily ≈ 40 %) และ DBLP (≈ 13 %) เป็น single-label และ label ครบ ส่วน IMDB เป็นทางเลือก (multi-label ใช้ค่าเฉลี่ยต่อ genre)</td></tr>
+    <tr><td>กราฟ</td><td>ACM (ตอนนี้ h = 0.262) และ DBLP (h = 0.128) เป็น single-label และ label ครบ ไม่ใช้ IMDB</td></tr>
     <tr><td>เพิ่ม heterophily</td><td><b>เพิ่ม edge</b> เฉพาะ relation ที่มีอยู่จริง (เช่น paper–author) ที่ทำให้เกิดคู่ meta-path ต่าง class และสุ่มปลายแบบสม่ำเสมอจาก class อื่นทั้งหมด edge ใหม่จึงบอกได้แค่ว่า "ไม่ใช่ class เดียวกัน" ไม่ได้ชี้ไป class ใด</td></tr>
     <tr><td>ลด heterophily</td><td><b>ตัด edge</b> ที่สร้างคู่ต่าง class ได้ไม่เกิน 50 % ของ relation ห้ามเพิ่ม edge ระหว่าง node class เดียวกัน เพราะเท่ากับเอา test label ไปสร้างกราฟ ซึ่งทำให้ทุกโมเดลดูดีขึ้นจากการรั่ว</td></tr>
     <tr><td>Control</td><td>ทุกระดับมีกราฟคู่ที่เพิ่มหรือตัด edge จำนวนเท่ากันแบบสุ่ม ผลของ heterophily = ผลบนกราฟตามเป้า − ผลบนกราฟสุ่ม</td></tr>
     <tr><td>Method</td><td>H2S-NN <code>full</code> และ <code>no_path_cells</code> กับ GCN, HAN, SeHGNN, Hetero²Net และ HetSheaf ใช้ config จากกราฟเดิม (ถ้า baseline ยังไม่ได้ tune เองให้ใช้ config ที่ตีพิมพ์ไว้ และบอกในเปเปอร์) ไม่ tune ใหม่ และ 5 seed นอกจากนี้ <code>S2</code> รันบนกราฟตามเป้าเท่านั้น สำหรับ R3 บนแกน perturbation</td></tr>
     <tr><td>ที่คาดไว้ (ตั้งไว้ก่อนรัน)</td><td>H2S-NN เสียความแม่นน้อยกว่า GCN, HAN และ SeHGNN เมื่อ heterophily สูงขึ้น และ full − no_path_cells โตขึ้นตาม heterophily ถ้าไม่เป็นตามนี้ก็รายงานตามจริงและไม่เคลมเรื่อง robustness</td></tr>
   </table></div>
-  <div class="callout warn">ระดับที่ไปไม่ถึงจะรายงานตามจริง เช่น ACM อาจลงไม่ถึง 20 % เพราะติดเพดานการตัด เราจะไม่ขยายเพดาน 50 % หลังเห็นผล ในเปเปอร์จะเขียนว่าเป็นกราฟ semi-synthetic และเทียบ curve ระหว่าง method เท่านั้น ไม่เทียบกับตารางหลัก</div>
+  <div class="callout warn">ระดับที่ไปไม่ถึงจะรายงานตามจริงและไม่รัน เราจะไม่ขยายเพดาน 50 % หลังเห็นผล ทุก run ต้องตรวจ fingerprint ของกราฟที่โหลดได้ให้ตรงกับที่ generator สร้าง ส่วน config: GCN และ HAN ใช้คำสั่งรันที่ HGB ตีพิมพ์ไว้, SeHGNN และ Hetero²Net ใช้ config ที่ตีพิมพ์ และ HetSheaf รอ tune บน ACM และ DBLP ในเปเปอร์จะเขียนว่าเป็นกราฟ semi-synthetic และเทียบ curve ระหว่าง method เท่านั้น ไม่เทียบกับตารางหลัก</div>
 </section>
 
 <!-- Q5 -->
@@ -233,7 +234,7 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
     <tr><td><b>R2</b> energy กับ performance</td><td>e_v ของ node ที่ทำนายถูกเทียบกับที่ผิด (AUROC) และ Spearman ระหว่าง e_v กับ η_v</td><td>energy ต่ำสัมพันธ์กับการทำนายถูก และ node ที่ heterophilic ยังได้ energy ต่ำได้ ซึ่งแปลว่า "ต่างแต่สอดคล้อง"</td></tr>
     <tr><td><b>R3</b> energy กับ representation</td><td><code>full</code> เทียบกับ <code>S2</code> (maps = I): Ẽ และความแยกกันของ class (linear probe และอัตราส่วนระยะในและข้าม class) บน x* เทียบกับบน h₀</td><td>ฝั่ง homophilic ทั้งสองโมเดลแยก class บน x* ได้ดีกว่า h₀ ส่วนฝั่ง heterophilic <code>full</code> ยังแยกได้แต่ <code>S2</code> ปน class ซึ่งตอบตรง ๆ ว่า "diffusion ละลายข้อมูลไหม"</td></tr>
   </table></div>
-  <p><b>ทำบนสองแกน:</b> (1) ข้าม node ตาม η_v ใน 4 dataset และ (2) ข้ามระดับของกราฟ 20/40/60/80 % จาก perturbation จึงเห็นกลไกเปลี่ยนต่อเนื่อง ไม่ได้เห็นแค่สองจุดปลาย</p>
+  <p><b>ทำบนสองแกน:</b> (1) ข้าม node ตาม η_v ใน 4 dataset และ (2) ข้ามระดับของกราฟ h = 0.2–0.6 จาก perturbation จึงเห็นกลไกเปลี่ยนต่อเนื่อง ไม่ได้เห็นแค่สองจุดปลาย</p>
   <p class="lede">R1 ต้องอ่าน Q_e จากโมเดลที่เทรนแล้ว และ R2/R3 ต้องอ่าน e_v ทั้งสองอย่างเป็น hook แบบอ่านอย่างเดียวที่ต้องเข้า card 5</p>
 </section>
 
@@ -272,7 +273,7 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
     <tr><td><ul>
       <li>ตาราง ablation: 7 แถว × 4 dataset และ mark แถวที่ผ่าน</li>
       <li>รูป face effect: case study (อาจใช้แทน Fig. 1) + F3 เป็นตัวเลขในข้อความ</li>
-      <li>รูป perturbation หนึ่งรูป (Macro-F1 เทียบกับ heterophily 20–80 %)</li>
+      <li>รูป perturbation หนึ่งรูป (Macro-F1 เทียบกับ h = 0.2–0.6 พร้อมเส้นเพดาน 1 − 1/C)</li>
       <li>Proposition "ใช้ได้ทั้งสองแบบ" + หนึ่งประโยคจาก R1 และ R3</li>
     </ul></td><td><ul>
       <li>F1 และ F2 ครบตาม η_v</li>
@@ -293,7 +294,7 @@ I_σ  = learned    : ส่วนของมวลหลังใช้น้�
     <tr><th>ก้อน</th><th>นับอย่างไร</th><th>จำนวน</th></tr>
     <tr><td>Ablation (a)</td><td>6 แถว × 4 dataset × 10 seed บวก <code>full</code> seed 5–10 × 4 dataset</td><td class="mono">≈ 264 run เล็ก</td></tr>
     <tr><td>Ablation (b)</td><td>4 arm (<code>endpoints</code>, <code>no_path_cells</code>, <code>instance_features</code>, S2) × 4 × 100 trial แล้ว × 10 seed</td><td class="mono">1,600 trial + 160 run</td></tr>
-    <tr><td>Perturbation</td><td>7 method × 2 dataset × 4 ระดับ × 2 (ตามเป้า/สุ่ม) × 5 seed (ถ้าเพิ่ม IMDB จะเป็น ≈ 840) บวก <code>S2</code> บนกราฟตามเป้า 2 × 4 × 5 = 40 สำหรับ R3</td><td class="mono">≈ 600 run เล็ก</td></tr>
+    <tr><td>Perturbation</td><td>7 method × 2 dataset × 5 ระดับ × 2 (ตามเป้า/สุ่ม) × 5 seed บวก <code>S2</code> บนกราฟตามเป้า 2 × 5 × 5 = 50 สำหรับ R3</td><td class="mono">≈ 750 run เล็ก</td></tr>
     <tr><td>คำถาม 3, face effect, two-regime</td><td>อ่านจาก checkpoint และ F3 เป็น evaluation อย่างเดียว</td><td class="mono">0 run เทรน</td></tr>
     <tr><td>Scalability</td><td>timing run บน ogbn-mag และ IMDB</td><td class="mono">ไม่กี่ ชม. บน H100</td></tr>
   </table></div>
