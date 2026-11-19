@@ -1,0 +1,12 @@
+label=v7 job=17817 node=g3n01 start=2026-11-19T15:06:50+09:00
+git=57d94d07dab2b350f23d01cf8d23691958a968f5 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+test_baseline_timing_with_a_stubbed_fit (tests.test_card7_timing.BaselinePathTests.test_baseline_timing_with_a_stubbed_fit) ... ok
+test_combination_and_outputs (tests.test_card7_timing.CostVsAccuracyTests.test_combination_and_outputs) ... ok
+test_finish_writes_every_field_and_refuses_a_missing_one (tests.test_card7_timing.EpochTests.test_finish_writes_every_field_and_refuses_a_missing_one) ... ok
+test_median_of_epochs_two_to_four (tests.test_card7_timing.EpochTests.test_median_of_epochs_two_to_four) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.343s
+
+OK
+exit=0 end=2026-11-19T15:06:55+09:00

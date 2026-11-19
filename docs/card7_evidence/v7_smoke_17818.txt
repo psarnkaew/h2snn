@@ -1,0 +1,40 @@
+job=17818 node=g3n01 start=2026-11-19T15:14:20+09:00
+git=57d94d07dab2b350f23d01cf8d23691958a968f5 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+NVIDIA GeForce RTX 3090, 24576 MiB
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+{"epoch": 0, "loss": 0.7307307720184326, "loss_finite": true, "gradient_norms": {"node_encoder": 0.6275349795741152, "relation_embedding": 0.00017889184528030455, "fact_maps": 0.051796962333815456, "g_path_encoder": 0.0009695728404716205, "g_path_gate": 0.0009133846242562982, "readout": 0.3601430275555204, "theta_tau": 0.011808733455836773}, "all_groups_nonzero": true, "tau_after_step": 1.0, "path_log_w_max": 0.35877659916877747, "path_log_w_mean": -0.7850131392478943, "train_solve": {"pcg_fwd_iters": 8.0, "pcg_bwd_iters": 8.0, "pcg_fwd_rel_residual": 0.0006810608902014792, "pcg_bwd_rel_residual": 0.0006448662606999278, "pcg_converged": 1.0, "solver_tolerance": 0.001, "num_path_facts": 35968.0, "num_shared_facts": 28399.0, "num_fact_states": 28399.0, "num_cells": 49408.0, "eliminated_share": 0.3444518824588537}, "eval_solve": {"pcg_fwd_iters": 10.0, "pcg_bwd_iters": 0.0, "pcg_fwd_rel_residual": 8.95964985829778e-05, "pcg_bwd_rel_residual": 0.0, "pcg_converged": 1.0, "solver_tolerance": 0.0001, "num_path_facts": 35968.0, "num_shared_facts": 28399.0, "num_fact_states": 28399.0, "num_cells": 49408.0, "eliminated_share": 0.3444518824588537}, "draw_seconds": 0.287, "train_step_seconds": 1.333, "train_forward_seconds": 1.1137, "train_backward_seconds": 0.197, "forward_solve_seconds": 0.1124, "forward_solve_seconds_per_pcg_iteration": 0.014055, "eval_forward_seconds": 0.123, "epoch_seconds": 1.621, "peak_memory_mb": 963.5}
+{"method": "h2snn", "dataset": "imdb", "configuration": "central", "epochs_run": 1, "time_per_epoch_seconds": null, "peak_gpu_memory_mb": 963.5, "parameters": 640302}
+h2snn_exit=0
+{"method": "gcn", "dataset": "imdb", "configuration": "central", "epochs_run": 1, "time_per_epoch_seconds": null, "peak_gpu_memory_mb": 180.9287109375, "parameters": 2574853}
+gcn_exit=0
+== main-table methods on imdb
+h2snn
+gcn
+gat
+chebnetii
+nsd
+csnn
+han
+sehgnn
+hinormer
+pshgcn
+h2gformer
+hetero2net
+h2sgnn
+hetsheaf
+== main-table methods on ogbn-mag
+h2snn
+gcn
+gat
+chebnetii
+nsd
+csnn
+han
+sehgnn
+hinormer
+pshgcn
+h2gformer
+hetero2net
+h2sgnn
+hetsheaf
+end=2026-11-19T15:14:41+09:00

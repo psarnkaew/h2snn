@@ -1,0 +1,43 @@
+{
+ "method": "gcn",
+ "dataset": "imdb",
+ "configuration": "central",
+ "flagged": true,
+ "point": {
+  "values": {
+   "lr": 0.001,
+   "weight_decay": 0.0005,
+   "hidden_dim": 128,
+   "dropout": 0.45,
+   "num_layers": 2,
+   "feats_type": 2
+  },
+  "rule": {
+   "lr": "geometric middle",
+   "weight_decay": "middle of the grid",
+   "hidden_dim": "middle of the grid",
+   "dropout": "middle",
+   "num_layers": "middle of the grid",
+   "feats_type": "middle of the grid"
+  }
+ },
+ "timing_path": "card 2 D6 fit path (campaign.fit_cell with the per-epoch report)",
+ "epoch_definition": "from the previous epoch report to the first .eval() call (training; the first epoch includes the bundle build and is the warm-up)",
+ "epochs_requested": 1,
+ "epochs_run": 1,
+ "per_epoch": [
+  {
+   "epoch": 1,
+   "train_seconds": 6.151412893086672,
+   "epoch_seconds": 6.1799653600901365
+  }
+ ],
+ "time_per_epoch_seconds": null,
+ "peak_gpu_memory_mb": 180.9287109375,
+ "parameters": 2574853,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "host": "g3n01",
+ "job": "17818",
+ "head": "57d94d07dab2b350f23d01cf8d23691958a968f5",
+ "device": "cuda"
+}

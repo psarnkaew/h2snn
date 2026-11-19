@@ -1,0 +1,34 @@
+{
+ "method": "h2snn",
+ "dataset": "imdb",
+ "configuration": "central",
+ "flagged": true,
+ "point": {
+  "model.d": 32,
+  "data.wisp_max_length": 3,
+  "data.wisp_walks_per_anchor": 16,
+  "optim.lr": 0.001,
+  "optim.weight_decay": 0.0005,
+  "model.encoder_dropout": 0.45,
+  "model.classifier_dropout": 0.45
+ },
+ "timing_path": "scripts/v3b_cost_smoke.py run",
+ "epoch_definition": "WISP training draw + one full-batch training step (forward, backward, optimizer step); validation excluded",
+ "epochs_requested": 1,
+ "epochs_run": 1,
+ "per_epoch": [
+  {
+   "epoch": 1,
+   "train_seconds": 1.621,
+   "epoch_seconds": 1.621
+  }
+ ],
+ "time_per_epoch_seconds": null,
+ "peak_gpu_memory_mb": 963.5,
+ "parameters": 640302,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "host": "g3n01",
+ "job": "17818",
+ "head": "57d94d07dab2b350f23d01cf8d23691958a968f5",
+ "device": "cuda"
+}
