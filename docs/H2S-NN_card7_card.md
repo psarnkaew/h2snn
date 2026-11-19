@@ -12,7 +12,7 @@ The ablation study and model analysis consist **only** of the items in `docs/abl
 - **Q4 perturbation** to heterophily 20/40/60/80 %.
 - **Face effect:** F1, F2, F3 and the rule-chosen case study.
 - **Two-regime analysis:** R1, R2, R3.
-- **Q5 timing** on ogbn-mag and IMDB.
+- **Q5 timing** on ogbn-mag and IMDB, and the cost-vs-accuracy figure on ogbn-mag (spec 1.27 C5).
 
 **Out of scope:** every other arm or analysis of the old pre-registration:
 - arms `closure_only`, `hub_A`, `covering_only`, `schema`, `uniform`, `direction_blind_maps`, `free_cell_maps`, `ego_head`, `h0_only_readout`;
@@ -190,6 +190,7 @@ A level that cannot be reached under the 50 % cap is recorded as unreached with 
   - peak GPU memory (`max_memory_allocated`);
   - parameter count.
 - **Code to reuse:** `scripts/v3b_cost_smoke.py` for H2S-NN, and the card 2 D6 central-point timing path for the baselines. Find it; if there is none, stop and report.
+- **Cost-vs-accuracy figure (author, 2026-11-19):** a script that reads the ogbn-mag timing results and the main-table test Macro-F1 and plots Macro-F1 vs time per epoch and vs peak memory, one point per method (PDF + JSON). No training. Test it on crafted inputs.
 - **Phase A:** the script plus a CPU or lab-GPU smoke on IMDB for H2S-NN and one baseline, with 1 epoch. The real timing runs on one H100 later.
 
 ### V8 — TSUBAME phases (Phase B; same pattern as card 5 U4)
