@@ -133,8 +133,8 @@ The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $x^{\transpo
 \label{sec:method}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b6.pdf}
-  \caption{Overview of \method{} on the neighbourhood of P1. (1) Each node is encoded into $h_v$, and every edge compares its endpoints in its stalk $s_e$ through learned rotations $F_{v\inc e}$. (2) Random walks give faces such as $f=$ P1--A7--P9 and $g=$ P1--A7--P4, with maps composed from the edge maps, a state $z_f$ and a weight $\beta_f$; each face is tied to every node and edge it traverses, and $f$ and $g$ share $s_e$. (3) The node states $x^\star$ minimise one energy anchored at $h$, and a head reads them. The loss is back-propagated (dashed) through the solve to every learned part.}
+  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b7.pdf}
+  \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$; an MLP over $[h_u,h_v,\zeta_r]$ and the relation's $R_r,U_r$ give every edge its rotations $F_{v\inc e}$ into the edge stalk $s_e$. (2) Random walks give faces such as $f=$ P1--A7--P9 and $g=$ P1--A7--P4 (shaded), whose maps are composed from the edge maps; a scorer reads each face and gives its weight $\beta_f$. (3) Node--edge, edge--face and node--face couplings form one energy, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss reaches them through the solve.}
   \label{fig:pipeline}
 \end{figure*}
 Given a heterogeneous graph with type-dependent node features $x^{\mathrm{raw}}_v\in\R^{d_{\phi(v)}}$ (types without features receive a learned vector per node) and no list of meta-path schemas, we learn a predictor $p_\theta(o;G)$ for a target node (node classification) or a typed node pair (link prediction). \method{} does so in three steps (Figure~\ref{fig:pipeline}): a sheaf on the edges of the original graph (Section~\ref{sec:maps}), faces of the same sheaf on sampled meta-path instances (Section~\ref{sec:faces}), and one anchored diffusion over nodes, edges and faces, read by a prediction head (Section~\ref{sec:prop}).
@@ -185,10 +185,7 @@ Freely learned face maps lack this property and in general remove consistent sta
 \begin{proposition}[Coupling]\label{prop:reach}
 (i) For every node $v$ of face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For two faces $f,g$ that contain the edge $e$, eliminating $s_e$ adds to the $(z_f,z_g)$ block the coupling $-\frac{\beta_f\beta_g}{D_e}F_{e\inc f}F_{e\inc g}^{\transpose}$. (iii) Without the node--face term, a face $f$ is coupled to an endpoint of an edge $e$ that lies on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
 \end{proposition}
-\begin{proof}[Proof sketch]
-(i) The only term containing $x_v$ and $z_f$ is $\frac12\beta_f\norm{F_{v\inc f}x_v-z_f}^2$. (ii) Because all maps are orthogonal, the $s_e$ block of $L$ is $D_eI$, and the Schur complement over $s_e$ couples every two faces through $e$. (iii) The same Schur complement for one face gives the stated weight (Appendix~\ref{app:proofs}).
-\end{proof}
-Part (i) lets a face reach each of its nodes, A7 included, directly; part (ii) lets instances that share an edge inform each other; and part (iii) shows why the node--face term is needed, since without it a face, however trusted, could never pull a node harder than its own edges. Part (i) alone would not distinguish a face from a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}; the forced maps and part (ii) do.
+The proof is a block computation followed by a Schur complement over $s_e$ (Appendix~\ref{app:proofs}). Part (i) lets a face reach each of its nodes, A7 included, directly; part (ii) lets instances that share an edge inform each other; and part (iii) shows why the node--face term is needed, since without it a face, however trusted, could never pull a node harder than its own edges. Part (i) alone would not distinguish a face from a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}; the forced maps and part (ii) do.
 
 \begin{table*}[t]
   \centering
@@ -266,7 +263,7 @@ Which regime an edge takes is learned, and we measure it rather than claim it. W
 %======================================================================
 \section{Experiments}
 \label{sec:experiments}
-We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data}.
+We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data} (Table~\ref{tab:graph-cls}).
 
 
 
@@ -378,6 +375,38 @@ Propositions~\ref{prop:forced} and~\ref{prop:reach} and the sampling guarantee c
 \section{Datasets, Settings and Full Results}
 \label{app:data}
 This appendix reports dataset statistics, the Micro-F1 and MRR tables, search spaces, graph classification and further results. Graph classification follows HetSheaf's protocol (TU MUTAG, PROTEINS, ENZYMES, NCI1 with node types taken from the label one-hot, constant features, 80/10/10 split, seeds 0--4); because node types are derived from labels, it checks generalisability only. \res{}
+
+\begin{table*}[t]
+  \centering
+  \caption{Graph classification, Macro-F1 and Micro-F1, mean $\pm$ std over five seeds, under HetSheaf's protocol (node types from the label one-hot, constant features, one 80/10/10 split).}
+  \label{tab:graph-cls}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lcccccccc}
+    \toprule
+    & \multicolumn{2}{c}{MUTAG} & \multicolumn{2}{c}{PROTEINS} & \multicolumn{2}{c}{ENZYMES} & \multicolumn{2}{c}{NCI1} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+    \textbf{Model} & Macro-F1 & Micro-F1 & Macro-F1 & Micro-F1 & Macro-F1 & Micro-F1 & Macro-F1 & Micro-F1 \\
+    \midrule
+    GCN & 89.56$\pm$1.04 & 90.00$\pm$1.35 & 76.82$\pm$2.45 & 80.34$\pm$2.47 & 12.71$\pm$1.92 & 28.30$\pm$2.71 & 64.13$\pm$2.12 & 64.94$\pm$2.31 \\
+    GAT & 89.56$\pm$1.02 & 90.00$\pm$1.32 & 75.76$\pm$1.51 & 78.54$\pm$1.75 & 14.12$\pm$1.29 & 16.60$\pm$2.27 & 64.19$\pm$2.44 & 64.90$\pm$2.07 \\
+    ChebNetII & \res & \res & \res & \res & \res & \res & \res & \res \\
+    NSD & 98.23$\pm$1.77 & 98.26$\pm$1.74 & 73.58$\pm$1.75 & 75.84$\pm$1.65 & 33.66$\pm$2.08 & 34.97$\pm$1.90 & 72.32$\pm$1.87 & 72.32$\pm$1.82 \\
+    CSNN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    R-GCN & 84.97$\pm$1.86 & 85.00$\pm$1.45 & 75.71$\pm$2.73 & 78.54$\pm$0.91 & 10.35$\pm$2.07 & 16.67$\pm$2.43 & 64.83$\pm$2.11 & 65.60$\pm$3.62 \\
+    HAN & 82.90$\pm$4.25 & 85.00$\pm$1.16 & 79.01$\pm$1.94 & 83.02$\pm$1.04 & 46.13$\pm$2.28 & 44.97$\pm$2.59 & 77.94$\pm$1.59 & 78.15$\pm$1.56 \\
+    SeHGNN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    HiNormer & \res & \res & \res & \res & \res & \res & \res & \res \\
+    PSHGCN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    H2G-former & \res & \res & \res & \res & \res & \res & \res & \res \\
+    Hetero$^2$Net & \res & \res & \res & \res & \res & \res & \res & \res \\
+    H2SGNN & \res & \res & \res & \res & \res & \res & \res & \res \\
+    HetSheaf & 98.69$\pm$1.31 & 98.68$\pm$1.32 & 80.55$\pm$1.55 & 82.14$\pm$1.42 & 62.36$\pm$2.14 & 63.30$\pm$1.94 & 79.42$\pm$0.87 & 79.42$\pm$0.83 \\
+    \midrule
+    \method{} & \res & \res & \res & \res & \res & \res & \res & \res \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
 
 \paragraph{Link prediction.} The eight tasks are ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, PubMed disease--disease, LastFM user--artist, ogbn-mag paper--paper and H-Pokec user--user. The target relation is split by edge into 81\%/9\%/10\% (Freebase by unordered pair), and held-out edges are removed in both directions from the message graph. Features computed from the target relation or describing the other endpoint are removed. Each test positive is paired with one negative whose tail is a two-hop neighbour of the head within the target type, and validation uses random tail negatives.
 
