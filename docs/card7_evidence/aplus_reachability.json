@@ -1,0 +1,974 @@
+[
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.2,
+  "seed": 1,
+  "direction": "lower",
+  "alpha": 0.078125,
+  "reached": true,
+  "search_h": 0.260462392964376,
+  "h": 0.2604623929643759,
+  "h_at_bound": null,
+  "h2_index": 0.39703916626688496,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 0,
+    "removed": 417
+   },
+   "paper-to-author": {
+    "added": 0,
+    "removed": 777
+   },
+   "paper-to-subject": {
+    "added": 0,
+    "removed": 236
+   },
+   "paper-to-term": {
+    "added": 0,
+    "removed": 19970
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.20/data",
+  "link_sha256": "fd22ab68a8f3f5ae0c7c94e341a876750de86e7bc0d32cded2ec55c0798c7b69",
+  "edge_fingerprint": "9e5a73b393b862e3bdf4ef41877b93765f52f35610438380e4088a40aad6ad18",
+  "edge_pairs": 252514,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.3,
+  "seed": 41,
+  "direction": "raise",
+  "alpha": 0.03125,
+  "reached": true,
+  "search_h": 0.2773980803035683,
+  "h": 0.2773980803035683,
+  "h_at_bound": null,
+  "h2_index": 0.4229537375683208,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 167,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 311,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 95,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 7988,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.30/data",
+  "link_sha256": "9f6159ab8775c1845a59bf8cbfad31fb6a0f17f4b10e76e7427dae03944a2e0e",
+  "edge_fingerprint": "42fcc6a5cf4c8aac9f11345bb8edb4abfb7348e4e9aee9caabd5981bc4e1ffb6",
+  "edge_pairs": 282472,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.4,
+  "seed": 11,
+  "direction": "raise",
+  "alpha": 0.1875,
+  "reached": true,
+  "search_h": 0.33920124338312274,
+  "h": 0.33920124338312274,
+  "h_at_bound": null,
+  "h2_index": 0.5152833993899196,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 1002,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 1865,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 567,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 47929,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.40/data",
+  "link_sha256": "f10843d0c81e04fb54a7337ddc558b6786fe932adceba6845bdde87834cc3c7a",
+  "edge_fingerprint": "b6e0924b3334ce5ee9be6e74280eb8862ce78c20e52fc6c94dc9951584d98c87",
+  "edge_pairs": 325274,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.5,
+  "seed": 51,
+  "direction": "raise",
+  "alpha": 0.375,
+  "reached": true,
+  "search_h": 0.3949231115994628,
+  "h": 0.39492311159946303,
+  "h_at_bound": null,
+  "h2_index": 0.5976199039018257,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 2004,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 3731,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 1134,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 95857,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.50/data",
+  "link_sha256": "3187f8e1d2d3bedee7eb354627d1561a12fbda257cabeb3109d3ecd4f20ceabf",
+  "edge_fingerprint": "bf52dc763a27a91ec13b3f2b85d5d3994e043d1107dc83673986913c375620aa",
+  "edge_pairs": 376636,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.6,
+  "seed": 21,
+  "direction": "raise",
+  "alpha": 1.0,
+  "reached": true,
+  "search_h": 0.49957027093769535,
+  "h": 0.49957027093769535,
+  "h_at_bound": null,
+  "h2_index": 0.7523822912194673,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 5343,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 9949,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 3025,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 255619,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.60/data",
+  "link_sha256": "8b0032df9be2335cdc01009fe6ef37cda7d2d4d859cd4b251056f15d2e017933",
+  "edge_fingerprint": "76f35925e7404975fe9b3237e4da34c9e17b1ff874d0fc9dcae19e6c27c42e4c",
+  "edge_pairs": 547846,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "random",
+  "level": 0.8,
+  "seed": 31,
+  "direction": "raise",
+  "alpha": 2.0,
+  "reached": false,
+  "search_h": 0.5729628907790051,
+  "h": 0.572962890779005,
+  "h_at_bound": null,
+  "h2_index": 0.8608585777073873,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 10686,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 19898,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 6050,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 511238,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/random_h0.80/data",
+  "link_sha256": "d521f6a598373e9740560d678ace2584296f357bf3b8189e9c79f78d9ec76a77",
+  "edge_fingerprint": "d3dcf5278e404bec0cc7ef4fe647a9bb221ba95f14daaaf81ec7af9206499293",
+  "edge_pairs": 821769,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.2,
+  "seed": 0,
+  "direction": "lower",
+  "alpha": 0.078125,
+  "reached": true,
+  "search_h": 0.19784063002388985,
+  "h": 0.19784063002388963,
+  "h_at_bound": null,
+  "h2_index": 0.30076539866604435,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 0,
+    "removed": 417
+   },
+   "paper-to-author": {
+    "added": 0,
+    "removed": 777
+   },
+   "paper-to-subject": {
+    "added": 0,
+    "removed": 236
+   },
+   "paper-to-term": {
+    "added": 0,
+    "removed": 19970
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.20/data",
+  "link_sha256": "84636423e88f18412819ba0a720ca1e0d45114a9cf76d653b53502c49b2c2cd6",
+  "edge_fingerprint": "f9b770d625e760c1258c9669dc93593c78b2259e20b95364afa7ec2c89a69b3d",
+  "edge_pairs": 252511,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.3,
+  "seed": 40,
+  "direction": "raise",
+  "alpha": 0.03125,
+  "reached": true,
+  "search_h": 0.29173620225491814,
+  "h": 0.29173620225491814,
+  "h_at_bound": null,
+  "h2_index": 0.4446133416903665,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 167,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 311,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 95,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 7988,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.30/data",
+  "link_sha256": "148e24fe9ed7f7f510fbe7b9bed732648e48e1215810e410a4e984fc12877ea1",
+  "edge_fingerprint": "5946285136945940e495b2790cea40b112af0c8e847300d11ec7528d58e197f6",
+  "edge_pairs": 282472,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.4,
+  "seed": 10,
+  "direction": "raise",
+  "alpha": 0.1875,
+  "reached": true,
+  "search_h": 0.4086045477260336,
+  "h": 0.4086045477260336,
+  "h_at_bound": null,
+  "h2_index": 0.6201964936132716,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 1002,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 1865,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 567,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 47929,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.40/data",
+  "link_sha256": "8039fed82c76d64c718fc16a1e0b47a989741b6b6c4e848c0a1b2e01ceb5dd92",
+  "edge_fingerprint": "9620234a017325e20b60df8b6e151e87f142e464e1b7b06c1cc1d8048b040c5c",
+  "edge_pairs": 325273,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.5,
+  "seed": 50,
+  "direction": "raise",
+  "alpha": 0.375,
+  "reached": true,
+  "search_h": 0.4958528977876352,
+  "h": 0.4958528977876352,
+  "h_at_bound": null,
+  "h2_index": 0.7497419608537415,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 2004,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 3731,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 1134,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 95857,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.50/data",
+  "link_sha256": "66466d67e8ac18b02efa4af86a3b2ad51af3e6e67557ff5032e822d21c9cde1a",
+  "edge_fingerprint": "a11fbf86ccc1bfba99336f069fa10d650d438b43ca49f99098cdcf37df491375",
+  "edge_pairs": 376637,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.6,
+  "seed": 20,
+  "direction": "raise",
+  "alpha": 1.0,
+  "reached": true,
+  "search_h": 0.6010744264864403,
+  "h": 0.6010744264864403,
+  "h_at_bound": null,
+  "h2_index": 0.9045632480291158,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 5343,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 9949,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 3025,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 255619,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.60/data",
+  "link_sha256": "4175dbd246b36c1597c030bfafdacf2b3769a18f1be322c7b2c7bd4b7bdd2a93",
+  "edge_fingerprint": "ed820dea967c4f598e9c38db5737eae16594269d4e4ce62753f33577d52618e1",
+  "edge_pairs": 547845,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "acm",
+  "kind": "targeted",
+  "level": 0.8,
+  "seed": 30,
+  "direction": "raise",
+  "alpha": 2.0,
+  "reached": false,
+  "search_h": 0.6376012098138523,
+  "h": 0.6376012098138524,
+  "h_at_bound": 0.6312281342268908,
+  "h2_index": 0.957639966871527,
+  "original_h": 0.26208780539590504,
+  "original_h2_index": 0.3994066586863758,
+  "facts": {
+   "paper-cite-paper": {
+    "added": 10686,
+    "removed": 0
+   },
+   "paper-to-author": {
+    "added": 19898,
+    "removed": 0
+   },
+   "paper-to-subject": {
+    "added": 6050,
+    "removed": 0
+   },
+   "paper-to-term": {
+    "added": 511238,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "paper-cite-paper": 5343,
+   "paper-to-author": 9949,
+   "paper-to-subject": 3025,
+   "paper-to-term": 255619
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/ACM_pert/targeted_h0.80/data",
+  "link_sha256": "bf7e9ce30e147c88f8f29759269f1df31576b1b02693cc416b8075c1466ce3fe",
+  "edge_fingerprint": "9e6967c8b4432e2462d2fb5fe4e9485f12d1ec3ad311d4d5450b5b44d1c9e54d",
+  "edge_pairs": 821770,
+  "num_classes": 3,
+  "ceiling": 0.6666666666666667
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.2,
+  "seed": 1001,
+  "direction": "raise",
+  "alpha": 0.015625,
+  "reached": true,
+  "search_h": 0.16925010473397573,
+  "h": 0.16925010473397573,
+  "h_at_bound": null,
+  "h2_index": 0.22938591241836548,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 307,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.20/data",
+  "link_sha256": "cb35108351854a56f96bfdda030daff6b873ee7c64f23c7916f932001331e953",
+  "edge_fingerprint": "17ef4203ca68acb5e76e83e7e02a6bd657ce211854e3de74067e01adb5250280",
+  "edge_pairs": 120090,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.3,
+  "seed": 1041,
+  "direction": "raise",
+  "alpha": 0.04296875,
+  "reached": true,
+  "search_h": 0.2398280589935522,
+  "h": 0.2398280589935522,
+  "h_at_bound": null,
+  "h2_index": 0.32463282346725464,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 844,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.30/data",
+  "link_sha256": "b6d28225c3f548e0c89dd04832b2e2bc81bfc352835ed8837ab3f90fa06fb55e",
+  "edge_fingerprint": "fc760c198bd0beac545023ea11eeb36ac1fa45ed229531c519cfb1d202a41bd0",
+  "edge_pairs": 120627,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.4,
+  "seed": 1011,
+  "direction": "raise",
+  "alpha": 0.078125,
+  "reached": true,
+  "search_h": 0.30385136442810146,
+  "h": 0.30385136442810146,
+  "h_at_bound": null,
+  "h2_index": 0.41089534759521484,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 1535,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.40/data",
+  "link_sha256": "413e950e6e50100356d96c8addf9a0fffb239762835af0de749a94a700627e23",
+  "edge_fingerprint": "ed83bc14a8e0f927a6a7a9827235f67234a53b63b23bbc10c649db041b6e6eec",
+  "edge_pairs": 121318,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.5,
+  "seed": 1051,
+  "direction": "raise",
+  "alpha": 0.1328125,
+  "reached": true,
+  "search_h": 0.38031844081154476,
+  "h": 0.38031844081154476,
+  "h_at_bound": null,
+  "h2_index": 0.5134752988815308,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 2609,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.50/data",
+  "link_sha256": "9fa8505148f07909a7957957651196fba4939b0dd9b21a5bbd5698ec0cf8db17",
+  "edge_fingerprint": "c16bcfe09c00b79585997ceb9e0be2e8850dd5d944813c77d55229a07ce14045",
+  "edge_pairs": 122392,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.6,
+  "seed": 1021,
+  "direction": "raise",
+  "alpha": 0.21875,
+  "reached": true,
+  "search_h": 0.4643406661953674,
+  "h": 0.4643406661953674,
+  "h_at_bound": null,
+  "h2_index": 0.6267359852790833,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 4297,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.60/data",
+  "link_sha256": "06f5c7274b7c536e0d0f85d5deb4bc89bc1b91c5a95efd4a8e499c88d0febf3c",
+  "edge_fingerprint": "57c2d028b0834e00c29dbf2a9f8330c1272b105e00a9211697e2e27694f5f46b",
+  "edge_pairs": 124080,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "random",
+  "level": 0.8,
+  "seed": 1031,
+  "direction": "raise",
+  "alpha": 2.0,
+  "reached": false,
+  "search_h": 0.712187493018164,
+  "h": 0.712187493018164,
+  "h_at_bound": null,
+  "h2_index": 0.9602364785969257,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 39290,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/random_h0.80/data",
+  "link_sha256": "4959f74233fd5afd396b67b95b9c1d806027de71bc9e7bdb8b343c7c910f1048",
+  "edge_fingerprint": "b471b686354de3da3239f147d023b0d92e494219ff68f1b3bff075ea2ab060aa",
+  "edge_pairs": 159073,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.2,
+  "seed": 1000,
+  "direction": "raise",
+  "alpha": 0.015625,
+  "reached": true,
+  "search_h": 0.19770418696837067,
+  "h": 0.19770418696837067,
+  "h_at_bound": null,
+  "h2_index": 0.2675042748451233,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 307,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.20/data",
+  "link_sha256": "e52d7cc39fbd197c865763c1cc9903c367a14bc74ae9b027af571445f7f7adae",
+  "edge_fingerprint": "14cf8bed54f531cea807617dd209ec9c9ffa0574fdba176715e99282ce276d13",
+  "edge_pairs": 120090,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.3,
+  "seed": 1040,
+  "direction": "raise",
+  "alpha": 0.04296875,
+  "reached": true,
+  "search_h": 0.3006788138620936,
+  "h": 0.3006788138620936,
+  "h_at_bound": null,
+  "h2_index": 0.40593069791793823,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 844,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.30/data",
+  "link_sha256": "86268749c74e950881b9472a5de20393c0208033b71e8c24189cef8efe70f17b",
+  "edge_fingerprint": "b72a1436b02900519c114362c75cb9c4a3559e195b766df66701938fe1f78d61",
+  "edge_pairs": 120627,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.4,
+  "seed": 1010,
+  "direction": "raise",
+  "alpha": 0.078125,
+  "reached": true,
+  "search_h": 0.39689188368845996,
+  "h": 0.39689188368845996,
+  "h_at_bound": null,
+  "h2_index": 0.5345983505249023,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 1535,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.40/data",
+  "link_sha256": "5c3b7364c7e15f6bf34cfa976d612570f7f73aa864813104e6db35e3a375a2b7",
+  "edge_fingerprint": "f70c211ec13b4e9061941eb9b6e943ca8ffd78d24ae6b2e81768f47e60fe39b4",
+  "edge_pairs": 121318,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.5,
+  "seed": 1050,
+  "direction": "raise",
+  "alpha": 0.1328125,
+  "reached": true,
+  "search_h": 0.5027851780092032,
+  "h": 0.5027851780092032,
+  "h_at_bound": null,
+  "h2_index": 0.6752350032329559,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 2609,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.50/data",
+  "link_sha256": "2294de6337bd0134ea975515fbfa82bfdbbb52b670407c9c911b65a793c74d0e",
+  "edge_fingerprint": "aa37c4a18cb07660acab4f8716e887f5a09c24ca45d668fc38993ae1b70babb9",
+  "edge_pairs": 122392,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.6,
+  "seed": 1020,
+  "direction": "raise",
+  "alpha": 0.21875,
+  "reached": true,
+  "search_h": 0.6080396670798653,
+  "h": 0.6080396670798653,
+  "h_at_bound": null,
+  "h2_index": 0.816812664270401,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 4297,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.60/data",
+  "link_sha256": "bc8e0bc1ecefcb20156e3143576ad2dfdd1774c2411aa8d98041fd4cc24c6f4c",
+  "edge_fingerprint": "6203176312741fa1310a883cdaeef4660a9d4f0db75de80f3dff9063dc4a4912",
+  "edge_pairs": 124080,
+  "num_classes": 4,
+  "ceiling": 0.75
+ },
+ {
+  "dataset": "dblp",
+  "kind": "targeted",
+  "level": 0.8,
+  "seed": 1030,
+  "direction": "raise",
+  "alpha": 2.0,
+  "reached": false,
+  "search_h": 0.7476629105060653,
+  "h": 0.7476629105060653,
+  "h_at_bound": 0.7181675753684547,
+  "h2_index": 1.0096012996509671,
+  "original_h": 0.12777827769279226,
+  "original_h2_index": 0.17323631048202515,
+  "facts": {
+   "author-to-paper": {
+    "added": 39290,
+    "removed": 0
+   }
+  },
+  "facts_per_relation_before": {
+   "author-to-paper": 19645
+  },
+  "removal_cap": 0.5,
+  "max_add_ratio": 4.0,
+  "tolerance": 0.01,
+  "data_root": "/mnt/data/peeradon/h2snn-model/H2S-NN/data/NC/DBLP_pert/targeted_h0.80/data",
+  "link_sha256": "195470897899b0bd541b60b3d3cbf8a0f1b5d09859dfccc142d2e4db5c44edab",
+  "edge_fingerprint": "72cf9a30f282c631418079dbb0bd38f695f2c37a1159eea31121770fa18fcc9a",
+  "edge_pairs": 159073,
+  "num_classes": 4,
+  "ceiling": 0.75
+ }
+]

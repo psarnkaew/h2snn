@@ -1,0 +1,76 @@
+job=17839 node=g3n01 start=2026-11-19T17:05:21+09:00
+git=9400456ea881974bd49d11e0f48b63283722b9f4 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+170 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_manifests_aplus/pert/manifest.tsv; {"needs_tuned_config": ["hetsheaf/acm", "csnn/acm", "hetsheaf/dblp", "csnn/dblp"], "configuration_per_baseline": {"gcn/acm": "hgb_command", "han/acm": "hgb_command", "sehgnn/acm": "published", "hetero2net/acm": "published", "hetsheaf/acm": "needs tuned config", "csnn/acm": "needs tuned config", "gcn/dblp": "hg
+== rows per dataset, graph kind, configuration
+      5 acm random a
+     10 acm random hgb_command
+     10 acm random needs tuned config
+     10 acm random published
+      5 acm random tuned
+     10 acm targeted a
+     10 acm targeted hgb_command
+     10 acm targeted needs tuned config
+     10 acm targeted published
+      5 acm targeted tuned
+      5 dblp random a
+     10 dblp random hgb_command
+     10 dblp random needs tuned config
+     10 dblp random published
+      5 dblp random tuned
+     10 dblp targeted a
+     10 dblp targeted hgb_command
+     10 dblp targeted needs tuned config
+     10 dblp targeted published
+      5 dblp targeted tuned
+== rows per dataset, level, kind (h, H2)
+      8 acm 0.20 random 0.2605 0.3970
+      9 acm 0.20 targeted 0.1978 0.3008
+      8 acm 0.30 random 0.2774 0.4230
+      9 acm 0.30 targeted 0.2917 0.4446
+      8 acm 0.40 random 0.3392 0.5153
+      9 acm 0.40 targeted 0.4086 0.6202
+      8 acm 0.50 random 0.3949 0.5976
+      9 acm 0.50 targeted 0.4959 0.7497
+      8 acm 0.60 random 0.4996 0.7524
+      9 acm 0.60 targeted 0.6011 0.9046
+      8 dblp 0.20 random 0.1693 0.2294
+      9 dblp 0.20 targeted 0.1977 0.2675
+      8 dblp 0.30 random 0.2398 0.3246
+      9 dblp 0.30 targeted 0.3007 0.4059
+      8 dblp 0.40 random 0.3039 0.4109
+      9 dblp 0.40 targeted 0.3969 0.5346
+      8 dblp 0.50 random 0.3803 0.5135
+      9 dblp 0.50 targeted 0.5028 0.6752
+      8 dblp 0.60 random 0.4643 0.6267
+      9 dblp 0.60 targeted 0.6080 0.8168
+== baseline configuration mapping
+| model | HGB setting | HGB value | adapter key | adapter value |
+|---|---|---|---|---|
+| gcn | `--model-type` | gcn | `(registry model)` | gcn |
+| gcn | `--lr` | 1e-3 | `lr` | 1e-3 |
+| gcn | `--weight-decay` | 1e-6 | `weight_decay` | 1e-6 |
+| gcn | `--feats-type` | ACM 0 (command); DBLP 3 (default) | `feats_type` | ACM 0; DBLP 3 |
+| gcn | `--hidden-dim` | 64 (default) | `hidden_dim` | 64 |
+| gcn | `--num-layers` | 2 (default) | `num_layers` | 2 |
+| gcn | `--dropout` | 0.5 (default) | `dropout` | 0.5 |
+| gcn | `--epoch` | 300 (default) | `epochs` | 300 |
+| gcn | `--patience` | 30 (default) | `early_stopping` | 30 |
+| han | `lr` | 0.005 (default_configure) | `lr` | 0.005 |
+| han | `weight_decay` | 0.001 (default_configure) | `weight_decay` | 0.001 |
+| han | `hidden_units` | 8 (default_configure) | `hidden_dim` | 8 |
+| han | `num_heads` | [8] (default_configure; one HAN layer) | `num_heads` | 8 (the adapter builds [num_heads]) |
+| han | `dropout` | 0.6 (default_configure) | `dropout` | 0.6 |
+| han | `--num_epochs` | 200 (main.py default) | `epochs` | 200 |
+| han | `--patience` | 100 (main.py default) | `early_stopping` | 100 |
+| han | `feat_type` | 0 (main.py:33) | `(none: the adapter's vendor loader)` | 0, same vendor loader |
+
+| model | HGB setting without a counterpart key | note |
+|---|---|---|
+| gcn, han | optimizer | HGB: torch.optim.Adam (L2 weight decay); adapters: AdamW (decoupled), fixed in code |
+| gcn | early-stopping criterion | HGB: validation loss; adapter: validation macro-F1 (protocol, adapter docstring deviation 2) |
+| han | early-stopping criterion | HGB/DGL HAN: validation loss and accuracy; adapter: validation macro-F1 (protocol) |
+| gcn | --repeat | HGB: repeats in one process; ours: seeds 1-5 as separate units |
+| han | --num_layers | main.py parses it (default 2) but HAN is built from num_heads=[8]: one layer; not used by HGB either |
+| gcn, han | split | HGB: unseeded 20 % validation carve-out; ours: the project's deterministic carve-out (adapter deviation 1) |
+
+end=2026-11-19T17:05:27+09:00

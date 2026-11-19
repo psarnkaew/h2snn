@@ -1,0 +1,52 @@
+{
+ "needs_tuned_config": [
+  "hetsheaf/acm",
+  "csnn/acm",
+  "hetsheaf/dblp",
+  "csnn/dblp"
+ ],
+ "configuration_per_baseline": {
+  "gcn/acm": "hgb_command",
+  "han/acm": "hgb_command",
+  "sehgnn/acm": "published",
+  "hetero2net/acm": "published",
+  "hetsheaf/acm": "needs tuned config",
+  "csnn/acm": "needs tuned config",
+  "gcn/dblp": "hgb_command",
+  "han/dblp": "hgb_command",
+  "sehgnn/dblp": "published",
+  "hetero2net/dblp": "published",
+  "hetsheaf/dblp": "needs tuned config",
+  "csnn/dblp": "needs tuned config"
+ },
+ "unreached_graphs_without_rows": [],
+ "excluded_graphs": [
+  "acm/random_h0.80",
+  "acm/targeted_h0.80",
+  "dblp/random_h0.80",
+  "dblp/targeted_h0.80",
+  "imdb/random_h0.20",
+  "imdb/random_h0.40",
+  "imdb/random_h0.60",
+  "imdb/random_h0.80",
+  "imdb/targeted_h0.20",
+  "imdb/targeted_h0.40",
+  "imdb/targeted_h0.60",
+  "imdb/targeted_h0.80"
+ ],
+ "rows": 170,
+ "rows_per_method": {
+  "h2snn_full": 20,
+  "h2snn_no_path_cells": 20,
+  "gcn": 20,
+  "han": 20,
+  "sehgnn": 20,
+  "hetero2net": 20,
+  "hetsheaf": 20,
+  "csnn": 20,
+  "h2snn_S2": 10
+ },
+ "runs": 850,
+ "runnable_rows": 130,
+ "runnable_runs": 650
+}

@@ -1,0 +1,115 @@
+label=aplus job=17837 node=g3n01 start=2026-11-19T17:01:51+09:00
+git=9400456ea881974bd49d11e0f48b63283722b9f4 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+test_every_mapped_key_is_an_adapter_key (tests.test_card7_amendments.BaselineConfigTests.test_every_mapped_key_is_an_adapter_key) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_gcn_values_are_hgb_s (tests.test_card7_amendments.BaselineConfigTests.test_gcn_values_are_hgb_s) ... ok
+test_han_values_are_hgb_s (tests.test_card7_amendments.BaselineConfigTests.test_han_values_are_hgb_s) ... ok
+test_sources (tests.test_card7_amendments.BaselineConfigTests.test_sources) ... ok
+Processing...
+Done!
+  C = torch.sparse.mm(A, B)
+Processing...
+Done!
+Processing...
+Done!
+test_a_launcher_that_never_loads_fails (tests.test_card7_amendments.CheckTests.test_a_launcher_that_never_loads_fails) ... ok
+test_gcn_from_the_graph_folder_logs_and_matches (tests.test_card7_amendments.CheckTests.test_gcn_from_the_graph_folder_logs_and_matches) ... ok
+test_h2snn_run_logs_and_matches (tests.test_card7_amendments.CheckTests.test_h2snn_run_logs_and_matches) ... no load
+  gcn_node_classification_dblp run0: done
+{
+ "test_macro_f1": {
+  "mean": 0.1821705426356589,
+  "std": 0.0
+ },
+ "test_micro_f1": {
+  "mean": 0.2857142857142857,
+  "std": 0.0
+ },
+ "test_acc": {
+  "mean": 0.2857142857142857,
+  "std": 0.0
+ }
+}
+fingerprint checks: 1, all match
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpmtkxg8nj/h2snn/toy_run0
+2026-11-19 17:02:01,909 | INFO | Dataset: dblp | Task: node_classification | Run: 0/1 | Seed: 1 | Monitor: macro_f1
+2026-11-19 17:02:01,909 | INFO | Target node type: author
+2026-11-19 17:02:01,909 | INFO | Model parameters: 2629
+2026-11-19 17:02:01,909 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 2178, 'facts_after': 1089}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 17:02:02,105 | INFO | Epoch 0000 | train_loss: 1.4068 | train_acc: 0.3793 | train_auroc: 0.0000 | train_macro_f1: 0.2587 | train_micro_f1: 0.3793 | val_loss: 1.3737 | val_acc: 0.2857 | val_auroc: 0.0000 | val_macro_f1: 0.1964 | val_micro_f1: 0.2857 | test_acc: 0.2262 | test_auroc: 0.0000 | test_macro_f1: 0.1532 | test_micro_f1: 0.2262
+2026-11-19 17:02:02,112 | INFO | Checkpoint metric macro_f1: 0.1964
+2026-11-19 17:02:02,112 | INFO | Best epoch 0 | test_macro_f1: 0.1532 | test_micro_f1: 0.2262 | test_acc: 0.2262
+ok
+test_wrong_graph_fails_before_training (tests.test_card7_amendments.CheckTests.test_wrong_graph_fails_before_training) ... ok
+test_ceiling_lines_and_collection (tests.test_card7_amendments.FigureTests.test_ceiling_lines_and_collection) ... ok
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+test_acm_shape_with_self_mirrored_citations (tests.test_card7_amendments.FingerprintTests.test_acm_shape_with_self_mirrored_citations) ... Processing...
+Done!
+ok
+test_backfill_adds_the_fields_and_refuses_a_changed_link_file (tests.test_card7_amendments.FingerprintTests.test_backfill_adds_the_fields_and_refuses_a_changed_link_file) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+test_generator_fingerprint_equals_the_loaded_graph (tests.test_card7_amendments.FingerprintTests.test_generator_fingerprint_equals_the_loaded_graph) ... ok
+test_levels_and_seeds (tests.test_card7_amendments.LevelTests.test_levels_and_seeds) ... ok
+Processing...
+Done!
+test_every_acm_relation_is_m2_and_raising_scales_every_relation (tests.test_card7_perturbation.AcmToyTests.test_every_acm_relation_is_m2_and_raising_scales_every_relation) ... ok
+Processing...
+Done!
+test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory (tests.test_card7_perturbation.LoaderTests.test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory) ... Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_manifest_rows (tests.test_card7_perturbation.ManifestTests.test_manifest_rows) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_lowering_removes_at_most_half_and_only_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_lowering_removes_at_most_half_and_only_different_class_facts) ... ok
+test_raising_adds_only_typed_new_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts) ... ok
+test_random_control_has_equal_counts_per_relation (tests.test_card7_perturbation.TargetedTests.test_random_control_has_equal_counts_per_relation) ... ok
+test_reached_within_tolerance_or_stopped_at_the_bound (tests.test_card7_perturbation.TargetedTests.test_reached_within_tolerance_or_stopped_at_the_bound) ... ok
+test_toy_lies_between_the_levels (tests.test_card7_perturbation.TargetedTests.test_toy_lies_between_the_levels) ... ok
+Processing...
+Done!
+test_only_m2_relations_are_touched_and_h_is_the_reference_value (tests.test_card7_perturbation.WrittenGraphTests.test_only_m2_relations_are_touched_and_h_is_the_reference_value) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+test_arms_writes_exactly_the_seven_rows (tests.test_card7_ablation.LauncherTests.test_arms_writes_exactly_the_seven_rows) ... ok
+test_freebase_mode_is_an_input_written_into_every_configuration (tests.test_card7_ablation.LauncherTests.test_freebase_mode_is_an_input_written_into_every_configuration) ... ok
+test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm (tests.test_card7_ablation.LauncherTests.test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm) ... ok
+test_sweeps_writes_exactly_the_four_b_arms (tests.test_card7_ablation.LauncherTests.test_sweeps_writes_exactly_the_four_b_arms) ... ok
+test_the_out_of_scope_check_catches_an_arm (tests.test_card7_ablation.LauncherTests.test_the_out_of_scope_check_catches_an_arm) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 15.456s
+
+OK
+fingerprint checks: 1, all match
+exit=0 end=2026-11-19T17:02:09+09:00

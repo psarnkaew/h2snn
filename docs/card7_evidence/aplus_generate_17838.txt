@@ -1,0 +1,54 @@
+job=17838 node=g3n01 start=2026-11-19T17:02:21+09:00
+git=9400456ea881974bd49d11e0f48b63283722b9f4 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+acm: search h 0.2621, reference h 0.2621, H2 0.3994, M_2 relations ['paper-cite-paper', 'paper-to-author', 'paper-to-subject', 'paper-to-term']
+acm targeted 0.30: h 0.2917 H2 0.4446 reached True raise alpha 0.0312 {'paper-cite-paper': {'added': 167, 'removed': 0}, 'paper-to-author': {'added': 311, 'removed': 0}, 'paper-to-subject': {'added': 95, 'removed': 0}, 'paper-to-term': {'added': 7988, 'removed': 0}}
+acm random 0.30: h 0.2774 H2 0.4230 reached True raise alpha 0.0312 {'paper-cite-paper': {'added': 167, 'removed': 0}, 'paper-to-author': {'added': 311, 'removed': 0}, 'paper-to-subject': {'added': 95, 'removed': 0}, 'paper-to-term': {'added': 7988, 'removed': 0}}
+acm targeted 0.50: h 0.4959 H2 0.7497 reached True raise alpha 0.3750 {'paper-cite-paper': {'added': 2004, 'removed': 0}, 'paper-to-author': {'added': 3731, 'removed': 0}, 'paper-to-subject': {'added': 1134, 'removed': 0}, 'paper-to-term': {'added': 95857, 'removed': 0}}
+acm random 0.50: h 0.3949 H2 0.5976 reached True raise alpha 0.3750 {'paper-cite-paper': {'added': 2004, 'removed': 0}, 'paper-to-author': {'added': 3731, 'removed': 0}, 'paper-to-subject': {'added': 1134, 'removed': 0}, 'paper-to-term': {'added': 95857, 'removed': 0}}
+dblp: search h 0.1278, reference h 0.1278, H2 0.1732, M_2 relations ['author-to-paper']
+dblp targeted 0.30: h 0.3007 H2 0.4059 reached True raise alpha 0.0430 {'author-to-paper': {'added': 844, 'removed': 0}}
+dblp random 0.30: h 0.2398 H2 0.3246 reached True raise alpha 0.0430 {'author-to-paper': {'added': 844, 'removed': 0}}
+dblp targeted 0.50: h 0.5028 H2 0.6752 reached True raise alpha 0.1328 {'author-to-paper': {'added': 2609, 'removed': 0}}
+dblp random 0.50: h 0.3803 H2 0.5135 reached True raise alpha 0.1328 {'author-to-paper': {'added': 2609, 'removed': 0}}
+generate_exit=0 t=2026-11-19T17:04:59+09:00
+acm random 0.20: edge fingerprint 9e5a73b393b8 (252514 pairs), C 3
+acm random 0.30: edge fingerprint 42fcc6a5cf4c (282472 pairs), C 3
+acm random 0.40: edge fingerprint b6e0924b3334 (325274 pairs), C 3
+acm random 0.50: edge fingerprint bf52dc763a27 (376636 pairs), C 3
+acm random 0.60: edge fingerprint 76f35925e740 (547846 pairs), C 3
+acm random 0.80: edge fingerprint d3dcf5278e40 (821769 pairs), C 3
+acm targeted 0.20: edge fingerprint f9b770d625e7 (252511 pairs), C 3
+acm targeted 0.30: edge fingerprint 594628513694 (282472 pairs), C 3
+acm targeted 0.40: edge fingerprint 9620234a0173 (325273 pairs), C 3
+acm targeted 0.50: edge fingerprint a11fbf86ccc1 (376637 pairs), C 3
+acm targeted 0.60: edge fingerprint ed820dea967c (547845 pairs), C 3
+acm targeted 0.80: edge fingerprint 9e6967c8b443 (821770 pairs), C 3
+dblp random 0.20: edge fingerprint 17ef4203ca68 (120090 pairs), C 4
+dblp random 0.30: edge fingerprint fc760c198bd0 (120627 pairs), C 4
+dblp random 0.40: edge fingerprint ed83bc14a8e0 (121318 pairs), C 4
+dblp random 0.50: edge fingerprint c16bcfe09c00 (122392 pairs), C 4
+dblp random 0.60: edge fingerprint 57c2d028b083 (124080 pairs), C 4
+dblp random 0.80: edge fingerprint b471b686354d (159073 pairs), C 4
+dblp targeted 0.20: edge fingerprint 14cf8bed54f5 (120090 pairs), C 4
+dblp targeted 0.30: edge fingerprint b72a1436b029 (120627 pairs), C 4
+dblp targeted 0.40: edge fingerprint f70c211ec13b (121318 pairs), C 4
+dblp targeted 0.50: edge fingerprint aa37c4a18cb0 (122392 pairs), C 4
+dblp targeted 0.60: edge fingerprint 620317631274 (124080 pairs), C 4
+dblp targeted 0.80: edge fingerprint 72cf9a30f282 (159073 pairs), C 4
+backfill_exit=0 end=2026-11-19T17:05:16+09:00
