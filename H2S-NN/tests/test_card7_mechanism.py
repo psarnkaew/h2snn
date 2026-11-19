@@ -8,7 +8,9 @@ target-target relation P-P), and runs of `full`, `no_path_cells` and S2 at seeds
 tests (`test_card5_protocol_hooks._model`).
 
 T6: flips counted from crafted predictions; the margin sign; F3 with hook (b) zeroes exactly the chosen node's cells
-    and reads that node; eta_v equals a brute-force count over the reference meta-path graphs; the mini-batch views
+    and reads that node; eta_v (amendment 9) equals a brute-force per-path mean over the reference meta-path graphs,
+    and on a crafted graph where the union reading differs (single- and multi-label); the eta groups (amendment 10:
+    G0 + tertiles; ties at 0, an empty G0, ties at a tertile edge); the mini-batch views
     give the trainer's own evaluation logits; F1-F3 and the case study end to end on the trained runs.
 T7: the composed endpoint transport equals the product of the fact transports in path order (crafted, <= 1e-12) and
     the model's own transport (`PathTransportOperator.apply_holonomy`, float64, <= 1e-12); R2 / R3 on crafted inputs;
@@ -98,12 +100,12 @@ class FaceEffectUnitTests(unittest.TestCase):
     def test_T6_flips_from_crafted_predictions(self) -> None:
         full = np.array([1, 1, 0, 0, 1, 0, 1, 1], dtype=bool)
         ablated = np.array([0, 1, 1, 0, 0, 1, 0, 1], dtype=bool)
-        quartile = np.array([0, 0, 1, 2, -1, 3, 3, 3])
-        out = fe.flip_counts(full, ablated, quartile)
-        self.assertEqual(out["Q1"], {"nodes": 2, "wrong_to_right": 1, "right_to_wrong": 0})
-        self.assertEqual(out["Q2"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 1})
-        self.assertEqual(out["Q3"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 0})
-        self.assertEqual(out["Q4"], {"nodes": 3, "wrong_to_right": 1, "right_to_wrong": 1})
+        group = np.array([0, 0, 1, 2, -1, 3, 3, 3])
+        out = fe.flip_counts(full, ablated, group)
+        self.assertEqual(out["G0"], {"nodes": 2, "wrong_to_right": 1, "right_to_wrong": 0})
+        self.assertEqual(out["G1"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 1})
+        self.assertEqual(out["G2"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 0})
+        self.assertEqual(out["G3"], {"nodes": 3, "wrong_to_right": 1, "right_to_wrong": 1})
         self.assertEqual(out["none"], {"nodes": 1, "wrong_to_right": 1, "right_to_wrong": 0})
 
     def test_T6_margin_sign(self) -> None:
@@ -118,13 +120,27 @@ class FaceEffectUnitTests(unittest.TestCase):
         torch.testing.assert_close(c[0], torch.tensor([5.0, 0.0], dtype=torch.float64))
         self.assertTrue(bool(torch.isnan(c[2]).all()))              # a class without a node
 
-    def test_T6_quartiles(self) -> None:
-        values = np.array([0.0, 0.0, 0.1, 0.2, 0.5, 0.9, np.nan, 1.0])
-        edges = mc.quartile_edges(values)
-        self.assertEqual(edges, [float(v) for v in np.quantile(values[~np.isnan(values)], [0.25, 0.5, 0.75])])
-        q = mc.quartile_of(values, edges)
-        self.assertEqual(q[6], -1)
-        self.assertTrue(np.all(np.diff(q[np.argsort(np.nan_to_num(values, nan=-1))][1:]) >= 0))
+    def test_T6_eta_groups(self) -> None:
+        """Amendment 10: G0 = {eta_v = 0}; G1-G3 = tertiles of eta_v > 0, bins (-inf, t1], (t1, t2], (t2, inf)."""
+        values = np.array([0.0, 0.0, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, np.nan])     # ties at 0
+        edges = mc.group_edges(values)
+        self.assertEqual(edges, [float(np.quantile([0.1, 0.2, 0.3, 0.4, 0.5, 0.6], q)) for q in (1 / 3, 2 / 3)])
+        self.assertEqual(mc.group_of(values, edges).tolist(), [0, 0, 0, 1, 1, 2, 2, 3, 3, -1])
+        self.assertEqual(fe.group_counts(mc.group_of(values, edges)), {"G0": 3, "G1": 2, "G2": 2, "G3": 2, "none": 1})
+        positive = np.array([0.2, 0.3, 0.7, 0.8, 0.9, 1.0])                             # an empty G0: kept, count 0
+        groups = mc.group_of(positive, mc.group_edges(positive))
+        self.assertNotIn(0, groups.tolist())
+        self.assertEqual(fe.group_counts(groups)["G0"], 0)
+        self.assertEqual(groups.tolist(), [1, 1, 2, 2, 3, 3])
+        ties = np.array([0.0, 0.5, 0.5, 0.5, 0.5, 0.9, 1.0])                            # ties at a tertile edge
+        edges = mc.group_edges(ties)
+        self.assertEqual(edges[0], 0.5)
+        groups = mc.group_of(ties, edges)
+        self.assertEqual(groups.tolist(), [0, 1, 1, 1, 1, 3, 3])                         # equal values, one group
+        self.assertEqual(fe.group_counts(groups)["G2"], 0)
+        zeros = np.array([0.0, 0.0, np.nan])                                             # no eta_v > 0
+        self.assertTrue(all(np.isnan(mc.group_edges(zeros))))
+        self.assertEqual(mc.group_of(zeros, mc.group_edges(zeros)).tolist(), [0, 0, -1])
 
     def test_T6_case_rule(self) -> None:
         rows = [{"node": 5, "right_to_wrong": True, "margin_change": -2.0},
@@ -167,22 +183,59 @@ class FaceEffectModelTests(unittest.TestCase):
         again = mc.read(run.model, whole)                           # cold start: nothing carried over
         self.assertTrue(torch.equal(again["logits"], base["logits"]))
 
-    def test_T6_eta_equals_a_brute_force_count(self) -> None:
+    def test_T6_eta_equals_a_brute_force_per_path_mean(self) -> None:
         values = mc.eta(FIXTURE["root"], "acm")
         data, target, ref = mc.reference_graph(FIXTURE["root"], "acm")
         y = data[target].y
-        pairs = set()
-        for path in ref.h2gb_metapaths(data, target):
-            g = ref.metapath_graph(data, path, 7)
-            pairs |= {(int(u), int(v)) for u, v in g.t().tolist() if u != v}
         n = int(data[target].num_nodes)
+        shares = []                                                 # per path: v -> share of different labels
+        for path in ref.h2gb_metapaths(data, target):
+            pairs = {(int(u), int(v)) for u, v in ref.metapath_graph(data, path, 7).t().tolist() if u != v}
+            share = {}
+            for v in range(n):
+                nb = [u for (u, w) in pairs if w == v and int(y[u]) >= 0]
+                if nb and int(y[v]) >= 0:
+                    share[v] = np.mean([int(y[u]) != int(y[v]) for u in nb])
+            shares.append(share)
         expected = np.full(n, np.nan)
         for v in range(n):
-            nb = [u for (u, w) in pairs if w == v and int(y[u]) >= 0]
-            if nb and int(y[v]) >= 0:
-                expected[v] = np.mean([int(y[u]) != int(y[v]) for u in nb])
+            on = [s[v] for s in shares if v in s]
+            if on:
+                expected[v] = np.mean(on)
         np.testing.assert_allclose(values["eta"], expected, rtol=0, atol=1e-15)
-        self.assertTrue((values["neighbours"][~np.isnan(expected)] > 0).all())
+        self.assertEqual(values["paths"].tolist(), [sum(v in s for s in shares) for v in range(n)])
+        self.assertGreater(len(shares), 1)
+
+    def test_T6_eta_per_path_mean_differs_from_the_union(self) -> None:
+        """Crafted two-path graph (target nodes 0-4; 4 unlabelled): duplicates, a self pair and an unlabelled
+        neighbour are dropped; v = 0 has 2 neighbours on path A and 1 on path B, so the per-path mean and the union
+        reading differ."""
+        import types
+
+        import compute_heterophily as real
+
+        edges = {"A": torch.tensor([[1, 2, 2, 0, 0, 4, 0], [0, 0, 0, 0, 1, 2, 4]]),
+                 "B": torch.tensor([[3, 3], [0, 2]])}
+        fake = types.SimpleNamespace(h2gb_metapaths=lambda data, target: ["A", "B"],
+                                     iter_metapath_chunks=lambda data, path, chunk: iter([edges[path]]),
+                                     labeled_mask=real.labeled_mask)
+
+        def run(y):
+            data = {"paper": types.SimpleNamespace(y=y, num_nodes=5)}
+            with mock.patch.object(mc, "reference_graph", return_value=(data, "paper", fake)):
+                return mc.eta(Path("."), "crafted")
+
+        out = run(torch.tensor([0, 0, 1, 1, -1]))
+        # v0: A {1 same, 2 diff} -> 1/2; B {3 diff} -> 1; mean 3/4 (union {1, 2, 3}: 2/3). v1: A {0 same} -> 0.
+        # v2: A {4 unlabelled} -> no path; B {3 same} -> 0. v3: no neighbour. v4: unlabelled.
+        np.testing.assert_allclose(out["eta"], [0.75, 0.0, 0.0, np.nan, np.nan], rtol=0, atol=1e-15)
+        self.assertNotAlmostEqual(out["eta"][0], 2 / 3)
+        self.assertEqual(out["paths"].tolist(), [2, 1, 1, 0, 0])
+        multi = run(torch.tensor([[1, 0, 0], [1, 1, 0], [0, 1, 1], [1, 0, 0], [0, 0, 0]]))
+        # IMDB: per path the mean over genres of the binary disagreement, then the mean over paths.
+        # v0: A {1: 1/3, 2: 1} -> 2/3; B {3: 0} -> 0; mean 1/3 (union 4/9). v1: A {0: 1/3}. v2: B {3: 1}.
+        np.testing.assert_allclose(multi["eta"], [1 / 3, 1 / 3, 1.0, np.nan, np.nan], rtol=0, atol=1e-15)
+        self.assertNotAlmostEqual(multi["eta"][0], 4 / 9)
 
     def test_T6_minibatch_views_give_the_trainers_logits(self) -> None:
         from tests.test_partMB_trainer import trainer_for
@@ -216,6 +269,7 @@ class FaceEffectModelTests(unittest.TestCase):
             self.assertEqual(sum(v["wrong_to_right"] for v in f1.values()), int((ca & ~cb).sum()))
             self.assertEqual(sum(v["right_to_wrong"] for v in f1.values()), int((~ca & cb).sum()))
             self.assertEqual(sum(v["nodes"] for v in f1.values()), int(a["ids"].numel()))
+            self.assertEqual({k: v["nodes"] for k, v in f1.items()}, acm["eta_group_counts"])
             self.assertIn("F2", acm["seeds"][0])
             self.assertEqual(set(acm["seeds"][0]["F2"]), {"full", "no_path_cells"})
             self.assertNotIn("F3", acm["seeds"][1])                  # F3 on the listed seeds only
@@ -311,13 +365,13 @@ class TwoRegimeUnitTests(unittest.TestCase):
         e_v = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
         wrong = np.array([0, 0, 0, 0, 1, 1, 1, 1], dtype=bool)
         eta = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, np.nan])
-        quartile = np.array([0, 0, 1, 1, 2, 2, 3, -1])
-        out = tr.r2(e_v, wrong, eta, quartile)
+        group = np.array([0, 0, 1, 1, 2, 2, 3, -1])
+        out = tr.r2(e_v, wrong, eta, group)
         self.assertEqual(out["auroc_wrong"], 1.0)
         self.assertAlmostEqual(out["spearman_eta"], 1.0)
-        self.assertEqual(out["by_quartile"]["Q1"], {"nodes": 2, "mean_e_v": 1.5, "auroc_wrong": None})
-        self.assertEqual(out["by_quartile"]["Q4"]["nodes"], 1)
-        out = tr.r2(-e_v, wrong, eta, quartile)
+        self.assertEqual(out["by_group"]["G0"], {"nodes": 2, "mean_e_v": 1.5, "auroc_wrong": None})
+        self.assertEqual(out["by_group"]["G3"]["nodes"], 1)
+        out = tr.r2(-e_v, wrong, eta, group)
         self.assertEqual(out["auroc_wrong"], 0.0)
 
     def test_T7_r3_on_crafted_inputs(self) -> None:
@@ -330,7 +384,7 @@ class TwoRegimeUnitTests(unittest.TestCase):
         y_tr = np.repeat([0, 1], 20)
         out = tr.probe(x_tr, y_tr, x, y, False, np.array([0, 0, 1, 1]))
         self.assertEqual((out["macro_f1"], out["accuracy"], out["nodes"]), (1.0, 1.0, 4))
-        self.assertEqual(out["by_quartile"]["Q1"]["nodes"], 2)
+        self.assertEqual(out["by_group"]["G0"]["nodes"], 2)
         multi = tr.probe(x_tr, np.stack([y_tr, 1 - y_tr], axis=1), x, np.stack([y, 1 - y], axis=1), True)
         self.assertEqual(multi["macro_f1"], 1.0)
         self.assertEqual(tr.split_summary(np.array([0.1, 0.2, 0.9, 1.0]), np.array([1, 1, 0, 0], dtype=bool)),
@@ -385,7 +439,7 @@ class TwoRegimeModelTests(unittest.TestCase):
                 self.assertEqual("R1" in r, r["arm"] == "full")
                 self.assertEqual("R2" in r, r["arm"] == "full")
                 if r["arm"] == "full":
-                    self.assertEqual(r["R2"]["nodes"], sum(q["nodes"] for q in r["R2"]["by_quartile"].values())
+                    self.assertEqual(r["R2"]["nodes"], sum(q["nodes"] for q in r["R2"]["by_group"].values())
                                      + r["test_nodes_without_eta"])
                     self.assertEqual(r["R1"]["facts"]["status"], "computed")       # ACM: P-P facts
             pert = [r for r in records if r["graph"] != "original"]

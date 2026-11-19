@@ -1,0 +1,10 @@
+job=17886 node=g3n01 git=5b3cb6e8f61ac0f5677f8c43181a6e6b0e3b85dc dirty=2 start=2026-11-20T06:59:22+09:00
+== acm: target paper, M_2 (7) = ['paper -cite-> paper -cite-> paper', 'paper -cite-> paper -ref-> paper', 'paper -ref-> paper -cite-> paper', 'paper -ref-> paper -ref-> paper', 'paper -to-> author -to-> paper', 'paper -to-> subject -to-> paper', 'paper -to-> term -to-> paper']
+  test targets 2118, excluded 0, eta mean 0.3274, tertile edges t1/t2 [0.234, 0.3746], groups {'G0': 0, 'G1': 744, 'G2': 708, 'G3': 666}, distinct values 1207, largest tie 80 at 0.140379199653, test targets per number of paths counted {1: 1, 2: 206, 3: 379, 4: 268, 5: 623, 6: 268, 7: 373}
+== dblp: target author, M_2 (1) = ['author -to-> paper -to-> author']
+  test targets 2840, excluded 1020, eta mean 0.1670, tertile edges t1/t2 [0.3333, 0.6667], groups {'G0': 1280, 'G1': 187, 'G2': 191, 'G3': 162}, distinct values 53, largest tie 1280 at 0.0, test targets per number of paths counted {0: 1020, 1: 1820}
+== imdb: target movie, M_2 (3) = ['movie -to-> director -to-> movie', 'movie ->actorh-> actor -to-> movie', 'movie -to-> keyword -to-> movie']
+  test targets 3202, excluded 29, eta mean 0.3370, tertile edges t1/t2 [0.2925, 0.3705], groups {'G0': 3, 'G1': 1057, 'G2': 1056, 'G3': 1057}, distinct values 2854, largest tie 20 at 0.4, test targets per number of paths counted {0: 29, 1: 181, 2: 855, 3: 2137}
+== freebase: target book, M_2 (8) = ['book -and-> book -and-> book', 'book -to-> film -rev_to-> book', 'book -on-> sports -rev_on-> book', 'book -on-> location -rev_on-> book', 'book -about-> organization -rev_about-> book', 'book -rev_in-> music -in-> book', 'book -rev_to-> people -to-> book', 'book -rev_about-> business -about-> book']
+  test targets 5568, excluded 695, eta mean 0.4234, tertile edges t1/t2 [0.3365, 0.6248], groups {'G0': 668, 'G1': 1403, 'G2': 1400, 'G3': 1402}, distinct values 2466, largest tie 668 at 0.0, test targets per number of paths counted {0: 695, 1: 2529, 2: 1073, 3: 462, 4: 361, 5: 235, 6: 148, 7: 51, 8: 14}
+exit=0 end=2026-11-20T06:59:52+09:00

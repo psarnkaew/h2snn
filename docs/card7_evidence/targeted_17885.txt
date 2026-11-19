@@ -1,0 +1,155 @@
+label=C-amend910 job=17885 node=g3n01 start=2026-11-20T06:59:22+09:00
+git=5b3cb6e8f61ac0f5677f8c43181a6e6b0e3b85dc branch=card7 uncommitted_sha256=09e4664f83efc0d8
+working tree:  M tests/test_card7_mechanism.py
+working tree:  M tests/test_card7_tsubame.py
+  gcn_node_classification_dblp run0: done
+{
+ "test_macro_f1": {
+  "mean": 0.1821705426356589,
+  "std": 0.0
+ },
+ "test_micro_f1": {
+  "mean": 0.2857142857142857,
+  "std": 0.0
+ },
+ "test_acc": {
+  "mean": 0.2857142857142857,
+  "std": 0.0
+ }
+}
+fingerprint checks: 1, all match
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpe0htaz00/h2snn/toy_run0
+2026-11-20 06:59:56,223 | INFO | Dataset: dblp | Task: node_classification | Run: 0/1 | Seed: 1 | Monitor: macro_f1
+2026-11-20 06:59:56,223 | INFO | Target node type: author
+2026-11-20 06:59:56,224 | INFO | Model parameters: 2629
+2026-11-20 06:59:56,224 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__to__paper': 'paper__to__author', 'paper__to__term': 'term__to__paper', 'paper__to__venue': 'venue__to__paper', 'paper__to__author': 'author__to__paper', 'term__to__paper': 'paper__to__term', 'venue__to__paper': 'paper__to__venue'}, 'kept_relations': ['author__to__paper', 'paper__to__term', 'paper__to__venue'], 'self_inverse_relations': [], 'unmatched_edges': {'author__to__paper': 0, 'paper__to__term': 0, 'paper__to__venue': 0, 'paper__to__author': 0, 'term__to__paper': 0, 'venue__to__paper': 0}, 'facts_before': 2178, 'facts_after': 1089}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 06:59:56,414 | INFO | Epoch 0000 | train_loss: 1.4068 | train_acc: 0.3793 | train_auroc: 0.0000 | train_macro_f1: 0.2587 | train_micro_f1: 0.3793 | val_loss: 1.3737 | val_acc: 0.2857 | val_auroc: 0.0000 | val_macro_f1: 0.1964 | val_micro_f1: 0.2857 | test_acc: 0.2262 | test_auroc: 0.0000 | test_macro_f1: 0.1532 | test_micro_f1: 0.2262
+2026-11-20 06:59:56,421 | INFO | Checkpoint metric macro_f1: 0.1964
+2026-11-20 06:59:56,421 | INFO | Best epoch 0 | test_macro_f1: 0.1532 | test_micro_f1: 0.2262 | test_acc: 0.2262
+ok
+test_wrong_graph_fails_before_training (tests.test_card7_amendments.CheckTests.test_wrong_graph_fails_before_training) ... ok
+test_ceiling_lines_and_collection (tests.test_card7_amendments.FigureTests.test_ceiling_lines_and_collection) ... ok
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+test_acm_shape_with_self_mirrored_citations (tests.test_card7_amendments.FingerprintTests.test_acm_shape_with_self_mirrored_citations) ... Processing...
+Done!
+ok
+test_backfill_adds_the_fields_and_refuses_a_changed_link_file (tests.test_card7_amendments.FingerprintTests.test_backfill_adds_the_fields_and_refuses_a_changed_link_file) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+test_generator_fingerprint_equals_the_loaded_graph (tests.test_card7_amendments.FingerprintTests.test_generator_fingerprint_equals_the_loaded_graph) ... ok
+test_levels_and_seeds (tests.test_card7_amendments.LevelTests.test_levels_and_seeds) ... ok
+Processing...
+Done!
+test_every_acm_relation_is_m2_and_raising_scales_every_relation (tests.test_card7_perturbation.AcmToyTests.test_every_acm_relation_is_m2_and_raising_scales_every_relation) ... ok
+Processing...
+Done!
+test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory (tests.test_card7_perturbation.LoaderTests.test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory) ... Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_manifest_rows (tests.test_card7_perturbation.ManifestTests.test_manifest_rows) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_lowering_removes_at_most_half_and_only_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_lowering_removes_at_most_half_and_only_different_class_facts) ... ok
+test_raising_adds_only_typed_new_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts) ... ok
+test_random_control_has_equal_counts_per_relation (tests.test_card7_perturbation.TargetedTests.test_random_control_has_equal_counts_per_relation) ... ok
+test_reached_within_tolerance_or_stopped_at_the_bound (tests.test_card7_perturbation.TargetedTests.test_reached_within_tolerance_or_stopped_at_the_bound) ... ok
+test_toy_lies_between_the_levels (tests.test_card7_perturbation.TargetedTests.test_toy_lies_between_the_levels) ... ok
+Processing...
+Done!
+test_only_m2_relations_are_touched_and_h_is_the_reference_value (tests.test_card7_perturbation.WrittenGraphTests.test_only_m2_relations_are_touched_and_h_is_the_reference_value) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_early_lines_pass_validate_only (tests.test_tsubame_phases.PhaseTests.test_early_lines_pass_validate_only) ... ok
+test_phases_pairwise_disjoint_and_cover_their_cells (tests.test_tsubame_phases.PhaseTests.test_phases_pairwise_disjoint_and_cover_their_cells) ... ok
+test_48_lines_parse (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_48_lines_parse) ... ok
+test_baseline_lines_unchanged (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_baseline_lines_unchanged) ... ok
+test_final_seed_files_are_the_launchers (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_final_seed_files_are_the_launchers) ... ok
+test_tuning_state_paths_are_the_launchers (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_tuning_state_paths_are_the_launchers) ... ok
+test_final_seeds_only_for_finished_sweeps (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_final_seeds_only_for_finished_sweeps) ... ok
+test_phase_h2snn_writes_no_final_seeds_up_front (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_phase_h2snn_writes_no_final_seeds_up_front) ... ok
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:03,559 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1434 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:03,869 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1332 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:04,173 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1239 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_T2_pdns_subset_follows_the_run_seed (tests.test_card5_protocol_hooks.B1aTests.test_T2_pdns_subset_follows_the_run_seed) ... ok
+test_T3_selection_by_the_subset_metric (tests.test_card5_protocol_hooks.B1aTests.test_T3_selection_by_the_subset_metric) ... ok
+test_T9_h2snn_phase (tests.test_card5_protocol_hooks.CellListTests.test_T9_h2snn_phase) ... ok
+test_T5_energy_at_a_model_solution (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_at_a_model_solution) ... ok
+test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section) ... ok
+test_T4_records_equal_the_base_commit (tests.test_card5_protocol_hooks.HgbUnchangedTests.test_T4_records_equal_the_base_commit) ... 2026-11-20 07:00:04,631 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 480, 'facts_after': 240}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:04,881 | INFO | Epoch 0000 | train_loss: 1.1106 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1905 | train_micro_f1: 0.2857 | val_loss: 1.1146 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-20 07:00:04,887 | INFO | Checkpoint metric macro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:05,103 | INFO | Epoch 0001 | train_loss: 1.1065 | train_acc: 0.2143 | train_auroc: 0.0000 | train_macro_f1: 0.1333 | train_micro_f1: 0.2143 | val_loss: 1.1139 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:05,308 | INFO | Epoch 0002 | train_loss: 1.0944 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1778 | train_micro_f1: 0.2857 | val_loss: 1.1132 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-20 07:00:05,311 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-20 07:00:05,311 | INFO | Best epoch 0 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167 | test_acc: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:05,679 | INFO | Epoch 0000 | train_loss: 1.1256 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1161 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:06,043 | INFO | Epoch 0001 | train_loss: 1.1099 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1149 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.3333 | test_auroc: 0.0000 | test_macro_f1: 0.2545 | test_micro_f1: 0.3333
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 07:00:06,402 | INFO | Epoch 0002 | train_loss: 1.1247 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1138 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.3718 | test_micro_f1: 0.5000
+FAIL
+test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch) ... ok
+test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch) ... ok
+test_T6_refused_in_training_and_tuning_configs (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_refused_in_training_and_tuning_configs) ... ok
+test_T7_transports_per_fact (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T7_transports_per_fact) ... ok
+test_T8_cells_per_target (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T8_cells_per_target) ... ok
+
+======================================================================
+FAIL: test_T4_records_equal_the_base_commit (tests.test_card5_protocol_hooks.HgbUnchangedTests.test_T4_records_equal_the_base_commit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card5_protocol_hooks.py", line 178, in test_T4_records_equal_the_base_commit
+    self.assertEqual(now["baselines_1_cell_list"], reference["baselines_1_cell_list"])   # T9 part
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '# TS[13132 chars]_t4\n# in phase baselines-early: node_classifi[8004 chars]t4\n' != '# TS[13132 chars]_t4\nscripts/run_baseline_tuning.py --task nod[8680 chars]t4\n'
+Diff is 22218 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 67 tests in 42.497s
+
+FAILED (failures=1)
+fingerprint checks: 1, all match
+/tmp/tmp86mdy3sc/cells_tuning.txt: 85 runnable line(s), 19 comment line(s)
+/tmp/tmpo6usz_vm/cells_final_seeds_h2snn.txt: 2 runnable line(s), 3 comment line(s)
+/tmp/tmph2ef325i/cells_tuning_h2snn.txt: 24 runnable line(s), 1 comment line(s)
+exit=1 end=2026-11-20T07:00:07+09:00

@@ -1,0 +1,131 @@
+{
+ "acm": {
+  "M2": [
+   "paper -cite-> paper -cite-> paper",
+   "paper -cite-> paper -ref-> paper",
+   "paper -ref-> paper -cite-> paper",
+   "paper -ref-> paper -ref-> paper",
+   "paper -to-> author -to-> paper",
+   "paper -to-> subject -to-> paper",
+   "paper -to-> term -to-> paper"
+  ],
+  "test_targets": 2118,
+  "excluded": 0,
+  "tertile_edges": [
+   0.234,
+   0.3746
+  ],
+  "groups": {
+   "G0": 0,
+   "G1": 744,
+   "G2": 708,
+   "G3": 666
+  },
+  "distinct_values": 1207,
+  "largest_tie": 80,
+  "largest_tie_value": 0.140379199653,
+  "eta_mean": 0.3274218634734271,
+  "paths_counted": {
+   "1": 1,
+   "2": 206,
+   "3": 379,
+   "4": 268,
+   "5": 623,
+   "6": 268,
+   "7": 373
+  }
+ },
+ "dblp": {
+  "M2": [
+   "author -to-> paper -to-> author"
+  ],
+  "test_targets": 2840,
+  "excluded": 1020,
+  "tertile_edges": [
+   0.3333,
+   0.6667
+  ],
+  "groups": {
+   "G0": 1280,
+   "G1": 187,
+   "G2": 191,
+   "G3": 162
+  },
+  "distinct_values": 53,
+  "largest_tie": 1280,
+  "largest_tie_value": 0.0,
+  "eta_mean": 0.16703459998268919,
+  "paths_counted": {
+   "0": 1020,
+   "1": 1820
+  }
+ },
+ "imdb": {
+  "M2": [
+   "movie -to-> director -to-> movie",
+   "movie ->actorh-> actor -to-> movie",
+   "movie -to-> keyword -to-> movie"
+  ],
+  "test_targets": 3202,
+  "excluded": 29,
+  "tertile_edges": [
+   0.2925,
+   0.3705
+  ],
+  "groups": {
+   "G0": 3,
+   "G1": 1057,
+   "G2": 1056,
+   "G3": 1057
+  },
+  "distinct_values": 2854,
+  "largest_tie": 20,
+  "largest_tie_value": 0.4,
+  "eta_mean": 0.336958666439939,
+  "paths_counted": {
+   "0": 29,
+   "1": 181,
+   "2": 855,
+   "3": 2137
+  }
+ },
+ "freebase": {
+  "M2": [
+   "book -and-> book -and-> book",
+   "book -to-> film -rev_to-> book",
+   "book -on-> sports -rev_on-> book",
+   "book -on-> location -rev_on-> book",
+   "book -about-> organization -rev_about-> book",
+   "book -rev_in-> music -in-> book",
+   "book -rev_to-> people -to-> book",
+   "book -rev_about-> business -about-> book"
+  ],
+  "test_targets": 5568,
+  "excluded": 695,
+  "tertile_edges": [
+   0.3365,
+   0.6248
+  ],
+  "groups": {
+   "G0": 668,
+   "G1": 1403,
+   "G2": 1400,
+   "G3": 1402
+  },
+  "distinct_values": 2466,
+  "largest_tie": 668,
+  "largest_tie_value": 0.0,
+  "eta_mean": 0.4234276378246466,
+  "paths_counted": {
+   "0": 695,
+   "1": 2529,
+   "2": 1073,
+   "3": 462,
+   "4": 361,
+   "5": 235,
+   "6": 148,
+   "7": 51,
+   "8": 14
+  }
+ }
+}

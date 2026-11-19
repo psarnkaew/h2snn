@@ -4,7 +4,8 @@
 - line counts equal the manifests (ablation: one tuning line per `tune` row, one seed line per `runs` row;
   perturbation: one line per runnable row, a comment per "needs tuned config" row; timing: 14 x 2 = 28, amendment 5);
 - every line parses: the tuning lines with the H2S-NN launcher's parser, the wrapped launchers with their own parsers;
-- the existing phases are byte-identical: `baselines-1` and `h2snn` give exactly the lists of `v3b` 365a757's script;
+- the existing phases are byte-identical: `baselines-1`, `baselines-early` and `h2snn` give exactly the lists of
+  `v3b` 1646efd's script (ops card T7; the reference since card 7's merge of 1646efd);
 - `run_row.py`: the slot's trailing `--resume` is dropped, a finished row is not run again, the working directory,
   the trials copy, the (b) tuned file (and its wait), the optional tuned file; one perturbation line (GCN, HGB
   command, toy graph) runs through the wrapper as the slot runs it, and a second leg skips it.
@@ -35,7 +36,7 @@ import make_graphs as mg  # noqa: E402
 from scripts.tsubame import make_cell_list as mcl  # noqa: E402
 from scripts.tsubame import run_row  # noqa: E402
 
-BASE_SHA = "365a75763f45dee4b8853cc85ae06f0084295c47"
+BASE_SHA = "1646efde6274255a712a0a0c3a425e0dd31e8ca0"   # v3b with ops card T7
 
 
 def setUpModule() -> None:
@@ -227,10 +228,11 @@ class ExistingPhasesTests(unittest.TestCase):
             base = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(base)
             out = Path("/OUT")
-            self.assertEqual(mcl.tuning_list("baselines-1", out), base.tuning_list("baselines-1", out))
+            for phase in ("baselines-1", "baselines-early"):
+                self.assertEqual(mcl.tuning_list(phase, out), base.tuning_list(phase, out))
             self.assertEqual(mcl.h2snn_tuning_list(out), base.h2snn_tuning_list(out))
             self.assertEqual(mcl.h2snn_final_seeds_list(out), base.h2snn_final_seeds_list(out))
-            for phase in ("baselines-1", "h2snn"):
+            for phase in ("baselines-1", "baselines-early", "h2snn"):
                 folder = Path(tmp) / phase                       # the lists embed the folder: one folder, twice
                 base.main(["--phase", phase, "--out-dir", str(folder)])
                 old = {p.name: p.read_bytes() for p in folder.iterdir()}
