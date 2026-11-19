@@ -294,6 +294,15 @@ class FigureTests(unittest.TestCase):
                             rows.append({"graph_kind": kind, "dataset": dataset, "level": f"{level:.2f}",
                                          "h": f"{level + 0.003:.4f}", "h2_index": f"{1.5 * level:.4f}",
                                          "method": method, "configuration": "x", "summary": str(summary)})
+            for dataset in ("acm", "dblp"):                       # amendment 8: the baselines' original-graph rows
+                summary = tmp / f"{dataset}_original_gcn.json"
+                summary.write_text(json.dumps({"summary": {"metrics": {"test_macro_f1": {
+                    "mean": 0.93, "std": 0.02}}}}), encoding="utf-8")
+                rows.append({"graph_kind": "original", "dataset": dataset, "level": "", "h": "0.2620",
+                             "h2_index": "0.3900", "method": "gcn", "configuration": "x", "summary": str(summary)})
+                rows.append({"graph_kind": "original", "dataset": dataset, "level": "", "h": "0.2620",
+                             "h2_index": "0.3900", "method": "csnn", "configuration": "needs tuned config",
+                             "summary": ""})
             path = tmp / "manifest.tsv"
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(handle, fieldnames=list(manifest.FIELDS), delimiter="\t",
@@ -308,12 +317,31 @@ class FigureTests(unittest.TestCase):
             result = figure.collect(path)
             self.assertEqual(len(result["points"]), 2 * 2 * 3 * 2 - 2)
             self.assertEqual({(m["dataset"], m["method"], m["level"]) for m in result["missing"]},
-                             {("dblp", "gcn", 0.6)})
+                             {("dblp", "gcn", 0.6), ("acm", "csnn", None), ("dblp", "csnn", None)})
             self.assertEqual(result["points"][0]["h"], 0.203)
+            self.assertEqual({(r["dataset"], r["method"], r["h"], r["mean"]) for r in result["reference"]},
+                             {("acm", "gcn", 0.262, 0.93), ("dblp", "gcn", 0.262, 0.93)})
             ceiling = figure.ceilings(tmp / "NC")
             self.assertAlmostEqual(ceiling["acm"], 2 / 3)
-            reference = {"acm": {"h": 0.262, "methods": {"gcn": {"mean": 0.9, "std": 0.01}}}}
-            drawn = figure.figure(result, ceiling, tmp / "fig.pdf", reference)
+            # amendment 8: H2S-NN reference = ablation configuration (a), seeds 1-5 only (seeds 6-10 and (b) ignored)
+            table = tmp / "ablation.csv"
+            lines = ["dataset,row,configuration,seed,test_macro_f1,source"]
+            for seed in range(1, 11):
+                lines += [f"acm,full,a,{seed},{0.90 + 0.01 * seed},x", f"acm,full,b,{seed},0.1,x",
+                          f"acm,S2,a,{seed},{0.80 + 0.01 * seed},x", f"acm,endpoints,a,{seed},0.5,x"]
+            lines += [f"acm,no_path_cells,a,{seed},0.7,x" for seed in (1, 2, 3, 4)]       # seed 5 missing
+            table.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            points, missing = figure.h2snn_reference(table, {"acm": 0.262})
+            got = {p["method"]: p for p in points}
+            self.assertEqual(sorted(got), ["h2snn_S2", "h2snn_full"])
+            self.assertAlmostEqual(got["h2snn_full"]["mean"], 0.93)
+            self.assertAlmostEqual(got["h2snn_full"]["std"], 0.0158113883, places=8)       # sample std of 1-5
+            self.assertEqual(got["h2snn_full"]["h"], 0.262)
+            self.assertEqual({(m["dataset"], m["method"]) for m in missing},
+                             {("acm", "h2snn_no_path_cells")} | {("dblp", f"h2snn_{a}") for a in
+                                                                  ("full", "no_path_cells", "S2")})
+            result["reference"] += points
+            drawn = figure.figure(result, ceiling, tmp / "fig.pdf")
             self.assertEqual(len(drawn), 4)                                    # 2 datasets x 2 kinds
             for line in drawn:
                 self.assertEqual(line["linestyle"], "--")

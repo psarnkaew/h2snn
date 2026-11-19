@@ -46,8 +46,14 @@ added / removed per relation, seed, alpha, SHA-256 of `link.dat`, the edge-list 
 `reachability.json` / `.md` per run. `--backfill` adds the fingerprint, C and the ceiling to graphs written before
 (their `link.dat` SHA-256 is checked unchanged).
 
+Original-graph reference point (amendment 8, author 2026-11-19): `--original` writes the unchanged graph in the same
+layout, `<data_root>/NC/<DATASET>_pert/original/` (every release file hard-linked, else copied, `link.dat` included),
+with a `graph.json` of kind `original` (no level, no seed; h and H^2 by the same reference `analyse`). The baselines'
+reference rows run from that folder through the same checked launcher as their perturbation rows (`manifest.py`).
+
     python scripts/perturbation/make_graphs.py --datasets acm dblp [--levels 0.30 0.50] [--data_root data] --out <json>
     python scripts/perturbation/make_graphs.py --datasets acm dblp --backfill --out <json>
+    python scripts/perturbation/make_graphs.py --datasets acm dblp --original --out <json>
 """
 
 from __future__ import annotations
@@ -92,6 +98,14 @@ BISECTION_STEPS = 40
 
 def graph_seed(dataset: str, level: float, kind: str) -> int:
     return 1000 * DATASET_INDEX[dataset] + 10 * LEVEL_SEED_INDEX[round(float(level), 2)] + KINDS.index(kind)
+
+
+ORIGINAL = "original"
+
+
+def original_dir(data_root: Path, dataset: str) -> Path:
+    """`<data_root>/NC/<DATASET>_pert/original` (amendment 8); its `data/` sub-folder holds the unchanged graph."""
+    return nc_root(data_root) / f"{ref.HGB_DATASETS[dataset]}_pert" / ORIGINAL
 
 
 def level_dir(data_root: Path, dataset: str, kind: str, level: float) -> Path:
@@ -582,6 +596,39 @@ def generate(data_root: Path, dataset: str, max_add_ratio: float = DEFAULT_MAX_A
     return records
 
 
+def write_original(data_root: Path, dataset: str, log=print) -> dict[str, Any]:
+    """Amendment 8: the original graph in the perturbed graphs' layout (`original_dir`), every release file linked
+    or copied unchanged; `graph.json` with kind `original`, the reference h and H^2, the SHA-256 of `link.dat` (equal
+    to the release's) and the edge fingerprint."""
+    name = ref.HGB_DATASETS[dataset]
+    source = raw_dir_of(data_root, dataset)
+    out_dir = original_dir(data_root, dataset)
+    root = out_dir / "data"
+    raw = raw_dir_of(root, dataset)
+    if out_dir.exists():
+        shutil.rmtree(out_dir)
+    raw.mkdir(parents=True)
+    for path in source.iterdir():
+        if path.is_file():
+            try:
+                os.link(path, raw / path.name)
+            except OSError:
+                shutil.copy2(path, raw / path.name)
+    release_sha = fingerprint(data_root, dataset)
+    if fingerprint(root, dataset) != release_sha:
+        raise RuntimeError(f"{out_dir}: link.dat differs from the release's")
+    values = reference_values(root, dataset)
+    record = {"dataset": dataset, "kind": ORIGINAL, "level": None, "seed": None, "direction": None, "alpha": 0.0,
+              "reached": True, "search_h": None, "h": values["h"], "h_at_bound": None,
+              "h2_index": values["h2_index"], "original_h": values["h"], "original_h2_index": values["h2_index"],
+              "facts": {}, "source_raw_dir": str(source), "release_link_sha256": release_sha,
+              "data_root": str(root), "link_sha256": fingerprint(root, dataset), **edge_fields(root, dataset)}
+    (out_dir / "graph.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
+    log(f"{dataset} original ({name}): h {values['h']:.4f} H2 {values['h2_index']:.4f}, edge fingerprint "
+        f"{record['edge_fingerprint'][:12]} ({record['edge_pairs']} pairs), C {record['num_classes']}")
+    return record
+
+
 def markdown(records: list[dict[str, Any]]) -> str:
     lines = ["# Perturbation reachability (card 7 V3)", "",
              "| dataset | level | kind | reached | h | H^2 | ceiling 1 - 1/C | direction | "
@@ -592,8 +639,10 @@ def markdown(records: list[dict[str, Any]]) -> str:
         status = "yes" if r["reached"] else f"**unreached** (closest {r['h']:.4f})"
         ceiling = f"{r['ceiling']:.4f}" if r.get("ceiling") is not None else "-"
         edge = f"`{r['edge_fingerprint'][:12]}` ({r['edge_pairs']})" if r.get("edge_fingerprint") else "-"
-        lines.append(f"| {r['dataset']} | {r['level']:.2f} | {r['kind']} | {status} | {r['h']:.4f} | "
-                     f"{r['h2_index']:.4f} | {ceiling} | {r['direction']} | {counts} | {r['seed']} | {edge} |")
+        level = "-" if r["level"] is None else f"{r['level']:.2f}"
+        lines.append(f"| {r['dataset']} | {level} | {r['kind']} | {status} | {r['h']:.4f} | "
+                     f"{r['h2_index']:.4f} | {ceiling} | {r['direction'] or '-'} | {counts or '-'} | "
+                     f"{'-' if r['seed'] is None else r['seed']} | {edge} |")
     return "\n".join(lines) + "\n"
 
 
@@ -606,12 +655,16 @@ def main() -> None:
     parser.add_argument("--levels", type=float, nargs="+", default=list(LEVELS), choices=list(LEVELS))
     parser.add_argument("--backfill", action="store_true",
                         help="add the edge fingerprint, C and the ceiling to graphs already written; generate nothing")
+    parser.add_argument("--original", action="store_true",
+                        help="amendment 8: write the original graph's reference folder; generate nothing else")
     parser.add_argument("--out", type=Path, required=True, help="reachability JSON (a .md is written beside it)")
     args = parser.parse_args()
     datasets = list(args.datasets) + (["imdb"] if args.include_imdb else [])
     records = []
     for dataset in datasets:
-        if args.backfill:
+        if args.original:
+            records.append(write_original(args.data_root, dataset))
+        elif args.backfill:
             records += backfill(args.data_root, dataset)
         else:
             records += generate(args.data_root, dataset, args.max_add_ratio, tuple(args.levels))

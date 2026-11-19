@@ -276,11 +276,32 @@ class ManifestTests(_ToyCase):
                              else "--num_runs 5 --base_seed 1")
                     self.assertIn(seeds, r["command"])
         self.assertEqual(missing["needs_tuned_config"], ["csnn/dblp"])
+        self.assertEqual(missing["original_graphs_missing"], ["acm", "dblp"])
         manifest.write(rows, missing, out)
         self.assertEqual(out_of_scope_in((out / "manifest.tsv").read_text(encoding="utf-8")), [])
         summary = _json.loads((out / "missing.json").read_text(encoding="utf-8"))
         self.assertEqual(summary["rows"], 4 * 8 + 2)
         self.assertEqual(summary["runnable_rows"], 4 * 7 + 2)
+        # amendment 8: the original graph -> the six baselines, seeds 1-5, same source and checked launcher; no H2S-NN
+        original = mg.write_original(self.root, self.dataset, log=lambda *_: None)
+        self.assertEqual(original["link_sha256"], mg.fingerprint(self.root, self.dataset))
+        self.assertEqual(original["edge_fingerprint"], mg.fp.from_raw(mg.raw_dir_of(self.root, self.dataset))["sha256"])
+        rows2, missing2 = manifest.build(self.root / "NC", {"dblp": full}, baselines, out)
+        reference = [r for r in rows2 if r["graph_kind"] == "original"]
+        self.assertEqual(rows2[:len(rows)], rows)
+        self.assertEqual(missing2["original_graphs_missing"], ["acm"])
+        self.assertEqual({r["method"]: r["configuration"] for r in reference}, expected_source)
+        folder = str((self.root / "NC" / "DBLP_pert" / "original").resolve())
+        for r in reference:
+            self.assertEqual((r["level"], r["seeds"], r["cwd"]), ("", "1 2 3 4 5", folder))
+            self.assertEqual((r["fingerprint"], r["h"]), (original["edge_fingerprint"], f"{original['h']:.4f}"))
+            if r["command"]:
+                self.assertIn(f"run_checked.py --graph_json {folder}/graph.json ", r["command"])
+                self.assertIn("/runs/dblp/original/baselines/", r["summary"])
+        manifest.write(rows2, missing2, out)
+        summary = _json.loads((out / "missing.json").read_text(encoding="utf-8"))
+        self.assertEqual((summary["rows"], summary["reference_rows"], summary["runnable_rows"]),
+                         (4 * 8 + 2 + 6, 6, 4 * 7 + 2 + 5))
 
 
 if __name__ == "__main__":
