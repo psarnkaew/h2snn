@@ -4,7 +4,7 @@
 
 Writes into `<out>/collected/`:
 - `results.csv`: one row per trial record (the sweep states' `records`) and per final-seed record
-  (`final_seed<s>.json`). Values are copied from the records unchanged; no metric is computed.
+  (`final_seed<s>.json`, baselines and H2S-NN). Values are copied from the records unchanged; no metric is computed.
 - `cells/<token>.tar`: one archive per cell (its state directory, its output directory, its line logs).
 - `SHA256SUMS` of `results.csv` and every archive.
 
@@ -31,7 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.tsubame.lines import read_json  # noqa: E402
+from scripts.tsubame.lines import _h2snn_task_dataset, read_json  # noqa: E402
 
 COLUMNS = ("task", "dataset", "method", "kind", "trial_or_seed", "unit", "record_index", "sweep_params",
            "monitor", "val_monitor", "test_metrics", "wandb_run_id", "v3b_sha", "host", "job_id", "task_id",
@@ -91,10 +91,21 @@ def run_for_record(index: int, runs: list[tuple[int, dict[str, Any]]]) -> dict[s
     return chosen
 
 
+def cell_of(token: str, record: dict[str, Any]) -> tuple[str, str, str]:
+    """(task, dataset, method). Baseline records name them (`fit_cell`); an H2S-NN record has `dataset` and
+    `task_type` but no model (`enrich_run_record`), so its cell comes from the token `h2snn_<task>_<dataset>`
+    (`make_cell_list.h2snn_token`) and the method is `h2snn` (card T7.2)."""
+    if token.startswith("h2snn_"):
+        task, dataset = _h2snn_task_dataset(token, "")
+        return task, dataset, "h2snn"
+    return record.get("task", ""), record.get("dataset", ""), record.get("model", "")
+
+
 def row(record: dict[str, Any], *, kind: str, trial_or_seed: Any, unit: str, index: int, monitor: str,
-        prov: dict[str, Any], source: Path) -> dict[str, Any]:
+        prov: dict[str, Any], source: Path, token: str = "") -> dict[str, Any]:
     key = f"val_{monitor.removeprefix('val_')}"
-    return {"task": record.get("task", ""), "dataset": record.get("dataset", ""), "method": record.get("model", ""),
+    task, dataset, method = cell_of(token, record)
+    return {"task": task, "dataset": dataset, "method": method,
             "kind": kind, "trial_or_seed": trial_or_seed, "unit": unit, "record_index": index,
             "sweep_params": json.dumps(record.get("sweep_params", {}), sort_keys=True),
             "monitor": key, "val_monitor": record.get(key, ""),
@@ -116,8 +127,9 @@ def iter_rows(out: Path) -> Iterator[dict[str, Any]]:
         for index, record in enumerate(trial_records(state)):
             yield row(record, kind="trial", trial_or_seed=record.get("trial_name", ""), unit=match["unit"],
                       index=index, monitor=monitor, prov=provenance(run_for_record(index, runs), ends),
-                      source=state_path)
-    for path in sorted((out / "experiments" / "baselines").glob("*/final_seed*.json")):
+                      source=state_path, token=state_path.parent.name)
+    # final seeds: baselines in experiments/baselines/<token>/, H2S-NN in experiments/h2snn/<token>/ (card T7.2)
+    for path in sorted((out / "experiments").glob("*/*/final_seed*.json")):
         seed = path.stem.removeprefix("final_seed")
         if not seed.isdigit():
             continue
@@ -133,13 +145,15 @@ def iter_rows(out: Path) -> Iterator[dict[str, Any]]:
                                   or {}).get("after") or {}).get("final_seed_files", [])]
         start = (done or candidates or [None])[-1]
         yield row(record, kind="final_seed", trial_or_seed=int(seed), unit=f"final_seed{seed}", index=int(seed),
-                  monitor=str(record.get("monitor", "")), prov=provenance(start, ends), source=path)
+                  monitor=str(record.get("monitor", "")), prov=provenance(start, ends), source=path, token=token)
 
 
 def write_tars(out: Path, target: Path) -> list[Path]:
     starts, _ = load_events(out)
+    # a cell = a state directory or an output directory holding final seeds; H2S-NN's per-trial run
+    # directories (`<token>_tune_run0_<trial>`, written by its train_trial) are not cells and are not archived
     tokens = sorted({p.name for p in (out / "state").glob("*") if p.is_dir()}
-                    | {p.name for p in (out / "experiments" / "baselines").glob("*") if p.is_dir()})
+                    | {p.parent.name for p in (out / "experiments").glob("*/*/final_seed*.json")})
     target.mkdir(parents=True, exist_ok=True)
     written = []
     for token in tokens:
@@ -147,7 +161,7 @@ def write_tars(out: Path, target: Path) -> list[Path]:
         logs = sorted({e["log"] for e in starts if isinstance(e.get("before"), dict)
                        and e["before"].get("token") == token and e.get("log")})
         with tarfile.open(tar_path, "w") as tar:
-            for directory in (out / "state" / token, out / "experiments" / "baselines" / token):
+            for directory in (out / "state" / token, *sorted((out / "experiments").glob(f"*/{token}"))):
                 if directory.is_dir():
                     tar.add(directory, arcname=str(directory.relative_to(out)))
             for log in logs:

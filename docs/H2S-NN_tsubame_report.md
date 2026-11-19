@@ -161,12 +161,153 @@ rsync -av <t4>:<WORK>/h2snn-out/$SHA/collected/ /mnt/data/peeradon/h2snn-results
   ```
   The one-chain rule refuses this while any job of the first chain for that list is still queued (open question 1).
 
-## Open questions
+## Open questions (T0–T5; answered 2026-11-19 in the decisions log: one chain per list stays, the guard stays for H2S-NN, no per-trial wall time now, the extra record is accepted)
 1. **Switching unstarted tasks to `gpu_1`.** `submit_chain.sh` refuses a second chain for a list while any job of the first is queued or running. Switching some tasks to `gpu_1` therefore needs the remaining `node_f` legs `qdel`ed first. Should a partial `gpu_1` chain on disjoint tasks be allowed alongside a running one? I did not allow it, because the card says one chain per list.
 2. **The guard also applies to H2S-NN sweeps.** `run_unit_sweep` is shared, so `run_h2snn_wandb_tuning.py` gets it too. That is harmless for phase 1. For phase 2 (H2GB NC, H2S-NN; guide §6.6), a trial longer than 24 h stops at `exceeds_24h` after two legs. Epoch-level resume or a reservation remains the design session's decision.
 3. **Trial-level wall time** needs a timing key in the records, which is a launcher change, outside T2's scope. Until then `wall_time_s` is per line run (deviation 3).
 4. **T0 edge case.** If a job is killed between the worker's record save and the parent's bookkeeping, the record is kept and the attempt still runs again. That line then ends with one more successful record than attempts it counts. It was recorded, not changed.
 
+## T7 — H2S-NN lines and queue order (2026-11-19)
+
+Card §T7 and `docs/tsubame_guide.md` at design-docs `58cfc1b`.
+
+**Preconditions and base**
+- The first attempt stopped at the precondition check, because card 5 was not yet on `v3b` (`v3b` was `59ab582`). Nothing was merged then.
+- Once `origin/v3b` was `365a75763f45dee4b8853cc85ae06f0084295c47`, I ran:
+  - `git merge origin/v3b`: a fast-forward of `tsubame` from `0b0219b`;
+  - `git merge 58cfc1b`: merge commit `50f714d`.
+- `origin/v3b` was still `365a757` when T7.6 was submitted and when this report was written. No overlap merge was needed.
+
+**Base for this section:** `365a75763f45dee4b8853cc85ae06f0084295c47`.
+
+### Units
+
+| Item | Commit | Job | Result |
+|---|---|---|---|
+| T7.1 `lines.py` reads H2S-NN lines | `392cfcf` | 17849 | 7/7 OK, on all 48 `h2snn` lines (24 tuning + 24 final seeds) |
+| T7.2 status / collect for `h2snn` | `7ab032b` | 17852 | 5/5 OK. Mutation (an `h2snn` record skipped) caught: 4 rows instead of 6 |
+| T7.3 final-seeds gate for `h2snn` | `fc0b0fd` | 17849 | 4/4 OK. Mutation (gate removed) caught: an unfinished cell got a final-seeds line |
+| T7.4 phase `baselines-early` + disjointness | `fc0b0fd` (code), `6988d49` (tests) | 17849 | 4/4 OK. Mutation (no exclusion) caught: the lists overlap |
+| T7.5 host memory per `node_f` task | `f45f04b` | 17851 | 1/1 OK. Largest known sum 80.5 GB < 600 GB, so no reorder |
+| T7.6 targeted CPU job (36G, no `--gres`) | (report commit) | 17853 | g2n01, 17 min 35 s: 198 tests OK (0 skipped, 0 failures; T2–T7 tests, card 5 `CellListTests`, W&B/launcher tests, every `test_baselines*`); mutations t2, t3, t4, t5, t7_2, t7_3, t7_4 all caught (`docs/tsubame_evidence/t7_6_targeted.txt`) |
+
+All jobs are CPU `sbatch` jobs. Evidence is in `docs/tsubame_evidence/t7_*`. `make_cell_list.py` carries both T7.3 and T7.4, so its diff is in one commit (`fc0b0fd`), and T7.4's tests follow in `6988d49`.
+
+**What each item does**
+- **T7.1:** `parse_line` accepts `scripts/run_h2snn_wandb_tuning.py` lines. Paths follow the launcher's `main()` and `run_final_seeds`:
+  - state: `<--state_dir or output_dir/exp_name>/tuning_state_run<u>.json`, for `u` in `run_start .. run_start + (run_count or num_runs or 1)`;
+  - final seeds: `<output_dir>/<exp_name>/final_seed<s>.json`.
+
+  The test calls the launcher in-process:
+  - `--validate_only` prints the state path it would use, with and without `--resume`; that path equals `state_paths()` on all 24 tuning lines;
+  - `run_final_seeds` (with `train_trial`, `write_run_record` and `write_summary_files` replaced by recorders) writes exactly `cell_dir/final_seed0..4.json` on all 24 final-seeds lines;
+  - `complete()` is true only when all 5 files exist.
+
+  Lines must name `--exp_name` and `--output_dir`, because the launcher's fallback is the YAML config, which the stdlib-only `lines.py` does not read. Every `make_cell_list` H2S-NN line names both. Baseline behaviour is unchanged (`test_tsubame_collect` passes).
+- **T7.2:** `collect.py`:
+  - reads final seeds under `experiments/*/<token>/` (baselines and `h2snn`);
+  - sets `method = h2snn`, with task and dataset taken from the token `h2snn_<task>_<dataset>`, because H2S-NN records have `dataset` and `task_type` but no `model`;
+  - treats as cells only state directories and directories holding final seeds. H2S-NN's per-trial run directories (`<token>_tune_run0_<trial>`, written by its `train_trial`) are neither rows nor archived.
+
+  `status.py` needed no change, since it reads through `lines.py`.
+- **T7.3:**
+  - `--phase h2snn` no longer writes `cells_final_seeds_h2snn.txt`.
+  - `h2snn_final_seeds_list()` stays as a function, because card 5's `test_T9_h2snn_phase` reads it and that test is outside this card's scope.
+  - `--final-seeds` uses one gate, `sweep_finished`, for baselines and H2S-NN alike: one unit, `attempted_trials ≥ 100`, no `exceeds_24h`.
+- **T7.4:**
+  - `baselines-early` = HetSheaf and CSNN on NC `acm` and `dblp` (4 lines, all runnable).
+  - **No LP cell is early.** Card 7 perturbs NC graphs only (`data/NC/<DATASET>_pert/`, ACM and DBLP; card 7 §manifest) and needs the tuned configurations, not final seeds.
+  - `baselines-1` lists those 4 cells as comments (`# in phase baselines-early …`), which leaves it 85 lines.
+  - The T3 test's expected set now excludes the 4 early cells; that is the only change to an existing test.
+  - The three lists are pairwise disjoint in cells, state files and lines. Together they equal the 89 runnable phase-1 baseline cells plus the 24 H2S-NN cells.
+- **T7.5:** `scripts/tsubame/host_memory.py` and `docs/tsubame_evidence/t7_5_host_memory.md`. With 4 slots per task, in card 5's order:
+
+  | `node_f` task | lines | known host-peak sum |
+  |---|---|---|
+  | 1 | acm, dblp, imdb, freebase NC | 20.9 GB (freebase is a lower bound: CUDA OOM before its peak) |
+  | 2 | ogbn-mag, mag-year, oag-cs, oag-eng | 39.3 GB |
+  | 3 | oag-chem, ieee-cis-g, h-pokec, pdns | **80.5 GB** (h-pokec 39.8 GiB at the largest point, card 2 D6.6) |
+  | 4 | acm_pa, dblp_ap, imdb_ma, freebase_bb | 24.5 GB (lower bounds) |
+  | 5 | lastfm, pubmed, ogbn-mag_pp, h-pokec_uu | 6.2 GB **+ 2 unknown** (no real-data run of the large LP tasks, D4b) |
+  | 6 | 4 GC | 6.6 GB |
+
+  - No known sum is near 600 GB, so the list keeps card 5's order.
+  - **Caveat:** apart from H-Pokec, these peaks come from earlier model versions (card 2 D2 / D6 central point), not from the TD-1 model of `365a757` or the largest search-space points.
+
+### Deviations (T7)
+1. **T7.4 LP cells:** not early (card 7 is NC only), as the card's "only if card 7 needs them" allows.
+2. **The T3 test changed:** `baselines-1` now excludes the early cells, which T7.4 requires.
+3. **`h2snn_final_seeds_list()` is kept as a function** (card 5's test reads it). It is never written to a file.
+4. **`t_unit.sbatch` gained `--exclude=g3an01`.** My first two T7 jobs (17845, 17846: CPU only, 8 s each, no GPU) were placed on **g3an01**, the A6000 node, because the script did not exclude it. Their output is not used: 17849 reran T7.1 on g3n01. Every later job excluded g3an01.
+5. **Development failures before the recorded runs**, all in my new tests' fixtures; no script changed after them:
+   - 17849: T7.2's fixture wrote a final-seed file before creating its directory;
+   - 17851: T7.2's synthetic logs both had line number `001`.
+
+   The recorded T7.2 run is 17852.
+6. **Collected tars leave out H2S-NN's per-trial run directories** (`config.yaml`, `best_test_metrics.json`, checkpoints). Their records are in the sweep state.
+
+### T6 commands for the author (supersede the T6 section above; three chains)
+Steps 0–2 are as above, with two changes from guide §3 (`58cfc1b`):
+- copy **all** of `data/`:
+  ```
+  rsync -avL /mnt/data/peeradon/h2snn/H2S-NN/data/ <t4>:<WORK>/h2snn-data/
+  ```
+  Then compare `du -sh $WORK/h2snn-data` with the lab's `du -shL data` and state both in the T6 evidence;
+- `vendor/` is always a real clone (`clone_vendors.sh`), never a symlink.
+
+`SHA` = the approved `v3b` SHA (≥ `365a757`), `OUT=$WORK/h2snn-out/$SHA`, run from `$WORK/h2snn-runs/$SHA/H2S-NN`.
+
+**3. Launcher checks (trial runs).** As above, plus one H2S-NN line in `$CHK/cells_check.txt`:
+```
+scripts/run_h2snn_wandb_tuning.py --config configs/experiments/acm_h2snn_v3b.yaml --exp_name h2snn_check_acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $CHK/experiments/h2snn --state_dir $CHK/state/h2snn_check_acm --wandb_project h2snn_h2snn_t4_check
+qsub -l gpu_1=1 -l h_rt=0:03:00 -t 1-3 -o $CHK/logs scripts/tsubame/sweep_slots.sh $CHK/cells_check.txt $CHK 1 3
+python scripts/tsubame/status.py --out $CHK --list $CHK/cells_check.txt          # 3 lines: 1/1, done
+```
+If 3 minutes are too short, use `-g $(cat ~/.t4_group) -l h_rt=0:20:00`; it is still a check.
+
+**4. Three lists, three chains, in the author's order.**
+```
+. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b
+python scripts/tsubame/make_cell_list.py --phase h2snn           --out $OUT/cells_tuning_h2snn.txt   # 24 lines
+python scripts/tsubame/make_cell_list.py --phase baselines-early --out $OUT/cells_tuning_early.txt   # 4 lines
+python scripts/tsubame/make_cell_list.py --phase baselines-1     --out $OUT/cells_tuning.txt         # 85 lines
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning_h2snn.txt --type node_f --legs 6   # 6 tasks
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning_early.txt --type node_f --legs 6   # 1 task
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning.txt       --type node_f --legs 6   # 22 tasks
+```
+- Jobs running at once: 6 + 1 + 22 = **29 ≤ 30** on weekdays. Legs 2–6 are held, so only leg 1 of each chain runs at a time.
+- **Submit in this order.** The H2S-NN chain is submitted first, so its jobs are the oldest in the queue. Exact start order depends on Grid Engine's scheduling, which this branch does not control.
+- If a list's lines are not all `done` when its chain ends, submit the same command again. The one-chain rule allows it once the old jobs have left `qstat`.
+
+**Watch** (no `qstat`):
+```
+python scripts/tsubame/status.py --out $OUT --list $OUT/cells_tuning_h2snn.txt
+python scripts/tsubame/status.py --out $OUT --list $OUT/cells_tuning_early.txt
+python scripts/tsubame/status.py --out $OUT --list $OUT/cells_tuning.txt
+```
+
+**Final seeds** (only lines whose sweep has 100 finished trials; rerun as more lines finish):
+```
+python scripts/tsubame/make_cell_list.py --final-seeds --out-dir $OUT --tuning-list $OUT/cells_tuning_h2snn.txt --out $OUT/cells_final_seeds_h2snn.txt
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_final_seeds_h2snn.txt --type node_f --legs 1
+python scripts/tsubame/make_cell_list.py --final-seeds --out-dir $OUT --tuning-list $OUT/cells_tuning.txt --out $OUT/cells_final_seeds.txt
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_final_seeds.txt --type node_f --legs 1
+```
+- The early list needs no final seeds for card 7, which reads tuned configurations. If the main table wants them, run the same pair with `cells_tuning_early.txt`.
+- A rewritten final-seeds list is a new chain for the same list file. Submit it after the previous final-seeds chain has left `qstat`. Lines already complete are skipped (`lines.py complete`).
+
+**Collect** (covers all lists in `$OUT`):
+```
+python scripts/tsubame/collect.py --out $OUT
+rsync -av <t4>:<WORK>/h2snn-out/$SHA/collected/ /mnt/data/peeradon/h2snn-results/tsubame/$SHA/
+```
+
+### Open questions (T7)
+1. **H2GB H2S-NN trials longer than 24 h** (card: known risk, decision pending). Such a line ends `exceeds_24h` after two legs. `status.py` shows it, and its first trials measure the risk.
+2. **Host peaks were not measured at the TD-1 model** or at the largest points, except H-Pokec. The two large-LP tasks have no record at all. The first `node_f` leg of the `h2snn` chain shows the real sums: per-slot peaks are not in the provenance, but an OOM kill would show in the line log.
+3. **Disk.** Every H2S-NN trial keeps its own run directory with a checkpoint. 24 cells × 100 trials share the 125 GiB home+work quota. Nothing was measured here. Check `t4-user-info disk home` after the first leg.
+
 ## Last line
 A commit cannot contain its own SHA. The head as pushed (this report commit) is in the review message:
-`branch=tsubame sha=<this commit> card=docs/H2S-NN_tsubame_card.md base=9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c`
+`branch=tsubame sha=<this commit> card=docs/H2S-NN_tsubame_card.md base=365a75763f45dee4b8853cc85ae06f0084295c47`
+(T0–T5 were reported at base `9b7ae0b66de790a96ad1b6ad6d4b83caa7a4009c`.)

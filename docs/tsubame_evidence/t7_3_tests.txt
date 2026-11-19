@@ -1,0 +1,14 @@
+head=50f714d840cbecc50abf29a8886718c0aa6fac05 host=g3n01 job=17849
+tests: tests.test_tsubame_final_seeds_gate tests.test_tsubame_cell_list
+test_final_seeds_only_for_finished_sweeps (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_final_seeds_only_for_finished_sweeps) ... ok
+test_phase_h2snn_writes_no_final_seeds_up_front (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_phase_h2snn_writes_no_final_seeds_up_front) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+Ran 4 tests in 4.806s
+OK
+tests exit=0
+--- mutation t7_3_mutation.py
+AssertionError: Lists differ: ['scr[229 chars]/run_h2snn_wandb_tuning.py --config configs/ex[823 chars]3 4'] != ['scr[229 chars]/run_baseline_tuning.py --task node_classifica[132 chars]3 4']
+Ran 1 test in 0.005s
+FAILED (failures=1)
+MUTATION T7.3 (final-seeds gate removed): caught (the test fails)
+mutation exit=0

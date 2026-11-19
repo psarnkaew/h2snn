@@ -5,6 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=1:00:00
+#SBATCH --exclude=g3an01  # no A6000 node for any job (rule since 2026-11-17; added after jobs 17845-17846 landed there)
 set -uo pipefail
 . ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b
 echo "head=$(git rev-parse HEAD) host=$(hostname) job=${SLURM_JOB_ID} start=$(date -Is)"

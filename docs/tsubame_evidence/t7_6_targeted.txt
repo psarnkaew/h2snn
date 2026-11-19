@@ -1,0 +1,53 @@
+head=f45f04b14ae81b5f4ccb99edb82bafa82e5f93fd host=g2n01 job=17853 start=2026-11-20T04:47:27+09:00
+worktree:  M ../docs/H2S-NN_tsubame_report.md ?? data ?? ../docs/tsubame_evidence/t7_6_targeted.txt 
+command: python -m unittest -v tests.test_tsubame_guard tests.test_tsubame_cell_list tests.test_tsubame_collect tests.test_tsubame_slots tests.test_tsubame_h2snn_lines tests.test_tsubame_collect_h2snn tests.test_tsubame_final_seeds_gate tests.test_tsubame_phases tests.test_tsubame_host_memory tests.test_card5_protocol_hooks.CellListTests tests.test_wandb_and_runs tests.test_failed_trials tests.test_dry_run_flag tests.test_baseline_final_seeds tests.test_b1a_validation_subset tests.test_sweep_batch_size tests.test_baselines tests.test_baselines_blocked_spmm tests.test_baselines_dryrun_blockers tests.test_baselines_h2gb_classa tests.test_baselines_h2gb_classb tests.test_baselines_h2gb_classc tests.test_baselines_hetsheaf tests.test_baselines_hinormer_isolated tests.test_baselines_large_lp tests.test_baselines_minibatch_equivalence tests.test_baselines_minibatch tests.test_baselines_pshgcn_mag  > ../docs/tsubame_evidence/t7_6_targeted_verbose.log 2>&1; code=$?; tail -4 ../docs/tsubame_evidence/t7_6_targeted_verbose.log; echo "ok lines: $(grep -cE '\.\.\. ok$' ../docs/tsubame_evidence/t7_6_targeted_verbose.log)"; grep -E '\.\.\. (FAIL|ERROR|skipped)' ../docs/tsubame_evidence/t7_6_targeted_verbose.log | cut -c1-220; echo "tests exit=$code"; for m in t2 t3 t4 t5 t7_2 t7_3 t7_4; do echo "--- mutation $m"; python ../docs/tsubame_evidence/${m}_mutation.py > ../mut_$m.tmp 2>&1; mc=$?; grep -E '^(MUTATION|Ran|FAILED)|^AssertionError' ../mut_$m.tmp | head -5 | cut -c1-200; echo "mutation exit=$mc"; rm -f ../mut_$m.tmp; done; exit $code
+----------------------------------------------------------------------
+Ran 198 tests in 1038.800s
+
+OK
+ok lines: 172
+tests exit=0
+--- mutation t2
+AssertionError: Lists differ: [0, 0, 0] != [0, 0]
+Ran 1 test in 0.007s
+FAILED (failures=1, errors=1)
+MUTATION T2 (limit = inf): caught (test (1) fails)
+mutation exit=0
+--- mutation t3
+AssertionError: Items in the first set but not the second:
+Ran 1 test in 1.165s
+FAILED (failures=1)
+MUTATION T3 (runnable filter dropped): caught (the test fails)
+mutation exit=0
+--- mutation t4
+AssertionError: 4 != 6
+Ran 1 test in 0.015s
+FAILED (failures=1)
+MUTATION T4 (a record skipped): caught (the test fails)
+mutation exit=0
+--- mutation t5
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[1752 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3918 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[684 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[684 chars]ume']
+AssertionError: Lists differ: ['scr[328 chars]ls m00 --datasets acm --num_runs 1 --base_seed[951 chars]ume'] != ['scr[328 chars]ls m01 --datasets acm --num_runs 1 --base_seed[951 chars]ume']
+AssertionError: Lists differ: ['scr[330 chars]ls m00 --datasets acm --num_runs 1 --base_seed[3111 chars]ume'] != ['scr[330 chars]ls m01 --datasets acm --num_runs 1 --base_seed[3111 chars]ume']
+mutation exit=0
+--- mutation t7_2
+AssertionError: Tuples differ: (4, 4, 0) != (6, 6, 0)
+Ran 1 test in 0.014s
+FAILED (failures=1)
+MUTATION T7.2 (an h2snn record skipped): caught (the test fails)
+mutation exit=0
+--- mutation t7_3
+AssertionError: Lists differ: ['scr[229 chars]/run_h2snn_wandb_tuning.py --config configs/ex[823 chars]3 4'] != ['scr[229 chars]/run_baseline_tuning.py --task node_classifica[132 chars]3 4']
+Ran 1 test in 0.006s
+FAILED (failures=1)
+MUTATION T7.3 (final-seeds gate removed): caught (the test fails)
+mutation exit=0
+--- mutation t7_4
+AssertionError: Items in the first set but not the second:
+Ran 1 test in 1.204s
+FAILED (failures=1)
+MUTATION T7.4 (no exclusion): caught (the lists overlap)
+mutation exit=0
+exit=0 seconds=1055
