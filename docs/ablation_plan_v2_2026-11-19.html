@@ -1,0 +1,343 @@
+<title>H2S-NN Ablation Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~900px); sections follow the five questions, then the two advisor analyses, then the redundancy check, placement, budget and code. */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --fg:#1b2033; --muted:#5b6380; --line:#dfe3ef;
+  --accent:#2b3f99; --accent-soft:#e7ebfa; --keep:#1f7a4d; --keep-soft:#e3f3ea; --drop:#9a3b2f; --drop-soft:#f8e7e4; --note:#8a6a12; --note-soft:#fbf3dc;
+  --font-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12141c; --surface:#1a1d29; --fg:#e4e7f2; --muted:#9aa2bf; --line:#2c3145;
+  --accent:#9fb0ff; --accent-soft:#232a4a; --keep:#6fd3a0; --keep-soft:#183226; --drop:#f0a093; --drop-soft:#3a2220; --note:#e8c76a; --note-soft:#332b14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12141c; --surface:#1a1d29; --fg:#e4e7f2; --muted:#9aa2bf; --line:#2c3145;
+  --accent:#9fb0ff; --accent-soft:#232a4a; --keep:#6fd3a0; --keep-soft:#183226; --drop:#f0a093; --drop-soft:#3a2220; --note:#e8c76a; --note-soft:#332b14; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15.5px;line-height:1.65}
+.wrap{max-width:900px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:36px}
+h1{font-size:1.9rem;line-height:1.25;margin:0;text-wrap:balance}
+h2{font-size:1.35rem;line-height:1.3;margin:0;text-wrap:balance}
+h3{font-size:1.05rem;margin:0}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lede{color:var(--muted);max-width:70ch}
+section{display:flex;flex-direction:column;gap:14px}
+.q{align-self:flex-start;font-family:var(--font-mono);font-size:.8rem;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:4px;font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.85rem}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:.8rem;letter-spacing:.03em;color:var(--muted);font-weight:600;background:var(--bg)}
+tr:last-child td{border-bottom:none}
+code,.mono{font-family:var(--font-mono);font-size:.86em}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:99px;white-space:nowrap}
+.keep{background:var(--keep-soft);color:var(--keep)}
+.drop{background:var(--drop-soft);color:var(--drop)}
+.new{background:var(--note-soft);color:var(--note)}
+.grid2{display:grid;grid-template-columns:auto 1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;min-width:520px}
+.grid2 div{padding:12px 14px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.grid2 .h{background:var(--bg);font-weight:600;font-size:.85rem;color:var(--muted)}
+.grid2 .cell b{display:block;font-family:var(--font-mono);font-size:.9rem;color:var(--accent)}
+.grid2 .cell span{font-size:.88rem;color:var(--muted)}
+.scroll{overflow-x:auto}
+.callout{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--surface);border-radius:6px;padding:12px 14px}
+.callout.warn{border-left-color:var(--note)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.formula{font-family:var(--font-mono);font-size:.88rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;white-space:pre}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two>*{min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:640px){.two{grid-template-columns:1fr}h1{font-size:1.55rem}}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:10px">
+  <span class="eyebrow">H2S-NN · IJCAI-27 · แผน version 2 (ยังไม่เริ่มงาน) · 2026-11-19</span>
+  <h1>แผน ablation และ model analysis ฉบับกระชับ</h1>
+  <p class="lede">แกนคือตารางห้าคำถามของคุณ เพิ่ม analysis สองชุดตามที่อาจารย์ขอในการประชุม 2026-11-19 คือ face effect และ two-regime analysis ท้ายหน้ามีตารางตรวจว่าแต่ละชิ้นตอบคำถามต่างกันและไม่ซ้ำซ้อน ทั้งหมดใช้โมเดล 1.25 และกติกาของ spec 1.26</p>
+  <p class="lede"><b>เปลี่ยนจาก version 1:</b> perturbation ทั้งเพิ่มและตัด edge ไปที่ 20/40/60/80 %, scalability บน IMDB, เพิ่มแถว literature meta-path, case study ยกเป็น face effect F1–F3, และเพิ่ม two-regime analysis โดยรวม energy E1–E4 เดิมเข้าไว้ในนั้น</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>7</b><span>แถวในตาราง ablation (เดิม 15)</span></div>
+  <div class="stat"><b>4</b><span>dataset ของ ablation</span></div>
+  <div class="stat"><b>≈ 424</b><span>run เล็ก + 1,600 trial ของ config (b)</span></div>
+  <div class="stat"><b>≈ 560</b><span>run เล็กของ perturbation</span></div>
+  <div class="stat"><b>0</b><span>run ใหญ่บน H2GB (เดิม 128)</span></div>
+</div>
+
+<!-- Common -->
+<section>
+  <span class="eyebrow">กติกากลาง</span>
+  <h2>ใช้กับทุกการเปรียบเทียบในหน้านี้</h2>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">หัวข้อ</th><th>ค่าที่ใช้</th></tr>
+    <tr><td>Dataset</td><td>HGB ACM, DBLP (homophilic) และ IMDB, Freebase (heterophilic) ใช้ node classification ทั้งหมด Freebase จะ full batch ถ้าโมเดลที่ config ใหญ่สุดลงบน H100 94 GB ได้ ไม่งั้นใช้ mini-batch</td></tr>
+    <tr><td>Metric</td><td>Test Macro-F1 (IMDB ใช้ค่าเฉลี่ย F1 ของ 5 genre) และเลือก checkpoint ด้วย validation Macro-F1</td></tr>
+    <tr><td>Seed</td><td>1–10 (seed 0 ใช้ tune) จับคู่ตาม seed: seed เดียวกันได้ path ที่สุ่มและลำดับ batch เดียวกันทุก arm และ <code>full</code> ใช้ run ของ seed 1–4 จากตารางหลักซ้ำได้</td></tr>
+    <tr><td>สถิติ</td><td>Wilcoxon signed-rank สองทาง บนผลต่าง 10 คู่ แล้ว Holm ข้าม 4 dataset ต้องใช้ 10 seed เพราะถ้าใช้ 5 seed ค่า p ต่ำสุดที่เป็นไปได้คือ 0.0625 ซึ่งไม่มีวันผ่าน 0.05</td></tr>
+    <tr><td>"ผ่าน" บน dataset หนึ่ง</td><td>p ที่ปรับแล้ว &lt; 0.05 และ median ของผลต่างเอียงไปทาง <code>full</code> ส่วน claim จะ hold เมื่อผ่าน ≥ 3 จาก 4 dataset ยกเว้นที่ระบุไว้</td></tr>
+    <tr><td>Config</td><td><b>(a)</b> ใช้ config ที่ tune ไว้ของ <code>full</code> แล้วเปลี่ยนแค่จุดเดียว <b>(b)</b> tune arm นั้นเองใหม่ 100 trial บน seed 0 ใช้กับ arm ที่มี claim และให้ (b) เป็นตัวตัดสิน ส่วน (a) รายงานคู่กัน</td></tr>
+    <tr><td>Analysis</td><td>ทุก analysis เป็นเชิงพรรณนา มีผลที่คาดไว้เขียนก่อนรัน ถ้าไม่เป็นตามที่คาดก็รายงานตามจริงและไม่เคลมในเรื่องนั้น และใช้ checkpoint ที่เก็บไว้จาก run ข้างบน</td></tr>
+    <tr><td>เครื่อง</td><td>TSUBAME H100 รันหลังผลหลักออก</td></tr>
+  </table></div>
+</section>
+
+<!-- Q1 -->
+<section>
+  <span class="q">คำถาม 1</span>
+  <h2>โมเดล generalize ไหม</h2>
+  <p>ตอบด้วยตารางผลหลักตาม spec §6 คือ 12 dataset ของ NC, 8 task ของ LP และ GC ใน appendix baselines ใช้ตัวเลขจากเปเปอร์เป็น placeholder ได้ และทุก cell ที่ใช้ต้องลงใน <code>published_number_register.md</code> ไม่ใช่ ablation จึงไม่มีอะไรเพิ่มในหน้านี้</p>
+</section>
+
+<!-- Q2 -->
+<section>
+  <span class="q">คำถาม 2</span>
+  <h2>Face และแต่ละ component สำคัญจริงไหม</h2>
+  <p>หัวใจคือตาราง 2×2 ที่เปิดหรือปิด sheaf กับ face พร้อมกัน และเพิ่มอีกสามแถวเพื่อตอบว่า node ตรงกลางสำคัญไหม, ใช้ path เป็นแค่ feature พอไหม และต้องมีรายการ meta-path ไหม</p>
+  <div class="scroll"><div class="grid2">
+    <div class="h"></div><div class="h">มี face</div><div class="h">ไม่มี face</div>
+    <div class="h">sheaf maps เรียนรู้</div>
+    <div class="cell"><b>full</b><span>โมเดลเต็ม</span></div>
+    <div class="cell"><b>no_path_cells</b><span>"No meta-path at all" ได้ edge sheaf ล้วน</span></div>
+    <div class="h">maps = I (ไม่มี sheaf)</div>
+    <div class="cell"><b>S2</b><span>"No sheaf + with face"</span></div>
+    <div class="cell"><b>S0</b><span>"No sheaf + no face" ใกล้ APPNP บนกราฟ heterogeneous มากกว่า GCN</span></div>
+  </div></div>
+  <p>ตัวอย่างที่ใช้ตลอดหน้านี้: paper P1 (AI) กับ P9 (DB) มี author A7 ร่วมกัน และ path P1–A7–P9 เป็นหนึ่ง face</p>
+  <div class="tbl"><table>
+    <tr><th>แถว</th><th>เปลี่ยนอะไรบน P1–A7–P9</th><th>Claim และเกณฑ์</th><th>ถ้าไม่ผ่าน</th><th>Config</th></tr>
+    <tr><td><code>no_path_cells</code></td><td>ไม่มี face P1 คุยได้แค่กับ A7 ผ่าน edge ของตัวเอง</td><td>C2-cells: <code>full</code> ดีกว่าบน ≥ 3/4</td><td>face ไม่ช่วยเกิน edge sheaf ถือเป็น warning signal ต้องหยุดคุยกัน</td><td>(a)+(b)</td></tr>
+    <tr><td><code>S2</code></td><td>ทุก map เป็น I ยังมี face, น้ำหนัก, τ และ solver เหมือนเดิม</td><td>C15: <code>full</code> ดีกว่าบน <b>ทั้ง</b> IMDB และ Freebase ส่วน ACM และ DBLP เสมอได้</td><td>ตัดเคลมว่ากลไก heterophily มาจาก transport (Thm 4 ยังเป็นผลเชิง capacity) และเป็น warning signal</td><td>(a)+(b)</td></tr>
+    <tr><td><code>S0</code></td><td>ไม่มี face และ map = I</td><td>ไม่มี claim ใช้เติมตาราง 2×2 และดู interaction</td><td>—</td><td>(a)</td></tr>
+    <tr><td><code>endpoints</code></td><td>น้ำหนักของ face อ่านแค่ P1, P9 และ relation จึงมองไม่เห็นว่า A7 เป็นใคร</td><td>C2 (thesis): <code>full</code> ดีกว่าบน ≥ 3/4</td><td>Kill rule: ตัดเคลมว่าน้ำหนักระดับ instance ให้ข้อมูลเกิน endpoint และต้องลดขอบเขตเปเปอร์</td><td>(a)+(b)</td></tr>
+    <tr><td><code>instance_features</code></td><td>face ไม่อยู่ใน solve แต่ encoding ของ P1–A7–P9 ถูกส่งเข้า head เป็น feature (แบบ MAGNN) ตรงกับ "Meta-path as just MLP"</td><td>C14: <code>full</code> ดีกว่าบน ≥ 3/4</td><td>face ทำงานเหมือน instance encoder และ contribution เหลือแค่เรื่องเรขาคณิตและทฤษฎี</td><td>(a)+(b)</td></tr>
+    <tr><td>Literature meta-path <span class="pill new">เพิ่ม</span></td><td>face มาจาก meta-path ที่ตีพิมพ์ใน HGB เท่านั้น (เช่น PAP, PSP) แทน random walk (<code>path_source: schemas</code>)</td><td>รายงานเฉย ๆ ไม่มี claim: การไม่ต้องรู้ schema เสียอะไรไหมเมื่อเทียบกับ meta-path ที่คนออกแบบ</td><td>ถ้าดีกว่า <code>full</code> ชัดเจน ให้เขียนว่า schema ที่ผู้เชี่ยวชาญเลือกยังให้ข้อมูลเพิ่ม และเรายังแนะนำ random walk เฉพาะเมื่อไม่มีรายการ meta-path</td><td>(a)</td></tr>
+  </table></div>
+  <p><b>สิ่งที่ตาราง 2×2 อ่านได้</b> (รายงานเชิงพรรณนา ไม่ใช่ claim):</p>
+  <ol>
+    <li>ผลของ face เมื่อมี sheaf: full − no_path_cells</li>
+    <li>ผลของ face เมื่อไม่มี sheaf: S2 − S0</li>
+    <li>ผลของ sheaf เมื่อมี face: full − S2</li>
+    <li>ผลของ sheaf เมื่อไม่มี face: no_path_cells − S0</li>
+  </ol>
+  <p>ถ้า (1) มากกว่า (2) แปลว่า face กับ sheaf เสริมกัน</p>
+  <p class="lede"><b>พอแล้วไหม:</b> component ทุกตัวที่เปเปอร์จะขายมีแถวทดสอบครบ คือ sheaf, face, น้ำหนักระดับ instance, face ใน solve เทียบกับ face เป็น feature และการไม่ต้องใช้รายการ meta-path ส่วน solver เราตกลงกันแล้วว่าไม่วิเคราะห์เพิ่ม</p>
+</section>
+
+<!-- Q3 -->
+<section>
+  <span class="q">คำถาม 3</span>
+  <h2>Meta-path เกี่ยวกับ heterophily ไหม และ sampler เรียนรู้ meta-path ที่มีความหมายไหม</h2>
+  <p>คำนวณจาก run หลัก (seed 0–4) และ run ของ <code>full</code> ใน ablation (seed 1–10) ไม่ต้องเทรนเพิ่ม ทุก face มี schema เป็นป้ายกำกับ เช่น PAP จึงรวมผลตาม schema ได้</p>
+  <div class="formula">c_σ  = coverage   : ส่วนของมวล face ที่ sampler สุ่มได้ใน schema σ (ถ้าทุก w_f = 1)
+I_σ  = learned    : ส่วนของมวลหลังใช้น้ำหนักที่เรียนได้ w_f
+ρ_σ  = I_σ / c_σ  : > 1 แปลว่าโมเดลให้น้ำหนัก σ มากกว่าความถี่ที่ถูกสุ่ม</div>
+  <div class="two">
+    <div class="card"><h3>รูปที่ได้ (ต่อ dataset)</h3><ul>
+      <li>Bar ของ schema ยาว 2 ที่มี coverage ≥ 1 % ไม่เกิน 10 อัน เรียงตาม ρ_σ</li>
+      <li>Scatter ของ coverage เทียบกับ learned share (เส้นทแยงคือ "แค่สุ่มตามความถี่")</li>
+      <li>Meta-path ใน HGB ที่ตีพิมพ์แล้วได้ ρ_σ &gt; 1 ไหม</li>
+    </ul></div>
+    <div class="card"><h3>การทดสอบ</h3><ul>
+      <li><b>"เรียนได้ ไม่ใช่สุ่ม":</b> ranking ของ ρ_σ เสถียรข้าม seed ใช้ค่าเฉลี่ย Kendall τ-b ≥ 0.5 กับ permutation test (p &lt; 0.05, Holm m = 4) และรายงาน τ ของ c_σ คู่กัน เพื่อแสดงว่าความเสถียรไม่ได้มาจาก coverage อย่างเดียว</li>
+      <li><b>เกี่ยวกับ heterophily:</b> Spearman ระหว่าง ρ_σ กับ homophily ของกราฟที่ σ สร้าง ค่าบวกแปลว่าโมเดลชอบ schema ที่ homophilic ค่าใกล้ศูนย์แปลว่า transport จัดการ schema ที่ heterophilic เอง</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- Q4 -->
+<section>
+  <span class="q">คำถาม 4</span>
+  <h2>โมเดลเกี่ยวกับระดับ heterophily ไหม และ robust เมื่อ heterophily เปลี่ยนไหม</h2>
+  <p>Perturbation study แบบ semi-synthetic: ใช้กราฟจริงแล้วเปลี่ยนแค่ระดับ heterophily ไปที่เป้าหมาย <b>20 / 40 / 60 / 80 %</b> (heterophily = 1 − MLH บน meta-path ความยาว 2)</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">ขั้น</th><th>ทำอย่างไร</th></tr>
+    <tr><td>กราฟ</td><td>ACM (ตอนนี้ heterophily ≈ 40 %) และ DBLP (≈ 13 %) เป็น single-label และ label ครบ ส่วน IMDB เป็นทางเลือก (multi-label ใช้ค่าเฉลี่ยต่อ genre)</td></tr>
+    <tr><td>เพิ่ม heterophily</td><td><b>เพิ่ม edge</b> เฉพาะ relation ที่มีอยู่จริง (เช่น paper–author) ที่ทำให้เกิดคู่ meta-path ต่าง class และสุ่มปลายแบบสม่ำเสมอจาก class อื่นทั้งหมด edge ใหม่จึงบอกได้แค่ว่า "ไม่ใช่ class เดียวกัน" ไม่ได้ชี้ไป class ใด</td></tr>
+    <tr><td>ลด heterophily</td><td><b>ตัด edge</b> ที่สร้างคู่ต่าง class ได้ไม่เกิน 50 % ของ relation ห้ามเพิ่ม edge ระหว่าง node class เดียวกัน เพราะเท่ากับเอา test label ไปสร้างกราฟ ซึ่งทำให้ทุกโมเดลดูดีขึ้นจากการรั่ว</td></tr>
+    <tr><td>Control</td><td>ทุกระดับมีกราฟคู่ที่เพิ่มหรือตัด edge จำนวนเท่ากันแบบสุ่ม ผลของ heterophily = ผลบนกราฟตามเป้า − ผลบนกราฟสุ่ม</td></tr>
+    <tr><td>Method</td><td>H2S-NN <code>full</code> และ <code>no_path_cells</code> กับ GCN, HAN, SeHGNN, Hetero²Net และ HetSheaf ใช้ config จากกราฟเดิม (ถ้า baseline ยังไม่ได้ tune เองให้ใช้ config ที่ตีพิมพ์ไว้ และบอกในเปเปอร์) ไม่ tune ใหม่ และ 5 seed นอกจากนี้ <code>S2</code> รันบนกราฟตามเป้าเท่านั้น สำหรับ R3 บนแกน perturbation</td></tr>
+    <tr><td>ที่คาดไว้ (ตั้งไว้ก่อนรัน)</td><td>H2S-NN เสียความแม่นน้อยกว่า GCN, HAN และ SeHGNN เมื่อ heterophily สูงขึ้น และ full − no_path_cells โตขึ้นตาม heterophily ถ้าไม่เป็นตามนี้ก็รายงานตามจริงและไม่เคลมเรื่อง robustness</td></tr>
+  </table></div>
+  <div class="callout warn">ระดับที่ไปไม่ถึงจะรายงานตามจริง เช่น ACM อาจลงไม่ถึง 20 % เพราะติดเพดานการตัด เราจะไม่ขยายเพดาน 50 % หลังเห็นผล ในเปเปอร์จะเขียนว่าเป็นกราฟ semi-synthetic และเทียบ curve ระหว่าง method เท่านั้น ไม่เทียบกับตารางหลัก</div>
+</section>
+
+<!-- Q5 -->
+<section>
+  <span class="q">คำถาม 5</span>
+  <h2>Scalability</h2>
+  <div class="two">
+    <div class="card"><h3>เชิงทฤษฎี (big-O)</h3><ul>
+      <li>แยกเป็น 4 ขั้น: สุ่ม path, สร้าง map, PCG ต่อ iteration และ memory</li>
+      <li>เขียนในรูป |E| (fact), จำนวน incidence ของ face, d และ m = 4 แล้วเทียบกับ HAN/SeHGNN ที่ต้องแจกแจง meta-path และ NSD ที่เก็บ d² ต่อ edge</li>
+    </ul></div>
+    <div class="card"><h3>เชิงทดลอง (<b>ogbn-mag</b> และ <b>IMDB</b>)</h3><ul>
+      <li>ทุก method ในตารางหลัก ที่ config ที่ tune ไว้ หรือที่ config กลางถ้ายัง tune ไม่เสร็จ</li>
+      <li>วัด time per epoch, peak GPU memory และจำนวน parameter</li>
+      <li>IMDB แสดงขนาด HGB ทั่วไป ส่วน ogbn-mag (8,192 target ต่อ epoch) แสดงกราฟใหญ่ เป็น timing run แยกบน H100 ตัวเดียว</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- Face effect -->
+<section>
+  <span class="q">อาจารย์ขอ · คอมเมนต์หลัก</span>
+  <h2>Face effect: face เปลี่ยน embedding จนทำนายถูกได้อย่างไร</h2>
+  <p>ตอบประโยคของอาจารย์ "edge แบบ heterophilic สร้าง face แล้ว embedding เปลี่ยนจนทำนายถูก" จากเชิงคุณภาพไปเป็นเชิงปริมาณและเชิงเหตุผล ใช้ checkpoint ของ <code>full</code> และ <code>no_path_cells</code> บน 4 dataset และ seed 1–10</p>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">ส่วน</th><th>ทำอะไร</th><th>ได้อะไร</th></tr>
+    <tr><td><b>F1</b> ใครถูกแก้</td><td>เทียบ <code>full</code> กับ <code>no_path_cells</code> ทุก test node ใน seed เดียวกัน นับ node ที่เปลี่ยนจากผิดเป็นถูกและจากถูกเป็นผิด แยกเป็น 4 ช่วงตาม η_v (สัดส่วนเพื่อนบ้านทาง meta-path ที่ label ต่าง)</td><td>face แก้ node ที่ heterophilic ได้มากกว่าไหม</td></tr>
+    <tr><td><b>F2</b> embedding เปลี่ยนอย่างไร</td><td>margin = ระยะจาก x* ไปจุดศูนย์กลางของ class อื่นที่ใกล้ที่สุด − ระยะไปจุดศูนย์กลางของ class ตัวเอง เทียบแบบมี face กับไม่มี face ตาม η_v</td><td>face ดัน embedding เข้าหา class ที่ถูกไหม และดันมากขึ้นใน node ที่ heterophilic ไหม</td></tr>
+    <tr><td><b>F3</b> ปิด face ทีละ node (causal)</td><td>ใช้ <code>full</code> ที่เทรนแล้ว ตอน evaluate ให้ β_f = 0 <b>เฉพาะ face ที่ผ่าน node นั้น</b> แล้วดูว่าคำทำนายกลับไปผิดไหม และ margin หายไปเท่าไร ไม่ต้องเทรนใหม่</td><td>face เป็น<b>เหตุ</b>ที่ทำให้ทำนายถูก ไม่ใช่แค่สัมพันธ์กัน</td></tr>
+  </table></div>
+  <div class="two">
+    <div class="card"><h3>รูป case study: เลือก node ด้วยกฎตายตัว</h3><ul>
+      <li>ACM, seed 1</li>
+      <li>เลือกจาก test node ที่มี edge ตรงไปหาเพื่อนบ้านต่าง class และใน F3 การปิด face ทำให้ทำนายผิด</li>
+      <li>ในกลุ่มนั้นเลือก node ที่ margin ลดลงมากที่สุดเมื่อปิด face ถ้าเสมอกันให้เลือก id ที่น้อยกว่า</li>
+      <li>เลือกด้วยกฎ ไม่ได้เลือกด้วยมือ</li>
+    </ul></div>
+    <div class="card"><h3>สิ่งที่แสดงในรูป</h3><ul>
+      <li>Edge ไปหาเพื่อนบ้านต่าง class และ face 3 อันที่น้ำหนัก w_f สูงสุด พร้อม node ตรงกลาง</li>
+      <li>Embedding 2 มิติ (PCA ที่ fit บน x* ของ test ทั้งหมด): h₀, x* ตอนปิด face และ x* ของ <code>full</code> พร้อมจุดศูนย์กลางของแต่ละ class</li>
+      <li>ความน่าจะเป็นของ class ที่ถูก ตอนปิด face เทียบกับตอนเปิด</li>
+    </ul></div>
+  </div>
+  <p class="lede">รูปนี้ใช้แทน Fig. 1 ที่อาจารย์และ lab บอกว่าซับซ้อนได้ F3 ต้องมี hook ใน <code>src/</code> สำหรับปิด face ที่เลือกตอน evaluate อย่างเดียว จึงต้องเข้า card 5</p>
+</section>
+
+<!-- Two regimes -->
+<section>
+  <span class="q">อาจารย์ขอ</span>
+  <h2>Two-regime analysis: โมเดลเดียวใช้ได้ทั้ง homophily และ heterophily โดยไม่ดูแค่ตัวเลข</h2>
+  <p>อาจารย์ขอสามอย่างในการประชุม คือ proof, energy ที่สัมพันธ์กับ performance และ representation และการแสดงที่ไม่ใช่แค่ตัวเลข ส่วนนี้รวมทั้งสามอย่างเข้าด้วยกัน ทฤษฎีบอกว่าโมเดลมีสองโหมด analysis แสดงว่าโมเดลที่เทรนแล้วเลือกโหมดตาม edge จริง</p>
+  <div class="card"><h3>ทฤษฎี (เขียนในเปเปอร์ ไม่ต้องรัน): proposition "ใช้ได้ทั้งสองแบบ"</h3><ul>
+    <li><b>Homophily:</b> เมื่อ Q_e = I สมการ solve กลายเป็น personalized PageRank คือ smoothing ตามปกติ และ h₀ ที่สอดคล้องกันเป็น fixed point (Thm 6)</li>
+    <li><b>Heterophily:</b> สำหรับ labelling ใด ๆ มี maps ที่ทำให้ node ต่าง class สอดคล้องกันโดยไม่ต้องเท่ากัน และแยก class ได้ด้วย linear classifier บน x* (Thm 4)</li>
+  </ul></div>
+  <div class="formula">E(x*)  = sheaf energy ของ solution        e_v = ส่วนของ E ที่แตะ node v
+Ẽ      = E(x*) / ‖x*‖²                    θ_e = มุมหมุนของ transport Q_e (‖Q_e − I‖)</div>
+  <div class="tbl"><table>
+    <tr><th style="width:18%">ส่วน</th><th>วัดอะไร</th><th>ถ้าเป็นตามทฤษฎีจะเห็น</th></tr>
+    <tr><td><b>R1</b> transport</td><td>θ_e ต่อ edge แยกตามปลายสองข้างเป็น class เดียวกันหรือต่าง class (เฉพาะ edge ที่ปลายมี label) พร้อม τ ที่เรียนได้ต่อ dataset</td><td>edge แบบ homophilic มี Q_e ใกล้ I (smoothing) ส่วน edge แบบ heterophilic หมุนมากกว่า <b>โมเดลเดียวเลือกเองว่าจะ smooth หรือหมุน</b></td></tr>
+    <tr><td><b>R2</b> energy กับ performance</td><td>e_v ของ node ที่ทำนายถูกเทียบกับที่ผิด (AUROC) และ Spearman ระหว่าง e_v กับ η_v</td><td>energy ต่ำสัมพันธ์กับการทำนายถูก และ node ที่ heterophilic ยังได้ energy ต่ำได้ ซึ่งแปลว่า "ต่างแต่สอดคล้อง"</td></tr>
+    <tr><td><b>R3</b> energy กับ representation</td><td><code>full</code> เทียบกับ <code>S2</code> (maps = I): Ẽ และความแยกกันของ class (linear probe และอัตราส่วนระยะในและข้าม class) บน x* เทียบกับบน h₀</td><td>ฝั่ง homophilic ทั้งสองโมเดลแยก class บน x* ได้ดีกว่า h₀ ส่วนฝั่ง heterophilic <code>full</code> ยังแยกได้แต่ <code>S2</code> ปน class ซึ่งตอบตรง ๆ ว่า "diffusion ละลายข้อมูลไหม"</td></tr>
+  </table></div>
+  <p><b>ทำบนสองแกน:</b> (1) ข้าม node ตาม η_v ใน 4 dataset และ (2) ข้ามระดับของกราฟ 20/40/60/80 % จาก perturbation จึงเห็นกลไกเปลี่ยนต่อเนื่อง ไม่ได้เห็นแค่สองจุดปลาย</p>
+  <p class="lede">R1 ต้องอ่าน Q_e จากโมเดลที่เทรนแล้ว และ R2/R3 ต้องอ่าน e_v ทั้งสองอย่างเป็น hook แบบอ่านอย่างเดียวที่ต้องเข้า card 5</p>
+</section>
+
+<!-- Redundancy -->
+<section>
+  <span class="eyebrow">ตรวจความซ้ำซ้อน</span>
+  <h2>ทุกชิ้นตอบคำถามต่างกันไหม</h2>
+  <p>คู่ที่ดูคล้ายกันถูกเทียบไว้ในคอลัมน์ขวา ทุกคู่ตอบคนละคำถาม ผมตัดสองชิ้นที่ซ้ำจริงออกแล้ว (ตารางล่าง)</p>
+  <div class="tbl"><table>
+    <tr><th>ชิ้น</th><th>คำถามเดียวที่ตอบ</th><th>ต่างจากชิ้นที่คล้ายกันอย่างไร</th></tr>
+    <tr><td><code>no_path_cells</code></td><td>face ช่วยไหม (เฉลี่ยทั้ง dataset)</td><td>F1 ใช้คู่โมเดลเดียวกัน แต่บอกว่า<b>ช่วย node แบบไหน</b> ส่วน F3 วัดในโมเดลที่เทรนแล้วโดยไม่เทรนใหม่</td></tr>
+    <tr><td><code>endpoints</code></td><td>node ตรงกลาง (A7) สำคัญไหม</td><td><code>no_path_cells</code> ตัด face ทั้งก้อน จึงแยกไม่ได้ว่า A7 สำคัญ</td></tr>
+    <tr><td><code>instance_features</code></td><td>ใส่ face ใน solve ดีกว่าใช้เป็น feature ไหม</td><td>ทั้ง face และน้ำหนักยังอยู่ ต่างแค่ช่องทาง</td></tr>
+    <tr><td><code>S2</code></td><td>sheaf maps ช่วยไหม (accuracy)</td><td>R3 ใช้ S2 ตัวเดียวกันแต่ดู<b>กลไก</b> (class ปนกันไหม) ไม่ใช่ accuracy</td></tr>
+    <tr><td><code>S0</code></td><td>ปิดช่องของตาราง 2×2 เพื่อดู interaction</td><td>ไม่มี claim และไม่ใช่ GCN เพราะยังมี anchor และ edge weight</td></tr>
+    <tr><td>Literature meta-path</td><td>การไม่ต้องรู้ schema เสียอะไรไหม (accuracy)</td><td>คำถาม 3 ดูว่า<b>น้ำหนัก</b>ชอบ meta-path เหล่านั้นไหม ไม่ใช่ accuracy</td></tr>
+    <tr><td>คำถาม 3 (ρ_σ)</td><td>น้ำหนักระดับ schema เรียนได้และเกี่ยวกับ homophily ของ schema ไหม</td><td>R1 ดู<b>map ระดับ edge</b> ส่วนคำถาม 3 ดู<b>น้ำหนักระดับ schema</b></td></tr>
+    <tr><td>Perturbation (accuracy)</td><td>robust ต่อระดับ heterophily ไหม เทียบกับ baselines</td><td>R1–R3 บนกราฟชุดเดียวกันดู<b>กลไก</b> ไม่ใช่ accuracy และไม่มี baseline</td></tr>
+    <tr><td>F1–F3 และ case study</td><td>face ทำให้ทำนายถูกได้อย่างไร (node ไหน, embedding, เป็นเหตุจริงไหม)</td><td>R2 ดู energy ไม่ได้ดู face</td></tr>
+    <tr><td>R1–R3</td><td>โมเดลเดียวใช้ได้ทั้งสองโหมดตามทฤษฎีไหม</td><td>คู่กับ proposition ในเปเปอร์ ส่วนตัวเลขอยู่ที่คำถาม 1 และ 4</td></tr>
+    <tr><td>Scalability</td><td>ต้นทุนโตอย่างไร</td><td>ไม่ทับกับชิ้นใด</td></tr>
+  </table></div>
+  <div class="tbl"><table>
+    <tr><th>ซ้ำจริง ตัดแล้ว</th><th>เหตุผล</th></tr>
+    <tr><td>R4 เดิม (face effect ตาม η_v)</td><td>คือ F1 และ F2 อยู่แล้ว ให้รายงานครั้งเดียวใน face effect</td></tr>
+    <tr><td>น้ำหนัก w_f แยกตามปลาย class เดียวกันหรือต่างกันใน R2 เดิม</td><td>ทับกับคำถาม 3 ที่ดูน้ำหนักกับ homophily ระดับ schema แล้ว จึงเก็บแค่ τ ต่อ dataset ไว้ใน R1</td></tr>
+  </table></div>
+</section>
+
+<!-- Paper placement -->
+<section>
+  <span class="eyebrow">ใส่ในเปเปอร์ 7 หน้าอย่างไร</span>
+  <h2>ที่วางของแต่ละผล</h2>
+  <div class="tbl"><table>
+    <tr><th>เนื้อหาหลัก (7 หน้า)</th><th>Appendix</th></tr>
+    <tr><td><ul>
+      <li>ตาราง ablation: 7 แถว × 4 dataset และ mark แถวที่ผ่าน</li>
+      <li>รูป face effect: case study (อาจใช้แทน Fig. 1) + F3 เป็นตัวเลขในข้อความ</li>
+      <li>รูป perturbation หนึ่งรูป (Macro-F1 เทียบกับ heterophily 20–80 %)</li>
+      <li>Proposition "ใช้ได้ทั้งสองแบบ" + หนึ่งประโยคจาก R1 และ R3</li>
+    </ul></td><td><ul>
+      <li>F1 และ F2 ครบตาม η_v</li>
+      <li>R1–R3 ครบทั้งสองแกน</li>
+      <li>รูปของคำถาม 3</li>
+      <li>ตาราง config (a) เทียบกับ (b)</li>
+      <li>ตาราง complexity และ cost บน ogbn-mag และ IMDB</li>
+      <li>Proof</li>
+    </ul></td></tr>
+  </table></div>
+</section>
+
+<!-- Budget -->
+<section>
+  <span class="eyebrow">ปริมาณงาน</span>
+  <h2>จำนวน run (โดยประมาณ ทั้งหมดรันหลังผลหลักออก)</h2>
+  <div class="tbl"><table>
+    <tr><th>ก้อน</th><th>นับอย่างไร</th><th>จำนวน</th></tr>
+    <tr><td>Ablation (a)</td><td>6 แถว × 4 dataset × 10 seed บวก <code>full</code> seed 5–10 × 4 dataset</td><td class="mono">≈ 264 run เล็ก</td></tr>
+    <tr><td>Ablation (b)</td><td>4 arm (<code>endpoints</code>, <code>no_path_cells</code>, <code>instance_features</code>, S2) × 4 × 100 trial แล้ว × 10 seed</td><td class="mono">1,600 trial + 160 run</td></tr>
+    <tr><td>Perturbation</td><td>7 method × 2 dataset × 4 ระดับ × 2 (ตามเป้า/สุ่ม) × 5 seed (ถ้าเพิ่ม IMDB จะเป็น ≈ 840) บวก <code>S2</code> บนกราฟตามเป้า 2 × 4 × 5 = 40 สำหรับ R3</td><td class="mono">≈ 600 run เล็ก</td></tr>
+    <tr><td>คำถาม 3, face effect, two-regime</td><td>อ่านจาก checkpoint และ F3 เป็น evaluation อย่างเดียว</td><td class="mono">0 run เทรน</td></tr>
+    <tr><td>Scalability</td><td>timing run บน ogbn-mag และ IMDB</td><td class="mono">ไม่กี่ ชม. บน H100</td></tr>
+  </table></div>
+  <p class="lede">ถ้าเวลาไม่พอ ทางลดแรกคือใช้ config (a) อย่างเดียวแล้วเขียนเป็น limitation ซึ่งต้องตัดสินก่อนรัน</p>
+</section>
+
+<!-- Code -->
+<section>
+  <span class="eyebrow">โค้ดที่ต้องมี</span>
+  <h2>อะไรต้องเข้า card 5 และอะไรรอได้</h2>
+  <div class="tbl"><table>
+    <tr><th>ของ</th><th>ที่อยู่</th><th>เมื่อไร</th></tr>
+    <tr><td>Arm และแถวทั้ง 7</td><td>มีอยู่ใน <code>src/</code> แล้ว (<code>path_source: schemas</code> ด้วย)</td><td><span class="pill keep">มีแล้ว</span></td></tr>
+    <tr><td>Hook energy ต่อ node e_v และ Ẽ</td><td><code>src/</code> อ่านอย่างเดียว</td><td><span class="pill new">card 5</span></td></tr>
+    <tr><td>ปิด face ที่ผ่าน node ที่เลือกตอน evaluate (F3) และห้ามใช้ตอนเทรนหรือ tune</td><td><code>src/</code></td><td><span class="pill new">card 5</span></td></tr>
+    <tr><td>Accessor ของ Q_e หรือ θ_e ต่อ edge (R1)</td><td><code>src/</code> อ่านอย่างเดียว ตรวจก่อนว่ามีแล้วหรือยัง</td><td><span class="pill new">card 5</span></td></tr>
+    <tr><td>Read-out ของ face ต่อ target (w_f และ node ตรงกลาง) สำหรับ case study</td><td>ตรวจว่ามีแล้วหรือยัง</td><td><span class="pill new">card 5 ตรวจ</span></td></tr>
+    <tr><td>Script ของ analysis, ตัวสร้างกราฟ perturbation (เพิ่มและตัด edge) และ timing</td><td><code>scripts/</code> ไม่แตะการเทรน</td><td>card analysis แยก หลังผลหลัก</td></tr>
+  </table></div>
+</section>
+
+<!-- Dropped -->
+<section>
+  <span class="eyebrow">ตัดออกจาก pre-registration เดิม</span>
+  <h2>สิ่งที่ไม่ทำแล้วและเหตุผล</h2>
+  <div class="tbl"><table>
+    <tr><th>ตัด</th><th>เหตุผล</th></tr>
+    <tr><td>C6 บน H2GB 12 dataset (128 run ใหญ่)</td><td>แพงที่สุด หลักฐานเรื่อง heterophily มาจากผลหลัก, perturbation, face effect และ two-regime แทน <b>ผลตามมา:</b> กฎ "ตัดคำว่า heterophilic ออกจากชื่อ" ที่ผูกกับ C6 ถูกถอนไปด้วย</td></tr>
+    <tr><td>C2 ladder (<code>schema</code>, <code>uniform</code>)</td><td><code>endpoints</code> ตอบคำถามหลักแล้ว</td></tr>
+    <tr><td>C10 <code>closure_only</code>, C11 <code>hub_A</code>, C12 <code>covering_only</code></td><td>เป็นการเลือกออกแบบภายในโมเดล อาจารย์บอกให้ลด module ที่สำคัญน้อย และทฤษฎียังอยู่ในเปเปอร์</td></tr>
+    <tr><td>C16 direction, C17 composition, C18 ego head</td><td>เป็นรายละเอียดของ maps และ head ไม่ใช่ contribution หลัก</td></tr>
+    <tr><td><code>h₀</code>-only</td><td>S0 และ baselines ครอบคลุมแล้ว</td></tr>
+    <tr><td>N2, N2b, N2c, N3, N4</td><td>R1–R3 และ F1–F3 ตอบเรื่องกลไกได้ตรงกว่า</td></tr>
+    <tr><td>U3 sensitivity, scaling curve, ช่องว่างระหว่าง mini-batch กับ full batch</td><td>ไม่อยู่ในคำถาม</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">ขั้นต่อไป (ยังไม่เริ่ม)</span>
+  <h2>เมื่อคุณ approve แผนนี้</h2>
+  <ol>
+    <li>ใส่ hook สามตัว (energy, ปิด face และ Q_e) ลงใน card 5 (card 5 มาก่อน เพราะอยู่บน critical path)</li>
+    <li>เขียน pre-registration ฉบับกระชับแทนฉบับเดิม และร่าง spec 1.27 สำหรับ §5 ตาราง claim และ §6 ablation</li>
+    <li>เขียน card analysis (script และตัวสร้าง perturbation) ให้รันหลังผลหลัก</li>
+  </ol>
+</section>
+
+</div>
