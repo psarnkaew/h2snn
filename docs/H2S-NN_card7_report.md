@@ -261,3 +261,53 @@ Log `docs/card7_evidence/suite_17858.txt` (commit `ad59bfe`).
 No stop condition fired: nothing in `src/` or `configs/` changed (`git diff 365a757 HEAD -- src configs` empty), every loader reads a perturbed or original graph by its data directory, every launcher has a fixed-config path, no arm outside ablation plan v2 was added, and the spec and card agree. Not merged into `v3b`. The sha below is the B7 evidence commit (the suite ran at its parent `4d00154`, which holds every Phase B code and test file); this report is the commit after it.
 
 branch=card7 sha=ad59bfe5c928cf1afa506d7e7bed015f5e2c24ee card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
+
+## Addendum: amendments 9–10 (η_v per-path mean, η groups; 2026-11-20)
+Design-docs `d3c8d44` (amendments 9–10, pre-registration v2 §4). Scripts and tests only: `git diff 365a757 HEAD -- src configs` is still empty.
+
+**Merges** (`--no-ff`, no rebase):
+- design-docs `d3c8d44` → `e6197da`, no conflict. `origin/design-docs` has one newer commit, `e8331e1`, which touches the paper only. It was not merged.
+- `v3b` `1646efd` (ops card T7) → `5d8b953`. `src/` and `configs/` are unchanged since `365a757`.
+- **The conflict was in `scripts/tsubame/make_cell_list.py` (docstring and `main`), and resolving it needed no design choice.** The resolution keeps T7's behaviour for the existing phases: `baselines-early`, the `baselines-1` exclusions, the `sweep_finished` gate, and `h2snn` without an up-front final-seeds list. It keeps card 7's `ablation`, `perturbation` and `timing` branches before the `h2snn` branch.
+- The docstring now says that `lines.py` / `status.py` read the ablation tuning lines (they are `run_h2snn_wandb_tuning.py` lines, card T7.1) but not the `run_row.py` lines.
+- T9 now takes `1646efd` as its reference: `baselines-1`, `baselines-early` and `h2snn` give byte-identical lists.
+
+**Code** (`5b3cb6e`):
+- `mechanism_common.eta` computes, per M₂ path, the share of distinct labelled u ≠ v whose label differs from v's. On IMDB, the per-path value is the mean over genres of the binary disagreement. η_v is the mean over the paths on which v has at least one labelled neighbour. A node with none on any path gets NaN and is excluded and counted. The output now also has `paths` (paths counted per node) and `neighbours` ([paths, n]). The reference meta-path code is unchanged.
+- `group_edges` / `group_of` replace the quartile functions: G0 = {η_v = 0}; G1–G3 are the value bins (−∞, t1], (t1, t2], (t2, ∞) at the tertiles (1/3, 2/3, linear) of η_v > 0 over the test targets.
+- In `face_effect.py` and `two_regime.py`, every quartile is now an η group: F1, F2, F3, R1 by start node, R2, and R3's probe and ratio. Both record the group counts, and an empty G0 stays as its own row.
+- The case study had no quartile field, so it is unchanged.
+
+**Tests** (`01dfb44`):
+- T6 now checks:
+  - η_v against a brute-force per-path mean on the toy ACM (7 M₂ paths);
+  - a crafted two-path graph on which the per-path mean and the union reading differ. Single-label v₀: 3/4 vs 2/3. Multi-label: 1/3 vs 4/9. The graph has a duplicate pair, a self pair, an unlabelled neighbour and an unlabelled v;
+  - grouping with ties at 0, an empty G0, ties at a tertile edge (equal values in one group, G2 empty), and no η_v > 0.
+- T9's reference is now `1646efd`.
+
+**Targeted jobs** (CPU, environment E, worktree, tree = `01dfb44`'s tests: uncommitted diff hash `09e4664f83efc0d8` = `git diff 5b3cb6e 01dfb44 -- H2S-NN/tests`). Modules: `test_card7_mechanism` (T6, T7), `test_card7_tsubame` (T9), `test_card7_amendments`, `test_card7_perturbation`, the T7 ops modules that touch `make_cell_list.py` (`test_tsubame_cell_list`, `_phases`, `_h2snn_lines`, `_final_seeds_gate`), and `test_card5_protocol_hooks`.
+- Job 17885 (log truncated to its last 150 lines) and job 17887 (full log) give the same result: **67 tests, 66 OK, 1 failure**. Peak 0.9 GB, 46 s each.
+- In the 17887 log, 3 test lines are dropped by the warning filter because a warning printed on the same line. 64 are listed, and every T6, T7 and T9 test is accounted for.
+- **The failure, card 5's `HgbUnchangedTests.test_T4_records_equal_the_base_commit`, comes from v3b, not card 7.** That test compares `--phase baselines-1` with its capture at `894fd74`. Ops card T7.4 moved HetSheaf and CSNN on ACM/DBLP NC to `baselines-early`, which adds 4 `# in phase baselines-early` comment lines. `baselines1_vs_card5_capture.py` (in job 17887) shows:
+  - `894fd74`'s script equals the capture;
+  - `1646efd`'s does not;
+  - card7's list equals `1646efd`'s.
+
+  The T7.6 targeted job ran only `CellListTests` of that module, so this did not show there. Fixing the capture belongs to card 5 / ops, not card 7.
+- No full suite was run, because `src/` did not change.
+
+**η table** (job 17886, structure only, CPU, 31 s, peak 0.85 GB): test targets = the HGB `test_mask` as `src/data/dataset.py` reads it. `eta_groups_table.json` holds the per-path counts.
+
+| dataset | M₂ paths | test targets | excluded (no labelled neighbour) | η_v mean | tertile edges t1 / t2 (η > 0) | G0 | G1 | G2 | G3 | distinct values | largest tie |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ACM | 7 | 2,118 | 0 | 0.327 | 0.234 / 0.375 | **0** | 744 | 708 | 666 | 1,207 | 80 (at 0.140) |
+| DBLP | 1 | 2,840 | 1,020 | 0.167 | 0.333 / 0.667 | 1,280 | 187 | 191 | 162 | 53 | 1,280 (at 0) |
+| IMDB | 3 | 3,202 | 29 | 0.337 | 0.293 / 0.371 | 3 | 1,057 | 1,056 | 1,057 | 2,854 | 20 (at 0.4) |
+| Freebase (symmetrised) | 8 | 5,568 | 695 | 0.423 | 0.337 / 0.625 | 668 | 1,403 | 1,400 | 1,402 | 2,466 | 668 (at 0) |
+
+- ACM's G0 is empty, so its F1/F2/F3 tables carry a G0 row with 0 nodes.
+- IMDB's G0 has 3 nodes, so its per-group means rest on 3 nodes.
+- DBLP has one path, so η_v there equals the job-17862 value.
+- Under the union reading (job 17862), ACM had 7 distinct values and bins 727 / 714 / 676 / 1.
+
+branch=card7 sha=01dfb44a0bd6600be85128c217db314cb9fb0cb0 card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
