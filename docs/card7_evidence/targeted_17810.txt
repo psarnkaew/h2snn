@@ -1,0 +1,50 @@
+label=v3b job=17810 node=g3n01 start=2026-11-19T14:57:50+09:00
+git=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Processing...
+Done!
+  C = torch.sparse.mm(A, B)
+test_every_acm_relation_is_m2_and_raising_scales_every_relation (tests.test_card7_perturbation.AcmToyTests.test_every_acm_relation_is_m2_and_raising_scales_every_relation) ... ok
+Processing...
+Done!
+test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory (tests.test_card7_perturbation.LoaderTests.test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory) ... Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_manifest_rows (tests.test_card7_perturbation.ManifestTests.test_manifest_rows) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_lowering_removes_at_most_half_and_only_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_lowering_removes_at_most_half_and_only_different_class_facts) ... ok
+test_raising_adds_only_typed_new_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts) ... ok
+test_random_control_has_equal_counts_per_relation (tests.test_card7_perturbation.TargetedTests.test_random_control_has_equal_counts_per_relation) ... ok
+test_reached_within_tolerance_or_stopped_at_the_bound (tests.test_card7_perturbation.TargetedTests.test_reached_within_tolerance_or_stopped_at_the_bound) ... ok
+test_toy_lies_between_the_levels (tests.test_card7_perturbation.TargetedTests.test_toy_lies_between_the_levels) ... ok
+Processing...
+Done!
+test_only_m2_relations_are_touched_and_h_is_the_reference_value (tests.test_card7_perturbation.WrittenGraphTests.test_only_m2_relations_are_touched_and_h_is_the_reference_value) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 9.330s
+
+OK
+exit=0 end=2026-11-19T14:58:02+09:00

@@ -1,0 +1,66 @@
+label=v3 job=17809 node=g3n01 start=2026-11-19T14:56:20+09:00
+git=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9 branch=card7 uncommitted_sha256=e3b0c44298fc1c14
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Processing...
+Done!
+  C = torch.sparse.mm(A, B)
+test_every_acm_relation_is_m2_and_raising_scales_every_relation (tests.test_card7_perturbation.AcmToyTests.test_every_acm_relation_is_m2_and_raising_scales_every_relation) ... ok
+Processing...
+Done!
+test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory (tests.test_card7_perturbation.LoaderTests.test_perturbed_graph_loads_through_h2snn_and_han_by_data_directory) ... Processing...
+Done!
+Processing...
+Done!
+ok
+Processing...
+Done!
+test_lowering_removes_at_most_half_and_only_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_lowering_removes_at_most_half_and_only_different_class_facts) ... FAIL
+test_raising_adds_only_typed_new_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts) ... ok
+test_random_control_has_equal_counts_per_relation (tests.test_card7_perturbation.TargetedTests.test_random_control_has_equal_counts_per_relation) ... ok
+test_reached_within_tolerance_or_stopped_at_the_bound (tests.test_card7_perturbation.TargetedTests.test_reached_within_tolerance_or_stopped_at_the_bound) ... FAIL
+test_toy_lies_between_the_levels (tests.test_card7_perturbation.TargetedTests.test_toy_lies_between_the_levels) ... FAIL
+Processing...
+Done!
+test_only_m2_relations_are_touched_and_h_is_the_reference_value (tests.test_card7_perturbation.WrittenGraphTests.test_only_m2_relations_are_touched_and_h_is_the_reference_value) ... Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+ok
+
+======================================================================
+FAIL: test_lowering_removes_at_most_half_and_only_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_lowering_removes_at_most_half_and_only_different_class_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_perturbation.py", line 112, in test_lowering_removes_at_most_half_and_only_different_class_facts
+    self.assertEqual(p.direction, "lower")
+AssertionError: 'none' != 'lower'
+- none
++ lower
+
+
+======================================================================
+FAIL: test_reached_within_tolerance_or_stopped_at_the_bound (tests.test_card7_perturbation.TargetedTests.test_reached_within_tolerance_or_stopped_at_the_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_perturbation.py", line 82, in test_reached_within_tolerance_or_stopped_at_the_bound
+    self.assertEqual(p.added[rel.name].shape[0], int(round(MAX_ADD * n)), level)
+AssertionError: 799 != 800 : 0.8
+
+======================================================================
+FAIL: test_toy_lies_between_the_levels (tests.test_card7_perturbation.TargetedTests.test_toy_lies_between_the_levels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_perturbation.py", line 68, in test_toy_lies_between_the_levels
+    self.assertGreater(self.h0, 0.21)
+AssertionError: 0.19417475728155342 not greater than 0.21
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.145s
+
+FAILED (failures=3)
+exit=1 end=2026-11-19T14:56:32+09:00

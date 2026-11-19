@@ -1,0 +1,16 @@
+job=17812 node=g3n01 start=2026-11-19T14:59:21+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/card7_mut head=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9 diff_sha256=e3b0c44298fc1c14 untracked=7 snapshot_at=2026-11-19T14:58:43+09:00
+git=bfd4cad6ad9de4f3b3d6f5bec2e79ba5339e36a9
+===== mutation 1: raising h adds same-class edges -> target tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts
+test_raising_adds_only_typed_new_different_class_facts (tests.test_card7_perturbation.TargetedTests.test_raising_adds_only_typed_new_different_class_facts) ... FAIL
+AssertionError: np.int64(1) == np.int64(1) : the meta-path partner has the node's own class
+Ran 1 test in 2.127s
+FAILED (failures=1)
+restored: identical
+===== mutation 2: Holm over all claims -> target tests.test_card7_stats.WilcoxonAndHolmTests.test_holm_is_per_claim_over_four_datasets
+test_holm_is_per_claim_over_four_datasets (tests.test_card7_stats.WilcoxonAndHolmTests.test_holm_is_per_claim_over_four_datasets) ... FAIL
+AssertionError: 0.03125 != 0.0078125 within 12 places (0.0234375 difference) : ('C2-cells', 'acm')
+Ran 1 test in 1.017s
+FAILED (failures=1)
+restored: identical
+end=2026-11-19T14:59:27+09:00
