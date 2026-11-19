@@ -1,0 +1,16 @@
+head=392cfcf88bf17908f8fe952b1456d85d09410432 host=g3n01 job=17852
+tests: tests.test_tsubame_collect_h2snn tests.test_tsubame_collect
+test_h2snn_rows_equal_records_values_unchanged (tests.test_tsubame_collect_h2snn.H2SNNCollectTests.test_h2snn_rows_equal_records_values_unchanged) ... ok
+test_status_reads_h2snn_lines (tests.test_tsubame_collect_h2snn.H2SNNCollectTests.test_status_reads_h2snn_lines) ... ok
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+Ran 5 tests in 1.319s
+OK
+tests exit=0
+--- mutation t7_2_mutation.py
+AssertionError: Tuples differ: (4, 4, 0) != (6, 6, 0)
+Ran 1 test in 0.014s
+FAILED (failures=1)
+MUTATION T7.2 (an h2snn record skipped): caught (the test fails)
+mutation exit=0
