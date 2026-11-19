@@ -1,0 +1,120 @@
+label=B-dev job=17854 node=g3n01 start=2026-11-19T18:27:51+09:00
+git=cf8ef7b6c360c869299d36094234d7f617e66153 branch=card7 uncommitted_sha256=3a3469d8ad511dcb
+working tree:  M scripts/tsubame/make_cell_list.py
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_full_run0
+Processing...
+Done!
+2026-11-19 18:27:55,919 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-19 18:27:55,919 | INFO | Target node type: paper
+2026-11-19 18:27:55,919 | INFO | Model parameters: 2788
+2026-11-19 18:27:55,920 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,155 | INFO | Epoch 0000 | train_loss: 1.0914 | train_acc: 0.2778 | train_auroc: 0.0000 | train_macro_f1: 0.1449 | train_micro_f1: 0.2778 | val_loss: 1.1085 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3524 | test_auroc: 0.0000 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524
+2026-11-19 18:27:57,162 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-19 18:27:57,162 | INFO | Best epoch 0 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524 | test_acc: 0.3524
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_full_run1
+2026-11-19 18:27:57,178 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-19 18:27:57,179 | INFO | Target node type: paper
+2026-11-19 18:27:57,179 | INFO | Model parameters: 2788
+2026-11-19 18:27:57,179 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,515 | INFO | Epoch 0000 | train_loss: 1.1052 | train_acc: 0.2222 | train_auroc: 0.0000 | train_macro_f1: 0.1444 | train_micro_f1: 0.2222 | val_loss: 1.1580 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3810 | test_auroc: 0.0000 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810
+2026-11-19 18:27:57,522 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-19 18:27:57,522 | INFO | Best epoch 0 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810 | test_acc: 0.3810
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_no_path_cells_run0
+2026-11-19 18:27:57,544 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-19 18:27:57,544 | INFO | Target node type: paper
+2026-11-19 18:27:57,544 | INFO | Model parameters: 2788
+2026-11-19 18:27:57,544 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,603 | INFO | Epoch 0000 | train_loss: 1.0909 | train_acc: 0.2778 | train_auroc: 0.0000 | train_macro_f1: 0.1449 | train_micro_f1: 0.2778 | val_loss: 1.1074 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3524 | test_auroc: 0.0000 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524
+2026-11-19 18:27:57,609 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-19 18:27:57,609 | INFO | Best epoch 0 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524 | test_acc: 0.3524
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_no_path_cells_run1
+2026-11-19 18:27:57,625 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-19 18:27:57,625 | INFO | Target node type: paper
+2026-11-19 18:27:57,625 | INFO | Model parameters: 2788
+2026-11-19 18:27:57,626 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,684 | INFO | Epoch 0000 | train_loss: 1.1046 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1773 | train_micro_f1: 0.2500 | val_loss: 1.1580 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3810 | test_auroc: 0.0000 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810
+2026-11-19 18:27:57,689 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-19 18:27:57,690 | INFO | Best epoch 0 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810 | test_acc: 0.3810
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_S2_run0
+2026-11-19 18:27:57,711 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-19 18:27:57,711 | INFO | Target node type: paper
+2026-11-19 18:27:57,711 | INFO | Model parameters: 2446
+2026-11-19 18:27:57,712 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,776 | INFO | Epoch 0000 | train_loss: 1.0440 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.5000 | val_loss: 1.2481 | val_acc: 0.1111 | val_auroc: 0.0000 | val_macro_f1: 0.0667 | val_micro_f1: 0.1111 | test_acc: 0.2381 | test_auroc: 0.0000 | test_macro_f1: 0.1282 | test_micro_f1: 0.2381
+2026-11-19 18:27:57,783 | INFO | Checkpoint metric macro_f1: 0.0667
+2026-11-19 18:27:57,783 | INFO | Best epoch 0 | test_macro_f1: 0.1282 | test_micro_f1: 0.2381 | test_acc: 0.2381
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmprphkua86/runs/toy_S2_run1
+2026-11-19 18:27:57,799 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-19 18:27:57,799 | INFO | Target node type: paper
+2026-11-19 18:27:57,799 | INFO | Model parameters: 2446
+2026-11-19 18:27:57,799 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-19 18:27:57,864 | INFO | Epoch 0000 | train_loss: 1.1830 | train_acc: 0.1944 | train_auroc: 0.0000 | train_macro_f1: 0.1138 | train_micro_f1: 0.1944 | val_loss: 1.0647 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.1667 | val_micro_f1: 0.3333 | test_acc: 0.3619 | test_auroc: 0.0000 | test_macro_f1: 0.2296 | test_micro_f1: 0.3619
+2026-11-19 18:27:57,871 | INFO | Checkpoint metric macro_f1: 0.1667
+2026-11-19 18:27:57,871 | INFO | Best epoch 0 | test_macro_f1: 0.2296 | test_micro_f1: 0.3619 | test_acc: 0.3619
+  C = torch.sparse.mm(A, B)
+setUpModule (tests.test_card7_mechanism) ... ERROR
+test_T9_ablation_lines_equal_the_manifests (tests.test_card7_tsubame.AblationPhaseTests.test_T9_ablation_lines_equal_the_manifests) ... ok
+test_T9_existing_phases_byte_identical (tests.test_card7_tsubame.ExistingPhasesTests.test_T9_existing_phases_byte_identical) ... ok
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+test_T9_a_line_runs_as_the_slot_runs_it (tests.test_card7_tsubame.PerturbationPhaseTests.test_T9_a_line_runs_as_the_slot_runs_it)
+GCN on the toy original graph through `python run_row.py ... --resume` from H2S-NN/, then a second leg. ... ok
+test_T9_perturbation_lines_equal_the_manifest (tests.test_card7_tsubame.PerturbationPhaseTests.test_T9_perturbation_lines_equal_the_manifest) ... FAIL
+test_T9_resume_dropped_cwd_copy_done (tests.test_card7_tsubame.RunRowTests.test_T9_resume_dropped_cwd_copy_done) ... /tmp/tmp6kudegy_/baselines-1/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+/tmp/tmp6kudegy_/baselines-1/cells_tuning.txt: 89 runnable line(s), 15 comment line(s)
+/tmp/tmp6kudegy_/h2snn/cells_tuning.txt: 24 runnable line(s), 1 comment line(s)
+/tmp/tmp6kudegy_/h2snn/cells_tuning.txt: 24 runnable line(s), 1 comment line(s)
+run_row: cwd=/tmp/tmpk8a55vua/work /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmpk8a55vua/launcher.py --write /tmp/tmpk8a55vua/record.json --x 1
+ok
+test_T9_tuned_config_waits_then_materialises (tests.test_card7_tsubame.RunRowTests.test_T9_tuned_config_waits_then_materialises) ... row complete: /tmp/tmpk8a55vua/summary.json exists
+waiting: /tmp/tmpkxvtca3c/best_tuned_run0.json does not exist yet (the arm's sweep has not finished)
+run_row: cwd=/mnt/data/peeradon/h2snn-model/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmpkxvtca3c/launcher.py --write /tmp/tmpkxvtca3c/record.json
+run_row: cwd=/mnt/data/peeradon/h2snn-model/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmpkxvtca3c/launcher.py --write /tmp/tmpkxvtca3c/record.json
+run_row: cwd=/mnt/data/peeradon/h2snn-model/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmpkxvtca3c/launcher.py --write /tmp/tmpkxvtca3c/record.json --h2snn_config /tmp/tmpkxvtca3c/t2.yaml
+ok
+test_T9_timing_lines (tests.test_card7_tsubame.TimingPhaseTests.test_T9_timing_lines) ... ok
+
+======================================================================
+ERROR: setUpModule (tests.test_card7_mechanism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_mechanism.py", line 80, in setUpModule
+    record = mg.generate(root, "acm", 4.0, levels=(0.60,), log=lambda *_: None)[0]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/scripts/perturbation/make_graphs.py", line 576, in generate
+    t = targeted(graph, level, max_add_ratio, h0)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/scripts/perturbation/make_graphs.py", line 420, in targeted
+    streams[rel.name], partners[rel.name] = targeted_additions(
+                                            ^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/scripts/perturbation/make_graphs.py", line 309, in targeted_additions
+    raise RuntimeError(f"{graph.dataset} {rel.name}: could not draw {count} new different-class facts")
+RuntimeError: acm paper-to-subject: could not draw 600 new different-class facts
+
+======================================================================
+FAIL: test_T9_perturbation_lines_equal_the_manifest (tests.test_card7_tsubame.PerturbationPhaseTests.test_T9_perturbation_lines_equal_the_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_tsubame.py", line 159, in test_T9_perturbation_lines_equal_the_manifest
+    self.assertEqual(args.copy, [self.trials, Path(row["summary"]).parent])
+AssertionError: None != [PosixPath('/tmp/tmpd_9akc49/baselines/he[141 chars]ll')]
+
+----------------------------------------------------------------------
+Ran 7 tests in 15.091s
+
+FAILED (failures=1, errors=1)
+exit=1 end=2026-11-19T18:28:09+09:00

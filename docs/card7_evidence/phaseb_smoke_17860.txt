@@ -1,0 +1,23 @@
+job=17860 node=g3n01 start=2026-11-19T18:34:21+09:00
+git=2b6ce792091a08f13a9b0a83592d3acb58bdff61 branch=card7 dirty=0
+ "instance_features": "/mnt/data/peeradon/h2snn-model-snap/card7_smokeB/arms/acm/instance_features.yaml",
+ "literature": "/mnt/data/peeradon/h2snn-model-snap/card7_smokeB/arms/acm/literature.yaml"
+}
+train full: exit=0 17 s; best.pt last.pt 
+train no_path_cells: exit=0 9 s; best.pt last.pt 
+train S2: exit=0 10 s; best.pt last.pt 
+  payload = torch.load(path, map_location="cpu")
+  C = torch.sparse.mm(A, B)
+{"acm": {"seeds": [1]}}
+face_effect: exit=0 78 s
+  payload = torch.load(path, map_location="cpu")
+  C = torch.sparse.mm(A, B)
+  payload = torch.load(path, map_location="cpu")
+2 runs analysed, 1 skipped -> /mnt/data/peeradon/h2snn-model-snap/card7_smokeB/regime
+two_regime: exit=0 145 s
+eta quartile edges [0.6494708994708994, 0.6716269841269841, 0.6795634920634921] test nodes without eta 0
+F1 nodes per bin {'Q1': 727, 'Q2': 714, 'Q3': 676, 'Q4': 1, 'none': 0} F2 arms ['full', 'no_path_cells'] F3 nodes 20
+case study: no candidate {'node': None, 'candidates': None} cells 0
+acm__original__S2__seed1.json tau 0.9900498986244202 R1 cells None None R1 facts None R2 nodes None R3 keys ['energy_tilde', 'probe_h0', 'probe_x_star', 'ratio_h0']
+acm__original__full__seed1.json tau 1.0100501775741577 R1 cells 36307 28457 R1 facts 5343 R2 nodes 2118 R3 keys ['energy_tilde', 'probe_h0', 'probe_x_star', 'ratio_h0']
+end=2026-11-19T18:38:42+09:00

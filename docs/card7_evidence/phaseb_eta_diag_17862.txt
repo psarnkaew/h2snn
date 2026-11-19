@@ -1,0 +1,18 @@
+job=17862 node=g3n01 git=2b6ce792091a08f13a9b0a83592d3acb58bdff61 start=2026-11-19T18:40:21+09:00
+  C = torch.sparse.mm(A, B)
+  per = np.nanmean(np.stack(per), axis=0)
+== acm: M_2 = ['paper -cite-> paper -cite-> paper', 'paper -cite-> paper -ref-> paper', 'paper -ref-> paper -cite-> paper', 'paper -ref-> paper -ref-> paper', 'paper -to-> author -to-> paper', 'paper -to-> subject -to-> paper', 'paper -to-> term -to-> paper']
+  paper -cite-> paper -cite-> paper: median neighbours 0, eta mean 0.1258, quartiles [0.0, 0.0, 0.1]
+  paper -cite-> paper -ref-> paper: median neighbours 3, eta mean 0.1414, quartiles [0.0, 0.02, 0.1905]
+  paper -ref-> paper -cite-> paper: median neighbours 0, eta mean 0.1472, quartiles [0.0, 0.0, 0.2017]
+  paper -ref-> paper -ref-> paper: median neighbours 1, eta mean 0.2007, quartiles [0.0, 0.0, 0.3333]
+  paper -to-> author -to-> paper: median neighbours 4, eta mean 0.1422, quartiles [0.0, 0.0, 0.2]
+  paper -to-> subject -to-> paper: median neighbours 806, eta mean 0.3502, quartiles [0.0223, 0.4523, 0.5503]
+  paper -to-> term -to-> paper: median neighbours 3024, eta mean 0.6666, quartiles [0.6495, 0.6716, 0.6796]
+  union: edges [0.6495, 0.6716, 0.6796], bins [727, 714, 676, 1], none 0, distinct values 7, largest tie 726
+  per-path mean: edges [0.2, 0.2999, 0.4059], bins [530, 530, 528, 530], none 0, distinct values 1207, largest tie 80
+== dblp: M_2 = ['author -to-> paper -to-> author']
+  author -to-> paper -to-> author: median neighbours 1, eta mean 0.1670, quartiles [0.0, 0.0, 0.25]
+  union: edges [0.0, 0.0, 0.25], bins [1280, 0, 99, 441], none 1020, distinct values 53, largest tie 1280
+  per-path mean: edges [0.0, 0.0, 0.25], bins [1280, 0, 99, 441], none 1020, distinct values 53, largest tie 1280
+end=2026-11-19T18:40:31+09:00

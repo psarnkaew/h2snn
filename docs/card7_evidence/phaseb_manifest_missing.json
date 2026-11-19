@@ -1,0 +1,55 @@
+{
+ "needs_tuned_config": [
+  "hetsheaf/acm",
+  "csnn/acm",
+  "hetsheaf/dblp",
+  "csnn/dblp"
+ ],
+ "configuration_per_baseline": {
+  "gcn/acm": "hgb_command",
+  "han/acm": "hgb_command",
+  "sehgnn/acm": "published",
+  "hetero2net/acm": "published",
+  "hetsheaf/acm": "needs tuned config",
+  "csnn/acm": "needs tuned config",
+  "gcn/dblp": "hgb_command",
+  "han/dblp": "hgb_command",
+  "sehgnn/dblp": "published",
+  "hetero2net/dblp": "published",
+  "hetsheaf/dblp": "needs tuned config",
+  "csnn/dblp": "needs tuned config"
+ },
+ "unreached_graphs_without_rows": [],
+ "excluded_graphs": [
+  "acm/random_h0.80",
+  "acm/targeted_h0.80",
+  "dblp/random_h0.80",
+  "dblp/targeted_h0.80",
+  "imdb/random_h0.20",
+  "imdb/random_h0.40",
+  "imdb/random_h0.60",
+  "imdb/random_h0.80",
+  "imdb/targeted_h0.20",
+  "imdb/targeted_h0.40",
+  "imdb/targeted_h0.60",
+  "imdb/targeted_h0.80"
+ ],
+ "original_graphs_missing": [],
+ "h2snn_reference": "ablation configuration (a), seeds 1-5 (figure.py --h2snn_reference_table); no manifest rows",
+ "rows": 182,
+ "rows_per_method": {
+  "h2snn_full": 20,
+  "h2snn_no_path_cells": 20,
+  "gcn": 22,
+  "han": 22,
+  "sehgnn": 22,
+  "hetero2net": 22,
+  "hetsheaf": 22,
+  "csnn": 22,
+  "h2snn_S2": 10
+ },
+ "runs": 910,
+ "runnable_rows": 138,
+ "reference_rows": 12,
+ "runnable_runs": 690
+}

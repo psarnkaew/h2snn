@@ -1,0 +1,57 @@
+job=17859 node=g3n01 start=2026-11-19T18:32:21+09:00
+git=2b6ce792091a08f13a9b0a83592d3acb58bdff61 branch=card7 dirty=0
+== 1. original graphs (amendment 8)
+acm original (ACM): h 0.2621 H2 0.3994, edge fingerprint f68aabb4bc28 (273911 pairs), C 3
+dblp original (DBLP): h 0.1278 H2 0.1732, edge fingerprint b9c3276f5940 (119783 pairs), C 4
+== 2. perturbation manifest
+182 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_phaseb/pert/manifest.tsv; {"needs_tuned_config": ["hetsheaf/acm", "csnn/acm", "hetsheaf/dblp", "csnn/dblp"], "configuration_per_baseline": {"gcn/acm": "hgb_command", "han/acm": "hgb_command", "sehgnn/acm": "published", "hetero2net/acm": "publishe
+rows per graph kind and configuration:
+      2 acm original hgb_command
+      2 acm original needs tuned config
+      2 acm original published
+      5 acm random a
+     10 acm random hgb_command
+     10 acm random needs tuned config
+     10 acm random published
+      5 acm random tuned
+     10 acm targeted a
+     10 acm targeted hgb_command
+     10 acm targeted needs tuned config
+     10 acm targeted published
+      5 acm targeted tuned
+      2 dblp original hgb_command
+      2 dblp original needs tuned config
+      2 dblp original published
+      5 dblp random a
+     10 dblp random hgb_command
+     10 dblp random needs tuned config
+     10 dblp random published
+      5 dblp random tuned
+     10 dblp targeted a
+     10 dblp targeted hgb_command
+     10 dblp targeted needs tuned config
+     10 dblp targeted published
+      5 dblp targeted tuned
+== 3. cell lists
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_phaseb/abl/acm/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_phaseb/abl/dblp/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_phaseb/abl/imdb/manifest.tsv
+15 rows -> /mnt/data/peeradon/h2snn-model-snap/card7_phaseb/abl/freebase/manifest.tsv
+/mnt/data/peeradon/h2snn-model-snap/card7_phaseb/cells/cells_ablation_tuning.txt: 16 runnable line(s), 0 comment line(s)
+/mnt/data/peeradon/h2snn-model-snap/card7_phaseb/cells/cells_perturbation.txt: 138 runnable line(s), 44 comment line(s)
+/mnt/data/peeradon/h2snn-model-snap/card7_phaseb/cells/cells_timing.txt: 28 runnable line(s), 0 comment line(s)
+cells_ablation_seeds.txt: 44 runnable, 1 comment
+cells_ablation_tuning.txt: 16 runnable, 1 comment
+cells_perturbation.txt: 138 runnable, 45 comment
+cells_timing.txt: 28 runnable, 1 comment
+manifest rows: ablation tune 16, runs 44; perturbation with command 138, without 44
+== first line of each list
+-- cells_ablation_seeds.txt
+scripts/tsubame/run_row.py --done <W>/cells/experiments/ablation/acm__ablation_a_full/runs_summary.json -- scripts/run_h2snn_runs.py --config <W>/abl/acm/full.yaml --base_seed 5 --num_runs 6 --exp_name acm__ablation_a_full --output_dir <W>/cells/experiments/ablation
+-- cells_ablation_tuning.txt
+scripts/run_h2snn_wandb_tuning.py --config <W>/abl/acm/tune_endpoints.yaml --exp_name acm__ablation_b_endpoints --num_runs 1 --base_seed 0 --n_trials 100 --output_dir <W>/cells/experiments/ablation --state_dir <W>/cells/state/acm__ablation_b_endpoints --wandb_project h2snn_ablation_t4
+-- cells_perturbation.txt
+scripts/tsubame/run_row.py --done <W>/pert/runs/acm/random_h0.20/acm__pert_random_h0.20_full/runs_summary.json --cwd /mnt/data/peeradon/h2snn-model/H2S-NN -- /mnt/data/peeradon/h2snn-model/H2S-NN/scripts/perturbation/run_checked.py --graph_json /mnt/data/peeradon/h2snn/H2S-NN/data/NC/ACM_pert/random_h0.20/graph.json --expected_fingerprint 9e5a73b393b862e3bdf4ef41877b93765f52f35610438380e4088a40aad6ad18 --log <W>/pert/runs/acm/random_h0.20/acm__pert_random_h0.20_full/fingerprint_checks.jsonl -- /mnt/data/peeradon/h2snn-model/H2S-NN/scripts/run_h2snn_runs.py --config <W>/pert/configs/acm/random_h0.20/full.yaml --base_seed 1 --num_runs 5 --exp_name acm__pert_random_h0.20_full --output_dir <W>/pert/runs/acm/random_h0.20
+-- cells_timing.txt
+scripts/tsubame/run_row.py --done <W>/cells/timing/h2snn_ogbn-mag.json --optional_tuned_config h2snn_config configs/experiments/ogbn-mag_h2snn_v3b.yaml <W>/cells/experiments/h2snn/h2snn_node_classification_ogbn-mag/best_tuned_run0.json <W>/cells/timing/configs/h2snn_ogbn-mag.yaml -- scripts/timing/time_methods.py --method h2snn --dataset ogbn-mag --epochs 4 --out <W>/cells/timing/h2snn_ogbn-mag.json --baseline_output <W>/cells/experiments/baselines --device cuda
+end=2026-11-19T18:33:02+09:00
