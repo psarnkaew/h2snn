@@ -1,0 +1,16 @@
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 0
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 1
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 2
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 3
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 4
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 5
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 6
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 7
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 8
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 9
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 10
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 11
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 12
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 13
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 14
+--dataset h-pokec --task nc --measure h2 --fill-seeds 0 --no-labeled-only --metapath-index 15

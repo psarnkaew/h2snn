@@ -1,0 +1,15 @@
+job=17206 array=17206_8 node=g2n01 start=2026-11-17T05:52:57+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=24576M cpus=8
+task: dataset=pdns task=nc measure=plan deadline_h=0.500
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1290.56it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2600.31it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2775.85it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2786.91it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2757.60it/s]
+[05:53:39] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__pdns__plan.json: value None
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+end=2026-11-17T05:53:40+09:00 exit=0

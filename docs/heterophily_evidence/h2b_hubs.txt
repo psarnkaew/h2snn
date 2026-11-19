@@ -1,0 +1,10 @@
+oag-cs nc hubs
+oag-eng nc hubs
+oag-chem nc hubs
+ogbn-mag nc hubs
+mag-year nc hubs
+h-pokec nc hubs
+ieee-cis-g nc hubs
+pdns nc hubs
+ogbn-mag_pp lp hubs
+oag-cs nc mlh /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/h2b_check

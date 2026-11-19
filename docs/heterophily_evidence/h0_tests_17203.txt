@@ -1,0 +1,100 @@
+job=17203 node=g2n01 start=2026-11-17T05:43:27+09:00
+git=1867681dc197ab536ad5cf1fbede4a9df9abffab branch=heterophily
+status: ?? scripts/heterophily_stats.py
+status: ?? src/analysis/heterophily.py
+status: ?? tests/test_heterophily_harness.py
+python 3.12.16 torch 2.4.1+cu124 pyg 2.8.0 torch_sparse 0.6.18+pt24cu124 tqdm 4.68.3 cpu AVX2
+=== 1. new tests
+test_chunked_label_homophily_equals_one_call (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_label_homophily_equals_one_call) ... ERROR
+test_chunked_mde_equals_the_reference_function (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function) ... ok
+test_measures_take_the_chunked_path_above_the_threshold (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_measures_take_the_chunked_path_above_the_threshold) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+ok
+test_gc_type_mixing_hand_value (tests.test_heterophily_harness.GraphTests.test_gc_type_mixing_hand_value) ... ok
+test_symmetrise_adds_only_missing_reverses (tests.test_heterophily_harness.GraphTests.test_symmetrise_adds_only_missing_reverses) ... ok
+test_fill_replica_equals_calc_homophily_in_place_fill (tests.test_heterophily_harness.HandGraphTests.test_fill_replica_equals_calc_homophily_in_place_fill) ... ok
+test_gp_is_the_support_of_the_product_with_self_pairs (tests.test_heterophily_harness.HandGraphTests.test_gp_is_the_support_of_the_product_with_self_pairs) ... ok
+test_labeled_only_graph_keeps_intermediate_targets (tests.test_heterophily_harness.HandGraphTests.test_labeled_only_graph_keeps_intermediate_targets) ... ERROR
+test_mlh_h2_mde_equal_the_hand_values (tests.test_heterophily_harness.HandGraphTests.test_mlh_h2_mde_equal_the_hand_values) ... ok
+test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value (tests.test_heterophily_harness.HandGraphTests.test_unlabeled_targets_give_five_seeds_and_a_labeled_only_value) ... ok
+test_acm_uses_the_predefined_list_even_when_the_schema_offers_more (tests.test_heterophily_harness.MetapathSetTests.test_acm_uses_the_predefined_list_even_when_the_schema_offers_more) ... ok
+test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once (tests.test_heterophily_harness.MetapathSetTests.test_get_metapaths_fallback_skips_same_type_and_keeps_repeats_once) ... ok
+test_h2gb_rule_includes_a_same_type_relation (tests.test_heterophily_harness.MetapathSetTests.test_h2gb_rule_includes_a_same_type_relation) ... ERROR
+test_lists_resolve_on_the_loader_schemas (tests.test_heterophily_harness.MetapathSetTests.test_lists_resolve_on_the_loader_schemas) ... ok
+test_imdb_per_genre_binary_then_mean_and_exact_match_separate (tests.test_heterophily_harness.MultilabelTests.test_imdb_per_genre_binary_then_mean_and_exact_match_separate) ... ok
+
+======================================================================
+ERROR: test_chunked_label_homophily_equals_one_call (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_label_homophily_equals_one_call)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/tests/test_heterophily_harness.py", line 203, in test_chunked_label_homophily_equals_one_call
+    self.assertAlmostEqual(het.label_homophily_chunked(index, y, chunk), one, places=6)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.analysis.heterophily' has no attribute 'label_homophily_chunked'
+
+======================================================================
+ERROR: test_labeled_only_graph_keeps_intermediate_targets (tests.test_heterophily_harness.HandGraphTests.test_labeled_only_graph_keeps_intermediate_targets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/tests/test_heterophily_harness.py", line 126, in test_labeled_only_graph_keeps_intermediate_targets
+    self.assertEqual(het.h2gb_metapaths(mini.edge_types, "tgt"), [[("tgt", "cites", "mid"), ("mid", "cites", "tgt")]])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/src/analysis/heterophily.py", line 482, in h2gb_metapaths
+    _, _, enumerated = calc_homophily(probe, target, probe[target].y, seed=0)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/src/analysis/heterophily.py", line 457, in calc_homophily
+    h_edges, h_ins, h_adjs = calc.calcHomophily(graph, task_entity=target, chunk_size=chunk_size)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/calcHomophily.py", line 168, in calcHomophily
+    h_insensitive /= num_classes - 1
+ZeroDivisionError: float division by zero
+
+======================================================================
+ERROR: test_h2gb_rule_includes_a_same_type_relation (tests.test_heterophily_harness.MetapathSetTests.test_h2gb_rule_includes_a_same_type_relation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/tests/test_heterophily_harness.py", line 175, in test_h2gb_rule_includes_a_same_type_relation
+    h2gb = het.h2gb_metapaths(edge_types, "paper")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/src/analysis/heterophily.py", line 482, in h2gb_metapaths
+    _, _, enumerated = calc_homophily(probe, target, probe[target].y, seed=0)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/src/analysis/heterophily.py", line 457, in calc_homophily
+    h_edges, h_ins, h_adjs = calc.calcHomophily(graph, task_entity=target, chunk_size=chunk_size)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/calcHomophily.py", line 168, in calcHomophily
+    h_insensitive /= num_classes - 1
+ZeroDivisionError: float division by zero
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.246s
+
+FAILED (errors=3)
+=== 2. bit-exact gates
+test_every_v3b_configuration_is_bit_identical_to_the_capture (tests.test_v3b_golden.V3BGoldenTests.test_every_v3b_configuration_is_bit_identical_to_the_capture) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.276s
+
+OK
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/../docs/partMB_evidence/mb0_reference.py:134: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  _flatten("", torch.load(path), ref)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+compared 139 tensors; differing: none
+=== 3. mutations (each on a copy of the module, restored after; target test only)
+MUTATION M1 card: chunked MDE without the degree clamp: SURVIVED (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function passed)
+MUTATION M1b replacement: destination endpoints scaled by the source degree: KILLED (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function failed)
+FAIL: test_chunked_mde_equals_the_reference_function (tests.test_heterophily_harness.ChunkedEqualsReferenceTests.test_chunked_mde_equals_the_reference_function)
+AssertionError: False is not true : (5, 1, 0.03760358008245627, 0.03964570164680481)
+FAILED (failures=1)
+MUTATION M2 card: M2 from get_metapaths for acm instead of the list: KILLED (tests.test_heterophily_harness.MetapathSetTests.test_acm_uses_the_predefined_list_even_when_the_schema_offers_more failed)
+FAIL: test_acm_uses_the_predefined_list_even_when_the_schema_offers_more (tests.test_heterophily_harness.MetapathSetTests.test_acm_uses_the_predefined_list_even_when_the_schema_offers_more)
+AssertionError: Lists differ: [[('p[104 chars], ('term', 'paper')], [('paper', 'venue'), ('venue', 'paper')]] != [[('p[104 chars], ('term', 'paper')]]
+FAILED (failures=1)
+module restored
+end=2026-11-17T05:43:56+09:00 tests=1 golden=0 mb0=0

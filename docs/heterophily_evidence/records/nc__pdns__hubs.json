@@ -1,0 +1,50 @@
+{
+ "dataset": "pdns",
+ "task": "nc",
+ "measure": "hubs",
+ "harness_commit": "503f9c47c53f7b2dcee4ab12f98da215b6dac052",
+ "job": "17594",
+ "node": "g2tn01",
+ "threads": 4,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "src/analysis/heterophily.py complete_gp_hub (H2b)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "domain_node-apex-domain_node": "kept",
+  "domain_node-resolves-ip_node": "kept (reverse partner ip_node-rev_resolves-domain_node)",
+  "domain_node-similar-domain_node": "kept",
+  "ip_node-rev_resolves-domain_node": "kept (reverse partner domain_node-resolves-ip_node)"
+ },
+ "graph": {
+  "node_types": {
+   "domain_node": 897635,
+   "ip_node": 275923
+  },
+  "edge_types": {
+   "domain_node-apex-domain_node": 787236,
+   "domain_node-resolves-ip_node": 37390522,
+   "domain_node-similar-domain_node": 1228824,
+   "ip_node-rev_resolves-domain_node": 37390522
+  }
+ },
+ "target": "domain_node",
+ "value": null,
+ "hubs": {
+  "hetero2net_source": "get_metapaths (homophily.py:51-63)",
+  "hetero2net": {
+   "domain_node-ip_node-domain_node": null
+  },
+  "h2gb": {
+   "domain_node-apex-domain_node-apex-domain_node": null,
+   "domain_node-apex-domain_node-similar-domain_node": null,
+   "domain_node-resolves-ip_node-rev_resolves-domain_node": null,
+   "domain_node-similar-domain_node-apex-domain_node": null,
+   "domain_node-similar-domain_node-similar-domain_node": null
+  }
+ },
+ "wall_s": 48.78,
+ "peak_rss_gb": 7.958
+}

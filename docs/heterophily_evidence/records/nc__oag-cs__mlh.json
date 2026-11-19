@@ -1,0 +1,164 @@
+{
+ "dataset": "oag-cs",
+ "task": "nc",
+ "measure": "mlh",
+ "harness_commit": "4b3fb07f19dcb4da297611a9414ca9c2dde641e9",
+ "job": "17494",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "paper-PP_cite-paper": "kept",
+  "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+  "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+  "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+  "field-FF_in-field": "kept",
+  "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+  "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+  "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+  "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+  "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+  "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+  "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+  "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+  "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+  "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+  "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+  "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+  "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+  "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+  "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+  "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+  "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 546704,
+   "field": 45775,
+   "author": 511122,
+   "affiliation": 9090
+  },
+  "edge_types": {
+   "paper-PP_cite-paper": 11729984,
+   "author-AP_write_last-paper": 431027,
+   "author-AP_write_other-paper": 664266,
+   "author-AP_write_first-paper": 456903,
+   "field-FF_in-field": 525678,
+   "paper-PF_in_L0-field": 546831,
+   "paper-PF_in_L3-field": 869729,
+   "paper-PF_in_L1-field": 1202487,
+   "paper-PF_in_L2-field": 2347239,
+   "paper-PF_in_L5-field": 203338,
+   "paper-PF_in_L4-field": 304912,
+   "author-in-affiliation": 614161,
+   "paper-rev_AP_write_last-author": 431027,
+   "paper-rev_AP_write_other-author": 664266,
+   "paper-rev_AP_write_first-author": 456903,
+   "field-rev_PF_in_L0-paper": 546831,
+   "field-rev_PF_in_L3-paper": 869729,
+   "field-rev_PF_in_L1-paper": 1202487,
+   "field-rev_PF_in_L2-paper": 2347239,
+   "field-rev_PF_in_L5-paper": 203338,
+   "field-rev_PF_in_L4-paper": 304912,
+   "affiliation-rev_in-author": 614161
+  }
+ },
+ "target": "paper",
+ "m2": [
+  "paper-field-paper",
+  "paper-author-paper"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once",
+ "value": 0.9802584188737159,
+ "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+ "fill_seeds": {
+  "label": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "value_over_fill_seeds": [
+  0.9802584188737159,
+  0.9802554592538761,
+  0.9802531535307261,
+  0.9802531811907127,
+  0.9802585760756319
+ ],
+ "spread": [
+  0.9802531535307261,
+  0.9802585760756319
+ ],
+ "per_metapath": [
+  {
+   "metapath": "paper-field-paper",
+   "steps": [
+    [
+     "paper",
+     "field"
+    ],
+    [
+     "field",
+     "paper"
+    ]
+   ],
+   "edges": 298885263616,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.0010219128631939701,
+    "label@1": 0.0010240744510481633,
+    "label@2": 0.0010216307693653446,
+    "label@3": 0.0010218822175623464,
+    "label@4": 0.0010222885998555009
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.004480703316700551
+   },
+   "labeled_only_edges": {
+    "label": 52488642816
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "paper-author-paper",
+   "steps": [
+    [
+     "paper",
+     "author"
+    ],
+    [
+     "author",
+     "paper"
+    ]
+   ],
+   "edges": 26080276,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.03846124938937421,
+    "label@1": 0.03846500704119955,
+    "label@2": 0.038472062169182565,
+    "label@3": 0.03847175540101236,
+    "label@4": 0.03846055924888056
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.16285502797917834
+   },
+   "labeled_only_edges": {
+    "label": 4409652
+   },
+   "exact_match_h_edge_homophily": null
+  }
+ ],
+ "labeled_targets": 229104,
+ "targets": 546704,
+ "labeled_only": 0.9163321343520605,
+ "wall_s": 22000.32,
+ "peak_rss_gb": 10.141
+}

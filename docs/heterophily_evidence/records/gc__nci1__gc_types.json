@@ -1,0 +1,26 @@
+{
+ "dataset": "nci1",
+ "task": "gc",
+ "measure": "gc_types",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17235",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "src/analysis/heterophily.py gc_type_statistics",
+ "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+ "num_node_types": 37,
+ "num_edge_types": 1,
+ "graphs": 4110,
+ "edges": 265506,
+ "cross_type_edges": 98002,
+ "type_mixing_ratio": 0.36911406898525834,
+ "mean_per_graph_ratio": 0.376023470209195,
+ "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+ "value": 0.36911406898525834,
+ "wall_s": 2.95,
+ "peak_rss_gb": 0.64
+}

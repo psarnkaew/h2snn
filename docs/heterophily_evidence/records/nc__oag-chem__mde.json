@@ -1,0 +1,122 @@
+{
+ "dataset": "oag-chem",
+ "task": "nc",
+ "measure": "mde",
+ "harness_commit": "503f9c47c53f7b2dcee4ab12f98da215b6dac052",
+ "job": "17631",
+ "node": "g2n01",
+ "threads": 4,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed form on a complete G_P)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "paper-PP_cite-paper": "kept",
+  "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+  "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+  "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+  "field-FF_in-field": "kept",
+  "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+  "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+  "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+  "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+  "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+  "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+  "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+  "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+  "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+  "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+  "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+  "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+  "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+  "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+  "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+  "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+  "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 747290,
+   "field": 65290,
+   "author": 1097433,
+   "affiliation": 8868
+  },
+  "edge_types": {
+   "paper-PP_cite-paper": 14452754,
+   "author-AP_write_last-paper": 664930,
+   "author-AP_write_other-paper": 1634514,
+   "author-AP_write_first-paper": 630999,
+   "field-FF_in-field": 821818,
+   "paper-PF_in_L3-field": 1710391,
+   "paper-PF_in_L2-field": 3108157,
+   "paper-PF_in_L1-field": 1332023,
+   "paper-PF_in_L0-field": 747417,
+   "paper-PF_in_L4-field": 398183,
+   "paper-PF_in_L5-field": 87674,
+   "author-in-affiliation": 1097433,
+   "paper-rev_AP_write_last-author": 664930,
+   "paper-rev_AP_write_other-author": 1634514,
+   "paper-rev_AP_write_first-author": 630999,
+   "field-rev_PF_in_L3-paper": 1710391,
+   "field-rev_PF_in_L2-paper": 3108157,
+   "field-rev_PF_in_L1-paper": 1332023,
+   "field-rev_PF_in_L0-paper": 747417,
+   "field-rev_PF_in_L4-paper": 398183,
+   "field-rev_PF_in_L5-paper": 87674,
+   "affiliation-rev_in-author": 1097433
+  }
+ },
+ "target": "paper",
+ "m2": [
+  "paper-field-paper",
+  "paper-author-paper"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63); 45 sequences returned, repeats kept once",
+ "value": 6.150144597221054,
+ "form": "MDE, mean over M2 (raw features)",
+ "feature_dim": 768,
+ "feature_dtype": "torch.float32",
+ "per_metapath": [
+  {
+   "metapath": "paper-field-paper",
+   "steps": [
+    [
+     "paper",
+     "field"
+    ],
+    [
+     "field",
+     "paper"
+    ]
+   ],
+   "gp_complete": true,
+   "hub": 43687,
+   "edges": 558442344100,
+   "value": 0.0001455917759607833,
+   "code_path": "closed form (H2b: complete G_P)"
+  },
+  {
+   "metapath": "paper-author-paper",
+   "steps": [
+    [
+     "paper",
+     "author"
+    ],
+    [
+     "author",
+     "paper"
+    ]
+   ],
+   "gp_complete": false,
+   "hub": null,
+   "edges": 30172629,
+   "value": 12.300143602666147,
+   "chunked": 12.300143602666147,
+   "code_path": "mde_chunked (D-a)"
+  }
+ ],
+ "wall_s": 1074.47,
+ "peak_rss_gb": 10.382
+}

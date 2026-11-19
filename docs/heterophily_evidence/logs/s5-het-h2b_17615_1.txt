@@ -1,0 +1,13 @@
+job=17617 array=17615_1 node=g2tn01 start=2026-11-18T10:47:24+09:00
+git=503f9c47c53f7b2dcee4ab12f98da215b6dac052 branch=heterophily mem=16384M cpus=4
+task: dataset=ogbn-mag task=nc measure=mlh out=default deadline_h=11.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/mag_dataset.py:71: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[10:53:30] G_P paper-author-paper: rows 160200/736389 (21.8 %), edges so far 12267332, 300 s
+[10:58:30] G_P paper-author-paper: rows 320400/736389 (43.5 %), edges so far 23394338, 600 s
+[11:03:30] G_P paper-author-paper: rows 480200/736389 (65.2 %), edges so far 40309330, 901 s
+[11:08:30] G_P paper-author-paper: rows 640200/736389 (86.9 %), edges so far 55293464, 1201 s
+[11:11:31] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__ogbn-mag__mlh.json: value 0.8730718465550187
+end=2026-11-18T11:11:32+09:00 exit=0

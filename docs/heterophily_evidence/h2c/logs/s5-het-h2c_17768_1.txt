@@ -1,0 +1,5 @@
+job=17768 array=17768_1 node=g3n01 start=2026-11-19T07:31:33+09:00
+git=b35dddaad3b14bba90503ce70e2ed82a8dc52812 branch=HEAD mem=16384M cpus=8
+args: --collect-h2-parts --dataset h-pokec --task nc deadline_h=0.166
+[07:31:35] wrote /mnt/data/peeradon/h2snn-heterophily-h2c/docs/heterophily_evidence/records/nc__h-pokec__h2.json: value 0.9487727334053488
+end=2026-11-19T07:31:35+09:00 exit=0

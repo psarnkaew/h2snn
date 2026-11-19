@@ -1,0 +1,14 @@
+ogbn-mag nc mlh
+mag-year nc mlh
+oag-chem nc mlh
+oag-eng nc mde
+oag-cs nc mde
+oag-chem nc mde
+ogbn-mag nc mde
+mag-year nc mde
+ogbn-mag_pp lp mde
+oag-eng nc h2
+oag-cs nc h2
+oag-chem nc h2
+ogbn-mag nc h2
+mag-year nc h2

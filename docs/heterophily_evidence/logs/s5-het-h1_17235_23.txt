@@ -1,0 +1,5 @@
+job=17259 array=17235_23 node=g2n01 start=2026-11-17T06:21:27+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=16384M cpus=8
+task: dataset=proteins task=gc measure=gc_types deadline_h=11.500
+[06:21:30] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/gc__proteins__gc_types.json: value 0.34317161048319433
+end=2026-11-17T06:21:30+09:00 exit=0

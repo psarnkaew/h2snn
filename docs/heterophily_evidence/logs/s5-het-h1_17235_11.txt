@@ -1,0 +1,7 @@
+job=17247 array=17235_11 node=g2n01 start=2026-11-17T06:09:57+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=16384M cpus=8
+task: dataset=acm_pa task=lp measure=mde deadline_h=11.500
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[06:10:42] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/lp__acm_pa__mde.json: value {'author': None, 'paper': 0.8653737388599206}
+end=2026-11-17T06:10:43+09:00 exit=0

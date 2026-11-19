@@ -1,0 +1,35 @@
+{
+ "which": "acm",
+ "rows": [
+  {
+   "metapath": "paper-subject-paper",
+   "max_mid_edges_per_target": 1,
+   "targets_with_0": 0,
+   "targets_with_1": 3025,
+   "targets_with_2_or_more": 0,
+   "clique_condition": true,
+   "dataset": "acm",
+   "record_job": "17210",
+   "recorded": 0.04272257399931073,
+   "recorded_edges": 2217089,
+   "closed_form": 0.0427225686757869,
+   "edges": 2217089,
+   "rel_diff": 1.2460681395689837e-07,
+   "edges_equal": true,
+   "ok": true
+  },
+  {
+   "metapath": "paper-term-paper",
+   "max_mid_edges_per_target": 196,
+   "targets_with_0": 0,
+   "targets_with_1": 0,
+   "targets_with_2_or_more": 3025,
+   "clique_condition": false,
+   "dataset": "acm",
+   "record_job": "17210",
+   "recorded": 0.010651621859015746,
+   "recorded_edges": 9150595
+  }
+ ],
+ "mismatch": false
+}

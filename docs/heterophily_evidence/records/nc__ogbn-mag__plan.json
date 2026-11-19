@@ -1,0 +1,57 @@
+{
+ "dataset": "ogbn-mag",
+ "task": "nc",
+ "measure": "plan",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17213",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "src/analysis/heterophily.py (instance counts)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "author-affiliated_with-institution": "kept (reverse partner institution-rev_affiliated_with-author)",
+  "institution-rev_affiliated_with-author": "kept (reverse partner author-affiliated_with-institution)",
+  "author-writes-paper": "kept (reverse partner paper-rev_writes-author)",
+  "paper-rev_writes-author": "kept (reverse partner author-writes-paper)",
+  "paper-cites-paper": "kept",
+  "paper-has_topic-field_of_study": "kept (reverse partner field_of_study-rev_has_topic-paper)",
+  "field_of_study-rev_has_topic-paper": "kept (reverse partner paper-has_topic-field_of_study)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 736389,
+   "author": 1134649,
+   "field_of_study": 59965,
+   "institution": 8740
+  },
+  "edge_types": {
+   "author-affiliated_with-institution": 1043998,
+   "institution-rev_affiliated_with-author": 1043998,
+   "author-writes-paper": 7145660,
+   "paper-rev_writes-author": 7145660,
+   "paper-cites-paper": 10792672,
+   "paper-has_topic-field_of_study": 7505078,
+   "field_of_study-rev_has_topic-paper": 7505078
+  }
+ },
+ "target": "paper",
+ "value": null,
+ "plan": {
+  "hetero2net": {
+   "paper-field_of_study-paper": 667345030246,
+   "paper-author-paper": 859984170
+  },
+  "h2gb": {
+   "paper-rev_writes-author-writes-paper": 859984170,
+   "paper-cites-paper-cites-paper": 613021520,
+   "paper-has_topic-field_of_study-rev_has_topic-paper": 667345030246
+  },
+  "hetero2net_source": "Hetero2Net predefined list 'ogbn-mag' (App. B.1)"
+ },
+ "wall_s": 14.04,
+ "peak_rss_gb": 6.327
+}

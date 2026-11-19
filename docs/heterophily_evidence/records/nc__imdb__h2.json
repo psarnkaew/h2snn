@@ -1,0 +1,1727 @@
+{
+ "dataset": "imdb",
+ "task": "nc",
+ "measure": "h2",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17241",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "H2GB/calcHomophily.py calcHomophily",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "movie-to-director": "kept (reverse partner director-to-movie)",
+  "director-to-movie": "kept (reverse partner movie-to-director)",
+  "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+  "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+  "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+  "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+ },
+ "graph": {
+  "node_types": {
+   "movie": 4932,
+   "director": 2393,
+   "actor": 6124,
+   "keyword": 7971
+  },
+  "edge_types": {
+   "movie-to-director": 4932,
+   "director-to-movie": 4932,
+   "movie->actorh-actor": 14779,
+   "actor-to-movie": 14779,
+   "movie-to-keyword": 23610,
+   "keyword-to-movie": 23610
+  }
+ },
+ "target": "movie",
+ "value": 0.7372715150316557,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.7372715150316557,
+  0.738697140912215,
+  0.7343412150939306,
+  0.7385645086566608,
+  0.7359371865789096
+ ],
+ "spread": [
+  0.7343412150939306,
+  0.738697140912215
+ ],
+ "h2gb_metapaths": [
+  "movie-to-director-to-movie",
+  "movie->actorh-actor-to-movie",
+  "movie-to-keyword-to-movie"
+ ],
+ "per_problem": {
+  "genre_0": {
+   "seeds": [
+    0,
+    10,
+    20,
+    30,
+    40
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7628982238511418,
+       "h_insensitive": 0.3611546950011242,
+       "h_adj": 0.3611546456813812
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.671443747369265,
+       "h_insensitive": 0.09992611325545636,
+       "h_adj": 0.09992604702711105
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6493284602127534,
+       "h_insensitive": 0.17771489728369927,
+       "h_adj": 0.17771489918231964
+      }
+     ],
+     "h2": 0.787068136036396
+    },
+    {
+     "seed": 10,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7626162954609529,
+       "h_insensitive": 0.35623834754955885,
+       "h_adj": 0.35623833537101746
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6754725301156521,
+       "h_insensitive": 0.1035045104383377,
+       "h_adj": 0.10350454598665237
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.65290406291476,
+       "h_insensitive": 0.18090143251639973,
+       "h_adj": 0.18090124428272247
+      }
+     ],
+     "h2": 0.7864519581198692
+    },
+    {
+     "seed": 20,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.764777746452401,
+       "h_insensitive": 0.36375848047027404,
+       "h_adj": 0.3637584149837494
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6750315688200277,
+       "h_insensitive": 0.1035109263784269,
+       "h_adj": 0.10351084917783737
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6493680790792575,
+       "h_insensitive": 0.17376866332670038,
+       "h_adj": 0.17376872897148132
+      }
+     ],
+     "h2": 0.786320668955644
+    },
+    {
+     "seed": 30,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7631801522413307,
+       "h_insensitive": 0.36273269934674157,
+       "h_adj": 0.3627327084541321
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6719849271411678,
+       "h_insensitive": 0.10258526920809719,
+       "h_adj": 0.10258534550666809
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6467779956815436,
+       "h_insensitive": 0.17436583899748015,
+       "h_adj": 0.1743657886981964
+      }
+     ],
+     "h2": 0.7867720524470011
+    },
+    {
+     "seed": 40,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7580114650878677,
+       "h_insensitive": 0.35131092307499767,
+       "h_adj": 0.3513109087944031
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6708223928163396,
+       "h_insensitive": 0.10167468192685225,
+       "h_adj": 0.10167467594146729
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6472682791545334,
+       "h_insensitive": 0.17625363388688808,
+       "h_adj": 0.17625358700752258
+      }
+     ],
+     "h2": 0.790253609418869
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.7712263390421867,
+    "per_metapath": [
+     {
+      "metapath": "movie-to-director-to-movie",
+      "h_adj": 0.3791528642177582,
+      "h_edge": 0.7792725203083769
+     },
+     {
+      "metapath": "movie->actorh-actor-to-movie",
+      "h_adj": 0.10683130472898483,
+      "h_edge": 0.6842829351132321
+     },
+     {
+      "metapath": "movie-to-keyword-to-movie",
+      "h_adj": 0.20033681392669678,
+      "h_edge": 0.6635929232037158
+     }
+    ]
+   }
+  },
+  "genre_1": {
+   "seeds": [
+    1,
+    11,
+    21,
+    31,
+    41
+   ],
+   "runs": [
+    {
+     "seed": 1,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7531247063245936,
+       "h_insensitive": 0.4500362822033881,
+       "h_adj": 0.45003631711006165
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.616985027359644,
+       "h_insensitive": 0.13909884624669844,
+       "h_adj": 0.13909879326820374
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6428705849725639,
+       "h_insensitive": 0.19720288284364418,
+       "h_adj": 0.1972028762102127
+      }
+     ],
+     "h2": 0.7378873378038406
+    },
+    {
+     "seed": 11,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7502114462926417,
+       "h_insensitive": 0.44450938814292995,
+       "h_adj": 0.444509357213974
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6188891784089314,
+       "h_insensitive": 0.14084544691187095,
+       "h_adj": 0.140845388174057
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6427814425229295,
+       "h_insensitive": 0.19739675246367827,
+       "h_adj": 0.19739677011966705
+      }
+     ],
+     "h2": 0.7390828281641006
+    },
+    {
+     "seed": 21,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.757259656047364,
+       "h_insensitive": 0.45645193296599174,
+       "h_adj": 0.45645198225975037
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6214347277064,
+       "h_insensitive": 0.14367960332903518,
+       "h_adj": 0.14367960393428802
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6449307660307838,
+       "h_insensitive": 0.20232293413587582,
+       "h_adj": 0.20232294499874115
+      }
+     ],
+     "h2": 0.7325151562690735
+    },
+    {
+     "seed": 31,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7536885631049713,
+       "h_insensitive": 0.44830361496732607,
+       "h_adj": 0.44830361008644104
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6193902707903229,
+       "h_insensitive": 0.1385493159251407,
+       "h_adj": 0.13854920864105225
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6446286721736891,
+       "h_insensitive": 0.20101012202248542,
+       "h_adj": 0.201010063290596
+      }
+     ],
+     "h2": 0.7373790393273036
+    },
+    {
+     "seed": 41,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7547223005356639,
+       "h_insensitive": 0.45348545610265634,
+       "h_adj": 0.4534854292869568
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.619330139704556,
+       "h_insensitive": 0.14356146809663944,
+       "h_adj": 0.14356151223182678
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6438263901269785,
+       "h_insensitive": 0.19935441305622476,
+       "h_adj": 0.199354350566864
+      }
+     ],
+     "h2": 0.7345329026381175
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.7186798304319382,
+    "per_metapath": [
+     {
+      "metapath": "movie-to-director-to-movie",
+      "h_adj": 0.4770088195800781,
+      "h_edge": 0.7697521601904072
+     },
+     {
+      "metapath": "movie->actorh-actor-to-movie",
+      "h_adj": 0.14831127226352692,
+      "h_edge": 0.6255978675609153
+     },
+     {
+      "metapath": "movie-to-keyword-to-movie",
+      "h_adj": 0.21864041686058044,
+      "h_edge": 0.6578074812314259
+     }
+    ]
+   }
+  },
+  "genre_2": {
+   "seeds": [
+    2,
+    12,
+    22,
+    32,
+    42
+   ],
+   "runs": [
+    {
+     "seed": 2,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.8082886946715534,
+       "h_insensitive": 0.5930807745028897,
+       "h_adj": 0.5930808186531067
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6421799522960053,
+       "h_insensitive": 0.2521176877419078,
+       "h_adj": 0.2521176338195801
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5687337810265248,
+       "h_insensitive": 0.11068462768143256,
+       "h_adj": 0.1106845960021019
+      }
+     ],
+     "h2": 0.6813723171750705
+    },
+    {
+     "seed": 12,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.8025561507377126,
+       "h_insensitive": 0.5820032213066739,
+       "h_adj": 0.5820032954216003
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6420997775149827,
+       "h_insensitive": 0.25142721823038283,
+       "h_adj": 0.25142720341682434
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5678175947386145,
+       "h_insensitive": 0.10914947746555598,
+       "h_adj": 0.10914944112300873
+      }
+     ],
+     "h2": 0.6858066866795223
+    },
+    {
+     "seed": 22,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.8116718353538201,
+       "h_insensitive": 0.5993508505607771,
+       "h_adj": 0.5993508696556091
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6421799522960053,
+       "h_insensitive": 0.2522022253679288,
+       "h_adj": 0.25220224261283875
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5672530258909293,
+       "h_insensitive": 0.10755046572738242,
+       "h_adj": 0.10755050927400589
+      }
+     ],
+     "h2": 0.6802987928191822
+    },
+    {
+     "seed": 32,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.8044356733389719,
+       "h_insensitive": 0.584159703224478,
+       "h_adj": 0.5841596722602844
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6424806077248402,
+       "h_insensitive": 0.25207268979165687,
+       "h_adj": 0.25207263231277466
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5688476852677244,
+       "h_insensitive": 0.10927295111474988,
+       "h_adj": 0.10927289724349976
+      }
+     ],
+     "h2": 0.6848315993944805
+    },
+    {
+     "seed": 42,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.8099802650126868,
+       "h_insensitive": 0.5961066601115967,
+       "h_adj": 0.5961066484451294
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.642721132067908,
+       "h_insensitive": 0.25297537381888435,
+       "h_adj": 0.25297537446022034
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5676838810641628,
+       "h_insensitive": 0.10899604707566873,
+       "h_adj": 0.10899603366851807
+      }
+     ],
+     "h2": 0.6806406478087108
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.6589374194542568,
+    "per_metapath": [
+     {
+      "metapath": "movie-to-director-to-movie",
+      "h_adj": 0.6327199339866638,
+      "h_edge": 0.8273917317742019
+     },
+     {
+      "metapath": "movie->actorh-actor-to-movie",
+      "h_adj": 0.268177330493927,
+      "h_edge": 0.6511140489472157
+     },
+     {
+      "metapath": "movie-to-keyword-to-movie",
+      "h_adj": 0.1222904771566391,
+      "h_edge": 0.5753048955209218
+     }
+    ]
+   }
+  },
+  "genre_3": {
+   "seeds": [
+    3,
+    13,
+    23,
+    33,
+    43
+   ],
+   "runs": [
+    {
+     "seed": 3,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7818814021238606,
+       "h_insensitive": 0.47305066972583865,
+       "h_adj": 0.47305065393447876
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6570122867851917,
+       "h_insensitive": 0.1642922420784098,
+       "h_adj": 0.16429218649864197
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7095887561656861,
+       "h_insensitive": 0.21747854353349289,
+       "h_adj": 0.21747848391532898
+      }
+     ],
+     "h2": 0.7150595585505168
+    },
+    {
+     "seed": 13,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7809416408232309,
+       "h_insensitive": 0.47182264913164307,
+       "h_adj": 0.4718226492404938
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6573530296045379,
+       "h_insensitive": 0.16772819698734892,
+       "h_adj": 0.16772818565368652
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7085834274281413,
+       "h_insensitive": 0.21818054139557708,
+       "h_adj": 0.21818050742149353
+      }
+     ],
+     "h2": 0.7140895525614421
+    },
+    {
+     "seed": 23,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7843247815054976,
+       "h_insensitive": 0.47954113692262246,
+       "h_adj": 0.47954103350639343
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.6565713254895672,
+       "h_insensitive": 0.16715610501675005,
+       "h_adj": 0.16715602576732635
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7048146827519265,
+       "h_insensitive": 0.21196426614022768,
+       "h_adj": 0.2119642198085785
+      }
+     ],
+     "h2": 0.7137795736392338
+    },
+    {
+     "seed": 33,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7783103091814679,
+       "h_insensitive": 0.4676096673922966,
+       "h_adj": 0.4676096439361572
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.655769577679341,
+       "h_insensitive": 0.16223285947980753,
+       "h_adj": 0.1622328907251358
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7035964026069215,
+       "h_insensitive": 0.2119010528721727,
+       "h_adj": 0.21190106868743896
+      }
+     ],
+     "h2": 0.7194187988837559
+    },
+    {
+     "seed": 43,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7818814021238606,
+       "h_insensitive": 0.47786530081886924,
+       "h_adj": 0.4778652787208557
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.65711250526147,
+       "h_insensitive": 0.1660846127941496,
+       "h_adj": 0.16608457267284393
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7060874388383749,
+       "h_insensitive": 0.21392348666446626,
+       "h_adj": 0.2139233946800232
+      }
+     ],
+     "h2": 0.714042251308759
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.6933364719152451,
+    "per_metapath": [
+     {
+      "metapath": "movie-to-director-to-movie",
+      "h_adj": 0.5053666234016418,
+      "h_edge": 0.8004863662234181
+     },
+     {
+      "metapath": "movie->actorh-actor-to-movie",
+      "h_adj": 0.17494697868824005,
+      "h_edge": 0.6662259912509808
+     },
+     {
+      "metapath": "movie-to-keyword-to-movie",
+      "h_adj": 0.23967698216438293,
+      "h_edge": 0.726212145607567
+     }
+    ]
+   }
+  },
+  "genre_4": {
+   "seeds": [
+    4,
+    14,
+    24,
+    34,
+    44
+   ],
+   "runs": [
+    {
+     "seed": 4,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7361150267831971,
+       "h_insensitive": 0.4688247493894462,
+       "h_adj": 0.4688248038291931
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5762562386001483,
+       "h_insensitive": 0.14560786040131668,
+       "h_adj": 0.1456078141927719
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5531883282819279,
+       "h_insensitive": 0.09065678132189314,
+       "h_adj": 0.09065670520067215
+      }
+     ],
+     "h2": 0.7649702255924543
+    },
+    {
+     "seed": 14,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7306644112395452,
+       "h_insensitive": 0.4586682427719917,
+       "h_adj": 0.4586682915687561
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5768775931530737,
+       "h_insensitive": 0.14611913679274968,
+       "h_adj": 0.14611905813217163
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5535151839305877,
+       "h_insensitive": 0.09104864037215066,
+       "h_adj": 0.09104861319065094
+      }
+     ],
+     "h2": 0.7680546790361404
+    },
+    {
+     "seed": 24,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7438210694483601,
+       "h_insensitive": 0.4846113879510977,
+       "h_adj": 0.484611451625824
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5773586418392095,
+       "h_insensitive": 0.14751432751594395,
+       "h_adj": 0.14751440286636353
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5545106079515065,
+       "h_insensitive": 0.09149861143695287,
+       "h_adj": 0.0914984941482544
+      }
+     ],
+     "h2": 0.7587918837865194
+    },
+    {
+     "seed": 34,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7369608119537637,
+       "h_insensitive": 0.47070912799637676,
+       "h_adj": 0.4707091748714447
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.57615602012387,
+       "h_insensitive": 0.14492238213637965,
+       "h_adj": 0.1449223905801773
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5534508032725184,
+       "h_insensitive": 0.09110533539865961,
+       "h_adj": 0.09110527485609055
+      }
+     ],
+     "h2": 0.7644210532307625
+    },
+    {
+     "seed": 44,
+     "per_metapath": [
+      {
+       "metapath": "movie-to-director-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "director"
+        ],
+        [
+         "director",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.7414716661967861,
+       "h_insensitive": 0.4791508922484381,
+       "h_adj": 0.47915083169937134
+      },
+      {
+       "metapath": "movie->actorh-actor-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         ">actorh",
+         "actor"
+        ],
+        [
+         "actor",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5762361949048926,
+       "h_insensitive": 0.1455239473681993,
+       "h_adj": 0.14552389085292816
+      },
+      {
+       "metapath": "movie-to-keyword-to-movie",
+       "edge_types": [
+        [
+         "movie",
+         "to",
+         "keyword"
+        ],
+        [
+         "keyword",
+         "to",
+         "movie"
+        ]
+       ],
+       "h_edge": 0.5550702244408787,
+       "h_insensitive": 0.09467580444177892,
+       "h_adj": 0.094675712287426
+      }
+     ],
+     "h2": 0.7602165217200915
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.7481970960895221,
+    "per_metapath": [
+     {
+      "metapath": "movie-to-director-to-movie",
+      "h_adj": 0.5016946792602539,
+      "h_edge": 0.7525741191079837
+     },
+     {
+      "metapath": "movie->actorh-actor-to-movie",
+      "h_adj": 0.1542735993862152,
+      "h_edge": 0.5809499242253249
+     },
+     {
+      "metapath": "movie-to-keyword-to-movie",
+      "h_adj": 0.09944043308496475,
+      "h_edge": 0.5593403504558765
+     }
+    ]
+   }
+  }
+ },
+ "labeled_targets": 4573,
+ "targets": 4932,
+ "labeled_only": 0.7180754313866298,
+ "per_genre": {
+  "genre_0": 0.787068136036396,
+  "genre_1": 0.7378873378038406,
+  "genre_2": 0.6813723171750705,
+  "genre_3": 0.7150595585505168,
+  "genre_4": 0.7649702255924543
+ },
+ "wall_s": 5.33,
+ "peak_rss_gb": 0.79
+}
