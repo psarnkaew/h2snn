@@ -1,0 +1,12 @@
+head=50f714d840cbecc50abf29a8886718c0aa6fac05 host=g3n01 job=17849
+tests: tests.test_tsubame_h2snn_lines tests.test_tsubame_collect
+test_48_lines_parse (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_48_lines_parse) ... ok
+test_baseline_lines_unchanged (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_baseline_lines_unchanged) ... ok
+test_final_seed_files_are_the_launchers (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_final_seed_files_are_the_launchers) ... ok
+test_tuning_state_paths_are_the_launchers (tests.test_tsubame_h2snn_lines.H2SNNLineTests.test_tuning_state_paths_are_the_launchers) ... ok
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+Ran 7 tests in 1.827s
+OK
+tests exit=0
