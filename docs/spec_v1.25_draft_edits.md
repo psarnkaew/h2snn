@@ -207,3 +207,6 @@ Model-change card unit **M2b**: head inputs `x*` only (NC `Linear(d, 128)`, LP `
 - OPEN-5: **replace** `τ`'s initialisation and the map rank `m` (= 4, 1.25) are never in a search space` **with** `τ`'s initialisation, the map rank `m` (= 4, 1.25) and the weight bound `L` (= 10, 1.25) are never in a search space`.
 
 **Applied 2026-11-18** (author approval of Z-35–Z-38 with the card review): spec v1.25 now includes Z4 (change line range Z-1–Z-38).
+
+## Z-39 (editorial, applied 2026-11-18; consequence of approved Z-36/Z-37, no new decision)
+§3.2 ACM example: `The cell's weight is `exp(g(ξ))`` → `The cell's weight is `exp(L·tanh(g(ξ)/L))` (1.25, §3.2 (c))`. Found by the paper session.
