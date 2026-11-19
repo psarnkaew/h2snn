@@ -1,0 +1,40 @@
+job=17824 node=g3an01 git=762f29985e399e1966776d7c848214a970e598fa start=2026-11-19T16:32:51+09:00
+dirty:  M scripts/tsubame/make_cell_list.py  M src/configs/config.py  M src/models/h2snn_model.py ?? scripts/freebase_memory_probe.py ?? src/analysis/mechanism_hooks.py ?? tests/test_card5_protocol_hooks.py 
+ba964734191817f419cc0158f0de41b979e0253a5a53219c8d283bed89eac85c  scripts/freebase_memory_probe.py
+0c103dcc9166a0655953607e4304efe28a301c67f0e0ec09590d697640eff8f8  src/models/h2snn_model.py
+68217286d1a674a1b805de0937cab57daf61a3cc8494707b0cca6f481451eb7c  src/models/sheaf_energy.py
+e1db2bcc503d99d343b1551ebb502506e1c9282ab2c838d40a0869dabb332d33  src/configs/config.py
+NVIDIA RTX A6000, 49140 MiB
+{
+ "config": "/mnt/data/peeradon/h2snn-ablprep/H2S-NN/configs/experiments/freebase_h2snn_v3b.yaml",
+ "largest": {
+  "d": 64,
+  "wisp_max_length": 5,
+  "wisp_walks_per_anchor": 64
+ },
+ "training_mode": "full_batch",
+ "git": "762f29985e399e1966776d7c848214a970e598fa",
+ "host": "g3an01",
+ "slurm_job": "17824",
+ "gpu": "NVIDIA RTX A6000",
+ "gpu_total_gib": 47.529,
+ "draw_seconds": 35.4,
+ "nodes": 180098,
+ "facts": 869706,
+ "cells_per_length": {
+  "2": 519349,
+  "3": 577529,
+  "4": 585227,
+  "5": 576631
+ },
+ "cells": 2258736,
+ "node_cell_incidences": 10254084,
+ "fact_cell_incidences": 7995348,
+ "parameters": 11805360,
+ "status": "OOM: CUDA out of memory. Tried to allocate 846.00 MiB. GPU 0 has a total capacity of 47.53 GiB of which 328.88 MiB is free. Including non-PyTorch memory, this process has 47.20 GiB memory in use. Of the allocated memory 45.36 GiB is allocated by PyTorch, and 1.50 GiB is reserved by PyTorch but unallocate",
+ "max_memory_allocated_gib": 45.748,
+ "max_memory_reserved_gib": 46.998,
+ "host_peak_rss_gib": 13.434,
+ "wall_seconds": 48.6
+}
+end=2026-11-19T16:33:49+09:00 exit=0
