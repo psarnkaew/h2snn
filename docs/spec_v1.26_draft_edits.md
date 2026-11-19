@@ -2,14 +2,14 @@
 
 Written 2026-11-19 by the model session. Base: `docs/H2S-NN_methodology_spec.md` v1.25 (design-docs). The method is unchanged in 1.26: every item is protocol or wording. Sources: decisions log rows "Card 2 review (dry run, `9d48ca4`)" (2026-11-16: B1a, B2a, range rule 1), "Card 1f (B1a baselines) and card 6 (heterophily harness) written" (2026-11-17), "Card 1e F3 + 1f review" and "Card 1f U5 review" (2026-11-18: PDNS (a), sweep objective), "TSUBAME limits", "TSUBAME card decisions 1–4" and "Model change: `R_r` init, H2GB timing, bounded `g`" (2026-11-18 (b): N comes from the first TSUBAME trial). Author input of 2026-11-19: the memory rule uses the **H100 94 GB** of TSUBAME, not 24 GB.
 
-**Open for the author (marked OPEN below):** AA-5 (the N rule: candidate values, end date, floor) and AA-6 (whether the two large link-prediction tasks use N or 100).
+**Decided 2026-11-19:** AA-5 (N = 100) and AA-6 (large LP use N). **Pending:** the meaning of "values from published papers" (AA-5), and approval of AA-1–AA-4 and AA-7–AA-9.
 
 ---
 
 ## AA-1 Header: version and change line
 - **Replace** `**Version:** 1.25 (2026-11-18).` **with** `**Version:** 1.26 (2026-11-19).`
 - **Insert before** `**Changes from 1.24 (to 1.25;` **a new paragraph:**
-> **Changes from 1.25 (to 1.26; author decisions of 2026-11-16 to 2026-11-19 in `docs/experiment_settings_decisions.md`, draft `docs/spec_v1.26_draft_edits.md` AA-1–AA-9; the method is unchanged):** (AA1) §1: graph classification reports no heterophily value (1.23 X9 had not reached §1). (AA2) §6: validation during training on the H2GB NC datasets uses the fixed B1a subset (same nodes for every method; PDNS per run seed); the trial is selected by the subset Macro-F1. (AA3) §6: trial count N on the H2GB NC and GC datasets (B2a), the same for every method, fixed by a stated rule from the first TSUBAME timings. (AA4) §6: search-range rule under memory limits, for every method, on one H100 94 GB GPU (replaces the 24 GB rule of 2026-11-16). (AA5) §6: the server is TSUBAME 4.0: environment and timing GPU stated.
+> **Changes from 1.25 (to 1.26; author decisions of 2026-11-16 to 2026-11-19 in `docs/experiment_settings_decisions.md`, draft `docs/spec_v1.26_draft_edits.md` AA-1–AA-9; the method is unchanged):** (AA1) §1: graph classification reports no heterophily value (1.23 X9 had not reached §1). (AA2) §6: validation during training on the H2GB NC datasets uses the fixed B1a subset (same nodes for every method; PDNS per run seed); the trial is selected by the subset Macro-F1. (AA3) §6: 100 trials per (method, dataset) on every task, including H2GB NC, the large LP tasks and GC (B2a's reduced N withdrawn); a projected wall time from the first TSUBAME trials is recorded before those cells are tuned. (AA4) §6: search-range rule under memory limits, for every method, on one H100 94 GB GPU (replaces the 24 GB rule of 2026-11-16). (AA5) §6: the server is TSUBAME 4.0: environment and timing GPU stated.
 
 ## AA-2 §1 Heterophily, "Where reported": graph classification
 **Replace** `Graph classification reports the 1-hop `H_edge` on the original bonds with label = atom type (the label-homophily formula of Hetero²Net without a meta-path), marked "1-hop, label = atom type, not the graph class"; MLH over meta-paths would be 1 by construction there (1.14).` **with:**
@@ -22,21 +22,14 @@ Written 2026-11-19 by the model session. Base: `docs/H2S-NN_methodology_spec.md`
 ## AA-4 §6 Tuning: the objective on H2GB NC
 **Replace** `tuning on seed 0 only, by the validation metric;` **with** `tuning on seed 0 only, by the validation metric (on the H2GB NC datasets: the B1a subset Macro-F1, bullet above);`.
 
-## AA-5 §6 Tuning: N on the H2GB NC and GC datasets (B2a) — OPEN
-**Replace** `plain Bayesian search, **100 trials per (method, dataset)**, the same N for H2S-NN, every baseline and HetSheaf;` **with** `plain Bayesian search, **100 trials per (method, dataset) on the HGB NC and LP tasks and N trials on the H2GB NC and GC datasets (B2a, 1.26; rule below)**, the same number for H2S-NN, every baseline and HetSheaf;`
+## AA-5 §6 Tuning: trial count — N = 100 everywhere (author 2026-11-19; B2a's reduced N withdrawn)
+**Author 2026-11-19:** N = 100, and the two large link-prediction tasks use N (AA-6 option (a)). Every task therefore keeps the 1.14 rule, "100 trials per (method, dataset)", and the B2a rule "N from central-point timings" is withdrawn. The wording of the Tuning bullet stays as it is. **Insert after the Tuning bullet:**
+> - **Trial count on the large tasks (1.26, author 2026-11-19).** The H2GB NC, the two large LP and the GC datasets keep 100 trials per (method, dataset), as every other task (B2a's reduced N of 2026-11-16 is withdrawn). The first TSUBAME trial of every method at its central point on these cells gives a projected wall time, which is recorded in the decisions log before their tuning starts. If the projection ends after 2026-12-20, the author decides before any of these trials runs; trials are never cut silently, and no search is stopped early.
 
-**and insert, as a new bullet after the Tuning bullet:**
-> - **Trial count N (B2a; author 2026-11-16; rule 1.26).** N is fixed once, before any tuning on the cells it covers, from the first TSUBAME trial of every method at its central point on each covered cell (author 2026-11-18 (b): the H2GB timing is not measured on the lab cluster). N = the largest value in **{100, 50, 30, 20}** for which the projected wall time of all main-table tuning ends by **2026-12-20**. Projected wall time = (Σ over methods and covered cells of N × central-point trial time × 1.5, plus the HGB NC and LP tuning at 100 trials) / the concurrent GPUs (120: 30 `node_f` jobs on weekdays, `docs/tsubame_guide.md`). The factor 1.5 covers trials above the central point. If N = 20 does not fit, nothing runs below 20: the author removes cells or methods, and each becomes N/A with the reason. N, the timings and the projection are recorded in the decisions log before the first covered trial.
+**Pending (author):** the meaning of "values taken directly from published papers" (2026-11-19). Option (a): published baseline configurations instead of tuning, where they exist. Option (b): published result numbers in the tables, which conflicts with §6 "Every number is new" (1.5). The wording is added here once the author answers.
 
-**OPEN (author):**
-- The candidate set {100, 50, 30, 20}.
-- The end date 2026-12-20, which leaves 12-21–12-27 for final seeds, ablations and analyses and 12-28–01-04 for tables and the paper.
-- The floor of 20. A Bayesian search of H2S-NN's 8 axes on H2GB NC (`d`, `ℓ_max`, `r`, lr, weight decay, two dropouts, batch size) is weak below about 20 trials, so the floor is set there.
-
-## AA-6 Large link prediction (ogbn-mag P–P, H-Pokec U–U) — OPEN
-B2a (2026-11-16) names "H2GB NC and GC" for N and keeps "LP" at 100. The two large LP tasks were added later (D4b), and their trials cost the same order as H2GB NC.
-- **Option (a), recommended:** they join N: in AA-5 read "the H2GB NC, the two large LP and the GC datasets". Same reason as B2a, and the same N for every method.
-- **Option (b):** keep them at 100 trials as written.
+## AA-6 Large link prediction — decided: option (a), they use N (= 100)
+See AA-5.
 
 ## AA-7 §6: memory rule (range rule 1) on H100 94 GB, for every method
 **Insert, as a new bullet after the N bullet (AA-5):**
