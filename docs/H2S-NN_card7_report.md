@@ -169,6 +169,95 @@ No counterpart key (reported, nothing added in `src/`): the optimizer (HGB Adam 
 - **Reference point at the original graph:** the budget (800 + 50) has no runs on the original graphs. `figure.py --reference` takes the main-table summaries (seeds 0–4); alternatively runs on the original graphs at seeds 1–5: 8 methods (H2S-NN `full`, `no_path_cells` + 6 baselines) × 2 datasets × 5 seeds = 80 runs (+ 10 for S2). Which one?
 - HetSheaf and CSNN rows (40 rows, 200 runs) wait for their ACM/DBLP seed-0 sweeps in the main-table campaign.
 
-The `sha` below is the Phase A+ evidence commit (`0dc936b`: code, tests and evidence of Phase A+; Phase A's was `84d7efe`); the report commit on top of it changes only this file.
+(Phase A+ evidence commit `0dc936b`; report commit `e5dfd0b`.)
 
-branch=card7 sha=0dc936be3e2421a80c8d2caa2a9a3021497823f5 card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
+## Phase B (V5, V6, V8, amendment 8; 2026-11-19)
+Merges (`--no-ff`, no rebase): design-docs `4ffa753` (amendments 1–8) → `10969a8`; `v3b` `365a757` (card 5, H2S-NN freeze) → `359162e`. Only `scripts/`, `tests/` and `docs/card7_evidence/` changed: `git diff 365a757 HEAD -- src configs` is empty. The card 5 hooks are used as they are (`src/analysis/mechanism_hooks.py`). The ops session owns the TSUBAME card: V8 adds three phases to `make_cell_list.py` and one wrapper script; no existing phase, list or slot-script behaviour changes (T9: byte-identical).
+
+### Files per unit
+| Unit | Commit | Files |
+|---|---|---|
+| merges | `10969a8`, `359162e` | design-docs `4ffa753`, `v3b` `365a757` |
+| B1 (amendment 8) | `cf8ef7b` | `scripts/perturbation/make_graphs.py` (`--original`, `write_original`), `manifest.py` (`baseline_rows`, reference rows), `figure.py` (reference points, `--h2snn_reference_table`); `tests/test_card7_amendments.py`, `test_card7_perturbation.py` (updated) |
+| B2 (V5) | `2ff1a32` | `scripts/analysis/mechanism_common.py` (new), `scripts/analysis/face_effect.py` (new) |
+| B3 (V6) | `7fc71b5` | `scripts/analysis/two_regime.py` (new) |
+| B4 (V8) | `8640fb2` | `scripts/tsubame/make_cell_list.py` (phases `ablation`, `perturbation`, `timing`), `scripts/tsubame/run_row.py` (new) |
+| B5 (tests) | `2b6ce79` | `tests/test_card7_mechanism.py` (new: T6, T7), `tests/test_card7_tsubame.py` (new: T9) |
+| B6 (evidence) | `4d00154` | `docs/card7_evidence/phaseb_*`, `targeted_1784{8}.txt`, `targeted_1785{4,5,6}.txt`, `suite_job.sh` |
+| B7 (suite) | `ad59bfe` | `docs/card7_evidence/suite_17858.txt` |
+
+### What was built
+- **Amendment 8.** `make_graphs.py --original` writes each original graph in the perturbed graphs' layout, `data/NC/<DATASET>_pert/original/` (release files hard-linked; `link.dat` SHA-256 checked equal to the release's; `graph.json` of kind `original` with the reference h and ℋ², the edge fingerprint, C, the ceiling). `manifest.py` adds the six baselines on it: seeds 1–5, the same configuration source and checked launcher as their perturbation rows, run from the original folder (`./data`), `graph_kind` `original`. No H2S-NN rows: `figure.py --h2snn_reference_table` takes `full`, `no_path_cells` and S2 from the ablation configuration (a) table of `stats.py collect` at seeds 1–5 (`full`'s seeds 1–4 there are the main table's runs, configuration (a) by construction; a reference with fewer than 5 seeds is listed as missing). The baselines' reference points come from the manifest's `original` rows. Main-table summaries are never read; the old free-form `--reference` JSON is removed.
+- **Shared helpers (`mechanism_common.py`).** A run is reloaded from its folder (`config.yaml` + `checkpoints/best.pt`, `load_trained_model`: the run's own graph and evaluation draw); its row is read from the configuration (`arm_of`). One evaluation *view* = one forward: full batch = the whole evaluation graph; mini-batch = the trainer's own evaluation draw and scope batches (`MiniBatchNodeTrainer.evaluation_cells` / `_batch`, `EVAL_BATCH_TARGETS`). Every analysis forward starts cold (`_warm_start` cleared) so no result depends on the forwards before it. **η_v** is computed with the heterophily reference code (`h2gb_metapaths`, `iter_metapath_chunks`, `labeled_mask`; Freebase symmetrised; IMDB the mean over genres of the binary disagreement): distinct labelled u ≠ v with (u, v) in the union of the M₂ meta-path graphs (the card's wording; see decisions). Quartiles over each graph's test targets, bins (−∞, q25], (q25, q50], (q50, q75], (q75, ∞); nodes without a labelled neighbour excluded and counted.
+- **V5 (`face_effect.py`).** F1 flips (`full` vs `no_path_cells`, same seed, every test node) per quartile; F2 margins per quartile for both models (own test-x* centroids; ACM, DBLP, Freebase); F3 with hook (b) on `full` seeds 1–3, at most 2,000 test nodes per (dataset, seed) drawn with `default_rng(0)`, one whole-graph forward per node (mini-batch: the node's own scope, base and knockout alike), node v read only: right→wrong, prediction change, margin change (base centroids). Case study by the card's rule (ACM, seed 1; candidates with a different-class fact or M₂ neighbour that the knockout turns right→wrong; largest margin drop, ties → smaller id): the node, its different-class neighbour, the 3 cells through it with the largest w_f (hook (d)), the 2-D PCA (fitted on all test x* of `full`) of h₀, knockout x*, `full` x* and the centroids, P(true class) with and without the knockout; JSON + PDF.
+- **V6 (`two_regime.py`).** R1: for every cell of the evaluation forward(s) with two labelled target ends, T = Q₁⋯Q_L with Q_e (hook (c)) on +1 hops and Q_eᵀ on −1 hops, in path order (as `PathTransportOperator`); ‖T − I‖_F same vs different class (medians, AUROC of separating different-class cells), also by start-node quartile and cell length; fact level (ACM P–P, Freebase B–B) ‖Q_e − I‖_F; τ per run. Cells and facts are processed 2,048 / 8,192 at a time (one hook (c) forward per chunk). R2: e_v (hook (a)) at the test targets; AUROC of e_v for wrong vs correct (positive = wrong), Spearman with η_v, per quartile. R3 (`full`, S2): Ẽ, linear probe (`LogisticRegression(C=1, lbfgs, max_iter=1000)`, one-vs-rest per genre on IMDB; trained on the training targets, macro-F1 on the test targets) on x* and h₀, within/between distance ratio on x* and h₀. Node axis: the original graphs by quartile; graph axis: every perturbed-graph run (tag, h and ℋ² from its `graph.json`). Mean and range over seeds per (dataset, graph, arm).
+- **V8.** `--phase ablation --manifest <one per dataset>`: `cells_ablation_tuning.txt` (one H2S-NN tuning line per `tune` row: 100 trials, seed 0, own exp_name and state directory, W&B `h2snn_ablation_t4`) and `cells_ablation_seeds.txt` (one line per `runs` row; a (b) row first writes the arm's tuned file from its sweep's `best_tuned_run0.json` and exits 3 = "waiting" while that file does not exist). `--phase perturbation --manifest`: one line per runnable row (perturbed graphs and the original-graph rows); "needs tuned config" rows are comments. `--phase timing`: one line per (main-table method, dataset), H2S-NN with its tuned file from the `h2snn` phase when that sweep has finished (else the launcher's flagged central point). Rows run through `scripts/tsubame/run_row.py`, because the slot script runs `python <line> --resume` from `H2S-NN/` and the row launchers have no `--resume`, the baselines must start in their graph's folder, and a tuned-baseline row first copies its sweep's trials file. The wrapper drops the trailing `--resume`, skips a row whose summary file exists, sets the working directory, does the copy / tuned file, and runs the launcher.
+
+### Original graphs (amendment 8; job 17859; reference `analyse` on the written folder)
+| dataset | h | ℋ² | C | ceiling 1 − 1/C | edge fingerprint (pairs) | `link.dat` |
+|---|---|---|---|---|---|---|
+| ACM | 0.2621 | 0.3994 | 3 | 0.6667 | `f68aabb4bc28` (273,911) | = release |
+| DBLP | 0.1278 | 0.1732 | 4 | 0.75 | `b9c3276f5940` (119,783) | = release |
+
+### Manifest and cell-list counts (job 17859; placeholder `full` = the experiment files; no baseline sweep output; nothing run)
+| | rows | runs | runnable now | cell-list lines |
+|---|---|---|---|---|
+| ablation (4 datasets; Freebase `full_batch` as a placeholder, card 5 D1) | 16 `tune` + 44 `runs` | 16 sweeps × 100 trials; 44 seed rows (`full` (a) seeds 5–10; seeds 1–4 looked up) | all | 16 tuning + 44 seeds |
+| perturbation incl. reference | 182 (170 + 12 `original`) | 910 (850 + 60) | 138 rows / 690 runs | 138 (+ 44 comments) |
+| timing | 28 | 28 | 28 | 28 |
+
+"Needs tuned config": HetSheaf and CSNN on ACM and DBLP, 44 rows / 220 runs (40 perturbation + 4 reference rows).
+
+### Tests (CPU, worktree, environment E)
+| Job | Tree | Result |
+|---|---|---|
+| 17848 | `359162e` + B1 (uncommitted) | 22 OK (`test_card7_amendments`, `test_card7_perturbation`) |
+| 17854 | + B2–B5 (dev) | 2 problems in the tests themselves: the ACM toy cannot reach h 0.60 at `max_add_ratio` 4 (fixture; 2.0 as the other card 7 tests); a T9 check keyed on configuration "tuned", which H2S-NN `full` rows also carry |
+| 17855 | dev | 21 of 22; T7's crafted probe data put a test point on the wrong side (test data fixed) |
+| 17856 | dev = the content of `2ff1a32`–`2b6ce79` (no file changed after the job) | **56 OK**: T6, T7, T9 (22 new) + `test_card7_amendments`, `test_card7_perturbation`, `test_card5_protocol_hooks`, peak 0.9 GB |
+
+`test_card7_mechanism` (T6, T7; fixture: a toy ACM release with runs of `full`, `no_path_cells` and S2 at seeds 1–2 trained by `run_h2snn_runs.py --dry_run` and reloaded from their folders, plus one `full` run on a perturbed toy graph):
+- **T6:** flips counted from crafted predictions per quartile and for `none`; margin sign and value (nearest other centroid, empty class); quartile bins; the case-study rule (largest drop, tie → smaller id, no neighbour → no candidate) and the fixed F3 draw; **F3 with hook (b) zeroes exactly the cells through the chosen node and leaves every other β_f unchanged**, the node read equals a manual knockout forward, and a cold forward afterwards repeats the base logits bit for bit; η_v equals a brute-force count over the reference meta-path graphs; the mini-batch views give the trainer's own evaluation ids, labels and logits; F1–F3 end to end on the trained runs (F1 recounted from the two runs, F3 only on the listed seeds, margin change = knockout − base, the case-study path on a forced drop: a different-class neighbour, ≤ 3 cells through the node in w_f order, PDF).
+- **T7:** composition = Q₁ Q₂ᵀ Q₃ … on crafted orthogonal matrices (≤ 1e-12; flipped signs and reversed order differ); **composition from hook (c) = the model's own `PathTransportOperator.apply_holonomy` on every cell (float64, ≤ 1e-12, −1 hops present)**; `r1_cells` with chunks smaller than a group gives the same distances; fact level computed; R2 on crafted inputs (AUROC 1 / 0, Spearman 1, per quartile); R3 on crafted inputs (distance ratio 0.1, probe macro-F1 1 single- and multi-label); R1–R3 end to end on both axes (R1/R2 on `full` only, R3 on `full` and S2, `no_path_cells` skipped, the perturbed-graph run tagged with its h, Ẽ equal to hook (a)).
+
+`test_card7_tsubame` (T9): ablation lines = 8 tuning + 22 seed lines for two manifests, each parsed by its launcher's own `parse_args` (100 trials, seed 0, state directory, project; (b) rows carry the tuning base, the sweep's best file and the tuned file); perturbation lines = the manifest's runnable rows (20 on the toy, incl. 5 reference rows), comments for "needs tuned config", every wrapped launcher parsed, copies only on tuned-baseline rows; timing = 28 lines (14 per dataset); **`baselines-1` and `h2snn` lists and files byte-identical to `365a757`'s script**; `run_row.py`: `--resume` dropped, working directory, copy, done-skip, (b) tuned file waits (exit 3) then is written by the launcher's merge, optional tuned file; one GCN reference line run as the slot runs it (`python run_row.py … --resume` from `H2S-NN/`): the fingerprint check matches from the original folder, the summary is written, a second leg reports "row complete".
+
+**Mutations:** the card lists none for Phase B. The T7 tests check that flipping the hop signs or reversing the order changes the composed transport.
+
+### Real-data smoke (job 17860, CPU, 4 min, peak 2.7 GB; 1-epoch runs, no metric reported)
+ACM `full`, `no_path_cells` and S2 (configuration (a) of the experiment file), seed 1, `--dry_run`: trained and reloaded. `face_effect.py` (F3 on 20 nodes): F1, F2, F3 written; the case-study rule found no candidate (no right→wrong among 20 nodes after one epoch). `two_regime.py`: R1 on 64,764 labelled-end cells and 5,343 P–P facts, R2 on 2,118 test nodes, R3 for both arms; 145 s on CPU.
+
+### Suite
+**Job 17858** (g3n01, RTX 3090 24 GB, sbatch, one GPU not shared, environment E, `--mem 35G`, peak RSS 28.4 GiB (MaxRSS 29,778,244 KiB; the B7 commit message's "29.8 GB" is that KiB figure read as GB); 38 min; in the worktree itself at the clean head `4d00154`, vendor complete, `vendor/sparse_tools` built in place; `src/` vs `v3b` `365a757`: no difference):
+- golden v3b: `compared 1238 tensors in 23 configurations; differing: none` (`nc_map_family_dense` SKIPPED as in every earlier gate: the legacy-removal card removed `map_family: dense`);
+- mb0 reference: `compared 136 tensors; differing: none`;
+- `python -m unittest discover -s tests -v`: `Ran 879 tests in 2276.416s` → **OK** (no failure, error or skip), including T6, T7, T9 and the T9 byte-identity of the existing phases.
+
+Log `docs/card7_evidence/suite_17858.txt` (commit `ad59bfe`).
+
+### Deviations (each one line)
+- V8 rows run through a new wrapper `scripts/tsubame/run_row.py` (`--resume`, working directory, trials copy, tuned file); `sweep_slots.sh` and the existing phases are unchanged. A finished row is recognised by its summary file; an interrupted row runs again from its first seed.
+- The ablation sweeps' W&B project `h2snn_ablation_t4` and output `<out>/experiments/ablation` are my choice (the card names none). A (b) seed line waits for `best_tuned_run0.json`; as for the `h2snn` final seeds, run the seeds list after the tuning list has finished.
+- Mini-batch only (Freebase if card 5 D1 chooses it): R3's probe needs training-target x*, which the evaluation draw (validation + test targets) does not cover, so the training targets use one draw with the run seed; R1's fact level is not computed (it needs the whole graph); F3 reads base and knockout on the node's own scope.
+- R1 uses the cells of the evaluation forward(s): full batch = every cell of the evaluation draw (anchors include training targets); mini-batch = the test batches' scopes.
+- Undefined details fixed as: margins and distances Euclidean; distance ratio = mean distance of a test node to its class centroid / mean distance between class centroids; R2 AUROC with positive = wrong; IMDB "correct" = the predicted genre set equals the true set, and "same class" in R1 = identical genre sets.
+- Case-study figure: the different-class neighbour shown is a fact neighbour if there is one, else an M₂ neighbour, the smallest id in each case; cells carry hook (d)'s raw relation ids and schema key.
+- `figure.py --reference` (free JSON) is replaced by the manifest's reference rows plus `--h2snn_reference_table` (amendment 8).
+
+### Decisions for the author
+1. **η_v definition.** The card's wording ("the share of v's target-type neighbours through the M₂ meta-paths") is implemented as distinct neighbours over the union of the M₂ meta-path graphs. On real ACM this degenerates: P–T–P gives a paper a median of 3,024 meta-path neighbours, so η_v ≈ 1 − Σp_c² for almost every paper (job 17862, 2,118 test targets):
+
+   | ACM η_v | quartile edges | bins Q1–Q4 | distinct values |
+   |---|---|---|---|
+   | union of M₂ neighbours (implemented) | 0.650 / 0.672 / 0.680 | 727 / 714 / 676 / 1 | 7 |
+   | mean over M₂ of the per-path share (as h averages over M₂) | 0.200 / 0.300 / 0.406 | 530 / 530 / 528 / 530 | 1,207 |
+
+   Per path: P–cite/ref–P paths 0.13–0.20 mean, P–A–P 0.14, P–S–P 0.35, P–T–P 0.67. The per-path mean is a one-function change in `mechanism_common.eta` (scripts only). Keep the union reading, or switch?
+2. **Quartiles with ties.** DBLP has one M₂ path (A–P–A), so both readings agree, but 1,280 of the 1,820 test authors with a labelled co-author have η_v = 0 (and 1,020 have none): the value bins are 1,280 / 0 / 99 / 441. Keep value quartiles (counts reported), or use e.g. an "η = 0" group plus tertiles of η > 0, or equal-size rank groups?
+3. **Freebase mode** (card 5 D1) is still open; the ablation manifest takes it as `--freebase_mode`, and the analysis follows the run's own mode.
+4. HetSheaf and CSNN rows (44 rows, 220 runs incl. the 4 reference rows) still wait for their ACM/DBLP seed-0 sweeps.
+5. For the ops session: the TSUBAME data copy needs `data/NC/ACM_pert/` and `DBLP_pert/` (perturbed and `original` folders) for the perturbation phase, and the three new lists are generated there after the `h2snn` phase has tuned `full`.
+
+No stop condition fired: nothing in `src/` or `configs/` changed (`git diff 365a757 HEAD -- src configs` empty), every loader reads a perturbed or original graph by its data directory, every launcher has a fixed-config path, no arm outside ablation plan v2 was added, and the spec and card agree. Not merged into `v3b`. The sha below is the B7 evidence commit (the suite ran at its parent `4d00154`, which holds every Phase B code and test file); this report is the commit after it.
+
+branch=card7 sha=ad59bfe5c928cf1afa506d7e7bed015f5e2c24ee card=docs/H2S-NN_card7_card.md base=894fd7421ce8581d38b967906bde5593e881518a
