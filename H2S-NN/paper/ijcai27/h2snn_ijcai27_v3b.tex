@@ -144,7 +144,7 @@ For an oriented edge $e=(u\xrightarrow{r}v)$, the maps should let neighbours of 
 \end{aligned}
   \label{eq:maps}
 \end{equation}
-Each part of this map has its own role. Every map is a $d\times d$ rotation in $\mathrm{SO}(d)$ that sends the $d$-dimensional node stalk to the $d$-dimensional edge stalk. The frame $R_r\in\mathrm{SO}(d)$ is learned once per relation and captures how that relation relates its endpoints in general, for instance how a paper relates to its author. The term $\exp(U_rC_eU_r^{\transpose})$ then adjusts this frame to the particular edge: $C_e$, a skew-symmetric $4\times4$ matrix with six free entries that the MLP predicts from $[h_u,h_v,\zeta_r]\in\R^{2d+d_r}$, rotates within the subspace spanned by $U_r\in\R^{d\times4}$, a learned matrix with four orthonormal columns for each relation that selects the few directions of the stalk in which edges of $r$ may differ from one another, so that edges of one relation, such as P1--A7 and A7--P9, can be compared differently depending on who A7 is. Only the target endpoint is rotated, since rotating both would merely change the coordinates of the edge stalk. We use rotations because they change the direction of a representation without changing its length, so a neighbour of another class can be aligned with a node without being shrunk or amplified, and because rotations compose along a path, which the faces of Section~\ref{sec:faces} rely on. Finally, the same MLP gives each edge a positive scalar weight $a_e$, which sets how strongly the edge counts in the energy.
+Each part of this map has its own role. Every map is a $d\times d$ rotation in $\mathrm{SO}(d)$ that sends the $d$-dimensional node stalk to the $d$-dimensional edge stalk. The frame $R_r\in\mathrm{SO}(d)$ is learned once per relation and captures how that relation relates its endpoints in general, for instance how a paper relates to its author. The term $\exp(U_rC_eU_r^{\transpose})$ then adjusts this frame to the particular edge: $C_e$, a skew-symmetric $4\times4$ matrix with six free entries that the MLP predicts from $[h_u,h_v,\zeta_r]\in\R^{2d+d_r}$, rotates within the subspace spanned by $U_r\in\R^{d\times4}$, a learned matrix with four orthonormal columns for each relation that selects the few directions of the stalk in which edges of $r$ may differ from one another, so that edges of one relation, such as P1--A7 and A7--P9, can be compared differently depending on who A7 is. Only the target endpoint is rotated, since a common rotation of both maps would only change the coordinates of the edge stalk; hence $F_{u\inc e}=I$ loses no generality. We use rotations because they change the direction of a representation without changing its length, so a neighbour of another class can be aligned with a node without being shrunk or amplified, and because rotations compose along a path, which the faces of Section~\ref{sec:faces} rely on. Finally, the same MLP gives each edge a positive scalar weight $a_e$, which sets how strongly the edge counts in the energy.
 
 \subsection{Meta-Path Faces}
 \label{sec:faces}
@@ -158,7 +158,7 @@ Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, a new element p
 \end{aligned}
 \label{eq:forced}
 \end{equation}
-In words, the map from a node or an edge into the face is the product of the edge maps along the path up to that element, so the face sees every element of the instance in one common frame. Since all edge maps are $d\times d$ rotations, every composed map is again a rotation, and the face adds no parameters of its own.
+Thus, each map into the face is the product of the edge maps along the path, so the face sees every element of the instance in one common frame. Since all edge maps are $d\times d$ rotations, every composed map is again a rotation, and the face adds no parameters of its own.
 
 The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and one energy asks every connected pair to agree after their maps:
 \begin{equation}
@@ -225,46 +225,6 @@ The proof is a block computation followed by a Schur complement over $s_e$ (Appe
   \end{tabular}
 \end{table*}
 
-\subsection{Anchored Diffusion and Prediction}
-\label{sec:prop}
-After the restriction maps and face weights have been constructed, \method{} obtains node representations by minimizing the energy while keeping each node close to its encoding. Let $D$ be the block diagonal of $L$ and $\hat L=D^{-1/2}LD^{-1/2}$, so that node, edge and face stalks are on the same scale and influence does not grow with degree. Since only nodes have an input, the encoding $h$, the propagated states are
-\begin{equation}
-  Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
-  \label{eq:solve}
-\end{equation}
-Here, each node stays close to its encoding while the energy remains small, and the learned scalar $\tau$ balances the two terms. Eliminating the edge and face states exactly gives a node operator $\hat S$.
-\begin{proposition}[Unique solution]\label{prop:unique}
-For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
-\end{proposition}
-\begin{proof}[Proof sketch]
-There are no node--node terms, so the node block of $\hat L$ is $I$, and the block of edge and face states is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ therefore lies between $0$ and $I$, and the objective is strictly convex in $x$.
-\end{proof}
-The node-level map is therefore a resolvent, the same form as personalised PageRank propagation \cite{gasteiger2019appnp}; what is new is the operator $\hat S$, which carries the edge maps and the faces. We solve Equation~\eqref{eq:solve} with conjugate gradients and differentiate through its solution implicitly, so memory does not grow with the number of iterations.
-
-A prediction head then reads the propagated states, $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, including the encoder, the edge maps, the face scorer $g$, $\tau$ and the head, are learned end to end by minimizing one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head needs no separate copy of $h_v$, because the anchor already keeps each node's encoding in $x^\star$; since $h-x^\star=\tau\hat Sx^\star$, adding $h$ would only pass the disagreement that remains after diffusion. Moreover, a single propagated state can suffice under heterophily, because the maps are rotations:
-\begin{proposition}[Class-separating states]\label{prop:separate}
-For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
-\end{proposition}
-\begin{proof}[Proof sketch]
-Place the class vectors on a circle in a plane $P$, take $R_r=I$ and let every $U_r$ contain $P$. Choosing $C_e$ as the rotation of $P$ by the angle between the classes of $u$ and $v$ makes every edge consistent; Proposition~\ref{prop:forced} extends this to the faces, and the solve returns such an encoding unchanged by Proposition~\ref{prop:unique} (Appendix~\ref{app:proofs}).
-\end{proof}
-Hence, nodes of different classes can agree after their maps without being equal. This is an existence result, and edge-level sheaf models share the mechanism. Combined with Proposition~\ref{prop:unique}, it places both regimes within one model:
-\begin{proposition}[Two regimes]\label{prop:regimes}
-(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$, where $\hat S_I$ is the normalised Laplacian of the weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form, which pulls neighbouring encodings together. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
-\end{proposition}
-\begin{proof}[Proof sketch]
-With identity maps every face map is $I$ by Equation~\eqref{eq:forced}, so eliminating edge and face states leaves a weighted graph Laplacian; (ii) is Proposition~\ref{prop:separate}.
-\end{proof}
-Which regime an edge takes is learned, so we measure it rather than claim it. What faces add is a comparison that no edge expresses, since P1 and P9 are compared through A7 with A7's own maps. Because edge and face states have no input features, they change how nodes interact but do not add new information; whether this improves prediction is therefore an empirical question, which Section~\ref{sec:discussion} addresses.
-
-
-%======================================================================
-\section{Experiments}
-\label{sec:experiments}
-We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data} (Table~\ref{tab:graph-cls}).
-
-
-
 \begin{table*}[t]
   \centering
   \caption{Link prediction, ROC-AUC (MRR in Appendix~\ref{app:data}), mean over five seeds.}
@@ -286,6 +246,45 @@ We evaluate node classification and link prediction; graph classification, whose
     \bottomrule
   \end{tabular}
 \end{table*}
+
+\subsection{Anchored Diffusion and Prediction}
+\label{sec:prop}
+The last step turns the sheaf into node representations by letting nodes, edges and faces settle into the state that best satisfies the energy, rather than by stacking message-passing layers. Let $D$ be the block diagonal of $L$ and $\hat L=D^{-1/2}LD^{-1/2}$, which puts all stalks on one scale so that influence does not grow with degree. Since only nodes have an input, the encoding $h$, the propagated states are
+\begin{equation}
+  Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
+  \label{eq:solve}
+\end{equation}
+Here, the first term anchors each node to its encoding, the second asks all comparable pairs to agree, and one learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly gives an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone.
+\begin{proposition}[Unique solution]\label{prop:unique}
+For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+There are no node--node terms, so the node block of $\hat L$ is $I$, and the block of edge and face states is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ therefore lies between $0$ and $I$, and the objective is strictly convex in $x$.
+\end{proof}
+Thus, the representation is well defined for every parameter value and takes the form of personalised PageRank propagation \cite{gasteiger2019appnp}, except that $\hat S$ now carries the edge maps and the faces. We compute $x^\star$ with conjugate gradients and differentiate through it implicitly, so memory does not grow with the number of iterations.
+
+A prediction head reads the propagated states, $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, from the encoder and the edge maps to the scorer $g$, $\tau$ and the head, are trained end to end by one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head reads $x^\star$ alone, because the anchor already keeps each node's own encoding in $x^\star$. Moreover, a single propagated state can still separate classes under heterophily, because the maps are rotations:
+\begin{proposition}[Class-separating states]\label{prop:separate}
+For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Place the class vectors on a circle in a plane $P$, take $R_r=I$ and let every $U_r$ contain $P$. Choosing $C_e$ as the rotation of $P$ by the angle between the classes of $u$ and $v$ makes every edge consistent; Proposition~\ref{prop:forced} extends this to the faces, and the solve returns such an encoding unchanged by Proposition~\ref{prop:unique} (Appendix~\ref{app:proofs}).
+\end{proof}
+Intuitively, the rotations let nodes of different classes agree after their maps without being equal; this is an existence result, which edge-level sheaf models share. Together with Proposition~\ref{prop:unique}, it places homophily and heterophily within one model:
+\begin{proposition}[Two regimes]\label{prop:regimes}
+(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$, where $\hat S_I$ is the normalised Laplacian of the weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form, which pulls neighbouring encodings together. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
+\end{proposition}
+Part (i) holds because identity edge maps make every face map $I$, so eliminating edge and face states leaves a weighted graph Laplacian, and part (ii) is Proposition~\ref{prop:separate}. In other words, identity maps recover ordinary smoothing, which suits homophily, whereas learned rotations admit class-separating states, which suit heterophily; which regime an edge takes is learned, and we measure it rather than claim it. Since edge and face states carry no input features, faces change how nodes interact rather than adding information, and whether this improves prediction is the empirical question of Section~\ref{sec:discussion}.
+
+
+%======================================================================
+\section{Experiments}
+\label{sec:experiments}
+We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data} (Table~\ref{tab:graph-cls}).
+
+
+
+
 
 \paragraph{Datasets.} Node classification uses four HGB benchmarks \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase (24\%/6\%/70\% splits), and eight H2GB benchmarks \cite{lin2025heterophily}, ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, IEEE-CIS-G, H-Pokec and PDNS, with their official loaders and splits. Together they span a wide range of heterophily (Table~\ref{tab:node-cls}, top). Link prediction uses the eight tasks of Table~\ref{tab:link-pred}; held-out edges are removed from the message graph and from every sampled instance, and a leakage audit precedes every result (Appendix~\ref{app:data}).
 
