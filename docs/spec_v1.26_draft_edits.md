@@ -1,4 +1,4 @@
-# Spec 1.26 — draft edits (AA-1 – AA-9), DRAFT, awaiting author approval
+# Spec 1.26 — draft edits (AA-1 – AA-10), APPROVED and APPLIED 2026-11-19
 
 Written 2026-11-19 by the model session. Base: `docs/H2S-NN_methodology_spec.md` v1.25 (design-docs). The method is unchanged in 1.26: every item is protocol or wording. Sources: decisions log rows "Card 2 review (dry run, `9d48ca4`)" (2026-11-16: B1a, B2a, range rule 1), "Card 1f (B1a baselines) and card 6 (heterophily harness) written" (2026-11-17), "Card 1e F3 + 1f review" and "Card 1f U5 review" (2026-11-18: PDNS (a), sweep objective), "TSUBAME limits", "TSUBAME card decisions 1–4" and "Model change: `R_r` init, H2GB timing, bounded `g`" (2026-11-18 (b): N comes from the first TSUBAME trial). Author input of 2026-11-19: the memory rule uses the **H100 94 GB** of TSUBAME, not 24 GB.
 
@@ -26,7 +26,7 @@ Written 2026-11-19 by the model session. Base: `docs/H2S-NN_methodology_spec.md`
 **Author 2026-11-19:** N = 100, and the two large link-prediction tasks use N (AA-6 option (a)). Every task therefore keeps the 1.14 rule, "100 trials per (method, dataset)", and the B2a rule "N from central-point timings" is withdrawn. The wording of the Tuning bullet stays as it is. **Insert after the Tuning bullet:**
 > - **Trial count on the large tasks (1.26, author 2026-11-19).** The H2GB NC, the two large LP and the GC datasets keep 100 trials per (method, dataset), as every other task (B2a's reduced N of 2026-11-16 is withdrawn). The first TSUBAME trial of every method at its central point on these cells gives a projected wall time, which is recorded in the decisions log before their tuning starts. If the projection ends after 2026-12-20, the author decides before any of these trials runs; trials are never cut silently, and no search is stopped early.
 
-**Pending (author):** the meaning of "values taken directly from published papers" (2026-11-19). Option (a): published baseline configurations instead of tuning, where they exist. Option (b): published result numbers in the tables, which conflicts with §6 "Every number is new" (1.5). The wording is added here once the author answers.
+**Answered (author 2026-11-19):** option (b), published result numbers as placeholders; see AA-10.
 
 ## AA-6 Large link prediction — decided: option (a), they use N (= 100)
 See AA-5.
@@ -53,3 +53,8 @@ See AA-5.
 - **Freebase NC.** A full-batch or mini-batch switch, decided by the AA-7 check.
 - **N2b analysis hooks.** `τ` is fixed ∈ {1, 10, 100}, the `τ > 50` stop is lifted and `T_max` = 500, for N2b runs only.
 - **H2S-NN TSUBAME cell list.** Coordinate with the ops session, because the TSUBAME card owns the launcher.
+
+## AA-10 §6: published numbers as placeholders (author 2026-11-19, option (b))
+**Insert after the memory-rule bullet (AA-7):** the bullet "Published numbers as placeholders (1.26, author 2026-11-19)", as applied in the spec. The register is `docs/published_number_register.md`.
+
+**Applied 2026-11-19** (author: "approve ร่าง 1.26"): AA-1–AA-10 in spec v1.26. Backup: `docs/spec_backups/H2S-NN_methodology_spec_v1.25.md`.
