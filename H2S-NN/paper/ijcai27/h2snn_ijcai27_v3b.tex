@@ -69,7 +69,7 @@ To handle the situation where nodes of the target type are linked only through n
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.92\textwidth]{figure/h2snn_example_v3b8.pdf}
-  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph: papers P1, P9 (colour = label), author A7, subject S3. \textbf{(b)} Splitting by meta-path schema builds one paper graph per schema (PAP, PSP); A7 and S3 (greyed) appear in neither. \textbf{(c)} \method{} keeps the meta-path instance P1--A7--P9 as a face $z_f$ of the original graph, coupled (arrows) to every node and edge of the instance, including A7. No edge P1--P9 is added. Squares, diamonds and circles are authors, subjects and papers; paper colour is its label.}
+  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph; paper colour is its label. \textbf{(b)} Splitting by meta-path schema (PAP, PSP) drops A7 and S3. \textbf{(c)} \method{} keeps the instance P1--A7--P9 as a face $z_f$, coupled to all its nodes and edges, A7 included, without adding an edge P1--P9.}
   \label{fig:example}
 \end{figure*}
 
@@ -126,7 +126,8 @@ The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delt
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.7\textwidth]{figure/h2snn_overview_v3b12.pdf}
-  \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$. The relation $r$ of a directed edge selects a row of two learned per-relation tables, the relation embedding $\zeta_r$ and the frame $R_r$ with subspace $U_r$; an MLP over $[h_u,h_v,\zeta_r]$ gives the edge weight $a_e$ and $C_e$, which with $R_r,U_r$ forms the maps $F_{v\inc e}$ into the edge stalk $s_e$. (2) Sampled random walks (shaded) become faces (triangles) such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4, linked to every node and edge they traverse, with maps composed from the edge maps; the scorer $g$ reads the encodings and relation embeddings along a walk and gives its face the weight $\beta_f$. (3) The three couplings form one energy $E$, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss updates the parameters listed beside each arrow through the solve.}
+  \caption{Overview of \method{} on the neighbourhood of P1. (1) The encodings $h_v$ and the per-relation $\zeta_r$, $R_r$, $U_r$ feed an MLP that gives $C_e$ and $a_e$, forming the edge maps. (2) Sampled walks become faces such as $f$ and $f'$, with maps composed from the edge maps and weights $\beta_f$ from the scorer $g$. (3) The three couplings form one energy $E$, whose minimiser anchored at $h$ gives $x^\star$. Dashed red boxes are learned end to end through the solve.}
+
   \label{fig:pipeline}
 \end{figure*}
 Given a directed heterogeneous graph with no list of meta-path schemas, where \(X^{\mathrm{raw}}=\{x_v^{\mathrm{raw}}\}_{v\in V}\) contains type-dependent node features with \(x_v^{\mathrm{raw}}\in\R^{d_{\phi(v)}}\), \method{}, a supervised learning model, learns to predict in three steps (Figure~\ref{fig:pipeline}): a sheaf on the edges of the original graph (Section~\ref{sec:maps}), faces of the same sheaf on sampled meta-path instances (Section~\ref{sec:faces}), and one anchored diffusion over nodes, edges and faces, read by a prediction head (Section~\ref{sec:prop}). Together, \method{} treats meta-path instances as part of the graph structure and retains the relational structure of each sampled instance, intermediate nodes included, and handles heterophily and meta-path information within the original graph.
@@ -194,7 +195,8 @@ The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie eac
 
 \begin{table*}[t]
   \centering
-  \caption{Node classification, Macro-F1, mean $\pm$ std over five seeds (Micro-F1 in Appendix~\ref{app:data}); best values in bold. \emph{Top:} heterophily of each dataset, higher is more heterophilic, recomputed with the code of its source: $\mathcal{H}^2$ with H2GB's meta-path rule, MLH and MDE with Hetero$^2$Net's meta-path sets. Groups: graph treated as homogeneous (Hom.) or heterogeneous (Het.), model designed for homophily (hom.) or heterophily (het.).}
+  \caption{Node classification, Macro-F1 (mean $\pm$ std over five seeds; Micro-F1 in Appendix~\ref{app:data}); best in bold. \emph{Top:} heterophily of each dataset (higher is more heterophilic), computed with the code and meta-path sets of each measure's source. Groups: graph treated as homogeneous or heterogeneous (Hom./Het.), model designed for homophily or heterophily (hom./het.).}
+
   \label{tab:node-cls}
   \scriptsize
   \setlength{\tabcolsep}{2.6pt}
@@ -254,7 +256,7 @@ The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie eac
   \end{tabular}
 \end{table*}
 
-\paragraph{Anchored solve.} Minimising the energy alone would discard the input: the zero state, or any consistent state, attains $E=0$ whatever the node features are, and repeated diffusion drifts toward such states, which is the oversmoothing of deep sheaf diffusion \cite{bodnar2022neural}. We therefore anchor the nodes to their encodings $h$, the only input, and solve for the state that balances consistency against this anchor. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
+\paragraph{Anchored solve.} Minimising the energy alone would discard the input: the zero state, or any consistent state, attains $E=0$ whatever the node features are, and repeated diffusion drifts toward such states, which is the oversmoothing of deep sheaf diffusion \cite{bodnar2022neural}. We therefore anchor the nodes to their encodings $h$, the only input, and solve for the state that balances consistency against this anchor. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$ with block $D_vI$ for node $v$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
 \begin{equation}
   Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
   \label{eq:solve}
@@ -271,39 +273,39 @@ Finally, task-specific heads read the solved node states $x^\star$, and all para
 
 \subsection{Theoretical Properties}
 \label{sec:theory}
-Four properties support the design: faces never conflict with the edges, they reach every node of their instance and exchange information through shared edges, the representation is well defined, and one model admits both class-separating states and ordinary smoothing.
-
+First, faces never conflict with the edges: they act only where the edges disagree.
 \begin{proposition}[Forced maps]\label{prop:forced}
-With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
+With Equation~\eqref{eq:forced}, nodes, edges and faces carry one sheaf, and $E(Y)=0$ if and only if $\delta x=0$, in which case $s$ and $z$ are determined by $x$.
 \end{proposition}
 \begin{proof}
 By Equation~\eqref{eq:forced} and $F^{\transpose}F=I$, $F_{e_i\inc f}F_{v\inc e_i}=F_{v\inc f}$ for both endpoints $v$ of $e_i$, so the maps compose. If $\delta x=0$, take $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$; by induction along the path every map sends its state to $z_f$, so $E=0$. Conversely, $E$ is a sum of positively weighted squares, so $E=0$ forces $F_{u\inc e}x_u=s_e=F_{v\inc e}x_v$, that is $\delta x=0$, and fixes $s$ and $z$.
 \end{proof}
-Faces therefore add meta-path information without restricting what the edge sheaf can represent: they act only where the edges disagree.
 
+Second, a face reaches every node of its instance and exchanges information with other faces through shared edges, which a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper} does not; this requires tying faces to nodes directly.
 \begin{proposition}[Coupling]\label{prop:reach}
-Let $D_e=2a_e+\sum_{h\ni e}\beta_h$. (i) For every node $v$ of a face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For faces $f,f'$ sharing an edge $e$, eliminating $s_e$ couples $z_f$ and $z_{f'}$ by $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face is coupled to an endpoint of an edge on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
+Let $D_e=2a_e+\sum_{h\ni e}\beta_h$. (i) Each face $f$ is coupled directly to each of its nodes $v$, by the block $-\beta_fF_{v\inc f}^{\transpose}\neq0$ of $L$. (ii) Two faces $f,f'$ sharing an edge $e$ are coupled through it, by $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$ after eliminating $s_e$. (iii) Without the node--face term, a face reaches an endpoint of an edge on no other face only with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
 \end{proposition}
 \begin{proof}
 (i) Only the node--face term contains both $x_v$ and $z_f$, and $F_{v\inc f}$ is orthogonal. (ii) As the maps are orthogonal, the $s_e$ block of $L$ is $D_eI$ and its blocks with $z_f,z_{f'}$ are $-\beta_fF_{e\inc f}$ and $-\beta_{f'}F_{e\inc f'}$, while the $(z_f,z_{f'})$ block is zero; the Schur complement over $s_e$ gives the coupling. (iii) Minimising $\sum_iw_i\norm{y_i-s}^2$ over $s$ leaves $\sum_{i<j}\frac{w_iw_j}{\sum_kw_k}\norm{y_i-y_j}^2$; the weights $a_e,a_e,\beta_f$ of $s_e$ give the stated weight.
 \end{proof}
-A face therefore reaches every node of its instance directly, A7 included, and faces exchange information through shared edges; part (i) alone would also hold for a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}, whereas the forced maps and part (ii) do not. Part (iii) is why the energy ties faces to nodes directly.
 
+Third, the representation is well defined and well conditioned for every parameter value.
 \begin{proposition}[Unique solution]\label{prop:unique}
 For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
 \end{proposition}
 \begin{proof}
 $E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge--face block is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ thus satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex in $x$, and $I+\tau\hat S$ has eigenvalues in $[1,1+\tau]$.
 \end{proof}
-The solve is therefore well defined and well conditioned for every parameter value, so training never meets a degenerate representation.
 
+Finally, one model covers both regimes: learned rotations admit class-separating states under heterophily, whereas identity maps recover ordinary smoothing.
 \begin{proposition}[Class-separating states and smoothing]\label{prop:separate}
-(i) For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node. (ii) If every edge map is $I$, then every face map is $I$ and $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, where $L_I$ is the Laplacian of a weighted graph on the nodes: personalised-PageRank smoothing.
+(i) For any labelling $y$ with $K$ classes, there are maps of the form of Equation~\eqref{eq:maps} and unit vectors $a_1,\ldots,a_K$ such that, for $h_v=D_v^{1/2}a_{y(v)}$, the solve returns $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node. (ii) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$ for a graph Laplacian $L_I$ on the nodes, that is, personalised-PageRank smoothing.
 \end{proposition}
 \begin{proof}
 (i) Place $a_k$ at angles $\alpha_k=2\pi k/K$ on a circle in a plane $P$, set $R_r=I$, let every $U_r$ contain $P$, and let $C_e$ rotate $P$ by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $\exp(U_rC_eU_r^{\transpose})=I+U_r(e^{C_e}-I)U_r^{\transpose}$ acts only on $P$, $F_{v\inc e}a_{y(v)}=a_{y(u)}$, so $\delta x=0$ and, by Proposition~\ref{prop:forced}, the state $Y$ has zero energy. Hence $\hat LD^{1/2}Y=0$, so $x^\star=h$ by Proposition~\ref{prop:unique}, and $\langle a_k,x^\star_v\rangle\propto\cos(\alpha_k-\alpha_{y(v)})$ peaks at $k=y(v)$. (ii) Equation~\eqref{eq:forced} gives $F_{v\inc f}=I$, so every term of $E$ is a weighted squared difference of states; eliminating $s$ and $z$ keeps the constant vector in the kernel and the off-diagonal entries non-positive, so $L_I$ is again a graph Laplacian.
 \end{proof}
-Heterophily therefore needs no separate mechanism: learned rotations admit class-separating states, whereas identity maps recover ordinary smoothing, so one model covers both regimes. Part (i) shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
+
+Part (i) shows existence only; Section~\ref{sec:discussion} tests whether training reaches such states.
 
 
 %======================================================================
@@ -340,7 +342,7 @@ Our central claim is that a path instance is more useful as part of the structur
 
 \begin{table}[t]
   \centering
-  \caption{Controlled variants of the full model, Macro-F1 (mean over seeds 1--10; IMDB is the mean per-genre F1). $^{*}$Tuned on its own and decided on that configuration. Bold marks a variant that is significantly worse than the full model after Holm's correction. $^{\ddagger}$Reported without a decision rule.}
+\caption{Controlled variants, Macro-F1 (mean over seeds 1--10; IMDB: mean per-genre F1). $^{*}$Tuned separately and judged at that configuration. Bold: significantly worse than the full model after Holm's correction. $^{\ddagger}$No decision rule.}
   \label{tab:ablation}
   \footnotesize
   \setlength{\tabcolsep}{3pt}
