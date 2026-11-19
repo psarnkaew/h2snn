@@ -1,0 +1,6 @@
+head=392cfcf88bf17908f8fe952b1456d85d09410432 host=g3n01 job=17851
+tests: tests.test_tsubame_host_memory
+test_table_covers_every_cell_and_no_known_sum_exceeds_600_gb (tests.test_tsubame_host_memory.HostMemoryTests.test_table_covers_every_cell_and_no_known_sum_exceeds_600_gb) ... ok
+Ran 1 test in 0.016s
+OK
+tests exit=0
