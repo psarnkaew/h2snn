@@ -238,3 +238,23 @@ Rules: existing phases stay byte-identical. The ops session owns the TSUBAME car
   - Never stash, reset, rebase, amend or force-push. Stage files by name.
   - Do not merge into `v3b`.
 - **Estimate.** Phase A ≈ 1.5 days. Phase B ≈ 1–1.5 days after card 5 is on `v3b`.
+
+## Amendments after the Phase A review (author, 2026-11-19; binding for Phase B)
+Review of Phase A (`card7` `f1f66ed`, evidence `84d7efe`). Phase A is accepted, including the card 4 driver-test update and the trainer-based ogbn-mag timing for H2S-NN.
+
+1. **Perturbation levels.**
+   - h = 1 − MLH over the spec §1 `M₂` set (as implemented), at **0.20, 0.30, 0.40, 0.50, 0.60** on ACM and DBLP, plus the original graph as a reference point. Add levels 0.30 and 0.50; keep 0.20, 0.40 and 0.60 as generated.
+   - **IMDB is not used.** Drop its graphs from the manifest (the files may stay on disk).
+   - **0.80 is dropped:** h ≤ (1 − 1/C)·n/(n−1) per intermediate (≈ 0.667 ACM, 0.75 DBLP).
+   - Record ℋ² beside h at every level. The figure script draws a dashed line at 1 − 1/C per dataset.
+2. **Generator rules accepted as built:** proportional allocation across relations; the partner rule for author and term facts (a paper of another class, then one of its neighbours); unreached levels written but not run.
+3. **Fingerprint check (new, required).** Every perturbation run logs the fingerprint of the edge list its loader actually built, and the manifest compares it with the generator's fingerprint for that graph. A mismatch fails the run. Test it with one baseline and H2S-NN on a toy perturbed graph, including the `./data` working-directory route used for the baselines.
+4. **Baseline configurations.**
+   - **GCN:** use HGB's published run commands (`vendor/HGB/NC/benchmark/methods/GNN/README.md`). ACM: `--model-type gcn --weight-decay 1e-6 --lr 1e-3 --feats-type=0`. DBLP: `--model-type gcn --weight-decay 1e-6 --lr 1e-3`. Map them onto our adapter's keys and list the mapping.
+   - **HAN:** use the defaults of `vendor/HGB/NC/benchmark/methods/HAN/main.py` that its README runs.
+   - **SeHGNN and Hetero²Net:** their published configurations.
+   - **HetSheaf:** waits for its ACM/DBLP tuning. Its rows are in the manifest, marked "needs tuned config".
+   - If an HGB command has no counterpart key in our adapter, report it; do not add a key in `src/`.
+5. **Timing list:** H2S-NN + the 13 main-table baselines × ogbn-mag and IMDB = 28 runs (confirmed).
+6. **Budget:** perturbation ≈ 7 × 2 × 5 × 2 × 5 = 700 runs + S2 on the targeted graphs 2 × 5 × 5 = 50.
+7. **CSNN added (author, 2026-11-19)** to the perturbation methods (homogeneous heterophily sheaf model). Use its published ACM/DBLP configuration if the vendor or paper has one (state where); otherwise mark its rows "needs tuned config", as for HetSheaf. Budget: 8 × 2 × 5 × 2 × 5 = 800 + S2 50.
