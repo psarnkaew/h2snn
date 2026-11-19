@@ -1,7 +1,7 @@
 """TSUBAME card T3: the phase-1 cell list.
 
 The set of its lines equals the registry's runnable cells (`iter_cells`) restricted to HGB NC acm / dblp / imdb and
-LP acm_pa / dblp_ap / imdb_ma / pubmed / lastfm; no line is duplicated; every unsupported cell is a comment; every
+LP acm_pa / dblp_ap / imdb_ma / pubmed / lastfm, less the `baselines-early` cells (card T7.4); no line is duplicated; every unsupported cell is a comment; every
 line passes `run_baseline_tuning.py ... --validate_only` (called in-process; nothing is trained).
 Mutation (`docs/tsubame_evidence/t3_mutation.py`): the runnable filter dropped -> this test fails.
 """
@@ -22,11 +22,15 @@ PHASE1 = {"node_classification": {"acm", "dblp", "imdb"},
           "link_prediction": {"acm_pa", "dblp_ap", "imdb_ma", "pubmed", "lastfm"}}
 
 
+# card T7.4: the HetSheaf / CSNN ACM and DBLP NC cells run in phase baselines-early, not in baselines-1
+EARLY = {("node_classification", d, m) for d in ("acm", "dblp") for m in ("hetsheaf", "csnn")}
+
+
 def expected_cells() -> set[tuple[str, str, str]]:
     from src.baselines.registry import iter_cells
 
     return {(r["task"], r["dataset"], r["model"]) for r in iter_cells()
-            if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())}
+            if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())} - EARLY
 
 
 class CellListTests(unittest.TestCase):

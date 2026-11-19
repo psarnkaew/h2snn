@@ -1,0 +1,14 @@
+head=50f714d840cbecc50abf29a8886718c0aa6fac05 host=g3n01 job=17849
+tests: tests.test_tsubame_phases tests.test_tsubame_cell_list
+test_phases_pairwise_disjoint_and_cover_their_cells (tests.test_tsubame_phases.PhaseTests.test_phases_pairwise_disjoint_and_cover_their_cells) ... ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+Ran 4 tests in 4.117s
+OK
+tests exit=0
+--- mutation t7_4_mutation.py
+AssertionError: Items in the first set but not the second:
+Ran 1 test in 1.217s
+FAILED (failures=1)
+MUTATION T7.4 (no exclusion): caught (the lists overlap)
+mutation exit=0
