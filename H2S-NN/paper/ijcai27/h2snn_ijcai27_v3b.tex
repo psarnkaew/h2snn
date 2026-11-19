@@ -146,7 +146,7 @@ For an oriented typed edge $e=(u\xrightarrow{r}v)$, the two endpoint representat
 \end{equation}
 Here, $R_r\in\mathrm{SO}(d)$ is a learned frame of relation $r$, $U_r\in\R^{d\times4}$ has orthonormal columns that span a learned subspace of $r$, and $C_e$ is a skew-symmetric $4\times4$ matrix predicted from both endpoints and the relation embedding; hence, the edge-specific rotation acts only inside that subspace. Because the edge stalk is free, only the relative map $F_{u\inc e}^{\transpose}F_{v\inc e}$ affects the comparison, so the source endpoint needs no frame of its own. For a relation that is its own reverse, there is no frame, and the rotation is split evenly as $\exp(\mp U_rC_eU_r^{\transpose}/2)$, with $C_e$ changing sign when the endpoints are swapped. The same MLP also outputs a positive edge weight $a_e$.
 
-We restrict the maps to $\mathrm{SO}(d)$ rather than to the full orthogonal group or to diagonal and general matrices. A reflection would require a discrete choice for each edge, which gradients cannot make, whereas for $d\ge2$ a rotation already maps any vector to any other vector of the same norm. Moreover, the face maps of Section~\ref{sec:faces} rely on $F^{\transpose}=F^{-1}$. Since the MLP reads both endpoints, the maps of the edges P1--A7 and A7--P9, for example, depend on the identity of A7, and so does every face that passes through A7; maps conditioned on the relation alone cannot express this. Thus, the maps and weights depend only on the encodings, and graph structure reaches the node representations only through the diffusion described in Section~\ref{sec:prop}.
+We restrict the maps to $\mathrm{SO}(d)$ rather than to the full orthogonal group or to diagonal and general matrices. A reflection would require a discrete choice for each edge, which gradients cannot make, whereas for $d\ge2$ a rotation already maps any vector to any other vector of the same norm. Moreover, the face maps of Section~\ref{sec:faces} rely on $F^{\transpose}=F^{-1}$. Since the MLP reads both endpoints, the maps of the edges P1--A7 and A7--P9 depend on the identity of A7, and so does every face that passes through A7; maps conditioned on the relation alone cannot express this. Thus, the maps and weights depend only on the encodings, and graph structure reaches the node representations only through the diffusion described in Section~\ref{sec:prop}.
 
 \subsection{Meta-Path Faces}
 \label{sec:faces}
@@ -160,7 +160,7 @@ Rather than collapsing an instance into a relation between its endpoints, \metho
 \end{aligned}
 \label{eq:forced}
 \end{equation}
-Here, the first line carries the stalk of $e_i$ back to the frame of $v_{i-1}$ and then to the face, while the second line carries this frame on to $v_i$. For a sampled P--A--P instance, for example, the two paper--author edges keep their own maps, and the intermediate author enters the face through them.
+Here, the first line carries the stalk of $e_i$ back to the frame of $v_{i-1}$ and then to the face, while the second line carries this frame on to $v_i$.
 
 The node, edge and face states $x_v$, $s_e$ and $z_f$ are collected in $Y=(x,s,z)$. We then define one energy that asks every comparable pair to agree after its restriction maps:
 \begin{equation}
