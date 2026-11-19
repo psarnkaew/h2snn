@@ -183,14 +183,7 @@ The last step turns the sheaf into node representations. Rather than stacking me
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state.
-\begin{proposition}[Forced maps]\label{prop:forced}
-With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
-\end{proposition}
-\begin{proof}
-By Equation~\eqref{eq:forced} and $F^{\transpose}F=I$, $F_{e_i\inc f}F_{v\inc e_i}=F_{v\inc f}$ for both endpoints $v$ of $e_i$, so the maps compose. If $\delta x=0$, take $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$; by induction along the path every map sends its state to $z_f$, so $E=0$. Conversely, $E$ is a sum of positively weighted squares, so $E=0$ forces $F_{u\inc e}x_u=s_e=F_{v\inc e}x_v$, that is $\delta x=0$, and fixes $s$ and $z$.
-\end{proof}
-Faces thus never conflict with the edges and act only where the edges disagree. Where they act, each face reaches every node of its instance directly, A7 included, and faces sharing an edge exchange information through it, which separates faces from hyperedges of sheaf hypergraph networks \cite{duta2023sheafhyper} (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}).
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:example}(c), are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}).
 
 \begin{table*}[t]
   \centering
@@ -254,30 +247,47 @@ Faces thus never conflict with the edges and act only where the edges disagree. 
   \end{tabular}
 \end{table*}
 
-\paragraph{Anchored solve.} Only nodes have an input, the encoding $h$, so the representation is the state of lowest energy anchored at $h$. With $D$ the block diagonal of $L$, $D_x$ its node part, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
+\paragraph{Anchored solve.} Only nodes have an input, the encoding $h$, so the representation is the state of lowest energy anchored at $h$. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
 \begin{equation}
   Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
   \label{eq:solve}
 \end{equation}
-The anchor keeps each node close to its own encoding, the energy requires comparable pairs to agree, and a learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone.
+The anchor keeps each node close to its own encoding, the energy requires comparable pairs to agree, and a learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone. The representation is its node part (Proposition~\ref{prop:unique}),
+\begin{equation}
+  x^\star=(I+\tau\hat S)^{-1}h,
+  \label{eq:xstar}
+\end{equation}
+a personalised PageRank propagation \cite{gasteiger2019appnp} in which $\hat S$ carries the edge maps and the faces.
+
+\paragraph{Prediction.} A head reads $x^\star$ alone, as the anchor already retains each node's encoding: an MLP of $x^\star_v$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters are trained end to end by one task loss through the solve.
+
+\subsection{Theoretical Properties}
+\label{sec:theory}
+Three properties support the design: faces never conflict with the edges, the representation is well defined, and rotations admit class-separating states under heterophily. Two further results are proved in Appendix~\ref{app:proofs}.
+
+\begin{proposition}[Forced maps]\label{prop:forced}
+With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
+\end{proposition}
+\begin{proof}
+By Equation~\eqref{eq:forced} and $F^{\transpose}F=I$, $F_{e_i\inc f}F_{v\inc e_i}=F_{v\inc f}$ for both endpoints $v$ of $e_i$, so the maps compose. If $\delta x=0$, take $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$; by induction along the path every map sends its state to $z_f$, so $E=0$. Conversely, $E$ is a sum of positively weighted squares, so $E=0$ forces $F_{u\inc e}x_u=s_e=F_{v\inc e}x_v$, that is $\delta x=0$, and fixes $s$ and $z$.
+\end{proof}
+Faces therefore add meta-path information without restricting what the edge sheaf can represent: they act only where the edges disagree.
+
 \begin{proposition}[Unique solution]\label{prop:unique}
 For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
 \end{proposition}
 \begin{proof}
 $E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge--face block is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ thus satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex in $x$, and $I+\tau\hat S$ has eigenvalues in $[1,1+\tau]$.
 \end{proof}
-The representation thus exists for every parameter value and generalises personalised PageRank propagation \cite{gasteiger2019appnp}, with $\hat S$ carrying the maps and faces.
+The solve is therefore well defined and well conditioned for every parameter value, so training never meets a degenerate representation.
 
-\paragraph{Prediction.} A head reads $x^\star$ alone, as the anchor already retains each node's encoding: an MLP of $x^\star_v$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters are trained end to end by one task loss through the solve.
-
-\paragraph{Homophily and heterophily.} Under heterophily, a single propagated state can still separate classes, because the maps are rotations:
 \begin{proposition}[Class-separating states]\label{prop:separate}
 For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
 \end{proposition}
 \begin{proof}
 Place $a_k$ at angles $\alpha_k=2\pi k/K$ on a circle in a plane $P$, set $R_r=I$, let every $U_r$ contain $P$, and let $C_e$ rotate $P$ by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $\exp(U_rC_eU_r^{\transpose})=I+U_r(e^{C_e}-I)U_r^{\transpose}$ acts only on $P$, $F_{v\inc e}a_{y(v)}=a_{y(u)}$, so $\delta x=0$ and, by Proposition~\ref{prop:forced}, the state $Y$ has zero energy. Hence $\hat LD^{1/2}Y=0$, so $x^\star=h$ by Proposition~\ref{prop:unique}, and $\langle a_k,x^\star_v\rangle\propto\cos(\alpha_k-\alpha_{y(v)})$ peaks at $k=y(v)$.
 \end{proof}
-Rotations thus let nodes of different classes agree without being equal, whereas identity maps reduce the solve to personalised-PageRank smoothing (Proposition~\ref{prop:regimes}, Appendix~\ref{app:proofs}), so one model covers homophily and heterophily. The result shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
+Heterophily therefore needs no separate mechanism: rotations let nodes of different classes agree without being equal, whereas identity maps reduce the solve to smoothing (Proposition~\ref{prop:regimes}, Appendix~\ref{app:proofs}). The result shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
 
 
 %======================================================================
