@@ -68,8 +68,8 @@ To handle the situation where nodes of the target type are linked only through n
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.92\textwidth]{figure/h2snn_example_v3b7.pdf}
-  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph: papers P1, P4, P9 (colour = label), author A7, subject S3. \textbf{(b)} Splitting by meta-path schema builds one paper graph per schema (PAP, PSP); A7 and S3 (greyed) appear in neither. \textbf{(c)} \method{} keeps the meta-path instances P1--A7--P9 and P1--A7--P4 as faces $z_f$, $z_{f'}$ of the original graph. Each face stalk (dots) is coupled (arrows) to every node and edge of its instance, including A7, and the two faces share the stalk of the edge P1--A7 (dashed circle). No edge P1--P9 is added. Squares, diamonds and circles are authors, subjects and papers; paper colour is its label.}
+  \includegraphics[width=0.92\textwidth]{figure/h2snn_example_v3b8.pdf}
+  \caption{Running example. \textbf{(a)} A heterogeneous heterophilic citation graph: papers P1, P9 (colour = label), author A7, subject S3. \textbf{(b)} Splitting by meta-path schema builds one paper graph per schema (PAP, PSP); A7 and S3 (greyed) appear in neither. \textbf{(c)} \method{} keeps the meta-path instance P1--A7--P9 as a face $z_f$ of the original graph, coupled (arrows) to every node and edge of the instance, including A7. No edge P1--P9 is added. Squares, diamonds and circles are authors, subjects and papers; paper colour is its label.}
   \label{fig:example}
 \end{figure*}
 
@@ -114,12 +114,12 @@ Heterophily is the tendency of connected nodes to be dissimilar in their labels 
 where $h_{\mathrm{adj}}$ is the adjusted homophily of Platonov et al.~\shortcite{platonov2023characterizing}, which corrects edge homophily for class imbalance, $y_u$ and $x_u$ are the label and features of $u$, and $N_u$ is its neighbourhood in $G_p$. Larger values indicate stronger heterophily, and MDE needs no labels. Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing} and LatGRL \cite{shen2025heterophily} handle heterophily on one homogeneous graph per schema, so two pairs joined by the same schema are told apart only by their endpoints, while H2G-former \cite{lin2025heterophily} works on the original graph but uses meta-paths only to measure heterophily.
 
 \subsection{Cellular Sheaves on Graphs}
-Plain neighbor aggregation pulls every node toward the average of its neighbors, which erases each node’s individual characteristics. Under heterophily, this is particularly harmful. To preserve each node's locality and help it learn structural information, cellular sheaves address this issue by letting each edge compare its two endpoints through learned maps instead of requiring them to be equal, so that a node can keep its own characteristics while remaining consistent with its neighbors \cite{hansen2020sheaf,bodnar2022neural}. A cellular sheaf $\mathcal{F}$ on a graph assigns a vector space, or \emph{stalk}, to every node and edge, and a linear restriction map $F_{v\inc e}:\mathcal{F}(v)\rightarrow\mathcal{F}(e)$, an \emph{edge map}, to every incident pair. With $d$-dimensional stalks, the coboundary compares the two endpoints of an oriented edge $e=(u\rightarrow v)$ in the edge stalk:
+To preserve each node's locality after aggregation and help it learn structural information, cellular sheaves address this issue by letting each edge compare its two endpoints through learned maps instead of requiring them to be equal, so that a node can keep its own characteristics while remaining consistent with its neighbors \cite{hansen2020sheaf,bodnar2022neural}. A cellular sheaf $\mathcal{F}$ on a graph assigns a vector space, or \emph{stalk}, to every node and edge, and a linear restriction map $F_{v\inc e}:\mathcal{F}(v)\rightarrow\mathcal{F}(e)$, an \emph{edge map}, to every incident pair. With $d$-dimensional stalks, the coboundary compares the two endpoints of an oriented edge $e=(u\rightarrow v)$ in the edge stalk:
 \begin{equation}
   (\delta x)_e = F_{v\inc e}x_v-F_{u\inc e}x_u .
   \label{eq:coboundary}
 \end{equation}
-The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delta x}^2$ and recovers the graph Laplacian when all maps are identities. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural,barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}. A sheaf can also be placed on any partially ordered set, with linear maps that compose along chains \cite{curry2014sheaves}; we place it on the incidence poset of nodes, edges and faces, which is not a cell complex because a face is not closed. Models that look beyond edges, on hypergraphs \cite{duta2023sheafhyper} or cell complexes \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}, learn their higher-order maps freely; in none of them are these maps determined by the edge maps, which is the property our construction adds (Section~\ref{sec:method}).
+The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delta x}^2$ and recovers the graph Laplacian when all maps are identities. It has flexibility because it can also be placed on any partially ordered set, with linear maps that compose along chains \cite{curry2014sheaves}. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural,barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}, on hypergraphs \cite{duta2023sheafhyper} or cell complexes \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}. However, all of their maps determined by the edge maps, which is the property our construction adds (Section~\ref{sec:method}).
 
 \section{Methodology}
 \label{sec:method}
@@ -148,7 +148,7 @@ The frame $R_r\in\mathrm{SO}(d)$, learned once per relation from all its edges, 
 
 \subsection{Meta-Path Faces}
 \label{sec:faces}
-An edge relates only two neighbours, whereas the semantics of a meta-path such as P--A--P reside in the whole instance: two papers are related through a particular author. The second step therefore adds meta-path instances to the sheaf as faces, in which all nodes and edges of an instance, including the intermediate ones, meet in a common stalk.
+An edge relates only two neighbours, whereas the semantics of a meta-path such as P--A--P reside in the whole instance and give more structural information. The second step therefore adds meta-path instances to the sheaf as faces, in which all nodes and edges of an instance, including the intermediate ones, meet in a common stalk.
 
 \paragraph{Sampling instances.} Instances are sampled by random walks on the original graph, which removes the need for a predefined list of meta-paths. The walks start from anchor nodes, namely the nodes of the target type or of an endpoint type of the target relation. From each anchor, we draw $n$ walks whose lengths are uniform in $\{2,\ldots,\ell_{\max}\}$; at each step, a walk selects a relation uniformly and then an unvisited neighbour along it uniformly. A walk and its reverse yield the same instance $f$, whose sampling weight $m_f>0$ is the fraction of walks that produced it. For any quantity $\phi_f$ defined per face, such as the terms of a face in the energy of Section~\ref{sec:prop}, the weighted sum over faces is unbiased:
 \begin{equation}
@@ -179,7 +179,7 @@ where $m_f$ is the sampling weight and $w_f$ the learned trust in the instance. 
 \label{sec:prop}
 The last step turns the sheaf into node representations. Rather than stacking message-passing layers, \method{} lets nodes, edges and faces settle into the state that best satisfies all their comparisons, anchored at the node encodings. A prediction head then reads this state.
 
-\paragraph{One energy.} The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and a single energy requires every comparable pair to agree after their maps:
+\paragraph{Energy Function.} The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and a single energy requires every comparable pair to agree after their maps:
 \begin{equation}
 \begin{aligned}
   E(Y)={}&\tfrac12\sum_{e}a_e\sum_{v\in e}\norm{F_{v\inc e}x_v-s_e}^2\\
@@ -188,7 +188,9 @@ The last step turns the sheaf into node representations. Rather than stacking me
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:example}(c), are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}).
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:pipeline}, are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}). This energy lets edges and meta-path instances act in one objective on the original graph, and asks states to agree after their maps rather than be equal, so neighbours of different classes stay distinct. Zero energy thus means that every node, edge and face agrees with all its neighbours after their maps, a structure-consistent state in which the states themselves may still differ.
+(Proposition~\ref{prop:unique}).
+
 
 \begin{table*}[t]
   \centering
@@ -252,19 +254,20 @@ The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie eac
   \end{tabular}
 \end{table*}
 
-\paragraph{Anchored solve.} Only nodes have an input, the encoding $h$, so the representation is the state of lowest energy anchored at $h$. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
+\paragraph{Anchored solve.} Minimising the energy alone would discard the input: the zero state, or any consistent state, attains $E=0$ whatever the node features are, and repeated diffusion drifts toward such states, which is the oversmoothing of deep sheaf diffusion \cite{bodnar2022neural}. We therefore anchor the nodes to their encodings $h$, the only input, and solve for the state that balances consistency against this anchor. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
 \begin{equation}
   Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
   \label{eq:solve}
 \end{equation}
-The anchor keeps each node close to its own encoding to further strengthen each node locality, the energy requires comparable pairs to agree, and a learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone. The representation is its node part (Proposition~\ref{prop:unique}),
+The anchor keeps each node close to its own encoding and thus preserves its identity, the energy asks comparable pairs to agree, and a learned scalar $\tau>0$ sets the balance. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone, and the representation is the node part of the solution (Proposition~\ref{prop:unique}),
 \begin{equation}
-  x^\star=(I+\tau\hat S)^{-1}h,
+  x^\star=(I+\tau\hat S)^{-1}h=\alpha\sum_{k\ge0}(1-\alpha)^k(I-\hat S)^kh,\qquad\alpha=\tfrac1{1+\tau}.
   \label{eq:xstar}
 \end{equation}
-a personalised PageRank propagation \cite{gasteiger2019appnp} in which $\hat S$ carries the edge maps and the faces.
+This is a personalised PageRank propagation \cite{gasteiger2019appnp} through the edge maps and faces: it aggregates over all propagation lengths at once, so no layers are stacked and no depth is tuned, while $\tau$ sets how far information travels.
 
-\paragraph{Prediction.} A head reads $x^\star$ alone, as the anchor already retains each node's encoding: an MLP of $x^\star_v$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters are trained end to end by one task loss through the solve.
+Finally, task-specific heads read the solved node states $x^\star$, and all parameters are trained end to end by the task loss through the solve.
+
 
 \subsection{Theoretical Properties}
 \label{sec:theory}
