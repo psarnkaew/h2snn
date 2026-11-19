@@ -119,7 +119,7 @@ To preserve each node's locality after aggregation and help it learn structural 
   (\delta x)_e = F_{v\inc e}x_v-F_{u\inc e}x_u .
   \label{eq:coboundary}
 \end{equation}
-The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delta x}^2$ and recovers the graph Laplacian when all maps are identities. It has flexibility because it can also be placed on any partially ordered set, with linear maps that compose along chains \cite{curry2014sheaves}. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural,barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}, on hypergraphs \cite{duta2023sheafhyper} or cell complexes \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}. However, all of their maps determined by the edge maps, which is the property our construction adds (Section~\ref{sec:method}).
+ The application of sheaf has flexibility because it can also be placed on any partially ordered set, with linear maps that compose along chains \cite{curry2014sheaves}. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural,barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}, on hypergraphs \cite{duta2023sheafhyper} or cell complexes \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}. However, all of their maps determined by the edge maps, which is the property our construction adds (Section~\ref{sec:method}).
 
 \section{Methodology}
 \label{sec:method}
@@ -297,7 +297,7 @@ For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^
 $E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge--face block is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ thus satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex in $x$, and $I+\tau\hat S$ has eigenvalues in $[1,1+\tau]$.
 \end{proof}
 
-Finally, one model covers both regimes: learned rotations admit class-separating states under heterophily, whereas identity maps recover ordinary smoothing.
+Finally, one model covers both regimes: learned rotations admit class-separating states under heterophily, whereas identity maps recover neighborhood information aggregating.
 \begin{proposition}[Class-separating states and smoothing]\label{prop:separate}
 (i) For any labelling $y$ with $K$ classes, there are maps of the form of Equation~\eqref{eq:maps} and unit vectors $a_1,\ldots,a_K$ such that, for $h_v=D_v^{1/2}a_{y(v)}$, the solve returns $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node. (ii) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$ for a graph Laplacian $L_I$ on the nodes, that is, personalised-PageRank smoothing.
 \end{proposition}
