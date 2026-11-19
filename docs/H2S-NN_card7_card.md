@@ -145,9 +145,9 @@ A level that cannot be reached under the 50 % cap is recorded as unreached with 
 
 ### V5 — Face effect F1–F3 and the case study (Phase B; uses card 5 hooks (b) and (d))
 - **η_v.**
-  - Definition: the share of `v`'s target-type neighbours through the `M₂` meta-paths that have a different label (IMDB: the mean over genres of the binary disagreement).
-  - Nodes without such neighbours are excluded and counted.
-  - Quartiles of η_v are taken over the test targets of each dataset.
+  - Definition (amendment 9, 2026-11-20): the mean, over the `M₂` paths on which `v` has at least one labelled target-type neighbour, of the share of those neighbours (distinct, u ≠ v) with a different label (IMDB: per path, the mean over genres of the binary disagreement, then the mean over paths).
+  - Nodes with no labelled neighbour on any path are excluded and counted.
+  - η groups (amendment 10), not quartiles: G0 = {η_v = 0}; G1–G3 = tertiles of η_v over the test targets with η_v > 0. Every "η_v quartile" in V5 and V6 means an η group.
 - **F1, flips.** For every test node, per seed (1–10) and dataset, compare the predictions of `full` and `no_path_cells` (configuration (a)). Count wrong→right and right→wrong per η_v quartile, giving the mean and range over seeds.
 - **F2, margin.** Single-label datasets only (ACM, DBLP, Freebase); IMDB is reported in F1 only.
   - margin_v = distance from x*_v to the nearest other-class centroid − distance to its own-class centroid.
@@ -179,7 +179,7 @@ A level that cannot be reached under the 50 % cap is recorded as unreached with 
   - a linear probe (logistic regression, `C = 1`, fixed solver and max_iter, trained on the training targets and scored on the test targets), on x* and on h₀;
   - the within/between-class distance ratio on x* and on h₀ (single-label datasets).
 - **Two axes:**
-  1. Nodes: by η_v quartile on the four ablation datasets.
+  1. Nodes: by η group (G0–G3) on the four ablation datasets.
   2. Graphs: perturbation level, using the V3 runs (`full` and S2 on the targeted graphs).
 
 ### V7 — Timing, Q5 (`scripts/timing/`)
@@ -265,3 +265,7 @@ Review of Phase A (`card7` `f1f66ed`, evidence `84d7efe`). Phase A is accepted, 
    - HetSheaf and CSNN reference rows are marked "needs tuned config", like their perturbation rows.
    - These are manifest entries only. Nothing runs before `full` is tuned.
    - **Run budget:** about 910 small runs in total.
+
+## Amendments after the Phase B review (author, 2026-11-20; scripts only, before any run)
+9. **η_v = per-path mean.** The union reading (the earlier wording) degenerates on ACM: P–T–P gives a paper a median of 3,024 meta-path neighbours, so η_v took 7 distinct values and the top quartile held 1 node (report, job 17862). η_v is now the mean over the `M₂` paths of the per-path different-label share, as h = 1 − MLH averages over `M₂` (definition in V5). Change `mechanism_common.eta` only.
+10. **η groups instead of quartiles.** Value quartiles leave empty bins under ties (DBLP: 1,280 of 1,820 test authors have η_v = 0, bins 1,280 / 0 / 99 / 441); rank groups would split equal values arbitrarily. G0 = {η_v = 0}; G1–G3 = tertiles of η_v > 0 over the test targets, value bins (−∞, t1], (t1, t2], (t2, ∞); the same rule on every dataset; an empty or small G0 is reported with its count, never merged. Applies to F1, F2, F3, R1 (start node), R2 and the case-study tables.

@@ -52,7 +52,9 @@
 \maketitle
 
 \begin{abstract}
-Heterogeneous graphs are frequently heterophilic: two papers that share an author, for example, often belong to different fields, so a connection does not imply label agreement. Existing methods split the graph into one homogeneous view per meta-path schema and fuse the views. Once the views are built, all node pairs joined under the same schema are treated alike, and the intermediate entities and the particular meta-path instances that join a pair no longer take part in propagation. We ask whether heterophily can instead be handled on the original graph, by making meta-path instances part of the structure the model operates on. We propose \method{}, a sheaf neural network in which each meta-path instance, sampled by random walks without a meta-path list, is a face of the graph's own sheaf: its restriction maps are composed from the maps of its edges, so no parameters are added, and it is coupled to every node and edge it traverses, including the intermediate ones. Instances that share an edge interact through that edge's stalk. Node, edge and face stalks form one quadratic energy whose minimiser is unique for all parameter values and gives the node representations. On twelve node-classification benchmarks and eight link-prediction tasks spanning a range of heterophily, \res{}; controlled variants on identical sampled instances show \res{}.
+Learning on heterogeneous heterophilic graphs requires addressing two properties. First, heterogeneity: the graph has multiple node and edge types with distinct semantic roles. Second, heterophily: connected nodes may differ in their labels or features. Together, these properties make such graphs hard to learn. Meta-path schemas are an important tool in this setting, since they capture the semantics of composite relations between nodes. Existing methods, however, typically split the graph into one homogeneous view per meta-path schema and then fuse the views. As a result, both the structure of the original graph and the meta-path instances, as higher-order structure, are lost. We therefore propose \method{}, a sheaf neural network that learns on the original graph while preserving node types (heterogeneity), the features and class of each node (heterophily), and meta-path instances as higher-order graph structure (meta-path information). Across node-classification, link-prediction and graph-classification benchmarks and further analyses, \method{} achieves the strongest overall performance among the compared methods. These results support its effectiveness for heterogeneous heterophilic graph learning and indicate that meta-paths help and that the original graph structure should be preserved.
+
+
 \end{abstract}
 
 %======================================================================
@@ -62,7 +64,7 @@ Heterogeneous graphs are frequently heterophilic: two papers that share an autho
 
 Heterogeneous graphs are a common representation for modeling complex relational structures, such as citation networks \cite{liu2014meta} or social interactions \cite{singh2025overview}. Unlike homogeneous graphs, they contain multiple types of nodes and relations with distinct semantic roles \cite{sun2013mining}. Moreover, many of them are also heterophilic, meaning that adjacent nodes may have different labels or attributes, which makes similarity-based neighbor aggregation unreliable \cite{lin2025heterophily}. When both properties hold, learning is considerably harder than under either alone: an edge joins nodes of different types, which share neither a feature space nor a label space, so agreement can only be examined between target-type nodes connected through other nodes, and the nodes in between decide whether such a pair agrees. In Figure~\ref{fig:example}(a), papers P1 and P9 share the author A7 but belong to different fields, whereas a narrow subject such as S3 may link papers of one field. Yet methods designed for heterophily usually assume a single node type, and methods designed for heterogeneity usually assume homophily.
 
-Meta-paths are the standard way to express how such target-type nodes are connected. A meta-path schema such as \texttt{Paper-Author-Paper} (PAP) describes a composite relation that neither node expresses alone \cite{sun2011pathsim}, and a meta-path instance such as P1--A7--P9 is one concrete occurrence of it. Since meta-paths connect nodes whose labels are comparable, distinguish the semantics of different relations and make heterophily measurable \cite{lin2025heterophily}, they underlie most heterogeneous graph models \cite{wang2019han,fu2020magnn,yang2023sehgnn}.
+To handle the situation where nodes of the target type are linked only through nodes of other types, meta-paths are the standard way to express how they are connected. A meta-path schema such as \texttt{Paper-Author-Paper} (PAP) describes a composite relation that neither node expresses alone \cite{sun2011pathsim}, and a meta-path instance such as P1--A7--P9 is one concrete occurrence of it. Since meta-paths connect nodes whose labels are comparable, distinguish the semantics of different relations and make heterophily measurable \cite{lin2025heterophily}, they underlie most heterogeneous graph models \cite{wang2019han,fu2020magnn,yang2023sehgnn}.
 
 \begin{figure*}[t]
   \centering
@@ -71,13 +73,13 @@ Meta-paths are the standard way to express how such target-type nodes are connec
   \label{fig:example}
 \end{figure*}
 
-However, existing methods for heterogeneous heterophilic graphs address heterophily and meta-paths only indirectly: they decompose the graph into one view per meta-path schema and then fuse the views \cite{lu2026addressing,chen2025adaptive,li2025hetero2net,guo2023homophily,shen2025heterophily,wang2025homophily}, as shown in Figure~\ref{fig:example}(b). Propagation therefore runs on derived graphs, where pairs that follow the same schema differ only by their endpoints and the nodes and edges in between are ignored. Instance encoders such as MAGNN \cite{fu2020magnn} keep the intermediate nodes but write the result only to the target node, while sheaf-based models \cite{braithwaite2024heterogeneous} use edge information alone. These gaps lead to two research questions. \textbf{RQ1}: can a single model predict on the original graph while keeping the identity of each node type (heterogeneity), of each node's features and class (heterophily), and the whole graph structure? \textbf{RQ2}: given the same meta-path instances, does modelling them as a structural component of the graph let the model learn more than using them as features at their endpoints?
+However, existing methods for heterogeneous heterophilic graphs address heterophily and meta-paths only indirectly: they decompose the graph into one view per meta-path schema and then fuse the views \cite{lu2026addressing,chen2025adaptive,li2025hetero2net,guo2023homophily,shen2025heterophily,wang2025homophily}, as shown in Figure~\ref{fig:example}(b). Propagation therefore runs on derived graphs, where pairs that follow the same schema differ only by their endpoints and the nodes and edges in between are ignored, causing the loss of information from the original graph structure. Instance encoders such as MAGNN \cite{fu2020magnn} keep the intermediate nodes but write the result only to the target node, while sheaf-based models \cite{braithwaite2024heterogeneous} use edge information alone. These gaps lead to two research questions. \textbf{RQ1}: can a single model predict on the original graph while keeping the identity of each node type (heterogeneity), of each node's features and class (heterophily), and the whole graph structure? \textbf{RQ2}: given the same meta-path instances, does modelling them as a structural component of the graph let the model learn more than using them as features at their endpoints?
 
 To address these questions, we introduce the \textbf{Heterogeneous Heterophilic Sheaf Neural Network (\method{})}, which keeps the original graph and places a face above every sampled meta-path instance, so that an instance such as P1--A7--P9 acts on all of its nodes, A7 included, and on the edges between them. Each edge carries learned transformations that a face composes, so two papers linked through A7 are compared through A7's own transformations instead of being pulled toward the same representation, as heterophily requires. Our main contributions are as follows:
 \begin{enumerate}
 \item We propose \method{}, a model on the original heterogeneous graph that handles heterophily and meta-path information structurally, without splitting the graph by schema (RQ1).
 \item We couple meta-path instances structurally: each instance is a face whose maps are fixed by those of its edges, so every node of the instance, intermediate ones included, takes part in the calculation. We prove that faces add no constraint where the edges agree, that the representation is unique for every parameter value, and that rotations admit class-separating states under heterophily, and we test whether the coupling helps (RQ2).
-\item We evaluate on node classification, link prediction and graph classification over a wide range of heterophily and graph size, with controlled variants that isolate each component.
+\item We conduct experiment on several tasks including node classification, link prediction, and graph classification with wide range of heterophily, graph size, and characteristics to ensure the model generalizability and scalability.
 \end{enumerate}
 
 
@@ -87,10 +89,7 @@ To address these questions, we introduce the \textbf{Heterogeneous Heterophilic 
 \label{sec:background}
 
 \subsection{Heterogeneous Graph and Meta-Paths}
-A heterogeneous graph is a tuple $G=(V,E,\phi,\psi)$, where $V$ and $E$ are the node and edge sets, $\phi:V\rightarrow\mathcal{T}$ assigns each node a type, and $\psi:E\rightarrow\mathcal{R}$ assigns each edge a relation type. The graph is heterogeneous when $|\mathcal{T}|>1$ or $|\mathcal{R}|>1$; it reduces to a homogeneous graph when $|\mathcal{T}|=|\mathcal{R}|=1$ \cite{lu2026addressing}. Benchmarks often store each fact twice, once per direction; we keep one oriented edge per fact.
-
-
-A meta-path schema of length $\ell$ is a typed relation sequence
+A heterogeneous graph is a tuple $G=(V,E,\phi,\psi)$, where $V$ and $E$ are the node and edge sets, $\phi:V\rightarrow\mathcal{T}$ assigns each node a type, and $\psi:E\rightarrow\mathcal{R}$ assigns each edge a relation type, with $|\mathcal{T}|>1$ or $|\mathcal{R}|>1$ \cite{lu2026addressing}. A meta-path schema of length $\ell$ is a typed relation sequence
 \begin{equation}
   \pi:\;
   t_0 \xrightarrow{r_1} t_1 \xrightarrow{r_2}\cdots
@@ -98,63 +97,62 @@ A meta-path schema of length $\ell$ is a typed relation sequence
   \qquad t_i\in\mathcal{T},\; r_i\in\mathcal{R},
   \label{eq:schema}
 \end{equation}
-which specifies a composite relation between its endpoint types \cite{sun2011pathsim}. A path instance is an ordered sequence $f=(v_0,e_1,v_1,\ldots,e_\ell,v_\ell)$ of nodes and edges with $\phi(v_i)=t_i$ and $\psi(e_i)=r_i$. Thus, $\pi$ describes a type-level pattern, whereas $f$ identifies one occurrence of that pattern in the observed graph; we call $v_1,\ldots,v_{\ell-1}$ the intermediate nodes of $f$. For example, PAP is a schema and P1--A7--P9 is one of its instances, with A7 as its intermediate node.
+which specifies a composite relation between its endpoint types \cite{sun2011pathsim}. A path instance is an ordered sequence $f=(v_0,e_1,v_1,\ldots,e_\ell,v_\ell)$ of nodes and edges with $\phi(v_i)=t_i$ and $\psi(e_i)=r_i$, and $v_1,\ldots,v_{\ell-1}$ are its intermediate nodes.
 
-Existing work ignores meta-paths and lets message passing identify the useful relations, through relation-specific transformations \cite{schlichtkrull2018rgcn,lv2021hgb}, type-aware attention \cite{hu2020heterogeneous}, or sampled typed neighbourhoods \cite{zhang2019heterogeneous,mao2023hinormer}. Although this spares the user from specifying schemas, the connection between two target nodes is never represented explicitly: it emerges only through stacked layers, where it is mixed with the signals of all other neighbours of the nodes in between. Meta-paths make such connections explicit.
-
-Some heterogeneous graph neural networks use meta-path schemas to decide which nodes exchange messages. HAN \cite{wang2019han} learns attention over the neighbours that each schema links to a target node, whereas SeHGNN \cite{yang2023sehgnn} and LMSPS \cite{li2024lmsps} precompute neighbour averages per schema, with LMSPS also searching for the useful ones. These models reduce an instance to a link between its endpoints. Instance encoders are the exception: they retain the intermediate nodes, but only to compute a message for the target node (MAGNN \cite{fu2020magnn}, MECCH \cite{fu2024mecch}) or a weight on the endpoint link (MF2Vec \cite{kim2024mf2vec}).In every case, an instance informs only its endpoints and not the intermediate nodes it traverses, so the entities that determine whether two target nodes agree are not updated by the instances that pass through them. Consequently, none of these methods uses meta-path instances as part of the structure on which a single model operates.
-
+Most heterogeneous graph neural networks either let message passing identify the useful relations \cite{schlichtkrull2018rgcn,lv2021hgb,hu2020heterogeneous,zhang2019heterogeneous,mao2023hinormer}, so that the connection between two target nodes emerges only through stacked layers, or use schemas to decide which nodes exchange messages \cite{wang2019han,yang2023sehgnn,li2024lmsps}; both reduce an instance to a link between its endpoints. Instance encoders retain the intermediate nodes, but only to compute a message or a weight for the endpoints \cite{fu2020magnn,fu2024mecch,kim2024mf2vec}. In every case, the intermediate nodes that determine whether two target nodes agree are not updated by the instances that pass through them.
 
 \subsection{Heterophily}
-Heterophily is the tendency of connected nodes in a graph to be dissimilar from one another. It is typically measured in two ways: through node labels or node features. First, label heterophily measures the tendency of connected nodes to belong to different classes.  In a heterogeneous graph, labels are usually comparable only between nodes of the target type, so it is measured on the graphs induced by meta-paths. Let $\mathcal{P}_2$ be the set of length-two schemas from the target type to itself and $G_p$ the graph that $p\in\mathcal{P}_2$ induces on target nodes. We use two label-based measures. The first is the $\mathcal{H}^2$ index of H2GB \cite{lin2025heterophily},
-\begin{equation}
-  \mathcal{H}^2(G)=\frac{1}{|\mathcal{P}_2|}\sum_{p\in\mathcal{P}_2}\bigl(1-h_{\mathrm{adj}}(G_p)\bigr),
-  \label{eq:h2}
-\end{equation}
-where $h_{\mathrm{adj}}$ is the adjusted homophily of Platonov et al.~\shortcite{platonov2023characterizing}, which corrects edge homophily for class imbalance; values near $0$ indicate homophily, and values near or above $1$ indicate heterophily. The second is the metapath-based label heterophily (MLH) \cite{li2025hetero2net}, the share of edges of $G_p$ whose endpoints have different labels, averaged over $\mathcal{P}_2$. Hetero$^2$Net reports the complementary homophily share, so its published values correspond to $1-\mathrm{MLH}$. 
-
-Second, feature heterophily measures how different the attributes of connected nodes are. It needs no labels and therefore also applies beyond node classification. We use the metapath-based Dirichlet energy (MDE) \cite{li2025hetero2net}, which averages over the edges $(u,v)$ of each $G_p$ the squared distance $\tfrac14\norm{x_u/\sqrt{|N_u|}-x_v/\sqrt{|N_v|}}^2$ between the node features of the two endpoints, each scaled by the square root of its degree, where $N_u$ is the neighbourhood of $u$ in $G_p$, and then averages over $\mathcal{P}_2$. A larger MDE indicates stronger heterophily.
-
-There are several models assessing heterophilic heterogeneous graphs. Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing} and LatGRL \cite{shen2025heterophily} first build one homogeneous graph per schema, induced or latent, and handle heterophily on it. Heterophily is then judged on derived graphs rather than on the observed one, and two pairs joined by the same schema are told apart only by their endpoints. H2G-former \cite{lin2025heterophily} works on the original graph with attention restricted to $k$-hop neighbourhoods. However, meta-paths enter only its heterophily measure, not the model.
+Heterophily is the tendency of connected nodes to be dissimilar in their labels or features. Since labels are usually comparable only between nodes of the target type, it is measured on the graphs induced by meta-paths. Let $\mathcal{P}_2$ be the set of length-two schemas from the target type to itself, and $G_p=(V_p,E_p)$ the graph that $p\in\mathcal{P}_2$ induces on target nodes. We use the $\mathcal{H}^2$ index of H2GB \cite{lin2025heterophily} and the metapath-based label heterophily (MLH) and Dirichlet energy (MDE) of Hetero$^2$Net \cite{li2025hetero2net}:
+\begin{align}
+  \mathcal{H}^2&=\frac{1}{|\mathcal{P}_2|}\sum_{p\in\mathcal{P}_2}\bigl(1-h_{\mathrm{adj}}(G_p)\bigr),
+  \label{eq:h2}\\
+  \mathrm{MLH}&=\frac{1}{|\mathcal{P}_2|}\sum_{p\in\mathcal{P}_2}\frac{1}{|E_p|}\sum_{(u,v)\in E_p}\mathbb{1}[y_u\neq y_v],
+  \label{eq:mlh}\\
+  \mathrm{MDE}&=\frac{1}{|\mathcal{P}_2|}\sum_{p\in\mathcal{P}_2}\frac{1}{4|E_p|}\sum_{(u,v)\in E_p}\Bigl\lVert\tfrac{x_u}{\sqrt{|N_u|}}-\tfrac{x_v}{\sqrt{|N_v|}}\Bigr\rVert^2,
+  \label{eq:mde}
+\end{align}
+where $h_{\mathrm{adj}}$ is the adjusted homophily of Platonov et al.~\shortcite{platonov2023characterizing}, which corrects edge homophily for class imbalance, $y_u$ and $x_u$ are the label and features of $u$, and $N_u$ is its neighbourhood in $G_p$. Larger values indicate stronger heterophily, and MDE needs no labels. Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing} and LatGRL \cite{shen2025heterophily} handle heterophily on one homogeneous graph per schema, so two pairs joined by the same schema are told apart only by their endpoints, while H2G-former \cite{lin2025heterophily} works on the original graph but uses meta-paths only to measure heterophily.
 
 \subsection{Cellular Sheaves on Graphs}
-Plain neighbour aggregation pulls every node toward the average of its neighbours, so repeated aggregation makes node representations similar and erases their individual characteristics. Under heterophily, where neighbours tend to differ in features and labels, this is particularly harmful. Cellular sheaves address it by letting each edge compare its two endpoints through learned maps instead of requiring them to be equal, so that a node can keep its own characteristics while remaining consistent with its neighbours \cite{hansen2020sheaf,bodnar2022neural}.
-
-A cellular sheaf $\mathcal{F}$ on a graph assigns a vector space, or \emph{stalk}, to every node and edge, and a linear restriction map $F_{v\inc e}:\mathcal{F}(v)\rightarrow\mathcal{F}(e)$ to every incident pair. We call these maps \emph{edge maps}: $F_{v\inc e}$ expresses the state of node $v$ in the space of edge $e$. With $d$-dimensional stalks, the coboundary compares the two endpoints of an oriented edge $e=(u\rightarrow v)$ after both are mapped into the edge stalk:
+Plain neighbor aggregation pulls every node toward the average of its neighbors, which erases each node’s individual characteristics. Under heterophily, this is particularly harmful. To preserve each node's locality and help it learn structural information, cellular sheaves address this issue by letting each edge compare its two endpoints through learned maps instead of requiring them to be equal, so that a node can keep its own characteristics while remaining consistent with its neighbors \cite{hansen2020sheaf,bodnar2022neural}. A cellular sheaf $\mathcal{F}$ on a graph assigns a vector space, or \emph{stalk}, to every node and edge, and a linear restriction map $F_{v\inc e}:\mathcal{F}(v)\rightarrow\mathcal{F}(e)$, an \emph{edge map}, to every incident pair. With $d$-dimensional stalks, the coboundary compares the two endpoints of an oriented edge $e=(u\rightarrow v)$ in the edge stalk:
 \begin{equation}
   (\delta x)_e = F_{v\inc e}x_v-F_{u\inc e}x_u .
   \label{eq:coboundary}
 \end{equation}
-The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $x^{\transpose}\Delta_0x=\norm{\delta x}^2$; when all maps are identities, it recovers the graph Laplacian. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural}, which has led to numerous extensions \cite{barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}. A sheaf is not tied to a graph, however: it can be placed on any partially ordered set, assigning a vector space to each element and a linear map to each pair $a\le b$, such that the maps compose along chains \cite{curry2014sheaves}. We place it on the incidence poset of nodes, edges and faces, which is not a cell complex because a face is not closed. Some models look beyond edges and learn their higher-order maps freely such as using hypergraph \cite{duta2023sheafhyper} or cell-complex and topological networks \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}. Nevertheless, in none of them are the maps of a higher-order cell determined by the edge maps of the edges it contains, which is the property our construction adds (Section~\ref{sec:method}).
+The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delta x}^2$ and recovers the graph Laplacian when all maps are identities. Sheaf neural networks diffuse through such learned edge maps \cite{hansen2020sheaf,bodnar2022neural,barbero2022sheaf,fiorini2025sheaves,ribeiro2026cooperative}, including HetSheaf for heterogeneous graphs \cite{braithwaite2024heterogeneous}. A sheaf can also be placed on any partially ordered set, with linear maps that compose along chains \cite{curry2014sheaves}; we place it on the incidence poset of nodes, edges and faces, which is not a cell complex because a face is not closed. Models that look beyond edges, on hypergraphs \cite{duta2023sheafhyper} or cell complexes \cite{bodnar2021cwn,hajij2022tdl,hajij2025ctnn}, learn their higher-order maps freely; in none of them are these maps determined by the edge maps, which is the property our construction adds (Section~\ref{sec:method}).
 
 \section{Methodology}
 \label{sec:method}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b8.pdf}
-  \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$; an MLP over $[h_u,h_v,\zeta_r]$ and the relation's $R_r,U_r$ give every edge its rotations $F_{v\inc e}$ into the edge stalk $s_e$. (2) Random walks give faces such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 (shaded), whose maps are composed from the edge maps; a scorer reads each face and gives its weight $\beta_f$. (3) Node--edge, edge--face and node--face couplings form one energy, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss reaches them through the solve.}
+  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b12.pdf}
+  \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$. The relation $r$ of a directed edge selects a row of two learned per-relation tables, the relation embedding $\zeta_r$ and the frame $R_r$ with subspace $U_r$; an MLP over $[h_u,h_v,\zeta_r]$ gives the edge weight $a_e$ and $C_e$, which with $R_r,U_r$ forms the maps $F_{v\inc e}$ into the edge stalk $s_e$. (2) Sampled random walks (shaded) become faces (triangles) such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4, linked to every node and edge they traverse, with maps composed from the edge maps; the scorer $g$ reads the encodings and relation embeddings along a walk and gives its face the weight $\beta_f$. (3) The three couplings form one energy $E$, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss updates the parameters listed beside each arrow through the solve.}
   \label{fig:pipeline}
 \end{figure*}
-Given a heterogeneous graph with type-dependent node features $x^{\mathrm{raw}}_v\in\R^{d_{\phi(v)}}$ (types without features receive a learned vector per node) and no list of meta-path schemas, we learn a predictor $p_\theta(o;G)$ for a target node (node classification) or a typed node pair (link prediction). \method{} does so in three steps (Figure~\ref{fig:pipeline}): a sheaf on the edges of the original graph (Section~\ref{sec:maps}), faces of the same sheaf on sampled meta-path instances (Section~\ref{sec:faces}), and one anchored diffusion over nodes, edges and faces, read by a prediction head (Section~\ref{sec:prop}).
+Given a directed heterogeneous graph with no list of meta-path schemas, where \(X^{\mathrm{raw}}=\{x_v^{\mathrm{raw}}\}_{v\in V}\) contains type-dependent node features with \(x_v^{\mathrm{raw}}\in\R^{d_{\phi(v)}}\), \method{}, a supervised learning model, learns to predict in three steps (Figure~\ref{fig:pipeline}): a sheaf on the edges of the original graph (Section~\ref{sec:maps}), faces of the same sheaf on sampled meta-path instances (Section~\ref{sec:faces}), and one anchored diffusion over nodes, edges and faces, read by a prediction head (Section~\ref{sec:prop}). Together, \method{} treats meta-path instances as part of the graph structure and retains the relational structure of each sampled instance, intermediate nodes included, and handles heterophily and meta-path information within the original graph.
 
 
 \subsection{Edge Sheaf}
 \label{sec:maps}
-Nodes of different types must be compared by the same maps, so each node is first encoded into a shared $d$-dimensional stalk space, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})$, with type-specific $W,b$ and a type embedding $q$. An edge $e=(u\xrightarrow{r}v)$ then compares its two endpoints in its own stalk, as in Equation~\eqref{eq:coboundary}. Under heterophily the maps must let neighbours agree without being equal, and under heterogeneity they must depend on the relation and on who the endpoints are. We therefore make each map a rotation, composed of a frame shared by all edges of relation $r$ and a rotation of the edge itself:
+The first step builds a sheaf on the edges of the original graph, whose restriction maps decide how two neighbours are compared. Each node is encoded into a shared $d$-dimensional stalk space, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})\in\R^d$, with type-specific $W_t\in\R^{d\times d_t}$ and $b_t\in\R^d$ and a learned type embedding $q_t\in\R^d$, and each relation $r$ has a learned embedding $\zeta_r\in\R^{d_r}$. These encodings and relation embeddings then determine the maps.
+
+For an oriented edge $e=(u\xrightarrow{r}v)$, the maps should let neighbours of different classes agree in the edge stalk without being equal, and they should depend on both the relation and the endpoints. We use rotations in $\mathrm{SO}(d)$, which align a neighbour with a node without shrinking or amplifying it and compose along paths, as the faces of Section~\ref{sec:faces} require. Each map combines a rotation shared by all edges of the relation with a rotation specific to the edge:
 \begin{equation}
 \begin{aligned}
   F_{u\inc e}&=I,\qquad F_{v\inc e}=R_r\exp\bigl(U_rC_eU_r^{\transpose}\bigr),\\
-  C_e&=\operatorname{MLP}([h_u,h_v,\zeta_r]),
+  C_e&=\operatorname{MLP}([h_u,h_v,\zeta_r]).
 \end{aligned}
   \label{eq:maps}
 \end{equation}
-where $R_r\in\mathrm{SO}(d)$ is a learned frame, $U_r\in\R^{d\times4}$ has orthonormal columns that span a learned subspace of $r$, $\zeta_r$ is a relation embedding, and $C_e$ is a skew-symmetric $4\times4$ matrix, so the rotation of the edge acts inside that subspace. Since the edge stalk is free, only the relative map $F_{u\inc e}^{\transpose}F_{v\inc e}$ matters, which is why $u$ needs no frame; a relation that is its own reverse has no frame and splits the rotation evenly, $\exp(\mp U_rC_eU_r^{\transpose}/2)$, with $C_e$ changing sign when the endpoints are swapped. We keep the maps in $\mathrm{SO}(d)$ rather than in the full orthogonal group or among diagonal or general matrices: a reflection would need a discrete choice per edge that gradients cannot make, for $d\ge2$ a rotation already takes any vector to any other of the same norm, and the face maps of Section~\ref{sec:faces} rely on $F^{\transpose}=F^{-1}$. Moreover, because the MLP reads both endpoints, the maps of the edges P1--A7 and A7--P9 depend on who A7 is, and so does every face through A7; maps that depend on the relation alone cannot express this. The same MLP gives each edge a positive weight $a_e$. Maps and weights read the encodings alone, so graph structure reaches the node states only through the diffusion of Section~\ref{sec:prop}.
+The frame $R_r\in\mathrm{SO}(d)$, learned once per relation from all its edges, captures how $r$ relates its endpoints in general, e.g., a paper to its author. The term $\exp(U_rC_eU_r^{\transpose})$ adjusts it to the edge within a learned four-dimensional subspace $U_r\in\R^{d\times4}$ (orthonormal columns), where $C_e$ is a skew-symmetric $4\times4$ matrix predicted from $[h_u,h_v,\zeta_r]\in\R^{2d+d_r}$; hence P1--A7 and A7--P9 are compared differently depending on who A7 is. Only the target side needs a map: rotations preserve length, so $\norm{F_{v\inc e}x_v-F_{u\inc e}x_u}=\norm{F_{u\inc e}^{\transpose}F_{v\inc e}x_v-x_u}$, and any pair of maps gives the same energy as the identity on the source and one rotation on the target. Finally, the same MLP gives each edge a positive weight $a_e$; maps and weights are computed once from the encodings $h$ before diffusion.
 
 \subsection{Meta-Path Faces}
 \label{sec:faces}
-Faces come from random walks, not from a meta-path list. From each anchor, a node of the target type or of either endpoint type of the target relation, we draw $n$ walks; a walk picks its length uniformly in $\{2,\ldots,\ell_{\max}\}$ and, at each step, a relation and then an unvisited neighbour, both uniformly. A walk and its reverse give the same instance $f$, weighted by $m_f$, the number of walks that produced it divided by $n$. The weighted sum of face terms below is then an unbiased estimate of its expectation over walks (Appendix~\ref{app:proofs}), and the cost grows with the number and length of the walks rather than with the number of schemas.
+An edge relates only two neighbours, whereas the semantics of a meta-path such as P--A--P reside in the whole instance: two papers are related through a particular author. The second step therefore adds meta-path instances to the sheaf as faces, in which all nodes and edges of an instance, including the intermediate ones, meet in a common stalk.
 
-Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, a new element placed above its nodes and edges in the incidence poset. It is not closed, so no edge joins $v_0$ and $v_\ell$. A face has a stalk $z_f$, but its restriction maps are not learned; instead, they are composed from the edge maps along the path, starting from $F_{v_0\inc f}=I$:
+\paragraph{Sampling instances.} Instances are sampled by random walks on the original graph, which removes the need for a predefined list of meta-paths. The walks start from anchor nodes, namely the nodes of the target type or of an endpoint type of the target relation. From each anchor, we draw $n$ walks whose lengths are uniform in $\{2,\ldots,\ell_{\max}\}$; at each step, a walk selects a relation uniformly and then an unvisited neighbour along it uniformly. A walk and its reverse yield the same instance $f$, whose sampling weight $m_f>0$ is the fraction of walks that produced it. The weighted sum over faces is therefore an unbiased estimate of its expectation over walks (Appendix~\ref{app:proofs}), and the cost scales with the number and length of the walks rather than with the number of schemas.
+
+\paragraph{Faces and their maps.} Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, an element placed above its nodes and edges in the incidence poset, with a stalk $z_f\in\R^d$. The face is not closed, so no edge joins $v_0$ and $v_\ell$. Its restriction maps are not learned; they are composed from the edge maps along the path, starting from $F_{v_0\inc f}=I$:
 \begin{equation}
 \begin{aligned}
   F_{e_i\inc f}&=F_{v_{i-1}\inc f}\,F_{v_{i-1}\inc e_i}^{\transpose},\\
@@ -162,28 +160,30 @@ Each instance $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$ becomes a face, a new element p
 \end{aligned}
 \label{eq:forced}
 \end{equation}
-The first line takes the stalk of $e_i$ back to the frame of $v_{i-1}$ and on to the face; the second carries the frame on to $v_i$. Nodes, edges and faces then carry states $x_v$, $s_e$ and $z_f$, collected in $Y=(x,s,z)$, and one energy asks every comparable pair to agree after its maps:
+Each map transports an element along the path into the frame of $v_0$, so the face represents the whole instance in a single frame, including the role of A7 between P1 and P9. Since a composition of rotations is a rotation, faces introduce no map parameters, and the maps on nodes, edges and faces form one sheaf (Proposition~\ref{prop:forced}).
+
+\paragraph{Face weights.} Instances differ in how often they are sampled and in how informative they are. Each face therefore carries a positive weight
+\begin{equation}
+  \beta_f=w_f\,m_f,\qquad w_f=\exp\bigl(10\tanh(g(\xi_f)/10)\bigr),
+  \label{eq:weight}
+\end{equation}
+where $m_f$ is the sampling weight and $w_f$ the learned trust in the instance. The scorer $g$, an MLP for each path length, reads $\xi_f\in\R^{(\ell+1)d+\ell d_r}$, the encodings and relation embeddings along the instance; hence two P--A--P instances through different authors may receive different weights. The $\tanh$ bounds the weights to a fixed range during training.
+
+
+\subsection{Anchored Diffusion and Prediction}
+\label{sec:prop}
+The last step turns the sheaf into node representations. Rather than stacking message-passing layers, \method{} lets nodes, edges and faces settle into the state that best satisfies all their comparisons, anchored at the node encodings. A prediction head then reads this state.
+
+\paragraph{One energy.} The node, edge and face states $x_v,s_e,z_f\in\R^d$ are collected in $Y=(x,s,z)$, and a single energy requires every comparable pair to agree after their maps:
 \begin{equation}
 \begin{aligned}
-  E(Y)=&\tfrac12\sum_{e}a_e\!\!\sum_{v\in e}\!\norm{F_{v\inc e}x_v-s_e}^2\\
-  +&\tfrac12\sum_{f}\beta_f\Bigl[\sum_{e\in f}\norm{F_{e\inc f}s_e-z_f}^2+\!\sum_{v\in f}\norm{F_{v\inc f}x_v-z_f}^2\Bigr].
+  E(Y)={}&\tfrac12\sum_{e}a_e\sum_{v\in e}\norm{F_{v\inc e}x_v-s_e}^2\\
+  &+\tfrac12\sum_{f}\beta_f\sum_{e\in f}\norm{F_{e\inc f}s_e-z_f}^2\\
+  &+\tfrac12\sum_{f}\beta_f\sum_{v\in f}\norm{F_{v\inc f}x_v-z_f}^2.
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum is the sheaf energy of Equation~\eqref{eq:coboundary} written with edge states; the second ties each face to its edges and to all of its nodes, intermediate ones included. The face weight $\beta_f=w_fm_f$ multiplies the sampling weight by a learned score $w_f=\exp\bigl(10\tanh(g(\xi_f)/10)\bigr)$, where $g$ reads the encodings of all nodes of the instance and its relation embeddings. Two instances of one schema can thus differ in influence, and the $\tanh$ keeps the ratio of any two scores below $e^{20}$ however long training runs.
-
-\begin{proposition}[Forced maps]\label{prop:forced}
-With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$: faces add no constraint where the edges agree.
-\end{proposition}
-\begin{proof}[Proof sketch]
-Substituting Equation~\eqref{eq:forced} and $F^{\transpose}F=I$ shows that every chain $v<e<f$ commutes. If $\delta x=0$, setting $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$ makes every face term vanish by induction along the path. Conversely, every term of $E$ is a square with a positive weight, so $E=0$ forces $\delta x=0$ and fixes $s$ and $z$ (Appendix~\ref{app:proofs}).
-\end{proof}
-Freely learned face maps lack this property and in general remove consistent states of the graph. Next, consider the instances $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 of Figure~\ref{fig:example}(c), which share the edge $e=$ P1--A7. Face $f$ pulls P1, A7 and P9 toward $z_f$, $f'$ does the same for P1, A7 and P4, and both are compared with the one edge state $s_e$. With $L=\nabla^2E$ and $D_e=2a_e+\sum_{h\ni e}\beta_h$, this coupling is exact:
-
-\begin{proposition}[Coupling]\label{prop:reach}
-(i) For every node $v$ of face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For two faces $f,f'$ that contain the edge $e$, eliminating $s_e$ adds to the $(z_f,z_{f'})$ block the coupling $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face $f$ is coupled to an endpoint of an edge $e$ that lies on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
-\end{proposition}
-The proof is a block computation followed by a Schur complement over $s_e$ (Appendix~\ref{app:proofs}). Part (i) lets a face reach each of its nodes, A7 included, directly; part (ii) lets instances that share an edge inform each other; and part (iii) shows why the node--face term is needed, since without it a face, however trusted, could never pull a node harder than its own edges. Part (i) alone would not distinguish a face from a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}; the forced maps and part (ii) do.
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:example}(c), are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}).
 
 \begin{table*}[t]
   \centering
@@ -225,46 +225,6 @@ The proof is a block computation followed by a Schur complement over $s_e$ (Appe
   \end{tabular}
 \end{table*}
 
-\subsection{Anchored Diffusion and Prediction}
-\label{sec:prop}
-Let $D$ be the block diagonal of $L$ and $\hat L=D^{-1/2}LD^{-1/2}$, so that all stalks are on one scale and influence does not grow with degree. Only nodes have an input, the encoding $h$, and diffusion is the minimiser of the energy anchored at it:
-\begin{equation}
-  Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
-  \label{eq:solve}
-\end{equation}
-Each node thus stays close to its encoding while the energy is small, and the one learned scalar $\tau$ sets the balance. Eliminating the edge and face states exactly gives a node operator $\hat S$.
-\begin{proposition}[Unique solution]\label{prop:unique}
-For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
-\end{proposition}
-\begin{proof}[Proof sketch]
-There are no node--node terms, so the node block of $\hat L$ is $I$, and the block of edge and face states is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ therefore lies between $0$ and $I$, and the objective is strictly convex in $x$.
-\end{proof}
-The node-level map is a resolvent, the form of personalised PageRank propagation \cite{gasteiger2019appnp}; what is new is the operator $\hat S$, which carries the edge maps and the faces. We solve Equation~\eqref{eq:solve} with conjugate gradients and differentiate through its solution implicitly, so memory does not grow with the number of iterations.
-
-A head then reads the propagated states: $\hat y_v=\operatorname{MLP}(x^\star_v)$ for a node, and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters, namely the encoder, the edge maps, the face scorer $g$, $\tau$ and the head, are trained end to end by one task loss, $\theta^\star=\arg\min_\theta\frac1{|O_{\mathrm{tr}}|}\sum_{o\in O_{\mathrm{tr}}}\mathcal{L}(p_\theta(o;G),y_o)$, whose gradient passes through the solve. The head needs no separate copy of $h_v$: the anchor already keeps each node's encoding in $x^\star$, and since $h-x^\star=\tau\hat Sx^\star$, adding $h$ would only pass the disagreement left after diffusion. A single propagated state can suffice under heterophily because the maps are rotations:
-\begin{proposition}[Class-separating states]\label{prop:separate}
-For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
-\end{proposition}
-\begin{proof}[Proof sketch]
-Place the class vectors on a circle in a plane $P$, take $R_r=I$ and let every $U_r$ contain $P$. Choosing $C_e$ as the rotation of $P$ by the angle between the classes of $u$ and $v$ makes every edge consistent; Proposition~\ref{prop:forced} extends this to the faces, and the solve returns such an encoding unchanged by Proposition~\ref{prop:unique} (Appendix~\ref{app:proofs}).
-\end{proof}
-Nodes of different classes can therefore agree after their maps without being equal; this is existence only, and edge-level sheaf models share the mechanism. Together with Proposition~\ref{prop:unique}, it places both regimes in one model:
-\begin{proposition}[Two regimes]\label{prop:regimes}
-(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$, where $\hat S_I$ is the normalised Laplacian of the weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form, which pulls neighbouring encodings together. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
-\end{proposition}
-\begin{proof}[Proof sketch]
-With identity maps every face map is $I$ by Equation~\eqref{eq:forced}, so eliminating edge and face states leaves a weighted graph Laplacian; (ii) is Proposition~\ref{prop:separate}.
-\end{proof}
-Which regime an edge takes is learned, and we measure it rather than claim it. What faces add is a comparison that no edge expresses, since P1 and P9 are compared through A7 with A7's own maps. Edge and face states have no input features, so they change how nodes interact but bring no new information; whether this improves prediction is the empirical question of Section~\ref{sec:discussion}.
-
-
-%======================================================================
-\section{Experiments}
-\label{sec:experiments}
-We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data} (Table~\ref{tab:graph-cls}).
-
-
-
 \begin{table*}[t]
   \centering
   \caption{Link prediction, ROC-AUC (MRR in Appendix~\ref{app:data}), mean over five seeds.}
@@ -286,6 +246,58 @@ We evaluate node classification and link prediction; graph classification, whose
     \bottomrule
   \end{tabular}
 \end{table*}
+
+\paragraph{Anchored solve.} Only nodes have an input, the encoding $h$, so the representation is the state of lowest energy anchored at $h$. With $L=\nabla^2E$, $D$ its block diagonal, $D_x$ the node part of $D$, and $\hat L=D^{-1/2}LD^{-1/2}$, which prevents influence from growing with degree,
+\begin{equation}
+  Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
+  \label{eq:solve}
+\end{equation}
+The anchor keeps each node close to its own encoding, the energy requires comparable pairs to agree, and a learned scalar $\tau>0$ balances the two. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone. The representation is its node part (Proposition~\ref{prop:unique}),
+\begin{equation}
+  x^\star=(I+\tau\hat S)^{-1}h,
+  \label{eq:xstar}
+\end{equation}
+a personalised PageRank propagation \cite{gasteiger2019appnp} in which $\hat S$ carries the edge maps and the faces.
+
+\paragraph{Prediction.} A head reads $x^\star$ alone, as the anchor already retains each node's encoding: an MLP of $x^\star_v$ for a node and a decoder of $(x^\star_u,x^\star_v)$ for a link. All parameters are trained end to end by one task loss through the solve.
+
+\subsection{Theoretical Properties}
+\label{sec:theory}
+Three properties support the design: faces never conflict with the edges, the representation is well defined, and rotations admit class-separating states under heterophily. Two further results are proved in Appendix~\ref{app:proofs}.
+
+\begin{proposition}[Forced maps]\label{prop:forced}
+With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
+\end{proposition}
+\begin{proof}
+By Equation~\eqref{eq:forced} and $F^{\transpose}F=I$, $F_{e_i\inc f}F_{v\inc e_i}=F_{v\inc f}$ for both endpoints $v$ of $e_i$, so the maps compose. If $\delta x=0$, take $s_e=F_{v\inc e}x_v$ and $z_f=x_{v_0}$; by induction along the path every map sends its state to $z_f$, so $E=0$. Conversely, $E$ is a sum of positively weighted squares, so $E=0$ forces $F_{u\inc e}x_u=s_e=F_{v\inc e}x_v$, that is $\delta x=0$, and fixes $s$ and $z$.
+\end{proof}
+Faces therefore add meta-path information without restricting what the edge sheaf can represent: they act only where the edges disagree.
+
+\begin{proposition}[Unique solution]\label{prop:unique}
+For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
+\end{proposition}
+\begin{proof}
+$E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge--face block is positive definite because $a_e,\beta_f>0$. Its Schur complement $\hat S$ thus satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex in $x$, and $I+\tau\hat S$ has eigenvalues in $[1,1+\tau]$.
+\end{proof}
+The solve is therefore well defined and well conditioned for every parameter value, so training never meets a degenerate representation.
+
+\begin{proposition}[Class-separating states]\label{prop:separate}
+For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
+\end{proposition}
+\begin{proof}
+Place $a_k$ at angles $\alpha_k=2\pi k/K$ on a circle in a plane $P$, set $R_r=I$, let every $U_r$ contain $P$, and let $C_e$ rotate $P$ by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $\exp(U_rC_eU_r^{\transpose})=I+U_r(e^{C_e}-I)U_r^{\transpose}$ acts only on $P$, $F_{v\inc e}a_{y(v)}=a_{y(u)}$, so $\delta x=0$ and, by Proposition~\ref{prop:forced}, the state $Y$ has zero energy. Hence $\hat LD^{1/2}Y=0$, so $x^\star=h$ by Proposition~\ref{prop:unique}, and $\langle a_k,x^\star_v\rangle\propto\cos(\alpha_k-\alpha_{y(v)})$ peaks at $k=y(v)$.
+\end{proof}
+Heterophily therefore needs no separate mechanism: rotations let nodes of different classes agree without being equal, whereas identity maps reduce the solve to smoothing (Proposition~\ref{prop:regimes}, Appendix~\ref{app:proofs}). The result shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
+
+
+%======================================================================
+\section{Experiments}
+\label{sec:experiments}
+We evaluate node classification and link prediction; graph classification, whose node types are derived from labels, is reported in Appendix~\ref{app:data} (Table~\ref{tab:graph-cls}).
+
+
+
+
 
 \paragraph{Datasets.} Node classification uses four HGB benchmarks \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase (24\%/6\%/70\% splits), and eight H2GB benchmarks \cite{lin2025heterophily}, ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, IEEE-CIS-G, H-Pokec and PDNS, with their official loaders and splits. Together they span a wide range of heterophily (Table~\ref{tab:node-cls}, top). Link prediction uses the eight tasks of Table~\ref{tab:link-pred}; held-out edges are removed from the message graph and from every sampled instance, and a leakage audit precedes every result (Appendix~\ref{app:data}).
 
@@ -356,19 +368,31 @@ We asked whether heterophily can be handled on the original heterogeneous graph 
 \appendix
 \section{Proofs}
 \label{app:proofs}
-Every edge map lies in $\mathrm{SO}(d)$, so the maps of Equation~\eqref{eq:forced} do too and $F^{\transpose}F=I$.
+This appendix states and proves Propositions~\ref{prop:reach} and~\ref{prop:regimes}, gives the full construction behind Proposition~\ref{prop:separate}, and adds the sampling guarantee and two remarks. Propositions~\ref{prop:forced} and~\ref{prop:reach} and the sampling guarantee concern $E$ and $L$ before normalisation; in $\hat L$, a state that is consistent in $E$ is scaled by $D^{1/2}$.
 
-Propositions~\ref{prop:forced} and~\ref{prop:reach} and the sampling guarantee concern $E$ and $L$ before normalisation; in $\hat L$, a state that is consistent in $E$ is scaled by $D^{1/2}$.
+\begin{proposition}[Coupling]\label{prop:reach}
+Let $L=\nabla^2E$ and $D_e=2a_e+\sum_{h\ni e}\beta_h$. (i) For every node $v$ of face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For two faces $f,f'$ that contain the edge $e$, eliminating $s_e$ adds to the $(z_f,z_{f'})$ block the coupling $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face $f$ is coupled to an endpoint of an edge $e$ that lies on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
+\end{proposition}
+\begin{proof}
+(i) The only term of $E$ containing both $x_v$ and $z_f$ is $\tfrac12\beta_f\norm{F_{v\inc f}x_v-z_f}^2$, whose mixed block is $-\beta_fF_{v\inc f}^{\transpose}$, nonzero because $F_{v\inc f}$ is orthogonal and $\beta_f>0$. (ii) As all maps are orthogonal, the $s_e$ block of $L$ is $D_eI$, the $(z_f,s_e)$ block is $-\beta_fF_{e\inc f}$, and the $(z_f,z_{f'})$ block is zero; the Schur complement over $s_e$ therefore adds $-(\beta_fF_{e\inc f})D_e^{-1}(\beta_{f'}F_{e\inc f'})^{\transpose}$. (iii) Without the node--face term, $s_e$ enters $E$ only through $\tfrac12a_e\norm{F_{u\inc e}x_u-s_e}^2+\tfrac12a_e\norm{F_{v\inc e}x_v-s_e}^2+\tfrac12\beta_f\norm{s_e-F_{e\inc f}^{\transpose}z_f}^2$. For points $y_i$ with weights $w_i$, $\min_s\sum_iw_i\norm{y_i-s}^2=\sum_{i<j}\frac{w_iw_j}{\sum_kw_k}\norm{y_i-y_j}^2$, so eliminating $s_e$ couples each endpoint to $z_f$ with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$.
+\end{proof}
+
+\begin{proposition}[Two regimes]\label{prop:regimes}
+(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, where $L_I$ is the Laplacian of a weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
+\end{proposition}
+\begin{proof}
+(i) Identity edge maps make every face map $I$ by Equation~\eqref{eq:forced}, so $L=L_G\otimes I_d$, where $L_G$ is the Laplacian of the weighted graph whose vertices are the nodes, edges and faces and whose links are the terms of $E$. Eliminating $s$ and $z$ leaves the Schur complement $L_I=L_{G,xx}-L_{G,xw}L_{G,ww}^{-1}L_{G,wx}$. It annihilates the constant vector, because $L_G\mathbf 1=0$; its off-diagonal entries are non-positive, because $L_{G,xx}$ is diagonal, $L_{G,xw}\le0$ and $L_{G,ww}$ is a nonsingular M-matrix with $L_{G,ww}^{-1}\ge0$. Hence $L_I$ is a graph Laplacian, and normalising by $D$ gives $\hat S_I$. (ii) is Proposition~\ref{prop:separate}.
+\end{proof}
+
+\emph{Full construction for Proposition~\ref{prop:separate}.} Let $p_1,p_2\in\R^d$ be orthonormal and $a_k=\cos\alpha_k\,p_1+\sin\alpha_k\,p_2$ with $\alpha_k=2\pi k/K$ for $K$ classes, which are distinct unit vectors. For every relation, set $R_r=I$ and let the first two columns of $U_r$ be $p_1,p_2$; for an edge $u\to v$, let $C_e$ rotate the first two coordinates by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $U_r^{\transpose}U_r=I$, $\exp(U_rC_eU_r^{\transpose})=I+U_r(\exp C_e-I)U_r^{\transpose}$ rotates the plane of $p_1,p_2$ by this angle and fixes its complement, so $F_{v\inc e}a_{y(v)}=a_{y(u)}=F_{u\inc e}a_{y(u)}$. Hence $x_v=a_{y(v)}$ satisfies $\delta x=0$ and, by Proposition~\ref{prop:forced}, extends to a state $Y$ with $E(Y)=0$, that is $LY=0$. Then $\hat LD^{1/2}Y=D^{-1/2}LY=0$, so for $h_v=D_v^{1/2}a_{y(v)}$ the state $D^{1/2}Y$ is a stationary point of Equation~\eqref{eq:solve}, and $x^\star=h$ by Proposition~\ref{prop:unique}. Finally, $\langle a_k,x^\star_v\rangle=D_v^{1/2}\cos(\alpha_k-\alpha_{y(v)})$ is maximal exactly at $k=y(v)$.
 
 \emph{Unbiased sampling.} Walks are drawn independently, $n$ per anchor, from the walk distribution $p$, and $m_f$ counts the walks that produce $f$, divided by $n$. Then $\mathbb{E}[\sum_fm_fL_f]=\sum_a n\sum_\omega p(\omega)\frac1nL_{f(\omega)}=\sum_a\sum_\omega p(\omega)L_{f(\omega)}$, where $L_f$ is the part of $L$ contributed by face $f$ at unit weight.
 
-\emph{Proposition~\ref{prop:forced}.} Composition is verified in Equation~\eqref{eq:forced}. If $F_{v\inc e}x_v=s_e$ for all incident pairs, set $z_f=x_{v_0}$; then $F_{e_i\inc f}s_{e_i}=F_{v_{i-1}\inc f}x_{v_{i-1}}=z_f$ by induction, and $F_{v_i\inc f}x_{v_i}=F_{e_i\inc f}s_{e_i}=z_f$, so every face term vanishes. Conversely, every term of Equation~\eqref{eq:energy} is a square with a positive weight, so $E(Y)=0$ gives $F_{u\inc e}x_u=s_e=F_{v\inc e}x_v$ on every edge, that is $\delta x=0$, and $z_f=F_{v\inc f}x_v$ for every node of every face. Hence $Y\mapsto x$ is a bijection from the zero-energy states onto $\ker\delta=\ker\Delta_0$. With freely learned face maps the face terms instead require the free maps to agree along every path, which a consistent $x$ satisfies only by chance; on a small random graph, such maps removed every nonzero zero-energy state in our numerical check.
+\emph{Relations that are their own reverse.} For such a relation the maps are $\exp(\mp U_rC_eU_r^{\transpose}/2)$ (Appendix~\ref{app:data}); with $C_e$ as in the proof, $\exp(-U_rC_eU_r^{\transpose}/2)\,a_{y(u)}$ and $\exp(U_rC_eU_r^{\transpose}/2)\,a_{y(v)}$ are both the vector at angle $(\alpha_{y(u)}+\alpha_{y(v)})/2$, so the edge is consistent. The construction uses two of the four dimensions of each $U_r$, holds for any number of classes and shows existence only.
 
-\emph{Proposition~\ref{prop:reach}.} (i) The only term of Equation~\eqref{eq:energy} containing both $x_v$ and $z_f$ is $\frac12\beta_f\norm{F_{v\inc f}x_v-z_f}^2$, giving $-\beta_fF_{v\inc f}^{\transpose}$, nonzero because $F_{v\inc f}$ is orthogonal and $\beta_f>0$. (ii) The $s_e$ block of $L$ is $D_eI$, because each of the two endpoints contributes $a_e$, each face containing $e$ contributes $\beta_h$, and the maps are orthogonal. The coupling of $s_e$ to $z_f$ is $-\beta_fF_{e\inc f}^{\transpose}$. The $(z_f,z_{f'})$ block of $L$ is zero, so the Schur complement with respect to $s_e$ gives $0-(-\beta_fF_{e\inc f})\,D_e^{-1}\,(-\beta_{f'}F_{e\inc f'}^{\transpose})=-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. We also checked this numerically on random orthogonal maps. (iii) Without the node--face term, the terms containing $s_e$ for an edge $e$ on a single face $f$ are $\frac12a_e\norm{F_{u\inc e}x_u-s_e}^2+\frac12a_e\norm{F_{v\inc e}x_v-s_e}^2+\frac12\beta_f\norm{F_{e\inc f}s_e-z_f}^2$. Minimising over $s_e$ leaves, for three points with weights $a_e,a_e,\beta_f$, the pairwise terms with weights $w_iw_j/(2a_e+\beta_f)$, so each endpoint is coupled to $z_f$ with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, and the two endpoints to each other with weight $a_e^2/(2a_e+\beta_f)$. With the node--face term, $\beta_f$ is added directly, so the coupling is unbounded in $\beta_f$.
+\emph{Free face maps (Proposition~\ref{prop:forced}).} With freely learned face maps the face terms instead require the free maps to agree along every path, which a consistent $x$ satisfies only by chance; on a small random graph, such maps removed every nonzero zero-energy state in our numerical check.
 
-\emph{Proposition~\ref{prop:unique}.} $L_{xx}$ is block diagonal with $D_vI$ because there are no node--node terms, so $\hat L_{xx}=I$. The block of edge and face stalks, $\hat L_{ww}$, is positive definite: its quadratic form is zero only if every $s_e$ and then every $z_f$ is zero, since $a_e,\beta_f>0$. Hence the Schur complement $\hat S=I-\hat L_{xw}\hat L_{ww}^{-1}\hat L_{wx}$ satisfies $0\preceq\hat S\preceq I$, the objective is strictly convex, $x^\star=(I+\tau\hat S)^{-1}h$, and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
-
-\emph{Proposition~\ref{prop:separate}.} Let the classes be $1,\dots,K$ and $y(v)$ the class of node $v$. Take orthonormal $p_1,p_2\in\R^d$ and $a_k=\cos\alpha_k\,p_1+\sin\alpha_k\,p_2$ with $\alpha_k=2\pi k/K$, so that $\langle a_k,a_{k'}\rangle=\cos(\alpha_k-\alpha_{k'})<1$ for $k\neq k'$. For every relation set $R_r=I$ and choose $U_r$ with first two columns $p_1,p_2$. Let $J$ be the skew-symmetric $4\times4$ matrix with $J_{21}=1$, $J_{12}=-1$ and zeros elsewhere, and set $C_e=(\alpha_{y(u)}-\alpha_{y(v)})J$ for an edge $u\to v$; it changes sign when the endpoints are swapped. Since $U_r^{\transpose}U_r=I$, $(U_rCU_r^{\transpose})^j=U_rC^jU_r^{\transpose}$ for every $j\ge1$, so $\exp(U_rC_eU_r^{\transpose})=I+U_r(\exp C_e-I)U_r^{\transpose}$ rotates the plane of $p_1,p_2$ by $\alpha_{y(u)}-\alpha_{y(v)}$ and fixes its orthogonal complement. Hence $F_{v\inc e}a_{y(v)}=a_{y(u)}=F_{u\inc e}a_{y(u)}$; for a relation that is its own reverse, $\exp(-U_rC_eU_r^{\transpose}/2)\,a_{y(u)}$ and $\exp(U_rC_eU_r^{\transpose}/2)\,a_{y(v)}$ are both the vector at angle $(\alpha_{y(u)}+\alpha_{y(v)})/2$. With $x_v=a_{y(v)}$, $s_e=F_{u\inc e}x_u$ and $z_f=x_{v_0}$, the edge terms of Equation~\eqref{eq:energy} vanish, and so do the face terms (Proposition~\ref{prop:forced}); since $L\succeq0$, $LY=0$. For $\hat Y=D^{1/2}Y$, $\hat L\hat Y=D^{-1/2}LY=0$, so if $h_v=D_v^{1/2}a_{y(v)}$, the gradient of the objective in Equation~\eqref{eq:solve} vanishes at $\hat Y$, whose minimiser is unique (Proposition~\ref{prop:unique}). Thus $x^\star_v=D_v^{1/2}a_{y(v)}$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node. The construction uses two of the four dimensions of each $U_r$ and holds for any number of classes; it shows existence only.
+We also verified Proposition~\ref{prop:reach}(ii) numerically on random orthogonal maps.
 
 \section{Datasets, Settings and Full Results}
 \label{app:data}
@@ -408,9 +432,11 @@ This appendix reports dataset statistics, the Micro-F1 and MRR tables, search sp
 
 \paragraph{Link prediction.} The eight tasks are ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, PubMed disease--disease, LastFM user--artist, ogbn-mag paper--paper and H-Pokec user--user. The target relation is split by edge into 81\%/9\%/10\% (Freebase by unordered pair), and held-out edges are removed in both directions from the message graph. Features computed from the target relation or describing the other endpoint are removed. Each test positive is paired with one negative whose tail is a two-hop neighbour of the head within the target type, and validation uses random tail negatives.
 
-\paragraph{Sampling and splits.} Training draws new walks every epoch, while evaluation uses one fixed draw shared by all compared models. PDNS is evaluated on later time windows and is the only inductive dataset.
+\paragraph{Edge maps.} For a relation that is its own reverse, there is no frame, and the rotation is split evenly between the two endpoints as $\exp(\mp U_rC_eU_r^{\transpose}/2)$, with $C_e$ changing sign when the endpoints are swapped. The maps and edge weights read the encodings alone, so graph structure reaches the node representations only through the diffusion of Section~\ref{sec:prop}.
 
-\paragraph{Metrics and search.} Macro-F1 is averaged over the classes present in each split's true labels. IMDB is multi-label, with binary cross-entropy per genre, a threshold at logit zero and 4,573 labelled movies. For \method{}, the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $n\in\{8,\dots,64\}$, besides the axes shared with the baselines; the rank~4 of the edge rotations and the constant~10 in $w_f$ are fixed. A walk that reaches a dead end before its drawn length is discarded, and for graph classification every node is an anchor. The main tables involve about 48 tests of \method{} against the best other method.
+\paragraph{Sampling and splits.} Benchmarks often store each fact twice, once per direction; we keep one oriented edge per fact. Training draws new walks every epoch, while evaluation uses one fixed draw shared by all compared models. PDNS is evaluated on later time windows and is the only inductive dataset.
+
+\paragraph{Metrics and search.} Macro-F1 is averaged over the classes present in each split's true labels. Hetero$^2$Net reports the complementary homophily share, so its published MLH values correspond to $1-\mathrm{MLH}$ in Equation~\eqref{eq:mlh}. IMDB is multi-label, with binary cross-entropy per genre, a threshold at logit zero and 4,573 labelled movies. For \method{}, the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $n\in\{8,\dots,64\}$, besides the axes shared with the baselines; the rank~4 of the edge rotations and the constant~10 in $w_f$ are fixed. A walk that reaches a dead end before its drawn length is discarded, and for graph classification every node is an anchor. The main tables involve about 48 tests of \method{} against the best other method.
 
 \paragraph{Controlled variants.} \emph{No faces}, \emph{Endpoints}, \emph{Face as feature} and \emph{Identity maps} are tuned on their own (100 trials on seed 0, restricted to the keys that act in the variant) and decided on that configuration; their values on the configuration of the full model are reported beside, and if the two disagree the paper follows the tuned one. \emph{No faces, identity maps} and \emph{Published meta-paths} use the configuration of the full model. For every comparison we report the mean and standard deviation per variant, raw and adjusted $p$-values, the median difference and a bootstrap 95\% interval of the mean paired difference. If the full model beats a variant with fewer parameters whose tuned $d$ is the largest in the search space, capacity is not excluded as an explanation. The $2\times2$ design reports $\text{full}-\text{No faces}$, $\text{Identity maps}-\text{No faces, identity maps}$, $\text{full}-\text{Identity maps}$ and $\text{No faces}-\text{No faces, identity maps}$.
 
