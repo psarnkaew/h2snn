@@ -8,13 +8,17 @@ Tuning list: one line per **runnable** registry cell (`src/baselines/registry.py
 baseline method, in card 2 D5's form plus the TSUBAME output, state and W&B project; sorted by (task, dataset, method).
 A cell the registry marks unsupported is a comment line with its reason and is never run.
 Held out of phase 1: Freebase NC and freebase_bb, H2GB NC, the large LP tasks, GC, H2S-NN.
+Phase `baselines-early` (card T7.4): HetSheaf and CSNN on ACM and DBLP NC (card 7 needs their tuned configurations);
+`baselines-1` lists those cells as comments ("# in phase baselines-early"), so no line is in two chains.
 
-Phase `h2snn` (card 5 U4): `--phase h2snn --out <out>/cells_tuning.txt` writes the 24 H2S-NN tuning lines and
-`<out>/cells_final_seeds_h2snn.txt` (seeds 0-4 per cell). `lines.py`/`status.py` read baseline lines only.
+Phase `h2snn` (card 5 U4): `--phase h2snn --out <out>/cells_tuning_h2snn.txt` writes the 24 H2S-NN tuning lines.
+TSUBAME card T7.3: no final-seeds list is written up front any more (it could be submitted before tuning ends);
+`h2snn_final_seeds_list` stays as a function (card 5's test reads it), but only `--final-seeds` writes final seeds.
 
-Final-seeds list: one `--final_seeds 0 1 2 3 4` line per tuning line whose sweep has `n_trials` finished attempts and
-no `exceeds_24h` (read with `scripts/tsubame/lines.py: snapshot`, the reader of `status.py`); every other line is a
-comment with its count. `<out>` is the directory of the list (`--out-dir`, default: the directory of `--out`).
+Final-seeds list: one `--final_seeds 0 1 2 3 4` line per tuning line (baseline or H2S-NN) whose sweep has `n_trials`
+finished attempts and no `exceeds_24h` (`sweep_finished`, read with `scripts/tsubame/lines.py: snapshot`, the reader
+of `status.py`); every other line is a comment with its count. `<out>` is the directory of the list (`--out-dir`,
+default: the directory of `--out`); `--tuning-list` names the tuning list (default `<out>/cells_tuning.txt`).
 """
 
 from __future__ import annotations
@@ -34,7 +38,16 @@ PHASES = {
         "node_classification": ("acm", "dblp", "imdb"),
         "link_prediction": ("acm_pa", "dblp_ap", "imdb_ma", "pubmed", "lastfm"),
     },
+    # TSUBAME card T7.4: HetSheaf and CSNN tuning on ACM and DBLP NC first; card 7's perturbation study needs their
+    # tuned configurations. Card 7 perturbs NC graphs only (data/NC/<DATASET>_pert), so no LP cell is early.
+    "baselines-early": {
+        "node_classification": ("acm", "dblp"),
+    },
 }
+#: TSUBAME card T7.4: methods of a phase (all registry methods when absent).
+PHASE_MODELS = {"baselines-early": ("hetsheaf", "csnn")}
+#: TSUBAME card T7.4: `baselines-1` leaves out every `baselines-early` cell (two chains never hold one line).
+PHASE_EXCLUDES = {"baselines-1": ("baselines-early",)}
 N_TRIALS = 100
 FINAL_SEEDS = (0, 1, 2, 3, 4)
 WANDB_PROJECT = "h2snn_baseline_t4"
@@ -109,33 +122,57 @@ def h2snn_final_seeds_list(out: Path) -> list[str]:
     return lines + [h2snn_final_seeds_line(task, dataset, out) for task, dataset in H2SNN_CELLS]
 
 
+def in_phase(phase: str, row: dict) -> bool:
+    """A registry row's cell belongs to `phase` (its datasets and, where given, its methods)."""
+    models = PHASE_MODELS.get(phase)
+    return row["dataset"] in PHASES[phase].get(row["task"], ()) and (models is None or row["model"] in models)
+
+
+def excluded(phase: str, row: dict) -> str | None:
+    """The earlier phase that already holds this row's cell, or None (card T7.4)."""
+    for other in PHASE_EXCLUDES.get(phase, ()):
+        if in_phase(other, row):
+            return other
+    return None
+
+
 def phase_rows(phase: str) -> list[dict]:
     from src.baselines.registry import iter_cells
 
-    datasets = PHASES[phase]
-    rows = [row for row in iter_cells() if row["dataset"] in datasets.get(row["task"], ())]
+    rows = [row for row in iter_cells() if in_phase(phase, row)]
     return sorted(rows, key=lambda row: (row["task"], row["dataset"], row["model"]))
 
 
 def tuning_list(phase: str, out: Path) -> list[str]:
     lines = [f"# TSUBAME phase {phase}: one tuning line per runnable registry cell (make_cell_list.py)"]
     for row in phase_rows(phase):
-        if is_listed(row):
+        other = excluded(phase, row)
+        if other:
+            lines.append(f"# in phase {other}: {row['task']} {row['dataset']} {row['model']}")
+        elif is_listed(row):
             lines.append(tuning_line(row["task"], row["model"], row["dataset"], out))
         else:
             lines.append(f"# unsupported {row['task']} {row['dataset']} {row['model']}: {row['reason']}")
     return lines
 
 
+def sweep_finished(line) -> tuple[bool, int, str | None]:
+    """The gate of a final-seeds line (baselines and H2S-NN alike): one unit, `n_trials` finished attempts, no
+    `exceeds_24h`. Returns (finished?, finished attempts, line status)."""
+    unit = snapshot(line)["units"][0]
+    finished = int(unit.get("attempted", 0)) if unit.get("exists") else 0
+    status = unit.get("line_status")
+    return line.num_runs == 1 and finished >= line.n_trials and status is None, finished, status
+
+
 def final_seeds_list(tuning_text: str, out: Path) -> list[str]:
     lines = ["# TSUBAME final seeds: lines whose sweep finished (make_cell_list.py --final-seeds)"]
     for text in runnable_lines(tuning_text):
         line = parse_line(text)
-        snap = snapshot(line)
-        unit = snap["units"][0]
-        finished = int(unit.get("attempted", 0)) if unit.get("exists") else 0
-        status = unit.get("line_status")
-        if line.num_runs == 1 and finished >= line.n_trials and status is None:
+        ok, finished, status = sweep_finished(line)
+        if ok and line.launcher == "h2snn":  # card T7.3: H2S-NN final seeds only after its tuning
+            lines.append(h2snn_final_seeds_line(line.task, line.dataset, out))
+        elif ok:
             lines.append(final_seeds_line(line.task, line.model, line.dataset, out))
         else:
             lines.append(f"# not finished {line.token}: {finished}/{line.n_trials} finished trials"
@@ -155,12 +192,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.out is None and args.out_dir is None:
         ap.error("give --out or --out-dir")
     out_dir = (args.out_dir or args.out.parent).resolve()
-    if args.phase == "h2snn":  # card 5 U4: the tuning list and its final-seeds list
+    if args.phase == "h2snn":  # card 5 U4: the tuning list (card T7.3: no final-seeds list up front)
         target = args.out or out_dir / "cells_tuning.txt"
         lines = h2snn_tuning_list(out_dir)
-        seeds_target = out_dir / "cells_final_seeds_h2snn.txt"
-        seeds_target.parent.mkdir(parents=True, exist_ok=True)
-        seeds_target.write_text("\n".join(h2snn_final_seeds_list(out_dir)) + "\n", encoding="utf-8")
     elif args.phase:
         target = args.out or out_dir / "cells_tuning.txt"
         lines = tuning_list(args.phase, out_dir)
