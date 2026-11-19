@@ -1,17 +1,17 @@
 """Card 7 V5 (ablation plan v2, "Face effect"): F1, F2, F3 and the rule-chosen case study. Evaluation only: reads
 the best checkpoints of `full` and `no_path_cells` (configuration (a), seeds 1-10; `full`'s seeds 1-4 are the main
 table's runs) and uses the card 5 hooks (b) `knockout` and (d) `cells_per_target` (`src/analysis/mechanism_hooks.py`).
-Helpers (eta_v, quartiles, views, margins): `mechanism_common.py`.
+Helpers (eta_v, eta groups, views, margins): `mechanism_common.py`.
 
 - **F1, flips.** Per dataset and seed, every test node: `full` vs `no_path_cells` predictions; wrong->right and
-  right->wrong counts per eta_v quartile (and for the nodes without eta_v), then the mean and range over seeds.
+  right->wrong counts per eta_v group (and for the nodes without eta_v), then the mean and range over seeds.
 - **F2, margin** (ACM, DBLP, Freebase): margin_v of `full` and of `no_path_cells` (each with its own test-x*
-  centroids), mean per eta_v quartile per seed, then the mean and range over seeds. IMDB: F1 only.
+  centroids), mean per eta_v group per seed, then the mean and range over seeds. IMDB: F1 only.
 - **F3, knockout** (`full`, seeds 1-3): for each test node v (at most 2,000 per dataset and seed, drawn with
   `numpy.random.default_rng(F3_SAMPLE_SEED)` without replacement when there are more), one evaluation forward with
   hook (b) on [v] (full batch: the whole evaluation graph; mini-batch: v's scope alone, base and knockout alike); node
   v only is read. Right->wrong, any prediction change, and the margin change (knockout - base, base centroids; single
-  label) per eta_v quartile.
+  label) per eta_v group.
 - **Case study** (ACM, seed 1; no hand choice): candidates = test nodes with a different-class labelled neighbour,
   by a fact (target-target relation, ACM P-P) or by an M_2 meta-path, whose F3 knockout turns right into wrong; pick
   the largest margin drop (most negative change), ties -> the smaller node id. Shown: the node, its different-class
@@ -47,21 +47,27 @@ ARMS: tuple[str, ...] = ("full", "no_path_cells")
 
 
 # ------------------------------------------------------------------------------------------------ F1
-def flip_counts(correct_full: np.ndarray, correct_ablated: np.ndarray, quartile: np.ndarray) -> dict[str, Any]:
-    """Wrong->right (`ablated` wrong, `full` right) and right->wrong per quartile; `none` = nodes without eta_v."""
+def flip_counts(correct_full: np.ndarray, correct_ablated: np.ndarray, group: np.ndarray) -> dict[str, Any]:
+    """Wrong->right (`ablated` wrong, `full` right) and right->wrong per group; `none` = nodes without eta_v."""
     out = {}
-    for q, name in [*enumerate(mc.QUARTILES), (-1, "none")]:
-        mask = quartile == q
+    for q, name in [*enumerate(mc.GROUPS), (-1, "none")]:
+        mask = group == q
         out[name] = {"nodes": int(mask.sum()),
                      "wrong_to_right": int((mask & correct_full & ~correct_ablated).sum()),
                      "right_to_wrong": int((mask & ~correct_full & correct_ablated).sum())}
     return out
 
 
+def group_counts(groups) -> dict[str, int]:
+    """Test nodes per eta group and `none` (an empty or small G0 is reported, never merged; amendment 10)."""
+    groups = np.fromiter(groups, dtype=np.int64)
+    return {name: int((groups == q).sum()) for q, name in [*enumerate(mc.GROUPS), (-1, "none")]}
+
+
 # ------------------------------------------------------------------------------------------------ F2
-def margin_by_quartile(margin: np.ndarray, quartile: np.ndarray) -> dict[str, Any]:
-    return {name: (float(margin[quartile == q].mean()) if (quartile == q).any() else None)
-            for q, name in enumerate(mc.QUARTILES)}
+def margin_by_group(margin: np.ndarray, group: np.ndarray) -> dict[str, Any]:
+    return {name: (float(margin[group == q].mean()) if (group == q).any() else None)
+            for q, name in enumerate(mc.GROUPS)}
 
 
 # ------------------------------------------------------------------------------------------------ F3
@@ -119,10 +125,10 @@ def f3_run(run: mc.Run, base: dict[str, torch.Tensor], nodes: np.ndarray, centre
     return rows
 
 
-def f3_summary(rows: list[dict[str, Any]], quartile: dict[int, int]) -> dict[str, Any]:
+def f3_summary(rows: list[dict[str, Any]], group: dict[int, int]) -> dict[str, Any]:
     out = {}
-    for q, name in [*enumerate(mc.QUARTILES), (-1, "none")]:
-        sel = [r for r in rows if quartile[r["node"]] == q]
+    for q, name in [*enumerate(mc.GROUPS), (-1, "none")]:
+        sel = [r for r in rows if group[r["node"]] == q]
         right = [r for r in sel if r["base_correct"]]
         changes = [r["margin_change"] for r in sel if "margin_change" in r]
         out[name] = {"nodes": len(sel), "base_right": len(right),
@@ -309,18 +315,18 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
                 values = mc.eta(full.data_root, dataset)
                 test_ids = full.data.target_indices[full.data.target_test_mask]
                 test_eta = mc.eta_of_ids(values["eta"], full.data, test_ids)
-                edges = mc.quartile_edges(test_eta)
+                edges = mc.group_edges(test_eta)
                 eta_info = {"values": values, "edges": edges,
-                            "quartile": dict(zip(test_ids.tolist(), mc.quartile_of(test_eta, edges).tolist()))}
+                            "group": dict(zip(test_ids.tolist(), mc.group_of(test_eta, edges).tolist()))}
             base = {arm: mc.evaluate(r) for arm, r in loaded.items()}
-            q = np.array([eta_info["quartile"][int(v)] for v in base["full"]["ids"].tolist()])
+            q = np.array([eta_info["group"][int(v)] for v in base["full"]["ids"].tolist()])
             entry: dict[str, Any] = {"seed": seed, "runs": {a: str(p) for a, p in pair.items() if p}}
             single = not full.multilabel
             centres = {}
             for arm, r in loaded.items():
                 if single:
                     centres[arm] = mc.centroids(base[arm]["x_star"], base[arm]["labels"], r.data.num_classes)
-                    entry.setdefault("F2", {})[arm] = margin_by_quartile(
+                    entry.setdefault("F2", {})[arm] = margin_by_group(
                         mc.margins(base[arm]["x_star"], base[arm]["labels"], centres[arm]).numpy(), q)
             if "no_path_cells" in loaded:
                 if not torch.equal(base["full"]["ids"], base["no_path_cells"]["ids"]):
@@ -332,13 +338,15 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
                 nodes = f3_sample(base["full"]["ids"].numpy(), f3_max_nodes)
                 rows = f3_run(full, base["full"], nodes, centres.get("full"))
                 entry["F3"] = {"nodes": len(rows), "sampled_from": int(base["full"]["ids"].numel()),
-                               "by_quartile": f3_summary(rows, eta_info["quartile"])}
+                               "by_group": f3_summary(rows, eta_info["group"])}
                 (out_dir / f"f3_{dataset}_seed{seed}.json").write_text(json.dumps(rows), encoding="utf-8")
                 if (dataset, seed) == tuple(case) and single:
                     result["case_study"] = case_study(full, base["full"], rows, out_dir)
             per_seed.append(entry)
-        result["datasets"][dataset] = {"eta_quartile_edges": eta_info["edges"] if eta_info else None,
-                                       "test_nodes_without_eta": (sum(v == -1 for v in eta_info["quartile"].values())
+        result["datasets"][dataset] = {"eta_group_edges": eta_info["edges"] if eta_info else None,
+                                       "eta_group_counts": (group_counts(eta_info["group"].values())
+                                                            if eta_info else None),
+                                       "test_nodes_without_eta": (sum(v == -1 for v in eta_info["group"].values())
                                                                   if eta_info else None),
                                        "seeds": per_seed, "summary": summarise(per_seed)}
     (out_dir / "face_effect.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
@@ -349,16 +357,16 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
 def summarise(per_seed: list[dict[str, Any]]) -> dict[str, Any]:
     """Mean and range over seeds of every count / mean."""
     out: dict[str, Any] = {}
-    names = [*mc.QUARTILES, "none"]
+    names = [*mc.GROUPS, "none"]
     f1 = [s["F1"] for s in per_seed if "F1" in s]
     if f1:
         out["F1"] = {n: {k: mc.mean_range([s[n][k] for s in f1]) for k in ("nodes", "wrong_to_right",
                                                                            "right_to_wrong")} for n in names}
     f2 = [s["F2"] for s in per_seed if "F2" in s]
     if f2:
-        out["F2"] = {arm: {n: mc.mean_range([s[arm][n] for s in f2 if arm in s]) for n in mc.QUARTILES}
+        out["F2"] = {arm: {n: mc.mean_range([s[arm][n] for s in f2 if arm in s]) for n in mc.GROUPS}
                      for arm in ARMS if any(arm in s for s in f2)}
-    f3 = [s["F3"]["by_quartile"] for s in per_seed if "F3" in s]
+    f3 = [s["F3"]["by_group"] for s in per_seed if "F3" in s]
     if f3:
         out["F3"] = {n: {k: mc.mean_range([s[n][k] for s in f3]) for k in ("nodes", "base_right", "right_to_wrong",
                                                                            "right_to_wrong_share",
@@ -368,11 +376,12 @@ def summarise(per_seed: list[dict[str, Any]]) -> dict[str, Any]:
 
 def markdown(result: dict[str, Any]) -> str:
     lines = ["# Face effect F1-F3 (card 7 V5, plan v2)", "",
-             "Mean [min, max] over seeds. Quartiles of eta_v over each dataset's test targets (Q1 lowest); `none` = no "
-             "labelled M_2 neighbour (excluded from the quartiles).", ""]
+             "Mean [min, max] over seeds. eta groups over each dataset's test targets (amendment 10): G0 = eta_v 0, "
+             "G1-G3 = tertiles of eta_v > 0 (G1 lowest); `none` = no labelled M_2 neighbour (excluded).", ""]
     for dataset, d in result["datasets"].items():
         s = d["summary"]
-        lines += [f"## {dataset}", "", f"eta quartile edges {d['eta_quartile_edges']}; test nodes without eta_v: "
+        lines += [f"## {dataset}", "", f"eta tertile edges t1, t2 {d['eta_group_edges']}; test nodes per group "
+                  f"{d['eta_group_counts']}; test nodes without eta_v: "
                   f"{d['test_nodes_without_eta']}; seeds {[e['seed'] for e in d['seeds']]}", ""]
         if "F1" in s:
             lines += ["| F1 | nodes | wrong->right | right->wrong |", "|---|---|---|---|"]
@@ -381,9 +390,9 @@ def markdown(result: dict[str, Any]) -> str:
                                                                             "right_to_wrong")) + " |")
             lines.append("")
         if "F2" in s:
-            lines += ["| F2 mean margin | " + " | ".join(mc.QUARTILES) + " |", "|---" * 5 + "|"]
+            lines += ["| F2 mean margin | " + " | ".join(mc.GROUPS) + " |", "|---" * 5 + "|"]
             for arm, v in s["F2"].items():
-                lines.append(f"| {arm} | " + " | ".join(_mr(v[n]) for n in mc.QUARTILES) + " |")
+                lines.append(f"| {arm} | " + " | ".join(_mr(v[n]) for n in mc.GROUPS) + " |")
             lines.append("")
         if "F3" in s:
             lines += ["| F3 | nodes | base right | right->wrong | share | mean margin change |", "|---" * 6 + "|"]

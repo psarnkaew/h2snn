@@ -12,13 +12,15 @@
   targets. The training targets (R3's probe) use one draw with the run seed in the mini-batch case (the evaluation
   draw covers validation and test targets only). Every forward starts cold (`_warm_start` cleared), so a result does
   not depend on the forwards before it.
-- **eta_v** (plan v2): the share of v's target-type neighbours through the M_2 meta-paths that have a different label;
-  IMDB: the mean over genres of the binary disagreement. Neighbours: the distinct labelled u != v with (u, v) in the
-  union of the meta-path graphs G_P over M_2, built by the reference code (`compute_heterophily.py`:
-  `h2gb_metapaths`, `iter_metapath_chunks`, `labeled_mask`, `genre_labels`; Freebase on its symmetrised graph,
-  `symmetrise_like_h2gb`, spec §1) on the run's own graph. Nodes without such a neighbour get NaN (excluded, counted).
-- **Quartiles** of eta_v over the test targets of a graph: bins (-inf, q25], (q25, q50], (q50, q75], (q75, inf)
-  (`numpy.quantile`, linear); ties can leave a bin small or empty, the counts are reported.
+- **eta_v** (card 7 amendment 9, pre-registration v2 §4): the mean, over the M_2 paths P on which v has at least one
+  labelled target-type neighbour, of the share of those neighbours (distinct u != v with (u, v) in G_P) whose label
+  differs from v's; IMDB: per path, the mean over genres of the binary disagreement, then the mean over paths. G_P is
+  built by the reference code (`compute_heterophily.py`: `h2gb_metapaths`, `iter_metapath_chunks`, `labeled_mask`;
+  Freebase on its symmetrised graph, `symmetrise_like_h2gb`, spec §1) on the run's own graph. Nodes without a labelled
+  neighbour on any path get NaN (excluded, counted).
+- **eta groups** (card 7 amendment 10): G0 = {eta_v = 0}; G1-G3 = tertiles of eta_v over the test targets of a graph
+  with eta_v > 0 (`numpy.quantile` at 1/3, 2/3, linear), value bins (-inf, t1], (t1, t2], (t2, inf). The same rule on
+  every dataset; an empty or small G0 is reported with its count, never merged.
 - **Correct:** single label: argmax = label; IMDB: the predicted genre set (logit > 0) equals the true set.
 - **Centroids and margins** (F2): class centroids of the test x* of one model; margin_v = distance to the nearest
   other-class centroid - distance to the own-class centroid (Euclidean). Single-label datasets only.
@@ -46,7 +48,7 @@ ABLATION_DATASETS: tuple[str, ...] = ("acm", "dblp", "imdb", "freebase")
 SINGLE_LABEL: tuple[str, ...] = ("acm", "dblp", "freebase")
 from src.configs.config import EVAL_BATCH_TARGETS  # noqa: E402  (the trainer's evaluation batch)
 CHUNK_SIZE = 200                    # calcHomophily's default (compute_heterophily `--chunk-size`)
-QUARTILES: tuple[str, ...] = ("Q1", "Q2", "Q3", "Q4")
+GROUPS: tuple[str, ...] = ("G0", "G1", "G2", "G3")
 
 
 # ------------------------------------------------------------------------------------------------ runs
@@ -225,40 +227,45 @@ def reference_graph(data_root: Path, dataset: str):
     return data, ref.target_type(data), ref
 
 
-def metapath_neighbour_pairs(data, target: str, ref, chunk_size: int = CHUNK_SIZE) -> Iterator[torch.Tensor]:
-    """Distinct (u, v) pairs of the union of G_P over M_2 (target-local ids, u != v), one row range at a time (the
-    chunks of `iter_metapath_chunks` share their row ranges across meta-paths: every path starts at the target)."""
-    paths = ref.h2gb_metapaths(data, target)
+def metapath_neighbour_pairs(data, target: str, ref,
+                             chunk_size: int = CHUNK_SIZE) -> Iterator[tuple[int, torch.Tensor]]:
+    """(path index, distinct (u, v) pairs of G_P, target-local ids, u != v), one path and row range at a time."""
     n = int(data[target].num_nodes)
-    for chunks in zip(*(ref.iter_metapath_chunks(data, p, chunk_size) for p in paths)):
-        pairs = torch.cat(chunks, dim=1)
-        pairs = pairs[:, pairs[0] != pairs[1]]
-        key = torch.unique(pairs[0] * n + pairs[1])
-        yield torch.stack([key // n, key % n])
+    for index, path in enumerate(ref.h2gb_metapaths(data, target)):
+        for pairs in ref.iter_metapath_chunks(data, path, chunk_size):
+            pairs = pairs[:, pairs[0] != pairs[1]]
+            key = torch.unique(pairs[0] * n + pairs[1])
+            yield index, torch.stack([key // n, key % n])
 
 
-def eta(data_root: Path, dataset: str) -> dict[str, np.ndarray]:
-    """eta_v per target (target-local index) and the number of labelled neighbours; NaN without one."""
+def eta(data_root: Path, dataset: str) -> dict[str, Any]:
+    """eta_v per target (target-local index, amendment 9): the mean over the M_2 paths with a labelled neighbour of the
+    per-path share of different-label neighbours; NaN without a labelled neighbour on any path. Also the labelled
+    neighbours per path (`neighbours`, [paths, n]) and the number of paths that count (`paths`)."""
     data, target, ref = reference_graph(data_root, dataset)
     y = data[target].y
     labelled = ref.labeled_mask(y)
     n = int(data[target].num_nodes)
-    disagree = np.zeros(n, dtype=np.float64)
-    count = np.zeros(n, dtype=np.float64)
+    num_paths = len(ref.h2gb_metapaths(data, target))
+    disagree = np.zeros((num_paths, n), dtype=np.float64)
+    count = np.zeros((num_paths, n), dtype=np.float64)
     multi = y.dim() > 1
     yb = (y > 0) if multi else y
-    for u, v in metapath_neighbour_pairs(data, target, ref):
+    for index, (u, v) in metapath_neighbour_pairs(data, target, ref):
         keep = labelled[u] & labelled[v]
         u, v = u[keep], v[keep]
         if multi:
             d = (yb[u] != yb[v]).double().mean(dim=1)              # mean over genres of the binary disagreement
         else:
             d = (yb[u] != yb[v]).double()
-        np.add.at(disagree, v.numpy(), d.numpy())
-        np.add.at(count, v.numpy(), 1.0)
+        np.add.at(disagree[index], v.numpy(), d.numpy())
+        np.add.at(count[index], v.numpy(), 1.0)
+    has = count > 0
+    share = np.where(has, disagree / np.maximum(count, 1.0), 0.0)
+    paths = has.sum(axis=0)
     with np.errstate(invalid="ignore", divide="ignore"):
-        values = np.where(count > 0, disagree / np.maximum(count, 1.0), np.nan)
-    return {"eta": values, "neighbours": count, "target": target}
+        values = np.where(paths > 0, share.sum(axis=0) / np.maximum(paths, 1), np.nan)
+    return {"eta": values, "neighbours": count, "paths": paths, "target": target}
 
 
 def eta_of_ids(eta_values: np.ndarray, data, ids: torch.Tensor) -> np.ndarray:
@@ -267,16 +274,20 @@ def eta_of_ids(eta_values: np.ndarray, data, ids: torch.Tensor) -> np.ndarray:
     return eta_values[np.asarray(ids, dtype=np.int64) - int(start)]
 
 
-def quartile_edges(values: np.ndarray) -> list[float]:
-    defined = values[~np.isnan(values)]
-    if defined.size == 0:
-        return [math.nan] * 3
-    return [float(q) for q in np.quantile(defined, [0.25, 0.5, 0.75])]
+def group_edges(values: np.ndarray) -> list[float]:
+    """[t1, t2]: the tertiles (1/3, 2/3; linear) of the defined eta_v > 0 (NaN, NaN when there is none)."""
+    positive = values[~np.isnan(values) & (values > 0)]
+    if positive.size == 0:
+        return [math.nan] * 2
+    return [float(q) for q in np.quantile(positive, [1 / 3, 2 / 3])]
 
 
-def quartile_of(values: np.ndarray, edges: list[float]) -> np.ndarray:
-    """0-3 per node (Q1 = lowest eta), -1 for NaN (no labelled meta-path neighbour)."""
-    out = np.searchsorted(np.asarray(edges), values, side="left").astype(np.int64)
+def group_of(values: np.ndarray, edges: list[float]) -> np.ndarray:
+    """0 = G0 (eta_v = 0), 1-3 = G1-G3 (value bins (-inf, t1], (t1, t2], (t2, inf) of eta_v > 0), -1 for NaN (no
+    labelled meta-path neighbour)."""
+    values = np.asarray(values, dtype=np.float64)
+    out = 1 + np.searchsorted(np.asarray(edges, dtype=np.float64), values, side="left").astype(np.int64)
+    out[values == 0] = 0
     out[np.isnan(values)] = -1
     return out
 

@@ -1,6 +1,6 @@
 """Card 7 V6 (ablation plan v2, "Two-regime analysis"): R1, R2, R3 of trained runs. Evaluation only; uses the card 5
 hooks (a) `energy_at_solution`, (c) `transports_per_fact`, (d) `cells_per_target` (`src/analysis/mechanism_hooks.py`).
-Helpers (eta_v, quartiles, views): `mechanism_common.py`.
+Helpers (eta_v, eta groups, views): `mechanism_common.py`.
 
 - **R1, transports** (`full`): for every cell of the evaluation forward(s) whose two end nodes are labelled targets,
   the endpoint transport composed from the fact transports along the cell, as the model composes it
@@ -16,7 +16,7 @@ Helpers (eta_v, quartiles, views): `mechanism_common.py`.
   trained on the training targets and scored (macro-F1) on the test targets, on x* and on h0; the within/between
   class distance ratio on x* and on h0 (single label): mean distance of a test node to its class centroid / mean
   distance between two class centroids (test-node centroids).
-- **Two axes:** (1) nodes: R1 by the eta_v quartile of the cell's start node, R2 and R3 by the test node's quartile
+- **Two axes:** (1) nodes: R1 by the eta_v group of the cell's start node, R2 and R3 by the test node's group
   (the probe trained once on all training targets) on the original graphs; (2) graphs: the same per perturbed graph
   (`full` and S2 on the targeted graphs, the V3 runs; h and H^2 from the graph's `graph.json`).
 Runs of another arm are skipped and listed.
@@ -151,17 +151,17 @@ def node_energy(run: mc.Run) -> dict[str, Any]:
             "energy_tilde": energy / norm2, "tau": float(out["tau"])}
 
 
-def r2(e_v: np.ndarray, wrong: np.ndarray, eta_v: np.ndarray, quartile: np.ndarray) -> dict[str, Any]:
+def r2(e_v: np.ndarray, wrong: np.ndarray, eta_v: np.ndarray, group: np.ndarray) -> dict[str, Any]:
     from scipy.stats import spearmanr
 
     defined = ~np.isnan(eta_v)
     rho = spearmanr(e_v[defined], eta_v[defined]) if defined.sum() >= 3 else None
     out = {"auroc_wrong": mc.auroc(e_v, wrong), "spearman_eta": float(rho.statistic) if rho is not None else None,
            "spearman_p": float(rho.pvalue) if rho is not None else None, "nodes": int(e_v.size),
-           "wrong": int(np.asarray(wrong).sum()), "by_quartile": {}}
-    for q, name in enumerate(mc.QUARTILES):
-        m = quartile == q
-        out["by_quartile"][name] = {"nodes": int(m.sum()), "mean_e_v": float(e_v[m].mean()) if m.any() else None,
+           "wrong": int(np.asarray(wrong).sum()), "by_group": {}}
+    for q, name in enumerate(mc.GROUPS):
+        m = group == q
+        out["by_group"][name] = {"nodes": int(m.sum()), "mean_e_v": float(e_v[m].mean()) if m.any() else None,
                                     "auroc_wrong": mc.auroc(e_v[m], np.asarray(wrong)[m]) if m.any() else None}
     return out
 
@@ -169,7 +169,7 @@ def r2(e_v: np.ndarray, wrong: np.ndarray, eta_v: np.ndarray, quartile: np.ndarr
 # ------------------------------------------------------------------------------------------------ R3
 def probe(x_train: np.ndarray, y_train: np.ndarray, x_test: np.ndarray, y_test: np.ndarray, multilabel: bool,
           groups: np.ndarray | None = None) -> dict[str, Any]:
-    """Macro-F1 (and accuracy, single label) of the linear probe on the test targets; per quartile with `groups`."""
+    """Macro-F1 (and accuracy, single label) of the linear probe on the test targets; per group with `groups`."""
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import accuracy_score, f1_score
     from sklearn.multiclass import OneVsRestClassifier
@@ -189,7 +189,7 @@ def probe(x_train: np.ndarray, y_train: np.ndarray, x_test: np.ndarray, y_test: 
 
     out = score(np.ones(len(y_test), dtype=bool))
     if groups is not None:
-        out["by_quartile"] = {name: score(groups == q) for q, name in enumerate(mc.QUARTILES)}
+        out["by_group"] = {name: score(groups == q) for q, name in enumerate(mc.GROUPS)}
     return out
 
 
@@ -210,18 +210,18 @@ def distance_ratio(x: np.ndarray, labels: np.ndarray, num_classes: int, mask: np
     return float(within / between)
 
 
-def r3(run: mc.Run, test: dict[str, torch.Tensor], quartile: np.ndarray, energy: dict[str, Any]) -> dict[str, Any]:
+def r3(run: mc.Run, test: dict[str, torch.Tensor], group: np.ndarray, energy: dict[str, Any]) -> dict[str, Any]:
     train = mc.evaluate(run, "train")
     multilabel = run.multilabel
     y_tr, y_te = train["labels"].numpy(), test["labels"].numpy()
     out: dict[str, Any] = {"energy_tilde": energy["energy_tilde"]}
     for rep in ("x_star", "h0"):
-        out[f"probe_{rep}"] = probe(train[rep].numpy(), y_tr, test[rep].numpy(), y_te, multilabel, quartile)
+        out[f"probe_{rep}"] = probe(train[rep].numpy(), y_tr, test[rep].numpy(), y_te, multilabel, group)
         if not multilabel:
             x = test[rep].numpy()
             out[f"ratio_{rep}"] = distance_ratio(x, y_te, run.data.num_classes)
-            out[f"ratio_{rep}_by_quartile"] = {name: distance_ratio(x, y_te, run.data.num_classes, quartile == q)
-                                              for q, name in enumerate(mc.QUARTILES)}
+            out[f"ratio_{rep}_by_group"] = {name: distance_ratio(x, y_te, run.data.num_classes, group == q)
+                                              for q, name in enumerate(mc.GROUPS)}
     return out
 
 
@@ -233,12 +233,13 @@ def analyse_run(run: mc.Run, eta_cache: dict) -> dict[str, Any]:
     eta_values = eta_cache[key]["eta"]
     test = mc.evaluate(run)
     test_eta = mc.eta_of_ids(eta_values, run.data, test["ids"])
-    edges = mc.quartile_edges(test_eta)
-    quartile = mc.quartile_of(test_eta, edges)
+    edges = mc.group_edges(test_eta)
+    group = mc.group_of(test_eta, edges)
     record = run.graph_record() or {}
     out: dict[str, Any] = {"run": str(run.run_dir), "dataset": run.dataset, "seed": run.seed, "arm": run.arm,
                            "graph": run.graph_tag, "h": record.get("h"), "h2_index": record.get("h2_index"),
-                           "eta_quartile_edges": edges, "test_nodes_without_eta": int((quartile == -1).sum())}
+                           "eta_group_edges": edges, "test_nodes_without_eta": int((group == -1).sum()),
+                           "eta_group_counts": {name: int((group == q).sum()) for q, name in enumerate(mc.GROUPS)}}
     energy = node_energy(run)
     if not torch.equal(energy["ids"], test["ids"]):
         raise ValueError(f"{run.run_dir}: energy and prediction views read different nodes")
@@ -247,19 +248,19 @@ def analyse_run(run: mc.Run, eta_cache: dict) -> dict[str, Any]:
         labels = mc.labelled_targets(run.data)
         cells = r1_cells(run, labels)
         start_eta = mc.eta_of_ids(eta_values, run.data, cells["start"]) if cells["start"].size else np.zeros(0)
-        start_q = mc.quartile_of(start_eta, edges)
+        start_q = mc.group_of(start_eta, edges)
         out["R1"] = {"cells": split_summary(cells["distance"], cells["same"]) if cells["start"].size else None,
-                     "by_quartile": {name: split_summary(cells["distance"][start_q == q], cells["same"][start_q == q])
-                                     for q, name in enumerate(mc.QUARTILES) if (start_q == q).any()},
+                     "by_group": {name: split_summary(cells["distance"][start_q == q], cells["same"][start_q == q])
+                                     for q, name in enumerate(mc.GROUPS) if (start_q == q).any()},
                      "by_length": {int(n): split_summary(cells["distance"][cells["length"] == n],
                                                          cells["same"][cells["length"] == n])
                                    for n in np.unique(cells["length"])}}
         if run.dataset in FACT_LEVEL_DATASETS:
             out["R1"]["facts"] = r1_facts(run, labels)
         wrong = ~mc.correct(test["logits"], test["labels"], run.multilabel)
-        out["R2"] = r2(energy["e_v"], wrong, test_eta, quartile)
+        out["R2"] = r2(energy["e_v"], wrong, test_eta, group)
     if run.arm in R3_ARMS:
-        out["R3"] = r3(run, test, quartile, energy)
+        out["R3"] = r3(run, test, group, energy)
     return out
 
 
