@@ -125,7 +125,7 @@ The sheaf Laplacian $\Delta_0=\delta^{\transpose}\delta$ has energy $\norm{\delt
 \label{sec:method}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figure/h2snn_overview_v3b12.pdf}
+  \includegraphics[width=0.7\textwidth]{figure/h2snn_overview_v3b12.pdf}
   \caption{Overview of \method{} on the neighbourhood of P1. (1) A type-specific encoder maps raw features of different sizes to encodings $h_v$. The relation $r$ of a directed edge selects a row of two learned per-relation tables, the relation embedding $\zeta_r$ and the frame $R_r$ with subspace $U_r$; an MLP over $[h_u,h_v,\zeta_r]$ gives the edge weight $a_e$ and $C_e$, which with $R_r,U_r$ forms the maps $F_{v\inc e}$ into the edge stalk $s_e$. (2) Sampled random walks (shaded) become faces (triangles) such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4, linked to every node and edge they traverse, with maps composed from the edge maps; the scorer $g$ reads the encodings and relation embeddings along a walk and gives its face the weight $\beta_f$. (3) The three couplings form one energy $E$, whose minimiser anchored at $h$ gives $x^\star$ for the downstream task. Dashed red boxes are learned; the loss updates the parameters listed beside each arrow through the solve.}
   \label{fig:pipeline}
 \end{figure*}
@@ -188,7 +188,7 @@ The last step turns the sheaf into node representations. Rather than stacking me
 \end{aligned}
 \label{eq:energy}
 \end{equation}
-The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:pipeline}, are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}, Appendix~\ref{app:proofs}). This energy lets edges and meta-path instances act in one objective on the original graph, and asks states to agree after their maps rather than be equal, so neighbours of different classes stay distinct. Zero energy thus means that every node, edge and face agrees with all its neighbours after their maps, a structure-consistent state in which the states themselves may still differ.
+The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie each face to its edges and to all of its nodes, so that an instance draws its nodes, intermediate ones included, toward one shared state. Faces that share an edge, such as $f=$ P1--A7--P9 and $f'=$ P1--A7--P4 in Figure~\ref{fig:pipeline}, are both compared with the same edge state $s_e$ and therefore exchange information through it (Proposition~\ref{prop:reach}). This energy lets edges and meta-path instances act in one objective on the original graph, and asks states to agree after their maps rather than be equal, so neighbours of different classes stay distinct. Zero energy thus means that every node, edge and face agrees with all its neighbours after their maps, a structure-consistent state in which the states themselves may still differ.
 (Proposition~\ref{prop:unique}).
 
 
@@ -271,7 +271,7 @@ Finally, task-specific heads read the solved node states $x^\star$, and all para
 
 \subsection{Theoretical Properties}
 \label{sec:theory}
-Three properties support the design: faces never conflict with the edges, the representation is well defined, and rotations admit class-separating states under heterophily. Two further results are proved in Appendix~\ref{app:proofs}.
+Four properties support the design: faces never conflict with the edges, they reach every node of their instance and exchange information through shared edges, the representation is well defined, and one model admits both class-separating states and ordinary smoothing.
 
 \begin{proposition}[Forced maps]\label{prop:forced}
 With Equation~\eqref{eq:forced}, node, edge and face maps form one sheaf on the incidence poset. Moreover, $E(Y)=0$ if and only if $\delta x=0$, $s_e=F_{v\inc e}x_v$ and $z_f=F_{v\inc f}x_v$ for every incident pair, so the zero-energy states are in bijection with $\ker\Delta_0$.
@@ -281,6 +281,14 @@ By Equation~\eqref{eq:forced} and $F^{\transpose}F=I$, $F_{e_i\inc f}F_{v\inc e_
 \end{proof}
 Faces therefore add meta-path information without restricting what the edge sheaf can represent: they act only where the edges disagree.
 
+\begin{proposition}[Coupling]\label{prop:reach}
+Let $D_e=2a_e+\sum_{h\ni e}\beta_h$. (i) For every node $v$ of a face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For faces $f,f'$ sharing an edge $e$, eliminating $s_e$ couples $z_f$ and $z_{f'}$ by $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face is coupled to an endpoint of an edge on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
+\end{proposition}
+\begin{proof}
+(i) Only the node--face term contains both $x_v$ and $z_f$, and $F_{v\inc f}$ is orthogonal. (ii) As the maps are orthogonal, the $s_e$ block of $L$ is $D_eI$ and its blocks with $z_f,z_{f'}$ are $-\beta_fF_{e\inc f}$ and $-\beta_{f'}F_{e\inc f'}$, while the $(z_f,z_{f'})$ block is zero; the Schur complement over $s_e$ gives the coupling. (iii) Minimising $\sum_iw_i\norm{y_i-s}^2$ over $s$ leaves $\sum_{i<j}\frac{w_iw_j}{\sum_kw_k}\norm{y_i-y_j}^2$; the weights $a_e,a_e,\beta_f$ of $s_e$ give the stated weight.
+\end{proof}
+A face therefore reaches every node of its instance directly, A7 included, and faces exchange information through shared edges; part (i) alone would also hold for a hyperedge of a sheaf hypergraph network \cite{duta2023sheafhyper}, whereas the forced maps and part (ii) do not. Part (iii) is why the energy ties faces to nodes directly.
+
 \begin{proposition}[Unique solution]\label{prop:unique}
 For every parameter value, Equation~\eqref{eq:solve} has a unique minimiser, $x^\star=(I+\tau\hat S)^{-1}h$, where $0\preceq\hat S\preceq I$ and $\operatorname{cond}(I+\tau\hat S)\le1+\tau$.
 \end{proposition}
@@ -289,13 +297,13 @@ $E$ has no node--node terms, so the node block of $\hat L$ is $I$, and the edge-
 \end{proof}
 The solve is therefore well defined and well conditioned for every parameter value, so training never meets a degenerate representation.
 
-\begin{proposition}[Class-separating states]\label{prop:separate}
-For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node.
+\begin{proposition}[Class-separating states and smoothing]\label{prop:separate}
+(i) For any labelling $y$ of the nodes with any number of classes, there are maps of the form of Equation~\eqref{eq:maps} and one unit vector $a_k$ per class such that the node states $x_v=a_{y(v)}$ extend to a state of zero energy. If $h_v=D_v^{1/2}a_{y(v)}$, where $D_vI$ is the block of $v$ in $D$, then $x^\star=h$ and $\arg\max_k\langle a_k,x^\star_v\rangle=y(v)$ for every node. (ii) If every edge map is $I$, then every face map is $I$ and $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, where $L_I$ is the Laplacian of a weighted graph on the nodes: personalised-PageRank smoothing.
 \end{proposition}
 \begin{proof}
-Place $a_k$ at angles $\alpha_k=2\pi k/K$ on a circle in a plane $P$, set $R_r=I$, let every $U_r$ contain $P$, and let $C_e$ rotate $P$ by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $\exp(U_rC_eU_r^{\transpose})=I+U_r(e^{C_e}-I)U_r^{\transpose}$ acts only on $P$, $F_{v\inc e}a_{y(v)}=a_{y(u)}$, so $\delta x=0$ and, by Proposition~\ref{prop:forced}, the state $Y$ has zero energy. Hence $\hat LD^{1/2}Y=0$, so $x^\star=h$ by Proposition~\ref{prop:unique}, and $\langle a_k,x^\star_v\rangle\propto\cos(\alpha_k-\alpha_{y(v)})$ peaks at $k=y(v)$.
+(i) Place $a_k$ at angles $\alpha_k=2\pi k/K$ on a circle in a plane $P$, set $R_r=I$, let every $U_r$ contain $P$, and let $C_e$ rotate $P$ by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $\exp(U_rC_eU_r^{\transpose})=I+U_r(e^{C_e}-I)U_r^{\transpose}$ acts only on $P$, $F_{v\inc e}a_{y(v)}=a_{y(u)}$, so $\delta x=0$ and, by Proposition~\ref{prop:forced}, the state $Y$ has zero energy. Hence $\hat LD^{1/2}Y=0$, so $x^\star=h$ by Proposition~\ref{prop:unique}, and $\langle a_k,x^\star_v\rangle\propto\cos(\alpha_k-\alpha_{y(v)})$ peaks at $k=y(v)$. (ii) Equation~\eqref{eq:forced} gives $F_{v\inc f}=I$, so every term of $E$ is a weighted squared difference of states; eliminating $s$ and $z$ keeps the constant vector in the kernel and the off-diagonal entries non-positive, so $L_I$ is again a graph Laplacian.
 \end{proof}
-Heterophily therefore needs no separate mechanism: rotations let nodes of different classes agree without being equal, whereas identity maps reduce the solve to smoothing (Proposition~\ref{prop:regimes}, Appendix~\ref{app:proofs}). The result shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
+Heterophily therefore needs no separate mechanism: learned rotations admit class-separating states, whereas identity maps recover ordinary smoothing, so one model covers both regimes. Part (i) shows existence only; whether training reaches such states is tested in Section~\ref{sec:discussion}.
 
 
 %======================================================================
@@ -358,12 +366,12 @@ Our central claim is that a path instance is more useful as part of the structur
 Per schema $\sigma$, the ratio $\rho_\sigma$ of its learned to its sampled share of face weight shows which meta-paths the model favours; we interpret its ranking only if it is stable across seeds, and relate it to the label homophily of each schema. We also perturb ACM and DBLP to heterophily levels $h=1-\mathrm{MLH}$ of 0.2, 0.3, 0.4, 0.5 and 0.6, with the original graph as a reference, adding typed edges that join different classes or removing them, each against a random change of the same size. Real graphs cannot go much beyond $1-1/C$ for $C$ classes ($0.67$ on ACM, $0.75$ on DBLP; Appendix~\ref{app:data}), and stronger heterophily is covered by the heterophilic datasets of the main tables. We expect \method{} to lose less accuracy than GCN, HAN and SeHGNN as heterophily rises, and the gain of faces to grow with it; otherwise we make no robustness claim. The comparisons with CSNN and HetSheaf are reported without a fixed expectation (Appendix~\ref{app:data}). \res{}
 
 \subsection{How Faces Change the Representation}
-Grouping test nodes by the share $\eta_v$ of their meta-path neighbours with another label, we count the predictions that faces fix and break, compare class margins with and without faces, and remove a node's faces at evaluation, with a case study on ACM. For Proposition~\ref{prop:regimes}, we check whether transports between same-class endpoints stay closer to $I$ than between different-class ones, whether node energy separates correct from wrong predictions, and whether a linear probe separates classes better on $x^\star$ than on $h$, with learned and identity maps. These analyses are descriptive; their expected outcomes are fixed in Appendix~\ref{app:data}. \res{}
+Grouping test nodes by the share $\eta_v$ of their meta-path neighbours with another label, we count the predictions that faces fix and break, compare class margins with and without faces, and remove a node's faces at evaluation, with a case study on ACM. For Proposition~\ref{prop:separate}, we check whether transports between same-class endpoints stay closer to $I$ than between different-class ones, whether node energy separates correct from wrong predictions, and whether a linear probe separates classes better on $x^\star$ than on $h$, with learned and identity maps. These analyses are descriptive; their expected outcomes are fixed in Appendix~\ref{app:data}. \res{}
 
 \subsection{Cost and Limitations}
 One conjugate-gradient iteration costs $O\bigl((|E|+\sum_f\ell_f)\,d^2\bigr)$ time, linear in edges and face incidences and independent of the number of schemas, and memory $O\bigl((N+|E_{\mathrm{sh}}|+F)\,d\bigr)$ for $N$ nodes, $F$ faces and the edges $E_{\mathrm{sh}}$ shared by several faces, independent of the number of iterations. Time, memory and parameters of every method on IMDB and ogbn-mag are in Appendix~\ref{app:data}. \res{}
 
-\emph{Limitations.} Influence is equally strong in both directions, since edges, faces and the energy are symmetric; propagation is linear, so there is no band-pass response; faces are simple walks; and a weight scales a face but cannot change its maps. Propositions~\ref{prop:separate} and~\ref{prop:regimes} are existence results, and the variants and analyses cover node classification on four datasets.
+\emph{Limitations.} Influence is equally strong in both directions, since edges, faces and the energy are symmetric; propagation is linear, so there is no band-pass response; faces are simple walks; and a weight scales a face but cannot change its maps. Proposition~\ref{prop:separate}(i) is an existence result, and the variants and analyses cover node classification on four datasets.
 
 %======================================================================
 \section{Conclusion}
@@ -376,21 +384,9 @@ We asked whether heterophily can be handled on the original heterogeneous graph 
 \appendix
 \section{Proofs}
 \label{app:proofs}
-This appendix states and proves Propositions~\ref{prop:reach} and~\ref{prop:regimes}, gives the full construction behind Proposition~\ref{prop:separate}, and adds two remarks. Propositions~\ref{prop:forced} and~\ref{prop:reach} concern $E$ and $L$ before normalisation; in $\hat L$, a state that is consistent in $E$ is scaled by $D^{1/2}$.
+All propositions are proved in Section~\ref{sec:theory}; this appendix supplements those proofs with full details and two remarks. Propositions~\ref{prop:forced} and~\ref{prop:reach} concern $E$ and $L$ before normalisation; in $\hat L$, a state that is consistent in $E$ is scaled by $D^{1/2}$.
 
-\begin{proposition}[Coupling]\label{prop:reach}
-Let $L=\nabla^2E$ and $D_e=2a_e+\sum_{h\ni e}\beta_h$. (i) For every node $v$ of face $f$, the $(x_v,z_f)$ block of $L$ is $-\beta_fF_{v\inc f}^{\transpose}\neq0$. (ii) For two faces $f,f'$ that contain the edge $e$, eliminating $s_e$ adds to the $(z_f,z_{f'})$ block the coupling $-\frac{\beta_f\beta_{f'}}{D_e}F_{e\inc f}F_{e\inc f'}^{\transpose}$. (iii) Without the node--face term, a face $f$ is coupled to an endpoint of an edge $e$ that lies on no other face with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$, however large $\beta_f$ is.
-\end{proposition}
-\begin{proof}
-(i) The only term of $E$ containing both $x_v$ and $z_f$ is $\tfrac12\beta_f\norm{F_{v\inc f}x_v-z_f}^2$, whose mixed block is $-\beta_fF_{v\inc f}^{\transpose}$, nonzero because $F_{v\inc f}$ is orthogonal and $\beta_f>0$. (ii) As all maps are orthogonal, the $s_e$ block of $L$ is $D_eI$, the $(z_f,s_e)$ block is $-\beta_fF_{e\inc f}$, and the $(z_f,z_{f'})$ block is zero; the Schur complement over $s_e$ therefore adds $-(\beta_fF_{e\inc f})D_e^{-1}(\beta_{f'}F_{e\inc f'})^{\transpose}$. (iii) Without the node--face term, $s_e$ enters $E$ only through $\tfrac12a_e\norm{F_{u\inc e}x_u-s_e}^2+\tfrac12a_e\norm{F_{v\inc e}x_v-s_e}^2+\tfrac12\beta_f\norm{s_e-F_{e\inc f}^{\transpose}z_f}^2$. For points $y_i$ with weights $w_i$, $\min_s\sum_iw_i\norm{y_i-s}^2=\sum_{i<j}\frac{w_iw_j}{\sum_kw_k}\norm{y_i-y_j}^2$, so eliminating $s_e$ couples each endpoint to $z_f$ with weight $a_e\beta_f/(2a_e+\beta_f)<a_e$.
-\end{proof}
-
-\begin{proposition}[Two regimes]\label{prop:regimes}
-(i) If every edge map is $I$, then $x^\star=(I+\tau\hat S_I)^{-1}h$ with $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, where $L_I$ is the Laplacian of a weighted graph that edges and faces induce on the nodes: a low-pass smoothing of personalised-PageRank form. (ii) The class-separating states of Proposition~\ref{prop:separate} are fixed points of the same solve. Both are points of one parameter family.
-\end{proposition}
-\begin{proof}
-(i) Identity edge maps make every face map $I$ by Equation~\eqref{eq:forced}, so $L=L_G\otimes I_d$, where $L_G$ is the Laplacian of the weighted graph whose vertices are the nodes, edges and faces and whose links are the terms of $E$. Eliminating $s$ and $z$ leaves the Schur complement $L_I=L_{G,xx}-L_{G,xw}L_{G,ww}^{-1}L_{G,wx}$. It annihilates the constant vector, because $L_G\mathbf 1=0$; its off-diagonal entries are non-positive, because $L_{G,xx}$ is diagonal, $L_{G,xw}\le0$ and $L_{G,ww}$ is a nonsingular M-matrix with $L_{G,ww}^{-1}\ge0$. Hence $L_I$ is a graph Laplacian, and normalising by $D$ gives $\hat S_I$. (ii) is Proposition~\ref{prop:separate}.
-\end{proof}
+\emph{Details for Proposition~\ref{prop:separate}(ii).} With identity maps, $L=L_G\otimes I_d$, where $L_G$ is the Laplacian of the weighted graph whose vertices are the nodes, edges and faces and whose links are the terms of $E$. The Schur complement $L_I=L_{G,xx}-L_{G,xw}L_{G,ww}^{-1}L_{G,wx}$ annihilates the constant vector because $L_G\mathbf 1=0$, and its off-diagonal entries are non-positive because $L_{G,xx}$ is diagonal, $L_{G,xw}\le0$ and $L_{G,ww}$ is a nonsingular M-matrix with $L_{G,ww}^{-1}\ge0$; normalising by $D$ gives $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$.
 
 \emph{Full construction for Proposition~\ref{prop:separate}.} Let $p_1,p_2\in\R^d$ be orthonormal and $a_k=\cos\alpha_k\,p_1+\sin\alpha_k\,p_2$ with $\alpha_k=2\pi k/K$ for $K$ classes, which are distinct unit vectors. For every relation, set $R_r=I$ and let the first two columns of $U_r$ be $p_1,p_2$; for an edge $u\to v$, let $C_e$ rotate the first two coordinates by $\alpha_{y(u)}-\alpha_{y(v)}$. Since $U_r^{\transpose}U_r=I$, $\exp(U_rC_eU_r^{\transpose})=I+U_r(\exp C_e-I)U_r^{\transpose}$ rotates the plane of $p_1,p_2$ by this angle and fixes its complement, so $F_{v\inc e}a_{y(v)}=a_{y(u)}=F_{u\inc e}a_{y(u)}$. Hence $x_v=a_{y(v)}$ satisfies $\delta x=0$ and, by Proposition~\ref{prop:forced}, extends to a state $Y$ with $E(Y)=0$, that is $LY=0$. Then $\hat LD^{1/2}Y=D^{-1/2}LY=0$, so for $h_v=D_v^{1/2}a_{y(v)}$ the state $D^{1/2}Y$ is a stationary point of Equation~\eqref{eq:solve}, and $x^\star=h$ by Proposition~\ref{prop:unique}. Finally, $\langle a_k,x^\star_v\rangle=D_v^{1/2}\cos(\alpha_k-\alpha_{y(v)})$ is maximal exactly at $k=y(v)$.
 
