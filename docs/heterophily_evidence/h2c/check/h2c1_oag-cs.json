@@ -1,0 +1,18 @@
+{
+ "which": "oag-cs",
+ "rows": [
+  {
+   "metapath": "paper-author-paper",
+   "max_mid_edges_per_target": 351,
+   "targets_with_0": 65338,
+   "targets_with_1": 62850,
+   "targets_with_2_or_more": 418516,
+   "clique_condition": false,
+   "dataset": "oag-cs",
+   "record_job": "17629",
+   "recorded": 10.757481634288546,
+   "recorded_edges": 26080276
+  }
+ ],
+ "mismatch": false
+}

@@ -14,6 +14,11 @@ N6; card Part MB, MB4).
   every validation and test target, fixed for the run; the whole split in batches of
   EVAL_BATCH_TARGETS; the metric over the whole split (MB3, N5). The evaluation scopes are cut from
   the evaluation graph passed in (N6), else from the training graph.
+* B1a (spec 1.26 §6, card 5 U1) on the H2GB NC datasets (`SUBSET_SIZES`): every evaluation epoch scores
+  the fixed validation subset only (`validation_subset`, run seed = `cfg.seed`, the seed that drew
+  PDNS's split), with no test pass; the best epoch and early stopping follow the subset Macro-F1; after
+  the last epoch the best epoch's weights (an in-memory CPU copy) are restored and scored once on the
+  whole validation and test splits. Every other dataset keeps the whole-split evaluation above.
 * Stop conditions (tau, log-weight range per forward = per batch, non-finite g, T_max) raise and end
   the run (`logged_stop_conditions`); the solver's tolerance follows the epoch schedule.
 """
@@ -200,7 +205,73 @@ class MiniBatchNodeTrainer:
         with logged_stop_conditions(self.logger):
             self._run(graph, eval_graph, order, epoch_callback)
 
+    # ------------------------------------------------------------------ B1a (card 5 U1)
+    def validation_subset_mask(self, eval_graph: PreparedH2SData) -> tuple[torch.Tensor, torch.Tensor]:
+        """(mask over the targets, ids) of the B1a subset. The ids are the target type's own node
+        positions (`data[target].val_mask.nonzero()`, as the baselines' `val_subset_loader`), so the
+        same run seed gives the same nodes and the same fingerprint for every method."""
+        from src.evaluation.validation_subset import validation_subset
+
+        start = int(eval_graph.node_slices[self.cfg.data.target_node_type][0])
+        local = eval_graph.target_indices.cpu().long() - start
+        val_mask = eval_graph.target_val_mask.cpu()
+        ids = validation_subset(self.cfg.data.dataset_name.lower(), local[val_mask], self.cfg.seed)
+        mask = torch.isin(local, ids) & val_mask
+        if int(mask.sum()) != ids.numel():
+            raise RuntimeError("the B1a subset ids are not all validation targets of this graph.")
+        return mask.to(eval_graph.target_val_mask.device), ids
+
+    def _run_b1a(self, graph, eval_graph, order, epoch_callback) -> None:
+        from src.baselines.minibatch import _cpu_state, _subset_fields
+
+        if self.cfg.checkpoint_metric.removeprefix("val_") != "macro_f1":
+            raise ValueError("B1a selects by the validation-subset Macro-F1 (spec 1.26 §6); "
+                             f"checkpoint_metric {self.cfg.checkpoint_metric!r} is not macro_f1.")
+        period = self.cfg.data.eval_period
+        subset_mask, subset_ids = self.validation_subset_mask(eval_graph)
+        bad_epochs = 0
+        last = self.cfg.epochs - 1
+        best_subset, best_state = float("-inf"), None
+        for epoch in range(self.cfg.epochs):
+            train_metrics = self.train_epoch(graph, order, epoch)
+            if epoch % period and epoch != last:
+                continue
+            subset_metrics = self.evaluate_split(eval_graph, subset_mask)  # no test pass (B1a)
+            self.logger.log(epoch, train_metrics, subset_metrics, {})
+            self.checkpointer.save(model=self.model, optimizer=self.optimizer, epoch=epoch,
+                                   tag="last", metrics=subset_metrics, metadata={"val": "b1a_subset"})
+            if self.checkpointer.save_if_best(model=self.model, optimizer=self.optimizer,
+                                              epoch=epoch, metrics=subset_metrics,
+                                              metadata={"val": "b1a_subset"}):
+                self._best_epoch = epoch
+                bad_epochs = 0
+                best_subset, best_state = subset_metrics["macro_f1"], _cpu_state(self.model)
+            else:
+                bad_epochs += period
+            if epoch_callback is not None:
+                epoch_callback(epoch, train_metrics, subset_metrics, {})
+            if bad_epochs >= self.cfg.early_stopping_patience:
+                break
+        if best_state is None:
+            raise RuntimeError("mini-batch training produced no evaluated epoch.")
+        self.model.load_state_dict(best_state)
+        val_metrics = self.evaluate_split(eval_graph, eval_graph.target_val_mask)
+        test_metrics = self.evaluate_split(eval_graph, eval_graph.target_test_mask)
+        self._best_test_metrics = {
+            "epoch": self._best_epoch, "best_epoch": self._best_epoch,
+            "dataset": self.cfg.data.dataset_name,
+            **{f"val_{k}": v for k, v in val_metrics.items()},
+            **{f"test_{k}": v for k, v in test_metrics.items()},
+            **_subset_fields(subset_ids, best_subset)}
+        with (self.cfg.exp_dir / "best_test_metrics.json").open("w", encoding="utf-8") as fh:
+            json.dump(self._best_test_metrics, fh, indent=2)
+
     def _run(self, graph, eval_graph, order, epoch_callback) -> None:
+        from src.evaluation.validation_subset import SUBSET_SIZES
+
+        if self.cfg.data.dataset_name.lower() in SUBSET_SIZES:
+            self._run_b1a(graph, eval_graph, order, epoch_callback)
+            return
         period = self.cfg.data.eval_period
         bad_epochs = 0
         last = self.cfg.epochs - 1

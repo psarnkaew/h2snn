@@ -43,6 +43,7 @@ from src.utils.wandb_campaign import (  # noqa: F401  (canonical_fingerprint and
     resolve_campaign_state,
     run_campaign_worker,
     run_unit_sweep,
+    sweep_objective,
     save_tuning_state,
     validate_resume_state,
 )
@@ -516,7 +517,10 @@ def summarize_tuned_seed(
 ) -> dict[str, Any]:
     if not records:
         raise RuntimeError("No completed tuning records to summarize.")
-    best = max(records, key=lambda record: metric_score(record, monitor))
+    # Card 5 U1 (decisions log 2026-11-18 "Card 1f U5 review", option A): one criterion through the
+    # whole tuning, the sweep objective (the B1a subset Macro-F1 on the H2GB NC datasets; a record of
+    # such a dataset without it is refused), as the baselines' `select_best_trial`.
+    best = max(records, key=lambda record: sweep_objective(record, monitor))
     write_run_record(out_path, best)
     return best
 

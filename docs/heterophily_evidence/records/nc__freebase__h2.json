@@ -1,0 +1,968 @@
+{
+ "dataset": "freebase",
+ "task": "nc",
+ "measure": "h2",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17243",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "H2GB/calcHomophily.py calcHomophily",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "book-and-book": "no reverse partner: made undirected (to_undirected)",
+  "book-to-film": "no reverse partner: added film-rev_to-book",
+  "book-on-sports": "no reverse partner: added sports-rev_on-book",
+  "book-on-location": "no reverse partner: added location-rev_on-book",
+  "book-about-organization": "no reverse partner: added organization-rev_about-book",
+  "film-and-film": "kept",
+  "music-in-book": "no reverse partner: added book-rev_in-music",
+  "music-in-film": "no reverse partner: added film-rev_in-music",
+  "music-and-music": "kept",
+  "music-for-sports": "no reverse partner: added sports-rev_for-music",
+  "music-on-location": "no reverse partner: added location-rev_on-music",
+  "sports-in-film": "no reverse partner: added film-rev_in-sports",
+  "sports-and-sports": "kept",
+  "sports-on-location": "no reverse partner: added location-rev_on-sports",
+  "people-to-book": "no reverse partner: added book-rev_to-people",
+  "people-to-film": "no reverse partner: added film-rev_to-people",
+  "people-to-music": "no reverse partner: added music-rev_to-people",
+  "people-to-sports": "no reverse partner: added sports-rev_to-people",
+  "people-and-people": "kept",
+  "people-on-location": "no reverse partner: added location-rev_on-people",
+  "people-in-organization": "no reverse partner: added organization-rev_in-people",
+  "people-in-business": "no reverse partner: added business-rev_in-people",
+  "location-in-film": "no reverse partner: added film-rev_in-location",
+  "location-and-location": "kept",
+  "organization-in-film": "no reverse partner: added film-rev_in-organization",
+  "organization-to-music": "no reverse partner: added music-rev_to-organization",
+  "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+  "organization-on-location": "no reverse partner: added location-rev_on-organization",
+  "organization-and-organization": "kept",
+  "organization-for-business": "no reverse partner: added business-rev_for-organization",
+  "business-about-book": "no reverse partner: added book-rev_about-business",
+  "business-about-film": "no reverse partner: added film-rev_about-business",
+  "business-about-music": "no reverse partner: added music-rev_about-business",
+  "business-about-sports": "no reverse partner: added sports-rev_about-business",
+  "business-on-location": "no reverse partner: added location-rev_on-business",
+  "business-and-business": "kept"
+ },
+ "graph": {
+  "node_types": {
+   "book": 40402,
+   "film": 19427,
+   "music": 82351,
+   "sports": 1025,
+   "people": 17641,
+   "location": 9368,
+   "organization": 2731,
+   "business": 7153
+  },
+  "edge_types": {
+   "book-and-book": 270106,
+   "book-to-film": 38299,
+   "film-rev_to-book": 38299,
+   "book-on-sports": 6615,
+   "sports-rev_on-book": 6615,
+   "book-on-location": 26921,
+   "location-rev_on-book": 26921,
+   "book-about-organization": 21900,
+   "organization-rev_about-book": 21900,
+   "film-and-film": 87838,
+   "music-in-book": 31486,
+   "book-rev_in-music": 31486,
+   "music-in-film": 11291,
+   "film-rev_in-music": 11291,
+   "music-and-music": 283670,
+   "music-for-sports": 8975,
+   "sports-rev_for-music": 8975,
+   "music-on-location": 42915,
+   "location-rev_on-music": 42915,
+   "sports-in-film": 6763,
+   "film-rev_in-sports": 6763,
+   "sports-and-sports": 1290,
+   "sports-on-location": 656,
+   "location-rev_on-sports": 656,
+   "people-to-book": 35587,
+   "book-rev_to-people": 35587,
+   "people-to-film": 17604,
+   "film-rev_to-people": 17604,
+   "people-to-music": 10948,
+   "music-rev_to-people": 10948,
+   "people-to-sports": 14850,
+   "sports-rev_to-people": 14850,
+   "people-and-people": 22813,
+   "people-on-location": 15134,
+   "location-rev_on-people": 15134,
+   "people-in-organization": 2215,
+   "organization-rev_in-people": 2215,
+   "people-in-business": 5378,
+   "business-rev_in-people": 5378,
+   "location-in-film": 21299,
+   "film-rev_in-location": 21299,
+   "location-and-location": 47817,
+   "organization-in-film": 13128,
+   "film-rev_in-organization": 13128,
+   "organization-to-music": 10702,
+   "music-rev_to-organization": 10702,
+   "organization-to-sports": 559,
+   "sports-rev_to-organization": 559,
+   "organization-on-location": 2696,
+   "location-rev_on-organization": 2696,
+   "organization-and-organization": 1101,
+   "organization-for-business": 1073,
+   "business-rev_for-organization": 1073,
+   "business-about-book": 18625,
+   "book-rev_about-business": 18625,
+   "business-about-film": 8397,
+   "film-rev_about-business": 8397,
+   "business-about-music": 24764,
+   "music-rev_about-business": 24764,
+   "business-about-sports": 610,
+   "sports-rev_about-business": 610,
+   "business-on-location": 6647,
+   "location-rev_on-business": 6647,
+   "business-and-business": 4448
+  }
+ },
+ "target": "book",
+ "value": 0.9953457173232891,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.9953457173232891,
+  0.9948084104335067,
+  0.9947763568870869,
+  0.994402213502326,
+  0.9955789476989594
+ ],
+ "spread": [
+  0.994402213502326,
+  0.9955789476989594
+ ],
+ "h2gb_metapaths": [
+  "book-and-book-and-book",
+  "book-to-film-rev_to-book",
+  "book-on-sports-rev_on-book",
+  "book-on-location-rev_on-book",
+  "book-about-organization-rev_about-book",
+  "book-rev_in-music-in-book",
+  "book-rev_to-people-to-book",
+  "book-rev_about-business-about-book"
+ ],
+ "per_problem": {
+  "label": {
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "edge_types": [
+        [
+         "book",
+         "and",
+         "book"
+        ],
+        [
+         "book",
+         "and",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14880314859340713,
+       "h_insensitive": 0.0047195833804012655,
+       "h_adj": 0.0014887421857565641
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "edge_types": [
+        [
+         "book",
+         "to",
+         "film"
+        ],
+        [
+         "film",
+         "rev_to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14827508253296312,
+       "h_insensitive": 0.008521193742742817,
+       "h_adj": 0.0038667540065944195
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "sports"
+        ],
+        [
+         "sports",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.16649681974363573,
+       "h_insensitive": 0.011841134133237905,
+       "h_adj": 0.00028487227973528206
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "location"
+        ],
+        [
+         "location",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14731537711580703,
+       "h_insensitive": 0.0039021214062100185,
+       "h_adj": 0.0003618058399297297
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "edge_types": [
+        [
+         "book",
+         "about",
+         "organization"
+        ],
+        [
+         "organization",
+         "rev_about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14540891459903146,
+       "h_insensitive": 0.01122532986915043,
+       "h_adj": 0.0004535990592557937
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_in",
+         "music"
+        ],
+        [
+         "music",
+         "in",
+         "book"
+        ]
+       ],
+       "h_edge": 0.18001516515804938,
+       "h_insensitive": 0.02481290293428823,
+       "h_adj": 0.027222013100981712
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_to",
+         "people"
+        ],
+        [
+         "people",
+         "to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14757562772505853,
+       "h_insensitive": 0.011826987294500607,
+       "h_adj": 0.003317256225273013
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_about",
+         "business"
+        ],
+        [
+         "business",
+         "about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14457618803346323,
+       "h_insensitive": 0.007826205312106491,
+       "h_adj": 0.00023921871616039425
+      }
+     ],
+     "h2": 0.9953457173232891
+    },
+    {
+     "seed": 1,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "edge_types": [
+        [
+         "book",
+         "and",
+         "book"
+        ],
+        [
+         "book",
+         "and",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1486193107170177,
+       "h_insensitive": 0.005098676228216942,
+       "h_adj": 0.0015320450766012073
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "edge_types": [
+        [
+         "book",
+         "to",
+         "film"
+        ],
+        [
+         "film",
+         "rev_to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14936868602562647,
+       "h_insensitive": 0.007782192995175102,
+       "h_adj": 0.004665673710405827
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "sports"
+        ],
+        [
+         "sports",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.16942758162232227,
+       "h_insensitive": 0.013375871365293642,
+       "h_adj": 9.005486936075613e-05
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "location"
+        ],
+        [
+         "location",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.148208942597023,
+       "h_insensitive": 0.003413610135236537,
+       "h_adj": 0.00038440345088019967
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "edge_types": [
+        [
+         "book",
+         "about",
+         "organization"
+        ],
+        [
+         "organization",
+         "rev_about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14570280027870353,
+       "h_insensitive": 0.010888000082263543,
+       "h_adj": 0.0004557242209557444
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_in",
+         "music"
+        ],
+        [
+         "music",
+         "in",
+         "book"
+        ]
+       ],
+       "h_edge": 0.18354580351642102,
+       "h_insensitive": 0.027484747041874116,
+       "h_adj": 0.030283352360129356
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_to",
+         "people"
+        ],
+        [
+         "people",
+         "to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14751840864847268,
+       "h_insensitive": 0.011965384206994117,
+       "h_adj": 0.00384926819242537
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_about",
+         "business"
+        ],
+        [
+         "business",
+         "about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14495939103877917,
+       "h_insensitive": 0.006793177338742626,
+       "h_adj": 0.00027219465118832886
+      }
+     ],
+     "h2": 0.9948084104335067
+    },
+    {
+     "seed": 2,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "edge_types": [
+        [
+         "book",
+         "and",
+         "book"
+        ],
+        [
+         "book",
+         "and",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14835188191106533,
+       "h_insensitive": 0.004211829992675893,
+       "h_adj": 0.0014519297983497381
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "edge_types": [
+        [
+         "book",
+         "to",
+         "film"
+        ],
+        [
+         "film",
+         "rev_to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14879350686638007,
+       "h_insensitive": 0.008654303863810256,
+       "h_adj": 0.004667582456022501
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "sports"
+        ],
+        [
+         "sports",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.16539346266135227,
+       "h_insensitive": 0.011433268956626616,
+       "h_adj": 0.00023565447190776467
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "location"
+        ],
+        [
+         "location",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1464859544952597,
+       "h_insensitive": 0.0042809782826991605,
+       "h_adj": 0.0004774915869347751
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "edge_types": [
+        [
+         "book",
+         "about",
+         "organization"
+        ],
+        [
+         "organization",
+         "rev_about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14567713261218113,
+       "h_insensitive": 0.009234052612654415,
+       "h_adj": 0.0005831493763253093
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_in",
+         "music"
+        ],
+        [
+         "music",
+         "in",
+         "book"
+        ]
+       ],
+       "h_edge": 0.18702905075588835,
+       "h_insensitive": 0.02992555003800078,
+       "h_adj": 0.031048763543367386
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_to",
+         "people"
+        ],
+        [
+         "people",
+         "to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14682224321667847,
+       "h_insensitive": 0.010011833441266877,
+       "h_adj": 0.0030844148714095354
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_about",
+         "business"
+        ],
+        [
+         "business",
+         "about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14476182606418442,
+       "h_insensitive": 0.007325325042827471,
+       "h_adj": 0.0002401587989879772
+      }
+     ],
+     "h2": 0.9947763568870869
+    },
+    {
+     "seed": 3,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "edge_types": [
+        [
+         "book",
+         "and",
+         "book"
+        ],
+        [
+         "book",
+         "and",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1480689627500219,
+       "h_insensitive": 0.004381943903661219,
+       "h_adj": 0.001489710877649486
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "edge_types": [
+        [
+         "book",
+         "to",
+         "film"
+        ],
+        [
+         "film",
+         "rev_to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14777287386406884,
+       "h_insensitive": 0.00863360706381322,
+       "h_adj": 0.00400725519284606
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "sports"
+        ],
+        [
+         "sports",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.16767306753539435,
+       "h_insensitive": 0.014676130502265178,
+       "h_adj": 0.0003346922167111188
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "location"
+        ],
+        [
+         "location",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14645464855585516,
+       "h_insensitive": 0.004521919531470922,
+       "h_adj": 0.0003848522319458425
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "edge_types": [
+        [
+         "book",
+         "about",
+         "organization"
+        ],
+        [
+         "organization",
+         "rev_about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14496866860812527,
+       "h_insensitive": 0.009438762098669567,
+       "h_adj": 0.0005555277457460761
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_in",
+         "music"
+        ],
+        [
+         "music",
+         "in",
+         "book"
+        ]
+       ],
+       "h_edge": 0.18558362162930667,
+       "h_insensitive": 0.03308161292584404,
+       "h_adj": 0.03446240350604057
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_to",
+         "people"
+        ],
+        [
+         "people",
+         "to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1482698858542999,
+       "h_insensitive": 0.010877962227845067,
+       "h_adj": 0.003225608030334115
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_about",
+         "business"
+        ],
+        [
+         "business",
+         "about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14419549596369963,
+       "h_insensitive": 0.007769698882132738,
+       "h_adj": 0.0003222421801183373
+      }
+     ],
+     "h2": 0.994402213502326
+    },
+    {
+     "seed": 4,
+     "per_metapath": [
+      {
+       "metapath": "book-and-book-and-book",
+       "edge_types": [
+        [
+         "book",
+         "and",
+         "book"
+        ],
+        [
+         "book",
+         "and",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14846715294811377,
+       "h_insensitive": 0.004596908825163742,
+       "h_adj": 0.0013856954174116254
+      },
+      {
+       "metapath": "book-to-film-rev_to-book",
+       "edge_types": [
+        [
+         "book",
+         "to",
+         "film"
+        ],
+        [
+         "film",
+         "rev_to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14775856592478412,
+       "h_insensitive": 0.010717446872408146,
+       "h_adj": 0.003994352649897337
+      },
+      {
+       "metapath": "book-on-sports-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "sports"
+        ],
+        [
+         "sports",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1683478272459641,
+       "h_insensitive": 0.01393112269786576,
+       "h_adj": 0.0003066721255891025
+      },
+      {
+       "metapath": "book-on-location-rev_on-book",
+       "edge_types": [
+        [
+         "book",
+         "on",
+         "location"
+        ],
+        [
+         "location",
+         "rev_on",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14598923007054262,
+       "h_insensitive": 0.005168193153985673,
+       "h_adj": 0.0003839800483547151
+      },
+      {
+       "metapath": "book-about-organization-rev_about-book",
+       "edge_types": [
+        [
+         "book",
+         "about",
+         "organization"
+        ],
+        [
+         "organization",
+         "rev_about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1452163160800194,
+       "h_insensitive": 0.009719030863150799,
+       "h_adj": 0.0004577117506414652
+      },
+      {
+       "metapath": "book-rev_in-music-in-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_in",
+         "music"
+        ],
+        [
+         "music",
+         "in",
+         "book"
+        ]
+       ],
+       "h_edge": 0.17890147386379793,
+       "h_insensitive": 0.024413315306990858,
+       "h_adj": 0.025426015257835388
+      },
+      {
+       "metapath": "book-rev_to-people-to-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_to",
+         "people"
+        ],
+        [
+         "people",
+         "to",
+         "book"
+        ]
+       ],
+       "h_edge": 0.1481980441248088,
+       "h_insensitive": 0.009887999433139874,
+       "h_adj": 0.003032231004908681
+      },
+      {
+       "metapath": "book-rev_about-business-about-book",
+       "edge_types": [
+        [
+         "book",
+         "rev_about",
+         "business"
+        ],
+        [
+         "business",
+         "about",
+         "book"
+        ]
+       ],
+       "h_edge": 0.14437685399063843,
+       "h_insensitive": 0.008506126471158925,
+       "h_adj": 0.00038176015368662775
+      }
+     ],
+     "h2": 0.9955789476989594
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.8821211086469702,
+    "per_metapath": [
+     {
+      "metapath": "book-and-book-and-book",
+      "h_adj": 0.09390183538198471,
+      "h_edge": 0.4867048955265374
+     },
+     {
+      "metapath": "book-to-film-rev_to-book",
+      "h_adj": 0.16164471209049225,
+      "h_edge": 0.47356746765249536
+     },
+     {
+      "metapath": "book-on-sports-rev_on-book",
+      "h_adj": 0.007343618664890528,
+      "h_edge": 0.9531006669015196
+     },
+     {
+      "metapath": "book-on-location-rev_on-book",
+      "h_adj": 0.02936668135225773,
+      "h_edge": 0.4112019112894752
+     },
+     {
+      "metapath": "book-about-organization-rev_about-book",
+      "h_adj": 0.01042167842388153,
+      "h_edge": 0.2359716472871318
+     },
+     {
+      "metapath": "book-rev_in-music-in-book",
+      "h_adj": 0.21478331089019775,
+      "h_edge": 0.5259352404904118
+     },
+     {
+      "metapath": "book-rev_to-people-to-book",
+      "h_adj": 0.3949795663356781,
+      "h_edge": 0.7389591408781852
+     },
+     {
+      "metapath": "book-rev_about-business-about-book",
+      "h_adj": 0.03058972768485546,
+      "h_edge": 0.35417189051482906
+     }
+    ]
+   }
+  }
+ },
+ "labeled_targets": 7954,
+ "targets": 40402,
+ "labeled_only": 0.8821211086469702,
+ "wall_s": 70.58,
+ "peak_rss_gb": 0.707
+}

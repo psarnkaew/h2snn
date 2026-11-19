@@ -1,0 +1,10 @@
+job=17625 array=17615_3 node=g2n01 start=2026-11-18T11:09:54+09:00
+git=503f9c47c53f7b2dcee4ab12f98da215b6dac052 branch=heterophily mem=16384M cpus=4
+task: dataset=oag-chem task=nc measure=mlh out=default deadline_h=11.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/oag_dataset.py:72: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[11:16:02] G_P paper-author-paper: rows 454400/747290 (60.8 %), edges so far 18574853, 300 s
+[11:19:16] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__oag-chem__mlh.json: value 0.9213634122511659
+end=2026-11-18T11:19:16+09:00 exit=0

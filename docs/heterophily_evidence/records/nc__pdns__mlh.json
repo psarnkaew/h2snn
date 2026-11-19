@@ -1,0 +1,96 @@
+{
+ "dataset": "pdns",
+ "task": "nc",
+ "measure": "mlh",
+ "harness_commit": "4b3fb07f19dcb4da297611a9414ca9c2dde641e9",
+ "job": "17389",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "domain_node-apex-domain_node": "kept",
+  "domain_node-resolves-ip_node": "kept (reverse partner ip_node-rev_resolves-domain_node)",
+  "domain_node-similar-domain_node": "kept",
+  "ip_node-rev_resolves-domain_node": "kept (reverse partner domain_node-resolves-ip_node)"
+ },
+ "graph": {
+  "node_types": {
+   "domain_node": 897635,
+   "ip_node": 275923
+  },
+  "edge_types": {
+   "domain_node-apex-domain_node": 787236,
+   "domain_node-resolves-ip_node": 37390522,
+   "domain_node-similar-domain_node": 1228824,
+   "ip_node-rev_resolves-domain_node": 37390522
+  }
+ },
+ "target": "domain_node",
+ "m2": [
+  "domain_node-ip_node-domain_node"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63)",
+ "value": 0.48486689136458594,
+ "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+ "fill_seeds": {
+  "label": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "value_over_fill_seeds": [
+  0.48486689136458594,
+  0.483955831611933,
+  0.48504700508247256,
+  0.4847851660562843,
+  0.4849863030210425
+ ],
+ "spread": [
+  0.483955831611933,
+  0.48504700508247256
+ ],
+ "per_metapath": [
+  {
+   "metapath": "domain_node-ip_node-domain_node",
+   "steps": [
+    [
+     "domain_node",
+     "ip_node"
+    ],
+    [
+     "ip_node",
+     "domain_node"
+    ]
+   ],
+   "edges": 215575280,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.5151331086354141,
+    "label@1": 0.516044168388067,
+    "label@2": 0.5149529949175274,
+    "label@3": 0.5152148339437157,
+    "label@4": 0.5150136969789575
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.8768538690806017
+   },
+   "labeled_only_edges": {
+    "label": 7719528
+   },
+   "exact_match_h_edge_homophily": null
+  }
+ ],
+ "labeled_targets": 87252,
+ "targets": 897635,
+ "labeled_only": 0.1231461309193983,
+ "wall_s": 716.71,
+ "peak_rss_gb": 7.944
+}

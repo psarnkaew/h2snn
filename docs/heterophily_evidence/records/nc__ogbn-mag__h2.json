@@ -1,0 +1,139 @@
+{
+ "dataset": "ogbn-mag",
+ "task": "nc",
+ "measure": "h2",
+ "harness_commit": "503f9c47c53f7b2dcee4ab12f98da215b6dac052",
+ "job": "17661",
+ "node": "g3n01",
+ "threads": 4,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "author-affiliated_with-institution": "kept (reverse partner institution-rev_affiliated_with-author)",
+  "institution-rev_affiliated_with-author": "kept (reverse partner author-affiliated_with-institution)",
+  "author-writes-paper": "kept (reverse partner paper-rev_writes-author)",
+  "paper-rev_writes-author": "kept (reverse partner author-writes-paper)",
+  "paper-cites-paper": "kept",
+  "paper-has_topic-field_of_study": "kept (reverse partner field_of_study-rev_has_topic-paper)",
+  "field_of_study-rev_has_topic-paper": "kept (reverse partner paper-has_topic-field_of_study)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 736389,
+   "author": 1134649,
+   "field_of_study": 59965,
+   "institution": 8740
+  },
+  "edge_types": {
+   "author-affiliated_with-institution": 1043998,
+   "institution-rev_affiliated_with-author": 1043998,
+   "author-writes-paper": 7145660,
+   "paper-rev_writes-author": 7145660,
+   "paper-cites-paper": 10792672,
+   "paper-has_topic-field_of_study": 7505078,
+   "field_of_study-rev_has_topic-paper": 7505078
+  }
+ },
+ "target": "paper",
+ "value": 0.8772259006897608,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.8772259006897608
+ ],
+ "spread": null,
+ "h2gb_metapaths": [
+  "paper-rev_writes-author-writes-paper",
+  "paper-cites-paper-cites-paper",
+  "paper-has_topic-field_of_study-rev_has_topic-paper"
+ ],
+ "per_problem": {
+  "label": {
+   "seeds": [
+    0
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "paper-rev_writes-author-writes-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_writes",
+         "author"
+        ],
+        [
+         "author",
+         "writes",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.24079015625160435,
+       "h_insensitive": 0.16058713312815145,
+       "h_adj": 0.2085580825805664,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-cites-paper-cites-paper",
+       "edge_types": [
+        [
+         "paper",
+         "cites",
+         "paper"
+        ],
+        [
+         "paper",
+         "cites",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.21322356239360124,
+       "h_insensitive": 0.10122800866001565,
+       "h_adj": 0.15976421535015106,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-has_topic-field_of_study-rev_has_topic-paper",
+       "edge_types": [
+        [
+         "paper",
+         "has_topic",
+         "field_of_study"
+        ],
+        [
+         "field_of_study",
+         "rev_has_topic",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.013066150662767142,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 14055
+      }
+     ],
+     "h2": 0.8772259006897608
+    }
+   ],
+   "labeled_only": null
+  }
+ },
+ "h2b": {
+  "complete_gp": {
+   "paper-has_topic-field_of_study-rev_has_topic-paper": 14055
+  },
+  "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)"
+ },
+ "labeled_targets": 736389,
+ "targets": 736389,
+ "wall_s": 4749.58,
+ "peak_rss_gb": 6.327
+}

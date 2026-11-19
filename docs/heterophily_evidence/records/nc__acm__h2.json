@@ -1,0 +1,205 @@
+{
+ "dataset": "acm",
+ "task": "nc",
+ "measure": "h2",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17236",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "H2GB/calcHomophily.py calcHomophily",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+  "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+  "paper-to-author": "kept (reverse partner author-to-paper)",
+  "author-to-paper": "kept (reverse partner paper-to-author)",
+  "paper-to-subject": "kept (reverse partner subject-to-paper)",
+  "subject-to-paper": "kept (reverse partner paper-to-subject)",
+  "paper-to-term": "kept (reverse partner term-to-paper)",
+  "term-to-paper": "kept (reverse partner paper-to-term)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 3025,
+   "author": 5959,
+   "subject": 56,
+   "term": 1902
+  },
+  "edge_types": {
+   "paper-cite-paper": 5343,
+   "paper-ref-paper": 5343,
+   "paper-to-author": 9949,
+   "author-to-paper": 9949,
+   "paper-to-subject": 3025,
+   "subject-to-paper": 3025,
+   "paper-to-term": 255619,
+   "term-to-paper": 255619
+  }
+ },
+ "target": "paper",
+ "value": 0.3994066586863758,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.3994066586863758
+ ],
+ "spread": null,
+ "h2gb_metapaths": [
+  "paper-cite-paper-cite-paper",
+  "paper-cite-paper-ref-paper",
+  "paper-ref-paper-cite-paper",
+  "paper-ref-paper-ref-paper",
+  "paper-to-author-to-paper",
+  "paper-to-subject-to-paper",
+  "paper-to-term-to-paper"
+ ],
+ "per_problem": {
+  "label": {
+   "seeds": [
+    0
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "paper-cite-paper-cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.8434375664752181,
+       "h_insensitive": 0.7356435418884106,
+       "h_adj": 0.7526431679725647
+      },
+      {
+       "metapath": "paper-cite-paper-ref-paper",
+       "edge_types": [
+        [
+         "paper",
+         "cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "ref",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.813263955861574,
+       "h_insensitive": 0.7148431050572226,
+       "h_adj": 0.7152084112167358
+      },
+      {
+       "metapath": "paper-ref-paper-cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "ref",
+         "paper"
+        ],
+        [
+         "paper",
+         "cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.8766162310866575,
+       "h_insensitive": 0.7807604929467401,
+       "h_adj": 0.8079737424850464
+      },
+      {
+       "metapath": "paper-ref-paper-ref-paper",
+       "edge_types": [
+        [
+         "paper",
+         "ref",
+         "paper"
+        ],
+        [
+         "paper",
+         "ref",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.8434375664752181,
+       "h_insensitive": 0.7299886758800243,
+       "h_adj": 0.7534899115562439
+      },
+      {
+       "metapath": "paper-to-author-to-paper",
+       "edge_types": [
+        [
+         "paper",
+         "to",
+         "author"
+        ],
+        [
+         "author",
+         "to",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.8144925588739208,
+       "h_insensitive": 0.7418844479680602,
+       "h_adj": 0.718071460723877
+      },
+      {
+       "metapath": "paper-to-subject-to-paper",
+       "edge_types": [
+        [
+         "paper",
+         "to",
+         "subject"
+        ],
+        [
+         "subject",
+         "to",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.6403175515281525,
+       "h_insensitive": 0.48578732078379333,
+       "h_adj": 0.4567660689353943
+      },
+      {
+       "metapath": "paper-to-term-to-paper",
+       "edge_types": [
+        [
+         "paper",
+         "to",
+         "term"
+        ],
+        [
+         "term",
+         "to",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.3338199319279238,
+       "h_insensitive": 6.558672125955844e-07,
+       "h_adj": 6.263055070121482e-07
+      }
+     ],
+     "h2": 0.3994066586863758
+    }
+   ],
+   "labeled_only": null
+  }
+ },
+ "labeled_targets": 3025,
+ "targets": 3025,
+ "wall_s": 3.28,
+ "peak_rss_gb": 0.738
+}

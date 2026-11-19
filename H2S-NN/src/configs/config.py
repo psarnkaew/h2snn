@@ -164,7 +164,7 @@ PATH_LOG_WEIGHT_BOUND: float = 10.0
 NEVER_TUNED_TD1_KEYS: tuple[str, ...] = ("map_rank", "path_log_weight_bound")
 # Spec 1.25 Z2 / pre-registration §4.3 N2c: the type-only read-out (C_e = 0) is an evaluation switch of
 # analysis scripts; refused in any training forward (the model raises) and in any tuning setup.
-EVALUATION_ONLY_KEYS: tuple[str, ...] = ("type_only_maps",)
+EVALUATION_ONLY_KEYS: tuple[str, ...] = ("type_only_maps", "knockout_nodes")
 # Spec 1.23 X-11 (card 4 K1): `ablation.fact_maps_identity` = false (the model) or true (every fact map's
 # orthogonal factor I, hence every transport I): S2 = arm full with identity maps, S0 = arm
 # no_path_cells with identity maps. A comparison arm: refused in a tuning base config and never a
@@ -280,6 +280,9 @@ def reject_never_tuned_settings(
     if evaluation.get("type_only_maps", False) is not False:
         raise ValueError("evaluation.type_only_maps is the N2c type-only read-out (pre-registration "
                          "§4.3), set only by evaluation and analysis scripts; refused in tuning.")
+    if evaluation.get("knockout_nodes"):
+        raise ValueError("evaluation.knockout_nodes is the F3 face knockout at evaluation (ablation plan "
+                         "v2, card 5 U2), set only by analysis scripts; refused in tuning.")
     # Card 4 K6 (b), spec 1.23 X-6a: `tuning.arm` names one of the five separately tuned arms; then
     # exactly that arm's key (and value) is accepted, every other arm key is still refused. Without
     # it (the main table) every arm key is refused.
@@ -1609,18 +1612,25 @@ class OptimConfig:
 class EvaluationConfig:
     """Evaluation-only switches (spec 1.25 Z2; pre-registration §4.3 N2c). `type_only_maps`: evaluate
     with `C_e = 0` (the relation frames alone) on a trained checkpoint; set only by evaluation and
-    analysis scripts: a training forward raises (`H2SNN`) and the tuner refuses it."""
+    analysis scripts: a training forward raises (`H2SNN`) and the tuner refuses it.
+    `knockout_nodes` (card 5 U2, ablation plan v2 F3): global node ids; in an evaluation forward every
+    cell through one of them gets beta_f = 0 (empty = off); refused the same two ways."""
 
     type_only_maps: bool = False
+    knockout_nodes: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.type_only_maps, bool):
             raise ValueError(f"evaluation.type_only_maps must be a boolean, got {self.type_only_maps!r}.")
+        if any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in self.knockout_nodes):
+            raise ValueError("evaluation.knockout_nodes must be non-negative integer node ids, got "
+                             f"{self.knockout_nodes!r}.")
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "EvaluationConfig":
         _reject_unknown_keys("evaluation", raw, cls)
-        return cls(type_only_maps=raw.get("type_only_maps", False))
+        return cls(type_only_maps=raw.get("type_only_maps", False),
+                   knockout_nodes=tuple(raw.get("knockout_nodes", ()) or ()))
 
 
 @dataclass(slots=True)

@@ -1,0 +1,619 @@
+{
+ "dataset": "h-pokec",
+ "task": "nc",
+ "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "user-has_friend-user": "kept",
+  "user-lists-life_style": "kept (reverse partner life_style-rev_lists-user)",
+  "user-lists-music": "kept (reverse partner music-rev_lists-user)",
+  "user-lists-cars": "kept (reverse partner cars-rev_lists-user)",
+  "user-lists-politics": "kept (reverse partner politics-rev_lists-user)",
+  "user-lists-relationships": "kept (reverse partner relationships-rev_lists-user)",
+  "user-lists-art_culture": "kept (reverse partner art_culture-rev_lists-user)",
+  "user-lists-hobbies_interests": "kept (reverse partner hobbies_interests-rev_lists-user)",
+  "user-lists-science_technologies": "kept (reverse partner science_technologies-rev_lists-user)",
+  "user-lists-computers_internet": "kept (reverse partner computers_internet-rev_lists-user)",
+  "user-lists-education": "kept (reverse partner education-rev_lists-user)",
+  "user-lists-sport": "kept (reverse partner sport-rev_lists-user)",
+  "user-lists-movies": "kept (reverse partner movies-rev_lists-user)",
+  "user-lists-travelling": "kept (reverse partner travelling-rev_lists-user)",
+  "user-lists-health": "kept (reverse partner health-rev_lists-user)",
+  "user-lists-companies_brands": "kept (reverse partner companies_brands-rev_lists-user)",
+  "life_style-rev_lists-user": "kept (reverse partner user-lists-life_style)",
+  "music-rev_lists-user": "kept (reverse partner user-lists-music)",
+  "cars-rev_lists-user": "kept (reverse partner user-lists-cars)",
+  "politics-rev_lists-user": "kept (reverse partner user-lists-politics)",
+  "relationships-rev_lists-user": "kept (reverse partner user-lists-relationships)",
+  "art_culture-rev_lists-user": "kept (reverse partner user-lists-art_culture)",
+  "hobbies_interests-rev_lists-user": "kept (reverse partner user-lists-hobbies_interests)",
+  "science_technologies-rev_lists-user": "kept (reverse partner user-lists-science_technologies)",
+  "computers_internet-rev_lists-user": "kept (reverse partner user-lists-computers_internet)",
+  "education-rev_lists-user": "kept (reverse partner user-lists-education)",
+  "sport-rev_lists-user": "kept (reverse partner user-lists-sport)",
+  "movies-rev_lists-user": "kept (reverse partner user-lists-movies)",
+  "travelling-rev_lists-user": "kept (reverse partner user-lists-travelling)",
+  "health-rev_lists-user": "kept (reverse partner user-lists-health)",
+  "companies_brands-rev_lists-user": "kept (reverse partner user-lists-companies_brands)"
+ },
+ "graph": {
+  "node_types": {
+   "user": 1632803,
+   "life_style": 21579,
+   "music": 20080,
+   "cars": 2587,
+   "politics": 1423,
+   "relationships": 22067,
+   "art_culture": 1619,
+   "hobbies_interests": 6826,
+   "science_technologies": 756,
+   "computers_internet": 2236,
+   "education": 2347,
+   "sport": 7430,
+   "movies": 5870,
+   "travelling": 1251,
+   "health": 2390,
+   "companies_brands": 713
+  },
+  "edge_types": {
+   "user-has_friend-user": 44603928,
+   "user-lists-life_style": 827974,
+   "user-lists-music": 580378,
+   "user-lists-cars": 92972,
+   "user-lists-politics": 40188,
+   "user-lists-relationships": 1010495,
+   "user-lists-art_culture": 51209,
+   "user-lists-hobbies_interests": 275117,
+   "user-lists-science_technologies": 41177,
+   "user-lists-computers_internet": 76867,
+   "user-lists-education": 82974,
+   "user-lists-sport": 165616,
+   "user-lists-movies": 180064,
+   "user-lists-travelling": 49697,
+   "user-lists-health": 74056,
+   "user-lists-companies_brands": 36670,
+   "life_style-rev_lists-user": 827974,
+   "music-rev_lists-user": 580378,
+   "cars-rev_lists-user": 92972,
+   "politics-rev_lists-user": 40188,
+   "relationships-rev_lists-user": 1010495,
+   "art_culture-rev_lists-user": 51209,
+   "hobbies_interests-rev_lists-user": 275117,
+   "science_technologies-rev_lists-user": 41177,
+   "computers_internet-rev_lists-user": 76867,
+   "education-rev_lists-user": 82974,
+   "sport-rev_lists-user": 165616,
+   "movies-rev_lists-user": 180064,
+   "travelling-rev_lists-user": 49697,
+   "health-rev_lists-user": 74056,
+   "companies_brands-rev_lists-user": 36670
+  }
+ },
+ "target": "user",
+ "measure": "h2",
+ "job": "17741,17742,17743,17744,17745,17746,17747,17748,17749,17750,17751,17752,17753,17754,17755,17740",
+ "code": "H2GB/calcHomophily.py calcHomophily (H2c-2: one meta-path per task, collected by h2_collect)",
+ "fill_seeds_used": [
+  0
+ ],
+ "h2c_parts": [
+  {
+   "metapath_index": 0,
+   "metapath": "user-has_friend-user-has_friend-user",
+   "job": "17741",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 17707.96,
+   "peak_rss_gb": 7.387
+  },
+  {
+   "metapath_index": 1,
+   "metapath": "user-lists-life_style-rev_lists-user",
+   "job": "17742",
+   "node": "g2n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 690.14,
+   "peak_rss_gb": 7.39
+  },
+  {
+   "metapath_index": 2,
+   "metapath": "user-lists-music-rev_lists-user",
+   "job": "17743",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 378.03,
+   "peak_rss_gb": 7.393
+  },
+  {
+   "metapath_index": 3,
+   "metapath": "user-lists-cars-rev_lists-user",
+   "job": "17744",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 145.33,
+   "peak_rss_gb": 7.389
+  },
+  {
+   "metapath_index": 4,
+   "metapath": "user-lists-politics-rev_lists-user",
+   "job": "17745",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 96.76,
+   "peak_rss_gb": 7.383
+  },
+  {
+   "metapath_index": 5,
+   "metapath": "user-lists-relationships-rev_lists-user",
+   "job": "17746",
+   "node": "g2n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 1096.23,
+   "peak_rss_gb": 7.38
+  },
+  {
+   "metapath_index": 6,
+   "metapath": "user-lists-art_culture-rev_lists-user",
+   "job": "17747",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 103.61,
+   "peak_rss_gb": 7.383
+  },
+  {
+   "metapath_index": 7,
+   "metapath": "user-lists-hobbies_interests-rev_lists-user",
+   "job": "17748",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 615.87,
+   "peak_rss_gb": 7.391
+  },
+  {
+   "metapath_index": 8,
+   "metapath": "user-lists-science_technologies-rev_lists-user",
+   "job": "17749",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 125.8,
+   "peak_rss_gb": 7.378
+  },
+  {
+   "metapath_index": 9,
+   "metapath": "user-lists-computers_internet-rev_lists-user",
+   "job": "17750",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 153.65,
+   "peak_rss_gb": 7.39
+  },
+  {
+   "metapath_index": 10,
+   "metapath": "user-lists-education-rev_lists-user",
+   "job": "17751",
+   "node": "g2n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 134.1,
+   "peak_rss_gb": 7.389
+  },
+  {
+   "metapath_index": 11,
+   "metapath": "user-lists-sport-rev_lists-user",
+   "job": "17752",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 152.61,
+   "peak_rss_gb": 7.392
+  },
+  {
+   "metapath_index": 12,
+   "metapath": "user-lists-movies-rev_lists-user",
+   "job": "17753",
+   "node": "g2n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 186.37,
+   "peak_rss_gb": 7.391
+  },
+  {
+   "metapath_index": 13,
+   "metapath": "user-lists-travelling-rev_lists-user",
+   "job": "17754",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 107.86,
+   "peak_rss_gb": 7.391
+  },
+  {
+   "metapath_index": 14,
+   "metapath": "user-lists-health-rev_lists-user",
+   "job": "17755",
+   "node": "g3n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 115.93,
+   "peak_rss_gb": 7.392
+  },
+  {
+   "metapath_index": 15,
+   "metapath": "user-lists-companies_brands-rev_lists-user",
+   "job": "17740",
+   "node": "g2n01",
+   "harness_commit": "b35dddaad3b14bba90503ce70e2ed82a8dc52812",
+   "wall_s": 106.81,
+   "peak_rss_gb": 7.383
+  }
+ ],
+ "value": 0.9487727334053488,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.9487727334053488
+ ],
+ "spread": null,
+ "h2gb_metapaths": [
+  "user-has_friend-user-has_friend-user",
+  "user-lists-life_style-rev_lists-user",
+  "user-lists-music-rev_lists-user",
+  "user-lists-cars-rev_lists-user",
+  "user-lists-politics-rev_lists-user",
+  "user-lists-relationships-rev_lists-user",
+  "user-lists-art_culture-rev_lists-user",
+  "user-lists-hobbies_interests-rev_lists-user",
+  "user-lists-science_technologies-rev_lists-user",
+  "user-lists-computers_internet-rev_lists-user",
+  "user-lists-education-rev_lists-user",
+  "user-lists-sport-rev_lists-user",
+  "user-lists-movies-rev_lists-user",
+  "user-lists-travelling-rev_lists-user",
+  "user-lists-health-rev_lists-user",
+  "user-lists-companies_brands-rev_lists-user"
+ ],
+ "per_problem": {
+  "label": {
+   "seeds": [
+    0
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "user-has_friend-user-has_friend-user",
+       "edge_types": [
+        [
+         "user",
+         "has_friend",
+         "user"
+        ],
+        [
+         "user",
+         "has_friend",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5980910944021902,
+       "h_insensitive": 0.19077021657365156,
+       "h_adj": 0.19187329709529877,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-life_style-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "life_style"
+        ],
+        [
+         "life_style",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5897527545960813,
+       "h_insensitive": 0.19639423916441023,
+       "h_adj": 0.037342991679906845,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-music-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "music"
+        ],
+        [
+         "music",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.596861345217372,
+       "h_insensitive": 0.20657949707504653,
+       "h_adj": 0.031607046723365784,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-cars-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "cars"
+        ],
+        [
+         "cars",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5117866805485967,
+       "h_insensitive": 0.06468671745987287,
+       "h_adj": 0.013134416192770004,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-politics-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "politics"
+        ],
+        [
+         "politics",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5643318578180493,
+       "h_insensitive": 0.1339178618910477,
+       "h_adj": 0.08667361736297607,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-relationships-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "relationships"
+        ],
+        [
+         "relationships",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5908335245020652,
+       "h_insensitive": 0.20527090668412962,
+       "h_adj": 0.002999422140419483,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-art_culture-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "art_culture"
+        ],
+        [
+         "art_culture",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.6630834354804077,
+       "h_insensitive": 0.27424929616554883,
+       "h_adj": 0.045072730630636215,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-hobbies_interests-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "hobbies_interests"
+        ],
+        [
+         "hobbies_interests",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5266231401665018,
+       "h_insensitive": 0.10618234784566183,
+       "h_adj": 0.002855603815987706,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-science_technologies-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "science_technologies"
+        ],
+        [
+         "science_technologies",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.9538750323601654,
+       "h_insensitive": 0.46896439219728336,
+       "h_adj": 0.12050220370292664,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-computers_internet-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "computers_internet"
+        ],
+        [
+         "computers_internet",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5057889551517717,
+       "h_insensitive": 0.02768381431700684,
+       "h_adj": 0.007632084656506777,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-education-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "education"
+        ],
+        [
+         "education",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.6347007085208436,
+       "h_insensitive": 0.2487867518276453,
+       "h_adj": 0.028592055663466454,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-sport-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "sport"
+        ],
+        [
+         "sport",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5714715119843033,
+       "h_insensitive": 0.15464168524546829,
+       "h_adj": 0.10139936208724976,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-movies-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "movies"
+        ],
+        [
+         "movies",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.6728777201200121,
+       "h_insensitive": 0.2819067506548347,
+       "h_adj": 0.05894915387034416,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-travelling-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "travelling"
+        ],
+        [
+         "travelling",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.5714609755257637,
+       "h_insensitive": 0.1752172406030451,
+       "h_adj": 0.023298388347029686,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-health-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "health"
+        ],
+        [
+         "health",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.637133439331338,
+       "h_insensitive": 0.24913931131452816,
+       "h_adj": 0.044891078025102615,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "user-lists-companies_brands-rev_lists-user",
+       "edge_types": [
+        [
+         "user",
+         "lists",
+         "companies_brands"
+        ],
+        [
+         "companies_brands",
+         "rev_lists",
+         "user"
+        ]
+       ],
+       "h_edge": 0.6333041116116437,
+       "h_insensitive": 0.24811715420589597,
+       "h_adj": 0.02281281352043152,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.9487727334053488
+    }
+   ],
+   "labeled_only": null
+  }
+ },
+ "h2b": {
+  "complete_gp": {},
+  "empty_gp_skipped": [],
+  "computation": "H2c-2: one meta-path per task (per-path computation), collected"
+ },
+ "labeled_targets": 1632640,
+ "targets": 1632803,
+ "wall_s": 17707.96,
+ "wall_s_sum": 21917.059999999998,
+ "peak_rss_gb": 7.393
+}

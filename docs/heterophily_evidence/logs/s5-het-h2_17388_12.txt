@@ -1,0 +1,39 @@
+job=17446 array=17388_12 node=g3n01 start=2026-11-17T17:25:48+09:00
+git=4b3fb07f19dcb4da297611a9414ca9c2dde641e9 branch=heterophily mem=28672M cpus=8
+task: dataset=oag-eng task=nc measure=mlh deadline_h=11.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/oag_dataset.py:72: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[17:31:29] G_P paper-field-paper: rows 11800/370624 (3.2 %), edges so far 4373363200, 300 s
+[17:36:33] G_P paper-field-paper: rows 23800/370624 (6.4 %), edges so far 8820851200, 604 s
+[17:41:35] G_P paper-field-paper: rows 35800/370624 (9.7 %), edges so far 13268339200, 906 s
+[17:46:39] G_P paper-field-paper: rows 48200/370624 (13.0 %), edges so far 17864076800, 1210 s
+[17:51:42] G_P paper-field-paper: rows 60200/370624 (16.2 %), edges so far 22311564800, 1513 s
+[17:56:46] G_P paper-field-paper: rows 72400/370624 (19.5 %), edges so far 26833177600, 1816 s
+[18:01:48] G_P paper-field-paper: rows 84800/370624 (22.9 %), edges so far 31428915200, 2119 s
+[18:06:49] G_P paper-field-paper: rows 96600/370624 (26.1 %), edges so far 35802278400, 2419 s
+[18:11:50] G_P paper-field-paper: rows 108400/370624 (29.2 %), edges so far 40175641600, 2720 s
+[18:16:53] G_P paper-field-paper: rows 120600/370624 (32.5 %), edges so far 44697254400, 3024 s
+[18:21:57] G_P paper-field-paper: rows 132800/370624 (35.8 %), edges so far 49218867200, 3327 s
+[18:26:59] G_P paper-field-paper: rows 144800/370624 (39.1 %), edges so far 53666355200, 3629 s
+[18:32:00] G_P paper-field-paper: rows 157000/370624 (42.4 %), edges so far 58187968000, 3931 s
+[18:37:05] G_P paper-field-paper: rows 169000/370624 (45.6 %), edges so far 62635456000, 4236 s
+[18:42:06] G_P paper-field-paper: rows 180800/370624 (48.8 %), edges so far 67008819200, 4536 s
+[18:47:06] G_P paper-field-paper: rows 192600/370624 (52.0 %), edges so far 71382182400, 4837 s
+[18:52:07] G_P paper-field-paper: rows 204400/370624 (55.2 %), edges so far 75755545600, 5137 s
+[18:57:08] G_P paper-field-paper: rows 216200/370624 (58.3 %), edges so far 80128908800, 5438 s
+[19:02:08] G_P paper-field-paper: rows 228000/370624 (61.5 %), edges so far 84502272000, 5738 s
+[19:07:12] G_P paper-field-paper: rows 240000/370624 (64.8 %), edges so far 88949760000, 6043 s
+[19:12:17] G_P paper-field-paper: rows 252000/370624 (68.0 %), edges so far 93397248000, 6348 s
+[19:17:22] G_P paper-field-paper: rows 264000/370624 (71.2 %), edges so far 97844736000, 6653 s
+[19:22:27] G_P paper-field-paper: rows 276000/370624 (74.5 %), edges so far 102292224000, 6958 s
+[19:27:28] G_P paper-field-paper: rows 287800/370624 (77.7 %), edges so far 106665587200, 7258 s
+[19:32:28] G_P paper-field-paper: rows 299600/370624 (80.8 %), edges so far 111038950400, 7559 s
+[19:37:33] G_P paper-field-paper: rows 311600/370624 (84.1 %), edges so far 115486438400, 7863 s
+[19:42:33] G_P paper-field-paper: rows 323400/370624 (87.3 %), edges so far 119859801600, 8164 s
+[19:47:38] G_P paper-field-paper: rows 335400/370624 (90.5 %), edges so far 124307289600, 8469 s
+[19:52:38] G_P paper-field-paper: rows 347200/370624 (93.7 %), edges so far 128680652800, 8769 s
+[19:57:39] G_P paper-field-paper: rows 359000/370624 (96.9 %), edges so far 133054016000, 9070 s
+[20:04:13] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__oag-eng__mlh.json: value 0.9122993076027991
+end=2026-11-17T20:04:13+09:00 exit=0

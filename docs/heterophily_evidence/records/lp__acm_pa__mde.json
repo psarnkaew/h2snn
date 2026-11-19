@@ -1,0 +1,121 @@
+{
+ "dataset": "acm_pa",
+ "task": "lp",
+ "measure": "mde",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17247",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+ "target_relation": "paper-rel_2-author",
+ "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+ "symmetrisation": {
+  "author-rel_3-paper": "kept (reverse partner paper-rel_2-author)",
+  "paper-rel_0-paper": "kept (reverse partner paper-rel_1-paper)",
+  "paper-rel_1-paper": "kept (reverse partner paper-rel_0-paper)",
+  "paper-rel_2-author": "kept (reverse partner author-rel_3-paper)",
+  "paper-rel_4-subject": "kept (reverse partner subject-rel_5-paper)",
+  "paper-rel_6-term": "kept (reverse partner term-rel_7-paper)",
+  "subject-rel_5-paper": "kept (reverse partner paper-rel_4-subject)",
+  "term-rel_7-paper": "kept (reverse partner paper-rel_6-term)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 3025,
+   "author": 5959,
+   "subject": 56,
+   "term": 1902
+  },
+  "edge_types": {
+   "author-rel_3-paper": 8059,
+   "paper-rel_0-paper": 5343,
+   "paper-rel_1-paper": 5343,
+   "paper-rel_2-author": 8059,
+   "paper-rel_4-subject": 3025,
+   "paper-rel_6-term": 255619,
+   "subject-rel_5-paper": 3025,
+   "term-rel_7-paper": 255619
+  }
+ },
+ "per_endpoint_type": {
+  "author": {
+   "value": null,
+   "reason": "features removed (F17) or absent"
+  },
+  "paper": {
+   "value": 0.8653737388599206,
+   "form": "MDE, mean over M2 (raw features)",
+   "feature_dim": 1902,
+   "feature_dtype": "torch.float32",
+   "per_metapath": [
+    {
+     "metapath": "paper-author-paper",
+     "steps": [
+      [
+       "paper",
+       "author"
+      ],
+      [
+       "author",
+       "paper"
+      ]
+     ],
+     "edges": 21665,
+     "reference": 2.5427470207214355,
+     "value": 2.5427470207214355,
+     "code_path": "hetero2net.attribute_homophily (reference)"
+    },
+    {
+     "metapath": "paper-subject-paper",
+     "steps": [
+      [
+       "paper",
+       "subject"
+      ],
+      [
+       "subject",
+       "paper"
+      ]
+     ],
+     "edges": 2217089,
+     "value": 0.04272257399931073,
+     "chunked": 0.04272257399931073,
+     "code_path": "mde_chunked (D-a)"
+    },
+    {
+     "metapath": "paper-term-paper",
+     "steps": [
+      [
+       "paper",
+       "term"
+      ],
+      [
+       "term",
+       "paper"
+      ]
+     ],
+     "edges": 9150595,
+     "value": 0.010651621859015746,
+     "chunked": 0.010651621859015746,
+     "code_path": "mde_chunked (D-a)"
+    }
+   ],
+   "m2": [
+    "paper-author-paper",
+    "paper-subject-paper",
+    "paper-term-paper"
+   ],
+   "m2_source": "Hetero2Net predefined list 'acm' (App. B.1)"
+  }
+ },
+ "value": {
+  "author": null,
+  "paper": 0.8653737388599206
+ },
+ "wall_s": 44.45,
+ "peak_rss_gb": 3.046
+}

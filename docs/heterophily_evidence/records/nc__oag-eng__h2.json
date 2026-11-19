@@ -1,0 +1,2056 @@
+{
+ "dataset": "oag-eng",
+ "task": "nc",
+ "measure": "h2",
+ "harness_commit": "c74bb20bdd27ad95f3d20c2b5f8294a2b8311aac",
+ "job": "17665",
+ "node": "g3n01",
+ "threads": 4,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "H2GB/calcHomophily.py calcHomophily (H2b: closed form on a complete G_P)",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "paper-PP_cite-paper": "kept",
+  "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+  "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+  "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+  "field-FF_in-field": "kept",
+  "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+  "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+  "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+  "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+  "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+  "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+  "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+  "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+  "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+  "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+  "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+  "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+  "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+  "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+  "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+  "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+  "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 370624,
+   "field": 44714,
+   "author": 504888,
+   "affiliation": 9089
+  },
+  "edge_types": {
+   "paper-PP_cite-paper": 2105372,
+   "author-AP_write_first-paper": 288440,
+   "author-AP_write_other-paper": 402095,
+   "author-AP_write_last-paper": 283131,
+   "field-FF_in-field": 480652,
+   "paper-PF_in_L1-field": 686302,
+   "paper-PF_in_L5-field": 58205,
+   "paper-PF_in_L0-field": 370755,
+   "paper-PF_in_L2-field": 1569093,
+   "paper-PF_in_L3-field": 577152,
+   "paper-PF_in_L4-field": 140354,
+   "author-in-affiliation": 504888,
+   "paper-rev_AP_write_first-author": 288440,
+   "paper-rev_AP_write_other-author": 402095,
+   "paper-rev_AP_write_last-author": 283131,
+   "field-rev_PF_in_L1-paper": 686302,
+   "field-rev_PF_in_L5-paper": 58205,
+   "field-rev_PF_in_L0-paper": 370755,
+   "field-rev_PF_in_L2-paper": 1569093,
+   "field-rev_PF_in_L3-paper": 577152,
+   "field-rev_PF_in_L4-paper": 140354,
+   "affiliation-rev_in-author": 504888
+  }
+ },
+ "target": "paper",
+ "value": 0.8728311029553879,
+ "form": "heterophily: 1 - mean over H2GB's meta-paths (and genres) of adjusted homophily",
+ "value_over_fill_seeds": [
+  0.8728311029553879,
+  0.8728254445886705,
+  0.8728323527320754,
+  0.8728321728121955,
+  0.8728292785526719
+ ],
+ "spread": [
+  0.8728254445886705,
+  0.8728323527320754
+ ],
+ "h2gb_metapaths": [
+  "paper-PP_cite-paper-PP_cite-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+  "paper-rev_AP_write_first-author-AP_write_first-paper",
+  "paper-rev_AP_write_first-author-AP_write_other-paper",
+  "paper-rev_AP_write_first-author-AP_write_last-paper",
+  "paper-rev_AP_write_other-author-AP_write_first-paper",
+  "paper-rev_AP_write_other-author-AP_write_other-paper",
+  "paper-rev_AP_write_other-author-AP_write_last-paper",
+  "paper-rev_AP_write_last-author-AP_write_first-paper",
+  "paper-rev_AP_write_last-author-AP_write_other-paper",
+  "paper-rev_AP_write_last-author-AP_write_last-paper"
+ ],
+ "per_problem": {
+  "label": {
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "runs": [
+    {
+     "seed": 0,
+     "per_metapath": [
+      {
+       "metapath": "paper-PP_cite-paper-PP_cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1430052579128932,
+       "h_insensitive": 0.038841359439753,
+       "h_adj": 0.13142123818397522,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L1",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L1",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.010978686594258625,
+       "h_insensitive": 0.00076387298722741,
+       "h_adj": 0.00739693408831954,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L5",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L5",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.0199752447161816,
+       "h_insensitive": 0.009764239905104,
+       "h_adj": 0.01649727113544941,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L0",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L0",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.0035117557943824818,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 43189
+      },
+      {
+       "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L2",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L2",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.020784557490037412,
+       "h_insensitive": 0.0013505276678454873,
+       "h_adj": 0.016435854136943817,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L3",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L3",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.023515959883921102,
+       "h_insensitive": 0.002542266643348726,
+       "h_adj": 0.018754953518509865,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L4",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L4",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.025564161249066426,
+       "h_insensitive": 0.004205803973063084,
+       "h_adj": 0.020639782771468163,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.516036521285717,
+       "h_insensitive": 0.49143791297144707,
+       "h_adj": 0.5138788223266602,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15775104301895768,
+       "h_insensitive": 0.030451826460705492,
+       "h_adj": 0.1529242843389511,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14793822759106065,
+       "h_insensitive": 0.027915598986008133,
+       "h_adj": 0.1435886025428772,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15775104301895768,
+       "h_insensitive": 0.031114566246205476,
+       "h_adj": 0.153596431016922,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25117218864976604,
+       "h_insensitive": 0.19171172412168377,
+       "h_adj": 0.24670498073101044,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11334628424444228,
+       "h_insensitive": 0.01892656325640617,
+       "h_adj": 0.10806456208229065,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14793822759106065,
+       "h_insensitive": 0.029383925113034635,
+       "h_adj": 0.14387966692447662,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11334628424444228,
+       "h_insensitive": 0.019168864221577674,
+       "h_adj": 0.1076289713382721,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25721732258877256,
+       "h_insensitive": 0.19761894771053315,
+       "h_adj": 0.25328999757766724,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.8728311029553879
+    },
+    {
+     "seed": 1,
+     "per_metapath": [
+      {
+       "metapath": "paper-PP_cite-paper-PP_cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14298414764376638,
+       "h_insensitive": 0.03882803587002013,
+       "h_adj": 0.13140316307544708,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L1",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L1",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.010979335796272537,
+       "h_insensitive": 0.0007674041847592951,
+       "h_adj": 0.007397062610834837,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L5",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L5",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.01999515586336916,
+       "h_insensitive": 0.008315308191589259,
+       "h_adj": 0.016492661088705063,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L0",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L0",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.003510894611003091,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 43189
+      },
+      {
+       "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L2",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L2",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.02078111445598319,
+       "h_insensitive": 0.0013486730826450075,
+       "h_adj": 0.01643102616071701,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L3",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L3",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.023519963182939335,
+       "h_insensitive": 0.002544666673219962,
+       "h_adj": 0.01875333860516548,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L4",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L4",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.02556213298188421,
+       "h_insensitive": 0.004191419645525015,
+       "h_adj": 0.020626628771424294,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.5160392090459257,
+       "h_insensitive": 0.4909961212381496,
+       "h_adj": 0.5138822197914124,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15774856553924824,
+       "h_insensitive": 0.030543191089043388,
+       "h_adj": 0.15291358530521393,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14794688080486426,
+       "h_insensitive": 0.02795511445508311,
+       "h_adj": 0.1436098963022232,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15774856553924824,
+       "h_insensitive": 0.030636087197369433,
+       "h_adj": 0.15359821915626526,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25120946261809246,
+       "h_insensitive": 0.19128724805422856,
+       "h_adj": 0.24673894047737122,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11336536270968076,
+       "h_insensitive": 0.018865351029452127,
+       "h_adj": 0.10810031741857529,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14794688080486426,
+       "h_insensitive": 0.02944337694723664,
+       "h_adj": 0.1439063549041748,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11336536270968076,
+       "h_insensitive": 0.019628837067639883,
+       "h_adj": 0.10763269662857056,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.2572263408953713,
+       "h_insensitive": 0.19697226094149314,
+       "h_adj": 0.2533067762851715,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.8728254445886705
+    },
+    {
+     "seed": 2,
+     "per_metapath": [
+      {
+       "metapath": "paper-PP_cite-paper-PP_cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1429918638111024,
+       "h_insensitive": 0.03889544405971349,
+       "h_adj": 0.1314055472612381,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L1",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L1",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.010981082531464752,
+       "h_insensitive": 0.0007640260524172307,
+       "h_adj": 0.007395562250167131,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L5",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L5",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.019959424900607918,
+       "h_insensitive": 0.008148538977494539,
+       "h_adj": 0.016482483595609665,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L0",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L0",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.0035143194991701524,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 43189
+      },
+      {
+       "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L2",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L2",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.020786553212770637,
+       "h_insensitive": 0.0013517496296099785,
+       "h_adj": 0.016432538628578186,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L3",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L3",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.023516413699194424,
+       "h_insensitive": 0.0025351788705843797,
+       "h_adj": 0.018750742077827454,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L4",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L4",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.025565073969298423,
+       "h_insensitive": 0.0041800626337732145,
+       "h_adj": 0.020630396902561188,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.516036521285717,
+       "h_insensitive": 0.4909736044604258,
+       "h_adj": 0.5138771533966064,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1577287457015727,
+       "h_insensitive": 0.03022049561525717,
+       "h_adj": 0.1528940349817276,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14793822759106065,
+       "h_insensitive": 0.02739003838918995,
+       "h_adj": 0.1435939520597458,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1577287457015727,
+       "h_insensitive": 0.030565849859072607,
+       "h_adj": 0.15357115864753723,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25119082563392925,
+       "h_insensitive": 0.1913366724181999,
+       "h_adj": 0.24672317504882812,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11337995212427487,
+       "h_insensitive": 0.01873030982015808,
+       "h_adj": 0.10810164362192154,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14793822759106065,
+       "h_insensitive": 0.02972992337187211,
+       "h_adj": 0.1438780277967453,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11337995212427487,
+       "h_insensitive": 0.018922948613120466,
+       "h_adj": 0.10763847827911377,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25723535920197005,
+       "h_insensitive": 0.19733076907889027,
+       "h_adj": 0.2533074617385864,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.8728323527320754
+    },
+    {
+     "seed": 3,
+     "per_metapath": [
+      {
+       "metapath": "paper-PP_cite-paper-PP_cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1429923733693227,
+       "h_insensitive": 0.038863018837804554,
+       "h_adj": 0.13141196966171265,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L1",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L1",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.01098416279766262,
+       "h_insensitive": 0.0007717242811929946,
+       "h_adj": 0.0073966956697404385,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L5",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L5",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.019978654159193168,
+       "h_insensitive": 0.008916560061767132,
+       "h_adj": 0.0164954774081707,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L0",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L0",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.0035137005368112624,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 43189
+      },
+      {
+       "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L2",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L2",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.02078588316123314,
+       "h_insensitive": 0.0013519930981526125,
+       "h_adj": 0.01643427647650242,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L3",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L3",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.02351847612753479,
+       "h_insensitive": 0.0025473409150828246,
+       "h_adj": 0.01874721422791481,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L4",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L4",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.025579170426214826,
+       "h_insensitive": 0.0042183160748843216,
+       "h_adj": 0.0206378735601902,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.516036521285717,
+       "h_insensitive": 0.4900899958468121,
+       "h_adj": 0.5138775706291199,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15773617814070104,
+       "h_insensitive": 0.030545392768307963,
+       "h_adj": 0.1529097706079483,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14796418723247148,
+       "h_insensitive": 0.028044841680024586,
+       "h_adj": 0.1436242014169693,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15773617814070104,
+       "h_insensitive": 0.030907756902894726,
+       "h_adj": 0.1535746306180954,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25117063556775243,
+       "h_insensitive": 0.1917190147438558,
+       "h_adj": 0.24670659005641937,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11331934994057619,
+       "h_insensitive": 0.01905737026916287,
+       "h_adj": 0.10804887115955353,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14796418723247148,
+       "h_insensitive": 0.03025911149901419,
+       "h_adj": 0.1439100205898285,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.11331934994057619,
+       "h_insensitive": 0.019155783234545816,
+       "h_adj": 0.10760419070720673,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.2572342319136452,
+       "h_insensitive": 0.19843190848007597,
+       "h_adj": 0.2533058822154999,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.8728321728121955
+    },
+    {
+     "seed": 4,
+     "per_metapath": [
+      {
+       "metapath": "paper-PP_cite-paper-PP_cite-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ],
+        [
+         "paper",
+         "PP_cite",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1429834197034517,
+       "h_insensitive": 0.03874013301178055,
+       "h_adj": 0.1314028948545456,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L1",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L1",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.010981811416254686,
+       "h_insensitive": 0.0007653274005951177,
+       "h_adj": 0.007399075198918581,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L5",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L5",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.0200067479696085,
+       "h_insensitive": 0.008255941240795239,
+       "h_adj": 0.016508370637893677,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L0",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L0",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.003512169591052512,
+       "h_insensitive": 0.0,
+       "h_adj": 0.0,
+       "gp_complete": true,
+       "hub": 43189
+      },
+      {
+       "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L2",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L2",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.020784595975048795,
+       "h_insensitive": 0.0013492195060087313,
+       "h_adj": 0.016435500234365463,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L3",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L3",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.023523496458995916,
+       "h_insensitive": 0.0025424226983288673,
+       "h_adj": 0.018758809193968773,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+       "edge_types": [
+        [
+         "paper",
+         "PF_in_L4",
+         "field"
+        ],
+        [
+         "field",
+         "rev_PF_in_L4",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.02558708066822547,
+       "h_insensitive": 0.004104144738510964,
+       "h_adj": 0.020636525005102158,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.5160445845663433,
+       "h_insensitive": 0.49160968846660485,
+       "h_adj": 0.513887345790863,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15772626822186325,
+       "h_insensitive": 0.030127974793528585,
+       "h_adj": 0.15289632976055145,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_first",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14792380556805465,
+       "h_insensitive": 0.027525314385597955,
+       "h_adj": 0.14358636736869812,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.15772626822186325,
+       "h_insensitive": 0.03105075533993354,
+       "h_adj": 0.15357886254787445,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.2512141218641333,
+       "h_insensitive": 0.19274558822082555,
+       "h_adj": 0.24674564599990845,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_other",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1133698517603251,
+       "h_insensitive": 0.019072653571947436,
+       "h_adj": 0.10810357332229614,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_first",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.14792380556805465,
+       "h_insensitive": 0.029727499079648563,
+       "h_adj": 0.1438867598772049,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_other",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.1133698517603251,
+       "h_insensitive": 0.019962156272953252,
+       "h_adj": 0.10763885080814362,
+       "gp_complete": false,
+       "hub": null
+      },
+      {
+       "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+       "edge_types": [
+        [
+         "paper",
+         "rev_AP_write_last",
+         "author"
+        ],
+        [
+         "author",
+         "AP_write_last",
+         "paper"
+        ]
+       ],
+       "h_edge": 0.25718575851567693,
+       "h_insensitive": 0.1982160549872616,
+       "h_adj": 0.2532666325569153,
+       "gp_complete": false,
+       "hub": null
+      }
+     ],
+     "h2": 0.8728292785526719
+    }
+   ],
+   "labeled_only": {
+    "h2": 0.814440454589203,
+    "per_metapath": [
+     {
+      "metapath": "paper-PP_cite-paper-PP_cite-paper",
+      "h_adj": 0.15886569023132324,
+      "h_edge": 0.17354940823917298
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+      "h_adj": 0.015569675713777542,
+      "h_edge": 0.022335560959121665
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+      "h_adj": 0.06458325684070587,
+      "h_edge": 0.07839658081640744
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L5-field-rev_PF_in_L4-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+      "h_adj": 0.0,
+      "h_edge": 0.005431387843247477,
+      "gp_complete": true,
+      "hub": 43189
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+      "h_adj": 0.026745829731225967,
+      "h_edge": 0.03389915106860437
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+      "h_adj": 0.053077030926942825,
+      "h_edge": 0.06445746231195171
+     },
+     {
+      "metapath": "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L3-paper",
+      "h_adj": null,
+      "h_edge": null
+     },
+     {
+      "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+      "h_adj": 0.0689660906791687,
+      "h_edge": 0.0848885861273137
+     },
+     {
+      "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+      "h_adj": 0.5711076259613037,
+      "h_edge": 0.5740129266074153
+     },
+     {
+      "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+      "h_adj": 0.2308228760957718,
+      "h_edge": 0.23813591069154116
+     },
+     {
+      "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+      "h_adj": 0.2070002257823944,
+      "h_edge": 0.21350851467990803
+     },
+     {
+      "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+      "h_adj": 0.23176634311676025,
+      "h_edge": 0.23813591069154116
+     },
+     {
+      "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+      "h_adj": 0.35672271251678467,
+      "h_edge": 0.3636729373101108
+     },
+     {
+      "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+      "h_adj": 0.19561932981014252,
+      "h_edge": 0.20407890743550836
+     },
+     {
+      "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+      "h_adj": 0.2075662761926651,
+      "h_edge": 0.21350851467990803
+     },
+     {
+      "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+      "h_adj": 0.1953463852405548,
+      "h_edge": 0.20407890743550836
+     },
+     {
+      "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+      "h_adj": 0.3851933777332306,
+      "h_edge": 0.3908408578214003
+     }
+    ]
+   }
+  }
+ },
+ "h2b": {
+  "complete_gp": {
+   "paper-PF_in_L0-field-rev_PF_in_L0-paper": 43189
+  },
+  "empty_gp_skipped": [
+   "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+   "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+   "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+   "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+   "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+   "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+   "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+   "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+   "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+   "paper-PF_in_L5-field-rev_PF_in_L4-paper",
+   "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+   "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+   "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+   "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+   "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+   "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+   "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+   "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+   "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+   "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+   "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+   "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+   "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+   "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+   "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+   "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+   "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+   "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+   "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+   "paper-PF_in_L4-field-rev_PF_in_L3-paper"
+  ],
+  "computation": "per meta-path (closed form on complete G_P, calcHomophily elsewhere)"
+ },
+ "labeled_targets": 294050,
+ "targets": 370624,
+ "labeled_only": 0.814440454589203,
+ "wall_s": 14674.7,
+ "peak_rss_gb": 5.178
+}

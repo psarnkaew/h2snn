@@ -1,0 +1,26 @@
+{
+ "dataset": "enzymes",
+ "task": "gc",
+ "measure": "gc_types",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17260",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "src/analysis/heterophily.py gc_type_statistics",
+ "loader": "src/data/graph_classification_dataset.py:53 _load_tu_type_tensors on offline_tu_dataset (src/data/offline.py:46)",
+ "num_node_types": 3,
+ "num_edge_types": 1,
+ "graphs": 600,
+ "edges": 74564,
+ "cross_type_edges": 24960,
+ "type_mixing_ratio": 0.3347459900219945,
+ "mean_per_graph_ratio": 0.3312025846228255,
+ "form": "heterogeneity statistic, never heterophily (spec 1.23)",
+ "value": 0.3347459900219945,
+ "wall_s": 2.12,
+ "peak_rss_gb": 0.601
+}

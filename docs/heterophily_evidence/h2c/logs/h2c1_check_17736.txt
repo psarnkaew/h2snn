@@ -1,0 +1,70 @@
+job=17736 node=g3n01 start=2026-11-18T19:42:20+09:00
+git=c74bb20bdd27ad95f3d20c2b5f8294a2b8311aac branch=HEAD
+status:  M src/analysis/heterophily.py
+status:  M tests/test_heterophily_harness.py
+=== survey
+{"metapath": "transaction-card1-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 144233, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 8499, "gp_edges_with_self_pairs": 213720395, "self_pairs": 144233}
+{"metapath": "transaction-card2-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 902, "targets_with_1": 143331, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 482, "gp_edges_with_self_pairs": 811536307, "self_pairs": 143331}
+{"metapath": "transaction-card3-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 172, "targets_with_1": 144061, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 103, "gp_edges_with_self_pairs": 9538366081, "self_pairs": 144061}
+{"metapath": "transaction-card4-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 184, "targets_with_1": 144049, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 4, "gp_edges_with_self_pairs": 10000705557, "self_pairs": 144049}
+{"metapath": "transaction-card5-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 956, "targets_with_1": 143277, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 106, "gp_edges_with_self_pairs": 4102834227, "self_pairs": 143277}
+{"metapath": "transaction-card6-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 178, "targets_with_1": 144055, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 3, "gp_edges_with_self_pairs": 10392610825, "self_pairs": 144055}
+{"metapath": "transaction-ProductCD-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 144233, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 4, "gp_edges_with_self_pairs": 6494845857, "self_pairs": 144233}
+{"metapath": "transaction-addr1-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 60447, "targets_with_1": 83786, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 255, "gp_edges_with_self_pairs": 344049308, "self_pairs": 83786}
+{"metapath": "transaction-addr2-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 60447, "targets_with_1": 83786, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 72, "gp_edges_with_self_pairs": 6537815520, "self_pairs": 83786}
+{"metapath": "transaction-P_emaildomain-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 13391, "targets_with_1": 130842, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 59, "gp_edges_with_self_pairs": 4086829248, "self_pairs": 130842}
+{"metapath": "transaction-R_emaildomain-transaction", "max_mid_edges_per_target": 1, "targets_with_0": 13150, "targets_with_1": 131083, "targets_with_2_or_more": 0, "clique_condition": true, "cliques": 60, "gp_edges_with_self_pairs": 4218661273, "self_pairs": 131083}
+mismatch False
+=== acm
+{"metapath": "paper-subject-paper", "max_mid_edges_per_target": 1, "targets_with_0": 0, "targets_with_1": 3025, "targets_with_2_or_more": 0, "clique_condition": true, "dataset": "acm", "record_job": "17210", "recorded": 0.04272257399931073, "recorded_edges": 2217089, "closed_form": 0.0427225686757869, "edges": 2217089, "rel_diff": 1.2460681395689837e-07, "edges_equal": true, "ok": true}
+{"metapath": "paper-term-paper", "max_mid_edges_per_target": 196, "targets_with_0": 0, "targets_with_1": 0, "targets_with_2_or_more": 3025, "clique_condition": false, "dataset": "acm", "record_job": "17210", "recorded": 0.010651621859015746, "recorded_edges": 9150595}
+mismatch False
+=== dblp
+mismatch False
+=== freebase
+Traceback (most recent call last):
+AttributeError: 'NodeStorage' object has no attribute 'x'
+EXIT freebase: 1
+=== h-pokec
+{"metapath": "user-life_style-user", "max_mid_edges_per_target": 225, "targets_with_0": 1412983, "targets_with_1": 105725, "targets_with_2_or_more": 114095, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.0008667591098889771, "recorded_edges": 2252854254}
+{"metapath": "user-music-user", "max_mid_edges_per_target": 393, "targets_with_0": 1462052, "targets_with_1": 84058, "targets_with_2_or_more": 86693, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.002616090098172456, "recorded_edges": 577508049}
+{"metapath": "user-cars-user", "max_mid_edges_per_target": 254, "targets_with_0": 1583553, "targets_with_1": 31907, "targets_with_2_or_more": 17343, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.0013697131420506226, "recorded_edges": 285777746}
+{"metapath": "user-politics-user", "max_mid_edges_per_target": 47, "targets_with_0": 1605458, "targets_with_1": 20876, "targets_with_2_or_more": 6469, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.01499502523915268, "recorded_edges": 13529059}
+{"metapath": "user-relationships-user", "max_mid_edges_per_target": 385, "targets_with_0": 1422257, "targets_with_1": 90986, "targets_with_2_or_more": 119560, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.0004286048463936151, "recorded_edges": 4454659810}
+{"metapath": "user-art_culture-user", "max_mid_edges_per_target": 52, "targets_with_0": 1596871, "targets_with_1": 28011, "targets_with_2_or_more": 7921, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.013731160945950992, "recorded_edges": 19504556}
+{"metapath": "user-hobbies_interests-user", "max_mid_edges_per_target": 163, "targets_with_0": 1498404, "targets_with_1": 82894, "targets_with_2_or_more": 51505, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.00026309135626102363, "recorded_edges": 4250485397}
+{"metapath": "user-science_technologies-user", "max_mid_edges_per_target": 45, "targets_with_0": 1601502, "targets_with_1": 25706, "targets_with_2_or_more": 5595, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.0006675088083923882, "recorded_edges": 361289099}
+{"metapath": "user-computers_internet-user", "max_mid_edges_per_target": 114, "targets_with_0": 1581151, "targets_with_1": 39460, "targets_with_2_or_more": 12192, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.0009053043581030483, "recorded_edges": 452913856}
+{"metapath": "user-education-user", "max_mid_edges_per_target": 77, "targets_with_0": 1582987, "targets_with_1": 35600, "targets_with_2_or_more": 14216, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.010079731316660945, "recorded_edges": 38863218}
+{"metapath": "user-sport-user", "max_mid_edges_per_target": 134, "targets_with_0": 1552922, "targets_with_1": 50457, "targets_with_2_or_more": 29424, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.009098906749113688, "recorded_edges": 69714315}
+{"metapath": "user-movies-user", "max_mid_edges_per_target": 183, "targets_with_0": 1560893, "targets_with_1": 42681, "targets_with_2_or_more": 29229, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.004731135588271733, "recorded_edges": 130920786}
+{"metapath": "user-travelling-user", "max_mid_edges_per_target": 55, "targets_with_0": 1597763, "targets_with_1": 27737, "targets_with_2_or_more": 7303, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.00856114158927543, "recorded_edges": 30780940}
+{"metapath": "user-health-user", "max_mid_edges_per_target": 112, "targets_with_0": 1587498, "targets_with_1": 32750, "targets_with_2_or_more": 12555, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.01329241698960762, "recorded_edges": 26871575}
+{"metapath": "user-companies_brands-user", "max_mid_edges_per_target": 76, "targets_with_0": 1610824, "targets_with_1": 16682, "targets_with_2_or_more": 5297, "clique_condition": false, "dataset": "h-pokec", "record_job": "17398", "recorded": 0.004767701637757957, "recorded_edges": 37174401}
+mismatch False
+=== ieee-cis-g
+mismatch False
+=== imdb
+mismatch False
+=== mag-year
+{"metapath": "paper-author-paper", "max_mid_edges_per_target": 5050, "targets_with_0": 0, "targets_with_1": 57457, "targets_with_2_or_more": 678932, "clique_condition": false, "dataset": "mag-year", "record_job": "17640", "recorded": 0.008020522229801168, "recorded_edges": 65933339}
+mismatch False
+=== oag-chem
+{"metapath": "paper-author-paper", "max_mid_edges_per_target": 286, "targets_with_0": 51113, "targets_with_1": 56689, "targets_with_2_or_more": 639488, "clique_condition": false, "dataset": "oag-chem", "record_job": "17631", "recorded": 12.300143602666147, "recorded_edges": 30172629}
+mismatch False
+=== oag-cs
+{"metapath": "paper-author-paper", "max_mid_edges_per_target": 351, "targets_with_0": 65338, "targets_with_1": 62850, "targets_with_2_or_more": 418516, "clique_condition": false, "dataset": "oag-cs", "record_job": "17629", "recorded": 10.757481634288546, "recorded_edges": 26080276}
+mismatch False
+=== oag-eng
+{"metapath": "paper-author-paper", "max_mid_edges_per_target": 64, "targets_with_0": 52939, "targets_with_1": 50580, "targets_with_2_or_more": 267105, "clique_condition": false, "dataset": "oag-eng", "record_job": "17627", "recorded": 18.403468139117056, "recorded_edges": 5565775}
+mismatch False
+=== ogbn-mag
+{"metapath": "paper-author-paper", "max_mid_edges_per_target": 5050, "targets_with_0": 0, "targets_with_1": 57457, "targets_with_2_or_more": 678932, "clique_condition": false, "dataset": "ogbn-mag", "record_job": "17634", "recorded": 0.008020522229801168, "recorded_edges": 65933339}
+mismatch False
+=== pdns
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+{"metapath": "domain_node-ip_node-domain_node", "max_mid_edges_per_target": 1429, "targets_with_0": 7485, "targets_with_1": 447252, "targets_with_2_or_more": 442898, "clique_condition": false, "dataset": "pdns", "record_job": "17390", "recorded": 0.001994947127010549, "recorded_edges": 215575280}
+mismatch False
+end=2026-11-18T19:45:56+09:00 exit=1

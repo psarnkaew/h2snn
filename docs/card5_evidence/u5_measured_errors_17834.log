@@ -1,0 +1,20 @@
+job=17834 node=g3n01 git=610c58ffe618a390b13aecc18548c861e536930e start=2026-11-19T16:40:21+09:00
+dirty: 
+{
+ "T5 |E_hook - 1/2 Y^T L Y| (fixture)": 5.684341886080802e-14,
+ "T5 E (fixture, scale)": 457.8665287963582,
+ "T5 |sum e_v + fact-cell - E| (fixture)": 0.0,
+ "T5 max |e_v| at Thm 4 section": 8.91739668545585e-30,
+ "T5 |E| at Thm 4 section": 3.396271193768181e-29,
+ "T5 |E_hook - 1/2 Y^T L_hat Y| (model)": 7.105427357601002e-15,
+ "T5 E (model, scale)": 31.518102688106985,
+ "T5 |sum e_v + fact-cell - E| (model)": 3.552713678800501e-15,
+ "T6 max |logits(empty) - logits|": 0.0,
+ "T6 max |logits(all) - logits(no_path_cells)|": 0.0,
+ "T7 max |Q x - F_src^-1 F_tgt x|": 6.661338147750939e-16,
+ "T7 max |Q^T Q - I|": 1.1102230246251565e-15,
+ "T7 median ||Q - I||_F (for scale)": 4.671495105331492,
+ "T8 max |w_hook - w_model|": 0.0,
+ "T8 max |beta_hook - beta_model|": 0.0
+}
+end=2026-11-19T16:40:26+09:00 exit=0

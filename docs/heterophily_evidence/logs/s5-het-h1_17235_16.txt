@@ -1,0 +1,5 @@
+job=17252 array=17235_16 node=g2n01 start=2026-11-17T06:17:27+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=16384M cpus=8
+task: dataset=freebase_bb task=lp measure=task_h_edge deadline_h=11.500
+[06:17:34] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/lp__freebase_bb__task_h_edge.json: value 0.7794125229120255
+end=2026-11-17T06:17:34+09:00 exit=0

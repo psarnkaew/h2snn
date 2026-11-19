@@ -1,0 +1,108 @@
+{
+ "dataset": "imdb",
+ "task": "nc",
+ "measure": "mde",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17205",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges)",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "movie-to-director": "kept (reverse partner director-to-movie)",
+  "director-to-movie": "kept (reverse partner movie-to-director)",
+  "movie->actorh-actor": "kept (reverse partner actor-to-movie)",
+  "actor-to-movie": "kept (reverse partner movie->actorh-actor)",
+  "movie-to-keyword": "kept (reverse partner keyword-to-movie)",
+  "keyword-to-movie": "kept (reverse partner movie-to-keyword)"
+ },
+ "graph": {
+  "node_types": {
+   "movie": 4932,
+   "director": 2393,
+   "actor": 6124,
+   "keyword": 7971
+  },
+  "edge_types": {
+   "movie-to-director": 4932,
+   "director-to-movie": 4932,
+   "movie->actorh-actor": 14779,
+   "actor-to-movie": 14779,
+   "movie-to-keyword": 23610,
+   "keyword-to-movie": 23610
+  }
+ },
+ "target": "movie",
+ "m2": [
+  "movie-director-movie",
+  "movie-actor-movie",
+  "movie-keyword-movie"
+ ],
+ "m2_source": "Hetero2Net predefined list 'imdb' (App. B.1)",
+ "value": 0.5927698860565821,
+ "form": "MDE, mean over M2 (raw features)",
+ "feature_dim": 3489,
+ "feature_dtype": "torch.float32",
+ "per_metapath": [
+  {
+   "metapath": "movie-director-movie",
+   "steps": [
+    [
+     "movie",
+     "director"
+    ],
+    [
+     "director",
+     "movie"
+    ]
+   ],
+   "edges": 21282,
+   "reference": 1.2095433473587036,
+   "chunked": 1.2095433647239027,
+   "value": 1.2095433473587036,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath": "movie-actor-movie",
+   "steps": [
+    [
+     "movie",
+     "actor"
+    ],
+    [
+     "actor",
+     "movie"
+    ]
+   ],
+   "edges": 99782,
+   "reference": 0.4429570138454437,
+   "chunked": 0.44295702701802153,
+   "value": 0.4429570138454437,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath": "movie-keyword-movie",
+   "steps": [
+    [
+     "movie",
+     "keyword"
+    ],
+    [
+     "keyword",
+     "movie"
+    ]
+   ],
+   "edges": 403848,
+   "reference": 0.12580929696559906,
+   "chunked": 0.12580930890285336,
+   "value": 0.12580929696559906,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  }
+ ],
+ "wall_s": 22.05,
+ "peak_rss_gb": 3.347
+}

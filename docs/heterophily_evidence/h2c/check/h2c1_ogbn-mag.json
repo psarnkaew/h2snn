@@ -1,0 +1,18 @@
+{
+ "which": "ogbn-mag",
+ "rows": [
+  {
+   "metapath": "paper-author-paper",
+   "max_mid_edges_per_target": 5050,
+   "targets_with_0": 0,
+   "targets_with_1": 57457,
+   "targets_with_2_or_more": 678932,
+   "clique_condition": false,
+   "dataset": "ogbn-mag",
+   "record_job": "17634",
+   "recorded": 0.008020522229801168,
+   "recorded_edges": 65933339
+  }
+ ],
+ "mismatch": false
+}

@@ -1,0 +1,22 @@
+job=17593 array=17585_7 node=g2tn01 start=2026-11-18T09:29:53+09:00
+git=503f9c47c53f7b2dcee4ab12f98da215b6dac052 branch=heterophily mem=16384M cpus=4
+task: dataset=ieee-cis-g task=nc measure=hubs out=default deadline_h=1.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/ieee_cis_dataset.py:170: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data = torch.load(self.processed_paths[0])
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/loader/master_loader.py:767: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  data = dataset.data
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1378.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2678.36it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2868.88it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2884.67it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2861.05it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2900.63it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2882.68it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2906.66it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2914.74it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2890.63it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2902.63it/s]
+[09:30:30] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__ieee-cis-g__hubs.json: value None
+end=2026-11-18T09:30:31+09:00 exit=0

@@ -1,0 +1,374 @@
+{
+ "dataset": "freebase",
+ "task": "nc",
+ "measure": "mlh",
+ "harness_commit": "c7c3ac174b8ad4d97ceb45680ce9125f055b7829",
+ "job": "17244",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily",
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "symmetrisation": {
+  "book-and-book": "no reverse partner: made undirected (to_undirected)",
+  "book-to-film": "no reverse partner: added film-rev_to-book",
+  "book-on-sports": "no reverse partner: added sports-rev_on-book",
+  "book-on-location": "no reverse partner: added location-rev_on-book",
+  "book-about-organization": "no reverse partner: added organization-rev_about-book",
+  "film-and-film": "kept",
+  "music-in-book": "no reverse partner: added book-rev_in-music",
+  "music-in-film": "no reverse partner: added film-rev_in-music",
+  "music-and-music": "kept",
+  "music-for-sports": "no reverse partner: added sports-rev_for-music",
+  "music-on-location": "no reverse partner: added location-rev_on-music",
+  "sports-in-film": "no reverse partner: added film-rev_in-sports",
+  "sports-and-sports": "kept",
+  "sports-on-location": "no reverse partner: added location-rev_on-sports",
+  "people-to-book": "no reverse partner: added book-rev_to-people",
+  "people-to-film": "no reverse partner: added film-rev_to-people",
+  "people-to-music": "no reverse partner: added music-rev_to-people",
+  "people-to-sports": "no reverse partner: added sports-rev_to-people",
+  "people-and-people": "kept",
+  "people-on-location": "no reverse partner: added location-rev_on-people",
+  "people-in-organization": "no reverse partner: added organization-rev_in-people",
+  "people-in-business": "no reverse partner: added business-rev_in-people",
+  "location-in-film": "no reverse partner: added film-rev_in-location",
+  "location-and-location": "kept",
+  "organization-in-film": "no reverse partner: added film-rev_in-organization",
+  "organization-to-music": "no reverse partner: added music-rev_to-organization",
+  "organization-to-sports": "no reverse partner: added sports-rev_to-organization",
+  "organization-on-location": "no reverse partner: added location-rev_on-organization",
+  "organization-and-organization": "kept",
+  "organization-for-business": "no reverse partner: added business-rev_for-organization",
+  "business-about-book": "no reverse partner: added book-rev_about-business",
+  "business-about-film": "no reverse partner: added film-rev_about-business",
+  "business-about-music": "no reverse partner: added music-rev_about-business",
+  "business-about-sports": "no reverse partner: added sports-rev_about-business",
+  "business-on-location": "no reverse partner: added location-rev_on-business",
+  "business-and-business": "kept"
+ },
+ "graph": {
+  "node_types": {
+   "book": 40402,
+   "film": 19427,
+   "music": 82351,
+   "sports": 1025,
+   "people": 17641,
+   "location": 9368,
+   "organization": 2731,
+   "business": 7153
+  },
+  "edge_types": {
+   "book-and-book": 270106,
+   "book-to-film": 38299,
+   "film-rev_to-book": 38299,
+   "book-on-sports": 6615,
+   "sports-rev_on-book": 6615,
+   "book-on-location": 26921,
+   "location-rev_on-book": 26921,
+   "book-about-organization": 21900,
+   "organization-rev_about-book": 21900,
+   "film-and-film": 87838,
+   "music-in-book": 31486,
+   "book-rev_in-music": 31486,
+   "music-in-film": 11291,
+   "film-rev_in-music": 11291,
+   "music-and-music": 283670,
+   "music-for-sports": 8975,
+   "sports-rev_for-music": 8975,
+   "music-on-location": 42915,
+   "location-rev_on-music": 42915,
+   "sports-in-film": 6763,
+   "film-rev_in-sports": 6763,
+   "sports-and-sports": 1290,
+   "sports-on-location": 656,
+   "location-rev_on-sports": 656,
+   "people-to-book": 35587,
+   "book-rev_to-people": 35587,
+   "people-to-film": 17604,
+   "film-rev_to-people": 17604,
+   "people-to-music": 10948,
+   "music-rev_to-people": 10948,
+   "people-to-sports": 14850,
+   "sports-rev_to-people": 14850,
+   "people-and-people": 22813,
+   "people-on-location": 15134,
+   "location-rev_on-people": 15134,
+   "people-in-organization": 2215,
+   "organization-rev_in-people": 2215,
+   "people-in-business": 5378,
+   "business-rev_in-people": 5378,
+   "location-in-film": 21299,
+   "film-rev_in-location": 21299,
+   "location-and-location": 47817,
+   "organization-in-film": 13128,
+   "film-rev_in-organization": 13128,
+   "organization-to-music": 10702,
+   "music-rev_to-organization": 10702,
+   "organization-to-sports": 559,
+   "sports-rev_to-organization": 559,
+   "organization-on-location": 2696,
+   "location-rev_on-organization": 2696,
+   "organization-and-organization": 1101,
+   "organization-for-business": 1073,
+   "business-rev_for-organization": 1073,
+   "business-about-book": 18625,
+   "book-rev_about-business": 18625,
+   "business-about-film": 8397,
+   "film-rev_about-business": 8397,
+   "business-about-music": 24764,
+   "music-rev_about-business": 24764,
+   "business-about-sports": 610,
+   "sports-rev_about-business": 610,
+   "business-on-location": 6647,
+   "location-rev_on-business": 6647,
+   "business-and-business": 4448
+  }
+ },
+ "target": "book",
+ "m2": [
+  "book-film-book",
+  "book-sports-book",
+  "book-location-book",
+  "book-organization-book",
+  "book-music-book",
+  "book-people-book",
+  "book-business-book"
+ ],
+ "m2_source": "get_metapaths (homophily.py:51-63)",
+ "value": 0.8457624041517953,
+ "form": "heterophily: 1 - mean over M2 (and genres) of label_homophily",
+ "fill_seeds": {
+  "label": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "value_over_fill_seeds": [
+  0.8457624041517953,
+  0.8444669130812725,
+  0.8450052607199029,
+  0.845011677018527,
+  0.8458873835633703
+ ],
+ "spread": [
+  0.8444669130812725,
+  0.8458873835633703
+ ],
+ "per_metapath": [
+  {
+   "metapath": "book-film-book",
+   "steps": [
+    [
+     "book",
+     "film"
+    ],
+    [
+     "film",
+     "book"
+    ]
+   ],
+   "edges": 4193476,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.14827508240968093,
+    "label@1": 0.14936868582806015,
+    "label@2": 0.1487935068719234,
+    "label@3": 0.14777287408671164,
+    "label@4": 0.14775856614777869
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.4735674687399869
+   },
+   "labeled_only_edges": {
+    "label": 45985
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-sports-book",
+   "steps": [
+    [
+     "book",
+     "sports"
+    ],
+    [
+     "sports",
+     "book"
+    ]
+   ],
+   "edges": 14405128,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.16649681982259878,
+    "label@1": 0.1694275813865374,
+    "label@2": 0.16539346244785946,
+    "label@3": 0.16767306742934307,
+    "label@4": 0.16834782705487505
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.9531006662457191
+   },
+   "labeled_only_edges": {
+    "label": 411605
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-location-book",
+   "steps": [
+    [
+     "book",
+     "location"
+    ],
+    [
+     "location",
+     "book"
+    ]
+   ],
+   "edges": 37884185,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.1473153768333684,
+    "label@1": 0.14820894295237486,
+    "label@2": 0.14648595424887273,
+    "label@3": 0.1464546481400049,
+    "label@4": 0.1459892297163287
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.4112019109069617
+   },
+   "labeled_only_edges": {
+    "label": 542461
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-organization-book",
+   "steps": [
+    [
+     "book",
+     "organization"
+    ],
+    [
+     "organization",
+     "book"
+    ]
+   ],
+   "edges": 54932925,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.14540891419189605,
+    "label@1": 0.1457028006092999,
+    "label@2": 0.14567713272191354,
+    "label@3": 0.1449686677669869,
+    "label@4": 0.14521631631290702
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.23597164747313135
+   },
+   "labeled_only_edges": {
+    "label": 1312467
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-music-book",
+   "steps": [
+    [
+     "book",
+     "music"
+    ],
+    [
+     "music",
+     "book"
+    ]
+   ],
+   "edges": 84404,
+   "mode": "single call",
+   "h_edge_homophily": {
+    "label@0": 0.18001516163349152,
+    "label@1": 0.1835457980632782,
+    "label@2": 0.18702904880046844,
+    "label@3": 0.18558362126350403,
+    "label@4": 0.17890147864818573
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.5259352326393127
+   },
+   "labeled_only_edges": {
+    "label": 6362
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-people-book",
+   "steps": [
+    [
+     "book",
+     "people"
+    ],
+    [
+     "people",
+     "book"
+    ]
+   ],
+   "edges": 3145804,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.1475756278608826,
+    "label@1": 0.1475184087618773,
+    "label@2": 0.14682224320952586,
+    "label@3": 0.14826988594607138,
+    "label@4": 0.14819804376104811
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.7389591400534465
+   },
+   "labeled_only_edges": {
+    "label": 15737
+   },
+   "exact_match_h_edge_homophily": null
+  },
+  {
+   "metapath": "book-business-book",
+   "steps": [
+    [
+     "book",
+     "business"
+    ],
+    [
+     "business",
+     "book"
+    ]
+   ],
+   "edges": 35046698,
+   "mode": "chunked (weighted chunk means)",
+   "h_edge_homophily": {
+    "label@0": 0.14457618818551532,
+    "label@1": 0.14495939082966494,
+    "label@2": 0.14476182666011653,
+    "label@3": 0.14419549623768957,
+    "label@4": 0.1443768534152842
+   },
+   "labeled_only_h_edge_homophily": {
+    "label": 0.35417188958263773
+   },
+   "labeled_only_edges": {
+    "label": 199406
+   },
+   "exact_match_h_edge_homophily": null
+  }
+ ],
+ "labeled_targets": 7954,
+ "targets": 40402,
+ "labeled_only": 0.4724417206226863,
+ "wall_s": 12.05,
+ "peak_rss_gb": 0.708
+}

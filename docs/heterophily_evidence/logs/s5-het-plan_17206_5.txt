@@ -1,0 +1,55 @@
+job=17221 array=17206_5 node=g2n01 start=2026-11-17T05:50:26+09:00
+git=c7c3ac174b8ad4d97ceb45680ce9125f055b7829 branch=heterophily mem=24576M cpus=8
+task: dataset=oag-chem task=nc measure=plan deadline_h=0.500
+/mnt/data/peeradon/h2snn-heterophily/H2S-NN/vendor/H2GB/H2GB/datasets/oag_dataset.py:72: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1331.53it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2634.61it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2861.05it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2890.63it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3153.61it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3196.88it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2880.70it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3243.85it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3253.92it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3233.85it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3264.05it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3218.96it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3294.82it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3313.04it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3310.42it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3302.60it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3279.36it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3310.42it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3315.66it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3289.65it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3289.65it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3292.23it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2937.19it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3310.42it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3315.66it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3274.24it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3307.81it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3289.65it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3167.90it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3305.20it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3300.00it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3336.76it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3318.28it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3318.28it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3307.81it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3307.81it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3318.28it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3302.60it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3310.42it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2966.27it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3326.17it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3307.81it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3310.42it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3300.00it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3305.20it/s]
+[05:50:44] wrote /mnt/data/peeradon/h2snn-heterophily/docs/heterophily_evidence/records/nc__oag-chem__plan.json: value None
+end=2026-11-17T05:50:44+09:00 exit=0

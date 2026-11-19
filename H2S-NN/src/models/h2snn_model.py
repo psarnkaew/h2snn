@@ -23,7 +23,8 @@ legacy-removal card (v1/v2).
 from __future__ import annotations
 
 import math
-from typing import Mapping, NamedTuple
+from dataclasses import replace as _replace
+from typing import Callable, Mapping, NamedTuple
 
 import torch
 from torch import nn
@@ -159,6 +160,31 @@ def _self_inverse_of(data: object) -> tuple[int, ...]:
     """Self-inverse relation ids of the data's fact layer (empty without one)."""
     layer = getattr(data, "fact_layer", None)
     return () if layer is None else tuple(layer.self_inverse)
+
+
+class SolveSnapshot(NamedTuple):
+    """Card 5 U2 hook (a): what the last anchored solve used, kept only when the model's
+    `record_solve_state` is set (analysis code, evaluation forwards). Read-only: `build(*params)`
+    rebuilds the solved (eliminated) operator; `y_star` is the reduced state `(x, s_kept, z)` in the
+    solve's variables (the operator is `L_hat`)."""
+
+    build: Callable
+    params: tuple[torch.Tensor, ...]
+    y_star: torch.Tensor
+    num_nodes: int
+    groups: tuple[FaceGroup, ...]
+    global_node_id: torch.Tensor | None
+    tau: torch.Tensor
+
+
+def _select_cells(group: FaceGroup, keep: torch.Tensor) -> FaceGroup:
+    """The cells of `group` where `keep` (rows of every per-cell field; card 5 knockout)."""
+    def rows(value):
+        return None if value is None else value[keep]
+    return _replace(group, face_node_index=group.face_node_index[keep],
+                    face_edge_index=group.face_edge_index[keep],
+                    relation_index=rows(group.relation_index), face_edge_sign=rows(group.face_edge_sign),
+                    path_weight=rows(group.path_weight), signature_index=rows(group.signature_index))
 
 
 class AnchoredState(NamedTuple):
@@ -435,6 +461,15 @@ class H2SNN(nn.Module):
         )
         # N2c (pre-registration §4.3): C_e = 0 in evaluation forwards only (a training forward raises).
         self.type_only_maps = config.evaluation.type_only_maps
+        # Card 5 U2 (ablation plan v2 F3): in an evaluation forward, every cell through one of these
+        # global node ids gets beta_f = 0 (removed from the solve, see `_knockout`); a training forward
+        # with it raises. `last_cell_betas`: the effective beta_f per non-empty group of the last
+        # evaluation forward (0 on knocked-out cells), for read-back.
+        self.knockout_nodes: tuple[int, ...] = tuple(config.evaluation.knockout_nodes)
+        self.last_cell_betas: tuple[torch.Tensor, ...] = ()
+        # Card 5 U2 hook (a): opt-in read-only snapshot of the last evaluation solve (analysis code).
+        self.record_solve_state = False
+        self.last_solve_state: SolveSnapshot | None = None
         self.path_encoder: PathEncoder | EndpointEncoder | SchemaEncoder | None = None
         self.path_gate: nn.Linear | None = None
         self.path_log_weight: nn.Parameter | None = None
@@ -524,6 +559,45 @@ class H2SNN(nn.Module):
                     max_positions=max(dims.face_lengths, default=1),
                     orthogonal_map=model_config.orthogonal_map,
                 )
+
+    def _knockout(self, face_groups, scope_index, groups, betas, weights, latents, global_node_id):
+        """F3 face knockout at evaluation (card 5 U2): every cell with a node in `knockout_nodes`
+        (global ids) gets beta_f = 0. Such a cell's energy terms all vanish and its state z_f
+        decouples, so it is removed from the solve (a cell row with beta_f = 0 has D_f = 0, which the
+        Jacobi preconditioner cannot take: `anchored_solve.py` `jacobi_inverse`). Maps, a_e, the solver
+        and every other cell's beta_f are unchanged. Evaluation forwards only."""
+        if self.training:
+            raise ValueError("evaluation.knockout_nodes (F3) is an evaluation-only read-out of a trained "
+                             "checkpoint; a training forward with it is refused.")
+        device = betas[0].device if betas else None
+        knock = torch.tensor(sorted(set(self.knockout_nodes)), dtype=torch.long, device=device)
+        keep_masks = []
+        for group in groups:
+            nodes = group.face_node_index
+            ids = nodes if global_node_id is None else global_node_id[nodes]
+            keep_masks.append(~torch.isin(ids, knock).any(dim=1))
+        self.last_cell_betas = tuple(torch.where(keep, b, torch.zeros_like(b)).detach()
+                                     for b, keep in zip(betas, keep_masks))
+        new_face, new_cells = [], []
+        nonempty = iter(keep_masks)
+        for i, group in enumerate(face_groups):
+            if group.num_faces == 0:
+                continue
+            keep = next(nonempty)
+            if bool(keep.any()):
+                new_face.append(_select_cells(group, keep))
+                if scope_index is not None:
+                    new_cells.append(scope_index.cell[i][keep])
+        kept = [(b[k], w[k], None if l is None else l[k])
+                for b, w, l, k in zip(betas, weights, latents, keep_masks) if bool(k.any())]
+        groups = tuple(new_face)                   # the non-empty kept groups, in order
+        betas = [b for b, _, _ in kept]
+        weights = [w for _, w, _ in kept]
+        latents = [l for _, _, l in kept]
+        if scope_index is not None:
+            scope_index = ScopeIndex(scope_index.node, scope_index.fact, tuple(new_cells),
+                                     scope_index.num_scopes)
+        return tuple(new_face), scope_index, groups, betas, weights, latents
 
     def _type_only(self) -> bool:
         """N2c type-only read-out (`evaluation.type_only_maps`): evaluation forwards only."""
@@ -667,7 +741,7 @@ class H2SNN(nn.Module):
         if self.h0_only:
             return EncodedState(h0=h0, x_star=h0, representation=h0, operator=None)
         return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
-                                     scope_index)
+                                     scope_index, global_node_id)
 
     # ------------------------------------------------------------------ v3-B anchored solve
     def _cell_weights(self, h0: torch.Tensor, geometry: torch.Tensor,
@@ -706,7 +780,8 @@ class H2SNN(nn.Module):
     def _encode_anchored(self, h0: torch.Tensor, edge_index: torch.Tensor,
                          edge_type: torch.Tensor, face_groups: tuple[FaceGroup, ...],
                          num_nodes: int, epoch: int,
-                         scope_index: ScopeIndex | None = None) -> EncodedState:
+                         scope_index: ScopeIndex | None = None,
+                         global_node_id: torch.Tensor | None = None) -> EncodedState:
         """`Y* = argmin 1/2||x - h0||^2 + tau/2 Y^T L_hat Y` on the three-level energy (R13):
         geometry once from `h0`, cell weights from g, then `AnchoredSolve` on the eliminated
         operator (fact states only on `E_shared`; `hub_A`: none). Arms: see `model.arm`."""
@@ -737,6 +812,11 @@ class H2SNN(nn.Module):
                                         "path_log_w_range": log_w_range}
             if log_w_range > range_stop:  # spec §6 stop condition (J10)
                 raise LogWeightRangeStopError(log_w_range, range_stop, epoch)
+        if not self.training:
+            self.last_cell_betas = tuple(b.detach() for b in betas)
+        if self.knockout_nodes:
+            face_groups, scope_index, groups, betas, weights, latents = self._knockout(
+                face_groups, scope_index, groups, betas, weights, latents, global_node_id)
         free_params: list[torch.Tensor] = []
         if arm == "free_cell_maps" and self.free_cell_maps is not None:
             for group, latent in zip(groups, latents):
@@ -825,6 +905,11 @@ class H2SNN(nn.Module):
         if not self.training and scope_index is None:
             self._warm_start = y_star.detach()
             self._warm_start_key = draw_key
+        if self.record_solve_state and not self.training:
+            self.last_solve_state = SolveSnapshot(
+                build=build, params=tuple(p.detach() for p in params), y_star=y_star.detach(),
+                num_nodes=num_nodes, groups=groups, global_node_id=global_node_id,
+                tau=self.tau().detach())  # type: ignore[union-attr]
         x_star = y_star[:num_nodes]
         parts = [x_star, h0] if self.ego_head else [x_star]
         if arm == "instance_features":

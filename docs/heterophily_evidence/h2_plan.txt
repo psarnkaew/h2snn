@@ -1,0 +1,8 @@
+ogbn-mag nc plan
+mag-year nc plan
+oag-cs nc plan
+oag-eng nc plan
+oag-chem nc plan
+ieee-cis-g nc plan
+h-pokec nc plan
+pdns nc plan
