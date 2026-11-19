@@ -1,0 +1,26 @@
+job=17842 node=g3an01 start=2026-11-19T17:33:51+09:00
+git=f95d151353b6001373af6a54c08f62e8a3abcb1e branch=card5
+dirty: 
+4a49db0b7252b119695494d35b929811bda7ef768832588f71903db197d02fdc  src/trainers/minibatch_trainer.py
+0c103dcc9166a0655953607e4304efe28a301c67f0e0ec09590d697640eff8f8  src/models/h2snn_model.py
+e1db2bcc503d99d343b1551ebb502506e1c9282ab2c838d40a0869dabb332d33  src/configs/config.py
+dcdbe2951faeb820cd08b11e28dfdb36bd81dab0c723e1aed86f8e3d5f88eee7  src/analysis/mechanism_hooks.py
+fd5ea2eb38021b331bc507ba2d1bdcb63d49880eb851b702ce8734ea00cb94f5  scripts/run_h2snn_wandb_tuning.py
+f0975715f4c0e7d3936c684918d8e0f55c1b6d1798bb4aef4035b159d7365435  scripts/tsubame/make_cell_list.py
+aeef374ff99795a88d3ae7aa1968d47f0b2e56e50a09b5caff659a4b00a570bf  tests/test_card5_protocol_hooks.py
+29215150935b6bb1412f36baec52842a78d5edb779ef9d15c3ea59266155a564  ../docs/legacy_evidence/v3b_golden_cluster.pt
+194868fce96fd658123165205d258392f7505b652bc974db26b5b1005dcbda37  ../docs/partMB_evidence/mb0_reference_cluster.pt
+NVIDIA RTX A6000, 49140 MiB
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 4
+test_diagonals_equal_their_dense_formula (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_diagonals_equal_their_dense_formula) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_label_part_reads_training_labels_only (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_label_part_reads_training_labels_only) ... ok
+test_no_sortednp_or_sparse_tools_left_in_sys_modules (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_no_sortednp_or_sparse_tools_left_in_sys_modules) ... ok
+test_one_step_is_finite_and_moves (tests.test_baselines_pshgcn_mag.PSHGCNMagLabelPartTests.test_one_step_is_finite_and_moves) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 28.518s
+
+OK
+end=2026-11-19T17:34:24+09:00 exit=0
