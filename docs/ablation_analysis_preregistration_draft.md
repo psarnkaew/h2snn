@@ -1,3 +1,5 @@
+**SUPERSEDED (2026-11-19) by `docs/ablation_analysis_preregistration_v2.md` (spec 1.27). Kept as history; not binding.**
+
 # H2S-NN — Ablation and analysis pre-registration (DRAFT)
 
 **Status:** DRAFT for the author (2026-11-16, ablation design session, branch `design-ablation`). It becomes binding when the author approves it and its content enters spec v1.23; it is frozen with the spec and code hash before the first run it governs. Nothing here changes the spec, a card or code by itself.

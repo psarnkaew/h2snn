@@ -59,10 +59,11 @@ ln -s $WORK/h2snn-data data                                             # one da
 ```
 From the **lab cluster login node** (or the laptop), copy data and the DGL package:
 ```
-rsync -av /mnt/data/peeradon/h2snn/H2S-NN/data/NC/{acm,dblp,imdb} <t4>:<WORK>/h2snn-data/NC/
-rsync -av /mnt/data/peeradon/h2snn/H2S-NN/data/LP/ <t4>:<WORK>/h2snn-data/LP/
+rsync -avL /mnt/data/peeradon/h2snn/H2S-NN/data/ <t4>:<WORK>/h2snn-data/      # all of data/: ≈ 16 GB (2026-11-19)
 rsync -av /mnt/home/peeradon/wheels/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 <t4>:~/wheels/
 ```
+Copy **all** of `data/` once (amended 2026-11-19, card 5 D3): HGB NC (acm, dblp, imdb, freebase), the 8 H2GB NC datasets (`NC/mag`, `NC/OAG`, `NC/IEEE-CIS`, `NC/Pokec`, `NC/PDNS`), LP including the large-LP sources, GC, and the perturbed graphs of card 7 (`NC/*_pert`). Sizes on the lab cluster: `NC/OAG` 9.2G, `NC/mag` 4.2G, the rest < 1G each; total ≈ 16G of the 125 GiB home+work quota. After the copy, `du -sh $WORK/h2snn-data` must match the lab's `du -shL data` (state both in the T6 evidence).
+**Never make `vendor/` a symlink.** Vendor-module unloading compares resolved module paths with the vendor folders, so a symlinked `vendor/` breaks 86 baseline/vendor tests (decisions log 2026-11-19, row "Model change 1.25 merged"). `vendor/` is always a real clone made by `clone_vendors.sh` inside each checkout; only `data` is a symlink.
 Rule: a checkout is never edited and never moved to another SHA. A new approval gets a new directory. Sweep agents re-import the code at every trial, so editing a live checkout would mix code versions inside one sweep.
 
 ## 4. Environment (once, in a CPU job, never on the login node)

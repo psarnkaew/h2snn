@@ -1,0 +1,87 @@
+\documentclass[border=2pt]{standalone}
+\input{common.tex}
+\tikzset{
+ est/.style={rectangle,draw=grn,fill=grn!15,line width=.5pt,minimum size=6.5pt,inner sep=0pt},
+ fst/.style={circle,fill=rose,inner sep=1.9pt},
+ tie/.style={line width=.7pt,draw=rose,{Stealth[length=3.5pt]}-{Stealth[length=3.5pt]},shorten <=1pt,shorten >=1pt},
+ tieg/.style={tie,draw=grn,line width=.6pt},
+ ghostedge/.style={draw=ink!35,dashed,line width=.6pt},
+ panel/.style={draw=ink!25,fill=ink!2,rounded corners=3pt,line width=.5pt},
+ ptc/.style={font=\footnotesize\bfseries,text=ink,anchor=north},
+ lab/.style={font=\scriptsize,text=ink,anchor=west,inner sep=1pt},
+}
+% running example; graph spans x in [0,2.4]; prefix = #1
+\newcommand{\running}[1]{
+ \node[pap,fill=cA] (#1P1) at (0,0) {P1};
+ \node[aut] (#1A7) at (1.2,1.0) {A7};
+ \node[sub] (#1S3) at (1.2,-0.95) {S3};
+ \node[pap,fill=cB] (#1P9) at (2.4,0) {P9};
+ \node[pap,fill=cA] (#1P4) at (2.4,1.9) {P4};
+ \draw[ed] (#1P1)--(#1A7) (#1A7)--(#1P9) (#1A7)--(#1P4) (#1P1)--(#1S3) (#1S3)--(#1P9);
+}
+\begin{document}
+\begin{tikzpicture}
+\def\W{4.3}\def\G{0.3}\def\Ytop{2.9}\def\Ybot{-1.45}
+% panel frames and centred titles
+\foreach \i/\t in {0/{(a) Original graph},1/{(b) Split by meta-path},2/{(c) Instances as faces}}{
+  \pgfmathsetmacro{\x}{\i*(\W+\G)}
+  \draw[panel] (\x,\Ybot) rectangle ++(\W,\Ytop-\Ybot);
+  \node[ptc] at (\x+\W/2,\Ytop-0.08) {\t};
+}
+% graph offset that centres x in [0,2.4] inside a panel
+\pgfmathsetmacro{\cx}{\W/2-1.2}
+% ---------- (a)
+\begin{scope}[shift={(\cx,0)}]
+ \running{a}
+\end{scope}
+% ---------- (b)
+\begin{scope}[shift={(\W+\G+\cx-0.05,0)}]
+ % PAP view
+ \node[pap,fill=cA] (bP1) at (0,1.05) {P1};
+ \node[pap,fill=cB] (bP9) at (1.8,1.05) {P9};
+ \node[pap,fill=cA] (bP4) at (0.9,2.05) {P4};
+ \node[aut,gone,minimum size=11pt,font=\tiny\bfseries] (gA) at (0.9,1.42) {A7};
+ \draw[ghostedge] (gA)--(bP1) (gA)--(bP9) (gA)--(bP4);
+ \draw[ed] (bP1)--(bP9) (bP1)--(bP4) (bP4)--(bP9);
+ \node[lab] at (2.2,1.45) {PAP};
+ % PSP view
+ \node[pap,fill=cA] (cP1) at (0,-0.3) {P1};
+ \node[pap,fill=cB] (cP9) at (1.8,-0.3) {P9};
+ \node[sub,gone,minimum size=13pt,font=\tiny\bfseries] (gS) at (0.9,-0.95) {S3};
+ \draw[ghostedge] (gS)--(cP1) (gS)--(cP9);
+ \draw[ed] (cP1)--(cP9);
+ \node[lab] at (2.2,-0.3) {PSP};
+\end{scope}
+% ---------- (c)
+\begin{scope}[shift={(2*\W+2*\G+\cx,0)}]
+ \running{o}
+ \node[est] (s0) at ($(oP1)!0.5!(oA7)$) {};
+ \node[est] (s1) at ($(oA7)!0.5!(oP9)$) {};
+ \node[est] (s2) at ($(oA7)!0.5!(oP4)$) {};
+ \node[draw=grn,circle,inner sep=3.2pt,line width=.5pt,dashed] at (s0) {};
+ \node[fst] (zf) at (1.2,0.38) {};
+ \node[rose,font=\scriptsize,anchor=north] at (1.2,0.28) {$z_f$};
+ \node[fst] (zg) at (0.7,1.85) {};
+ \node[rose,font=\scriptsize,anchor=south] at (0.7,1.93) {$z_g$};
+ \foreach \n in {oP1,oP9,oA7} \draw[tie] (zf)--(\n);
+ \foreach \n in {oP1,oP4,oA7} \draw[tie] (zg)--(\n);
+ \foreach \e in {s0,s1} \draw[tieg] (zf)--(\e);
+ \foreach \e in {s0,s2} \draw[tieg] (zg)--(\e);
+\end{scope}
+% ---------- legend, one row, centred directly under the panels
+\pgfmathsetmacro{\Wtot}{3*\W+2*\G}
+\begin{scope}[shift={(0,\Ybot-0.38)}]
+ \node[inner sep=0pt] (L) at (\Wtot/2,0) {\begin{tikzpicture}[baseline=-3pt]
+  \node[pap,fill=cA,minimum size=9pt] (l1) at (0,0) {}; \node[pap,fill=cB,minimum size=9pt] at (0.3,0) {};
+  \node[lab] (t1) at (0.5,0) {paper};
+  \node[aut,minimum size=8pt,right=0.45 of t1] (l2) {}; \node[lab,right=0.03 of l2] (t2) {author};
+  \node[sub,minimum size=10pt,right=0.4 of t2] (l3) {}; \node[lab,right=0.03 of l3] (t3) {subject};
+  \draw[ed] ($(t3.east)+(0.4,0)$)--++(0.4,0) coordinate (l4); \node[lab,right=0.03 of l4] (t4) {edge};
+  \node[est,right=0.45 of t4] (l5) {}; \node[lab,right=0.03 of l5] (t5) {edge stalk};
+  \node[fst,right=0.45 of t5] (l6) {}; \node[lab,right=0.03 of l6] (t6) {face stalk};
+  \draw[tie] ($(t6.east)+(0.4,0)$)--++(0.45,0) coordinate (l7); \node[lab,right=0.03 of l7] (t7) {coupling};
+  \draw[ghostedge] ($(t7.east)+(0.4,0)$)--++(0.4,0) coordinate (l8); \node[lab,right=0.03 of l8] {collapsed};
+ \end{tikzpicture}};
+\end{scope}
+\end{tikzpicture}
+\end{document}
