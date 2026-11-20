@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_published_records_reach_results_csv_with_provenance (tests.test_card8_collect.PublishedRowsTests.test_published_records_reach_results_csv_with_provenance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_collect.py", line 43, in test_published_records_reach_results_csv_with_provenance
+    self.assertEqual(summary["published_seeds"], 2)
+AssertionError: 0 != 2
+
+----------------------------------------------------------------------
+Ran 1 test in 0.056s
+
+FAILED (failures=1)

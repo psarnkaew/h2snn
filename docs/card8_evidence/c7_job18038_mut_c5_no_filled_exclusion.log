@@ -1,0 +1,43 @@
+F
+======================================================================
+FAIL: test_phases_disjoint_and_cover_every_runnable_cell_once (tests.test_card8_phases.PhaseTests.test_phases_disjoint_and_cover_every_runnable_cell_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_phases.py", line 59, in test_phases_disjoint_and_cover_every_runnable_cell_once
+    self.assertEqual(set(listed) & filled, set(), "a filled cell has a line")
+AssertionError: Items in the first set but not the second:
+('chebnetii', 'node_classification', 'dblp')
+('rgcn', 'node_classification', 'imdb')
+('h2sgnn', 'node_classification', 'acm')
+('nsd', 'node_classification', 'acm')
+('han', 'node_classification', 'acm')
+('hetero2net', 'node_classification', 'acm')
+('nsd', 'node_classification', 'dblp')
+('hinormer', 'node_classification', 'imdb')
+('rgcn', 'node_classification', 'acm')
+('gcn', 'node_classification', 'imdb')
+('h2sgnn', 'node_classification', 'dblp')
+('han', 'node_classification', 'dblp')
+('hetero2net', 'node_classification', 'dblp')
+('pshgcn', 'node_classification', 'acm')
+('sehgnn', 'node_classification', 'imdb')
+('gat', 'node_classification', 'imdb')
+('rgcn', 'node_classification', 'dblp')
+('gcn', 'node_classification', 'acm')
+('pshgcn', 'node_classification', 'dblp')
+('hinormer', 'node_classification', 'acm')
+('sehgnn', 'node_classification', 'acm')
+('gat', 'node_classification', 'acm')
+('gcn', 'node_classification', 'dblp')
+('nsd', 'node_classification', 'imdb')
+('hinormer', 'node_classification', 'dblp')
+('chebnetii', 'node_classification', 'acm')
+('sehgnn', 'node_classification', 'dblp')
+('gat', 'node_classification', 'dblp')
+('han', 'node_classification', 'imdb')
+('hetero2net', 'node_classification', 'imdb') : a filled cell has a line
+
+----------------------------------------------------------------------
+Ran 1 test in 1.671s
+
+FAILED (failures=1)
