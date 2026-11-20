@@ -61,3 +61,5 @@ python scripts/tsubame/status.py --out $OUT --list $OUT/cells_tuning_h2snn.lab.t
 python scripts/tsubame/collect.py --out $OUT
 ```
 The `--mem` values above are placeholders: lab nodes have 64 GB RAM, and the A6000 node has 224 GB. The GPU type per list is the one its fit check used.
+
+branch=card10 sha=1e50a86b2c64ae534eba223adff514c15a692977 card=docs/H2S-NN_card10_lab_runs_card.md base=e5bdf10432e32c8fe31e8f3faff814951461d4d2
