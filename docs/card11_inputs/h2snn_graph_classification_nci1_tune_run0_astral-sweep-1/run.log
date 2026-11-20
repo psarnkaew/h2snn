@@ -1,0 +1,2 @@
+2026-11-21 01:19:02,742 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'edge_label_0': 'edge_label_0'}, 'kept_relations': ['edge_label_0'], 'self_inverse_relations': ['edge_label_0'], 'unmatched_edges': {'edge_label_0': 0}, 'facts_before': 265506, 'facts_after': 132753}
+2026-11-21 01:20:45,590 | INFO | STOP CONDITION tau: 50.3091 > 50 at epoch 0 (spec v1.16 §6); run stopped.
