@@ -37,6 +37,10 @@ classification, `MAGNN_lp` (one layer per endpoint side) for link prediction.
   (`base_MAGNN.py:150` reshapes an empty tensor; HGB's README: "every node has at least one neighbour for every
   meta-path"). Only in that case each target of the batch gets one self-instance, MAGNN LP's own rule for a node
   without neighbours (`LP/.../utils/tools.py:178-182`); otherwise sampling is unchanged.
+* **Vendor modules.** Every block pushes MAGNN's folder together with its HGB root (`hgb_nc` / `hgb_lp`):
+  `pushd_sys_path` attributes a module under `HGB/*/benchmark/methods/` to that root, and drops on exit only the
+  modules of the pushed roots, so pushing the folder alone would leave MAGNN's `utils` and `model` in `sys.modules`
+  (found by card 8 C4: HAN's `import utils` then got MAGNN's).
 * NC ACM, DBLP, IMDB hold published numbers and are not run; their MAGNN preprocessing (ACM's added self-loops and
   sub-graph, IMDB's full-batch `MAGNN_nc`) is not wired (registry reason). GC: not run (no meta-paths in the TU graphs).
 """
@@ -383,7 +387,7 @@ def _features(features_list: list[torch.Tensor], device: torch.device) -> list[t
 
 def build_nc_model(num_metapaths: int, num_edge_type: int, etypes_list: list, in_dims: list[int], hidden: int,
                    out_dim: int, heads: int, attn_vec_dim: int, rnn_type: str, dropout: float) -> torch.nn.Module:
-    with pushd_sys_path(VENDOR_NC):
+    with pushd_sys_path(VENDOR_NC, "hgb_nc"):  # parent root too: its modules are dropped on exit (C4 fix)
         from model import MAGNN_nc_mb  # type: ignore[import-not-found]
 
         return MAGNN_nc_mb(num_metapaths, num_edge_type, etypes_list, in_dims, hidden, out_dim, heads, attn_vec_dim,
@@ -392,7 +396,7 @@ def build_nc_model(num_metapaths: int, num_edge_type: int, etypes_list: list, in
 
 def build_lp_model(num_metapaths: list[int], num_edge_type: int, etypes_lists: list, in_dims: list[int],
                    hidden: int, heads: int, attn_vec_dim: int, rnn_type: str, dropout: float) -> torch.nn.Module:
-    with pushd_sys_path(VENDOR_LP):
+    with pushd_sys_path(VENDOR_LP, "hgb_lp"):  # parent root too (C4 fix)
         from model import MAGNN_lp  # type: ignore[import-not-found]
 
         # run_LastFM.py:69: out_dim = hidden_dim
@@ -400,14 +404,20 @@ def build_lp_model(num_metapaths: list[int], num_edge_type: int, etypes_lists: l
                         rnn_type, dropout)
 
 
+_VENDOR_FUNCTIONS: dict[str, Any] = {}
+
+
 def nc_parse(adjlists: list, indices: list, idx_batch: np.ndarray, device: torch.device, samples: int | None):
     """HGB's `parse_minibatch` (NC `utils/tools.py:104-126`), unchanged."""
     import dgl
 
-    with pushd_sys_path(VENDOR_NC):
-        from utils.tools import parse_minibatch  # type: ignore[import-not-found]
+    if "parse_minibatch" not in _VENDOR_FUNCTIONS:  # imported once; the function keeps its own module globals
+        with pushd_sys_path(VENDOR_NC, "hgb_nc"):  # parent root too (C4 fix)
+            from utils.tools import parse_minibatch  # type: ignore[import-not-found]
 
-        g_list, indices_list, mapped_list = parse_minibatch(adjlists, indices, idx_batch, device, samples)
+            _VENDOR_FUNCTIONS["parse_minibatch"] = parse_minibatch
+    g_list, indices_list, mapped_list = _VENDOR_FUNCTIONS["parse_minibatch"](adjlists, indices, idx_batch, device,
+                                                                             samples)
     for k, (inst, mapped) in enumerate(zip(indices_list, mapped_list)):
         if inst.numel() == 0:  # no instance in the whole batch (module docstring, Empty batches)
             width = next(iter(indices[k].values())).shape[1] if isinstance(indices[k], dict) else \

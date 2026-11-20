@@ -49,7 +49,7 @@ class RegistryTests(unittest.TestCase):
         summary = campaign_summary()
         # card baselines-h2gb C4: + 6 H2GB NC cells (SeHGNN on IEEE-CIS-G; ChebNetII on ogbn-mag, mag-year, the
         # three OAG datasets), every other H2GB cell keeps a specific reason
-        self.assertEqual(summary["runnable_cells"], 274)  # card 1e F3.2: - HAN freebase_bb (N/A); part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells; card 1d H3: + Hetero2Net MAG x 3; H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P; A4: H-Pokec U-U; card 3 Part B: + 21 (Freebase NC x 3, PSHGCN H2GB x 6, H2SGNN H2GB x 8, large LP x 4)
+        self.assertEqual(summary["runnable_cells"], 271)  # card 8 C4: + R-GCN NC 12 / LP 8, + MAGNN NC 9 / LP 8, - 40 baseline GC cells (GC option (a)); before: 274; card 1e F3.2: - HAN freebase_bb (N/A); part 2 E1: + GCN, GAT, HAN x 8, H2G-former x 7; E2: + 5; E3: + NSD, CSNN x 8; card 1c F1: + HINormer x 8; F3: + SeHGNN MAG x 2; F4: + Hetero2Net x 6; F5: + ChebNetII x 2; F6: + H2G-former mag-year; F7: + 13 large-LP cells; card 1d H3: + Hetero2Net MAG x 3; H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf NC 4, LP 6; A2: GC 4; A3: H2GB NC 8, ogbn-mag P-P; A4: H-Pokec U-U; card 3 Part B: + 21 (Freebase NC x 3, PSHGCN H2GB x 6, H2SGNN H2GB x 8, large LP x 4)
 
         per_task = {
             task: sum(
@@ -57,9 +57,9 @@ class RegistryTests(unittest.TestCase):
             )
             for task in DATASETS
         }
-        self.assertEqual(per_task["node_classification"], 155)  # card 1d H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase; A3: + 8 H2GB; card 3 Part B: + SeHGNN, PSHGCN, H2SGNN Freebase, PSHGCN H2GB x 6, H2SGNN H2GB x 8
-        self.assertEqual(per_task["link_prediction"], 79)  # card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P; A4: + H-Pokec U-U; card 1e F3.2: - HAN freebase_bb (N/A); card 3 Part B: + PSHGCN, H2SGNN x 2 large LP
-        self.assertEqual(per_task["graph_classification"], 40)  # card 3 A2: + HetSheaf on the 4 TU datasets
+        self.assertEqual(per_task["node_classification"], 176)  # card 8 C4: + R-GCN 12, + MAGNN 9 (ACM/DBLP/IMDB N/A); before 155; card 1d H1: + PSHGCN MAG x 2; card 3 A1: + HetSheaf on ACM, DBLP, IMDB, Freebase; A3: + 8 H2GB; card 3 Part B: + SeHGNN, PSHGCN, H2SGNN Freebase, PSHGCN H2GB x 6, H2SGNN H2GB x 8
+        self.assertEqual(per_task["link_prediction"], 95)  # card 8 C4: + R-GCN 8, + MAGNN 8; before 79; card 3 A1: + HetSheaf on the 6 local LP tasks; A3: + ogbn-mag P-P; A4: + H-Pokec U-U; card 1e F3.2: - HAN freebase_bb (N/A); card 3 Part B: + PSHGCN, H2SGNN x 2 large LP
+        self.assertEqual(per_task["graph_classification"], 0)  # card 8 C4: GC option (a), no baseline GC run (before: 40)
 
     def test_every_cell_is_runnable_or_has_a_reason(self) -> None:
         from src.baselines.registry import iter_cells
@@ -182,10 +182,12 @@ class PublishedParamsTests(unittest.TestCase):
 
     def test_published_cells_are_declared_runnable(self) -> None:
         from src.baselines.published import available_published_cells
-        from src.baselines.registry import unsupported_reason
+        from src.baselines.registry import GC_OPTION_A_REASON, unsupported_reason
 
         for model, entries in available_published_cells().items():
             for task, dataset in entries:
+                if unsupported_reason(model, task, dataset) == GC_OPTION_A_REASON:
+                    continue  # card 8 C4: GC option (a), the file stays (CSNN ENZYMES), the cell is not run
                 self.assertIsNone(
                     unsupported_reason(model, task, dataset),
                     f"{model} has published params for {task}/{dataset} but the registry "
@@ -700,7 +702,7 @@ class AdapterContractTests(unittest.TestCase):
                         self.assertTrue(space, "an empty search space is not tunable")
 
     def test_supported_cells_are_runnable_in_the_registry(self) -> None:
-        from src.baselines.registry import DATASETS, MODELS, get_adapter, unsupported_reason
+        from src.baselines.registry import DATASETS, GC_OPTION_A_REASON, MODELS, get_adapter, unsupported_reason
 
         for spec in MODELS:
             try:
@@ -710,6 +712,8 @@ class AdapterContractTests(unittest.TestCase):
             for task, datasets in DATASETS.items():
                 for dataset in datasets:
                     if adapter.supports(task, dataset):
+                        if unsupported_reason(spec.name, task, dataset) == GC_OPTION_A_REASON:
+                            continue  # card 8 C4: the adapters keep their GC code; option (a) runs no GC cell
                         with self.subTest(model=spec.name, task=task, dataset=dataset):
                             self.assertIsNone(
                                 unsupported_reason(spec.name, task, dataset),
@@ -1064,17 +1068,21 @@ class SearchSpaceCoverageTests(unittest.TestCase):
         return defaults
 
     def test_every_published_value_is_reachable(self) -> None:
-        from src.baselines.published import load_published_params
-        from src.baselines.registry import get_adapter, iter_cells
+        """Card 8 C4 (author 2026-11-20): a cell with a published configuration runs it (5 seeds) and is not tuned, so
+        reachability is checked only for a file whose cell is tuned; every file's cell must be `published`, `filled`
+        or N/A, or reach its values."""
+        from src.baselines.cell_status import cell_status
+        from src.baselines.published import available_published_cells, load_published_params
+        from src.baselines.registry import get_adapter
 
         unreachable: list[str] = []
-        for entry in iter_cells():
-            if not entry["runnable"]:
-                continue
-            model, task, dataset = entry["model"], entry["task"], entry["dataset"]
+        cells = [(model, task, dataset) for model, entries in available_published_cells().items()
+                 for task, dataset in entries]
+        for model, task, dataset in cells:
+            status = cell_status(model, task, dataset)
+            if status in ("published", "filled", "N/A"):
+                continue  # not tuned
             published = load_published_params(model, task, dataset)
-            if published is None:
-                continue
             space = get_adapter(model).search_space(task, dataset)
             defaults = self._adapter_defaults(model)
             for key, value in published.values.items():

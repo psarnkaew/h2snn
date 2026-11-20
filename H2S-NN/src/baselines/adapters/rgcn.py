@@ -9,7 +9,7 @@
   `entity_classify.py` runs `pynvml.nvmlInit()` at module level (`:33`), which needs an NVIDIA driver (CPU test jobs).
 * **NC, H2GB datasets**: H2GB's own R-GCN (`HomoGNNModel`, `layer_type: RGCN`, `<dataset>-RGCN.yaml`) on H2GB's `hgt`
   sampler, exactly as the yaml states (`h2gb_published.fit_h2gb_published`). Every H2GB R-GCN cell is published (6) or
-  filled (ogbn-mag, IEEE-CIS-G), so there is no tuned H2GB path.
+  filled (ogbn-mag, IEEE-CIS-G); a tuned run takes the same network with the tuned keys (`_fit_h2gb_tuned`).
 * **LP (8 tasks)**: HGB's `LP/benchmark/methods/RGCN` encoder -- `RGCN` = `BaseRGCN` with input `Linear`s and
   `num_layers` hidden `RelGraphConv(h, h, 2(L+1), "bdd", n_bases, relu but not the last, self_loop=True, dropout)`
   (`link_predict.py:23-41`) on HGB's LP graph: the message graph's relation adjacencies summed, plus its transpose,
@@ -64,8 +64,13 @@ NC_DEFAULTS = {"hidden_dim": 16, "n_layers": 3, "dropout": 0.0, "lr": 1e-2, "wei
 
 # ------------------------------------------------------------------------------------------------ HGB's models
 
+#: The HGB root of each R-GCN folder, pushed with it so the folder's `model` module is dropped on exit
+#: (`pushd_sys_path` attributes it to that root; card 8 C4 fix, see magnn.py "Vendor modules").
+_PARENT_ROOT = {VENDOR_NC: "hgb_nc", VENDOR_LP: "hgb_lp"}
+
+
 def _vendor_base(vendor: str) -> type:
-    with pushd_sys_path(vendor):
+    with pushd_sys_path(vendor, _PARENT_ROOT[vendor]):
         from model import BaseRGCN  # type: ignore[import-not-found]
     return BaseRGCN
 
@@ -218,7 +223,14 @@ class RGCNAdapter:
                      "hidden_dim": {"values": [40, 60, 80, 120]}, "num_layers": {"values": [1, 2, 3]},
                      "n_bases": {"values": [4, 10]}, "decoder_type": {"values": ["dot", "distmult"]}}
             return space
-        raise UnsupportedCell(NAME, task, dataset, "no tuned R-GCN path (H2GB NC cells are published or filled)")
+        if task == NODE_CLASSIFICATION and dataset in H2GB_DATASETS:
+            # card 8 C4: the tuned H2GB path (H2GB's own R-GCN, its yaml with the tuned keys), as HAN's class A
+            from src.configs.config import MINIBATCH_BATCH_SIZES
+
+            return {"lr": grids.LR, "weight_decay": grids.WEIGHT_DECAY, "dropout": grids.DROPOUT,
+                    "hidden_dim": {"values": [64, 128, 256, 512]}, "num_layers": {"values": [2, 3, 4]},
+                    "batch_size": {"values": list(MINIBATCH_BATCH_SIZES)}}
+        raise UnsupportedCell(NAME, task, dataset, "R-GCN runs NC and LP only")
 
     def published_params(self, task: str, dataset: str) -> BaselineParams | None:
         return load_published_params(NAME, task, dataset)
@@ -228,9 +240,9 @@ class RGCNAdapter:
         if task == NODE_CLASSIFICATION and bundle.dataset in H2GB_DATASETS:
             from src.baselines.h2gb_published import fit_h2gb_published, is_h2gb_published
 
-            if not is_h2gb_published(NAME, task, bundle.dataset, params.source):
-                raise UnsupportedCell(NAME, task, bundle.dataset, "R-GCN on H2GB runs its published yaml only")
-            return fit_h2gb_published(bundle, params, model_name=NAME, seed=seed, device=device)
+            if is_h2gb_published(NAME, task, bundle.dataset, params.source):
+                return fit_h2gb_published(bundle, params, model_name=NAME, seed=seed, device=device)
+            return self._fit_h2gb_tuned(bundle, params, seed=seed, device=device)
         if task == NODE_CLASSIFICATION:
             return self._fit_hgb_nc(bundle, params, seed=seed, device=device)
         if task == LINK_PREDICTION and bundle.dataset in LARGE_LP_DATASETS:
@@ -238,6 +250,50 @@ class RGCNAdapter:
         if task == LINK_PREDICTION:
             return self._fit_link_prediction(bundle, params, seed=seed, device=device)
         raise UnsupportedCell(NAME, task, bundle.dataset, "R-GCN runs NC and LP only (GC: HetSheaf's number)")
+
+    # ---------------------------------------------------------------- NC on H2GB datasets, tuned
+    def _fit_h2gb_tuned(self, bundle: Any, params: BaselineParams, *, seed: int,
+                        device: torch.device) -> dict[str, float]:
+        """H2GB's own R-GCN (`HomoGNNModel`, `<dataset>-RGCN.yaml`) with the tuned keys overridden, AdamW, the shared
+        H2GB NC loop at batch size B (as HAN's class A, `hgb_han.fit_h2gb_han`; every current R-GCN H2GB cell is
+        published or filled, this path serves a tuned run)."""
+        from src.baselines.adapters._h2gb_network import configure_from_yaml, seed_predictions
+        from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
+        from src.baselines.h2gb_published import build_h2gb_network
+        from src.baselines.minibatch import (eval_loader, h2gb_graph, h2gb_sample_sizes, hgt_loader, minibatch_plan,
+                                             train_minibatch_node_classification, val_subset_loader)
+        from src.data.h2gb_nc import ALL_H2GB_NC_SPECS
+
+        seed_everything(seed, device)
+        data = h2gb_graph(bundle)
+        target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
+        fanout = h2gb_sample_sizes(NAME, bundle.dataset, tuple(data.node_types))
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        labels = data[target].y.long()
+        num_classes = int(labels.max()) + 1
+        loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
+                   eval_loader(data, fanout, target, "val", plan.batch_size),
+                   eval_loader(data, fanout, target, "test", plan.batch_size))
+        subset_loader, subset_ids = val_subset_loader(data, fanout, target, bundle.dataset, plan.batch_size,
+                                                      run_seed=bundle.metadata.get("seed"))
+        ensure_pyg_submodules()
+        with pushd_sys_path("h2gb"):  # the cfg is configured last: H2GB's model reads it in its forward
+            cfg = configure_from_yaml(NAME, bundle.dataset, data, target, device, {
+                "gnn.dim_inner": int(params.get("hidden_dim", 64)), "gnn.layers_mp": int(params.get("num_layers", 2)),
+                "gnn.dropout": float(params.get("dropout", 0.2)), "train.sampler": "hgt"})
+            torch.manual_seed(seed)
+            model = build_h2gb_network(data, bundle.dataset, num_classes, cfg).to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-4)),
+                                      weight_decay=float(params.get("weight_decay", 1e-4)))
+        record = train_minibatch_node_classification(
+            model=model, forward_seeds=lambda batch: seed_predictions(model, batch.to(device), target),
+            train_loader=loaders[0], val_loader=loaders[1], test_loader=loaders[2],
+            val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
+            val_subset_loader=subset_loader, val_subset_ids=subset_ids, target_type=target, optimizer=optimizer,
+            criterion=torch.nn.functional.cross_entropy, plan=plan, report=params.report, labels=labels)
+        record["params_source"] = params.source
+        record["batch_size"] = float(plan.batch_size)
+        return record
 
     # ---------------------------------------------------------------- NC on HGB datasets
     def _fit_hgb_nc(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,

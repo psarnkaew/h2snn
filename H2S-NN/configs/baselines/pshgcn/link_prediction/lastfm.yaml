@@ -1,7 +1,7 @@
 model: pshgcn
 task: link_prediction
 dataset: lastfm
-source: PSHGCN/hgb-lp/training.py argparse defaults (batch-size 10000: training.py:179, used at :70) (the script their README invokes as
+source: PSHGCN/hgb-lp/training.py argparse defaults (batch-size 10000 at training.py:179, used at :70) (the script their README invokes as
   `python training.py --dataset LastFM`)
 notes: |
   Their README states these parameters "correspond to the results presented in the paper",

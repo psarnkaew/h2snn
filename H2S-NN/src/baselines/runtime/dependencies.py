@@ -177,6 +177,8 @@ _MODEL_GROUPS: dict[str, tuple[str, ...]] = {
     "csnn": ("sheaf",),
     "nsd": ("sheaf",),
     "hetsheaf": ("sheaf",),  # card 3 A1: torch_householder (orth=householder default) and strenum
+    "rgcn": ("dgl",),  # card 8 C2: DGL's RelGraphConv (HGB's R-GCN)
+    "magnn": ("dgl",),  # card 8 C3: HGB's MAGNN (DGL edge_softmax; networkx via its utils)
     "h2gformer": ("h2gb",),
     "hetero2net": ("hetero2net",),
     "chebnetii": (),

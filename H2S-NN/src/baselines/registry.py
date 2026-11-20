@@ -161,6 +161,19 @@ LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset(
     (m, t) for m in ("pshgcn", "h2sgnn") for t in ("ogbn-mag_pp", "h-pokec_uu"))
 
 
+#: Card 8 C2/C3/C4 (author 2026-11-20): R-GCN and MAGNN on the H2GB NC datasets (R-GCN: H2GB's own R-GCN; MAGNN: probe
+#: cells, the t-X-t rule) and on the two large LP tasks (`fit_large_lp`).
+H2GB_NC_WIRED_CELLS = H2GB_NC_WIRED_CELLS | frozenset((m, d) for m in ("rgcn", "magnn") for d in H2GB_NC)
+LARGE_LP_WIRED_CELLS = LARGE_LP_WIRED_CELLS | frozenset((m, t) for m in ("rgcn", "magnn") for t in LARGE_LP)
+#: Card 8 C4 (author 2026-11-20, GC option (a)): the GC baseline rows are HetSheaf's published Table 4 numbers; no
+#: baseline GC cell runs (the adapters keep their GC code).
+GC_OPTION_A_REASON = "GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)"
+#: Card 8 C3: MAGNN NC on ACM, DBLP, IMDB holds HGB's published number; MAGNN's own preprocessing of these datasets
+#: (ACM's added self-loops and sub-graph, IMDB's full-batch MAGNN_nc) is not wired.
+MAGNN_HGB_NC_NOT_WIRED = ("N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB "
+                          "preprocessing is not wired (card 8 C3)")
+
+
 @dataclass(frozen=True, slots=True)
 class ModelSpec:
     """One baseline row: where its adapter lives and which tasks it covers."""
@@ -192,8 +205,13 @@ MODELS: tuple[ModelSpec, ...] = (
     ),
     ModelSpec("nsd", "NSD", HOM_HET, "src.baselines.adapters.nsd", _ALL),
     ModelSpec("csnn", "CSNN", HOM_HET, "src.baselines.adapters.csnn", _ALL),
+    # card 8 C2: R-GCN on NC and LP (GC: HetSheaf's published number)
+    ModelSpec("rgcn", "R-GCN", HET_HOM, "src.baselines.adapters.rgcn", (NODE_CLASSIFICATION, LINK_PREDICTION)),
     ModelSpec("han", "HAN", HET_HOM, "src.baselines.adapters.hgb_han", _ALL,
               unsupported=((LINK_PREDICTION, "freebase_bb", HAN_FREEBASE_LP_NA),)),  # card 1e F3.2
+    # card 8 C3: MAGNN on NC and LP (not GC: the TU graphs define no meta-paths)
+    ModelSpec("magnn", "MAGNN", HET_HOM, "src.baselines.adapters.magnn", (NODE_CLASSIFICATION, LINK_PREDICTION),
+              unsupported=tuple((NODE_CLASSIFICATION, d, MAGNN_HGB_NC_NOT_WIRED) for d in ("acm", "dblp", "imdb"))),
     ModelSpec(
         "sehgnn", "SeHGNN", HET_HOM, "src.baselines.adapters.sehgnn",
         (NODE_CLASSIFICATION,),
@@ -240,6 +258,8 @@ def unsupported_reason(name: str, task: str, dataset: str) -> str | None:
         return f"{dataset} is not a {task.replace('_', ' ')} dataset in this campaign"
     # A specific reason always wins over the generic "no implementation" fallback: the
     # table footnote should say *why* a model has no cell, not just that it has none.
+    if task == GRAPH_CLASSIFICATION:  # card 8 C4: GC option (a)
+        return GC_OPTION_A_REASON
     for entry_task, entry_dataset, reason in spec.unsupported:
         if entry_task == task and entry_dataset == dataset:
             return reason
