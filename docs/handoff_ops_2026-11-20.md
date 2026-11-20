@@ -31,3 +31,9 @@ For the next **ops session** (design session that owns run infrastructure). Talk
 4. `status.py` does not read `run_row.py` lines (card 7): small S2 task when chains run.
 5. Phase-2 baseline card (Freebase, H2GB NC, large LP, GC) when the author asks.
 6. Advise W&B key rotation after setup (key was pasted in chat).
+
+## Update 2026-11-20 ~15:30: T6 steps 0–3 done
+- install_env job 9480778 exit=0; env = lock (29/29 pins, DGL sha256 equal).
+- env_check job 9480898 (group points, 20 min; the 3-min trial run 9480862 hit h_rt): **fails=0** on H100 (driver 580, CUDA 12.4, DGL/PyG CUDA OK, cuda_float32 test OK; W&B/PyPI/GitHub reachable from compute nodes). Evidence `docs/tsubame_evidence/t6_env_check.txt` (7f07c09).
+- Data: 715 files, 198 hard links, apparent 35G both sides (lab plain du 16G = NFS compression). Quota 44/125 GB.
+- W&B key in `~/.netrc`, HTTP 200. Steps 4–6 still wait for the author's go.
