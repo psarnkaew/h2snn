@@ -129,7 +129,7 @@ One page for the first start. It collects §2–§6, the T6 commands of `docs/H2
 |---|---|---|---|
 | 0 | T4 login | `echo <group> > ~/.t4_group` (once; never in git) | file has one line |
 | 1a | T4 login | checkout, vendors, data link (below) | `git log -1` shows `$SHA`; `vendor/` is a real directory |
-| 1b | Lab | `rsync -avLH` of `data/` and the DGL package (below) | `du -sh $WORK/h2snn-data` (T4) ≈ `du -shL data` (lab); write both down |
+| 1b | Lab | `rsync -avLH` of `data/` and the DGL package (below) | apparent sizes equal: `du -sh --apparent-size` (T4) = `du -shL --apparent-size data` (lab) = 35G (2026-11-20); same file count (715) and hard-link count (198). Plain `du` differs (lab 16G, T4 35G) because the lab NFS stores data compressed; Lustre does not |
 | 2a | T4 login | Miniforge: `bash Miniforge3-Linux-x86_64.sh -b -p $HOME/miniforge3` | `~/miniforge3/bin/conda` exists |
 | 2b | T4 compute (`cpu_8`) | `install_env.sh` | log ends `exit=0`; a pip failure = no compute-node internet: stop |
 | 2c | T4 login | `wandb login` (key goes to `~/.netrc`) | "Successfully logged in" |

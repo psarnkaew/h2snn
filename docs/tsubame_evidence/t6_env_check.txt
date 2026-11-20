@@ -13,3 +13,6 @@ OK   HTTPS https://github.com: status 200
 end=2026-11-20T14:28:36+09:00 fails=0
 exit_status              0                   
 # install_env.sh job 9480778: exit=0 (8 min); 29/29 lock pins equal (local +cu124/+pt24cu124 suffixes only); DGL sha256 0267a1a7... equals the lock
+# T6 step 1b data copy (2026-11-20): rsync -aLH exit 0, 715 regular files, 37.2 GB sent in ~58 min.
+# lab: du -shL 16G (NFS, compressed), --apparent-size 35G; TSUBAME: du 35G, --apparent-size 35G; files 715 = 715; files with >1 link 198 = 198 (hard links kept).
+# NC/{ACM,DBLP,IMDB}_pert apparent 1.2G/3.3G/1.6G on both sides. Quota after copy + env: 44 of 125 GB.
