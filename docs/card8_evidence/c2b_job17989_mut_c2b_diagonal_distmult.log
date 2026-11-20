@@ -1,0 +1,15 @@
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+F
+======================================================================
+FAIL: test_distmult_is_a_full_matrix (tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_lp_step.py", line 160, in test_distmult_is_a_full_matrix
+    self.assertAlmostEqual(float(scores[0]), 0.7, places=6)
+AssertionError: 0.0 != 0.7 within 6 places (0.7 difference)
+
+----------------------------------------------------------------------
+Ran 1 test in 1.730s
+
+FAILED (failures=1)

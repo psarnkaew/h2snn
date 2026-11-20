@@ -31,19 +31,19 @@ class DotDecoder(nn.Module):
 
 
 class DistMultDecoder(nn.Module):
-    """Per-relation diagonal bilinear form. Mirrors HGB's ``DisMult``.
+    """Per-relation bilinear form `uᵀ W_r v` with a full `d × d` matrix per relation, as HGB's ``DistMult``
+    (`HGB/LP/benchmark/methods/baseline/GNN.py:10-20`: `W` of shape `(num_rel, dim, dim)`, `xavier_normal_` with
+    gain 1.414) and as H2S-NN's decoder (card 8 C2b, author 2026-11-20). The diagonal form used before is a strict
+    special case (symmetric in u and v, no cross-dimension terms).
 
-    HGB stores a full ``(rel_num, dim, dim)`` tensor; the diagonal parameterisation here is
-    the standard DistMult and is what the dense version reduces to under its own
-    initialisation, at a fraction of the parameters.
+    Scored one relation at a time (`(u @ W_r) · v` over the pairs of relation r): the same numbers as HGB's
+    `bmm(bmm(u, W[r_id]), v)` without gathering one `d × d` matrix per pair.
     """
 
     def __init__(self, num_relations: int, dim: int) -> None:
         super().__init__()
-        # Already 2-D, so xavier_normal_ applies directly and derives fan from
-        # (num_relations, dim). Matches HGB's gain of 1.414.
-        self.weights = nn.Parameter(torch.empty(num_relations, dim))
-        nn.init.xavier_normal_(self.weights, gain=1.414)
+        self.weights = nn.Parameter(torch.empty(num_relations, dim, dim))
+        nn.init.xavier_normal_(self.weights, gain=1.414)  # HGB GNN.py:14
 
     def forward(
         self,
@@ -51,8 +51,12 @@ class DistMultDecoder(nn.Module):
         source: torch.Tensor,
         target: torch.Tensor,
     ) -> torch.Tensor:
-        weight = self.weights[relation_ids]
-        return (source * weight * target).sum(dim=-1)
+        scores = source.new_zeros(source.size(0))
+        for relation in torch.unique(relation_ids).tolist():
+            mask = relation_ids == relation
+            scores = scores.index_put((mask.nonzero().view(-1),),
+                                      ((source[mask] @ self.weights[relation]) * target[mask]).sum(dim=-1))
+        return scores
 
 
 def build_link_decoder(decoder_type: str, *, num_relations: int, dim: int) -> nn.Module:

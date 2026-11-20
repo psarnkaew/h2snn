@@ -104,11 +104,19 @@ def budget_kwargs(task: str, params: BaselineParams, dataset: str = "") -> dict[
     """
 
     budget = resolve_budget(task, params, dataset)
-    return {
+    kwargs: dict[str, Any] = {
         "epochs": budget.epochs,
         "patience": budget.patience,
         "report": params.report,
     }
+    if task == LINK_PREDICTION:
+        # card 8 C2b: positives per optimizer step (HGB's 8,192); a published cell may state its source's batch
+        # (`lp_batch_size`, e.g. PSHGCN LastFM `--batch-size 10000`); tuned runs refuse that key (campaign.fit_cell)
+        from src.configs.config import LP_POSITIVES_PER_STEP
+
+        per_step = params.get("lp_batch_size") if params.source == "published" else None
+        kwargs["positives_per_step"] = int(per_step) if per_step is not None else LP_POSITIVES_PER_STEP
+    return kwargs
 
 
 def record_budget(record: dict[str, float], task: str, params: BaselineParams,

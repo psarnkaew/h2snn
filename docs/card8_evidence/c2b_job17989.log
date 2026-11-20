@@ -1,0 +1,61 @@
+job=17989 node=g2n01 start=2026-11-20T18:25:41+09:00
+git=9b4c55d6d5eebcb4c67367b8ff7b1a3a7504c15b branch=card8
+ M configs/baselines/pshgcn/link_prediction/lastfm.yaml
+ M src/baselines/budget.py
+ M src/baselines/heads.py
+ M src/baselines/training.py
+?? src/baselines/adapters/rgcn.py
+?? tests/test_card8_lp_step.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+test_every_small_lp_adapter_uses_the_shared_loop (tests.test_card8_lp_step.AdapterStepTests.test_every_small_lp_adapter_uses_the_shared_loop)
+No adapter has its own small-LP epoch loop: each LP fit calls `train_link_prediction` with the budget's ... ok
+test_gcn_adapter_steps_per_epoch (tests.test_card8_lp_step.AdapterStepTests.test_gcn_adapter_steps_per_epoch) ... ok
+test_distmult_equals_hgbs_bmm_and_init (tests.test_card8_lp_step.DistMultTests.test_distmult_equals_hgbs_bmm_and_init) ... ok
+test_distmult_is_a_full_matrix (tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix) ... ok
+test_shared_loop_steps_per_epoch (tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch) ... ok
+test_step_batches_cover_every_positive_once (tests.test_card8_lp_step.SharedLoopStepTests.test_step_batches_cover_every_positive_once) ... ok
+test_graph_head_pools_per_graph (tests.test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (tests.test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_empty_two_hop_set_yields_none_with_a_reason (tests.test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... No CUDA runtime is found, using CUDA_HOME='/usr'
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_no_held_out_pair_reaches_any_message_graph (tests.test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (tests.test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (tests.test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_each_wired_method_one_lp_step_is_finite_and_moves (tests.test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) ... WARNING:root:Layers after message passing should be >=1
+Using sheaf learner: type_concat
+ok
+test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_training.py:60: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  return batch, torch.searchsorted(nodes, links)
+ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 146.326s
+
+OK
+targets exit=0
+Ran 1 test in 2.680s
+
+FAILED (failures=1)
+MUTATION c2b_one_step_per_epoch: CAUGHT (test failed, rc=1)
+Ran 1 test in 1.730s
+
+FAILED (failures=1)
+MUTATION c2b_diagonal_distmult: CAUGHT (test failed, rc=1)
+ .../baselines/pshgcn/link_prediction/lastfm.yaml   |  3 +-
+ H2S-NN/src/baselines/budget.py                     | 10 +++-
+ H2S-NN/src/baselines/heads.py                      | 24 +++++----
+ H2S-NN/src/baselines/training.py                   | 63 ++++++++++++++++------
+ 4 files changed, 73 insertions(+), 27 deletions(-)
+end=2026-11-20T18:28:19+09:00 exit=0
