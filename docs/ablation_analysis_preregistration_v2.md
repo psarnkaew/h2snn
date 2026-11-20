@@ -1,4 +1,4 @@
-# H2S-NN — Ablation and analysis pre-registration v2 (APPROVED 2026-11-19; binding with spec 1.27)
+# H2S-NN — Ablation and analysis pre-registration v2 (SUPERSEDED 2026-11-20 by `docs/ablation_analysis_preregistration_v3.md` and spec 1.29; history)
 
 **Status:**
 - Written 2026-11-19 by the model session from the author-approved plan `docs/ablation_plan_v2_2026-11-19.html` (decisions log rows of 2026-11-19).

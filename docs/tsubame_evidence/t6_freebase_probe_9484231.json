@@ -1,0 +1,47 @@
+{
+ "config": "$WORK/h2snn-runs/fc0ebaa605280f2d987c4848cc3109c7d3b66680/H2S-NN/configs/experiments/freebase_h2snn_v3b.yaml",
+ "largest": {
+  "d": 64,
+  "wisp_max_length": 5,
+  "wisp_walks_per_anchor": 64
+ },
+ "training_mode": "full_batch",
+ "git": "fc0ebaa605280f2d987c4848cc3109c7d3b66680",
+ "host": "r2n4",
+ "slurm_job": "",
+ "gpu": "NVIDIA H100",
+ "gpu_total_gib": 93.086,
+ "draw_seconds": 23.3,
+ "nodes": 180098,
+ "facts": 869706,
+ "cells_per_length": {
+  "2": 519349,
+  "3": 577529,
+  "4": 585227,
+  "5": 576631
+ },
+ "cells": 2258736,
+ "node_cell_incidences": 10254084,
+ "fact_cell_incidences": 7995348,
+ "parameters": 11805360,
+ "train_step_seconds": 25.8,
+ "solver_after_train_step": {
+  "pcg_fwd_iters": 8.0,
+  "pcg_bwd_iters": 8.0,
+  "pcg_fwd_rel_residual": 0.0005795264150947332,
+  "pcg_bwd_rel_residual": 0.0007197587983682752,
+  "pcg_converged": 1.0,
+  "solver_tolerance": 0.001,
+  "num_path_facts": 591194.0,
+  "num_shared_facts": 487097.0,
+  "num_fact_states": 487097.0,
+  "num_cells": 2258736.0,
+  "eliminated_share": 0.4399291254745856
+ },
+ "eval_forward_seconds": 4.1,
+ "status": "ok",
+ "max_memory_allocated_gib": 46.231,
+ "max_memory_reserved_gib": 51.625,
+ "host_peak_rss_gib": 13.661,
+ "wall_seconds": 54.1
+}

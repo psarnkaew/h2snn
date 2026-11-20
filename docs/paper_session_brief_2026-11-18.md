@@ -1,8 +1,53 @@
-# Paper session brief — IJCAI-27 text: model 1.25, spec 1.27 (2026-11-18; updated 2026-11-19, §0)
+# Paper session brief — IJCAI-27 text: model 1.25, spec 1.28 (2026-11-18; updated 2026-11-19 and 2026-11-20, §0)
 
 Written by the model session for a new **paper session**. Read this first, then the sources in §2. The paper file is `H2S-NN/paper/ijcai27/h2snn_ijcai27_v3b.tex`; its text still describes model 1.24.
 
-## 0. Update 2026-11-19 (read first; supersedes §2–§4 and §6 where they differ)
+## 0. Update 2026-11-20 (read first; supersedes the 2026-11-19 block below and §2–§6 where they differ)
+
+**Binding now:** spec **1.28** (applied 2026-11-20; `docs/spec_v1.28_draft_edits.md` PC-1–PC-11, OPEN-1 = A, OPEN-2 = A) and the decisions log rows of 2026-11-20 ("Published tuned configurations; LP and GC model sets" to "Statistics with published numbers (OPEN-1); HetSheaf rerun (OPEN-2)"). The method is unchanged (model 1.25).
+
+**Which numbers fill the tables.**
+- A baseline cell that already holds a published number keeps it: 73 cells, NC 49 and GC 24 (`H2S-NN/configs/baselines/paper_filled_cells.tsv` and `docs/published_number_register.md`). The paper states beside each table that these numbers were produced under the benchmarks' own protocols.
+- **HetSheaf's NC cells on ACM, DBLP and IMDB are not published numbers:** we rerun them (C7 "HetSheaf rerun mandatory"; its published numbers come from a 27/3/70 split with relation-duplicated input, spec §6 G0). Its GC rows stay published (Table 4).
+- An empty cell with a published configuration (HGB, H2GB, or the method's own repository) runs 5 seeds (0–4) exactly as that configuration states: model, scheduler, clipping, accumulation and epochs. There is no tuning for these cells. Counts: NC 33, LP 5.
+- Every other empty cell is tuned: 100 Bayesian trials on seed 0, then seeds 0–4.
+
+**Evaluation protocol (option 1).**
+- Data, splits, test negatives and model code follow HGB and H2GB.
+- Shared by every method we run:
+  - the metrics;
+  - selection: the B1a validation subset on H2GB; the fixed validation split and validation negatives on HGB; LP selection on validation ROC-AUC;
+  - AdamW for tuned cells;
+  - seeds 0–4 on the H100.
+- An appendix table lists every difference from HGB's and H2GB's own runners, with the reason.
+
+**Model set per task.**
+
+| task | methods |
+|---|---|
+| NC (15) | GCN, GAT, ChebNetII, NSD, CSNN, **R-GCN**, HAN, **MAGNN**, SeHGNN, HINormer, PSHGCN, H2G-former, Hetero²Net, H2SGNN, HetSheaf |
+| LP (12) | GCN, GAT, NSD, CSNN, **R-GCN**, HAN, **MAGNN**, PSHGCN, H2G-former, Hetero²Net, H2SGNN, HetSheaf |
+| GC (6, published) | GCN, GAT, NSD, R-GCN, HAN, HetSheaf = HetSheaf's Table 4 (same protocol as ours); no baseline GC run |
+
+Text points:
+- **MAGNN is not in GC.** The TU graphs define no meta-paths, and HetSheaf's GC HAN uses `HANConv` on edge types. Add one sentence in the GC paragraph; the introduction's MAGNN claim rests on NC and LP.
+- **GCN and GAT rows come from two implementations.** HGB's models on the tuned cells; H2GB's own `HomoGNNModel` on the published H2GB cells (GCN on mag-year, oag-cs, oag-eng, oag-chem, H-Pokec, PDNS; GAT on the same minus H-Pokec). State this in the setup or a table footnote.
+- **MAGNN on the H2GB datasets and the two large LP tasks** is probed on the H100. A cell that does not fit at the smallest grid point is "N/A (out of memory)", with the footnote.
+
+**Link prediction.**
+- Report on the **random test negatives only** (HGB `get_test_neigh_w_random`, seed 1). Remove the 2-hop columns and their "–" cells. The LP columns are ROC-AUC and MRR.
+- The 5 HGB LP published numbers (2-hop) leave the table; those cells are now run by us.
+- Every method trains in batches of 8,192 positives per step, as HGB and H2S-NN. A published LP cell keeps its source's batch.
+- The baselines' DistMult is a full d × d matrix per relation, as HGB's. H2S-NN's `Linear + GELU` endpoint projection before its decoder goes in the appendix differences.
+
+**Statistics (decided; spec 1.28 §6 "Seeds and statistics").**
+- 48 tests, Holm per task: NC 24 (12 datasets × 2 metrics), LP 16 (8 tasks × 2 metrics, random test set), GC 8 (4 datasets × 2 metrics).
+- NC and LP: Welch, H2S-NN against the best method **run under our protocol**. The best published number is shown beside it without a p-value; where it is higher than H2S-NN's, the text says so. Report how many (dataset, metric) pairs have a published best.
+- GC: Welch from summary statistics (n = 5) against the best row of HetSheaf's Table 4 (same protocol as ours), with HetSheaf's std read as ddof 0 (× √(5/4), the conservative reading).
+
+**Still no results:** every result cell stays `\res{}`, except published numbers entered under the register rule (and only for the 73 kept cells).
+
+## 0b. Update 2026-11-19 (read after §0; supersedes §2–§4 and §6 where they differ)
 **Binding now:**
 - spec **v1.27** (§4 Prop. 12 two regimes; §5 claims C1, C2, C2b, C5, C7, C14, C15; §6 ablation and analyses);
 - `docs/ablation_analysis_preregistration_v2.md` (the ablation study and analyses are exactly what it lists);
