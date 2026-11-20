@@ -1,0 +1,15 @@
+# T6 step 3: env_check on TSUBAME H100 (2026-11-20, ops session via ssh)
+# first try: trial run job 9480862 (3 min) hit h_rt after 5 OK lines (169 s); rerun with group points, h_rt 20 min:
+head=fc0ebaa605280f2d987c4848cc3109c7d3b66680 host=r7n9 job=9480898 start=2026-11-20T14:25:33+09:00
+OK   nvidia-smi: NVIDIA H100, 95830 MiB, 580.105.08
+OK   torch CUDA: torch 2.4.1+cu124 cuda 12.4 cudnn 90100 NVIDIA H100 sm_90 arch_list ['sm_50', 'sm_60', 'sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90']
+OK   DGL CUDA: dgl 2.4.0+cu124 copy_u_sum on cuda:0
+OK   PyG sparse matmul CUDA: torch_geometric 2.8.0 torch_sparse 0.6.18+pt24cu124 matmul on cuda:0
+OK   tests/test_check_env.py: OK
+OK   CUDA-only test (cuda_float32): OK
+OK   HTTPS https://api.wandb.ai: status 404
+OK   HTTPS https://pypi.org: status 200
+OK   HTTPS https://github.com: status 200
+end=2026-11-20T14:28:36+09:00 fails=0
+exit_status              0                   
+# install_env.sh job 9480778: exit=0 (8 min); 29/29 lock pins equal (local +cu124/+pt24cu124 suffixes only); DGL sha256 0267a1a7... equals the lock
