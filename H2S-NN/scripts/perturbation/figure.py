@@ -17,6 +17,10 @@ the ablation configuration (a) runs at seeds 1-5 on the original graphs (`--h2sn
 by construction). A reference with fewer than the 5 seeds is listed under `missing`. Main-table summaries are never
 read.
 
+Absent methods (card 9 W5, pre-registration v3 §4.2: HetSheaf and CSNN are not waited for): a baseline with no
+runnable manifest row on a dataset (`needs tuned config`, or no row) is listed under `absent` in the JSON and named in
+the figure ("absent: ..." in that dataset's panels); it never raises. The rules E1 and E2 are `rules.py`.
+
     python scripts/perturbation/figure.py --manifest <dir>/manifest.tsv --graphs data/NC --out_dir <dir> \
         [--h2snn_reference_table <stats collect csv>]
 """
@@ -38,6 +42,18 @@ KINDS = ("targeted", "random")
 ORIGINAL = "original"
 REFERENCE_SEEDS: tuple[int, ...] = (1, 2, 3, 4, 5)
 H2SNN_REFERENCE_ROWS: tuple[str, ...] = ("full", "no_path_cells", "S2")
+BASELINES: tuple[str, ...] = ("gcn", "han", "sehgnn", "hetero2net", "hetsheaf", "csnn")   # = manifest.BASELINES
+
+
+def absent_methods(manifest: Path) -> dict[str, list[str]]:
+    """Per dataset, the baselines without a runnable manifest row (no row, or only "needs tuned config" rows)."""
+    runnable: dict[str, set[str]] = {}
+    with Path(manifest).open(encoding="utf-8") as handle:
+        for row in csv.DictReader(handle, delimiter="\t"):
+            runnable.setdefault(row["dataset"], set())
+            if row.get("command"):
+                runnable[row["dataset"]].add(row["method"])
+    return {d: [m for m in BASELINES if m not in methods] for d, methods in sorted(runnable.items())}
 
 
 def ceilings(graphs_dir: Path) -> dict[str, float]:
@@ -109,7 +125,8 @@ def original_h(graphs_dir: Path) -> dict[str, float]:
 
 def figure(result: dict[str, Any], ceiling: dict[str, float], path: Path) -> list[dict[str, Any]]:
     """Writes the figure; returns the ceiling lines drawn (dataset, kind, x, line style), read back from the axes.
-    `result["reference"]`: the original-graph points, drawn in both panels of their dataset."""
+    `result["reference"]`: the original-graph points, drawn in both panels of their dataset; `result["absent"]`
+    (optional): {dataset: [method]}, named in that dataset's panels."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -139,6 +156,10 @@ def figure(result: dict[str, Any], ceiling: dict[str, float], path: Path) -> lis
                 line = ax.axvline(ceiling[dataset], linestyle="--", color="black", linewidth=0.8, label="1 - 1/C")
                 drawn.append({"dataset": dataset, "kind": kind, "x": float(line.get_xdata()[0]),
                               "linestyle": line.get_linestyle()})
+            absent = (result.get("absent") or {}).get(dataset)
+            if absent:
+                ax.text(0.02, 0.02, "absent: " + ", ".join(absent), transform=ax.transAxes, fontsize=6,
+                        color="0.3")
             ax.set_title(f"{dataset}, {kind}", fontsize=9)
             ax.set_xlabel("h (1 - MLH over M_2)")
             if col == 0:
@@ -161,6 +182,7 @@ def main() -> None:
     parser.add_argument("--out_dir", type=Path, required=True)
     args = parser.parse_args()
     result = collect(args.manifest)
+    result["absent"] = absent_methods(args.manifest)
     ceiling = ceilings(args.graphs)
     if args.h2snn_reference_table is not None:
         points, missing = h2snn_reference(args.h2snn_reference_table, original_h(args.graphs))
