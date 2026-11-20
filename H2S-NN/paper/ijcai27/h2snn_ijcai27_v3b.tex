@@ -535,29 +535,35 @@ To test whether the learned maps realise both behaviours of Proposition~\ref{pro
 \end{figure}
 
 \subsection{Computational Cost Analysis}
-To test whether faces keep \method{} scalable, we analyse the time and space complexity of each operation (Table~\ref{tab:complexity}) and measure the parameter count, the time per epoch at 8,192 training targets and the peak GPU memory of every method on IMDB and ogbn-mag with one H100 (Table~\ref{tab:cost}), together with the Macro-F1 on ogbn-mag against time and memory (Figure~\ref{fig:cost}). Every operation of \method{} is linear in the edges and the face incidences and independent of the number of meta-paths, and the implicit solve keeps memory independent of the number of conjugate-gradient iterations, whereas HAN and SeHGNN grow with the meta-path graphs they build or the meta-paths they enumerate. \res{} The results from Table~\ref{tab:cost} and Figure~\ref{fig:cost} show that \method{} runs within the time and memory of the meta-path-based models while reaching a higher Macro-F1, suggesting that faces improve accuracy at a moderate cost.
+To test whether faces keep \method{} scalable, we analyse the time and space complexity of each operation of \method{} and of sheaf and heterogeneous baselines (Table~\ref{tab:complexity}), and measure the parameter count, the time per epoch at 8,192 training targets and the peak GPU memory of every method on IMDB and ogbn-mag with one H100 (Table~\ref{tab:cost}), together with the Macro-F1 on ogbn-mag against time and memory (Figure~\ref{fig:cost}). Every operation of \method{} is linear in the edges and face incidences and independent of the number of meta-paths, and the implicit solve keeps memory independent of the number of solver iterations. In exchange, every edge applies a full $d\times d$ rotation at every iteration, which costs a factor of $d$ over GCN-style aggregation and exceeds the per-layer edge cost of NSD and HetSheaf, whose stalks have dimension $d_s\le5$; HAN, SeHGNN and H2SGNN, by contrast, grow with the meta-path graphs they build. \res{} The results from Table~\ref{tab:cost} and Figure~\ref{fig:cost} show that \method{} stays within the time and memory of the meta-path-based models while reaching a higher Macro-F1, suggesting that its additional cost over simpler models is moderate and pays off in accuracy.
 
 \begin{table*}[!htbp]
   \centering
-  \caption{Time and space complexity per forward pass. $N$ nodes, $|E|$ edges, $|R|$ relations, $d$ hidden size (MLP widths $O(d)$), $A$ anchors with $n$ walks of at most $\ell_{\max}$ steps, $F$ faces of lengths $\ell_f$, $E_{\mathrm{sh}}$ edges on several faces, $K$ solver iterations, $L$ layers, $\mathcal{P}$ meta-paths with meta-path graphs $E_P$; node encoders omitted.}
+  \caption{Time and space per forward pass. $N$ nodes, $|E|$ edges, $|R|$ relations, $|T|$ node types, $d$ hidden size (MLP widths $O(d)$), $d_s$ stalk dimension of NSD and HetSheaf ($d_s\le5$; the stalk of \method{} has dimension $d$), $A$ anchors with $n$ walks of at most $\ell_{\max}$ hops, $F$ faces of lengths $\ell_f$, $K$ solver iterations or polynomial order, $L$ layers, $\mathcal{P}$ meta-paths with meta-path graphs $E_P$, $h$ attention heads; node encoders omitted. The backward pass of \method{} is one more solve of the same cost, and its memory does not grow with $K$. Baselines use orthogonal or general maps; time as stated in the cited papers except $^\dagger$ (derived by us); space derived by us.}
   \label{tab:complexity}
   \scriptsize
   \setlength{\tabcolsep}{4pt}
   \begin{tabular}{lll}
     \toprule
-    \textbf{Operation} & \textbf{Time} & \textbf{Space} \\
+    \textbf{Operation / Model} & \textbf{Time} & \textbf{Space} \\
     \midrule
-    Sampling instances & $O(An\ell_{\max})$ & $O(\sum_f\ell_f)$ \\
-    Edge maps and weights & $O(|E|d^2+|R|d^3)$ & $O(|E|+|R|d^2)$ \\
-    Face weights & $O(\sum_f\ell_f d^2)$ & $O(F)$ \\
-    One solver iteration & $O\bigl((|E|+\sum_f\ell_f)d^2\bigr)$ & $O\bigl((N+|E_{\mathrm{sh}}|+F)d\bigr)$ \\
+    Sampling instances & $O\big(An\ell_{\max}(|R|+\ell_{\max}\log|E|)\big)$ & $O(\sum_f\ell_f)$ \\
+    Edge maps and weights & $O(|E|d^2+|R|d^3)$ & $O(|E|d+|R|d^2)$ \\
+    Face weights & $O(\sum_f\ell_f d^2)$ & $O(\sum_f\ell_f d)$ \\
+    One solver iteration & $O\big((|E|+\sum_f\ell_f)d^2\big)$ & $O\big((N+|E|+\sum_f\ell_f)d\big)$ \\
     \midrule
-    \method{} (total) & $O\bigl(An\ell_{\max}+|R|d^3+K(|E|+\sum_f\ell_f)d^2\bigr)$ & $O\bigl((N+|E_{\mathrm{sh}}|+F)d+|E|+|R|d^2+\sum_f\ell_f\bigr)$ \\
+    \method{} (total) & $O\big(An\ell_{\max}(|R|+\ell_{\max}\log|E|)+|R|d^3+K(|E|+\sum_f\ell_f)d^2\big)$ & $O\big((N+|E|+\sum_f\ell_f)d+|R|d^2\big)$ \\
     \midrule
-    GCN & $O\bigl(L(|E|d+Nd^2)\bigr)$ & $O(LNd+|E|)$ \\
-    R-GCN & $O\bigl(L(|E|d+|R|Nd^2)\bigr)$ & $O(LNd+|E|+L|R|d^2)$ \\
-    HAN & $O\bigl(L\sum_{P}(|E_P|d+Nd^2)\bigr)$ & $O(\sum_P|E_P|+|\mathcal{P}|Nd)$ \\
-    SeHGNN & $O(\sum_P|E_P|d)$ once $+\,O(|\mathcal{P}|Nd^2+|\mathcal{P}|^2Nd)$ & $O(|\mathcal{P}|Nd)$ \\
+    GCN & $O\bigl(L(Nd^2+|E|d)\bigr)$ & $O(LNd+|E|)$ \\
+    R-GCN$^\dagger$ & $O\bigl(L(|R|Nd^2+|E|d)\bigr)$ & $O(LNd+|E|+L|R|d^2)$ \\
+    HAN$^\dagger$ & $O\bigl(Lh\sum_P(Nd^2+|E_P|d)\bigr)$ & $O(\sum_P|E_P|+h|\mathcal{P}|Nd)$ \\
+    SeHGNN$^\dagger$ & $O(\sum_P|E_P|d)$ once $+\,O(|\mathcal{P}|Nd^2+|\mathcal{P}|^2Nd)$ & $O(|\mathcal{P}|Nd)$ \\
+    \midrule
+    NSD & $O\bigl(L(N(d^2+d_s^3)+|E|(dd_s^2+d_s^3))\bigr)$ & $O\bigl(LNd+|E|d_s^2\bigr)$ \\
+    HetSheaf & $O\bigl(L(N(d^2+d_s^3)+|E|d_s^2(d+|T|+|R|+d_s))\bigr)$ & $O\bigl(LNd+|E|d_s^2\bigr)$ \\
+    \midrule
+    Hetero$^2$Net$^\dagger$ & $O\bigl(L|R|(Nd^2+|E|d)\bigr)$ & $O(L|R|Nd+|E|)$ \\
+    H2SGNN$^\dagger$ & $O(K\sum_P|E_P|d+Nd^2)$ & $O(\sum_P|E_P|+K|\mathcal{P}|Nd)$ \\
     \bottomrule
   \end{tabular}
 \end{table*}
