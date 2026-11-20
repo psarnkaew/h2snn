@@ -38,7 +38,7 @@ from src.baselines.metrics import (
     node_classification_record,
     prefixed,
 )
-from src.baselines.progress import EpochReport, report_epoch
+from src.baselines.progress import EpochReport, prefixed_metrics, report_epoch
 from src.configs.config import LP_POSITIVES_PER_STEP
 from src.models.anchored_solve import check_finite_loss
 
@@ -93,6 +93,7 @@ def train_full_batch_node_classification(
         model.eval()
         with torch.no_grad():
             logits = target_logits()
+            val_loss = float(criterion(logits[val_idx], labels[val_idx]))  # card 8 C7: logged only
             val_metrics = classification_metrics(
                 logits[val_idx],
                 labels[val_idx],
@@ -122,6 +123,7 @@ def train_full_batch_node_classification(
             monitor=monitor,
             running_best=best_monitor,
             metrics=val_metrics,
+            extra={"train/loss": float(loss), "val/loss": val_loss, **prefixed_metrics("test", test_metrics)},
         )
         if stale >= patience:
             break
@@ -148,6 +150,15 @@ def node_classification_criterion(
 # --------------------------------------------------------------------------------------
 # Link prediction
 # --------------------------------------------------------------------------------------
+
+
+#: Card 8 C7 / amendment 3: the LP test keys logged per epoch (the random test set: ROC-AUC, MRR, AUPR).
+LP_TEST_LOG_KEYS: tuple[str, ...] = ("auroc", "mrr", "aupr")
+
+
+def lp_random_test_extra(test_metrics: dict[str, Any]) -> dict[str, Any]:
+    """`test/auroc`, `test/mrr`, `test/aupr` of the random test set (`lp_test_set_metrics` keys `random_<metric>`)."""
+    return {f"test/{name}": test_metrics.get(f"random_{name}") for name in LP_TEST_LOG_KEYS}
 
 
 def sample_train_negatives(
@@ -240,15 +251,19 @@ def train_link_prediction(
         neg: torch.Tensor,
         pos_rel: torch.Tensor,
         neg_rel: torch.Tensor,
-    ) -> dict[str, float]:
+    ) -> tuple[dict[str, float], float]:
+        """(metrics, BCE loss) of one validation set; the loss is logged only (card 8 C7)."""
+        pos_scores, neg_scores = scorer(pos, pos_rel), scorer(neg, neg_rel)
+        loss = float(criterion(torch.cat([pos_scores, neg_scores]),
+                               torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)])))
         return compute_link_prediction_metrics(
-            scorer(pos, pos_rel),
-            scorer(neg, neg_rel),
+            pos_scores,
+            neg_scores,
             pos,
             neg,
             pos_rel,
             neg_rel,
-        )
+        ), loss
 
     def chunked(edges: torch.Tensor, relation: torch.Tensor) -> torch.Tensor:
         parts = [score_links(edges[:, i:i + eval_chunk], relation[i:i + eval_chunk], None)
@@ -265,6 +280,7 @@ def train_link_prediction(
         batches = link_step_batches(int(pos_edge_index.size(1)), int(neg_edge_index.size(1)),
                                     positives_per_step, pos_edge_index.device)
         steps_per_epoch = len(batches)
+        train_loss_sum = 0.0
         for pos_ids, neg_ids in batches:
             optimizer.zero_grad()
             neg_ids = neg_ids.to(neg_edge_index.device)
@@ -285,6 +301,7 @@ def train_link_prediction(
             check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
             loss.backward()
             optimizer.step()
+            train_loss_sum += float(loss)
 
         model.eval()
         head.eval()
@@ -294,7 +311,7 @@ def train_link_prediction(
                 scorer = lambda edges, relation: head(embeddings, edges, relation)  # noqa: E731
             else:
                 scorer = chunked
-            val_metrics = evaluate(
+            val_metrics, val_loss = evaluate(
                 scorer,
                 data.val_pos_edge_index,
                 data.val_neg_edge_index,
@@ -323,6 +340,8 @@ def train_link_prediction(
             monitor=monitor,
             running_best=best_monitor,
             metrics=val_metrics,
+            extra={"train/loss": train_loss_sum / max(1, steps_per_epoch), "val/loss": val_loss,
+                   **lp_random_test_extra(test_metrics)},
         )
         if stale >= patience:
             break
@@ -395,6 +414,7 @@ def train_graph_classification(
     for epoch in range(epochs):
         model.train()
         head.train()
+        train_loss_sum, train_batches = 0.0, 0
         for batch in train_loader:
             batch = batch.to(device)
             optimizer.zero_grad()
@@ -404,6 +424,7 @@ def train_graph_classification(
             check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
             loss.backward()
             optimizer.step()
+            train_loss_sum, train_batches = train_loss_sum + float(loss), train_batches + 1
 
         model.eval()
         head.eval()
@@ -424,6 +445,8 @@ def train_graph_classification(
             monitor=val_metrics["macro_f1"],
             running_best=val_metrics["macro_f1"],
             metrics=val_metrics,
+            extra={"train/loss": train_loss_sum / max(1, train_batches), "val/loss": val_metrics.get("loss"),
+                   **prefixed_metrics("test", test_metrics)},
         )
         if stale >= patience:
             break

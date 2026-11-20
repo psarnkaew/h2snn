@@ -275,7 +275,7 @@ def evaluate_split(loader: Any, forward_seeds: Callable[[Any], torch.Tensor], ta
 def _source_epoch(model: torch.nn.Module, forward_seeds: Callable[[Any], torch.Tensor], train_loader: Any,
                   target_type: str, labels: torch.Tensor | None, optimizer: torch.optim.Optimizer,
                   criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], schedule: SourceSchedule,
-                  epoch: int) -> int:
+                  epoch: int, losses: list[float] | None = None) -> int:
     """One training epoch under a published source's step rule (H2GB `custom_train.py:106-159`); the scheduler steps
     once at its end (`:288-293`; it does not read the evaluation). Returns the optimizer steps taken."""
     from src.models.anchored_solve import check_finite_loss
@@ -289,6 +289,8 @@ def _source_epoch(model: torch.nn.Module, forward_seeds: Callable[[Any], torch.T
         loss = criterion(logits, batch_labels.to(logits.device))
         check_finite_loss(loss, epoch)
         loss.backward()
+        if losses is not None:
+            losses.append(float(loss))  # card 8 C7: logged only
         if is_source_step(it, num_batches, schedule.accumulation):
             if schedule.clip_value is not None:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), schedule.clip_value)
@@ -333,6 +335,7 @@ def train_minibatch_node_classification(
     best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
         model.train()
+        losses: list[float] = []  # card 8 C7: train/loss, logged only
         if schedule is None:
             for batch in train_loader:
                 _, batch_labels = seed_rows(batch, target_type, labels)
@@ -342,9 +345,10 @@ def train_minibatch_node_classification(
                 check_finite_loss(loss, epoch)
                 loss.backward()
                 optimizer.step()
+                losses.append(float(loss))
         else:
             _source_epoch(model, forward_seeds, train_loader, target_type, labels, optimizer, criterion, schedule,
-                          epoch)
+                          epoch, losses)
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
@@ -354,7 +358,8 @@ def train_minibatch_node_classification(
         if sub_metrics["macro_f1"] > best_monitor:
             best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
-                     metrics=sub_metrics)
+                     metrics=sub_metrics, prefix="val_subset",
+                     extra={"train/loss": sum(losses) / max(1, len(losses))})
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)
@@ -445,6 +450,7 @@ def train_index_minibatch(
     best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
         model.train()
+        losses: list[float] = []  # card 8 C7: train/loss, logged only
         for _ in range(plan.steps_per_epoch):
             batch = order.next(plan.batch_size)
             optimizer.zero_grad()
@@ -453,6 +459,7 @@ def train_index_minibatch(
             check_finite_loss(loss, epoch)
             loss.backward()
             optimizer.step()
+            losses.append(float(loss))
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
@@ -460,7 +467,8 @@ def train_index_minibatch(
         if sub_metrics["macro_f1"] > best_monitor:
             best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
-                     metrics=sub_metrics)
+                     metrics=sub_metrics, prefix="val_subset",
+                     extra={"train/loss": sum(losses) / max(1, len(losses))})
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)

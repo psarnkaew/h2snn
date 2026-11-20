@@ -202,7 +202,8 @@ def tuning_line(task: str, model: str, dataset: str, out: Path) -> str:
 def final_seeds_line(task: str, model: str, dataset: str, out: Path) -> str:
     seeds = " ".join(str(s) for s in FINAL_SEEDS)
     return (f"{LAUNCHER} --task {task} --models {model} --datasets {dataset} --num_runs 1 --base_seed 0 "
-            f"--output_dir {out}/experiments/baselines --final_seeds {seeds}")
+            f"--output_dir {out}/experiments/baselines --final_seeds {seeds} "
+            f"--wandb_project {WANDB_PROJECT}")  # card 8 C7: the tuning lines' project
 
 
 def h2snn_token(task: str, dataset: str) -> str:
@@ -291,7 +292,8 @@ def tuning_list(phase: str, out: Path) -> list[str]:
 def published_line(task: str, model: str, dataset: str, out: Path) -> str:
     seeds = " ".join(str(s) for s in FINAL_SEEDS)
     return (f"{PUBLISHED_LAUNCHER} --task {task} --models {model} --datasets {dataset} --final_seeds {seeds} "
-            f"--output_dir {out}/experiments/baselines --state_dir {out}/state")
+            f"--output_dir {out}/experiments/baselines --state_dir {out}/state "
+            f"--wandb_project {WANDB_PROJECT}")  # card 8 C7
 
 
 def probe_line(task: str, model: str, dataset: str, out: Path) -> str:

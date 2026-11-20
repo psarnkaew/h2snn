@@ -714,22 +714,26 @@ def _train_nc_minibatch(model: torch.nn.Module, forward_rows: Callable[[torch.Te
     """MAGNN's NC runner (`run_Freebase.py:91-150`): per epoch, shuffled batches of `batch_size` training targets, one
     step each; then the shared selection: validation Macro-F1 every epoch, patience, test at the best epoch."""
     from src.baselines.metrics import classification_metrics, node_classification_record
-    from src.baselines.progress import report_epoch
+    from src.baselines.progress import prefixed_metrics, report_epoch
     from src.models.anchored_solve import check_finite_loss
 
     labels = data.target_y.to(device).long()
     split = {s: getattr(data, f"target_{s}_mask").nonzero().view(-1) for s in ("train", "val", "test")}
     batch_size = int(args["batch_size"])
 
+    last_loss: dict[str, float] = {}  # card 8 C7: the last evaluation's loss, logged only
+
     def evaluate(index: torch.Tensor) -> dict[str, float]:
         with torch.no_grad():
             logits = torch.cat([forward_rows(index[i:i + batch_size]) for i in range(0, index.numel(), batch_size)])
+            last_loss["value"] = float(torch.nn.functional.cross_entropy(logits, labels[index.to(device)]))
         return classification_metrics(logits, labels[index.to(device)], is_multilabel=False)
 
     best, best_epoch, stale, best_val, best_test = float("-inf"), 0, 0, {}, {}
     for epoch in range(int(args["num_epochs"])):
         model.train()
         order = split["train"][torch.randperm(split["train"].numel())]
+        losses: list[float] = []  # card 8 C7: train/loss, logged only
         for start in range(0, order.numel(), batch_size):
             batch = order[start:start + batch_size]
             optimizer.zero_grad()
@@ -737,13 +741,16 @@ def _train_nc_minibatch(model: torch.nn.Module, forward_rows: Callable[[torch.Te
             check_finite_loss(loss, epoch)
             loss.backward()
             optimizer.step()
+            losses.append(float(loss))
         model.eval()
         val = evaluate(split["val"])
-        if val["macro_f1"] > best:
+        extra = {"train/loss": sum(losses) / max(1, len(losses)), "val/loss": last_loss.get("value")}
+        if val["macro_f1"] > best:  # MAGNN's runner evaluates the test set only at the end: test/* when improved
             best, best_epoch, stale, best_val, best_test = val["macro_f1"], epoch, 0, val, evaluate(split["test"])
+            extra.update(prefixed_metrics("test", best_test))
         else:
             stale += 1
-        report_epoch(report, epoch=epoch, monitor=val["macro_f1"], running_best=best, metrics=val)
+        report_epoch(report, epoch=epoch, monitor=val["macro_f1"], running_best=best, metrics=val, extra=extra)
         if stale >= int(args["patience"]):
             break
     return node_classification_record(val_metrics=best_val, test_metrics=best_test, best_epoch=best_epoch)
