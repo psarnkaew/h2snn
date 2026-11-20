@@ -37,3 +37,4 @@ For the next **ops session** (design session that owns run infrastructure). Talk
 - env_check job 9480898 (group points, 20 min; the 3-min trial run 9480862 hit h_rt): **fails=0** on H100 (driver 580, CUDA 12.4, DGL/PyG CUDA OK, cuda_float32 test OK; W&B/PyPI/GitHub reachable from compute nodes). Evidence `docs/tsubame_evidence/t6_env_check.txt` (7f07c09).
 - Data: 715 files, 198 hard links, apparent 35G both sides (lab plain du 16G = NFS compression). Quota 44/125 GB.
 - W&B key in `~/.netrc`, HTTP 200. Steps 4–6 still wait for the author's go.
+- Open item 6 closed: the author keeps the current W&B key (no rotation); do not raise it again.
