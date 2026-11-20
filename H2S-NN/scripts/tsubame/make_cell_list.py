@@ -17,19 +17,17 @@ TSUBAME card T7.3: no final-seeds list is written up front any more (it could be
 
 Phases of card 7 V8 (`ablation`, `perturbation`, `timing`; the ops session owns the TSUBAME card): built from the
 card 7 manifests, written on TSUBAME after the `h2snn` phase has tuned `full` (the manifests need its tuned files):
-- `--phase ablation --manifest <out>/<dataset>/manifest.tsv ... --out <out>/cells_ablation_tuning.txt`: one tuning
-  line per `tune` row (configuration (b): 100 trials, seed 0, the H2S-NN launcher with its own exp_name, state
-  directory and the W&B project `h2snn_ablation_t4`), and `<out>/cells_ablation_seeds.txt`: one line per `runs` row
-  (`scripts/run_h2snn_runs.py` through `run_row.py`; a (b) row writes the arm's tuned file from its sweep's
-  `best_tuned_run0.json` first and waits while that does not exist). `full`'s seeds 1-4 are the main table's (no line).
+- `--phase ablation --manifest <out>/<dataset>/manifest.tsv ... [--out <out>/cells_ablation_seeds.txt]` (card 9 W8,
+  pre-registration v3: configuration (a) only): no tuning list (a v3 manifest has no `tune` row); one line per `runs`
+  row (`scripts/run_h2snn_runs.py` through `run_row.py`, done file = the row's `runs_summary.json`). A `tune` row or a
+  configuration (b) row (a v2 manifest) raises. `full`'s seeds 1-4 are the main table's (no line).
 - `--phase perturbation --manifest <pert>/manifest.tsv --out <out>/cells_perturbation.txt`: one line per runnable
   manifest row (perturbed graphs and the original-graph reference rows), the row's checked command through
   `run_row.py` (working directory, trials copy, done file = the row's summary); a "needs tuned config" row is a comment.
 - `--phase timing --out <out>/cells_timing.txt`: one line per (main-table method, dataset) of
   `scripts/timing/time_methods.py` (ogbn-mag, IMDB), through `run_row.py`; H2S-NN gets its tuned file from the `h2snn`
   phase when the sweep has finished, else the central point (flagged by the launcher).
-The ablation tuning lines are `run_h2snn_wandb_tuning.py` lines, which `lines.py` / `status.py` read (card T7.1);
-the `run_row.py` lines (ablation seeds, perturbation, timing) are not read there (a row is done when its summary
+The `run_row.py` lines (ablation seeds, perturbation, timing) are not read by `lines.py` / `status.py` (a row is done when its summary
 file exists). All of them run under `sweep_slots.sh` unchanged (`run_row.py`).
 
 Final-seeds list: one `--final_seeds 0 1 2 3 4` line per tuning line (baseline or H2S-NN) whose sweep has `n_trials`
@@ -91,7 +89,6 @@ FREEBASE_NC_NOTE = ("# freebase NC: full batch (configs/experiments/freebase_h2s
 
 # Card 7 V8: the analysis phases (rows of the card 7 manifests as cell-list lines through `run_row.py`).
 ROW_RUNNER = "scripts/tsubame/run_row.py"
-ABLATION_WANDB_PROJECT = "h2snn_ablation_t4"
 CARD7_PHASES = ("ablation", "perturbation", "timing")
 TIMING_DATASETS = ("ogbn-mag", "imdb")
 TIMING_EPOCHS = 4
@@ -104,30 +101,22 @@ def _tsv(path: Path) -> list[dict]:
         return list(csv.DictReader(handle, delimiter="\t"))
 
 
-def ablation_lists(manifests: list[Path], out: Path) -> tuple[list[str], list[str]]:
-    """(tuning lines, seed lines) of the ablation manifests (`scripts/ablation/seed_runs.py`), in manifest order."""
-    tuning = ["# TSUBAME phase ablation: configuration (b) sweeps, one line per `tune` row (card 7 V8)"]
-    seeds = ["# TSUBAME phase ablation seeds: one line per `runs` row (card 7 V8); a (b) row waits for its sweep"]
+def ablation_lists(manifests: list[Path], out: Path) -> list[str]:
+    """The seed lines of the ablation manifests (`scripts/ablation/seed_runs.py`), in manifest order: one per `runs`
+    row of configuration (a) (card 9 W8, pre-registration v3); a `tune` or (b) row raises."""
+    seeds = ["# TSUBAME phase ablation seeds: one line per `runs` row, configuration (a) only (card 9 W8, "
+             "pre-registration v3); no tuning list"]
     exp_out = out / "experiments" / "ablation"
     for manifest in manifests:
-        rows = _tsv(manifest)
-        bases = {r["arm"]: r["config"] for r in rows if r["kind"] == "tune"}
-        for r in rows:
-            if r["kind"] == "tune":
-                tuning.append(f"{H2SNN_LAUNCHER} --config {r['config']} --exp_name {r['exp_name']} --num_runs 1 "
-                              f"--base_seed {r['base_seed']} --n_trials {N_TRIALS} --output_dir {exp_out} "
-                              f"--state_dir {out}/state/{r['exp_name']} --wandb_project {ABLATION_WANDB_PROJECT}")
-            elif r["kind"] == "runs":
-                tuned = ""
-                if r["configuration"] == "b":
-                    best = exp_out / f"{r['dataset']}__ablation_b_{r['arm']}" / "best_tuned_run0.json"
-                    tuned = f"--tuned_config {bases[r['arm']]} {best} {r['config']} "
-                seeds.append(f"{ROW_RUNNER} --done {exp_out}/{r['exp_name']}/runs_summary.json {tuned}-- "
-                             f"scripts/run_h2snn_runs.py --config {r['config']} --base_seed {r['base_seed']} "
-                             f"--num_runs {r['num_runs']} --exp_name {r['exp_name']} --output_dir {exp_out}")
-            else:
-                raise ValueError(f"{manifest}: unknown row kind {r['kind']!r}")
-    return tuning, seeds
+        for r in _tsv(manifest):
+            if r["kind"] != "runs" or r["configuration"] != "a":
+                raise ValueError(f"{manifest}: row kind {r['kind']!r}, configuration {r['configuration']!r}: "
+                                 "pre-registration v3 has configuration (a) `runs` rows only (rebuild the manifest "
+                                 "with scripts/ablation/seed_runs.py)")
+            seeds.append(f"{ROW_RUNNER} --done {exp_out}/{r['exp_name']}/runs_summary.json -- "
+                         f"scripts/run_h2snn_runs.py --config {r['config']} --base_seed {r['base_seed']} "
+                         f"--num_runs {r['num_runs']} --exp_name {r['exp_name']} --output_dir {exp_out}")
+    return seeds
 
 
 def perturbation_line(row: dict) -> str:
@@ -311,12 +300,9 @@ def main(argv: list[str] | None = None) -> None:
     out_dir = (args.out_dir or args.out.parent).resolve()
     if args.phase in ("ablation", "perturbation") and not args.manifest:
         ap.error(f"--phase {args.phase} needs --manifest")
-    if args.phase == "ablation":  # card 7 V8: the (b) sweeps and the seed rows
-        target = args.out or out_dir / "cells_ablation_tuning.txt"
-        lines, seed_lines = ablation_lists(args.manifest, out_dir)
-        seeds_target = out_dir / "cells_ablation_seeds.txt"
-        seeds_target.parent.mkdir(parents=True, exist_ok=True)
-        seeds_target.write_text("\n".join(seed_lines) + "\n", encoding="utf-8")
+    if args.phase == "ablation":  # card 9 W8: the seed rows only (configuration (a); no tuning list)
+        target = args.out or out_dir / "cells_ablation_seeds.txt"
+        lines = ablation_lists(args.manifest, out_dir)
     elif args.phase == "perturbation":  # card 7 V8
         if len(args.manifest) != 1:
             ap.error("--phase perturbation takes one manifest")
