@@ -82,3 +82,20 @@ New tests of C1–C5, the existing `test_baselines*`, `test_tsubame_*` and `wand
 
 ## Estimate
 2–3 agent days; MAGNN (instance preprocessing on our derived LP tasks) is the longest part. Longer if HGB's MAGNN loaders are tied to their own file formats.
+
+## Amendment 1 (2026-11-20, author, after the C1 stop; decisions log row "Card 8 amendment 1")
+Continue from `card8` head `1236f4c`; first `git merge` the design-docs SHA given in the prompt.
+
+**A1 — the 16 ‡ cells and MAGNN Freebase.**
+- GCN, GAT × {mag-year, oag-cs, oag-eng, oag-chem, pdns} (10) and GCN × h-pokec (1): **published, run with H2GB's own `HomoGNNModel`** (`layer_type` GCN / GAT) exactly as each yaml states, through the same H2GB code path as R-GCN (C2). The tuned GCN/GAT cells keep HGB's models (decision S1). The report lists the two implementations per row.
+- GAT × h-pokec: **tune** (`Pokec-GAT.yaml:61` says `layer_type: GCN`).
+- HINormer × {mag-year, oag-eng, pdns}: **tune** (H2GB's `HINormerModel` is not the model we run, G-1).
+- PSHGCN × ogbn-mag: **tune** (its batch 10,000 and pass-based epoch would need a second H2GB loop).
+- MAGNN × freebase: **published** from HGB `run_Freebase.py` (confirmed).
+- Test of C1 for the H2GB path uses GCN on one of these datasets (instead of GCN ogbn-mag, which is filled).
+
+**A2 — evaluation protocol stays ours (author: option 1).** Published runs use the source's model and every hyperparameter / schedule key; data, splits, negatives, metrics, B1a selection and the single whole-split test stay the shared protocol (as C1 states). No change.
+
+**C2b (new unit, before C2) — baseline LP step size as HGB (finding #1 of the ops audit).** Today the small-LP baseline loop takes one optimizer step per epoch on all training positives (`src/baselines/training.py:221-240`), while HGB's runner and H2S-NN take shuffled batches of 8,192 positives (`link_prediction_trainer.py:238-263`; HGB `LP/benchmark/methods/baseline/run_new.py`, batch loop). Make every baseline's small-LP training take `ceil(P / 8,192)` steps per epoch: positives in a seeded shuffled order, batch 8,192 (`LP_POSITIVES_PER_STEP`), the epoch's training negatives split in the same ratio (as H2S-NN), one encode per step. Applies to the shared loop and to every adapter with its own LP loop (list them with file:line; PSHGCN, H2SGNN, HAN, Hetero²Net, H2G-former, HetSheaf, NSD/CSNN, R-GCN, MAGNN). Large LP (`fit_large_lp`) already steps per 8,192 positives: unchanged. Test: steps per epoch = `ceil(P/8192)` on a synthetic task with P = 20,000 for the shared loop and for one own-loop adapter; **mutation:** one step per epoch → fails. Existing LP tests stay green. Record in the report which adapters changed.
+
+**C2b addition (Amendment 2, 2026-11-20, author) — DistMult as HGB.** The baselines' `DistMultDecoder` (`src/baselines/heads.py:33-55`) is diagonal (`[R, d]`); HGB's is a full `d × d` matrix per relation (`HGB/LP/benchmark/methods/baseline/GNN.py:10-20`, xavier_normal), and H2S-NN's is full as well. Make the shared baseline DistMult a full `d × d` matrix per relation, initialised as HGB's (xavier_normal, gain as HGB's code), scored `uᵀ W_r v`; correct the docstring (`heads.py:36-39`). `dot` unchanged. Test: on a crafted pair u = e₁, v = e₂ a full W can give a non-zero score and `score(u,v) ≠ score(v,u)` for a non-symmetric W; parameter shape `[R, d, d]`; **mutation:** diagonal weights → fails. H2S-NN's decoder (with its Linear+GELU projection) is not touched; the projection is listed in the appendix as a difference.
