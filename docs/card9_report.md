@@ -110,3 +110,5 @@ Count vs card 7's 879 (loader count, job 18010): 4d00154 (card 7 suite head) 879
 1. `scripts/schema_readout.py` (the per-run read-out, not in this card's list) still has its own `--permutations` Kendall test across runs. `q3_schema.py` does not read it. Should it be removed in a later card, or left as it is?
 2. `None` while a seed is missing, even when the 4-of-5 outcome is already settled: is this conservative choice what the author wants?
 3. Schema homophily = edge label homophily `h_edge` of G_σ (unchanged from card 7). Please confirm this is the "label homophily" of v3 §4.1.
+
+branch=card9 sha=c6e3e7c7bd15248eba0130bf9cdc0651999767bf card=docs/H2S-NN_card9_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
