@@ -31,6 +31,11 @@ VENDOR_ROOTS: dict[str, Path] = {
     "hgb_nc_han": VENDOR_DIR / "HGB" / "NC" / "benchmark" / "methods" / "HAN",
     "hgb_lp": VENDOR_DIR / "HGB" / "LP" / "benchmark",
     "hgb_lp_gnn": VENDOR_DIR / "HGB" / "LP" / "benchmark" / "methods" / "GNN",
+    # card 8 C2/C3: HGB's R-GCN and MAGNN code (models only; their runners are not imported)
+    "hgb_rgcn_nc": VENDOR_DIR / "HGB" / "NC" / "benchmark" / "methods" / "RGCN",
+    "hgb_rgcn_lp": VENDOR_DIR / "HGB" / "LP" / "benchmark" / "methods" / "RGCN",
+    "hgb_magnn_nc": VENDOR_DIR / "HGB" / "NC" / "benchmark" / "methods" / "MAGNN",
+    "hgb_magnn_lp": VENDOR_DIR / "HGB" / "LP" / "benchmark" / "methods" / "MAGNN",
     "sehgnn": VENDOR_DIR / "SeHGNN" / "hgb",
     # SeHGNN/hgb/utils.py does a bare `from data_loader import data_loader`, which
     # lives one level up in SeHGNN/data/.
