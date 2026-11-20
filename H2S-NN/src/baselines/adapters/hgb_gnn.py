@@ -437,7 +437,9 @@ class HGBHomogeneousAdapter:
             dim=embed_dim,
         ).to(device)
 
-        optimizer = torch.optim.AdamW(
+        # card 8 amendment 3: a published cell runs its source's optimizer (HGB homoGNN.py:28: Adam); tuned: AdamW
+        optimizer_class = torch.optim.Adam if params.get("optimizer") == "adam" else torch.optim.AdamW
+        optimizer = optimizer_class(
             list(model.parameters()) + list(head.parameters()),
             lr=float(params.get("lr", 5e-4)),
             weight_decay=float(params.get("weight_decay", 1e-4)),

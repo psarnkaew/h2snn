@@ -1,0 +1,40 @@
+model: magnn
+task: link_prediction
+dataset: lastfm
+source: vendor/HGB/LP/benchmark/methods/MAGNN/run_LastFM.py (README MAGNN/README.md:47; HGB commit
+  ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe); the line of every value is under `lines:`
+notes: 'Card 8 amendment 3 (author 2026-11-20): HGB''s own LP configuration, 5 seeds. feats_type: MAGNN''s --feats-type 0 is
+  "all id vectors" (run_LastFM.py:225-228) = our feats_type 3. Its decoder is the inner product of the user and artist
+  embeddings (run_LastFM.py:116-117) = the shared dot head. Its meta-paths (etypes_lists, use_masks, run_LastFM.py:21-25)
+  are part of the adapter (src/baselines/adapters/magnn.py). lp_batch_size: 8 positives per step, each with one random
+  training negative (run_LastFM.py:93-98).'
+lines:
+  dropout: MAGNN/run_LastFM.py:18
+  lr: MAGNN/run_LastFM.py:19
+  weight_decay: MAGNN/run_LastFM.py:20
+  optimizer: MAGNN/run_LastFM.py:71
+  feats_type: MAGNN/run_LastFM.py:225
+  hidden_dim: MAGNN/run_LastFM.py:229
+  num_heads: MAGNN/run_LastFM.py:230
+  attn_vec_dim: MAGNN/run_LastFM.py:231
+  rnn_type: MAGNN/run_LastFM.py:232
+  epochs: MAGNN/run_LastFM.py:233
+  early_stopping: MAGNN/run_LastFM.py:234
+  lp_batch_size: MAGNN/run_LastFM.py:235
+  samples: MAGNN/run_LastFM.py:236
+  decoder_type: MAGNN/run_LastFM.py:116
+params:
+  dropout: 0.5
+  lr: 0.005
+  weight_decay: 0.001
+  optimizer: adam
+  feats_type: 3
+  hidden_dim: 64
+  num_heads: 8
+  attn_vec_dim: 128
+  rnn_type: RotatE0
+  epochs: 100
+  early_stopping: 5
+  lp_batch_size: 8
+  samples: 100
+  decoder_type: dot

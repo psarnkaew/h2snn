@@ -1,0 +1,36 @@
+model: rgcn
+task: link_prediction
+dataset: pubmed
+source: vendor/HGB/LP/benchmark/methods/RGCN/link_predict.py, README RGCN/README.md:26 `python link_predict.py --dataset=PubMed
+  --hidden-dim=60` (HGB commit ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe); the line of every value is under `lines:`
+notes: 'Card 8 amendment 3 (author 2026-11-20): HGB''s own LP configuration, 5 seeds. Their DistMult decoder (calc_score,
+  link_predict.py:46-52) = the shared DistMult head. regularization: their embedding term (regularization_loss,
+  link_predict.py:57-58, 67) kept as the auxiliary loss (the relation-vector part belongs to their decoder).'
+lines:
+  feats_type: RGCN/link_predict.py:356
+  hidden_dim: RGCN/README.md:26
+  num_layers: RGCN/link_predict.py:370
+  dropout: RGCN/link_predict.py:372
+  lr: RGCN/link_predict.py:371
+  weight_decay: RGCN/link_predict.py:373
+  epochs: RGCN/link_predict.py:368
+  early_stopping: RGCN/link_predict.py:369
+  lp_batch_size: RGCN/link_predict.py:377
+  n_bases: RGCN/link_predict.py:379
+  regularization: RGCN/link_predict.py:380
+  optimizer: RGCN/link_predict.py:184
+  decoder_type: RGCN/link_predict.py:46
+params:
+  feats_type: 3
+  hidden_dim: 60
+  num_layers: 2
+  dropout: 0.5
+  lr: 0.0005
+  weight_decay: 0.0001
+  epochs: 300
+  early_stopping: 40
+  lp_batch_size: 1024
+  n_bases: 10
+  regularization: 0.01
+  optimizer: adam
+  decoder_type: distmult

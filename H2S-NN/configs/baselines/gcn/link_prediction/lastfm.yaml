@@ -1,0 +1,36 @@
+model: gcn
+task: link_prediction
+dataset: lastfm
+source: vendor/HGB/LP/benchmark/methods/GNN/homoGNN.py with utils.py read_args (HGB commit ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe;
+  README GNN/README.md:2 runs homoGNN.py without flags); the line of every value is under `lines:`
+notes: 'Card 8 amendments 3-4 (author 2026-11-20): HGB''s own LP configuration, 5 seeds, run in our LP loop (validation once
+  per epoch, selection on validation ROC-AUC). HGB validates every 10 batches with early stopping on validation loss
+  (homoGNN.py:46-65): appendix difference; its patience 3 (utils.py:159, counted in validations) is applied to our
+  per-epoch validation. lp_batch_size: HGB batches 1,024 links of hom_data (utils.py:62-84: positive and negative rows
+  alternate, DataLoader shuffle False) = 512 positives + 512 negatives. feats_type 3: identity for every type
+  (gen_feat_list, homoGNN.py:128). decoder "dismult" = DistMult (the shared head, full d x d as HGB''s). Training
+  negatives: our shared files (protocol option 1).'
+lines:
+  hidden_dim: GNN/homoGNN.py:132
+  num_layers: GNN/utils.py:160
+  dropout: GNN/utils.py:162
+  lr: GNN/utils.py:164
+  weight_decay: GNN/utils.py:165
+  lp_batch_size: GNN/utils.py:166
+  epochs: GNN/utils.py:158
+  early_stopping: GNN/utils.py:159
+  decoder_type: GNN/utils.py:169
+  feats_type: GNN/homoGNN.py:128
+  optimizer: GNN/homoGNN.py:28
+params:
+  hidden_dim: 64
+  num_layers: 2
+  dropout: 0.5
+  lr: 0.005
+  weight_decay: 0.0
+  lp_batch_size: 512
+  epochs: 100
+  early_stopping: 3
+  decoder_type: distmult
+  feats_type: 3
+  optimizer: adam

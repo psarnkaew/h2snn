@@ -293,3 +293,70 @@ class PublishedRunnerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HGBLPPublishedTests(unittest.TestCase):
+    """Card 8 amendments 3-4: the LP published files equal HGB's LP code key by key (parsed here)."""
+
+    LP = PROJECT_ROOT / "vendor/HGB/LP/benchmark/methods"
+
+    @staticmethod
+    def _argparse_defaults(path: Path) -> dict:
+        out = {}
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "add_argument":
+                flag = ast.literal_eval(node.args[0]).lstrip("-")
+                for kw in node.keywords:
+                    if kw.arg == "default":
+                        try:
+                            out[flag] = ast.literal_eval(kw.value)
+                        except ValueError:
+                            pass
+        return out
+
+    def _published(self, model: str, dataset: str) -> dict:
+        from src.baselines.published import load_published_params
+
+        params = load_published_params(model, "link_prediction", dataset)
+        self.assertIsNotNone(params)
+        return params.values
+
+    def test_gcn_equals_homognn(self) -> None:
+        source = self._argparse_defaults(self.LP / "GNN/utils.py")
+        text = (self.LP / "GNN/homoGNN.py").read_text(encoding="utf-8")
+        self.assertIn("model = GCN(in_feats=dim_list, hid_feats=64,", text)
+        self.assertIn("th.optim.Adam(", text)
+        for dataset in ("pubmed", "lastfm"):
+            values = self._published("gcn", dataset)
+            expected = {"hidden_dim": 64, "num_layers": source["n_layers"], "dropout": source["dropout"],
+                        "lr": source["lr"], "weight_decay": source["weight_decay"], "epochs": source["epochs"],
+                        "early_stopping": int(source["patience"]),
+                        "lp_batch_size": source["batch_size"] // 2,  # 1,024 alternating pos/neg rows
+                        "decoder_type": {"dismult": "distmult", "dot": "dot"}[source["decoder"]],
+                        "feats_type": 3, "optimizer": "adam"}
+            self.assertEqual(values, expected)
+
+    def test_rgcn_pubmed_equals_link_predict(self) -> None:
+        source = self._argparse_defaults(self.LP / "RGCN/link_predict.py")
+        readme = (self.LP / "RGCN/README.md").read_text(encoding="utf-8")
+        self.assertIn("python link_predict.py --dataset=PubMed  --hidden-dim=60", readme)
+        expected = {"feats_type": source["feats-type"], "hidden_dim": 60, "num_layers": source["num-layers"],
+                    "dropout": source["dropout"], "lr": source["lr"], "weight_decay": source["weight-decay"],
+                    "epochs": source["epoch"], "early_stopping": source["patience"],
+                    "lp_batch_size": source["batch-size"], "n_bases": source["n-bases"],
+                    "regularization": source["regularization"], "optimizer": "adam", "decoder_type": "distmult"}
+        self.assertEqual(self._published("rgcn", "pubmed"), expected)
+
+    def test_magnn_lastfm_equals_run_lastfm(self) -> None:
+        path = self.LP / "MAGNN/run_LastFM.py"
+        source = self._argparse_defaults(path)
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        consts = {t.id: ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+                  for t in n.targets if isinstance(t, ast.Name) and t.id in ("dropout_rate", "lr", "weight_decay")}
+        self.assertEqual(source["feats-type"], 0)  # MAGNN's 0 = all id vectors = our feats_type 3
+        expected = {"dropout": consts["dropout_rate"], "lr": consts["lr"], "weight_decay": consts["weight_decay"],
+                    "optimizer": "adam", "feats_type": 3, "hidden_dim": source["hidden-dim"],
+                    "num_heads": source["num-heads"], "attn_vec_dim": source["attn-vec-dim"],
+                    "rnn_type": source["rnn-type"], "epochs": source["epoch"], "early_stopping": source["patience"],
+                    "lp_batch_size": source["batch-size"], "samples": source["samples"], "decoder_type": "dot"}
+        self.assertEqual(self._published("magnn", "lastfm"), expected)
