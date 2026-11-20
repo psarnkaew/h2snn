@@ -1,4 +1,4 @@
-# T6 step 4: launcher check (3 lines, 1 trial each, --dry_run), job array 9483415, gpu_1, h_rt 0:20:00 (group points)
+# T6 step 4: launcher check (dry run, 1 trial, 1 epoch per line; not a result). Job 9483415 (gpu_1, group points, h_rt 0:20:00), submitted 2026-11-20 17:42 JST.
 ## cells_check.txt
 scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/experiments/baselines --state_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/state --wandb_project h2snn_baseline_t4_check
 scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/experiments/baselines --state_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/state --wandb_project h2snn_baseline_t4_check
@@ -24,7 +24,20 @@ module purge: done
 list=$WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/cells_check.txt runnable_lines=3
 slot 0 (global 2): line 3 -> $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/logs/lines/cells_check.line003.9483415.3.0.log
 end=2026-11-20T18:29:57+09:00
-## cells_check.line001.9483415.1.0.log (last 12 lines)
+## cells_check.line001.9483415.1.0.log (last 25 lines)
+monitor macro_f1 | epochs 1 | patience 30 | device auto | project h2snn_baseline_t4_check
+Create sweep with ID: 53gk49r6
+Sweep URL: https://wandb.ai/<wandb-entity>/h2snn_baseline_t4_check/sweeps/53gk49r6
+W&B run 0: attempted=1 succeeded=1 pruned=0 failed=0
+gcn_node_classification_acm: {
+  "task": "node_classification",
+  "num_units": 1,
+  "metrics": {
+    "test_macro_f1": {
+      "mean": 0.17035735207967195,
+      "std": 0.0
+    },
+    "test_micro_f1": {
       "mean": 0.3432483474976393,
       "std": 0.0
     },
@@ -37,7 +50,20 @@ end=2026-11-20T18:29:57+09:00
   "failed_by_condition": {}
 }
 exit=0 end=2026-11-20T18:21:38+09:00
-## cells_check.line002.9483415.2.0.log (last 12 lines)
+## cells_check.line002.9483415.2.0.log (last 25 lines)
+gcn_link_prediction_acm_pa: {
+  "task": "link_prediction",
+  "num_units": 1,
+  "metrics": {
+    "test_2hop_auroc": {
+      "mean": 0.31648412442290086,
+      "std": 0.0
+    },
+    "test_2hop_mrr": {
+      "mean": 0.7525824394119983,
+      "std": 0.0
+    },
+    "test_random_auroc": {
       "mean": 0.45395772834019343,
       "std": 0.0
     },
@@ -50,7 +76,20 @@ exit=0 end=2026-11-20T18:21:38+09:00
   "failed_by_condition": {}
 }
 exit=0 end=2026-11-20T18:29:07+09:00
-## cells_check.line003.9483415.3.0.log (last 12 lines)
+## cells_check.line003.9483415.3.0.log (last 25 lines)
+wandb: train/eliminated_share ▁
+wandb:             train/loss ▁
+wandb:                    +21 ...
+wandb: 
+wandb: Run summary:
+wandb:      best/best_epoch 0
+wandb: best/checkpoint_mode max
+wandb:         best/dataset acm
+wandb:           best/epoch 0
+wandb:         best/exp_dir $WORK/h2sn...
+wandb:        best/exp_name h2snn_check_acm_tune...
+wandb:        best/macro_f1 0.36454
+wandb:         best/monitor val_macro_f1
 wandb:        best/num_runs 1
 wandb:       best/run_index 0
 wandb:                  +46 ...
