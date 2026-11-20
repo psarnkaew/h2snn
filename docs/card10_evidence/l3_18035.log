@@ -1,0 +1,37 @@
+head=b427ecb27ad4dd1201303468a4124898cecebae2 host=g2n01 job=18035 start=2026-11-20T21:13:00+09:00
+test_refusals_write_nothing (tests.test_site_split.SiteSplitTests.test_refusals_write_nothing) ... ok
+test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) ... ok
+test_tokens_match_lines_py (tests.test_site_split.SiteSplitTests.test_tokens_match_lines_py) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.021s
+
+OK
+test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) ... 
+  test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) (list_paths='lab') ... FAIL
+  test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) (list_paths='t4') ... FAIL
+
+======================================================================
+FAIL: test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) (list_paths='lab')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_site_split.py", line 103, in test_split_disjoint_union_and_rules
+    self.assertFalse(set(lab) & set(t4))             # disjoint
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/lab/experiments/baselines --state_dir /tmp/tmp6dpz048w/lab/state --wandb_project h2snn_baseline_t4', 'scripts/run_h2snn_wandb_tuning.py --config configs/experiments/acm_h2snn_v3b.yaml --exp_name h2snn_node_classification_acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/lab/experiments/h2snn --state_dir /tmp/tmp6dpz048w/lab/state/h2snn_node_classification_acm --wandb_project h2snn_h2snn_t4', 'scripts/run_h2snn_wandb_tuning.py --config configs/experiments/dblp_h2snn_v3b.yaml --exp_name h2snn_node_classification_dblp --num_runs 1 --base_seed 0 --output_dir /tmp/tmp6dpz048w/lab/experiments/h2snn --final_seeds 0 1 2 3 4', 'scripts/run_baseline_tuning.py --task node_classification --models han --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/lab/experiments/baselines --state_dir /tmp/tmp6dpz048w/lab/state --wandb_project h2snn_baseline_t4'} is not false
+
+======================================================================
+FAIL: test_split_disjoint_union_and_rules (tests.test_site_split.SiteSplitTests.test_split_disjoint_union_and_rules) (list_paths='t4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_site_split.py", line 103, in test_split_disjoint_union_and_rules
+    self.assertFalse(set(lab) & set(t4))             # disjoint
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'scripts/run_h2snn_wandb_tuning.py --config configs/experiments/dblp_h2snn_v3b.yaml --exp_name h2snn_node_classification_dblp --num_runs 1 --base_seed 0 --output_dir /tmp/tmp6dpz048w/t4/experiments/h2snn --final_seeds 0 1 2 3 4', 'scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/t4/experiments/baselines --state_dir /tmp/tmp6dpz048w/t4/state --wandb_project h2snn_baseline_t4', 'scripts/run_baseline_tuning.py --task node_classification --models han --datasets imdb --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/t4/experiments/baselines --state_dir /tmp/tmp6dpz048w/t4/state --wandb_project h2snn_baseline_t4', 'scripts/run_h2snn_wandb_tuning.py --config configs/experiments/acm_h2snn_v3b.yaml --exp_name h2snn_node_classification_acm --num_runs 1 --base_seed 0 --n_trials 100 --output_dir /tmp/tmp6dpz048w/t4/experiments/h2snn --state_dir /tmp/tmp6dpz048w/t4/state/h2snn_node_classification_acm --wandb_project h2snn_h2snn_t4'} is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.011s
+
+FAILED (failures=2)
+MUTATION L3 (a line in both lists): caught
+tests=0 mutation=0 end=2026-11-20T21:13:01+09:00
