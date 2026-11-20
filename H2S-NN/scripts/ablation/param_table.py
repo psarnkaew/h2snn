@@ -1,6 +1,10 @@
-"""Card 4 K6 (4), card 7 V1: parameter table of the 7 ablation rows (`arms.ARM_CHANGES`, plan v2) on ACM, DBLP, IMDB
-and Freebase at `full`'s configuration: total and the part each arm removes or adds. Parts:
-- `g`: path encoder + gate (`path_encoder.*`, `path_gate.*`);
+"""Card 4 K6 (4), card 7 V1, card 9 W2: parameter table of the 8 ablation rows (`arms.ARM_CHANGES`, pre-registration
+v3) on ACM, DBLP, IMDB and Freebase at `full`'s configuration (configuration (a)): total and the part each row removes
+or adds (v3 §1 "Capacity": reported, no rule). Parts:
+- `g`: the face-weight parameters, read from the model's named parameters: path encoder + gate (`path_encoder.*`,
+  `path_gate.*`); under `uniform` the model builds neither (`H2SNN.__init__`: `path_weight_input == "uniform"`) and
+  holds the one scalar `b` (`path_log_weight`, w_f = exp(L tanh(b / L)) for every face), so its `g` part is that count
+  (1); `g_form` names which of the two was counted;
 - map network (spec 1.25 TD-1): frames, `W_r` and the one per-edge MLP (`node_to_edge.frame_params`,
   `node_to_edge.subspace_params`, `node_to_edge.edge_mlp.*`); the MLP also gives c_e (a_e = c_e^2);
 - fact-weight MLP: none since 1.25 (the scale is one output of the map network's MLP; reported as 0);
@@ -28,7 +32,7 @@ from src.data.dataset import build_dataset  # noqa: E402
 from src.models.h2snn_model import build_model  # noqa: E402
 
 PARTS = {
-    "g": ("path_encoder.", "path_gate."),
+    "g": ("path_encoder.", "path_gate.", "path_log_weight"),
     "map_network": ("node_to_edge.frame_params", "node_to_edge.subspace_params",
                     "node_to_edge.edge_mlp."),
     "fact_weight_mlp": (),  # spec 1.25: c_e is an output of node_to_edge.edge_mlp (map_network)
@@ -37,9 +41,13 @@ PARTS = {
 
 
 def counts(model) -> dict[str, int]:
-    out = {"total": sum(p.numel() for p in model.parameters())}
+    out: dict = {"total": sum(p.numel() for p in model.parameters())}
     for part, prefixes in PARTS.items():
         out[part] = sum(p.numel() for n, p in model.named_parameters() if n.startswith(prefixes))
+    names = {n for n, _ in model.named_parameters()}
+    out["g_form"] = ("scalar b (path_log_weight)" if "path_log_weight" in names
+                     else "path encoder + gate" if any(n.startswith(("path_encoder.", "path_gate.")) for n in names)
+                     else "none")
     return out
 
 
@@ -57,6 +65,7 @@ def table_for(dataset: str, config: Path) -> dict:
     full = rows["full"]
     for arm, row in rows.items():
         row["delta_total_vs_full"] = row["total"] - full["total"]
+        row["delta_g_vs_full"] = row["g"] - full["g"]
         row["g_share_of_total"] = row["g"] / row["total"]
     rows["endpoints"]["g_relative_to_full_g"] = rows["endpoints"]["g"] / full["g"] - 1.0
     rows["endpoints"]["within_5_percent"] = abs(rows["endpoints"]["g_relative_to_full_g"]) <= 0.05
