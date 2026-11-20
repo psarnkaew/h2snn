@@ -85,12 +85,7 @@ Captions are short, use the same terms as the text and say what each column or p
    - The perturbation pre-registration quotes ACM h = 0.262 as "spec §1 M₂", but the spec §1 list gives 0.404, so the set used by card 7's generator must be checked.
    - The author has no compute to fix this now. The note points to "H2S-NN design session 04". The recommended fix is one rule (H2GB's), then recompute, then update Table 1 and 5.3.
 2. **Length.** The main text ends on about p.9–10, and Tables 9 (complexity) and 10 (cost) float after the References. The author decides the cuts with the advisor and keeps every table and figure for now.
-3. **5.1 is the author's own text, left as he wrote it.** Point out these problems only if he asks:
-   - "The results from Table shows" has no `\ref` and a grammar error.
-   - `\method performed` renders as "H2S-NNperformed".
-   - Spelling: "mechanishm", "noticable".
-   - "Faces and Sheafs … performances".
-   - There is no `\res{}` slot.
+3. **5.1: grammar fixed** in 4fc06a2, at the author's request ("grammar only, nothing else"): `\ref{tab:ablation}`, `\method{}`, spelling, "sheaves", "performance". It still has no `\res{}` slot; add one only if the author asks.
 4. **Best-case result sentences.** The closing sentences of 5.2–5.6 assume the best case. Check each against the real results. The 5.6 sentence ("stays within the time and memory of the meta-path-based models") is the most at risk.
 5. **Complexity table.** Two things still need checking before submission:
    - the R_r build cost O(|R|d³) (FastHPP; assumed, not measured);
@@ -99,4 +94,5 @@ Captions are short, use the same terms as the text and say what each column or p
    - the 3.4 lead-sentence fixes (Props 1, 3, 4);
    - the 3.2 "Sampling instances" tightening;
    - the author's Table 1 caption sentence "Some metrics are -- since it doesn't have node features or labels" (the author said to leave it).
-7. **Review artifact** https://claude.ai/artifact/GE4rDZgJDA4FdymyyWEBpv is not updated for this session's changes.
+7. **Conclusion rewritten, NOT committed** (the author asked for the edit but not yet for a commit). It has the question, the method in one sentence, the propositions, `\res{}`, best-case results, and the cost and limits: the d×d rotation per edge per iteration, and an ablation on NC only. Ask the author to approve it, then commit.
+8. **Review artifact** https://claude.ai/artifact/GE4rDZgJDA4FdymyyWEBpv is not updated for this session's changes.
