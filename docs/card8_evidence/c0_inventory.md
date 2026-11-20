@@ -70,7 +70,7 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 | h2gformer | tune | tune | tune | tune | published | published | published | published | published | filled | published | published |
 | hetero2net | filled | filled | filled | tune | filled | tune | tune | tune | tune | tune | tune | tune |
 | h2sgnn | filled | filled | published | tune | tune | tune | tune | tune | tune | tune | tune | tune |
-| hetsheaf | filled | filled | filled | tune | tune | tune | tune | tune | tune | tune | tune | tune |
+| hetsheaf | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune |
 
 #### LP (ROC-AUC)
 | method | acm_pa | dblp_ap | imdb_ma | freebase_bb | pubmed | lastfm | ogbn-mag_pp | h-pokec_uu |
@@ -79,7 +79,7 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 | gat | tune | tune | tune | tune | tune | tune | tune | tune |
 | nsd | tune | tune | tune | tune | tune | tune | tune | tune |
 | csnn | tune | tune | tune | tune | tune | tune | tune | tune |
-| rgcn | tune | tune | tune | tune | published | published ‡ | tune | tune |
+| rgcn | tune | tune | tune | tune | published | tune | tune | tune |
 | han | tune | tune | tune | N/A (OOM, author 2026-11-18) | tune | tune | tune | tune |
 | magnn | tune | tune | tune | tune | tune | published | probe | probe |
 | pshgcn | tune | tune | tune | tune | tune | published | tune | tune |
@@ -88,8 +88,7 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 | h2sgnn | tune | tune | tune | tune | tune | tune | tune | tune |
 | hetsheaf | tune | tune | tune | tune | tune | tune | tune | tune |
 
-Counts (after Amendments 1 and 3): NC 180 cells = 52 filled, 33 published, 86 tune, 8 probe, 1 N/A; LP 96 cells = 0 filled,
-6 published (‡ 1), 87 tune, 2 probe, 1 N/A. Filled cells: 76 (NC 52, GC 24).
+Counts (after Amendments 1, 3, 4 and 5): NC 180 cells = 49 filled, 33 published, 89 tune (of which HetSheaf ACM, DBLP in phase `baselines-early`), 8 probe, 1 N/A; LP 96 cells = 0 filled, 5 published, 88 tune, 2 probe, 1 N/A. Filled cells: 73 (NC 49, GC 24).
 
 ## 4. ‡ Published cells our runner cannot execute as the file states (C1 stop; resolved by Amendment 1, §5)
 
@@ -142,3 +141,13 @@ configuration, 5 seeds, no tuning:
 | MAGNN × lastfm | HGB `LP/benchmark/methods/MAGNN/run_LastFM.py` (README `MAGNN/README.md:47`) | constants :18-20 (dropout 0.5, lr 0.005, weight_decay 0.001), meta-paths :21-25 (`etypes_lists`, `use_masks`), argparse :225-236 (feats-type 0, hidden 64, heads 8, attn-vec 128, RotatE0, epoch 100, patience 5, batch-size 8, samples 100); Adam (:71) | not checked: needs the MAGNN LP adapter (C3) with its training masks (`use_masks`) |
 
 Report keys (amendment 3): the LP paper columns are `test_random_auroc` and `test_random_mrr`.
+
+## 7. Amendments 4 and 5 (author, 2026-11-20; design-docs 4e8f935, 3489b8e)
+
+- R-GCN × lastfm (LP): **tune** (HGB's width 64 with 10 `bdd` bases is refused by DGL 2.4; §6).
+- GCN × pubmed, lastfm (LP): **published**, HGB's `homoGNN.py` values in our LP loop (validation once per epoch,
+  selection on validation ROC-AUC); HGB's 10-batch validation with early stopping on validation loss
+  (`homoGNN.py:46-65`) is an appendix difference. Patience: HGB's value 3 (`utils.py:159`) applied to our per-epoch
+  validation.
+- HetSheaf × acm, dblp, imdb (NC): **rerun** (spec C7): the 3 rows leave `paper_filled_cells.tsv` (73 filled: NC 49,
+  GC 24). ACM and DBLP stay in phase `baselines-early` (unchanged); IMDB is a `tune` cell of `baselines-1`.

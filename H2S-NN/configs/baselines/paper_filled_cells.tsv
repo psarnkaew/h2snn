@@ -22,9 +22,6 @@ node_classification	ieee-cis-g	han	docs/published_number_register.md:35
 node_classification	acm	magnn	docs/published_number_register.md:36
 node_classification	dblp	magnn	docs/published_number_register.md:37
 node_classification	imdb	magnn	docs/published_number_register.md:38
-node_classification	acm	hetsheaf	docs/published_number_register.md:39
-node_classification	dblp	hetsheaf	docs/published_number_register.md:40
-node_classification	imdb	hetsheaf	docs/published_number_register.md:41
 node_classification	acm	nsd	docs/published_number_register.md:42
 node_classification	dblp	nsd	docs/published_number_register.md:43
 node_classification	imdb	nsd	docs/published_number_register.md:44
