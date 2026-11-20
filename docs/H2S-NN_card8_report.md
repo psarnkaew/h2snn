@@ -1,10 +1,13 @@
 # Card 8 report: published configurations, R-GCN and MAGNN adapters, TSUBAME lists
 
-**Verdict: done.** C0–C6 are complete after amendments 1–5. One CPU job (18015, 36G, no GPU) ran 242 targeted tests:
-all OK, none skipped. Every card mutation is caught. H2S-NN is untouched:
+**Verdict: done.** C0–C7 are complete after amendments 1–6 and the review's C7 addition (`published_seed` rows in
+`collect.py`). The final CPU job (18038, 36G, no GPU) ran 302 targeted tests on the merged head a58d19f: all OK, none
+skipped. All 7 card mutations are caught. H2S-NN is untouched:
 `git diff fc0ebaa -- H2S-NN/src/models H2S-NN/src/trainers H2S-NN/configs/experiments` is empty. No real-data run.
 
-Branch `card8` = `v3b` fc0ebaa plus merges of design-docs b5adecf, 790ff68, 377f16e and 3489b8e.
+Branch `card8` = `v3b` fc0ebaa plus merges of design-docs b5adecf, 790ff68, 377f16e, 3489b8e and 5f6a1e6 (merge commit
+15794d6, amendment 6), and of `v3b` e5bdf10 (merge commit b9f8b23, card 9). Both merges were clean. `make_cell_list.py`
+keeps both sides: card 9's `ablation` changes and card 8's `published` / `baselines-2` / `probe` phases.
 
 ## 1. Units
 
@@ -18,6 +21,8 @@ Branch `card8` = `v3b` fc0ebaa plus merges of design-docs b5adecf, 790ff68, 377f
 | C4 registry, search spaces | 836ad74 | 18013 | 119 OK |
 | C5 TSUBAME lists | 31eed94 | 18014 | 13 OK; mutation "no filled exclusion" caught |
 | C6 targeted job | a44218d | 18015 | 242 OK, 0 skipped; all 5 mutations caught |
+| C7 W&B logging + `published_seed` rows | d36caaa, a58d19f | 18025, 18034, 18037 | mutations "no `test/*` in the HGB NC payload" and "published records skipped by collect" caught; 43 + 22 OK |
+| final targeted job (merged head) | a7025b7 | 18038 | 302 OK, 0 skipped; all 7 mutations caught |
 
 ## 2. Cell statuses and lists
 
@@ -77,9 +82,26 @@ A static test checks this. Large LP (`fit_large_lp`) was already per 8,192 and i
   - The PSHGCN LastFM yaml from C2b did not parse.
 - **Memory:** jobs touching `test_partP_freebase` need 32G (peak 28 GB, the known Freebase-test peak). Interim jobs used 24–32G; C6 used 36G.
 
-## 5. Open (not blocking)
+## 5. C7 (amendment 6 and the review addition)
 
-- `collect.py` / `status.py` read published lines through `lines.py`; `collect.py` does not yet put `published_summary.json` into `results.csv` (ops).
+- **Per epoch, every baseline loop** (all logged only; selection does not read them, tested):
+  - the shared NC, LP and GC loops: `train/loss`, `val/loss`, `val/*`, `test/*`; on LP the test keys are the random set's `auroc`, `mrr`, `aupr`;
+  - H2GB NC (the shared mini-batch and index loops, Hetero²Net's H2GB loop): `train/loss` and `val_subset/*` at evaluation epochs; the whole val and test sets once, at the end, in the record;
+  - large LP: `test/*` when validation improves;
+  - adapter-owned loops: Hetero²Net HGB NC, SeHGNN, and MAGNN (whose test is evaluated only when validation improves).
+- **A W&B run for every run.** Final seeds of both launchers and published seeds each open a run: group `<token>_final` / `<token>_published`, tag `final_seed` / `published`, name `<token>_seed<s>` (`src/baselines/wandb_runs.py`). The H2S-NN path is opened in its launcher, with no `src/` change.
+- **Summary at the end of every run, trials included:** selected epoch, `val_*`, `test_*`, wall time, GPU name, git HEAD, and the resolved config. Trial summaries are written in each launcher's `train_trial`, so `src/utils/wandb_campaign.py` is unchanged. W&B errors are logged and never fail a run.
+- **Published runner:** writes `published_seed<s>.json` per seed and takes `--wandb_project` (published and baseline final-seed lines name `h2snn_baseline_t4`).
+- **`collect.py`:** one `published_seed` row per published-seed record, with the same provenance columns, and the published cells are archived.
+- **Deviations and fixes:**
+  - The H2S-NN final-seed lines are unchanged (card 7's T9 pins them byte for byte), so their W&B project is the launcher default `h2snn` unless the line names one.
+  - `report_epoch` passes `extra` / `prefix` only to callbacks that accept them; job 18036 found 12 B1a test errors from older callbacks.
+  - Card 7 T9 and card 5 T4 no longer pin `baselines-1` to 1646efd, which card 8 C5 rebuilt. Card 5 T4 now checks that every kept line of the older methods is a line of the capture. The timing list has 31 lines (R-GCN and MAGNN join the main table). These are other sessions' tests: please review.
+  - Job 18025 aborted on a second DGL import caused by my test helper (`mock.patch.dict(sys.modules)` dropped DGL); fixed.
+  - Job 18026 aborted at the same place after the fix. That abort did not recur: the identical command passed on the same node in 18034, and none of five bisect jobs reproduced it. It is recorded as unexplained.
+
+## 6. Open (not blocking)
+
 - The probe lines decide MAGNN N/A on the H100. Every first TSUBAME line is the real-data check of its cell.
 
-branch=card8 sha=a44218d974814cf356c1bb0ef31268d017a77f87 card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
+branch=card8 sha=a7025b72d0617e3d170e58371688b41c23e050bf card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
