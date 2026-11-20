@@ -75,21 +75,21 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 #### LP (ROC-AUC)
 | method | acm_pa | dblp_ap | imdb_ma | freebase_bb | pubmed | lastfm | ogbn-mag_pp | h-pokec_uu |
 |---|---|---|---|---|---|---|---|---|
-| gcn | tune | tune | tune | tune | filled | filled | tune | tune |
+| gcn | tune | tune | tune | tune | published | published | tune | tune |
 | gat | tune | tune | tune | tune | tune | tune | tune | tune |
 | nsd | tune | tune | tune | tune | tune | tune | tune | tune |
 | csnn | tune | tune | tune | tune | tune | tune | tune | tune |
-| rgcn | tune | tune | tune | tune | filled | filled | tune | tune |
+| rgcn | tune | tune | tune | tune | published | published ‡ | tune | tune |
 | han | tune | tune | tune | N/A (OOM, author 2026-11-18) | tune | tune | tune | tune |
-| magnn | tune | tune | tune | tune | tune | filled | probe | probe |
+| magnn | tune | tune | tune | tune | tune | published | probe | probe |
 | pshgcn | tune | tune | tune | tune | tune | published | tune | tune |
 | h2gformer | tune | tune | tune | tune | tune | tune | tune | tune |
 | hetero2net | tune | tune | tune | tune | tune | tune | tune | tune |
 | h2sgnn | tune | tune | tune | tune | tune | tune | tune | tune |
 | hetsheaf | tune | tune | tune | tune | tune | tune | tune | tune |
 
-Counts (after Amendment 1): NC 180 cells = 52 filled, 33 published, 86 tune, 8 probe, 1 N/A; LP 96 cells = 5 filled,
-1 published, 87 tune, 2 probe, 1 N/A.
+Counts (after Amendments 1 and 3): NC 180 cells = 52 filled, 33 published, 86 tune, 8 probe, 1 N/A; LP 96 cells = 0 filled,
+6 published (‡ 1), 87 tune, 2 probe, 1 N/A. Filled cells: 76 (NC 52, GC 24).
 
 ## 4. ‡ Published cells our runner cannot execute as the file states (C1 stop; resolved by Amendment 1, §5)
 
@@ -128,3 +128,17 @@ The ‡ cells of §2 and §4 are resolved (decisions log "Card 8 amendment 1"); 
 | MAGNN × freebase | published | HGB `run_Freebase.py` (confirmed) |
 
 Evaluation protocol unchanged (A2: data, splits, negatives, metrics, B1a, single whole-split test are ours).
+
+## 6. Amendment 3 (author, 2026-11-20; design-docs 377f16e): LP random test set only; 5 HGB LP cells published
+
+`paper_filled_cells.tsv`: the 5 LP rows removed (76 filled cells: NC 52, GC 24). The 5 cells run HGB's own LP
+configuration, 5 seeds, no tuning:
+
+| cell | source | values (file:line) | executable as stated? |
+|---|---|---|---|
+| GCN × pubmed, lastfm | HGB `LP/benchmark/methods/GNN/homoGNN.py` (README `GNN/README.md:2` runs it without flags) | `utils.py:148-170` argparse: epochs 100 (:158), patience 3 (:159, `type=str`), n_layers 2 (:160), dropout 0.5 (:162), lr 0.005 (:164), weight_decay 0.0 (:165), batch_size 1024 links = 512 positives + 512 negatives (:166; `hom_data` interleaves pos/neg, `utils.py:62-84`), decoder `dismult` (:169); `homoGNN.py`: width 64 hard-coded (:132), identity features for every type (`gen_feat_list`, :128; = our feats_type 3), Adam (:28), validation every 10 batches with early stopping on 3 validations (:46-65), training negatives fixed (refresh commented out, :30-32) | needs an extension: our shared loop validates once per epoch; HGB validates every 10 steps inside the epoch with patience counted in validations (open question, report) |
+| R-GCN × pubmed | HGB `LP/benchmark/methods/RGCN/link_predict.py`, README `RGCN/README.md:26` `--dataset=PubMed --hidden-dim=60` | `link_predict.py:356-381`: feats-type 3 (:356), hidden-dim 60 (README), epoch 300 (:368), patience 40 (:369), num-layers 2 (:370), lr 5e-4 (:371), dropout 0.5 (:372), weight-decay 1e-4 (:373), batch-size 1024 positives (:377), n-bases 10 (:379), regularization 0.01 (:380); Adam (:184); "bdd" RelGraphConv (:30); its DistMult decoder (diagonal `w_relation`, :44-52) | yes (60 divisible by 10) |
+| R-GCN × lastfm | README `RGCN/README.md:24` `--dataset=LastFM` | as above with hidden-dim 64 (:364 default) | **‡ no: DGL 2.4 `TypedLinear` "bdd" requires width % n_bases == 0 (`dgl/nn/pytorch/linear.py`: "Input and output sizes must be divisible by num_bases"); 64 % 10 = 4. Stop (amendment 3: "stop as C1").** |
+| MAGNN × lastfm | HGB `LP/benchmark/methods/MAGNN/run_LastFM.py` (README `MAGNN/README.md:47`) | constants :18-20 (dropout 0.5, lr 0.005, weight_decay 0.001), meta-paths :21-25 (`etypes_lists`, `use_masks`), argparse :225-236 (feats-type 0, hidden 64, heads 8, attn-vec 128, RotatE0, epoch 100, patience 5, batch-size 8, samples 100); Adam (:71) | not checked: needs the MAGNN LP adapter (C3) with its training masks (`use_masks`) |
+
+Report keys (amendment 3): the LP paper columns are `test_random_auroc` and `test_random_mrr`.

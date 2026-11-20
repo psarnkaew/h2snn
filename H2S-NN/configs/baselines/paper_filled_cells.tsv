@@ -29,11 +29,6 @@ node_classification	acm	nsd	docs/published_number_register.md:42
 node_classification	dblp	nsd	docs/published_number_register.md:43
 node_classification	imdb	nsd	docs/published_number_register.md:44
 node_classification	ieee-cis-g	h2gformer	docs/published_number_register.md:45
-link_prediction	pubmed	gcn	docs/published_number_register.md:46
-link_prediction	lastfm	gcn	docs/published_number_register.md:47
-link_prediction	pubmed	rgcn	docs/published_number_register.md:48
-link_prediction	lastfm	rgcn	docs/published_number_register.md:49
-link_prediction	lastfm	magnn	docs/published_number_register.md:50
 node_classification	acm	sehgnn	docs/published_number_register.md:51
 node_classification	dblp	sehgnn	docs/published_number_register.md:52
 node_classification	imdb	sehgnn	docs/published_number_register.md:53
