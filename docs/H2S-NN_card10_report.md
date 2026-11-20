@@ -91,3 +91,5 @@ python scripts/tsubame/collect.py --out $OUT
 python scripts/tsubame/failures.py --out $OUT --list $OUT/cells_tuning_h2snn.lab.txt   # failures go to the author; nothing moves automatically
 ```
 The `--mem` values above are placeholders: lab nodes have 64 GB RAM, and the A6000 node has 224 GB. The GPU type per list is the one its fit check used.
+
+branch=card10 sha=925db0acef36ee150dc9b0640b230e786103d840 card=docs/H2S-NN_card10_lab_runs_card.md base=e5bdf10432e32c8fe31e8f3faff814951461d4d2
