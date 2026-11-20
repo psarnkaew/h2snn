@@ -1,0 +1,1 @@
+c3_full_graph_instances	src/baselines/adapters/magnn.py	data.edge_index, data.edge_type)	torch.cat([data.edge_index, data.test_pos_edge_index], 1), torch.cat([data.edge_type, torch.full((data.test_pos_edge_index.size(1),), tuple(data.relation_tuples).index(tuple(data.target_relation)), dtype=torch.long)]))	tests.test_card8_magnn.LPTests.test_no_instance_passes_a_held_out_fact

@@ -197,6 +197,8 @@ def train_link_prediction(
     aux_loss: Callable[[], torch.Tensor] | None = None,
     report: EpochReport | None = None,
     positives_per_step: int = LP_POSITIVES_PER_STEP,
+    score_links: Callable[[torch.Tensor, torch.Tensor, torch.Tensor | None], torch.Tensor] | None = None,
+    eval_chunk: int = 4096,
 ) -> dict[str, float]:
     """Train an encoder plus the shared link decoder, selecting on validation AUROC.
 
@@ -204,6 +206,11 @@ def train_link_prediction(
     `positives_per_step` (8,192, HGB's and H2S-NN's) shuffled training positives and its share of the epoch's training
     negatives, with one encode (`embed()`) per step (`link_step_batches`). A published cell may state its source's
     batch (`lp_batch_size`, `budget_kwargs`).
+
+    ``score_links(edges, relation, exclude)`` (card 8 C3, MAGNN) replaces ``embed`` + ``head`` for a method that encodes
+    only the endpoints of the links it scores (MAGNN's runner, `run_LastFM.py:93-117`): a training step scores its
+    positives with ``exclude`` = those positives (the method's own training mask) and its negatives with None;
+    evaluation scores the links in chunks of ``eval_chunk`` with None. ``embed`` is then unused (None).
 
     ``embed`` returns node embeddings for the whole graph; the head scores candidate
     pairs. Both are optimised together, so the decoder is not a frozen probe.
@@ -228,20 +235,25 @@ def train_link_prediction(
     stale = 0
 
     def evaluate(
-        embeddings: torch.Tensor,
+        scorer: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
         pos: torch.Tensor,
         neg: torch.Tensor,
         pos_rel: torch.Tensor,
         neg_rel: torch.Tensor,
     ) -> dict[str, float]:
         return compute_link_prediction_metrics(
-            head(embeddings, pos, pos_rel),
-            head(embeddings, neg, neg_rel),
+            scorer(pos, pos_rel),
+            scorer(neg, neg_rel),
             pos,
             neg,
             pos_rel,
             neg_rel,
         )
+
+    def chunked(edges: torch.Tensor, relation: torch.Tensor) -> torch.Tensor:
+        parts = [score_links(edges[:, i:i + eval_chunk], relation[i:i + eval_chunk], None)
+                 for i in range(0, edges.size(1), eval_chunk)]
+        return torch.cat(parts) if parts else torch.empty(0, device=device)
 
     steps_per_epoch = 0
     for epoch in range(epochs):
@@ -255,10 +267,15 @@ def train_link_prediction(
         steps_per_epoch = len(batches)
         for pos_ids, neg_ids in batches:
             optimizer.zero_grad()
-            embeddings = embed()
-            pos_scores = head(embeddings, pos_edge_index[:, pos_ids], pos_relation[pos_ids])
             neg_ids = neg_ids.to(neg_edge_index.device)
-            neg_scores = head(embeddings, neg_edge_index[:, neg_ids], neg_relation[neg_ids])
+            if score_links is None:
+                embeddings = embed()
+                pos_scores = head(embeddings, pos_edge_index[:, pos_ids], pos_relation[pos_ids])
+                neg_scores = head(embeddings, neg_edge_index[:, neg_ids], neg_relation[neg_ids])
+            else:
+                step_pos = pos_edge_index[:, pos_ids]
+                pos_scores = score_links(step_pos, pos_relation[pos_ids], step_pos)
+                neg_scores = score_links(neg_edge_index[:, neg_ids], neg_relation[neg_ids], None)
             loss = criterion(
                 torch.cat([pos_scores, neg_scores]),
                 torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)]),
@@ -272,17 +289,20 @@ def train_link_prediction(
         model.eval()
         head.eval()
         with torch.no_grad():
-            embeddings = embed()
+            if score_links is None:
+                embeddings = embed()
+                scorer = lambda edges, relation: head(embeddings, edges, relation)  # noqa: E731
+            else:
+                scorer = chunked
             val_metrics = evaluate(
-                embeddings,
+                scorer,
                 data.val_pos_edge_index,
                 data.val_neg_edge_index,
                 data.val_pos_edge_relation,
                 data.val_neg_edge_relation,
             )
             # HGB's two test sets (spec v1.16 K1): 2-hop and random; an empty set -> None.
-            test_metrics = lp_test_set_metrics(
-                lambda edges, relation: head(embeddings, edges, relation), data)
+            test_metrics = lp_test_set_metrics(scorer, data)
 
         # HGB reports the per-relation (macro) average on multi-relation targets, so
         # select on that where it exists; it equals the pooled AUROC on single-relation
