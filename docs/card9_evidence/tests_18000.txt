@@ -1,0 +1,36 @@
+job=18000 node=g2tn01 start=2026-11-20T18:38:11+09:00
+git=aa42761286e64ce5c9a971c1393eb43d8dbb4f82 branch=card9
+dirty:  M scripts/ablation/stats.py  M tests/test_card7_stats.py ?? tests/test_card9_v3.py 
+test_missing_dataset_leaves_the_claim_undecided (tests.test_card7_stats.ClaimRuleTests.test_missing_dataset_leaves_the_claim_undecided) ... ok
+test_three_of_four_and_c15_rules (tests.test_card7_stats.ClaimRuleTests.test_three_of_four_and_c15_rules) ... ok
+test_markdown_and_json_are_written_without_p_values (tests.test_card7_stats.ReportedTests.test_markdown_and_json_are_written_without_p_values) ... ok
+test_s0_and_literature_are_reported (tests.test_card7_stats.ReportedTests.test_s0_and_literature_are_reported) ... ok
+test_two_by_two_differences_and_complementary (tests.test_card7_stats.ReportedTests.test_two_by_two_differences_and_complementary) ... ok
+test_T1_c2w_present_and_b_name_raises (tests.test_card9_v3.RuleTests.test_T1_c2w_present_and_b_name_raises) ... ok
+test_T1_missing_seed_is_none_never_false (tests.test_card9_v3.RuleTests.test_T1_missing_seed_is_none_never_false) ... ok
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... FAIL
+
+======================================================================
+FAIL: test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card9_v3.py", line 73, in test_T1_rule_edge_cases
+    self.assertEqual(per["acm"]["differences"], self.CASES["acm"])
+AssertionError: Lists differ: [0.010000000000000009, 0.010000000000000009, 0[61 chars]0009] != [0.01, 0.01, 0.01, 0.01, -0.001]
+
+First differing element 0:
+0.010000000000000009
+0.01
+
++ [0.01, 0.01, 0.01, 0.01, -0.001]
+- [0.010000000000000009,
+-  0.010000000000000009,
+-  0.010000000000000009,
+-  0.010000000000000009,
+-  -0.0010000000000000009]
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.013s
+
+FAILED (failures=1)
+end=2026-11-20T18:38:13+09:00 exit=1

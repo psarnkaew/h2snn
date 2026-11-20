@@ -1,24 +1,29 @@
-"""Card 7 V2 (ablation plan v2, "กติกากลาง" and Q2): statistics of the ablation table.
+"""Card 9 W3 (pre-registration v3 §1, §3; spec 1.29 §6 "Ablation statistics"; built on card 7 V2): statistics of
+the ablation table.
 
-Input: one long table of test Macro-F1 per (dataset, row, configuration, seed) — IMDB's value is the recorded
-`test_macro_f1` (the mean per-genre F1 of the IMDB protocol). `collect` builds it from the run folders of
-`seed_runs.py` (`best_test_metrics_run<i>.json`, written by `scripts/run_h2snn_runs.py`) and `full`'s seeds 1-4 of
-the main table (`lookup.json`).
+Input: one long table of test Macro-F1 per (dataset, row, configuration, seed), configuration (a) only and seeds 1-5
+(v3 D1, D2). IMDB's value is the recorded `test_macro_f1` (the mean per-genre F1 of the IMDB protocol). `collect`
+builds it from the run folders of `seed_runs.py` (`best_test_metrics_run<i>.json`, written by
+`scripts/run_h2snn_runs.py`) and `full`'s seeds 1-4 of the main table (`lookup.json`).
 
-Per comparison of `full` with a row on a dataset (paired by seed):
-- mean ± sample std per arm; the paired differences `full - row` by seed;
-- Wilcoxon signed-rank, two-sided (`scipy.stats.wilcoxon`, its defaults);
-- Holm over the datasets of **one claim** (m = 4), never over all claims;
-- the median difference; a bootstrap 95 % CI of the mean difference (10,000 resamples, percentile, seed 0).
+Per comparison of `full` with a row X on a dataset (paired by seed):
+- the seeds; mean +- sample std (ddof = 1) per row; the paired differences `full - X` by seed; their mean;
+- `wins`: the number of seeds with `full - X > 0` (strict: a tie is not a win);
+- `better` ("`full` better than X on the dataset", v3 §1): `mean_difference > 0 and wins >= 4`, computed only when all
+  5 seeds are present on both sides; otherwise `None` (incomplete), never `False`.
+No p-value, no multiplicity adjustment and no bootstrap interval is computed (v3 D1).
 
-Claims (plan v2): a dataset passes when the Holm-adjusted p < 0.05 and the median difference > 0.
-- C2-cells `no_path_cells`: holds on >= 3 of 4 datasets, else warning signal;
+Claims (v3 §3; all configuration (a)):
+- C2-cells `no_path_cells`: better on >= 3 of 4 datasets, else warning signal;
 - C2 `endpoints`: >= 3 of 4, else kill rule;
+- C2-w `uniform`: >= 3 of 4, else no claim that learned per-face weights help;
 - C14 `instance_features`: >= 3 of 4;
-- C15 S2: both IMDB and Freebase, else warning signal.
-Decided on configuration (b) (`full`'s tuned configuration vs the arm's own tuned one); (a) is reported beside it
-with the same statistics. S0 and the literature row: reported only (no claim, no Holm). The 2x2 table: four
-descriptive paired differences on configuration (a).
+- C15 S2: better on both IMDB and Freebase, else warning signal.
+A claim's verdict is `None` while a dataset it needs is incomplete.
+Reported only (no claim): S0 (`full` vs S0, the same numbers); the 2x2 (four mean paired differences and, per
+dataset, `complementary` = mean of `full - no_path_cells` > mean of `S2 - S0`); the literature row with the rule with
+roles swapped (`literature_better`: mean of `literature - full` > 0 and literature strictly higher in >= 4 of 5
+seeds).
 
     python scripts/ablation/stats.py collect --runs <dir> [<dir> ...] --lookup <out>/<ds>/lookup.json ... --out t.csv
     python scripts/ablation/stats.py analyse --table t.csv --out_dir <dir>
@@ -39,9 +44,9 @@ import numpy as np
 
 DATASETS: tuple[str, ...] = ("acm", "dblp", "imdb", "freebase")
 METRIC = "test_macro_f1"
-ALPHA = 0.05
-BOOTSTRAP_RESAMPLES = 10_000
-BOOTSTRAP_SEED = 0
+SEEDS: tuple[int, ...] = (1, 2, 3, 4, 5)
+WINS_NEEDED = 4                      # "at least 4 of the 5 seeds" (v3 §1)
+CONFIGURATION = "a"                  # v3 D2: configuration (a) only
 
 
 @dataclass(frozen=True)
@@ -53,12 +58,16 @@ class Claim:
 
 
 CLAIMS: tuple[Claim, ...] = (
-    Claim("C2-cells", "no_path_cells", "3of4", "warning signal"),
-    Claim("C2", "endpoints", "3of4", "kill rule"),
-    Claim("C14", "instance_features", "3of4", "—"),
-    Claim("C15", "S2", "imdb_and_freebase", "warning signal"),
+    Claim("C2-cells", "no_path_cells", "3of4", "warning signal: stop and discuss"),
+    Claim("C2", "endpoints", "3of4", "kill rule: no claim that the face weight depends on the middle node; stop and "
+                                     "discuss before writing"),
+    Claim("C2-w", "uniform", "3of4", "no claim that learned per-face weights help"),
+    Claim("C14", "instance_features", "3of4", "no claim that diffusing over faces beats using them as head features"),
+    Claim("C15", "S2", "imdb_and_freebase", "warning signal: drop the claim that the heterophily mechanism comes from "
+                                            "the transports"),
 )
-REPORTED_ONLY: tuple[str, ...] = ("S0", "literature")
+REPORTED_ONLY: tuple[str, ...] = ("S0",)
+LITERATURE = "literature"
 TWO_BY_TWO: tuple[tuple[str, str, str], ...] = (
     ("face effect with sheaf", "full", "no_path_cells"),
     ("face effect without sheaf", "S2", "S0"),
@@ -68,138 +77,134 @@ TWO_BY_TWO: tuple[tuple[str, str, str], ...] = (
 
 
 # ------------------------------------------------------------------------------------------------ statistics
-def holm(p_values: dict[str, float | None]) -> dict[str, float | None]:
-    """Holm step-down adjusted p over the given family (keys: datasets of one claim); `None` stays `None` and does
-    not count in m."""
-    present = sorted(((p, k) for k, p in p_values.items() if p is not None), key=lambda t: (t[0], t[1]))
-    m = len(present)
-    adjusted: dict[str, float | None] = {k: None for k in p_values}
-    running = 0.0
-    for i, (p, key) in enumerate(present):
-        running = max(running, min(1.0, (m - i) * p))
-        adjusted[key] = running
-    return adjusted
-
-
-def wilcoxon_p(differences: np.ndarray) -> float | None:
-    """Two-sided Wilcoxon signed-rank p (`scipy.stats.wilcoxon`, defaults); `None` when every difference is 0."""
-    from scipy.stats import wilcoxon
-
-    if differences.size == 0 or np.all(differences == 0):
-        return None
-    return float(wilcoxon(differences, alternative="two-sided").pvalue)
-
-
-def bootstrap_ci(differences: np.ndarray, resamples: int = BOOTSTRAP_RESAMPLES,
-                 seed: int = BOOTSTRAP_SEED) -> tuple[float, float]:
-    """Percentile 95 % CI of the mean paired difference (resampling seeds with replacement, fixed seed)."""
-    rng = np.random.default_rng(seed)
-    idx = rng.integers(0, differences.size, size=(resamples, differences.size))
-    means = differences[idx].mean(axis=1)
-    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
-
-
 def describe(values: Iterable[float]) -> dict[str, float | int]:
     arr = np.asarray(list(values), dtype=np.float64)
     return {"n": int(arr.size), "mean": float(arr.mean()) if arr.size else math.nan,
             "std": float(arr.std(ddof=1)) if arr.size > 1 else math.nan}
 
 
-def paired(table: dict, dataset: str, a: tuple[str, str], b: tuple[str, str]) -> dict[str, Any] | None:
-    """Paired comparison `a - b` on `dataset`; `a`, `b` = (row, configuration). Seeds present in both only."""
-    va, vb = table.get((dataset, *a), {}), table.get((dataset, *b), {})
+def rule(mean_difference: float, wins: int) -> bool:
+    """v3 §1: the mean paired difference is > 0 and the first side is strictly higher in >= 4 of the 5 seeds."""
+    return bool(mean_difference > 0 and wins >= WINS_NEEDED)
+
+
+def paired(table: dict, dataset: str, a: str, b: str) -> dict[str, Any] | None:
+    """Paired comparison `a - b` (rows of configuration (a)) on `dataset` over seeds 1-5 present in both; `better`
+    (the rule, `a` better than `b`) only when all 5 seeds are present on both sides, else `None`."""
+    va = {s: v for s, v in table.get((dataset, a), {}).items() if s in SEEDS}
+    vb = {s: v for s, v in table.get((dataset, b), {}).items() if s in SEEDS}
     seeds = sorted(set(va) & set(vb))
     if not seeds:
         return None
     diff = np.array([va[s] - vb[s] for s in seeds], dtype=np.float64)
-    low, high = bootstrap_ci(diff)
+    wins = int((diff > 0).sum())
+    complete = set(SEEDS) <= set(va) and set(SEEDS) <= set(vb)
+    mean_difference = float(diff.mean())
     return {"seeds": seeds, "a": describe(va[s] for s in seeds), "b": describe(vb[s] for s in seeds),
-            "differences": diff.tolist(), "mean_difference": float(diff.mean()),
-            "median_difference": float(np.median(diff)), "bootstrap_ci95": [low, high],
-            "p_raw": wilcoxon_p(diff),
-            "unpaired_seeds": sorted(set(va) ^ set(vb))}
+            "differences": diff.tolist(), "mean_difference": mean_difference, "wins": wins,
+            "complete": complete, "better": rule(mean_difference, wins) if complete else None,
+            "missing_seeds": {a: sorted(set(SEEDS) - set(va)), b: sorted(set(SEEDS) - set(vb))}}
 
 
-def claim_result(table: dict, claim: Claim, configuration: str) -> dict[str, Any]:
-    """`full` vs the claim's row on every dataset, Holm over this claim's datasets only, and the verdict."""
-    full_conf = "a"                 # `full`'s tuned configuration is its configuration (a) (it has no (b))
-    per_dataset = {d: paired(table, d, ("full", full_conf), (claim.row, configuration)) for d in DATASETS}
-    adjusted = holm({d: (r["p_raw"] if r else None) for d, r in per_dataset.items()})
-    passes = {}
-    for dataset, result in per_dataset.items():
-        if result is None:
-            passes[dataset] = None
-            continue
-        result["p_holm"] = adjusted[dataset]
-        result["m"] = sum(1 for r in per_dataset.values() if r is not None and r["p_raw"] is not None)
-        passes[dataset] = bool(result["p_holm"] is not None and result["p_holm"] < ALPHA
-                               and result["median_difference"] > 0)
-        result["passes"] = passes[dataset]
-    complete = all(passes[d] is not None for d in DATASETS)
-    if claim.rule == "3of4":
-        holds = sum(1 for v in passes.values() if v) >= 3 if complete else None
+def claim_result(table: dict, claim: Claim) -> dict[str, Any]:
+    """`full` vs the claim's row on every dataset and the verdict (`None` while a needed dataset is incomplete)."""
+    per_dataset = {d: paired(table, d, "full", claim.row) for d in DATASETS}
+    better = {d: (r["better"] if r else None) for d, r in per_dataset.items()}
+    needed = DATASETS if claim.rule == "3of4" else ("imdb", "freebase")
+    complete = all(better[d] is not None for d in needed)
+    if not complete:
+        holds = None
+    elif claim.rule == "3of4":
+        holds = sum(1 for d in needed if better[d]) >= 3
     else:
-        needed = ("imdb", "freebase")
-        holds = all(passes[d] for d in needed) if all(passes[d] is not None for d in needed) else None
-    return {"claim": claim.name, "row": claim.row, "configuration": configuration, "rule": claim.rule,
-            "per_dataset": per_dataset, "passes": passes, "holds": holds,
-            "if_not": claim.if_not, "complete": complete}
+        holds = all(better[d] for d in needed)
+    return {"claim": claim.name, "row": claim.row, "configuration": CONFIGURATION, "rule": claim.rule,
+            "per_dataset": per_dataset, "better": better, "datasets_better": sum(1 for v in better.values() if v),
+            "holds": holds, "if_not": claim.if_not, "complete": complete}
 
 
 def reported_only(table: dict, row: str) -> dict[str, Any]:
-    return {"row": row, "configuration": "a",
-            "per_dataset": {d: paired(table, d, ("full", "a"), (row, "a")) for d in DATASETS}}
+    return {"row": row, "configuration": CONFIGURATION,
+            "per_dataset": {d: paired(table, d, "full", row) for d in DATASETS}}
+
+
+def literature_row(table: dict) -> dict[str, Any]:
+    """The literature row with the roles swapped: `literature - full`; `literature_better` by the same rule."""
+    per_dataset = {}
+    for d in DATASETS:
+        r = paired(table, d, LITERATURE, "full")
+        if r is not None:
+            r["literature_better"] = r.pop("better")
+        per_dataset[d] = r
+    return {"row": LITERATURE, "configuration": CONFIGURATION, "difference": "literature - full",
+            "per_dataset": per_dataset}
 
 
 def two_by_two(table: dict) -> dict[str, Any]:
-    out = {}
+    out: dict[str, Any] = {"differences": {}, "complementary": {}}
     for label, a, b in TWO_BY_TWO:
-        out[f"{a} - {b}"] = {"label": label, "per_dataset": {}}
+        item = out["differences"][f"{a} - {b}"] = {"label": label, "per_dataset": {}}
         for dataset in DATASETS:
-            result = paired(table, dataset, (a, "a"), (b, "a"))
-            out[f"{a} - {b}"]["per_dataset"][dataset] = None if result is None else {
-                k: result[k] for k in ("seeds", "mean_difference", "median_difference", "bootstrap_ci95")}
+            r = paired(table, dataset, a, b)
+            item["per_dataset"][dataset] = None if r is None else {
+                k: r[k] for k in ("seeds", "differences", "mean_difference")}
+    faces = out["differences"]["full - no_path_cells"]["per_dataset"]
+    plain = out["differences"]["S2 - S0"]["per_dataset"]
+    for dataset in DATASETS:
+        f, s = faces[dataset], plain[dataset]
+        out["complementary"][dataset] = (None if f is None or s is None
+                                         else bool(f["mean_difference"] > s["mean_difference"]))
     return out
 
 
 def analyse(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    table: dict[tuple[str, str, str], dict[int, float]] = {}
+    table: dict[tuple[str, str], dict[int, float]] = {}
     for row in rows:
-        key = (row["dataset"], row["row"], row["configuration"])
+        if str(row.get("configuration", CONFIGURATION)) != CONFIGURATION:
+            raise ValueError(f"configuration {row['configuration']!r}: pre-registration v3 has configuration (a) "
+                             "only")
+        key = (row["dataset"], row["row"])
         seed = int(row["seed"])
         if seed in table.setdefault(key, {}):
             raise ValueError(f"two values for {key} seed {seed}")
         table[key][seed] = float(row[METRIC])
-    arms = {f"{d}|{r}|{c}": {"seeds": sorted(v), **describe(v.values())} for (d, r, c), v in sorted(table.items())}
-    return {"metric": METRIC, "alpha": ALPHA, "bootstrap": {"resamples": BOOTSTRAP_RESAMPLES,
-                                                             "seed": BOOTSTRAP_SEED, "kind": "percentile"},
-            "arms": arms,
-            "claims_b": [claim_result(table, c, "b") for c in CLAIMS],
-            "claims_a": [claim_result(table, c, "a") for c in CLAIMS],
+    arms = {f"{d}|{r}": {"seeds": sorted(v), **describe(v.values())} for (d, r), v in sorted(table.items())}
+    return {"metric": METRIC, "seeds": list(SEEDS), "wins_needed": WINS_NEEDED, "configuration": CONFIGURATION,
+            "arms": arms, "claims": [claim_result(table, c) for c in CLAIMS],
             "reported_only": [reported_only(table, r) for r in REPORTED_ONLY],
-            "two_by_two_a": two_by_two(table)}
+            "literature": literature_row(table), "two_by_two": two_by_two(table)}
 
 
 # ------------------------------------------------------------------------------------------------ input / output
-KNOWN_ROWS = frozenset({"full", "no_path_cells", "S2", "S0", "endpoints", "instance_features", "literature"})
-RUN_NAME = re.compile(r"^(?P<dataset>[a-z]+)__ablation_(?P<conf>[ab])_(?P<row>.+?)(?P<seeds>_seeds)?$")
+KNOWN_ROWS = frozenset({"full", "no_path_cells", "S2", "S0", "uniform", "endpoints", "instance_features",
+                        "literature"})
+ABLATION_NAME = re.compile(r"^(?P<dataset>[a-z]+)__ablation_(?P<rest>.+)$")
+RUN_NAME = re.compile(r"^(?P<dataset>[a-z]+)__ablation_a_(?P<row>.+)$")
 
 
 def collect(run_dirs: list[Path], lookups: list[Path]) -> list[dict[str, Any]]:
     """Rows from the ablation run folders (`<exp>/<exp>_run<i>/best_test_metrics_run<i>.json`, `exp_name`
-    `<dataset>__ablation_<a|b>_<row>[_seeds]`) and `full`'s main-table seeds 1-4 (`lookup.json`)."""
+    `<dataset>__ablation_a_<row>`) and `full`'s main-table seeds 1-4 (`lookup.json`). Records whose name is not an
+    ablation name are skipped; an ablation name of configuration (b), an unknown row or a seed outside 1-5 raises
+    (pre-registration v3 has configuration (a), the 8 rows and seeds 1-5 only)."""
     out = []
     for root in run_dirs:
         for path in sorted(Path(root).rglob("best_test_metrics_run*.json")):
             record = json.loads(path.read_text(encoding="utf-8"))
             base = re.sub(r"_run\d+$", "", str(record["exp_name"]))
-            match = RUN_NAME.match(base)
-            # (b) seed runs carry `_seeds` (the `tune` rows' trial records are not ablation runs); seeds 1-10 only
-            if (match is None or match["row"] not in KNOWN_ROWS or (match["conf"] == "b") != bool(match["seeds"])
-                    or not 1 <= int(record["seed"]) <= 10):
+            if ABLATION_NAME.match(base) is None:
                 continue
-            out.append({"dataset": match["dataset"], "row": match["row"], "configuration": match["conf"],
-                        "seed": int(record["seed"]), METRIC: float(record[METRIC]), "source": str(path)})
+            match = RUN_NAME.match(base)
+            if match is None:
+                raise ValueError(f"{path}: run name {base!r} is not `<dataset>__ablation_a_<row>`; pre-registration "
+                                 "v3 has configuration (a) only (no (b) run is read)")
+            if match["row"] not in KNOWN_ROWS:
+                raise ValueError(f"{path}: row {match['row']!r} is not one of the 8 rows {sorted(KNOWN_ROWS)}")
+            seed = int(record["seed"])
+            if seed not in SEEDS:
+                raise ValueError(f"{path}: seed {seed} is not one of seeds {SEEDS}")
+            out.append({"dataset": match["dataset"], "row": match["row"], "configuration": CONFIGURATION,
+                        "seed": seed, METRIC: float(record[METRIC]), "source": str(path)})
     for lookup in lookups:
         payload = json.loads(Path(lookup).read_text(encoding="utf-8"))
         for seed, folder in payload["full_seeds_1_4_from_main_table"].items():
@@ -223,46 +228,53 @@ def _fmt(value: Any, digits: int = 4) -> str:
     return f"{value:.{digits}g}" if isinstance(value, float) else str(value)
 
 
+def _diffs(r: dict[str, Any]) -> str:
+    return ", ".join(f"{s}: {_fmt(v)}" for s, v in zip(r["seeds"], r["differences"]))
+
+
 def markdown(result: dict[str, Any]) -> str:
-    lines = ["# Ablation statistics (card 7 V2, plan v2)", "",
-             f"Metric `{result['metric']}`; Wilcoxon signed-rank two-sided; Holm per claim over its datasets; "
-             f"bootstrap {result['bootstrap']['resamples']} resamples (percentile, seed "
-             f"{result['bootstrap']['seed']}). Differences are `full - row`.", ""]
-    for key, title in (("claims_b", "Claims, configuration (b) (decides)"),
-                       ("claims_a", "Claims, configuration (a) (reported beside)")):
-        lines += [f"## {title}", "",
-                  "| claim | dataset | full mean ± sd | row mean ± sd | n | median diff | mean diff [95 % CI] | "
-                  "p raw | p Holm | passes |", "|---|---|---|---|---|---|---|---|---|---|"]
-        for claim in result[key]:
-            for dataset, r in claim["per_dataset"].items():
-                if r is None:
-                    lines.append(f"| {claim['claim']} | {dataset} | — | — | 0 | — | — | — | — | — |")
-                    continue
-                lines.append(
-                    f"| {claim['claim']} | {dataset} | {_fmt(r['a']['mean'])} ± {_fmt(r['a']['std'])} | "
-                    f"{_fmt(r['b']['mean'])} ± {_fmt(r['b']['std'])} | {len(r['seeds'])} | "
-                    f"{_fmt(r['median_difference'])} | {_fmt(r['mean_difference'])} "
-                    f"[{_fmt(r['bootstrap_ci95'][0])}, {_fmt(r['bootstrap_ci95'][1])}] | {_fmt(r['p_raw'])} | "
-                    f"{_fmt(r.get('p_holm'))} | {_fmt(r.get('passes'))} |")
-            lines.append(f"| **{claim['claim']}** | rule {claim['rule']} | | | | | | | | **holds: "
-                         f"{_fmt(claim['holds'])}** (if not: {claim['if_not']}) |")
-        lines.append("")
-    lines += ["## Reported only (configuration (a), no claim)", "",
-              "| row | dataset | n | median diff | mean diff [95 % CI] | p raw |", "|---|---|---|---|---|---|"]
+    lines = ["# Ablation statistics (card 9 W3, pre-registration v3)", "",
+             f"Metric `{result['metric']}`, configuration (a), seeds {result['seeds']}. Differences are `full - row` "
+             f"by seed. `better` = mean difference > 0 and `full` strictly higher in >= {result['wins_needed']} of 5 "
+             "seeds (a tie is no win); `—` = incomplete (not all 5 seeds on both sides). No p-value is computed.", "",
+             "## Claims", "",
+             "| claim | dataset | full mean ± sd | row mean ± sd | differences (seed: full - row) | mean diff | wins "
+             "| better |", "|---|---|---|---|---|---|---|---|"]
+    for claim in result["claims"]:
+        for dataset, r in claim["per_dataset"].items():
+            if r is None:
+                lines.append(f"| {claim['claim']} ({claim['row']}) | {dataset} | — | — | — | — | — | — |")
+                continue
+            lines.append(
+                f"| {claim['claim']} ({claim['row']}) | {dataset} | {_fmt(r['a']['mean'])} ± {_fmt(r['a']['std'])} | "
+                f"{_fmt(r['b']['mean'])} ± {_fmt(r['b']['std'])} | {_diffs(r)} | {_fmt(r['mean_difference'])} | "
+                f"{r['wins']}/{len(r['seeds'])} | {_fmt(r['better'])} |")
+        lines.append(f"| **{claim['claim']}** | rule {claim['rule']} | | | | | {claim['datasets_better']} datasets | "
+                     f"**holds: {_fmt(claim['holds'])}** (if not: {claim['if_not']}) |")
+    lines += ["", "## Reported only: S0 (no claim)", "",
+              "| row | dataset | full mean ± sd | row mean ± sd | differences | mean diff | wins | better |",
+              "|---|---|---|---|---|---|---|---|"]
     for item in result["reported_only"]:
         for dataset, r in item["per_dataset"].items():
             if r is not None:
-                lines.append(f"| {item['row']} | {dataset} | {len(r['seeds'])} | {_fmt(r['median_difference'])} | "
-                             f"{_fmt(r['mean_difference'])} [{_fmt(r['bootstrap_ci95'][0])}, "
-                             f"{_fmt(r['bootstrap_ci95'][1])}] | {_fmt(r['p_raw'])} |")
-    lines += ["", "## 2x2 (configuration (a), descriptive)", "",
-              "| difference | dataset | mean | median | 95 % CI |", "|---|---|---|---|---|"]
-    for name, item in result["two_by_two_a"].items():
+                lines.append(f"| {item['row']} | {dataset} | {_fmt(r['a']['mean'])} ± {_fmt(r['a']['std'])} | "
+                             f"{_fmt(r['b']['mean'])} ± {_fmt(r['b']['std'])} | {_diffs(r)} | "
+                             f"{_fmt(r['mean_difference'])} | {r['wins']}/{len(r['seeds'])} | {_fmt(r['better'])} |")
+    lines += ["", "## Literature row (reported; roles swapped: `literature - full`)", "",
+              "| dataset | literature mean ± sd | full mean ± sd | differences | mean diff | wins | literature "
+              "better |", "|---|---|---|---|---|---|---|"]
+    for dataset, r in result["literature"]["per_dataset"].items():
+        if r is not None:
+            lines.append(f"| {dataset} | {_fmt(r['a']['mean'])} ± {_fmt(r['a']['std'])} | {_fmt(r['b']['mean'])} ± "
+                         f"{_fmt(r['b']['std'])} | {_diffs(r)} | {_fmt(r['mean_difference'])} | "
+                         f"{r['wins']}/{len(r['seeds'])} | {_fmt(r['literature_better'])} |")
+    lines += ["", "## 2x2 (descriptive)", "", "| difference | dataset | differences | mean |", "|---|---|---|---|"]
+    for name, item in result["two_by_two"]["differences"].items():
         for dataset, r in item["per_dataset"].items():
             if r is not None:
-                lines.append(f"| {name} ({item['label']}) | {dataset} | {_fmt(r['mean_difference'])} | "
-                             f"{_fmt(r['median_difference'])} | [{_fmt(r['bootstrap_ci95'][0])}, "
-                             f"{_fmt(r['bootstrap_ci95'][1])}] |")
+                lines.append(f"| {name} ({item['label']}) | {dataset} | {_diffs(r)} | {_fmt(r['mean_difference'])} |")
+    lines += ["", "Complementary (mean of `full - no_path_cells` > mean of `S2 - S0`): "
+              + ", ".join(f"{d} {_fmt(v)}" for d, v in result["two_by_two"]["complementary"].items())]
     return "\n".join(lines) + "\n"
 
 
@@ -272,7 +284,7 @@ def read_table(path: Path) -> list[dict[str, Any]]:
 
 
 def write_table(rows: list[dict[str, Any]], path: Path) -> None:
-    fields = ["dataset", "row", "configuration", "seed", METRIC, "source"]
+    fields = ["dataset", "row", "configuration", "seed", METRIC, "source"]  # configuration is always "a"
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()

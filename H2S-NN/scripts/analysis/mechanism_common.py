@@ -24,6 +24,11 @@
 - **Correct:** single label: argmax = label; IMDB: the predicted genre set (logit > 0) equals the true set.
 - **Centroids and margins** (F2): class centroids of the test x* of one model; margin_v = distance to the nearest
   other-class centroid - distance to the own-class centroid (Euclidean). Single-label datasets only.
+- **Scale-free margin** (card 9 W6, pre-registration v3 §4.3): margin_v / D, D = the mean pairwise Euclidean distance
+  between the class centroids of that model and seed (the same test-x* centroids `margins` uses), so two models are
+  compared on one scale.
+- **G_low** (v3 §4.3): the lowest non-empty of G0, G1. **4-of-5 rules** (v3 §4): a per-seed statement over seeds
+  1-5; `holds` = true in >= 4 of them, `None` while a seed has no value.
 """
 
 from __future__ import annotations
@@ -49,6 +54,8 @@ SINGLE_LABEL: tuple[str, ...] = ("acm", "dblp", "freebase")
 from src.configs.config import EVAL_BATCH_TARGETS  # noqa: E402  (the trainer's evaluation batch)
 CHUNK_SIZE = 200                    # calcHomophily's default (compute_heterophily `--chunk-size`)
 GROUPS: tuple[str, ...] = ("G0", "G1", "G2", "G3")
+RULE_SEEDS: tuple[int, ...] = (1, 2, 3, 4, 5)       # v3 §4: "4 of 5 seeds" = seeds 1-5
+RULE_NEEDED = 4
 
 
 # ------------------------------------------------------------------------------------------------ runs
@@ -64,6 +71,10 @@ def arm_of(cfg) -> str:
         return "S2"
     if str(cfg.ablation.path_weight_input) == "endpoints":
         return "endpoints"
+    if str(cfg.ablation.path_weight_input) == "uniform":           # card 9: the v3 `uniform` row
+        return "uniform"
+    if str(cfg.ablation.path_weight_input) != "full":
+        raise ValueError(f"out-of-scope path_weight_input {cfg.ablation.path_weight_input!r}")
     if str(cfg.data.path_source) == "schemas":
         return "literature"
     if model_arm != "full":
@@ -309,6 +320,41 @@ def margins(x: torch.Tensor, labels: torch.Tensor, centres: torch.Tensor) -> tor
     own = dist.gather(1, labels.view(-1, 1)).squeeze(1)
     other = dist.scatter(1, labels.view(-1, 1), float("inf")).min(dim=1).values
     return other - own
+
+
+def centroid_scale(centres: torch.Tensor) -> float:
+    """D: the mean pairwise Euclidean distance between the class centroids present (NaN rows: a class without a
+    node, left out); NaN with fewer than two."""
+    present = centres[~torch.isnan(centres).any(dim=1)]
+    if present.size(0) < 2:
+        return math.nan
+    dist = torch.cdist(present, present)
+    i, j = torch.triu_indices(present.size(0), present.size(0), offset=1)
+    return float(dist[i, j].mean())
+
+
+def scale_free_margins(x: torch.Tensor, labels: torch.Tensor, centres: torch.Tensor) -> torch.Tensor:
+    """margin_v / D (v3 §4.3): the margin divided by the mean pairwise distance of the same centroids."""
+    m = margins(x, labels, centres)
+    return m / centroid_scale(centres)
+
+
+def g_low(counts: dict[str, int]) -> str | None:
+    """The lowest non-empty of G0, G1 (v3 §4.3); `None` when both are empty."""
+    for name in ("G0", "G1"):
+        if counts.get(name, 0) > 0:
+            return name
+    return None
+
+
+def four_of_five(per_seed: dict[int, bool | None]) -> dict[str, Any]:
+    """A per-seed statement over seeds 1-5: the count of seeds where it is true; `holds` = count >= 4 when all five
+    seeds have a value, else `None`."""
+    values = {s: per_seed.get(s) for s in RULE_SEEDS}
+    present = [s for s, v in values.items() if v is not None]
+    count = sum(1 for s in present if values[s])
+    holds = bool(count >= RULE_NEEDED) if len(present) == len(RULE_SEEDS) else None
+    return {"per_seed": values, "count": count, "seeds_with_value": present, "holds": holds}
 
 
 # ------------------------------------------------------------------------------------------------ summaries

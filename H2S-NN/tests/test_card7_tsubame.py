@@ -1,7 +1,8 @@
 """Card 7 T9 (Phase B, V8): the TSUBAME phases `ablation`, `perturbation` and `timing` of
 `scripts/tsubame/make_cell_list.py` and the row wrapper `scripts/tsubame/run_row.py`.
 
-- line counts equal the manifests (ablation: one tuning line per `tune` row, one seed line per `runs` row;
+- line counts equal the manifests (ablation, card 9 W8: no tuning list, one seed line per `runs` row of
+  configuration (a), a `tune` / (b) row raises;
   perturbation: one line per runnable row, a comment per "needs tuned config" row; timing: 14 x 2 = 28, amendment 5);
 - every line parses: the tuning lines with the H2S-NN launcher's parser, the wrapped launchers with their own parsers;
 - the existing phases are byte-identical: `baselines-1`, `baselines-early` and `h2snn` give exactly the lists of
@@ -65,6 +66,8 @@ def _row_words(line: str) -> tuple[object, str, list[str]]:
 
 class AblationPhaseTests(unittest.TestCase):
     def test_T9_ablation_lines_equal_the_manifests(self) -> None:
+        """Card 9 W8 (v3): seed lines only, one per `runs` row (v2: also one tuning line per `tune` row and the
+        (b) rows' `--tuned_config`)."""
         import seed_runs
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -72,27 +75,19 @@ class AblationPhaseTests(unittest.TestCase):
             manifests = []
             for dataset in ("acm", "dblp"):
                 cfg = ROOT / "configs" / "experiments" / f"{dataset}_h2snn_v3b.yaml"
-                rows = seed_runs.build_manifest(dataset, cfg, cfg, tmp / "main", tmp / "abl", None)
+                rows = seed_runs.build_manifest(dataset, cfg, tmp / "main", tmp / "abl", None)
                 path = tmp / "abl" / dataset / "manifest.tsv"
                 seed_runs.write_manifest(rows, path)
                 manifests.append((path, rows))
             out = Path("/OUT")
-            tuning, seeds = mcl.ablation_lists([p for p, _ in manifests], out)
-            tune_rows = [r for _, rows in manifests for r in rows if r["kind"] == "tune"]
-            run_rows = [r for _, rows in manifests for r in rows if r["kind"] == "runs"]
+            seeds = mcl.ablation_lists([p for p, _ in manifests], out)
+            run_rows = [r for _, rows in manifests for r in rows]
+            self.assertTrue(all(r["kind"] == "runs" for r in run_rows))
             from scripts.tsubame.lines import runnable_lines
 
-            tuning, seeds = runnable_lines("\n".join(tuning)), runnable_lines("\n".join(seeds))
-            self.assertEqual((len(tuning), len(seeds)), (len(tune_rows), len(run_rows)))
-            self.assertEqual((len(tuning), len(seeds)), (2 * 4, 2 * 11))
-            for line, row in zip(tuning, tune_rows):
-                words = shlex.split(line)
-                self.assertEqual(words[0], mcl.H2SNN_LAUNCHER)
-                args = _parse(words[0], words[1:] + ["--resume"])
-                self.assertEqual((args.config, args.exp_name, args.n_trials, args.base_seed, args.num_runs),
-                                 (Path(row["config"]), row["exp_name"], 100, 0, 1))
-                self.assertEqual((Path(args.state_dir), args.wandb_project),
-                                 (out / "state" / row["exp_name"], mcl.ABLATION_WANDB_PROJECT))
+            seeds = runnable_lines("\n".join(seeds))
+            self.assertEqual(len(seeds), len(run_rows))
+            self.assertEqual(len(seeds), 2 * 8)
             for line, row in zip(seeds, run_rows):
                 args, launcher, words = _row_words(line + " --resume")
                 self.assertEqual(launcher, "scripts/run_h2snn_runs.py")
@@ -101,15 +96,18 @@ class AblationPhaseTests(unittest.TestCase):
                 self.assertEqual((parsed.config, parsed.base_seed, parsed.num_runs, parsed.exp_name),
                                  (Path(row["config"]), int(row["base_seed"]), int(row["num_runs"]), row["exp_name"]))
                 self.assertEqual(args.done, out / "experiments" / "ablation" / row["exp_name"] / "runs_summary.json")
-                if row["configuration"] == "b":
-                    base = [r["config"] for r in tune_rows if (r["dataset"], r["arm"]) == (row["dataset"],
-                                                                                         row["arm"])][0]
-                    self.assertEqual(args.tuned_config, [Path(base), out / "experiments" / "ablation" /
-                                                         f"{row['dataset']}__ablation_b_{row['arm']}" /
-                                                         "best_tuned_run0.json", Path(row["config"])])
-                else:
-                    self.assertIsNone(args.tuned_config)
+                self.assertIsNone(args.tuned_config)
             self.assertFalse([r for r in run_rows if r["arm"] == "full" and int(r["base_seed"]) < 5])
+            # a v2 manifest (a `tune` row) is refused
+            v2 = tmp / "v2.tsv"
+            v2.write_text("\t".join(seed_runs.FIELDS) + "\n" + "\t".join(
+                ["tune", "acm", "endpoints", "b", "x.yaml", "0", "1", "acm__ablation_b_endpoints", "cmd"]) + "\n",
+                encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "configuration \\(a\\)"):
+                mcl.ablation_lists([v2], out)
+            listing = tmp / "lists"
+            mcl.main(["--phase", "ablation", "--manifest", str(manifests[0][0]), "--out-dir", str(listing)])
+            self.assertEqual(sorted(p.name for p in listing.iterdir()), ["cells_ablation_seeds.txt"])
 
 
 class PerturbationPhaseTests(unittest.TestCase):

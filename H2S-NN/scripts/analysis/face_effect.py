@@ -1,24 +1,36 @@
-"""Card 7 V5 (ablation plan v2, "Face effect"): F1, F2, F3 and the rule-chosen case study. Evaluation only: reads
-the best checkpoints of `full` and `no_path_cells` (configuration (a), seeds 1-10; `full`'s seeds 1-4 are the main
-table's runs) and uses the card 5 hooks (b) `knockout` and (d) `cells_per_target` (`src/analysis/mechanism_hooks.py`).
-Helpers (eta_v, eta groups, views, margins): `mechanism_common.py`.
+"""Card 9 W6 (pre-registration v3 §4.3; built on card 7 V5): face effect F1, F2, F3, their rules and the rule-chosen
+case study. Evaluation only: reads the best checkpoints of `full` and `no_path_cells` (configuration (a); `full`'s
+seeds 1-4 are the main table's runs) and uses the card 5 hooks (b) `knockout` and (d) `cells_per_target`
+(`src/analysis/mechanism_hooks.py`). Helpers (eta_v, eta groups, views, margins, G_low, the 4-of-5 rule):
+`mechanism_common.py`. Seeds 1-5 for F1 and F2 (a run of another seed is skipped and listed); F3 on seeds 1-3.
 
 - **F1, flips.** Per dataset and seed, every test node: `full` vs `no_path_cells` predictions; wrong->right and
-  right->wrong counts per eta_v group (and for the nodes without eta_v), then the mean and range over seeds.
+  right->wrong counts per eta_v group, for the nodes without eta_v (`none`) and for all test nodes (`all`); the
+  **net fix rate** of a group = (wrong->right - right->wrong) / group size. Mean and range over seeds.
 - **F2, margin** (ACM, DBLP, Freebase): margin_v of `full` and of `no_path_cells` (each with its own test-x*
-  centroids), mean per eta_v group per seed, then the mean and range over seeds. IMDB: F1 only.
+  centroids), raw and **scale-free** (margin_v / D, D = the mean pairwise distance between that model's class
+  centroids, same seed), mean per eta_v group and over all test nodes; the scale-free difference `full -
+  no_path_cells` (same test nodes). IMDB: F1 only.
 - **F3, knockout** (`full`, seeds 1-3): for each test node v (at most 2,000 per dataset and seed, drawn with
   `numpy.random.default_rng(F3_SAMPLE_SEED)` without replacement when there are more), one evaluation forward with
   hook (b) on [v] (full batch: the whole evaluation graph; mini-batch: v's scope alone, base and knockout alike); node
   v only is read. Right->wrong, any prediction change, and the margin change (knockout - base, base centroids; single
-  label) per eta_v group.
+  label), raw and scale-free (divided by the base model's D: the knockout keeps the base centroids), per eta_v group
+  and for all sampled nodes.
+- **Rules** (v3 §4.3, per dataset; booleans and counts; `None` while a seed is missing):
+  F1a net fix rate of all test nodes > 0 in >= 4 of seeds 1-5; F1b net fix rate of G3 > that of G_low in >= 4 of 5;
+  F2a (ACM, DBLP, Freebase) mean scale-free margin difference > 0 in >= 4 of 5; F2b that difference larger in G3 than
+  in G_low in >= 4 of 5; F3 right->wrong share (all sampled nodes) > 0 in each of seeds 1-3. G_low = the lowest
+  non-empty of G0, G1 (per dataset and seed). F1 answers "would a model without faces do worse"; F3 only "does the
+  trained model rely on the faces through v" (v3 wording; stated separately).
 - **Case study** (ACM, seed 1; no hand choice): candidates = test nodes with a different-class labelled neighbour,
   by a fact (target-target relation, ACM P-P) or by an M_2 meta-path, whose F3 knockout turns right into wrong; pick
-  the largest margin drop (most negative change), ties -> the smaller node id. Shown: the node, its different-class
-  neighbour (a fact neighbour if there is one, else a meta-path neighbour; the smallest id), the 3 cells through the
-  node with the largest w_f (hook (d); ties -> the forward's cell order) with node ids, types and schema; a 2-D PCA
-  fitted on all test x* of the `full` run of h0, x* with the knockout and x* of `full`, with the class centroids;
-  P(true class) with and without the knockout. JSON + one PDF.
+  the largest scale-free margin drop (most negative change), ties -> the smaller node id. Shown: the node, its
+  different-class neighbour (a fact neighbour if there is one, else a meta-path neighbour; the smallest id), the 3
+  cells through the node with the largest w_f (hook (d); ties -> the forward's cell order) with node ids, types and
+  schema; a 2-D PCA fitted on all test x* of the `full` run of h0, x* with the knockout and x* of `full`, with the
+  class centroids; P(true class) with and without the knockout. JSON + one PDF; the caption says the node was
+  "chosen by a fixed rule: the largest margin drop", not that it is typical.
 
     python scripts/analysis/face_effect.py --runs <run dir> ... --out_dir <dir> [--device cuda] \
         [--f3_seeds 1 2 3] [--f3_max_nodes 2000] [--skip_f3] [--case_dataset acm --case_seed 1]
@@ -38,6 +50,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mechanism_common as mc  # noqa: E402
 
+F1_F2_SEEDS: tuple[int, ...] = mc.RULE_SEEDS          # v3 §4.3: seeds 1-5
 F3_SEEDS: tuple[int, ...] = (1, 2, 3)
 F3_MAX_NODES = 2000
 F3_SAMPLE_SEED = 0
@@ -48,13 +61,17 @@ ARMS: tuple[str, ...] = ("full", "no_path_cells")
 
 # ------------------------------------------------------------------------------------------------ F1
 def flip_counts(correct_full: np.ndarray, correct_ablated: np.ndarray, group: np.ndarray) -> dict[str, Any]:
-    """Wrong->right (`ablated` wrong, `full` right) and right->wrong per group; `none` = nodes without eta_v."""
+    """Wrong->right (`ablated` wrong, `full` right) and right->wrong per group, `none` (nodes without eta_v) and
+    `all` (every test node); the net fix rate (wrong->right - right->wrong) / nodes (`None` for an empty group)."""
     out = {}
-    for q, name in [*enumerate(mc.GROUPS), (-1, "none")]:
-        mask = group == q
-        out[name] = {"nodes": int(mask.sum()),
-                     "wrong_to_right": int((mask & correct_full & ~correct_ablated).sum()),
-                     "right_to_wrong": int((mask & ~correct_full & correct_ablated).sum())}
+    group = np.asarray(group)
+    for name, mask in [*((n, group == q) for q, n in enumerate(mc.GROUPS)), ("none", group == -1),
+                       ("all", np.ones(group.shape, dtype=bool))]:
+        nodes = int(mask.sum())
+        w2r = int((mask & correct_full & ~correct_ablated).sum())
+        r2w = int((mask & ~correct_full & correct_ablated).sum())
+        out[name] = {"nodes": nodes, "wrong_to_right": w2r, "right_to_wrong": r2w,
+                     "net_fix_rate": (w2r - r2w) / nodes if nodes else None}
     return out
 
 
@@ -66,8 +83,26 @@ def group_counts(groups) -> dict[str, int]:
 
 # ------------------------------------------------------------------------------------------------ F2
 def margin_by_group(margin: np.ndarray, group: np.ndarray) -> dict[str, Any]:
-    return {name: (float(margin[group == q].mean()) if (group == q).any() else None)
-            for q, name in enumerate(mc.GROUPS)}
+    """Mean margin per eta group and over all test nodes (`all`)."""
+    out = {name: (float(margin[group == q].mean()) if (group == q).any() else None)
+           for q, name in enumerate(mc.GROUPS)}
+    out["all"] = float(margin.mean()) if margin.size else None
+    return out
+
+
+def f2_entry(x: torch.Tensor, labels: torch.Tensor, centres: torch.Tensor, group: np.ndarray) -> dict[str, Any]:
+    """Raw and scale-free margins of one model by group, with its centroid scale D."""
+    return {"D": mc.centroid_scale(centres),
+            "raw": margin_by_group(mc.margins(x, labels, centres).numpy(), group),
+            "scale_free": margin_by_group(mc.scale_free_margins(x, labels, centres).numpy(), group)}
+
+
+def f2_difference(f2: dict[str, Any]) -> dict[str, Any] | None:
+    """Scale-free mean margin difference `full - no_path_cells` per group and over all test nodes."""
+    if "full" not in f2 or "no_path_cells" not in f2:
+        return None
+    a, b = f2["full"]["scale_free"], f2["no_path_cells"]["scale_free"]
+    return {k: (a[k] - b[k] if a[k] is not None and b[k] is not None else None) for k in a}
 
 
 # ------------------------------------------------------------------------------------------------ F3
@@ -117,25 +152,66 @@ def f3_run(run: mc.Run, base: dict[str, torch.Tensor], nodes: np.ndarray, centre
         if centres is not None:
             m_base = float(mc.margins(base_x.view(1, -1), label, centres)[0])
             m_ko = float(mc.margins(ko["x_star"], label, centres)[0])
+            sf_base = float(mc.scale_free_margins(base_x.view(1, -1), label, centres)[0])
+            sf_ko = float(mc.scale_free_margins(ko["x_star"], label, centres)[0])
             p_base = float(torch.softmax(base_logits, -1)[int(label)])
             p_ko = float(torch.softmax(ko["logits"][0], -1)[int(label)])
             row.update(margin_base=m_base, margin_knockout=m_ko, margin_change=m_ko - m_base,
-                       p_true_base=p_base, p_true_knockout=p_ko)
+                       scale_free_margin_base=sf_base, scale_free_margin_knockout=sf_ko,
+                       scale_free_margin_change=sf_ko - sf_base, p_true_base=p_base, p_true_knockout=p_ko)
         rows.append(row)
     return rows
 
 
 def f3_summary(rows: list[dict[str, Any]], group: dict[int, int]) -> dict[str, Any]:
+    """Per eta group, `none` and `all` sampled nodes: right->wrong count and share of the base-correct, prediction
+    changes, the mean raw and scale-free margin change."""
     out = {}
-    for q, name in [*enumerate(mc.GROUPS), (-1, "none")]:
-        sel = [r for r in rows if group[r["node"]] == q]
+    for name, sel in [*((n, [r for r in rows if group[r["node"]] == q]) for q, n in enumerate(mc.GROUPS)),
+                      ("none", [r for r in rows if group[r["node"]] == -1]), ("all", list(rows))]:
         right = [r for r in sel if r["base_correct"]]
         changes = [r["margin_change"] for r in sel if "margin_change" in r]
+        sf = [r["scale_free_margin_change"] for r in sel if "scale_free_margin_change" in r]
         out[name] = {"nodes": len(sel), "base_right": len(right),
                      "right_to_wrong": sum(r["right_to_wrong"] for r in sel),
                      "right_to_wrong_share": (sum(r["right_to_wrong"] for r in sel) / len(right)) if right else None,
                      "prediction_changed": sum(r["prediction_changed"] for r in sel),
-                     "mean_margin_change": float(np.mean(changes)) if changes else None}
+                     "mean_margin_change": float(np.mean(changes)) if changes else None,
+                     "mean_scale_free_margin_change": float(np.mean(sf)) if sf else None}
+    return out
+
+
+# ------------------------------------------------------------------------------------------------ rules
+def _gt(a: float | None, b: float | None) -> bool | None:
+    return None if a is None or b is None else bool(a > b)
+
+
+def rules(dataset: str, per_seed: list[dict[str, Any]]) -> dict[str, Any]:
+    """F1a, F1b, F2a, F2b (4 of seeds 1-5) and F3 (each of seeds 1-3) of one dataset (v3 §4.3)."""
+    by_seed = {int(e["seed"]): e for e in per_seed}
+    f1a, f1b, f2a, f2b, low = {}, {}, {}, {}, {}
+    for seed in mc.RULE_SEEDS:
+        e = by_seed.get(seed)
+        f1 = (e or {}).get("F1")
+        name = mc.g_low({g: f1[g]["nodes"] for g in mc.GROUPS}) if f1 else None
+        low[seed] = name
+        f1a[seed] = _gt(f1["all"]["net_fix_rate"], 0.0) if f1 else None
+        f1b[seed] = _gt(f1["G3"]["net_fix_rate"], f1[name]["net_fix_rate"]) if f1 and name else None
+        diff = (e or {}).get("F2_difference")
+        f2a[seed] = _gt(diff["all"], 0.0) if diff else None
+        f2b[seed] = _gt(diff["G3"], diff[name]) if diff and name else None
+    out: dict[str, Any] = {"G_low": low, "F1a": mc.four_of_five(f1a), "F1b": mc.four_of_five(f1b)}
+    if dataset in mc.SINGLE_LABEL:
+        out["F2a"] = mc.four_of_five(f2a)
+        out["F2b"] = mc.four_of_five(f2b)
+    f3 = {}
+    for seed in F3_SEEDS:
+        e = by_seed.get(seed)
+        share = e["F3"]["by_group"]["all"]["right_to_wrong_share"] if e and "F3" in e else None
+        f3[seed] = _gt(share, 0.0)
+    values = list(f3.values())
+    out["F3"] = {"per_seed": f3, "count": sum(1 for v in values if v),
+                 "holds": False if any(v is False for v in values) else (None if None in values else True)}
     return out
 
 
@@ -172,10 +248,10 @@ def different_class_neighbours(run: mc.Run, node: int, ref_graph, target: str, r
 
 def pick_case(rows: list[dict[str, Any]], candidates: set[int]) -> dict[str, Any] | None:
     """Right->wrong under the knockout, a different-class neighbour; largest margin drop, ties -> smaller id."""
-    pool = [r for r in rows if r["right_to_wrong"] and r["node"] in candidates and "margin_change" in r]
+    pool = [r for r in rows if r["right_to_wrong"] and r["node"] in candidates and "scale_free_margin_change" in r]
     if not pool:
         return None
-    return min(pool, key=lambda r: (r["margin_change"], r["node"]))
+    return min(pool, key=lambda r: (r["scale_free_margin_change"], r["node"]))
 
 
 def top_cells(run: mc.Run, node: int, k: int = CASE_CELLS) -> list[dict[str, Any]]:
@@ -231,13 +307,15 @@ def case_study(run: mc.Run, base: dict[str, torch.Tensor], rows: list[dict[str, 
     names = run.data.node_type_names
     node_type = run.data.node_type.cpu()
     record = {"status": "chosen", "dataset": run.dataset, "seed": run.seed, "run_dir": str(run.run_dir),
-              "rule": "right->wrong under the F3 knockout and a different-class neighbour; largest margin drop; "
-                      "ties -> smaller id",
+              "rule": "right->wrong under the F3 knockout and a different-class neighbour; largest scale-free margin "
+                      "drop; ties -> smaller id",
+              "caption": "chosen by a fixed rule: the largest margin drop (not a typical node; see F1-F3)",
               "candidates": len(candidates), "node": v, "node_type": names[int(node_type[v])],
               "label": int(base["labels"][i]),
               "neighbour": {"id": neighbour, "via": via, "type": names[int(node_type[neighbour])],
                             "label": mc.labelled_targets(run.data)[neighbour]},
               "cells": cells, "margin_base": chosen["margin_base"], "margin_knockout": chosen["margin_knockout"],
+              "scale_free_margin_change": chosen["scale_free_margin_change"],
               "p_true_base": chosen["p_true_base"], "p_true_knockout": chosen["p_true_knockout"],
               "pca": {"test_x_star": fit.tolist(), "test_labels": base["labels"].tolist(), "h0": h0_v[0].tolist(),
                       "x_star_knockout": ko_v[0].tolist(), "x_star_full": full_v[0].tolist(),
@@ -294,8 +372,8 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
     skipped = []
     for path in run_dirs:
         info = mc.run_info(path)
-        if info["arm"] not in ARMS or info["graph_tag"] != "original":
-            skipped.append({"run": str(path), "arm": info["arm"], "graph": info["graph_tag"]})
+        if info["arm"] not in ARMS or info["graph_tag"] != "original" or info["seed"] not in F1_F2_SEEDS:
+            skipped.append({"run": str(path), "arm": info["arm"], "graph": info["graph_tag"], "seed": info["seed"]})
             continue
         key = (info["dataset"], info["seed"], info["arm"])
         if key in runs:
@@ -326,8 +404,12 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
             for arm, r in loaded.items():
                 if single:
                     centres[arm] = mc.centroids(base[arm]["x_star"], base[arm]["labels"], r.data.num_classes)
-                    entry.setdefault("F2", {})[arm] = margin_by_group(
-                        mc.margins(base[arm]["x_star"], base[arm]["labels"], centres[arm]).numpy(), q)
+                    entry.setdefault("F2", {})[arm] = f2_entry(base[arm]["x_star"], base[arm]["labels"],
+                                                               centres[arm], q)
+            if single and "no_path_cells" in loaded:
+                if not torch.equal(base["full"]["ids"], base["no_path_cells"]["ids"]):
+                    raise ValueError(f"{dataset} seed {seed}: the two runs read different test nodes")
+                entry["F2_difference"] = f2_difference(entry["F2"])
             if "no_path_cells" in loaded:
                 if not torch.equal(base["full"]["ids"], base["no_path_cells"]["ids"]):
                     raise ValueError(f"{dataset} seed {seed}: the two runs read different test nodes")
@@ -348,7 +430,8 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
                                                             if eta_info else None),
                                        "test_nodes_without_eta": (sum(v == -1 for v in eta_info["group"].values())
                                                                   if eta_info else None),
-                                       "seeds": per_seed, "summary": summarise(per_seed)}
+                                       "seeds": per_seed, "summary": summarise(per_seed),
+                                       "rules": rules(dataset, per_seed)}
     (out_dir / "face_effect.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
     (out_dir / "face_effect.md").write_text(markdown(result), encoding="utf-8")
     return result
@@ -357,25 +440,33 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu", f3_seeds: 
 def summarise(per_seed: list[dict[str, Any]]) -> dict[str, Any]:
     """Mean and range over seeds of every count / mean."""
     out: dict[str, Any] = {}
-    names = [*mc.GROUPS, "none"]
+    names = [*mc.GROUPS, "none", "all"]
     f1 = [s["F1"] for s in per_seed if "F1" in s]
     if f1:
         out["F1"] = {n: {k: mc.mean_range([s[n][k] for s in f1]) for k in ("nodes", "wrong_to_right",
-                                                                           "right_to_wrong")} for n in names}
+                                                                           "right_to_wrong", "net_fix_rate")}
+                     for n in names}
     f2 = [s["F2"] for s in per_seed if "F2" in s]
+    groups = [*mc.GROUPS, "all"]
     if f2:
-        out["F2"] = {arm: {n: mc.mean_range([s[arm][n] for s in f2 if arm in s]) for n in mc.GROUPS}
+        out["F2"] = {arm: {kind: {n: mc.mean_range([s[arm][kind][n] for s in f2 if arm in s]) for n in groups}
+                           for kind in ("raw", "scale_free")}
                      for arm in ARMS if any(arm in s for s in f2)}
+    diffs = [s["F2_difference"] for s in per_seed if s.get("F2_difference")]
+    if diffs:
+        out["F2_difference"] = {n: mc.mean_range([d[n] for d in diffs]) for n in groups}
     f3 = [s["F3"]["by_group"] for s in per_seed if "F3" in s]
     if f3:
         out["F3"] = {n: {k: mc.mean_range([s[n][k] for s in f3]) for k in ("nodes", "base_right", "right_to_wrong",
                                                                            "right_to_wrong_share",
-                                                                           "mean_margin_change")} for n in names}
+                                                                           "mean_margin_change",
+                                                                           "mean_scale_free_margin_change")}
+                     for n in names}
     return out
 
 
 def markdown(result: dict[str, Any]) -> str:
-    lines = ["# Face effect F1-F3 (card 7 V5, plan v2)", "",
+    lines = ["# Face effect F1-F3 (card 9 W6, pre-registration v3 §4.3)", "",
              "Mean [min, max] over seeds. eta groups over each dataset's test targets (amendment 10): G0 = eta_v 0, "
              "G1-G3 = tertiles of eta_v > 0 (G1 lowest); `none` = no labelled M_2 neighbour (excluded).", ""]
     for dataset, d in result["datasets"].items():
@@ -384,23 +475,34 @@ def markdown(result: dict[str, Any]) -> str:
                   f"{d['eta_group_counts']}; test nodes without eta_v: "
                   f"{d['test_nodes_without_eta']}; seeds {[e['seed'] for e in d['seeds']]}", ""]
         if "F1" in s:
-            lines += ["| F1 | nodes | wrong->right | right->wrong |", "|---|---|---|---|"]
+            lines += ["| F1 | nodes | wrong->right | right->wrong | net fix rate |", "|---|---|---|---|---|"]
             for n, v in s["F1"].items():
                 lines.append(f"| {n} | " + " | ".join(_mr(v[k]) for k in ("nodes", "wrong_to_right",
-                                                                            "right_to_wrong")) + " |")
+                                                                            "right_to_wrong", "net_fix_rate")) + " |")
             lines.append("")
+        groups = [*mc.GROUPS, "all"]
         if "F2" in s:
-            lines += ["| F2 mean margin | " + " | ".join(mc.GROUPS) + " |", "|---" * 5 + "|"]
+            lines += ["| F2 mean margin | " + " | ".join(groups) + " |", "|---" * (len(groups) + 1) + "|"]
             for arm, v in s["F2"].items():
-                lines.append(f"| {arm} | " + " | ".join(_mr(v[n]) for n in mc.GROUPS) + " |")
+                for kind in ("scale_free", "raw"):
+                    lines.append(f"| {arm} ({kind}) | " + " | ".join(_mr(v[kind][n]) for n in groups) + " |")
+            if "F2_difference" in s:
+                lines.append("| full - no_path_cells (scale-free) | "
+                             + " | ".join(_mr(s["F2_difference"][n]) for n in groups) + " |")
             lines.append("")
         if "F3" in s:
-            lines += ["| F3 | nodes | base right | right->wrong | share | mean margin change |", "|---" * 6 + "|"]
+            lines += ["| F3 | nodes | base right | right->wrong | share | mean margin change | scale-free change |",
+                      "|---" * 7 + "|"]
             for n, v in s["F3"].items():
                 lines.append(f"| {n} | " + " | ".join(_mr(v[k]) for k in ("nodes", "base_right", "right_to_wrong",
                                                                             "right_to_wrong_share",
-                                                                            "mean_margin_change")) + " |")
+                                                                            "mean_margin_change",
+                                                                            "mean_scale_free_margin_change")) + " |")
             lines.append("")
+        r = d["rules"]
+        lines += [f"Rules (G_low per seed {r['G_low']}): "
+                  + "; ".join(f"{k} {r[k]['count']} seeds, holds {mc.fmt(r[k]['holds'])}"
+                              for k in ("F1a", "F1b", "F2a", "F2b", "F3") if k in r), ""]
     case = result.get("case_study")
     if case:
         lines += ["## Case study", ""]

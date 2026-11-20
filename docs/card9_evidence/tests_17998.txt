@@ -1,0 +1,21 @@
+job=17998 node=g2tn01 start=2026-11-20T18:35:41+09:00
+git=545fb5b7ecc7b3f8af2d8b8b1bd873f895fcbce1 branch=card9
+dirty:  M scripts/ablation/ablation_array.sbatch  M scripts/ablation/arms.py  M scripts/ablation/param_table.py  M scripts/ablation/seed_runs.py  M tests/test_card7_ablation.py 
+test_arms_writes_exactly_the_eight_rows (tests.test_card7_ablation.LauncherTests.test_arms_writes_exactly_the_eight_rows) ... ok
+test_freebase_mode_is_an_input_written_into_every_configuration (tests.test_card7_ablation.LauncherTests.test_freebase_mode_is_an_input_written_into_every_configuration) ... ok
+test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm (tests.test_card7_ablation.LauncherTests.test_manifest_holds_the_plan_rows_and_no_out_of_scope_arm) ... ok
+test_sweeps_writes_exactly_the_four_b_arms (tests.test_card7_ablation.LauncherTests.test_sweeps_writes_exactly_the_four_b_arms) ... ok
+test_the_out_of_scope_check_catches_an_arm (tests.test_card7_ablation.LauncherTests.test_the_out_of_scope_check_catches_an_arm) ... ok
+test_arm_mode_builds_for_each_tuned_arm (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_builds_for_each_tuned_arm) ... ok
+test_arm_mode_refuses_another_arms_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_arm_mode_refuses_another_arms_key) ... ok
+test_main_table_refuses_every_arm_key (tests.test_card4_ablation_driver.ArmTuningModeTests.test_main_table_refuses_every_arm_key) ... ok
+test_each_arm_differs_from_full_in_exactly_its_keys (tests.test_card4_ablation_driver.ConfigurationsATests.test_each_arm_differs_from_full_in_exactly_its_keys) ... ok
+test_full_and_uniform_get_the_same_draws_at_one_seed (tests.test_card4_ablation_driver.PairingTests.test_full_and_uniform_get_the_same_draws_at_one_seed) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 3.224s
+
+OK
+end=2026-11-20T18:35:46+09:00 exit=0

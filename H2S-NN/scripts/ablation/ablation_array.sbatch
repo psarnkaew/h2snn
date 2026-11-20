@@ -1,6 +1,6 @@
 #!/bin/bash
-# Card 4 K6 (5): one SLURM array task per manifest row (`scripts/ablation/seed_runs.py`): `tune` rows run
-# the tuning launcher for configuration (b), `runs` rows run seeds through scripts/run_h2snn_runs.py.
+# Card 4 K6 (5); card 9 W1: one SLURM array task per manifest row (`scripts/ablation/seed_runs.py`); since
+# pre-registration v3 every row is a configuration (a) `runs` row (seeds through scripts/run_h2snn_runs.py).
 #   sbatch --array=1-<rows> scripts/ablation/ablation_array.sbatch <manifest.tsv>
 # Row i of the array = line i + 1 of the manifest (line 1 is the header). Never run in this card.
 #SBATCH --job-name=h2snn-ablation

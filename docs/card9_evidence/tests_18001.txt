@@ -1,0 +1,37 @@
+job=18001 node=g3n01 start=2026-11-20T18:40:11+09:00
+git=aa42761286e64ce5c9a971c1393eb43d8dbb4f82 branch=card9
+dirty:  M scripts/ablation/stats.py  M scripts/analysis/q3_schema.py  M tests/test_card7_q3.py  M tests/test_card7_stats.py ?? tests/test_card9_v3.py 
+test_missing_dataset_leaves_the_claim_undecided (tests.test_card7_stats.ClaimRuleTests.test_missing_dataset_leaves_the_claim_undecided) ... ok
+test_three_of_four_and_c15_rules (tests.test_card7_stats.ClaimRuleTests.test_three_of_four_and_c15_rules) ... ok
+test_markdown_and_json_are_written_without_p_values (tests.test_card7_stats.ReportedTests.test_markdown_and_json_are_written_without_p_values) ... ok
+test_s0_and_literature_are_reported (tests.test_card7_stats.ReportedTests.test_s0_and_literature_are_reported) ... ok
+test_two_by_two_differences_and_complementary (tests.test_card7_stats.ReportedTests.test_two_by_two_differences_and_complementary) ... ok
+test_T7_homophily_scatter_from_the_link_points (tests.test_card9_v3.Q3Tests.test_T7_homophily_scatter_from_the_link_points) ... ok
+test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5 (tests.test_card9_v3.Q3Tests.test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5) ... ERROR
+test_T1_c2w_present_and_b_name_raises (tests.test_card9_v3.RuleTests.test_T1_c2w_present_and_b_name_raises) ... ok
+test_T1_missing_seed_is_none_never_false (tests.test_card9_v3.RuleTests.test_T1_missing_seed_is_none_never_false) ... ok
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... ok
+test_schema_maps_to_the_target_meta_path (tests.test_card7_q3.SchemaMappingTests.test_schema_maps_to_the_target_meta_path) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_literature_count (tests.test_card7_q3.SelectionAndLiteratureTests.test_literature_count) ... ok
+test_top_schemas_by_mean_coverage_threshold_and_cap (tests.test_card7_q3.SelectionAndLiteratureTests.test_top_schemas_by_mean_coverage_threshold_and_cap) ... ok
+test_alternating_rankings_are_not_stable (tests.test_card7_q3.StabilityTests.test_alternating_rankings_are_not_stable) ... ok
+test_fewer_than_four_schemas_is_na (tests.test_card7_q3.StabilityTests.test_fewer_than_four_schemas_is_na) ... ok
+test_perfectly_stable_rankings_give_tau_one (tests.test_card7_q3.StabilityTests.test_perfectly_stable_rankings_give_tau_one) ... ok
+test_the_stable_rule_and_the_figures (tests.test_card7_q3.StabilityTests.test_the_stable_rule_and_the_figures) ... ok
+
+======================================================================
+ERROR: test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5 (tests.test_card9_v3.Q3Tests.test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card9_v3.py", line 159, in test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5
+    self.assertFalse({k for k in keys if "permutation" in k or k.startswith("p_") or k == "p"}, keys)
+                                         ^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'int' is not iterable
+
+----------------------------------------------------------------------
+Ran 17 tests in 3.817s
+
+FAILED (errors=1)
+end=2026-11-20T18:40:17+09:00 exit=1

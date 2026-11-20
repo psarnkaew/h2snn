@@ -1,0 +1,5 @@
+job=18010 node=g2tn01 start=2026-11-20T18:49:35+09:00 git=f2c37addb1c47c3cae8c2b9a54a479b06dba9748
+4d00154e7e1f3c01174c256c4b2cffa24d961ed6 cases 879 import_failures 0
+fc0ebaa605280f2d987c4848cc3109c7d3b66680 cases 891 import_failures 0
+f2c37addb1c47c3cae8c2b9a54a479b06dba9748 cases 903 import_failures 0
+end=2026-11-20T18:50:06+09:00

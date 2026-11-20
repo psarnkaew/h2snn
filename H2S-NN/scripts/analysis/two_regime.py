@@ -1,4 +1,4 @@
-"""Card 7 V6 (ablation plan v2, "Two-regime analysis"): R1, R2, R3 of trained runs. Evaluation only; uses the card 5
+"""Card 9 W7 (pre-registration v3 §4.4; built on card 7 V6): R1, R2, R3 of trained runs and their rules. Evaluation only; uses the card 5
 hooks (a) `energy_at_solution`, (c) `transports_per_fact`, (d) `cells_per_target` (`src/analysis/mechanism_hooks.py`).
 Helpers (eta_v, eta groups, views): `mechanism_common.py`.
 
@@ -8,9 +8,10 @@ Helpers (eta_v, eta groups, views): `mechanism_common.py`.
   ||T - I||_F split by same-class vs different-class end pairs (IMDB: identical genre sets): medians and the AUROC of
   ||T - I||_F separating different-class from same-class cells. ACM and Freebase (the target-target relations P-P,
   B-B): also the fact-level ||Q_e - I||_F of facts with two labelled target ends. The learned tau of the run.
-- **R2, energy vs performance** (`full`): e_v of hook (a) at the test targets; the AUROC of e_v separating wrong
-  from correct predictions (positive = wrong: > 0.5 means wrong predictions carry more energy) and the Spearman
-  correlation of e_v with eta_v.
+- **R2, energy vs performance** (`full`): the node energy `e_tilde_v = e_v / ||x*_v||^2` (primary; e_v and x*_v
+  both from hook (a), the same x* the hook returns), raw e_v beside it (`R2.raw`); for each, the AUROC separating
+  wrong from correct predictions (positive = wrong: > 0.5 means wrong predictions carry more energy) and the Spearman
+  correlation with eta_v.
 - **R3, energy vs representation** (`full` and S2): E_tilde = E / ||x*||^2 (mini-batch: summed over the test
   batches); a linear probe (`LogisticRegression(C=1, solver="lbfgs", max_iter=1000)`, one-vs-rest per genre for IMDB)
   trained on the training targets and scored (macro-F1) on the test targets, on x* and on h0; the within/between
@@ -20,6 +21,11 @@ Helpers (eta_v, eta groups, views): `mechanism_common.py`.
   (the probe trained once on all training targets) on the original graphs; (2) graphs: the same per perturbed graph
   (`full` and S2 on the targeted graphs, the V3 runs; h and H^2 from the graph's `graph.json`).
 Runs of another arm are skipped and listed.
+- **Rules** (v3 §4.4, per dataset, original graphs, seeds 1-5; booleans and counts, `None` while a seed is missing):
+  R1 cell-level AUROC (different-class cells farther from I) > 0.5 in >= 4 of 5 seeds; R2 AUROC of e_tilde_v > 0.5
+  in >= 4 of 5; R3 (IMDB, Freebase) (probe Macro-F1 on x* of `full` - of S2, same dataset and seed) in G3 > in G_low
+  in >= 4 of 5 (G_low = the lowest non-empty of G0, G1; a missing `full` or S2 partner gives `None`). R1 is read
+  together with R3 (v3 wording: never from R1 alone).
 
     python scripts/analysis/two_regime.py --runs <run dir> ... --out_dir <dir> [--device cuda]
 """
@@ -135,20 +141,29 @@ def r1_facts(run: mc.Run, labels: dict[int, Any], chunk: int = None) -> dict[str
 
 
 # ------------------------------------------------------------------------------------------------ R2
+def normalised_node_energy(e_v: np.ndarray, x_star_v: np.ndarray) -> np.ndarray:
+    """e_tilde_v = e_v / ||x*_v||^2 (v3 §4.4; `x_star_v` [n, d], the rows of hook (a)'s x* at the same nodes)."""
+    x = np.asarray(x_star_v, dtype=np.float64)
+    return np.asarray(e_v, dtype=np.float64) / np.square(x).sum(axis=-1)
+
+
 def node_energy(run: mc.Run) -> dict[str, Any]:
-    """e_v at the test targets, E and ||x*||^2 summed over the test views (hook (a))."""
+    """e_v and e_tilde_v at the test targets, E and ||x*||^2 summed over the test views (hook (a))."""
     from src.analysis.mechanism_hooks import energy_at_solution
 
-    ids, e_v, energy, norm2 = [], [], 0.0, 0.0
+    ids, e_v, x_v, energy, norm2 = [], [], [], 0.0, 0.0
     for view in mc.views(run):
         run.model._warm_start = None
         out = energy_at_solution(run.model, view.data)
-        e_v.append(out["node_energy"][view.rows.to(out["node_energy"].device)].double().cpu())
+        rows = view.rows.to(out["node_energy"].device)
+        e_v.append(out["node_energy"][rows].double().cpu())
+        x_v.append(out["x_star"][rows].double().cpu())
         ids.append(view.ids)
         energy += float(out["energy"])
         norm2 += float(out["x_star"].double().square().sum())
-    return {"ids": torch.cat(ids), "e_v": torch.cat(e_v).numpy(), "energy": energy, "x_norm2": norm2,
-            "energy_tilde": energy / norm2, "tau": float(out["tau"])}
+    e = torch.cat(e_v).numpy()
+    return {"ids": torch.cat(ids), "e_v": e, "e_tilde_v": normalised_node_energy(e, torch.cat(x_v).numpy()),
+            "energy": energy, "x_norm2": norm2, "energy_tilde": energy / norm2, "tau": float(out["tau"])}
 
 
 def r2(e_v: np.ndarray, wrong: np.ndarray, eta_v: np.ndarray, group: np.ndarray) -> dict[str, Any]:
@@ -258,7 +273,8 @@ def analyse_run(run: mc.Run, eta_cache: dict) -> dict[str, Any]:
         if run.dataset in FACT_LEVEL_DATASETS:
             out["R1"]["facts"] = r1_facts(run, labels)
         wrong = ~mc.correct(test["logits"], test["labels"], run.multilabel)
-        out["R2"] = r2(energy["e_v"], wrong, test_eta, group)
+        out["R2"] = {"energy": "e_tilde_v = e_v / ||x*_v||^2", **r2(energy["e_tilde_v"], wrong, test_eta, group),
+                     "raw": r2(energy["e_v"], wrong, test_eta, group)}
     if run.arm in R3_ARMS:
         out["R3"] = r3(run, test, group, energy)
     return out
@@ -282,6 +298,7 @@ def aggregate(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
               "R1_auroc_different": ("R1", "cells", "auroc_different"),
               "R1_fact_auroc_different": ("R1", "facts", "auroc_different"),
               "R2_auroc_wrong": ("R2", "auroc_wrong"), "R2_spearman_eta": ("R2", "spearman_eta"),
+              "R2_raw_auroc_wrong": ("R2", "raw", "auroc_wrong"), "R2_raw_spearman_eta": ("R2", "raw", "spearman_eta"),
               "R3_energy_tilde": ("R3", "energy_tilde"), "R3_probe_x_star": ("R3", "probe_x_star", "macro_f1"),
               "R3_probe_h0": ("R3", "probe_h0", "macro_f1"), "R3_ratio_x_star": ("R3", "ratio_x_star"),
               "R3_ratio_h0": ("R3", "ratio_h0")}
@@ -295,13 +312,51 @@ def aggregate(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
-def markdown(summary: list[dict[str, Any]], skipped: list[dict[str, Any]]) -> str:
+R3_DATASETS: tuple[str, ...] = ("imdb", "freebase")
+
+
+def _gt(a: float | None, b: float | None) -> bool | None:
+    return None if a is None or b is None else bool(a > b)
+
+
+def _probe_g(record: dict[str, Any] | None, name: str | None) -> float | None:
+    if record is None or name is None or "R3" not in record:
+        return None
+    return (record["R3"]["probe_x_star"].get("by_group") or {}).get(name, {}).get("macro_f1")
+
+
+def rules(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """R1, R2 (every dataset) and R3 (IMDB, Freebase) over seeds 1-5 on the original graphs (v3 §4.4)."""
+    by = {(r["dataset"], r["arm"], int(r["seed"])): r for r in records if r["graph"] == "original"}
+    out: dict[str, Any] = {}
+    for dataset in sorted({k[0] for k in by}):
+        r1, r2_, r3, low = {}, {}, {}, {}
+        for seed in mc.RULE_SEEDS:
+            full, s2 = by.get((dataset, "full", seed)), by.get((dataset, "S2", seed))
+            cells = (full or {}).get("R1", {}).get("cells") if full else None
+            r1[seed] = _gt(cells["auroc_different"], 0.5) if cells else None
+            r2_[seed] = _gt(full["R2"]["auroc_wrong"], 0.5) if full and "R2" in full else None
+            name = mc.g_low(full["eta_group_counts"]) if full else None
+            low[seed] = name
+            if dataset in R3_DATASETS:
+                gain = {g: (None if _probe_g(full, g) is None or _probe_g(s2, g) is None
+                            else _probe_g(full, g) - _probe_g(s2, g)) for g in ("G3", name)}
+                r3[seed] = _gt(gain["G3"], gain[name]) if name else None
+        out[dataset] = {"G_low": low, "R1": mc.four_of_five(r1), "R2": mc.four_of_five(r2_)}
+        if dataset in R3_DATASETS:
+            out[dataset]["R3"] = mc.four_of_five(r3)
+    return out
+
+
+def markdown(summary: list[dict[str, Any]], skipped: list[dict[str, Any]], rule_result: dict[str, Any] | None = None
+             ) -> str:
     cols = ["tau", "R1_median_same", "R1_median_different", "R1_auroc_different", "R1_fact_auroc_different",
-            "R2_auroc_wrong", "R2_spearman_eta", "R3_energy_tilde", "R3_probe_x_star", "R3_probe_h0",
-            "R3_ratio_x_star", "R3_ratio_h0"]
-    lines = ["# Two-regime analysis R1-R3 (card 7 V6, plan v2)", "",
+            "R2_auroc_wrong", "R2_spearman_eta", "R2_raw_auroc_wrong", "R2_raw_spearman_eta", "R3_energy_tilde",
+            "R3_probe_x_star", "R3_probe_h0", "R3_ratio_x_star", "R3_ratio_h0"]
+    lines = ["# Two-regime analysis R1-R3 (card 9 W7, pre-registration v3 §4.4)", "",
              "Mean [min, max] over seeds per (dataset, graph, arm). R1 AUROC: ||T - I||_F separating different-class "
-             "from same-class cells (facts); R2 AUROC: e_v separating wrong from correct test predictions.", "",
+             "from same-class cells (facts); R2 AUROC: e_tilde_v = e_v / ||x*_v||^2 separating wrong from correct test "
+             "predictions (R2_raw: raw e_v). R1 is read with R3, never alone.", "",
              "| dataset | graph | h | arm | seeds | " + " | ".join(cols) + " |", "|---" * (5 + len(cols)) + "|"]
     for row in summary:
         h = mc.fmt(row["h"]) if row["h"] is not None else "—"
@@ -311,6 +366,13 @@ def markdown(summary: list[dict[str, Any]], skipped: list[dict[str, Any]]) -> st
             cells.append("—" if v["mean"] is None else f"{mc.fmt(v['mean'])} [{mc.fmt(v['min'])}, {mc.fmt(v['max'])}]")
         lines.append(f"| {row['dataset']} | {row['graph']} | {h} | {row['arm']} | {len(row['seeds'])} | "
                      + " | ".join(cells) + " |")
+    if rule_result:
+        lines += ["", "| dataset | rule | seeds true | holds |", "|---|---|---|---|"]
+        for dataset, r in rule_result.items():
+            for name in ("R1", "R2", "R3"):
+                if name in r:
+                    lines.append(f"| {dataset} | {name} | {r[name]['count']}/{len(r[name]['seeds_with_value'])} | "
+                                 f"{mc.fmt(r[name]['holds'])} |")
     if skipped:
         lines += ["", f"Skipped runs (arm not in R1-R3): {len(skipped)}"]
     return "\n".join(lines) + "\n"
@@ -332,9 +394,10 @@ def analyse(run_dirs: list[Path], out_dir: Path, device: str = "cpu") -> dict[st
         records.append(record)
         del run
     summary = aggregate(records)
-    result = {"summary": summary, "skipped_runs": skipped, "runs": len(records)}
+    rule_result = rules(records)
+    result = {"summary": summary, "rules": rule_result, "skipped_runs": skipped, "runs": len(records)}
     (out_dir / "two_regime.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
-    (out_dir / "two_regime.md").write_text(markdown(summary, skipped), encoding="utf-8")
+    (out_dir / "two_regime.md").write_text(markdown(summary, skipped, rule_result), encoding="utf-8")
     return result
 
 

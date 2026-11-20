@@ -102,11 +102,13 @@ class FaceEffectUnitTests(unittest.TestCase):
         ablated = np.array([0, 1, 1, 0, 0, 1, 0, 1], dtype=bool)
         group = np.array([0, 0, 1, 2, -1, 3, 3, 3])
         out = fe.flip_counts(full, ablated, group)
-        self.assertEqual(out["G0"], {"nodes": 2, "wrong_to_right": 1, "right_to_wrong": 0})
-        self.assertEqual(out["G1"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 1})
-        self.assertEqual(out["G2"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 0})
-        self.assertEqual(out["G3"], {"nodes": 3, "wrong_to_right": 1, "right_to_wrong": 1})
-        self.assertEqual(out["none"], {"nodes": 1, "wrong_to_right": 1, "right_to_wrong": 0})
+        # card 9 W6: each group also carries its net fix rate, and `all` covers every test node
+        self.assertEqual(out["G0"], {"nodes": 2, "wrong_to_right": 1, "right_to_wrong": 0, "net_fix_rate": 0.5})
+        self.assertEqual(out["G1"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 1, "net_fix_rate": -1.0})
+        self.assertEqual(out["G2"], {"nodes": 1, "wrong_to_right": 0, "right_to_wrong": 0, "net_fix_rate": 0.0})
+        self.assertEqual(out["G3"], {"nodes": 3, "wrong_to_right": 1, "right_to_wrong": 1, "net_fix_rate": 0.0})
+        self.assertEqual(out["none"], {"nodes": 1, "wrong_to_right": 1, "right_to_wrong": 0, "net_fix_rate": 1.0})
+        self.assertEqual(out["all"], {"nodes": 8, "wrong_to_right": 3, "right_to_wrong": 2, "net_fix_rate": 1 / 8})
 
     def test_T6_margin_sign(self) -> None:
         centres = torch.tensor([[0.0, 0.0], [10.0, 0.0], [0.0, 4.0]], dtype=torch.float64)
@@ -143,10 +145,11 @@ class FaceEffectUnitTests(unittest.TestCase):
         self.assertEqual(mc.group_of(zeros, mc.group_edges(zeros)).tolist(), [0, 0, -1])
 
     def test_T6_case_rule(self) -> None:
-        rows = [{"node": 5, "right_to_wrong": True, "margin_change": -2.0},
-                {"node": 3, "right_to_wrong": True, "margin_change": -2.0},
-                {"node": 1, "right_to_wrong": True, "margin_change": -9.0},
-                {"node": 7, "right_to_wrong": False, "margin_change": -20.0}]
+        # card 9 W6: the pick reads the scale-free margin change (v3 §4.3)
+        rows = [{"node": 5, "right_to_wrong": True, "scale_free_margin_change": -2.0},
+                {"node": 3, "right_to_wrong": True, "scale_free_margin_change": -2.0},
+                {"node": 1, "right_to_wrong": True, "scale_free_margin_change": -9.0},
+                {"node": 7, "right_to_wrong": False, "scale_free_margin_change": -20.0}]
         self.assertEqual(fe.pick_case(rows, {3, 5, 7})["node"], 3)   # node 1 has no different-class neighbour
         self.assertIsNone(fe.pick_case(rows, {7}))
         self.assertEqual(list(fe.f3_sample(np.arange(10), 20)), list(range(10)))
@@ -265,11 +268,16 @@ class FaceEffectModelTests(unittest.TestCase):
             full, npc = mc.load_run(FIXTURE["runs"]["full"][0]), mc.load_run(FIXTURE["runs"]["no_path_cells"][0])
             a, b = mc.evaluate(full), mc.evaluate(npc)
             ca, cb = mc.correct(a["logits"], a["labels"], False), mc.correct(b["logits"], b["labels"], False)
-            f1 = acm["seeds"][0]["F1"]
+            f1 = dict(acm["seeds"][0]["F1"])
+            every = f1.pop("all")                                    # card 9 W6: all test nodes, net fix rate
             self.assertEqual(sum(v["wrong_to_right"] for v in f1.values()), int((ca & ~cb).sum()))
             self.assertEqual(sum(v["right_to_wrong"] for v in f1.values()), int((~ca & cb).sum()))
             self.assertEqual(sum(v["nodes"] for v in f1.values()), int(a["ids"].numel()))
             self.assertEqual({k: v["nodes"] for k, v in f1.items()}, acm["eta_group_counts"])
+            self.assertEqual((every["nodes"], every["wrong_to_right"], every["right_to_wrong"]),
+                             (int(a["ids"].numel()), int((ca & ~cb).sum()), int((~ca & cb).sum())))
+            self.assertAlmostEqual(every["net_fix_rate"],
+                                   (int((ca & ~cb).sum()) - int((~ca & cb).sum())) / int(a["ids"].numel()))
             self.assertIn("F2", acm["seeds"][0])
             self.assertEqual(set(acm["seeds"][0]["F2"]), {"full", "no_path_cells"})
             self.assertNotIn("F3", acm["seeds"][1])                  # F3 on the listed seeds only
@@ -278,6 +286,10 @@ class FaceEffectModelTests(unittest.TestCase):
             for r in rows:
                 self.assertEqual(r["right_to_wrong"], r["base_correct"] and not r["knockout_correct"])
                 self.assertAlmostEqual(r["margin_change"], r["margin_knockout"] - r["margin_base"], places=12)
+                self.assertAlmostEqual(r["scale_free_margin_change"],
+                                       r["scale_free_margin_knockout"] - r["scale_free_margin_base"], places=12)
+            self.assertIsNone(acm["rules"]["F1a"]["holds"])         # seeds 1-2 only: incomplete
+            self.assertEqual(set(acm["rules"]), {"G_low", "F1a", "F1b", "F2a", "F2b", "F3"})
             case = result["case_study"]
             self.assertIn(case["status"], ("chosen", "no candidate"))
             if case["status"] == "chosen":
@@ -300,6 +312,7 @@ class FaceEffectModelTests(unittest.TestCase):
                 pool.append(v)
         self.assertTrue(pool)
         rows = [{"node": v, "right_to_wrong": True, "margin_change": -1.0 - 0.1 * (v == pool[-1]),
+                 "scale_free_margin_change": -0.1 - 0.01 * (v == pool[-1]),
                  "margin_base": 1.0, "margin_knockout": 0.0, "p_true_base": 0.6, "p_true_knockout": 0.3}
                 for v in pool]
         with tempfile.TemporaryDirectory() as out:
