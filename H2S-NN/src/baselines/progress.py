@@ -113,11 +113,23 @@ def report_epoch(
     if report is None:
         return
     kwargs: dict[str, Any] = {}
-    if extra is not None:
+    if extra is not None and _accepts(report, "extra"):
         kwargs["extra"] = extra
-    if prefix != "val":
+    if prefix != "val" and _accepts(report, "prefix"):
         kwargs["prefix"] = prefix
     report(epoch=epoch, monitor=monitor, running_best=running_best, metrics=metrics, **kwargs)
+
+
+def _accepts(report: Any, name: str) -> bool:
+    """Whether `report` takes keyword `name` (or `**kwargs`): a report written for the pre-C7 call (e.g. a test's
+    `report(*, epoch, monitor, running_best, metrics)`) keeps receiving exactly those four (card 8 C7)."""
+    import inspect
+
+    try:
+        parameters = inspect.signature(report).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    return any(p.kind is inspect.Parameter.VAR_KEYWORD or p.name == name for p in parameters)
 
 
 def prefixed_metrics(prefix: str, metrics: dict[str, Any] | None) -> dict[str, Any]:
