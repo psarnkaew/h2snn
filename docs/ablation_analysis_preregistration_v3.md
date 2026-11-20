@@ -1,8 +1,8 @@
-# H2S-NN — Ablation and analysis pre-registration v3 (DRAFT 2026-11-20; binding with spec 1.29 when the author approves)
+# H2S-NN — Ablation and analysis pre-registration v3 (APPROVED 2026-11-20; binding with spec 1.29)
 
 **Status:**
 - Written 2026-11-20 by the model session from the author's item-by-item review of v2 on 2026-11-20 (decisions D1–D8 below; summary page https://claude.ai/artifact/UF5TbzQuJRMM9UnyAA5evT).
-- When the author approves it, it supersedes `docs/ablation_analysis_preregistration_v2.md` (d3c8d44), which stays as history.
+- Approved by the author on 2026-11-20. It supersedes `docs/ablation_analysis_preregistration_v2.md` (d3c8d44), which stays as history.
 - It becomes binding with spec 1.29 (`docs/spec_v1.29_draft_edits.md`) and is frozen before the first run it governs. No run governed by v2 has started.
 
 **Scope rule (author, 2026-11-19; kept):** the ablation study and model analysis are exactly the items below. Nothing else is run, reported or claimed.

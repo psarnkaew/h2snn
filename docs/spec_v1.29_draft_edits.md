@@ -1,4 +1,4 @@
-# Spec 1.29 — draft edits (AC-1 – AC-9), DRAFT for author approval
+# Spec 1.29 — draft edits (AC-1 – AC-9), APPROVED and APPLIED 2026-11-20
 
 Written 2026-11-20 by the model session. Base: spec v1.28 (`design-docs` `7c099a8`; 1.28 did not touch §5 C2/C2b/C14/C15 or §6 "Ablation statistics", "Ablation table", "Timing and analysis-only settings"). **Source:** the author's item-by-item review of pre-registration v2 on 2026-11-20 (decisions D1–D8 in `docs/ablation_analysis_preregistration_v3.md`). **The method is unchanged, and so is `src/`:** the freeze holds; the changes reach code only in `scripts/` (card 9).
 
