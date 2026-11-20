@@ -1,0 +1,41 @@
+job=18008 node=g2tn01 start=2026-11-20T18:48:45+09:00
+snapshot=/mnt/data/peeradon/h2snn-model-snap/card9_mut head=f2c37addb1c47c3cae8c2b9a54a479b06dba9748 diff_sha256=e3b0c44298fc1c14 untracked=1 snapshot_at=2026-11-20T18:48:43+09:00
+git=f2c37addb1c47c3cae8c2b9a54a479b06dba9748
+===== baseline: the five targets unmutated
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... ok
+test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged (tests.test_card9_v3.ScaleFreeMarginTests.test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged) ... ok
+test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it (tests.test_card9_v3.NormalisedEnergyTests.test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it) ... ok
+test_T6_e1_needs_both_datasets_e2_and_absent (tests.test_card9_v3.PerturbationRuleTests.test_T6_e1_needs_both_datasets_e2_and_absent) ... ok
+Ran 4 tests in 1.632s
+OK
+===== mutation m1: wins >= 3 -> target tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... FAIL
+AssertionError: {'acm': True, 'dblp': True, 'imdb': False, 'freebase': True} != {'acm': True, 'dblp': False, 'imdb': False, 'freebase': False}
+Ran 1 test in 0.001s
+FAILED (failures=1)
+restored: identical
+===== mutation m2: drop mean_difference > 0 -> target tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... FAIL
+AssertionError: {'acm': True, 'dblp': False, 'imdb': True, 'freebase': False} != {'acm': True, 'dblp': False, 'imdb': False, 'freebase': False}
+Ran 1 test in 0.001s
+FAILED (failures=1)
+restored: identical
+===== mutation m3: margin not divided by D -> target tests.test_card9_v3.ScaleFreeMarginTests.test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged
+test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged (tests.test_card9_v3.ScaleFreeMarginTests.test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged) ... FAIL
+AssertionError: Tensor-likes are not close!
+Ran 1 test in 0.032s
+FAILED (failures=1)
+restored: identical
+===== mutation m4: e_tilde_v = raw e_v -> target tests.test_card9_v3.NormalisedEnergyTests.test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it
+test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it (tests.test_card9_v3.NormalisedEnergyTests.test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it) ... FAIL
+AssertionError: 
+Ran 1 test in 0.059s
+FAILED (failures=1)
+restored: identical
+===== mutation m5: E1 on one dataset only -> target tests.test_card9_v3.PerturbationRuleTests.test_T6_e1_needs_both_datasets_e2_and_absent
+test_T6_e1_needs_both_datasets_e2_and_absent (tests.test_card9_v3.PerturbationRuleTests.test_T6_e1_needs_both_datasets_e2_and_absent) ... FAIL
+AssertionError: True is not False
+Ran 1 test in 0.007s
+FAILED (failures=1)
+restored: identical
+end=2026-11-20T18:48:58+09:00
