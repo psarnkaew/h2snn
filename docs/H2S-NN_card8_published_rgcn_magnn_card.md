@@ -111,3 +111,8 @@ Continue from `card8` head `1236f4c`; first `git merge` the design-docs SHA give
 - **GCN × {pubmed, lastfm} (LP): published**, with HGB's hyperparameters, batch size and epoch count from `homoGNN.py`, run in **our** LP loop: validation once per epoch, selection on validation ROC-AUC (protocol option 1). HGB's validation every 10 batches with early stopping on validation loss (`homoGNN.py:46-65`) is not replicated; it is listed in the appendix table of differences. No extra loop option.
 - Counts: LP published 5, tuned 88.
 - Accepted from the second report: C1 committed as partial (`c6bfd39`), `test_fanouts_equal_h2gb_yaml` now 40 yaml files, test jobs at 24G (C6 still requests 36G; if it does not schedule, 32G is acceptable).
+
+## Amendment 5 (2026-11-20, author) — HetSheaf NC rerun on HGB
+- HetSheaf × {acm, dblp, imdb} (NC) are **not** `filled`: they are rerun on our pipeline (spec claim C7, "HetSheaf rerun mandatory"; its published numbers come from code with a 27/3/70 split and relation-duplicated input, spec §6 G0). Remove these 3 rows from `configs/baselines/paper_filled_cells.tsv` (73 filled left: NC 49, GC 24).
+- ACM and DBLP are already tuned in `baselines-early` (unchanged, byte-identical); their final seeds 0–4 come from the same `--final-seeds` step as every line. IMDB is a `tune` cell in the rebuilt `baselines-1`.
+- Counts: NC tuned 87 (86 + IMDB; ACM/DBLP counted under `baselines-early`).
