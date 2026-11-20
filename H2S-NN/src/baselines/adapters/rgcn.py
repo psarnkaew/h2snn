@@ -55,6 +55,11 @@ HGB_NC_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 SMALL_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
+#: Every H2GB NC and large-LP path reads the shared batch table (`budget.batch_plan`): H2GB NC tuned through
+#: `minibatch.minibatch_plan` (B in the table's range, 8,192 targets per epoch) and published through
+#: `h2gb_published.published_plan` (the same plan, the yaml's batch and epochs checked against it); large LP through
+#: `large_lp_training.fit_large_lp` (`LP_POSITIVES_PER_STEP`, the protocol budget).
+READS_BATCH_PLAN = True
 #: HGB LP RGCN argparse defaults (`link_predict.py:356-381`).
 LP_DEFAULTS = {"hidden_dim": 64, "num_layers": 2, "dropout": 0.5, "lr": 5e-4, "weight_decay": 1e-4, "n_bases": 10,
                "regularization": 0.01}

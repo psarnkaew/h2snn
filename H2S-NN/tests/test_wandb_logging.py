@@ -187,6 +187,19 @@ class EpochKeyTests(unittest.TestCase):
 
 
 class RunTests(unittest.TestCase):
+    def test_open_run_is_a_no_op_without_a_project_or_when_disabled(self) -> None:
+        """Review F1: a final-seed call without W&B arguments (tests, `--final_seeds` without a project) opens no run."""
+        from src.baselines.wandb_runs import open_run
+
+        wandb = fake_wandb()
+        with only_wandb(wandb):
+            self.assertIsNone(open_run(project=None, kind="final_seed", token="t", seed=0, config={}))
+            self.assertIsNone(open_run(project="p", mode="disabled", kind="final_seed", token="t", seed=0, config={}))
+            with mock.patch.dict("os.environ", {"WANDB_MODE": "disabled"}):
+                self.assertIsNone(open_run(project="p", kind="published", token="t", seed=0, config={}))
+            self.assertEqual(wandb.runs, [])
+            self.assertIsNotNone(open_run(project="p", mode="offline", kind="published", token="t", seed=0, config={}))
+
     def test_published_run_opens_logs_and_summarises(self) -> None:
         import importlib.util
 

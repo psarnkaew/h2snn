@@ -766,7 +766,8 @@ def run_final_seeds(
     for index, seed in enumerate(seeds):
         # card 8 C7 (amendment 6): one W&B run per final seed, opened here (no src/ change); the trainer's epoch
         # callback logs train/val/test into it, `train_trial` writes the summary
-        run = open_run(project=args.wandb_project, entity=args.wandb_entity, mode=args.wandb_mode, kind="final_seed",
+        run = open_run(project=getattr(args, "wandb_project", None), entity=getattr(args, "wandb_entity", None),
+                       mode=getattr(args, "wandb_mode", None), kind="final_seed",
                        token=base_exp_name, seed=int(seed),
                        config={"params": params, "selected_from": str(best_path)})
         try:

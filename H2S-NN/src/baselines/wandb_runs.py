@@ -50,11 +50,17 @@ def run_name(token: str, seed: int) -> str:
     return f"{token}_seed{seed}"
 
 
-def open_run(*, project: str, kind: str, token: str, seed: int, config: dict[str, Any], entity: str = "",
-             mode: str = "online", extra_tags: tuple[str, ...] = ()) -> Any | None:
-    """A W&B run for one final-seed (`kind` "final_seed") or published (`kind` "published") run, or None."""
+def open_run(*, project: str | None, kind: str, token: str, seed: int, config: dict[str, Any],
+             entity: str | None = "", mode: str | None = "online", extra_tags: tuple[str, ...] = ()) -> Any | None:
+    """A W&B run for one final-seed (`kind` "final_seed") or published (`kind` "published") run, or None. No run (a
+    no-op) when no project is given or W&B is disabled (`mode` "disabled", or `WANDB_MODE=disabled`)."""
+    import os
+
     if kind not in ("final_seed", "published"):
         raise ValueError(f"unknown run kind {kind!r}")
+    if not project or (mode or "online") == "disabled" or os.environ.get("WANDB_MODE") == "disabled":
+        return None
+    mode = mode or "online"
     group = f"{token}_{'final' if kind == 'final_seed' else 'published'}"
     try:
         import wandb  # type: ignore[import-not-found]

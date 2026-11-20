@@ -70,6 +70,10 @@ NOT_WIRED_NC = frozenset({"acm", "dblp", "imdb"})
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
 SMALL_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
 LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
+#: Every H2GB NC and large-LP path reads the shared batch table (`budget.batch_plan`): H2GB NC (probe cells) through
+#: `minibatch.minibatch_plan` and `train_index_minibatch`; large LP (probe cells) through
+#: `large_lp_training.fit_large_lp` (`LP_POSITIVES_PER_STEP`, the protocol budget).
+READS_BATCH_PLAN = True
 #: Freebase: MAGNN's `num_edge_type` as written (`run_Freebase.py:81`).
 FREEBASE_NUM_EDGE_TYPE = 72
 #: LastFM (published): MAGNN's lists (`run_LastFM.py:21-25, 28-31`) over our relations rel_0 user-artist,
