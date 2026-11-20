@@ -56,8 +56,8 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 #### NC (Macro-F1)
 | method | acm | dblp | imdb | freebase | ogbn-mag | mag-year | oag-cs | oag-eng | oag-chem | ieee-cis-g | h-pokec | pdns |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| gcn | filled | filled | filled | filled | filled | published ‡ | published ‡ | published ‡ | published ‡ | filled | published ‡ | published ‡ |
-| gat | filled | filled | filled | filled | filled | published ‡ | published ‡ | published ‡ | published ‡ | filled | published ‡ | published ‡ |
+| gcn | filled | filled | filled | filled | filled | published | published | published | published | filled | published | published |
+| gat | filled | filled | filled | filled | filled | published | published | published | published | filled | tune | published |
 | chebnetii | filled | filled | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune |
 | nsd | filled | filled | filled | tune | tune | tune | tune | tune | tune | tune | tune | tune |
 | csnn | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune | tune |
@@ -65,8 +65,8 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 | han | filled | filled | filled | filled | filled | published | published | published | published | filled | published | published |
 | magnn | filled | filled | filled | published | probe | probe | probe | probe | probe | probe | probe | probe |
 | sehgnn | filled | filled | filled | filled | tune | tune | tune | tune | tune | tune | N/A (OOM, author 2026-11-16) | tune |
-| hinormer | filled | filled | filled | tune | filled | published ‡ | tune | published ‡ | tune | tune | tune | published ‡ |
-| pshgcn | filled | filled | published | tune | published ‡ | tune | tune | tune | tune | tune | tune | tune |
+| hinormer | filled | filled | filled | tune | filled | tune | tune | tune | tune | tune | tune | tune |
+| pshgcn | filled | filled | published | tune | tune | tune | tune | tune | tune | tune | tune | tune |
 | h2gformer | tune | tune | tune | tune | published | published | published | published | published | filled | published | published |
 | hetero2net | filled | filled | filled | tune | filled | tune | tune | tune | tune | tune | tune | tune |
 | h2sgnn | filled | filled | published | tune | tune | tune | tune | tune | tune | tune | tune | tune |
@@ -88,10 +88,10 @@ Table 4: GCN, GAT, NSD, R-GCN, HAN, HetSheaf) or leaves the table; MAGNN is not 
 | h2sgnn | tune | tune | tune | tune | tune | tune | tune | tune |
 | hetsheaf | tune | tune | tune | tune | tune | tune | tune | tune |
 
-Counts: NC 180 cells = 52 filled, 22 published, 16 published ‡, 81 tune, 8 probe, 1 N/A; LP 96 cells = 5 filled,
+Counts (after Amendment 1): NC 180 cells = 52 filled, 33 published, 86 tune, 8 probe, 1 N/A; LP 96 cells = 5 filled,
 1 published, 87 tune, 2 probe, 1 N/A.
 
-## 4. ‡ Published cells our runner cannot execute as the file states (forward note for C1)
+## 4. ‡ Published cells our runner cannot execute as the file states (C1 stop; resolved by Amendment 1, §5)
 
 Checked here because C1 depends on it; the C1 stop is reported in the card report.
 - **GCN, GAT on H2GB (12 cells).** The yaml configures H2GB's `HomoGNNModel` (`gnn:` block, e.g.
@@ -114,3 +114,17 @@ Checked here because C1 depends on it; the C1 stop is reported in the card repor
   × `iter_per_epoch 256` = 8,192 targets (= our epoch), `eval_period 4`; HAN/R-GCN/H2G-former model keys through
   H2GB's own cfg (H2G-former's `overrides` today sets `gt.dropout` and `gnn.dropout` from one key; the yaml has 0.5 and
   0.0, so the published path must pass them separately).
+
+## 5. Amendment 1 (author, 2026-11-20; design-docs 790ff68)
+
+The ‡ cells of §2 and §4 are resolved (decisions log "Card 8 amendment 1"); §3 shows the result:
+
+| cells | status | how it runs |
+|---|---|---|
+| GCN × {mag-year, oag-cs, oag-eng, oag-chem, h-pokec, pdns}, GAT × {mag-year, oag-cs, oag-eng, oag-chem, pdns} (11) | published | H2GB's own `HomoGNNModel` (`layer_type` from the yaml) exactly as the yaml states, the H2GB path of R-GCN (C2); tuned GCN/GAT cells keep HGB's models (S1) |
+| GAT × h-pokec | tune | `Pokec-GAT.yaml:61` says `layer_type: GCN` |
+| HINormer × {mag-year, oag-eng, pdns} | tune | H2GB's `HINormerModel` is not the model we run (G-1) |
+| PSHGCN × ogbn-mag | tune | batch 10,000 and a pass-based epoch would need a second H2GB loop |
+| MAGNN × freebase | published | HGB `run_Freebase.py` (confirmed) |
+
+Evaluation protocol unchanged (A2: data, splits, negatives, metrics, B1a, single whole-split test are ours).
