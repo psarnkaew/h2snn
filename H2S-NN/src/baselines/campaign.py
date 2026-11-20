@@ -170,7 +170,9 @@ def _with_batch_size(cell: Cell, overrides: dict[str, Any], params: dict[str, An
     if cell.task != NODE_CLASSIFICATION or batch_plan(cell.task, cell.dataset).mode != "minibatch":
         return overrides
     merged = copy.deepcopy(overrides)
-    merged.setdefault("data", {})["batch_size"] = int(params.get("batch_size", DEFAULT_MINIBATCH_BATCH_SIZE))
+    # card 8 C1: a published H2GB cell carries H2GB's key `train.batch_size`
+    batch_size = params.get("batch_size", params.get("train.batch_size", DEFAULT_MINIBATCH_BATCH_SIZE))
+    merged.setdefault("data", {})["batch_size"] = int(batch_size)
     return merged
 
 
@@ -229,6 +231,10 @@ def fit_cell(
     if reason:
         raise ValueError(f"{cell.token} is not a runnable cell: {reason}")
 
+    # card 8 C1: a source's optimizer / scheduler / clipping / accumulation / LP step size only for published runs
+    from src.baselines.published import refuse_source_schedule
+
+    refuse_source_schedule(params, source)
     seed = int(raw_base["seed"])
     bundle = build_bundle(
         cell.task,

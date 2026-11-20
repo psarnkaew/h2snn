@@ -39,12 +39,20 @@ from src.baselines.campaign import (
     fit_cell,
     summarize_cell,
 )
+from src.baselines.cell_status import filled_cells
 from src.baselines.registry import (
     DATASETS,
     get_adapter,
     models_for_task,
     unsupported_reason,
 )
+from src.utils.wandb_campaign import CampaignUnit
+
+
+def seed_units(seeds: list[int]) -> list[CampaignUnit]:
+    """One unit per seed (card 8 C5: `--final_seeds 0 1 2 3 4`)."""
+    return [CampaignUnit(run_index=index, num_runs=len(seeds), seed=int(seed), label="run")
+            for index, seed in enumerate(seeds)]
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,7 +63,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output_dir", type=Path, default=Path("experiments/baselines"))
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
-    parser.add_argument("--base_seed", type=int, default=42)
+    # card 8 C1: seeds 0-4 (spec §6); the perturbation manifest passes --base_seed 1 explicitly (unchanged)
+    parser.add_argument("--base_seed", type=int, default=0)
+    parser.add_argument("--final_seeds", type=int, nargs="+", default=None,
+                        help="card 8 C5: the seeds to run (one unit per seed), instead of --num_runs/--base_seed")
+    parser.add_argument("--state_dir", type=Path, default=None,
+                        help="card 8 C5: where `published_state.json` records the finished seeds of each cell")
     parser.add_argument("--unit_start", type=int, default=0)
     parser.add_argument("--unit_count", type=int, default=None)
     parser.add_argument(
@@ -77,6 +90,8 @@ def published_cells(task: str, models: list[str], datasets: list[str]) -> list[C
     for model in chosen_models:
         for dataset in chosen_datasets:
             if unsupported_reason(model, task, dataset):
+                continue
+            if (task, dataset, model) in filled_cells():  # card 8 C0: a filled cell is never run
                 continue
             if get_adapter(model).published_params(task, dataset) is None:
                 continue
@@ -108,9 +123,12 @@ def main() -> None:
     device = torch.device(
         args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     )
-    all_units = build_units(args.task, base_seed=args.base_seed, num_runs=args.num_runs)
-    stop = len(all_units) if args.unit_count is None else args.unit_start + args.unit_count
-    units = all_units[args.unit_start : stop]
+    if args.final_seeds is not None:
+        units = seed_units(list(args.final_seeds))
+    else:
+        all_units = build_units(args.task, base_seed=args.base_seed, num_runs=args.num_runs)
+        stop = len(all_units) if args.unit_count is None else args.unit_start + args.unit_count
+        units = all_units[args.unit_start : stop]
 
     print(f"{len(cells)} published cell(s) x {len(units)} unit(s) on {device}")
 
@@ -131,6 +149,10 @@ def main() -> None:
 
         summary_path = args.output_dir / cell.token / "published_summary.json"
         summary = summarize_cell(records, args.task, summary_path)
+        if args.state_dir is not None:
+            state = args.state_dir / cell.token / "published_state.json"
+            state.parent.mkdir(parents=True, exist_ok=True)
+            state.write_text(json.dumps({"seeds": [u.seed for u in units], "summary": str(summary_path)}, indent=2))
         print(f"{cell.token}: {json.dumps(summary['metrics'], indent=2)}")
 
 

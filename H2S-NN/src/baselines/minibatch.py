@@ -22,7 +22,11 @@
   test pass; the best subset macro-F1 epoch's weights are kept (CPU copy), restored after the last epoch, and scored
   once on the whole validation and test splits. The record carries the whole-split metrics plus
   `val_subset_macro_f1`, `val_subset_size` and `val_subset_fingerprint`.
-* AdamW, no scheduler, no clipping (M9) stay with the adapters.
+* AdamW, no scheduler, no clipping (M9) stay with the adapters for tuned cells. A published cell (card 8 C1) passes
+  `schedule` (`SourceSchedule`): its source's step rule -- H2GB's accumulation and clipping
+  (`H2GB/train/custom_train.py:106-159`: gradients summed over batches, a step when `(it + 1) % accumulation == 0` or
+  `it + 1 == len(loader)` with `it` counted from 1, clipping before the step, `zero_grad` at the epoch start and after
+  each step) and its scheduler stepped once per epoch (`custom_train.py:288-293`).
 
 `convert_batch` (`custom_sampler.py:58-63`, H2GB's transform) casts every batch's `x` to float32.
 """
@@ -46,7 +50,8 @@ H2GB_CONFIG_FOLDERS: dict[str, str] = {
     "oag-chem": "oag-chem", "ieee-cis-g": "IEEE-CIS", "h-pokec": "Pokec", "pdns": "PDNS",
 }
 #: Class-A methods (card scheme table) and the file name H2GB gives each one.
-H2GB_CONFIG_METHODS: dict[str, str] = {"gcn": "GCN", "gat": "GAT", "han": "HAN", "h2gformer": "H2Gformer"}
+H2GB_CONFIG_METHODS: dict[str, str] = {"gcn": "GCN", "gat": "GAT", "han": "HAN", "h2gformer": "H2Gformer",
+                                       "rgcn": "RGCN"}  # card 8 C1/C2: R-GCN runs H2GB's own yaml (published only)
 #: D1 (author): a class-C method without a node-wise forward uses the dataset's H2GB GCN fan-out.
 CLASS_C_REFERENCE_METHOD = "gcn"
 
@@ -61,6 +66,26 @@ class MinibatchPlan:
     steps_per_epoch: int
     epochs: int
     eval_period: int
+
+
+@dataclass(frozen=True, slots=True)
+class SourceSchedule:
+    """A published source's step rule (card 8 C1): `scheduler.step()` once per epoch, gradient clipping at
+    `clip_value` (None: off), one optimizer step per `accumulation` batches by H2GB's rule."""
+
+    scheduler: Any
+    clip_value: float | None
+    accumulation: int
+
+    def __post_init__(self) -> None:
+        if self.accumulation < 1:
+            raise ValueError(f"accumulation must be >= 1, got {self.accumulation}.")
+
+
+def is_source_step(it: int, num_batches: int, accumulation: int) -> bool:
+    """H2GB's condition for an optimizer step after batch `it` (counted from 1) of `num_batches`
+    (`custom_train.py:154`)."""
+    return (it + 1) % accumulation == 0 or it + 1 == num_batches
 
 
 def minibatch_plan(dataset: str, batch_size: int) -> MinibatchPlan:
@@ -247,6 +272,33 @@ def evaluate_split(loader: Any, forward_seeds: Callable[[Any], torch.Tensor], ta
     return all_ids, torch.cat(logits), torch.cat(label_rows)
 
 
+def _source_epoch(model: torch.nn.Module, forward_seeds: Callable[[Any], torch.Tensor], train_loader: Any,
+                  target_type: str, labels: torch.Tensor | None, optimizer: torch.optim.Optimizer,
+                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], schedule: SourceSchedule,
+                  epoch: int) -> int:
+    """One training epoch under a published source's step rule (H2GB `custom_train.py:106-159`); the scheduler steps
+    once at its end (`:288-293`; it does not read the evaluation). Returns the optimizer steps taken."""
+    from src.models.anchored_solve import check_finite_loss
+
+    num_batches = len(train_loader)
+    optimizer.zero_grad()
+    steps = 0
+    for it, batch in enumerate(train_loader, start=1):
+        _, batch_labels = seed_rows(batch, target_type, labels)
+        logits = forward_seeds(batch)
+        loss = criterion(logits, batch_labels.to(logits.device))
+        check_finite_loss(loss, epoch)
+        loss.backward()
+        if is_source_step(it, num_batches, schedule.accumulation):
+            if schedule.clip_value is not None:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), schedule.clip_value)
+            optimizer.step()
+            optimizer.zero_grad()
+            steps += 1
+    schedule.scheduler.step()
+    return steps
+
+
 def train_minibatch_node_classification(
     *,
     model: torch.nn.Module,
@@ -264,6 +316,7 @@ def train_minibatch_node_classification(
     plan: MinibatchPlan,
     report: Any = None,
     labels: torch.Tensor | None = None,
+    schedule: SourceSchedule | None = None,
 ) -> dict[str, float]:
     """The shared H2GB NC loop: `plan.steps_per_epoch` steps per epoch (loss = mean over the step's B targets); at
     H2GB's eval epochs the B1a validation subset only (`val_subset_loader` over `val_subset_ids`, no test pass); the
@@ -280,14 +333,18 @@ def train_minibatch_node_classification(
     best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
         model.train()
-        for batch in train_loader:
-            _, batch_labels = seed_rows(batch, target_type, labels)
-            optimizer.zero_grad()
-            logits = forward_seeds(batch)
-            loss = criterion(logits, batch_labels.to(logits.device))
-            check_finite_loss(loss, epoch)
-            loss.backward()
-            optimizer.step()
+        if schedule is None:
+            for batch in train_loader:
+                _, batch_labels = seed_rows(batch, target_type, labels)
+                optimizer.zero_grad()
+                logits = forward_seeds(batch)
+                loss = criterion(logits, batch_labels.to(logits.device))
+                check_finite_loss(loss, epoch)
+                loss.backward()
+                optimizer.step()
+        else:
+            _source_epoch(model, forward_seeds, train_loader, target_type, labels, optimizer, criterion, schedule,
+                          epoch)
         if not is_eval_epoch(epoch, plan):
             continue
         model.eval()
@@ -489,8 +546,8 @@ def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed
 
 
 __all__ = [
-    "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "eval_loader",
+    "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "SourceSchedule", "eval_loader",
     "eval_steps", "evaluate_split", "fit_homogeneous_on_hgt", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
-    "is_eval_epoch", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
+    "is_eval_epoch", "is_source_step", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
     "train_minibatch_node_classification", "val_subset_loader",
 ]

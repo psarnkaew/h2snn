@@ -81,10 +81,10 @@ def resolve_budget(task: str, params: BaselineParams, dataset: str = "") -> Trai
     """
 
     budget = default_budget(task, dataset)
-    return TrainingBudget(
-        epochs=int(params.get("epochs", budget.epochs)),
-        patience=int(params.get("early_stopping", budget.patience)),
-    )
+    # card 8 C1: a published H2GB cell states its epochs as H2GB's `optim.max_epoch` (no early stopping, as H2GB)
+    epochs = int(params.get("epochs", params.get("optim.max_epoch", budget.epochs)))
+    patience = int(params.get("early_stopping", epochs if "optim.max_epoch" in params.values else budget.patience))
+    return TrainingBudget(epochs=epochs, patience=patience)
 
 
 def batch_plan(task: str, dataset: str) -> BatchBudget:
@@ -123,7 +123,8 @@ def record_budget(record: dict[str, float], task: str, params: BaselineParams,
     """
 
     budget = resolve_budget(task, params, dataset)
-    overridden = "epochs" in params.values or "early_stopping" in params.values
+    overridden = ("epochs" in params.values or "early_stopping" in params.values
+                  or "optim.max_epoch" in params.values)
     record["budget_epochs"] = float(budget.epochs)
     record["budget_patience"] = float(budget.patience)
     if not overridden:

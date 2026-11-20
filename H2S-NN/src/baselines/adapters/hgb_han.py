@@ -429,7 +429,12 @@ def build_large_lp(d: Any, params: BaselineParams, device: torch.device, sampler
 
 
 def fit_h2gb_han(bundle: Any, params: BaselineParams, *, seed: int, device: torch.device) -> dict[str, float]:
-    """Part 2 E1: H2GB's HAN on H2GB's `hgt` batches (S1, S5)."""
+    """Part 2 E1: H2GB's HAN on H2GB's `hgt` batches (S1, S5). A published cell (card 8 C1) runs its yaml exactly
+    (`h2gb_published.fit_h2gb_published`)."""
+    from src.baselines.h2gb_published import fit_h2gb_published, is_h2gb_published
+
+    if is_h2gb_published(NAME, NODE_CLASSIFICATION, bundle.dataset, params.source):
+        return fit_h2gb_published(bundle, params, model_name=NAME, seed=seed, device=device)
     from src.baselines.adapters._h2gb_network import build_hetero_gnn, configure_from_yaml, seed_predictions
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.minibatch import (eval_loader, h2gb_graph, h2gb_sample_sizes, hgt_loader, minibatch_plan,

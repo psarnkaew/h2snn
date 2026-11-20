@@ -105,7 +105,7 @@ class FanoutTests(unittest.TestCase):
                     got = h2gb_sample_sizes(method, dataset, node_types)
                     self.assertEqual(got, self._yaml_sizes(path, node_types))
                     checked += 1
-        self.assertEqual(checked, 32)
+        self.assertEqual(checked, 40)  # card 8 C1: R-GCN's yamls (H2GB's own R-GCN) checked too: 5 methods x 8
 
     def test_repeat_fanout_refuses_non_uniform_lists(self) -> None:
         from src.baselines.minibatch import repeat_fanout

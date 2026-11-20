@@ -1,0 +1,39 @@
+model: magnn
+task: node_classification
+dataset: freebase
+source: vendor/HGB/NC/benchmark/methods/MAGNN/run_Freebase.py (HGB commit ca6fd5bb0c1ca32e63b132c8bfe8f11a4a6629fe); the line
+  of every value is under `lines:`
+notes: 'Card 8 C1 (author 2026-11-20; amendment 1: published confirmed). HGB''s Freebase-specific MAGNN runner, run as written:
+  module constants (dropout_rate, lr, weight_decay), argparse defaults (MAGNN''s README lists no Freebase command; the file is
+  Freebase-specific), torch.optim.Adam. Its meta-path list (meta1.json, meta2.json: the two most frequent length-2 schemas
+  of each, mirrored) is part of the adapter (src/baselines/adapters/magnn.py). Kept from our protocol: files, splits,
+  metrics, selection on validation macro-F1 (patience 5 kept as the budget). --repeat and --save-postfix are runner
+  settings, not hyperparameters.'
+lines:
+  dropout: 17
+  lr: 18
+  weight_decay: 19
+  optimizer: 83
+  feats_type: 210
+  hidden_dim: 218
+  num_heads: 219
+  attn_vec_dim: 220
+  rnn_type: 221
+  epochs: 222
+  early_stopping: 223
+  batch_size: 224
+  samples: 225
+params:
+  dropout: 0.5
+  lr: 0.005
+  weight_decay: 0.001
+  optimizer: adam
+  feats_type: 2
+  hidden_dim: 64
+  num_heads: 8
+  attn_vec_dim: 128
+  rnn_type: RotatE0
+  epochs: 100
+  early_stopping: 5
+  batch_size: 8
+  samples: 100

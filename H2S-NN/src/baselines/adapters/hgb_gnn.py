@@ -303,9 +303,15 @@ class HGBHomogeneousAdapter:
 
     def _fit_h2gb(self, bundle: NodeBundle, params: BaselineParams, *, seed: int,
                   device: torch.device) -> dict[str, float]:
-        """Part 2 E1: HGB's model on H2GB's `hgt` batches, H2GB's YAML fan-out of this method (S1)."""
+        """Part 2 E1: HGB's model on H2GB's `hgt` batches, H2GB's YAML fan-out of this method (S1). A published cell
+        (card 8 amendment 1) runs H2GB's own `HomoGNNModel` exactly as its yaml states instead."""
+        from src.baselines.h2gb_published import fit_h2gb_published, is_h2gb_published
         from src.baselines.minibatch import fit_homogeneous_on_hgt
 
+        if is_h2gb_published(self.name, NODE_CLASSIFICATION, bundle.dataset, params.source):
+            record = fit_h2gb_published(bundle, params, model_name=self.name, seed=seed, device=device)
+            record["device"] = getattr(device, "type", str(device))
+            return record
         device = resolve_dgl_device(device)
         record = fit_homogeneous_on_hgt(
             bundle, params, fanout_method=self.name, seed=seed, device=device,
