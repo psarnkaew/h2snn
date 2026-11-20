@@ -1,14 +1,15 @@
-"""Card 7 V1 (ablation plan v2, `docs/ablation_plan_v2_2026-11-19.html`; author scope rule 2026-11-19): the 7
-rows of the ablation table and their configurations (a): `full`'s tuned configuration file + the row's one change.
+"""Card 9 W1 (pre-registration v3, spec 1.29; built on card 7 V1): the 8 rows of the ablation table and their
+configurations (a): `full`'s tuned configuration file + the row's one change. Configuration (a) only (v3 D2): no row
+is tuned on its own.
 
 Rows: `full`, `no_path_cells` (C2-cells), `S2` (maps = I; C15), `S0` (`no_path_cells` + maps = I; 2x2, no claim),
-`endpoints` (C2, kill rule), `instance_features` (C14), and `literature` (the fixed-literature-schema row,
-`path_source: schemas`, reported without a claim). Card 7 makes the literature row a configuration (a) with seeds
-1-10 (it supersedes the card 4 note that called it a main-table row; spec 1.27 will record the change); it is built
-by the existing `fixed_literature_schema_config` (only `data.path_source` and the run name change). Every other arm
-of the old pre-registration (`closure_only`, `hub_A`, `covering_only`, `schema`, `uniform`, `direction_blind_maps`,
-`free_cell_maps`, `ego_head`, `h0_only_readout`) is out of scope: it stays in the frozen `src/` and is in no list
-here.
+`uniform` (every face the same learned weight `exp(L tanh(b / L))`, `g` unused; C2-w, v3 D3), `endpoints` (C2, kill
+rule), `instance_features` (C14), and `literature` (the fixed-literature-schema row, `path_source: schemas`, reported
+without a claim). Seeds 1-5 (v3 D1): `full`'s seeds 1-4 are the main table's runs (looked up), seed 5 is run. The
+literature row is built by the existing `fixed_literature_schema_config` (only `data.path_source` and the run name
+change). Every other arm of the old pre-registration (`closure_only`, `hub_A`, `covering_only`, `schema`,
+`direction_blind_maps`, `free_cell_maps`, `ego_head`, `h0_only_readout`) is out of scope: it stays in the frozen
+`src/` and is in no list here.
 
     python scripts/ablation/arms.py --full_config <full tuned yaml> --dataset acm --out_dir <dir>
 
@@ -40,14 +41,16 @@ ARM_CHANGES: dict[str, dict[str, dict[str, Any]]] = {
     "no_path_cells": {"model": {"arm": "no_path_cells"}},
     "S2": {"ablation": {"fact_maps_identity": True}},
     "S0": {"model": {"arm": "no_path_cells"}, "ablation": {"fact_maps_identity": True}},
+    "uniform": {"ablation": {"path_weight_input": "uniform"}},
     "endpoints": {"ablation": {"path_weight_input": "endpoints"}},
     "instance_features": {"model": {"arm": "instance_features"}},
     LITERATURE_ROW: {"data": {"path_source": "schemas"}},
 }
-# Arms with configuration (b) (tuned on their own: 100 trials, seed 0; plan v2) and their `tuning.arm` name.
+# Plan v2's configuration (b) arms. Since v3 (D2) no manifest or phase uses them; the name stays only because
+# `sweeps.py` (kept in the tree, called by nothing) and the card 4 `tuning.arm` test read it.
 TUNED_ARMS: tuple[str, ...] = ("endpoints", "no_path_cells", "instance_features", "S2")
-# Seeds of every ablation run (plan v2); `full`'s seeds 1-4 are the main table's (looked up).
-SEEDS: tuple[int, ...] = tuple(range(1, 11))
+# Seeds of every ablation run (v3 D1); `full`'s seeds 1-4 are the main table's (looked up), seed 5 is run.
+SEEDS: tuple[int, ...] = (1, 2, 3, 4, 5)
 REUSED_FULL_SEEDS: tuple[int, ...] = (1, 2, 3, 4)
 
 
