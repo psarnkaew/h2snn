@@ -48,3 +48,8 @@ TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to th
 
 ## Estimate
 About half a day to one day; longer if a launcher needs a flag to pin the largest point.
+
+## Amendment 1 (2026-11-20, author: option A)
+- L1 accepted (`cd0de1a`, job 18033), with its three additions: GPU-type record keyed by **cell** (a cell's tuning and final-seeds lines share one GPU type), GPU-name check against `--gpu-type`, `--cpus` default 4 and optional `--max-parallel`.
+- **L2 = option A:** the launchers define and run the point. Order: do **L3 now**; then, after card 8 is on `v3b` (the ops session gives the SHA), `git merge` that `v3b` into `card10` and do L2: extend card 8's `--grid_point` of `scripts/run_baseline_tuning.py` with `max` (largest value of every size axis, central value of the others, as the L2 bullet), and add the same `--grid_point {min,max}` to `scripts/run_h2snn_wandb_tuning.py` (scripts only; no `src/` change; same guard: only with `--dry_run --n_trials 1`); each prints peak GPU memory. `fit_check.py` only builds those lines, submits them with `submit_lab.sh` and reads the results into `fit_check.tsv`. Option B (calling trial functions directly) is not used.
+- Tests: `--grid_point max` picks the maximum of every size axis on both launchers (mutation: minimum → fails); the guard refuses it without `--dry_run --n_trials 1`.
