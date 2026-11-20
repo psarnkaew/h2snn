@@ -1,0 +1,71 @@
+# T6 step 4: launcher check (3 lines, 1 trial each, --dry_run), job array 9483415, gpu_1, h_rt 0:20:00 (group points)
+## cells_check.txt
+scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/experiments/baselines --state_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/state --wandb_project h2snn_baseline_t4_check
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/experiments/baselines --state_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/state --wandb_project h2snn_baseline_t4_check
+scripts/run_h2snn_wandb_tuning.py --config configs/experiments/acm_h2snn_v3b.yaml --exp_name h2snn_check_acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/experiments/h2snn --state_dir $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/state/h2snn_check_acm --wandb_project h2snn_h2snn_t4_check
+## sweep_slots.sh.o9483415.1
+head=fc0ebaa605280f2d987c4848cc3109c7d3b66680 host=r12n2 job=9483415 task=1 slots=1 total_slots=3 start=2026-11-20T18:17:49+09:00
+NVIDIA H100, 95830 MiB, 580.105.08
+module purge: done
+list=$WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/cells_check.txt runnable_lines=3
+slot 0 (global 0): line 1 -> $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/logs/lines/cells_check.line001.9483415.1.0.log
+end=2026-11-20T18:21:38+09:00
+## sweep_slots.sh.o9483415.2
+head=fc0ebaa605280f2d987c4848cc3109c7d3b66680 host=r12n2 job=9483415 task=2 slots=1 total_slots=3 start=2026-11-20T18:28:02+09:00
+NVIDIA H100, 95830 MiB, 580.105.08
+module purge: done
+list=$WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/cells_check.txt runnable_lines=3
+slot 0 (global 1): line 2 -> $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/logs/lines/cells_check.line002.9483415.2.0.log
+end=2026-11-20T18:29:07+09:00
+## sweep_slots.sh.o9483415.3
+head=fc0ebaa605280f2d987c4848cc3109c7d3b66680 host=r12n2 job=9483415 task=3 slots=1 total_slots=3 start=2026-11-20T18:29:19+09:00
+NVIDIA H100, 95830 MiB, 580.105.08
+module purge: done
+list=$WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/cells_check.txt runnable_lines=3
+slot 0 (global 2): line 3 -> $WORK/h2snn-out/fc0ebaa605280f2d987c4848cc3109c7d3b66680-check/logs/lines/cells_check.line003.9483415.3.0.log
+end=2026-11-20T18:29:57+09:00
+## cells_check.line001.9483415.1.0.log (last 12 lines)
+      "mean": 0.3432483474976393,
+      "std": 0.0
+    },
+    "test_acc": {
+      "mean": 0.3432483474976393,
+      "std": 0.0
+    }
+  },
+  "failed_trials": 0,
+  "failed_by_condition": {}
+}
+exit=0 end=2026-11-20T18:21:38+09:00
+## cells_check.line002.9483415.2.0.log (last 12 lines)
+      "mean": 0.45395772834019343,
+      "std": 0.0
+    },
+    "test_random_mrr": {
+      "mean": 0.7376638855780691,
+      "std": 0.0
+    }
+  },
+  "failed_trials": 0,
+  "failed_by_condition": {}
+}
+exit=0 end=2026-11-20T18:29:07+09:00
+## cells_check.line003.9483415.3.0.log (last 12 lines)
+wandb:        best/num_runs 1
+wandb:       best/run_index 0
+wandb:                  +46 ...
+wandb: 
+wandb: 🚀 View run astral-sweep-1 at: https://wandb.ai/<wandb-entity>/h2snn_h2snn_t4_check/runs/nrb6bc3p
+wandb: ⭐️ View project at: https://wandb.ai/<wandb-entity>/h2snn_h2snn_t4_check
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261120_182935-nrb6bc3p/logs
+Create sweep with ID: kviz1d3d
+Sweep URL: https://wandb.ai/<wandb-entity>/h2snn_h2snn_t4_check/sweeps/kviz1d3d
+W&B run 0: attempted=1 succeeded=1 pruned=0 failed=0
+exit=0 end=2026-11-20T18:29:57+09:00
+## status.py
+line  cell                                          finished records failed killed status      seeds  last log
+   1  gcn_node_classification_acm                     1/1          1      0      0 done         0/5  2026-11-20T18:21:38
+   2  gcn_link_prediction_acm_pa                      1/1          1      0      0 done         0/5  2026-11-20T18:29:07
+   3  h2snn_check_acm                                 1/1          1      0      0 done         0/5  2026-11-20T18:29:57
+lines 3: sweeps done 3, exceeds_24h 0, final seeds complete 0
