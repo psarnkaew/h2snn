@@ -1,0 +1,13 @@
+{
+  "reference": "../docs/card11_inputs/h2snn_link_prediction_acm_pa_tune_run0_rural-sweep-3/config.yaml",
+  "changes": [
+    [
+      "ablation.h0_only_readout",
+      false,
+      true
+    ]
+  ],
+  "head": "c8958303e0be34cab9994e179fc60367b184495f",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "job": "18086"
+}

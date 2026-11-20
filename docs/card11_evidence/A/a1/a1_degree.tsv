@@ -1,0 +1,57 @@
+task	split	kind	end	degree	n	mean	q0	q10	q25	q50	q75	q90	q100	share_deg0
+acm_pa	train	pos	head	all	8059	93.535	17	62	78	94	109	123	184	0.0000
+acm_pa	train	pos	head	target_rel	8059	3.533	1	2	2	3	4	6	14	0.0000
+acm_pa	train	pos	tail	all	8059	3.558	1	1	1	2	4	8	47	0.0000
+acm_pa	train	pos	tail	target_rel	8059	3.558	1	1	1	2	4	8	47	0.0000
+acm_pa	train	neg	head	all	8059	93.535	17	62	78	94	109	123	184	0.0000
+acm_pa	train	neg	head	target_rel	8059	3.533	1	2	2	3	4	6	14	0.0000
+acm_pa	train	neg	tail	all	8059	1.355	0	0	1	1	1	2	47	0.1319
+acm_pa	train	neg	tail	target_rel	8059	1.355	0	0	1	1	1	2	47	0.1319
+acm_pa	val	pos	head	all	895	92.768	17	60.4	76	94	109	123	189	0.0000
+acm_pa	val	pos	head	target_rel	895	2.438	0	1	1	2	3	5	13	0.0816
+acm_pa	val	pos	tail	all	895	2.493	0	0	0	1	3	7	47	0.4704
+acm_pa	val	pos	tail	target_rel	895	2.493	0	0	0	1	3	7	47	0.4704
+acm_pa	val	neg	head	all	895	92.768	17	60.4	76	94	109	123	189	0.0000
+acm_pa	val	neg	head	target_rel	895	2.438	0	1	1	2	3	5	13	0.0816
+acm_pa	val	neg	tail	all	895	1.340	0	0	1	1	1	3	15	0.1240
+acm_pa	val	neg	tail	target_rel	895	1.340	0	0	1	1	1	3	15	0.1240
+acm_pa	test	pos	head	all	995	92.510	17	61	76	93	108	122	204	0.0000
+acm_pa	test	pos	head	target_rel	995	2.512	0	1	1	2	3	5	14	0.0734
+acm_pa	test	pos	tail	all	995	2.350	0	0	0	1	3	6.6	47	0.4633
+acm_pa	test	pos	tail	target_rel	995	2.350	0	0	0	1	3	6.6	47	0.4633
+acm_pa	test_2hop	neg	head	all	763	96.073	17	68.2	81	96	111	123	204	0.0000
+acm_pa	test_2hop	neg	head	target_rel	763	2.468	0	1	1	2	3	4	14	0.0668
+acm_pa	test_2hop	neg	tail	all	763	3.532	0	1	1	2	4	8	47	0.0629
+acm_pa	test_2hop	neg	tail	target_rel	763	3.532	0	1	1	2	4	8	47	0.0629
+acm_pa	test_random	neg	head	all	995	92.510	17	61	76	93	108	122	204	0.0000
+acm_pa	test_random	neg	head	target_rel	995	2.512	0	1	1	2	3	5	14	0.0734
+acm_pa	test_random	neg	tail	all	995	1.331	0	0	1	1	1	2	33	0.1538
+acm_pa	test_random	neg	tail	target_rel	995	1.331	0	0	1	1	1	2	33	0.1538
+dblp_ap	train	pos	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	tail	all	15913	8.569	3	6	7	8	10	11	22	0.0000
+dblp_ap	train	pos	tail	target_rel	15913	1.540	1	1	1	1	2	3	5	0.0000
+dblp_ap	train	neg	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	tail	all	15913	8.080	2	6	7	8	9	11	22	0.0000
+dblp_ap	train	neg	tail	target_rel	15913	1.110	0	0	1	1	1	2	5	0.1443
+dblp_ap	val	pos	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	tail	all	1768	7.566	2	5	6	7	9	10	19	0.0000
+dblp_ap	val	pos	tail	target_rel	1768	0.555	0	0	0	0	1	2	5	0.5781
+dblp_ap	val	neg	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	tail	all	1768	8.111	3	6	7	8	9	11	19	0.0000
+dblp_ap	val	neg	tail	target_rel	1768	1.136	0	0	1	1	1	2	4	0.1256
+dblp_ap	test	pos	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	tail	all	1964	7.459	3	5	6	7	9	10	16	0.0000
+dblp_ap	test	pos	tail	target_rel	1964	0.534	0	0	0	0	1	1	4	0.5804
+dblp_ap	test_2hop	neg	head	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	head	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_random	neg	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	tail	all	1964	8.123	3	6	7	8	9	11	19	0.0000
+dblp_ap	test_random	neg	tail	target_rel	1964	1.114	0	0	1	1	1	2	5	0.1456

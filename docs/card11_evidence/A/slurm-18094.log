@@ -1,0 +1,213 @@
+job=18094 node=g2n01 start=2026-11-21T08:53:38+09:00
+git=c8958303e0be34cab9994e179fc60367b184495f branch=card11 dirty=0
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 351c8a68bb9bf5a690c6bd60bbac5db2  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+No devices were found
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_maps_identity init
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_maps_identity epoch0
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_maps_identity epoch39
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_h0_only init
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_h0_only epoch0
+  model.load_state_dict(torch.load(path, map_location=dev))
+done a3_rural_h0_only epoch39
+  model.load_state_dict(torch.load(path, map_location=dev))
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/a2_score_diagnostics.py:119: UserWarning: std(): degrees of freedom is <= 0. Correction should be strictly less than the reduction factor (input numel divided by output numel). (Triggered internally at ../aten/src/ATen/native/ReduceOps.cpp:1808.)
+  "neg_score_std": f"{float(sq.std()):.4f}"})
+done a3_dblp_daily73 init
+  model.load_state_dict(torch.load(path, map_location=dev))
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/a2_score_diagnostics.py:119: UserWarning: std(): degrees of freedom is <= 0. Correction should be strictly less than the reduction factor (input numel divided by output numel). (Triggered internally at ../aten/src/ATen/native/ReduceOps.cpp:1808.)
+  "neg_score_std": f"{float(sq.std()):.4f}"})
+done a3_dblp_daily73 epoch0
+  model.load_state_dict(torch.load(path, map_location=dev))
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/a2_score_diagnostics.py:119: UserWarning: std(): degrees of freedom is <= 0. Correction should be strictly less than the reduction factor (input numel divided by output numel). (Triggered internally at ../aten/src/ATen/native/ReduceOps.cpp:1808.)
+  "neg_score_std": f"{float(sq.std()):.4f}"})
+done a3_dblp_daily73 epoch39
+== a2_auroc
+run	state	split	auroc	pos_score_mean	neg_score_mean	pos_score_std	neg_score_std
+a3_rural_maps_identity	init	train	0.5266	0.2421	0.2294	0.1546	0.1632
+a3_rural_maps_identity	init	val	0.5260	0.2501	0.2280	0.2006	0.1643
+a3_rural_maps_identity	init	test_2hop	0.5075	0.2406	0.2339	0.1837	0.1627
+a3_rural_maps_identity	init	test_random	0.5329	0.2406	0.2195	0.1837	0.1611
+a3_rural_maps_identity	epoch0	train	0.5686	0.0646	0.0443	0.0709	0.0790
+a3_rural_maps_identity	epoch0	val	0.4458	0.0304	0.0511	0.1045	0.0818
+a3_rural_maps_identity	epoch0	test_2hop	0.4305	0.0343	0.0584	0.0945	0.0816
+a3_rural_maps_identity	epoch0	test_random	0.4738	0.0343	0.0443	0.0945	0.0818
+a3_rural_maps_identity	epoch39	train	0.9011	0.6771	-1.8542	0.9113	2.7377
+a3_rural_maps_identity	epoch39	val	0.4410	-3.2760	-1.6688	3.9695	2.5878
+a3_rural_maps_identity	epoch39	test_2hop	0.3381	-3.3105	-0.6990	3.9967	2.1411
+a3_rural_maps_identity	epoch39	test_random	0.4655	-3.3105	-1.8938	3.9967	2.6910
+a3_rural_h0_only	init	train	0.5007	0.1297	0.1306	0.2295	0.2329
+a3_rural_h0_only	init	val	0.4952	0.1325	0.1372	0.2366	0.2385
+a3_rural_h0_only	init	test_2hop	0.5004	0.1323	0.1327	0.2390	0.2463
+a3_rural_h0_only	init	test_random	0.5037	0.1323	0.1293	0.2390	0.2324
+a3_rural_h0_only	epoch0	train	0.5134	-0.0995	-0.1038	0.0986	0.0996
+a3_rural_h0_only	epoch0	val	0.5001	-0.1003	-0.1002	0.1000	0.0973
+a3_rural_h0_only	epoch0	test_2hop	0.4980	-0.1009	-0.0996	0.0999	0.1001
+a3_rural_h0_only	epoch0	test_random	0.4922	-0.1009	-0.0981	0.0999	0.0998
+a3_rural_h0_only	epoch39	train	0.6367	0.0769	-0.0327	0.2183	0.2035
+a3_rural_h0_only	epoch39	val	0.5232	-0.0209	-0.0373	0.1974	0.1966
+a3_rural_h0_only	epoch39	test_2hop	0.4584	-0.0313	0.0030	0.2045	0.1900
+a3_rural_h0_only	epoch39	test_random	0.5230	-0.0313	-0.0454	0.2045	0.1978
+a3_dblp_daily73	init	train	0.4892	0.2264	0.2427	0.3629	0.3705
+a3_dblp_daily73	init	val	0.5005	0.3220	0.3225	0.4947	0.4950
+a3_dblp_daily73	init	test_2hop	nan	0.3393	nan	0.4942	nan
+a3_dblp_daily73	init	test_random	0.5033	0.3393	0.3313	0.4942	0.4835
+a3_dblp_daily73	epoch0	train	0.5479	-0.1103	-0.1300	0.1114	0.1116
+a3_dblp_daily73	epoch0	val	0.5148	-0.1208	-0.1273	0.1289	0.1299
+a3_dblp_daily73	epoch0	test_2hop	nan	-0.1170	nan	0.1267	nan
+a3_dblp_daily73	epoch0	test_random	0.5057	-0.1170	-0.1188	0.1267	0.1277
+a3_dblp_daily73	epoch39	train	0.9905	3.5338	-10.4492	1.9974	10.5132
+a3_dblp_daily73	epoch39	val	0.8334	-1.4988	-10.3127	4.2458	10.7943
+a3_dblp_daily73	epoch39	test_2hop	nan	-1.5422	nan	4.0959	nan
+a3_dblp_daily73	epoch39	test_random	0.8352	-1.5422	-9.9190	4.0959	9.4025
+
+== a2_score_degree
+run	state	split	kind	n	rho_head_deg	rho_tail_deg	rho_head_deg_target_rel	rho_tail_deg_target_rel	rho_sum_log_deg
+a3_rural_maps_identity	init	train	pos	8059	-0.0335	0.0862	0.0192	0.0862	0.0567
+a3_rural_maps_identity	init	train	neg	8059	-0.0327	0.0054	0.0076	0.0054	-0.0181
+a3_rural_maps_identity	init	val	pos	895	0.0075	0.0368	-0.0101	0.0368	0.0347
+a3_rural_maps_identity	init	val	neg	895	0.0249	-0.0112	-0.0163	-0.0112	0.0148
+a3_rural_maps_identity	init	test_2hop	pos	995	-0.0062	0.0112	0.0031	0.0112	0.0035
+a3_rural_maps_identity	init	test_2hop	neg	763	0.0002	0.0706	0.0038	0.0706	0.0504
+a3_rural_maps_identity	init	test_random	pos	995	-0.0062	0.0112	0.0031	0.0112	0.0035
+a3_rural_maps_identity	init	test_random	neg	995	0.0116	0.0305	0.0214	0.0305	0.0334
+a3_rural_maps_identity	epoch0	train	pos	8059	0.0060	0.0812	-0.0218	0.0812	0.0644
+a3_rural_maps_identity	epoch0	train	neg	8059	-0.0087	0.1646	0.0286	0.1646	0.1239
+a3_rural_maps_identity	epoch0	val	pos	895	0.0525	0.2999	0.0619	0.2999	0.2807
+a3_rural_maps_identity	epoch0	val	neg	895	-0.0380	0.0997	0.0393	0.0997	0.0335
+a3_rural_maps_identity	epoch0	test_2hop	pos	995	0.0555	0.2957	-0.0069	0.2957	0.2717
+a3_rural_maps_identity	epoch0	test_2hop	neg	763	-0.0633	0.1590	-0.0021	0.1590	0.1216
+a3_rural_maps_identity	epoch0	test_random	pos	995	0.0555	0.2957	-0.0069	0.2957	0.2717
+a3_rural_maps_identity	epoch0	test_random	neg	995	-0.0086	0.1567	0.0089	0.1567	0.0948
+a3_rural_maps_identity	epoch39	train	pos	8059	-0.0251	0.4790	-0.3477	0.4790	0.3838
+a3_rural_maps_identity	epoch39	train	neg	8059	-0.0133	0.6788	0.0330	0.6788	0.5159
+a3_rural_maps_identity	epoch39	val	pos	895	0.0780	0.8898	-0.0034	0.8898	0.8106
+a3_rural_maps_identity	epoch39	val	neg	895	-0.0293	0.6720	0.0070	0.6720	0.4809
+a3_rural_maps_identity	epoch39	test_2hop	pos	995	0.1124	0.8812	-0.0098	0.8812	0.7887
+a3_rural_maps_identity	epoch39	test_2hop	neg	763	0.0121	0.7032	-0.0003	0.7032	0.6494
+a3_rural_maps_identity	epoch39	test_random	pos	995	0.1124	0.8812	-0.0098	0.8812	0.7887
+a3_rural_maps_identity	epoch39	test_random	neg	995	-0.0202	0.7042	0.0321	0.7042	0.5247
+a3_rural_h0_only	init	train	pos	8059	0.0408	0.0019	-0.0042	0.0019	0.0238
+a3_rural_h0_only	init	train	neg	8059	0.0418	0.0231	-0.0100	0.0231	0.0412
+a3_rural_h0_only	init	val	pos	895	-0.0045	0.0348	-0.0122	0.0348	0.0313
+a3_rural_h0_only	init	val	neg	895	0.0648	-0.0041	-0.0111	-0.0041	0.0467
+a3_rural_h0_only	init	test_2hop	pos	995	0.0424	-0.0100	0.0713	-0.0100	0.0084
+a3_rural_h0_only	init	test_2hop	neg	763	0.0241	-0.0880	0.0326	-0.0880	-0.0922
+a3_rural_h0_only	init	test_random	pos	995	0.0424	-0.0100	0.0713	-0.0100	0.0084
+a3_rural_h0_only	init	test_random	neg	995	0.0764	0.0143	0.0519	0.0143	0.0636
+a3_rural_h0_only	epoch0	train	pos	8059	-0.0206	0.0017	-0.0232	0.0017	-0.0076
+a3_rural_h0_only	epoch0	train	neg	8059	-0.0132	0.0103	0.0030	0.0103	0.0090
+a3_rural_h0_only	epoch0	val	pos	895	-0.0092	-0.0114	0.0103	-0.0114	-0.0081
+a3_rural_h0_only	epoch0	val	neg	895	-0.0136	-0.0099	0.0034	-0.0099	-0.0425
+a3_rural_h0_only	epoch0	test_2hop	pos	995	-0.0397	0.0178	0.0087	0.0178	0.0027
+a3_rural_h0_only	epoch0	test_2hop	neg	763	-0.0925	-0.0154	-0.0350	-0.0154	-0.0621
+a3_rural_h0_only	epoch0	test_random	pos	995	-0.0397	0.0178	0.0087	0.0178	0.0027
+a3_rural_h0_only	epoch0	test_random	neg	995	-0.0483	-0.0201	0.0196	-0.0201	-0.0566
+a3_rural_h0_only	epoch39	train	pos	8059	-0.0203	0.1972	-0.0165	0.1972	0.1546
+a3_rural_h0_only	epoch39	train	neg	8059	-0.0140	0.1505	0.0069	0.1505	0.1106
+a3_rural_h0_only	epoch39	val	pos	895	0.0088	0.2871	-0.0653	0.2871	0.2682
+a3_rural_h0_only	epoch39	val	neg	895	0.0189	0.1235	0.0248	0.1235	0.0913
+a3_rural_h0_only	epoch39	test_2hop	pos	995	0.0377	0.3598	0.0247	0.3598	0.3236
+a3_rural_h0_only	epoch39	test_2hop	neg	763	-0.0435	0.1765	-0.0215	0.1765	0.1402
+a3_rural_h0_only	epoch39	test_random	pos	995	0.0377	0.3598	0.0247	0.3598	0.3236
+a3_rural_h0_only	epoch39	test_random	neg	995	0.0048	0.1856	0.0139	0.1856	0.1413
+a3_dblp_daily73	init	train	pos	15913	-0.4929	0.0131	-0.4929	-0.0216	-0.4760
+a3_dblp_daily73	init	train	neg	15913	-0.5158	-0.0073	-0.5158	-0.0053	-0.5055
+a3_dblp_daily73	init	val	pos	1768	-0.6129	0.0141	-0.6129	-0.0414	-0.5931
+a3_dblp_daily73	init	val	neg	1768	-0.6084	0.0295	-0.6084	0.0157	-0.5962
+a3_dblp_daily73	init	test_2hop	pos	1964	-0.6003	0.0057	-0.6003	-0.0376	-0.5829
+a3_dblp_daily73	init	test_2hop	neg	0					
+a3_dblp_daily73	init	test_random	pos	1964	-0.6003	0.0057	-0.6003	-0.0376	-0.5829
+a3_dblp_daily73	init	test_random	neg	1964	-0.5988	-0.0110	-0.5988	0.0036	-0.5962
+a3_dblp_daily73	epoch0	train	pos	15913	-0.1906	0.0691	-0.1906	0.0423	-0.1718
+a3_dblp_daily73	epoch0	train	neg	15913	-0.2489	0.0523	-0.2489	0.0281	-0.2324
+a3_dblp_daily73	epoch0	val	pos	1768	-0.0975	0.0838	-0.0975	0.0854	-0.0805
+a3_dblp_daily73	epoch0	val	neg	1768	-0.1140	0.0662	-0.1140	0.0304	-0.0994
+a3_dblp_daily73	epoch0	test_2hop	pos	1964	-0.1770	0.0681	-0.1770	0.0276	-0.1546
+a3_dblp_daily73	epoch0	test_2hop	neg	0					
+a3_dblp_daily73	epoch0	test_random	pos	1964	-0.1770	0.0681	-0.1770	0.0276	-0.1546
+a3_dblp_daily73	epoch0	test_random	neg	1964	-0.1536	0.0397	-0.1536	-0.0215	-0.1434
+a3_dblp_daily73	epoch39	train	pos	15913	0.3610	0.0263	0.3610	0.1108	0.3584
+a3_dblp_daily73	epoch39	train	neg	15913	-0.3795	-0.0597	-0.3795	-0.1660	-0.3850
+a3_dblp_daily73	epoch39	val	pos	1768	0.1806	0.1973	0.1806	0.4335	0.2134
+a3_dblp_daily73	epoch39	val	neg	1768	-0.3657	-0.0547	-0.3657	-0.1682	-0.3695
+a3_dblp_daily73	epoch39	test_2hop	pos	1964	0.0967	0.1394	0.0967	0.4283	0.1280
+a3_dblp_daily73	epoch39	test_2hop	neg	0					
+a3_dblp_daily73	epoch39	test_random	pos	1964	0.0967	0.1394	0.0967	0.4283	0.1280
+a3_dblp_daily73	epoch39	test_random	neg	1964	-0.3105	-0.0712	-0.3105	-0.1744	-0.3196
+
+== a2_norm_degree
+run	state	end	node_type	quantity	rho_deg	mean	deg0	deg1	deg2	deg3-5	deg6-10	deg11+
+a3_rural_maps_identity	init	head	paper	x_star	0.1705	2.7881						2.7881 (n=3025)
+a3_rural_maps_identity	init	head	paper	endpoint_proj	0.0033	0.7961						0.7961 (n=3025)
+a3_rural_maps_identity	init	head	paper	h0	0.0130	3.5645						3.5645 (n=3025)
+a3_rural_maps_identity	init	tail	author	x_star	-0.3332	1.8004	2.6347 (n=847)	1.6488 (n=3889)	1.6774 (n=638)	1.7245 (n=440)	1.7320 (n=115)	1.8906 (n=30)
+a3_rural_maps_identity	init	tail	author	endpoint_proj	-0.2732	0.6454	0.8805 (n=847)	0.6041 (n=3889)	0.6053 (n=638)	0.6187 (n=440)	0.6330 (n=115)	0.6619 (n=30)
+a3_rural_maps_identity	init	tail	author	h0	-0.0143	2.6312	2.6347 (n=847)	2.6360 (n=3889)	2.6179 (n=638)	2.6237 (n=440)	2.5535 (n=115)	2.5969 (n=30)
+a3_rural_maps_identity	epoch0	head	paper	x_star	0.6152	1.9076						1.9076 (n=3025)
+a3_rural_maps_identity	epoch0	head	paper	endpoint_proj	0.5090	0.5454						0.5454 (n=3025)
+a3_rural_maps_identity	epoch0	head	paper	h0	0.0344	2.0822						2.0822 (n=3025)
+a3_rural_maps_identity	epoch0	tail	author	x_star	-0.3468	1.7007	2.6126 (n=847)	1.5361 (n=3889)	1.5635 (n=638)	1.6132 (n=440)	1.6320 (n=115)	1.7525 (n=30)
+a3_rural_maps_identity	epoch0	tail	author	endpoint_proj	-0.3561	0.5606	0.8193 (n=847)	0.5186 (n=3889)	0.5137 (n=638)	0.5159 (n=440)	0.5245 (n=115)	0.4938 (n=30)
+a3_rural_maps_identity	epoch0	tail	author	h0	-0.0128	2.6095	2.6126 (n=847)	2.6138 (n=3889)	2.5977 (n=638)	2.6048 (n=440)	2.5351 (n=115)	2.5785 (n=30)
+a3_rural_maps_identity	epoch39	head	paper	x_star	0.0207	3.3011						3.3011 (n=3025)
+a3_rural_maps_identity	epoch39	head	paper	endpoint_proj	0.0800	2.3685						2.3685 (n=3025)
+a3_rural_maps_identity	epoch39	head	paper	h0	0.3502	5.2733						5.2733 (n=3025)
+a3_rural_maps_identity	epoch39	tail	author	x_star	-0.0642	2.5561	3.7966 (n=847)	2.1567 (n=3889)	2.5503 (n=638)	3.1144 (n=440)	4.0166 (n=115)	5.6542 (n=30)
+a3_rural_maps_identity	epoch39	tail	author	endpoint_proj	-0.0920	1.5458	2.7372 (n=847)	1.1895 (n=3889)	1.4872 (n=638)	1.9654 (n=440)	2.8276 (n=115)	4.2796 (n=30)
+a3_rural_maps_identity	epoch39	tail	author	h0	-0.0433	3.8277	3.7966 (n=847)	3.8729 (n=3889)	3.7637 (n=638)	3.6830 (n=440)	3.5230 (n=115)	3.4951 (n=30)
+a3_rural_h0_only	init	head	paper	x_star	0.0130	3.5645						3.5645 (n=3025)
+a3_rural_h0_only	init	head	paper	endpoint_proj	0.0345	1.1049						1.1049 (n=3025)
+a3_rural_h0_only	init	head	paper	h0	0.0130	3.5645						3.5645 (n=3025)
+a3_rural_h0_only	init	tail	author	x_star	-0.0143	2.6312	2.6347 (n=847)	2.6360 (n=3889)	2.6179 (n=638)	2.6237 (n=440)	2.5535 (n=115)	2.5969 (n=30)
+a3_rural_h0_only	init	tail	author	endpoint_proj	-0.0297	0.7288	0.7372 (n=847)	0.7302 (n=3889)	0.7188 (n=638)	0.7195 (n=440)	0.7059 (n=115)	0.7523 (n=30)
+a3_rural_h0_only	init	tail	author	h0	-0.0143	2.6312	2.6347 (n=847)	2.6360 (n=3889)	2.6179 (n=638)	2.6237 (n=440)	2.5535 (n=115)	2.5969 (n=30)
+a3_rural_h0_only	epoch0	head	paper	x_star	-0.0740	1.9301						1.9301 (n=3025)
+a3_rural_h0_only	epoch0	head	paper	endpoint_proj	0.0276	0.5580						0.5580 (n=3025)
+a3_rural_h0_only	epoch0	head	paper	h0	-0.0740	1.9301						1.9301 (n=3025)
+a3_rural_h0_only	epoch0	tail	author	x_star	-0.0127	2.6012	2.6030 (n=847)	2.6059 (n=3889)	2.5886 (n=638)	2.5951 (n=440)	2.5286 (n=115)	2.5672 (n=30)
+a3_rural_h0_only	epoch0	tail	author	endpoint_proj	-0.0265	0.6974	0.7050 (n=847)	0.6982 (n=3889)	0.6892 (n=638)	0.6916 (n=440)	0.6799 (n=115)	0.7108 (n=30)
+a3_rural_h0_only	epoch0	tail	author	h0	-0.0127	2.6012	2.6030 (n=847)	2.6059 (n=3889)	2.5886 (n=638)	2.5951 (n=440)	2.5286 (n=115)	2.5672 (n=30)
+a3_rural_h0_only	epoch39	head	paper	x_star	-0.1981	1.2877						1.2877 (n=3025)
+a3_rural_h0_only	epoch39	head	paper	endpoint_proj	-0.0944	0.4783						0.4783 (n=3025)
+a3_rural_h0_only	epoch39	head	paper	h0	-0.1981	1.2877						1.2877 (n=3025)
+a3_rural_h0_only	epoch39	tail	author	x_star	-0.1056	2.6012	2.6921 (n=847)	2.6131 (n=3889)	2.5227 (n=638)	2.4983 (n=440)	2.4052 (n=115)	2.4243 (n=30)
+a3_rural_h0_only	epoch39	tail	author	endpoint_proj	-0.0883	0.8943	0.9510 (n=847)	0.8987 (n=3889)	0.8538 (n=638)	0.8352 (n=440)	0.7984 (n=115)	0.8093 (n=30)
+a3_rural_h0_only	epoch39	tail	author	h0	-0.1056	2.6012	2.6921 (n=847)	2.6131 (n=3889)	2.5227 (n=638)	2.4983 (n=440)	2.4052 (n=115)	2.4243 (n=30)
+a3_dblp_daily73	init	head	author	x_star	-0.0097	3.6098	5.8677 (n=271)	3.3727 (n=1283)	3.3739 (n=798)	3.4123 (n=980)	3.5246 (n=441)	4.0032 (n=284)
+a3_dblp_daily73	init	head	author	endpoint_proj	-0.2344	1.0949	2.1125 (n=271)	1.0482 (n=1283)	1.0131 (n=798)	1.0013 (n=980)	0.9798 (n=441)	1.0666 (n=284)
+a3_dblp_daily73	init	head	author	h0	-0.0151	5.7995	5.8677 (n=271)	5.8009 (n=1283)	5.7972 (n=798)	5.7888 (n=980)	5.7698 (n=441)	5.8176 (n=284)
+a3_dblp_daily73	init	tail	paper	x_star	0.0181	5.3038			5.4661 (n=2)	5.3102 (n=1315)	5.2992 (n=11202)	5.3275 (n=1809)
+a3_dblp_daily73	init	tail	paper	endpoint_proj	-0.0113	1.9185			1.9749 (n=2)	1.9289 (n=1315)	1.9173 (n=11202)	1.9176 (n=1809)
+a3_dblp_daily73	init	tail	paper	h0	-0.1536	7.3462			8.0267 (n=2)	7.5456 (n=1315)	7.3422 (n=11202)	7.2253 (n=1809)
+a3_dblp_daily73	epoch0	head	author	x_star	0.0438	3.4012	5.8332 (n=271)	3.1233 (n=1283)	3.1602 (n=798)	3.2002 (n=980)	3.3345 (n=441)	3.8108 (n=284)
+a3_dblp_daily73	epoch0	head	author	endpoint_proj	-0.1928	0.8977	1.8940 (n=271)	0.8382 (n=1283)	0.8173 (n=798)	0.8111 (n=980)	0.8082 (n=441)	0.8791 (n=284)
+a3_dblp_daily73	epoch0	head	author	h0	-0.0167	5.7635	5.8332 (n=271)	5.7662 (n=1283)	5.7613 (n=798)	5.7517 (n=980)	5.7324 (n=441)	5.7808 (n=284)
+a3_dblp_daily73	epoch0	tail	paper	x_star	-0.0192	3.9614			4.1448 (n=2)	4.0009 (n=1315)	3.9550 (n=11202)	3.9720 (n=1809)
+a3_dblp_daily73	epoch0	tail	paper	endpoint_proj	-0.0427	0.8355			0.8970 (n=2)	0.8484 (n=1315)	0.8346 (n=11202)	0.8315 (n=1809)
+a3_dblp_daily73	epoch0	tail	paper	h0	-0.2379	5.5859			6.3636 (n=2)	5.8693 (n=1315)	5.5802 (n=11202)	5.4143 (n=1809)
+a3_dblp_daily73	epoch39	head	author	x_star	0.5930	4.4481	6.1597 (n=271)	2.9155 (n=1283)	3.9132 (n=798)	4.5861 (n=980)	5.8512 (n=441)	8.5863 (n=284)
+a3_dblp_daily73	epoch39	head	author	endpoint_proj	0.6003	4.7016	5.8504 (n=271)	3.1338 (n=1283)	4.1993 (n=798)	4.9208 (n=980)	6.2623 (n=441)	8.9196 (n=284)
+a3_dblp_daily73	epoch39	head	author	h0	-0.0228	6.1111	6.1597 (n=271)	6.1273 (n=1283)	6.1103 (n=798)	6.1007 (n=980)	6.0707 (n=441)	6.0932 (n=284)
+a3_dblp_daily73	epoch39	tail	paper	x_star	0.2680	3.5329			2.6182 (n=2)	2.9665 (n=1315)	3.5266 (n=11202)	3.9853 (n=1809)
+a3_dblp_daily73	epoch39	tail	paper	endpoint_proj	0.2319	2.9144			2.2360 (n=2)	2.4335 (n=1315)	2.9069 (n=11202)	3.3114 (n=1809)
+a3_dblp_daily73	epoch39	tail	paper	h0	0.1352	7.4008			6.5981 (n=2)	7.2308 (n=1315)	7.3964 (n=11202)	7.5528 (n=1809)
+
+end=2026-11-21T08:54:31+09:00 exit=0 wall_s=53
