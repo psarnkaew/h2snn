@@ -1,23 +1,26 @@
-"""Card 7 V4 (ablation plan v2 Q3; spec 1.27 §5 C2b, §6 "Schema read-out and coverage"): the schema read-out
-analysis. Reads the per-run JSONs of `scripts/schema_readout.py` (c_sigma, I_sigma, rho_sigma per sub-path schema,
-computed by the existing `src/analysis/schema_readout.py` functions on each run's best checkpoint and evaluation
-draw); trains nothing.
+"""Card 9 W4 (pre-registration v3 §4.1, spec 1.29 §5 C2b; built on card 7 V4): the schema read-out analysis. Reads
+the per-run JSONs of `scripts/schema_readout.py` (c_sigma, I_sigma, rho_sigma per sub-path schema, computed by the
+existing `src/analysis/schema_readout.py` functions on each run's best checkpoint and evaluation draw); trains nothing.
 
-Inputs: the main-table runs (seeds 0-4) and `full`'s ablation runs (configuration (a), seeds 1-10; seeds 1-4 are the
-main table's). Per dataset:
-- **Top schemas:** length-2 sub-path schemas with mean coverage c_sigma >= 1 % over the runs, the ten largest by
+Inputs: `full`'s configuration-(a) runs of seeds 1-5 only (seeds 1-4 are the main-table runs, seed 5 the ablation
+run). A record of any other seed (main-table seed 0) is not read; it is listed under `ignored`. Per dataset:
+- **Top schemas:** length-2 sub-path schemas with mean coverage c_sigma >= 1 % over seeds 1-5, the ten largest by
   mean coverage (their c, I, rho per seed);
-- **Stability (C2b):** over seeds 1-10, the mean pairwise Kendall tau-b of the rho_sigma rankings of the top schemas
-  (those present in every seed); permutation null: shuffle schema labels within each seed, 10,000 draws (fixed seed),
-  p = (1 + #{null >= observed}) / (1 + draws); Holm over the 4 ablation datasets; stable = mean tau-b >= 0.5 and
-  adjusted p < 0.05; the mean tau-b of the c_sigma rankings beside it; fewer than 4 schemas -> "n/a";
-- **Literature check:** per HGB published meta-path, the number of seeds (1-10) with rho_sigma > 1;
-- **Heterophily link:** per seed, Spearman between rho_sigma and the edge homophily of sigma's induced target-type
+- **Stability (C2b):** the mean pairwise Kendall tau-b of the rho_sigma rankings of the top schemas (those present in
+  every seed) over the 10 pairs of seeds 1-5; stable = mean tau-b >= 0.5 (`None` with fewer than the 5 seeds). No
+  permutation null and no multiplicity adjustment (v3 D5). The mean tau-b of the c_sigma rankings beside it; fewer
+  than 4 schemas -> "n/a";
+- **Literature check:** per HGB published meta-path, the number of seeds (of 5) with rho_sigma > 1; `favour` = the
+  count is 5 of 5 (only then does the paper say "the learned face weights favour sigma");
+- **Heterophily link:** a scatter of rho_sigma against the label (edge) homophily of sigma's induced target-type
   graph G_sigma (length-2 schemas whose two ends are the target type; homophily from the reference code
   `scripts/heterophily/compute_heterophily.py` `analyse`, on the graph as its own driver loads it: Freebase
-  symmetrised); fewer than 3 such schemas in a seed -> "n/a";
-- **Figures (PDF):** a bar chart of rho_sigma for the top schemas (mean over seeds, range as error bar) and a scatter
-  of c_sigma vs I_sigma with the diagonal.
+  symmetrised), all seeds, one marker per (seed, schema), per dataset; the per-seed Spearman in the JSON (fewer than
+  3 such schemas in a seed -> "n/a"). No pooled single-number verdict;
+- **Figures (PDF):** a bar chart of rho_sigma for the top schemas (mean over seeds, range as error bar), a scatter of
+  c_sigma vs I_sigma with the diagonal, and the homophily scatter (when `--data_root` is given).
+Wording (v3 §4.1): "the learned face weights", never "the sampler learns" (WISP's proposal is fixed; `g` weighs the
+faces after they are drawn).
 
     python scripts/analysis/q3_schema.py --runs <out>/<dataset>/*.json ... --out_dir <dir> [--data_root data]
 """
@@ -40,11 +43,8 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts" / "ablation"))
 
 COVERAGE_MIN = 0.01
 TOP = 10
-STABILITY_SEEDS: tuple[int, ...] = tuple(range(1, 11))
-PERMUTATIONS = 10_000
-PERMUTATION_SEED = 0
+STABILITY_SEEDS: tuple[int, ...] = (1, 2, 3, 4, 5)
 TAU_STABLE = 0.5
-ALPHA = 0.05
 MIN_SCHEMAS = 4
 MIN_SPEARMAN_POINTS = 3
 ABLATION_DATASETS: tuple[str, ...] = ("acm", "dblp", "imdb", "freebase")
@@ -53,12 +53,17 @@ Signature = tuple[int, ...]
 
 
 # ------------------------------------------------------------------------------------------------ input
-def load_records(paths: list[Path]) -> dict[str, list[dict[str, Any]]]:
-    """Run records by dataset (WISP runs only: the literature row's runs are not read-out inputs); one per seed."""
+def load_records(paths: list[Path], ignored: list[dict[str, Any]] | None = None) -> dict[str, list[dict[str, Any]]]:
+    """Run records by dataset (WISP runs only: the literature row's runs are not read-out inputs); one per seed;
+    seeds 1-5 only (a record of another seed, e.g. main-table seed 0, is appended to `ignored`, never read)."""
     by_dataset: dict[str, dict[int, dict[str, Any]]] = {}
     for path in paths:
         record = json.loads(Path(path).read_text(encoding="utf-8"))
         if "schemas" not in record or record.get("path_source", "wisp") not in ("wisp", ""):
+            continue
+        if int(record["seed"]) not in STABILITY_SEEDS:
+            if ignored is not None:
+                ignored.append({"run": str(path), "dataset": record.get("dataset"), "seed": int(record["seed"])})
             continue
         seeds = by_dataset.setdefault(str(record["dataset"]), {})
         if int(record["seed"]) in seeds:
@@ -93,32 +98,22 @@ def mean_pairwise_tau(matrix: np.ndarray) -> float:
     return float(np.mean(taus))
 
 
-def permutation_p(matrix: np.ndarray, observed: float, draws: int = PERMUTATIONS,
-                  seed: int = PERMUTATION_SEED) -> float:
-    """Null: schema labels shuffled independently within each seed (row)."""
-    rng = np.random.default_rng(seed)
-    count = 0
-    for _ in range(draws):
-        shuffled = np.stack([row[rng.permutation(row.size)] for row in matrix])
-        if mean_pairwise_tau(shuffled) >= observed - 1e-12:
-            count += 1
-    return (1 + count) / (1 + draws)
-
-
-def stability(records: list[dict[str, Any]], schemas: list[Signature], draws: int = PERMUTATIONS
-              ) -> dict[str, Any]:
+def stability(records: list[dict[str, Any]], schemas: list[Signature]) -> dict[str, Any]:
+    """Mean pairwise Kendall tau-b of the rho rankings over seeds 1-5 (10 pairs); stable = mean >= 0.5, `None` when
+    fewer than the 5 seeds are present. No permutation null (v3 D5)."""
     runs = [r for r in records if int(r["seed"]) in STABILITY_SEEDS]
     tables = [length2(r) for r in runs]
     present = [k for k in schemas if all(k in t and t[k]["rho"] is not None for t in tables)]
     out: dict[str, Any] = {"seeds": [int(r["seed"]) for r in runs], "schemas": [list(k) for k in present]}
     if len(present) < MIN_SCHEMAS or len(runs) < 2:
-        return {**out, "status": "n/a", "reason": f"{len(present)} schemas, {len(runs)} seeds"}
+        return {**out, "status": "n/a", "reason": f"{len(present)} schemas, {len(runs)} seeds", "stable": None}
     rho = np.array([[t[k]["rho"] for k in present] for t in tables], dtype=np.float64)
     cov = np.array([[t[k]["c"] for k in present] for t in tables], dtype=np.float64)
     observed = mean_pairwise_tau(rho)
-    return {**out, "status": "computed", "mean_tau_b_rho": observed, "p_permutation": permutation_p(rho, observed,
-                                                                                                    draws),
-            "permutations": draws, "mean_tau_b_c": mean_pairwise_tau(cov)}
+    complete = sorted(out["seeds"]) == list(STABILITY_SEEDS)
+    return {**out, "status": "computed", "pairs": len(runs) * (len(runs) - 1) // 2, "mean_tau_b_rho": observed,
+            "mean_tau_b_c": mean_pairwise_tau(cov), "complete": complete,
+            "stable": bool(observed >= TAU_STABLE) if complete else None}
 
 
 def literature_counts(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -128,8 +123,9 @@ def literature_counts(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out = []
     for i, item in enumerate(runs[0]["literature"]):
         rhos = [r["literature"][i]["rho"] for r in runs]
+        count = sum(1 for v in rhos if v is not None and v > 1.0)
         out.append({"listed": item["listed"], "relations": item["relations"], "seeds": len(runs),
-                    "seeds_rho_above_1": sum(1 for v in rhos if v is not None and v > 1.0),
+                    "seeds_rho_above_1": count, "favour": count == len(STABILITY_SEEDS),
                     "rho_per_seed": rhos})
     return out
 
@@ -209,13 +205,42 @@ def spearman_link(records: list[dict[str, Any]], data, target: str, homophily: d
             if name in homophily:
                 points.append((schema["rho"], homophily[name], schema["name"]))
         entry = {"seed": int(record["seed"]), "points": len(points),
-                 "schemas": [p[2] for p in points]}
+                 "schemas": [p[2] for p in points],
+                 "values": [{"schema": p[2], "rho": p[0], "homophily": p[1]} for p in points]}
         if len(points) < MIN_SPEARMAN_POINTS:
             out.append({**entry, "status": "n/a"})
             continue
         stat = spearmanr([p[0] for p in points], [p[1] for p in points])
-        out.append({**entry, "status": "computed", "spearman": float(stat.statistic), "p": float(stat.pvalue)})
+        out.append({**entry, "status": "computed", "spearman": float(stat.statistic)})
     return out
+
+
+def homophily_scatter(dataset: str, link: list[dict[str, Any]], out_dir: Path) -> str:
+    """rho_sigma against the homophily of G_sigma: every (seed, schema) point of `spearman_link`, one marker per seed
+    (legend: the seed and its Spearman)."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(3.8, 3.4))
+    markers = "osD^v<>"
+    for i, entry in enumerate(link):
+        xs = [v["homophily"] for v in entry["values"]]
+        ys = [v["rho"] for v in entry["values"]]
+        label = f"seed {entry['seed']}" + (f" (Spearman {entry['spearman']:.2f})" if entry["status"] == "computed"
+                                           else " (n/a)")
+        ax.scatter(xs, ys, s=14, marker=markers[i % len(markers)], alpha=0.7, label=label)
+    ax.axhline(1.0, color="0.4", linewidth=0.8, linestyle="--")
+    ax.set_xlabel(r"label homophily of $G_\sigma$")
+    ax.set_ylabel(r"$\rho_\sigma$ (learned face weights / coverage)")
+    ax.set_title(f"{dataset}: learned face weights vs schema homophily", fontsize=9)
+    ax.legend(fontsize=6)
+    fig.tight_layout()
+    path = out_dir / f"{dataset}_rho_vs_homophily.pdf"
+    fig.savefig(path)
+    plt.close(fig)
+    return str(path)
 
 
 # ------------------------------------------------------------------------------------------------ figures
@@ -243,7 +268,7 @@ def figures(dataset: str, records: list[dict[str, Any]], schemas: list[Signature
     ax.axhline(1.0, color="0.4", linewidth=0.8, linestyle="--")
     ax.set_xticks(range(len(order)), [names[i] for i in order], rotation=40, ha="right", fontsize=7)
     ax.set_ylabel(r"$\rho_\sigma$ (mean, range over seeds)")
-    ax.set_title(f"{dataset}: learned share / coverage, top length-2 schemas", fontsize=9)
+    ax.set_title(f"{dataset}: learned face weights' share / coverage, top length-2 schemas", fontsize=9)
     fig.tight_layout()
     bar = out_dir / f"{dataset}_rho_top.pdf"
     fig.savefig(bar)
@@ -266,13 +291,12 @@ def figures(dataset: str, records: list[dict[str, Any]], schemas: list[Signature
 
 # ------------------------------------------------------------------------------------------------ driver
 def analyse(records_by_dataset: dict[str, list[dict[str, Any]]], out_dir: Path, data_root: Path | None,
-            draws: int = PERMUTATIONS, make_figures: bool = True) -> dict[str, Any]:
-    from stats import holm
-
+            make_figures: bool = True, ignored: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
-    result: dict[str, Any] = {"coverage_min": COVERAGE_MIN, "top": TOP, "permutations": draws,
-                              "permutation_seed": PERMUTATION_SEED, "datasets": {}}
+    result: dict[str, Any] = {"coverage_min": COVERAGE_MIN, "top": TOP, "seeds": list(STABILITY_SEEDS),
+                              "tau_stable": TAU_STABLE, "ignored": list(ignored or []), "datasets": {}}
     for dataset, records in sorted(records_by_dataset.items()):
+        records = [r for r in records if int(r["seed"]) in STABILITY_SEEDS]
         schemas = top_schemas(records)
         tables = [length2(r) for r in records]
         top = []
@@ -283,25 +307,17 @@ def analyse(records_by_dataset: dict[str, list[dict[str, Any]]], out_dir: Path, 
                         "per_seed": {int(r["seed"]): ({f: t[k][f] for f in ("c", "I", "rho")} if k in t else None)
                                      for r, t in zip(records, tables)}})
         entry: dict[str, Any] = {"seeds": [int(r["seed"]) for r in records], "top_schemas": top,
-                                 "stability": stability(records, schemas, draws),
+                                 "stability": stability(records, schemas),
                                  "literature": literature_counts(records)}
+        if make_figures:
+            entry["figures"] = figures(dataset, records, schemas, out_dir)
         if data_root is not None:
             data, target, homophily = schema_homophily(data_root, dataset)
             entry["schema_homophily"] = homophily
             entry["spearman_rho_vs_homophily"] = spearman_link(records, data, target, homophily)
-        if make_figures:
-            entry["figures"] = figures(dataset, records, schemas, out_dir)
+            if make_figures:
+                entry["figures"].append(homophily_scatter(dataset, entry["spearman_rho_vs_homophily"], out_dir))
         result["datasets"][dataset] = entry
-    family = {d: (e["stability"].get("p_permutation") if e["stability"]["status"] == "computed" else None)
-              for d, e in result["datasets"].items() if d in ABLATION_DATASETS}
-    adjusted = holm(family)
-    for dataset, entry in result["datasets"].items():
-        s = entry["stability"]
-        if s["status"] != "computed":
-            s["stable"] = None
-            continue
-        s["p_holm"] = adjusted.get(dataset)
-        s["stable"] = bool(s["mean_tau_b_rho"] >= TAU_STABLE and s["p_holm"] is not None and s["p_holm"] < ALPHA)
     (out_dir / "q3_schema.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
     (out_dir / "q3_schema.md").write_text(markdown(result), encoding="utf-8")
     return result
@@ -314,21 +330,24 @@ def _f(value: Any) -> str:
 
 
 def markdown(result: dict[str, Any]) -> str:
-    lines = ["# Q3 schema read-out (card 7 V4; spec 1.27 C2b)", "",
-             "| dataset | schemas | mean tau-b (rho) | p perm | p Holm | stable | mean tau-b (c) |",
+    lines = ["# Q3 schema read-out (card 9 W4; pre-registration v3 §4.1)", "",
+             f"`full`, configuration (a), seeds {result['seeds']}; stable = mean tau-b of the rho rankings >= "
+             f"{result['tau_stable']} (no permutation null). rho_sigma = the learned face weights' share / coverage.",
+             "", "| dataset | seeds | schemas | pairs | mean tau-b (rho) | stable | mean tau-b (c) |",
              "|---|---|---|---|---|---|---|"]
     for d, e in result["datasets"].items():
         s = e["stability"]
         if s["status"] != "computed":
-            lines.append(f"| {d} | {len(s['schemas'])} | n/a ({s['reason']}) | | | | |")
+            lines.append(f"| {d} | {s['seeds']} | {len(s['schemas'])} | | n/a ({s['reason']}) | | |")
             continue
-        lines.append(f"| {d} | {len(s['schemas'])} | {_f(s['mean_tau_b_rho'])} | {_f(s['p_permutation'])} | "
-                     f"{_f(s.get('p_holm'))} | {_f(s['stable'])} | {_f(s['mean_tau_b_c'])} |")
+        lines.append(f"| {d} | {s['seeds']} | {len(s['schemas'])} | {s['pairs']} | {_f(s['mean_tau_b_rho'])} | "
+                     f"{_f(s['stable'])} | {_f(s['mean_tau_b_c'])} |")
     for d, e in result["datasets"].items():
         if e["literature"]:
-            lines += ["", f"## {d}: literature meta-paths, seeds with rho > 1", "", "| meta-path | seeds | rho > 1 |",
-                      "|---|---|---|"]
-            lines += [f"| {x['listed']} | {x['seeds']} | {x['seeds_rho_above_1']} |" for x in e["literature"]]
+            lines += ["", f"## {d}: literature meta-paths, seeds (of 5) with rho > 1", "",
+                      "| meta-path | seeds | rho > 1 | learned face weights favour (5 of 5) |", "|---|---|---|---|"]
+            lines += [f"| {x['listed']} | {x['seeds']} | {x['seeds_rho_above_1']} | {_f(x['favour'])} |"
+                      for x in e["literature"]]
         if "spearman_rho_vs_homophily" in e:
             lines += ["", f"## {d}: Spearman(rho, homophily of G_sigma) per seed", "", "| seed | points | rho_s |",
                       "|---|---|---|"]
@@ -343,9 +362,10 @@ def main() -> None:
     parser.add_argument("--out_dir", type=Path, required=True)
     parser.add_argument("--data_root", type=Path, default=None,
                         help="data root for the schema homophily (reference code); omit to skip that part")
-    parser.add_argument("--permutations", type=int, default=PERMUTATIONS)
     args = parser.parse_args()
-    analyse(load_records(args.runs), args.out_dir, args.data_root, args.permutations)
+    ignored: list[dict[str, Any]] = []
+    records = load_records(args.runs, ignored)
+    analyse(records, args.out_dir, args.data_root, ignored=ignored)
 
 
 if __name__ == "__main__":
