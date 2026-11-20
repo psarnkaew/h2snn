@@ -105,3 +105,14 @@ Continue from `card8` head `1236f4c`; first `git merge` the design-docs SHA give
 - The 5 LP cells that held HGB's published numbers (2-hop test) are **no longer `filled`**: GCN × {pubmed, lastfm}, R-GCN × {pubmed, lastfm}, MAGNN × lastfm. They become **`published`** (5 seeds, no tuning, author: HGB's hyperparameters are the best ones), with the values HGB's LP code runs for them: GCN from `HGB/LP/benchmark/methods/GNN/homoGNN.py` (its README runs it without flags, so its argparse values are the configuration), R-GCN from `HGB/LP/benchmark/methods/RGCN/link_predict.py`, MAGNN from `HGB/LP/benchmark/methods/MAGNN/run_LastFM.py`; every value with file:line in the C0 update. If a value cannot be found or executed exactly, stop as C1.
 - Remove these 5 rows from `configs/baselines/paper_filled_cells.tsv`; C0 counts: LP filled 0, published 6, tuned 87 (unchanged otherwise).
 - Report keys: the LP summaries used for the paper read `test_random_auroc` and `test_random_mrr`; add one test that the LP report columns are the random-set keys (mutation: 2-hop keys → fails).
+
+## Amendment 4 (2026-11-20, author, after the second C1 stop)
+- **R-GCN × lastfm (LP): tune** (option A). HGB's command `link_predict.py --dataset=LastFM` (`RGCN/README.md:24`) runs the defaults hidden 64 with 10 `bdd` bases (`link_predict.py:364,379`), which DGL 2.4 refuses (sizes not divisible by `num_bases`); choosing other values would not be HGB's configuration. R-GCN × pubmed stays published (`--hidden-dim=60`).
+- **GCN × {pubmed, lastfm} (LP): published**, with HGB's hyperparameters, batch size and epoch count from `homoGNN.py`, run in **our** LP loop: validation once per epoch, selection on validation ROC-AUC (protocol option 1). HGB's validation every 10 batches with early stopping on validation loss (`homoGNN.py:46-65`) is not replicated; it is listed in the appendix table of differences. No extra loop option.
+- Counts: LP published 5, tuned 88.
+- Accepted from the second report: C1 committed as partial (`c6bfd39`), `test_fanouts_equal_h2gb_yaml` now 40 yaml files, test jobs at 24G (C6 still requests 36G; if it does not schedule, 32G is acceptable).
+
+## Amendment 5 (2026-11-20, author) — HetSheaf NC rerun on HGB
+- HetSheaf × {acm, dblp, imdb} (NC) are **not** `filled`: they are rerun on our pipeline (spec claim C7, "HetSheaf rerun mandatory"; its published numbers come from code with a 27/3/70 split and relation-duplicated input, spec §6 G0). Remove these 3 rows from `configs/baselines/paper_filled_cells.tsv` (73 filled left: NC 49, GC 24).
+- ACM and DBLP are already tuned in `baselines-early` (unchanged, byte-identical); their final seeds 0–4 come from the same `--final-seeds` step as every line. IMDB is a `tune` cell in the rebuilt `baselines-1`.
+- Counts: NC tuned 87 (86 + IMDB; ACM/DBLP counted under `baselines-early`).
