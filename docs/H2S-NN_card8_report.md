@@ -1,73 +1,85 @@
 # Card 8 report: published configurations, R-GCN and MAGNN adapters, TSUBAME lists
 
-**Verdict: stopped again in C1**, this time on Amendment 3 ("if a value cannot be found or executed exactly, stop as
-C1"). R-GCN × LastFM LP cannot run with HGB's stated configuration under our DGL. C0 is updated for Amendments 1 and 3.
-The tested part of C1 is committed and labelled partial. C2b–C6 were not started.
+**Verdict: done.** C0–C6 are complete after amendments 1–5. One CPU job (18015, 36G, no GPU) ran 242 targeted tests:
+all OK, none skipped. Every card mutation is caught. H2S-NN is untouched:
+`git diff fc0ebaa -- H2S-NN/src/models H2S-NN/src/trainers H2S-NN/configs/experiments` is empty. No real-data run.
 
-Branch `card8`: `v3b` fc0ebaa + design-docs b5adecf, 790ff68 (amendments 1–2) and 377f16e (amendment 3), all merged.
+Branch `card8` = `v3b` fc0ebaa plus merges of design-docs b5adecf, 790ff68, 377f16e and 3489b8e.
 
 ## 1. Units
 
 | unit | commit | job | result |
 |---|---|---|---|
-| C0 inventory | b18f3ec | — | done (first stop, ‡ cells) |
-| C0 update, amendment 1 | 1000b0c | — | 11 GCN/GAT H2GB cells published (H2GB `HomoGNNModel`); GAT h-pokec, HINormer ×3, PSHGCN ogbn-mag tuned |
-| C0 update, amendment 3 | 5683753 | — | 5 LP rows out of `paper_filled_cells.tsv` (76 filled: NC 52, GC 24); LP sources with file:line (inventory §6) |
-| C1 published configs | c6bfd39 (**partial**) | 17963 (CPU, 24G) | 23 tests OK; mutation "drop scheduler from the H2GB mapping" caught. The 5 LP cells of amendment 3 are not done |
-| C2b, C2–C6 | — | — | not started |
+| C0 inventory (+ amendments 1, 3, 4, 5) | b18f3ec, 1000b0c, 5683753, 0bc171a | — | 73 filled cells (NC 49, GC 24); table in `docs/card8_evidence/c0_inventory.md` |
+| C1 published configurations | c6bfd39, 9b4c55d | 17963, 17987 | 23 + 13 tests OK; mutation "scheduler dropped from the H2GB mapping" caught |
+| C2b LP step size, DistMult | d68f9c5 | 17989 | 16 OK; mutations "one step per epoch" and "diagonal DistMult" caught |
+| C2 R-GCN | ba4cdea | 17997 | 8 OK |
+| C3 MAGNN | 49517de | 18002 | 19 OK; mutation "instances on the full graph" caught |
+| C4 registry, search spaces | 836ad74 | 18013 | 119 OK |
+| C5 TSUBAME lists | 31eed94 | 18014 | 13 OK; mutation "no filled exclusion" caught |
+| C6 targeted job | a44218d | 18015 | 242 OK, 0 skipped; all 5 mutations caught |
 
-Jobs 17959 (36G, never scheduled: the nodes had ≈32G free next to another user's jobs; cancelled) and 17962 (2 failures,
-both test-side: the warm-up's first rate is `max(1e-6, 0) × lr = 1e-9`, `extra_optimizers.py:194-196`; an existing
-fan-out test counted 4 × 8 yamls and now counts 5 × 8 with R-GCN) were replaced by 17963. Logs are in `docs/card8_evidence/`.
+## 2. Cell statuses and lists
 
-## 2. What C1 (partial) contains
+| task | filled | published | tune | probe | N/A |
+|---|---|---|---|---|---|
+| NC (15 × 12) | 49 | 33 | 89 | 8 | 1 |
+| LP (12 × 8) | 0 | 5 | 88 | 2 | 1 |
+| GC | 24 | — | — | — | baseline cells not run (option (a)) |
 
-- `src/baselines/h2gb_published.py`: 30 published H2GB-yaml cells (GCN 6, GAT 5, HAN 6, R-GCN 6, H2G-former 7).
-  - **Setup:** H2GB's cfg is set from the yaml (`configure_from_yaml`), its own network is built (`HomoGNNModel` / `HeteroGNNModel` / `GTModel`), and so are its optimizer and scheduler (`create_optimizer`, `create_scheduler`).
-  - **Step rule:** H2GB's (`custom_train.py:106-159, 288-293`): gradients summed over `batch_accumulation` batches, a step when `(it+1) % acc == 0 or it+1 == len`, clipping at 1.0, one scheduler step per epoch.
-  - **Kept from our protocol:** the data, evaluation and logging keys, listed in `EXCLUDED_KEYS`.
-- Wiring: `minibatch.SourceSchedule` (opt-in; the tuned path is unchanged), `hgb_gnn`/`hgb_han`/`_h2gformer_h2gb` published branches.
-- 30 config files (dotted H2GB keys, a yaml line for each) and `magnn/node_classification/freebase.yaml` (`run_Freebase.py` lines).
-- `published.refuse_source_schedule`, called in `campaign.fit_cell`: a tuned run carrying an optimizer, scheduler, clipping, accumulation or LP batch key is refused.
-- `cell_status.py`: the cell statuses (filled, N/A, probe, published, tune).
-- Published runner: base seed 0 by default, `--final_seeds`, `--state_dir`, and filled cells are skipped.
-
-## 3. Stop: amendment 3 LP cells
-
-| cell | issue | file:line |
+| phase | lines | `node_f` tasks |
 |---|---|---|
-| R-GCN × lastfm | HGB's command `link_predict.py --dataset=LastFM` → width 64, `n_bases` 10, `RelGraphConv(..., "bdd", ...)`; DGL 2.4 `TypedLinear` raises "Input and output sizes must be divisible by num_bases" (64 % 10 = 4) | `RGCN/README.md:24`, `link_predict.py:30, 364, 379`; `dgl/nn/pytorch/linear.py` (bdd branch) |
-| GCN × pubmed, lastfm (not a stop by itself) | HGB validates every 10 batches inside an epoch, with early stopping after 3 validations on the validation loss; our shared loop validates once per epoch. Running it exactly needs an intra-epoch validation option in the shared LP loop (published runs only) | `GNN/homoGNN.py:46-65`, `utils.py:159` |
-| MAGNN × lastfm (not checked) | settings transcribable (`run_LastFM.py:18-20, 21-25, 71, 225-236`); executability depends on the MAGNN LP adapter (C3), including its training masks (`use_masks`) | |
+| `h2snn` | unchanged (byte-identical to fc0ebaa, tested) | — |
+| `baselines-early` | 4 (byte-identical) | 1 |
+| `baselines-1` (rebuilt: tune cells only) | 61 | 16 |
+| `baselines-2` (new) | 112 | 28 |
+| `published` (new: `run_baseline_published.py … --final_seeds 0 1 2 3 4`) | 38 | 10 |
+| `probe` (new: 1 trial, `--dry_run --grid_point min`) | 10 | 3 |
 
-R-GCN × pubmed is executable as stated (README width 60).
+The tuning lines (4 + 61 + 112 = 177) equal the 89 + 88 tune cells.
 
-### Options (author)
+## 3. Adapters changed by C2b
 
-| option | R-GCN × lastfm | for / against |
-|---|---|---|
-| A | `tune` (100 trials; its search space already respects divisibility) | no invented value; but the cell is no longer "HGB's configuration" |
-| B | published with `n_bases` that divides 64 (e.g. 8) or with width 60 (HGB's PubMed width), stated as a deviation | keeps 5 seeds without tuning; but one value is ours, not HGB's |
-| C | published with a basis regulariser instead of "bdd" | different model; not recommended |
+There is no adapter-specific LP epoch loop. Every small-LP adapter trains through the shared `training.train_link_prediction` with `**budget_kwargs(LINK_PREDICTION, params)`, so the batch of 8,192 positives per step applies to all of them:
+- `hgb_gnn.py` (GCN, GAT);
+- `_homogeneous_lp.py` (NSD, CSNN);
+- `hgb_han.py`, `pshgcn.py`, `h2sgnn.py`, `hetero2net.py`, `h2gformer.py`, `hetsheaf.py`;
+- `rgcn.py`, `magnn.py` (new).
 
-Recommendation: **A** for R-GCN × lastfm (an exact HGB run is impossible, and a chosen value is not "HGB's
-configuration"). For GCN × pubmed/lastfm: allow an intra-epoch validation option (every 10 steps, patience counted in
-validations, selection on ROC-AUC as ours) for published LP runs.
+A static test checks this. Large LP (`fit_large_lp`) was already per 8,192 and is unchanged. The shared `DistMultDecoder` is now a full `[R, d, d]` matrix per relation (HGB's init), and every LP baseline uses it.
 
-## 4. Uncommitted drafts (not part of any commit)
+## 4. Decisions and deviations
 
-- `H2S-NN/src/baselines/adapters/rgcn.py` (C2 draft, untracked)
-- C2b drafts (`training.py`, `heads.py`, `budget.py`, test file) in the session scratchpad
+- **Published H2GB cells (30):** each runs H2GB's own model and the yaml's optimizer, cosine schedule, clipping, accumulation, epochs, eval period and fan-out.
+  - Data, evaluation and logging keys stay ours (`h2gb_published.EXCLUDED_KEYS`; protocol option 1).
+  - On the binary datasets the network has `C` outputs with cross-entropy (the existing stated difference).
+- **GCN × PubMed/LastFM LP (amendment 4):** run in our loop with validation once per epoch. HGB's patience of 3 validations is applied as 3 epochs.
+- **MAGNN:**
+  - ACM/DBLP/IMDB NC are filled and not wired: ACM's preprocessing adds self-loops and IMDB uses full-batch `MAGNN_nc`. The registry carries the reason.
+  - Off HGB, MAGNN's instances are enumerated by our code in MAGNN's format; this is tested equal to HGB's `get_adjlist_pkl`.
+  - The LP sampler re-implements `parse_adjlist_LastFM` for generic endpoint types, because HGB's version hard-codes the LastFM types and `.to('cuda')`.
+  - When a whole batch has no instance of a meta-path, each target gets one self-instance (MAGNN LP's own rule). Without this, MAGNN's code crashes on an empty reshape (`base_MAGNN.py:150`).
+  - Large LP (probe cells) uses MAGNN's NC layer on each sampled subgraph, without the training mask.
+- **R-GCN:**
+  - HGB's `EntityClassify` is rebuilt on HGB's own `BaseRGCN` with its three builders verbatim, because `entity_classify.py` calls `pynvml.nvmlInit()` at import.
+  - The LP width grid is {40, 60, 80, 120}, because `"bdd"` needs width divisible by `n_bases`; HGB's default 64 is left out.
+  - Tuned R-GCN cells on H2GB use H2GB's own R-GCN with the tuned keys, as HAN's class-A path (there are no such cells today).
+- **GC option (a):** every baseline GC cell is unsupported with that reason, and the code is kept. The GC lane notebooks are no longer generated; the old files are kept because the repo rules say notebooks are not deleted.
+- **Existing tests updated, with reasons in comments:**
+  - registry counts (runnable 271);
+  - the contract and published-runnable tests skip GC option (a);
+  - `SearchSpaceCoverageTests` checks only files of tuned cells;
+  - the large-LP method list gains R-GCN and MAGNN;
+  - `test_fanouts_equal_h2gb_yaml` expects 40 yamls instead of 32;
+  - the two TSUBAME list tests expect tune cells only.
+- **Bugs found and fixed in C4:**
+  - The R-GCN/MAGNN vendor blocks left HGB's `utils` and `model` modules in memory; this broke HAN in one process. The blocks now also push their HGB root, and a regression test covers it.
+  - The PSHGCN LastFM yaml from C2b did not parse.
+- **Memory:** jobs touching `test_partP_freebase` need 32G (peak 28 GB, the known Freebase-test peak). Interim jobs used 24–32G; C6 used 36G.
 
-None was tested. Both continue after the author's decision.
+## 5. Open (not blocking)
 
-## 5. Deviations
+- `collect.py` / `status.py` read published lines through `lines.py`; `collect.py` does not yet put `published_summary.json` into `results.csv` (ops).
+- The probe lines decide MAGNN N/A on the H100. Every first TSUBAME line is the real-data check of its cell.
 
-- C1 is committed partial, after the stop, so the tested H2GB/MAGNN-Freebase work is not left uncommitted. Until C1
-  completes, the 5 amendment-3 LP cells have status `tune` in `cell_status` (no published file yet). C5 reads that
-  status, and C5 has not run.
-- Existing test `test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml`: count 32 → 40 (R-GCN's 8 yamls
-  added to `H2GB_CONFIG_METHODS` and checked equal to the yaml).
-- Interim test jobs used `--mem=24G` (36G could not be scheduled); C6 keeps 36G.
-
-branch=card8 sha=c6bfd39886a3ca72c49987ee78b7bfd2e7275029 card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
+branch=card8 sha=a44218d974814cf356c1bb0ef31268d017a77f87 card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
