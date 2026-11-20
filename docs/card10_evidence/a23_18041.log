@@ -1,0 +1,59 @@
+head=8a8d524a886d9aeb0021913a3272479db6c13335 host=g2n01 job=18041 start=2026-11-20T22:15:48+09:00
+test_every_failure_reported_with_condition_run_and_tail (tests.test_failures_report.FailuresTests.test_every_failure_reported_with_condition_run_and_tail) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+OK
+test_every_failure_reported_with_condition_run_and_tail (tests.test_failures_report.FailuresTests.test_every_failure_reported_with_condition_run_and_tail) ... FAIL
+
+======================================================================
+FAIL: test_every_failure_reported_with_condition_run_and_tail (tests.test_failures_report.FailuresTests.test_every_failure_reported_with_condition_run_and_tail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_failures_report.py", line 90, in test_every_failure_reported_with_condition_run_and_tail
+    self.assertEqual(got, sorted([
+AssertionError: Lists differ: [('gc[24 chars]m', '3', 'other', '', '802', 'g3n01', 'NVIDIA [114 chars]90')] != [('gc[24 chars]m', '0', 'OOM', '', '801', 'r1n1', 'NVIDIA H10[293 chars]90')]
+
+First differing element 0:
+('gcn[16 chars]tion_acm', '3', 'other', '', '802', 'g3n01', 'NVIDIA RTX 3090')
+('gcn[16 chars]tion_acm', '0', 'OOM', '', '801', 'r1n1', 'NVIDIA H100')
+
+Second list contains 2 additional elements.
+First extra element 2:
+('h2snn_node_classification_dblp', '1', 'StopConditionError', 'tau', '801', 'r1n1', 'NVIDIA H100')
+
++ [('gcn_node_classification_acm', '0', 'OOM', '', '801', 'r1n1', 'NVIDIA H100'),
+- [('gcn_node_classification_acm',
+? ^
+
++  ('gcn_node_classification_acm',
+? ^
+
+    '3',
+    'other',
+    '',
+    '802',
+    'g3n01',
+    'NVIDIA RTX 3090'),
+   ('h2snn_node_classification_dblp',
++   '1',
++   'StopConditionError',
++   'tau',
++   '801',
++   'r1n1',
++   'NVIDIA H100'),
++  ('h2snn_node_classification_dblp',
+    '2',
+    'PCGConvergenceError',
+    'T_max',
+    '802',
+    'g3n01',
+    'NVIDIA RTX 3090')]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)
+MUTATION A2.3 (a failure skipped): caught
+tests=0 mutation=0 end=2026-11-20T22:15:49+09:00
