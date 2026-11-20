@@ -76,6 +76,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry_run", action="store_true",
                         help="Card 2 D3: epoch budget 1 for every trial (launcher check, never a result); "
                         "W&B runs tagged dry-run.")
+    parser.add_argument("--grid_point", choices=["min"], default=None,
+                        help="Card 8 C5 (probe lines only, with --dry_run and --n_trials 1): every search axis fixed at "
+                        "its smallest point, to decide N/A on the H100; never a result.")
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
     parser.add_argument("--base_seed", type=int, default=42)
@@ -247,6 +250,8 @@ def main() -> None:
             raise SystemExit("--dry_run sets the epoch budget to 1; do not combine it with --epochs.")
         args.epochs = 1
         args.wandb_tags = list(dict.fromkeys([*(args.wandb_tags or ()), "dry-run"]))
+    if args.grid_point is not None and (not args.dry_run or args.n_trials != 1):  # card 8 C5: probe lines only
+        raise SystemExit("--grid_point is for probe lines: use it with --dry_run and --n_trials 1.")
     cells = resolve_cells(args.task, args.models, args.datasets)
     if not cells:
         raise SystemExit("No runnable cells selected.")
@@ -297,6 +302,7 @@ def main() -> None:
                 monitor=monitor,
                 n_trials=args.n_trials,
                 epochs=epochs,
+                grid_point=args.grid_point,
             )
             print(f"  {cell.token}: {len(sweep['parameters'])} tunable parameters")
         print("validate_only: nothing was run.")
@@ -308,6 +314,7 @@ def main() -> None:
             monitor=monitor,
             n_trials=args.n_trials,
             epochs=epochs,
+            grid_point=args.grid_point,
         )
         records: list[dict[str, Any]] = []
         for unit in units:

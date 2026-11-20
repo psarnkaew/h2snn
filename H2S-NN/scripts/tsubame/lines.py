@@ -42,6 +42,9 @@ def runnable_lines(text: str) -> list[str]:
 TASKS = ("node_classification", "link_prediction", "graph_classification")
 BASELINE_LAUNCHER = "run_baseline_tuning.py"
 H2SNN_LAUNCHER = "run_h2snn_wandb_tuning.py"
+#: Card 8 C5: published-configuration lines (`scripts/run_baseline_published.py ... --final_seeds 0 1 2 3 4`); the
+#: runner writes `<output_dir>/<token>/published_summary.json` and `<state_dir>/<token>/published_state.json`.
+PUBLISHED_LAUNCHER = "run_baseline_published.py"
 
 
 @dataclass(frozen=True)
@@ -55,7 +58,7 @@ class Line:
     num_runs: int
     final_seeds: tuple[int, ...] | None
     n_trials: int
-    launcher: str = "baseline"          # "baseline" | "h2snn"
+    launcher: str = "baseline"          # "baseline" | "h2snn" | "published" (card 8 C5)
     exp_name: str = ""                  # h2snn lines: the launcher's base_exp_name
     run_start: int = 0                  # h2snn lines: --run_start
     run_count: int | None = None        # h2snn lines: --run_count
@@ -71,6 +74,8 @@ class Line:
         return "final_seeds" if self.final_seeds is not None else "tuning"
 
     def state_paths(self) -> list[Path]:
+        if self.launcher == "published":  # no sweep state: the runner's seed record (card 8 C5)
+            return []
         if self.launcher == "h2snn":
             # scripts/run_h2snn_wandb_tuning.py main(): state_dir / f"tuning_state_run{run_index}.json" for
             # run_index in range(run_start, run_start + run_count); run_count defaults to num_runs
@@ -119,12 +124,31 @@ def _parse_h2snn(text: str, words: list[str]) -> Line:
                 launcher="h2snn", exp_name=args.exp_name, run_start=args.run_start, run_count=args.run_count)
 
 
+def _parse_published(text: str, words: list[str]) -> Line:
+    """A `scripts/run_baseline_published.py` line (card 8 C5): one model, one dataset, `--final_seeds`."""
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("--task", required=True)
+    ap.add_argument("--models", nargs="+", required=True)
+    ap.add_argument("--datasets", nargs="+", required=True)
+    ap.add_argument("--output_dir", type=Path, default=Path("experiments/baselines"))
+    ap.add_argument("--state_dir", type=Path, default=None)
+    ap.add_argument("--final_seeds", type=int, nargs="+", required=True)
+    args, _ = ap.parse_known_args(words[1:])
+    if len(args.models) != 1 or len(args.datasets) != 1 or "all" in args.models + args.datasets:
+        raise ValueError(f"a cell-list line names one model and one dataset: {text!r}")
+    return Line(text=text, task=args.task, model=args.models[0], dataset=args.datasets[0],
+                output_dir=args.output_dir, state_dir=args.state_dir or args.output_dir / "tuning_state", num_runs=0,
+                final_seeds=tuple(args.final_seeds), n_trials=0, launcher="published")
+
+
 def parse_line(text: str) -> Line:
     """One launcher line: a baseline line (one model, one dataset; the launcher's own defaults otherwise) or an
     H2S-NN line (`scripts/run_h2snn_wandb_tuning.py`, TSUBAME card T7.1)."""
     words = shlex.split(text)
     if words and words[0].endswith(H2SNN_LAUNCHER):
         return _parse_h2snn(text, words)
+    if words and words[0].endswith(PUBLISHED_LAUNCHER):
+        return _parse_published(text, words)
     if not words or not words[0].endswith(BASELINE_LAUNCHER):
         raise ValueError(f"not a baseline or H2S-NN tuning line: {text!r}")
     ap = argparse.ArgumentParser(add_help=False)
@@ -166,6 +190,10 @@ def snapshot(line: Line) -> dict[str, Any]:
                       "open_attempt": state.get("open_attempt"), "line_status": state.get("line_status")})
     seeds = sorted(int(p.stem.removeprefix("final_seed")) for p in line.cell_dir.glob("final_seed*.json")
                    if p.stem.removeprefix("final_seed").isdigit())
+    if line.launcher == "published":  # card 8 C5: the seeds the runner recorded with its summary
+        state = read_json(line.state_dir / line.token / "published_state.json")
+        done = (line.cell_dir / "published_summary.json").exists() and isinstance(state, dict)
+        seeds = sorted(int(s) for s in state.get("seeds", [])) if done else []
     return {"token": line.token, "kind": line.kind, "units": units, "final_seed_files": seeds}
 
 

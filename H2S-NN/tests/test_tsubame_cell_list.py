@@ -27,10 +27,13 @@ EARLY = {("node_classification", d, m) for d in ("acm", "dblp") for m in ("hetsh
 
 
 def expected_cells() -> set[tuple[str, str, str]]:
+    """Card 8 C5: only `tune` cells (a filled, published or probe cell is not a tuning line)."""
+    from src.baselines.cell_status import cell_status
     from src.baselines.registry import iter_cells
 
     return {(r["task"], r["dataset"], r["model"]) for r in iter_cells()
-            if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())} - EARLY
+            if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())
+            and cell_status(r["model"], r["task"], r["dataset"]) == "tune"} - EARLY
 
 
 class CellListTests(unittest.TestCase):

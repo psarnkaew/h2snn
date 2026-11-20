@@ -176,12 +176,27 @@ def _with_batch_size(cell: Cell, overrides: dict[str, Any], params: dict[str, An
     return merged
 
 
+def smallest_grid_point(spec: dict[str, Any]) -> Any:
+    """The smallest point of one search axis (card 8 C5, probe lines): the minimum of a numeric value list (the first
+    value of a categorical one), a distribution's `min`, a fixed `value`."""
+    if "value" in spec:
+        return spec["value"]
+    if "values" in spec:
+        values = list(spec["values"])
+        numeric = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values)
+        return min(values) if numeric else values[0]
+    if "min" in spec:
+        return spec["min"]
+    raise ValueError(f"no smallest point for search axis {spec!r}")
+
+
 def build_sweep_config(
     cell: Cell,
     *,
     monitor: str,
     n_trials: int,
     epochs: int,
+    grid_point: str | None = None,
 ) -> dict[str, Any]:
     """Plain Bayes over the adapter's own search space (spec v1.15 §6 Tuning: no Hyperband or
     other early termination, the same N trials for every method; card Part M, M10).
@@ -195,9 +210,15 @@ def build_sweep_config(
     if not parameters:
         raise ValueError(f"{cell.token}: adapter returned an empty search space.")
 
+    method = "bayes"
+    if grid_point is not None:  # card 8 C5: a probe line fixes every axis at its smallest point (one grid trial)
+        if grid_point != "min":
+            raise ValueError(f"grid_point must be 'min', got {grid_point!r}.")
+        parameters = {key: {"value": smallest_grid_point(spec)} for key, spec in parameters.items()}
+        method = "grid"
     return {
         "name": f"{cell.token}_sweep",
-        "method": "bayes",
+        "method": method,
         "metric": {"name": f"best/{monitor.removeprefix('val_')}", "goal": "maximize"},
         "parameters": parameters,
     }
@@ -359,6 +380,7 @@ __all__ = [
     "fit_cell",
     "monitor_for",
     "resolve_device",
+    "smallest_grid_point",
     "state_path_for",
     "summarize_cell",
 ]

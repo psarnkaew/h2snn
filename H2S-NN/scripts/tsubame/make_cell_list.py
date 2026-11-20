@@ -32,6 +32,14 @@ The ablation tuning lines are `run_h2snn_wandb_tuning.py` lines, which `lines.py
 the `run_row.py` lines (ablation seeds, perturbation, timing) are not read there (a row is done when its summary
 file exists). All of them run under `sweep_slots.sh` unchanged (`run_row.py`).
 
+Card 8 C5 (author decisions 2026-11-20; cell statuses `src/baselines/cell_status.py`: filled / published / tune /
+probe / N/A): `baselines-1` lists only `tune` cells of its datasets (a `filled`, `published` or `probe` cell, or one of
+`baselines-early`, is a comment line); phase `baselines-2` = every other `tune` cell (Freebase NC, freebase_bb, the H2GB
+NC datasets, the two large LP tasks); phase `published` = one `run_baseline_published.py ... --final_seeds 0 1 2 3 4`
+line per `published` cell (5 seeds at the source configuration, no tuning); phase `probe` = one 1-trial
+`--dry_run --grid_point min` tuning line per `probe` cell (MAGNN on the H2GB NC datasets and the large LP tasks: N/A
+when the smallest grid point does not fit one H100; never a result). GC: no baseline line (option (a)).
+
 Final-seeds list: one `--final_seeds 0 1 2 3 4` line per tuning line (baseline or H2S-NN) whose sweep has `n_trials`
 finished attempts and no `exceeds_24h` (`sweep_finished`, read with `scripts/tsubame/lines.py: snapshot`, the reader
 of `status.py`); every other line is a comment with its count. `<out>` is the directory of the list (`--out-dir`,
@@ -61,6 +69,10 @@ PHASES = {
         "node_classification": ("acm", "dblp"),
     },
 }
+#: Card 8 C5: the phases built from the cell statuses (`cell_status`), over NC and LP (GC: no baseline line).
+STATUS_PHASES = ("baselines-2", "published", "probe")
+STATUS_PHASE_TASKS = ("node_classification", "link_prediction")
+PUBLISHED_LAUNCHER = "scripts/run_baseline_published.py"
 #: TSUBAME card T7.4: methods of a phase (all registry methods when absent).
 PHASE_MODELS = {"baselines-early": ("hetsheaf", "csnn")}
 #: TSUBAME card T7.4: `baselines-1` leaves out every `baselines-early` cell (two chains never hold one line).
@@ -258,16 +270,79 @@ def phase_rows(phase: str) -> list[dict]:
     return sorted(rows, key=lambda row: (row["task"], row["dataset"], row["model"]))
 
 
+def not_tuned(row: dict) -> str | None:
+    """Why a registry row gets no tuning line (card 8 C5), or None for a `tune` cell."""
+    from src.baselines.cell_status import cell_status
+
+    status = cell_status(row["model"], row["task"], row["dataset"])
+    if status == "filled":
+        return "filled (published number, register)"
+    if status == "N/A":
+        return f"unsupported: {row['reason']}"
+    if status in ("published", "probe"):
+        return f"in phase {status}"
+    return None
+
+
 def tuning_list(phase: str, out: Path) -> list[str]:
     lines = [f"# TSUBAME phase {phase}: one tuning line per runnable registry cell (make_cell_list.py)"]
     for row in phase_rows(phase):
         other = excluded(phase, row)
         if other:
             lines.append(f"# in phase {other}: {row['task']} {row['dataset']} {row['model']}")
-        elif is_listed(row):
-            lines.append(tuning_line(row["task"], row["model"], row["dataset"], out))
-        else:
+        elif not is_listed(row):
             lines.append(f"# unsupported {row['task']} {row['dataset']} {row['model']}: {row['reason']}")
+        elif (why := not_tuned(row)) is not None:  # card 8 C5
+            lines.append(f"# {why}: {row['task']} {row['dataset']} {row['model']}")
+        else:
+            lines.append(tuning_line(row["task"], row["model"], row["dataset"], out))
+    return lines
+
+
+def published_line(task: str, model: str, dataset: str, out: Path) -> str:
+    seeds = " ".join(str(s) for s in FINAL_SEEDS)
+    return (f"{PUBLISHED_LAUNCHER} --task {task} --models {model} --datasets {dataset} --final_seeds {seeds} "
+            f"--output_dir {out}/experiments/baselines --state_dir {out}/state")
+
+
+def probe_line(task: str, model: str, dataset: str, out: Path) -> str:
+    return (f"{LAUNCHER} --task {task} --models {model} --datasets {dataset} --num_runs 1 --base_seed 0 "
+            f"--n_trials 1 --dry_run --grid_point min --output_dir {out}/experiments/probe "
+            f"--state_dir {out}/state/probe --wandb_project {WANDB_PROJECT}")
+
+
+def status_rows() -> list[dict]:
+    from src.baselines.registry import iter_cells
+
+    rows = [row for row in iter_cells(tasks=STATUS_PHASE_TASKS)]
+    return sorted(rows, key=lambda row: (row["task"], row["dataset"], row["model"]))
+
+
+def in_tuning_phase(row: dict) -> str | None:
+    """The earlier tuning phase (`baselines-early`, `baselines-1`) that holds this row's datasets, or None."""
+    for phase in ("baselines-early", "baselines-1"):
+        if in_phase(phase, row):
+            return phase
+    return None
+
+
+def status_list(phase: str, out: Path) -> list[str]:
+    """Card 8 C5: phase `baselines-2`, `published` or `probe` from the cell statuses."""
+    from src.baselines.cell_status import cell_status
+
+    header = {"baselines-2": "one tuning line per `tune` cell not in baselines-early / baselines-1",
+              "published": "one 5-seed line per `published` cell (source configuration, no tuning)",
+              "probe": "one 1-trial dry-run line per `probe` cell at the smallest grid point (never a result)"}[phase]
+    lines = [f"# TSUBAME phase {phase}: {header} (make_cell_list.py, card 8 C5)"]
+    for row in status_rows():
+        status = cell_status(row["model"], row["task"], row["dataset"])
+        cell = (row["task"], row["model"], row["dataset"])
+        if phase == "published" and status == "published":
+            lines.append(published_line(*cell, out))
+        elif phase == "probe" and status == "probe":
+            lines.append(probe_line(*cell, out))
+        elif phase == "baselines-2" and status == "tune" and in_tuning_phase(row) is None:
+            lines.append(tuning_line(*cell, out))
     return lines
 
 
@@ -298,7 +373,7 @@ def final_seeds_list(tuning_text: str, out: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--phase", choices=sorted([*PHASES, "h2snn", *CARD7_PHASES]))
+    mode.add_argument("--phase", choices=sorted([*PHASES, "h2snn", *CARD7_PHASES, *STATUS_PHASES]))
     mode.add_argument("--final-seeds", action="store_true")
     ap.add_argument("--out", type=Path, default=None, help="the list file to write")
     ap.add_argument("--out-dir", type=Path, default=None, help="<out> (default: the directory of --out)")
@@ -328,6 +403,9 @@ def main(argv: list[str] | None = None) -> None:
     elif args.phase == "h2snn":  # card 5 U4: the tuning list (card T7.3: no final-seeds list up front)
         target = args.out or out_dir / "cells_tuning.txt"
         lines = h2snn_tuning_list(out_dir)
+    elif args.phase in STATUS_PHASES:  # card 8 C5
+        target = args.out or out_dir / f"cells_{args.phase.replace('-', '_')}.txt"
+        lines = status_list(args.phase, out_dir)
     elif args.phase:
         target = args.out or out_dir / "cells_tuning.txt"
         lines = tuning_list(args.phase, out_dir)

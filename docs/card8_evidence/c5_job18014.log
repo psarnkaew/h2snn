@@ -1,0 +1,47 @@
+job=18014 node=g3n01 start=2026-11-20T19:43:38+09:00
+git=836ad747c5fe9b6d8d154aade52022387e2628cf branch=card8
+ M scripts/run_baseline_tuning.py
+ M scripts/tsubame/lines.py
+ M scripts/tsubame/make_cell_list.py
+ M src/baselines/campaign.py
+ M tests/test_tsubame_cell_list.py
+ M tests/test_tsubame_phases.py
+?? tests/test_card8_phases.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+test_probe_line_is_one_trial_at_the_smallest_point (tests.test_card8_phases.LineTests.test_probe_line_is_one_trial_at_the_smallest_point) ... ok
+test_published_line_parses_and_completes (tests.test_card8_phases.LineTests.test_published_line_parses_and_completes) ... ok
+test_h2snn_and_early_are_byte_identical_to_the_base (tests.test_card8_phases.PhaseTests.test_h2snn_and_early_are_byte_identical_to_the_base) ... ok
+test_phases_disjoint_and_cover_every_runnable_cell_once (tests.test_card8_phases.PhaseTests.test_phases_disjoint_and_cover_every_runnable_cell_once) ... ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_early_lines_pass_validate_only (tests.test_tsubame_phases.PhaseTests.test_early_lines_pass_validate_only) ... ok
+test_phases_pairwise_disjoint_and_cover_their_cells (tests.test_tsubame_phases.PhaseTests.test_phases_pairwise_disjoint_and_cover_their_cells) ... ok
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+test_final_seeds_only_for_finished_sweeps (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_final_seeds_only_for_finished_sweeps) ... ok
+test_phase_h2snn_writes_no_final_seeds_up_front (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_phase_h2snn_writes_no_final_seeds_up_front) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 5.070s
+
+OK
+card8 C5 line counts: {"baselines-early": 4, "baselines-1": 61, "baselines-2": 112, "published": 38, "probe": 10} node_f tasks: {"baselines-early": 1, "baselines-1": 16, "baselines-2": 28, "published": 10, "probe": 3}
+/tmp/tmpspth8aaf/cells_tuning.txt: 61 runnable line(s), 59 comment line(s)
+/tmp/tmpm25blbu6/cells_final_seeds_h2snn.txt: 2 runnable line(s), 3 comment line(s)
+/tmp/tmptb3vyqxa/cells_tuning_h2snn.txt: 24 runnable line(s), 1 comment line(s)
+targets exit=0
+Ran 1 test in 1.356s
+
+FAILED (failures=1)
+MUTATION c5_no_filled_exclusion: CAUGHT (test failed, rc=1)
+ H2S-NN/scripts/run_baseline_tuning.py    |  7 +++
+ H2S-NN/scripts/tsubame/lines.py          | 30 ++++++++++-
+ H2S-NN/scripts/tsubame/make_cell_list.py | 86 ++++++++++++++++++++++++++++++--
+ H2S-NN/src/baselines/campaign.py         | 24 ++++++++-
+ H2S-NN/tests/test_tsubame_cell_list.py   |  5 +-
+ H2S-NN/tests/test_tsubame_phases.py      |  7 ++-
+ 6 files changed, 150 insertions(+), 9 deletions(-)
+end=2026-11-20T19:43:47+09:00 exit=0
