@@ -1,6 +1,8 @@
-# Card 9 — Lab-cluster runs (SLURM) for light cells, with the same outputs and provenance as TSUBAME
+# Card 10 — Lab-cluster runs (SLURM) for light cells, with the same outputs and provenance as TSUBAME
 
-Written 2026-11-20 by the design session (ops). Decision: `docs/experiment_settings_decisions.md`, row of 2026-11-20 "Training on the lab cluster unlocked (5 conditions); A6000 allowed". Report: `docs/H2S-NN_card9_report.md`. Evidence: `docs/card9_evidence/`.
+Written 2026-11-20 by the design session (ops). Decision: `docs/experiment_settings_decisions.md`, row of 2026-11-20 "Training on the lab cluster unlocked (5 conditions); A6000 allowed". Report: `docs/H2S-NN_card10_report.md`. Evidence: `docs/card10_evidence/`.
+
+**Renamed 2026-11-20:** this card was first committed as "card 9" (`653054f`); the model session's card 9 (ablation scripts to pre-registration v3) took that number and branch, so this is **card 10** (branch `card10`, base `v3b` `e5bdf10`). Ablation needs no tuning list any more (spec 1.29), so condition (3) concerns only the ablation seed runs and timing.
 
 ## Why
 TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to the lab cluster (free), heavy cells stay on TSUBAME. The lab must produce the **same** sweep state, records, line logs and provenance as `scripts/tsubame/sweep_slots.sh`, so that `status.py`, `lines.py`, `make_cell_list.py --final-seeds` and `collect.py` work on lab outputs unchanged.
@@ -8,10 +10,10 @@ TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to th
 **Conditions (author, binding):** (1) one cell = one GPU type for all its trials and final seeds, recorded in provenance; (2) a cell goes to the lab only if the largest point of its search grid fits the lab GPU (checked by one trial at that point; OOM → the cell goes to TSUBAME); (3) ablation and timing stay on TSUBAME; (4) the perturbation study runs on one GPU type; (5) the paper states the GPU type per (method, dataset) and that timings are H100.
 
 ## Preconditions
-- Work in a new worktree `/mnt/data/peeradon/h2snn-card9` (`git worktree add`), branch `card9` from `origin/v3b` `fc0ebaa605280f2d987c4848cc3109c7d3b66680`, then `git merge` the pinned design-docs SHA. Card 8 runs in parallel in `/mnt/data/peeradon/h2snn` on `card8`: **do not edit** `scripts/tsubame/make_cell_list.py`, `src/baselines/**`, `configs/baselines/**` (card 8 owns them).
+- Work in a new worktree `/mnt/data/peeradon/h2snn-card10` (`git worktree add`), branch `card10` from `origin/v3b` `e5bdf10432e32c8fe31e8f3faff814951461d4d2`, then `git merge` the pinned design-docs SHA. Card 8 runs in parallel in `/mnt/data/peeradon/h2snn` on `card8`: **do not edit** `scripts/tsubame/make_cell_list.py`, `src/baselines/**`, `configs/baselines/**` (card 8 owns them).
 - Read: this card; `docs/tsubame_guide.md` §3, §6, §9; `scripts/tsubame/{sweep_slots.sh,submit_chain.sh,lines.py,status.py,collect.py}`; `scripts/slurm/run_sweep_agents.sbatch`; `docs/lab-gpu-cluster.html` (SLURM rules); `sinfo -o "%n %G %m"`.
 
-## Units (one commit each; push `card9` after each)
+## Units (one commit each; push `card10` after each)
 
 ### L1 — Lab slot runner (`scripts/slurm/lab_slots.sbatch`, `scripts/slurm/submit_lab.sh`)
 - `lab_slots.sbatch`: SLURM array job; task `t` runs line `t` of a cell list (blank and `#` lines skipped in the numbering exactly as `lines.py`), as `python <line> --resume`, with **the same** line-log path, provenance JSONL (`logs/prov/<job>.<task>.0.jsonl`: head, host, job id, task id, GPU name, start/end, exit) and start-of-job prints as `sweep_slots.sh`, so `collect.py` reads them. Refuses a dirty checkout or a HEAD that differs from the SHA in the checkout's directory name (as `sweep_slots.sh`). `--mem`, `--time` (≤ 72 h), `--gres=gpu:<type>:1` are required arguments of `submit_lab.sh`; no default GPU type.
@@ -28,7 +30,7 @@ TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to th
 - Reads a TSUBAME phase list (from `make_cell_list.py`, unchanged) and a `fit_check.tsv`, writes `<list>.lab.txt` and `<list>.t4.txt` (disjoint; union = input), never moving a line that already has state under the other site's output directory. Test + mutation (a line in both → fails).
 
 ### L4 — Targeted tests (one CPU job, no `--gres`, 16G) and report
-`git diff --stat fc0ebaa -- H2S-NN/src` must be empty (no `src/` change). Report: unit table, how to run (commands for the H2S-NN GC lines and for a baseline list), deviations.
+`git diff --stat e5bdf10 -- H2S-NN/src` must be empty (no `src/` change). Report: unit table, how to run (commands for the H2S-NN GC lines and for a baseline list), deviations.
 
 ## Rules
 - Correctness only: no real-data run except L2's fit check, which is not a result and is run only after the author approves this card. No metric reported.
@@ -42,7 +44,7 @@ TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to th
 - Any unexpected test or mutation outcome.
 
 ## Report
-`docs/H2S-NN_card9_report.md`; last line `branch=card9 sha=<head as pushed> card=docs/H2S-NN_card9_lab_runs_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680`.
+`docs/H2S-NN_card10_report.md`; last line `branch=card10 sha=<head as pushed> card=docs/H2S-NN_card10_lab_runs_card.md base=e5bdf10432e32c8fe31e8f3faff814951461d4d2`.
 
 ## Estimate
 About half a day to one day; longer if a launcher needs a flag to pin the largest point.
