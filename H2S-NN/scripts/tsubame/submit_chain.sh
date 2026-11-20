@@ -5,7 +5,8 @@
 #   bash scripts/tsubame/submit_chain.sh --list <out>/cells_tuning.txt --type node_f --legs 6 \
 #       [--out <out>] [--first-task a --last-task b]
 #
-# Leg 1 is an array of K = ceil(runnable lines / S) tasks (S = 4 for node_f, 1 for gpu_1; G = K * S slots, so every
+# Leg 1 is an array of K = ceil(runnable lines / S) tasks (S = GPUs per task: gpu_1 1, node_q 1, node_h 2, node_f 4;
+# node_o and gpu_h (MIG, half an H100) are refused (card 10 A2.1); G = K * S slots, so every
 # line has its own slot); legs 2..L are the same array, each held (-hold_jid) on the previous leg. --first-task /
 # --last-task submit only tasks a..b of that array (K and G unchanged, so each line keeps its slot).
 # Lines of node_f task t are lines 4t-3..4t; as gpu_1 (S = 1) they are tasks 4t-3..4t (guide section 7).
@@ -14,7 +15,7 @@
 # running (qstat, called once) is refused: one chain per list.
 set -euo pipefail
 
-usage() { echo "usage: submit_chain.sh --list FILE --type {node_f,gpu_1} --legs L [--out DIR] [--first-task a --last-task b]" >&2; exit 2; }
+usage() { echo "usage: submit_chain.sh --list FILE --type {gpu_1,node_q,node_h,node_f} --legs L [--out DIR] [--first-task a --last-task b]" >&2; exit 2; }
 LIST="" TYPE="" LEGS="" OUT="" FIRST="" LAST=""
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -29,7 +30,12 @@ while [ $# -gt 0 ]; do
 done
 [ -n "${LIST}" ] && [ -n "${TYPE}" ] && [ -n "${LEGS}" ] || usage
 [ -f "${LIST}" ] || { echo "no list ${LIST}" >&2; exit 2; }
-case "${TYPE}" in node_f) S=4;; gpu_1) S=1;; *) echo "--type must be node_f or gpu_1" >&2; exit 2;; esac
+# card 10 A2.1: every whole-H100 type, S = its GPUs (handbook 5.1.1); MIG types are refused (one full H100 per trial)
+case "${TYPE}" in
+    gpu_1) S=1;; node_q) S=1;; node_h) S=2;; node_f) S=4;;
+    node_o|gpu_h) echo "refused: --type ${TYPE} is a MIG slice (half an H100); every trial runs on one full H100 94 GB (spec range rule)" >&2; exit 2;;
+    *) echo "--type must be gpu_1, node_q, node_h or node_f" >&2; exit 2;;
+esac
 [[ "${LEGS}" =~ ^[1-9][0-9]*$ ]] || { echo "--legs must be a positive integer" >&2; exit 2; }
 LIST="$(cd "$(dirname "${LIST}")" && pwd)/$(basename "${LIST}")"
 OUT="${OUT:-$(dirname "${LIST}")}"

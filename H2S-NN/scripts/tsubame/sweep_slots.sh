@@ -5,7 +5,8 @@
 #   qsub -g <group> -l node_f=1 -t 1-K -o <out>/logs scripts/tsubame/sweep_slots.sh <list> <out> <S> <G>
 #   from H2S-NN/ of a checkout at $WORK/h2snn-runs/<sha>/ (the repository directory is named by its HEAD).
 #
-# S = slots per task (GPUs of the resource type: 4 for node_f, 1 for gpu_1); G = total slots of the leg (K * S).
+# S = slots per task (GPUs of the resource type: gpu_1 1, node_q 1, node_h 2, node_f 4; card 10 A2.1, MIG types are
+# refused by submit_chain.sh); G = total slots of the leg (K * S).
 # Runnable lines of <list> are numbered 1, 2, ... with blank and '#' lines skipped (as scripts/slurm/
 # run_sweep_agents.sbatch's header states). Slot k (0-based, k < S) of task t is global slot g = (t-1)*S + k and runs
 # lines g+1, g+1+G, g+1+2G, ... one after another, each as `python <line> --resume` with CUDA_VISIBLE_DEVICES=k and
