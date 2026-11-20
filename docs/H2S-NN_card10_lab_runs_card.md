@@ -35,7 +35,7 @@ TSUBAME points are limited (balance 1,580 on 2026-11-20). Light cells move to th
 ## Rules
 - Correctness only: no real-data run except L2's fit check, which is not a result and is run only after the author approves this card. No metric reported.
 - Compute via `sbatch` with `--mem` and `--time`; the A6000 (`g3an01`) is allowed (author 2026-11-20).
-- Git: one commit per unit; stage by explicit path; never `git add -A`, stash, reset or rebase; push only `card9`; never touch `v3b`.
+- Git: one commit per unit; stage by explicit path; never `git add -A`, stash, reset or rebase; push only `card10`; never touch `v3b`.
 
 ## Stop conditions
 - A file owned by card 8 needs a change.
