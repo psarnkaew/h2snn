@@ -1,15 +1,15 @@
-# Card 10 report: lab-cluster runs (SLURM): stopped at L2
+# Card 10 report: lab-cluster runs (SLURM): L1 and L3 done; L2 waits for card 8 on `v3b`
 
-**Verdict.** L1 is done: job 18033 ran 4 tests, all OK, and the mutation was caught. **L2 hit a stop condition:** at base `e5bdf10`, neither launcher can run one fixed grid point without a new flag. L3 and L4 were not started, because the prompt says to stop at any stop condition. No `src/` change was made: `git diff --stat e5bdf10 -- H2S-NN/src` is empty. No real-data run was made.
+**Verdict.** L1 is done: job 18033 ran 4 tests, all OK, and the mutation was caught. L1 was accepted with its three additions (Amendment 1). L3 is done: job 18035 ran 3 tests, all OK, and the mutation was caught. **L2 waits** (Amendment 1, option A): once card 8 is on `v3b` and the ops session gives the SHA, I merge it and add `--grid_point {min,max}` to the launchers (scripts only), then do L2 and L4. No `src/` change was made: `git diff --stat e5bdf10 -- H2S-NN/src` is empty. No real-data run was made.
 
 ## Units
 
 | Unit | State | Files | Evidence |
 |---|---|---|---|
 | L1 lab slot runner | done (`cd0de1a`) | `scripts/slurm/lab_slots.sbatch`, `scripts/slurm/submit_lab.sh`, `tests/test_lab_slots.py` | `card10_evidence/l1_18033.log`: 4 tests OK; mutation `mutation_l1.py` (the GPU-type record is not checked) caught |
-| L2 fit check | **stopped** | none | see below |
-| L3 site split | not started | none | none |
-| L4 targeted tests and report | report only | this file | none |
+| L2 fit check | **waits for card 8 on `v3b`** (option A) | none yet | see below |
+| L3 site split | done (`9ead523`) | `scripts/slurm/site_split.py`, `tests/test_site_split.py` | `card10_evidence/l3_18035.log`: 3 tests OK; mutation `mutation_l3.py` (a lab line also written to the TSUBAME list) caught |
+| L4 targeted tests and report | after L2 | this file | none |
 
 ## L1: what it does
 - **`lab_slots.sbatch`**: array task `t` runs runnable line `t`, numbered as `lines.runnable_lines`, with `python <line> --resume`. A `--final_seeds` line whose seed files are all written is skipped. The output names are those of `sweep_slots.sh` with `S = 1`:
@@ -35,18 +35,17 @@
 - **H2S-NN** (`scripts/run_h2snn_wandb_tuning.py`): the size axes are `d`, `wisp_max_length` (ℓ_max), `wisp_walks_per_anchor` (r), and `batch_size` on H2GB NC (`build_sweep_config`, l.321). Only `d` can be pinned (`--d_values`, l.133). The trial parameters always come from the W&B Bayes agent; the `--worker_context` worker also takes them from `wandb.agent` (`src/utils/wandb_campaign.py` `run_campaign_worker`).
 - **Baselines** (`scripts/run_baseline_tuning.py`, l.64–99): at `e5bdf10` there is no flag that pins a point. Card 8's branch adds `--grid_point min` (probe lines, `--dry_run --n_trials 1`), which is not in the base and is min only. `run_baseline_tuning.py` is also being edited by card 8 (uncommitted in its tree).
 
-**Options**
+**Decision (author, Amendment 1):** option A. The launchers define and run the largest point; `fit_check.py` only builds those lines, submits them with `submit_lab.sh` and writes `fit_check.tsv`.
 
-| Option | What | Recommendation |
-|---|---|---|
-| A | Add `--grid_point max` to both launchers: largest value of every size axis, central value elsewhere, only with `--dry_run --n_trials 1`, and print the peak GPU memory (`torch.cuda.max_memory_allocated`). For baselines, extend card 8's `--grid_point` after card 8 merges into `v3b`. Then L2 runs `fit_check.py` on the lines with that flag. | **Recommended**: the launcher defines and runs the point, so nothing is guessed, and it reuses card 8's mechanism. Cost: one unit, after card 8 merges. |
-| B | `fit_check.py` calls the launchers' `train_trial` in-process with the largest point. | Not recommended: it duplicates `main()`'s base-config setup (dry-run budget, device, batch bundle), which can drift from the real run path. |
-
-**L3** (`site_split.py`) does not depend on how L2 runs, only on the `fit_check.tsv` columns. It can be done on your go, together with L2 or before it. Planned behaviour, open to your correction:
-- the join is by cell token, so a list generated with either site's `--out-dir` splits the same way;
-- `error` lines and lines missing from `fit_check.tsv` go to TSUBAME;
-- a line with state under one site's `state/<token>` or `experiments/*/<token>` stays at that site;
-- a line pinned to the lab that does not `fits` is an error.
+## L3: what it does
+`site_split.py --list L --fit-check F --gpu-type T --lab-out D1 --t4-out D2` writes `<list stem>.lab.txt` and `<list stem>.t4.txt` next to the list. The list itself is not changed.
+- **Lists:** the two lists are disjoint, together they are exactly the runnable lines of the input, and each keeps the input order. The test checks this with lines from the real `make_cell_list.py` builders: baselines and H2S-NN, tuning and final seeds.
+- **Join:** `fit_check.tsv` is joined by **cell** (the `lines.py` token), so a list written with either site's `--out-dir` splits the same way (the test checks both). Only rows of `--gpu-type` count, because `submit_lab.sh` takes one GPU type per lab list.
+- **Lab or TSUBAME:** a line goes to the lab only if its cell's status is `fits`. `oom`, `error`, and a cell with no row on that GPU type go to TSUBAME.
+- **State:** a cell with state at one site stays at that site. State means `<out>/state/<token>/tuning_state_*.json` or `<out>/experiments/*/<token>/final_seed*.json`, the layout `collect.py` reads.
+- **Refused, nothing written:** lab state for a cell that is not `fits`; state at both sites; one cell with two statuses on the same GPU type.
+- **Both site directories must exist.** On the lab, pass a local mirror of TSUBAME's `state/` and `experiments/`, e.g. `rsync -a --include='*/' --include='tuning_state_*.json' --include='final_seed*.json' --exclude='*' <t4>:<out>/ <mirror>/`. This way missing state is never taken for no state.
+- **`fit_check.tsv` columns (the format L2 will write):** `line_no, cell, gpu_type, peak_mem_mib, status, line`, where status is `fits`, `oom` or `error`.
 
 ## How to run L1 (after an approved `v3b` SHA; not run in this card)
 ```
@@ -55,12 +54,10 @@ git clone git@github.com:psarnkaew/h2snn.git $RUN && cd $RUN && git checkout --d
 cd H2S-NN && bash scripts/setup/clone_vendors.sh && bash scripts/setup/apply_vendor_patches.sh
 ln -s /mnt/data/peeradon/h2snn/H2S-NN/data data            # lab data root; vendor/ stays a real clone
 . ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b
-python scripts/tsubame/make_cell_list.py --phase h2snn --out $OUT/cells_tuning_h2snn.txt   # then L3's .lab.txt
+python scripts/tsubame/make_cell_list.py --phase h2snn --out $OUT/cells_tuning_h2snn.txt   # then site_split.py (L3) -> .lab.txt / .t4.txt
 bash scripts/slurm/submit_lab.sh --list $OUT/cells_tuning_h2snn.lab.txt --out $OUT --gpu-type 3090 --mem 48G --time 72:00:00 --legs 3
 bash scripts/slurm/submit_lab.sh --list $OUT/cells_tuning.lab.txt       --out $OUT --gpu-type titan_rtx --mem 48G --time 72:00:00 --legs 2
 python scripts/tsubame/status.py --out $OUT --list $OUT/cells_tuning_h2snn.lab.txt
 python scripts/tsubame/collect.py --out $OUT
 ```
 The `--mem` values above are placeholders: lab nodes have 64 GB RAM, and the A6000 node has 224 GB. The GPU type per list is the one its fit check used.
-
-branch=card10 sha=5d72f21b25cd889fe537d546a933e87f1e847a96 card=docs/H2S-NN_card10_lab_runs_card.md base=e5bdf10432e32c8fe31e8f3faff814951461d4d2
