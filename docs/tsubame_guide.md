@@ -2,6 +2,8 @@
 
 Written 2026-11-18 by the design session (ops). Sources: `docs/tsubame_handbook.en.pdf` (TSUBAME4.0 User's Guide, 2026-11-10; read §1–§5, §7.4, §7.6.12; the commercial-application chapters were skipped) and the limits page https://www.t4.cii.isct.ac.jp/en/resource-limit (last update 2025-12-09, read 2026-11-18). Items marked **UNVERIFIED** have not been checked on TSUBAME. Card T0–T6 (`docs/H2S-NN_tsubame_card.md`) checks them. Scripts under `scripts/tsubame/` are written by that card. Until it is approved they do not exist.
 
+**First start on TSUBAME: follow §9 (T6 checklist).**
+
 ## 0. What TSUBAME is for (author, 2026-11-17)
 - **Real runs only**: tuning sweeps and final seeds. Development, tests, mutation checks and analysis stay on the lab cluster.
 - **Baselines first** (author, 2026-11-18): phase 1 is the baseline cells on HGB NC (ACM, DBLP, IMDB) and the small LP tasks (`acm_pa`, `dblp_ap`, `imdb_ma`, `pubmed`, `lastfm`). Freebase, H2GB NC, the large LP tasks, GC and H2S-NN come later, after their cards are on `v3b` (H2S-NN after the freeze).
@@ -59,10 +61,10 @@ ln -s $WORK/h2snn-data data                                             # one da
 ```
 From the **lab cluster login node** (or the laptop), copy data and the DGL package:
 ```
-rsync -avL /mnt/data/peeradon/h2snn/H2S-NN/data/ <t4>:<WORK>/h2snn-data/      # all of data/: ≈ 16 GB (2026-11-19)
+rsync -avLH /mnt/data/peeradon/h2snn/H2S-NN/data/ <t4>:<WORK>/h2snn-data/     # all of data/: ≈ 16 GB; -H keeps hard links (2026-11-20)
 rsync -av /mnt/home/peeradon/wheels/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 <t4>:~/wheels/
 ```
-Copy **all** of `data/` once (amended 2026-11-19, card 5 D3): HGB NC (acm, dblp, imdb, freebase), the 8 H2GB NC datasets (`NC/mag`, `NC/OAG`, `NC/IEEE-CIS`, `NC/Pokec`, `NC/PDNS`), LP including the large-LP sources, GC, and the perturbed graphs of card 7 (`NC/*_pert`). Sizes on the lab cluster: `NC/OAG` 9.2G, `NC/mag` 4.2G, the rest < 1G each; total ≈ 16G of the 125 GiB home+work quota. After the copy, `du -sh $WORK/h2snn-data` must match the lab's `du -shL data` (state both in the T6 evidence).
+Copy **all** of `data/` once (amended 2026-11-19, card 5 D3): HGB NC (acm, dblp, imdb, freebase), the 8 H2GB NC datasets (`NC/mag`, `NC/OAG`, `NC/IEEE-CIS`, `NC/Pokec`, `NC/PDNS`), LP including the large-LP sources, GC, and the perturbed graphs of card 7 (`NC/*_pert`). Sizes on the lab cluster: `NC/OAG` 9.2G, `NC/mag` 4.2G, the rest < 1G each; total ≈ 16G of the 125 GiB home+work quota. After the copy, `du -sh $WORK/h2snn-data` must match the lab's `du -shL data` (state both in the T6 evidence). **Use `-H` (amended 2026-11-20, model session):** `NC/{ACM,DBLP,IMDB}_pert` share files by hard link; without `-H` rsync writes each link as a separate copy (ACM_pert 1.2G apparent vs 106M on disk, DBLP_pert 3.3G vs 141M, IMDB_pert 1.6G vs 66M: ≈ 6 GB extra) and the `du` check will not match. If the copy was already made without `-H`, it still works (space only): either remove `<WORK>/h2snn-data/NC/*_pert` and re-run the command with `-H`, or record both `du` numbers in the T6 evidence. ACM_pert and DBLP_pert are used by card 7 (perturbed folders and `original/`); IMDB_pert and the `*_h0.80` folders are in no list and may be skipped.
 **Never make `vendor/` a symlink.** Vendor-module unloading compares resolved module paths with the vendor folders, so a symlinked `vendor/` breaks 86 baseline/vendor tests (decisions log 2026-11-19, row "Model change 1.25 merged"). `vendor/` is always a real clone made by `clone_vendors.sh` inside each checkout; only `data` is a symlink.
 Rule: a checkout is never edited and never moved to another SHA. A new approval gets a new directory. Sweep agents re-import the code at every trial, so editing a live checkout would mix code versions inside one sweep.
 
@@ -117,3 +119,79 @@ Writing `#$ -t` and `$SGE_TASK_ID` instead of `#SBATCH --array` and `$SLURM_ARRA
 
 ## 8. Open, checked by T6 on TSUBAME
 UNVERIFIED until T6: outbound HTTPS from compute nodes (pip, GitHub, W&B); NVIDIA driver version (must support CUDA 12.4); torch 2.4.1+cu124, DGL 2.4.0 cu124 and the PyG wheels on H100 (sm_90); `node_f` queue wait vs `gpu_1`; whether `~/.netrc` reaches compute nodes (home is Lustre, shared).
+
+## 9. T6 checklist: first start on TSUBAME, in order (added 2026-11-20, ops session)
+One page for the first start. It collects §2–§6, the T6 commands of `docs/H2S-NN_tsubame_report.md` (sections "T6 — commands for the author" and "T6 commands … three chains") and the Freebase probe of `docs/H2S-NN_card5_report.md` U3. Where this section and those differ, this section wins. A FAIL in a step stops everything after it; send the log to the ops session.
+
+**Where each step runs.** *Lab* = the lab-cluster machine that sees `/mnt/data/peeradon` (or the laptop, for rsync only). *T4 login* = `login.t4.gsic.titech.ac.jp`: git, rsync, tar, `qsub`, `status.py` and short (< 1 min) list scripts only; nothing longer than 10 min, no Python computation, no servers. *T4 compute* = anything started by `qsub`. Every T4 command runs from `$WORK/h2snn-runs/$SHA/H2S-NN` unless stated.
+
+| Step | Where | What | Pass |
+|---|---|---|---|
+| 0 | T4 login | `echo <group> > ~/.t4_group` (once; never in git) | file has one line |
+| 1a | T4 login | checkout, vendors, data link (below) | `git log -1` shows `$SHA`; `vendor/` is a real directory |
+| 1b | Lab | `rsync -avLH` of `data/` and the DGL package (below) | apparent sizes equal: `du -sh --apparent-size` (T4) = `du -shL --apparent-size data` (lab) = 35G (2026-11-20); same file count (715) and hard-link count (198). Plain `du` differs (lab 16G, T4 35G) because the lab NFS stores data compressed; Lustre does not |
+| 2a | T4 login | Miniforge: `bash Miniforge3-Linux-x86_64.sh -b -p $HOME/miniforge3` | `~/miniforge3/bin/conda` exists |
+| 2b | T4 compute (`cpu_8`) | `install_env.sh` | log ends `exit=0`; a pip failure = no compute-node internet: stop |
+| 2c | T4 login | `wandb login` (key goes to `~/.netrc`) | "Successfully logged in" |
+| 3 | T4 compute (`gpu_1`, trial run) | `env_check.sh` | every line `OK`, log ends `fails=0` |
+| 4 | T4 compute (`gpu_1`, trial run) + T4 login (`status.py`) | launcher check: 3 lines, 1 trial each, `--dry_run` | 3 lines `1/1`, `done`; line logs end `exit=0` |
+| 5 | T4 compute (`gpu_1`, 30 min, group points) | Freebase NC memory probe (card 5 U3) | JSON written; OOM or not, send it (decides the Freebase mode) |
+| 6 | T4 login | three lists, three chains | **only after the ops session has read steps 3–5** |
+| — | T4 login | `t4-user-info disk home` | send the output (quota check) |
+
+**1a (T4 login).**
+```
+WORK=${HOME/home/work}; SHA=<approved v3b sha, ≥ fc0ebaa>; OUT=$WORK/h2snn-out/$SHA
+git clone git@github.com:psarnkaew/h2snn.git $WORK/h2snn-runs/$SHA
+cd $WORK/h2snn-runs/$SHA && git checkout --detach $SHA
+cd H2S-NN && bash scripts/setup/clone_vendors.sh && bash scripts/setup/apply_vendor_patches.sh
+mkdir -p $WORK/h2snn-data $OUT/logs ~/wheels && ln -s $WORK/h2snn-data data
+echo $WORK                                   # <WORK> for step 1b
+```
+**1b (Lab).**
+```
+rsync -avLH /mnt/data/peeradon/h2snn/H2S-NN/data/ <t4-login>@login.t4.gsic.titech.ac.jp:<WORK>/h2snn-data/
+rsync -av /mnt/home/peeradon/wheels/dgl-2.4.0.th24.cu124-py312_0.tar.bz2 <t4-login>@login.t4.gsic.titech.ac.jp:~/wheels/
+du -shL /mnt/data/peeradon/h2snn/H2S-NN/data
+```
+**2b, 2c.**
+```
+qsub -g $(cat ~/.t4_group) -l cpu_8=1 -l h_rt=2:00:00 -o $OUT/logs scripts/tsubame/install_env.sh
+. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b && wandb login       # after exit=0, on the login node
+```
+**3.**
+```
+qsub -l gpu_1=1 -l h_rt=0:03:00 -o $OUT/logs scripts/tsubame/env_check.sh
+```
+Copy the whole log to the ops session; it goes to `docs/tsubame_evidence/t6_env_check.txt`.
+
+**4.**
+```
+CHK=$WORK/h2snn-out/$SHA-check; mkdir -p $CHK/logs
+cat > $CHK/cells_check.txt <<EOF
+scripts/run_baseline_tuning.py --task node_classification --models gcn --datasets acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $CHK/experiments/baselines --state_dir $CHK/state --wandb_project h2snn_baseline_t4_check
+scripts/run_baseline_tuning.py --task link_prediction --models gcn --datasets acm_pa --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $CHK/experiments/baselines --state_dir $CHK/state --wandb_project h2snn_baseline_t4_check
+scripts/run_h2snn_wandb_tuning.py --config configs/experiments/acm_h2snn_v3b.yaml --exp_name h2snn_check_acm --num_runs 1 --base_seed 0 --n_trials 1 --dry_run --output_dir $CHK/experiments/h2snn --state_dir $CHK/state/h2snn_check_acm --wandb_project h2snn_h2snn_t4_check
+EOF
+qsub -l gpu_1=1 -l h_rt=0:03:00 -t 1-3 -o $CHK/logs scripts/tsubame/sweep_slots.sh $CHK/cells_check.txt $CHK 1 3
+. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b
+python scripts/tsubame/status.py --out $CHK --list $CHK/cells_check.txt
+```
+If 3 minutes are too short for data loading: the same `qsub` with `-g $(cat ~/.t4_group) -l h_rt=0:20:00` (still a check, not a result).
+
+**5.**
+```
+echo '. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b && python scripts/freebase_memory_probe.py --out freebase_probe_$JOB_ID.json' | qsub -g $(cat ~/.t4_group) -l gpu_1=1 -l h_rt=0:30:00 -cwd -j y -N fb_probe -S /bin/bash
+```
+
+**6 (after the ops session's go).** Lists, then chains in this order (H2S-NN first); 6 + 1 + 22 = 29 `node_f` jobs ≤ 30.
+```
+. ~/miniforge3/etc/profile.d/conda.sh && conda activate h2snn-b
+python scripts/tsubame/make_cell_list.py --phase h2snn           --out $OUT/cells_tuning_h2snn.txt   # 24 lines
+python scripts/tsubame/make_cell_list.py --phase baselines-early --out $OUT/cells_tuning_early.txt   # 4 lines
+python scripts/tsubame/make_cell_list.py --phase baselines-1     --out $OUT/cells_tuning.txt         # 85 lines
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning_h2snn.txt --type node_f --legs 6
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning_early.txt --type node_f --legs 6
+bash scripts/tsubame/submit_chain.sh --list $OUT/cells_tuning.txt       --type node_f --legs 6
+```
+Watching, final seeds and collection: `docs/H2S-NN_tsubame_report.md` "T6 commands … three chains" (`status.py` per list, never frequent `qstat`; final seeds only for lines with 100 finished trials). Card 7 lists (ablation, perturbation, timing) come later, after `h2snn` has tuned `full` (decisions log 2026-11-20); no Freebase ablation line before the Freebase mode is decided.
