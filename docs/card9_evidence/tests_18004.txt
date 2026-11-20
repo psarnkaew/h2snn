@@ -1,0 +1,163 @@
+job=18004 node=g2tn01 start=2026-11-20T18:45:55+09:00
+git=05c13671fdb836a7c129680e818f319a7ae2e141 branch=card9
+dirty:  M scripts/analysis/face_effect.py  M scripts/analysis/mechanism_common.py  M scripts/analysis/two_regime.py  M tests/test_card7_mechanism.py  M tests/test_card9_v3.py 
+test_T3_eight_rows_seeds_and_no_tune_row (tests.test_card9_v3.ManifestTests.test_T3_eight_rows_seeds_and_no_tune_row) ... ok
+test_T5_r3_needs_the_s2_partner (tests.test_card9_v3.NormalisedEnergyTests.test_T5_r3_needs_the_s2_partner) ... ok
+test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it (tests.test_card9_v3.NormalisedEnergyTests.test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it) ... ok
+test_T6_e1_needs_both_datasets_e2_and_absent (tests.test_card9_v3.PerturbationRuleTests.test_T6_e1_needs_both_datasets_e2_and_absent) ... ok
+test_T6_figure_names_absent_methods (tests.test_card9_v3.PerturbationRuleTests.test_T6_figure_names_absent_methods) ... ok
+test_T6_per_seed_values_from_the_launchers_files (tests.test_card9_v3.PerturbationRuleTests.test_T6_per_seed_values_from_the_launchers_files) ... ok
+test_T7_homophily_scatter_from_the_link_points (tests.test_card9_v3.Q3Tests.test_T7_homophily_scatter_from_the_link_points) ... ok
+test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5 (tests.test_card9_v3.Q3Tests.test_T7_seeds_1_to_5_only_no_permutation_and_favour_at_5_of_5) ... ok
+test_T1_c2w_present_and_b_name_raises (tests.test_card9_v3.RuleTests.test_T1_c2w_present_and_b_name_raises) ... ok
+test_T1_missing_seed_is_none_never_false (tests.test_card9_v3.RuleTests.test_T1_missing_seed_is_none_never_false) ... ok
+test_T1_rule_edge_cases (tests.test_card9_v3.RuleTests.test_T1_rule_edge_cases) ... ok
+test_T4_face_rules_on_crafted_seeds (tests.test_card9_v3.ScaleFreeMarginTests.test_T4_face_rules_on_crafted_seeds) ... ok
+test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged (tests.test_card9_v3.ScaleFreeMarginTests.test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged) ... ok
+test_T2_emitted_uniform_yaml_builds (tests.test_card9_v3.UniformRowTests.test_T2_emitted_uniform_yaml_builds) ... ok
+test_T2_one_training_step_of_the_uniform_model (tests.test_card9_v3.UniformRowTests.test_T2_one_training_step_of_the_uniform_model) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_full_run0
+Processing...
+Done!
+2026-11-20 18:46:02,602 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-20 18:46:02,602 | INFO | Target node type: paper
+2026-11-20 18:46:02,602 | INFO | Model parameters: 2788
+2026-11-20 18:46:02,602 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:02,917 | INFO | Epoch 0000 | train_loss: 1.0914 | train_acc: 0.2778 | train_auroc: 0.0000 | train_macro_f1: 0.1449 | train_micro_f1: 0.2778 | val_loss: 1.1085 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3524 | test_auroc: 0.0000 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524
+2026-11-20 18:46:02,923 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:02,923 | INFO | Best epoch 0 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524 | test_acc: 0.3524
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_full_run1
+2026-11-20 18:46:02,939 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-20 18:46:02,939 | INFO | Target node type: paper
+2026-11-20 18:46:02,939 | INFO | Model parameters: 2788
+2026-11-20 18:46:02,940 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:03,252 | INFO | Epoch 0000 | train_loss: 1.1052 | train_acc: 0.2222 | train_auroc: 0.0000 | train_macro_f1: 0.1444 | train_micro_f1: 0.2222 | val_loss: 1.1580 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3810 | test_auroc: 0.0000 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810
+2026-11-20 18:46:03,258 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:03,258 | INFO | Best epoch 0 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810 | test_acc: 0.3810
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_no_path_cells_run0
+2026-11-20 18:46:03,280 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-20 18:46:03,280 | INFO | Target node type: paper
+2026-11-20 18:46:03,280 | INFO | Model parameters: 2788
+2026-11-20 18:46:03,281 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:03,334 | INFO | Epoch 0000 | train_loss: 1.0909 | train_acc: 0.2778 | train_auroc: 0.0000 | train_macro_f1: 0.1449 | train_micro_f1: 0.2778 | val_loss: 1.1074 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3524 | test_auroc: 0.0000 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524
+2026-11-20 18:46:03,340 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:03,340 | INFO | Best epoch 0 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524 | test_acc: 0.3524
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_no_path_cells_run1
+2026-11-20 18:46:03,356 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-20 18:46:03,356 | INFO | Target node type: paper
+2026-11-20 18:46:03,356 | INFO | Model parameters: 2788
+2026-11-20 18:46:03,356 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:03,410 | INFO | Epoch 0000 | train_loss: 1.1046 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.1773 | train_micro_f1: 0.2500 | val_loss: 1.1580 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3810 | test_auroc: 0.0000 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810
+2026-11-20 18:46:03,416 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:03,416 | INFO | Best epoch 0 | test_macro_f1: 0.1878 | test_micro_f1: 0.3810 | test_acc: 0.3810
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_S2_run0
+2026-11-20 18:46:03,438 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-20 18:46:03,438 | INFO | Target node type: paper
+2026-11-20 18:46:03,438 | INFO | Model parameters: 2446
+2026-11-20 18:46:03,438 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:03,498 | INFO | Epoch 0000 | train_loss: 1.0440 | train_acc: 0.5000 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.5000 | val_loss: 1.2481 | val_acc: 0.1111 | val_auroc: 0.0000 | val_macro_f1: 0.0667 | val_micro_f1: 0.1111 | test_acc: 0.2381 | test_auroc: 0.0000 | test_macro_f1: 0.1282 | test_micro_f1: 0.2381
+2026-11-20 18:46:03,503 | INFO | Checkpoint metric macro_f1: 0.0667
+2026-11-20 18:46:03,503 | INFO | Best epoch 0 | test_macro_f1: 0.1282 | test_micro_f1: 0.2381 | test_acc: 0.2381
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_S2_run1
+2026-11-20 18:46:03,520 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-20 18:46:03,520 | INFO | Target node type: paper
+2026-11-20 18:46:03,520 | INFO | Model parameters: 2446
+2026-11-20 18:46:03,520 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 2316, 'facts_after': 1158}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:03,580 | INFO | Epoch 0000 | train_loss: 1.1830 | train_acc: 0.1944 | train_auroc: 0.0000 | train_macro_f1: 0.1138 | train_micro_f1: 0.1944 | val_loss: 1.0647 | val_acc: 0.3333 | val_auroc: 0.0000 | val_macro_f1: 0.1667 | val_micro_f1: 0.3333 | test_acc: 0.3619 | test_auroc: 0.0000 | test_macro_f1: 0.2296 | test_micro_f1: 0.3619
+2026-11-20 18:46:03,586 | INFO | Checkpoint metric macro_f1: 0.1667
+2026-11-20 18:46:03,586 | INFO | Best epoch 0 | test_macro_f1: 0.2296 | test_micro_f1: 0.3619 | test_acc: 0.3619
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Processing...
+Done!
+Processing...
+Done!
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_pert_full_run0
+2026-11-20 18:46:03,792 | INFO | Dataset: acm | Task: node_classification | Run: 0/2 | Seed: 1 | Monitor: macro_f1
+2026-11-20 18:46:03,792 | INFO | Target node type: paper
+2026-11-20 18:46:03,792 | INFO | Model parameters: 2788
+2026-11-20 18:46:03,792 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 3766, 'facts_after': 1883}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:04,091 | INFO | Epoch 0000 | train_loss: 1.0910 | train_acc: 0.2778 | train_auroc: 0.0000 | train_macro_f1: 0.1449 | train_micro_f1: 0.2778 | val_loss: 1.1097 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3524 | test_auroc: 0.0000 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524
+2026-11-20 18:46:04,097 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:04,097 | INFO | Best epoch 0 | test_macro_f1: 0.1737 | test_micro_f1: 0.3524 | test_acc: 0.3524
+Resolved run: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpsoyocgu5/runs/toy_pert_full_run1
+2026-11-20 18:46:04,113 | INFO | Dataset: acm | Task: node_classification | Run: 1/2 | Seed: 2 | Monitor: macro_f1
+2026-11-20 18:46:04,114 | INFO | Target node type: paper
+2026-11-20 18:46:04,114 | INFO | Model parameters: 2788
+2026-11-20 18:46:04,114 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 3766, 'facts_after': 1883}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-20 18:46:04,408 | INFO | Epoch 0000 | train_loss: 1.1063 | train_acc: 0.2222 | train_auroc: 0.0000 | train_macro_f1: 0.1444 | train_micro_f1: 0.2222 | val_loss: 1.1585 | val_acc: 0.4444 | val_auroc: 0.0000 | val_macro_f1: 0.2051 | val_micro_f1: 0.4444 | test_acc: 0.3905 | test_auroc: 0.0000 | test_macro_f1: 0.1911 | test_micro_f1: 0.3905
+2026-11-20 18:46:04,414 | INFO | Checkpoint metric macro_f1: 0.2051
+2026-11-20 18:46:04,414 | INFO | Best epoch 0 | test_macro_f1: 0.1911 | test_micro_f1: 0.3905 | test_acc: 0.3905
+test_T6_case_study_on_a_crafted_drop (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_case_study_on_a_crafted_drop)
+The case-study path itself on the trained run: a node whose knockout result is forced right->wrong. ... /mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+ok
+test_T6_eta_equals_a_brute_force_per_path_mean (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_eta_equals_a_brute_force_per_path_mean) ... ok
+test_T6_eta_per_path_mean_differs_from_the_union (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_eta_per_path_mean_differs_from_the_union)
+Crafted two-path graph (target nodes 0-4; 4 unlabelled): duplicates, a self pair and an unlabelled ... ok
+test_T6_f3_knockout_changes_only_the_chosen_nodes_cells (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_f3_knockout_changes_only_the_chosen_nodes_cells) ... ok
+test_T6_face_effect_end_to_end (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_face_effect_end_to_end) ... ok
+test_T6_minibatch_views_give_the_trainers_logits (tests.test_card7_mechanism.FaceEffectModelTests.test_T6_minibatch_views_give_the_trainers_logits) ... ok
+test_T6_case_rule (tests.test_card7_mechanism.FaceEffectUnitTests.test_T6_case_rule) ... ok
+test_T6_eta_groups (tests.test_card7_mechanism.FaceEffectUnitTests.test_T6_eta_groups)
+Amendment 10: G0 = {eta_v = 0}; G1-G3 = tertiles of eta_v > 0, bins (-inf, t1], (t1, t2], (t2, inf). ... ok
+test_T6_flips_from_crafted_predictions (tests.test_card7_mechanism.FaceEffectUnitTests.test_T6_flips_from_crafted_predictions) ... FAIL
+test_T6_margin_sign (tests.test_card7_mechanism.FaceEffectUnitTests.test_T6_margin_sign) ... ok
+test_T7_r1_cells_on_the_float64_model (tests.test_card7_mechanism.TwoRegimeModelTests.test_T7_r1_cells_on_the_float64_model) ... ok
+test_T7_two_regime_end_to_end_both_axes (tests.test_card7_mechanism.TwoRegimeModelTests.test_T7_two_regime_end_to_end_both_axes) ... /mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+/mnt/data/peeradon/h2snn-model/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+ok
+test_T7_composition_equals_the_models_transport (tests.test_card7_mechanism.TwoRegimeUnitTests.test_T7_composition_equals_the_models_transport) ... ok
+test_T7_composition_is_the_product_in_path_order (tests.test_card7_mechanism.TwoRegimeUnitTests.test_T7_composition_is_the_product_in_path_order) ... ok
+test_T7_r2_on_crafted_inputs (tests.test_card7_mechanism.TwoRegimeUnitTests.test_T7_r2_on_crafted_inputs) ... ok
+test_T7_r3_on_crafted_inputs (tests.test_card7_mechanism.TwoRegimeUnitTests.test_T7_r3_on_crafted_inputs) ... ok
+
+======================================================================
+FAIL: test_T6_flips_from_crafted_predictions (tests.test_card7_mechanism.FaceEffectUnitTests.test_T6_flips_from_crafted_predictions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-model/H2S-NN/tests/test_card7_mechanism.py", line 105, in test_T6_flips_from_crafted_predictions
+    self.assertEqual(out["G0"], {"nodes": 2, "wrong_to_right": 1, "right_to_wrong": 0})
+AssertionError: {'nodes': 2, 'wrong_to_right': 1, 'right_to_wrong': 0, 'net_fix_rate': 0.5} != {'nodes': 2, 'wrong_to_right': 1, 'right_to_wrong': 0}
+- {'net_fix_rate': 0.5, 'nodes': 2, 'right_to_wrong': 0, 'wrong_to_right': 1}
+?  ---------------------
+
++ {'nodes': 2, 'right_to_wrong': 0, 'wrong_to_right': 1}
+
+----------------------------------------------------------------------
+Ran 31 tests in 16.430s
+
+FAILED (failures=1)
+end=2026-11-20T18:46:14+09:00 exit=1

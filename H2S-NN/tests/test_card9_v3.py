@@ -4,6 +4,21 @@ numbers only; the real data root is unreachable.
 - T1 rule (`scripts/ablation/stats.py`): 4 wins with a positive mean -> better; 3 wins -> not better; 4 wins with a
   negative mean -> not better; a tie is no win; a missing seed -> `None`; C2-w is a claim; a (b) run name raises.
   Mutations m1 (`wins >= 3`) and m2 (no `mean_difference > 0`) target `RuleTests.test_T1_rule_edge_cases`.
+- T2 `uniform` row: the emitted `uniform.yaml` builds; one training step on the small ACM-like fixture
+  (`tests/partO_fixtures`) has a finite loss, `g` is absent (its parameter count is the scalar `b`), `b` moves, every
+  face carries one weight.
+- T3 manifest (`seed_runs.py`): 8 rows, `full` seed 5, every other row seeds 1-5, no `tune` row, no (b) row.
+- T4 scale-free margin (`mechanism_common.py`, `face_effect.py`): x* times 3 leaves it unchanged (raw margins triple);
+  the F1a-F3 rules on crafted seeds. Mutation m3 (margin not divided by D) targets
+  `ScaleFreeMarginTests.test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged`.
+- T5 `e_tilde_v` (`two_regime.py`): x* times 3 and e_v times 9 leave it unchanged; where wrong nodes carry larger
+  e_tilde_v (but smaller raw e_v), R2 holds; R1 and R3 (S2 partner needed). Mutation m4 (`e_tilde_v` = raw e_v)
+  targets `NormalisedEnergyTests.test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it`.
+- T6 perturbation rules (`scripts/perturbation/rules.py`, `figure.py`): E1 holds on ACM but not DBLP -> false; E2;
+  an absent method; per-seed values from the launchers' files (a mean-only summary raises). Mutation m5 (E1 on one
+  dataset only) targets `PerturbationRuleTests.test_T6_e1_needs_both_datasets_e2_and_absent`.
+- T7 q3 (`scripts/analysis/q3_schema.py`): seeds 1-5 only (seed 0 ignored), no permutation key, `favour` only at
+  5 of 5; the homophily scatter.
 """
 
 from __future__ import annotations
@@ -13,6 +28,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+import numpy as np
 
 from tests.partMB_fixtures import restore_real_data, unreachable_real_data
 
@@ -110,6 +127,195 @@ class RuleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "configuration \\(a\\) only"):
             stats.analyse([{"dataset": "acm", "row": "endpoints", "configuration": "b", "seed": 1,
                             stats.METRIC: 0.5}])
+
+
+# ----------------------------------------------------------------------------------------------------- T2
+FULL_CONFIG = ROOT / "configs" / "experiments" / "acm_h2snn_v3b.yaml"
+SMALL = {"d": 8, "d_r": 4, "edge_mlp_hidden_dim": 16, "face_mlp_hidden_dim": 16, "classifier_hidden_dim": 16,
+         "propagation": "anchored"}
+
+
+class UniformRowTests(unittest.TestCase):
+    def test_T2_emitted_uniform_yaml_builds(self) -> None:
+        import arms
+        import yaml
+
+        from src.configs.config import TrainConfig
+
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = arms.emit_configurations_a(FULL_CONFIG, "acm", Path(tmp))
+            raw = yaml.safe_load(paths["uniform"].read_text(encoding="utf-8"))
+            cfg = TrainConfig.from_dict(raw)
+            self.assertEqual(cfg.ablation.path_weight_input, "uniform")
+            self.assertEqual((cfg.model.arm, bool(cfg.ablation.fact_maps_identity)), ("full", False))
+            self.assertTrue(raw["exp_name"].endswith("__ablation_a_uniform"))
+
+    def test_T2_one_training_step_of_the_uniform_model(self) -> None:
+        import torch
+
+        import param_table
+        from src.analysis.mechanism_hooks import cells_per_target
+        from src.builders import build_optimizer
+        from src.configs.config import TrainConfig
+        from src.data.dataset import build_dataset
+        from src.models.h2snn_model import build_model
+        from tests.partO_fixtures import acm_like_hetero, patched_acm_loader
+
+        cfg = TrainConfig.from_dict({"device": "cpu", "seed": 3,
+                                     "data": {"dataset_name": "acm", "wisp_max_length": 3,
+                                              "wisp_walks_per_anchor": 5},
+                                     "model": dict(SMALL), "ablation": {"path_weight_input": "uniform"}})
+        with patched_acm_loader(acm_like_hetero(seed=9)):
+            data = build_dataset(cfg)
+        torch.manual_seed(0)
+        model = build_model(cfg, data)
+        names = dict(model.named_parameters())
+        self.assertFalse([n for n in names if n.startswith(("path_encoder.", "path_gate."))], "g must be absent")
+        self.assertEqual(tuple(names["path_log_weight"].shape), ())
+        counts = param_table.counts(model)
+        self.assertEqual((counts["g"], counts["g_form"]), (1, "scalar b (path_log_weight)"))
+        b_before = names["path_log_weight"].detach().clone()
+        optimizer = build_optimizer(model, cfg)
+        model.train()
+        logits = model(data, epoch=0).logits
+        mask = data.target_train_mask
+        loss = torch.nn.functional.cross_entropy(logits[mask], data.target_y[mask])
+        self.assertTrue(bool(torch.isfinite(loss)))
+        optimizer.zero_grad()
+        loss.backward()
+        self.assertIsNotNone(names["path_log_weight"].grad)
+        self.assertTrue(bool(torch.isfinite(names["path_log_weight"].grad)))
+        optimizer.step()
+        self.assertFalse(torch.equal(names["path_log_weight"].detach(), b_before), "b must move")
+        model.eval()
+        model._warm_start = None
+        groups = cells_per_target(model, data)
+        weights = torch.cat([g["w"].reshape(-1).double().cpu() for g in groups])
+        self.assertGreater(weights.numel(), 1)
+        self.assertTrue(bool(torch.all(weights == weights[0])), "every face carries one weight")
+        bound = float(model.log_weight_bound)
+        expected = torch.exp(bound * torch.tanh(names["path_log_weight"].detach().double() / bound))
+        self.assertAlmostEqual(float(weights[0]), float(expected), places=5)
+
+
+# ----------------------------------------------------------------------------------------------------- T3
+class ManifestTests(unittest.TestCase):
+    def test_T3_eight_rows_seeds_and_no_tune_row(self) -> None:
+        import seed_runs
+
+        rows_expected = {"full", "no_path_cells", "S2", "S0", "uniform", "endpoints", "instance_features",
+                         "literature"}
+        with tempfile.TemporaryDirectory() as tmp:
+            rows = seed_runs.build_manifest("acm", FULL_CONFIG, Path(tmp) / "main", Path(tmp), None)
+            seed_runs.write_manifest(rows, Path(tmp) / "acm" / "manifest.tsv")
+            self.assertEqual(len(rows), 8)
+            self.assertEqual({r["arm"] for r in rows}, rows_expected)
+            self.assertEqual({(r["kind"], r["configuration"]) for r in rows}, {("runs", "a")})
+            for row in rows:
+                seeds = list(range(row["base_seed"], row["base_seed"] + row["num_runs"]))
+                self.assertEqual(seeds, [5] if row["arm"] == "full" else [1, 2, 3, 4, 5], row["arm"])
+            text = (Path(tmp) / "acm" / "manifest.tsv").read_text(encoding="utf-8")
+            self.assertNotIn("\ttune\t", text)
+            self.assertNotIn("ablation_b_", text)
+            lookup = json.loads((Path(tmp) / "acm" / "lookup.json").read_text(encoding="utf-8"))
+            self.assertEqual(sorted(lookup["full_seeds_1_4_from_main_table"]), ["1", "2", "3", "4"])
+
+
+# ----------------------------------------------------------------------------------------------------- T4
+class ScaleFreeMarginTests(unittest.TestCase):
+    def test_T4_scaling_x_star_leaves_the_scale_free_margin_unchanged(self) -> None:
+        import torch
+
+        import face_effect as fe
+        import mechanism_common as mc
+
+        g = torch.Generator().manual_seed(0)
+        x = torch.randn(30, 4, generator=g, dtype=torch.float64)
+        labels = torch.arange(30) % 3
+        x = x + 2.0 * torch.nn.functional.one_hot(labels, 4).double()
+        centres = mc.centroids(x, labels, 3)
+        centres3 = mc.centroids(3 * x, labels, 3)
+        torch.testing.assert_close(mc.margins(3 * x, labels, centres3), 3 * mc.margins(x, labels, centres))
+        torch.testing.assert_close(mc.scale_free_margins(3 * x, labels, centres3),
+                                   mc.scale_free_margins(x, labels, centres), rtol=0, atol=1e-12)
+        self.assertAlmostEqual(mc.centroid_scale(centres3), 3 * mc.centroid_scale(centres), places=12)
+        group = np.zeros(30, dtype=np.int64)
+        a, b = fe.f2_entry(x, labels, centres, group), fe.f2_entry(3 * x, labels, centres3, group)
+        self.assertAlmostEqual(b["raw"]["all"], 3 * a["raw"]["all"], places=12)
+        self.assertAlmostEqual(b["scale_free"]["all"], a["scale_free"]["all"], places=12)
+        # D on a hand example: centroids (0,0), (3,0), (0,4) -> pairwise 3, 4, 5 -> D = 4; a class without nodes
+        hand = torch.tensor([[0.0, 0.0], [3.0, 0.0], [0.0, 4.0], [float("nan"), float("nan")]], dtype=torch.float64)
+        self.assertAlmostEqual(mc.centroid_scale(hand), 4.0, places=12)
+
+    def test_T4_face_rules_on_crafted_seeds(self) -> None:
+        import face_effect as fe
+
+        def entry(seed: int, net_all: float, net_g3: float, net_g1: float, d_all: float, d_g3: float,
+                  d_g1: float) -> dict:
+            f1 = {"G0": {"nodes": 0, "net_fix_rate": None}, "G1": {"nodes": 5, "net_fix_rate": net_g1},
+                  "G2": {"nodes": 5, "net_fix_rate": 0.0}, "G3": {"nodes": 5, "net_fix_rate": net_g3},
+                  "none": {"nodes": 0, "net_fix_rate": None}, "all": {"nodes": 15, "net_fix_rate": net_all}}
+            e = {"seed": seed, "F1": f1,
+                 "F2_difference": {"G0": None, "G1": d_g1, "G2": 0.0, "G3": d_g3, "all": d_all}}
+            if seed <= 3:
+                e["F3"] = {"by_group": {"all": {"right_to_wrong_share": 0.1 if seed != 2 else 0.0}}}
+            return e
+
+        per_seed = [entry(s, 0.1, 0.3, 0.1, 0.2, 0.5, 0.1) for s in (1, 2, 3, 4)]
+        per_seed.append(entry(5, -0.1, 0.0, 0.1, -0.2, 0.0, 0.1))
+        result = fe.rules("acm", per_seed)
+        self.assertEqual(result["G_low"][1], "G1")                          # ACM: G0 empty -> G1
+        for name in ("F1a", "F1b", "F2a", "F2b"):
+            self.assertEqual((result[name]["count"], result[name]["holds"]), (4, True), name)
+        self.assertEqual(result["F3"]["count"], 2)
+        self.assertIs(result["F3"]["holds"], False)                         # seed 2: no right->wrong
+        self.assertNotIn("F2a", fe.rules("imdb", per_seed))                 # F2: single-label datasets only
+        self.assertIsNone(fe.rules("acm", per_seed[:4])["F1a"]["holds"])    # seed 5 missing -> None
+
+
+# ----------------------------------------------------------------------------------------------------- T5
+class NormalisedEnergyTests(unittest.TestCase):
+    def test_T5_scaling_leaves_e_tilde_unchanged_and_r2_reads_it(self) -> None:
+        import two_regime as tr
+
+        rng = np.random.default_rng(0)
+        x = rng.normal(size=(12, 4))
+        e = rng.uniform(0.1, 1.0, size=12)
+        np.testing.assert_allclose(tr.normalised_node_energy(9 * e, 3 * x), tr.normalised_node_energy(e, x),
+                                   rtol=1e-12, atol=0)
+        # wrong nodes: e_v 1, ||x||^2 1 (e_tilde 1); correct nodes: e_v 4, ||x||^2 16 (e_tilde 0.25)
+        wrong = np.array([True] * 4 + [False] * 8)
+        x = np.where(wrong[:, None], np.array([[1.0, 0, 0, 0]]), np.array([[4.0, 0, 0, 0]]))
+        e = np.where(wrong, 1.0, 4.0)
+        eta = np.linspace(0.1, 0.9, 12)
+        group = np.array([1, 2, 3] * 4)
+        records = []
+        for seed in range(1, 6):
+            e_tilde = tr.normalised_node_energy(e, x)
+            r2 = {**tr.r2(e_tilde, wrong, eta, group), "raw": tr.r2(e, wrong, eta, group)}
+            records.append({"dataset": "acm", "arm": "full", "seed": seed, "graph": "original",
+                            "eta_group_counts": {"G0": 0, "G1": 4, "G2": 4, "G3": 4}, "R2": r2,
+                            "R1": {"cells": {"auroc_different": 0.4 if seed == 1 else 0.6}}})
+        self.assertEqual(records[0]["R2"]["auroc_wrong"], 1.0)
+        self.assertEqual(records[0]["R2"]["raw"]["auroc_wrong"], 0.0)          # raw e_v points the other way
+        result = tr.rules(records)["acm"]
+        self.assertEqual((result["R2"]["count"], result["R2"]["holds"]), (5, True))
+        self.assertEqual((result["R1"]["count"], result["R1"]["holds"]), (4, True))
+        self.assertNotIn("R3", result)
+
+    def test_T5_r3_needs_the_s2_partner(self) -> None:
+        import two_regime as tr
+
+        def rec(arm: str, seed: int, g3: float, g1: float) -> dict:
+            return {"dataset": "imdb", "arm": arm, "seed": seed, "graph": "original",
+                    "eta_group_counts": {"G0": 0, "G1": 3, "G2": 3, "G3": 3},
+                    "R3": {"probe_x_star": {"by_group": {"G1": {"macro_f1": g1}, "G3": {"macro_f1": g3}}}}}
+
+        records = [rec("full", s, 0.6, 0.7) for s in range(1, 6)] + [rec("S2", s, 0.4, 0.7) for s in range(1, 6)]
+        self.assertIs(tr.rules(records)["imdb"]["R3"]["holds"], True)          # gain 0.2 in G3 > 0.0 in G1
+        result = tr.rules(records[:-1])["imdb"]["R3"]                           # S2 seed 5 missing
+        self.assertIsNone(result["per_seed"][5])
+        self.assertIsNone(result["holds"])
 
 
 # ----------------------------------------------------------------------------------------------------- T6
