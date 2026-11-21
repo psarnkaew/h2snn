@@ -1,6 +1,8 @@
 # Card 10 report: lab-cluster runs (SLURM): all units done
 
-**Verdict.** All units are done: L1–L4 and A2.1–A2.3. The L4 job 18109 (CPU only, 16G, no GPU) ran 272 tests, all OK, none skipped, and all 6 card 10 mutations were caught. No `src/` change was made: `git diff --stat 2d822a4 -- H2S-NN/src` is empty. No real-data run was made, and the real fit check was **not submitted**; it waits for the author's approval of this card. Base: `v3b` `2d822a4` (card 8), merged into `card10` as `d9b324c`.
+**Verdict.** All units are done: L1–L4, A2.1–A2.3 and Amendment 3 (A3.1, A3.2). The A3 job 18116 (CPU only, 16G, no GPU, the `run_tests.sbatch` environment) ran 291 tests, all OK, none skipped, and all 8 card 10 mutations were caught. No `src/` change was made: `git diff --stat 2d822a4 -- H2S-NN/src` is empty. No real-data run was made, and the real fit check was **not submitted**; it waits for the author's approval. Base: `v3b` `2d822a4` (card 8), merged as `d9b324c`.
+
+**Found while doing A3.2: a bug from before this card.** `scripts/run_baseline_published.py` (card 8) has no `--resume`, but both slot runners (`sweep_slots.sh`, `lab_slots.sbatch`) append `--resume` to every line. So on `2d822a4` **every `published` line fails at start** with `unrecognized arguments: --resume` (exit 2; checked in a CPU job). This includes the TSUBAME `published` phase (38 lines). A3.2 now accepts `--resume` as a no-op: a published line has no partial state, and the slot runners skip it once its seeds are written (`lines.py complete`). Any published chain already submitted on TSUBAME from `2d822a4` will fail on every line until `v3b` contains this fix.
 
 ## Units
 
@@ -13,6 +15,8 @@
 | A2.1 whole-H100 TSUBAME types | `8a8d524` | `scripts/tsubame/submit_chain.sh`, `sweep_slots.sh` (header), `tests/test_tsubame_types.py` | job 18040: 6 tests OK; `mutation_a21.py` (`node_h` S = 4) caught |
 | A2.3 failure report | `ca119cd` | `scripts/tsubame/failures.py`, `tests/test_failures_report.py` | job 18041: 1 test OK; `mutation_a23.py` (a failure skipped) caught |
 | L4 targeted tests | `50436f4` | `card10_evidence/run_l4.sbatch` | job 18109: 272 tests OK, 0 skipped; all 6 mutations caught; `src/` diff empty |
+| A3.1 memory-relevant keys | `b4496c9` | `scripts/slurm/grid_points.py` (`MEMORY_AXES`), both launchers (one trial per grid point, `FIT_GRID`) | job 18116; `mutation_a31.py` (memory keys at their central value) caught on both launchers |
+| A3.2 published rows | `685ea8e` | `scripts/run_baseline_published.py` (`--dry_run`, `--resume`, `FIT_PEAK`), `fit_check.py` (published probes, grid reading), `site_split.py` (H2GB published → TSUBAME), `tests/test_fit_check.py` | job 18116: 291 tests OK, 0 skipped; `mutation_a32.py` (published lines without a probe) caught; all 8 mutations caught |
 
 L4's test set:
 - every card 10 test;
@@ -65,30 +69,65 @@ L4's test set:
 
 The test also feeds this tsv to `site_split.py`: only the `fits` cell goes to the lab.
 
-**Check on the real lists (2026-11-21).** `fit_check.py build` was run on the lists that `make_cell_list.py` writes at this head: lists only, nothing submitted; `h2snn` on the login node (stdlib), the baseline phases in CPU job 18112, outputs deleted afterwards.
+**Check on the real lists (2026-11-21).** Before A3, job 18112 built the probe lists: published lines were skipped then. After A3, job 18117 built them again with every published line probed; the counts are in the A3.1 cost table. No line was refused for an option the probe would drop.
 
-| Phase | Probe lines | Skipped |
+## A3.1: memory-relevant keys at their most memory-hungry value
+`grid_points.MEMORY_AXES` is a third class next to the size axes and the other axes. Under `--grid_point max` each of its keys takes its most memory-hungry value. Where the code does not show which value that is, the probe runs **one trial per value** (a W&B grid), with every size axis at its maximum, and the cell's peak is the largest over those trials. A key in none of the three classes is still refused.
+
+| Key | Most memory-hungry value | Reason (source) |
 |---|---|---|
-| `h2snn` | 24 | 0 |
-| `baselines-early` | 4 | 0 |
-| `baselines-1` | 61 | 0 |
-| `baselines-2` | 112 | 0 |
-| `published` | 0 | 38 (no search space) |
+| `feats_type` | **all of 0, 2, 3** | 0 keeps dense attributes, 2/3 give a type a sparse identity as wide as its node count (`src/baselines/bundles.py:202-230`): depends on the dataset |
+| `label_feats` (SeHGNN) | True | builds the propagated label features (`src/baselines/adapters/sehgnn.py:146-160,300`) |
+| `residual` (SeHGNN) | True | adds `res_fc` (`vendor/SeHGNN/hgb/model.py:142-143,218-219`) |
+| `sheaf_model` (NSD) | **BundleSheaf and GeneralSheaf** | Diag learns d values per edge (`disc_models.py:39`). General learns d×d (231) and inverts d×d degree blocks by SVD (`laplacian_builders.py:280-286`); Bundle adds orthogonal-map intermediates per edge (`orthogonal.py:45-64`). Not clear which is larger |
+| `sheaf` (HetSheaf) | **all 32 bundle/general pairs** | diag is the smallest family; bundle vs general and the 16 learners are not clear (`src/baselines/adapters/hetsheaf.py:105-123`) |
+| `orth` (NSD, CSNN) | cayley | d(d+1)/2 values per map vs d(d−1)/2 (`disc_models.py:146-150`, `Cooperative-Sheaf-NN/model.py:322-326`) and a d×d solve per edge (`orthogonal.py:61-64`); euler is the smallest and exists only for d ≤ 3 |
+| `add_lp`, `add_hp` (NSD) | True | each adds one stalk dimension (`neural-sheaf-diffusion/models/sheaf_base.py:21-26`) |
+| `conformal` (CSNN) | True | one more learner output per node (`Cooperative-Sheaf-NN/model.py:523`) |
+| `gnn_type` (CSNN) | GAT | per-edge attention on top of the per-edge messages GCN/SAGE also build (`model.py:577-583`) |
+| `metapath_pe` (H2G-former) | True | adds the Hetero_Metapath channel (`h2gformer.py:20-22,229-231`) |
+| `mask_lp` (Hetero2Net) | True | adds the label-embedding input (`hetero2net.py:269-273`) |
+| `r` (Hetero2Net) | **0.3 and 0.5** | starts random walks and drops their paths (`Hetero2Net/hetero2net/metapath.py:75-125`): not clear |
+| `poly` (H2SGNN) | **all three bases** | different recurrences (`H2SGNN/model.py:80-90,129`): not clear |
+| `attn_dropout` (H2G-former) | 0.2 | the attention dropout (`H2GB/layer/gt_layer.py:203`) stores a mask only for p > 0, and the central value is 0.0 |
+| `decoder_type` (LP, H2S-NN and baselines) | distmult | per-relation weights and one more product per scored pair (`src/models/link_readout.py:46,65`; `src/baselines/heads.py:65`) |
+| `graph_pooling` (H2S-NN GC) | attention | a gate network and per-node scores (`src/models/graph_readout.py:55`) |
 
-No line was refused for an option the probe would drop.
+**Keys probed once per value** (bold above): `feats_type`, `sheaf_model`, `sheaf`, `r`, `poly`. Two decisions differ from the ops list: `sheaf_model` probes Bundle *and* General (not General alone), and `feats_type` probes 0, 2 and 3 (not 0 alone), for the reasons in the table. Numeric rates, regularisers, temperatures and dropouts whose central value is already > 0 stay at their central value: their size does not change which tensors exist.
+
+**Mechanics.**
+- The launchers set the sweep's trial count to the grid size (the command line still says `--n_trials 1`, meaning "one probe") and print `FIT_GRID {"points": k}`.
+- `fit_check read` needs k `FIT_PEAK` lines, all with three phases, and takes the largest. Fewer gives `error`; an OOM in any trial gives `oom`.
+- The test checks every runnable baseline cell and every H2S-NN config against a decision table written independently in the test, and the grid sizes on both launchers' real `main` paths (NSD ACM 6 trials, GCN ACM 3, H2S-NN ACM LP 1).
+
+**Cost of the grids (job 18117, lists only).**
+
+| Phase | Probe lines | Trials |
+|---|---|---|
+| `h2snn` | 24 | 24 |
+| `baselines-early` | 4 | 70 |
+| `baselines-1` | 61 | 296 |
+| `baselines-2` | 112 | 556 |
+| `published` | 38 | 38 |
+
+HetSheaf is 640 of these trials (32 per cell). Each trial is one epoch, but the trials of one line run one after another on one GPU (`card10_evidence/probe_counts.txt`). If this is too long, a choice for the author: probe HetSheaf's bundle and general families only with their default learner, which would need a reason from the code that the learner does not change memory (not shown so far).
+
+## A3.2: published lines get a fit-check row
+- **Probe line:** `fit_check build` writes one probe per `published` line: `run_baseline_published.py --task … --models … --datasets … --final_seeds 0 --dry_run`, under `--fit-out`. The runner trains the published configuration as `published_params` gives it.
+- **What `--dry_run` does:** one epoch, through `build_raw_base(..., epochs=1)`, the same campaign epoch override as the tuned `--dry_run` (`src/baselines/campaign.py:272`; no `src/` change). Then comes the record's whole-split evaluation, and the run prints `FIT_PEAK` with the three phases.
+- **Guard:** `--dry_run` only with exactly one seed in `--final_seeds`.
+- **Same rules as tuned cells:** the same thresholds and the same `fit_check.tsv` row.
+- **`site_split`:** `fits` goes to the lab, anything else to TSUBAME, and an H2GB published cell always goes to TSUBAME (range rule). Its dataset list equals `src/configs/config.py` `H2GB_NC_DATASETS`, which the test checks.
+- **Test:** published GCN LastFM LP (fits → lab), R-GCN PubMed LP (oom → TSUBAME), PSHGCN IMDB NC (no log → error → TSUBAME), SeHGNN ogbn-mag NC (fits, but H2GB → TSUBAME).
+- **Real lists:** every one of the 38 published lines gets a probe (table above). H2GB published lines are probed too, as the amendment says, even though `site_split` sends them to TSUBAME regardless. Leaving them out of the probe list would save lab time; author's choice.
 
 ## Deviations and points for the author
 1. **L1 additions (accepted, Amendment 1):** the GPU-type record is keyed by cell; the job checks the GPU name; `--cpus` defaults to 4; `--max-parallel` is optional.
 2. **`FIT_PEAK` is printed by every trial, not only by probes.** The trial worker cannot tell a probe from a real trial (it gets only `--worker_context`), and the line is harmless, but it does appear in real-run logs.
-3. **Categorical axes are put at their central value even when they may change memory**, as the card says ("all other keys at their central value"):
-   - `feats_type` (0 = all features, the largest; central is 2)
-   - `label_feats`, `add_hp`/`add_lp`, `metapath_pe`
-   - `sheaf`/`sheaf_model` (`GeneralSheaf` is the largest)
-   - `gnn_type`, `graph_pooling`, `decoder_type`
-
-   A cell whose memory peak sits on one of these may pass the check and later OOM on the lab. A2.3's failure report would show that OOM, and the author decides. Alternative: treat these axes as size axes at their most memory-hungry value. **Author's choice.**
-4. **Published-config lines (`run_baseline_published.py`, card 8)** have no search space. `fit_check.py build` lists them as skipped and gives them no fit row, so `site_split.py` sends them to TSUBAME.
-5. **`peak_bytes` is an upper estimate.** It is the allocator's peak reserved memory plus memory outside the allocator measured at the end of the trial. It can miss a transient non-allocator peak (e.g. a cuSPARSE workspace) during training; the 25 % headroom is there to cover that.
+3. **Memory-relevant keys (A3.1)** are decided as in the table above. Two of them differ from the ops list, `sheaf_model` and `feats_type`, because the code does not show one largest value.
+4. **Published lines (A3.2)** get a probe and a row; `run_baseline_published.py` now accepts `--resume` (the bug above).
+5. **Seen while reading the code, not changed (outside this card):** NSD and CSNN tune `orth` in {householder, cayley, euler} together with `d` up to 5 (NSD) or 4 (CSNN). Euler asserts 2 ≤ d ≤ 3 (`vendor/neural-sheaf-diffusion/models/orthogonal.py:70`; `vendor/Cooperative-Sheaf-NN/model.py:484`), so real sweep trials with euler and a larger d fail (for NSD only with BundleSheaf, the one sheaf model that uses `orth`). `failures.py` will report them as `other`.
+6. **`peak_bytes` is an upper estimate.** It is the allocator's peak reserved memory plus memory outside the allocator measured at the end of the trial. It can miss a transient non-allocator peak (e.g. a cuSPARSE workspace) during training; the 25 % headroom is there to cover that.
 
 ## How to run (after the author approves this card; nothing below was run)
 ```
@@ -115,5 +154,3 @@ python scripts/tsubame/failures.py --out $OUT --list $OUT/cells_tuning_h2snn.lab
 ```
 - **On TSUBAME:** the `.t4.txt` part goes to `submit_chain.sh` with any whole-H100 type: `gpu_1`, `node_q`, `node_h` or `node_f` (A2.1).
 - **Placeholders:** `--mem` and `--time` above are placeholders. Lab nodes have 64 GB RAM (the A6000 node 224 GB), and each run is capped at 72 h.
-
-branch=card10 sha=01eb29548878ab0bf5caae47cbe1a3c8ace4734d card=docs/H2S-NN_card10_lab_runs_card.md base=2d822a4eb48867de4476b97159430a64d8468808
