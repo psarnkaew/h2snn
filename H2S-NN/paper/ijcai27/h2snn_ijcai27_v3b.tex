@@ -610,7 +610,13 @@ To test whether faces keep \method{} scalable, we analyse the time and space com
 
 %======================================================================
 \section{Conclusion}
-We asked whether heterophily can be handled on the original heterogeneous graph by making meta-path instances part of its structure. \method{} does so by treating each sampled instance as a face of the graph's own sheaf, with maps composed from its edges, coupled to every node and edge of the instance and to other faces through shared edges, and solved together with nodes and edges in one energy with a unique minimiser. \res{}
+To address heterogeneous graph learning under heterophily, we proposed the Heterogeneous Heterophilic Sheaf Neural Network (\method{}). \method{} models meta-path instances, which are sampled and weighted inside the model instead of being predefined, as part of the graph structure rather than as features at their endpoints. It learns on the original graph while preserving the semantics of each node type (heterogeneity) and the features of individual nodes (heterophily). \res{} Overall, extensive experiments on node classification, link prediction and graph classification across various datasets, together with the analyses, demonstrate not only that \method{} performs well across tasks and dataset characteristics, but also that each of its components contributes to preserving the node characterisitcs graph structure through the proposed sheaf and the meta-path usage as higher order information .
+
+
+
+
+
+
 
 \newpage
 \bibliographystyle{named}
@@ -632,19 +638,171 @@ All propositions are proved in Section~\ref{sec:theory}; this appendix supplemen
 
 We also verified Proposition~\ref{prop:reach}(ii) numerically on random orthogonal maps.
 
-\section{Datasets, Settings and Full Results}
+\section{Datasets and Experimental Settings}
 \label{app:data}
-This appendix reports dataset statistics, the Micro-F1 and MRR tables, search spaces, graph classification and further results. Graph classification follows HetSheaf's protocol (TU MUTAG, PROTEINS, ENZYMES, NCI1 with node types taken from the label one-hot, constant features, 80/10/10 split, seeds 0--4); because node types are derived from labels, it checks generalisability only. \res{}
+This appendix describes the datasets, the splits and evaluation, the prediction heads, the hyperparameter search of \method{} and of the baselines, and the full results. The protocols of the ablation study and the analyses are in Appendix~\ref{app:analysis}.
 
+\subsection{Datasets}
+\paragraph{Node classification.} Table~\ref{tab:app-nc} lists the twelve node classification datasets. ACM, DBLP, IMDB and Freebase come from HGB \cite{lv2021hgb} and are small graphs from citation, bibliography, movie and knowledge-graph domains. The other eight come from H2GB \cite{lin2025heterophily}: ogbn-mag and mag-year share the academic graph of OGB-MAG, with venue and publication-year labels respectively; oag-cs, oag-eng and oag-chem are academic graphs of the Open Academic Graph with venue labels; IEEE-CIS-G is a transaction graph for fraud detection, H-Pokec a social network and PDNS a passive-DNS graph for malicious-domain detection. IMDB is multi-label, and Freebase has no node features.
 
-\paragraph{Link prediction.} The eight tasks are ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, PubMed disease--disease, LastFM user--artist, ogbn-mag paper--paper and H-Pokec user--user. The target relation is split by edge into 81\%/9\%/10\% (Freebase by unordered pair), and held-out edges are removed in both directions from the message graph. Features computed from the target relation or describing the other endpoint are removed. Each test positive is paired with one random negative tail of the same type that is not a known neighbour of the head, and validation uses random tail negatives drawn once per run.
+\begin{table*}[!htbp]
+  \centering
+  \caption{Node classification datasets. Edges and edge types count both directions as the benchmark loader provides them; Feat.\ is the feature dimension of the target type. $^\ast$Multi-label, 4{,}573 of 4{,}932 movies labelled.}
+  \label{tab:app-nc}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lllrrrrlrrr}
+    \toprule
+    Dataset & Benchmark & Domain & Nodes & Node types & Edges & Edge types & Target & Classes & Feat. & Train / Val / Test \\
+    \midrule
+    ACM & HGB & Citation & 10{,}942 & 4 & 547{,}872 & 8 & paper & 3 & 1{,}902 & 726 / 181 / 2{,}118 \\
+    DBLP & HGB & Bibliography & 26{,}128 & 4 & 239{,}566 & 6 & author & 4 & 334 & 974 / 243 / 2{,}840 \\
+    IMDB & HGB & Movie & 21{,}420 & 4 & 86{,}642 & 6 & movie & 5$^\ast$ & 3{,}489 & 1{,}097 / 274 / 3{,}202 \\
+    Freebase & HGB & Knowledge graph & 180{,}098 & 8 & 1{,}057{,}688 & 36 & book & 7 & -- & 1{,}909 / 477 / 5{,}568 \\
+    \midrule
+    ogbn-mag & H2GB (OGB-MAG) & Academic & 1{,}939{,}743 & 4 & 42{,}182{,}144 & 7 & paper & 349 & 128 & 629{,}571 / 64{,}879 / 41{,}939 \\
+    mag-year & H2GB (OGB-MAG) & Academic & 1{,}939{,}743 & 4 & 42{,}182{,}144 & 7 & paper & 5 & 128 & 368{,}194 / 184{,}097 / 184{,}098 \\
+    oag-cs & H2GB (OAG) & Academic & 1{,}112{,}691 & 4 & 27{,}537{,}448 & 22 & paper & 3{,}514 & 768 & 182{,}310 / 19{,}551 / 27{,}243 \\
+    oag-eng & H2GB (OAG) & Academic & 929{,}315 & 4 & 12{,}346{,}854 & 22 & paper & 3{,}957 & 768 & 259{,}444 / 28{,}524 / 6{,}082 \\
+    oag-chem & H2GB (OAG) & Academic & 1{,}918{,}881 & 4 & 38{,}098{,}014 & 22 & paper & 2{,}986 & 768 & 676{,}738 / 59{,}664 / 10{,}651 \\
+    IEEE-CIS-G & H2GB & Financial fraud & 153{,}880 & 12 & 2{,}873{,}472 & 22 & transaction & 2 & 4{,}785 & 115{,}386 / 14{,}423 / 14{,}424 \\
+    H-Pokec & H2GB & Social network & 1{,}731{,}977 & 16 & 51{,}774{,}836 & 31 & user & 2 & 65 & 816{,}320 / 408{,}160 / 408{,}160 \\
+    PDNS & H2GB & Passive DNS & 1{,}173{,}558 & 2 & 76{,}797{,}104 & 4 & domain & 2 & 10 & 61{,}077 / 17{,}450 / 8{,}725 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
 
+\paragraph{Link prediction.} Table~\ref{tab:app-lp} lists the eight link prediction tasks. PubMed and LastFM are HGB's link prediction benchmarks: PubMed is a biomedical graph of 63{,}109 nodes of four types and ten relations with 200-dimensional features on every type, and LastFM a music graph of users, artists and tags with three relations and no features. The other six tasks are built from the node classification graphs, each with one relation as the target.
+
+\begin{table}[!htbp]
+  \centering
+  \caption{Link prediction tasks and the numbers of positive pairs per split.}
+  \label{tab:app-lp}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{llrrr}
+    \toprule
+    Task & Target relation & Train & Val & Test \\
+    \midrule
+    ACM & paper--author & 8{,}059 & 895 & 995 \\
+    DBLP & author--paper & 15{,}913 & 1{,}768 & 1{,}964 \\
+    IMDB & movie--actor & 11{,}971 & 1{,}330 & 1{,}478 \\
+    Freebase & book--book & 103{,}303 & 11{,}478 & 12{,}754 \\
+    PubMed & disease--disease & 32{,}167 & 1{,}942 & 8{,}528 \\
+    LastFM & user--artist & 66{,}966 & 7{,}301 & 18{,}567 \\
+    ogbn-mag & paper--paper & 4{,}371{,}032 & 485{,}670 & 539{,}634 \\
+    H-Pokec & user--user & 18{,}064{,}591 & 2{,}007{,}177 & 2{,}230{,}196 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Graph classification.} Table~\ref{tab:app-gc} lists the four TU datasets \cite{morris2020tudataset}, prepared as in HetSheaf: node types are taken from the one-hot node labels, edge types from the edge labels where they exist, and every node has the constant feature~1. Because the types are derived from labels, this task checks generalisability only.
+
+\begin{table}[!htbp]
+  \centering
+  \caption{Graph classification datasets (totals over all graphs).}
+  \label{tab:app-gc}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    Dataset & Graphs & Nodes & Edges & Node / edge types & Classes & Test graphs \\
+    \midrule
+    MUTAG & 188 & 3{,}371 & 7{,}442 & 7 / 4 & 2 & 20 \\
+    PROTEINS & 1{,}113 & 43{,}471 & 162{,}088 & 3 / 1 & 2 & 112 \\
+    ENZYMES & 600 & 19{,}580 & 74{,}564 & 3 / 1 & 6 & 60 \\
+    NCI1 & 4{,}110 & 122{,}747 & 265{,}506 & 37 / 1 & 2 & 411 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Splits and Evaluation}
+\paragraph{Splits.} The HGB datasets use HGB's official split: the test set is HGB's held-out label file, and 20\% of the remaining labelled nodes are drawn once, with a fixed seed, for validation. The H2GB datasets use H2GB's own splits: the OGB time split on ogbn-mag, a random 50/25/25 split on mag-year and H-Pokec, the publication-year split on the OAG datasets, a node-order 80/10/10 split on IEEE-CIS-G, and a random 70/20/10 split of the labelled domains on PDNS, drawn from the run seed. For link prediction, the six derived tasks split the target relation 81/9/10, by unordered pair on Freebase, ogbn-mag and H-Pokec, and held-out pairs are removed in both directions from the message graph; PubMed and LastFM use HGB's test file. Graph classification uses one random 80/10/10 split for every seed.
+
+\paragraph{Model selection.} On the H2GB datasets, validation during training uses a fixed subset of the validation split with the size used by H2GB's own runner (at most 16{,}384 nodes), drawn once and shared by every method; the selected checkpoint is then evaluated once on the full validation and test splits. Node classification selects on validation Macro-F1 and link prediction on validation ROC-AUC; graph classification stops early on validation loss and selects configurations on validation Macro-F1.
+
+\paragraph{Negatives.} Each test positive is paired with one random negative tail of the same type that is not a known neighbour of the head, drawn by HGB's sampler with a fixed seed, so all methods are scored on the same pairs. Validation negatives are drawn once per run, and training uses one negative per positive.
+
+\paragraph{Metrics and seeds.} Macro-F1 is averaged over the classes present in each split's true labels, and Micro-F1 over all nodes. IMDB is multi-label: a genre is predicted when its logit is positive. Link prediction reports ROC-AUC and MRR, with the rank of the true tail among the candidates of the same head. Hetero$^2$Net reports the complementary homophily share, so its published MLH values correspond to $1-\mathrm{MLH}$ in Equation~\eqref{eq:mlh}. Every cell is the mean and standard deviation over seeds 0--4 on one H100 GPU (94\,GB). The main tables involve 48 Welch tests of \method{} against the best method run under our protocol, corrected by Holm's method within each task.
+
+\subsection{Prediction Heads and Losses}
+\method{} reads the solved node states $x^\star$ in every task. For node classification, a two-layer MLP with hidden size 128, GELU and dropout maps $x^\star_v$ to class logits, trained with cross-entropy, or with binary cross-entropy per genre on IMDB. For link prediction, both endpoints pass through a linear layer with GELU, and a dot product or a DistMult decoder with a full $d\times d$ matrix per relation, initialised to the identity, scores the pair; training uses binary cross-entropy on batches of 8{,}192 positives with one negative each. For graph classification, mean, max, sum or attention pooling over the nodes of a graph is followed by one linear layer and cross-entropy. The baselines keep their own node classification networks and losses; for link prediction they share the dot-product or DistMult decoder, with a full $d\times d$ matrix per relation as in HGB, and the same batches; their graph classification results are the published rows of HetSheaf.
+
+\subsection{Hyperparameter Search}
+Every tuned cell, of \method{} or of a baseline, runs 100 trials of Bayesian optimisation on seed 0 and is then run on seeds 0--4 with the selected configuration. A baseline cell with a published configuration (from HGB, H2GB or the method's own repository) is run exactly as configured, without tuning, and a cell with a published number keeps that number, produced under its benchmark's own protocol. All tuned methods use AdamW without a scheduler or gradient clipping and share the learning rate, weight decay, dropout and, on the H2GB datasets, batch size axes of Table~\ref{tab:app-space}; Table~\ref{tab:app-base-space} lists each baseline's own axes. Node classification trains for at most 300 epochs with patience 30 on HGB and for 500 epochs of 8{,}192 targets on H2GB; link prediction for 40 epochs; graph classification for 200 epochs with patience 50.
+
+\begin{table}[!htbp]
+  \centering
+  \caption{Search space of \method{}. \emph{Top:} tuned (the first four rows are shared with the baselines). \emph{Bottom:} fixed for every dataset.}
+  \label{tab:app-space}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{p{0.38\columnwidth}p{0.56\columnwidth}}
+    \toprule
+    Hyperparameter & Values \\
+    \midrule
+    Learning rate & log-uniform $[10^{-4},10^{-2}]$ \\
+    Weight decay & \{0, $10^{-5}$, $5{\times}10^{-5}$, $10^{-4}$, $5{\times}10^{-4}$, $10^{-3}$, $10^{-2}$, 0.1, 0.8\} \\
+    Dropout (encoder; classifier, NC) & uniform $[0,0.9]$ (encoder only with features) \\
+    Batch size (H2GB, NC) & $\{32,256,1024\}$ \\
+    Embedding size $d$ & $\{16,32,64\}$ \\
+    Maximum walk length $\ell_{\max}$ & $\{2,3,4,5\}$ \\
+    Walks per anchor $n$ & $\{8,16,32,64\}$ \\
+    Decoder (LP) & dot product, DistMult \\
+    Pooling (GC) & mean, max, sum, attention \\
+    \midrule
+    Rank of the edge rotations & 4 \\
+    Bound in $w_f$ & 10 \\
+    Initial $\tau$ & 1 \\
+    Solver tolerance; maximum iterations & $10^{-4}$; 100 \\
+    Hidden size of the MLPs & 128 \\
+    Optimiser & AdamW; $\theta$ and $b$ at $10\times$ the learning rate, no weight decay \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table*}[!htbp]
+  \centering
+  \caption{Method-specific search axes of the tuned baselines, in addition to the shared axes of Table~\ref{tab:app-space}. Feature type (HGB) chooses which node types keep their features.}
+  \label{tab:app-base-space}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lp{0.85\textwidth}}
+    \toprule
+    Method & Axes \\
+    \midrule
+    GCN, GAT & hidden $\{64,128,256\}$, layers $\{2,3\}$, heads $\{4,8\}$ (GAT), feature type \\
+    ChebNetII & hidden $\{64,128,256\}$, order $K\in\{5,10\}$, propagation learning rate log-uniform $[10^{-3},5\cdot10^{-2}]$ and weight decay $\{0,5\cdot10^{-4}\}$, propagation dropout $\{0,0.5,0.9\}$ \\
+    NSD & hidden $\{32,64\}$, stalk dimension $\{2,\dots,5\}$, layers $\{1,\dots,4\}$, sheaf type \{diagonal, bundle, general\}, orthogonal parametrisation, extra low- and high-pass channels \\
+    CSNN & hidden $\{32,64\}$, stalk dimension $\{2,3,4\}$, layers $\{1,\dots,4\}$, map learner \{GCN, SAGE, GAT\}, orthogonal parametrisation, conformal maps \\
+    R-GCN & hidden $\{16,\dots,256\}$ (H2GB: up to 512), layers $\{2,3,4\}$; LP: hidden $\{40,60,80,120\}$, layers $\{1,2,3\}$, bases $\{4,10\}$ \\
+    HAN & hidden $\{64,128,256\}$ (H2GB: up to 512, layers $\{2,3,4\}$), heads $\{4,8\}$ \\
+    MAGNN & hidden $\{32,64,128\}$, heads $\{4,8\}$, attention vector $\{64,128\}$ \\
+    SeHGNN & hidden $\{256,512\}$, hops $\{2,3,4\}$, label hops $\{2,3,4\}$, label features, task layers $\{1,\dots,4\}$, residual \\
+    HINormer & hidden $\{64,128,256\}$, layers $\{2,\dots,5\}$, GNN layers $\{3,4,5\}$, heads $\{2,8\}$, $\beta$, sequence length $\{20,\dots,150\}$, temperature \\
+    PSHGCN & hidden $\{16,\dots,256\}$, order $K\in\{1,3,5\}$, embedding $\{16,64,128\}$, propagation learning rate and weight decay \\
+    H2G-former & hidden $\{64,\dots,512\}$, layers $\{2,3\}$, heads $\{4,8\}$, attention dropout $\{0,0.2\}$, meta-path encoding \\
+    Hetero$^2$Net & hidden $\{16,\dots,256\}$, $\alpha\in\{0,0.1,0.2\}$, $\beta\in\{0.2,0.4,0.5\}$, $p\in\{0.6,0.7,1\}$, $r\in\{0.3,0.5\}$, label masking \\
+    H2SGNN & order $K\in\{6,10\}$ (LP: $\{2,4,6\}$), polynomial basis, $\alpha$, filter learning rates and weight decays \\
+    HetSheaf & sheaf type and learner, stalk dimension $\{2,\dots,5\}$, layers $\{2,\dots,8\}$, hidden $\{8,16,32,64\}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\subsection{Differences from the Benchmark Runners}
+Data, splits, test negatives and model code follow HGB and H2GB; the following settings are shared by every method we run and therefore differ from some of the original runners. Tuned baselines use AdamW in place of Adam. HGB's link prediction runner validates every ten batches and stops on validation loss, whereas we validate once per epoch on ROC-AUC, with validation negatives drawn once rather than at every step. H2GB evaluates a sample of nodes, whereas we select on a fixed validation subset and test on the whole split. On the binary H2GB datasets we use two logits with cross-entropy instead of one logit with binary cross-entropy. HetSheaf is run on our splits with AdamW and without its cosine schedule.
+
+\subsection{Implementation Details of \method{}}
 \paragraph{Edge maps.} For a relation that is its own reverse, there is no frame, and the rotation is split evenly between the two endpoints as $\exp(\mp U_rC_eU_r^{\transpose}/2)$, with $C_e$ changing sign when the endpoints are swapped. The maps and edge weights read the encodings alone, so graph structure reaches the node representations only through the diffusion of Section~\ref{sec:prop}.
 
-\paragraph{Sampling and splits.} Benchmarks often store each fact twice, once per direction; we keep one oriented edge per fact. Training draws new walks every epoch, while evaluation uses one fixed draw shared by all compared models. PDNS is evaluated on later time windows and is the only inductive dataset.
+\paragraph{Sampling.} Benchmarks often store each fact twice, once per direction; we keep one oriented edge per fact. A walk that reaches a dead end before its drawn length is discarded, and for graph classification every node is an anchor. Training draws new walks every epoch, while evaluation uses one fixed draw shared by all compared models.
 
-\paragraph{Metrics and search.} Macro-F1 is averaged over the classes present in each split's true labels. Hetero$^2$Net reports the complementary homophily share, so its published MLH values correspond to $1-\mathrm{MLH}$ in Equation~\eqref{eq:mlh}. IMDB is multi-label, with binary cross-entropy per genre, a threshold at logit zero and 4,573 labelled movies. For \method{}, the search covers the embedding size $d$, the maximum walk length $\ell_{\max}\in\{2,\dots,5\}$ and the number of walks per anchor $n\in\{8,\dots,64\}$, besides the axes shared with the baselines; the rank~4 of the edge rotations and the constant~10 in $w_f$ are fixed. A walk that reaches a dead end before its drawn length is discarded, and for graph classification every node is an anchor. The main tables involve about 48 tests of \method{} against the best other method.
+\subsection{Full Results}
+Table~\res{} reports node classification Micro-F1 and Table~\res{} link prediction MRR, with the same models and seeds as Tables~\ref{tab:node-cls} and~\ref{tab:link-pred}. \res{}
 
+%======================================================================
+\section{Ablation and Analysis Protocols}
+\label{app:analysis}
 \paragraph{Controlled variants.} Every variant is the full model with one change, run at the full model's tuned hyperparameters on the same dataset, with no tuning of its own, on seeds 1--5 (seed 0, the tuning seed, is excluded); runs are paired by seed, so a seed gives the same sampled walks and batch order in every variant. \emph{Uniform weights} gives every face the weight $\exp(10\tanh(b/10))$ with one learned scalar $b$; \emph{Endpoints} matches the hidden width of $g$ to that of the full model within 5\%. The full model is better than a variant on a dataset if the mean paired difference over the five seeds is positive and the full model scores strictly higher on at least four seeds; no $p$-values are computed. A claim holds if the full model is better on at least three of the four datasets; for \emph{Identity maps}, it must be better on both IMDB and Freebase, and ties on ACM and DBLP are allowed. If \emph{Endpoints} is not beaten, no claim is made on the intermediate node. For every comparison we report the mean and standard deviation per variant, the five paired differences, their mean and the number of seeds won, and the parameter count of every variant. The $2\times2$ design reports $\text{full}-\text{No faces}$, $\text{Identity maps}-\text{No faces, identity maps}$, $\text{full}-\text{Identity maps}$ and $\text{No faces}-\text{No faces, identity maps}$; faces and maps are called complementary on a dataset if the mean of the first exceeds that of the second. \emph{Published meta-paths} is reported without a claim.
 
 \paragraph{Learned meta-paths.} The analysis reads the full model's runs of seeds 1--5 and adds no training. Schemas are the length-2 sub-paths of the faces with a mean sampling share of at least 1\%, at most the ten largest; fewer than four give n/a. The sampling share of $\sigma$ sets every $w_f=1$, and the learned share uses $\beta_f$. A ranking is stable if the mean Kendall $\tau_b$ of the $\rho_\sigma$ rankings over the ten pairs of seeds is at least 0.5, and the $\tau_b$ of the sampling-share rankings is reported beside it. The learned face weights are said to favour a published meta-path only if $\rho_\sigma>1$ on all five seeds. Figure~\ref{fig:schema} plots $\rho_\sigma$ against the label homophily of the target-type graph induced by $\sigma$, with the Spearman correlation of each seed; no single-number claim is made. If the rankings are not stable, the read-out is reported without interpretation.
