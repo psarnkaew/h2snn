@@ -1,0 +1,13 @@
+{
+  "reference": "../docs/card11_inputs/h2snn_graph_classification_nci1_tune_run0_astral-sweep-1/config.yaml",
+  "changes": [
+    [
+      "optim.lr",
+      0.008584239317266356,
+      "3e-4"
+    ]
+  ],
+  "head": "7600c58f2a4e9c776c9c708a330a42458b0b33ac",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "job": "18083"
+}

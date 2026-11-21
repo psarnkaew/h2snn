@@ -234,7 +234,7 @@ Per epoch (`b2_pdns_tmax100_per_epoch.tsv`; 32 scopes per step):
 | 1 (to step 172) | bwd | 173 | **100** / 13.7 / 15 | 2.83 → 3.08 | 364 | **7.0e5** (one solve) |
 
 The failing solve (`b2_pdns_tmax100_top_solves.tsv`, last row): backward of step 172, scope 27 of 32, 252 rows
-(not the largest scope of the step: 252 is the largest here, but scopes up to 497 rows converged in ≤ 15), containing
+(the largest of step 172; scopes of up to 497 rows converged in ≤ 15 iterations elsewhere), containing
 the batch's largest node (degree 6332); the forward solve of the same step converged in 12 iterations; b and y finite.
 Every other training solve took ≤ 17 iterations. Iterations follow τ mildly (Spearman 0.83 fwd / 0.85 bwd over all
 training solves; τ only moves 1 → 3) and not the scope size (−0.01) or the largest degree (0.00–0.08).
@@ -271,10 +271,93 @@ epoch 49 after a normal epoch-48 evaluation, i.e. abruptly, which is consistent 
 | candidate | holds? | numbers |
 |---|---|---|
 | iterations grow with τ (conditioning) | no (for the failure) | iterations do follow τ (ρ 0.83–0.97), but stay ≤ 17 (PDNS) / ≤ 12 (mag-year); the failing scope has cond ≈ 6 |
-| one large scope or hub (preconditioner) | no | failing scope 252 rows, scope size ρ ≈ 0; it holds a degree-6332 hub, but its M is well conditioned under Jacobi (cond 5.4) and the forward solve on it took 12 iterations |
+| one large scope or hub (preconditioner) | no | failing scope 252 rows (larger scopes converged), scope size ρ ≈ 0; it holds a degree-6332 hub, but its M is well conditioned under Jacobi (cond 5.4) and the forward solve on it took 12 iterations |
 | a jump at one step (non-finite or degenerate scope) | **yes** | one backward solve, one scope, ≤ 17 → 100 iterations; finite, but **degenerate right-hand side**: ‖b‖ = 3.4e-17 vs median 1.7e-3, so the per-scope relative tolerance is unreachable in fp32; T_max 300 does not help (1.3e21) |
 
 Next step (not in this card, a `src` question): the per-scope stopping test (relative to ‖b_scope‖) needs a floor
 or an absolute term for scopes whose right-hand side is ≈ 0 (or such a scope counts as converged), in the backward
 and forward alike. Unexpected: the failure is in the backward, triggered by a target whose gradient vanishes, not
 by conditioning; and lab speed on the H2GB mini-batch path is set by the CPU (step ≈ 5× slower than the H100).
+
+## C — τ on GC
+
+All runs with the B1 probe (one row per PCG call; summaries `C/*_per_epoch.tsv`, `*_drivers.tsv`,
+`*_top_solves.tsv`; raw C1 probes committed, raw C2 probes (10 MB) kept in `/mnt/data/peeradon/card11_runs/c2`).
+`graph_batch_size: 1` (one graph per step: mutag 150 steps, nci1 ≈ 3300 steps per epoch), so the runs are slow
+on any GPU. GPU type: the C1 runs and the two mutag C2 runs on RTX 3090; to avoid ≈ 12 h of serial queueing,
+nci1 lr 3e-4 ran on the RTX 2080 Ti and nci1 lr 1e-3 on a TITAN RTX (GPU memory ≈ 0.02 GiB, the runs are CPU-bound;
+the τ trajectory does not depend on the GPU type beyond float noise). No A6000 was used.
+
+| run | change | job | GPU | wall | host / GPU peak | outcome |
+|---|---|---|---|---|---|---|
+| C1 mutag `dark-sweep-2` | `model.tau_stop: 1e6`, `epochs: 100` | 18074 | 3090 | 9 min | 1.2 GB / 0.02 GiB | `PCGConvergenceError` (forward, T_max 100) in epoch 2, τ = 231 |
+| C1 nci1 `astral-sweep-1` | same | 18077 | 3090 | 8 min | 1.2 GB / 0.02 GiB | `PCGConvergenceError` (forward) in epoch 0, τ = 135 |
+| C2 mutag lr 1e-3 | `optim.lr` only | 18080 | 3090 | 6 h (cap) | 1.5 GB / 0.02 GiB | 143 epochs, guard did not fire |
+| C2 mutag lr 3e-4 | `optim.lr` only | 18081 | 3090 | 6 h (cap) | 1.5 GB / 0.02 GiB | 157 epochs, guard did not fire |
+| C2 nci1 lr 1e-3 | `optim.lr` only | 18082 | TITAN RTX | 1 h 29 min | 1.5 GB / 0.02 GiB | **τ guard fires** at epoch 3 (τ = 50.02) |
+| C2 nci1 lr 3e-4 | `optim.lr` only | 18083 | 2080 Ti | 6 h (cap) | 1.5 GB / 0.02 GiB | 21 epochs, guard did not fire |
+
+(The C2 runs keep the config's 200 epochs; three of them reached the 6 h wall limit, so their tails are trends.
+`1e6`, `1e-3` and `3e-4` are parsed by YAML as strings; `TrainConfig` resolves them to floats, as the saved
+`config.yaml` of each run shows.)
+
+### C1 — τ with the guard raised (sweep lr: mutag 1.0e-2, nci1 8.6e-3; θ_τ has 10× that lr)
+
+| run | epoch | τ (end of epoch) | PCG iterations max (fwd) | val Macro-F1 |
+|---|---|---|---|---|
+| mutag | 0 | 18.2 | 36 | 0.333 |
+| mutag | 1 | 52.8 | 54 | 0.333 |
+| mutag | 2 (110 of 150 steps) | 44 → 231 | 100 (T_max, rel. res. 2.6e-3) | — |
+| nci1 | 0 (1018 of ≈ 3300 steps) | 0.92 → 138 | 100 (T_max, rel. res. 1.5e-3) | — |
+
+τ does not settle: it rises every step until PCG fails. Iterations follow τ (Spearman: mutag 0.89 fwd / 0.88 bwd,
+nci1 0.77 fwd; the Jacobi maximum 1 + τ·d tracks τ, ρ = 0.89 / 0.77); scope size matters less (nci1 0.41) and degree
+not at all (max degree 3–4). The failing solves are well-formed (finite, one scope, 80–270 rows) at τ ≈ 135–231:
+here the failure **is** conditioning, unlike B. Validation: mutag Macro-F1 stays 0.333 (one class predicted) while
+τ goes 18 → 53; nci1 never finished an epoch.
+
+### C2 — τ at lower lr (guard 50 as in the sweep)
+
+| run | largest τ (epoch) | τ by epoch 0 / 5 / 20 / 50 / 100 / last | iterations max | guard | val Macro-F1 range (best, epoch) |
+|---|---|---|---|---|---|
+| mutag lr 1e-3 | 22.8 (139) | 1.3 / 7.2 / 12.7 / 13.3 / 15.3 / 21.0 (142) | 48 | no | 0.33–0.83 (0.833, 106) |
+| mutag lr 3e-4 | 10.8 (155) | 1.1 / 2.2 / 7.4 / 8.4 / 9.3 / 10.6 (156) | 33 | no | 0.33–0.77 (0.766, 18) |
+| nci1 lr 1e-3 | 50.0 (3) | 13.4 / 23.8 / 34.4 / — (epochs 0–2, then > 50) | 60 | **yes, epoch 3** | 0.54–0.66 |
+| nci1 lr 3e-4 | 9.2 (7) | 2.6 / 8.5 / 7.1 (epoch 20, last) | 36 | no | 0.49–0.66 (0.659, 15) |
+
+At lower lr, τ rises fast over the first ≈ 5–20 epochs, then levels off (mutag lr 1e-3 ≈ 12–13 over epochs 20–80;
+lr 3e-4 ≈ 8.5–9.5 over 30–100; nci1 lr 3e-4 6.4–9.2 over 5–20) and afterwards **keeps creeping up** (mutag
+lr 1e-3: 13 → 21 between epochs 80 and 142; lr 3e-4: 9.3 → 10.6 between 100 and 156). Iterations follow τ
+(≤ 48). `path_log_w_range` climbs to ≈ 19–20 in every C2 run, i.e. g's log-weights run into both bounds ±10
+(`path_log_weight_bound`); in C1 mutag they sit at the lower bound −10. Validation Macro-F1 does not track τ
+(mutag's 18-graph validation set moves in steps of ≈ 0.05–0.1 at nearly constant τ).
+
+### C — read-out
+
+| row | holds? | why |
+|---|---|---|
+| τ settles at a finite value above 50 with no harm to PCG → guard too tight (protocol) | **no** | with the guard removed τ never settles (mutag 231, nci1 138 within < 3 epochs) and PCG fails from conditioning |
+| τ keeps growing → solve tends to the per-graph mean (mean-pooling over-smoothing; model question) | **yes, at the sweep's lr** | monotone growth every step until T_max; validation does not improve with it (mutag stuck at one class) |
+| lr dependence only → GC lr range is the issue | **partly** | the growth rate scales with lr: at 3e-4 τ stays ≤ 11 for 150+ epochs (mutag) and ≤ 9.2 (nci1); at 1e-3 nci1 still fires the guard at epoch 3, and mutag's τ still creeps (13 → 21) after a plateau |
+
+So the pull on τ is systematic (the second row), and its speed is set by the lr of θ_τ (lr × `scalar_lr_scale` 10),
+which is why the sweep's lr ≈ 1e-2 fires the guard within an epoch or a few. Whether the solve indeed tends to the
+per-graph mean (x* spread inside a graph shrinking as τ grows) was not measured here; it is the model-session question
+the row names. Unexpected: g's log-weights saturating at the ±10 bound in GC (C1 mutag at −10, C2 range ≈ 20).
+
+## Summary of read-outs
+
+- **A (LP acm_pa):** rows 2 and 3 — a degree shortcut that inverts between train and held-out, and GCN fails too:
+  a task / protocol problem of acm_pa (authors have no features and no other relation; holding out a fact isolates
+  47 % of validation-positive authors), not of H2S-NN.
+- **B (PCG T_max, PDNS / mag-year):** a jump at one step in one degenerate scope — the backward right-hand side of
+  one scope is ≈ 0 (3.4e-17) and the per-scope relative tolerance becomes unreachable in fp32; not conditioning,
+  not scope size; T_max 300 does not help. mag-year: trend only (≤ 12 iterations to epoch 35), same mechanism
+  inferred.
+- **C (τ on GC):** τ keeps growing at the sweep's lr until PCG fails (row 2); its speed is lr-driven (row 3 in part);
+  the guard is not too tight (row 1 no).
+
+Stop conditions of the card: none hit (A0 reproduced; no measurement needed a `src` change; runs over 6 h were
+capped by the scripts' own wall limit and reported as trends). Extra runs beyond the card's list, all with no key
+changed beyond those named: A2 on the A3 models (18094), the GCN lower-middle point (18089), the B1 GPU repeat
+(18096), the B2c failure analysis (18111).

@@ -1,0 +1,48 @@
+job=18082 node=g2tn01 start=2026-11-21T11:33:41+09:00
+git=7600c58f2a4e9c776c9c708a330a42458b0b33ac branch=card11 dirty=0
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 8033cd276596aff98487123d04e881a4  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+NVIDIA TITAN RTX, 550.163.01, 24576 MiB
+card11 run: config=../docs/card11_inputs/h2snn_graph_classification_nci1_tune_run0_astral-sweep-1/config.yaml head=7600c58f2a4e9c776c9c708a330a42458b0b33ac host=g2tn01 job=18082 gpu=NVIDIA TITAN RTX
+card11 change: optim.lr: 0.008584239317266356 -> '1e-3'
+2026-11-21 11:33:48,853 | INFO | card11: build 1.8 s; changes [('optim.lr', 0.008584239317266356, '1e-3')]
+2026-11-21 11:33:48,956 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'edge_label_0': 'edge_label_0'}, 'kept_relations': ['edge_label_0'], 'self_inverse_relations': ['edge_label_0'], 'unmatched_edges': {'edge_label_0': 0}, 'facts_before': 265506, 'facts_after': 132753}
+2026-11-21 11:52:27,622 | INFO | Epoch 0000 | train_loss: 0.6824 | train_acc: 0.5660 | train_auroc: 0.5956 | train_macro_f1: 0.5654 | train_micro_f1: 0.5660 | val_loss: 0.6854 | val_acc: 0.5645 | val_auroc: 0.6523 | val_macro_f1: 0.5415 | val_micro_f1: 0.5645 | test_acc: 0.5231 | test_auroc: 0.6108 | test_macro_f1: 0.5007 | test_micro_f1: 0.5231
+2026-11-21 11:52:27,694 | INFO | Epoch 0000 | val_auroc: 0.6523 | val_acc: 0.5645 | val_macro_f1: 0.5415 | test_auroc: 0.6108 | test_acc: 0.5231 | test_macro_f1: 0.5007
+2026-11-21 12:17:47,582 | INFO | Epoch 0001 | train_loss: 0.6636 | train_acc: 0.6010 | train_auroc: 0.6399 | train_macro_f1: 0.6007 | train_micro_f1: 0.6010 | val_loss: 0.6703 | val_acc: 0.6131 | val_auroc: 0.6444 | val_macro_f1: 0.6131 | val_micro_f1: 0.6131 | test_acc: 0.5791 | test_auroc: 0.6022 | test_macro_f1: 0.5787 | test_micro_f1: 0.5791
+2026-11-21 12:17:47,665 | INFO | Epoch 0001 | val_auroc: 0.6444 | val_acc: 0.6131 | val_macro_f1: 0.6131 | test_auroc: 0.6022 | test_acc: 0.5791 | test_macro_f1: 0.5787
+2026-11-21 12:45:47,822 | INFO | Epoch 0002 | train_loss: 0.6572 | train_acc: 0.6153 | train_auroc: 0.6547 | train_macro_f1: 0.6151 | train_micro_f1: 0.6153 | val_loss: 0.6618 | val_acc: 0.6618 | val_auroc: 0.6714 | val_macro_f1: 0.6563 | val_micro_f1: 0.6618 | test_acc: 0.6083 | test_auroc: 0.6557 | test_macro_f1: 0.5979 | test_micro_f1: 0.6083
+2026-11-21 12:45:47,908 | INFO | Epoch 0002 | val_auroc: 0.6714 | val_acc: 0.6618 | val_macro_f1: 0.6563 | test_auroc: 0.6557 | test_acc: 0.6083 | test_macro_f1: 0.5979
+2026-11-21 13:02:21,743 | INFO | STOP CONDITION tau: 50.0222 > 50 at epoch 3 (spec v1.16 §6); run stopped.
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/run_from_config.py", line 133, in main
+    trainer.fit(data, epoch_callback=callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 61, in fit
+    self._fit(fold, epoch_callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 80, in _fit
+    train_metrics = self._run_epoch(fold.train_loader, epoch, train=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 189, in _run_epoch
+    logits = self.forward_batch(batch, seed=self.draw_seed(epoch, train),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 266, in forward_batch
+    encoded = self.model.encode(
+              ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/h2snn_model.py", line 743, in encode
+    return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/solver_probe.py", line 84, in encode
+    return orig_encode(model, h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/h2snn_model.py", line 792, in _encode_anchored
+    raise TauStopError(tau_value, tau_stop, epoch)
+src.models.anchored_solve.TauStopError: stop condition tau: 50.0222 > 50 at epoch 3 (spec v1.15 §6)
+card11 peak_gpu_gib=0.022 fit_s=5312.9 build_s=1.8
+card11 outcome: TauStopError: stop condition tau: 50.0222 > 50 at epoch 3 (spec v1.15 §6)
+end=2026-11-21T13:02:22+09:00 exit=0 wall_s=5321

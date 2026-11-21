@@ -1,0 +1,18 @@
+{
+  "reference": "../docs/card11_inputs/h2snn_graph_classification_mutag_tune_run0_dark-sweep-2/config.yaml",
+  "changes": [
+    [
+      "model.tau_stop",
+      50.0,
+      "1e6"
+    ],
+    [
+      "epochs",
+      200,
+      100
+    ]
+  ],
+  "head": "c8958303e0be34cab9994e179fc60367b184495f",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "job": "18074"
+}

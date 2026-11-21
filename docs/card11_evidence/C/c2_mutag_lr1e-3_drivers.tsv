@@ -1,0 +1,17 @@
+direction	variable	n	spearman_with_iters
+fwd	tau	21545	0.2298
+fwd	largest_scope_rows	21545	0.516
+fwd	worst_scope_rows	21545	0.516
+fwd	worst_scope_max_degree	21545	
+fwd	worst_scope_jacobi_max	21545	0.2299
+fwd	max_degree	21545	
+fwd	path_log_w_range	21545	0.045
+fwd	rows	21545	0.516
+bwd	tau	21545	0.1708
+bwd	largest_scope_rows	21545	0.5093
+bwd	worst_scope_rows	21545	0.5093
+bwd	worst_scope_max_degree	21545	
+bwd	worst_scope_jacobi_max	21545	0.1708
+bwd	max_degree	21545	
+bwd	path_log_w_range	21545	0.0749
+bwd	rows	21545	0.5093

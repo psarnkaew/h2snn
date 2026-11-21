@@ -1,0 +1,62 @@
+job=18074 node=g3n01 start=2026-11-21T08:41:46+09:00
+git=c8958303e0be34cab9994e179fc60367b184495f branch=card11 dirty=0
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 a9fedeeb51e6683242de771fb19ccea2  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 351c8a68bb9bf5a690c6bd60bbac5db2  scripts/diagnostics/card11/b1_identity_check.py
+md5 d76e9f96072d662ed322cd880e26a60e  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+md5 118cb0939095c18b9e89de2f30665d13  scripts/diagnostics/card11/summarize_probe.py
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+card11 run: config=../docs/card11_inputs/h2snn_graph_classification_mutag_tune_run0_dark-sweep-2/config.yaml head=c8958303e0be34cab9994e179fc60367b184495f host=g3n01 job=18074 gpu=NVIDIA GeForce RTX 3090
+card11 change: model.tau_stop: 50.0 -> '1e6'
+card11 change: epochs: 200 -> 100
+2026-11-21 08:41:50,471 | INFO | card11: build 0.1 s; changes [('model.tau_stop', 50.0, '1e6'), ('epochs', 200, 100)]
+2026-11-21 08:41:50,520 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'edge_label_0': 'edge_label_0', 'edge_label_1': 'edge_label_1', 'edge_label_2': 'edge_label_2', 'edge_label_3': 'edge_label_3'}, 'kept_relations': ['edge_label_0', 'edge_label_1', 'edge_label_2', 'edge_label_3'], 'self_inverse_relations': ['edge_label_0', 'edge_label_1', 'edge_label_2', 'edge_label_3'], 'unmatched_edges': {'edge_label_0': 0, 'edge_label_1': 0, 'edge_label_2': 0, 'edge_label_3': 0}, 'facts_before': 7442, 'facts_after': 3721}
+2026-11-21 08:44:03,945 | INFO | Epoch 0000 | train_loss: 0.6980 | train_acc: 0.6267 | train_auroc: 0.5004 | train_macro_f1: 0.4307 | train_micro_f1: 0.6267 | val_loss: 0.9661 | val_acc: 0.5000 | val_auroc: 0.6543 | val_macro_f1: 0.3333 | val_micro_f1: 0.5000 | test_acc: 0.6000 | test_auroc: 0.7500 | test_macro_f1: 0.3750 | test_micro_f1: 0.6000
+2026-11-21 08:44:03,975 | INFO | Epoch 0000 | val_auroc: 0.6543 | val_acc: 0.5000 | val_macro_f1: 0.3333 | test_auroc: 0.7500 | test_acc: 0.6000 | test_macro_f1: 0.3750
+2026-11-21 08:47:37,640 | INFO | Epoch 0001 | train_loss: 0.6479 | train_acc: 0.6800 | train_auroc: 0.4872 | train_macro_f1: 0.4240 | train_micro_f1: 0.6800 | val_loss: 0.8092 | val_acc: 0.5000 | val_auroc: 0.4568 | val_macro_f1: 0.3333 | val_micro_f1: 0.5000 | test_acc: 0.6000 | test_auroc: 0.7500 | test_macro_f1: 0.3750 | test_micro_f1: 0.6000
+2026-11-21 08:47:37,656 | INFO | Epoch 0001 | val_auroc: 0.4568 | val_acc: 0.5000 | val_macro_f1: 0.3333 | test_auroc: 0.7500 | test_acc: 0.6000 | test_macro_f1: 0.3750
+2026-11-21 08:51:03,160 | INFO | STOP CONDITION T_max: 100 > 100 at epoch 2 (spec v1.16 §6); run stopped.
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/run_from_config.py", line 133, in main
+    trainer.fit(data, epoch_callback=callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 61, in fit
+    self._fit(fold, epoch_callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 80, in _fit
+    train_metrics = self._run_epoch(fold.train_loader, epoch, train=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 189, in _run_epoch
+    logits = self.forward_batch(batch, seed=self.draw_seed(epoch, train),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/graph_classification_trainer.py", line 266, in forward_batch
+    encoded = self.model.encode(
+              ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/h2snn_model.py", line 743, in encode
+    return self._encode_anchored(h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/solver_probe.py", line 84, in encode
+    return orig_encode(model, h0, edge_index, edge_type, face_groups, num_nodes, epoch,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/h2snn_model.py", line 899, in _encode_anchored
+    y_star = anchored_solve(build, h0, self.theta_tau, params, tolerance, max_iterations,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/anchored_solve.py", line 330, in anchored_solve
+    return AnchoredSolve.apply(build, h0, theta_tau, y0, tolerance, max_iterations, stats,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/function.py", line 574, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/anchored_solve.py", line 265, in forward
+    y, iterations, converged, residual = solve_anchored(
+                                         ^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/solver_probe.py", line 90, in solve_anchored
+    return orig_solve(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/anchored_solve.py", line 243, in solve_anchored
+    raise PCGConvergenceError(
+src.models.anchored_solve.PCGConvergenceError: PCG reached T_max = 100 in 1 scope(s); worst relative residual 2.581e-03 (tolerance 1.0e-03).
+card11 peak_gpu_gib=0.018 fit_s=552.7 build_s=0.1
+card11 outcome: PCGConvergenceError: PCG reached T_max = 100 in 1 scope(s); worst relative residual 2.581e-03 (tolerance 1.0e-03).
+end=2026-11-21T08:51:03+09:00 exit=0 wall_s=557
