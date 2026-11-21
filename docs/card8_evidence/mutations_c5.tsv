@@ -1,0 +1,1 @@
+c5_no_filled_exclusion	scripts/tsubame/make_cell_list.py	    if status == "filled":\n        return "filled (published number, register)"\n	    pass  # mutation: no filled exclusion\n	tests.test_card8_phases.PhaseTests.test_phases_disjoint_and_cover_every_runnable_cell_once

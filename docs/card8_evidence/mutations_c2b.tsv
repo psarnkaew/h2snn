@@ -1,0 +1,2 @@
+c2b_one_step_per_epoch	src/baselines/training.py	    steps = max(1, -(-num_positives // batch))	    steps = 1	tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch
+c2b_diagonal_distmult	src/baselines/heads.py	((source[mask] @ self.weights[relation]) * target[mask])	((source[mask] * torch.diagonal(self.weights[relation])) * target[mask])	tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix

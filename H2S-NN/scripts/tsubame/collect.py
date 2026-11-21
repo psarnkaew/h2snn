@@ -3,8 +3,9 @@
     python scripts/tsubame/collect.py --out $WORK/h2snn-out/<sha>
 
 Writes into `<out>/collected/`:
-- `results.csv`: one row per trial record (the sweep states' `records`) and per final-seed record
-  (`final_seed<s>.json`, baselines and H2S-NN). Values are copied from the records unchanged; no metric is computed.
+- `results.csv`: one row per trial record (the sweep states' `records`), per final-seed record
+  (`final_seed<s>.json`, baselines and H2S-NN) and per published-run record (`published_seed<s>.json`, kind
+  `published_seed`, card 8 C7). Values are copied from the records unchanged; no metric is computed.
 - `cells/<token>.tar`: one archive per cell (its state directory, its output directory, its line logs).
 - `SHA256SUMS` of `results.csv` and every archive.
 
@@ -31,7 +32,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.tsubame.lines import _h2snn_task_dataset, read_json  # noqa: E402
+from scripts.tsubame.lines import PUBLISHED_LAUNCHER, _h2snn_task_dataset, read_json  # noqa: E402
 
 COLUMNS = ("task", "dataset", "method", "kind", "trial_or_seed", "unit", "record_index", "sweep_params",
            "monitor", "val_monitor", "test_metrics", "wandb_run_id", "v3b_sha", "host", "job_id", "task_id",
@@ -146,6 +147,30 @@ def iter_rows(out: Path) -> Iterator[dict[str, Any]]:
         start = (done or candidates or [None])[-1]
         yield row(record, kind="final_seed", trial_or_seed=int(seed), unit=f"final_seed{seed}", index=int(seed),
                   monitor=str(record.get("monitor", "")), prov=provenance(start, ends), source=path, token=token)
+    yield from published_rows(out, starts, ends)  # card 8 C7
+
+
+def published_rows(out: Path, starts: list[dict[str, Any]], ends: dict[tuple, dict[str, Any]]
+                   ) -> Iterator[dict[str, Any]]:
+    """Card 8 C7: one row per published-run record (`<output_dir>/<token>/published_seed<s>.json`, written by
+    `scripts/run_baseline_published.py`), with the provenance of the published line run that wrote it."""
+    for path in sorted((out / "experiments").glob("*/*/published_seed*.json")):
+        seed = path.stem.removeprefix("published_seed")
+        if not seed.isdigit():
+            continue
+        record = read_json(path)
+        if not isinstance(record, dict):
+            continue
+        token = path.parent.name
+        candidates = [e for e in starts if PUBLISHED_LAUNCHER in e.get("line", "") and isinstance(e.get("before"), dict)
+                      and e["before"].get("token") == token]
+        done = [e for e in candidates
+                if int(seed) in ((ends.get((e.get("job_id"), e.get("task_id"), e.get("slot"), e.get("start")))
+                                  or {}).get("after") or {}).get("final_seed_files", [])]
+        start = (done or candidates or [None])[-1]
+        yield row(record, kind="published_seed", trial_or_seed=int(seed), unit=f"published_seed{seed}",
+                  index=int(seed), monitor=str(record.get("monitor", "")), prov=provenance(start, ends), source=path,
+                  token=token)
 
 
 def write_tars(out: Path, target: Path) -> list[Path]:
@@ -153,7 +178,8 @@ def write_tars(out: Path, target: Path) -> list[Path]:
     # a cell = a state directory or an output directory holding final seeds; H2S-NN's per-trial run
     # directories (`<token>_tune_run0_<trial>`, written by its train_trial) are not cells and are not archived
     tokens = sorted({p.name for p in (out / "state").glob("*") if p.is_dir()}
-                    | {p.parent.name for p in (out / "experiments").glob("*/*/final_seed*.json")})
+                    | {p.parent.name for p in (out / "experiments").glob("*/*/final_seed*.json")}
+                    | {p.parent.name for p in (out / "experiments").glob("*/*/published_seed*.json")})  # card 8 C7
     target.mkdir(parents=True, exist_ok=True)
     written = []
     for token in tokens:
@@ -194,7 +220,8 @@ def collect(out: Path) -> dict[str, Any]:
     (target / "SHA256SUMS").write_text("\n".join(sums) + "\n", encoding="utf-8")
     missing = sum(1 for r in rows if not r["job_id"])
     return {"rows": len(rows), "trials": sum(r["kind"] == "trial" for r in rows),
-            "final_seeds": sum(r["kind"] == "final_seed" for r in rows), "cells": len(tars),
+            "final_seeds": sum(r["kind"] == "final_seed" for r in rows),
+            "published_seeds": sum(r["kind"] == "published_seed" for r in rows), "cells": len(tars),
             "rows_without_provenance": missing}
 
 

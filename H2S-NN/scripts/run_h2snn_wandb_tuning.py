@@ -430,7 +430,11 @@ def train_trial(
     record_extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_trial_params(params, allowed_parameters=allowed_parameters)
+    import time
+
     from src.builders import build_experiment_components
+
+    started = time.time()
 
     raw = apply_sweep_overrides(
         raw_base,
@@ -493,7 +497,7 @@ def train_trial(
         raw_record = getattr(trainer, "_best_test_metrics", None)
         if raw_record is None:
             raise RuntimeError(f"Tuning trial {trial_name} did not produce best metrics.")
-        return enrich_run_record(
+        record = enrich_run_record(
             raw_record,
             cfg,
             run_index=run_index,
@@ -505,6 +509,16 @@ def train_trial(
                 **(record_extra or {}),
             },
         )
+        try:  # card 8 C7: summary of the active run (a sweep trial or a final seed): resolved config, timing
+            import wandb  # type: ignore[import-not-found]
+
+            from src.baselines.wandb_runs import write_summary
+
+            write_summary(getattr(wandb, "run", None), record, config={"resolved": cfg, "params": dict(params)},
+                          started=started)
+        except ImportError:
+            pass
+        return record
     finally:
         logger.close()
 
@@ -747,13 +761,24 @@ def run_final_seeds(
     monitor = (args.monitor or default_monitor_for_task(base_cfg.task_type)).removeprefix("val_")
     seeds = list(args.final_seeds)
     records: list[dict[str, Any]] = []
+    from src.baselines.wandb_runs import finish, open_run
+
     for index, seed in enumerate(seeds):
-        record = train_trial(
-            raw_config, params=params, run_index=index, num_runs=len(seeds), seed=seed,
-            base_exp_name=base_exp_name, output_dir=summary_dir / "final_seeds",
-            monitor=monitor, trial_name=f"final_seed{seed}", unit_name=f"final_seed{seed}",
-            record_extra={"selected_from": str(best_path), "final_seed": seed},
-        )
+        # card 8 C7 (amendment 6): one W&B run per final seed, opened here (no src/ change); the trainer's epoch
+        # callback logs train/val/test into it, `train_trial` writes the summary
+        run = open_run(project=getattr(args, "wandb_project", None), entity=getattr(args, "wandb_entity", None),
+                       mode=getattr(args, "wandb_mode", None), kind="final_seed",
+                       token=base_exp_name, seed=int(seed),
+                       config={"params": params, "selected_from": str(best_path)})
+        try:
+            record = train_trial(
+                raw_config, params=params, run_index=index, num_runs=len(seeds), seed=seed,
+                base_exp_name=base_exp_name, output_dir=summary_dir / "final_seeds",
+                monitor=monitor, trial_name=f"final_seed{seed}", unit_name=f"final_seed{seed}",
+                record_extra={"selected_from": str(best_path), "final_seed": seed},
+            )
+        finally:
+            finish(run)
         write_run_record(summary_dir / f"final_seed{seed}.json", record)
         records.append(record)
     write_summary_files(

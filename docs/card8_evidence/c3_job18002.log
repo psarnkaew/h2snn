@@ -1,0 +1,65 @@
+job=18002 node=g2n01 start=2026-11-20T18:40:41+09:00
+git=ba4cdea957d4a7d9f5fb2c1e2bb40f984410f237 branch=card8
+ M src/baselines/training.py
+?? src/baselines/adapters/magnn.py
+?? tests/test_card8_magnn.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+Processing...
+Done!
+test_freebase_published_path_is_finite_and_moves (tests.test_card8_magnn.FreebaseNCTests.test_freebase_published_path_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_our_instances_equal_hgbs_get_adjlist_pkl (tests.test_card8_magnn.FreebaseNCTests.test_our_instances_equal_hgbs_get_adjlist_pkl)
+Our enumeration (used off HGB) gives HGB's format on HGB's own BB (link 0 and its reverse). ... ok
+test_rule_schemas_step_is_finite_and_moves (tests.test_card8_magnn.H2GBNCTests.test_rule_schemas_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_assert_no_held_out_raises_on_a_crafted_instance (tests.test_card8_magnn.LPTests.test_assert_no_held_out_raises_on_a_crafted_instance) ... ok
+test_lp_small_is_finite_and_moves (tests.test_card8_magnn.LPTests.test_lp_small_is_finite_and_moves) ... ok
+test_no_instance_passes_a_held_out_fact (tests.test_card8_magnn.LPTests.test_no_instance_passes_a_held_out_fact) ... ok
+test_training_mask_drops_instances_through_a_step_positive (tests.test_card8_magnn.LPTests.test_training_mask_drops_instances_through_a_step_positive) ... ok
+test_lp_large_step_is_finite_and_moves (tests.test_card8_magnn.LargeLPTests.test_lp_large_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_every_small_lp_adapter_uses_the_shared_loop (tests.test_card8_lp_step.AdapterStepTests.test_every_small_lp_adapter_uses_the_shared_loop)
+No adapter has its own small-LP epoch loop: each LP fit calls `train_link_prediction` with the budget's ... ok
+test_gcn_adapter_steps_per_epoch (tests.test_card8_lp_step.AdapterStepTests.test_gcn_adapter_steps_per_epoch) ... ok
+test_distmult_equals_hgbs_bmm_and_init (tests.test_card8_lp_step.DistMultTests.test_distmult_equals_hgbs_bmm_and_init) ... ok
+test_distmult_is_a_full_matrix (tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix) ... ok
+test_shared_loop_steps_per_epoch (tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch) ... ok
+test_step_batches_cover_every_positive_once (tests.test_card8_lp_step.SharedLoopStepTests.test_step_batches_cover_every_positive_once) ... ok
+test_empty_two_hop_set_yields_none_with_a_reason (tests.test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... No CUDA runtime is found, using CUDA_HOME='/usr'
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_no_held_out_pair_reaches_any_message_graph (tests.test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (tests.test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (tests.test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 170.184s
+
+OK
+targets exit=0
+Ran 1 test in 2.279s
+
+FAILED (failures=1)
+MUTATION c3_full_graph_instances: CAUGHT (test failed, rc=1)
+ H2S-NN/src/baselines/training.py | 40 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 30 insertions(+), 10 deletions(-)
+end=2026-11-20T18:43:38+09:00 exit=0

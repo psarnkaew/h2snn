@@ -38,7 +38,7 @@ import torch
 from src.baselines.bundles import NodeBundle, bundle_data_root, hgb_raw_dir
 from src.baselines.metrics import classification_metrics, node_classification_record
 from src.baselines.budget import resolve_budget
-from src.baselines.progress import report_epoch
+from src.baselines.progress import prefixed_metrics, report_epoch
 from src.baselines import search_grids as grids
 from src.baselines.protocol import (
     NODE_CLASSIFICATION,
@@ -470,10 +470,13 @@ def _train_loop(bundle: NodeBundle, params: BaselineParams, args: SimpleNamespac
         batch_labels = {key: value[indices] for key, value in label_feats.items()}
         return model(indices, batch_feats, batch_labels, None)
 
+    last_loss: dict[str, float] = {}  # card 8 C7: the last evaluation's loss, logged only
+
     def evaluate(indices: torch.Tensor) -> dict[str, float]:
         model.eval()
         with torch.no_grad():
             logits = forward(indices.to(device))
+            last_loss["value"] = float(criterion(logits, labels[indices.to(device)]))
         return classification_metrics(
             logits, labels[indices.to(device)], is_multilabel=bundle.is_multilabel
         )
@@ -489,14 +492,17 @@ def _train_loop(bundle: NodeBundle, params: BaselineParams, args: SimpleNamespac
     for epoch in range(epochs):
         model.train()
         permutation = train_idx[torch.randperm(train_idx.numel())]
+        losses: list[float] = []  # card 8 C7: train/loss, logged only
         for start in range(0, permutation.numel(), batch_size):
             batch = permutation[start : start + batch_size].to(device)
             optimizer.zero_grad()
             loss = criterion(forward(batch), labels[batch])
             loss.backward()
             optimizer.step()
+            losses.append(float(loss))
 
         val_metrics = evaluate(val_idx)
+        val_loss = last_loss.get("value")
         test_metrics = evaluate(test_idx)
         monitor = val_metrics["macro_f1"]
         if monitor > best_monitor:
@@ -512,6 +518,8 @@ def _train_loop(bundle: NodeBundle, params: BaselineParams, args: SimpleNamespac
             monitor=monitor,
             running_best=best_monitor,
             metrics=val_metrics,
+            extra={"train/loss": sum(losses) / max(1, len(losses)), "val/loss": val_loss,
+                   **prefixed_metrics("test", test_metrics)},
         )
         if stale >= patience:
             break

@@ -112,6 +112,9 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     from src.baselines.adapters._h2gb_network import configure_from_yaml, seed_predictions
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.bundles import bundle_data_root
+    from src.baselines.h2gb_published import (fanout_from_args, h2gb_optimizer_and_schedule, is_h2gb_published,
+                                              published_overrides, published_plan, resolve_published, run_settings)
+    from src.baselines.protocol import NODE_CLASSIFICATION
     from src.baselines.minibatch import (eval_loader, h2gb_sample_sizes, hgt_loader, minibatch_plan,
                                          train_minibatch_node_classification, val_subset_loader)
     from src.baselines.runtime import pushd_sys_path
@@ -126,10 +129,29 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     data = dataset_obj[0]
     target = ALL_H2GB_NC_SPECS[bundle.dataset].target_node_type
     stack = H2GB_STACKS[bundle.dataset]
-    fanout = h2gb_sample_sizes("h2gformer", bundle.dataset, tuple(data.node_types))
-    plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
     labels = data[target].y.long().clone()
     num_classes = int(labels.max()) + 1
+    # card 8 C1: a published cell runs its yaml exactly (h2gb_published); the tuned path is unchanged
+    published = is_h2gb_published("h2gformer", NODE_CLASSIFICATION, bundle.dataset, getattr(params, "source", ""))
+    if published:
+        values = dict(params.values)
+        ensure_pyg_submodules()
+        with pushd_sys_path("h2gb"):
+            _, args = resolve_published("h2gformer", bundle.dataset, data, target, device, values,
+                                        {"share.dim_out": int(num_classes)})
+        if args["dataset.node_encoder_name"] != "+".join(stack):
+            raise ValueError(f"{bundle.dataset}: yaml encoder {args['dataset.node_encoder_name']!r} differs from the "
+                             f"stack {stack}.")
+        settings = run_settings(args)
+        plan = published_plan(bundle.dataset, settings)
+        fanout = fanout_from_args(args, tuple(data.node_types))
+        cfg_overrides = {**published_overrides(values), "share.dim_out": int(num_classes)}
+        dim_pe = int(args["posenc_Hetero_Metapath.dim_pe"]) if METAPATH in stack else 0
+    else:
+        fanout = h2gb_sample_sizes("h2gformer", bundle.dataset, tuple(data.node_types))
+        plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
+        cfg_overrides = overrides(params, num_classes, stack)
+        dim_pe = metapath_dim_pe(int(params.get("hidden_dim", 64))) if METAPATH in stack else 0
     loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
@@ -142,26 +164,31 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
         prepare_label_channel(data, target, labels)
     ensure_pyg_submodules()
     with pushd_sys_path("h2gb"):
-        configure_from_yaml("h2gformer", bundle.dataset, data, target, device, overrides(params, num_classes, stack))
+        cfg = configure_from_yaml("h2gformer", bundle.dataset, data, target, device, cfg_overrides)
         if METAPATH in stack:
             pe_dir = Path(params.get("metapath_cache", "experiments/h2gb_metapath2vec")) / bundle.dataset / \
-                f"dim{metapath_dim_pe(int(params.get('hidden_dim', 64)))}_seed{seed}"
+                f"dim{dim_pe}_seed{seed}"
             attach_h2gb_metapath(dataset_obj, data, pe_dir, SCHEMA_NAME.get(bundle.dataset))
         torch.manual_seed(seed)
         model = build_gtmodel(data, bundle.dataset, num_classes).to(device)
+        schedule = None
+        if published:
+            optimizer, schedule = h2gb_optimizer_and_schedule(model, cfg, args, settings)
 
     def forward_seeds(batch: Any) -> torch.Tensor:
         batch = batch.to(device)
         batch.split = "train" if model.training else "val"
         return seed_predictions(model, batch, target)
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-4)),
-                                  weight_decay=float(params.get("weight_decay", 1e-5)))
+    if not published:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params.get("lr", 5e-4)),
+                                      weight_decay=float(params.get("weight_decay", 1e-5)))
     record = train_minibatch_node_classification(
         model=model, forward_seeds=forward_seeds, train_loader=loaders[0], val_loader=loaders[1],
         test_loader=loaders[2], val_ids=val_ids, test_ids=test_ids, val_subset_loader=subset_loader,
         val_subset_ids=subset_ids, target_type=target, optimizer=optimizer,
-        criterion=torch.nn.functional.cross_entropy, plan=plan, report=getattr(params, "report", None), labels=labels)
+        criterion=torch.nn.functional.cross_entropy, plan=plan, report=getattr(params, "report", None), labels=labels,
+        schedule=schedule)
     record["params_source"] = params.source
     record["node_encoder"] = "+".join(stack)
     record["batch_size"] = float(plan.batch_size)

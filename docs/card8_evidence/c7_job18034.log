@@ -1,0 +1,111 @@
+job=18034 node=g2tn01 start=2026-11-20T21:09:01+09:00
+git=b9f8b234a89650d88ccbf7f9ed7e5039af770394 branch=card8
+ M scripts/run_baseline_published.py
+ M scripts/run_baseline_tuning.py
+ M scripts/run_h2snn_wandb_tuning.py
+ M scripts/tsubame/collect.py
+ M scripts/tsubame/make_cell_list.py
+ M src/baselines/adapters/hetero2net.py
+ M src/baselines/adapters/magnn.py
+ M src/baselines/adapters/sehgnn.py
+ M src/baselines/large_lp_training.py
+ M src/baselines/minibatch.py
+ M src/baselines/progress.py
+ M src/baselines/training.py
+?? src/baselines/wandb_runs.py
+?? tests/test_card8_collect.py
+?? tests/test_wandb_logging.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+test_h2gb_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_h2gb_epoch_keys) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_hgb_nc_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_hgb_nc_epoch_keys) ... ok
+test_lp_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_lp_epoch_keys) ... ok
+test_selection_is_unchanged_by_logging (tests.test_wandb_logging.EpochKeyTests.test_selection_is_unchanged_by_logging) ... ok
+test_h2snn_final_seed_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_h2snn_final_seed_run_opens_logs_and_summarises) ... Resolved trial: device=cuda orthogonal_map=fasthpp d=32 exp_dir=/tmp/tmpfp26orpl/h2snn_node_classification_acm/final_seeds/h2snn_node_classification_acm_tune_final_seed0_final_seed0
+ok
+test_published_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_published_run_opens_logs_and_summarises) ... ok
+test_published_records_reach_results_csv_with_provenance (tests.test_card8_collect.PublishedRowsTests.test_published_records_reach_results_csv_with_provenance) ... ok
+test_every_small_lp_adapter_uses_the_shared_loop (tests.test_card8_lp_step.AdapterStepTests.test_every_small_lp_adapter_uses_the_shared_loop)
+No adapter has its own small-LP epoch loop: each LP fit calls `train_link_prediction` with the budget's ... ok
+test_gcn_adapter_steps_per_epoch (tests.test_card8_lp_step.AdapterStepTests.test_gcn_adapter_steps_per_epoch) ... ok
+test_distmult_equals_hgbs_bmm_and_init (tests.test_card8_lp_step.DistMultTests.test_distmult_equals_hgbs_bmm_and_init) ... ok
+test_distmult_is_a_full_matrix (tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix) ... ok
+test_shared_loop_steps_per_epoch (tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch) ... ok
+test_step_batches_cover_every_positive_once (tests.test_card8_lp_step.SharedLoopStepTests.test_step_batches_cover_every_positive_once) ... ok
+test_line_paths_are_the_launchers (tests.test_tsubame_collect.CollectTests.test_line_paths_are_the_launchers) ... ok
+test_rows_equal_records_values_unchanged_provenance_filled (tests.test_tsubame_collect.CollectTests.test_rows_equal_records_values_unchanged_provenance_filled) ... ok
+test_status_reads_the_same_files (tests.test_tsubame_collect.CollectTests.test_status_reads_the_same_files) ... ok
+test_final_seeds_only_for_finished_sweeps (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_final_seeds_only_for_finished_sweeps) ... ok
+test_phase_h2snn_writes_no_final_seeds_up_front (tests.test_tsubame_final_seeds_gate.FinalSeedsGateTests.test_phase_h2snn_writes_no_final_seeds_up_front) ... ok
+test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset (tests.test_freebase_baselines.B1aSubsetTests.test_h2sgnn_h2gb_path_evaluates_the_run_seeds_subset) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+ok
+test_pshgcn_h2gb_path_evaluates_the_run_seeds_subset (tests.test_freebase_baselines.B1aSubsetTests.test_pshgcn_h2gb_path_evaluates_the_run_seeds_subset) ... ok
+test_h2sgnn_generic_branch_equals_their_acm_branch (tests.test_freebase_baselines.EquivalenceTests.test_h2sgnn_generic_branch_equals_their_acm_branch) ... ok
+test_pshgcn_generic_branch_equals_their_acm_branch (tests.test_freebase_baselines.EquivalenceTests.test_pshgcn_generic_branch_equals_their_acm_branch) ... ok
+test_h2sgnn_generic_branch_step (tests.test_freebase_baselines.FreebaseStepTests.test_h2sgnn_generic_branch_step) ... ok
+test_pshgcn_generic_branch_step (tests.test_freebase_baselines.FreebaseStepTests.test_pshgcn_generic_branch_step) ... ok
+test_sehgnn_freebase_branch_step (tests.test_freebase_baselines.FreebaseStepTests.test_sehgnn_freebase_branch_step) ... ok
+test_h2sgnn_sampled_batch_step (tests.test_freebase_baselines.H2GBStepTests.test_h2sgnn_sampled_batch_step) ... ok
+test_pshgcn_decoupled_rows_step_and_batching_is_exact (tests.test_freebase_baselines.H2GBStepTests.test_pshgcn_decoupled_rows_step_and_batching_is_exact) ... ok
+test_pshgcn_precomputation_reads_the_message_graph_only (tests.test_freebase_baselines.LargeLPHeldOutTests.test_pshgcn_precomputation_reads_the_message_graph_only)
+Every user-user edge PSHGCN propagates over is a message-graph edge: no held-out fact in either ... ok
+test_h2sgnn_names_from_the_schema_equal_the_operators_names (tests.test_freebase_baselines.RelationPlanTests.test_h2sgnn_names_from_the_schema_equal_the_operators_names) ... ok
+test_one_direction_toy_graph_gets_both_directions_and_a_symmetric_same_type_key (tests.test_freebase_baselines.RelationPlanTests.test_one_direction_toy_graph_gets_both_directions_and_a_symmetric_same_type_key)
+2 relations, each stored one way (P -> A, P -> P): the generic branch's operators hold A -> P as the ... ok
+test_parallel_relations_merged_and_missing_reverses_completed (tests.test_freebase_baselines.RelationPlanTests.test_parallel_relations_merged_and_missing_reverses_completed) ... ok
+test_stored_reverses_leave_the_plan_unchanged (tests.test_freebase_baselines.RelationPlanTests.test_stored_reverses_leave_the_plan_unchanged) ... ok
+test_no_held_out_fact_in_any_sampled_subgraph (tests.test_baselines_large_lp.HeldOutFactTests.test_no_held_out_fact_in_any_sampled_subgraph) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_each_wired_method_one_lp_step_is_finite_and_moves (tests.test_baselines_large_lp.WiredLoaderTests.test_each_wired_method_one_lp_step_is_finite_and_moves) ... No CUDA runtime is found, using CUDA_HOME='/usr'
+/tmp/tmp4nziplbj/cells_final_seeds_h2snn.txt: 2 runnable line(s), 3 comment line(s)
+/tmp/tmpwxv5yrfy/cells_tuning_h2snn.txt: 24 runnable line(s), 1 comment line(s)
+ACM
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+WARNING:root:Layers after message passing should be >=1
+Using sheaf learner: type_concat
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_no_held_out_fact_in_any_sampler_configuration (tests.test_baselines_large_lp.WiredLoaderTests.test_no_held_out_fact_in_any_sampler_configuration) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/large_lp_training.py:60: UserWarning: torch.searchsorted(): input value tensor is non-contiguous, this will lower the performance due to extra data copy when converting non-contiguous tensor to contiguous, please use contiguous input value tensor if possible. This message will only appear once per program. (Triggered internally at ../aten/src/ATen/native/BucketizationUtils.h:32.)
+  return batch, torch.searchsorted(nodes, links)
+ok
+Processing...
+Done!
+test_freebase_published_path_is_finite_and_moves (tests.test_card8_magnn.FreebaseNCTests.test_freebase_published_path_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_our_instances_equal_hgbs_get_adjlist_pkl (tests.test_card8_magnn.FreebaseNCTests.test_our_instances_equal_hgbs_get_adjlist_pkl)
+Our enumeration (used off HGB) gives HGB's format on HGB's own BB (link 0 and its reverse). ... ok
+test_rule_schemas_step_is_finite_and_moves (tests.test_card8_magnn.H2GBNCTests.test_rule_schemas_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_assert_no_held_out_raises_on_a_crafted_instance (tests.test_card8_magnn.LPTests.test_assert_no_held_out_raises_on_a_crafted_instance) ... ok
+test_lp_small_is_finite_and_moves (tests.test_card8_magnn.LPTests.test_lp_small_is_finite_and_moves) ... ok
+test_no_instance_passes_a_held_out_fact (tests.test_card8_magnn.LPTests.test_no_instance_passes_a_held_out_fact) ... ok
+test_training_mask_drops_instances_through_a_step_positive (tests.test_card8_magnn.LPTests.test_training_mask_drops_instances_through_a_step_positive) ... ok
+test_lp_large_step_is_finite_and_moves (tests.test_card8_magnn.LargeLPTests.test_lp_large_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 412.730s
+
+OK
+targets exit=0
+end=2026-11-20T21:15:58+09:00 exit=0

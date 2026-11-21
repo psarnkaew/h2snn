@@ -1,0 +1,17 @@
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+F
+======================================================================
+FAIL: test_h2gb_run_arguments_equal_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_h2gb_run_arguments_equal_the_yaml) (key='optim.scheduler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_published.py", line 101, in test_h2gb_run_arguments_equal_the_yaml
+    self.assertIn(key, args, f"{key} is not a resolved run argument")
+AssertionError: 'optim.scheduler' not found in {'optim.optimizer': 'adamW', 'optim.base_lr': 0.001, 'optim.weight_decay': 1e-05, 'optim.max_epoch': 500, 'optim.num_warmup_epochs': 5, 'optim.clip_grad_norm': True, 'optim.clip_grad_norm_value': 1.0, 'optim.batch_accumulation': 32, 'train.batch_size': 32, 'train.iter_per_epoch': 256, 'train.eval_period': 4, 'train.sampler': 'hgt', 'train.neighbor_sizes': [512, 512, 512, 512, 512, 512], 'train.neighbor_sizes_dict': '', 'dataset.node_encoder': True, 'dataset.node_encoder_name': 'Raw', 'dataset.node_encoder_bn': False, 'dataset.edge_encoder': False, 'dataset.edge_encoder_name': 'none', 'dataset.edge_encoder_bn': False, 'model.type': 'HomoGNNModel', 'model.loss_fun': 'cross_entropy', 'gnn.layer_type': 'GCN', 'gnn.layers_mp': 4, 'gnn.layers_pre_mp': 0, 'gnn.layers_post_mp': 1, 'gnn.dim_inner': 512, 'gnn.batch_norm': True, 'gnn.layer_norm': False, 'gnn.act': 'relu', 'gnn.input_dropout': 0.0, 'gnn.dropout': 0.2, 'gnn.agg': 'mean', 'gnn.use_linear': False} : optim.scheduler is not a resolved run argument
+
+----------------------------------------------------------------------
+Ran 1 test in 13.957s
+
+FAILED (failures=1)

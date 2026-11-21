@@ -131,6 +131,7 @@ def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device,
     from src.baselines.budget import default_budget
     from src.baselines.heads import SharedLinkHead
     from src.baselines.metrics import prefixed
+    from src.baselines.progress import report_epoch
     from src.baselines.protocol import LINK_PREDICTION
     from src.data.hgb_lp_negatives import hgb_train_negatives
     from src.models.anchored_solve import check_finite_loss
@@ -158,8 +159,13 @@ def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device,
                 position += size
             return head(table, torch.searchsorted(nodes, links).to(device))
 
+    last_loss: dict[str, float] = {}
+
     def metrics(pos: torch.Tensor, neg: torch.Tensor) -> dict[str, float]:
-        return compute_link_prediction_metrics(score_links(pos).float(), score_links(neg).float())
+        pos_scores, neg_scores = score_links(pos).float(), score_links(neg).float()
+        last_loss["bce"] = float(torch.nn.functional.binary_cross_entropy_with_logits(  # card 8 C7: logged only
+            torch.cat([pos_scores, neg_scores]), torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)])))
+        return compute_link_prediction_metrics(pos_scores, neg_scores)
 
     order = TrainingOrder(torch.arange(d.train_pos.size(1)), seed)
     steps = -(-int(d.train_pos.size(1)) // LP_POSITIVES_PER_STEP)
@@ -168,6 +174,7 @@ def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device,
         model.modules.train()
         head.train()
         negatives = hgb_train_negatives(d.train_pos, (0, num_dst), seed + epoch)
+        losses: list[float] = []  # card 8 C7: train/loss, logged only
         for _ in range(steps):
             index = order.next(LP_POSITIVES_PER_STEP)
             links = torch.cat([d.train_pos[:, index], negatives[:, index]], dim=1)
@@ -180,15 +187,20 @@ def fit_large_lp(bundle: Any, params: Any, *, seed: int, device: torch.device,
             check_finite_loss(loss, epoch)
             loss.backward()
             optimizer.step()
+            losses.append(float(loss))
         model.modules.eval()
         head.eval()
         val = metrics(d.val_pos, d.val_neg)
+        extra = {"train/loss": sum(losses) / max(1, len(losses)), "val/loss": last_loss.get("bce")}
         if val["auroc"] > best:
             best, best_epoch, stale, best_val = val["auroc"], epoch, 0, val
             best_test = {**prefixed(metrics(d.test_pos, d.test_2hop), "2hop"),
                          **prefixed(metrics(d.test_pos, d.test_random), "random")}
+            extra.update({f"test/{k}": best_test.get(f"random_{k}") for k in ("auroc", "mrr", "aupr")})
         else:
             stale += 1
+        report_epoch(getattr(params, "report", None), epoch=epoch, monitor=val["auroc"], running_best=best,
+                     metrics=val, extra=extra)  # card 8 C7 (amendment 6)
         if stale >= budget.patience:
             break
     record = {**prefixed(best_val, "val"), **prefixed(best_test, "test")}

@@ -38,7 +38,8 @@ from src.baselines.metrics import (
     node_classification_record,
     prefixed,
 )
-from src.baselines.progress import EpochReport, report_epoch
+from src.baselines.progress import EpochReport, prefixed_metrics, report_epoch
+from src.configs.config import LP_POSITIVES_PER_STEP
 from src.models.anchored_solve import check_finite_loss
 
 
@@ -92,6 +93,7 @@ def train_full_batch_node_classification(
         model.eval()
         with torch.no_grad():
             logits = target_logits()
+            val_loss = float(criterion(logits[val_idx], labels[val_idx]))  # card 8 C7: logged only
             val_metrics = classification_metrics(
                 logits[val_idx],
                 labels[val_idx],
@@ -121,6 +123,7 @@ def train_full_batch_node_classification(
             monitor=monitor,
             running_best=best_monitor,
             metrics=val_metrics,
+            extra={"train/loss": float(loss), "val/loss": val_loss, **prefixed_metrics("test", test_metrics)},
         )
         if stale >= patience:
             break
@@ -149,6 +152,15 @@ def node_classification_criterion(
 # --------------------------------------------------------------------------------------
 
 
+#: Card 8 C7 / amendment 3: the LP test keys logged per epoch (the random test set: ROC-AUC, MRR, AUPR).
+LP_TEST_LOG_KEYS: tuple[str, ...] = ("auroc", "mrr", "aupr")
+
+
+def lp_random_test_extra(test_metrics: dict[str, Any]) -> dict[str, Any]:
+    """`test/auroc`, `test/mrr`, `test/aupr` of the random test set (`lp_test_set_metrics` keys `random_<metric>`)."""
+    return {f"test/{name}": test_metrics.get(f"random_{name}") for name in LP_TEST_LOG_KEYS}
+
+
 def sample_train_negatives(
     data: Any,
     *,
@@ -165,6 +177,24 @@ def sample_train_negatives(
     return negatives.to(device), relations.to(device)
 
 
+def link_step_batches(num_positives: int, num_negatives: int, positives_per_step: int, device: Any
+                      ) -> list[tuple[torch.Tensor, torch.Tensor]]:
+    """(positive ids, negative ids) of each optimizer step of one epoch (card 8 C2b): the training positives in a
+    shuffled order (the global RNG, seeded by the adapter's `seed_everything`) cut into `ceil(P / B)` batches of
+    `positives_per_step` = B; the epoch's training negatives shuffled and split in the same ratio (H2S-NN's
+    `link_prediction_trainer.py:238-263`; HGB's runner batches the positives, `LP/benchmark/methods/baseline/
+    run_new.py`)."""
+    if positives_per_step < 1:
+        raise ValueError(f"positives_per_step must be >= 1, got {positives_per_step}.")
+    ratio = max(1, num_negatives // max(1, num_positives))
+    pos_order = torch.randperm(num_positives, device=device)
+    neg_order = torch.randperm(num_negatives, device=device)
+    batch = int(positives_per_step)
+    steps = max(1, -(-num_positives // batch))
+    return [(pos_order[s * batch:(s + 1) * batch], neg_order[s * batch * ratio:(s + 1) * batch * ratio])
+            for s in range(steps)]
+
+
 def train_link_prediction(
     *,
     model: torch.nn.Module,
@@ -177,8 +207,21 @@ def train_link_prediction(
     patience: int,
     aux_loss: Callable[[], torch.Tensor] | None = None,
     report: EpochReport | None = None,
+    positives_per_step: int = LP_POSITIVES_PER_STEP,
+    score_links: Callable[[torch.Tensor, torch.Tensor, torch.Tensor | None], torch.Tensor] | None = None,
+    eval_chunk: int = 4096,
 ) -> dict[str, float]:
     """Train an encoder plus the shared link decoder, selecting on validation AUROC.
+
+    Card 8 C2b (author 2026-11-20): an epoch takes `ceil(P / positives_per_step)` optimizer steps, each on a batch of
+    `positives_per_step` (8,192, HGB's and H2S-NN's) shuffled training positives and its share of the epoch's training
+    negatives, with one encode (`embed()`) per step (`link_step_batches`). A published cell may state its source's
+    batch (`lp_batch_size`, `budget_kwargs`).
+
+    ``score_links(edges, relation, exclude)`` (card 8 C3, MAGNN) replaces ``embed`` + ``head`` for a method that encodes
+    only the endpoints of the links it scores (MAGNN's runner, `run_LastFM.py:93-117`): a training step scores its
+    positives with ``exclude`` = those positives (the method's own training mask) and its negatives with None;
+    evaluation scores the links in chunks of ``eval_chunk`` with None. ``embed`` is then unused (None).
 
     ``embed`` returns node embeddings for the whole graph; the head scores candidate
     pairs. Both are optimised together, so the decoder is not a frozen probe.
@@ -203,56 +246,80 @@ def train_link_prediction(
     stale = 0
 
     def evaluate(
-        embeddings: torch.Tensor,
+        scorer: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
         pos: torch.Tensor,
         neg: torch.Tensor,
         pos_rel: torch.Tensor,
         neg_rel: torch.Tensor,
-    ) -> dict[str, float]:
+    ) -> tuple[dict[str, float], float]:
+        """(metrics, BCE loss) of one validation set; the loss is logged only (card 8 C7)."""
+        pos_scores, neg_scores = scorer(pos, pos_rel), scorer(neg, neg_rel)
+        loss = float(criterion(torch.cat([pos_scores, neg_scores]),
+                               torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)])))
         return compute_link_prediction_metrics(
-            head(embeddings, pos, pos_rel),
-            head(embeddings, neg, neg_rel),
+            pos_scores,
+            neg_scores,
             pos,
             neg,
             pos_rel,
             neg_rel,
-        )
+        ), loss
 
+    def chunked(edges: torch.Tensor, relation: torch.Tensor) -> torch.Tensor:
+        parts = [score_links(edges[:, i:i + eval_chunk], relation[i:i + eval_chunk], None)
+                 for i in range(0, edges.size(1), eval_chunk)]
+        return torch.cat(parts) if parts else torch.empty(0, device=device)
+
+    steps_per_epoch = 0
     for epoch in range(epochs):
         model.train()
         head.train()
-        optimizer.zero_grad()
 
         neg_edge_index, neg_relation = sample_train_negatives(data, device=device, epoch=epoch)
-        embeddings = embed()
-        pos_scores = head(
-            embeddings, data.train_pos_edge_index, data.train_pos_edge_relation
-        )
-        neg_scores = head(embeddings, neg_edge_index, neg_relation)
-        loss = criterion(
-            torch.cat([pos_scores, neg_scores]),
-            torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)]),
-        )
-        if aux_loss is not None:
-            loss = loss + aux_loss()
-        check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
-        loss.backward()
-        optimizer.step()
+        pos_edge_index, pos_relation = data.train_pos_edge_index, data.train_pos_edge_relation
+        batches = link_step_batches(int(pos_edge_index.size(1)), int(neg_edge_index.size(1)),
+                                    positives_per_step, pos_edge_index.device)
+        steps_per_epoch = len(batches)
+        train_loss_sum = 0.0
+        for pos_ids, neg_ids in batches:
+            optimizer.zero_grad()
+            neg_ids = neg_ids.to(neg_edge_index.device)
+            if score_links is None:
+                embeddings = embed()
+                pos_scores = head(embeddings, pos_edge_index[:, pos_ids], pos_relation[pos_ids])
+                neg_scores = head(embeddings, neg_edge_index[:, neg_ids], neg_relation[neg_ids])
+            else:
+                step_pos = pos_edge_index[:, pos_ids]
+                pos_scores = score_links(step_pos, pos_relation[pos_ids], step_pos)
+                neg_scores = score_links(neg_edge_index[:, neg_ids], neg_relation[neg_ids], None)
+            loss = criterion(
+                torch.cat([pos_scores, neg_scores]),
+                torch.cat([torch.ones_like(pos_scores), torch.zeros_like(neg_scores)]),
+            )
+            if aux_loss is not None:
+                loss = loss + aux_loss()
+            check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
+            loss.backward()
+            optimizer.step()
+            train_loss_sum += float(loss)
 
         model.eval()
         head.eval()
         with torch.no_grad():
-            embeddings = embed()
-            val_metrics = evaluate(
-                embeddings,
+            if score_links is None:
+                embeddings = embed()
+                scorer = lambda edges, relation: head(embeddings, edges, relation)  # noqa: E731
+            else:
+                scorer = chunked
+            val_metrics, val_loss = evaluate(
+                scorer,
                 data.val_pos_edge_index,
                 data.val_neg_edge_index,
                 data.val_pos_edge_relation,
                 data.val_neg_edge_relation,
             )
             # HGB's two test sets (spec v1.16 K1): 2-hop and random; an empty set -> None.
-            test_metrics = lp_test_set_metrics(
-                lambda edges, relation: head(embeddings, edges, relation), data)
+            test_metrics = lp_test_set_metrics(scorer, data)
 
         # HGB reports the per-relation (macro) average on multi-relation targets, so
         # select on that where it exists; it equals the pooled AUROC on single-relation
@@ -273,6 +340,8 @@ def train_link_prediction(
             monitor=monitor,
             running_best=best_monitor,
             metrics=val_metrics,
+            extra={"train/loss": train_loss_sum / max(1, steps_per_epoch), "val/loss": val_loss,
+                   **lp_random_test_extra(test_metrics)},
         )
         if stale >= patience:
             break
@@ -283,6 +352,8 @@ def train_link_prediction(
     record.update(prefixed(best_val, "val"))
     record.update(prefixed(best_test, "test"))
     record["best_epoch"] = float(best_epoch)
+    record["optimizer_steps_per_epoch"] = float(steps_per_epoch)
+    record["lp_positives_per_step"] = float(positives_per_step)
     return record
 
 
@@ -343,6 +414,7 @@ def train_graph_classification(
     for epoch in range(epochs):
         model.train()
         head.train()
+        train_loss_sum, train_batches = 0.0, 0
         for batch in train_loader:
             batch = batch.to(device)
             optimizer.zero_grad()
@@ -352,6 +424,7 @@ def train_graph_classification(
             check_finite_loss(loss, epoch)  # spec v1.16 K5: the trial fails
             loss.backward()
             optimizer.step()
+            train_loss_sum, train_batches = train_loss_sum + float(loss), train_batches + 1
 
         model.eval()
         head.eval()
@@ -372,6 +445,8 @@ def train_graph_classification(
             monitor=val_metrics["macro_f1"],
             running_best=val_metrics["macro_f1"],
             metrics=val_metrics,
+            extra={"train/loss": train_loss_sum / max(1, train_batches), "val/loss": val_metrics.get("loss"),
+                   **prefixed_metrics("test", test_metrics)},
         )
         if stale >= patience:
             break
@@ -387,6 +462,7 @@ def train_graph_classification(
 
 
 __all__ = [
+    "link_step_batches",
     "node_classification_criterion",
     "sample_train_negatives",
     "train_full_batch_node_classification",

@@ -28,6 +28,11 @@ class EpochReport(Protocol):
     ``running_best`` is the best value of the selection monitor seen so far, which is
     what a pruner should compare across trials -- the current epoch's value alone is
     noisy enough that a good trial can be killed for one bad epoch.
+
+    Card 8 C7 (amendment 6): ``extra`` carries the epoch's other logged values under their
+    final keys (``train/loss``, ``val/loss``, ``test/<metric>``); ``prefix`` names the
+    validation metrics (``val``, or ``val_subset`` for the B1a subset on H2GB). Both are
+    logged only: no selection or early-stopping code reads them.
     """
 
     def __call__(
@@ -37,6 +42,8 @@ class EpochReport(Protocol):
         monitor: float,
         running_best: float,
         metrics: dict[str, float],
+        extra: dict[str, Any] | None = None,
+        prefix: str = "val",
     ) -> None: ...
 
 
@@ -66,16 +73,28 @@ class WandbEpochReport:
         monitor: float,
         running_best: float,
         metrics: dict[str, float],
+        extra: dict[str, Any] | None = None,
+        prefix: str = "val",
     ) -> None:
         if self._wandb.run is None:
             return
-        payload: dict[str, Any] = {
-            self._best_key: running_best,
-            self._current_key: monitor,
-            "epoch": epoch,
-        }
-        payload.update({f"val/{name}": value for name, value in metrics.items()})
-        self._wandb.log(payload, step=epoch)
+        payload = epoch_payload(self._best_key, epoch=epoch, monitor=monitor, running_best=running_best,
+                                metrics=metrics, extra=extra, prefix=prefix)
+        try:  # W&B never fails a run (card 8 C7)
+            self._wandb.log(payload, step=epoch)
+        except Exception as exc:  # noqa: BLE001
+            print(f"wandb.log failed at epoch {epoch}: {type(exc).__name__}: {exc}", flush=True)
+
+
+def epoch_payload(best_key: str, *, epoch: int, monitor: float, running_best: float, metrics: dict[str, float],
+                  extra: dict[str, Any] | None = None, prefix: str = "val") -> dict[str, Any]:
+    """The W&B payload of one epoch: `best/<monitor>` (running best), `<prefix>/<metric>` for every validation
+    metric, and `extra` (card 8 C7: `train/loss`, `val/loss`, `test/<metric>`) with None values dropped."""
+    key = best_key.removeprefix("best/")
+    payload: dict[str, Any] = {best_key: running_best, f"{prefix}/{key}": monitor, "epoch": epoch}
+    payload.update({f"{prefix}/{name}": value for name, value in metrics.items()})
+    payload.update({k: v for k, v in (extra or {}).items() if v is not None})
+    return payload
 
 
 def report_epoch(
@@ -85,14 +104,37 @@ def report_epoch(
     monitor: float,
     running_best: float,
     metrics: dict[str, float],
+    extra: dict[str, Any] | None = None,
+    prefix: str = "val",
 ) -> None:
-    """Call ``report`` if there is one. Keeps the null check out of the training loops."""
+    """Call ``report`` if there is one. Keeps the null check out of the training loops. ``extra`` and ``prefix``
+    (card 8 C7) are passed only when given, so a report written for the old call keeps working."""
 
     if report is None:
         return
-    report(
-        epoch=epoch, monitor=monitor, running_best=running_best, metrics=metrics
-    )
+    kwargs: dict[str, Any] = {}
+    if extra is not None and _accepts(report, "extra"):
+        kwargs["extra"] = extra
+    if prefix != "val" and _accepts(report, "prefix"):
+        kwargs["prefix"] = prefix
+    report(epoch=epoch, monitor=monitor, running_best=running_best, metrics=metrics, **kwargs)
 
 
-__all__ = ["EpochReport", "WandbEpochReport", "report_epoch"]
+def _accepts(report: Any, name: str) -> bool:
+    """Whether `report` takes keyword `name` (or `**kwargs`): a report written for the pre-C7 call (e.g. a test's
+    `report(*, epoch, monitor, running_best, metrics)`) keeps receiving exactly those four (card 8 C7)."""
+    import inspect
+
+    try:
+        parameters = inspect.signature(report).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    return any(p.kind is inspect.Parameter.VAR_KEYWORD or p.name == name for p in parameters)
+
+
+def prefixed_metrics(prefix: str, metrics: dict[str, Any] | None) -> dict[str, Any]:
+    """`{f"{prefix}/{name}": value}` of a metric dict (the `test/*` part of an epoch's `extra`)."""
+    return {f"{prefix}/{name}": value for name, value in (metrics or {}).items()}
+
+
+__all__ = ["EpochReport", "WandbEpochReport", "epoch_payload", "prefixed_metrics", "report_epoch"]

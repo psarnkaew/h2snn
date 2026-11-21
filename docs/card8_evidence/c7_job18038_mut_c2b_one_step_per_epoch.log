@@ -1,0 +1,15 @@
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+F
+======================================================================
+FAIL: test_shared_loop_steps_per_epoch (tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_lp_step.py", line 79, in test_shared_loop_steps_per_epoch
+    self.assertEqual(calls["step"], math.ceil(20_000 / 8192))
+AssertionError: 1 != 3
+
+----------------------------------------------------------------------
+Ran 1 test in 4.018s
+
+FAILED (failures=1)

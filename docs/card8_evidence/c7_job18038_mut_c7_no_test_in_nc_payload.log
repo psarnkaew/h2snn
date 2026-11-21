@@ -1,0 +1,16 @@
+F
+======================================================================
+FAIL: test_hgb_nc_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_hgb_nc_epoch_keys)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_wandb_logging.py", line 117, in test_hgb_nc_epoch_keys
+    self.assertEqual(set(payload), expected, step)
+AssertionError: Items in the second set but not the first:
+'test/micro_f1'
+'test/acc'
+'test/macro_f1' : 0
+
+----------------------------------------------------------------------
+Ran 1 test in 2.377s
+
+FAILED (failures=1)

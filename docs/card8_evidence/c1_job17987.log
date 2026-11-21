@@ -1,0 +1,36 @@
+job=17987 node=g2n01 start=2026-11-20T18:23:41+09:00
+git=0bc171ae7568b3747f6628282b869d6bc41c5e08 branch=card8
+ M src/baselines/adapters/hgb_gnn.py
+ M tests/test_card8_published.py
+?? configs/baselines/gcn/link_prediction/
+?? configs/baselines/magnn/link_prediction/
+?? configs/baselines/rgcn/link_prediction/
+?? src/baselines/adapters/rgcn.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+test_accumulation_rule_is_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_accumulation_rule_is_h2gbs) ... ok
+test_h2gb_run_arguments_equal_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_h2gb_run_arguments_equal_the_yaml) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_published_file_equals_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_published_file_equals_the_yaml) ... ok
+test_published_homo_gnn_step_is_finite_and_moves (tests.test_card8_published.H2GBPublishedTests.test_published_homo_gnn_step_is_finite_and_moves)
+The published H2GB path's network (H2GB's HomoGNNModel, GCN yaml) on one sampled batch. ... ok
+test_settings_scheduler_and_step_rule_are_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_settings_scheduler_and_step_rule_are_h2gbs) ... ok
+test_source_epoch_steps_clips_and_schedules (tests.test_card8_published.H2GBPublishedTests.test_source_epoch_steps_clips_and_schedules) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:206: UserWarning: Seems like `optimizer.step()` has been overridden after learning rate scheduler initialization. Please, make sure to call `optimizer.step()` before `lr_scheduler.step()`. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+ok
+test_gcn_equals_homognn (tests.test_card8_published.HGBLPPublishedTests.test_gcn_equals_homognn) ... ok
+test_magnn_lastfm_equals_run_lastfm (tests.test_card8_published.HGBLPPublishedTests.test_magnn_lastfm_equals_run_lastfm) ... ok
+test_rgcn_pubmed_equals_link_predict (tests.test_card8_published.HGBLPPublishedTests.test_rgcn_pubmed_equals_link_predict) ... ok
+test_run_arguments_equal_run_freebase (tests.test_card8_published.MagnnFreebaseTests.test_run_arguments_equal_run_freebase) ... ok
+test_filled_cells_skipped_and_seed_default_zero (tests.test_card8_published.PublishedRunnerTests.test_filled_cells_skipped_and_seed_default_zero) ... ok
+test_fit_cell_refuses_before_building_anything (tests.test_card8_published.SourceScheduleRefusalTests.test_fit_cell_refuses_before_building_anything) ... ok
+test_tuned_runs_refuse_source_schedule_keys (tests.test_card8_published.SourceScheduleRefusalTests.test_tuned_runs_refuse_source_schedule_keys) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 39.657s
+
+OK
+targets exit=0
+end=2026-11-20T18:24:24+09:00 exit=0

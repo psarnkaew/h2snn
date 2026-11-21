@@ -45,7 +45,7 @@ from src.baselines.bundles import GraphBundle, LinkBundle, NodeBundle, bundle_da
 from src.baselines.heads import SharedGraphHead, SharedLinkHead
 from src.baselines.metrics import classification_metrics, node_classification_record
 from src.baselines.budget import budget_kwargs, resolve_budget
-from src.baselines.progress import report_epoch
+from src.baselines.progress import prefixed_metrics, report_epoch
 from src.baselines import search_grids as grids
 from src.baselines.protocol import (
     GRAPH_CLASSIFICATION,
@@ -305,7 +305,7 @@ class Hetero2NetAdapter:
             stale = 0
 
             for epoch in range(epochs):
-                train_full_batch(
+                train_loss = train_full_batch(
                     model,
                     optimizer,
                     train_data,
@@ -341,6 +341,11 @@ class Hetero2NetAdapter:
                         labels[test_mask],
                         is_multilabel=bundle.is_multilabel,
                     )
+                    # card 8 C7: logged only (their loss rule, utils.py:151-154)
+                    val_true = labels[val_mask]
+                    val_loss = float(torch.nn.functional.binary_cross_entropy_with_logits(
+                        val_logits[val_mask], val_true.float()) if val_true.ndim > 1 else
+                        torch.nn.functional.cross_entropy(val_logits[val_mask], val_true))
 
                 monitor = val_metrics["macro_f1"]
                 if monitor > best_monitor:
@@ -358,6 +363,8 @@ class Hetero2NetAdapter:
                     monitor=monitor,
                     running_best=best_monitor,
                     metrics=val_metrics,
+                    extra={"train/loss": float(train_loss), "val/loss": val_loss,
+                           **prefixed_metrics("test", test_metrics)},
                 )
                 if stale >= patience:
                     break
@@ -560,8 +567,8 @@ class Hetero2NetAdapter:
         with pushd_sys_path(VENDOR):
             from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
 
-            def train_epoch(epoch: int) -> None:
-                train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
+            def train_epoch(epoch: int) -> float:
+                return train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
                                  device, p=float(params.get("p", 0.7)), metapaths=metapaths,
                                  r=float(params.get("r", 0.5)), alpha=float(params.get("alpha", 0.2)),
                                  beta=float(params.get("beta", 0.4)))
@@ -575,7 +582,7 @@ class Hetero2NetAdapter:
         return record
 
 
-def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callable[[int], None],
+def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callable[[int], float | None],
                       evaluate: Callable[[Any], dict[str, float]], subset_loader: Any, subset_ids: torch.Tensor,
                       val_loader: Any, test_loader: Any, report: Any = None) -> dict[str, Any]:
     """Hetero2Net's H2GB NC epoch loop under the U2 rule (card 1f U5.4): at H2GB's eval epochs the B1a validation
@@ -586,14 +593,15 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
     best_monitor, best_epoch = float("-inf"), -1
     best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
-        train_epoch(epoch)
+        train_loss = train_epoch(epoch)
         if not is_eval_epoch(epoch, plan):
             continue
         sub_metrics = evaluate(subset_loader)
         if sub_metrics["macro_f1"] > best_monitor:
             best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
-                     metrics=sub_metrics)
+                     metrics=sub_metrics, prefix="val_subset",  # card 8 C7
+                     extra={"train/loss": None if train_loss is None else float(train_loss)})
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)

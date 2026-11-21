@@ -130,11 +130,11 @@ class WiredLoaderTests(unittest.TestCase):
         neg = torch.stack([pos[0], torch.randint(0, 40, (8,), generator=torch.Generator().manual_seed(1))])
         links = torch.cat([pos, neg], dim=1)
         names = sorted({name for name, _ in LARGE_LP_WIRED_CELLS})
-        self.assertEqual(names, ["csnn", "gat", "gcn", "h2gformer", "h2sgnn", "han", "hetero2net", "hetsheaf", "nsd",
-                                 "pshgcn"])
+        self.assertEqual(names, ["csnn", "gat", "gcn", "h2gformer", "h2sgnn", "han", "hetero2net", "hetsheaf", "magnn",
+                                 "nsd", "pshgcn", "rgcn"])  # card 8 C4: + MAGNN (probe cells), R-GCN
         params = type("P", (dict,), {"report": None, "source": "test"})(
             hidden_dim=8, num_layers=2, num_heads=2, dropout=0.0, embed_dim=8, hidden_channels=8, d=2, layers=2,
-            gt_layers=2, attn_heads=2)
+            gt_layers=2, attn_heads=2, n_bases=4, attn_vec_dim=8, samples=5)  # card 8: R-GCN bdd bases | width, MAGNN
         for name in names:
             with self.subTest(method=name):
                 graph = message_graph(data, "user", held_out_pairs(files))

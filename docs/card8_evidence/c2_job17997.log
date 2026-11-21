@@ -1,0 +1,31 @@
+job=17997 node=g2n01 start=2026-11-20T18:35:11+09:00
+git=d68f9c5b938e1fddf3702df02470ada75cb79aa1 branch=card8
+ M src/baselines/runtime/vendor_paths.py
+?? src/baselines/adapters/magnn.py
+?? src/baselines/adapters/rgcn.py
+?? tests/test_card8_rgcn.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+test_h2gb_rgcn_step_is_finite_and_moves (tests.test_card8_rgcn.H2GBNodeTests.test_h2gb_rgcn_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+Processing...
+Done!
+test_fit_task_uses_the_bundle_masks (tests.test_card8_rgcn.HGBNodeTests.test_fit_task_uses_the_bundle_masks) ... ok
+test_hgb_nc_step_is_finite_and_moves (tests.test_card8_rgcn.HGBNodeTests.test_hgb_nc_step_is_finite_and_moves) ... ok
+test_lp_graph_equals_hgbs_dict_rule (tests.test_card8_rgcn.LPGraphRuleTests.test_lp_graph_equals_hgbs_dict_rule) ... ok
+test_fit_task_trains_on_the_bundle_lp_data (tests.test_card8_rgcn.LPTests.test_fit_task_trains_on_the_bundle_lp_data) ... ok
+test_lp_small_step_is_finite_and_moves (tests.test_card8_rgcn.LPTests.test_lp_small_step_is_finite_and_moves) ... ok
+test_lp_large_step_is_finite_and_moves (tests.test_card8_rgcn.LargeLPTests.test_lp_large_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_every_adapter_module_names_a_registered_vendor (tests.test_baselines.VendorRootIntegrityTests.test_every_adapter_module_names_a_registered_vendor)
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 51.554s
+
+OK
+targets exit=0
+end=2026-11-20T18:36:06+09:00 exit=0

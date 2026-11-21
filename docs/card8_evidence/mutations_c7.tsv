@@ -1,0 +1,2 @@
+c7_no_test_in_nc_payload	src/baselines/training.py	            extra={"train/loss": float(loss), "val/loss": val_loss, **prefixed_metrics("test", test_metrics)},	            extra={"train/loss": float(loss), "val/loss": val_loss},	tests.test_wandb_logging.EpochKeyTests.test_hgb_nc_epoch_keys
+c7_collect_skips_published	scripts/tsubame/collect.py	    yield from published_rows(out, starts, ends)  # card 8 C7	    pass  # mutation: published records skipped	tests.test_card8_collect

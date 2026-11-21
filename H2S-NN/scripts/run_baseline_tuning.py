@@ -76,6 +76,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry_run", action="store_true",
                         help="Card 2 D3: epoch budget 1 for every trial (launcher check, never a result); "
                         "W&B runs tagged dry-run.")
+    parser.add_argument("--grid_point", choices=["min"], default=None,
+                        help="Card 8 C5 (probe lines only, with --dry_run and --n_trials 1): every search axis fixed at "
+                        "its smallest point, to decide N/A on the H100; never a result.")
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
     parser.add_argument("--base_seed", type=int, default=42)
@@ -156,6 +159,9 @@ def train_trial(
     how badly it was doing at epoch 20.
     """
 
+    import time
+
+    started = time.time()
     device = resolve_device(raw_base)
     record = fit_cell(
         raw_base,
@@ -172,6 +178,15 @@ def train_trial(
     record["unit"] = unit_name or f"{unit_label}{run_index}"
     if record_extra:
         record.update(record_extra)
+    try:  # card 8 C7: the trial's summary in its sweep run (the agent's run is active here)
+        import wandb  # type: ignore[import-not-found]
+
+        from src.baselines.wandb_runs import write_summary
+
+        write_summary(getattr(wandb, "run", None), record, config={"raw_base": raw_base, "params": dict(params)},
+                      started=started)
+    except ImportError:
+        pass
     return record
 
 
@@ -200,7 +215,8 @@ def select_best_trial(records: list[dict[str, Any]], monitor: str) -> dict[str, 
 
 
 def run_final_seeds(cell: Cell, *, seeds: list[int], output_dir: Path, monitor: str, device: str | None,
-                    epochs: int | None, patience: int | None) -> list[dict[str, Any]]:
+                    epochs: int | None, patience: int | None, wandb_project: str = "h2snn_baseline",
+                    wandb_entity: str = "", wandb_mode: str = "online") -> list[dict[str, Any]]:
     """Card 2 D6.8 (author decision 6): the baseline counterpart of H2S-NN's `--final_seeds` (spec §6: tune on seed 0,
     then the best configuration on seeds 0-4). The finished seed-0 sweep's trials (`tuning_trials_run0.json`, written
     by `run_unit_sweep`) -> the best by the validation `monitor` -> its `sweep_params` trained unchanged on each seed
@@ -224,9 +240,23 @@ def run_final_seeds(cell: Cell, *, seeds: list[int], output_dir: Path, monitor: 
         unit = CampaignUnit(run_index=index, num_runs=len(seeds), seed=int(seed), label="final_seed",
                             name=f"final_seed{seed}")
         raw_base = build_raw_base(cell, unit, device=device, epochs=epochs, patience=patience)
-        record = fit_cell(raw_base, dict(params), source="tuned", device=resolve_device(raw_base), report=None)
-        record.update({"final_seed": int(seed), "sweep_params": params, "selected_trial": best.get("trial_name"),
-                       "selected_from": str(trials_path), "monitor": monitor})
+        # card 8 C7: one W&B run per final seed (group <token>_final, tag final_seed, name <token>_seed<s>)
+        import time
+
+        from src.baselines.wandb_runs import finish, open_run, write_summary
+
+        started = time.time()
+        config = {"raw_base": raw_base, "params": params, "selected_from": str(trials_path)}
+        run = open_run(project=wandb_project, entity=wandb_entity, mode=wandb_mode, kind="final_seed",
+                       token=cell.token, seed=int(seed), config=config)
+        try:
+            record = fit_cell(raw_base, dict(params), source="tuned", device=resolve_device(raw_base),
+                              report=WandbEpochReport(monitor) if run is not None else None)
+            record.update({"final_seed": int(seed), "sweep_params": params, "selected_trial": best.get("trial_name"),
+                           "selected_from": str(trials_path), "monitor": monitor})
+            write_summary(run, record, config=config, started=started)
+        finally:
+            finish(run)
         write_run_record(cell_dir / f"final_seed{seed}.json", record)
         records.append(record)
     summarize_cell(records, cell.task, cell_dir / "final_seeds_summary.json")
@@ -247,6 +277,8 @@ def main() -> None:
             raise SystemExit("--dry_run sets the epoch budget to 1; do not combine it with --epochs.")
         args.epochs = 1
         args.wandb_tags = list(dict.fromkeys([*(args.wandb_tags or ()), "dry-run"]))
+    if args.grid_point is not None and (not args.dry_run or args.n_trials != 1):  # card 8 C5: probe lines only
+        raise SystemExit("--grid_point is for probe lines: use it with --dry_run and --n_trials 1.")
     cells = resolve_cells(args.task, args.models, args.datasets)
     if not cells:
         raise SystemExit("No runnable cells selected.")
@@ -255,7 +287,9 @@ def main() -> None:
     if args.final_seeds is not None:  # card 2 D6.8: no sweep, the selected trial on each seed
         for cell in cells:
             run_final_seeds(cell, seeds=list(args.final_seeds), output_dir=args.output_dir, monitor=monitor,
-                            device=args.device, epochs=args.epochs, patience=args.patience)
+                            device=args.device, epochs=args.epochs, patience=args.patience,
+                            wandb_project=args.wandb_project, wandb_entity=args.wandb_entity,
+                            wandb_mode=args.wandb_mode)
             print(f"{cell.token}: final seeds {list(args.final_seeds)} written to {args.output_dir / cell.token}")
         return
     epochs = args.epochs or default_epochs(args.task)
@@ -297,6 +331,7 @@ def main() -> None:
                 monitor=monitor,
                 n_trials=args.n_trials,
                 epochs=epochs,
+                grid_point=args.grid_point,
             )
             print(f"  {cell.token}: {len(sweep['parameters'])} tunable parameters")
         print("validate_only: nothing was run.")
@@ -308,6 +343,7 @@ def main() -> None:
             monitor=monitor,
             n_trials=args.n_trials,
             epochs=epochs,
+            grid_point=args.grid_point,
         )
         records: list[dict[str, Any]] = []
         for unit in units:

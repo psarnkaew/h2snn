@@ -179,8 +179,17 @@ class HgbUnchangedTests(unittest.TestCase):
         # purpose, which puts 4 `# in phase baselines-early` lines in the baselines-1 list; the list is compared with
         # its capture at 1646efd (same capture_base.py; docs/card7_evidence/capture_1646efd_*.txt shows that this is
         # the only difference from 894fd74). The model parts above stay compared with 894fd74.
+        # Card 8 C5 (author 2026-11-20) rebuilt the baselines-1 list on purpose (tune cells only; filled, published and
+        # probe cells are comment lines), so it no longer equals the 1646efd capture; its correctness is tested by
+        # test_card8_phases (coverage, disjointness, h2snn / baselines-early byte-identical) and test_tsubame_*. Every
+        # tuning line it keeps for a method that existed at 1646efd (not R-GCN or MAGNN, card 8 C2/C3) is still a line
+        # of the capture:
         cells = json.loads((EVIDENCE / "base_capture_1646efd.json").read_text(encoding="utf-8"))
-        self.assertEqual(now["baselines_1_cell_list"], cells["baselines_1_cell_list"])
+        kept = [line for line in now["baselines_1_cell_list"].splitlines() if line and not line.startswith("#")
+                and "--models rgcn " not in line and "--models magnn " not in line]
+        captured = set(cells["baselines_1_cell_list"].splitlines())
+        self.assertTrue(kept)
+        self.assertEqual([line for line in kept if line not in captured], [])
 
 
 # ----------------------------------------------------------------------------- T5 (energy)

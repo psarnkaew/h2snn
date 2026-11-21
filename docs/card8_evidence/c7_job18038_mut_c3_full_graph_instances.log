@@ -1,0 +1,23 @@
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+F
+======================================================================
+FAIL: test_no_instance_passes_a_held_out_fact (tests.test_card8_magnn.LPTests.test_no_instance_passes_a_held_out_fact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn/H2S-NN/tests/test_card8_magnn.py", line 176, in test_no_instance_passes_a_held_out_fact
+    _, _, sides = ADAPTER.lp_setup(self.bundle, args, torch.device("cpu"))  # raises on a held-out instance
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/magnn.py", line 593, in lp_setup
+    lists.append(schema_lists(graph, side, np.arange(lo, hi), held_out))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/magnn.py", line 316, in schema_lists
+    assert_no_held_out(paths, held_out)
+  File "/mnt/data/peeradon/h2snn/H2S-NN/src/baselines/adapters/magnn.py", line 152, in assert_no_held_out
+    raise AssertionError(f"held-out fact ({u}, {v}) on a meta-path instance")
+AssertionError: held-out fact (2, 73) on a meta-path instance
+
+----------------------------------------------------------------------
+Ran 1 test in 3.398s
+
+FAILED (failures=1)

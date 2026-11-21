@@ -1,0 +1,86 @@
+job=17963 node=g2n01 start=2026-11-20T17:05:49+09:00
+git=5683753ec6e38a648122f4ff9c16106cac0d8ace branch=card8
+ M scripts/run_baseline_published.py
+ M src/baselines/adapters/_h2gformer_h2gb.py
+ M src/baselines/adapters/hgb_gnn.py
+ M src/baselines/adapters/hgb_han.py
+ M src/baselines/budget.py
+ M src/baselines/campaign.py
+ M src/baselines/minibatch.py
+ M src/baselines/published.py
+ M tests/test_baselines_minibatch.py
+?? configs/baselines/gat/
+?? configs/baselines/gcn/
+?? configs/baselines/h2gformer/
+?? configs/baselines/han/
+?? configs/baselines/magnn/
+?? configs/baselines/rgcn/
+?? src/baselines/adapters/_magnn_args.py
+?? src/baselines/adapters/rgcn.py
+?? src/baselines/cell_status.py
+?? src/baselines/h2gb_published.py
+?? tests/test_card8_published.py
+python 3.12.16 torch 2.4.1+cu124 cuda False
+test_accumulation_rule_is_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_accumulation_rule_is_h2gbs) ... ok
+test_h2gb_run_arguments_equal_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_h2gb_run_arguments_equal_the_yaml) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_published_file_equals_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_published_file_equals_the_yaml) ... ok
+test_published_homo_gnn_step_is_finite_and_moves (tests.test_card8_published.H2GBPublishedTests.test_published_homo_gnn_step_is_finite_and_moves)
+The published H2GB path's network (H2GB's HomoGNNModel, GCN yaml) on one sampled batch. ... ok
+test_settings_scheduler_and_step_rule_are_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_settings_scheduler_and_step_rule_are_h2gbs) ... ok
+test_source_epoch_steps_clips_and_schedules (tests.test_card8_published.H2GBPublishedTests.test_source_epoch_steps_clips_and_schedules) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:206: UserWarning: Seems like `optimizer.step()` has been overridden after learning rate scheduler initialization. Please, make sure to call `optimizer.step()` before `lr_scheduler.step()`. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+ok
+test_run_arguments_equal_run_freebase (tests.test_card8_published.MagnnFreebaseTests.test_run_arguments_equal_run_freebase) ... ok
+test_filled_cells_skipped_and_seed_default_zero (tests.test_card8_published.PublishedRunnerTests.test_filled_cells_skipped_and_seed_default_zero) ... ok
+test_fit_cell_refuses_before_building_anything (tests.test_card8_published.SourceScheduleRefusalTests.test_fit_cell_refuses_before_building_anything) ... ok
+test_tuned_runs_refuse_source_schedule_keys (tests.test_card8_published.SourceScheduleRefusalTests.test_tuned_runs_refuse_source_schedule_keys) ... ok
+test_eval_epoch_rule_is_h2gbs (tests.test_baselines_minibatch.BatchPlanTests.test_eval_epoch_rule_is_h2gbs) ... ok
+test_steps_per_epoch_for_each_batch_size (tests.test_baselines_minibatch.BatchPlanTests.test_steps_per_epoch_for_each_batch_size) ... ok
+test_evaluation_covers_split_once (tests.test_baselines_minibatch.EvaluationCoverageTests.test_evaluation_covers_split_once) ... ok
+test_incomplete_pass_is_refused (tests.test_baselines_minibatch.EvaluationCoverageTests.test_incomplete_pass_is_refused) ... ok
+test_fanouts_equal_h2gb_yaml (tests.test_baselines_minibatch.FanoutTests.test_fanouts_equal_h2gb_yaml) ... ok
+test_repeat_fanout_refuses_non_uniform_lists (tests.test_baselines_minibatch.FanoutTests.test_repeat_fanout_refuses_non_uniform_lists) ... ok
+test_loop_runs_plan_and_keeps_best_validation_epoch (tests.test_baselines_minibatch.LoopTests.test_loop_runs_plan_and_keeps_best_validation_epoch) ... ok
+test_mag_year_metapath_schema_and_step (tests.test_baselines_h2gb_classa.H2GformerMagYearTests.test_mag_year_metapath_schema_and_step) ... WARNING:root:Layers after message passing should be >=1
+/mnt/data/peeradon/h2snn/H2S-NN/vendor/H2GB/H2GB/loader/encoding_generator.py:571: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  emb = torch.load(embedding_path, map_location='cpu')
+ok
+test_h2gformer_label_channel_reads_training_labels_only (tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only) ... WARNING:root:Layers after message passing should be >=1
+WARNING:root:Layers after message passing should be >=1
+ok
+test_h2gformer_step (tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_step) ... WARNING:root:Layers after message passing should be >=1
+ok
+test_gat_step (tests.test_baselines_h2gb_classa.OneStepTests.test_gat_step) ... ok
+test_gcn_step (tests.test_baselines_h2gb_classa.OneStepTests.test_gcn_step) ... ok
+test_han_step (tests.test_baselines_h2gb_classa.OneStepTests.test_han_step) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 462.656s
+
+OK
+Preparing MetaPath2Vec encoding for dataset ogbn-mag using pre-defined metapath [('author', 'writes', 'paper'), ('paper', 'has_topic', 'field_of_study'), ('field_of_study', 'rev_has_topic', 'paper'), ('paper', 'rev_writes', 'author'), ('author', 'affiliated_with', 'institution'), ('institution', 'rev_affiliated_with', 'author'), ('author', 'writes', 'paper'), ('paper', 'cites', 'paper'), ('paper', 'rev_writes', 'author')].
+Epoch: 1, Accuracy: 0.4074
+Epoch: 2, Accuracy: 0.3426
+Epoch: 3, Accuracy: 0.5833
+Epoch: 4, Accuracy: 0.4815
+Epoch: 5, Accuracy: 0.4259
+targets exit=0
+Ran 1 test in 9.420s
+
+FAILED (failures=1)
+MUTATION c1_drop_scheduler: CAUGHT (test failed, rc=1)
+ H2S-NN/scripts/run_baseline_published.py         | 30 +++++++--
+ H2S-NN/src/baselines/adapters/_h2gformer_h2gb.py | 41 ++++++++++--
+ H2S-NN/src/baselines/adapters/hgb_gnn.py         |  8 ++-
+ H2S-NN/src/baselines/adapters/hgb_han.py         |  7 +-
+ H2S-NN/src/baselines/budget.py                   | 11 ++--
+ H2S-NN/src/baselines/campaign.py                 |  8 ++-
+ H2S-NN/src/baselines/minibatch.py                | 81 ++++++++++++++++++++----
+ H2S-NN/src/baselines/published.py                | 21 ++++++
+ H2S-NN/tests/test_baselines_minibatch.py         |  2 +-
+ 9 files changed, 177 insertions(+), 32 deletions(-)
+end=2026-11-20T17:13:47+09:00 exit=0

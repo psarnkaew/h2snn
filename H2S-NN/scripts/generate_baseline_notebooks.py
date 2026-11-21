@@ -99,6 +99,8 @@ MODEL_VENDORS: dict[str, tuple[str, ...]] = {
     "h2sgnn": ("h2sgnn",),
     "pshgcn": ("pshgcn", "pshgcn_lp"),
     "hetsheaf": ("hetsheaf",),  # card 3 A1 (author-approved add-only entry)
+    "rgcn": ("hgb_rgcn_nc", "hgb_rgcn_lp", "h2gb"),  # card 8 C2
+    "magnn": ("hgb_magnn_nc", "hgb_magnn_lp", "hgb_nc"),  # card 8 C3
 }
 
 #: One line per model, shown above its launch cell so the reader knows what is running.
@@ -116,6 +118,8 @@ MODEL_NOTES: dict[str, str] = {
     "h2sgnn": "Learns per-meta-path polynomial filters with separately optimised temperature parameters.",
     "pshgcn": "Positive-spectrum heterogeneous graph convolution; its link-prediction vendor file carries a leftover `import dgl`.",
     "hetsheaf": "HetSheaf's own sheaf encoders (map family and learner tuned) on its own preprocessing, under the shared protocol.",
+    "rgcn": "HGB's R-GCN (DGL RelGraphConv) on the HGB datasets and LP tasks; H2GB's own R-GCN on the H2GB datasets.",
+    "magnn": "HGB's MAGNN: meta-path instances enumerated once, sampled per batch; LP encodes only each step's endpoints.",
 }
 
 

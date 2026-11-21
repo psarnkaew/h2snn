@@ -81,10 +81,10 @@ def resolve_budget(task: str, params: BaselineParams, dataset: str = "") -> Trai
     """
 
     budget = default_budget(task, dataset)
-    return TrainingBudget(
-        epochs=int(params.get("epochs", budget.epochs)),
-        patience=int(params.get("early_stopping", budget.patience)),
-    )
+    # card 8 C1: a published H2GB cell states its epochs as H2GB's `optim.max_epoch` (no early stopping, as H2GB)
+    epochs = int(params.get("epochs", params.get("optim.max_epoch", budget.epochs)))
+    patience = int(params.get("early_stopping", epochs if "optim.max_epoch" in params.values else budget.patience))
+    return TrainingBudget(epochs=epochs, patience=patience)
 
 
 def batch_plan(task: str, dataset: str) -> BatchBudget:
@@ -104,11 +104,19 @@ def budget_kwargs(task: str, params: BaselineParams, dataset: str = "") -> dict[
     """
 
     budget = resolve_budget(task, params, dataset)
-    return {
+    kwargs: dict[str, Any] = {
         "epochs": budget.epochs,
         "patience": budget.patience,
         "report": params.report,
     }
+    if task == LINK_PREDICTION:
+        # card 8 C2b: positives per optimizer step (HGB's 8,192); a published cell may state its source's batch
+        # (`lp_batch_size`, e.g. PSHGCN LastFM `--batch-size 10000`); tuned runs refuse that key (campaign.fit_cell)
+        from src.configs.config import LP_POSITIVES_PER_STEP
+
+        per_step = params.get("lp_batch_size") if params.source == "published" else None
+        kwargs["positives_per_step"] = int(per_step) if per_step is not None else LP_POSITIVES_PER_STEP
+    return kwargs
 
 
 def record_budget(record: dict[str, float], task: str, params: BaselineParams,
@@ -123,7 +131,8 @@ def record_budget(record: dict[str, float], task: str, params: BaselineParams,
     """
 
     budget = resolve_budget(task, params, dataset)
-    overridden = "epochs" in params.values or "early_stopping" in params.values
+    overridden = ("epochs" in params.values or "early_stopping" in params.values
+                  or "optim.max_epoch" in params.values)
     record["budget_epochs"] = float(budget.epochs)
     record["budget_patience"] = float(budget.patience)
     if not overridden:

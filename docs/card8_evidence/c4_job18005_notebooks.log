@@ -1,0 +1,12 @@
+job=18005 node=g2n01 git=49517de956604c246dd3a7a3b08706aed587d2f8
+notebooks/baselines/node_classification_dgl.ipynb: 1 cells, hinormer
+notebooks/baselines/node_classification_h2gb.ipynb: 3 cells, h2gformer
+notebooks/baselines/node_classification_sheaf.ipynb: 6 cells, csnn, nsd
+notebooks/baselines/link_prediction_core.ipynb: 8 cells, h2sgnn
+notebooks/baselines/link_prediction_dgl.ipynb: 47 cells, gat, gcn, han, magnn, pshgcn, rgcn
+notebooks/baselines/link_prediction_h2gb.ipynb: 8 cells, h2gformer
+notebooks/baselines/link_prediction_hetero2net.ipynb: 8 cells, hetero2net
+notebooks/baselines/link_prediction_sheaf.ipynb: 24 cells, csnn, hetsheaf, nsd
+
+8 notebooks, 105 cells total.
+exit=0

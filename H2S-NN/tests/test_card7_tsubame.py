@@ -188,7 +188,9 @@ class TimingPhaseTests(unittest.TestCase):
         lines = runnable_lines("\n".join(mcl.timing_list(out)))
         methods = {d: main_table_methods(d) for d in mcl.TIMING_DATASETS}
         self.assertEqual(len(lines), sum(len(m) for m in methods.values()))
-        self.assertEqual(len(lines), 28)                                 # amendment 5: H2S-NN + 13 baselines, x 2
+        # amendment 5: H2S-NN + 13 baselines, x 2 = 28; card 8 C4 (author 2026-11-20) adds R-GCN (both datasets) and
+        # MAGNN (ogbn-mag; IMDB NC holds HGB's number, not wired) to the main-table methods: 31
+        self.assertEqual(len(lines), 31)
         expected = [(m, d) for d in mcl.TIMING_DATASETS for m in methods[d]]
         for line, (method, dataset) in zip(lines, expected):
             args, launcher, words = _row_words(line + " --resume")
@@ -226,11 +228,14 @@ class ExistingPhasesTests(unittest.TestCase):
             base = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(base)
             out = Path("/OUT")
-            for phase in ("baselines-1", "baselines-early"):
+            # card 8 C5 (author 2026-11-20) rebuilt `baselines-1` on purpose (tune cells only; filled / published /
+            # probe cells are comments); its coverage is tested by test_card8_phases and test_tsubame_*. `h2snn` and
+            # `baselines-early` stay byte-identical to 1646efd.
+            for phase in ("baselines-early",):
                 self.assertEqual(mcl.tuning_list(phase, out), base.tuning_list(phase, out))
             self.assertEqual(mcl.h2snn_tuning_list(out), base.h2snn_tuning_list(out))
             self.assertEqual(mcl.h2snn_final_seeds_list(out), base.h2snn_final_seeds_list(out))
-            for phase in ("baselines-1", "baselines-early", "h2snn"):
+            for phase in ("baselines-early", "h2snn"):        # baselines-1: card 8 C5, see above
                 folder = Path(tmp) / phase                       # the lists embed the folder: one folder, twice
                 base.main(["--phase", phase, "--out-dir", str(folder)])
                 old = {p.name: p.read_bytes() for p in folder.iterdir()}

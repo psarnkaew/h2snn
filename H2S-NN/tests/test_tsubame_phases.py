@@ -48,8 +48,11 @@ class PhaseTests(unittest.TestCase):
                 self.assertEqual(set(lists[a]) & set(lists[b]), set())
         for name, cs in cells.items():
             self.assertEqual(len(cs), len(set(cs)), f"duplicate in {name}")
-        runnable = {(r["model"], r["task"], r["dataset"]) for r in iter_cells()
-                    if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())}
+        from src.baselines.cell_status import cell_status
+
+        runnable = {(r["model"], r["task"], r["dataset"]) for r in iter_cells()  # card 8 C5: `tune` cells only
+                    if r["runnable"] and r["dataset"] in PHASE1.get(r["task"], set())
+                    and cell_status(r["model"], r["task"], r["dataset"]) == "tune"}
         h2snn = {("h2snn", t, ds) for t, ds in M.H2SNN_CELLS}
         self.assertEqual(set().union(*map(set, cells.values())), runnable | h2snn)
         self.assertEqual(len(cells["h2snn"]), 24)
