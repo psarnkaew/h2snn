@@ -1,0 +1,2 @@
+task	head_type	relation	tail_type	num_heads	num_tails	message_edges	message_edges_target_rel	relations	target_pair_kept_relations	train_pos	val_pos	test_2hop_pos	train_neg	val_neg	test_2hop_neg	test_random_neg	test_heads_without_2hop_neg
+ogbn-mag_pp	paper	paper/cites/paper	paper	736389	736389	20065768	4371032	0:author/affiliated_with/institution 1:author/writes/paper 2:paper/cites/paper 3:paper/has_topic/field_of_study	paper/cites/paper	4371032	485670	539634	4371032	485670	539634	539634	

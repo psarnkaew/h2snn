@@ -1,0 +1,43 @@
+task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
+acm_pa	train	positives	8059	0	0	8059	8059	0	0	8059
+acm_pa	train	negatives	8059	0	0	3	3	0		4
+acm_pa	val	positives	895	0	0	0	0	0	0	895
+acm_pa	val	negatives	895	0	0	0	0	0		1
+acm_pa	test_2hop	positives	995	0	0	0	0	0	0	995
+acm_pa	test_2hop	negatives	763	0	0	0	0	24		0
+acm_pa	test_random	negatives	995	0	0	0	0	0		0
+dblp_ap	train	positives	15913	15913	15913	0	0	0	0	15913
+dblp_ap	train	negatives	15913	25	25	0	0	6		27
+dblp_ap	val	positives	1768	0	0	0	0	0	0	1768
+dblp_ap	val	negatives	1768	2	2	0	0	0		2
+dblp_ap	test_2hop	positives	1964	0	0	0	0	0	0	1964
+dblp_ap	test_2hop	negatives	0	0	0	0	0	0		0
+dblp_ap	test_random	negatives	1964	0	0	0	0	0		0
+imdb_ma	train	positives	11971	0	0	11971	11971	0	0	11971
+imdb_ma	train	negatives	11971	0	0	4	4	0		5
+imdb_ma	val	positives	1330	0	0	0	0	0	0	1330
+imdb_ma	val	negatives	1330	0	0	0	0	0		0
+imdb_ma	test_2hop	positives	1478	0	0	0	0	0	0	1478
+imdb_ma	test_2hop	negatives	0	0	0	0	0	0		0
+imdb_ma	test_random	negatives	1478	0	0	0	0	0		0
+lastfm	train	positives	66966	66966	66966	0	0	0	0	66966
+lastfm	train	negatives	66966	138	138	0	0	69		197
+lastfm	val	positives	7301	0	0	0	0	0	0	7301
+lastfm	val	negatives	7301	20	20	0	0	1		27
+lastfm	test_2hop	positives	18567	0	0	0	0	0	0	18567
+lastfm	test_2hop	negatives	18567	0	0	0	0	613		0
+lastfm	test_random	negatives	18567	0	0	0	0	8		0
+pubmed	train	positives	32167	16366	16366	16366	16366	0	0	32167
+pubmed	train	negatives	32167	298	298	558	558	340		1059
+pubmed	val	positives	1942	0	0	0	0	0	0	1942
+pubmed	val	negatives	1942	19	19	26	26	0		53
+pubmed	test_2hop	positives	8528	0	0	0	0	0	0	8528
+pubmed	test_2hop	negatives	8525	0	0	0	0	58		0
+pubmed	test_random	negatives	8528	0	0	0	0	26		0
+freebase_bb	train	positives	152021	152021	152021	97436	97436	0	0	152021
+freebase_bb	train	negatives	152021	1141	1141	840	840	600		1391
+freebase_bb	val	positives	16894	0	0	0	0	0	0	16894
+freebase_bb	val	negatives	16894	129	129	104	104	9		160
+freebase_bb	test_2hop	positives	18723	0	0	0	0	0	0	18723
+freebase_bb	test_2hop	negatives	18646	0	0	0	0	65		0
+freebase_bb	test_random	negatives	18723	0	0	0	0	13		0

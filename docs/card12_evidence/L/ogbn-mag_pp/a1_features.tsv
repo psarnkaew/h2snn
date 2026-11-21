@@ -1,0 +1,5 @@
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+ogbn-mag_pp	paper	736389	128	Identity (features)	0.0000	31.767
+ogbn-mag_pp	author	1134649	128	Identity (features)	0.0000	7.218
+ogbn-mag_pp	field_of_study	59965	128	Identity (features)	0.0000	125.158
+ogbn-mag_pp	institution	8740	128	Identity (features)	0.0000	119.451

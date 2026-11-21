@@ -1,0 +1,8 @@
+task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
+h-pokec_uu	train	positives	18064591	18064591	18064591	0	0	0	0	
+h-pokec_uu	train	negatives	18064591	903	903	265	265	427		task positives (either orientation): 1441
+h-pokec_uu	val	positives	2007177	0	0	0	0	0	0	
+h-pokec_uu	val	negatives	2007177	94	94	27	27	2		task positives (either orientation): 145
+h-pokec_uu	test_2hop	positives	2230196	0	0	0	0	0	0	
+h-pokec_uu	test_2hop	negatives	2230163	0	0	0	0	925		task positives (either orientation): 804
+h-pokec_uu	test_random	negatives	2230196	0	0	0	0	4		task positives (either orientation): 3

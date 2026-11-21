@@ -1,0 +1,427 @@
+job=18249 node=g2n01 start=2026-11-22T07:54:36+09:00
+git=57b81ee95665a8677793759fdaa5fcd1da6ce2e3 branch=card12 dirty=0
+md5 5232eec788285f9ec9c4ef831196a204  src/models/anchored_solve.py
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 8033cd276596aff98487123d04e881a4  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 e29b0a6c66e42edeaec41928fc5a4a10  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+md5 8b4885143b74c7158aec29a9723055d5  scripts/diagnostics/card12/a1_data_checks.py
+md5 907151525693d0e7b81095aeafbc9eb7  scripts/diagnostics/card12/p1_identity.py
+md5 d0a6fbfa468e79335ff46ad64e959ddc  scripts/diagnostics/card12/p_mutations.py
+md5 0e60ac4126cd2a9ddd8dc1687a8a68ab  scripts/diagnostics/card12/run_p.py
+md5 0a5cbc89694d0e320fde3b1b4e823611  scripts/diagnostics/card12/zero_rhs_probe.py
+No devices were found
+no GPU
+== task acm_pa: ../docs/card11_inputs/h2snn_link_prediction_acm_pa_tune_run0_rural-sweep-3/config.yaml
+== task dblp_ap: ../docs/card11_inputs/h2snn_link_prediction_dblp_ap_tune_run0_daily-sweep-73/config.yaml
+== task imdb_ma: configs/experiments/imdb_ma_h2snn_v3b.yaml
+== task lastfm: configs/experiments/lastfm_h2snn_v3b.yaml
+== task pubmed: configs/experiments/pubmed_h2snn_v3b.yaml
+== task freebase_bb: configs/experiments/freebase_bb_h2snn_v3b.yaml
+== a1_counts
+task	head_type	relation	tail_type	num_heads	num_tails	message_edges	message_edges_target_rel	relations	target_pair_kept_relations	train_pos	val_pos	test_2hop_pos	train_neg	val_neg	test_2hop_neg	test_random_neg	test_heads_without_2hop_neg
+acm_pa	paper	rel_2	author	3025	5959	272046	8059	0:author/rel_3/paper 1:paper/rel_0/paper 2:paper/rel_4/subject 3:paper/rel_6/term	author/rel_3/paper	8059	895	995	8059	895	763	995	196
+dblp_ap	author	rel_0	paper	4057	14328	116051	15913	0:author/rel_0/paper 1:paper/rel_1/term 2:paper/rel_2/venue	author/rel_0/paper	15913	1768	1964	15913	1768	0	1964	1256
+imdb_ma	movie	rel_2	actor	4932	6124	40513	11971	0:actor/rel_3/movie 1:director/rel_1/movie 2:keyword/rel_5/movie	actor/rel_3/movie	11971	1330	1478	11971	1330	0	1478	1340
+lastfm	user	rel_0	artist	1892	17632	102936	66966	0:artist/rel_2/tag 1:user/rel_0/artist 2:user/rel_1/user	user/rel_0/artist	66966	7301	18567	66966	7301	18567	18567	0
+pubmed	disease	rel_2	disease	20163	20163	179784	16366	0:disease/rel_2/disease 1:pubmed_type_0/rel_0/pubmed_type_0 2:pubmed_type_0/rel_1/disease 3:pubmed_type_2/rel_3/pubmed_type_0 4:pubmed_type_2/rel_4/disease 5:pubmed_type_2/rel_5/pubmed_type_2 6:pubmed_type_2/rel_6/pubmed_type_3 7:pubmed_type_3/rel_7/pubmed_type_0 8:pubmed_type_3/rel_8/disease 9:pubmed_type_3/rel_9/pubmed_type_3	disease/rel_2/disease	32167	1942	8528	32167	1942	8525	8528	3
+freebase_bb	book	rel_0	book	40402	40402	834089	167057	0:book/rel_0/book 1:book/rel_1/film 2:book/rel_2/sports 3:book/rel_3/location 4:book/rel_4/organization 5:business/rel_30/book 6:business/rel_31/film 7:business/rel_32/music 8:business/rel_33/sports 9:business/rel_34/location 10:business/rel_35/business 11:film/rel_5/film 12:location/rel_22/film 13:location/rel_23/location 14:music/rel_10/location 15:music/rel_6/book 16:music/rel_7/film 17:music/rel_8/music 18:music/rel_9/sports 19:organization/rel_24/film 20:organization/rel_25/music 21:organization/rel_26/sports 22:organization/rel_27/location 23:organization/rel_28/organization 24:organization/rel_29/business 25:people/rel_14/book 26:people/rel_15/film 27:people/rel_16/music 28:people/rel_17/sports 29:people/rel_18/people 30:people/rel_19/location 31:people/rel_20/organization 32:people/rel_21/business 33:sports/rel_11/film 34:sports/rel_12/sports 35:sports/rel_13/location	book/rel_0/book	152021	16894	18723	152021	16894	18646	18723	75
+
+== a1_leakage
+task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
+acm_pa	train	positives	8059	0	0	8059	8059	0	0	8059
+acm_pa	train	negatives	8059	0	0	3	3	0		4
+acm_pa	val	positives	895	0	0	0	0	0	0	895
+acm_pa	val	negatives	895	0	0	0	0	0		1
+acm_pa	test_2hop	positives	995	0	0	0	0	0	0	995
+acm_pa	test_2hop	negatives	763	0	0	0	0	24		0
+acm_pa	test_random	negatives	995	0	0	0	0	0		0
+dblp_ap	train	positives	15913	15913	15913	0	0	0	0	15913
+dblp_ap	train	negatives	15913	25	25	0	0	6		27
+dblp_ap	val	positives	1768	0	0	0	0	0	0	1768
+dblp_ap	val	negatives	1768	2	2	0	0	0		2
+dblp_ap	test_2hop	positives	1964	0	0	0	0	0	0	1964
+dblp_ap	test_2hop	negatives	0	0	0	0	0	0		0
+dblp_ap	test_random	negatives	1964	0	0	0	0	0		0
+imdb_ma	train	positives	11971	0	0	11971	11971	0	0	11971
+imdb_ma	train	negatives	11971	0	0	4	4	0		5
+imdb_ma	val	positives	1330	0	0	0	0	0	0	1330
+imdb_ma	val	negatives	1330	0	0	0	0	0		0
+imdb_ma	test_2hop	positives	1478	0	0	0	0	0	0	1478
+imdb_ma	test_2hop	negatives	0	0	0	0	0	0		0
+imdb_ma	test_random	negatives	1478	0	0	0	0	0		0
+lastfm	train	positives	66966	66966	66966	0	0	0	0	66966
+lastfm	train	negatives	66966	138	138	0	0	69		197
+lastfm	val	positives	7301	0	0	0	0	0	0	7301
+lastfm	val	negatives	7301	20	20	0	0	1		27
+lastfm	test_2hop	positives	18567	0	0	0	0	0	0	18567
+lastfm	test_2hop	negatives	18567	0	0	0	0	613		0
+lastfm	test_random	negatives	18567	0	0	0	0	8		0
+pubmed	train	positives	32167	16366	16366	16366	16366	0	0	32167
+pubmed	train	negatives	32167	298	298	558	558	340		1059
+pubmed	val	positives	1942	0	0	0	0	0	0	1942
+pubmed	val	negatives	1942	19	19	26	26	0		53
+pubmed	test_2hop	positives	8528	0	0	0	0	0	0	8528
+pubmed	test_2hop	negatives	8525	0	0	0	0	58		0
+pubmed	test_random	negatives	8528	0	0	0	0	26		0
+freebase_bb	train	positives	152021	152021	152021	97436	97436	0	0	152021
+freebase_bb	train	negatives	152021	1141	1141	840	840	600		1391
+freebase_bb	val	positives	16894	0	0	0	0	0	0	16894
+freebase_bb	val	negatives	16894	129	129	104	104	9		160
+freebase_bb	test_2hop	positives	18723	0	0	0	0	0	0	18723
+freebase_bb	test_2hop	negatives	18646	0	0	0	0	65		0
+freebase_bb	test_random	negatives	18723	0	0	0	0	13		0
+
+== a1_degree
+task	split	kind	end	degree	n	mean	q0	q10	q25	q50	q75	q90	q100	share_deg0
+acm_pa	train	pos	head	all	8059	93.535	17	62	78	94	109	123	184	0.0000
+acm_pa	train	pos	head	target_rel	8059	3.533	1	2	2	3	4	6	14	0.0000
+acm_pa	train	pos	tail	all	8059	3.558	1	1	1	2	4	8	47	0.0000
+acm_pa	train	pos	tail	target_rel	8059	3.558	1	1	1	2	4	8	47	0.0000
+acm_pa	train	neg	head	all	8059	93.535	17	62	78	94	109	123	184	0.0000
+acm_pa	train	neg	head	target_rel	8059	3.533	1	2	2	3	4	6	14	0.0000
+acm_pa	train	neg	tail	all	8059	1.355	0	0	1	1	1	2	47	0.1319
+acm_pa	train	neg	tail	target_rel	8059	1.355	0	0	1	1	1	2	47	0.1319
+acm_pa	val	pos	head	all	895	92.768	17	60.4	76	94	109	123	189	0.0000
+acm_pa	val	pos	head	target_rel	895	2.438	0	1	1	2	3	5	13	0.0816
+acm_pa	val	pos	tail	all	895	2.493	0	0	0	1	3	7	47	0.4704
+acm_pa	val	pos	tail	target_rel	895	2.493	0	0	0	1	3	7	47	0.4704
+acm_pa	val	neg	head	all	895	92.768	17	60.4	76	94	109	123	189	0.0000
+acm_pa	val	neg	head	target_rel	895	2.438	0	1	1	2	3	5	13	0.0816
+acm_pa	val	neg	tail	all	895	1.340	0	0	1	1	1	3	15	0.1240
+acm_pa	val	neg	tail	target_rel	895	1.340	0	0	1	1	1	3	15	0.1240
+acm_pa	test	pos	head	all	995	92.510	17	61	76	93	108	122	204	0.0000
+acm_pa	test	pos	head	target_rel	995	2.512	0	1	1	2	3	5	14	0.0734
+acm_pa	test	pos	tail	all	995	2.350	0	0	0	1	3	6.6	47	0.4633
+acm_pa	test	pos	tail	target_rel	995	2.350	0	0	0	1	3	6.6	47	0.4633
+acm_pa	test_2hop	neg	head	all	763	96.073	17	68.2	81	96	111	123	204	0.0000
+acm_pa	test_2hop	neg	head	target_rel	763	2.468	0	1	1	2	3	4	14	0.0668
+acm_pa	test_2hop	neg	tail	all	763	3.532	0	1	1	2	4	8	47	0.0629
+acm_pa	test_2hop	neg	tail	target_rel	763	3.532	0	1	1	2	4	8	47	0.0629
+acm_pa	test_random	neg	head	all	995	92.510	17	61	76	93	108	122	204	0.0000
+acm_pa	test_random	neg	head	target_rel	995	2.512	0	1	1	2	3	5	14	0.0734
+acm_pa	test_random	neg	tail	all	995	1.331	0	0	1	1	1	2	33	0.1538
+acm_pa	test_random	neg	tail	target_rel	995	1.331	0	0	1	1	1	2	33	0.1538
+dblp_ap	train	pos	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	tail	all	15913	8.569	3	6	7	8	10	11	22	0.0000
+dblp_ap	train	pos	tail	target_rel	15913	1.540	1	1	1	1	2	3	5	0.0000
+dblp_ap	train	neg	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	tail	all	15913	8.080	2	6	7	8	9	11	22	0.0000
+dblp_ap	train	neg	tail	target_rel	15913	1.110	0	0	1	1	1	2	5	0.1443
+dblp_ap	val	pos	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	tail	all	1768	7.566	2	5	6	7	9	10	19	0.0000
+dblp_ap	val	pos	tail	target_rel	1768	0.555	0	0	0	0	1	2	5	0.5781
+dblp_ap	val	neg	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	tail	all	1768	8.111	3	6	7	8	9	11	19	0.0000
+dblp_ap	val	neg	tail	target_rel	1768	1.136	0	0	1	1	1	2	4	0.1256
+dblp_ap	test	pos	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	tail	all	1964	7.459	3	5	6	7	9	10	16	0.0000
+dblp_ap	test	pos	tail	target_rel	1964	0.534	0	0	0	0	1	1	4	0.5804
+dblp_ap	test_2hop	neg	head	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	head	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_random	neg	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	tail	all	1964	8.123	3	6	7	8	9	11	19	0.0000
+dblp_ap	test_random	neg	tail	target_rel	1964	1.114	0	0	1	1	1	2	5	0.1456
+imdb_ma	train	pos	head	all	11971	8.405	2	8	8	9	9	9	9	0.0000
+imdb_ma	train	pos	head	target_rel	11971	2.616	1	2	2	3	3	3	3	0.0000
+imdb_ma	train	pos	tail	all	11971	6.242	1	1	1	3	8	17	42	0.0000
+imdb_ma	train	pos	tail	target_rel	11971	6.242	1	1	1	3	8	17	42	0.0000
+imdb_ma	train	neg	head	all	11971	8.405	2	8	8	9	9	9	9	0.0000
+imdb_ma	train	neg	head	target_rel	11971	2.616	1	2	2	3	3	3	3	0.0000
+imdb_ma	train	neg	tail	all	11971	1.929	0	0	1	1	2	4	42	0.1276
+imdb_ma	train	neg	tail	target_rel	11971	1.929	0	0	1	1	2	4	42	0.1276
+imdb_ma	val	pos	head	all	1330	7.399	1	7	7	8	8	8	8	0.0000
+imdb_ma	val	pos	head	target_rel	1330	1.637	0	1	1	2	2	2	2	0.0316
+imdb_ma	val	pos	tail	all	1330	5.342	0	0	0	2	7	17	42	0.2895
+imdb_ma	val	pos	tail	target_rel	1330	5.342	0	0	0	2	7	17	42	0.2895
+imdb_ma	val	neg	head	all	1330	7.399	1	7	7	8	8	8	8	0.0000
+imdb_ma	val	neg	head	target_rel	1330	1.637	0	1	1	2	2	2	2	0.0316
+imdb_ma	val	neg	tail	all	1330	1.915	0	0	1	1	2	4	29	0.1226
+imdb_ma	val	neg	tail	target_rel	1330	1.915	0	0	1	1	2	4	29	0.1226
+imdb_ma	test	pos	head	all	1478	7.444	2	7	7	8	8	8	8	0.0000
+imdb_ma	test	pos	head	target_rel	1478	1.620	0	1	1	2	2	2	2	0.0311
+imdb_ma	test	pos	tail	all	1478	5.338	0	0	0	2	7	16	42	0.2903
+imdb_ma	test	pos	tail	target_rel	1478	5.338	0	0	0	2	7	16	42	0.2903
+imdb_ma	test_2hop	neg	head	all	0		nan	nan	nan	nan	nan	nan	nan	
+imdb_ma	test_2hop	neg	head	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+imdb_ma	test_2hop	neg	tail	all	0		nan	nan	nan	nan	nan	nan	nan	
+imdb_ma	test_2hop	neg	tail	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+imdb_ma	test_random	neg	head	all	1478	7.444	2	7	7	8	8	8	8	0.0000
+imdb_ma	test_random	neg	head	target_rel	1478	1.620	0	1	1	2	2	2	2	0.0311
+imdb_ma	test_random	neg	tail	all	1478	2.013	0	0	1	1	2	4	38	0.1225
+imdb_ma	test_random	neg	tail	target_rel	1478	2.013	0	0	1	1	2	4	38	0.1225
+lastfm	train	pos	head	all	66966	49.636	4	36	39	43	53	73	148	0.0000
+lastfm	train	pos	head	target_rel	66966	36.163	1	32	34	36	38	40	46	0.0000
+lastfm	train	pos	tail	all	66966	75.013	1	1	7	30	98	220	511	0.0000
+lastfm	train	pos	tail	target_rel	66966	63.072	1	1	4	22	83	194	445	0.0000
+lastfm	train	neg	head	all	66966	49.636	4	36	39	43	53	73	148	0.0000
+lastfm	train	neg	head	target_rel	66966	36.163	1	32	34	36	38	40	46	0.0000
+lastfm	train	neg	tail	all	66966	5.145	0	0	1	1	3	10	511	0.1531
+lastfm	train	neg	tail	target_rel	66966	3.821	0	0	1	1	2	6	445	0.1828
+lastfm	val	pos	head	all	7301	48.560	5	35	38	43	52	72	148	0.0000
+lastfm	val	pos	head	target_rel	7301	35.202	3	31	33	35	38	39	46	0.0000
+lastfm	val	pos	tail	all	7301	69.207	0	0	5	27	87	200	511	0.1159
+lastfm	val	pos	tail	target_rel	7301	58.008	0	0	2	20	72	175	445	0.1414
+lastfm	val	neg	head	all	7301	48.560	5	35	38	43	52	72	148	0.0000
+lastfm	val	neg	head	target_rel	7301	35.202	3	31	33	35	38	39	46	0.0000
+lastfm	val	neg	tail	all	7301	5.417	0	0	1	1	3	10	511	0.1459
+lastfm	val	neg	tail	target_rel	7301	4.071	0	0	1	1	2	6	445	0.1720
+lastfm	test	pos	head	all	18567	48.775	1	35	38	43	52	73	148	0.0000
+lastfm	test	pos	head	target_rel	18567	35.177	0	31	33	35	38	39	46	0.0001
+lastfm	test	pos	tail	all	18567	73.510	0	0	6	30	97	210	511	0.1077
+lastfm	test	pos	tail	target_rel	18567	61.713	0	0	3	22	82	185	445	0.1313
+lastfm	test_2hop	neg	head	all	18567	48.775	1	35	38	43	52	73	148	0.0000
+lastfm	test_2hop	neg	head	target_rel	18567	35.177	0	31	33	35	38	39	46	0.0001
+lastfm	test_2hop	neg	tail	all	18567	44.872	0	1	4	16	56	120	511	0.0393
+lastfm	test_2hop	neg	tail	target_rel	18567	36.812	0	1	2	11	45	103	445	0.0484
+lastfm	test_random	neg	head	all	18567	48.775	1	35	38	43	52	73	148	0.0000
+lastfm	test_random	neg	head	target_rel	18567	35.177	0	31	33	35	38	39	46	0.0001
+lastfm	test_random	neg	tail	all	18567	4.723	0	0	1	1	3	9	402	0.1530
+lastfm	test_random	neg	tail	target_rel	18567	3.477	0	0	1	1	2	6	356	0.1817
+pubmed	train	pos	head	all	32167	1845.911	1	1	3	19	121	14378	14378	0.0000
+pubmed	train	pos	head	target_rel	32167	503.954	1	1	1	6	31	3940	3940	0.0000
+pubmed	train	pos	tail	all	32167	1845.911	1	1	3	19	121	14378	14378	0.0000
+pubmed	train	pos	tail	target_rel	32167	503.954	1	1	1	6	31	3940	3940	0.0000
+pubmed	train	neg	head	all	32167	1845.911	1	1	3	19	121	14378	14378	0.0000
+pubmed	train	neg	head	target_rel	32167	503.954	1	1	1	6	31	3940	3940	0.0000
+pubmed	train	neg	tail	all	32167	4.971	0	1	1	2	3	9	1499	0.0071
+pubmed	train	neg	tail	target_rel	32167	1.417	0	0	0	1	1	3	366	0.4045
+pubmed	val	pos	head	all	1942	1588.987	0	1	6	33	145	14378	14378	0.0654
+pubmed	val	pos	head	target_rel	1942	432.187	0	0	2	8	34	3940	3940	0.1473
+pubmed	val	pos	tail	all	1942	1588.987	0	1	6	33	145	14378	14378	0.0654
+pubmed	val	pos	tail	target_rel	1942	432.187	0	0	2	8	34	3940	3940	0.1473
+pubmed	val	neg	head	all	1942	1588.987	0	1	6	33	145	14378	14378	0.0654
+pubmed	val	neg	head	target_rel	1942	432.187	0	0	2	8	34	3940	3940	0.1473
+pubmed	val	neg	tail	all	1942	4.036	0	1	1	2	3	7	456	0.0051
+pubmed	val	neg	tail	target_rel	1942	1.175	0	0	0	1	1	2	99	0.4176
+pubmed	test	pos	head	all	8528	1506.375	0	4	10	38	162	1499	14378	0.0008
+pubmed	test	pos	head	target_rel	8528	409.343	0	1	3	10	40	366	3940	0.0049
+pubmed	test	pos	tail	all	8528	1506.375	0	4	10	38	162	1499	14378	0.0008
+pubmed	test	pos	tail	target_rel	8528	409.343	0	1	3	10	40	366	3940	0.0049
+pubmed	test_2hop	neg	head	all	8525	1506.904	0	4	10	38	162	1499	14378	0.0008
+pubmed	test_2hop	neg	head	target_rel	8525	409.487	0	1	3	10	40	366	3940	0.0049
+pubmed	test_2hop	neg	tail	all	8525	43.877	0	1	1	3	10	32.6	14378	0.0059
+pubmed	test_2hop	neg	tail	target_rel	8525	11.867	0	0	1	1	3	8	3940	0.1661
+pubmed	test_random	neg	head	all	8528	1506.375	0	4	10	38	162	1499	14378	0.0008
+pubmed	test_random	neg	head	target_rel	8528	409.343	0	1	3	10	40	366	3940	0.0049
+pubmed	test_random	neg	tail	all	8528	4.719	0	1	1	2	3	8	1469	0.0062
+pubmed	test_random	neg	tail	target_rel	8528	1.332	0	0	0	1	1	2	355	0.4177
+freebase_bb	train	pos	head	all	152021	631.326	1	5	11	24	211	2422	6897	0.0000
+freebase_bb	train	pos	head	target_rel	152021	557.477	1	4	8	20	189	1238	6893	0.0000
+freebase_bb	train	pos	tail	all	152021	464.419	1	4	9	17	73	1074	6897	0.0000
+freebase_bb	train	pos	tail	target_rel	152021	409.848	1	3	7	13	61	725	6893	0.0000
+freebase_bb	train	neg	head	all	152021	631.326	1	5	11	24	211	2422	6897	0.0000
+freebase_bb	train	neg	head	target_rel	152021	557.477	1	4	8	20	189	1238	6893	0.0000
+freebase_bb	train	neg	tail	all	152021	12.587	0	2	3	6	12	17	6897	0.0249
+freebase_bb	train	neg	tail	target_rel	152021	8.269	0	1	2	4	8	12	6893	0.0619
+freebase_bb	val	pos	head	all	16894	604.800	0	3	9	23	208	1799	6897	0.0257
+freebase_bb	val	pos	head	target_rel	16894	532.621	0	2	6	18	180.5	1238	6893	0.0398
+freebase_bb	val	pos	tail	all	16894	451.324	0	3	8	15	73	904	6897	0.0268
+freebase_bb	val	pos	tail	target_rel	16894	398.376	0	2	5	11	59	699	6893	0.0401
+freebase_bb	val	neg	head	all	16894	604.800	0	3	9	23	208	1799	6897	0.0257
+freebase_bb	val	neg	head	target_rel	16894	532.621	0	2	6	18	180.5	1238	6893	0.0398
+freebase_bb	val	neg	tail	all	16894	14.233	0	2	3	6	12	17	6897	0.0244
+freebase_bb	val	neg	tail	target_rel	16894	8.611	0	1	2	4	8	12	6893	0.0622
+freebase_bb	test	pos	head	all	18723	615.551	0	3	9	23	209	2299	6897	0.0270
+freebase_bb	test	pos	head	target_rel	18723	541.383	0	2	6	19	179	1238	6893	0.0409
+freebase_bb	test	pos	tail	all	18723	452.853	0	3	8	15	67	904	6897	0.0280
+freebase_bb	test	pos	tail	target_rel	18723	400.497	0	2	5	11	57	693	6893	0.0404
+freebase_bb	test_2hop	neg	head	all	18646	618.084	0	3	9	24	211	2299	6897	0.0245
+freebase_bb	test_2hop	neg	head	target_rel	18646	543.611	0	2	6	19	181	1238	6893	0.0381
+freebase_bb	test_2hop	neg	tail	all	18646	50.940	0	3	7	11	17	36	6897	0.0047
+freebase_bb	test_2hop	neg	tail	target_rel	18646	37.357	0	2	4	8	12	28	6893	0.0144
+freebase_bb	test_random	neg	head	all	18723	615.551	0	3	9	23	209	2299	6897	0.0270
+freebase_bb	test_random	neg	head	target_rel	18723	541.383	0	2	6	19	179	1238	6893	0.0409
+freebase_bb	test_random	neg	tail	all	18723	14.007	0	2	3	6	12	17	6294	0.0240
+freebase_bb	test_random	neg	tail	target_rel	18723	8.594	0	1	2	4	8	12	6293	0.0615
+
+== a1_features
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+acm_pa	paper	3025	1902	Identity (features)	0.0000	91.699
+acm_pa	author	5959	0	Sequential	0.1421	1.352
+acm_pa	subject	56	1902	Identity (features)	0.0000	54.018
+acm_pa	term	1902	0	Sequential	0.0000	134.395
+dblp_ap	author	4057	0	Sequential	0.0668	3.922
+dblp_ap	paper	14328	4231	Identity (features)	0.0000	8.100
+dblp_ap	term	7723	50	Identity (features)	0.0000	11.111
+dblp_ap	venue	20	0	Sequential	0.0000	716.400
+imdb_ma	movie	4932	3485	Identity (features)	0.0000	8.214
+imdb_ma	director	2393	3341	Identity (features)	0.0000	2.061
+imdb_ma	actor	6124	0	Sequential	0.1262	1.955
+imdb_ma	keyword	7971	0	Sequential	0.0000	2.962
+lastfm	user	1892	0	NoneType	0.0000	48.837
+lastfm	artist	17632	0	NoneType	0.1531	5.117
+lastfm	tag	1088	0	NoneType	0.0000	21.372
+pubmed	pubmed_type_0	13561	200	Identity (features)	0.0000	5.670
+pubmed	disease	20163	200	Identity (features)	0.0063	5.717
+pubmed	pubmed_type_2	26522	200	Identity (features)	0.0000	5.725
+pubmed	pubmed_type_3	2863	200	Identity (features)	0.0000	5.437
+freebase_bb	book	40402	0	NoneType	0.0247	12.711
+freebase_bb	film	19427	0	NoneType	0.0000	10.553
+freebase_bb	music	82351	0	NoneType	0.0000	5.997
+freebase_bb	sports	1025	0	NoneType	0.0000	39.350
+freebase_bb	people	17641	0	NoneType	0.0000	7.070
+freebase_bb	location	9368	0	NoneType	0.0000	17.780
+freebase_bb	organization	2731	0	NoneType	0.0000	19.702
+freebase_bb	business	7153	0	NoneType	0.0000	9.832
+
+== a1_degree_auroc
+task	split	degree	score	n_pos	n_neg	auroc
+acm_pa	train	all	head+tail	8059	8059	0.6844
+acm_pa	train	all	head	8059	8059	0.5000
+acm_pa	train	all	tail	8059	8059	0.7059
+acm_pa	train	target_rel	head+tail	8059	8059	0.6851
+acm_pa	train	target_rel	head	8059	8059	0.5000
+acm_pa	train	target_rel	tail	8059	8059	0.7059
+acm_pa	val	all	head+tail	895	895	0.4482
+acm_pa	val	all	head	895	895	0.5000
+acm_pa	val	all	tail	895	895	0.4417
+acm_pa	val	target_rel	head+tail	895	895	0.4696
+acm_pa	val	target_rel	head	895	895	0.5000
+acm_pa	val	target_rel	tail	895	895	0.4417
+acm_pa	test_2hop	all	head+tail	995	763	0.3203
+acm_pa	test_2hop	all	head	995	763	0.4579
+acm_pa	test_2hop	all	tail	995	763	0.3245
+acm_pa	test_2hop	target_rel	head+tail	995	763	0.3517
+acm_pa	test_2hop	target_rel	head	995	763	0.4987
+acm_pa	test_2hop	target_rel	tail	995	763	0.3245
+acm_pa	test_random	all	head+tail	995	995	0.4578
+acm_pa	test_random	all	head	995	995	0.5000
+acm_pa	test_random	all	tail	995	995	0.4582
+acm_pa	test_random	target_rel	head+tail	995	995	0.4842
+acm_pa	test_random	target_rel	head	995	995	0.5000
+acm_pa	test_random	target_rel	tail	995	995	0.4582
+dblp_ap	train	all	head+tail	15913	15913	0.5148
+dblp_ap	train	all	head	15913	15913	0.5000
+dblp_ap	train	all	tail	15913	15913	0.5657
+dblp_ap	train	target_rel	head+tail	15913	15913	0.5519
+dblp_ap	train	target_rel	head	15913	15913	0.5000
+dblp_ap	train	target_rel	tail	15913	15913	0.6482
+dblp_ap	val	all	head+tail	1768	1768	0.4855
+dblp_ap	val	all	head	1768	1768	0.5000
+dblp_ap	val	all	tail	1768	1768	0.4294
+dblp_ap	val	target_rel	head+tail	1768	1768	0.4200
+dblp_ap	val	target_rel	head	1768	1768	0.5000
+dblp_ap	val	target_rel	tail	1768	1768	0.2741
+dblp_ap	test_2hop	all	head+tail	1964	0	nan
+dblp_ap	test_2hop	all	head	1964	0	nan
+dblp_ap	test_2hop	all	tail	1964	0	nan
+dblp_ap	test_2hop	target_rel	head+tail	1964	0	nan
+dblp_ap	test_2hop	target_rel	head	1964	0	nan
+dblp_ap	test_2hop	target_rel	tail	1964	0	nan
+dblp_ap	test_random	all	head+tail	1964	1964	0.4808
+dblp_ap	test_random	all	head	1964	1964	0.5000
+dblp_ap	test_random	all	tail	1964	1964	0.4088
+dblp_ap	test_random	target_rel	head+tail	1964	1964	0.4185
+dblp_ap	test_random	target_rel	head	1964	1964	0.5000
+dblp_ap	test_random	target_rel	tail	1964	1964	0.2771
+imdb_ma	train	all	head+tail	11971	11971	0.7554
+imdb_ma	train	all	head	11971	11971	0.5000
+imdb_ma	train	all	tail	11971	11971	0.7631
+imdb_ma	train	target_rel	head+tail	11971	11971	0.7591
+imdb_ma	train	target_rel	head	11971	11971	0.5000
+imdb_ma	train	target_rel	tail	11971	11971	0.7631
+imdb_ma	val	all	head+tail	1330	1330	0.5986
+imdb_ma	val	all	head	1330	1330	0.5000
+imdb_ma	val	all	tail	1330	1330	0.5989
+imdb_ma	val	target_rel	head+tail	1330	1330	0.5931
+imdb_ma	val	target_rel	head	1330	1330	0.5000
+imdb_ma	val	target_rel	tail	1330	1330	0.5989
+imdb_ma	test_2hop	all	head+tail	1478	0	nan
+imdb_ma	test_2hop	all	head	1478	0	nan
+imdb_ma	test_2hop	all	tail	1478	0	nan
+imdb_ma	test_2hop	target_rel	head+tail	1478	0	nan
+imdb_ma	test_2hop	target_rel	head	1478	0	nan
+imdb_ma	test_2hop	target_rel	tail	1478	0	nan
+imdb_ma	test_random	all	head+tail	1478	1478	0.5981
+imdb_ma	test_random	all	head	1478	1478	0.5000
+imdb_ma	test_random	all	tail	1478	1478	0.5945
+imdb_ma	test_random	target_rel	head+tail	1478	1478	0.5908
+imdb_ma	test_random	target_rel	head	1478	1478	0.5000
+imdb_ma	test_random	target_rel	tail	1478	1478	0.5945
+lastfm	train	all	head+tail	66966	66966	0.8615
+lastfm	train	all	head	66966	66966	0.5000
+lastfm	train	all	tail	66966	66966	0.8725
+lastfm	train	target_rel	head+tail	66966	66966	0.8775
+lastfm	train	target_rel	head	66966	66966	0.5000
+lastfm	train	target_rel	tail	66966	66966	0.8784
+lastfm	val	all	head+tail	7301	7301	0.8024
+lastfm	val	all	head	7301	7301	0.5000
+lastfm	val	all	tail	7301	7301	0.8096
+lastfm	val	target_rel	head+tail	7301	7301	0.7944
+lastfm	val	target_rel	head	7301	7301	0.5000
+lastfm	val	target_rel	tail	7301	7301	0.7942
+lastfm	test_2hop	all	head+tail	18567	18567	0.5679
+lastfm	test_2hop	all	head	18567	18567	0.5000
+lastfm	test_2hop	all	tail	18567	18567	0.5708
+lastfm	test_2hop	target_rel	head+tail	18567	18567	0.5655
+lastfm	test_2hop	target_rel	head	18567	18567	0.5000
+lastfm	test_2hop	target_rel	tail	18567	18567	0.5654
+lastfm	test_random	all	head+tail	18567	18567	0.8188
+lastfm	test_random	all	head	18567	18567	0.5000
+lastfm	test_random	all	tail	18567	18567	0.8258
+lastfm	test_random	target_rel	head+tail	18567	18567	0.8119
+lastfm	test_random	target_rel	head	18567	18567	0.5000
+lastfm	test_random	target_rel	tail	18567	18567	0.8119
+pubmed	train	all	head+tail	32167	32167	0.7263
+pubmed	train	all	head	32167	32167	0.5000
+pubmed	train	all	tail	32167	32167	0.8262
+pubmed	train	target_rel	head+tail	32167	32167	0.7426
+pubmed	train	target_rel	head	32167	32167	0.5000
+pubmed	train	target_rel	tail	32167	32167	0.8710
+pubmed	val	all	head+tail	1942	1942	0.7575
+pubmed	val	all	head	1942	1942	0.5000
+pubmed	val	all	tail	1942	1942	0.8457
+pubmed	val	target_rel	head+tail	1942	1942	0.7431
+pubmed	val	target_rel	head	1942	1942	0.5000
+pubmed	val	target_rel	tail	1942	1942	0.8321
+pubmed	test_2hop	all	head+tail	8528	8525	0.7459
+pubmed	test_2hop	all	head	8528	8525	0.4998
+pubmed	test_2hop	all	tail	8528	8525	0.8335
+pubmed	test_2hop	target_rel	head+tail	8528	8525	0.7273
+pubmed	test_2hop	target_rel	head	8528	8525	0.4999
+pubmed	test_2hop	target_rel	tail	8528	8525	0.8197
+pubmed	test_random	all	head+tail	8528	8528	0.7952
+pubmed	test_random	all	head	8528	8528	0.5000
+pubmed	test_random	all	tail	8528	8528	0.9215
+pubmed	test_random	target_rel	head+tail	8528	8528	0.7762
+pubmed	test_random	target_rel	head	8528	8528	0.5000
+pubmed	test_random	target_rel	tail	8528	8528	0.9110
+freebase_bb	train	all	head+tail	152021	152021	0.6904
+freebase_bb	train	all	head	152021	152021	0.5000
+freebase_bb	train	all	tail	152021	152021	0.7872
+freebase_bb	train	target_rel	head+tail	152021	152021	0.6951
+freebase_bb	train	target_rel	head	152021	152021	0.5000
+freebase_bb	train	target_rel	tail	152021	152021	0.8000
+freebase_bb	val	all	head+tail	16894	16894	0.6675
+freebase_bb	val	all	head	16894	16894	0.5000
+freebase_bb	val	all	tail	16894	16894	0.7431
+freebase_bb	val	target_rel	head+tail	16894	16894	0.6660
+freebase_bb	val	target_rel	head	16894	16894	0.5000
+freebase_bb	val	target_rel	tail	16894	16894	0.7386
+freebase_bb	test_2hop	all	head+tail	18723	18646	0.5992
+freebase_bb	test_2hop	all	head	18723	18646	0.4982
+freebase_bb	test_2hop	all	tail	18723	18646	0.6108
+freebase_bb	test_2hop	target_rel	head+tail	18723	18646	0.6042
+freebase_bb	test_2hop	target_rel	head	18723	18646	0.4982
+freebase_bb	test_2hop	target_rel	tail	18723	18646	0.6180
+freebase_bb	test_random	all	head+tail	18723	18723	0.6647
+freebase_bb	test_random	all	head	18723	18723	0.5000
+freebase_bb	test_random	all	tail	18723	18723	0.7398
+freebase_bb	test_random	target_rel	head+tail	18723	18723	0.6639
+freebase_bb	test_random	target_rel	head	18723	18723	0.5000
+freebase_bb	test_random	target_rel	tail	18723	18723	0.7373
+
+end=2026-11-22T07:55:18+09:00 exit=0 wall_s=42
