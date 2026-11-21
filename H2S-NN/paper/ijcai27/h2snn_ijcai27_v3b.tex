@@ -539,7 +539,7 @@ To test whether faces keep \method{} scalable, we conduct big-O analysis on time
 
 \begin{table*}[!htbp]
   \centering
-  \caption{Time and space per forward pass. $N$ nodes, $|E|$ edges, $|R|$ relations, $d$ hidden size, $d_s\le5$ stalk size of NSD and HetSheaf, $K$ propagation steps (layers, solver iterations or polynomial order), $W$ walks of at most $\ell_{\max}$ hops, $M$ face--edge incidences (the total length of all faces), $P$ meta-paths with $|E_{\mathcal P}|$ meta-path edges in total; node encoders omitted. $^\dagger$Derived by us; derivations in Appendix~\ref{app:analysis}.}
+  \caption{Time and space per forward pass. $N$ nodes ($N_t$ of the target type), $|E|$ edges, $|R|$ relations, $d$ hidden size, $d_s\le5$ stalk size of NSD and HetSheaf, $K$ propagation steps (layers, solver iterations or polynomial order), $W$ walks of at most $\ell_{\max}$ hops, $M$ face--edge incidences (the total length of all faces), $P$ meta-paths with $|E_{\mathcal P}|$ meta-path edges in total; node encoders omitted. $^\dagger$Derived by us; derivations in Appendix~\ref{app:analysis}.}
   \label{tab:complexity}
   \scriptsize
   \setlength{\tabcolsep}{4pt}
@@ -556,14 +556,14 @@ To test whether faces keep \method{} scalable, we conduct big-O analysis on time
     \midrule
     GCN & $O\big(K(Nd^2+|E|d)\big)$ & $O(KNd+|E|)$ \\
     R-GCN$^\dagger$ & $O\big(K(|R|Nd^2+|E|d)\big)$ & $O(KNd+|E|+K|R|d^2)$ \\
-    HAN$^\dagger$ & $O\big(K(PNd^2+|E_{\mathcal P}|d)\big)$ & $O\big(K(|E_{\mathcal P}|+PNd)\big)$ \\
-    SeHGNN$^\dagger$ & $O(KP|E|d)$ once $+\,O(PNd^2+P^2Nd)$ & $O(PNd)$ \\
+    HAN$^\dagger$ & $O\big(K(PN_td^2+|E_{\mathcal P}|d)\big)$ & $O\big(K(|E_{\mathcal P}|+PN_td)\big)$ \\
+    SeHGNN$^\dagger$ & $O(KP|E|d)$ once $+\,O(PN_td^2+P^2N_td)$ & $O(PN_td)$ \\
     \midrule
     NSD & $O\big(K(N(d^2+d_s^3)+|E|(dd_s^2+d_s^3))\big)$ & $O(KNd+|E|d_s^2)$ \\
     HetSheaf & $O\big(K(N(d^2+d_s^3)+|E|d_s^2(d+|R|+d_s))\big)$ & $O(KNd+|E|d_s^2)$ \\
     \midrule
     Hetero$^2$Net$^\dagger$ & $O\big(K(|R|Nd^2+|E|d)\big)$ & $O(K|R|Nd+|E|)$ \\
-    H2SGNN$^\dagger$ & $O(K|E_{\mathcal P}|d+Nd^2)$ & $O(|E_{\mathcal P}|+KPNd)$ \\
+    H2SGNN$^\dagger$ & $O(K|E_{\mathcal P}|d+N_td^2)$ & $O(|E_{\mathcal P}|+KPN_td)$ \\
     \bottomrule
   \end{tabular}
 \end{table*}
