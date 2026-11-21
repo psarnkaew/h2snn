@@ -11,7 +11,8 @@ A line's cell is its `lines.py` token (the state / output directory it writes); 
 by cell, so a list written with either site's `--out-dir` splits the same way. Only the rows of `--gpu-type` count:
 one lab list = one GPU type (`submit_lab.sh`, condition 1).
 - A line goes to the lab only if its cell's fit-check status on `--gpu-type` is `fits` (condition 2); `oom`, `error`
-  and a cell with no fit-check row go to TSUBAME.
+  and a cell with no fit-check row go to TSUBAME. Published cells have a fit-check row too (card 10 A3.2); a published
+  cell on an H2GB dataset goes to TSUBAME whatever its row says (range rule).
 - A line is never moved away from a site where its cell already has state (`<site out>/state/<token>/tuning_state_*`
   or `<site out>/experiments/*/<token>/final_seed*.json`, the layout `collect.py` reads): state at TSUBAME -> TSUBAME;
   state at the lab -> the lab, and an error if the cell does not `fits`; state at both sites -> an error.
@@ -33,6 +34,9 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.tsubame.lines import parse_line, runnable_lines  # noqa: E402
 
 FIT_COLUMNS = ("line_no", "cell", "gpu_type", "peak_mem_mib", "status", "line")
+#: card 10 A3.2 (range rule): a published cell on an H2GB dataset stays on the H100 whatever its fit check says.
+#: The same names as `src/configs/config.py` H2GB_NC_DATASETS (tests/test_fit_check.py checks it; stdlib here).
+H2GB_NC_DATASETS = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")
 STATUSES = ("fits", "oom", "error")
 
 
@@ -62,15 +66,20 @@ def has_state(out: Path, token: str) -> bool:
 def split(lines: list[str], fit: dict[str, str], lab_out: Path, t4_out: Path) -> tuple[list[str], list[str], list[str]]:
     lab, t4, errors = [], [], []
     for number, text in enumerate(lines, start=1):
-        token = parse_line(text).token
+        line = parse_line(text)
+        token = line.token
         status = fit.get(token, "missing")
+        h100_only = line.launcher == "published" and line.dataset.lower() in H2GB_NC_DATASETS
         at_lab, at_t4 = has_state(lab_out, token), has_state(t4_out, token)
         if at_lab and at_t4:
             errors.append(f"line {number}: cell {token} has state at both sites")
         elif at_t4:
             t4.append(text)
-        elif at_lab and status != "fits":
-            errors.append(f"line {number}: cell {token} has lab state but its fit check is {status}")
+        elif at_lab and (status != "fits" or h100_only):
+            why = "an H2GB published cell (range rule)" if h100_only else f"its fit check is {status}"
+            errors.append(f"line {number}: cell {token} has lab state but {why}")
+        elif h100_only:
+            t4.append(text)
         elif status == "fits":
             lab.append(text)
         else:

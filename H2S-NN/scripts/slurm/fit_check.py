@@ -1,21 +1,28 @@
-"""Card 10 L2 (Amendment 1 option A, Amendment 2 A2.2): the largest-point fit check of a cell list on one lab GPU type.
+"""Card 10 L2 (Amendment 1 option A, A2.2, A3): the largest-point fit check of a cell list on one lab GPU type.
 Standard library only. Not a result: it only decides which cells may run on the lab (condition 2).
 
-    # 1. one probe line per cell: the launcher's own `--grid_point max` (every size axis at its largest value, every
-    #    other axis at its central value), 1 trial, `--dry_run` (1 epoch, then the dry run's own evaluation)
+    # 1. one probe line per cell (tuned cells: the launcher's own `--grid_point max`, `--n_trials 1 --dry_run`;
+    #    published cells: the published configuration, one seed, `--dry_run`)
     python scripts/slurm/fit_check.py build  --list <out>/cells_tuning.txt --fit-out <out>/fit_3090
     # 2. submit them on the GPU type the cells would use (scripts/slurm/submit_lab.sh, one leg)
     python scripts/slurm/fit_check.py submit --fit-out <out>/fit_3090 --gpu-type 3090 --mem 48G --time 6:00:00
     # 3. after the jobs: <fit-out>/fit_check.tsv (read by scripts/slurm/site_split.py)
     python scripts/slurm/fit_check.py read   --fit-out <out>/fit_3090 --gpu-type 3090
 
+`--grid_point max` (scripts/slurm/grid_points.py) sets every size axis to its largest value, every memory-relevant
+categorical key to its most memory-hungry value, and runs one trial per value of a memory-relevant key whose largest
+value the code does not show (A3.1); it announces the number of trials (`FIT_GRID {"points": k}`). A published
+probe runs the published configuration as the line states it (`scripts/run_baseline_published.py --dry_run`, one
+seed, one epoch, then the whole-split evaluation; A3.2).
+
 The probe lines write only under `<fit-out>` (state, outputs, logs, W&B project `<project>_fitcheck`), never into a
-run directory. Each trial prints one `FIT_PEAK {json}` line (scripts/slurm/grid_points.py): the peak GPU memory of
-the trial process after one training epoch and the evaluation of the whole validation and test splits, and which of
-the three phases ran. Status per cell (A2.2):
-- `fits`: all three phases measured and peak / GPU memory <= 0.75 (24 GB -> 18 GB, 48 GB -> 36 GB);
-- `oom`: out of memory in the line log, or all phases measured and the peak above 0.75 (no headroom);
-- `error`: anything else (no log, no FIT_PEAK line, a phase not measured, another failure).
+run directory. Each trial prints one `FIT_PEAK {json}` line: the peak GPU memory of the trial process after one
+training epoch and the evaluation of the whole validation and test splits, and which of the three phases ran. The
+cell's peak is the largest over its trials. Status per cell (A2.2):
+- `fits`: every announced trial printed FIT_PEAK with all three phases, and peak / GPU memory <= 0.75 (24 GB -> 18 GB,
+  48 GB -> 36 GB);
+- `oom`: out of memory in the line log, or every trial measured and the peak above 0.75 (no headroom);
+- `error`: anything else (no log, fewer FIT_PEAK lines than trials, a phase not measured, another failure).
 """
 
 from __future__ import annotations
@@ -33,18 +40,19 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.tsubame.lines import (BASELINE_LAUNCHER, H2SNN_LAUNCHER, parse_line,  # noqa: E402
-                                   runnable_lines)
+from scripts.tsubame.lines import (BASELINE_LAUNCHER, H2SNN_LAUNCHER, PUBLISHED_LAUNCHER,  # noqa: E402
+                                   parse_line, runnable_lines)
 
 HEADROOM = 0.75
 PEAK_TAG = "FIT_PEAK"
+GRID_TAG = "FIT_GRID"
 FIT_COLUMNS = ("line_no", "cell", "gpu_type", "peak_mem_mib", "peak_fraction", "status", "line")
 PROBE_LIST = "fit_lines.txt"
 OOM_MARKERS = ("out of memory", "outofmemoryerror")
-#: options a list line may carry; the probe line rebuilds the cell from them (anything else is refused, so no
-#: memory-relevant option is dropped silently)
-BASELINE_KEEP = ("--task", "--models", "--datasets")
-H2SNN_KEEP = ("--config", "--exp_name")
+#: options a list line may carry, per launcher; the probe line rebuilds the cell from the kept ones (anything not
+#: kept or replaced is refused, so no memory-relevant option is dropped silently)
+KEEP = {"baseline": ("--task", "--models", "--datasets"), "h2snn": ("--config", "--exp_name"),
+        "published": ("--task", "--models", "--datasets")}
 REPLACED = ("--num_runs", "--base_seed", "--n_trials", "--output_dir", "--state_dir", "--wandb_project",
             "--final_seeds", "--run_start", "--run_count")
 
@@ -63,80 +71,74 @@ def _options(words: list[str]) -> dict[str, list[str]]:
     return options
 
 
-class NoSearchSpace(ValueError):
-    """A published-config line (card 8 C5, `run_baseline_published.py`): no search space, so no largest point."""
-
-
 def probe_line(text: str, fit_out: Path) -> tuple[str, str]:
     """(cell token, the cell's probe line). The cell keeps its token (state and output directory names)."""
     line = parse_line(text)
-    if line.launcher not in ("baseline", "h2snn"):
-        raise NoSearchSpace(f"{line.token}: a {line.launcher} line has no search space to probe")
-    words = shlex.split(text)
-    options = _options(words)
-    keep = H2SNN_KEEP if line.launcher == "h2snn" else BASELINE_KEEP
+    options = _options(shlex.split(text))
+    keep = KEEP[line.launcher]
     unknown = sorted(set(options) - set(keep) - set(REPLACED))
     if unknown:
         raise ValueError(f"{line.token}: options the fit check would drop: {unknown}")
     project = (options.get("--wandb_project") or ["h2snn"])[0] + "_fitcheck"
     kept = " ".join(f"{key} {shlex.join(options[key])}" for key in keep if key in options)
-    common = f"--num_runs 1 --base_seed 0 --n_trials 1 --dry_run --grid_point max --wandb_project {project}"
-    if line.launcher == "h2snn":
-        probe = (f"scripts/{H2SNN_LAUNCHER} {kept} {common} --output_dir {fit_out}/experiments/h2snn "
-                 f"--state_dir {fit_out}/state/{line.token}")
+    if line.launcher == "published":  # A3.2: the published configuration, one seed, one epoch
+        probe = (f"scripts/{PUBLISHED_LAUNCHER} {kept} --final_seeds 0 --dry_run --wandb_project {project} "
+                 f"--output_dir {fit_out}/experiments/baselines --state_dir {fit_out}/state")
     else:
-        probe = (f"scripts/{BASELINE_LAUNCHER} {kept} {common} --output_dir {fit_out}/experiments/baselines "
-                 f"--state_dir {fit_out}/state")
+        common = f"--num_runs 1 --base_seed 0 --n_trials 1 --dry_run --grid_point max --wandb_project {project}"
+        if line.launcher == "h2snn":
+            probe = (f"scripts/{H2SNN_LAUNCHER} {kept} {common} --output_dir {fit_out}/experiments/h2snn "
+                     f"--state_dir {fit_out}/state/{line.token}")
+        else:
+            probe = (f"scripts/{BASELINE_LAUNCHER} {kept} {common} --output_dir {fit_out}/experiments/baselines "
+                     f"--state_dir {fit_out}/state")
     if parse_line(probe).token != line.token:
         raise ValueError(f"probe line of {line.token} names another cell")
     return line.token, probe
 
 
-def build(list_path: Path, fit_out: Path) -> tuple[list[str], list[str]]:
-    """One probe line per cell of the list (a cell's tuning and final-seeds lines share one probe), in list order;
-    and the published-config lines skipped (no fit-check row: `site_split.py` sends them to TSUBAME)."""
-    probes, skipped, seen = [], [], set()
+def build(list_path: Path, fit_out: Path) -> list[str]:
+    """One probe line per cell of the list (a cell's tuning and final-seeds lines share one probe), in list order."""
+    probes, seen = [], set()
     for text in runnable_lines(list_path.read_text(encoding="utf-8")):
-        try:
-            token, probe = probe_line(text, fit_out)
-        except NoSearchSpace as err:
-            skipped.append(str(err))
-            continue
+        token, probe = probe_line(text, fit_out)
         if token not in seen:
             seen.add(token)
             probes.append(probe)
     fit_out.mkdir(parents=True, exist_ok=True)
     (fit_out / PROBE_LIST).write_text(
-        f"# fit check (card 10 L2) of {list_path}\n" + "\n".join(probes) + "\n", encoding="utf-8")
-    return probes, skipped
+        f"# fit check (card 10 L2/A3) of {list_path}\n" + "\n".join(probes) + "\n", encoding="utf-8")
+    return probes
 
 
-def last_peak(text: str) -> dict[str, Any] | None:
-    peak = None
+def tagged(text: str, tag: str) -> list[dict[str, Any] | None]:
+    out: list[dict[str, Any] | None] = []
     for raw in text.splitlines():
-        if raw.startswith(PEAK_TAG + " "):
+        if raw.startswith(tag + " "):
             try:
-                peak = json.loads(raw[len(PEAK_TAG) + 1:])
+                out.append(json.loads(raw[len(tag) + 1:]))
             except json.JSONDecodeError:
-                peak = None
-    return peak
+                out.append(None)
+    return out
 
 
 def classify(log_text: str | None, threshold: float = HEADROOM) -> tuple[str, float | None, float | None]:
-    """(status, peak MiB, peak fraction) of one probe line's log."""
+    """(status, peak MiB, peak fraction) of one probe line's log: the largest peak over the probe's trials."""
     if log_text is None:
         return "error", None, None
-    peak = last_peak(log_text)
-    if peak and peak.get("cuda") and peak.get("peak_bytes") and peak.get("total_bytes"):
-        mib = peak["peak_bytes"] / 2 ** 20
-        fraction = peak["peak_bytes"] / peak["total_bytes"]
-        phases = peak.get("phases") or {}
-        if not all(phases.get(p) for p in ("train", "val", "test")):
-            return "error", mib, fraction        # a phase was not measured: no decision
-        return ("fits" if fraction <= threshold else "oom"), mib, fraction
+    grids = [g for g in tagged(log_text, GRID_TAG) if isinstance(g, dict)]
+    points = int(grids[-1].get("points", 1)) if grids else 1   # a published probe or a one-point grid: 1 trial
+    peaks = [p for p in tagged(log_text, PEAK_TAG)
+             if isinstance(p, dict) and p.get("cuda") and p.get("peak_bytes") and p.get("total_bytes")]
+    mib = max((p["peak_bytes"] / 2 ** 20 for p in peaks), default=None)
+    fraction = max((p["peak_bytes"] / p["total_bytes"] for p in peaks), default=None)
     if any(m in log_text.lower() for m in OOM_MARKERS):
-        return "oom", None, None
-    return "error", None, None
+        return "oom", mib, fraction
+    if len(peaks) < points:
+        return "error", mib, fraction            # a trial of the probe printed no peak: no decision
+    if not all(all((p.get("phases") or {}).get(k) for k in ("train", "val", "test")) for p in peaks):
+        return "error", mib, fraction            # a phase was not measured: no decision
+    return ("fits" if fraction <= threshold else "oom"), mib, fraction
 
 
 def read(fit_out: Path, gpu_type: str, threshold: float = HEADROOM) -> list[dict[str, Any]]:
@@ -173,10 +175,7 @@ def main(argv: list[str] | None = None) -> None:
     args = ap.parse_args(argv)
     fit_out = args.fit_out.resolve()
     if args.cmd == "build":
-        probes, skipped = build(args.list, fit_out)
-        print(f"{len(probes)} probe lines -> {fit_out / PROBE_LIST}")
-        for note in skipped:
-            print(f"  skipped (no fit-check row, goes to TSUBAME): {note}")
+        print(f"{len(build(args.list, fit_out))} probe lines -> {fit_out / PROBE_LIST}")
     elif args.cmd == "submit":
         raise SystemExit(subprocess.call(
             ["bash", "scripts/slurm/submit_lab.sh", "--list", str(fit_out / PROBE_LIST), "--out", str(fit_out),
