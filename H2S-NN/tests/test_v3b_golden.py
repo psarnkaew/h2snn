@@ -49,7 +49,11 @@ class V3BGoldenTests(unittest.TestCase):
         self.assertGreater(len(ref), 1000)
         differing = [k for k in ref if k not in now or ref[k].dtype != now[k].dtype
                      or ref[k].shape != now[k].shape or not torch.equal(ref[k], now[k])]
-        new = sorted(set(now) - set(ref))
+        # Card 12 amendment 1 (author, 2026-11-22): the one stats key added after the capture
+        # (spec 1.30, the PCG zero right-hand-side rule's log field) is not in the capture; only
+        # that key is ignored. Every captured tensor above keeps its bit-identity check.
+        new = sorted(k for k in set(now) - set(ref)
+                     if k.rsplit(".", 1)[-1] != "pcg_zero_rhs_scopes")
         self.assertEqual((differing, new), ([], []),
                          f"{len(differing)} differing tensors: {differing[:40]}")
 

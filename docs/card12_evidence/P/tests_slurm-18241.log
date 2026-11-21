@@ -1,0 +1,51 @@
+job=18241 node=g3n01 start=2026-11-22T07:47:42+09:00
+git=a29c8d6d7ac95a266dfd7d3f71f42c76ce6c918e branch=card12 dirty=12
+md5 5232eec788285f9ec9c4ef831196a204  src/models/anchored_solve.py
+md5 2d0aa7cb80fb44f1fba58f30b9a636cd  tests/test_anchored_solve.py
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+python 3.12.16 torch 2.4.1+cu124 cuda True cpu_capability AVX2 threads 8
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_T10_implicit_gradient_matches_central_finite_differences (tests.test_anchored_solve.ImplicitGradientTests.test_T10_implicit_gradient_matches_central_finite_differences) ... ok
+test_T9_pcg_matches_the_dense_solve (tests.test_anchored_solve.PCGTests.test_T9_pcg_matches_the_dense_solve) ... ok
+test_P1_zero_scope_gets_zero_and_other_scope_is_unchanged (tests.test_anchored_solve.ZeroRightHandSideTests.test_P1_zero_scope_gets_zero_and_other_scope_is_unchanged) ... ok
+test_P2_tiny_scope_does_not_raise_where_the_old_pcg_does (tests.test_anchored_solve.ZeroRightHandSideTests.test_P2_tiny_scope_does_not_raise_where_the_old_pcg_does) ... ok
+test_P3_all_zero_rhs (tests.test_anchored_solve.ZeroRightHandSideTests.test_P3_all_zero_rhs) ... ok
+test_P4_no_trigger_is_bit_identical_to_the_old_pcg (tests.test_anchored_solve.ZeroRightHandSideTests.test_P4_no_trigger_is_bit_identical_to_the_old_pcg) ... ok
+test_P5_backward_with_a_zero_gradient_scope (tests.test_anchored_solve.ZeroRightHandSideTests.test_P5_backward_with_a_zero_gradient_scope) ... ok
+test_P5b_backward_with_a_tiny_gradient_scope (tests.test_anchored_solve.ZeroRightHandSideTests.test_P5b_backward_with_a_tiny_gradient_scope)
+The PDNS case: one scope's dL/dY has norm 3.4e-17 (fp32, flushed denormals). ... ok
+test_P5c_forward_counts_triggered_scopes (tests.test_anchored_solve.ZeroRightHandSideTests.test_P5c_forward_counts_triggered_scopes) ... ok
+ok
+test_hgb_nc_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_hgb_nc_epoch_keys) ... ok
+test_lp_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_lp_epoch_keys) ... ok
+test_selection_is_unchanged_by_logging (tests.test_wandb_logging.EpochKeyTests.test_selection_is_unchanged_by_logging) ... ok
+test_h2snn_final_seed_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_h2snn_final_seed_run_opens_logs_and_summarises) ... Resolved trial: device=cuda orthogonal_map=fasthpp d=32 exp_dir=/tmp/tmpnb4b4w39/h2snn_node_classification_acm/final_seeds/h2snn_node_classification_acm_tune_final_seed0_final_seed0
+ok
+test_open_run_is_a_no_op_without_a_project_or_when_disabled (tests.test_wandb_logging.RunTests.test_open_run_is_a_no_op_without_a_project_or_when_disabled)
+Review F1: a final-seed call without W&B arguments (tests, `--final_seeds` without a project) opens no run. ... ok
+test_published_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_published_run_opens_logs_and_summarises) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 64.001s
+
+OK
+suite_exit=0 at 2026-11-22T07:48:51+09:00
+== control_unmutated: exit 0; Ran 9 tests in 28.837s | OK
+== remove_the_rule: exit 1; Ran 9 tests in 28.702s | FAILED (failures=4, errors=2)
+   failed: test_P1_zero_scope_gets_zero_and_other_scope_is_unchanged
+   failed: test_P2_tiny_scope_does_not_raise_where_the_old_pcg_does
+   failed: test_P3_all_zero_rhs
+   failed: test_P5b_backward_with_a_tiny_gradient_scope
+   mutation remove_the_rule: CAUGHT
+== rho_zero: exit 1; Ran 9 tests in 28.598s | FAILED (errors=2)
+   failed: test_P2_tiny_scope_does_not_raise_where_the_old_pcg_does
+   failed: test_P5b_backward_with_a_tiny_gradient_scope
+   mutation rho_zero: CAUGHT
+== triggered_rows_y0: exit 1; Ran 9 tests in 28.637s | FAILED (failures=4)
+   failed: test_P1_zero_scope_gets_zero_and_other_scope_is_unchanged
+   failed: test_P3_all_zero_rhs
+   mutation triggered_rows_y0: CAUGHT
+mutations: all caught
+end=2026-11-22T07:50:53+09:00 suite_exit=0 mutations_exit=0
