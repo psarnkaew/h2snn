@@ -1,0 +1,14 @@
+mutag	dark-sweep-2	epochs_logged=12	last=5	s/epoch median=130.1	min=117.2	max=156.4	start->epoch0=145s	tau
+mutag	dazzling-sweep-4	epochs_logged=286	last=142	s/epoch median=60.2	min=33.5	max=65.5	start->epoch0=67s	early-stop
+mutag	olive-sweep-3	epochs_logged=154	last=76	s/epoch median=62.0	min=39.0	max=66.7	start->epoch0=37s	early-stop
+mutag	soft-sweep-5	epochs_logged=32	last=15	s/epoch median=73.1	min=64.5	max=85.0	start->epoch0=72s	killed/running
+mutag	whole-sweep-1	epochs_logged=284	last=141	s/epoch median=67.0	min=38.1	max=131.0	start->epoch0=169s	early-stop
+proteins	dandy-sweep-2	epochs_logged=20	last=9	s/epoch median=497.2	min=377.8	max=543.6	start->epoch0=380s	killed/running
+proteins	floral-sweep-1	epochs_logged=230	last=114	s/epoch median=175.2	min=100.8	max=372.4	start->epoch0=165s	early-stop
+enzymes	earnest-sweep-3	epochs_logged=200	last=99	s/epoch median=155.6	min=52.2	max=188.0	start->epoch0=59s	early-stop
+enzymes	fiery-sweep-1	epochs_logged=50	last=24	s/epoch median=141.9	min=112.6	max=210.9	start->epoch0=249s	tau
+enzymes	radiant-sweep-4	epochs_logged=42	last=20	s/epoch median=175.4	min=160.1	max=183.4	start->epoch0=193s	killed/running
+enzymes	smooth-sweep-2	epochs_logged=12	last=5	s/epoch median=366.1	min=303.3	max=397.6	start->epoch0=301s	tau
+nci1	astral-sweep-1	epochs_logged=0	last=-1	s/epoch median=nan	min=nan	max=nan	start->epoch0=nans	tau
+nci1	daily-sweep-2	epochs_logged=6	last=2	s/epoch median=3582.1	min=2984.0	max=3582.1	start->epoch0=2343s	tau
+nci1	icy-sweep-3	epochs_logged=10	last=4	s/epoch median=2808.8	min=2693.3	max=2968.4	start->epoch0=2745s	killed/running

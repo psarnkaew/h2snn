@@ -80,3 +80,12 @@ P code and tests ≈ 2 h; P1 15 min; P2 ≈ 2–3 h wall; P3 ≈ 5 h wall; L ≈
 ## After this card (model session, not the agent)
 - Spec 1.30: add the rule to §6 "Solver settings", plus the author's decision on the flagged LP tasks.
 - GC: no model change. The τ guard stays, and ops confirms that a trial stopped by the guard returns its best validation score to the Bayesian search.
+
+## Amendment 1 (author, 2026-11-22, after the agent's stop before commit)
+- **Golden test:** option 1. `tests/test_v3b_golden.py` may ignore the single new stats key `pcg_zero_rhs_scopes` (and only that key); every captured tensor keeps its bit-identity check. The capture in `docs/legacy_evidence/` is not re-recorded. `tests/test_v3b_golden.py` is added to the files this card may change, for this one exclusion only.
+- **Mechanism note (for spec 1.30):** the agent found that the old `pcg` fails on the fixture only with `torch.set_flush_denormal(True)`: on PDNS the per-scope dot product `b_sᵀb_s` underflows in fp32 (denormals flushed), so `‖b_s‖` is ≈ 0 or exactly 0. The rule (`‖b_s‖ ≤ ρ·max`) covers both cases; keep the fixture with denormal flushing on, and state it in the test.
+- **Environment:** copy (not symlink) the git-ignored `vendor/` into the worktree (symlinks break `vendor_paths._module_root`); W&B tests run without `WANDB_MODE=disabled`. No tests on the login node.
+- Then continue as the card states: commit P (code + tests), P1, P2/P3 and L in parallel.
+
+## Amendment 2 (author, 2026-11-22) — cut to save time
+P3 (mag-year on the lab, ≈ 5 h) is dropped: mag-year is checked in its real H100 run after the merge. Run P1, P2 (PDNS until it passes epoch 1 step 172, then stop; no 3 h wait) and L; then report.
