@@ -361,3 +361,5 @@ Stop conditions of the card: none hit (A0 reproduced; no measurement needed a `s
 capped by the scripts' own wall limit and reported as trends). Extra runs beyond the card's list, all with no key
 changed beyond those named: A2 on the A3 models (18094), the GCN lower-middle point (18089), the B1 GPU repeat
 (18096), the B2c failure analysis (18111).
+
+branch=card11 sha=37fc77a60c1caff38b54bb0a4a2a88c20ab60df4 card=docs/H2S-NN_card11_diagnosis_card.md base=e5bdf10432e32c8fe31e8f3faff814951461d4d2
