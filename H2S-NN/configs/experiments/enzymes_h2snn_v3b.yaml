@@ -25,7 +25,7 @@ optim:
   name: adamw
   lr: 0.001
   weight_decay: 0.0001
-epochs: 200
+epochs: 500
 seed: 0
 device: cuda
 exp_name: enzymes_h2snn_v3b
