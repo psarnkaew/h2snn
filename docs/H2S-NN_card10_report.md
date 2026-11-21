@@ -1,8 +1,8 @@
 # Card 10 report: lab-cluster runs (SLURM): all units done
 
-**Verdict.** All units are done: L1–L4, A2.1–A2.3 and Amendment 3 (A3.1, A3.2). The A3 job 18116 (CPU only, 16G, no GPU, the `run_tests.sbatch` environment) ran 291 tests, all OK, none skipped, and all 8 card 10 mutations were caught. No `src/` change was made: `git diff --stat 2d822a4 -- H2S-NN/src` is empty. No real-data run was made, and the real fit check was **not submitted**; it waits for the author's approval. Base: `v3b` `2d822a4` (card 8), merged as `d9b324c`.
+**Verdict.** All units are done: L1–L4, A2.1–A2.3 and Amendment 3 (A3.1, A3.2, A3.3). The A3.3 job 18119 (CPU only, 16G, no GPU, the `run_tests.sbatch` environment) ran 293 tests, all OK, none skipped, and all 9 card 10 mutations were caught (A3.1/A3.2 job 18116 (CPU only, 16G, no GPU, the `run_tests.sbatch` environment) ran 291 tests, all OK, none skipped, 8 mutations caught). No `src/` change was made: `git diff --stat 2d822a4 -- H2S-NN/src` is empty. No real-data run was made, and the real fit check was **not submitted**; it waits for the author's approval. Base: `v3b` `2d822a4` (card 8), merged as `d9b324c`.
 
-**Found while doing A3.2: a bug from before this card.** `scripts/run_baseline_published.py` (card 8) has no `--resume`, but both slot runners (`sweep_slots.sh`, `lab_slots.sbatch`) append `--resume` to every line. So on `2d822a4` **every `published` line fails at start** with `unrecognized arguments: --resume` (exit 2; checked in a CPU job). This includes the TSUBAME `published` phase (38 lines). A3.2 now accepts `--resume` as a no-op: a published line has no partial state, and the slot runners skip it once its seeds are written (`lines.py complete`). Any published chain already submitted on TSUBAME from `2d822a4` will fail on every line until `v3b` contains this fix.
+**A bug from before this card, found in A3.2 and fixed in A3.3.** `scripts/run_baseline_published.py` (card 8) has no `--resume`, but both slot runners (`sweep_slots.sh`, `lab_slots.sbatch`) appended `--resume` to every line. So on `2d822a4` **every `published` line fails at start** with `unrecognized arguments: --resume` (exit 2; checked in a CPU job). This includes the TSUBAME `published` phase (38 lines). A3.2 had made `--resume` a no-op in the runner; A3.3 (ops review) removes that dummy flag. The slot scripts now pass `--resume` only to launchers that define it, so a published line runs without it. Any published chain submitted on TSUBAME from `2d822a4` will fail on every line until `v3b` contains A3.3.
 
 ## Units
 
@@ -16,7 +16,8 @@
 | A2.3 failure report | `ca119cd` | `scripts/tsubame/failures.py`, `tests/test_failures_report.py` | job 18041: 1 test OK; `mutation_a23.py` (a failure skipped) caught |
 | L4 targeted tests | `50436f4` | `card10_evidence/run_l4.sbatch` | job 18109: 272 tests OK, 0 skipped; all 6 mutations caught; `src/` diff empty |
 | A3.1 memory-relevant keys | `b4496c9` | `scripts/slurm/grid_points.py` (`MEMORY_AXES`), both launchers (one trial per grid point, `FIT_GRID`) | job 18116; `mutation_a31.py` (memory keys at their central value) caught on both launchers |
-| A3.2 published rows | `685ea8e` | `scripts/run_baseline_published.py` (`--dry_run`, `--resume`, `FIT_PEAK`), `fit_check.py` (published probes, grid reading), `site_split.py` (H2GB published → TSUBAME), `tests/test_fit_check.py` | job 18116: 291 tests OK, 0 skipped; `mutation_a32.py` (published lines without a probe) caught; all 8 mutations caught |
+| A3.2 published rows | `685ea8e` | `scripts/run_baseline_published.py` (`--dry_run`, `FIT_PEAK`; its `--resume` no-op removed by A3.3), `fit_check.py` (published probes, grid reading), `site_split.py` (H2GB published → TSUBAME), `tests/test_fit_check.py` | job 18116: 291 tests OK, 0 skipped; `mutation_a32.py` (published lines without a probe) caught; all 8 mutations caught |
+| A3.3 `--resume` only where defined | `c45ae79` | `scripts/tsubame/sweep_slots.sh`, `scripts/slurm/lab_slots.sbatch` (`resume_flag`), `scripts/run_baseline_published.py` (dummy `--resume` removed), `tests/test_slot_resume.py`, `tests/test_fit_check.py` | job 18119: 293 tests OK, 0 skipped; `mutation_a33.py` (`--resume` appended unconditionally) caught on both scripts; all 9 mutations caught; `src/` diff empty |
 
 L4's test set:
 - every card 10 test;
@@ -121,11 +122,24 @@ HetSheaf is 640 of these trials (32 per cell). Each trial is one epoch, but the 
 - **Test:** published GCN LastFM LP (fits → lab), R-GCN PubMed LP (oom → TSUBAME), PSHGCN IMDB NC (no log → error → TSUBAME), SeHGNN ogbn-mag NC (fits, but H2GB → TSUBAME).
 - **Real lists:** every one of the 38 published lines gets a probe (table above). H2GB published lines are probed too, as the amendment says, even though `site_split` sends them to TSUBAME regardless. Leaving them out of the probe list would save lab time; author's choice.
 
+## A3.3: `--resume` only for launchers that define it
+- **Rule:** both slot scripts have one `resume_flag` function, which keys on the line's first word.
+  - It gives `--resume` to `run_baseline_tuning.py` and `run_h2snn_wandb_tuning.py`, the two tuning launchers, which resume their sweep state.
+  - It also gives it to `scripts/tsubame/run_row.py`. Card 7's row lines were written to receive the slot's `--resume`, and `run_row.py` drops it before calling its launcher (`run_row.py:53`), so keeping it there changes nothing for card 7.
+  - Every other launcher, including `run_baseline_published.py`, runs exactly as the list line states it.
+  - The existing skip stays: a line whose final seeds are all written is not run again (`lines.py complete`).
+- **Logs:** the logged `agent:` command shows the call as actually made, with or without `--resume`.
+- **Runner:** `run_baseline_published.py` has no `--resume` again. `tests/test_fit_check.py` now checks that it refuses one (exit 2, `unrecognized arguments`).
+- **Test (`tests/test_slot_resume.py`):** one list with a baseline tuning line, an H2S-NN line, a `run_row.py` line and a published line runs through each slot script.
+  - The scripts run under a fake `python` that records the launcher's argv.
+  - Tuning and row lines must end in `--resume`; the published argv must equal the line's words exactly.
+  - Mutation `mutation_a33.py` makes `--resume` unconditional, and both tests fail.
+
 ## Deviations and points for the author
 1. **L1 additions (accepted, Amendment 1):** the GPU-type record is keyed by cell; the job checks the GPU name; `--cpus` defaults to 4; `--max-parallel` is optional.
 2. **`FIT_PEAK` is printed by every trial, not only by probes.** The trial worker cannot tell a probe from a real trial (it gets only `--worker_context`), and the line is harmless, but it does appear in real-run logs.
 3. **Memory-relevant keys (A3.1)** are decided as in the table above. Two of them differ from the ops list, `sheaf_model` and `feats_type`, because the code does not show one largest value.
-4. **Published lines (A3.2)** get a probe and a row; `run_baseline_published.py` now accepts `--resume` (the bug above).
+4. **Published lines (A3.2)** get a probe and a row. The `--resume` bug above is fixed in the slot scripts (A3.3), not in the runner. `run_row.py` also keeps `--resume` (A3.3), beyond the two tuning launchers the amendment names, because card 7 expects and drops it.
 5. **Seen while reading the code, not changed (outside this card):** NSD and CSNN tune `orth` in {householder, cayley, euler} together with `d` up to 5 (NSD) or 4 (CSNN). Euler asserts 2 ≤ d ≤ 3 (`vendor/neural-sheaf-diffusion/models/orthogonal.py:70`; `vendor/Cooperative-Sheaf-NN/model.py:484`), so real sweep trials with euler and a larger d fail (for NSD only with BundleSheaf, the one sheaf model that uses `orth`). `failures.py` will report them as `other`.
 6. **`peak_bytes` is an upper estimate.** It is the allocator's peak reserved memory plus memory outside the allocator measured at the end of the trial. It can miss a transient non-allocator peak (e.g. a cuSPARSE workspace) during training; the 25 % headroom is there to cover that.
 
