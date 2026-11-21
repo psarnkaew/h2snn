@@ -154,3 +154,5 @@ python scripts/tsubame/failures.py --out $OUT --list $OUT/cells_tuning_h2snn.lab
 ```
 - **On TSUBAME:** the `.t4.txt` part goes to `submit_chain.sh` with any whole-H100 type: `gpu_1`, `node_q`, `node_h` or `node_f` (A2.1).
 - **Placeholders:** `--mem` and `--time` above are placeholders. Lab nodes have 64 GB RAM (the A6000 node 224 GB), and each run is capped at 72 h.
+
+branch=card10 sha=9c1f71007839bdb73f2fac13c5d8a2f279c271cf card=docs/H2S-NN_card10_lab_runs_card.md base=2d822a4eb48867de4476b97159430a64d8468808
