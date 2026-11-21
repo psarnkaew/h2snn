@@ -1,0 +1,6 @@
+epoch	mode	direction	solves	iters_max	iters_mean	iters_p95	tau_min	tau_max	rel_res_max	largest_scope_rows	worst_scope_max_degree	jacobi_max	path_log_w_range	s_per_call	wall_s_end
+-1	eval	fwd	8	20	18.75	19.65	2.8602	2.8602	0.0001	1040	13.0	3.86	10.03	0.8022	3862.0
+0	train	bwd	256	15	10.6875	13.0	0.9926	2.8602	0.001	497	137.0	3.86	11.11	0.4292	3829.24
+0	train	fwd	256	15	10.7188	14.0	0.9926	2.8602	0.001	497	519.0	3.86	11.11	0.4298	3828.73
+1	train	bwd	173	100	13.7052	15.0	2.832	3.0825	697700.0	364	6332.0	4.082	10.47	0.5385	6411.76
+1	train	fwd	173	17	13.4046	14.0	2.832	3.0825	0.001	364	57.0	4.082	10.47	0.5243	6408.1

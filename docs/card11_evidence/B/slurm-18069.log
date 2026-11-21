@@ -1,0 +1,21 @@
+job=18069 node=g2tn01 start=2026-11-21T08:31:41+09:00
+git=c8958303e0be34cab9994e179fc60367b184495f branch=card11 dirty=0
+md5 b77ade47cfd72b86cc67f0f7df432c85  scripts/diagnostics/card11/a1_data_checks.py
+md5 351c8a68bb9bf5a690c6bd60bbac5db2  scripts/diagnostics/card11/b1_identity_check.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+NVIDIA TITAN RTX, 550.163.01, 24576 MiB
+card11 run: config=../docs/card11_inputs/h2snn_node_classification_mag-year_tune_run0_dandy-sweep-1/config.yaml head=c8958303e0be34cab9994e179fc60367b184495f host=g2tn01 job=18069 gpu=NVIDIA TITAN RTX
+2026-11-21 08:32:28,400 | INFO | card11: build 43.0 s; changes []
+2026-11-21 08:38:31,745 | INFO | Epoch 0000 | train_loss: 1.5929 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5716 | val_acc: 0.2581 | val_auroc: 0.0000 | val_macro_f1: 0.1372 | val_micro_f1: 0.2581 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 08:58:40,723 | INFO | Epoch 0004 | train_loss: 1.5676 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5568 | val_acc: 0.2787 | val_auroc: 0.0000 | val_macro_f1: 0.1537 | val_micro_f1: 0.2787 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 09:18:41,523 | INFO | Epoch 0008 | train_loss: 1.5582 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5415 | val_acc: 0.2891 | val_auroc: 0.0000 | val_macro_f1: 0.2093 | val_micro_f1: 0.2891 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 09:38:54,143 | INFO | Epoch 0012 | train_loss: 1.5563 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5409 | val_acc: 0.2949 | val_auroc: 0.0000 | val_macro_f1: 0.1798 | val_micro_f1: 0.2949 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 09:59:12,009 | INFO | Epoch 0016 | train_loss: 1.5493 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5384 | val_acc: 0.2860 | val_auroc: 0.0000 | val_macro_f1: 0.1775 | val_micro_f1: 0.2860 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 10:19:11,573 | INFO | Epoch 0020 | train_loss: 1.5609 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5391 | val_acc: 0.2935 | val_auroc: 0.0000 | val_macro_f1: 0.1646 | val_micro_f1: 0.2935 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 10:39:58,461 | INFO | Epoch 0024 | train_loss: 1.5477 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5361 | val_acc: 0.2953 | val_auroc: 0.0000 | val_macro_f1: 0.2011 | val_micro_f1: 0.2953 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 11:00:44,316 | INFO | Epoch 0028 | train_loss: 1.5503 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5348 | val_acc: 0.2944 | val_auroc: 0.0000 | val_macro_f1: 0.1993 | val_micro_f1: 0.2944 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 11:21:17,708 | INFO | Epoch 0032 | train_loss: 1.5506 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.5441 | val_acc: 0.2705 | val_auroc: 0.0000 | val_macro_f1: 0.1932 | val_micro_f1: 0.2705 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+card11 peak_gpu_gib=0.363 fit_s=10756.6 build_s=43.0
+card11 outcome: wall limit (wall limit 10800 s reached)
+end=2026-11-21T11:31:46+09:00 exit=0 wall_s=10805

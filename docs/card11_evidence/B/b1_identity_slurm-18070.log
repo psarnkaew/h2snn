@@ -1,0 +1,26 @@
+job=18070 node=g3n01 start=2026-11-21T08:31:42+09:00
+git=c8958303e0be34cab9994e179fc60367b184495f branch=card11 dirty=0
+md5 b77ade47cfd72b86cc67f0f7df432c85  scripts/diagnostics/card11/a1_data_checks.py
+md5 351c8a68bb9bf5a690c6bd60bbac5db2  scripts/diagnostics/card11/b1_identity_check.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+threads=1 cpu_capability=AVX2
+2026-11-21 08:31:47,069 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-21 08:32:04,802 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-21 08:32:04,887 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-21 08:32:04,887 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+plain_a: train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) probe_rows=0
+2026-11-21 08:32:05,897 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-21 08:32:22,581 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-21 08:32:22,666 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-21 08:32:22,666 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+plain_b: train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) probe_rows=0
+2026-11-21 08:32:23,620 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+2026-11-21 08:32:40,184 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-21 08:32:40,267 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-21 08:32:40,267 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+probe: train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) probe_rows=4
+compare plain_a vs plain_b on cpu: losses bit-identical=True parameters equal=True
+compare plain_a vs probe on cpu: losses bit-identical=True parameters equal=True
+end=2026-11-21T08:32:40+09:00 exit=0 wall_s=58

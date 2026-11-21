@@ -1,0 +1,2 @@
+epoch	tsubame_train_loss	lab_train_loss	tsubame_val_loss	lab_val_loss	tsubame_val_macro_f1	lab_val_macro_f1
+0	0.3995	0.3995	0.2801	0.2801	0.8726	0.8726

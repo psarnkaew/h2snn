@@ -183,3 +183,98 @@ Unexpected. (1) The sweep's "best validation at epoch 0 ≈ 0.62" is itself a de
 h0-only control is the only H2S-NN variant whose validation AUROC ends above 0.5 (0.523): its tail representation
 is the per-node embedding alone, which sees degree only through which embeddings get trained (score–tail-degree ρ 0.15–0.36 at epoch 39, `a2_a3models`). (3) τ in `rural` grows steadily (1.08 → 12.3) with PCG
 iterations 8 → 43; it never reached a stop condition here.
+
+## B — PCG `T_max` on PDNS and mag-year (mini-batch)
+
+### B1 instrument
+
+`solver_probe.py` replaces, at run time, `src.models.anchored_solve.pcg` (the module global that both
+`solve_anchored` and the implicit backward call), `solve_anchored` (marks forward calls) and
+`H2SNN._encode_anchored` (keeps epoch, mode, step, message graph, scope index), and calls the originals
+unchanged. One row per PCG call (`COLUMNS` in the script): τ, tolerance, T_max, scopes, rows, largest scope, iterations
+(max/mean), unconverged scopes, relative residual (max/median), the worst scope (rows, iterations, residual, its
+largest node degree, its Jacobi range), the Jacobi diagonal range (all rows and node rows), the batch's largest
+degree, `path_log_w` min/max/range, finiteness of b and y, epoch/step/direction, wall time. Opt-in
+(`CARD11_PROBE_FAILURE=1`, used only in B2c): for an unconverged scope, its ‖b‖, absolute ‖r‖, ‖y‖ and Lanczos
+(60 steps) estimates of the extreme eigenvalues of M and of J^-1/2 M J^-1/2 on that scope, through the same
+`apply_m`.
+
+Identity check on one ACM full-batch epoch (`configs/experiments/acm_h2snn_v3b.yaml`, `epochs: 1`), plain twice
+and with the probe, in one process from the same seed:
+
+| job | device | result |
+|---|---|---|
+| 18070 | CPU, pinned kernels E, 1 thread (g3n01, 1 min, 3.1 GB) | plain = plain = probe: train and val loss **bit-identical**, **all parameters equal** |
+| 18065 | RTX 3090 (14 s, 1.7 GB) | plain vs plain: losses equal, parameters differ (GPU atomics); probe: train loss differs in the last bits (1.1149368 vs 1.1149367) |
+| 18096 | TITAN RTX, 5 plain + 5 probe runs (38 s, 1.7 GB) | one train-loss bit pattern for all 10 runs; parameters differ run to run as in plain vs plain |
+
+The CPU run is the bit-exact proof; on the GPU the backward is non-deterministic with or without the probe, and
+the single last-bit difference of 18065 is that run-to-run variation (18096 does not reproduce it).
+
+### B2 PDNS `balmy-sweep-7`
+
+| run | job | GPU | wall | host peak | GPU peak | outcome |
+|---|---|---|---|---|---|---|
+| B2a T_max 100 (config as is) | 18068 | TITAN RTX | 1 h 47 min | 16.0 GB | 0.48 GiB | `PCGConvergenceError` backward, epoch 1 step 172, rel. residual 7.0e5 |
+| B2b `model.solver_max_iterations: 300` | 18095 | TITAN RTX | 1 h 34 min | 14.9 GB | 0.48 GiB | same step, same scope, backward, **300** iterations, rel. residual **1.3e21** |
+| B2c T_max 100 + failure analysis (no key changed; env flag) | 18111 | TITAN RTX | 1 h 09 min | 14.7 GB | 0.48 GiB | same step, same scope, 6.975e5 |
+
+The run is deterministic up to the failure: epoch 0 equals TSUBAME (train loss 0.399548, val Macro-F1 0.8726,
+`b2_pdns_tmax100_vs_tsubame.tsv`), TSUBAME also failed in epoch 1, and all three lab runs fail at epoch 1 step 172
+in scope 27 with τ = 3.0825. Step time ≈ 14 s on the lab (CPU-bound: WISP sampling and scope building, 4 cores at
+100 %, GPU ≈ 0 %), ≈ 2.8 s on the H100. B2b ran until the error (1 h 34 min), shorter than the 3 h cap, so "the same
+wall time" is the time to the same failure.
+
+Per epoch (`b2_pdns_tmax100_per_epoch.tsv`; 32 scopes per step):
+
+| epoch | dir | solves | iterations max / mean / p95 | τ | largest scope rows | max rel. residual |
+|---|---|---|---|---|---|---|
+| 0 | fwd / bwd | 256 / 256 | 15 / 10.7 / 14 · 15 / 10.7 / 13 | 0.99 → 2.86 | 497 | 1e-3 |
+| 1 (to step 172) | fwd | 173 | 17 / 13.4 / 14 | 2.83 → 3.08 | 364 | 1e-3 |
+| 1 (to step 172) | bwd | 173 | **100** / 13.7 / 15 | 2.83 → 3.08 | 364 | **7.0e5** (one solve) |
+
+The failing solve (`b2_pdns_tmax100_top_solves.tsv`, last row): backward of step 172, scope 27 of 32, 252 rows
+(not the largest scope of the step: 252 is the largest here, but scopes up to 497 rows converged in ≤ 15), containing
+the batch's largest node (degree 6332); the forward solve of the same step converged in 12 iterations; b and y finite.
+Every other training solve took ≤ 17 iterations. Iterations follow τ mildly (Spearman 0.83 fwd / 0.85 bwd over all
+training solves; τ only moves 1 → 3) and not the scope size (−0.01) or the largest degree (0.00–0.08).
+
+B2c failure analysis (`b2c_failure_analysis.txt`):
+
+| scope 27 at the failure | value |
+|---|---|
+| ‖b‖ (backward RHS = dLoss/dY of this scope) | **3.4e-17** (median over the step's 32 scopes 1.7e-3) |
+| absolute ‖r‖ after 100 iterations | 2.4e-11 |
+| ‖y‖ | 1.5e-11 |
+| M on the scope: λ_min / λ_max (Lanczos) | 0.84 / 5.04 (cond ≈ 6, no negative Ritz value) |
+| J^-1/2 M J^-1/2: λ_min / λ_max | 0.31 / 1.65 (cond ≈ 5.4) |
+
+So the scope's system is well conditioned and SPD; its right-hand side is ≈ 0 (the scope's target contributes a
+vanishing gradient), the stopping test `‖r‖ ≤ 1e-3 ‖b‖` asks for an absolute residual of 3e-20, below the fp32
+round-off of `b − M y`, and the relative residual reported is round-off divided by 3e-17. More iterations only
+accumulate round-off (1.3e21 at 300).
+
+### B3 mag-year `dandy-sweep-1` (job 18069, TITAN RTX, 3 h 00 min wall limit, host 13.3 GB, GPU 0.36 GiB)
+
+Did not reach the H100's failure point (epoch 49): 35 epochs in 3 h (≈ 300 s/epoch vs ≈ 90–125 s on the H100;
+CPU-bound as PDNS). Losses and validation Macro-F1 track TSUBAME (`b3_magyear_vs_tsubame.tsv`). Trend
+(`b3_magyear_per_epoch.tsv`, 32 steps/epoch, 256 scopes/step): training iterations max 6–7 at τ ≈ 0.2–0.3 (epochs
+0–5), 9–12 at τ ≈ 1.2–1.8 (epochs 20–35); the maximum over the whole run is 12; τ moves 1.0 → 0.20 → 1.8 and
+oscillates; largest scope ≈ 3000 rows (one step 5164) without effect on iterations (Spearman 0.00), iterations
+follow τ (0.97 fwd / 0.93 bwd). Nothing grows toward 100: a gradual climb from 12 at epoch 35 to 100 by epoch 49 is
+not what this trend shows. The TSUBAME log has no solver statistics for mini-batch epochs; it stopped ≈ 2 min into
+epoch 49 after a normal epoch-48 evaluation, i.e. abruptly, which is consistent with the PDNS mechanism; that it
+**is** the same mechanism on mag-year is inferred, not measured.
+
+### B — read-out
+
+| candidate | holds? | numbers |
+|---|---|---|
+| iterations grow with τ (conditioning) | no (for the failure) | iterations do follow τ (ρ 0.83–0.97), but stay ≤ 17 (PDNS) / ≤ 12 (mag-year); the failing scope has cond ≈ 6 |
+| one large scope or hub (preconditioner) | no | failing scope 252 rows, scope size ρ ≈ 0; it holds a degree-6332 hub, but its M is well conditioned under Jacobi (cond 5.4) and the forward solve on it took 12 iterations |
+| a jump at one step (non-finite or degenerate scope) | **yes** | one backward solve, one scope, ≤ 17 → 100 iterations; finite, but **degenerate right-hand side**: ‖b‖ = 3.4e-17 vs median 1.7e-3, so the per-scope relative tolerance is unreachable in fp32; T_max 300 does not help (1.3e21) |
+
+Next step (not in this card, a `src` question): the per-scope stopping test (relative to ‖b_scope‖) needs a floor
+or an absolute term for scopes whose right-hand side is ≈ 0 (or such a scope counts as converged), in the backward
+and forward alike. Unexpected: the failure is in the backward, triggered by a target whose gradient vanishes, not
+by conditioning; and lab speed on the H2GB mini-batch path is set by the CPU (step ≈ 5× slower than the H100).

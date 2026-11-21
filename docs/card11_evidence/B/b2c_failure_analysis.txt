@@ -1,0 +1,4 @@
+== failure epoch=1 step=172 direction=bwd tau=3.0824785232543945 rows=892 num_nodes=626 unconverged_scopes=[27]
+scope 27: rows=252 (node rows 244, other 8) iters=100 rel_res=6.975e+05 ||b||=3.413e-17 ||r||=2.381e-11 ||y||=1.529e-11 y_finite=True ||b|| of all scopes: median=1.693e-03
+  M: lambda_min~8.4324e-01 lambda_max~5.0432e+00 cond~5.981e+00 negative_ritz=0
+  J^-1/2 M J^-1/2: lambda_min~3.0602e-01 lambda_max~1.6487e+00 cond~5.387e+00 negative_ritz=0

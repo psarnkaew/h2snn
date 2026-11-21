@@ -1,0 +1,47 @@
+job=18095 node=g2tn01 start=2026-11-21T10:18:35+09:00
+git=7600c58f2a4e9c776c9c708a330a42458b0b33ac branch=card11 dirty=0
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 8033cd276596aff98487123d04e881a4  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 2abb61f8ed25d8cf043fbca31fd1f1b9  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+NVIDIA TITAN RTX, 550.163.01, 24576 MiB
+card11 run: config=../docs/card11_inputs/h2snn_node_classification_pdns_tune_run0_balmy-sweep-7/config.yaml head=7600c58f2a4e9c776c9c708a330a42458b0b33ac host=g2tn01 job=18095 gpu=NVIDIA TITAN RTX
+card11 change: model.solver_max_iterations: 100 -> 300
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+2026-11-21 10:19:33,692 | INFO | card11: build 52.0 s; changes [('model.solver_max_iterations', 100, 300)]
+2026-11-21 11:21:27,698 | INFO | Epoch 0000 | train_loss: 0.3995 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.2801 | val_acc: 0.8894 | val_auroc: 0.0000 | val_macro_f1: 0.8726 | val_micro_f1: 0.8894 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 11:52:34,422 | INFO | STOP CONDITION PCGConvergenceError: ? > ? at epoch None (spec v1.16 §6); run stopped.
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/scripts/diagnostics/card11/run_from_config.py", line 133, in main
+    trainer.fit(data, epoch_callback=callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/minibatch_trainer.py", line 206, in fit
+    self._run(graph, eval_graph, order, epoch_callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/minibatch_trainer.py", line 273, in _run
+    self._run_b1a(graph, eval_graph, order, epoch_callback)
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/minibatch_trainer.py", line 236, in _run_b1a
+    train_metrics = self.train_epoch(graph, order, epoch)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/trainers/minibatch_trainer.py", line 163, in train_epoch
+    loss.backward()
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/_tensor.py", line 521, in backward
+    torch.autograd.backward(
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/__init__.py", line 289, in backward
+    _engine_run_backward(
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/graph.py", line 769, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/autograd/function.py", line 306, in apply
+    return user_fn(self, *args)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card11/H2S-NN/src/models/anchored_solve.py", line 296, in backward
+    raise PCGConvergenceError(
+src.models.anchored_solve.PCGConvergenceError: backward PCG reached T_max = 300; worst relative residual 1.330e+21.
+card11 peak_gpu_gib=0.479 fit_s=5580.7 build_s=52.0
+card11 outcome: PCGConvergenceError: backward PCG reached T_max = 300; worst relative residual 1.330e+21.
+end=2026-11-21T11:52:35+09:00 exit=0 wall_s=5640

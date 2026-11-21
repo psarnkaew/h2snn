@@ -97,6 +97,11 @@ class SolverProbe:
             out = orig_pcg(apply_m, b, y0, jacobi_inverse, tolerance, max_iterations, scope_rows,
                            num_scopes)
             try:
+                if probe.failure_analysis and not bool(out[2].all()):
+                    probe.analyse_failure(apply_m, b, y0, jacobi_inverse, scope_rows, num_scopes, out)
+            except Exception as exc:  # the probe must never change the run
+                print(f"[solver_probe] failure analysis failed: {exc!r}", flush=True)
+            try:
                 probe.record(apply_m, b, jacobi_inverse, tolerance, max_iterations, scope_rows,
                              num_scopes, out, start)
             except WallLimitReached:
@@ -123,6 +128,80 @@ class SolverProbe:
     def close(self) -> None:
         self.remove()
         self.handle.close()
+
+    # ------------------------------------------------------------------ failure analysis (opt-in)
+    # `CARD11_PROBE_FAILURE=1`: for every unconverged scope of a PCG call, after the original
+    # returned (inputs untouched, extra `apply_m` calls under no_grad on copies): the scope's
+    # ||b||, absolute ||r|| = ||b - M y||, ||y||, the number of rows by block, and Lanczos (60 steps,
+    # float64 recurrences on float32 products) estimates of the extreme eigenvalues of M and of
+    # J^-1/2 M J^-1/2 restricted to the scope (M is block diagonal over scopes). Printed and written
+    # to `<probe>.failure.txt`.
+    failure_analysis = bool(int(__import__("os").environ.get("CARD11_PROBE_FAILURE", "0")))
+
+    @torch.no_grad()
+    def analyse_failure(self, apply_m, b, y0, jacobi_inverse, scope_rows, num_scopes, out) -> None:
+        y, iterations, converged, residual = out
+        system = getattr(apply_m, "__self__", None)
+        num_nodes = int(getattr(system, "num_nodes", 0))
+        bad = (~converged).nonzero(as_tuple=True)[0].tolist()
+        lines = [f"== failure epoch={self.ctx.get('epoch')} step={self.ctx.get('step')} "
+                 f"direction={self.direction} tau={float(system.tau) if system is not None else 'nan'} "
+                 f"rows={b.size(0)} num_nodes={num_nodes} unconverged_scopes={bad}"]
+        multi = scope_rows is not None and num_scopes > 1
+        for s in bad[:3]:
+            mask = (scope_rows == s) if multi else torch.ones(b.size(0), dtype=torch.bool, device=b.device)
+            idx = mask.nonzero(as_tuple=True)[0]
+            node_rows = int((idx < num_nodes).sum())
+            bs, ys = b[mask], y[mask]
+            r = (b - apply_m(y))[mask]
+            lines.append(
+                f"scope {s}: rows={idx.numel()} (node rows {node_rows}, other {idx.numel() - node_rows}) "
+                f"iters={int(iterations[s])} rel_res={float(residual[s]):.3e} ||b||={float(bs.norm()):.3e} "
+                f"||r||={float(r.norm()):.3e} ||y||={float(ys.norm()):.3e} y_finite={bool(torch.isfinite(ys).all())} "
+                f"||b|| of all scopes: median={float(torch.stack([b[scope_rows == k].norm() for k in range(num_scopes)]).median()) if multi else float(b.norm()):.3e}")
+            jinv = jacobi_inverse[mask].double()
+            for name, scale in (("M", None), ("J^-1/2 M J^-1/2", jinv.sqrt())):
+                lo, hi, neg = self._lanczos(apply_m, b, mask, scale)
+                lines.append(f"  {name}: lambda_min~{lo:.4e} lambda_max~{hi:.4e} "
+                             f"cond~{(hi / lo) if lo > 0 else float('inf'):.3e} negative_ritz={neg}")
+        text = "\n".join(lines)
+        print(text, flush=True)
+        path = Path(self.handle.name if hasattr(self.handle, "name") else "probe")
+        with open(str(path) + ".failure.txt", "a", encoding="utf-8") as h:
+            h.write(text + "\n")
+
+    @staticmethod
+    def _lanczos(apply_m, b, mask, scale, steps: int = 60) -> tuple[float, float, int]:
+        """Extreme Ritz values of M (or D M D with D = diag(scale)) on the rows `mask`."""
+        gen = torch.Generator(device="cpu").manual_seed(0)
+        k = int(mask.sum())
+        cols = b.size(1)
+        v = torch.randn(k, cols, generator=gen, dtype=torch.float64).to(b.device)
+        v /= v.norm()
+        v_prev = torch.zeros_like(v)
+        alphas, betas = [], []
+        beta = 0.0
+        for _ in range(min(steps, k * cols)):
+            x = v if scale is None else v * scale.unsqueeze(-1)
+            full = b.new_zeros(b.shape)
+            full[mask] = x.to(b.dtype)
+            w = apply_m(full)[mask].double()
+            if scale is not None:
+                w = w * scale.unsqueeze(-1)
+            alpha = float((w * v).sum())
+            w = w - alpha * v - beta * v_prev
+            alphas.append(alpha)
+            beta = float(w.norm())
+            if beta < 1e-12:
+                break
+            betas.append(beta)
+            v_prev, v = v, w / beta
+        n = len(alphas)
+        T = torch.diag(torch.tensor(alphas, dtype=torch.float64))
+        for i in range(min(n - 1, len(betas))):
+            T[i, i + 1] = T[i + 1, i] = betas[i]
+        ev = torch.linalg.eigvalsh(T)
+        return float(ev.min()), float(ev.max()), int((ev < 0).sum())
 
     # ------------------------------------------------------------------ one row
     @torch.no_grad()
