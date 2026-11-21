@@ -1,0 +1,2 @@
+2026-11-21 06:29:24,826 | INFO | Epoch 0000 | train_loss: 0.3995 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.2801 | val_acc: 0.8894 | val_auroc: 0.0000 | val_macro_f1: 0.8726 | val_micro_f1: 0.8894 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-21 06:41:07,225 | INFO | STOP CONDITION PCGConvergenceError: ? > ? at epoch None (spec v1.16 §6); run stopped.

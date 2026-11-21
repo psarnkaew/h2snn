@@ -1,0 +1,21 @@
+dataset	trial	gpu	batch	eval_period	s_per_epoch	last_epoch	n_evals	best_val_epoch	best_val_macro_f1	val_acc_at_best	last_val_macro_f1	end
+ogbn-mag	wandering-sweep-1	NVIDIA H100	1024	4	56.9	456	115	424	0.0355	0.2428	0.0347	running/killed
+mag-year	dandy-sweep-1	NVIDIA H100	256	4	112.8	48	13	32	0.2035	0.2877	0.1842	PCGConvergenceError
+mag-year	eager-sweep-2	NVIDIA H100	256	4	121.0	164	42	132	0.2173	0.3123	0.2103	running/killed
+oag-cs	feasible-sweep-1	NVIDIA H100	256	2	128.3	196	99	192	0.0090	0.1006	0.0083	running/killed
+oag-eng	denim-sweep-2	NVIDIA H100	1024	2	26.6	316	159	300	0.1201	0.3364	0.1164	running/killed
+oag-eng	northern-sweep-1	NVIDIA H100	1024	2	33.7	499	251	442	0.0638	0.2625	0.0631	finished
+oag-chem	zany-sweep-1	NVIDIA H100	256	2	301.4	88	45	86	0.0137	0.1150	0.0084	running/killed
+ieee-cis-g	avid-sweep-1	NVIDIA H100	32	4	311.0	84	22	20	0.4878	0.9055	0.4755	running/killed
+h-pokec	desert-sweep-1	NVIDIA H100	256	4	220.8	116	30	32	0.6352	0.6352	0.6152	running/killed
+pdns	balmy-sweep-7	NVIDIA H100	32	4	nan	0	1	0	0.8726	0.8894	0.8726	PCGConvergenceError
+pdns	breezy-sweep-6	NVIDIA H100	32	4	1049.6	8	3	8	0.8485	0.8641	0.8485	PCGConvergenceError
+pdns	deep-sweep-5	NVIDIA H100	256	4	nan	0	1	0	0.7305	0.7938	0.7305	PCGConvergenceError
+pdns	exalted-sweep-10	NVIDIA H100	32	4	nan	0	1	0	0.7631	0.8147	0.7631	PCGConvergenceError
+pdns	fancy-sweep-11	NVIDIA H100	1024	4	44.6	12	4	12	0.6576	0.7609	0.6576	running/killed
+pdns	giddy-sweep-8	NVIDIA H100	1024	4	nan	0	1	0	0.5930	0.7303	0.5930	PCGConvergenceError
+pdns	hearty-sweep-3	NVIDIA H100	32	4	nan	0	1	0	0.7260	0.7958	0.7260	PCGConvergenceError
+pdns	pious-sweep-2	NVIDIA H100	256	4	nan	0	1	0	0.8381	0.8662	0.8381	PCGConvergenceError
+pdns	playful-sweep-4	NVIDIA H100	256	4	nan	0	1	0	0.6322	0.7467	0.6322	PCGConvergenceError
+pdns	rural-sweep-9	NVIDIA H100	256	4	176.3	16	5	16	0.8752	0.8903	0.8752	PCGConvergenceError
+pdns	sage-sweep-1	NVIDIA H100	256	4	128.8	8	3	8	0.8369	0.8645	0.8369	PCGConvergenceError
