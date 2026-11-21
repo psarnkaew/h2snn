@@ -18,6 +18,8 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage[switch]{lineno}
@@ -628,7 +630,7 @@ To address heterogeneous graph learning under heterophily, we proposed the Heter
 \appendix
 \section{Notation and Algorithm}
 \label{app:notation}
-Table~\ref{tab:app-notation} collects the symbols used in the paper, and Figure~\ref{fig:app-algo} summarises one training step of \method{}.
+Table~\ref{tab:app-notation} collects the symbols used in the paper, and Algorithm~\ref{alg:train} gives the training of \method{}. Each walk step chooses a relation and then an unvisited neighbour along it, and a walk and its reverse give the same instance. The linear system is solved by conjugate gradients with a diagonal preconditioner, and the gradient through the solve needs one more solve with the same operator, so no iteration is stored. Evaluation runs the same steps up to the prediction, on one fixed draw of faces.
 
 \begin{table}[!htbp]
   \centering
@@ -676,24 +678,42 @@ Table~\ref{tab:app-notation} collects the symbols used in the paper, and Figure~
   \end{tabular}
 \end{table}
 
-\begin{figure}[!htbp]
-  \centering
-  \fbox{\parbox{0.95\columnwidth}{\small
-  \textbf{Input:} graph, node features $x^{\mathrm{raw}}$, training labels.\\[2pt]
-  \textbf{One training step:}
-  \begin{enumerate}
-    \setlength{\itemsep}{1pt}
-    \item \emph{Encode} every node, $h_v=\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})$.
-    \item \emph{Edge maps.} For every edge, predict $C_e$ and $a_e$ from $[h_u,h_v,\zeta_r]$ and set $F_{v\inc e}=R_r\exp(U_rC_eU_r^{\transpose})$ (Eq.~\ref{eq:maps}).
-    \item \emph{Sample faces.} From every anchor, draw $n$ walks of length uniform in $\{2,\ldots,\ell_{\max}\}$; merge each walk with its reverse into a face $f$ with sampling weight $m_f$.
-    \item \emph{Face maps and weights.} Compose the face maps along each face (Eq.~\ref{eq:forced}) and set $\beta_f=w_fm_f$ with $w_f$ from $g(\xi_f)$ (Eq.~\ref{eq:weight}).
-    \item \emph{Solve} $x^\star=(I+\tau\hat S)^{-1}h$ (Eq.~\ref{eq:xstar}) by preconditioned conjugate gradients.
-    \item \emph{Predict} with the task head on $x^\star$, compute the task loss, and back-propagate through the solve by one more solve with the same operator.
-  \end{enumerate}
-  Evaluation uses one fixed draw of faces and stops at the prediction.}}
-  \caption{One training step of \method{}.}
-  \label{fig:app-algo}
-\end{figure}
+\begin{algorithm}[!htbp]
+  \caption{Training of \method{}.}
+  \label{alg:train}
+  \small
+  \begin{algorithmic}[1]
+    \REQUIRE graph, features $x^{\mathrm{raw}}$, training labels; $d$, $\ell_{\max}$, $n$
+    \FOR{each epoch}
+      \item[] \textit{// Edge sheaf (Section~\ref{sec:maps})}
+      \FOR{each node $v$}
+        \STATE $h_v\gets\operatorname{GELU}(\operatorname{LN}(W_{\phi(v)}x^{\mathrm{raw}}_v+b_{\phi(v)})+q_{\phi(v)})$
+      \ENDFOR
+      \FOR{each edge $e=(u\xrightarrow{r}v)$}
+        \STATE $(C_e,a_e)\gets\operatorname{MLP}([h_u,h_v,\zeta_r])$
+        \STATE $F_{u\inc e}\gets I$, \ $F_{v\inc e}\gets R_r\exp(U_rC_eU_r^{\transpose})$
+      \ENDFOR
+      \item[] \textit{// Meta-path faces (Section~\ref{sec:faces})}
+      \FOR{each anchor $a$ and each of its $n$ walks}
+        \STATE $\ell\sim\mathrm{Uniform}\{2,\ldots,\ell_{\max}\}$; walk $\ell$ steps from $a$
+        \STATE $m_f\gets m_f+1/n$ for the instance $f$ of the walk
+      \ENDFOR
+      \FOR{each face $f=(v_0,e_1,\ldots,e_\ell,v_\ell)$}
+        \STATE $F_{v_0\inc f}\gets I$
+        \FOR{$i=1,\ldots,\ell$}
+          \STATE $F_{e_i\inc f}\gets F_{v_{i-1}\inc f}F_{v_{i-1}\inc e_i}^{\transpose}$
+          \STATE $F_{v_i\inc f}\gets F_{e_i\inc f}F_{v_i\inc e_i}$
+        \ENDFOR
+        \STATE $\beta_f\gets m_f\exp\bigl(10\tanh(g(\xi_f)/10)\bigr)$
+      \ENDFOR
+      \item[] \textit{// Anchored diffusion and prediction (Section~\ref{sec:prop})}
+      \STATE form $E$ (Equation~\eqref{eq:energy}) and $\hat L$
+      \STATE $x^\star\gets(I+\tau\hat S)^{-1}h$ by conjugate gradients
+      \STATE compute the task loss of the head on $x^\star$
+      \STATE back-propagate through the solve; update all parameters
+    \ENDFOR
+  \end{algorithmic}
+\end{algorithm}
 
 \section{Proof Details}
 \label{app:proofs}
