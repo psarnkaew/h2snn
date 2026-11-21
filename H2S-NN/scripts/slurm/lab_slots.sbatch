@@ -8,7 +8,7 @@
 #   from H2S-NN/ of a read-only checkout at /mnt/data/peeradon/h2snn-runs/<sha>/ (directory named by its HEAD).
 #
 # Runnable lines of <list> are numbered 1, 2, ... with blank and '#' lines skipped (scripts/tsubame/lines.py
-# runnable_lines). Array task t runs runnable line t once, as `python <line> --resume`, on the GPU SLURM gave it
+# runnable_lines). Array task t runs runnable line t once, as `python <line> [--resume]`, on the GPU SLURM gave it
 # (CUDA_VISIBLE_DEVICES as SLURM sets it), with the same outputs as sweep_slots.sh with S = 1 (slot k = 0):
 #   line log    <out>/logs/lines/<list name>.line<NNN>.<job>.<task>.0.log
 #   provenance  <out>/logs/prov/<job>.<task>.0.jsonl   (start and end events, the format collect.py reads)
@@ -16,6 +16,7 @@
 # The start event also holds "site":"lab" and "gpu_type" (condition 1 of card 10; collect.py ignores extra keys).
 # A finished line exits at once (--resume); a line killed by the 72 h limit resumes in the next leg. A --final_seeds
 # line whose seed files all exist is skipped. The GPU's name must match <gpu type>, else the task is refused.
+# --resume is passed only to the launchers that define it (A3.3: as sweep_slots.sh; never run_baseline_published.py).
 #SBATCH --job-name=lab-slots
 #SBATCH --cpus-per-task=4
 set -uo pipefail
@@ -61,6 +62,16 @@ LISTNAME="$(basename "${LIST}" .txt)"
 mkdir -p "${OUT}/logs/lines" "${OUT}/logs/prov"
 echo "list=${LIST} runnable_lines=${N} gpu_type=${GPU_TYPE}"
 
+# card 10 A3.3: --resume only for the launchers that define it. The two tuning launchers resume their sweep state;
+# scripts/tsubame/run_row.py (card 7) drops it from its launcher's words. scripts/run_baseline_published.py has no
+# --resume: a published line runs without it (it is skipped once all its final seeds are written, below).
+resume_flag() {
+    case "$(basename "${1%% *}")" in
+        run_baseline_tuning.py|run_h2snn_wandb_tuning.py|run_row.py) echo "--resume";;
+        *) echo "";;
+    esac
+}
+
 json_str() { python -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
 
 i=$(( TASK - 1 ))
@@ -75,6 +86,7 @@ before="$(python scripts/tsubame/lines.py snapshot -- ${line} 2>/dev/null || ech
 if python scripts/tsubame/lines.py complete -- ${line} > /dev/null 2>&1; then
     echo "task ${TASK}: line $((i + 1)) complete (all final seeds written), skipped"; echo "end=$(date -Is)"; exit 0
 fi
+resume="$(resume_flag "${line}")"
 start="$(date -Is)"; t0=${SECONDS}
 # the start event is written first: a run killed by the time limit still has its provenance
 printf '{"event":"start","line_no":%d,"line":%s,"sha":"%s","host":"%s","job_id":"%s","task_id":"%s","slot":%d,"cuda_visible_devices":"%s","gpu_name":%s,"start":"%s","log":%s,"before":%s,"site":"lab","gpu_type":"%s"}\n' \
@@ -83,10 +95,10 @@ printf '{"event":"start","line_no":%d,"line":%s,"sha":"%s","host":"%s","job_id":
 echo "task ${TASK}: line $((i + 1)) -> ${log}"
 {
     echo "head=${HEAD_SHA} host=$(hostname) job=${JOB} task=${TASK} slot=${K} gpu=${gpu} start=${start}"
-    echo "agent: CUDA_VISIBLE_DEVICES=${CVD} python ${line} --resume"
+    echo "agent: CUDA_VISIBLE_DEVICES=${CVD} python ${line}${resume:+ ${resume}}"
 } >> "${log}"
 # shellcheck disable=SC2086  # the line is a list of arguments
-python ${line} --resume >> "${log}" 2>&1
+python ${line} ${resume} >> "${log}" 2>&1
 code=$?
 end="$(date -Is)"
 echo "exit=${code} end=${end}" >> "${log}"

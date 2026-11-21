@@ -112,10 +112,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry_run", action="store_true",
                         help="Card 10 A3.2 (fit-check probe lines only, with one seed in --final_seeds): one epoch, "
                         "then the whole-split evaluation; prints FIT_PEAK; never a result.")
-    # card 10 A3.2: the slot runners (scripts/tsubame/sweep_slots.sh, scripts/slurm/lab_slots.sbatch) append --resume
-    # to every line; argparse refused it, so every published line failed at start. A published line has no partial
-    # state: the slot runners skip it once its seeds are written (scripts/tsubame/lines.py complete).
-    parser.add_argument("--resume", action="store_true", help="Accepted for the slot runners; no effect.")
     parser.add_argument(
         "--list",
         action="store_true",

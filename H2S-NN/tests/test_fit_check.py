@@ -10,7 +10,7 @@ the peak line every trial prints, and `scripts/slurm/fit_check.py` (probe lines,
     (`docs/card10_evidence/mutation_l2.py`, `mutation_a31.py`): the size axes take their minimum, or the
     memory-relevant keys their central value -> fails.
 (2) Guard: both launchers refuse `--grid_point` without `--dry_run --n_trials 1`; the published runner refuses
-    `--dry_run` without exactly one seed and accepts the slot runners' `--resume`.
+    `--dry_run` without exactly one seed; it has no `--resume` (the slot runners do not pass it, A3.3).
 (3) The peak line: a trial of either launcher, and a published seed, prints `FIT_PEAK` with the three phases (a
     training epoch, the whole-split validation and test evaluation) read from that trial; a missing phase is
     reported as missing.
@@ -231,16 +231,17 @@ class GuardTests(unittest.TestCase):
                 self.assertNotEqual(proc.returncode, 0)
                 self.assertIn("--grid_point is for probe lines", proc.stdout + proc.stderr)
 
-    def test_published_runner_guard_and_resume(self) -> None:
+    def test_published_runner_guard_and_no_resume(self) -> None:
         pub = ["scripts/run_baseline_published.py", "--task", LP, "--models", "gcn", "--datasets", "lastfm"]
         for argv in ([*pub, "--dry_run"], [*pub, "--dry_run", "--final_seeds", "0", "1"]):
             with self.subTest(argv=argv):
                 proc = self.run_launcher(*argv)
                 self.assertNotEqual(proc.returncode, 0)
                 self.assertIn("--dry_run is for fit-check probe lines", proc.stdout + proc.stderr)
-        # the slot runners append --resume to every line (argparse refused it before A3.2)
+        # A3.3: no dummy --resume in the runner; the slot scripts pass none to a published line (test_slot_resume)
         proc = self.run_launcher("scripts/run_baseline_published.py", "--task", LP, "--list", "--resume")
-        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+        self.assertIn("unrecognized arguments: --resume", proc.stderr)
 
 
 class PeakLineTests(unittest.TestCase):
