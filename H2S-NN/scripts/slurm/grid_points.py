@@ -2,9 +2,11 @@
 every trial prints (A2.2). Used by `scripts/run_baseline_tuning.py` and `scripts/run_h2snn_wandb_tuning.py`
 (`--grid_point {min,max}`, probe lines only: `--dry_run --n_trials 1`); read by `scripts/slurm/fit_check.py`.
 
-`--grid_point max`: every **size axis** at its largest value, every other axis at its central value (card 10 L2).
+`--grid_point max`: every **size axis** at its largest value (card 10 L2), every **memory-relevant categorical** key at its
+most memory-hungry value (card 10 A3.1; a grid over its values where the code does not say which is the largest:
+one trial per value, the cell's peak is the largest), every other axis at its central value.
 `--grid_point min`: every axis at its smallest point (card 8 C5, `src.baselines.campaign.smallest_grid_point`).
-Every search key must be classified below: a key in neither set raises, so a new size axis is never silently put at
+Every search key must be classified below: a key in none of the three sets raises, so a new size axis is never silently put at
 its central value. The classification covers every key of every runnable baseline cell
 (`docs/card10_evidence/search_space_keys.txt`) and H2S-NN's space (`build_sweep_config`).
 """
@@ -28,14 +30,55 @@ SIZE_AXES = frozenset({
     # stalk dimension, H2S-NN l_max and r (walks per anchor), batch size
     "d", "wisp_max_length", "wisp_walks_per_anchor", "batch_size",
 })
-#: every other search key (rates, dropouts, regularisers, temperatures, categorical choices)
+#: card 10 A3.1: non-size keys whose value changes model or activation memory. "value": the most memory-hungry value;
+#: "values": the code does not say which is the largest, so the probe runs once per listed value (a grid; values the
+#: cell's space does not have are dropped). Each with its reason (file:line under H2S-NN/).
+MEMORY_AXES: dict[str, dict[str, Any]] = {
+    "feats_type": {"values": [0, 2, 3], "why": "0 keeps dense native attributes, 2/3 give a type a sparse identity of "
+                   "width = its node count (src/baselines/bundles.py:202-230): which is larger depends on the dataset"},
+    "label_feats": {"value": True, "why": "builds the propagated label features (src/baselines/adapters/sehgnn.py:146-160,"
+                    "300)"},
+    "residual": {"value": True, "why": "adds res_fc and its input (vendor/SeHGNN/hgb/model.py:142-143,218-219)"},
+    "sheaf_model": {"values": ["BundleSheaf", "GeneralSheaf"], "why": "Diag learns d values per edge (vendor/neural-"
+                    "sheaf-diffusion/models/disc_models.py:39); General learns d x d (231) and inverts d x d degree "
+                    "blocks by SVD (laplacian_builders.py:280-286), Bundle adds orthogonal-map intermediates per edge "
+                    "(orthogonal.py:45-64): Bundle vs General not clear"},
+    "sheaf": {"values": [f"{family}/{learner}" for family in ("bundle", "general") for learner in (
+        "local_concat", "type_concat", "type_ensemble", "edge_type_concat", "node_type_concat", "node_type",
+        "edge_type", "types_only", "attention", "attention_type_concat", "attention_type_ensemble",
+        "attention_edge_encoding", "attention_node_encoding", "attention_types_only", "attention_node_type",
+        "attention_edge_type")],
+        "why": "HetSheaf: diag is the smallest family (d values per edge, as NSD disc_models.py:39); bundle vs general and "
+               "the 16 learners are not clear (src/baselines/adapters/hetsheaf.py:105-123)"},
+    "orth": {"value": "cayley", "why": "cayley learns d(d+1)/2 values per map vs d(d-1)/2 (vendor/neural-sheaf-diffusion/"
+             "models/disc_models.py:146-150; vendor/Cooperative-Sheaf-NN/model.py:322-326) and solves a d x d system "
+             "per edge (orthogonal.py:61-64); euler builds Q from 1 or 3 values and only exists for d <= 3 (orthogonal.py:69-74)"},
+    "add_lp": {"value": True, "why": "adds one stalk dimension (vendor/neural-sheaf-diffusion/models/sheaf_base.py:21-26)"},
+    "add_hp": {"value": True, "why": "adds one stalk dimension (vendor/neural-sheaf-diffusion/models/sheaf_base.py:21-26)"},
+    "conformal": {"value": True, "why": "one more sheaf-learner output per node (vendor/Cooperative-Sheaf-NN/model.py:523)"},
+    "gnn_type": {"value": "GAT", "why": "GATConv adds per-edge attention coefficients to the per-edge messages GCN/SAGE "
+                 "also build (vendor/Cooperative-Sheaf-NN/model.py:577-583)"},
+    "metapath_pe": {"value": True, "why": "adds the Hetero_Metapath channel (src/baselines/adapters/h2gformer.py:20-22,"
+                    "229-231)"},
+    "mask_lp": {"value": True, "why": "adds the label-embedding input (src/baselines/adapters/hetero2net.py:269-273)"},
+    "r": {"values": [0.3, 0.5], "why": "Hetero2Net drop_metapath: r both starts random walks and drops their paths "
+          "(vendor/Hetero2Net/hetero2net/metapath.py:75-125): not clear"},
+    "poly": {"values": ["GPR_GPR", "GPR_legendre", "GPR_jaco"], "why": "three polynomial bases with different "
+             "recurrences (vendor/H2SGNN/model.py:80-90,129): not clear"},
+    "attn_dropout": {"value": 0.2, "why": "nn.Dropout on the attention weights (vendor/H2GB/H2GB/layer/gt_layer.py:203) "
+                     "stores a mask only for p > 0 (torch dropout returns its input at p = 0); the central value of "
+                     "[0.0, 0.2] is 0.0"},
+    "decoder_type": {"value": "distmult", "why": "relation-specific bilinear: per-relation weights and one more product "
+                     "per scored pair (src/models/link_readout.py:46,65; src/baselines/heads.py:65)"},
+    "graph_pooling": {"value": "attention", "why": "a gate network and per-node scores (src/models/graph_readout.py:55)"},
+}
+#: every other search key: rates, regularisers, temperatures and dropouts whose central value is already > 0
 OTHER_AXES = frozenset({
-    "a", "b", "add_hp", "add_lp", "alpha", "alpha_list", "attn_dropout", "beta", "beta_lr", "beta_wd", "conformal",
-    "decoder_type", "dprate", "dropout", "feats_type", "gnn_type", "input_drop", "input_dropout", "label_feats", "lr",
-    "mask_lp", "metapath_pe", "orth", "p", "poly", "prop_lr", "prop_wd", "r", "residual", "sheaf", "sheaf_model",
-    "temp_list_lr", "temp_list_wd", "temp_lr", "temp_wd", "temperature", "weight_decay",
+    "a", "b", "alpha", "alpha_list", "beta", "beta_lr", "beta_wd", "dprate", "dropout", "input_drop", "input_dropout",
+    "lr", "p", "prop_lr", "prop_wd", "temp_list_lr", "temp_list_wd", "temp_lr", "temp_wd", "temperature",
+    "weight_decay",
     # H2S-NN
-    "encoder_dropout", "classifier_dropout", "graph_pooling",
+    "encoder_dropout", "classifier_dropout",
 })
 GRID_POINTS = ("min", "max")
 PEAK_TAG = "FIT_PEAK"
@@ -80,14 +123,50 @@ def fixed_point(parameters: dict[str, Any], which: str) -> dict[str, dict[str, A
     """The W&B `parameters` block of one fixed point (`{"key": {"value": v}}`), for a `grid` sweep of one trial."""
     if which not in GRID_POINTS:
         raise ValueError(f"grid_point must be one of {GRID_POINTS}, got {which!r}")
-    unknown = sorted(set(parameters) - SIZE_AXES - OTHER_AXES)
+    unknown = sorted(set(parameters) - SIZE_AXES - set(MEMORY_AXES) - OTHER_AXES)
     if unknown:
-        raise ValueError(f"search keys not classified as size / other axes (scripts/slurm/grid_points.py): {unknown}")
+        raise ValueError(f"search keys not classified as size / memory / other axes (scripts/slurm/grid_points.py): "
+                         f"{unknown}")
     if which == "min":
         from src.baselines.campaign import smallest_grid_point  # card 8 C5: the same smallest point
 
         return {key: {"value": smallest_grid_point(spec)} for key, spec in parameters.items()}
-    return {key: {"value": largest(spec) if key in SIZE_AXES else central(spec)} for key, spec in parameters.items()}
+    point: dict[str, dict[str, Any]] = {}
+    for key, spec in parameters.items():
+        if key in SIZE_AXES:
+            point[key] = {"value": largest(spec)}
+        elif key in MEMORY_AXES:
+            point[key] = hungriest(key, spec)
+        else:
+            point[key] = {"value": central(spec)}
+    return point
+
+
+def hungriest(key: str, spec: dict[str, Any]) -> dict[str, Any]:
+    """The most memory-hungry value of a memory-relevant key, or the grid of its candidate values (A3.1)."""
+    rule = MEMORY_AXES[key]
+    offered = list(spec["values"]) if "values" in spec else [spec.get("value")]
+    if "value" in rule:
+        if rule["value"] not in offered:
+            raise ValueError(f"{key}: most memory-hungry value {rule['value']!r} is not in the search space {offered}")
+        return {"value": rule["value"]}
+    candidates = [v for v in rule["values"] if v in offered]
+    if not candidates:
+        raise ValueError(f"{key}: none of {rule['values']} is in the search space {offered}")
+    return {"value": candidates[0]} if len(candidates) == 1 else {"values": candidates}
+
+
+def grid_size(sweep: dict[str, Any]) -> int:
+    """Trials of a fixed-point grid: one per combination of the grid keys' values."""
+    size = 1
+    for spec in sweep["parameters"].values():
+        size *= len(spec["values"]) if "values" in spec else 1
+    return size
+
+
+def print_grid(points: int) -> None:
+    """Announces how many trials (FIT_PEAK lines) the probe runs; fit_check needs every one of them."""
+    print(f"FIT_GRID {json.dumps({'points': int(points)})}", flush=True)
 
 
 def grid_sweep(sweep: dict[str, Any], which: str) -> dict[str, Any]:

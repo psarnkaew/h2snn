@@ -24,6 +24,7 @@ Examples::
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import sys
 from pathlib import Path
@@ -58,7 +59,7 @@ from src.utils.wandb_campaign import (
     run_unit_sweep,
 )
 
-from scripts.slurm.grid_points import grid_sweep, print_peak, record_phases, reset_peak  # noqa: E402
+from scripts.slurm.grid_points import grid_size, grid_sweep, print_grid, print_peak, record_phases, reset_peak  # noqa: E402
 
 ENTRYPOINT = Path(__file__).resolve()
 
@@ -90,8 +91,10 @@ def parse_args() -> argparse.Namespace:
                         "W&B runs tagged dry-run.")
     parser.add_argument("--grid_point", choices=["min", "max"], default=None,
                         help="Card 8 C5 (probe lines only, with --dry_run and --n_trials 1): every search axis fixed at "
-                        "its smallest point (min), to decide N/A on the H100; card 10 L2: every size axis at its largest "
-                        "value and every other axis at its central value (max), the lab fit check; never a result.")
+                        "its smallest point (min), to decide N/A on the H100; card 10 L2/A3.1: every size axis at its largest "
+                        "value, every memory-relevant key at its most memory-hungry value (one trial per value where "
+                        "the code does not show it) and every other axis at its central value (max), the lab fit "
+                        "check; never a result.")
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
     parser.add_argument("--base_seed", type=int, default=42)
@@ -370,9 +373,13 @@ def main() -> None:
                 epochs=args.epochs,
                 patience=args.patience,
             )
+            unit_campaign = campaign
+            if args.grid_point is not None:  # card 10 A3.1: one trial per point of the probe's grid
+                unit_campaign = dataclasses.replace(campaign, n_trials=grid_size(sweep_config))
+                print_grid(unit_campaign.n_trials)
             best = run_unit_sweep(
                 raw_base,
-                campaign=campaign,
+                campaign=unit_campaign,
                 unit=unit,
                 sweep_config=sweep_config,
                 base_exp_name=cell.token,
