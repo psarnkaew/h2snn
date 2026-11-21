@@ -26,6 +26,38 @@ No Python loop over targets, graphs, scopes or walks is allowed in a step. Loops
 - Read: this card; `src/data/{path_sampler,wisp_sampler,wisp_tasks,scopes}.py`; `src/trainers/{minibatch_trainer,minibatch_lp,link_prediction_trainer}.py`; the GC training loop; the model's `_encode_anchored` and how it receives cells and scopes; the tests of these modules; spec §3.2 (WISP) and §6 "WISP settings"; card 11 report §B (runtime notes); `docs/lab-gpu-cluster.html`.
 - Runs: `sbatch` only, one GPU, `--mem` = measured peak + 30 %. Use the lab 3090 / TITAN RTX; use an A6000 only if nothing else fits, and say so in the report. Every run states GPU, job id, wall time, peak GPU and host memory.
 
+## Amendment 1 (author, 2026-11-22) — supersedes the Goal's "no Python loop" requirement and the units, rules, stop conditions and report below
+The author does not require results equal to the old code: the random stream (CPU vs CUDA generator) and GPU summation order may change every number, and the H2S-NN lines rerun anyway. Only the speed and correctness of the move matter. **Do not start until the author says so.**
+
+### S1 — Move to the device, as is (≈ 1–2 h)
+Remove the host copies (`.cpu()`, `torch.Generator()` on the CPU, `.tolist()` / `int(...)` where they only exist to work on the host) so that the WISP draw, cells, face groups, scopes, LP endpoint scopes and GC draws run on `graph.device`, without restructuring the code. Measure on the lab (3090 / TITAN RTX), old vs new, 20 training steps plus one evaluation pass, on mag-year `dandy-sweep-1`, PDNS `balmy-sweep-7`, NCI1 `astral-sweep-1` (lr 3e-4) and ACM full batch: seconds per step, GPU utilisation, peak GPU memory. If every one of mag-year, PDNS and NCI1 is **≥ 5× faster per step** and ACM is not slower, go to the tests and stop there.
+
+### S2 — Only if S1 misses the gate: profile, then vectorise the hot loops
+Profile (`torch.profiler`, CPU and CUDA) the configurations that miss the gate; rewrite only the loops that take the time (expected: the per-target loop of `build_scope_batch`, `src/data/scopes.py:182`; per-step overhead on GC) as batched tensor operations. Measure again as in S1. If the gate is still missed, report the profile and stop.
+
+### Tests (only these)
+1. **Same function on the same input** — for every function rewritten in S2 (not for S1's device moves): on a fixed input (a fixed `WispDraw` and target list on ACM, one mini-batch fixture, one GC graph), the new output equals the old function's output after a canonical sort. This catches index errors that would not crash but would silently train on wrong cells. The old functions are kept only as test references under `tests/reference/`.
+2. **Smoke** — one epoch each of ACM, mag-year (or ogbn-mag), PDNS and NCI1 on the GPU: finite loss, parameters move, no host sync errors.
+3. The full suite (`run_tests.sbatch`; W&B tests without `WANDB_MODE=disabled`, as card 12 found).
+No distribution test, no determinism test, no mutation test, no comparison of metrics with the old code.
+
+### Rules
+- No method change; the seed schedule is unchanged (only the random stream differs).
+- Files allowed under `src/`: `src/data/{path_sampler,wisp_sampler,wisp_tasks,scopes}.py`, `src/trainers/{minibatch_trainer,minibatch_lp,link_prediction_trainer}.py`, the GC trainer, and the model file only where it moves tensors between devices. Do not touch `src/models/anchored_solve.py` (card 12). Nothing under `configs/`. Another file: stop and report.
+- `sbatch` only (no tests on the login node), one GPU, `--mem` = measured peak + 30 %; copy (not symlink) the git-ignored `vendor/` into the worktree (card 12 found that symlinks break `vendor_paths`).
+- No tuning, no performance runs. Git: one commit for S1 (+ tests), one for S2 if needed; stage by explicit path; push `card14`; never stash, reset, rebase, commit others' changes or merge into `v3b`.
+
+### Stop conditions
+S1 and S2 both miss the gate; a file outside the list must change; a run needs more than 6 h.
+
+### Report (`docs/H2S-NN_card14_report.md`)
+What moved; the speed table (old vs S1, and S2 if run) against the gate; the profile if S2 ran; test results; anything unexpected. Last line `branch=card14 sha=<sha> card=docs/H2S-NN_card14_card.md base=66e9349b79021784a08b37c5f8be0798c0260a04`.
+
+### Estimate
+S1 + tests ≈ ½ day; with S2 ≈ 1–3 days.
+
+## Original units (superseded by Amendment 1; kept for the record)
+
 ## Units (one commit each; push `card14` after each)
 
 ### G0 — Profile (before any change; report, no code change under `src/`)
