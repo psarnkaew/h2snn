@@ -26,6 +26,15 @@ No Python loop over targets, graphs, scopes or walks is allowed in a step. Loops
 - Read: this card; `src/data/{path_sampler,wisp_sampler,wisp_tasks,scopes}.py`; `src/trainers/{minibatch_trainer,minibatch_lp,link_prediction_trainer}.py`; the GC training loop; the model's `_encode_anchored` and how it receives cells and scopes; the tests of these modules; spec §3.2 (WISP) and §6 "WISP settings"; card 11 report §B (runtime notes); `docs/lab-gpu-cluster.html`.
 - Runs: `sbatch` only, one GPU, `--mem` = measured peak + 30 %. Use the lab 3090 / TITAN RTX; use an A6000 only if nothing else fits, and say so in the report. Every run states GPU, job id, wall time, peak GPU and host memory.
 
+## Amendment 2 (author, 2026-11-22) — binding; supersedes Amendment 1 and everything below it
+Do **both**, in one pass: (1) move the whole H2S-NN data pipeline to the device (remove `.cpu()`, CPU generators, host round-trips); (2) vectorise the Python loops over targets, graphs, scopes and walks (first of all the per-target loop of `build_scope_batch`, `src/data/scopes.py:182`; the per-graph loop of `src/data/wisp_tasks.py:103`). Results need not equal the old code (random stream and summation order change; the lines rerun). No method change; the seed schedule is kept.
+
+**Tests (only these, keep it short):** (a) each rewritten function gives the old function's output on one fixed input (canonical sort), old functions kept under `tests/reference/`; (b) one-epoch smoke on ACM, PDNS, mag-year and NCI1 (finite loss, parameters move); (c) the full suite by `sbatch`. Nothing else.
+
+**Speed:** one table, old vs new on the lab (3090 / TITAN RTX), 20 steps + one evaluation pass, mag-year, PDNS, NCI1, ACM: s/step, GPU utilisation, peak GPU memory. Target ≥ 5× on mag-year, PDNS, NCI1; if missed, report the profile of what is left (do not stop work for it).
+
+**Rules:** files as listed in Amendment 1; not `anchored_solve.py`; nothing under `configs/`; copy `vendor/`; `sbatch` only; one commit (plus one if needed), push `card14`, never merge into `v3b`. Report `docs/H2S-NN_card14_report.md`: what moved and what was vectorised, the speed table, test results; last line `branch=card14 sha=<sha> card=docs/H2S-NN_card14_card.md base=66e9349b79021784a08b37c5f8be0798c0260a04`. Estimate ≈ 1–2 days.
+
 ## Amendment 1 (author, 2026-11-22) — supersedes the Goal's "no Python loop" requirement and the units, rules, stop conditions and report below
 The author does not require results equal to the old code: the random stream (CPU vs CUDA generator) and GPU summation order may change every number, and the H2S-NN lines rerun anyway. Only the speed and correctness of the move matter. **Do not start until the author says so.**
 
