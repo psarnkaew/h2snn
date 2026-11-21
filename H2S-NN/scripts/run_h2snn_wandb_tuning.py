@@ -32,6 +32,7 @@ from src.utils.run_reports import (
 # instead of forking it. Only the H2SNN-specific pieces stay here: the search space
 # (build_sweep_config), the params->config mapping (apply_sweep_overrides), and the
 # per-trial fit (train_trial). These names are re-exported for existing importers.
+from scripts.slurm.grid_points import grid_sweep, print_peak, record_phases, reset_peak  # noqa: E402
 from src.utils.wandb_campaign import (  # noqa: F401  (canonical_fingerprint and the
     # state helpers are re-exported for tests/ and for
     # run_graph_classification_repeated_cv_wandb_tuning.py)
@@ -143,6 +144,14 @@ def parse_args() -> argparse.Namespace:
         help="Card 2 D3: epoch budget 1 for every trial and final seed (a check that the launcher works end "
         "to end, never a result); W&B runs tagged dry-run. A command-line flag only: refused as a sweep "
         "parameter and as a base-config key.",
+    )
+    parser.add_argument(
+        "--grid_point",
+        choices=["min", "max"],
+        default=None,
+        help="Card 10 L2 (probe lines only, with --dry_run and --n_trials 1): one fixed point of the search space: "
+        "every axis at its smallest point (min, as card 8 C5), or every size axis (d, l_max, r, batch size) at its "
+        "largest value and every other axis at its central value (max), the lab fit check; never a result.",
     )
     parser.add_argument("--monitor", type=str, default=None)
     parser.add_argument("--patience", type=int, default=None)
@@ -462,8 +471,10 @@ def train_trial(
         flush=True,
     )
     seed_everything(cfg.seed, cfg.device)
+    reset_peak()  # card 10 A2.2: the peak of this trial covers data, training and evaluation
 
     data, _, _, _, logger, _, trainer = build_experiment_components(cfg)
+    trained = {"epoch": False}  # card 10 A2.2: a training epoch reached the epoch callback
     try:
         monitor_key = monitor.removeprefix("val_")
         best_seen = float("-inf")
@@ -476,6 +487,7 @@ def train_trial(
         ) -> None:
             nonlocal best_seen
             best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
+            trained["epoch"] |= bool(train_metrics)
             try:
                 import wandb  # type: ignore[import-not-found]
 
@@ -497,6 +509,10 @@ def train_trial(
         raw_record = getattr(trainer, "_best_test_metrics", None)
         if raw_record is None:
             raise RuntimeError(f"Tuning trial {trial_name} did not produce best metrics.")
+        # the whole validation and test splits are evaluated into the record (after training under B1a, whose
+        # epoch callback sees only the validation subset), and the peak is read after that evaluation
+        val_done, test_done = record_phases(raw_record, monitor)
+        print_peak(train=trained["epoch"], val=val_done, test=test_done)
         record = enrich_run_record(
             raw_record,
             cfg,
@@ -563,6 +579,8 @@ def _build_sweep_for_run(
     )
     if base_cfg.tuning.arm:  # spec 1.24 Y4: an arm-tuning sweep drops the arm's inert keys
         sweep_config["parameters"] = arm_search_space(sweep_config["parameters"], base_cfg.tuning.arm)
+    if getattr(args, "grid_point", None) is not None:  # card 10 L2: a probe line, one fixed point (grid of one)
+        sweep_config = grid_sweep(sweep_config, args.grid_point)
     unit_token = unit_name or f"{unit_label}{run_index}"
     sweep_config["name"] = f"{base_exp_name}_{unit_token}_sweep"
     return sweep_config
@@ -803,6 +821,8 @@ def main() -> None:
         return
     if args.config is None:
         raise ValueError("--config is required unless --worker_context is used.")
+    if args.grid_point is not None and (not args.dry_run or args.n_trials != 1):  # card 10 L2: probe lines only
+        raise SystemExit("--grid_point is for probe lines: use it with --dry_run and --n_trials 1.")
     if args.n_trials <= 0:
         raise ValueError(f"--n_trials must be positive, got {args.n_trials}.")
     if args.run_start < 0:
