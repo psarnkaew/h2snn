@@ -1,0 +1,28 @@
+head=8313265d99d29d1bac43e4afbf0f77a24c78d69d host=g2tn01 job=18033 start=2026-11-20T21:02:38+09:00
+test_dirty_wrong_directory_or_wrong_gpu_is_refused (tests.test_lab_slots.SlotTests.test_dirty_wrong_directory_or_wrong_gpu_is_refused) ... ok
+test_every_line_runs_exactly_once (tests.test_lab_slots.SlotTests.test_every_line_runs_exactly_once) ... ok
+test_chain_gpu_type_record_and_refusals (tests.test_lab_slots.SubmitTests.test_chain_gpu_type_record_and_refusals) ... ok
+test_required_arguments_and_time_limit (tests.test_lab_slots.SubmitTests.test_required_arguments_and_time_limit) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 7.688s
+
+OK
+test_chain_gpu_type_record_and_refusals (tests.test_lab_slots.SubmitTests.test_chain_gpu_type_record_and_refusals) ... FAIL
+
+======================================================================
+FAIL: test_chain_gpu_type_record_and_refusals (tests.test_lab_slots.SubmitTests.test_chain_gpu_type_record_and_refusals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_lab_slots.py", line 280, in test_chain_gpu_type_record_and_refusals
+    self.assertEqual(other.returncode, 3, other.stdout + other.stderr)
+AssertionError: 0 != 3 : list=/tmp/tmp8qm83ofu/cells_seeds.txt runnable_lines=1 gpu_type=titan_rtx mem=48G time=1:00:00 array=1-1 legs=1
+leg 1: job 7004
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.391s
+
+FAILED (failures=1)
+MUTATION L1 (GPU-type record not checked): caught
+tests=0 mutation=0 end=2026-11-20T21:02:47+09:00

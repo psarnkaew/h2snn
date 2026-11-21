@@ -24,6 +24,7 @@ Examples::
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import sys
 from pathlib import Path
@@ -58,7 +59,19 @@ from src.utils.wandb_campaign import (
     run_unit_sweep,
 )
 
+from scripts.slurm.grid_points import grid_size, grid_sweep, print_grid, print_peak, record_phases, reset_peak  # noqa: E402
+
 ENTRYPOINT = Path(__file__).resolve()
+
+
+def cell_sweep_config(cell: Cell, *, monitor: str, n_trials: int, epochs: int,
+                      grid_point: str | None = None) -> dict[str, Any]:
+    """The cell's sweep: card 8's `build_sweep_config` (its `min` probe point unchanged); card 10 L2 `max` turns the
+    adapter's own search space into a one-point grid in this script (no `src/` change)."""
+    if grid_point == "max":
+        sweep = build_sweep_config(cell, monitor=monitor, n_trials=n_trials, epochs=epochs)
+        return grid_sweep(sweep, "max")
+    return build_sweep_config(cell, monitor=monitor, n_trials=n_trials, epochs=epochs, grid_point=grid_point)
 
 
 def parse_args() -> argparse.Namespace:
@@ -76,9 +89,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry_run", action="store_true",
                         help="Card 2 D3: epoch budget 1 for every trial (launcher check, never a result); "
                         "W&B runs tagged dry-run.")
-    parser.add_argument("--grid_point", choices=["min"], default=None,
+    parser.add_argument("--grid_point", choices=["min", "max"], default=None,
                         help="Card 8 C5 (probe lines only, with --dry_run and --n_trials 1): every search axis fixed at "
-                        "its smallest point, to decide N/A on the H100; never a result.")
+                        "its smallest point (min), to decide N/A on the H100; card 10 L2/A3.1: every size axis at its largest "
+                        "value, every memory-relevant key at its most memory-hungry value (one trial per value where "
+                        "the code does not show it) and every other axis at its central value (max), the lab fit "
+                        "check; never a result.")
     parser.add_argument("--patience", type=int, default=None)
     parser.add_argument("--num_runs", type=int, default=5)
     parser.add_argument("--base_seed", type=int, default=42)
@@ -163,6 +179,7 @@ def train_trial(
 
     started = time.time()
     device = resolve_device(raw_base)
+    reset_peak()  # card 10 A2.2: this worker process runs one trial; its peak covers training and evaluation
     record = fit_cell(
         raw_base,
         params,
@@ -170,6 +187,8 @@ def train_trial(
         device=device,
         report=WandbEpochReport(monitor),
     )
+    val_done, test_done = record_phases(record, monitor)
+    print_peak(train=True, val=val_done, test=test_done)  # fit_cell returned: its training epochs ran
     record.setdefault("device", device.type)
     # Card 2 D6.8: the trial's parameters travel with its record (as H2S-NN's `sweep_params`), so the
     # final-seeds step reruns the selected trial's values unchanged.
@@ -326,7 +345,7 @@ def main() -> None:
 
     if args.validate_only:
         for cell in cells:
-            sweep = build_sweep_config(
+            sweep = cell_sweep_config(
                 cell,
                 monitor=monitor,
                 n_trials=args.n_trials,
@@ -338,7 +357,7 @@ def main() -> None:
         return
 
     for cell in cells:
-        sweep_config = build_sweep_config(
+        sweep_config = cell_sweep_config(
             cell,
             monitor=monitor,
             n_trials=args.n_trials,
@@ -354,9 +373,13 @@ def main() -> None:
                 epochs=args.epochs,
                 patience=args.patience,
             )
+            unit_campaign = campaign
+            if args.grid_point is not None:  # card 10 A3.1: one trial per point of the probe's grid
+                unit_campaign = dataclasses.replace(campaign, n_trials=grid_size(sweep_config))
+                print_grid(unit_campaign.n_trials)
             best = run_unit_sweep(
                 raw_base,
-                campaign=campaign,
+                campaign=unit_campaign,
                 unit=unit,
                 sweep_config=sweep_config,
                 base_exp_name=cell.token,

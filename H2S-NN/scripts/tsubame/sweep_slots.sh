@@ -5,13 +5,15 @@
 #   qsub -g <group> -l node_f=1 -t 1-K -o <out>/logs scripts/tsubame/sweep_slots.sh <list> <out> <S> <G>
 #   from H2S-NN/ of a checkout at $WORK/h2snn-runs/<sha>/ (the repository directory is named by its HEAD).
 #
-# S = slots per task (GPUs of the resource type: 4 for node_f, 1 for gpu_1); G = total slots of the leg (K * S).
+# S = slots per task (GPUs of the resource type: gpu_1 1, node_q 1, node_h 2, node_f 4; card 10 A2.1, MIG types are
+# refused by submit_chain.sh); G = total slots of the leg (K * S).
 # Runnable lines of <list> are numbered 1, 2, ... with blank and '#' lines skipped (as scripts/slurm/
 # run_sweep_agents.sbatch's header states). Slot k (0-based, k < S) of task t is global slot g = (t-1)*S + k and runs
-# lines g+1, g+1+G, g+1+2G, ... one after another, each as `python <line> --resume` with CUDA_VISIBLE_DEVICES=k and
+# lines g+1, g+1+G, g+1+2G, ... one after another, each as `python <line> [--resume]` with CUDA_VISIBLE_DEVICES=k and
 # its own log file <out>/logs/lines/<list name>.line<NNN>.<job>.<task>.<k>.log. A finished line exits at once (--resume); a line
 # killed by the 24 h limit resumes in the next leg (src/utils/wandb_campaign.py; T2 guard). A --final_seeds line whose
-# seed files all exist is skipped (the launcher has no resume for final seeds).
+# seed files all exist is skipped (the launcher has no resume for final seeds). --resume is passed only to the
+# launchers that define it (card 10 A3.3: the two tuning launchers and run_row.py; never run_baseline_published.py).
 # Provenance of every line run (sha, host, job, task, slot, GPU, start/end, exit code, the line's state before and
 # after) goes to <out>/logs/prov/<job>.<task>.<k>.jsonl (one writer per file); collect.py joins it to the records.
 #$ -cwd
@@ -51,10 +53,20 @@ LISTNAME="$(basename "${LIST}" .txt)"
 mkdir -p "${OUT}/logs/lines" "${OUT}/logs/prov"
 echo "list=${LIST} runnable_lines=${N}"
 
+# card 10 A3.3: --resume only for the launchers that define it. The two tuning launchers resume their sweep state;
+# scripts/tsubame/run_row.py (card 7) drops it from its launcher's words. scripts/run_baseline_published.py has no
+# --resume: a published line runs without it (it is skipped once all its final seeds are written, below).
+resume_flag() {
+    case "$(basename "${1%% *}")" in
+        run_baseline_tuning.py|run_h2snn_wandb_tuning.py|run_row.py) echo "--resume";;
+        *) echo "";;
+    esac
+}
+
 json_str() { python -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
 
 run_slot() {
-    local k="$1" g=$(( (TASK - 1) * S + $1 )) i gpu prov log line start end code before after t0
+    local k="$1" g=$(( (TASK - 1) * S + $1 )) i gpu prov log line start end code before after t0 resume
     prov="${OUT}/logs/prov/${JOB}.${TASK}.${k}.jsonl"
     gpu="$(nvidia-smi -i "${k}" --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)"
     for (( i = g; i < N; i += G )); do
@@ -67,6 +79,7 @@ run_slot() {
         if python scripts/tsubame/lines.py complete -- ${line} > /dev/null 2>&1; then
             echo "slot ${k} (global ${g}): line $((i + 1)) complete (all final seeds written), skipped"; continue
         fi
+        resume="$(resume_flag "${line}")"
         start="$(date -Is)"; t0=${SECONDS}
         # the start event is written first: a run killed by the 24 h limit still has its provenance
         printf '{"event":"start","line_no":%d,"line":%s,"sha":"%s","host":"%s","job_id":"%s","task_id":"%s","slot":%d,"cuda_visible_devices":"%s","gpu_name":%s,"start":"%s","log":%s,"before":%s}\n' \
@@ -75,10 +88,10 @@ run_slot() {
         echo "slot ${k} (global ${g}): line $((i + 1)) -> ${log}"
         {
             echo "head=${HEAD_SHA} host=$(hostname) job=${JOB} task=${TASK} slot=${k} gpu=${gpu} start=${start}"
-            echo "agent: CUDA_VISIBLE_DEVICES=${k} python ${line} --resume"
+            echo "agent: CUDA_VISIBLE_DEVICES=${k} python ${line}${resume:+ ${resume}}"
         } >> "${log}"
         # shellcheck disable=SC2086  # the line is a list of arguments
-        CUDA_VISIBLE_DEVICES="${k}" python ${line} --resume >> "${log}" 2>&1
+        CUDA_VISIBLE_DEVICES="${k}" python ${line} ${resume} >> "${log}" 2>&1
         code=$?
         end="$(date -Is)"
         echo "exit=${code} end=${end}" >> "${log}"

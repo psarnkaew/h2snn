@@ -1,0 +1,164 @@
+head=d9b324c4f89478448883d089a9b3eba5c34572c7 host=g2n01 job=18107 start=2026-11-21T11:40:39+09:00
+ M scripts/run_baseline_tuning.py
+ M scripts/run_h2snn_wandb_tuning.py
+test_build_read_and_site_split (tests.test_fit_check.FitCheckTests.test_build_read_and_site_split) ... ok
+test_dropped_option_refused (tests.test_fit_check.FitCheckTests.test_dropped_option_refused) ... ok
+test_headroom_and_phases (tests.test_fit_check.FitCheckTests.test_headroom_and_phases) ... ok
+test_baseline_max_point_every_cell (tests.test_fit_check.GridPointTests.test_baseline_max_point_every_cell) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_central_values (tests.test_fit_check.GridPointTests.test_central_values) ... ok
+test_h2snn_max_point_every_config (tests.test_fit_check.GridPointTests.test_h2snn_max_point_every_config) ... ok
+test_unclassified_key_refused (tests.test_fit_check.GridPointTests.test_unclassified_key_refused) ... ok
+test_both_launchers_refuse_grid_point_outside_probe_lines (tests.test_fit_check.GuardTests.test_both_launchers_refuse_grid_point_outside_probe_lines) ... ok
+test_baseline_trial_prints_three_phases (tests.test_fit_check.PeakLineTests.test_baseline_trial_prints_three_phases) ... ok
+test_h2snn_trial_prints_three_phases (tests.test_fit_check.PeakLineTests.test_h2snn_trial_prints_three_phases) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 11.521s
+
+OK
+skip gcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/freebase_bb: N/A: OOM on a 24 GB GPU at num_heads 4, the grid minimum; the width is a secondary memory term (card 1e F0 item 3; author decision 2026-11-18)
+skip magnn/acm: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/dblp: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/imdb: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip sehgnn/h-pokec: N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at num_hops 2-4, Part M3b B7; author decision 2026-11-16)
+test_baseline_max_point_every_cell (tests.test_fit_check.GridPointTests.test_baseline_max_point_every_cell) ... FAIL
+
+======================================================================
+FAIL: test_baseline_max_point_every_cell (tests.test_fit_check.GridPointTests.test_baseline_max_point_every_cell)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_fit_check.py", line 81, in test_baseline_max_point_every_cell
+    sizes += self.check_point(space, sweep, cell.token)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_fit_check.py", line 62, in check_point
+    self.assertEqual(value, max(numeric_values(spec)) if "values" in spec else spec["value"],
+AssertionError: 64 != 256 : gcn_link_prediction_acm_pa: size axis hidden_dim
+
+----------------------------------------------------------------------
+Ran 1 test in 3.908s
+
+FAILED (failures=1)
+test_h2snn_max_point_every_config (tests.test_fit_check.GridPointTests.test_h2snn_max_point_every_config) ... FAIL
+
+======================================================================
+FAIL: test_h2snn_max_point_every_config (tests.test_fit_check.GridPointTests.test_h2snn_max_point_every_config)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_fit_check.py", line 103, in test_h2snn_max_point_every_config
+    self.check_point(space, sweep("max"), path.name)
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_fit_check.py", line 62, in check_point
+    self.assertEqual(value, max(numeric_values(spec)) if "values" in spec else spec["value"],
+AssertionError: 16 != 64 : acm_h2snn_v3b.yaml: size axis d
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=1)
+skip gcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/freebase_bb: N/A: OOM on a 24 GB GPU at num_heads 4, the grid minimum; the width is a secondary memory term (card 1e F0 item 3; author decision 2026-11-18)
+skip magnn/acm: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/dblp: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/imdb: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip sehgnn/h-pokec: N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at num_hops 2-4, Part M3b B7; author decision 2026-11-16)
+MUTATION L2 (size axes at their minimum): caught by both launcher tests
+test_headroom_and_phases (tests.test_fit_check.FitCheckTests.test_headroom_and_phases) ... FAIL
+
+======================================================================
+FAIL: test_headroom_and_phases (tests.test_fit_check.FitCheckTests.test_headroom_and_phases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_fit_check.py", line 204, in test_headroom_and_phases
+    self.assertEqual(F.classify(log(0.90))[0], "oom")                  # fits the GPU, not the 75 % headroom
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'fits' != 'oom'
+- fits
++ oom
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+MUTATION A2.2 (threshold 100 %): caught
+tests=0 mutation_l2=0 mutation_a22=0 end=2026-11-21T11:40:56+09:00

@@ -48,6 +48,8 @@ from src.baselines.registry import (
 )
 from src.utils.wandb_campaign import CampaignUnit
 
+from scripts.slurm.grid_points import print_peak, record_phases, reset_peak  # noqa: E402
+
 
 def seed_units(seeds: list[int]) -> list[CampaignUnit]:
     """One unit per seed (card 8 C5: `--final_seeds 0 1 2 3 4`)."""
@@ -66,14 +68,19 @@ def run_published_seed(cell: Cell, unit: CampaignUnit, values: dict, *, device, 
     from src.utils.run_reports import write_run_record
 
     started = time.time()
-    raw_base = build_raw_base(cell, unit)
-    config = {"raw_base": raw_base, "params": values, "source": "published"}
+    # card 10 A3.2: --dry_run = one epoch (the campaign's epoch override, src/baselines/campaign.py budget_overrides)
+    raw_base = build_raw_base(cell, unit, epochs=1 if getattr(args, "dry_run", False) else None)
+    config = {"raw_base": raw_base, "params": values, "source": "published",
+              **({"dry_run": True} if getattr(args, "dry_run", False) else {})}
     run = open_run(project=args.wandb_project, entity=args.wandb_entity, mode=args.wandb_mode, kind="published",
                    token=cell.token, seed=unit.seed, config=config)
     monitor = monitor_for(cell.task)
     try:
+        reset_peak()  # card 10 A3.2: the peak of this seed covers training and the whole-split evaluation
         record = fit_cell(raw_base, values, source="published", device=device,
                           report=WandbEpochReport(monitor) if run is not None else None)
+        val_done, test_done = record_phases(record, monitor)
+        print_peak(train=True, val=val_done, test=test_done)  # fit_cell returned: its training epochs ran
         record.update({"unit": unit.token, "published_seed": int(unit.seed), "monitor": monitor})
         write_summary(run, record, config=config, started=started)
     finally:
@@ -102,6 +109,9 @@ def parse_args() -> argparse.Namespace:
                         help="card 8 C5: where `published_state.json` records the finished seeds of each cell")
     parser.add_argument("--unit_start", type=int, default=0)
     parser.add_argument("--unit_count", type=int, default=None)
+    parser.add_argument("--dry_run", action="store_true",
+                        help="Card 10 A3.2 (fit-check probe lines only, with one seed in --final_seeds): one epoch, "
+                        "then the whole-split evaluation; prints FIT_PEAK; never a result.")
     parser.add_argument(
         "--list",
         action="store_true",
@@ -141,6 +151,8 @@ def main() -> None:
                 print(f"  {cell.model} / {cell.dataset}")
         return
 
+    if args.dry_run and (args.final_seeds is None or len(args.final_seeds) != 1):  # card 10 A3.2: probe lines only
+        raise SystemExit("--dry_run is for fit-check probe lines: use it with exactly one seed in --final_seeds.")
     cells = published_cells(args.task, args.models, args.datasets)
     if not cells:
         raise SystemExit(

@@ -1,0 +1,7 @@
+srun: job 18117 queued and waiting for resources
+srun: job 18117 has been allocated resources
+h2snn: probes 24, trials 24; trials by method {'h2snn': 24}
+baselines-early: probes 4, trials 70; trials by method {'csnn': 6, 'hetsheaf': 64}
+baselines-1: probes 61, trials 296; trials by method {'chebnetii': 3, 'csnn': 18, 'gat': 5, 'gcn': 3, 'h2gformer': 8, 'h2sgnn': 15, 'han': 5, 'hetero2net': 5, 'hetsheaf': 192, 'magnn': 4, 'nsd': 30, 'pshgcn': 4, 'rgcn': 4}
+baselines-2: probes 112, trials 556; trials by method {'chebnetii': 11, 'csnn': 20, 'gat': 4, 'gcn': 3, 'h2gformer': 4, 'h2sgnn': 36, 'han': 2, 'hetero2net': 19, 'hetsheaf': 384, 'hinormer': 10, 'magnn': 1, 'nsd': 40, 'pshgcn': 12, 'rgcn': 3, 'sehgnn': 7}
+published: probes 38, trials 38; trials by method {'gat': 5, 'gcn': 8, 'h2gformer': 7, 'h2sgnn': 1, 'han': 6, 'magnn': 2, 'pshgcn': 2, 'rgcn': 7}

@@ -1,0 +1,42 @@
+head=4881789013b91db6a9e2649ed2f92d49432af675 host=g2n01 job=18040 start=2026-11-20T22:13:29+09:00
+ M scripts/tsubame/submit_chain.sh
+ M scripts/tsubame/sweep_slots.sh
+test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) ... ok
+test_mig_types_refused (tests.test_tsubame_types.TypeTests.test_mig_types_refused) ... ok
+test_legs_held_group_on_command_line_second_chain_refused (tests.test_tsubame_slots.ChainTests.test_legs_held_group_on_command_line_second_chain_refused) ... ok
+test_dirty_checkout_or_wrong_directory_is_refused (tests.test_tsubame_slots.SlotTests.test_dirty_checkout_or_wrong_directory_is_refused) ... ok
+test_every_line_runs_exactly_once (tests.test_tsubame_slots.SlotTests.test_every_line_runs_exactly_once) ... ok
+test_fewer_slots_than_lines_stride_by_g (tests.test_tsubame_slots.SlotTests.test_fewer_slots_than_lines_stride_by_g) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 18.001s
+
+OK
+test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) ... 
+  test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) (type='node_h', lines=3) ... FAIL
+  test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) (type='node_h', lines=5) ... FAIL
+
+======================================================================
+FAIL: test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) (type='node_h', lines=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_tsubame_types.py", line 50, in test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu
+    self.assertLess(int(c["cuda"]), gpus)                     # a GPU the task has
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not less than 2
+
+======================================================================
+FAIL: test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu (tests.test_tsubame_types.TypeTests.test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu) (type='node_h', lines=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card10/H2S-NN/tests/test_tsubame_types.py", line 50, in test_every_whole_h100_type_runs_each_line_once_on_its_own_gpu
+    self.assertLess(int(c["cuda"]), gpus)                     # a GPU the task has
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 not less than 2
+
+----------------------------------------------------------------------
+Ran 1 test in 7.483s
+
+FAILED (failures=2)
+MUTATION A2.1 (node_h S = 4): caught
+tests=0 mutation=0 end=2026-11-20T22:13:56+09:00
