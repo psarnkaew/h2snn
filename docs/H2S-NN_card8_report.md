@@ -100,8 +100,20 @@ A static test checks this. Large LP (`fit_large_lp`) was already per 8,192 and i
   - Job 18025 aborted on a second DGL import caused by my test helper (`mock.patch.dict(sys.modules)` dropped DGL); fixed.
   - Job 18026 aborted at the same place after the fix. That abort did not recur: the identical command passed on the same node in 18034, and none of five bisect jobs reproduced it. It is recorded as unexplained.
 
-## 6. Open (not blocking)
+## 6. Review fixes (ops review of e3120eb) and full suite
+
+- **F1:** `wandb_runs.open_run` is a no-op when no project is given or W&B is disabled (`mode` "disabled" or `WANDB_MODE=disabled`). The H2S-NN final-seeds path reads `wandb_project` / `wandb_entity` / `wandb_mode` with `getattr`, so the three tests that build `Namespace(final_seeds=..., monitor=None)` run unchanged. New test: `test_open_run_is_a_no_op_without_a_project_or_when_disabled`.
+- **F2:** `rgcn.py` and `magnn.py` declare `READS_BATCH_PLAN = True`. Each path was checked:
+  - R-GCN H2GB NC tuned: `minibatch_plan`;
+  - R-GCN H2GB NC published: `published_plan`, which checks the yaml against `minibatch_plan`;
+  - MAGNN H2GB NC (probe): `minibatch_plan` and `train_index_minibatch`;
+  - both large-LP paths: `fit_large_lp` (`LP_POSITIVES_PER_STEP`, the protocol budget).
+  `test_budget_table` is unchanged.
+- **Full suite** (`python -m unittest discover -s tests -t .`, job 18064, CPU, 36G, g3n01): **954 tests, OK (skipped=1)**, 0 failures, 0 errors. The PSHGCN `sparse_tools` tests pass in this checkout. The job started on e3120eb with the F1/F2 working-tree changes, which are exactly commit 49252d2, committed while the job ran. SLURM's FAILED state comes from my wrapper's `${PIPESTATUS}` line in `sh` ("Bad substitution", after the suite printed OK).
+- **Freeze check:** `git diff fc0ebaa -- H2S-NN/src/models H2S-NN/src/trainers H2S-NN/configs/experiments` is empty.
+
+## 7. Open (not blocking)
 
 - The probe lines decide MAGNN N/A on the H100. Every first TSUBAME line is the real-data check of its cell.
 
-branch=card8 sha=a7025b72d0617e3d170e58371688b41c23e050bf card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680
+branch=card8 sha=49252d2e615948f514fc5155bba79ee16aaea862 card=docs/H2S-NN_card8_published_rgcn_magnn_card.md base=fc0ebaa605280f2d987c4848cc3109c7d3b66680

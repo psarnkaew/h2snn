@@ -1,0 +1,407 @@
+job=18064 node=g3n01 git=e3120eb646da25aa23d08abe2666c3bc4bb49a03
+ M scripts/run_h2snn_wandb_tuning.py
+ M src/baselines/adapters/magnn.py
+ M src/baselines/adapters/rgcn.py
+ M src/baselines/wandb_runs.py
+ M tests/test_wandb_logging.py
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091301-mudlufls
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_mutag_seed4
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/mudlufls
+wandb: updating run metadata; uploading summary
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_mutag_seed4 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/mudlufls
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091301-mudlufls/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run s1trl12m
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091303-s1trl12m
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_enzymes_seed0
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/s1trl12m
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_enzymes_seed0 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/s1trl12m
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091303-s1trl12m/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run h4ekizr3
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091305-h4ekizr3
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_enzymes_seed1
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/h4ekizr3
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading wandb-metadata.json; uploading wandb-summary.json; uploading config.yaml
+wandb: 🚀 View run h2snn_graph_classification_enzymes_seed1 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/h4ekizr3
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091305-h4ekizr3/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run au8vpvqd
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091308-au8vpvqd
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_enzymes_seed2
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/au8vpvqd
+wandb: updating run metadata; uploading summary
+wandb: updating run metadata
+wandb: uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json
+wandb: 🚀 View run h2snn_graph_classification_enzymes_seed2 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/au8vpvqd
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091308-au8vpvqd/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run 91jb413d
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091311-91jb413d
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_enzymes_seed3
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/91jb413d
+wandb: updating run metadata; uploading summary
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_enzymes_seed3 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/91jb413d
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091311-91jb413d/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run 05qb73gp
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091313-05qb73gp
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_enzymes_seed4
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/05qb73gp
+wandb: updating run metadata; uploading summary
+wandb: updating run metadata
+wandb: uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json
+wandb: 🚀 View run h2snn_graph_classification_enzymes_seed4 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/05qb73gp
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091313-05qb73gp/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run jfggucj0
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091316-jfggucj0
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_nci1_seed0
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/jfggucj0
+wandb: updating run metadata; uploading summary
+wandb: 🚀 View run h2snn_graph_classification_nci1_seed0 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/jfggucj0
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091316-jfggucj0/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run 7n85zz10
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091318-7n85zz10
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_nci1_seed1
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/7n85zz10
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading requirements.txt
+wandb: uploading config.yaml; uploading requirements.txt
+wandb: 🚀 View run h2snn_graph_classification_nci1_seed1 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/7n85zz10
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091318-7n85zz10/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run prdid6cs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091321-prdid6cs
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_nci1_seed2
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/prdid6cs
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-summary.json; uploading config.yaml
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_nci1_seed2 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/prdid6cs
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091321-prdid6cs/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run mtb8r4oc
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091324-mtb8r4oc
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_nci1_seed3
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/mtb8r4oc
+wandb: updating run metadata; uploading summary
+wandb: updating run metadata
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading config.yaml
+wandb: 🚀 View run h2snn_graph_classification_nci1_seed3 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/mtb8r4oc
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091324-mtb8r4oc/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run bim52h0l
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091328-bim52h0l
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_nci1_seed4
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/bim52h0l
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_nci1_seed4 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/bim52h0l
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091328-bim52h0l/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run euyp1v1b
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091331-euyp1v1b
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_proteins_seed0
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/euyp1v1b
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading config.yaml
+wandb: uploading data
+wandb: 🚀 View run h2snn_graph_classification_proteins_seed0 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/euyp1v1b
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091331-euyp1v1b/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run ciaw4o7a
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091334-ciaw4o7a
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_proteins_seed1
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/ciaw4o7a
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading config.yaml
+wandb: 🚀 View run h2snn_graph_classification_proteins_seed1 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/ciaw4o7a
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091334-ciaw4o7a/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run 972j9d5o
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091336-972j9d5o
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_proteins_seed2
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/972j9d5o
+wandb: updating run metadata; uploading summary
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt; uploading wandb-summary.json
+wandb: uploading config.yaml; uploading wandb-metadata.json; uploading wandb-summary.json
+wandb: 🚀 View run h2snn_graph_classification_proteins_seed2 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/972j9d5o
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091336-972j9d5o/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run utavtr5b
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091339-utavtr5b
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_proteins_seed3
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/utavtr5b
+wandb: updating run metadata; uploading summary
+wandb: uploading requirements.txt; uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json
+wandb: 🚀 View run h2snn_graph_classification_proteins_seed3 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/utavtr5b
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091339-utavtr5b/logs
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: setting up run fo4eihbc
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:269: DeprecationWarning: Read the `app_url` setting from the appropriate Settings object.
+  app_url = wandb.util.app_url(tags["base_url"])  # type: ignore[index]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/wandb/analytics/sentry.py:280: DeprecationWarning: The `Scope.user` setter is deprecated in favor of `Scope.set_user()`.
+  self.scope.user = {"email": email}
+wandb: Tracking run with wandb version 0.28.0
+wandb: Run data is saved locally in /mnt/data/peeradon/h2snn/H2S-NN/wandb/run-20261121_091341-fo4eihbc
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run h2snn_graph_classification_proteins_seed4
+wandb: ⭐️ View project at https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: 🚀 View run at https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/fo4eihbc
+wandb: updating run metadata; uploading summary
+wandb: uploading wandb-summary.json; uploading config.yaml; uploading wandb-metadata.json; uploading requirements.txt
+wandb: uploading wandb-summary.json; uploading config.yaml
+wandb: 🚀 View run h2snn_graph_classification_proteins_seed4 at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn/runs/fo4eihbc
+wandb: ⭐️ View project at: https://wandb.ai/peeradonsarnkaew46-isct/h2snn
+wandb: Synced 4 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20261121_091341-fo4eihbc/logs
+............/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+....................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-21 09:13:57,094 | INFO | Epoch 0000 | train_loss: 1.2067 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.0872 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.3833 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250
+2026-11-21 09:13:57,106 | INFO | Checkpoint metric acc: 0.5000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-21 09:13:57,208 | INFO | Epoch 0001 | train_loss: 1.1760 | train_acc: 0.2500 | train_auroc: 0.0000 | train_macro_f1: 0.2222 | train_micro_f1: 0.2500 | val_loss: 1.0829 | val_acc: 0.5000 | val_auroc: 0.0000 | val_macro_f1: 0.3833 | val_micro_f1: 0.5000 | test_acc: 0.1250 | test_auroc: 0.0000 | test_macro_f1: 0.0952 | test_micro_f1: 0.1250
+2026-11-21 09:13:57,214 | INFO | Checkpoint metric acc: 0.5000
+2026-11-21 09:13:57,214 | INFO | Best epoch 0 | test_macro_f1: 0.0833 | test_micro_f1: 0.1250 | test_acc: 0.1250
+/mnt/data/peeradon/h2snn/H2S-NN/src/utils/checkpointer.py:69: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  payload = torch.load(path, map_location="cpu")
+./mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...........................W&B run 0: attempted=2 succeeded=1 pruned=0 failed=1
+.......2026-11-21 09:14:59,361 | INFO | Epoch 0000 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.1000 | train_micro_f1: 0.0000 | val_loss: 0.8000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.2000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.3000 | test_micro_f1: 0.0000
+.2026-11-21 09:14:59,362 | INFO | Epoch 0003 | train_loss: 1.0000 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.0000 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.5000 | val_micro_f1: 0.0000 | test_acc: 0.7500 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+.......Resolved trial: device=cuda orthogonal_map=fasthpp d=32 exp_dir=/tmp/tmpclomeyhy/h2snn_node_classification_acm/final_seeds/h2snn_node_classification_acm_tune_final_seed0_final_seed0
+....................../mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+...............................
+----------------------------------------------------------------------
+Ran 954 tests in 3361.178s
+
+OK (skipped=1)
+/var/spool/slurmd/job18064/slurm_script: 4: Bad substitution
