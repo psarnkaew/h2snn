@@ -45,7 +45,7 @@ PEAKS: dict[tuple[str, str], tuple[float | None, bool, str]] = {
     ("node_classification", "ieee-cis-g"): (6.38, False, "d6_central.csv 16960_18"),
     ("node_classification", "h-pokec"): (39.79, False, "d6_runs.md D6.6 largest point 16966 (MaxRSS; central 15.40)"),
     ("node_classification", "pdns"): (14.32, False, "d6_central.csv 16960_19"),
-    ("link_prediction", "acm_pa"): (1.87, False, "cells.csv D2 16797_5"),
+    ("link_prediction", "acm_pp"): (None, False, "no record (card 15 task, replaces acm_pa; acm_pa D2 16797_5 was 1.87)"),
     ("link_prediction", "dblp_ap"): (4.34, True, "cells.csv D2 16797_6 (CUDA OOM; step-down 3.90)"),
     ("link_prediction", "imdb_ma"): (2.52, False, "cells.csv D2 16797_7"),
     ("link_prediction", "freebase_bb"): (14.11, True, "cells.csv D2 16797_8 (CUDA OOM)"),

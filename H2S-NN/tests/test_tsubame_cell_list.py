@@ -1,7 +1,7 @@
 """TSUBAME card T3: the phase-1 cell list.
 
 The set of its lines equals the registry's runnable cells (`iter_cells`) restricted to HGB NC acm / dblp / imdb and
-LP acm_pa / dblp_ap / imdb_ma / pubmed / lastfm, less the `baselines-early` cells (card T7.4); no line is duplicated; every unsupported cell is a comment; every
+LP acm_pp / dblp_ap / imdb_ma / pubmed / lastfm, less the `baselines-early` cells (card T7.4); no line is duplicated; every unsupported cell is a comment; every
 line passes `run_baseline_tuning.py ... --validate_only` (called in-process; nothing is trained).
 Mutation (`docs/tsubame_evidence/t3_mutation.py`): the runnable filter dropped -> this test fails.
 """
@@ -19,7 +19,7 @@ from unittest import mock
 
 # the phase-1 datasets, written here independently of make_cell_list.PHASES
 PHASE1 = {"node_classification": {"acm", "dblp", "imdb"},
-          "link_prediction": {"acm_pa", "dblp_ap", "imdb_ma", "pubmed", "lastfm"}}
+          "link_prediction": {"acm_pp", "dblp_ap", "imdb_ma", "pubmed", "lastfm"}}
 
 
 # card T7.4: the HetSheaf / CSNN ACM and DBLP NC cells run in phase baselines-early, not in baselines-1

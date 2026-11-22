@@ -24,7 +24,7 @@ from scripts.tsubame import make_cell_list as M
 from scripts.tsubame.lines import parse_line, runnable_lines
 
 PHASE1 = {"node_classification": {"acm", "dblp", "imdb"},
-          "link_prediction": {"acm_pa", "dblp_ap", "imdb_ma", "pubmed", "lastfm"}}
+          "link_prediction": {"acm_pp", "dblp_ap", "imdb_ma", "pubmed", "lastfm"}}
 
 
 def phase_lists(out: Path) -> dict[str, list[str]]:

@@ -4,7 +4,7 @@
     python scripts/tsubame/make_cell_list.py --final-seeds --out-dir <out>      (-> <out>/cells_final_seeds.txt)
 
 Tuning list: one line per **runnable** registry cell (`src/baselines/registry.py: iter_cells`, the source of
-`campaign_summary`) with task NC on acm / dblp / imdb or LP on acm_pa / dblp_ap / imdb_ma / pubmed / lastfm, every
+`campaign_summary`) with task NC on acm / dblp / imdb or LP on acm_pp / dblp_ap / imdb_ma / pubmed / lastfm, every
 baseline method, in card 2 D5's form plus the TSUBAME output, state and W&B project; sorted by (task, dataset, method).
 A cell the registry marks unsupported is a comment line with its reason and is never run.
 Held out of phase 1: Freebase NC and freebase_bb, H2GB NC, the large LP tasks, GC, H2S-NN.
@@ -59,7 +59,7 @@ from scripts.tsubame.lines import parse_line, runnable_lines, snapshot  # noqa: 
 PHASES = {
     "baselines-1": {
         "node_classification": ("acm", "dblp", "imdb"),
-        "link_prediction": ("acm_pa", "dblp_ap", "imdb_ma", "pubmed", "lastfm"),
+        "link_prediction": ("acm_pp", "dblp_ap", "imdb_ma", "pubmed", "lastfm"),
     },
     # TSUBAME card T7.4: HetSheaf and CSNN tuning on ACM and DBLP NC first; card 7's perturbation study needs their
     # tuned configurations. Card 7 perturbs NC graphs only (data/NC/<DATASET>_pert), so no LP cell is early.
@@ -91,7 +91,7 @@ H2SNN_CELLS: tuple[tuple[str, str], ...] = (
     *(("node_classification", d) for d in ("acm", "dblp", "imdb", "freebase")),
     *(("node_classification", d) for d in ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
                                           "ieee-cis-g", "h-pokec", "pdns")),
-    *(("link_prediction", d) for d in ("acm_pa", "dblp_ap", "imdb_ma", "freebase_bb", "lastfm", "pubmed",
+    *(("link_prediction", d) for d in ("acm_pp", "dblp_ap", "imdb_ma", "freebase_bb", "lastfm", "pubmed",
                                        "ogbn-mag_pp", "h-pokec_uu")),
     *(("graph_classification", d) for d in ("mutag", "enzymes", "nci1", "proteins")),
 )
