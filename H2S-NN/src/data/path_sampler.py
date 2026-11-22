@@ -44,6 +44,55 @@ from src.data.structures import FaceGroup
 
 PATH_SAMPLERS = ("walk", "dfs")
 
+# ----------------------------------------------------------------------------- random numbers
+# Card 14: every draw reads its uniforms from a counter-based stream (SplitMix64) on the device of
+# the walks: walk `i` of the stream with seed `s` reads `uniform(key(s), i * C + c)` for its column
+# `c`. The seeds are those of the existing seed functions (run seed, `training_draw_seed`,
+# `chunk_seed`, `graph_draw_seed`), so the seed schedule is unchanged and a chunk's or a graph's
+# walks do not depend on the other chunks or graphs drawn with it; no CPU generator, no Python
+# loop over chunks or graphs. int64 arithmetic wraps (two's complement), as SplitMix64 needs.
+
+
+def _signed(value: int) -> int:
+    return value - (1 << 64) if value >= 1 << 63 else value
+
+
+_GAMMA = _signed(0x9E3779B97F4A7C15)
+_MIX1 = _signed(0xBF58476D1CE4E5B9)
+_MIX2 = _signed(0x94D049BB133111EB)
+
+
+def _shift_right(z: torch.Tensor, bits: int) -> torch.Tensor:
+    """Logical right shift of int64 values."""
+    return (z >> bits) & ((1 << (64 - bits)) - 1)
+
+
+def _mix64(z: torch.Tensor) -> torch.Tensor:
+    z = (z ^ _shift_right(z, 30)) * _MIX1
+    z = (z ^ _shift_right(z, 27)) * _MIX2
+    return z ^ _shift_right(z, 31)
+
+
+def seed_value(seed: "int | torch.Generator") -> int:
+    """An int seed; a `torch.Generator` gives its initial seed (callers that pass one)."""
+    if isinstance(seed, torch.Generator):
+        seed = seed.initial_seed()
+    seed = int(seed)
+    if not 0 <= seed < 1 << 63:
+        raise ValueError(f"draw seed {seed} outside [0, 2**63).")
+    return seed
+
+
+def stream_key(seed: torch.Tensor) -> torch.Tensor:
+    """Key of the stream of each (int64) seed."""
+    return _mix64(seed.long() * _GAMMA + _GAMMA)
+
+
+def counter_uniform(key: torch.Tensor, counter: torch.Tensor) -> torch.Tensor:
+    """float64 uniforms in [0, 1): element `counter` of the streams `key` (53 random bits)."""
+    z = _mix64(key + (counter + 1) * _GAMMA)
+    return _shift_right(z, 11).double() * (1.0 / (1 << 53))
+
 
 @dataclass(frozen=True, slots=True)
 class HalfEdges:
@@ -143,18 +192,24 @@ def sample_walks(
     hop_csrs: list[CSR],
     anchors: torch.Tensor,
     walks_per_anchor: int,
-    generator: torch.Generator,
+    generator: "int | torch.Generator",
+    stream_offset: int = 0,
 ) -> Walks:
     """`walks_per_anchor` walks from every anchor along `hop_csrs`; keeps accepted (simple)
-    walks only. Vectorized over all walkers; one `torch.rand` call per hop."""
+    walks only. Vectorized over all walkers. `generator` = the draw's seed (card 14: the uniforms
+    come from its counter stream on the anchors' device); `stream_offset` = the walk index of the
+    first walker in that stream (draws of several schemas share one seed)."""
     if walks_per_anchor <= 0:
         raise ValueError("walks_per_anchor must be positive.")
     current = anchors.long().repeat_interleave(walks_per_anchor)
     alive = torch.ones_like(current, dtype=torch.bool)
+    columns = max(len(hop_csrs), 1)
+    key = stream_key(torch.full_like(current, seed_value(generator)))
+    walk = torch.arange(current.numel(), device=current.device) + int(stream_offset)
     nodes, facts, signs, relations, directions = [current], [], [], [], []
     for j, csr in enumerate(hop_csrs):
-        u = torch.rand(current.numel(), generator=generator, dtype=torch.float64)
-        index, alive = _pick(csr, current, alive, u.to(current.device))
+        u = counter_uniform(key, walk * columns + j)
+        index, alive = _pick(csr, current, alive, u)
         current = csr.other[index] if csr.other.numel() else current
         nodes.append(current)
         facts.append(csr.fact[index] if csr.fact.numel() else current)
@@ -290,13 +345,15 @@ def build_schema_path_groups(
     if sampler != "walk":
         raise ValueError(f"build_schema_path_groups samples walks, got sampler {sampler!r}.")
     half = build_half_edges(edge_index, edge_type, node_type.numel(), self_inverse, tied)
-    generator = torch.Generator().manual_seed(int(seed))
     parts, names = [], {}
     type_id = {name: i for i, name in enumerate(node_type_names)}
-    for schema in schemas:
+    offset = 0  # the schemas' walkers follow each other in the seed's stream
+    for schema in schemas:  # loop over schemas (a small fixed set)
         csrs = [hop_csr(half, relation, direction) for relation, direction in schema.hops]
-        walks = sample_walks(csrs, anchors_of(schema.node_types[0]),
-                             schema.sample_per_anchor or default_walks, generator)
+        anchors = anchors_of(schema.node_types[0]).to(edge_index.device)
+        per_anchor = schema.sample_per_anchor or default_walks
+        walks = sample_walks(csrs, anchors, per_anchor, seed, offset)
+        offset += anchors.numel() * per_anchor
         parts.append(walks)
         types = tuple(type_id[t] for t in schema.node_types)
         forward = _signature(torch.tensor([types]), torch.tensor([[r for r, _ in schema.hops]]),
@@ -334,10 +391,9 @@ def build_free_path_groups(
     num_nodes = int(node_type.numel())
     half = build_half_edges(edge_index, edge_type, num_nodes, self_inverse, tied)
     csr = build_csr(half, torch.ones_like(half.node, dtype=torch.bool))
-    generator = torch.Generator().manual_seed(int(seed))
     if anchors is None:
         anchors = torch.arange(num_nodes, device=node_type.device)
-    walks = sample_walks([csr] * length, anchors, walks_per_anchor, generator)
+    walks = sample_walks([csr] * length, anchors.to(edge_index.device), walks_per_anchor, seed)
 
     def name_of(signature: tuple[int, ...]) -> tuple[str, tuple[str, ...]]:
         types, hops = _signature_parts(signature)

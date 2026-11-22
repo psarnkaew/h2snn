@@ -27,12 +27,14 @@ anchors, walks or signatures.
 from __future__ import annotations
 
 import math
+import weakref
 from dataclasses import dataclass
 
 import torch
 
 from src.data.face_geometry import validate_face_orientation
-from src.data.path_sampler import Walks, build_half_edges, canonical_cells
+from src.data.path_sampler import (Walks, build_half_edges, canonical_cells, counter_uniform,
+                                   seed_value, stream_key)
 from src.data.structures import FaceGroup
 
 NUM_DIRECTIONS = 3  # direction -1, 0 (self-inverse), +1
@@ -78,7 +80,7 @@ def build_action_graph(edge_index: torch.Tensor, edge_type: torch.Tensor, num_no
     order = torch.argsort((half.node * num_actions + action) * n + half.other, stable=True)
     segment = half.node[order] * num_actions + action[order]
     counts = torch.bincount(segment, minlength=n * num_actions)
-    ptr = torch.zeros(n * num_actions + 1, dtype=torch.long)
+    ptr = torch.zeros(n * num_actions + 1, dtype=torch.long, device=edge_index.device)
     ptr[1:] = torch.cumsum(counts, dim=0)
     other = half.other[order]
     pair = half.node[order] * n + other
@@ -90,6 +92,31 @@ def build_action_graph(edge_index: torch.Tensor, edge_type: torch.Tensor, num_no
     return ActionGraph(n, num_actions, ptr, other, half.fact[order], half.sign[order],
                        half.relation[order], half.direction[order], pair_key, pair_order,
                        action[order][pair_order], multiplicity)
+
+
+# (id(edge_index), id(edge_type)) -> (weak references, versions, num_nodes, self_inverse, graph): an entry
+# is used only while it refers to the same live, unchanged tensors (card 14: the prepared graph's index
+# is built once per run and kept on its device).
+_ACTION_GRAPH_CACHE: dict[tuple[int, int], tuple] = {}
+
+
+def cached_action_graph(edge_index: torch.Tensor, edge_type: torch.Tensor, num_nodes: int,
+                        self_inverse: tuple[int, ...]) -> ActionGraph:
+    """`build_action_graph`, built once per (edge_index, edge_type) tensor pair and reused."""
+    key = (id(edge_index), id(edge_type))
+    entry = _ACTION_GRAPH_CACHE.get(key)
+    if entry is not None:
+        refs, versions, n, inverse, graph = entry
+        if (refs[0]() is edge_index and refs[1]() is edge_type and n == int(num_nodes)
+                and inverse == tuple(self_inverse)
+                and versions == (edge_index._version, edge_type._version)):
+            return graph
+    graph = build_action_graph(edge_index, edge_type, num_nodes, self_inverse)
+    drop = lambda _ref, key=key: _ACTION_GRAPH_CACHE.pop(key, None)  # noqa: E731
+    _ACTION_GRAPH_CACHE[key] = ((weakref.ref(edge_index, drop), weakref.ref(edge_type, drop)),
+                                (edge_index._version, edge_type._version), int(num_nodes),
+                                tuple(self_inverse), graph)
+    return graph
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,12 +151,12 @@ def _visited_half_edges(graph: ActionGraph, current: torch.Tensor, visited: torc
     (node, action, other) order, and a validity mask, each [W, j * M]."""
     width = visited.size(1) * graph.max_multiplicity
     if width == 0 or graph.pair_key.numel() == 0:
-        empty = torch.zeros(current.numel(), 0, dtype=torch.long)
+        empty = torch.zeros(current.numel(), 0, dtype=torch.long, device=current.device)
         return empty, empty, empty.bool()
     key = current.unsqueeze(1) * graph.num_nodes + visited          # [W, j]
     low = torch.searchsorted(graph.pair_key, key)
     high = torch.searchsorted(graph.pair_key, key, right=True)
-    offsets = torch.arange(graph.max_multiplicity)
+    offsets = torch.arange(graph.max_multiplicity, device=current.device)
     index = low.unsqueeze(-1) + offsets                                # [W, j, M]
     valid = index < high.unsqueeze(-1)
     index = index.clamp(max=graph.pair_key.numel() - 1)
@@ -165,50 +192,80 @@ def open_actions(graph: ActionGraph, current: torch.Tensor, visited: torch.Tenso
     """`[W, A]` number of facts of each action from `current` to nodes not in `visited` [W, j],
     and the visited half-edges (`_visited_half_edges`)."""
     num_actions = graph.num_actions
-    segment = current.unsqueeze(1) * num_actions + torch.arange(num_actions)
+    segment = current.unsqueeze(1) * num_actions + torch.arange(num_actions, device=current.device)
     degree = graph.ptr[segment + 1] - graph.ptr[segment]
     v_action, v_position, v_valid = _visited_half_edges(graph, current, visited)
-    seen = torch.zeros(current.numel(), num_actions, dtype=torch.long)
+    seen = torch.zeros(current.numel(), num_actions, dtype=torch.long, device=current.device)
     seen.scatter_add_(1, v_action, v_valid.long())
     return degree - seen, v_action, v_position, v_valid
 
 
+#: Uniform columns of one walk: length, mixture coin, q length, then (action, fact) per hop.
+def _uniform_columns(max_length: int) -> int:
+    return 3 + 2 * max_length
+
+
 def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torch.Tensor,
-                      walks_per_anchor: int, max_length: int, generator: torch.Generator,
-                      proposal: Proposal | None = None) -> WispDraw:
+                      walks_per_anchor: int, max_length: int,
+                      generator: "int | torch.Generator | None" = None,
+                      proposal: Proposal | None = None, *,
+                      anchor_seed: torch.Tensor | None = None,
+                      anchor_index: torch.Tensor | None = None) -> WispDraw:
+    """WISP walks on `graph`'s device. Random numbers (card 14): walk `k` of anchor `a` reads the
+    counter stream of seed `anchor_seed[a]` (default: every anchor the draw's seed `generator`) at
+    walk index `anchor_index[a] * r + k` (default: the anchor's position), so a chunk's or a
+    graph's walks are those it would get drawn alone with its seed."""
     if walks_per_anchor <= 0:
         raise ValueError("walks_per_anchor must be positive.")
     if max_length < 2:
         raise ValueError(f"max_length must be >= 2, got {max_length}.")
-    anchor = anchors.long().repeat_interleave(walks_per_anchor)
+    device = graph.ptr.device
+    anchors = anchors.long().reshape(-1).to(device)
+    if anchor_seed is None:
+        anchor_seed = torch.full_like(anchors, seed_value(generator))
+    if anchor_index is None:
+        anchor_index = torch.arange(anchors.numel(), device=device)
+    r = int(walks_per_anchor)
+    anchor = anchors.repeat_interleave(r)
     num = anchor.numel()
+    columns = _uniform_columns(max_length)
+    key = stream_key(anchor_seed.to(device)).repeat_interleave(r)
+    walk = (anchor_index.to(device).long().repeat_interleave(r) * r
+            + torch.arange(r, device=device).repeat(anchors.numel()))
+    counter = walk * columns
+
+    def uniform(column: int) -> torch.Tensor:
+        return counter_uniform(key, counter + column)
+
     num_actions = graph.num_actions
-    length = 2 + (torch.rand(num, generator=generator, dtype=torch.float64)
-                  * (max_length - 1)).long().clamp(max=max_length - 2)
-    from_q = torch.zeros(num, dtype=torch.bool)
+    node_type = node_type.to(device)
+    length = 2 + (uniform(0) * (max_length - 1)).long().clamp(max=max_length - 2)
+    from_q = torch.zeros(num, dtype=torch.bool, device=device)
     if proposal is not None:
-        from_q = torch.rand(num, generator=generator, dtype=torch.float64) < 0.5
-        q_length = torch.multinomial(proposal.length[2:max_length + 1], num, replacement=True,
-                                     generator=generator) + 2
+        proposal = Proposal(length=proposal.length.to(device), action=proposal.action.to(device))
+        from_q = uniform(1) < 0.5
+        cdf = torch.cumsum(proposal.length[2:max_length + 1], dim=0)
+        q_length = torch.searchsorted(cdf, (uniform(2) * cdf[-1]).unsqueeze(1),
+                                      right=True).squeeze(1).clamp(max=max_length - 2) + 2
         length = torch.where(from_q, q_length, length)
-    nodes = torch.full((num, max_length + 1), -1, dtype=torch.long)
+    nodes = torch.full((num, max_length + 1), -1, dtype=torch.long, device=device)
     nodes[:, 0] = anchor
-    facts = torch.full((num, max_length), -1, dtype=torch.long)
+    facts = torch.full((num, max_length), -1, dtype=torch.long, device=device)
     signs, relations, directions = facts.clone(), facts.clone(), facts.clone()
-    log_p = torch.full((num,), -math.log(max_length - 1), dtype=torch.float64)
-    log_q = torch.zeros(num, dtype=torch.float64)
+    log_p = torch.full((num,), -math.log(max_length - 1), dtype=torch.float64, device=device)
+    log_q = torch.zeros(num, dtype=torch.float64, device=device)
     # Per-step mixture density prod_j (p_j/2 + q_j/2) (with the length term): computed for the
     # T-H3 control only; the estimator uses the walk-level ratio (`_importance_ratio`).
-    log_mix_step = torch.zeros(num, dtype=torch.float64)
+    log_mix_step = torch.zeros(num, dtype=torch.float64, device=device)
     if proposal is not None:
         log_mix_step = torch.logaddexp(
-            torch.full((num,), -math.log(max_length - 1), dtype=torch.float64),
+            torch.full((num,), -math.log(max_length - 1), dtype=torch.float64, device=device),
             torch.log(proposal.length[length])) - math.log(2.0)
-    alive = torch.ones(num, dtype=torch.bool)
+    alive = torch.ones(num, dtype=torch.bool, device=device)
     current = anchor.clone()
-    for hop in range(1, max_length + 1):
-        u_action = torch.rand(num, generator=generator, dtype=torch.float64)
-        u_fact = torch.rand(num, generator=generator, dtype=torch.float64)
+    for hop in range(1, max_length + 1):  # loop over hops (<= l_max)
+        u_action = uniform(1 + 2 * hop)
+        u_fact = uniform(2 + 2 * hop)
         active = alive & (hop <= length)
         open_, v_action, v_position, v_valid = open_actions(graph, current, nodes[:, :hop])  # |N(a)|
         available = open_ > 0
@@ -249,7 +306,7 @@ def sample_wisp_walks(graph: ActionGraph, node_type: torch.Tensor, anchors: torc
             store[:, hop - 1] = torch.where(active, column[position], store[:, hop - 1])
     if proposal is None:
         log_q = log_p.clone()
-        ratio = torch.ones(num, dtype=torch.float64)
+        ratio = torch.ones(num, dtype=torch.float64, device=device)
     else:
         log_q = log_q + torch.log(proposal.length[length])
         ratio = _importance_ratio(log_p, log_q, log_mix_step)
@@ -273,21 +330,22 @@ def proposal_from_mass(groups: tuple[FaceGroup, ...], weights: tuple[torch.Tenso
     share of mass in length l; q_act(t, a) is the mass of the cells that take action a from a node
     of type t, counted in both orientations of each cell (a cell is a walk from either end). No
     floors: an action without mass has q = 0, and the walk-level mixture keeps the ratio <= 2."""
-    length = torch.zeros(max_length + 1, dtype=torch.float64)
-    action = torch.zeros(num_node_types, num_actions, dtype=torch.float64)
-    shared = torch.zeros(max(num_actions // NUM_DIRECTIONS, 1), dtype=torch.bool)
+    device = node_type.device
+    length = torch.zeros(max_length + 1, dtype=torch.float64, device=device)
+    action = torch.zeros(num_node_types, num_actions, dtype=torch.float64, device=device)
+    shared = torch.zeros(max(num_actions // NUM_DIRECTIONS, 1), dtype=torch.bool, device=device)
     if self_inverse:
         shared[list(self_inverse)] = True
     nonempty = [g for g in groups if g.num_faces > 0]
     if len(nonempty) != len(weights):
         raise ValueError(f"{len(weights)} weight tensors for {len(nonempty)} non-empty groups.")
     for group, w in zip(nonempty, weights):
-        mass = (w.detach().double().cpu() * group.path_weight.detach().double().cpu())
+        mass = (w.detach().double().to(device) * group.path_weight.detach().double().to(device))
         length[group.length] += mass.sum()
-        nodes = group.face_node_index.cpu()
-        relation = group.relation_index.cpu()
+        nodes = group.face_node_index.to(device)
+        relation = group.relation_index.to(device)
         direction = torch.where(shared[relation], torch.zeros_like(relation),
-                                group.face_edge_sign.cpu().sign().long())
+                                group.face_edge_sign.to(device).sign().long())
         per_hop = mass.unsqueeze(1).expand(-1, group.length)
         for types, hop_direction in ((node_type[nodes[:, :-1]], direction),
                                      (node_type[nodes[:, 1:]], -direction)):
@@ -309,7 +367,7 @@ def merge_wisp_cells(draw: WispDraw, node_type: torch.Tensor, edge_index: torch.
     if merge not in {"sum", "drop_duplicates"}:
         raise ValueError(f"merge must be 'sum' or 'drop_duplicates', got {merge!r}.")
     groups: list[FaceGroup] = []
-    for length in sorted(set(draw.length.tolist())):
+    for length in torch.unique(draw.length).tolist():  # loop over lengths (<= l_max)
         rows = draw.length == length
         walks = Walks(draw.nodes[rows, :length + 1], draw.facts[rows, :length],
                       draw.signs[rows, :length], draw.relations[rows, :length],
@@ -336,13 +394,14 @@ def _merge_cells(walks: Walks, node_type: torch.Tensor, edge_index: torch.Tensor
     if anchor is not None:
         key = torch.cat([anchor.view(-1, 1).to(key.dtype), key], dim=1)
     cells, cell_of = torch.unique(key, dim=0, return_inverse=True)
-    weight = torch.zeros(cells.size(0), dtype=torch.float64)
+    device = key.device
+    weight = torch.zeros(cells.size(0), dtype=torch.float64, device=device)
     if merge == "sum":
         weight.index_add_(0, cell_of, oriented.weight)
     else:
         weight.scatter_reduce_(0, cell_of, oriented.weight, reduce="amax", include_self=False)
-    first = torch.full((cells.size(0),), cell_of.numel(), dtype=torch.long)
-    first.scatter_reduce_(0, cell_of, torch.arange(cell_of.numel()), reduce="amin")
+    first = torch.full((cells.size(0),), cell_of.numel(), dtype=torch.long, device=device)
+    first.scatter_reduce_(0, cell_of, torch.arange(cell_of.numel(), device=device), reduce="amin")
     table, signature_index = torch.unique(signature[first], dim=0, return_inverse=True)
     face_nodes, face_facts = oriented.nodes[first], oriented.facts[first]
     face_signs = oriented.signs[first].to(torch.float32)
@@ -381,21 +440,23 @@ def chunk_seed(seed: int, chunk_index: int) -> int:
 def sample_wisp_walks_chunked(graph: ActionGraph, node_type: torch.Tensor, anchors: torch.Tensor,
                               walks_per_anchor: int, max_length: int, seed: int,
                               chunk_size: int = WISP_CHUNK_ANCHORS) -> WispDraw:
-    """A mini-batch draw from `p` (`proposal: uniform`): `sample_wisp_walks` on consecutive chunks
-    of `chunk_size` anchors, chunk `k` with its own generator seeded by `chunk_seed(seed, k)`. The
-    result depends only on (seed, chunk size, anchor order). Full-batch draws do not use this."""
+    """A mini-batch draw from `p` (`proposal: uniform`) on `graph`'s device: the anchors in consecutive
+    chunks of `chunk_size`, chunk `k` drawn from the counter stream of `chunk_seed(seed, k)` (card 14:
+    one vectorised call, no loop over chunks; each chunk's walks are those `sample_wisp_walks` gives
+    it alone with that seed). The result depends only on (seed, chunk size, anchor order). Full-batch
+    draws do not use this."""
     if chunk_size < 1:
         raise ValueError("chunk_size must be positive.")
     anchors = anchors.long().reshape(-1)
     if anchors.numel() == 0:
         raise ValueError("a draw needs at least one anchor.")
-    parts = []
-    for k, start in enumerate(range(0, anchors.numel(), chunk_size)):
-        generator = torch.Generator().manual_seed(chunk_seed(seed, k))
-        parts.append(sample_wisp_walks(graph, node_type, anchors[start:start + chunk_size],
-                                       walks_per_anchor, max_length, generator))
-    return WispDraw(*(torch.cat([getattr(part, field) for part in parts])
-                      for field in WispDraw.__slots__))
+    num_chunks = -(-anchors.numel() // int(chunk_size))
+    last = seed_value(chunk_seed(seed, num_chunks - 1))  # validates the chunk index and range
+    base = last - (num_chunks - 1)
+    position = torch.arange(anchors.numel(), device=graph.ptr.device)
+    return sample_wisp_walks(graph, node_type, anchors, walks_per_anchor, max_length,
+                             anchor_seed=base + position // int(chunk_size),
+                             anchor_index=position % int(chunk_size))
 
 
 @dataclass(frozen=True, slots=True)
@@ -429,7 +490,7 @@ def merge_wisp_cells_per_anchor(draw: WispDraw, node_type: torch.Tensor,
     """D8 identity per anchor (MB2): key = (anchor, signature, facts), `m_f` = sum of (1/r) * ratio
     over that anchor's walks only, so one instance drawn from two anchors gives two cells."""
     groups, anchors = [], []
-    for length in sorted(set(draw.length.tolist())):
+    for length in torch.unique(draw.length).tolist():  # loop over lengths (<= l_max)
         rows = draw.length == length
         walks = Walks(draw.nodes[rows, :length + 1], draw.facts[rows, :length],
                       draw.signs[rows, :length], draw.relations[rows, :length],
@@ -447,9 +508,9 @@ def build_wisp_anchor_cells(edge_index: torch.Tensor, edge_type: torch.Tensor,
                             seed: int, chunk_size: int = WISP_CHUNK_ANCHORS,
                             graph: ActionGraph | None = None) -> AnchorCells:
     """A mini-batch draw (chunked, from `p`) merged per anchor, on the whole given graph (the
-    scope is cut afterwards, `src/data/scopes.py`)."""
+    scope is cut afterwards, `src/data/scopes.py`). The index is cached per graph (card 14)."""
     if graph is None:
-        graph = build_action_graph(edge_index, edge_type, int(node_type.numel()), self_inverse)
+        graph = cached_action_graph(edge_index, edge_type, int(node_type.numel()), self_inverse)
     draw = sample_wisp_walks_chunked(graph, node_type, anchors, walks_per_anchor, max_length,
                                      seed, chunk_size)
     return merge_wisp_cells_per_anchor(draw, node_type, edge_index, walks_per_anchor)
@@ -461,16 +522,17 @@ def build_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
                            seed: int, proposal: Proposal | None = None,
                            graph: ActionGraph | None = None,
                            merge: str = "sum") -> tuple[FaceGroup, ...]:
-    """One WISP draw (seed `seed`) grouped by length. `graph` may be passed to reuse the index."""
+    """One WISP draw (seed `seed`) grouped by length, on the device of `edge_index`. `graph` may be
+    passed to reuse the index; otherwise it is cached per graph (card 14)."""
     if graph is None:
-        graph = build_action_graph(edge_index, edge_type, int(node_type.numel()), self_inverse)
-    generator = torch.Generator().manual_seed(int(seed))
-    draw = sample_wisp_walks(graph, node_type, anchors, walks_per_anchor, max_length, generator,
+        graph = cached_action_graph(edge_index, edge_type, int(node_type.numel()), self_inverse)
+    draw = sample_wisp_walks(graph, node_type, anchors, walks_per_anchor, max_length, int(seed),
                              proposal)
     return merge_wisp_cells(draw, node_type, edge_index, walks_per_anchor, merge)
 
 
 __all__ = ["ActionGraph", "Proposal", "WispDraw", "action_of", "build_action_graph",
+           "cached_action_graph",
            "merge_length_group", "open_actions", "unvisited_fact_step",
            "AnchorCells", "CHUNK_SEED_STRIDE", "WISP_CHUNK_ANCHORS", "build_wisp_anchor_cells",
            "chunk_seed", "merge_wisp_cells_per_anchor", "sample_wisp_walks_chunked",

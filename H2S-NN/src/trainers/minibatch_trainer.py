@@ -115,13 +115,17 @@ class MiniBatchNodeTrainer:
 
     # ------------------------------------------------------------------ draws and batches
     def _cells(self, graph: PreparedH2SData, anchors: torch.Tensor, seed: int) -> AnchorCells:
+        """The draw on `graph`'s device (card 14; the action graph is cached per graph)."""
         data = self.cfg.data
         return build_wisp_anchor_cells(
             graph.edge_index, graph.edge_type, graph.node_type, graph.fact_layer.self_inverse,
-            torch.unique(anchors), data.wisp_walks_per_anchor, data.wisp_max_length, seed)
+            torch.unique(anchors.to(graph.edge_index.device)), data.wisp_walks_per_anchor,
+            data.wisp_max_length, seed)
 
     def _batch(self, graph: PreparedH2SData, targets: torch.Tensor, cells: AnchorCells):
-        batch = build_scope_batch(graph, targets, [cells.of(int(t)) for t in targets.tolist()])
+        """The scope batch, built on `graph`'s device from the per-anchor cells (card 14: no loop
+        over targets)."""
+        batch = build_scope_batch(graph, targets, cells)
         return batch, batch.data.to(self.device)
 
     def _loss(self, logits: torch.Tensor, labels: torch.Tensor, multilabel: bool) -> torch.Tensor:
@@ -151,7 +155,7 @@ class MiniBatchNodeTrainer:
     def train_epoch(self, graph: PreparedH2SData, order: TrainingOrder, epoch: int) -> dict:
         batch_size, epoch_targets = self.batch_plan(graph)
         self.model.train()
-        losses = []
+        losses = []  # device scalars, read once per epoch (no per-step host sync for logging)
         for b in range(steps_per_epoch(epoch_targets, batch_size)):
             targets = order.next(batch_size)
             cells = self._cells(graph, targets, training_draw_seed(self.cfg.seed, epoch, b))
@@ -163,8 +167,8 @@ class MiniBatchNodeTrainer:
             loss.backward()
             self.optimizer.step()
             self.steps_taken += 1
-            losses.append(float(loss))
-        return {"loss": sum(losses) / len(losses), "steps": float(len(losses))}
+            losses.append(loss.detach())
+        return {"loss": float(torch.stack(losses).mean()), "steps": float(len(losses))}
 
     # ------------------------------------------------------------------ evaluation
     def evaluation_cells(self, eval_graph: PreparedH2SData) -> AnchorCells:
@@ -187,10 +191,10 @@ class MiniBatchNodeTrainer:
             for start in range(0, targets.numel(), batch_size):
                 part = targets[start:start + batch_size]
                 _, batch = self._batch(eval_graph, part, cells)
-                logits.append(self.model(batch, epoch=-1).logits.cpu())
-                labels.append(batch.target_y.cpu())
+                logits.append(self.model(batch, epoch=-1).logits)
+                labels.append(batch.target_y)
                 ids.append(part)
-        return torch.cat(ids), torch.cat(logits), torch.cat(labels)
+        return torch.cat(ids).cpu(), torch.cat(logits).cpu(), torch.cat(labels).cpu()
 
     def evaluate_split(self, eval_graph: PreparedH2SData, split_mask: torch.Tensor) -> dict:
         _, logits, labels = self.evaluate(eval_graph, split_mask)
@@ -200,7 +204,11 @@ class MiniBatchNodeTrainer:
     def fit(self, graph: PreparedH2SData, eval_graph: PreparedH2SData | None = None,
             epoch_callback: Callable | None = None) -> None:
         self.model.to(self.device)
+        # card 14: the prepared graphs live on the model's device for the whole run (draws, scopes)
         eval_graph = graph if eval_graph is None else eval_graph
+        same = eval_graph is graph
+        graph = graph.to(self.device)
+        eval_graph = graph if same else eval_graph.to(self.device)
         order = TrainingOrder(graph.target_indices[graph.target_train_mask], self.cfg.seed)
         with logged_stop_conditions(self.logger):
             self._run(graph, eval_graph, order, epoch_callback)

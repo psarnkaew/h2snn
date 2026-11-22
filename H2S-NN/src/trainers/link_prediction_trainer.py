@@ -55,15 +55,17 @@ class LinkPredictionTrainer:
                       epoch: int) -> PreparedLinkPredData:
         """Data for one training epoch: the evaluation draw (seed `cfg.seed`) or, with
         `data.resample_paths`, a fresh draw on the message graph with seed `cfg.seed +
-        epoch` (plan §9.2), built on the CPU copy and moved to the device."""
+        epoch` (plan §9.2). WISP draws run on the device copy (card 14); the DFS cells of the
+        baseline bundles are built on the CPU copy and moved."""
         if not self.cfg.data.resample_paths:
             return prepared_data
         from dataclasses import replace
 
         from src.data.link_prediction_dataset import build_link_path_groups  # resampling only
 
-        groups = build_link_path_groups(self.cfg, data.fact_layer, data.edge_index,
-                                        data.edge_type, data.node_type, data.node_slices,
+        source = prepared_data if self.cfg.data.path_source == "wisp" else data
+        groups = build_link_path_groups(self.cfg, data.fact_layer, source.edge_index,
+                                        source.edge_type, source.node_type, data.node_slices,
                                         seed=self.cfg.seed + epoch)
         return replace(prepared_data,
                        face_groups=tuple(group.to(self.device) for group in groups))

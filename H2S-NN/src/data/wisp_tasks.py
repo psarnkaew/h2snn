@@ -7,19 +7,19 @@ graph classification = every node of the graph. The sampler, its target measure 
 merge are those of node classification (`src/data/wisp_sampler.py`); only the anchor set
 differs. Evaluation uses one fixed draw (seed of the run); training draws use `seed + epoch`.
 
-Graph classification draws each graph on its own (its own action graph and generator), so the
-cells of a graph never depend on which other graphs share its batch.
+Graph classification draws each graph from its own seed (`graph_draw_seed`; card 14: one batched
+draw on the device, each graph reading its own counter stream), so the cells of a graph never
+depend on which other graphs share its batch.
 """
 
 from __future__ import annotations
 
-from dataclasses import fields
-
 import torch
 
+from src.data.path_sampler import seed_value
 from src.data.structures import FaceGroup
-from src.data.wisp_sampler import (WispDraw, build_action_graph, build_wisp_path_groups,
-                                   merge_wisp_cells, sample_wisp_walks)
+from src.data.wisp_sampler import (build_action_graph, build_wisp_path_groups, merge_wisp_cells,
+                                   sample_wisp_walks)
 
 # Seeds of per-graph draws: `draw_seed * GRAPH_SEED_STRIDE + graph_id` (distinct per graph and
 # per draw seed for graph ids below the stride).
@@ -52,7 +52,7 @@ def build_link_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tenso
     return build_wisp_path_groups(
         edge_index=edge_index, edge_type=edge_type, node_type=node_type,
         self_inverse=self_inverse,
-        anchors=link_prediction_anchors(node_slices, target_relation),
+        anchors=link_prediction_anchors(node_slices, target_relation).to(edge_index.device),
         walks_per_anchor=walks_per_anchor, max_length=max_length, seed=seed)
 
 
@@ -62,61 +62,39 @@ def graph_draw_seed(draw_seed: int, graph_id: int) -> int:
     return int(draw_seed) * GRAPH_SEED_STRIDE + int(graph_id)
 
 
-def _offset_draw(draw: WispDraw, node_offset: int, fact_offset: int) -> WispDraw:
-    nodes = torch.where(draw.nodes >= 0, draw.nodes + node_offset, draw.nodes)
-    facts = torch.where(draw.facts >= 0, draw.facts + fact_offset, draw.facts)
-    return WispDraw(nodes, facts, draw.signs, draw.relations, draw.directions, draw.length,
-                    draw.anchor + node_offset, draw.log_p, draw.log_q, draw.ratio,
-                    draw.discarded_anchor + node_offset)
-
-
-def _concat_draws(draws: list[WispDraw], max_length: int) -> WispDraw:
-    if not draws:
-        empty = torch.zeros(0, dtype=torch.long)
-        return WispDraw(torch.zeros(0, max_length + 1, dtype=torch.long),
-                        torch.zeros(0, max_length, dtype=torch.long),
-                        torch.zeros(0, max_length, dtype=torch.long),
-                        torch.zeros(0, max_length, dtype=torch.long),
-                        torch.zeros(0, max_length, dtype=torch.long), empty, empty,
-                        torch.zeros(0, dtype=torch.float64), torch.zeros(0, dtype=torch.float64),
-                        torch.zeros(0, dtype=torch.float64), empty)
-    names = [field.name for field in fields(WispDraw)]
-    return WispDraw(**{name: torch.cat([getattr(d, name) for d in draws]) for name in names})
-
-
 def build_graph_wisp_path_groups(edge_index: torch.Tensor, edge_type: torch.Tensor,
                                  node_type: torch.Tensor, batch: torch.Tensor,
                                  graph_id: torch.Tensor, self_inverse: tuple[int, ...],
                                  walks_per_anchor: int, max_length: int,
                                  draw_seed: int) -> tuple[FaceGroup, ...]:
-    """WISP cells of a batch of disjoint graphs: every node of each graph is an anchor; each graph
-    is drawn alone (its own action graph, generator seeded by `graph_draw_seed`), then the walks
-    of all graphs are merged into one set of length groups (cells never cross graphs)."""
+    """WISP cells of a batch of disjoint graphs, on the batch's device: every node of each graph is
+    an anchor, and each graph's walks read the counter stream of `graph_draw_seed(draw_seed, id)` at
+    the node's index inside its graph, so they are those of the graph drawn alone (card 14: one
+    vectorised draw on the batch's action graph, no loop over graphs; walks never leave their
+    graph). The walks of all graphs are merged into one set of length groups (cells never cross
+    graphs). Nodes of a graph are contiguous (PyG Batch)."""
     require_walks_per_anchor(walks_per_anchor, "graph classification")
-    batch = batch.cpu()
-    node_type = node_type.cpu()
-    edge_index = edge_index.cpu()
-    edge_type = edge_type.cpu()
-    num_graphs = int(graph_id.numel())
-    edge_graph = batch[edge_index[0]] if edge_index.numel() else torch.zeros(0, dtype=torch.long)
-    draws: list[WispDraw] = []
-    for g in range(num_graphs):
-        nodes = torch.nonzero(batch == g).flatten()
-        node_offset = int(nodes.min()) if nodes.numel() else 0
-        edges = torch.nonzero(edge_graph == g).flatten()
-        if edges.numel() and not torch.equal(edges, torch.arange(int(edges[0]),
-                                                                 int(edges[0]) + edges.numel())):
-            raise ValueError("graph classification batches must store each graph's edges "
-                             "contiguously (PyG Batch).")
-        fact_offset = int(edges[0]) if edges.numel() else 0
-        local_index = edge_index[:, edges] - node_offset
-        graph = build_action_graph(local_index, edge_type[edges], int(nodes.numel()), self_inverse)
-        generator = torch.Generator().manual_seed(graph_draw_seed(draw_seed, int(graph_id[g])))
-        draw = sample_wisp_walks(graph, node_type[nodes], torch.arange(nodes.numel()),
-                                 walks_per_anchor, max_length, generator)
-        draws.append(_offset_draw(draw, node_offset, fact_offset))
-    return merge_wisp_cells(_concat_draws(draws, max_length), node_type, edge_index,
-                            walks_per_anchor)
+    device = edge_index.device
+    batch = batch.to(device).long()
+    graph_id = graph_id.to(device).long().view(-1)
+    num_nodes = int(node_type.numel())
+    graph_seed(draw_seed)  # validates the seed range for every graph id below the stride
+    if graph_id.numel() and bool(((graph_id < 0) | (graph_id >= GRAPH_SEED_STRIDE)).any()):
+        raise ValueError(f"graph ids outside [0, {GRAPH_SEED_STRIDE}).")
+    counts = torch.bincount(batch, minlength=graph_id.numel())
+    first = torch.cumsum(counts, dim=0) - counts
+    nodes = torch.arange(num_nodes, device=device)
+    graph = build_action_graph(edge_index, edge_type, num_nodes, self_inverse)
+    draw = sample_wisp_walks(graph, node_type, nodes, walks_per_anchor, max_length,
+                             anchor_seed=int(draw_seed) * GRAPH_SEED_STRIDE + graph_id[batch],
+                             anchor_index=nodes - first[batch])
+    return merge_wisp_cells(draw, node_type, edge_index, walks_per_anchor)
+
+
+def graph_seed(draw_seed: int) -> int:
+    """`draw_seed * GRAPH_SEED_STRIDE`, checked so that every graph's seed fits int64."""
+    seed_value(graph_draw_seed(draw_seed, GRAPH_SEED_STRIDE - 1))
+    return int(draw_seed) * GRAPH_SEED_STRIDE
 
 
 __all__ = ["GRAPH_SEED_STRIDE", "build_graph_wisp_path_groups", "build_link_wisp_path_groups",

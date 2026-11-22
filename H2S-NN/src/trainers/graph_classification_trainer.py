@@ -177,7 +177,7 @@ class GraphClassificationTrainer:
         self.model.train(train)
         all_logits: list[torch.Tensor] = []
         all_labels: list[torch.Tensor] = []
-        loss_sum = 0.0
+        losses: list[torch.Tensor] = []  # device scalars, read once per epoch (card 14)
         num_batches = 0
 
         for batch in loader:
@@ -201,11 +201,12 @@ class GraphClassificationTrainer:
 
             all_logits.append(logits.detach())
             all_labels.append(labels.detach())
-            loss_sum += float(loss.item())
+            losses.append(loss.detach())
             num_batches += 1
 
         all_logits_t = torch.cat(all_logits, dim=0)
         all_labels_t = torch.cat(all_labels, dim=0)
+        loss_sum = float(torch.stack(losses).sum()) if losses else 0.0
         metrics = {
             "loss": loss_sum / max(1, num_batches),
             **compute_graph_classification_metrics(all_logits_t, all_labels_t),
@@ -218,23 +219,23 @@ class GraphClassificationTrainer:
     def batch_path_groups(self, batch, seed: int):
         """Path cells of one batch: WISP (spec v1.15 J1; every node of each graph is an anchor;
         each graph drawn alone, so its cells do not depend on the other graphs of the batch), or,
-        under `path_source: schemas`, the pinned pre-D7 DFS (`path_sampler: dfs`)."""
+        under `path_source: schemas`, the pinned pre-D7 DFS (`path_sampler: dfs`). The WISP draw runs
+        on the batch's device, all graphs of the batch in one call (card 14)."""
         if self.cfg.data.path_source == "wisp":
             graph_id = getattr(batch, "graph_id", None)
             if graph_id is None:
                 raise ValueError("WISP graph-classification draws need each graph's `graph_id`.")
-            return tuple(group.to(batch.edge_index.device) for group in
-                         build_graph_wisp_path_groups(
-                             edge_index=batch.edge_index,
-                             edge_type=batch.edge_type,
-                             node_type=batch.node_type,
-                             batch=batch.batch,
-                             graph_id=graph_id.view(-1),
-                             self_inverse=self.model.self_inverse_relations,
-                             walks_per_anchor=self.cfg.data.wisp_walks_per_anchor,
-                             max_length=self.cfg.data.wisp_max_length,
-                             draw_seed=seed,
-                         ))
+            return build_graph_wisp_path_groups(
+                edge_index=batch.edge_index,
+                edge_type=batch.edge_type,
+                node_type=batch.node_type,
+                batch=batch.batch,
+                graph_id=graph_id.view(-1),
+                self_inverse=self.model.self_inverse_relations,
+                walks_per_anchor=self.cfg.data.wisp_walks_per_anchor,
+                max_length=self.cfg.data.wisp_max_length,
+                draw_seed=seed,
+            )
         if self.cfg.data.path_sampler == "dfs":
             return build_typed_path_face_groups(
                 edge_index=batch.edge_index,
