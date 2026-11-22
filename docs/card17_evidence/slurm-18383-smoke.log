@@ -1,0 +1,66 @@
+job=18383 node=g3n01 start=2026-11-22T18:39:16+09:00 mem=15360M
+git=bf3a9df6945a2d9fe43869ec559329c68a2e4f01 dirty=0
+NVIDIA GeForce RTX 3090, 24576 MiB
+== gcn
+{
+ "model": "gcn",
+ "criterion": "weighted_cross_entropy",
+ "featureless_types": [
+  "P_emaildomain",
+  "ProductCD",
+  "R_emaildomain",
+  "addr1",
+  "addr2",
+  "card1",
+  "card2",
+  "card3",
+  "card4",
+  "card5",
+  "card6"
+ ],
+ "params_moved": 16,
+ "seconds": 49.4,
+ "cuda_max_allocated_gib": 0.059,
+ "host_max_rss_gib": 8.754,
+ "checks": {
+  "finite_loss": true,
+  "weighted_criterion": true,
+  "params_moved": true,
+  "macro_micro_f1": true
+ }
+}
+losses [1.4911001920700073, 1.5151528120040894, 1.3926944732666016, 1.3036551475524902]
+record {'val_macro_f1': 0.11354811344400101, 'val_micro_f1': 0.123046875, 'val_acc': 0.123046875, 'test_macro_f1': 0.05615983600287607, 'test_micro_f1': 0.05859375, 'test_acc': 0.05859375, 'val_subset_macro_f1': 0.11120712268736402}
+smoke gcn exit=0
+== h2gformer
+{
+ "model": "h2gformer",
+ "criterion": "weighted_cross_entropy",
+ "featureless_types": [
+  "P_emaildomain",
+  "ProductCD",
+  "R_emaildomain",
+  "addr1",
+  "addr2",
+  "card1",
+  "card2",
+  "card3",
+  "card4",
+  "card5",
+  "card6"
+ ],
+ "params_moved": 189,
+ "seconds": 51.1,
+ "cuda_max_allocated_gib": 0.318,
+ "host_max_rss_gib": 8.765,
+ "checks": {
+  "finite_loss": true,
+  "weighted_criterion": true,
+  "params_moved": true,
+  "macro_micro_f1": true
+ }
+}
+losses [0.5585052967071533, 0.7379003763198853, 0.6802947521209717, 0.8102929592132568]
+record {'val_macro_f1': 0.46555323590814196, 'val_micro_f1': 0.87109375, 'val_acc': 0.87109375, 'test_macro_f1': 0.48335015136226034, 'test_micro_f1': 0.935546875, 'test_acc': 0.935546875, 'val_subset_macro_f1': 0.4666666666666667}
+smoke h2gformer exit=0
+end=2026-11-22T18:41:25+09:00 exit=0
