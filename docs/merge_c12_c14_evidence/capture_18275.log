@@ -1,0 +1,70 @@
+job=18275 node=g2n01 start=2026-11-22T10:00:17+09:00
+git=ec4c607db538322fed14fad35593ee05b047b383 dirty=0
+Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz
+torch 2.4.1+cu124 cpu_capability AVX2
+before: 29215150935b6bb1412f36baec52842a78d5edb779ef9d15c3ea59266155a564  ../docs/legacy_evidence/v3b_golden_cluster.pt
+  SKIPPED nc_map_family_dense: ValueError: model.map_family: dense is removed by the legacy-removal card (v1/v2); a configuration that names it raises.
+captured 23 configurations, 1282 tensors, skipped 1 -> ../docs/legacy_evidence/v3b_golden_cluster.pt
+golden_capture_exit=0
+after: cf2960009e045da28a4da1b09332c90e6fd20ad5f05c828e3f5cefd3dbd2a8c0  ../docs/legacy_evidence/v3b_golden_cluster.pt
+{
+ "hgb_full_batch": {
+  "best_epoch": 0,
+  "epoch": 0,
+  "test_acc": "0x1.aaaaaaaaaaaabp-2",
+  "test_cls_loss": "0x1.1586f80000000p+0",
+  "test_loss": "0x1.1586f80000000p+0",
+  "test_macro_f1": "0x1.425ed097b425fp-2",
+  "test_micro_f1": "0x1.aaaaaaaaaaaabp-2",
+  "val_acc": "0x0.0p+0",
+  "val_cls_loss": "0x1.1dfe100000000p+0",
+  "val_loss": "0x1.1dfe100000000p+0",
+  "val_macro_f1": "0x0.0p+0",
+  "val_micro_f1": "0x0.0p+0"
+ },
+ "acm_minibatch_flag": {
+  "best_epoch": 0,
+  "epoch": 0,
+  "test_acc": "0x1.aaaaaaaaaaaabp-2",
+  "test_cls_loss": "0x1.13ede00000000p+0",
+  "test_loss": "0x1.13ede00000000p+0",
+  "test_macro_f1": "0x1.42b7142b7142bp-2",
+  "test_micro_f1": "0x1.aaaaaaaaaaaabp-2",
+  "val_acc": "0x0.0p+0",
+  "val_cls_loss": "0x1.1d5ba00000000p+0",
+  "val_loss": "0x1.1d5ba00000000p+0",
+  "val_macro_f1": "0x0.0p+0",
+  "val_micro_f1": "0x0.0p+0"
+ },
+ "baselines_1_cell_list": "18571 chars"
+}
+t4_capture_exit=0
+50f8339438293c3149a3677c57c4f910aacddeb32e4d118510356d4b0d3f9dd9  ../docs/card5_evidence/base_capture_ec4c607.json
+===== compare old T4 capture (894fd74) with the new one
+6,7c6,7
+<   "test_cls_loss": "0x1.157bce0000000p+0",
+<   "test_loss": "0x1.157bce0000000p+0",
+---
+>   "test_cls_loss": "0x1.1586f80000000p+0",
+>   "test_loss": "0x1.1586f80000000p+0",
+11,12c11,12
+<   "val_cls_loss": "0x1.1d54ea0000000p+0",
+<   "val_loss": "0x1.1d54ea0000000p+0",
+---
+>   "val_cls_loss": "0x1.1dfe100000000p+0",
+>   "val_loss": "0x1.1dfe100000000p+0",
+20,21c20,21
+<   "test_cls_loss": "0x1.13ec380000000p+0",
+<   "test_loss": "0x1.13ec380000000p+0",
+---
+>   "test_cls_loss": "0x1.13ede00000000p+0",
+>   "test_loss": "0x1.13ede00000000p+0",
+25,26c25,26
+<   "val_cls_loss": "0x1.1db6880000000p+0",
+<   "val_loss": "0x1.1db6880000000p+0",
+---
+>   "val_cls_loss": "0x1.1d5ba00000000p+0",
+>   "val_loss": "0x1.1d5ba00000000p+0",
+/dev/fd/63 /dev/fd/62 differ: byte 2160, line 12
+baselines_1_cell_list: differs from 894fd74
+end=2026-11-22T10:00:33+09:00

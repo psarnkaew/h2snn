@@ -167,7 +167,10 @@ class HgbUnchangedTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("capture_base", EVIDENCE / "capture_base.py")
         capture = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(capture)  # type: ignore[union-attr]
-        reference = json.loads((EVIDENCE / "base_capture_894fd74.json").read_text(encoding="utf-8"))
+        # Merge c12+c14 (author 2026-11-22): card 14 changed the random stream (counter-based SplitMix64), so the
+        # H2S-NN parts were re-captured with the same capture_base.py on the merged code ec4c607; the compare is
+        # unchanged.
+        reference = json.loads((EVIDENCE / "base_capture_ec4c607.json").read_text(encoding="utf-8"))
         threads = torch.get_num_threads()
         try:
             now = capture.records()
@@ -178,7 +181,7 @@ class HgbUnchangedTests(unittest.TestCase):
         # T9 part. Ops card T7.4 (v3b 1646efd) moved HetSheaf and CSNN on ACM/DBLP NC to phase `baselines-early` on
         # purpose, which puts 4 `# in phase baselines-early` lines in the baselines-1 list; the list is compared with
         # its capture at 1646efd (same capture_base.py; docs/card7_evidence/capture_1646efd_*.txt shows that this is
-        # the only difference from 894fd74). The model parts above stay compared with 894fd74.
+        # the only difference from 894fd74). The model parts above are compared with ec4c607.
         # Card 8 C5 (author 2026-11-20) rebuilt the baselines-1 list on purpose (tune cells only; filled, published and
         # probe cells are comment lines), so it no longer equals the 1646efd capture; its correctness is tested by
         # test_card8_phases (coverage, disjointness, h2snn / baselines-early byte-identical) and test_tsubame_*. Every
