@@ -84,6 +84,10 @@ def build_tiny_task(root: Path, task: str) -> None:
         write_release(root / "release_acm")
         bd.build_task(root / "release_acm", lp_derived_root(root) / task, 2, seed=42,
                       val_frac=0.09, test_frac=0.10)
+    elif task == "acm_pp":  # card 15: the synthetic ACM release's paper-cite-paper (rel 0; stored reverse rel 1)
+        write_release(root / "release_acm")
+        bd.build_task(root / "release_acm", lp_derived_root(root) / task, 0, seed=42,
+                      val_frac=0.09, test_frac=0.10)
     elif task == "dblp_ap":
         write_dblp_like(root / "release_dblp")
         bd.build_task(root / "release_dblp", lp_derived_root(root) / task, 0, seed=42,
@@ -124,6 +128,8 @@ def _held_out(bundle) -> set[tuple[int, int]]:
 
 
 class FitTests(_TinyTask):
+    TASK = "acm_pp"  # card 15: acm_pp replaces acm_pa in the campaign's LP list (registry.DERIVED_LP)
+
     def test_every_lp_adapter_runs_one_epoch(self) -> None:
         from src.baselines.registry import get_adapter, unsupported_reason
 

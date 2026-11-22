@@ -1,0 +1,19 @@
+job=18286 node=g3n01 start=2026-11-22T11:09:12+09:00
+git=62cc9eb686cbba3786244f42a3bac4d08c1c3a7c branch=card15
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+test_empty_two_hop_set_yields_none_with_a_reason (tests.test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_no_held_out_pair_reaches_any_message_graph (tests.test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (tests.test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (tests.test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 71.801s
+
+OK
+end=2026-11-22T11:10:26+09:00 exit=0

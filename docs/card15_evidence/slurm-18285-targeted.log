@@ -1,0 +1,556 @@
+job=18285 node=g2n01 start=2026-11-22T10:59:53+09:00
+git=62cc9eb686cbba3786244f42a3bac4d08c1c3a7c branch=card15
+notebooks/baselines/node_classification_dgl.ipynb: 1 cells, hinormer
+notebooks/baselines/node_classification_h2gb.ipynb: 3 cells, h2gformer
+notebooks/baselines/node_classification_sheaf.ipynb: 6 cells, csnn, nsd
+notebooks/baselines/link_prediction_core.ipynb: 8 cells, h2sgnn
+notebooks/baselines/link_prediction_dgl.ipynb: 47 cells, gat, gcn, han, magnn, pshgcn, rgcn
+notebooks/baselines/link_prediction_h2gb.ipynb: 8 cells, h2gformer
+notebooks/baselines/link_prediction_hetero2net.ipynb: 8 cells, hetero2net
+notebooks/baselines/link_prediction_sheaf.ipynb: 24 cells, csnn, hetsheaf, nsd
+
+8 notebooks, 105 cells total.
+ M notebooks/baselines/link_prediction_core.ipynb
+ M notebooks/baselines/link_prediction_dgl.ipynb
+ M notebooks/baselines/link_prediction_h2gb.ipynb
+ M notebooks/baselines/link_prediction_hetero2net.ipynb
+ M notebooks/baselines/link_prediction_sheaf.ipynb
+test_supported_cells_are_runnable_in_the_registry (tests.test_baselines.AdapterContractTests.test_supported_cells_are_runnable_in_the_registry) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_supports_agrees_with_search_space (tests.test_baselines.AdapterContractTests.test_supports_agrees_with_search_space) ... ok
+test_notebooks_are_committed_clean (tests.test_baselines.BaselineNotebookTests.test_notebooks_are_committed_clean)
+Outputs and execution counts must not be committed. ... ok
+test_notebooks_drive_the_entry_scripts (tests.test_baselines.BaselineNotebookTests.test_notebooks_drive_the_entry_scripts)
+The notebooks must call the scripts, not reimplement the campaign. ... ok
+test_graph_summary_reports_one_standard_deviation (tests.test_baselines.CampaignSummaryTests.test_graph_summary_reports_one_standard_deviation)
+Under HINPool's holdout there is no repetition structure to average over. ... ok
+test_seed_tasks_report_one_standard_deviation (tests.test_baselines.CampaignSummaryTests.test_seed_tasks_report_one_standard_deviation) ... ok
+test_every_runnable_cell_builds_a_sweep (tests.test_baselines.CampaignSweepTests.test_every_runnable_cell_builds_a_sweep)
+A search space that fails to resolve must fail now, not mid-campaign. ... ok
+test_no_hyperband_option_remains (tests.test_baselines.CampaignSweepTests.test_no_hyperband_option_remains)
+Spec v1.15 §6: no Hyperband (it feeds unconverged scores to the surrogate); the ... ok
+test_graph_split_comes_from_seed_not_overrides (tests.test_baselines.CampaignUnitTests.test_graph_split_comes_from_seed_not_overrides)
+The split position travels as run_index/seed, which build_bundle takes. ... ok
+test_graph_units_are_seeded_holdout_runs (tests.test_baselines.CampaignUnitTests.test_graph_units_are_seeded_holdout_runs)
+HINPool's protocol: five seeded stratified 80/10/10 holdouts, not folds. ... ok
+test_link_units_carry_no_split_overrides (tests.test_baselines.CampaignUnitTests.test_link_units_carry_no_split_overrides) ... ok
+test_node_and_link_units_are_seeds (tests.test_baselines.CampaignUnitTests.test_node_and_link_units_are_seeds) ... ok
+test_report_current_adapter_coverage (tests.test_baselines.CoverageReportTests.test_report_current_adapter_coverage)
+Not a pass/fail gate -- prints how much of the matrix is actually implemented. ... ok
+test_a_machine_without_a_gpu_has_no_defect (tests.test_baselines.DglCudaGateTests.test_a_machine_without_a_gpu_has_no_defect) ... ok
+test_blocked_models_name_the_defect_not_a_missing_module (tests.test_baselines.DglCudaGateTests.test_blocked_models_name_the_defect_not_a_missing_module)
+`unavailable_reason` has to say which of the two problems this is. ... ok
+test_cpu_only_dgl_on_linux_counts_as_not_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_linux_counts_as_not_installed)
+Linux has a CUDA build (the DGL 2.4.0+cu124 conda package), so a CPU build there is a ... ok
+test_cpu_only_dgl_on_windows_stays_installed (tests.test_baselines.DglCudaGateTests.test_cpu_only_dgl_on_windows_stays_installed)
+No CUDA wheel is published for torch 2.x on Windows. ... ok
+test_cuda_dgl_on_linux_is_healthy (tests.test_baselines.DglCudaGateTests.test_cuda_dgl_on_linux_is_healthy) ... ok
+test_only_dgl_backed_models_are_gated (tests.test_baselines.DglCudaGateTests.test_only_dgl_backed_models_are_gated)
+A CPU-only DGL must not disable the baselines that never touch DGL. ... ok
+test_report_explains_itself_on_every_platform (tests.test_baselines.DglCudaGateTests.test_report_explains_itself_on_every_platform)
+The warning must reach the user even where the defect check stays silent. ... ok
+test_scripts_importing_src_bootstrap_the_project_root (tests.test_baselines.EntryPointBootstrapTests.test_scripts_importing_src_bootstrap_the_project_root) ... ok
+test_a_hyperband_stop_is_not_a_failure (tests.test_baselines.EpochReportingTests.test_a_hyperband_stop_is_not_a_failure)
+W&B terminates a pruned run thread with a bare ``Exception``. ... ok
+test_report_key_matches_the_sweep_metric (tests.test_baselines.EpochReportingTests.test_report_key_matches_the_sweep_metric)
+Live series and sweep metric must share a key, or nothing can prune. ... ok
+test_shared_loops_accept_a_report (tests.test_baselines.EpochReportingTests.test_shared_loops_accept_a_report) ... ok
+test_splits_are_disjoint (tests.test_baselines.HGBSplitTests.test_splits_are_disjoint) ... ok
+test_train_plus_val_equals_hgb_train_and_test_is_untouched (tests.test_baselines.HGBSplitTests.test_train_plus_val_equals_hgb_train_and_test_is_untouched) ... ok
+test_validation_is_twenty_percent_of_hgb_train (tests.test_baselines.HGBSplitTests.test_validation_is_twenty_percent_of_hgb_train) ... ok
+test_graph_head_pools_per_graph (tests.test_baselines.HeadTests.test_graph_head_pools_per_graph) ... ok
+test_link_decoders_score_and_backpropagate (tests.test_baselines.HeadTests.test_link_decoders_score_and_backpropagate) ... ok
+test_featureless_type_falls_back_to_identity (tests.test_baselines.HomogeneousViewTests.test_featureless_type_falls_back_to_identity) ... ok
+test_link_prediction_view_keeps_real_features (tests.test_baselines.HomogeneousViewTests.test_link_prediction_view_keeps_real_features)
+Regression: the default view once replaced real features with an identity. ... ok
+test_symmetrization_adds_self_loops_and_drops_duplicates (tests.test_baselines.HomogeneousViewTests.test_symmetrization_adds_self_loops_and_drops_duplicates) ... ok
+test_a_lane_declares_the_vendor_clones_its_models_read (tests.test_baselines.LaneNotebookTests.test_a_lane_declares_the_vendor_clones_its_models_read) ... ok
+test_committed_notebooks_match_the_generator (tests.test_baselines.LaneNotebookTests.test_committed_notebooks_match_the_generator)
+Editing the .ipynb instead of the generator must fail here, not in Colab. ... ok
+test_each_lane_installs_only_its_own_group (tests.test_baselines.LaneNotebookTests.test_each_lane_installs_only_its_own_group)
+The whole reason for the split: one optional group per runtime. ... ok
+test_every_lane_drives_the_entry_scripts_and_can_resume (tests.test_baselines.LaneNotebookTests.test_every_lane_drives_the_entry_scripts_and_can_resume) ... ok
+test_every_lane_model_needs_that_lane_group (tests.test_baselines.LaneNotebookTests.test_every_lane_model_needs_that_lane_group) ... ok
+test_lanes_partition_every_requested_cell_exactly_once (tests.test_baselines.LaneNotebookTests.test_lanes_partition_every_requested_cell_exactly_once)
+No cell may be dropped between lanes, and none may be run twice. ... ok
+test_no_lane_overrides_the_shared_training_budget (tests.test_baselines.LaneNotebookTests.test_no_lane_overrides_the_shared_training_budget)
+`--epochs` reaches the training loops now, so a notebook must not set it. ... ok
+test_node_classification_runs_only_the_requested_subset (tests.test_baselines.LaneNotebookTests.test_node_classification_runs_only_the_requested_subset)
+HINormer on ACM alone; the other four on all three datasets. ... ok
+test_notebooks_are_committed_clean_and_parse (tests.test_baselines.LaneNotebookTests.test_notebooks_are_committed_clean_and_parse) ... ok
+test_the_dgl_lane_refuses_to_run_on_cpu (tests.test_baselines.LaneNotebookTests.test_the_dgl_lane_refuses_to_run_on_cpu)
+A CPU-only DGL wastes the whole session; the lane must stop, not warn. ... ok
+test_an_explicit_ratio_survives_the_preset (tests.test_baselines.LinkProtocolTests.test_an_explicit_ratio_survives_the_preset) ... ok
+test_every_hgb_dataset_holds_out_at_hgbs_rate (tests.test_baselines.LinkProtocolTests.test_every_hgb_dataset_holds_out_at_hgbs_rate)
+HGB draws validation at 1 - train_ratio = 0.10 on every link dataset. ... ok
+test_homogeneous_link_baselines_share_one_graph (tests.test_baselines.LinkProtocolTests.test_homogeneous_link_baselines_share_one_graph)
+GCN/GAT read ``view.edge_index``, the reduction NSD and CSNN already got. ... ok
+test_split_overlap_is_measured (tests.test_baselines.LinkProtocolTests.test_split_overlap_is_measured)
+HGB's split leaves part of each held-out set visible; it must be recorded. ... ok
+test_adapters_can_be_called_twice_in_one_process (tests.test_baselines.MultiCallSafetyTests.test_adapters_can_be_called_twice_in_one_process)
+A second fit in the same process must not fail on import side effects. ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ok
+test_oracle_topk_matches_the_vendor_implementation (tests.test_baselines.MultiLabelProtocolTests.test_oracle_topk_matches_the_vendor_implementation) ... ok
+test_project_helper_can_reproduce_the_hgb_convention (tests.test_baselines.MultiLabelProtocolTests.test_project_helper_can_reproduce_the_hgb_convention)
+src/utils/misc.py must be able to reproduce PSHGCN/H2SGNN's convention. ... ok
+test_rejects_an_unknown_protocol (tests.test_baselines.MultiLabelProtocolTests.test_rejects_an_unknown_protocol) ... ok
+test_topk_selects_exactly_the_true_label_count (tests.test_baselines.MultiLabelProtocolTests.test_topk_selects_exactly_the_true_label_count) ... ok
+test_no_cell_reads_a_name_no_earlier_cell_defines (tests.test_baselines.NotebookNameResolutionTests.test_no_cell_reads_a_name_no_earlier_cell_defines) ... ok
+test_only_the_lanes_that_install_a_group_define_one (tests.test_baselines.NotebookNameResolutionTests.test_only_the_lanes_that_install_a_group_define_one)
+A core lane neither defines nor reads the install-status variables. ... ok
+test_the_checker_catches_the_bug_it_was_written_for (tests.test_baselines.NotebookNameResolutionTests.test_the_checker_catches_the_bug_it_was_written_for)
+A gate reading GROUP_OK with no install cell above it must be flagged. ... ok
+test_every_transposed_monomial_resolves_to_known_keys (tests.test_baselines.PolynomialRelationKeyTests.test_every_transposed_monomial_resolves_to_known_keys)
+The invariant behind the palindrome rule, checked on the LP datasets of the campaign ... ok
+test_keys_are_exactly_two_characters (tests.test_baselines.PolynomialRelationKeyTests.test_keys_are_exactly_two_characters)
+The model slices adjs[j[:2]]; a longer key would index the wrong operator. ... ok
+test_lastfm_matches_the_authors_key_set (tests.test_baselines.PolynomialRelationKeyTests.test_lastfm_matches_the_authors_key_set)
+Their LastFM keys are UA, AU, UU, AT, TA -- 5 operators for 3 relations. ... ok
+test_pubmed_keys_encode_node_types (tests.test_baselines.PolynomialRelationKeyTests.test_pubmed_keys_encode_node_types)
+Ten relations over four types, every type pair unique, so chaining applies. ... ok
+test_published_cells_are_declared_runnable (tests.test_baselines.PublishedParamsTests.test_published_cells_are_declared_runnable) ... ok
+test_published_files_declare_a_source (tests.test_baselines.PublishedParamsTests.test_published_files_declare_a_source) ... ok
+test_campaign_matrix_matches_planned_cell_counts (tests.test_baselines.RegistryTests.test_campaign_matrix_matches_planned_cell_counts) ... ok
+test_every_cell_is_runnable_or_has_a_reason (tests.test_baselines.RegistryTests.test_every_cell_is_runnable_or_has_a_reason) ... ok
+test_every_model_module_declares_an_adapter (tests.test_baselines.RegistryTests.test_every_model_module_declares_an_adapter) ... ok
+test_pending_cells_carry_their_specific_reason (tests.test_baselines.RegistryTests.test_pending_cells_carry_their_specific_reason)
+H2GB datasets without a loader and the two large LP tasks: data pending; LatGRL, ... ok
+test_vendor_model_init_is_reproducible_under_seed_everything (tests.test_baselines.ReproducibilityTests.test_vendor_model_init_is_reproducible_under_seed_everything)
+Seeding torch alone is not enough for these vendored models. ... ok
+test_dgl_free_models_stay_runnable_when_dgl_is_absent (tests.test_baselines.RequirementGroupTests.test_dgl_free_models_stay_runnable_when_dgl_is_absent)
+The whole point of the split: a missing group must not spread. ... ok
+test_every_group_has_a_pin_file_that_requirements_aggregates (tests.test_baselines.RequirementGroupTests.test_every_group_has_a_pin_file_that_requirements_aggregates) ... ok
+test_every_registered_model_is_in_the_dependency_map (tests.test_baselines.RequirementGroupTests.test_every_registered_model_is_in_the_dependency_map)
+A model missing from the map would raise instead of being skipped cleanly. ... ok
+test_pshgcn_needs_dgl_only_for_link_prediction (tests.test_baselines.RequirementGroupTests.test_pshgcn_needs_dgl_only_for_link_prediction)
+PSHGCN/hgb-lp/pshgcn.py opens with a leftover `import dgl`; hgb/ does not. ... ok
+test_unknown_model_is_rejected (tests.test_baselines.RequirementGroupTests.test_unknown_model_is_rejected) ... ok
+test_every_published_value_is_reachable (tests.test_baselines.SearchSpaceCoverageTests.test_every_published_value_is_reachable)
+Card 8 C4 (author 2026-11-20): a cell with a published configuration runs it (5 seeds) and is not tuned, so ... ok
+test_each_loop_selects_on_its_documented_metric (tests.test_baselines.SelectionMetricTests.test_each_loop_selects_on_its_documented_metric)
+Read the loops' source: the stopping rule must use the expected key. ... ok
+test_monitor_matches_the_reported_headline_metric (tests.test_baselines.SelectionMetricTests.test_monitor_matches_the_reported_headline_metric) ... ok
+test_sweeps_optimise_the_same_metric_training_selects_on (tests.test_baselines.SelectionMetricTests.test_sweeps_optimise_the_same_metric_training_selects_on) ... ok
+test_the_module_docstring_does_not_contradict_the_code (tests.test_baselines.SelectionMetricTests.test_the_module_docstring_does_not_contradict_the_code) ... ok
+test_every_code_cell_parses (tests.test_baselines.SplitInstallNotebookTests.test_every_code_cell_parses) ... ok
+test_notebooks_install_core_then_groups_and_filter (tests.test_baselines.SplitInstallNotebookTests.test_notebooks_install_core_then_groups_and_filter) ... ok
+test_budget_is_never_searched (tests.test_baselines.TrainingBudgetTests.test_budget_is_never_searched)
+A tuned trial must not be able to buy itself a longer run. ... ok
+test_hyperband_bracket_matches_the_real_epoch_budget (tests.test_baselines.TrainingBudgetTests.test_hyperband_bracket_matches_the_real_epoch_budget) ... ok
+test_no_adapter_sets_its_own_budget (tests.test_baselines.TrainingBudgetTests.test_no_adapter_sets_its_own_budget) ... ok
+test_published_params_keep_the_authors_budget (tests.test_baselines.TrainingBudgetTests.test_published_params_keep_the_authors_budget)
+Reproducing a reported number means using the budget it was reported at. ... ok
+test_tuned_params_get_the_shared_budget (tests.test_baselines.TrainingBudgetTests.test_tuned_params_get_the_shared_budget) ... ok
+test_all_declared_vendor_clones_are_present (tests.test_baselines.VendorIsolationTests.test_all_declared_vendor_clones_are_present) ... ok
+test_colliding_vendor_module_names_do_not_leak (tests.test_baselines.VendorIsolationTests.test_colliding_vendor_module_names_do_not_leak)
+PSHGCN and H2SGNN both ship `processing.py`; each must get its own. ... ok
+test_every_adapter_module_names_a_registered_vendor (tests.test_baselines.VendorRootIntegrityTests.test_every_adapter_module_names_a_registered_vendor)
+Every VENDOR referenced by an adapter must exist in VENDOR_ROOTS. ... ok
+test_empty_two_hop_set_yields_none_with_a_reason (tests.test_partP_derived_lp.EmptyTwoHopTests.test_empty_two_hop_set_yields_none_with_a_reason) ... ok
+test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) ... 
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='gcn') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='gat') ... ERROR
+[coverage] 271/271 runnable cells have an adapter; no adapter yet: none
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='nsd') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='csnn') ... ERROR
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='han') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='pshgcn') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2gformer') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='hetero2net') ... ERROR
+  test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2sgnn') ... ERROR
+test_no_held_out_pair_reaches_any_message_graph (tests.test_partP_derived_lp.MessageGraphTests.test_no_held_out_pair_reaches_any_message_graph) ... ok
+test_parallel_relations_still_raise (tests.test_partP_derived_lp.RelationKeyTests.test_parallel_relations_still_raise) ... ok
+test_polynomial_keys_equal_the_hand_list (tests.test_partP_derived_lp.RelationKeyTests.test_polynomial_keys_equal_the_hand_list) ... ok
+test_loader_reads_the_fixed_validation_file_exactly (tests.test_hgb_oracle.FixedValidationFileTests.test_loader_reads_the_fixed_validation_file_exactly) ... ok
+test_datasets_cover_the_cards_cases (tests.test_hgb_oracle.HGBOracleTests.test_datasets_cover_the_cards_cases)
+The cases of the card hold on HGB's own loading of the files, including the guard of ... ok
+test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos (tests.test_hgb_oracle.HGBOracleTests.test_hgb_rule_replayed_over_our_facts_equals_get_train_valid_pos)
+The documented difference (spec draft v1.18 Z-4; author decision (a), 2026-11-12): ... ok
+test_random_set_equals_get_test_neigh_w_random (tests.test_hgb_oracle.HGBOracleTests.test_random_set_equals_get_test_neigh_w_random) ... ok
+test_training_negatives_equal_get_train_neg (tests.test_hgb_oracle.HGBOracleTests.test_training_negatives_equal_get_train_neg) ... ok
+test_two_hop_set_equals_get_test_neigh (tests.test_hgb_oracle.HGBOracleTests.test_two_hop_set_equals_get_test_neigh) ... ok
+test_validation_negatives_equal_get_valid_neg (tests.test_hgb_oracle.HGBOracleTests.test_validation_negatives_equal_get_valid_neg) ... ok
+test_every_stored_row_of_a_held_out_pair_is_in_its_file (tests.test_lp_derived.FreebasePairSplitTests.test_every_stored_row_of_a_held_out_pair_is_in_its_file) ... ok
+test_loader_leak_checks_pass_and_positives_exclude_self_loops (tests.test_lp_derived.FreebasePairSplitTests.test_loader_leak_checks_pass_and_positives_exclude_self_loops) ... ok
+test_loader_raises_on_a_one_orientation_validation_file (tests.test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_one_orientation_validation_file)
+Independent review, finding 3 (B): link.dat.valid lists one row of a two-row pair. ... ok
+test_loader_raises_on_a_reversed_test_pair_in_link_dat (tests.test_lp_derived.FreebasePairSplitTests.test_loader_raises_on_a_reversed_test_pair_in_link_dat)
+Independent review, finding 3 (A): the reverse row of a one-row test pair put back. ... ok
+test_no_unordered_pair_has_rows_in_two_parts (tests.test_lp_derived.FreebasePairSplitTests.test_no_unordered_pair_has_rows_in_two_parts) ... ok
+test_proportions_are_81_9_10_by_pair (tests.test_lp_derived.FreebasePairSplitTests.test_proportions_are_81_9_10_by_pair) ... ok
+test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation (tests.test_lp_derived.FreebasePairSplitTests.test_reciprocal_leak_no_held_out_pair_in_link_dat_either_orientation) ... ok
+test_same_seed_gives_byte_identical_files (tests.test_lp_derived.FreebasePairSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_self_loops_are_in_no_part_and_stay_in_link_dat (tests.test_lp_derived.FreebasePairSplitTests.test_self_loops_are_in_no_part_and_stay_in_link_dat) ... ok
+test_disjoint_by_unordered_pair (tests.test_lp_derived.RealFreebasePairTests.test_disjoint_by_unordered_pair) ... ok
+test_no_reciprocal_leak_and_no_held_out_self_loop (tests.test_lp_derived.RealFreebasePairTests.test_no_reciprocal_leak_and_no_held_out_self_loop) ... ok
+test_proportions_by_pair (tests.test_lp_derived.RealFreebasePairTests.test_proportions_by_pair) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_acm_pa.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_acm_pa.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_acm_pa.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_acm_pa.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_acm_pp.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_acm_pp.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_acm_pp.test_parts_are_disjoint_by_fact_in_either_orientation) ... FAIL
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_acm_pp.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_dblp_ap.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_dblp_ap.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_dblp_ap.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_dblp_ap.test_proportions_are_81_9_10) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.RealSplitTests_imdb_ma.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.RealSplitTests_imdb_ma.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_imdb_ma.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.RealSplitTests_imdb_ma.test_proportions_are_81_9_10) ... ok
+test_loads_and_its_test_set_is_link_dat_test (tests.test_lp_derived.SyntheticLoaderTests.test_loads_and_its_test_set_is_link_dat_test) ... ok
+test_mutation_a_test_fact_back_as_its_target_row_is_caught (tests.test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_as_its_target_row_is_caught) ... ok
+test_mutation_a_test_fact_back_in_link_dat_is_caught (tests.test_lp_derived.SyntheticLoaderTests.test_mutation_a_test_fact_back_in_link_dat_is_caught) ... ok
+test_validation_split_does_not_depend_on_the_training_seed (tests.test_lp_derived.SyntheticLoaderTests.test_validation_split_does_not_depend_on_the_training_seed) ... ok
+test_a_reverse_only_leak_is_caught_at_file_level (tests.test_lp_derived.SyntheticSplitTests.test_a_reverse_only_leak_is_caught_at_file_level)
+Route 2 of the pre-registration: a test fact back in link.dat only as an r' row. ... ok
+test_counts_and_reverse_relation (tests.test_lp_derived.SyntheticSplitTests.test_counts_and_reverse_relation) ... ok
+test_every_node_of_a_test_fact_is_in_node_dat (tests.test_lp_derived.SyntheticSplitTests.test_every_node_of_a_test_fact_is_in_node_dat) ... ok
+test_link_dat_is_the_release_minus_the_test_rows (tests.test_lp_derived.SyntheticSplitTests.test_link_dat_is_the_release_minus_the_test_rows) ... ok
+test_no_test_fact_is_left_in_link_dat (tests.test_lp_derived.SyntheticSplitTests.test_no_test_fact_is_left_in_link_dat) ... ok
+test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.SyntheticSplitTests.test_parts_are_disjoint_by_fact_in_either_orientation) ... ok
+test_proportions_are_81_9_10 (tests.test_lp_derived.SyntheticSplitTests.test_proportions_are_81_9_10) ... ok
+test_same_seed_gives_byte_identical_files (tests.test_lp_derived.SyntheticSplitTests.test_same_seed_gives_byte_identical_files) ... ok
+test_loader_specs_live_under_lp (tests.test_data_layout.DataLayoutTests.test_loader_specs_live_under_lp) ... ok
+test_no_old_layout_paths_in_code (tests.test_data_layout.DataLayoutTests.test_no_old_layout_paths_in_code)
+No loader, adapter or script builds a path of the pre-M1 layout (`data/<key>/<key>/raw`, ... ok
+test_roots (tests.test_data_layout.DataLayoutTests.test_roots) ... ok
+test_a_validation_fact_missing_from_link_dat_raises (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_a_validation_fact_missing_from_link_dat_raises) ... ok
+test_non_target_relations_absent_from_the_file_stay_whole (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_non_target_relations_absent_from_the_file_stay_whole) ... ok
+test_reverse_only_fixture_raises (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_reverse_only_fixture_raises)
+J1.3 finding 2: a test fact back in link.dat only as its r' row breaks rho; the ... ok
+test_validation_facts_leave_the_message_graph_in_both_orientations (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_validation_facts_leave_the_message_graph_in_both_orientations) ... ok
+test_validation_is_the_file_and_the_split_is_81_9_10 (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_validation_is_the_file_and_the_split_is_81_9_10) ... ok
+test_self_inverse_relation_listed_in_one_orientation_raises (tests.test_lp_valid_files.FileWrittenFromTheCarveTests.test_self_inverse_relation_listed_in_one_orientation_raises) ... ok
+test_written_file_reproduces_the_loaders_carve (tests.test_lp_valid_files.FileWrittenFromTheCarveTests.test_written_file_reproduces_the_loaders_carve) ... ok
+test_derived_tasks_evaluate_81_9_10 (tests.test_lp_valid_files.RealValidFileTests.test_derived_tasks_evaluate_81_9_10) ... ok
+test_lastfm_file_is_target_only (tests.test_lp_valid_files.RealValidFileTests.test_lastfm_file_is_target_only) ... ok
+test_pubmed_file_is_target_only (tests.test_lp_valid_files.RealValidFileTests.test_pubmed_file_is_target_only) ... ok
+test_target_only_file_keeps_the_target_split_and_completes_the_rest (tests.test_lp_valid_files.TargetOnlyFileTests.test_target_only_file_keeps_the_target_split_and_completes_the_rest) ... ok
+test_hand_edited_value_is_refused (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_hand_edited_value_is_refused) ... ok
+test_missing_record_is_refused (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_missing_record_is_refused) ... ok
+test_removed_type_with_features_is_refused_even_with_a_matching_md5 (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_removed_type_with_features_is_refused_even_with_a_matching_md5) ... ok
+test_rerun_of_the_split_builder_is_refused (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_rerun_of_the_split_builder_is_refused) ... ok
+test_rule_applied_task_loads (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_applied_task_loads) ... ok
+test_rule_removes_single_columns (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_single_columns) ... ok
+test_rule_removes_the_block_and_keeps_every_other_row (tests.test_lp_feature_rule.FeatureRuleAndGuardTests.test_rule_removes_the_block_and_keeps_every_other_row) ... ok
+test_embeddings_are_produced_and_consumed (tests.test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed) ... ok
+test_hidden_width_128_builds_with_metapath (tests.test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath) ... ok
+test_the_label_channel_reads_training_labels (tests.test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels) ... ok
+test_validation_and_test_labels_do_not_reach_the_label_channel (tests.test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel) ... ok
+test_hops_exist_on_the_real_graphs (tests.test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) ... ok
+test_schemas_are_cyclic_edge_types_of_the_graph (tests.test_partP_h2gformer.SchemaTests.test_schemas_are_cyclic_edge_types_of_the_graph) ... ok
+test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) ... ok
+test_metapath2vec_settings_equal_h2gbs (tests.test_partP_h2gformer.SettingsTests.test_metapath2vec_settings_equal_h2gbs) ... ok
+test_h2gb_stacks_equal_their_configs (tests.test_partP_h2gformer.StackTests.test_h2gb_stacks_equal_their_configs) ... ok
+test_stack_per_cell_is_t2 (tests.test_partP_h2gformer.StackTests.test_stack_per_cell_is_t2) ... ok
+test_one_graph_classification_step_is_finite_and_moves (tests.test_baselines_hetsheaf.GraphClassificationStepTests.test_one_graph_classification_step_is_finite_and_moves)
+A2: their inductive encoder and their readouts `late_token` (SheafPool) and `mean`, one step each on a ... Using sheaf learner: type_concat
+Using sheaf learner: type_concat
+ok
+test_no_held_out_fact_in_hetsheaf_large_lp_loaders (tests.test_baselines_hetsheaf.H2GBStepTests.test_no_held_out_fact_in_hetsheaf_large_lp_loaders)
+`large_lp_minibatch`'s held-out-fact test with HetSheaf's loader configuration: their chain (incl. ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_one_large_lp_step_is_finite_and_moves (tests.test_baselines_hetsheaf.H2GBStepTests.test_one_large_lp_step_is_finite_and_moves) ... Using sheaf learner: edge_type_concat
+ok
+test_one_sampled_node_classification_step_is_finite_and_moves (tests.test_baselines_hetsheaf.H2GBStepTests.test_one_sampled_node_classification_step_is_finite_and_moves) ... Using sheaf learner: type_ensemble
+ok
+test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph (tests.test_baselines_hetsheaf.H2GBStepTests.test_rebound_encoder_equals_an_encoder_built_on_the_batch_graph)
+The rebinding mechanism (A3): their encoder, built on a placeholder and rebound to a sampled batch (after a ... Using sheaf learner: type_concat
+Using sheaf learner: type_concat
+Using sheaf learner: attention_type_concat
+Using sheaf learner: attention_type_concat
+Using sheaf learner: node_type
+Using sheaf learner: node_type
+ok
+test_registry_and_another_adapter_leave_no_hetsheaf_or_lightning_module (tests.test_baselines_hetsheaf.ImportRouteTests.test_registry_and_another_adapter_leave_no_hetsheaf_or_lightning_module)
+Design-session condition 1 (S-A0-1): the empty packages and the `lightning.pytorch` alias exist only ... ok
+test_chain_equals_their_hgb_chain_without_subset_train_split (tests.test_baselines_hetsheaf.PreprocessingTests.test_chain_equals_their_hgb_chain_without_subset_train_split) ... ok
+test_shared_masks_survive_the_chain (tests.test_baselines_hetsheaf.PreprocessingTests.test_shared_masks_survive_the_chain)
+Label-route protection: the shared split comes back unchanged (a split-changing transform such as their ... ok
+test_one_link_prediction_step_is_finite_and_moves (tests.test_baselines_hetsheaf.StepTests.test_one_link_prediction_step_is_finite_and_moves) ... Using sheaf learner: type_concat
+Using sheaf learner: type_concat
+Using sheaf learner: type_concat
+Using sheaf learner: type_concat
+ok
+test_one_node_classification_step_is_finite_and_moves (tests.test_baselines_hetsheaf.StepTests.test_one_node_classification_step_is_finite_and_moves) ... Using sheaf learner: attention_type_concat
+ok
+test_every_h2snn_cell_resolves_a_valid_configuration (tests.test_experiment_configs.ExperimentConfigTests.test_every_h2snn_cell_resolves_a_valid_configuration) ... ok
+test_every_small_lp_adapter_uses_the_shared_loop (tests.test_card8_lp_step.AdapterStepTests.test_every_small_lp_adapter_uses_the_shared_loop)
+No adapter has its own small-LP epoch loop: each LP fit calls `train_link_prediction` with the budget's ... ok
+test_gcn_adapter_steps_per_epoch (tests.test_card8_lp_step.AdapterStepTests.test_gcn_adapter_steps_per_epoch) ... ok
+test_distmult_equals_hgbs_bmm_and_init (tests.test_card8_lp_step.DistMultTests.test_distmult_equals_hgbs_bmm_and_init) ... ok
+test_distmult_is_a_full_matrix (tests.test_card8_lp_step.DistMultTests.test_distmult_is_a_full_matrix) ... ok
+test_shared_loop_steps_per_epoch (tests.test_card8_lp_step.SharedLoopStepTests.test_shared_loop_steps_per_epoch) ... ok
+test_step_batches_cover_every_positive_once (tests.test_card8_lp_step.SharedLoopStepTests.test_step_batches_cover_every_positive_once) ... ok
+Processing...
+Done!
+test_freebase_published_path_is_finite_and_moves (tests.test_card8_magnn.FreebaseNCTests.test_freebase_published_path_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_our_instances_equal_hgbs_get_adjlist_pkl (tests.test_card8_magnn.FreebaseNCTests.test_our_instances_equal_hgbs_get_adjlist_pkl)
+Our enumeration (used off HGB) gives HGB's format on HGB's own BB (link 0 and its reverse). ... ok
+test_rule_schemas_step_is_finite_and_moves (tests.test_card8_magnn.H2GBNCTests.test_rule_schemas_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_assert_no_held_out_raises_on_a_crafted_instance (tests.test_card8_magnn.LPTests.test_assert_no_held_out_raises_on_a_crafted_instance) ... ok
+test_lp_small_is_finite_and_moves (tests.test_card8_magnn.LPTests.test_lp_small_is_finite_and_moves) ... ok
+test_no_instance_passes_a_held_out_fact (tests.test_card8_magnn.LPTests.test_no_instance_passes_a_held_out_fact) ... ok
+test_training_mask_drops_instances_through_a_step_positive (tests.test_card8_magnn.LPTests.test_training_mask_drops_instances_through_a_step_positive) ... ok
+test_lp_large_step_is_finite_and_moves (tests.test_card8_magnn.LargeLPTests.test_lp_large_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:92: DGLWarning: Recommend creating graphs by `dgl.graph(data)` instead of `dgl.DGLGraph(data)`.
+  dgl_warning(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/dgl/heterograph.py:120: DGLWarning: Keyword arguments ['multigraph'] are deprecated in v0.5, and can be safely removed in all cases.
+  dgl_warning(
+ok
+test_h2gb_rgcn_step_is_finite_and_moves (tests.test_card8_rgcn.H2GBNodeTests.test_h2gb_rgcn_step_is_finite_and_moves) ... ok
+Processing...
+Done!
+test_fit_task_uses_the_bundle_masks (tests.test_card8_rgcn.HGBNodeTests.test_fit_task_uses_the_bundle_masks) ... ok
+test_hgb_nc_step_is_finite_and_moves (tests.test_card8_rgcn.HGBNodeTests.test_hgb_nc_step_is_finite_and_moves) ... ok
+test_lp_graph_equals_hgbs_dict_rule (tests.test_card8_rgcn.LPGraphRuleTests.test_lp_graph_equals_hgbs_dict_rule) ... ok
+test_fit_task_trains_on_the_bundle_lp_data (tests.test_card8_rgcn.LPTests.test_fit_task_trains_on_the_bundle_lp_data) ... ok
+test_lp_small_step_is_finite_and_moves (tests.test_card8_rgcn.LPTests.test_lp_small_step_is_finite_and_moves) ... ok
+test_lp_large_step_is_finite_and_moves (tests.test_card8_rgcn.LargeLPTests.test_lp_large_step_is_finite_and_moves) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/link_neighbor_loader.py:252: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+ok
+test_dataset_classes (tests.test_budget_table.BudgetTableTests.test_dataset_classes) ... ok
+test_one_row_per_task_and_dataset_class (tests.test_budget_table.BudgetTableTests.test_one_row_per_task_and_dataset_class) ... ok
+test_baseline_budget_follows_the_source_protocol (tests.test_budget_table.ReadersTests.test_baseline_budget_follows_the_source_protocol) ... ok
+test_h2snn_reads_the_table (tests.test_budget_table.ReadersTests.test_h2snn_reads_the_table) ... ok
+test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) ... ok
+test_heuristics_read_training_facts_only (tests.test_heart_negatives.CrossTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ok
+test_mask_and_scores_use_the_kept_endpoint (tests.test_heart_negatives.CrossTypeWithFeaturesTests.test_mask_and_scores_use_the_kept_endpoint) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (tests.test_heart_negatives.CrossTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (tests.test_heart_negatives.CrossTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (tests.test_heart_negatives.CrossTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+test_fill_draws_without_replacement (tests.test_heart_negatives.PieceTests.test_fill_draws_without_replacement)
+C4: 20 zero-score candidates, 20 needed: the fill must be a permutation (a draw with ... ok
+test_heart_cn_is_common_neighbours_over_candidate_degree (tests.test_heart_negatives.PieceTests.test_heart_cn_is_common_neighbours_over_candidate_degree) ... ok
+test_l3_equals_kovacs_eq1_by_hand (tests.test_heart_negatives.PieceTests.test_l3_equals_kovacs_eq1_by_hand) ... ok
+test_ppr_push_approximates_exact_ppr (tests.test_heart_negatives.PieceTests.test_ppr_push_approximates_exact_ppr) ... ok
+test_rank_score_matrix_matches_heart (tests.test_heart_negatives.PieceTests.test_rank_score_matrix_matches_heart) ... ok
+test_select_top_k_and_fill_without_replacement (tests.test_heart_negatives.PieceTests.test_select_top_k_and_fill_without_replacement) ... ok
+test_textbook_ra_differs (tests.test_heart_negatives.PieceTests.test_textbook_ra_differs) ... ok
+test_too_few_candidates_stop_the_run (tests.test_heart_negatives.PoolTooSmallTests.test_too_few_candidates_stop_the_run) ... ok
+test_heuristics_read_training_facts_only (tests.test_heart_negatives.SameTypeByPairTests.test_heuristics_read_training_facts_only) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (tests.test_heart_negatives.SameTypeByPairTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (tests.test_heart_negatives.SameTypeByPairTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_self_loops_are_never_negatives (tests.test_heart_negatives.SameTypeByPairTests.test_self_loops_are_never_negatives) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (tests.test_heart_negatives.SameTypeByPairTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+test_heuristics_read_training_facts_only (tests.test_heart_negatives.SameTypeWithFeaturesTests.test_heuristics_read_training_facts_only) ... ok
+test_no_duplicate_within_a_list_and_halves_keep_one_endpoint (tests.test_heart_negatives.SameTypeWithFeaturesTests.test_no_duplicate_within_a_list_and_halves_keep_one_endpoint) ... ok
+test_no_negative_is_a_positive_of_any_split_either_orientation (tests.test_heart_negatives.SameTypeWithFeaturesTests.test_no_negative_is_a_positive_of_any_split_either_orientation) ... ok
+test_written_files_have_the_required_types_and_are_reproducible (tests.test_heart_negatives.SameTypeWithFeaturesTests.test_written_files_have_the_required_types_and_are_reproducible) ... ok
+test_baseline_sweeps_are_plain_bayes (tests.test_search_spaces.BaselineCampaignTests.test_baseline_sweeps_are_plain_bayes) ... ok
+test_K_layer_dropout_and_legacy_keys_are_refused (tests.test_search_spaces.NeverTunedTests.test_K_layer_dropout_and_legacy_keys_are_refused) ... ok
+test_the_anchored_model_can_be_tuned (tests.test_search_spaces.NeverTunedTests.test_the_anchored_model_can_be_tuned)
+v3-B has no gates: `coupling: symmetric` is its own setting (the legacy propagation, where ... ok
+test_wisp_support_and_precision_are_tunable (tests.test_search_spaces.NeverTunedTests.test_wisp_support_and_precision_are_tunable) ... ok
+test_final_seeds_train_the_best_seed0_configuration (tests.test_search_spaces.SeedProtocolTests.test_final_seeds_train_the_best_seed0_configuration)
+--final_seeds reads best_tuned_run0.json and trains its sweep_params on each seed (no ... ok
+test_tuning_seed_and_final_seeds (tests.test_search_spaces.SeedProtocolTests.test_tuning_seed_and_final_seeds) ... ok
+test_graph_classification_space (tests.test_search_spaces.SweepConfigTests.test_graph_classification_space) ... ok
+test_link_prediction_spaces (tests.test_search_spaces.SweepConfigTests.test_link_prediction_spaces) ... ok
+test_node_classification_space_is_the_table (tests.test_search_spaces.SweepConfigTests.test_node_classification_space_is_the_table) ... ok
+test_overrides_reach_the_config (tests.test_search_spaces.SweepConfigTests.test_overrides_reach_the_config) ... ok
+test_shared_axes_are_the_baselines (tests.test_search_spaces.SweepConfigTests.test_shared_axes_are_the_baselines) ... ok
+test_batch_size_axis_on_h2gb_nc_only (tests.test_sweep_batch_size.SweepBatchSizeTests.test_batch_size_axis_on_h2gb_nc_only) ... ok
+test_flag_cannot_be_set_in_a_sweep_config (tests.test_dry_run_flag.DryRunFlagTests.test_flag_cannot_be_set_in_a_sweep_config) ... ok
+test_flag_sets_one_epoch_and_tags_the_runs (tests.test_dry_run_flag.DryRunFlagTests.test_flag_sets_one_epoch_and_tags_the_runs) ... ok
+test_seeds_launcher_flag_sets_one_epoch (tests.test_dry_run_flag.DryRunFlagTests.test_seeds_launcher_flag_sets_one_epoch) ... ok
+test_baseline_unit_summary_selects_by_the_monitor (tests.test_dry_run_flag.LauncherFixTests.test_baseline_unit_summary_selects_by_the_monitor)
+`run_unit_sweep` calls `summarize(records, monitor, path)`; the baseline launcher passed the monitor as the ... ok
+test_baseline_worker_is_spawned_without_task (tests.test_dry_run_flag.LauncherFixTests.test_baseline_worker_is_spawned_without_task)
+`run_unit_sweep` re-spawns `run_baseline_tuning.py --worker_context <file>` only; with `--task` required ... ok
+test_final_seeds_run_without_a_wandb_run (tests.test_dry_run_flag.LauncherFixTests.test_final_seeds_run_without_a_wandb_run)
+`--final_seeds` trains outside a sweep worker: no W&B run exists, and the epoch callback's wandb.log ... Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpi7x31lof/exp/final_seeds/exp_tune_final_seed0_final_seed0
+2026-11-22 11:08:29,663 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 11:08:29,917 | INFO | Epoch 0000 | train_loss: 1.1108 | train_acc: 0.4545 | train_auroc: 0.0000 | train_macro_f1: 0.3481 | train_micro_f1: 0.4545 | val_loss: 1.0743 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.4222 | test_micro_f1: 0.5000
+2026-11-22 11:08:29,925 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-22 11:08:29,925 | INFO | Best epoch 0 | test_macro_f1: 0.4222 | test_micro_f1: 0.5000 | test_acc: 0.5000
+FIT_PEAK {"cuda": true, "gpu_name": "NVIDIA GeForce RTX 2080 Ti", "outside_allocator_bytes": 165478400, "peak_allocated_bytes": 0, "peak_bytes": 167575552, "peak_reserved_bytes": 2097152, "phases": {"test": true, "train": true, "val": true}, "total_bytes": 11539054592}
+ok
+test_build_read_and_site_split (tests.test_fit_check.FitCheckTests.test_build_read_and_site_split) ... ok
+test_dropped_option_refused (tests.test_fit_check.FitCheckTests.test_dropped_option_refused) ... ok
+test_grid_probe_takes_the_largest_peak_of_every_trial (tests.test_fit_check.FitCheckTests.test_grid_probe_takes_the_largest_peak_of_every_trial) ... ok
+test_headroom_and_phases (tests.test_fit_check.FitCheckTests.test_headroom_and_phases) ... ok
+test_published_lines_get_a_row_and_follow_it (tests.test_fit_check.FitCheckTests.test_published_lines_get_a_row_and_follow_it)
+A3.2: every published line has a probe and a fit_check.tsv row; fits -> lab, oom / error -> TSUBAME; an H2GB ... ok
+test_baseline_max_point_every_cell (tests.test_fit_check.GridPointTests.test_baseline_max_point_every_cell) ... ok
+test_central_values (tests.test_fit_check.GridPointTests.test_central_values) ... ok
+test_h2snn_max_point_every_config (tests.test_fit_check.GridPointTests.test_h2snn_max_point_every_config) ... ok
+test_launchers_run_one_trial_per_grid_point (tests.test_fit_check.GridPointTests.test_launchers_run_one_trial_per_grid_point)
+The baseline launcher on NSD ACM NC (sheaf_model 2 x feats_type 3 = 6 trials) and GCN ACM NC (feats_type: ... ok
+test_memory_table (tests.test_fit_check.GridPointTests.test_memory_table)
+A3.1: the script's table holds exactly the expected decisions, each with a file:line reason; the three ... ok
+test_unclassified_key_refused (tests.test_fit_check.GridPointTests.test_unclassified_key_refused) ... ok
+test_both_launchers_refuse_grid_point_outside_probe_lines (tests.test_fit_check.GuardTests.test_both_launchers_refuse_grid_point_outside_probe_lines) ... ok
+test_published_runner_guard_and_no_resume (tests.test_fit_check.GuardTests.test_published_runner_guard_and_no_resume) ... ok
+test_baseline_trial_prints_three_phases (tests.test_fit_check.PeakLineTests.test_baseline_trial_prints_three_phases) ... ok
+test_h2snn_trial_prints_three_phases (tests.test_fit_check.PeakLineTests.test_h2snn_trial_prints_three_phases) ... ok
+test_published_seed_dry_run (tests.test_fit_check.PeakLineTests.test_published_seed_dry_run)
+A3.2: a published seed under --dry_run trains one epoch (raw_base epochs 1) at the published values and ... ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_early_lines_pass_validate_only (tests.test_tsubame_phases.PhaseTests.test_early_lines_pass_validate_only) ... ok
+test_phases_pairwise_disjoint_and_cover_their_cells (tests.test_tsubame_phases.PhaseTests.test_phases_pairwise_disjoint_and_cover_their_cells) ... ok
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='gcn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='gat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='nsd')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='csnn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='han')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='pshgcn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2gformer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='hetero2net')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_every_lp_adapter_runs_one_epoch (tests.test_partP_derived_lp.FitTests.test_every_lp_adapter_runs_one_epoch) (adapter='h2sgnn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_partP_derived_lp.py", line 147, in test_every_lp_adapter_runs_one_epoch
+    self.assertTrue(math.isfinite(float(record[key])), key)
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+======================================================================
+FAIL: test_parts_are_disjoint_by_fact_in_either_orientation (tests.test_lp_derived.RealSplitTests_acm_pp.test_parts_are_disjoint_by_fact_in_either_orientation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card15/H2S-NN/tests/test_lp_derived.py", line 82, in test_parts_are_disjoint_by_fact_in_either_orientation
+    self.assertFalse(both & b, f"{name_a} and {name_b} share a fact")
+AssertionError: {(1232, 1217), (824, 821), (2262, 2265), (1218, 1216)} is not false : train and valid share a fact
+
+----------------------------------------------------------------------
+Ran 265 tests in 522.540s
+
+FAILED (failures=1, errors=9)
+skip gcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip gat/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip nsd/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip csnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip pshgcn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2gformer/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetero2net/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip h2sgnn/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/mutag: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/proteins: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/enzymes: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip hetsheaf/nci1: GC option (a): HetSheaf published number (author 2026-11-20; no baseline GC run)
+skip han/freebase_bb: N/A: OOM on a 24 GB GPU at num_heads 4, the grid minimum; the width is a secondary memory term (card 1e F0 item 3; author decision 2026-11-18)
+skip magnn/acm: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/dblp: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip magnn/imdb: N/A here: the cell holds HGB's published number (register); MAGNN's own ACM/DBLP/IMDB preprocessing is not wired (card 8 C3)
+skip sehgnn/h-pokec: N/A: out of memory under its own code (stored propagated features 1,214-29,685 GiB at num_hops 2-4, Part M3b B7; author decision 2026-11-16)
+/tmp/tmp0p7jiv9_/cells_tuning.txt: 49 runnable line(s), 56 comment line(s)
+end=2026-11-22T11:08:40+09:00 exit=1

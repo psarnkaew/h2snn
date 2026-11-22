@@ -380,7 +380,7 @@ class FixedValidationFileTests(unittest.TestCase):
                 expected = {target: file_rows[target]}
                 if has_reverse:
                     reverse = [r for r in split.link_edge_index_by_relation
-                               if (r[0], r[2]) == (target[2], target[0])]
+                               if (r[0], r[2]) == (target[2], target[0]) and r != target]
                     self.assertEqual(len(reverse), 1, f"{task}: stored reverse relation")
                     expected[reverse[0]] = {(t, h) for h, t in file_rows[target]}
 
