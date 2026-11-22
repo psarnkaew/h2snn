@@ -246,8 +246,8 @@
   "dataset": "acm_pp",
   "task": "lp",
   "measure": "mde",
-  "harness_commit": "03ea4a128186017f3145d97426aa1c6bbcbf9ea9",
-  "job": "18282",
+  "harness_commit": "c59b44b45ca8ed1a6614f61aadbe18564d76d8e5",
+  "job": "18287",
   "node": "g3n01",
   "threads": 8,
   "vendor_commits": {
@@ -276,8 +276,8 @@
    },
    "edge_types": {
     "author-rel_3-paper": 9949,
-    "paper-rel_0-paper": 4328,
-    "paper-rel_1-paper": 4328,
+    "paper-rel_0-paper": 4330,
+    "paper-rel_1-paper": 4330,
     "paper-rel_2-author": 9949,
     "paper-rel_4-subject": 3025,
     "paper-rel_6-term": 255619,
@@ -364,15 +364,15 @@
   "value": {
    "paper": 0.7368905211175987
   },
-  "wall_s": 40.17,
-  "peak_rss_gb": 3.168
+  "wall_s": 36.15,
+  "peak_rss_gb": 3.171
  },
  {
   "dataset": "acm_pp",
   "task": "lp",
   "measure": "task_h_edge",
-  "harness_commit": "03ea4a128186017f3145d97426aa1c6bbcbf9ea9",
-  "job": "18282",
+  "harness_commit": "c59b44b45ca8ed1a6614f61aadbe18564d76d8e5",
+  "job": "18287",
   "node": "g3n01",
   "threads": 8,
   "vendor_commits": {
@@ -404,8 +404,8 @@
   "spread": null,
   "edges": 5343,
   "self_loops": 8,
-  "wall_s": 2.3,
-  "peak_rss_gb": 0.734
+  "wall_s": 1.78,
+  "peak_rss_gb": 0.739
  },
  {
   "dataset": "dblp_ap",

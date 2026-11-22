@@ -21,6 +21,11 @@ pair** instead (`build_task_by_pair`): the relation has no stored reverse relati
 non-loop rows have their reverse stored in the same relation, so a split by directed row would put
 (u, v) in test and (v, u) in training. Every stored row of a pair goes to the pair's part, the
 test rows leave `link.dat` together, and self-loops stay in `link.dat` in no part.
+
+acm_pp (card 15, model session 2026-11-22, option b) is split by unordered pair too: ACM paper-cite-paper has a
+stored reverse (paper-ref-paper) and 25 pairs that cite each other, so a split by fact put one direction in training (the
+message graph) and the other in validation or test. With a stored reverse, a test pair's reverse-relation rows
+leave `link.dat` with its target rows.
 """
 
 from __future__ import annotations
@@ -56,7 +61,7 @@ class DerivedTask:
 #: acm_pp (card 15): HGB ACM paper-cite-paper, replacing acm_pa in the LP table.
 DERIVED_TASKS: dict[str, DerivedTask] = {
     "acm_pa": DerivedTask("acm", 2),     # paper -> author
-    "acm_pp": DerivedTask("acm", 0),     # paper -cite-> paper (card 15; stored reverse rel 1)
+    "acm_pp": DerivedTask("acm", 0, "unordered_pair"),  # paper -cite-> paper (card 15; stored reverse rel 1)
     "dblp_ap": DerivedTask("dblp", 0),  # author -> paper
     "imdb_ma": DerivedTask("imdb", 2),  # movie -> actor
     "freebase_bb": DerivedTask("freebase", 0, "unordered_pair"),  # book-book
@@ -175,15 +180,18 @@ def build_task_by_pair(source: Path, out_dir: Path, relation: int, seed: int, va
     """Split `relation` by unordered pair (spec v1.8 F10): the non-loop pairs {u, v}, sorted, are
     permuted exactly as `split_facts` permutes facts; each part holds every stored row of its pairs
     (one or two per pair); test rows leave `link.dat` in both orientations; self-loops stay in
-    `link.dat` and are in no part (positives exclude them)."""
+    `link.dat` and are in no part (positives exclude them). A stored reverse relation of `relation` (acm_pp, card 15)
+    must be its exact reverse; its rows of a test pair leave `link.dat` with the target rows."""
     rows = read_link_rows(source / "link.dat")
     pairs_by_relation: dict[int, set[Pair]] = {}
     for row in rows:
         pairs_by_relation.setdefault(row.relation, set()).add((row.src, row.dst))
     target = pairs_by_relation[relation]
     reversed_target = {(dst, src) for src, dst in target}
-    if any(edges == reversed_target for rel, edges in pairs_by_relation.items() if rel != relation):
-        raise ValueError(f"relation {relation} has a stored reverse relation: split it by fact.")
+    partners = [rel for rel, edges in pairs_by_relation.items() if rel != relation and edges == reversed_target]
+    if len(partners) > 1:
+        raise ValueError(f"relation {relation} has {len(partners)} exact reverses: {partners}.")
+    reverse = partners[0] if partners else None
     loops = {pair for pair in target if pair[0] == pair[1]}
     pairs = sorted({unordered(pair) for pair in target - loops})
     train, val, test = split_facts(pairs, seed, val_frac, test_frac)
@@ -196,7 +204,8 @@ def build_task_by_pair(source: Path, out_dir: Path, relation: int, seed: int, va
         shutil.copyfile(source / name, out_dir / name)
     kept, removed = [], 0
     for row in rows:
-        if row.relation == relation and (row.src, row.dst) in test_rows:
+        if (row.relation == relation and (row.src, row.dst) in test_rows) or \
+                (row.relation == reverse and (row.dst, row.src) in test_rows):
             removed += 1
             continue
         kept.append(row.raw if row.raw.endswith(b"\n") else row.raw + b"\n")
@@ -207,7 +216,8 @@ def build_task_by_pair(source: Path, out_dir: Path, relation: int, seed: int, va
     meta: dict[str, object] = {
         "source": str(source).replace("\\", "/"),
         "source_md5": {name: md5(source / name) for name in ("node.dat", "link.dat", "info.dat")},
-        "target_relation": relation, "reverse_relation": relation, "split_unit": "unordered_pair",
+        "target_relation": relation, "reverse_relation": relation if reverse is None else reverse,
+        "split_unit": "unordered_pair",
         "seed": seed, "val_frac": val_frac, "test_frac": test_frac,
         "permutation": f"numpy {np.__version__} default_rng(seed).permutation over sorted pairs",
         "facts": len(pairs), "train": len(train), "valid": len(val), "test": len(test),

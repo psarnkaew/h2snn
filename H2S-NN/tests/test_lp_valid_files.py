@@ -295,8 +295,7 @@ class RealValidFileTests(unittest.TestCase):
     def test_derived_tasks_evaluate_81_9_10(self) -> None:
         from src.data.link_prediction_dataset import _load_local_hgb_link_data
 
-        targets = {"acm_pa": ("paper", "rel_2", "author"), "acm_pp": ("paper", "rel_0", "paper"),
-                   "dblp_ap": ("author", "rel_0", "paper"),
+        targets = {"acm_pa": ("paper", "rel_2", "author"), "dblp_ap": ("author", "rel_0", "paper"),
                    "imdb_ma": ("movie", "rel_2", "actor")}
         for name, target in targets.items():
             task_dir = lp_derived_root(DATA_ROOT) / name

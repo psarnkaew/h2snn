@@ -36,10 +36,10 @@
  "epochs": [
   {
    "epoch": 0,
-   "train_loss": 0.7897025346755981,
-   "val_loss": 0.7005023956298828,
+   "train_loss": 0.7908593416213989,
+   "val_loss": 0.6999750137329102,
    "tau": 1.0100501775741577,
-   "path_log_w_range": 1.1389172077178955,
+   "path_log_w_range": 1.183927059173584,
    "pcg_iters": {
     "pcg_fwd_iters": 6.0,
     "pcg_bwd_iters": 6.0
@@ -48,7 +48,7 @@
  ],
  "stop_condition": null,
  "error": null,
- "seconds": 1.8916941941715777,
+ "seconds": 1.8174808695912361,
  "parameters_moved": 34,
  "parameters_total": 34,
  "parameters_not_moved": [],
@@ -57,7 +57,7 @@
  "task": "link_prediction",
  "dataset": "acm_pp",
  "device": "cuda",
- "gpu": "NVIDIA GeForce RTX 2080 Ti",
+ "gpu": "NVIDIA GeForce RTX 3090",
  "checks": {
   "runnable": true,
   "a_losses_finite": true,
@@ -66,23 +66,23 @@
   "val_losses": [
    [
     0,
-    0.7005023956298828
+    0.6999750137329102
    ]
   ],
   "b_no_stop_condition": true,
   "c_score_std": [
    {
     "epoch": 0,
-    "val": 0.11354275792837143,
-    "test_2hop": 0.11513958871364594,
-    "test_random": 0.11512039601802826
+    "val": 0.1183137446641922,
+    "test_2hop": 0.12004062533378601,
+    "test_random": 0.11872103810310364
    }
   ],
   "c_no_collapse": true,
   "d_parameters_moved": true,
   "e_train_loss_first_last": [
-   0.7897025346755981,
-   0.7897025346755981
+   0.7908593416213989,
+   0.7908593416213989
   ]
  },
  "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"

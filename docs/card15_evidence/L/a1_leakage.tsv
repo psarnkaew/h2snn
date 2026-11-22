@@ -1,11 +1,11 @@
 task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
-acm_pp	train	positives	4328	4328	4328	40	40	0	0	4328
-acm_pp	train	negatives	4328	6	6	2	2	2		8
-acm_pp	val	positives	481	0	0	4	4	0	0	481
+acm_pp	train	positives	4322	4322	4322	42	42	0	0	4322
+acm_pp	train	negatives	4322	4	4	4	4	0		8
+acm_pp	val	positives	481	0	0	0	0	0	0	481
 acm_pp	val	negatives	481	0	0	0	0	0		1
-acm_pp	test_2hop	positives	534	0	0	2	2	0	0	534
-acm_pp	test_2hop	negatives	534	0	0	0	0	0		0
-acm_pp	test_random	negatives	534	0	0	0	0	0		0
+acm_pp	test_2hop	positives	532	0	0	0	0	0	0	532
+acm_pp	test_2hop	negatives	532	0	0	0	0	0		0
+acm_pp	test_random	negatives	532	0	0	0	0	0		0
 dblp_ap	train	positives	15913	15913	15913	0	0	0	0	15913
 dblp_ap	train	negatives	15913	25	25	0	0	6		27
 dblp_ap	val	positives	1768	0	0	0	0	0	0	1768

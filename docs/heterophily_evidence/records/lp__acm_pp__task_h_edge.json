@@ -2,8 +2,8 @@
  "dataset": "acm_pp",
  "task": "lp",
  "measure": "task_h_edge",
- "harness_commit": "03ea4a128186017f3145d97426aa1c6bbcbf9ea9",
- "job": "18282",
+ "harness_commit": "c59b44b45ca8ed1a6614f61aadbe18564d76d8e5",
+ "job": "18287",
  "node": "g3n01",
  "threads": 8,
  "vendor_commits": {
@@ -35,6 +35,6 @@
  "spread": null,
  "edges": 5343,
  "self_loops": 8,
- "wall_s": 2.3,
- "peak_rss_gb": 0.734
+ "wall_s": 1.78,
+ "peak_rss_gb": 0.739
 }
