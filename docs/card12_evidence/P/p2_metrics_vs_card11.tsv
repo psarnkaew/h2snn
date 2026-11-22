@@ -1,0 +1,2 @@
+epoch	card11_train_loss	card12_train_loss	card11_val_macro_f1	card12_val_macro_f1	train_loss_equal	val_macro_f1_equal
+0	0.39954812976066023	0.39954816215322353	0.8725895195738922	0.8725895195738922	False	True

@@ -1,0 +1,43 @@
+job=18242 node=g3n01 start=2026-11-22T07:51:25+09:00
+git=57b81ee95665a8677793759fdaa5fcd1da6ce2e3 branch=card12 dirty=0
+md5 5232eec788285f9ec9c4ef831196a204  src/models/anchored_solve.py
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 8033cd276596aff98487123d04e881a4  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 e29b0a6c66e42edeaec41928fc5a4a10  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+md5 9d625ed74a46433511d92d8440b5a5ae  scripts/diagnostics/card12/a1_data_checks.py
+md5 907151525693d0e7b81095aeafbc9eb7  scripts/diagnostics/card12/p1_identity.py
+md5 d0a6fbfa468e79335ff46ad64e959ddc  scripts/diagnostics/card12/p_mutations.py
+md5 db6d45833aba9c5b065d80b70c72c11c  scripts/diagnostics/card12/run_p.py
+md5 07ffc0e48c83ba1271b96a8e1da915ae  scripts/diagnostics/card12/zero_rhs_probe.py
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+[new_a] root=/mnt/data/peeradon/h2snn-card12/H2S-NN anchored_solve=/mnt/data/peeradon/h2snn-card12/H2S-NN/src/models/anchored_solve.py md5=5232eec788285f9ec9c4ef831196a204 threads=1 cpu_capability=AVX2
+2026-11-22 07:51:31,933 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 07:51:48,620 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-22 07:51:48,703 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-22 07:51:48,703 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+[new_a] train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) zero_rhs_calls=4 zero_rhs_triggered=0 logged={'pcg_fwd_iters': 7.0, 'pcg_bwd_iters': 6.0, 'pcg_fwd_rel_residual': 0.00047345401253551245, 'pcg_bwd_rel_residual': 0.000304767454508692, 'pcg_converged': 1.0, 'pcg_zero_rhs_scopes': 0.0}
+[old] root=/tmp/c12p1_7_vt0_o0/old_tree anchored_solve=/tmp/c12p1_7_vt0_o0/old_tree/src/models/anchored_solve.py md5=917168894004a0e5a2bdd6788c1d7ef4 threads=1 cpu_capability=AVX2
+2026-11-22 07:51:53,218 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 07:52:09,722 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-22 07:52:09,805 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-22 07:52:09,805 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+[old] train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) zero_rhs_calls=0 zero_rhs_triggered=0 logged={'pcg_fwd_iters': 7.0, 'pcg_bwd_iters': 6.0, 'pcg_fwd_rel_residual': 0.00047345401253551245, 'pcg_bwd_rel_residual': 0.000304767454508692, 'pcg_converged': 1.0}
+[new_b] root=/mnt/data/peeradon/h2snn-card12/H2S-NN anchored_solve=/mnt/data/peeradon/h2snn-card12/H2S-NN/src/models/anchored_solve.py md5=5232eec788285f9ec9c4ef831196a204 threads=1 cpu_capability=AVX2
+2026-11-22 07:52:14,249 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 547872, 'facts_after': 273936}
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 07:52:30,721 | INFO | Epoch 0000 | train_loss: 1.1186 | train_acc: 0.3375 | train_auroc: 0.0000 | train_macro_f1: 0.2128 | train_micro_f1: 0.3375 | val_loss: 1.0793 | val_acc: 0.3812 | val_auroc: 0.0000 | val_macro_f1: 0.2325 | val_micro_f1: 0.3812 | test_acc: 0.3739 | test_auroc: 0.0000 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739
+2026-11-22 07:52:30,805 | INFO | Checkpoint metric macro_f1: 0.2325
+2026-11-22 07:52:30,805 | INFO | Best epoch 0 | test_macro_f1: 0.2408 | test_micro_f1: 0.3739 | test_acc: 0.3739
+[new_b] train_loss=1.1185616254806519 (3ff1e5a0e0000000) val_loss=1.0792527198791504 (3ff1449e80000000) zero_rhs_calls=4 zero_rhs_triggered=0 logged={'pcg_fwd_iters': 7.0, 'pcg_bwd_iters': 6.0, 'pcg_fwd_rel_residual': 0.00047345401253551245, 'pcg_bwd_rel_residual': 0.000304767454508692, 'pcg_converged': 1.0, 'pcg_zero_rhs_scopes': 0.0}
+compare new_a vs new_b: losses bit-identical=True parameters equal=True (36 tensors)
+compare old vs new_a: losses bit-identical=True parameters equal=True (36 tensors)
+pcg_zero_rhs_scopes over all solves of new_a/new_b: 0 (4 solves per run)
+P1 identity: PASS
+end=2026-11-22T07:52:31+09:00 exit=0 wall_s=66

@@ -1,0 +1,60 @@
+job=18243 node=g2tn01 start=2026-11-22T07:53:15+09:00
+git=57b81ee95665a8677793759fdaa5fcd1da6ce2e3 branch=card12 dirty=0
+md5 5232eec788285f9ec9c4ef831196a204  src/models/anchored_solve.py
+md5 8076644e27097b0186d6a9530cc0d7b7  scripts/diagnostics/card11/a1_data_checks.py
+md5 b30c6c15ca41814b358b391a187d3c6e  scripts/diagnostics/card11/a2_score_diagnostics.py
+md5 23ec9783cbbb86a6d9834b7d4847ee6a  scripts/diagnostics/card11/a3_gcn_control.py
+md5 8033cd276596aff98487123d04e881a4  scripts/diagnostics/card11/b1_identity_check.py
+md5 2b0b0276bc470dc4ab7365c4dde278ec  scripts/diagnostics/card11/compare_curves.py
+md5 e60588ac5fa7e8969f17be11d7a4aca1  scripts/diagnostics/card11/run_from_config.py
+md5 e29b0a6c66e42edeaec41928fc5a4a10  scripts/diagnostics/card11/solver_probe.py
+md5 63755259a1048ab1d17aa96004798407  scripts/diagnostics/card11/summarize_probe.py
+md5 9d625ed74a46433511d92d8440b5a5ae  scripts/diagnostics/card12/a1_data_checks.py
+md5 907151525693d0e7b81095aeafbc9eb7  scripts/diagnostics/card12/p1_identity.py
+md5 d0a6fbfa468e79335ff46ad64e959ddc  scripts/diagnostics/card12/p_mutations.py
+md5 0e60ac4126cd2a9ddd8dc1687a8a68ab  scripts/diagnostics/card12/run_p.py
+md5 0a5cbc89694d0e320fde3b1b4e823611  scripts/diagnostics/card12/zero_rhs_probe.py
+NVIDIA TITAN RTX, 550.163.01, 24576 MiB
+card12 run: config=../docs/card11_inputs/h2snn_node_classification_pdns_tune_run0_balmy-sweep-7/config.yaml head=57b81ee95665a8677793759fdaa5fcd1da6ce2e3 host=g2tn01 job=18243 gpu=NVIDIA TITAN RTX
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+2026-11-22 07:54:03,314 | INFO | card11: build 43.4 s; changes []
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+[zero_rhs_probe] triggered epoch=0 step=133 dir=bwd scopes=11 b_norm=3.9904e-13 max=4.9592e-02
+[zero_rhs_probe] triggered epoch=0 step=162 dir=bwd scopes=22 b_norm=3.8651e-12 max=5.4301e-02
+[zero_rhs_probe] triggered epoch=0 step=172 dir=bwd scopes=23 b_norm=1.2953e-12 max=5.7998e-02
+[zero_rhs_probe] triggered epoch=0 step=183 dir=bwd scopes=3 b_norm=3.4529e-13 max=7.2016e-02
+[zero_rhs_probe] triggered epoch=0 step=189 dir=bwd scopes=22 b_norm=2.0397e-13 max=8.4562e-02
+[zero_rhs_probe] triggered epoch=0 step=194 dir=bwd scopes=23 b_norm=4.0704e-13 max=6.7691e-02
+[zero_rhs_probe] triggered epoch=0 step=203 dir=bwd scopes=30 b_norm=1.3120e-14 max=8.6953e-02
+[zero_rhs_probe] triggered epoch=0 step=213 dir=bwd scopes=2 b_norm=3.6797e-13 max=7.4328e-02
+[zero_rhs_probe] triggered epoch=0 step=216 dir=bwd scopes=13 b_norm=1.9186e-12 max=8.8006e-02
+[zero_rhs_probe] triggered epoch=0 step=233 dir=bwd scopes=7 b_norm=1.8574e-13 max=9.2051e-02
+[zero_rhs_probe] triggered epoch=0 step=238 dir=bwd scopes=10 b_norm=1.2911e-14 max=8.5866e-02
+2026-11-22 08:33:12,269 | INFO | Epoch 0000 | train_loss: 0.3995 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.2801 | val_acc: 0.8894 | val_auroc: 0.0000 | val_macro_f1: 0.8726 | val_micro_f1: 0.8894 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+[zero_rhs_probe] triggered epoch=1 step=28 dir=bwd scopes=0 b_norm=2.4326e-15 max=7.1348e-02
+[zero_rhs_probe] triggered epoch=1 step=40 dir=bwd scopes=6 b_norm=2.3143e-14 max=5.0891e-02
+[zero_rhs_probe] triggered epoch=1 step=47 dir=bwd scopes=11 b_norm=1.6272e-12 max=8.0989e-02
+[zero_rhs_probe] triggered epoch=1 step=67 dir=bwd scopes=2,18 b_norm=5.5311e-14,7.2113e-12 max=8.0371e-02
+[zero_rhs_probe] triggered epoch=1 step=74 dir=bwd scopes=23 b_norm=5.2029e-12 max=9.2904e-02
+[zero_rhs_probe] triggered epoch=1 step=89 dir=bwd scopes=18 b_norm=1.5425e-15 max=8.2670e-02
+[zero_rhs_probe] triggered epoch=1 step=90 dir=bwd scopes=0 b_norm=1.6654e-16 max=5.5500e-02
+[zero_rhs_probe] triggered epoch=1 step=99 dir=bwd scopes=28 b_norm=7.6707e-12 max=8.3110e-02
+[zero_rhs_probe] triggered epoch=1 step=101 dir=bwd scopes=23 b_norm=6.7993e-12 max=7.4956e-02
+[zero_rhs_probe] triggered epoch=1 step=117 dir=bwd scopes=25 b_norm=2.5506e-12 max=8.4369e-02
+[zero_rhs_probe] triggered epoch=1 step=118 dir=bwd scopes=28 b_norm=3.8203e-12 max=8.9832e-02
+[zero_rhs_probe] triggered epoch=1 step=120 dir=bwd scopes=29 b_norm=1.0087e-13 max=9.5206e-02
+[zero_rhs_probe] triggered epoch=1 step=121 dir=bwd scopes=1 b_norm=3.2059e-12 max=9.4544e-02
+[zero_rhs_probe] triggered epoch=1 step=126 dir=bwd scopes=14 b_norm=3.5678e-15 max=7.1922e-02
+[zero_rhs_probe] triggered epoch=1 step=127 dir=bwd scopes=29 b_norm=7.0369e-13 max=7.3622e-02
+[zero_rhs_probe] triggered epoch=1 step=128 dir=bwd scopes=17 b_norm=7.1611e-13 max=1.0065e-01
+[zero_rhs_probe] triggered epoch=1 step=133 dir=bwd scopes=20 b_norm=4.3708e-12 max=8.5772e-02
+[zero_rhs_probe] triggered epoch=1 step=135 dir=bwd scopes=11 b_norm=3.2053e-13 max=8.9769e-02
+[zero_rhs_probe] triggered epoch=1 step=164 dir=bwd scopes=21 b_norm=4.3674e-16 max=5.6486e-02
+[zero_rhs_probe] triggered epoch=1 step=172 dir=bwd scopes=27 b_norm=3.4119e-17 max=9.0178e-02
+[zero_rhs_probe] calls=866 triggered_scopes=32
+card12 peak_gpu_gib=0.479 fit_s=3928.9 build_s=43.4
+card12 outcome: wall limit (card12 stop: epoch 1 step 173 reached (passed step 172))
+end=2026-11-22T08:59:32+09:00 exit=0 wall_s=3977
