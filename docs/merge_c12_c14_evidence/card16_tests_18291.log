@@ -1,0 +1,79 @@
+job=18291 node=g3n01 start=2026-11-22T11:24:32+09:00 WANDB_MODE=unset
+git=15e06cf2bace2ab395b7838bdfe93c6af68cb108 dirty=0
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+python 3.12.16 torch 2.4.1+cu124 cuda True threads 8
+test_baseline_budgets_come_from_the_table (tests.test_shared_protocol.BudgetTableTests.test_baseline_budgets_come_from_the_table) ... ok
+test_baseline_gc_stops_on_validation_loss_and_reports_final_weights (tests.test_shared_protocol.BudgetTableTests.test_baseline_gc_stops_on_validation_loss_and_reports_final_weights)
+Validation losses 0.9, 0.8, 0.85, 0.86 (then 0.1, never reached) with patience 2: ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+ok
+test_h2snn_defaults_follow_the_protocol (tests.test_shared_protocol.BudgetTableTests.test_h2snn_defaults_follow_the_protocol) ... ok
+test_protocol_budgets (tests.test_shared_protocol.BudgetTableTests.test_protocol_budgets) ... ok
+test_every_adapter_builds_adamw (tests.test_shared_protocol.OptimizerTests.test_every_adapter_builds_adamw)
+Every model optimizer constructed by a registered adapter module or one of its ... ok
+test_h2snn_default_optimizer_is_adamw_with_the_scalar_group (tests.test_shared_protocol.OptimizerTests.test_h2snn_default_optimizer_is_adamw_with_the_scalar_group) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_no_gradient_clipping_by_default (tests.test_shared_protocol.SchedulerAndClippingTests.test_no_gradient_clipping_by_default)
+A link-prediction training epoch with the default config never calls clipping. ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+test_no_scheduler_object_is_created (tests.test_shared_protocol.SchedulerAndClippingTests.test_no_scheduler_object_is_created) ... ok
+test_dataset_classes (tests.test_budget_table.BudgetTableTests.test_dataset_classes) ... ok
+test_one_row_per_task_and_dataset_class (tests.test_budget_table.BudgetTableTests.test_one_row_per_task_and_dataset_class) ... ok
+test_baseline_budget_follows_the_source_protocol (tests.test_budget_table.ReadersTests.test_baseline_budget_follows_the_source_protocol) ... ok
+test_h2snn_reads_the_table (tests.test_budget_table.ReadersTests.test_h2snn_reads_the_table) ... ok
+test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not (tests.test_budget_table.ReadersTests.test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not) ... ok
+test_patience_counts_epochs_over_evaluation_points (tests.test_card16_epoch_budget.H2GBPatienceTests.test_patience_counts_epochs_over_evaluation_points) ... ok
+test_flag_cannot_be_set_in_a_sweep_config (tests.test_dry_run_flag.DryRunFlagTests.test_flag_cannot_be_set_in_a_sweep_config) ... ok
+test_flag_sets_one_epoch_and_tags_the_runs (tests.test_dry_run_flag.DryRunFlagTests.test_flag_sets_one_epoch_and_tags_the_runs) ... ok
+test_seeds_launcher_flag_sets_one_epoch (tests.test_dry_run_flag.DryRunFlagTests.test_seeds_launcher_flag_sets_one_epoch) ... ok
+test_baseline_unit_summary_selects_by_the_monitor (tests.test_dry_run_flag.LauncherFixTests.test_baseline_unit_summary_selects_by_the_monitor)
+`run_unit_sweep` calls `summarize(records, monitor, path)`; the baseline launcher passed the monitor as the ... ok
+test_baseline_worker_is_spawned_without_task (tests.test_dry_run_flag.LauncherFixTests.test_baseline_worker_is_spawned_without_task)
+`run_unit_sweep` re-spawns `run_baseline_tuning.py --worker_context <file>` only; with `--task` required ... ok
+test_final_seeds_run_without_a_wandb_run (tests.test_dry_run_flag.LauncherFixTests.test_final_seeds_run_without_a_wandb_run)
+`--final_seeds` trains outside a sweep worker: no W&B run exists, and the epoch callback's wandb.log ... Resolved trial: device=cpu orthogonal_map=fasthpp d=8 exp_dir=/tmp/tmpex7k2s8z/exp/final_seeds/exp_tune_final_seed0_final_seed0
+2026-11-22 11:24:40,078 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 384, 'facts_after': 192}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 11:24:40,350 | INFO | Epoch 0000 | train_loss: 1.1097 | train_acc: 0.4545 | train_auroc: 0.0000 | train_macro_f1: 0.3481 | train_micro_f1: 0.4545 | val_loss: 1.0758 | val_acc: 0.6667 | val_auroc: 0.0000 | val_macro_f1: 0.4000 | val_micro_f1: 0.6667 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.4222 | test_micro_f1: 0.5000
+2026-11-22 11:24:40,357 | INFO | Checkpoint metric macro_f1: 0.4000
+2026-11-22 11:24:40,357 | INFO | Best epoch 0 | test_macro_f1: 0.4222 | test_micro_f1: 0.5000 | test_acc: 0.5000
+FIT_PEAK {"cuda": true, "gpu_name": "NVIDIA GeForce RTX 3090", "outside_allocator_bytes": 273547264, "peak_allocated_bytes": 0, "peak_bytes": 273547264, "peak_reserved_bytes": 0, "phases": {"test": true, "train": true, "val": true}, "total_bytes": 25430786048}
+ok
+test_flag_resolves_to_whole_passes_with_the_full_batch_budget (tests.test_partMBfix_flag.FlagConfigTests.test_flag_resolves_to_whole_passes_with_the_full_batch_budget) ... ok
+test_tuner_refusal_and_h2gb_without_b (tests.test_partMBfix_flag.FlagConfigTests.test_tuner_refusal_and_h2gb_without_b) ... ok
+test_evaluation_every_epoch (tests.test_partMBfix_flag.FlagTrainerTests.test_evaluation_every_epoch) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 11:24:40,673 | INFO | Epoch 0000 | train_loss: 1.0983 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1149 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 11:24:40,935 | INFO | Epoch 0001 | train_loss: 1.1287 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1138 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 11:24:41,208 | INFO | Epoch 0002 | train_loss: 1.1114 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1131 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.3818 | test_micro_f1: 0.5000
+ok
+test_one_step_per_epoch_over_every_training_target (tests.test_partMBfix_flag.FlagTrainerTests.test_one_step_per_epoch_over_every_training_target) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 5.629s
+
+OK
+end=2026-11-22T11:24:42+09:00 suite_exit=0
