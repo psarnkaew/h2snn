@@ -1,0 +1,3129 @@
+{
+ "dataset": "acm",
+ "task": "nc",
+ "params": {
+  "epochs": 1,
+  "early_stopping": 1,
+  "metapath_pe": true
+ },
+ "error": null,
+ "seconds": 51.1,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "counts": {
+  "iii_nonzero": 182,
+  "i_none": 318,
+  "ii_zero": 6
+ },
+ "total": 506,
+ "forward_graph": {
+  "edges": {
+   "paper__cite__paper": 5343,
+   "paper__ref__paper": 5343,
+   "paper__to__author": 9949,
+   "author__to__paper": 9949,
+   "paper__to__subject": 3025,
+   "subject__to__paper": 3025,
+   "paper__to__term": 255619,
+   "term__to__paper": 255619
+  },
+  "nodes": {
+   "paper": 3025,
+   "author": 5959,
+   "subject": 56,
+   "term": 1902
+  }
+ },
+ "groups_i_ii": {
+  "model.convs.*": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear1_edge_type.author__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "author__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "author__to__paper": 9949
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.paper__cite__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__cite__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__cite__paper": 5343
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.paper__ref__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__ref__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__ref__paper": 5343
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.paper__to__author": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__author"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__author": 9949
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.paper__to__subject": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__subject"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__subject": 3025
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.paper__to__term": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__term"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__term": 255619
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.subject__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "subject__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "subject__to__paper": 3025
+   }
+  },
+  "model.convs.*.ff_linear1_edge_type.term__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "term__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "term__to__paper": 255619
+   }
+  },
+  "model.convs.*.ff_linear1_type.author": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear1_type.subject": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear1_type.term": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear2_edge_type.author__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "author__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "author__to__paper": 9949
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.paper__cite__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__cite__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__cite__paper": 5343
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.paper__ref__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__ref__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__ref__paper": 5343
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.paper__to__author": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__author"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__author": 9949
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.paper__to__subject": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__subject"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__subject": 3025
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.paper__to__term": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__term"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__term": 255619
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.subject__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "subject__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "subject__to__paper": 3025
+   }
+  },
+  "model.convs.*.ff_linear2_edge_type.term__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "term__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "term__to__paper": 255619
+   }
+  },
+  "model.convs.*.ff_linear2_type.author": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear2_type.subject": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.ff_linear2_type.term": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm1_edge_global.author__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "author__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "author__to__paper": 9949
+   }
+  },
+  "model.convs.*.norm1_edge_global.paper__cite__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__cite__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__cite__paper": 5343
+   }
+  },
+  "model.convs.*.norm1_edge_global.paper__ref__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__ref__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__ref__paper": 5343
+   }
+  },
+  "model.convs.*.norm1_edge_global.paper__to__author": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__author"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__author": 9949
+   }
+  },
+  "model.convs.*.norm1_edge_global.paper__to__subject": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__subject"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__subject": 3025
+   }
+  },
+  "model.convs.*.norm1_edge_global.paper__to__term": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__term"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__term": 255619
+   }
+  },
+  "model.convs.*.norm1_edge_global.subject__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "subject__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "subject__to__paper": 3025
+   }
+  },
+  "model.convs.*.norm1_edge_global.term__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "term__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "term__to__paper": 255619
+   }
+  },
+  "model.convs.*.norm1_edge_local.author__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "author__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "author__to__paper": 9949
+   }
+  },
+  "model.convs.*.norm1_edge_local.paper__cite__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__cite__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__cite__paper": 5343
+   }
+  },
+  "model.convs.*.norm1_edge_local.paper__ref__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__ref__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__ref__paper": 5343
+   }
+  },
+  "model.convs.*.norm1_edge_local.paper__to__author": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__author"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__author": 9949
+   }
+  },
+  "model.convs.*.norm1_edge_local.paper__to__subject": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__subject"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__subject": 3025
+   }
+  },
+  "model.convs.*.norm1_edge_local.paper__to__term": {
+   "i_none": 6,
+   "edge_types": [
+    "paper__to__term"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "paper__to__term": 255619
+   }
+  },
+  "model.convs.*.norm1_edge_local.subject__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "subject__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "subject__to__paper": 3025
+   }
+  },
+  "model.convs.*.norm1_edge_local.term__to__paper": {
+   "i_none": 6,
+   "edge_types": [
+    "term__to__paper"
+   ],
+   "node_types": [],
+   "edges_in_forward_graph": {
+    "term__to__paper": 255619
+   }
+  },
+  "model.convs.*.norm1_local.author": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm1_local.paper": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "paper"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm1_local.subject": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm1_local.term": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm2_ffn.author": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm2_ffn.subject": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.norm2_ffn.term": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.o_lin.author": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.o_lin.subject": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.o_lin.term": {
+   "i_none": 2,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.project.author": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.project.paper": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "paper"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.project.subject": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.project.term": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.q_lin.author": {
+   "ii_zero": 2,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.q_lin.subject": {
+   "ii_zero": 2,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.q_lin.term": {
+   "ii_zero": 2,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.skip_global": {
+   "i_none": 12,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.convs.*.skip_local": {
+   "i_none": 12,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.norms.*.author": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "author"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.norms.*.paper": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "paper"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.norms.*.subject": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "subject"
+   ],
+   "edges_in_forward_graph": {}
+  },
+  "model.norms.*.term": {
+   "i_none": 6,
+   "edge_types": [],
+   "node_types": [
+    "term"
+   ],
+   "edges_in_forward_graph": {}
+  }
+ },
+ "parameters": [
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 60864
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 32
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.author.weight",
+   "class": "iii_nonzero",
+   "numel": 60864
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.author.bias",
+   "class": "iii_nonzero",
+   "numel": 32
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 60864
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 32
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.term.weight",
+   "class": "iii_nonzero",
+   "numel": 60864
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder1.linear.term.bias",
+   "class": "iii_nonzero",
+   "numel": 32
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder2.linear.weight",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.encoder.node_encoder.encoder2.linear.bias",
+   "class": "iii_nonzero",
+   "numel": 32
+  },
+  {
+   "name": "model.pre_gt_dict.paper.Layer_0.layer.model.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.pre_gt_dict.paper.Layer_0.layer.model.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.pre_gt_dict.author.Layer_0.layer.model.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.pre_gt_dict.author.Layer_0.layer.model.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.pre_gt_dict.subject.Layer_0.layer.model.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.pre_gt_dict.subject.Layer_0.layer.model.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.pre_gt_dict.term.Layer_0.layer.model.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.pre_gt_dict.term.Layer_0.layer.model.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.bias",
+   "class": "i_none",
+   "numel": 2
+  },
+  {
+   "name": "model.convs.0.attn_bi",
+   "class": "i_none",
+   "numel": 16
+  },
+  {
+   "name": "model.convs.0.skip_local.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_local.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_local.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_local.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_global.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_global.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_global.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.skip_global.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.0.k_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.k_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.k_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.k_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.k_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.k_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.k_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.k_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.q_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.q_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.q_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.q_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.q_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.q_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.q_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.q_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.v_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.v_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.v_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.v_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.v_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.v_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.v_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.v_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.o_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.o_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.o_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.o_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.o_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.o_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.o_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.0.o_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_local.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.author.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.term.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_global.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.author.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.term.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm2_ffn.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.project.paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.project.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.project.author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.project.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.project.subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.project.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.project.term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.project.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_local.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.norm1_edge_global.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.author.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.author.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.term.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_type.term.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.author.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.term.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_type.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear1_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.0.ff_linear2_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.bias",
+   "class": "i_none",
+   "numel": 2
+  },
+  {
+   "name": "model.convs.1.attn_bi",
+   "class": "i_none",
+   "numel": 16
+  },
+  {
+   "name": "model.convs.1.skip_local.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_local.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_local.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_local.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_global.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_global.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_global.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.skip_global.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.1.k_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.k_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.k_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.k_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.k_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.k_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.k_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.k_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.q_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.q_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.q_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.q_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.q_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.q_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.q_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.q_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.v_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.v_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.v_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.v_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.v_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.v_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.v_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.v_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.o_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.o_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.o_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.o_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.o_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.o_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.o_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.1.o_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_local.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.author.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.term.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_global.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.author.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.term.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm2_ffn.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.project.paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.project.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.project.author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.project.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.project.subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.project.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.project.term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.project.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_local.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.norm1_edge_global.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.author.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.author.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.term.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_type.term.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.author.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.term.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_type.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear1_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.1.ff_linear2_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.bias",
+   "class": "i_none",
+   "numel": 2
+  },
+  {
+   "name": "model.convs.2.attn_bi",
+   "class": "i_none",
+   "numel": 16
+  },
+  {
+   "name": "model.convs.2.skip_local.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_local.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_local.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_local.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_global.paper",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_global.author",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_global.subject",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.skip_global.term",
+   "class": "i_none",
+   "numel": 1
+  },
+  {
+   "name": "model.convs.2.k_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.k_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.k_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.k_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.k_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.k_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.k_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.k_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.q_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.q_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.q_lin.author.weight",
+   "class": "ii_zero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.q_lin.author.bias",
+   "class": "ii_zero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.q_lin.subject.weight",
+   "class": "ii_zero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.q_lin.subject.bias",
+   "class": "ii_zero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.q_lin.term.weight",
+   "class": "ii_zero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.q_lin.term.bias",
+   "class": "ii_zero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.v_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.v_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.v_lin.author.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.v_lin.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.v_lin.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.v_lin.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.v_lin.term.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.v_lin.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.o_lin.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.o_lin.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.o_lin.author.weight",
+   "class": "i_none",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.o_lin.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.o_lin.subject.weight",
+   "class": "i_none",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.o_lin.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.o_lin.term.weight",
+   "class": "i_none",
+   "numel": 4096
+  },
+  {
+   "name": "model.convs.2.o_lin.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_local.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.author.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.author.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.subject.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.subject.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.term.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_global.term.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm2_ffn.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.project.paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.project.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.project.author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.project.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.project.subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.project.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.project.term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.project.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_local.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.norm1_edge_global.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.author.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.subject.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_type.term.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.paper.weight",
+   "class": "iii_nonzero",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.paper.bias",
+   "class": "iii_nonzero",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_type.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear1_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 128
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__cite__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__cite__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__ref__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__ref__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__author.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.author__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.author__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__subject.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.subject__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.subject__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__term.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.paper__to__term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.term__to__paper.weight",
+   "class": "i_none",
+   "numel": 8192
+  },
+  {
+   "name": "model.convs.2.ff_linear2_edge_type.term__to__paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.0.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.1.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.paper.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.paper.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.author.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.author.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.subject.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.subject.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.term.weight",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.norms.2.term.bias",
+   "class": "i_none",
+   "numel": 64
+  },
+  {
+   "name": "model.post_gt.layer_post_mp.model.0.model.weight",
+   "class": "iii_nonzero",
+   "numel": 192
+  },
+  {
+   "name": "model.post_gt.layer_post_mp.model.0.model.bias",
+   "class": "iii_nonzero",
+   "numel": 3
+  }
+ ],
+ "note": "card 18 follow-up: grad census at the first backward; no metric is a result"
+}

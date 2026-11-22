@@ -1,0 +1,18 @@
+job=18303 node=g3n01 start=2026-11-22T15:31:41+09:00
+git=d105a99c040373b93c64ff755f41925dd23bd6e6 dirty=0
+NVIDIA GeForce RTX 3090, 24576 MiB
+== nc ieee-cis-g
+  self.data = torch.load(self.processed_paths[0])
+  data = dataset.data
+{
+ "dataset": "ieee-cis-g",
+ "error": "Traceback (most recent call last):\n  File \"/mnt/data/peeradon/h2snn-card18/H2S-NN/scripts/diagnostics/card18/grad_census.py\", line 146, in main\n    values = dict(params.values)\n                  ^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'values'\n",
+ "counts": {},
+ "total": 0,
+ "forward_graph": {
+  "edges": {},
+  "nodes": {}
+ }
+}
+census ieee-cis-g exit=1
+end=2026-11-22T15:31:56+09:00

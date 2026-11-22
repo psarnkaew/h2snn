@@ -1,0 +1,66 @@
+job=18353 node=g2tn01 start=2026-11-22T17:37:52+09:00
+git=d105a99c040373b93c64ff755f41925dd23bd6e6 dirty=0
+NVIDIA TITAN RTX, 24576 MiB
+== nc oag-eng
+  model.convs.*.norm1_edge_global.field__rev_PF_in_L3__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L3__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L3__paper': 293}}
+  model.convs.*.norm1_edge_global.field__rev_PF_in_L4__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L4__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L4__paper': 80}}
+  model.convs.*.norm1_edge_global.field__rev_PF_in_L5__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L5__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L5__paper': 19}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L0__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L0__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L0__field': 0}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L1__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L1__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L1__field': 9}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L2__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L2__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L2__field': 38}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L3__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L3__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L3__field': 65}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L4__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L4__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L4__field': 30}}
+  model.convs.*.norm1_edge_global.paper__PF_in_L5__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L5__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L5__field': 11}}
+  model.convs.*.norm1_edge_global.paper__PP_cite__paper: {'i_none': 6, 'edge_types': ['paper__PP_cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__PP_cite__paper': 615}}
+  model.convs.*.norm1_edge_global.paper__rev_AP_write_first__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_first__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_first__author': 249}}
+  model.convs.*.norm1_edge_global.paper__rev_AP_write_last__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_last__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_last__author': 209}}
+  model.convs.*.norm1_edge_global.paper__rev_AP_write_other__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_other__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_other__author': 161}}
+  model.convs.*.norm1_edge_local.affiliation__rev_in__author: {'i_none': 6, 'edge_types': ['affiliation__rev_in__author'], 'node_types': [], 'edges_in_forward_graph': {'affiliation__rev_in__author': 361}}
+  model.convs.*.norm1_edge_local.author__AP_write_first__paper: {'i_none': 6, 'edge_types': ['author__AP_write_first__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__AP_write_first__paper': 249}}
+  model.convs.*.norm1_edge_local.author__AP_write_last__paper: {'i_none': 6, 'edge_types': ['author__AP_write_last__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__AP_write_last__paper': 209}}
+  model.convs.*.norm1_edge_local.author__AP_write_other__paper: {'i_none': 6, 'edge_types': ['author__AP_write_other__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__AP_write_other__paper': 161}}
+  model.convs.*.norm1_edge_local.author__in__affiliation: {'i_none': 6, 'edge_types': ['author__in__affiliation'], 'node_types': [], 'edges_in_forward_graph': {'author__in__affiliation': 79}}
+  model.convs.*.norm1_edge_local.field__FF_in__field: {'i_none': 6, 'edge_types': ['field__FF_in__field'], 'node_types': [], 'edges_in_forward_graph': {'field__FF_in__field': 1386}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L0__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L0__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L0__paper': 640}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L1__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L1__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L1__paper': 1095}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L2__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L2__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L2__paper': 788}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L3__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L3__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L3__paper': 293}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L4__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L4__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L4__paper': 80}}
+  model.convs.*.norm1_edge_local.field__rev_PF_in_L5__paper: {'i_none': 6, 'edge_types': ['field__rev_PF_in_L5__paper'], 'node_types': [], 'edges_in_forward_graph': {'field__rev_PF_in_L5__paper': 19}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L0__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L0__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L0__field': 0}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L1__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L1__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L1__field': 9}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L2__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L2__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L2__field': 38}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L3__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L3__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L3__field': 65}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L4__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L4__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L4__field': 30}}
+  model.convs.*.norm1_edge_local.paper__PF_in_L5__field: {'i_none': 6, 'edge_types': ['paper__PF_in_L5__field'], 'node_types': [], 'edges_in_forward_graph': {'paper__PF_in_L5__field': 11}}
+  model.convs.*.norm1_edge_local.paper__PP_cite__paper: {'i_none': 6, 'edge_types': ['paper__PP_cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__PP_cite__paper': 615}}
+  model.convs.*.norm1_edge_local.paper__rev_AP_write_first__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_first__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_first__author': 249}}
+  model.convs.*.norm1_edge_local.paper__rev_AP_write_last__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_last__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_last__author': 209}}
+  model.convs.*.norm1_edge_local.paper__rev_AP_write_other__author: {'i_none': 6, 'edge_types': ['paper__rev_AP_write_other__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rev_AP_write_other__author': 161}}
+  model.convs.*.norm1_global.affiliation: {'ii_zero': 2, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.affiliation: {'i_none': 6, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.field: {'i_none': 6, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.affiliation: {'ii_zero': 2, 'i_none': 2, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.field: {'i_none': 2, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.affiliation: {'ii_zero': 2, 'i_none': 2, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.field: {'i_none': 2, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.affiliation: {'i_none': 6, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.field: {'i_none': 6, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.affiliation: {'ii_zero': 4, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.field: {'ii_zero': 2, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.convs.*.skip_global: {'i_none': 12, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.skip_local: {'i_none': 12, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.convs.*.v_lin.affiliation: {'ii_zero': 2, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.norms.*.affiliation: {'i_none': 6, 'edge_types': [], 'node_types': ['affiliation'], 'edges_in_forward_graph': {}}
+  model.norms.*.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.norms.*.field: {'i_none': 6, 'edge_types': [], 'node_types': ['field'], 'edges_in_forward_graph': {}}
+  model.norms.*.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+census oag-eng exit=0
+end=2026-11-22T17:39:30+09:00

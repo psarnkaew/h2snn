@@ -1,0 +1,5 @@
+job=18304 node=g3n01 start=2026-11-22T15:32:28+09:00
+git=d105a99c040373b93c64ff755f41925dd23bd6e6 dirty=0
+NVIDIA GeForce RTX 3090, 24576 MiB
+== nc pdns
+slurmstepd-g3n01: error: *** JOB 18304 ON g3n01 CANCELLED AT 2026-11-22T17:40:23 ***

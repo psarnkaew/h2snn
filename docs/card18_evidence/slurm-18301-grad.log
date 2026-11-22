@@ -1,0 +1,142 @@
+job=18301 node=g3n01 start=2026-11-22T15:26:10+09:00
+git=d105a99c040373b93c64ff755f41925dd23bd6e6 dirty=0
+NVIDIA GeForce RTX 3090, 24576 MiB
+== lp acm_pp
+  model.vendor.convs.*.ff_linear1_edge_type.paper__rel_0__paper: {'i_none': 6, 'edge_types': ['paper__rel_0__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_0__paper': 4330}}
+  model.vendor.convs.*.ff_linear1_edge_type.paper__rel_1__paper: {'i_none': 6, 'edge_types': ['paper__rel_1__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_1__paper': 4330}}
+  model.vendor.convs.*.ff_linear1_edge_type.paper__rel_2__author: {'i_none': 6, 'edge_types': ['paper__rel_2__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_2__author': 9949}}
+  model.vendor.convs.*.ff_linear1_edge_type.paper__rel_4__subject: {'i_none': 6, 'edge_types': ['paper__rel_4__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_4__subject': 3025}}
+  model.vendor.convs.*.ff_linear1_edge_type.paper__rel_6__term: {'i_none': 6, 'edge_types': ['paper__rel_6__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_6__term': 255619}}
+  model.vendor.convs.*.ff_linear1_edge_type.subject__rel_5__paper: {'i_none': 6, 'edge_types': ['subject__rel_5__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__rel_5__paper': 3025}}
+  model.vendor.convs.*.ff_linear1_edge_type.term__rel_7__paper: {'i_none': 6, 'edge_types': ['term__rel_7__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__rel_7__paper': 255619}}
+  model.vendor.convs.*.ff_linear1_type.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.ff_linear1_type.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.ff_linear1_type.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.ff_linear2_edge_type.author__rel_3__paper: {'i_none': 6, 'edge_types': ['author__rel_3__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__rel_3__paper': 9949}}
+  model.vendor.convs.*.ff_linear2_edge_type.paper__rel_0__paper: {'i_none': 6, 'edge_types': ['paper__rel_0__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_0__paper': 4330}}
+  model.vendor.convs.*.ff_linear2_edge_type.paper__rel_1__paper: {'i_none': 6, 'edge_types': ['paper__rel_1__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_1__paper': 4330}}
+  model.vendor.convs.*.ff_linear2_edge_type.paper__rel_2__author: {'i_none': 6, 'edge_types': ['paper__rel_2__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_2__author': 9949}}
+  model.vendor.convs.*.ff_linear2_edge_type.paper__rel_4__subject: {'i_none': 6, 'edge_types': ['paper__rel_4__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_4__subject': 3025}}
+  model.vendor.convs.*.ff_linear2_edge_type.paper__rel_6__term: {'i_none': 6, 'edge_types': ['paper__rel_6__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_6__term': 255619}}
+  model.vendor.convs.*.ff_linear2_edge_type.subject__rel_5__paper: {'i_none': 6, 'edge_types': ['subject__rel_5__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__rel_5__paper': 3025}}
+  model.vendor.convs.*.ff_linear2_edge_type.term__rel_7__paper: {'i_none': 6, 'edge_types': ['term__rel_7__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__rel_7__paper': 255619}}
+  model.vendor.convs.*.ff_linear2_type.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.ff_linear2_type.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.ff_linear2_type.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm1_edge_global.author__rel_3__paper: {'i_none': 6, 'edge_types': ['author__rel_3__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__rel_3__paper': 9949}}
+  model.vendor.convs.*.norm1_edge_global.paper__rel_0__paper: {'i_none': 6, 'edge_types': ['paper__rel_0__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_0__paper': 4330}}
+  model.vendor.convs.*.norm1_edge_global.paper__rel_1__paper: {'i_none': 6, 'edge_types': ['paper__rel_1__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_1__paper': 4330}}
+  model.vendor.convs.*.norm1_edge_global.paper__rel_2__author: {'i_none': 6, 'edge_types': ['paper__rel_2__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_2__author': 9949}}
+  model.vendor.convs.*.norm1_edge_global.paper__rel_4__subject: {'i_none': 6, 'edge_types': ['paper__rel_4__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_4__subject': 3025}}
+  model.vendor.convs.*.norm1_edge_global.paper__rel_6__term: {'i_none': 6, 'edge_types': ['paper__rel_6__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_6__term': 255619}}
+  model.vendor.convs.*.norm1_edge_global.subject__rel_5__paper: {'i_none': 6, 'edge_types': ['subject__rel_5__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__rel_5__paper': 3025}}
+  model.vendor.convs.*.norm1_edge_global.term__rel_7__paper: {'i_none': 6, 'edge_types': ['term__rel_7__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__rel_7__paper': 255619}}
+  model.vendor.convs.*.norm1_edge_local.author__rel_3__paper: {'i_none': 6, 'edge_types': ['author__rel_3__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__rel_3__paper': 9949}}
+  model.vendor.convs.*.norm1_edge_local.paper__rel_0__paper: {'i_none': 6, 'edge_types': ['paper__rel_0__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_0__paper': 4330}}
+  model.vendor.convs.*.norm1_edge_local.paper__rel_1__paper: {'i_none': 6, 'edge_types': ['paper__rel_1__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_1__paper': 4330}}
+  model.vendor.convs.*.norm1_edge_local.paper__rel_2__author: {'i_none': 6, 'edge_types': ['paper__rel_2__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_2__author': 9949}}
+  model.vendor.convs.*.norm1_edge_local.paper__rel_4__subject: {'i_none': 6, 'edge_types': ['paper__rel_4__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_4__subject': 3025}}
+  model.vendor.convs.*.norm1_edge_local.paper__rel_6__term: {'i_none': 6, 'edge_types': ['paper__rel_6__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__rel_6__term': 255619}}
+  model.vendor.convs.*.norm1_edge_local.subject__rel_5__paper: {'i_none': 6, 'edge_types': ['subject__rel_5__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__rel_5__paper': 3025}}
+  model.vendor.convs.*.norm1_edge_local.term__rel_7__paper: {'i_none': 6, 'edge_types': ['term__rel_7__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__rel_7__paper': 255619}}
+  model.vendor.convs.*.norm1_local.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm1_local.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm1_local.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm1_local.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm2_ffn.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm2_ffn.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.norm2_ffn.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.o_lin.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.o_lin.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.o_lin.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.project.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.project.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.project.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.project.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.q_lin.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.q_lin.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.q_lin.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.skip_global: {'i_none': 12, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.convs.*.skip_local: {'i_none': 12, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.vendor.norms.*.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.vendor.norms.*.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.vendor.norms.*.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.vendor.norms.*.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+census acm_pp exit=0
+== nc acm
+  model.convs.*.ff_linear1_edge_type.paper__cite__paper: {'i_none': 6, 'edge_types': ['paper__cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__cite__paper': 5343}}
+  model.convs.*.ff_linear1_edge_type.paper__ref__paper: {'i_none': 6, 'edge_types': ['paper__ref__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__ref__paper': 5343}}
+  model.convs.*.ff_linear1_edge_type.paper__to__author: {'i_none': 6, 'edge_types': ['paper__to__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__author': 9949}}
+  model.convs.*.ff_linear1_edge_type.paper__to__subject: {'i_none': 6, 'edge_types': ['paper__to__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__subject': 3025}}
+  model.convs.*.ff_linear1_edge_type.paper__to__term: {'i_none': 6, 'edge_types': ['paper__to__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__term': 255619}}
+  model.convs.*.ff_linear1_edge_type.subject__to__paper: {'i_none': 6, 'edge_types': ['subject__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__to__paper': 3025}}
+  model.convs.*.ff_linear1_edge_type.term__to__paper: {'i_none': 6, 'edge_types': ['term__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__to__paper': 255619}}
+  model.convs.*.ff_linear1_type.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.ff_linear1_type.subject: {'i_none': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.ff_linear1_type.term: {'i_none': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.ff_linear2_edge_type.author__to__paper: {'i_none': 6, 'edge_types': ['author__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__to__paper': 9949}}
+  model.convs.*.ff_linear2_edge_type.paper__cite__paper: {'i_none': 6, 'edge_types': ['paper__cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__cite__paper': 5343}}
+  model.convs.*.ff_linear2_edge_type.paper__ref__paper: {'i_none': 6, 'edge_types': ['paper__ref__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__ref__paper': 5343}}
+  model.convs.*.ff_linear2_edge_type.paper__to__author: {'i_none': 6, 'edge_types': ['paper__to__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__author': 9949}}
+  model.convs.*.ff_linear2_edge_type.paper__to__subject: {'i_none': 6, 'edge_types': ['paper__to__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__subject': 3025}}
+  model.convs.*.ff_linear2_edge_type.paper__to__term: {'i_none': 6, 'edge_types': ['paper__to__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__term': 255619}}
+  model.convs.*.ff_linear2_edge_type.subject__to__paper: {'i_none': 6, 'edge_types': ['subject__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__to__paper': 3025}}
+  model.convs.*.ff_linear2_edge_type.term__to__paper: {'i_none': 6, 'edge_types': ['term__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__to__paper': 255619}}
+  model.convs.*.ff_linear2_type.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.ff_linear2_type.subject: {'i_none': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.ff_linear2_type.term: {'i_none': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_edge_global.author__to__paper: {'i_none': 6, 'edge_types': ['author__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__to__paper': 9949}}
+  model.convs.*.norm1_edge_global.paper__cite__paper: {'i_none': 6, 'edge_types': ['paper__cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__cite__paper': 5343}}
+  model.convs.*.norm1_edge_global.paper__ref__paper: {'i_none': 6, 'edge_types': ['paper__ref__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__ref__paper': 5343}}
+  model.convs.*.norm1_edge_global.paper__to__author: {'i_none': 6, 'edge_types': ['paper__to__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__author': 9949}}
+  model.convs.*.norm1_edge_global.paper__to__subject: {'i_none': 6, 'edge_types': ['paper__to__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__subject': 3025}}
+  model.convs.*.norm1_edge_global.paper__to__term: {'i_none': 6, 'edge_types': ['paper__to__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__term': 255619}}
+  model.convs.*.norm1_edge_global.subject__to__paper: {'i_none': 6, 'edge_types': ['subject__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__to__paper': 3025}}
+  model.convs.*.norm1_edge_global.term__to__paper: {'i_none': 6, 'edge_types': ['term__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__to__paper': 255619}}
+  model.convs.*.norm1_edge_local.author__to__paper: {'i_none': 6, 'edge_types': ['author__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'author__to__paper': 9949}}
+  model.convs.*.norm1_edge_local.paper__cite__paper: {'i_none': 6, 'edge_types': ['paper__cite__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__cite__paper': 5343}}
+  model.convs.*.norm1_edge_local.paper__ref__paper: {'i_none': 6, 'edge_types': ['paper__ref__paper'], 'node_types': [], 'edges_in_forward_graph': {'paper__ref__paper': 5343}}
+  model.convs.*.norm1_edge_local.paper__to__author: {'i_none': 6, 'edge_types': ['paper__to__author'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__author': 9949}}
+  model.convs.*.norm1_edge_local.paper__to__subject: {'i_none': 6, 'edge_types': ['paper__to__subject'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__subject': 3025}}
+  model.convs.*.norm1_edge_local.paper__to__term: {'i_none': 6, 'edge_types': ['paper__to__term'], 'node_types': [], 'edges_in_forward_graph': {'paper__to__term': 255619}}
+  model.convs.*.norm1_edge_local.subject__to__paper: {'i_none': 6, 'edge_types': ['subject__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'subject__to__paper': 3025}}
+  model.convs.*.norm1_edge_local.term__to__paper: {'i_none': 6, 'edge_types': ['term__to__paper'], 'node_types': [], 'edges_in_forward_graph': {'term__to__paper': 255619}}
+  model.convs.*.norm1_local.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm1_local.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.subject: {'i_none': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.norm2_ffn.term: {'i_none': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.author: {'i_none': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.subject: {'i_none': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.o_lin.term: {'i_none': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.project.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.author: {'ii_zero': 2, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.subject: {'ii_zero': 2, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.convs.*.q_lin.term: {'ii_zero': 2, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.skip_global: {'i_none': 12, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.convs.*.skip_local: {'i_none': 12, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+  model.norms.*.author: {'i_none': 6, 'edge_types': [], 'node_types': ['author'], 'edges_in_forward_graph': {}}
+  model.norms.*.paper: {'i_none': 6, 'edge_types': [], 'node_types': ['paper'], 'edges_in_forward_graph': {}}
+  model.norms.*.subject: {'i_none': 6, 'edge_types': [], 'node_types': ['subject'], 'edges_in_forward_graph': {}}
+  model.norms.*.term: {'i_none': 6, 'edge_types': [], 'node_types': ['term'], 'edges_in_forward_graph': {}}
+census acm exit=0
+== nc ieee-cis-g
+  self.data = torch.load(self.processed_paths[0])
+  data = dataset.data
+{
+ "dataset": "ieee-cis-g",
+ "error": "KeyError: 'card1'",
+ "counts": {},
+ "total": 0,
+ "forward_graph": {
+  "edges": {},
+  "nodes": {}
+ }
+}
+census ieee-cis-g exit=1
+end=2026-11-22T15:29:44+09:00

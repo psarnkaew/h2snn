@@ -1,0 +1,20 @@
+{
+ "dataset": "ieee-cis-g",
+ "task": "nc",
+ "params": {
+  "epochs": 1,
+  "early_stopping": 1
+ },
+ "error": "Traceback (most recent call last):\n  File \"/mnt/data/peeradon/h2snn-card18/H2S-NN/scripts/diagnostics/card18/grad_census.py\", line 146, in main\n    values = dict(params.values)\n                  ^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'values'\n",
+ "seconds": 0.0,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "counts": {},
+ "total": 0,
+ "forward_graph": {
+  "edges": {},
+  "nodes": {}
+ },
+ "groups_i_ii": {},
+ "parameters": [],
+ "note": "card 18 follow-up: grad census at the first backward; no metric is a result"
+}
