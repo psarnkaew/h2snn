@@ -106,6 +106,9 @@ class SolveStats:
     forward_converged: bool = True
     backward_converged: bool = True
     per_scope_forward: list[int] = field(default_factory=list)
+    # scopes solved by the zero right-hand-side rule (spec 1.30); a log field, no effect on training
+    forward_zero_rhs_scopes: int = 0
+    backward_zero_rhs_scopes: int = 0
 
     def as_dict(self) -> dict[str, float]:
         return {
@@ -114,6 +117,8 @@ class SolveStats:
             "pcg_fwd_rel_residual": self.forward_residual,
             "pcg_bwd_rel_residual": self.backward_residual,
             "pcg_converged": float(self.forward_converged and self.backward_converged),
+            "pcg_zero_rhs_scopes": float(self.forward_zero_rhs_scopes
+                                         + self.backward_zero_rhs_scopes),
         }
 
 
@@ -136,6 +141,23 @@ def segment_dot(a: torch.Tensor, b: torch.Tensor, scope_rows: torch.Tensor | Non
     return out.index_add(0, scope_rows, row_dots)
 
 
+# Zero right-hand-side rule (spec 1.30, card 12): a scope with ||b_s|| <= ZERO_RHS_RATIO * max_s ||b_s||
+# is solved exactly by y_s = 0. A constant, not a config key, never tuned.
+ZERO_RHS_RATIO = 1e-10
+
+
+def zero_rhs_mask(b_norm: torch.Tensor) -> torch.Tensor:
+    """`[S]` bool: the scopes the zero right-hand-side rule solves by `y_s = 0`
+    (`||b_s|| <= ZERO_RHS_RATIO * max_s ||b_s||`; every scope when `max_s ||b_s|| = 0`)."""
+    return b_norm <= ZERO_RHS_RATIO * b_norm.max()
+
+
+def count_zero_rhs_scopes(b: torch.Tensor, scope_rows: torch.Tensor | None,
+                          num_scopes: int) -> int:
+    """Number of scopes of `b` that `pcg` solves by the zero right-hand-side rule (stats only)."""
+    return int(zero_rhs_mask(segment_dot(b, b, scope_rows, num_scopes).sqrt()).sum())
+
+
 def pcg(
     apply_m: Callable[[torch.Tensor], torch.Tensor],
     b: torch.Tensor,
@@ -152,6 +174,11 @@ def pcg(
     `[rows]` (`J^{-1}` is scalar per row), `scope_rows` `[rows]` the scope of each row (None: one
     scope). A converged scope receives `alpha = beta = 0` and stops changing; the loop ends when
     every scope has converged or after `max_iterations`.
+
+    Zero right-hand side (spec 1.30): a scope with `||b_s|| <= ZERO_RHS_RATIO * max_s ||b_s||` is
+    solved exactly by `y_s = 0` (M is SPD and block-diagonal over scopes, Thm 5): its rows of `y`
+    start and stay 0, it is converged with 0 iterations and its relative residual is reported as 0.
+    When no scope triggers, the computation is the one without the rule.
     """
     expand = scope_rows if (scope_rows is not None and num_scopes > 1) else None
 
@@ -159,14 +186,20 @@ def pcg(
         return (values[expand] if expand is not None else values.expand(b.size(0))).unsqueeze(-1)
 
     y = y0.clone()
+    b_norm = segment_dot(b, b, scope_rows, num_scopes).sqrt()
+    zero_rhs = zero_rhs_mask(b_norm)
+    any_zero_rhs = bool(zero_rhs.any())
+    if any_zero_rhs:
+        y = torch.where(per_row(zero_rhs), torch.zeros_like(y), y)
     r = b - apply_m(y)
     zt = jacobi_inverse.unsqueeze(-1) * r
     p = zt.clone()
     rz = segment_dot(r, zt, scope_rows, num_scopes)
-    b_norm = segment_dot(b, b, scope_rows, num_scopes).sqrt()
     threshold = tolerance * b_norm
     r_norm = segment_dot(r, r, scope_rows, num_scopes).sqrt()
     converged = r_norm <= threshold
+    if any_zero_rhs:
+        converged = converged | zero_rhs
     iterations = torch.zeros(num_scopes, dtype=torch.long, device=b.device)
     ones = torch.ones_like(rz)
     for _ in range(max_iterations):
@@ -190,6 +223,8 @@ def pcg(
         p = zt + per_row(beta) * p
         rz = rz_new
     relative = r_norm / torch.where(b_norm > 0, b_norm, torch.ones_like(b_norm))
+    if any_zero_rhs:
+        relative = torch.where(zero_rhs, torch.zeros_like(relative), relative)
     return y, iterations, converged, relative
 
 
@@ -268,6 +303,8 @@ class AnchoredSolve(torch.autograd.Function):
         stats.forward_converged = bool(converged.all())
         stats.forward_residual = float(residual.max())
         stats.per_scope_forward = iterations.tolist()
+        stats.forward_zero_rhs_scopes = count_zero_rhs_scopes(
+            system.right_hand_side(h0), scope_rows, num_scopes)
         ctx.build = build
         ctx.stats = stats
         ctx.tolerance = tolerance
@@ -292,6 +329,8 @@ class AnchoredSolve(torch.autograd.Function):
             stats.backward_iterations = int(iterations.max())
             stats.backward_converged = bool(converged.all())
             stats.backward_residual = float(residual.max())
+            stats.backward_zero_rhs_scopes = count_zero_rhs_scopes(
+                grad_y, ctx.scope_rows, ctx.num_scopes)
             if not stats.backward_converged:
                 raise PCGConvergenceError(
                     f"backward PCG reached T_max = {ctx.max_iterations}; worst relative residual "
@@ -333,5 +372,6 @@ def anchored_solve(build: Callable[..., AnchoredOperator], h0: torch.Tensor,
 
 __all__ = ["AnchoredSolve", "AnchoredSystem", "LogWeightRangeStopError", "NonFiniteLogWeightError",
            "NonFiniteLossError", "PCGConvergenceError", "SolveStats", "StopConditionError",
-           "TauStopError", "check_finite_loss",
-           "anchored_solve", "pcg", "segment_dot", "solve_anchored", "solver_tolerance"]
+           "TauStopError", "ZERO_RHS_RATIO", "check_finite_loss", "count_zero_rhs_scopes",
+           "anchored_solve", "pcg", "segment_dot", "solve_anchored", "solver_tolerance",
+           "zero_rhs_mask"]

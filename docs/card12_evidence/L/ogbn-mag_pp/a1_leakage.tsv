@@ -1,0 +1,8 @@
+task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
+ogbn-mag_pp	train	positives	4371032	4371032	4371032	0	0	0	0	
+ogbn-mag_pp	train	negatives	4371032	236	236	90	90	105		task positives (either orientation): 389
+ogbn-mag_pp	val	positives	485670	0	0	0	0	0	0	
+ogbn-mag_pp	val	negatives	485670	19	19	18	18	1		task positives (either orientation): 49
+ogbn-mag_pp	test_2hop	positives	539634	0	0	0	0	0	0	
+ogbn-mag_pp	test_2hop	negatives	539634	0	0	0	0	1		task positives (either orientation): 2
+ogbn-mag_pp	test_random	negatives	539634	0	0	0	0	2		task positives (either orientation): 1

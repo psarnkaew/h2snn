@@ -1,0 +1,28 @@
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+acm_pa	paper	3025	1902	Identity (features)	0.0000	91.699
+acm_pa	author	5959	0	Sequential	0.1421	1.352
+acm_pa	subject	56	1902	Identity (features)	0.0000	54.018
+acm_pa	term	1902	0	Sequential	0.0000	134.395
+dblp_ap	author	4057	0	Sequential	0.0668	3.922
+dblp_ap	paper	14328	4231	Identity (features)	0.0000	8.100
+dblp_ap	term	7723	50	Identity (features)	0.0000	11.111
+dblp_ap	venue	20	0	Sequential	0.0000	716.400
+imdb_ma	movie	4932	3485	Identity (features)	0.0000	8.214
+imdb_ma	director	2393	3341	Identity (features)	0.0000	2.061
+imdb_ma	actor	6124	0	Sequential	0.1262	1.955
+imdb_ma	keyword	7971	0	Sequential	0.0000	2.962
+lastfm	user	1892	0	NoneType	0.0000	48.837
+lastfm	artist	17632	0	NoneType	0.1531	5.117
+lastfm	tag	1088	0	NoneType	0.0000	21.372
+pubmed	pubmed_type_0	13561	200	Identity (features)	0.0000	5.670
+pubmed	disease	20163	200	Identity (features)	0.0063	5.717
+pubmed	pubmed_type_2	26522	200	Identity (features)	0.0000	5.725
+pubmed	pubmed_type_3	2863	200	Identity (features)	0.0000	5.437
+freebase_bb	book	40402	0	NoneType	0.0247	12.711
+freebase_bb	film	19427	0	NoneType	0.0000	10.553
+freebase_bb	music	82351	0	NoneType	0.0000	5.997
+freebase_bb	sports	1025	0	NoneType	0.0000	39.350
+freebase_bb	people	17641	0	NoneType	0.0000	7.070
+freebase_bb	location	9368	0	NoneType	0.0000	17.780
+freebase_bb	organization	2731	0	NoneType	0.0000	19.702
+freebase_bb	business	7153	0	NoneType	0.0000	9.832

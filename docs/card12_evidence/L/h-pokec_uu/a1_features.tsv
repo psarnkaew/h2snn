@@ -1,0 +1,17 @@
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+h-pokec_uu	user	1632803	65	Identity (features)	0.0210	24.323
+h-pokec_uu	life_style	21579	0	Sequential	0.0000	38.369
+h-pokec_uu	music	20080	0	Sequential	0.0000	28.903
+h-pokec_uu	cars	2587	0	Sequential	0.0000	35.938
+h-pokec_uu	politics	1423	0	Sequential	0.0000	28.242
+h-pokec_uu	relationships	22067	0	Sequential	0.0000	45.792
+h-pokec_uu	art_culture	1619	0	Sequential	0.0000	31.630
+h-pokec_uu	hobbies_interests	6826	0	Sequential	0.0000	40.304
+h-pokec_uu	science_technologies	756	0	Sequential	0.0000	54.467
+h-pokec_uu	computers_internet	2236	0	Sequential	0.0000	34.377
+h-pokec_uu	education	2347	0	Sequential	0.0000	35.353
+h-pokec_uu	sport	7430	0	Sequential	0.0000	22.290
+h-pokec_uu	movies	5870	0	Sequential	0.0000	30.675
+h-pokec_uu	travelling	1251	0	Sequential	0.0000	39.726
+h-pokec_uu	health	2390	0	Sequential	0.0000	30.986
+h-pokec_uu	companies_brands	713	0	Sequential	0.0000	51.431

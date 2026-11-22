@@ -1,0 +1,7 @@
+{
+  "reference": "../docs/card11_inputs/h2snn_node_classification_pdns_tune_run0_balmy-sweep-7/config.yaml",
+  "changes": [],
+  "head": "57b81ee95665a8677793759fdaa5fcd1da6ce2e3",
+  "gpu": "NVIDIA TITAN RTX",
+  "job": "18243"
+}

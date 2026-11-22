@@ -1,0 +1,9 @@
+job=18240 node=g2tn01 git=a29c8d6d7ac95a266dfd7d3f71f42c76ce6c918e
+test_hgb_nc_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_hgb_nc_epoch_keys) ... ok
+test_lp_epoch_keys (tests.test_wandb_logging.EpochKeyTests.test_lp_epoch_keys) ... ok
+test_selection_is_unchanged_by_logging (tests.test_wandb_logging.EpochKeyTests.test_selection_is_unchanged_by_logging) ... ok
+test_h2snn_final_seed_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_h2snn_final_seed_run_opens_logs_and_summarises) ... Resolved trial: device=cuda orthogonal_map=fasthpp d=32 exp_dir=/tmp/tmp6wonmudy/h2snn_node_classification_acm/final_seeds/h2snn_node_classification_acm_tune_final_seed0_final_seed0
+Review F1: a final-seed call without W&B arguments (tests, `--final_seeds` without a project) opens no run. ... ok
+test_published_run_opens_logs_and_summarises (tests.test_wandb_logging.RunTests.test_published_run_opens_logs_and_summarises) ... ok
+Ran 7 tests in 36.042s
+OK
