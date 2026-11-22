@@ -1,0 +1,9 @@
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+acm_pp	paper	3025	1902	Identity (features)	0.0000	91.653
+acm_pp	author	5959	1902	Identity (features)	0.0000	1.670
+acm_pp	subject	56	1902	Identity (features)	0.0000	54.018
+acm_pp	term	1902	0	Sequential	0.0000	134.395
+dblp_ap	author	4057	0	Sequential	0.0668	3.922
+dblp_ap	paper	14328	4231	Identity (features)	0.0000	8.100
+dblp_ap	term	7723	50	Identity (features)	0.0000	11.111
+dblp_ap	venue	20	0	Sequential	0.0000	716.400

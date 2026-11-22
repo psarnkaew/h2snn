@@ -72,7 +72,7 @@ from src.utils.misc import seed_everything
 NAME = "h2sgnn"
 VENDOR = "h2sgnn"
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 #: Polynomial bases H2SGNN implements (H2SGNN/model.py:80-86).

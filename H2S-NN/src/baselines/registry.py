@@ -27,7 +27,8 @@ from src.baselines.protocol import (
 H2GB_NC: tuple[str, ...] = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem",
                             "ieee-cis-g", "h-pokec", "pdns")
 LARGE_LP: tuple[str, ...] = ("ogbn-mag_pp", "h-pokec_uu")
-DERIVED_LP: tuple[str, ...] = ("acm_pa", "dblp_ap", "imdb_ma", "freebase_bb")
+# Card 15: acm_pp (ACM paper-cite-paper) replaces acm_pa, which is ill-posed under the LP protocol (cards 11 A, 12 L).
+DERIVED_LP: tuple[str, ...] = ("acm_pp", "dblp_ap", "imdb_ma", "freebase_bb")
 
 DATASETS: dict[str, tuple[str, ...]] = {
     NODE_CLASSIFICATION: ("acm", "dblp", "imdb", "freebase") + H2GB_NC,

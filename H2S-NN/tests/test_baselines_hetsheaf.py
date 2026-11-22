@@ -184,7 +184,7 @@ class StepTests(unittest.TestCase):
             edge_type=torch.tensor([0, 0, 0, 1, 1, 1, 2, 2]))
         device = torch.device("cpu")
         params = tuned(sheaf="bundle/type_concat", d=2, layers=2, hidden_channels=8, lr=1e-2)
-        for dataset in ("pubmed", "lastfm", "acm_pa"):
+        for dataset in ("pubmed", "lastfm", "acm_pa", "acm_pp"):
             with self.subTest(branch=dataset):
                 graph, global_id = prepare_link_graph(dataset, data)
                 self.assertTrue(torch.equal(global_id.sort().values, torch.arange(9)))

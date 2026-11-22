@@ -1,0 +1,24 @@
+job=18274 node=g2n01 start=2026-11-22T09:59:46+09:00
+git=03ea4a128186017f3145d97426aa1c6bbcbf9ea9 branch=card15 dirty=6
+{"task": "acm_pp", "target_relation": 0, "reverse_relation": 1, "facts": 5343, "train": 4328, "valid": 481, "test": 534, "source_link_rows": 547872, "link_rows_removed": 1068, "output_md5": {"node.dat": "01b4942d8d1ca9b89232a0fdd93ebafc", "info.dat": "3375b0afb7f34f6546b0406f05f77f94", "link.dat": "e1c44b099cbbf1f26d5802a77a312146", "link.dat.test": "fd54a0db8fcb53edc7eb7bac4acc17f2", "link.dat.valid": "392512a22a92c6f705ddfc961bae8612"}}
+{"task": "acm_pp", "rule": "spec v1.10 F17 (remove, never rebuild)", "release": "/mnt/data/peeradon/h2snn/H2S-NN/data/NC/acm/raw/ACM", "release_node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc", "removed_types": {}, "removed_columns": {}, "widths": {"0": 1902, "1": 1902, "2": 1902, "3": 0}, "node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc"}
+{"task": "acm_pp", "types": ["paper", "paper"], "test_neg_2hop_file": "test_neg_2hop_rel0.npy", "test_neg_2hop_md5": "de49226765e641202c50067ce9667617", "test_neg_random_file": "test_neg_random_rel0.npy", "test_neg_random_md5": "2a50a6585e35ba9a464389e2b36dfde5", "test_pos_md5": "13b23c80407de2b0af70976fe4ba9019", "test_positives": 534, "test_negatives_2hop": 534, "test_negatives_random": 534, "two_hop_empty_reason": null, "test_heads": 461, "heads_without_candidates_count": 0, "test_positives_without_negatives": 0, "share_of_test_positives_without_negatives": 0.0, "seconds": 9.6}
+self-loops: test 2 valid 0 link.dat rel0 6 rel1 6
+rows: test 534 valid 481 link.dat rel0 4809 rel1 4809
+leak check (test in link.dat either way): 0
+{
+ "task": "acm_pp",
+ "rule": "spec v1.10 F17 (remove, never rebuild)",
+ "release": "/mnt/data/peeradon/h2snn/H2S-NN/data/NC/acm/raw/ACM",
+ "release_node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc",
+ "removed_types": {},
+ "removed_columns": {},
+ "widths": {
+  "0": 1902,
+  "1": 1902,
+  "2": 1902,
+  "3": 0
+ },
+ "node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc"
+}
+end=2026-11-22T10:00:04+09:00

@@ -326,6 +326,7 @@ class HGBOracleTests(unittest.TestCase):
 #: copies (decision 5 of the Part N review, confirmed).
 LOCAL_TASKS: dict[str, tuple[tuple[str, str, str], bool]] = {
     "acm_pa": (("paper", "rel_2", "author"), True),
+    "acm_pp": (("paper", "rel_0", "paper"), True),  # card 15
     "dblp_ap": (("author", "rel_0", "paper"), True),
     "imdb_ma": (("movie", "rel_2", "actor"), True),
     "freebase_bb": (("book", "rel_0", "book"), False),

@@ -11,7 +11,9 @@ Removals follow from the data (J5.1, J5 review, `info.dat`):
 - dblp_ap: author block (a function of its paper set, J5.1);
 - imdb_ma: actor block (mean of its movies' token columns, J5.1); movie columns 3, 4, 7, 12
   (actor_1/actor_3/cast_total/actor_2_facebook_likes: attributes of the movie's actors);
-- freebase_bb: nothing (no features); recorded so the loader guard (F20) covers it.
+- freebase_bb: nothing (no features); recorded so the loader guard (F20) covers it;
+- acm_pp (card 15): nothing (paper features are keywords, not computed from citations; no type's
+  features describe the other endpoint: both endpoints are papers).
 
 The script always starts from the release's node.dat (md5 checked against `split_meta.json`),
 so it is idempotent and is run after `build_derived_lp.py`. It writes `<task>/node.dat`,
@@ -38,6 +40,7 @@ from src.data.data_layout import REPO_DATA_ROOT, lp_derived_root  # noqa: E402
 #: F17 removals per derived task: node types whose whole block goes, and per type the columns.
 FEATURE_RULE: dict[str, dict] = {
     "acm_pa": {"remove_types": [1], "remove_columns": {}},
+    "acm_pp": {"remove_types": [], "remove_columns": {}},
     "dblp_ap": {"remove_types": [0], "remove_columns": {}},
     "imdb_ma": {"remove_types": [2], "remove_columns": {0: [3, 4, 7, 12]}},
     "freebase_bb": {"remove_types": [], "remove_columns": {}},

@@ -1,0 +1,40 @@
+{
+ "dataset": "acm_pp",
+ "task": "lp",
+ "measure": "task_h_edge",
+ "harness_commit": "03ea4a128186017f3145d97426aa1c6bbcbf9ea9",
+ "job": "18282",
+ "node": "g3n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "code": "hetero2net/homophily.py label_homophily",
+ "symmetrisation": {
+  "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+  "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+  "paper-to-author": "kept (reverse partner author-to-paper)",
+  "author-to-paper": "kept (reverse partner paper-to-author)",
+  "paper-to-subject": "kept (reverse partner subject-to-paper)",
+  "subject-to-paper": "kept (reverse partner paper-to-subject)",
+  "paper-to-term": "kept (reverse partner term-to-paper)",
+  "term-to-paper": "kept (reverse partner paper-to-term)"
+ },
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset) (labels of acm; full target relation: all task positives)",
+ "relation": "paper-cite-paper",
+ "labels_of": "paper",
+ "value": 0.12034440040588379,
+ "form": "heterophily: 1 - label_homophily",
+ "fill_seeds": [
+  0
+ ],
+ "value_over_fill_seeds": [
+  0.12034440040588379
+ ],
+ "spread": null,
+ "edges": 5343,
+ "self_loops": 8,
+ "wall_s": 2.3,
+ "peak_rss_gb": 0.734
+}

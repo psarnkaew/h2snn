@@ -42,6 +42,7 @@ from src.data.link_prediction_dataset import (HGB_NEGATIVES_DIR, _load_local_hgb
 
 TARGETS: dict[str, tuple[str, str, str]] = {
     "acm_pa": ("paper", "rel_2", "author"),
+    "acm_pp": ("paper", "rel_0", "paper"),
     "dblp_ap": ("author", "rel_0", "paper"),
     "imdb_ma": ("movie", "rel_2", "actor"),
     "freebase_bb": ("book", "rel_0", "book"),

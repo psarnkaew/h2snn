@@ -66,7 +66,7 @@ VENDOR = "hetero2net"
 #: Their loader keys datasets by upper-case name.
 VENDOR_DATASET = {"acm": "ACM", "dblp": "DBLP", "imdb": "IMDB", "freebase": "FreeBase"}  # dataset.py:48
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Card 1c F4 (G-5 amended): the H2GB NC datasets with their own NeighborLoader scheme (`_hetero2net_h2gb.py`);
 #: ogbn-mag / mag-year wait for the author's `mag_metapath2vec_emb.zip`.

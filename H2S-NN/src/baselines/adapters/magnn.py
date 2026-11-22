@@ -68,7 +68,7 @@ VENDOR_LP = "hgb_magnn_lp"
 HGB_NC_DATASETS = frozenset({"freebase"})
 NOT_WIRED_NC = frozenset({"acm", "dblp", "imdb"})
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
-SMALL_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SMALL_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 #: Every H2GB NC and large-LP path reads the shared batch table (`budget.batch_plan`): H2GB NC (probe cells) through
 #: `minibatch.minibatch_plan` and `train_index_minibatch`; large LP (probe cells) through

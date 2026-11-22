@@ -53,8 +53,10 @@ class DerivedTask:
 
 #: The spec v1.7 §6 tasks: the relations of each dataset's standard meta-path (PAP, APA, MAM),
 #: and Freebase BOOK-and-BOOK (spec v1.8 F10, the author's choice after the J1.1 inventory).
+#: acm_pp (card 15): HGB ACM paper-cite-paper, replacing acm_pa in the LP table.
 DERIVED_TASKS: dict[str, DerivedTask] = {
     "acm_pa": DerivedTask("acm", 2),     # paper -> author
+    "acm_pp": DerivedTask("acm", 0),     # paper -cite-> paper (card 15; stored reverse rel 1)
     "dblp_ap": DerivedTask("dblp", 0),  # author -> paper
     "imdb_ma": DerivedTask("imdb", 2),  # movie -> actor
     "freebase_bb": DerivedTask("freebase", 0, "unordered_pair"),  # book-book

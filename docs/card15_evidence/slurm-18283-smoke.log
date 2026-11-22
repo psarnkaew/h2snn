@@ -1,0 +1,40 @@
+job=18283 node=g2n01 start=2026-11-22T10:03:34+09:00
+git=03ea4a128186017f3145d97426aa1c6bbcbf9ea9 branch=card15 dirty=21
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+2026-11-22 10:03:43,347 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'author__rel_3__paper': 'paper__rel_2__author', 'paper__rel_0__paper': 'paper__rel_1__paper', 'paper__rel_1__paper': 'paper__rel_0__paper', 'paper__rel_2__author': 'author__rel_3__paper', 'paper__rel_4__subject': 'subject__rel_5__paper', 'paper__rel_6__term': 'term__rel_7__paper', 'subject__rel_5__paper': 'paper__rel_4__subject', 'term__rel_7__paper': 'paper__rel_6__term'}, 'kept_relations': ['author__rel_3__paper', 'paper__rel_0__paper', 'paper__rel_4__subject', 'paper__rel_6__term'], 'self_inverse_relations': [], 'unmatched_edges': {'author__rel_3__paper': 0, 'paper__rel_0__paper': 0, 'paper__rel_1__paper': 0, 'paper__rel_2__author': 0, 'paper__rel_4__subject': 0, 'paper__rel_6__term': 0, 'subject__rel_5__paper': 0, 'term__rel_7__paper': 0}, 'facts_before': 546804, 'facts_after': 273402}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 10:03:44,936 | INFO | Epoch 0000 | train_loss: 0.7897 | train_acc: 0.0000 | train_auroc: 0.4979 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.7005 | val_acc: 0.0000 | val_auroc: 0.5242 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+2026-11-22 10:03:45,116 | INFO | Epoch 0000 | val_auroc: 0.5242 | val_mrr: 0.7530 | test (2-hop, random) auroc: 0.5379073209050484, 0.5245374461698158 | mrr: 0.7707881417208967, 0.7668112798264642
+2026-11-22 10:03:45,116 | INFO | Best epoch 0 | test (2-hop, random) auroc: 0.5379073209050484, 0.5245374461698158 | mrr: 0.7707881417208967, 0.7668112798264642
+{
+ "run": "h2snn:lp:acm_pp",
+ "error": null,
+ "not_runnable": null,
+ "stop_condition": null,
+ "a_losses_finite": true,
+ "b_no_stop_condition": true,
+ "c_no_collapse": true,
+ "d_parameters_moved": true,
+ "e_train_loss_first_last": [
+  0.7897025346755981,
+  0.7897025346755981
+ ]
+}
+smoke h2snn exit=0
+{
+ "run": "gcn:lp:acm_pp",
+ "error": null,
+ "not_runnable": null,
+ "stop_condition": null,
+ "a_losses_finite": true,
+ "b_no_stop_condition": true,
+ "c_no_collapse": true,
+ "d_parameters_moved": true,
+ "e_train_loss_first_last": [
+  4.771155834197998,
+  4.771155834197998
+ ]
+}
+smoke gcn exit=0
+end=2026-11-22T10:04:07+09:00
