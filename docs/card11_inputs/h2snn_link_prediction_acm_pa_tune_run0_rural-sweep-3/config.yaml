@@ -1,0 +1,108 @@
+data:
+  dataset_name: acm_pa
+  root: data
+  task_type: link_prediction
+  target_node_type: ''
+  metapath_templates: []
+  num_label_prop_steps: 3
+  acm_val_ratio: 0.2
+  acm_split_seed: 42
+  face_sample_k: 50
+  exclude_identity_metapaths: true
+  compute_relation_diagnostics: false
+  feature_normalization: none
+  fact_layer: tied
+  path_sampler: walk
+  resample_paths: true
+  path_source: wisp
+  wisp_max_length: 4
+  wisp_walks_per_anchor: 64
+  wisp_proposal: uniform
+  overlap_sampling: true
+  training_mode: full_batch
+  batch_size: 0
+  epoch_targets: 0
+  eval_period: 0
+  target_relation:
+  - paper
+  - rel_2
+  - author
+  decoder_type: distmult
+  neg_sampling_mode: resample_each_epoch
+  neg_sampling_ratio: 1
+  link_batch_size: 8192
+  link_val_ratio: 0.09
+  link_test_ratio: 0.1
+  split_protocol: stratified_holdout
+  num_folds: 10
+  fold_index: 0
+  num_repetitions: 1
+  repetition_index: 0
+  split_seed: 42
+  num_runs: 1
+  run_index: 0
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  graph_batch_size: 1
+model:
+  d: 16
+  d_r: 16
+  encoder_dropout: 0.296806240761798
+  edge_mlp_hidden_dim: 128
+  face_mlp_hidden_dim: 128
+  classifier_hidden_dim: 128
+  classifier_dropout: 0.1
+  graph_pooling: mean
+  orthogonal_map: fasthpp
+  map_family: factorized
+  map_rank: 4
+  map_scale_eps: 0.1
+  checkpointing: true
+  path_weight: exp
+  path_weight_init: 0.5
+  path_log_weight_bound: 10.0
+  propagation: anchored
+  arm: full
+  tau_init: 1.0
+  solver_tolerance: 0.0001
+  solver_warmup_tolerance: 0.001
+  solver_warmup_epochs: 10
+  solver_max_iterations: 100
+  tau_stop: 50.0
+  log_weight_range_stop: 30.0
+ablation:
+  path_weight_input: full
+  h0_only_readout: false
+  direction_blind_maps: false
+  ego_head: false
+  coupling: symmetric
+  fact_maps_identity: false
+optim:
+  name: adamw
+  lr: 0.007605487107792064
+  weight_decay: 1.0e-05
+  scheduler: none
+  grad_clip: 0.0
+  scalar_lr_scale: 10.0
+tuning:
+  arm: ''
+evaluation:
+  type_only_maps: false
+  knockout_nodes: []
+epochs: 40
+seed: 0
+device: cuda
+exp_name: h2snn_link_prediction_acm_pa_tune_run0_rural-sweep-3
+output_dir: /gs/bs/work/4/ut07914/h2snn-out/e5bdf10432e32c8fe31e8f3faff814951461d4d2/experiments/h2snn
+log_every: 1
+checkpoint_metric: auroc
+checkpoint_mode: max
+early_stopping_patience: 40
+use_wandb: false
+wandb_project: h2snn
+wandb_entity: ''
+wandb_mode: online
+wandb_group: ''
+wandb_tags: []
+wandb_log_artifacts: false
