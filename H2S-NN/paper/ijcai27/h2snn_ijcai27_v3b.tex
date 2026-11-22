@@ -251,7 +251,7 @@ Finally, one model covers both regimes: learned rotations admit class-separating
 \paragraph{Experiments datasets, Baselines, and Settings.}
 To ensure our model performance and generalizability, we answer RQ1 with the main tables (Tables~\ref{tab:node-cls}--\ref{tab:graph-cls}) and conduct experiments on node classification, link prediction, and graph classification tasks.
 
-For the datasets, we cover a wide range of graph sizes and heterophily levels (Table~\ref{tab:node-cls}, top). The node classification datasets come from four HGB benchmarks, which are small datasets \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase, and eight H2GB benchmarks \cite{lin2025heterophily}, which are large datasets. Link prediction uses two HGB tasks, PubMed and LastFM, and, to ensure variety of datasets, six tasks derived from the node-classification graphs, each with one relation as the target: ACM paper--author, DBLP author--paper, IMDB movie--actor, Freebase book--book, ogbn-mag paper--paper and H-Pokec user--user, with random negative sampling. Graph classification uses four TU datasets \cite{morris2020tudataset}. Dataset details are in supplementary material.
+For the datasets, we cover a wide range of graph sizes and heterophily levels (Table~\ref{tab:node-cls}, top). The node classification datasets come from four HGB benchmarks, which are small datasets \cite{lv2021hgb}, ACM, DBLP, IMDB and Freebase, and eight H2GB benchmarks \cite{lin2025heterophily}, which are large datasets. Link prediction uses two HGB tasks, PubMed and LastFM, and, to ensure variety of datasets, six tasks derived from the node-classification graphs, each with one relation as the target: ACM paper--paper (citation), DBLP author--paper, IMDB movie--actor, Freebase book--book, ogbn-mag paper--paper and H-Pokec user--user, with random negative sampling. Graph classification uses four TU datasets \cite{morris2020tudataset}. Dataset details are in supplementary material.
 
 We compare our model with four types of models: homogeneous homophilic models (GCN \cite{kipf2017gcn}, GAT \cite{velickovic2018gat}, ChebNetII \cite{he2022chebnetii}), homogeneous heterophilic models (NSD \cite{bodnar2022neural}, CSNN \cite{ribeiro2026cooperative}), heterogeneous homophilic models (R-GCN \cite{schlichtkrull2018rgcn}, HAN \cite{wang2019han}, MAGNN \cite{fu2020magnn}, SeHGNN \cite{yang2023sehgnn}, HINormer \cite{mao2023hinormer}, PSHGCN \cite{he2024spectral}) and heterogeneous heterophilic models (H2G-former \cite{lin2025heterophily}, Hetero$^2$Net \cite{li2025hetero2net}, H2SGNN \cite{lu2026addressing}, HetSheaf \cite{braithwaite2024heterogeneous}). Link prediction and graph classification use a subset that covers all four groups.
 
@@ -817,7 +817,7 @@ Hetero$^2$Net reports the complementary homophily share, so its published MLH va
     \toprule
     Task & Target relation & Split & Train & Val & Test \\
     \midrule
-    ACM & paper--author & edge & 8{,}059 & 895 & 995 \\
+    ACM & paper--paper & edge & 4{,}328 & 481 & 534 \\
     DBLP & author--paper & edge & 15{,}913 & 1{,}768 & 1{,}964 \\
     IMDB & movie--actor & edge & 11{,}971 & 1{,}330 & 1{,}478 \\
     Freebase & book--book & pair & 103{,}303 & 11{,}478 & 12{,}754 \\
@@ -878,7 +878,7 @@ Table~\ref{tab:app-heads} lists the heads of \method{}, which read the solved no
 \end{table}
 
 \subsection{Hyperparameter Search}
-Every tuned cell, of \method{} or of a baseline, runs 100 trials of Bayesian optimisation on seed 0 and is then run on seeds 0--4 with the selected configuration. A baseline cell with a published configuration (from HGB, H2GB or the method's own repository) is run as configured, and a cell with a published number keeps it. All tuned methods use AdamW without a scheduler or gradient clipping and share the axes in the top of Table~\ref{tab:app-space}; Table~\ref{tab:app-base-space} lists each baseline's own axes. Node classification trains for at most 300 epochs with patience 30 on HGB and for 500 epochs of 8{,}192 targets on H2GB, link prediction for 40 epochs, and graph classification for 200 epochs with patience 50.
+Every tuned cell, of \method{} or of a baseline, runs 100 trials of Bayesian optimisation on seed 0 and is then run on seeds 0--4 with the selected configuration. A baseline cell with a published configuration (from HGB, H2GB or the method's own repository) is run as configured, and a cell with a published number keeps it. All tuned methods use AdamW without a scheduler or gradient clipping and share the axes in the top of Table~\ref{tab:app-space}; Table~\ref{tab:app-base-space} lists each baseline's own axes. Every tuned cell, of \method{} or of a baseline, trains for at most 500 epochs with early stopping on the validation metric and patience 40, where an epoch on H2GB covers 8{,}192 targets; graph classification trains for 500 epochs with patience 50, as in HetSheaf.
 
 \begin{table}[!htbp]
   \centering
