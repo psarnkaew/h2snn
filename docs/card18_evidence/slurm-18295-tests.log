@@ -1,0 +1,45 @@
+job=18295 node=g2n01 start=2026-11-22T11:44:19+09:00
+git=acf3f8f0dba305e604b3ac6bc0a2a227c16fa388 branch=card18 dirty=4
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+== hop arrays
+exit=0
+== (a) (b)
+  import torch_geometric.typing
+ok
+test_listed_hops_equal_the_pre_card18_hop (tests.test_card18_metapath_direction.OtherTasksUnchangedTests.test_listed_hops_equal_the_pre_card18_hop) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 156.737s
+
+OK
+== (c) magnn
+{
+ "model": "magnn",
+ "error": null,
+ "losses_finite": true,
+ "parameters_moved": 31,
+ "parameters_total": 31,
+ "seconds": 100.2
+}
+smoke magnn exit=0
+== (c) h2gformer
+{
+ "model": "h2gformer",
+ "error": null,
+ "losses_finite": true,
+ "parameters_moved": 181,
+ "parameters_total": 505,
+ "seconds": 51.0
+}
+smoke h2gformer exit=0
+== (c) h2gformer metapath_pe on the pre-card-18 code (card15 2e4881c worktree)
+old git=2e4881c516442a5c31da63e2bf745b71b0773c0e dirty=0
+{
+ "model": "h2gformer",
+ "error": null,
+ "losses_finite": true,
+ "parameters_moved": 181,
+ "parameters_total": 505,
+ "seconds": 51.6
+}
+end=2026-11-22T11:51:16+09:00

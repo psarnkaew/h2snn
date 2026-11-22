@@ -1,0 +1,60 @@
+job=18294 node=g2n01 start=2026-11-22T11:37:17+09:00
+git=acf3f8f0dba305e604b3ac6bc0a2a227c16fa388 branch=card18 dirty=4
+NVIDIA GeForce RTX 2080 Ti, 11264 MiB
+== hop arrays
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card18/H2S-NN/scripts/diagnostics/card18/hop_arrays.py", line 44, in <module>
+    main()
+  File "/mnt/data/peeradon/h2snn-card18/H2S-NN/scripts/diagnostics/card18/hop_arrays.py", line 36, in main
+    walk = with_reverse_edges(stored)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card18/H2S-NN/src/baselines/adapters/_h2gformer_encoders.py", line 192, in with_reverse_edges
+    out.setdefault((destination, f"rev_{relation}", source), index.flip(0))
+                                                             ^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'flip'
+exit=1
+== (a) (b)
+  import torch_geometric.typing
+FAIL
+test_listed_hops_equal_the_pre_card18_hop (tests.test_card18_metapath_direction.OtherTasksUnchangedTests.test_listed_hops_equal_the_pre_card18_hop) ... ok
+
+======================================================================
+FAIL: test_prpap_differs_from_pcpap_and_walks_citations_backwards (tests.test_card18_metapath_direction.CitedByDirectionTests.test_prpap_differs_from_pcpap_and_walks_citations_backwards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card18/H2S-NN/tests/test_card18_metapath_direction.py", line 69, in test_prpap_differs_from_pcpap_and_walks_citations_backwards
+    self.assertEqual((r, forward), (cite, False))
+AssertionError: Tuples differ: (2, True) != (1, False)
+
+First differing element 0:
+2
+1
+
+- (2, True)
++ (1, False)
+
+----------------------------------------------------------------------
+Ran 2 tests in 156.045s
+
+FAILED (failures=1)
+== (c) magnn
+{
+ "model": "magnn",
+ "error": null,
+ "losses_finite": true,
+ "parameters_moved": 31,
+ "parameters_total": 31,
+ "seconds": 101.0
+}
+smoke magnn exit=0
+== (c) h2gformer
+{
+ "model": "h2gformer",
+ "error": null,
+ "losses_finite": true,
+ "parameters_moved": 181,
+ "parameters_total": 505,
+ "seconds": 51.0
+}
+smoke h2gformer exit=0
+end=2026-11-22T11:43:09+09:00

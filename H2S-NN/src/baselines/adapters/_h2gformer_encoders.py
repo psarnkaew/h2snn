@@ -156,6 +156,34 @@ def encoder_stack(task: str, dataset: str, metapath_pe: bool | None = None) -> t
     return base + ((METAPATH,) if metapath_pe else ())
 
 
+def dropped_hop(hop: EdgeType, relations: tuple[EdgeType, ...] | list[EdgeType]) -> tuple[int, bool]:
+    """(index into `relations`, forward?) of a listed hop whose relation the task dropped (the fact layer keeps one
+    relation of each exact-reverse pair; card 18). The remaining relation is the only one joining the hop's two types.
+    Cross-type: the direction follows the types. Same-type (ACM paper-cite/ref-paper): the named relation is the
+    dropped exact reverse of the remaining one, so the hop walks it backwards; `rev_<dropped>` walks it forwards."""
+    a, name, b = hop
+    between = [r for r, (s, _, d) in enumerate(relations) if {s, d} == {a, b}]
+    if len(between) != 1:
+        raise KeyError(f"hop {hop} has no unique relation in {tuple(relations)}")
+    r = between[0]
+    source, _, destination = relations[r]
+    if source != destination:
+        return r, source == a
+    return r, name.startswith("rev_")
+
+
+def walk_hop(hop: EdgeType, walk_graph: dict[EdgeType, torch.Tensor]) -> EdgeType:
+    """The walk-graph edge type of a listed hop: itself when present, else the kept relation or its `rev_` copy by
+    `dropped_hop` (card 18: ACM LP keeps paper-rel_0-paper and author-rel_3-paper, so the table's paper-rel_1-paper
+    is `rev_rel_0` and paper-rel_2-author is `rev_rel_3`)."""
+    if hop in walk_graph:
+        return hop
+    stored = [e for e in walk_graph if not e[1].startswith("rev_")]
+    r, forward = dropped_hop(hop, stored)
+    source, relation, destination = stored[r]
+    return (source, relation, destination) if forward else (destination, f"rev_{relation}", source)
+
+
 def with_reverse_edges(edge_index_dict: dict[EdgeType, torch.Tensor]
                        ) -> dict[EdgeType, torch.Tensor]:
     """The walk graph of MetaPath2Vec: every relation and its `rev_` copy (as T.ToUndirected)."""
@@ -190,6 +218,7 @@ def metapath2vec_embeddings(edge_index_dict: dict[EdgeType, torch.Tensor],
 
     s = METAPATH2VEC_SETTINGS
     walk_graph = with_reverse_edges(edge_index_dict)
+    schema = tuple(walk_hop(hop, walk_graph) for hop in schema)  # card 18: hops of relations the task dropped
     missing = [hop for hop in schema if hop not in walk_graph]
     if missing:
         raise KeyError(f"schema hops {missing} are not edge types of the graph.")
@@ -241,5 +270,5 @@ def configure_encoders(cfg: Any, stack: tuple[str, ...]) -> None:
 __all__ = ["DERIVED_SOURCE", "H2GB_STACKS", "HGB_RELATIONS", "LABEL", "LASTFM_PATHS",
            "METAPATH", "METAPATH2VEC_SETTINGS", "RAW", "configure_encoders", "encoder_stack",
            "metapath_dim_pe",
-           "has_walk_schema", "listed_paths", "metapath2vec_embeddings",
+           "dropped_hop", "has_walk_schema", "listed_paths", "metapath2vec_embeddings",
            "training_label_input", "walk_schema", "with_reverse_edges"]

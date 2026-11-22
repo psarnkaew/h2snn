@@ -1,0 +1,1638 @@
+{
+ "target": [
+  "paper",
+  "rel_0",
+  "paper"
+ ],
+ "bundle_untied": {
+  "relations": [
+   "author-rel_3-paper",
+   "paper-rel_0-paper",
+   "paper-rel_1-paper",
+   "paper-rel_2-author",
+   "paper-rel_4-subject",
+   "paper-rel_6-term",
+   "subject-rel_5-paper",
+   "term-rel_7-paper"
+  ],
+  "magnn_hops": [
+   {
+    "path": "PAP",
+    "hop": 1,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PAP",
+    "hop": 2,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PSP",
+    "hop": 1,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PSP",
+    "hop": 2,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 1,
+    "listed": "paper-rel_0-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 2,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 3,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 1,
+    "listed": "paper-rel_0-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 2,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 3,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 1,
+    "listed": "paper-rel_1-paper",
+    "before": {
+     "relation": "paper-rel_1-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_1-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 2,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 3,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 1,
+    "listed": "paper-rel_1-paper",
+    "before": {
+     "relation": "paper-rel_1-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_1-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 2,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 3,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   }
+  ],
+  "h2gformer_walk_hops": [
+   {
+    "path": "PAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "paper-rel_0-paper",
+    "walk_graph": "paper-rel_0-paper"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "paper-rel_0-paper",
+    "walk_graph": "paper-rel_0-paper"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "paper-rel_1-paper",
+    "walk_graph": "paper-rel_1-paper"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "paper-rel_1-paper",
+    "walk_graph": "paper-rel_1-paper"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   }
+  ]
+ },
+ "tied_view": {
+  "relations": [
+   "author-rel_3-paper",
+   "paper-rel_0-paper",
+   "paper-rel_2-author",
+   "paper-rel_4-subject",
+   "paper-rel_6-term",
+   "subject-rel_5-paper",
+   "term-rel_7-paper"
+  ],
+  "magnn_hops": [
+   {
+    "path": "PAP",
+    "hop": 1,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PAP",
+    "hop": 2,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PSP",
+    "hop": 1,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PSP",
+    "hop": 2,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 1,
+    "listed": "paper-rel_0-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 2,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPAP",
+    "hop": 3,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 1,
+    "listed": "paper-rel_0-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 2,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PcPSP",
+    "hop": 3,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 1,
+    "listed": "paper-rel_1-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": false,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 2,
+    "listed": "paper-rel_2-author",
+    "before": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_2-author",
+     "forward": true,
+     "edges": 9949,
+     "md5": "32eb6b0671e4a0649a9b337f99326145",
+     "first": [
+      [
+       0,
+       3025
+      ],
+      [
+       0,
+       3026
+      ],
+      [
+       0,
+       3027
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPAP",
+    "hop": 3,
+    "listed": "author-rel_3-paper",
+    "before": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    },
+    "after": {
+     "relation": "author-rel_3-paper",
+     "forward": true,
+     "edges": 9949,
+     "md5": "6c130b291345c564fa37e3509696a4ed",
+     "first": [
+      [
+       3025,
+       0
+      ],
+      [
+       3026,
+       0
+      ],
+      [
+       3027,
+       0
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 1,
+    "listed": "paper-rel_1-paper",
+    "before": {
+     "relation": "paper-rel_0-paper",
+     "forward": true,
+     "edges": 4330,
+     "md5": "52e205dc819fb44f15b6eb80495c0659",
+     "first": [
+      [
+       0,
+       179
+      ],
+      [
+       0,
+       2697
+      ],
+      [
+       1,
+       2589
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_0-paper",
+     "forward": false,
+     "edges": 4330,
+     "md5": "f027946fa28bc5cdc2dafd80f5af29f1",
+     "first": [
+      [
+       179,
+       0
+      ],
+      [
+       2697,
+       0
+      ],
+      [
+       2589,
+       1
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 2,
+    "listed": "paper-rel_4-subject",
+    "before": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    },
+    "after": {
+     "relation": "paper-rel_4-subject",
+     "forward": true,
+     "edges": 3025,
+     "md5": "2442099db98c52edc506eb766be8aaf2",
+     "first": [
+      [
+       0,
+       8984
+      ],
+      [
+       1,
+       8985
+      ],
+      [
+       2,
+       8986
+      ]
+     ]
+    }
+   },
+   {
+    "path": "PrPSP",
+    "hop": 3,
+    "listed": "subject-rel_5-paper",
+    "before": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    },
+    "after": {
+     "relation": "subject-rel_5-paper",
+     "forward": true,
+     "edges": 3025,
+     "md5": "6c0ec3503f1025d1fe76bfd3589a10ca",
+     "first": [
+      [
+       8984,
+       0
+      ],
+      [
+       8985,
+       1
+      ],
+      [
+       8986,
+       2
+      ]
+     ]
+    }
+   }
+  ],
+  "h2gformer_walk_hops": [
+   {
+    "path": "PAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "paper-rel_0-paper",
+    "walk_graph": "paper-rel_0-paper"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PcPAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "paper-rel_0-paper",
+    "walk_graph": "paper-rel_0-paper"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PcPSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "paper-rel_1-paper",
+    "walk_graph": "paper-rev_rel_0-paper"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "paper-rel_2-author",
+    "walk_graph": "paper-rel_2-author"
+   },
+   {
+    "path": "PrPAP",
+    "listed": "author-rel_3-paper",
+    "walk_graph": "author-rel_3-paper"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "paper-rel_1-paper",
+    "walk_graph": "paper-rev_rel_0-paper"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "paper-rel_4-subject",
+    "walk_graph": "paper-rel_4-subject"
+   },
+   {
+    "path": "PrPSP",
+    "listed": "subject-rel_5-paper",
+    "walk_graph": "subject-rel_5-paper"
+   }
+  ]
+ }
+}

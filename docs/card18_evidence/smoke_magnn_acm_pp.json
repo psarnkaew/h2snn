@@ -1,0 +1,21 @@
+{
+ "model": "magnn",
+ "dataset": "acm_pp",
+ "params": {
+  "epochs": 1,
+  "early_stopping": 1
+ },
+ "error": null,
+ "seconds": 100.2,
+ "gpu": "NVIDIA GeForce RTX 2080 Ti",
+ "train_losses": [
+  0.6953917741775513
+ ],
+ "losses_finite": true,
+ "parameters_moved": 31,
+ "parameters_total": 31,
+ "parameters_not_moved": [],
+ "max_abs_change": 0.005002617835998535,
+ "metapath_pe_in_record": null,
+ "note": "card 18 smoke: function only; no metric is a result"
+}

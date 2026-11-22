@@ -202,12 +202,13 @@ class TypedGraph:
             r = self.relations.index((b, rel[4:], a))
             s, d = self.edges[r]
             return (d, s), r, False
-        between = [r for r, (s, _, d) in enumerate(self.relations) if {s, d} == {a, b}]
-        if len(between) == 1:  # the listed relation's stored reverse was dropped by the task: the remaining one
-            r = between[0]
-            s, d = self.edges[r]
-            return ((s, d), r, True) if self.relations[r][0] == a else ((d, s), r, False)
-        raise KeyError(f"hop {hop} has no unique relation in {self.relations}")
+        # The listed relation was dropped by the task (its exact reverse is kept): `dropped_hop` (card 18) -- the
+        # direction follows the types, and on a same-type pair (ACM cited-by) the kept relation is walked backwards.
+        from src.baselines.adapters._h2gformer_encoders import dropped_hop
+
+        r, forward = dropped_hop(hop, self.relations)
+        s, d = self.edges[r]
+        return ((s, d), r, True) if forward else ((d, s), r, False)
 
     def type_pairs(self) -> list[tuple[str, str]]:
         return sorted({tuple(sorted((s, d))) for s, _, d in self.relations})
