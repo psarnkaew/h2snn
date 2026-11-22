@@ -1,0 +1,13 @@
+job=18276 node=g3n01 start=2026-11-22T10:00:24+09:00
+git=ec4c607db538322fed14fad35593ee05b047b383 dirty=0
+NVIDIA GeForce RTX 3090, 550.163.01, 24576 MiB
+smoke smoke_pdns: head=ec4c607db538322fed14fad35593ee05b047b383 host=g3n01 job=18276 gpu=NVIDIA GeForce RTX 3090
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 10:05:54,502 | INFO | Epoch 0000 | train_loss: 0.3962 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 0.2858 | val_acc: 0.8856 | val_auroc: 0.0000 | val_macro_f1: 0.8695 | val_micro_f1: 0.8856 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+smoke epoch 0: train {"loss": 0.39617234468460083, "steps": 256.0} | val {"loss": 0.28583747148513794, "acc": 0.8856201171875, "macro_f1": 0.8695278322150451, "micro_f1": 0.8856201171875, "cls_loss": 0.28583747148513794}
+SMOKE {"name": "smoke_pdns", "head": "ec4c607db538322fed14fad35593ee05b047b383", "job": "18276", "gpu": "NVIDIA GeForce RTX 3090", "outcome": "finished", "train_loss": [0.39617234468460083], "loss_finite": true, "params_moved": "29/29", "unmoved": [], "wall_s": 306.1, "peak_gpu_gib": 11.971, "host_peak_gib": 5.93}
+end=2026-11-22T10:06:16+09:00 exit=0 wall_s=351
