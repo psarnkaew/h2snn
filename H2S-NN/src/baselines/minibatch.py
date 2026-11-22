@@ -3,7 +3,9 @@
 
 * **Batch plan** (`minibatch_plan`): the batch size is one of the budget table's range ({32, 256, 1024},
   `src/configs/config.py: BATCH_BUDGETS`); one epoch = 8,192 training targets = 8,192 / B optimizer steps; the loss
-  is the mean over the B targets of a step; 500 epochs, no early stopping, the best validation epoch is kept.
+  is the mean over the B targets of a step; 500 epochs, early stopping with patience 40 epochs checked at the
+  evaluations (card 16 part 2; `stops_early`; a published cell keeps its source's rule, no early stopping), the best
+  validation epoch is kept.
 * **Fan-out** (`h2gb_sample_sizes`): read from H2GB's own YAML of that method and dataset, merged into H2GB's cfg as
   H2GB's `main.py` does (`set_cfg`, `merge_from_file`) and turned into HGTLoader's `num_samples` with H2GB's own
   expression (`H2GB/sampler/custom_sampler.py:323-326`); never retyped.
@@ -66,6 +68,9 @@ class MinibatchPlan:
     steps_per_epoch: int
     epochs: int
     eval_period: int
+    #: card 16 part 2: early-stopping patience in epochs, checked at the evaluations (None: no early stopping, a
+    #: published H2GB cell as its source)
+    patience: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,12 +105,19 @@ def minibatch_plan(dataset: str, batch_size: int) -> MinibatchPlan:
     return MinibatchPlan(dataset=dataset, batch_size=batch_size, epoch_targets=plan.epoch_targets,
                          steps_per_epoch=plan.epoch_targets // batch_size,
                          epochs=default_budget(NODE_CLASSIFICATION, dataset).epochs,
-                         eval_period=default_eval_period(dataset))
+                         eval_period=default_eval_period(dataset),
+                         patience=default_budget(NODE_CLASSIFICATION, dataset).patience)
 
 
 def is_eval_epoch(epoch: int, plan: MinibatchPlan) -> bool:
     """H2GB's `is_eval_epoch` (`H2GB/graphgym/utils/epoch.py:9-12`) with start epoch 0."""
     return (epoch + 1) % plan.eval_period == 0 or epoch == 0 or epoch + 1 == plan.epochs
+
+
+def stops_early(epoch: int, best_epoch: int, plan: MinibatchPlan) -> bool:
+    """Card 16 part 2: checked after the evaluation of `epoch`: stop when `plan.patience` epochs have passed since the
+    best evaluation (patience counts epochs, so 40 epochs = 10 evaluations at `eval_period` 4, 20 at 2)."""
+    return plan.patience is not None and epoch - best_epoch >= plan.patience
 
 
 def h2gb_config_file(method: str, dataset: str) -> Path:
@@ -323,7 +335,7 @@ def train_minibatch_node_classification(
     """The shared H2GB NC loop: `plan.steps_per_epoch` steps per epoch (loss = mean over the step's B targets); at
     H2GB's eval epochs the B1a validation subset only (`val_subset_loader` over `val_subset_ids`, no test pass); the
     best subset macro-F1 epoch's weights restored after the last epoch and scored once on the whole validation and
-    test splits (`val_loader`, `test_loader`); no early stop."""
+    test splits (`val_loader`, `test_loader`); early stopping by `stops_early` (card 16 part 2)."""
     from src.baselines.metrics import classification_metrics, node_classification_record
     from src.baselines.progress import report_epoch
     from src.models.anchored_solve import check_finite_loss
@@ -360,6 +372,8 @@ def train_minibatch_node_classification(
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
                      metrics=sub_metrics, prefix="val_subset",
                      extra={"train/loss": sum(losses) / max(1, len(losses))})
+        if stops_early(epoch, best_epoch, plan):
+            break
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)
@@ -430,7 +444,7 @@ def train_index_minibatch(
     (`TrainingOrder`, as H2S-NN's trainer), loss = mean over the batch; evaluation on whole splits in contiguous
     batches by H2GB's eval-epoch rule on the B1a validation subset of `plan.dataset` only (no test pass); the best subset
     macro-F1 epoch's weights restored after the last epoch and scored once on the whole validation and test splits;
-    no early stopping. `run_seed`: the seed that drew the split (PDNS, card 1f U5.3)."""
+    early stopping by `stops_early` (card 16 part 2). `run_seed`: the seed that drew the split (PDNS, card 1f U5.3)."""
     from src.baselines.metrics import classification_metrics, node_classification_record
     from src.baselines.progress import report_epoch
     from src.models.anchored_solve import check_finite_loss
@@ -469,6 +483,8 @@ def train_index_minibatch(
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
                      metrics=sub_metrics, prefix="val_subset",
                      extra={"train/loss": sum(losses) / max(1, len(losses))})
+        if stops_early(epoch, best_epoch, plan):
+            break
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)
@@ -556,6 +572,7 @@ def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed
 __all__ = [
     "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "SourceSchedule", "eval_loader",
     "eval_steps", "evaluate_split", "fit_homogeneous_on_hgt", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
-    "is_eval_epoch", "is_source_step", "minibatch_plan", "repeat_fanout", "seed_rows", "train_index_minibatch",
+    "is_eval_epoch", "is_source_step", "minibatch_plan", "repeat_fanout", "seed_rows", "stops_early",
+    "train_index_minibatch",
     "train_minibatch_node_classification", "val_subset_loader",
 ]

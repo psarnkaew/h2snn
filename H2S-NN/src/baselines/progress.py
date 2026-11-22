@@ -120,6 +120,22 @@ def report_epoch(
     report(epoch=epoch, monitor=monitor, running_best=running_best, metrics=metrics, **kwargs)
 
 
+class StoppedEpoch:
+    """Card 16 part 2: wraps a run's report (or None) and keeps the last epoch a shared loop reported, the epoch the
+    run stopped at (every loop reports at each of its evaluations, and stops only after one), so the record can say
+    whether the trial reached the epoch cap. Forwards to the wrapped report exactly as `report_epoch` would."""
+
+    def __init__(self, report: Any) -> None:
+        self.report = report
+        self.epoch: int | None = None
+
+    def __call__(self, *, epoch: int, monitor: float, running_best: float, metrics: dict[str, float],
+                 extra: dict[str, Any] | None = None, prefix: str = "val") -> None:
+        self.epoch = int(epoch)
+        report_epoch(self.report, epoch=epoch, monitor=monitor, running_best=running_best, metrics=metrics,
+                     extra=extra, prefix=prefix)
+
+
 def _accepts(report: Any, name: str) -> bool:
     """Whether `report` takes keyword `name` (or `**kwargs`): a report written for the pre-C7 call (e.g. a test's
     `report(*, epoch, monitor, running_best, metrics)`) keeps receiving exactly those four (card 8 C7)."""
@@ -137,4 +153,4 @@ def prefixed_metrics(prefix: str, metrics: dict[str, Any] | None) -> dict[str, A
     return {f"{prefix}/{name}": value for name, value in (metrics or {}).items()}
 
 
-__all__ = ["EpochReport", "WandbEpochReport", "epoch_payload", "prefixed_metrics", "report_epoch"]
+__all__ = ["EpochReport", "StoppedEpoch", "WandbEpochReport", "epoch_payload", "prefixed_metrics", "report_epoch"]

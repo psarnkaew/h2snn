@@ -587,8 +587,8 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
                       val_loader: Any, test_loader: Any, report: Any = None) -> dict[str, Any]:
     """Hetero2Net's H2GB NC epoch loop under the U2 rule (card 1f U5.4): at H2GB's eval epochs the B1a validation
     subset only (no test pass); the best subset macro-F1 epoch's weights (CPU copy, ties: earliest) restored after the
-    last epoch; one whole-split validation and test pass."""
-    from src.baselines.minibatch import _cpu_state, _subset_fields, is_eval_epoch
+    last epoch; one whole-split validation and test pass; early stopping by `stops_early` (card 16 part 2)."""
+    from src.baselines.minibatch import _cpu_state, _subset_fields, is_eval_epoch, stops_early
 
     best_monitor, best_epoch = float("-inf"), -1
     best_state: dict[str, torch.Tensor] | None = None
@@ -602,6 +602,8 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
                      metrics=sub_metrics, prefix="val_subset",  # card 8 C7
                      extra={"train/loss": None if train_loss is None else float(train_loss)})
+        if stops_early(epoch, best_epoch, plan):
+            break
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
     model.load_state_dict(best_state)

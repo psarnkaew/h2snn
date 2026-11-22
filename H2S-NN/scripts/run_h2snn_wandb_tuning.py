@@ -476,6 +476,7 @@ def train_trial(
 
     data, _, _, _, logger, _, trainer = build_experiment_components(cfg)
     trained = {"epoch": False}  # card 10 A2.2: a training epoch reached the epoch callback
+    stopped = {"epoch": None}  # card 16 part 2: the last epoch the trainer reported = the epoch the trial stopped at
     try:
         monitor_key = monitor.removeprefix("val_")
         best_seen = float("-inf")
@@ -488,6 +489,7 @@ def train_trial(
         ) -> None:
             nonlocal best_seen
             best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
+            stopped["epoch"] = int(epoch)
             trained["epoch"] |= bool(train_metrics)
             try:
                 import wandb  # type: ignore[import-not-found]
@@ -523,6 +525,7 @@ def train_trial(
             extra={
                 "trial_name": trial_name,
                 "sweep_params": params,
+                **({} if stopped["epoch"] is None else {"stopped_epoch": stopped["epoch"]}),
                 **(record_extra or {}),
             },
         )

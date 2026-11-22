@@ -70,7 +70,7 @@ class FlagConfigTests(unittest.TestCase):
                           flag.data.eval_period), ("minibatch", 0, 0, 1))
         for field in ("epochs", "early_stopping_patience", "checkpoint_metric", "checkpoint_mode"):
             self.assertEqual(getattr(flag, field), getattr(full, field), field)
-        self.assertEqual((full.epochs, full.early_stopping_patience), (300, 30))  # HGB budget
+        self.assertEqual((full.epochs, full.early_stopping_patience), (500, 40))  # HGB budget (card 16)
 
     def test_tuner_refusal_and_h2gb_without_b(self) -> None:
         from src.configs.config import TrainConfig, reject_never_tuned_settings

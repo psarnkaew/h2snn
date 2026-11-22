@@ -270,7 +270,10 @@ def fit_cell(
     # from the CLI would silently stop reproducing the number it exists to reproduce.
     if source != "published":
         values.update(budget_overrides(raw_base))
-    baseline_params = BaselineParams(values=values, source=source, report=report)
+    from src.baselines.progress import StoppedEpoch
+
+    stopped = StoppedEpoch(report)  # card 16 part 2: the epoch the run stopped at goes on the record
+    baseline_params = BaselineParams(values=values, source=source, report=stopped)
     record = adapter.fit_task(
         bundle,
         baseline_params,
@@ -292,6 +295,8 @@ def fit_cell(
     # Stamped centrally so every row of every table carries the budget it trained under,
     # and a reader can check that two rows in the same table got the same one.
     record_budget(record, cell.task, baseline_params)
+    if stopped.epoch is not None:
+        record.setdefault("stopped_epoch", float(stopped.epoch))
     if cell.task == LINK_PREDICTION:
         # HGB's split leaves part of each held-out set visible to the encoder; measured
         # here so the number is on the record rather than left to be discovered later.
