@@ -190,7 +190,8 @@ class HgbUnchangedTests(unittest.TestCase):
         cells = json.loads((EVIDENCE / "base_capture_1646efd.json").read_text(encoding="utf-8"))
         kept = [line for line in now["baselines_1_cell_list"].splitlines() if line and not line.startswith("#")
                 and "--models rgcn " not in line and "--models magnn " not in line]
-        captured = set(cells["baselines_1_cell_list"].splitlines())
+        # Card 15 (author 2026-11-22): LP acm_pa is replaced by acm_pp; the capture's acm_pa lines are compared as acm_pp.
+        captured = {line.replace("acm_pa", "acm_pp") for line in cells["baselines_1_cell_list"].splitlines()}
         self.assertTrue(kept)
         self.assertEqual([line for line in kept if line not in captured], [])
 

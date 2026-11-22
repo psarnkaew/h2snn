@@ -233,12 +233,14 @@ class ExistingPhasesTests(unittest.TestCase):
             # `baselines-early` stay byte-identical to 1646efd.
             for phase in ("baselines-early",):
                 self.assertEqual(mcl.tuning_list(phase, out), base.tuning_list(phase, out))
-            self.assertEqual(mcl.h2snn_tuning_list(out), base.h2snn_tuning_list(out))
-            self.assertEqual(mcl.h2snn_final_seeds_list(out), base.h2snn_final_seeds_list(out))
+            # Card 15 (author 2026-11-22): LP acm_pa is replaced by acm_pp, the only intended difference from the base.
+            pp = lambda lines: [line.replace("acm_pa", "acm_pp") for line in lines]  # noqa: E731
+            self.assertEqual(mcl.h2snn_tuning_list(out), pp(base.h2snn_tuning_list(out)))
+            self.assertEqual(mcl.h2snn_final_seeds_list(out), pp(base.h2snn_final_seeds_list(out)))
             for phase in ("baselines-early", "h2snn"):        # baselines-1: card 8 C5, see above
                 folder = Path(tmp) / phase                       # the lists embed the folder: one folder, twice
                 base.main(["--phase", phase, "--out-dir", str(folder)])
-                old = {p.name: p.read_bytes() for p in folder.iterdir()}
+                old = {p.name: p.read_bytes().replace(b"acm_pa", b"acm_pp") for p in folder.iterdir()}  # card 15
                 for p in folder.iterdir():
                     p.unlink()
                 mcl.main(["--phase", phase, "--out-dir", str(folder)])

@@ -80,7 +80,9 @@ class PhaseTests(unittest.TestCase):
             sys.modules[spec.name] = base
             spec.loader.exec_module(base)
             out = Path(d) / "out"
-            self.assertEqual(M.h2snn_tuning_list(out), base.h2snn_tuning_list(out))
+            # Card 15 (author 2026-11-22): LP acm_pa is replaced by acm_pp, the only intended difference from the base.
+            self.assertEqual(M.h2snn_tuning_list(out),
+                             [line.replace("acm_pa", "acm_pp") for line in base.h2snn_tuning_list(out)])
             self.assertEqual(M.tuning_list("baselines-early", out), base.tuning_list("baselines-early", out))
 
 
