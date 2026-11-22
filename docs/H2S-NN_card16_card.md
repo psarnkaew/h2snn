@@ -1,4 +1,4 @@
-# Card 16 — Binary F1 on the two-class H2GB datasets (IEEE-CIS-G, PDNS)
+# Card 16 — Binary F1 on IEEE-CIS-G and PDNS; epoch budget of tuned cells (500 / patience 40)
 
 Written 2026-11-22 by the model design session; approved by the author the same day. Small evaluation change; no method change, no change to selection.
 
@@ -19,4 +19,12 @@ Branch `card16` from `merge-c12-c14` (after S12's merge report), so it merges wi
 - The full suite by `sbatch`.
 
 ## Report
-`docs/H2S-NN_card16_report.md`: files changed, test results. Last line `branch=card16 sha=<sha> card=docs/H2S-NN_card16_card.md base=<merge-c12-c14 sha>`. Estimate ≈ 2–3 h.
+`docs/H2S-NN_card16_report.md`: files changed, test results. Last line `branch=card16 sha=<sha> card=docs/H2S-NN_card16_card.md base=<merge-c12-c14 sha>`. Estimate ≈ ½ day (both parts).
+
+## Part 2 — Epoch budget of tuned cells (author decision 2026-11-22, via ops; evidence `docs/ops_evidence/epoch_budget_2026-11-22/`, 45ad4ea)
+- `src/configs/config.py` `PROTOCOL_BUDGETS`: HGB NC 300/30 → **500/40**; LP 40/40 → **500/40**; H2GB NC 500/None → **500/40**; GC (hetsheaf) unchanged (validation loss, patience 50, final weights; 500 epochs from the configs, card 13). Monitor and checkpoint unchanged in kind: best validation metric (HGB NC Macro-F1, H2GB NC B1a-subset Macro-F1, LP ROC-AUC).
+- H2GB loops evaluate every `eval_period` epochs (4; OAG 2): early stopping is checked at those evaluations, and patience counts **epochs** (40 epochs = 10 or 20 evaluations without improvement).
+- The baseline budget path (`src/baselines/budget.py`) follows the table; the H2S-NN configs that set patience explicitly (H2GB 500, card 5) are set to follow the table; tests that pin the old budgets are updated to the new values.
+- Published-configuration cells are **unchanged** (their source's epochs and patience).
+- Each run record keeps the epoch it stopped at, so ops can report per cell the share of trials that reach the 500 cap.
+- Tests: the existing budget tests with the new values; one test that H2GB patience counts epochs over evaluation points (eval_period 4, patience 40 → stops after 10 evaluations without improvement); the full suite.
