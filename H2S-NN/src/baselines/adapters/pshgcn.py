@@ -83,7 +83,7 @@ from src.utils.misc import seed_everything
 NAME = "pshgcn"
 VENDOR = "pshgcn"
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Card 1d H1 (G-2, D1-b): ogbn-mag / mag-year with their ogbn-mag code in full (`_pshgcn_mag.py`): their inputs,
 #: propagation and expander, the label part with sparse_tools' self-effect diagonals, batches of target rows.

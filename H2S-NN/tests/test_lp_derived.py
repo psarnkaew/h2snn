@@ -397,6 +397,7 @@ class RealFreebasePairTests(unittest.TestCase):
 
 
 RealSplitTestsACM = _real_split_case("acm_pa")
+RealSplitTestsACMPP = _real_split_case("acm_pp")  # card 15
 RealSplitTestsDBLP = _real_split_case("dblp_ap")
 RealSplitTestsIMDB = _real_split_case("imdb_ma")
 

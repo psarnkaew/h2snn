@@ -609,6 +609,8 @@ LINK_PREDICTION_PRESETS: dict[str, dict[str, Any]] = {
     # split_meta.json `target_relation` (Part P P2: the bundles build them by name).
     "acm_pa": {"target_relation": ("paper", "rel_2", "author"),
                "neg_sampling_mode": "resample_each_epoch"},
+    "acm_pp": {"target_relation": ("paper", "rel_0", "paper"),
+               "neg_sampling_mode": "resample_each_epoch"},
     "dblp_ap": {"target_relation": ("author", "rel_0", "paper"),
                 "neg_sampling_mode": "resample_each_epoch"},
     "imdb_ma": {"target_relation": ("movie", "rel_2", "actor"),
@@ -816,6 +818,7 @@ DATASET_TASK_TYPES: dict[str, str] = {
                                                  "oag-chem", "ieee-cis-g", "h-pokec", "pdns")},
     "lastfm": "link_prediction",
     "acm_pa": "link_prediction",
+    "acm_pp": "link_prediction",
     "dblp_ap": "link_prediction",
     "imdb_ma": "link_prediction",
     "freebase_bb": "link_prediction",

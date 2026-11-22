@@ -47,6 +47,7 @@ WISP = {"wisp_max_length": 4, "wisp_walks_per_anchor": 8}
 COLLAPSE_EPS = 1e-6
 LP_TARGETS: dict[str, tuple[str, str, str]] = {
     "acm_pa": ("paper", "rel_2", "author"),
+    "acm_pp": ("paper", "rel_0", "paper"),  # card 15
     "dblp_ap": ("author", "rel_0", "paper"),
     "imdb_ma": ("movie", "rel_2", "actor"),
     "freebase_bb": ("book", "rel_0", "book"),

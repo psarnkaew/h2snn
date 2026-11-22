@@ -1,0 +1,74 @@
+job=18287 node=g3n01 start=2026-11-22T11:14:01+09:00
+git=c59b44b45ca8ed1a6614f61aadbe18564d76d8e5 branch=card15 dirty=3
+NVIDIA GeForce RTX 3090, 24576 MiB
+== 1 build acm_pp by unordered pair
+{"task": "acm_pp", "target_relation": 0, "reverse_relation": 1, "facts": 5310, "train": 4301, "valid": 478, "test": 531, "source_link_rows": 547872, "link_rows_removed": 1064, "output_md5": {"node.dat": "01b4942d8d1ca9b89232a0fdd93ebafc", "info.dat": "3375b0afb7f34f6546b0406f05f77f94", "link.dat": "c7965e4abc2260ec717d235948a52132", "link.dat.test": "90c9444d82c07350d43f0d7b19c920bd", "link.dat.valid": "459f19c3e9e9e2c4eeadc1b2728c4f51"}}
+{"task": "acm_pp", "rule": "spec v1.10 F17 (remove, never rebuild)", "release": "/mnt/data/peeradon/h2snn/H2S-NN/data/NC/acm/raw/ACM", "release_node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc", "removed_types": {}, "removed_columns": {}, "widths": {"0": 1902, "1": 1902, "2": 1902, "3": 0}, "node_dat_md5": "01b4942d8d1ca9b89232a0fdd93ebafc"}
+{"task": "acm_pp", "types": ["paper", "paper"], "test_neg_2hop_file": "test_neg_2hop_rel0.npy", "test_neg_2hop_md5": "7f340190badf9cc3118f2d2d18b34124", "test_neg_random_file": "test_neg_random_rel0.npy", "test_neg_random_md5": "ab3c8fc1fc3240c0946a37463e696deb", "test_pos_md5": "b2df7319f9f35a369110084c0a78e7f4", "test_positives": 532, "test_negatives_2hop": 532, "test_negatives_random": 532, "two_hop_empty_reason": null, "test_heads": 451, "heads_without_candidates_count": 0, "test_positives_without_negatives": 0, "share_of_test_positives_without_negatives": 0.0, "seconds": 9.3}
+{'target_relation': 0, 'reverse_relation': 1, 'split_unit': 'unordered_pair', 'facts': 5310, 'train': 4301, 'valid': 478, 'test': 531, 'rows': {'train': 4322, 'valid': 481, 'test': 532, 'self_loops_in_link_dat': 8}, 'link_rows_removed': 1064}
+rows: train 4330 valid 481 test 532 self-loops in train set 8 in valid/test 0
+leaks (test in link.dat, rel 0 either way or rel 1 reversed): 0 0
+== 2 other derived tasks unchanged (rebuilt into scratch, md5 vs disk)
+acm_pa info.dat scratch=3375b0afb7f34f6546b0406f05f77f94 disk=3375b0afb7f34f6546b0406f05f77f94 SAME
+acm_pa link.dat scratch=8e6331b230e1aef704e3ab94033a3408 disk=8e6331b230e1aef704e3ab94033a3408 SAME
+acm_pa link.dat.test scratch=8b5af509c8a2fca37631e477e499aaf9 disk=8b5af509c8a2fca37631e477e499aaf9 SAME
+acm_pa link.dat.valid scratch=71661a5c3d3b7dda88fb02a2e82fa223 disk=71661a5c3d3b7dda88fb02a2e82fa223 SAME
+dblp_ap info.dat scratch=8da9d4d7c092a63065a3358287dbaca7 disk=8da9d4d7c092a63065a3358287dbaca7 SAME
+dblp_ap link.dat scratch=8e7827b5c4da919309817f4eed35639c disk=8e7827b5c4da919309817f4eed35639c SAME
+dblp_ap link.dat.test scratch=a9b06a5ee3e4026e8086900a98354efb disk=a9b06a5ee3e4026e8086900a98354efb SAME
+dblp_ap link.dat.valid scratch=02e21c712136edc1c807e89aea64bdf3 disk=02e21c712136edc1c807e89aea64bdf3 SAME
+imdb_ma info.dat scratch=734fa61762a3d993d34b37a714b51dfe disk=734fa61762a3d993d34b37a714b51dfe SAME
+imdb_ma link.dat scratch=035a29097c6696dc4f3e503d92848d37 disk=035a29097c6696dc4f3e503d92848d37 SAME
+imdb_ma link.dat.test scratch=936b8a91cbad552acc5d4a17d119af8b disk=936b8a91cbad552acc5d4a17d119af8b SAME
+imdb_ma link.dat.valid scratch=1c5ac40e2f230d22c68eaba657457922 disk=1c5ac40e2f230d22c68eaba657457922 SAME
+freebase_bb info.dat scratch=5c1c8f793a41856d965e9b1fc0c95cbf disk=5c1c8f793a41856d965e9b1fc0c95cbf SAME
+freebase_bb link.dat scratch=c68908fb221f3c446306c6d93c43f05b disk=c68908fb221f3c446306c6d93c43f05b SAME
+freebase_bb link.dat.test scratch=3fc5363d002454e1c74af3861ed1bc3a disk=3fc5363d002454e1c74af3861ed1bc3a SAME
+freebase_bb link.dat.valid scratch=b420348c9964d2a2cc01ffed88409efa disk=b420348c9964d2a2cc01ffed88409efa SAME
+== 3 degree check (card 12 L scripts, unchanged)
+| task | head / tail | features head / tail | other rel. head / tail | val pos deg0 tail / head | val neg deg0 tail / head | AUROC all: train / val / test-2hop / test-rand | AUROC target pair: train / val | (i) | (ii) | flag |
+|---|---|---|---|---|---|---|---|---|---|---|
+| acm_pp | paper / paper | yes / yes | 3 / 3 | 0.000 / 0.000 | 0.000 / 0.000 | 0.5921 / 0.5611 / 0.5752 / 0.5999 | 0.7837 / 0.7167 | no | no | **no** |
+| dblp_ap | author / paper | no (Sequential) / yes | 0 / 2 | 0.000 / 0.090 | 0.000 / 0.090 | 0.5148 / 0.4855 / nan / 0.4808 | 0.5519 / 0.4200 | no | yes | **no** |
+== 4 heterophily
+[11:14:49] wrote /mnt/data/peeradon/h2snn-card15/docs/heterophily_evidence/records/lp__acm_pp__task_h_edge.json: value 0.12034440040588379
+[11:15:27] wrote /mnt/data/peeradon/h2snn-card15/docs/heterophily_evidence/records/lp__acm_pp__mde.json: value {'paper': 0.7368905211175987}
+== 5 smoke epochs
+2026-11-22 11:15:39,076 | INFO | Epoch 0000 | val_auroc: 0.5350 | val_mrr: 0.7724 | test (2-hop, random) auroc: 0.5372689241901747, 0.5377953813104188 | mrr: 0.7875092387287509, 0.7790096082779009
+2026-11-22 11:15:39,076 | INFO | Best epoch 0 | test (2-hop, random) auroc: 0.5372689241901747, 0.5377953813104188 | mrr: 0.7875092387287509, 0.7790096082779009
+{
+ "run": "h2snn:lp:acm_pp",
+ "error": null,
+ "not_runnable": null,
+ "stop_condition": null,
+ "a_losses_finite": true,
+ "b_no_stop_condition": true,
+ "c_no_collapse": true,
+ "d_parameters_moved": true,
+ "e_train_loss_first_last": [
+  0.7908593416213989,
+  0.7908593416213989
+ ]
+}
+smoke h2snn exit=0
+{
+ "run": "gcn:lp:acm_pp",
+ "error": null,
+ "not_runnable": null,
+ "stop_condition": null,
+ "a_losses_finite": true,
+ "b_no_stop_condition": true,
+ "c_no_collapse": true,
+ "d_parameters_moved": true,
+ "e_train_loss_first_last": [
+  4.766355514526367,
+  4.766355514526367
+ ]
+}
+smoke gcn exit=0
+== 6 targeted tests
+FAIL: test_derived_tasks_evaluate_81_9_10 (tests.test_lp_valid_files.RealValidFileTests.test_derived_tasks_evaluate_81_9_10)
+AssertionError: Tuples differ: (4330, 481, 532) != (4301, 478, 531)
+Ran 88 tests in 139.745s
+FAILED (failures=1)
+end=2026-11-22T11:18:23+09:00

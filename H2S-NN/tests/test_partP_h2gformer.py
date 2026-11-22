@@ -46,7 +46,7 @@ class StackTests(unittest.TestCase):
         for dataset in ("acm", "dblp", "imdb", "freebase"):
             self.assertEqual(encoder_stack(nc, dataset, False), (RAW, LABEL))
             self.assertEqual(encoder_stack(nc, dataset, True), (RAW, LABEL, METAPATH))
-        for dataset in ("acm_pa", "dblp_ap", "imdb_ma", "freebase_bb", "lastfm"):
+        for dataset in ("acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb", "lastfm"):
             self.assertEqual(encoder_stack(lp, dataset, False), (RAW,))
             self.assertEqual(encoder_stack(lp, dataset, True), (RAW, METAPATH))
         self.assertEqual(encoder_stack(lp, "pubmed"), (RAW,))  # no HGB table: raw only
@@ -97,10 +97,11 @@ HAND = {
                (P, "rel_1", P), (P, "rel_2", A), (A, "rel_3", P),
                (P, "rel_1", P), (P, "rel_4", S), (S, "rel_5", P)],
 }
+HAND["acm_pp"] = HAND["acm_pa"]  # card 15: the same ACM release, so the same table
 
 
 def _edge_types(dataset: str) -> set[tuple[str, str, str]]:
-    key = {"acm_pa": "acm", "dblp_ap": "dblp", "imdb_ma": "imdb", "freebase_bb": "freebase"}
+    key = {"acm_pa": "acm", "acm_pp": "acm", "dblp_ap": "dblp", "imdb_ma": "imdb", "freebase_bb": "freebase"}
     if dataset == "lastfm":
         stored = {("user", "rel_0", "artist"), ("user", "rel_1", "user"),
                   ("artist", "rel_2", "tag")}
@@ -113,7 +114,7 @@ def _edge_types(dataset: str) -> set[tuple[str, str, str]]:
 
 
 class SchemaTests(unittest.TestCase):
-    DATASETS = ("acm", "dblp", "imdb", "freebase", "acm_pa", "dblp_ap", "imdb_ma",
+    DATASETS = ("acm", "dblp", "imdb", "freebase", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma",
                 "freebase_bb", "lastfm")
 
     def test_schemas_are_cyclic_edge_types_of_the_graph(self) -> None:

@@ -78,7 +78,7 @@ HGB_RELATIONS: dict[str, tuple[str, ...]] = {
 }
 
 #: Derived LP task -> (source NC release, head type = the start type of its listed paths).
-DERIVED_SOURCE: dict[str, str] = {"acm_pa": "acm", "dblp_ap": "dblp", "imdb_ma": "imdb",
+DERIVED_SOURCE: dict[str, str] = {"acm_pa": "acm", "acm_pp": "acm", "dblp_ap": "dblp", "imdb_ma": "imdb",
                                   "freebase_bb": "freebase"}
 
 EdgeType = tuple[str, str, str]

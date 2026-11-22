@@ -84,7 +84,7 @@ NAME = "h2gformer"
 VENDOR = "h2gb"
 SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Part 2 E1: the H2GB NC datasets on H2GB's `hgt` batches with H2GB's own configs (`_h2gformer_h2gb.py`); mag-year
 #: cannot run under H2GB's own code (no MetaPath2Vec schema for its name) and is left out.

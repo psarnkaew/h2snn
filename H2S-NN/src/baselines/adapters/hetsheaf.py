@@ -86,7 +86,7 @@ from src.utils.misc import seed_everything
 NAME = "hetsheaf"
 VENDOR = "hetsheaf"
 SUPPORTED_DATASETS = frozenset({"acm", "dblp", "imdb", "freebase"})
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: A3 (H-4): class C on the H2GB NC datasets.
 H2GB_DATASETS = frozenset({"ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns"})
@@ -98,7 +98,7 @@ GC_POOLINGS: tuple[str, ...] = ("mean", "max", "add", "attention", "late_token")
 #: Their GC `output_dim` (`run_sheaf_gc.py:40`: `cfg.hidden_dim`, 64 in `configs/sheaf_config_gc.yaml`).
 _GC_OUTPUT_DIM = 64
 #: LP tasks built on an HGB NC graph: their HGB NC chain (module docstring).
-_HGB_NC_LP_DATASETS = frozenset({"acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+_HGB_NC_LP_DATASETS = frozenset({"acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 
 #: Map family -> their encoder class (`models/sheaf_gnn/__init__.py:4-13`; `configs/model/{diag,bundle,general}_sheaf.yaml:1`).
 MAP_FAMILIES: dict[str, str] = {

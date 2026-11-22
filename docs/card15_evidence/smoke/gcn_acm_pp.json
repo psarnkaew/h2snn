@@ -1,0 +1,58 @@
+{
+ "model": "gcn",
+ "config": {
+  "params": {
+   "epochs": 1
+  },
+  "params_source": "defaults",
+  "seed": 42,
+  "run_index": 0
+ },
+ "epochs": [
+  {
+   "epoch": 0,
+   "train_loss": 4.766355514526367,
+   "val_loss": 2.354302406311035
+  }
+ ],
+ "stop_condition": null,
+ "error": null,
+ "seconds": 17.034494280815125,
+ "parameters_moved": 12,
+ "parameters_total": 12,
+ "parameters_not_moved": [],
+ "max_abs_change": 0.0005000829696655273,
+ "run": "gcn:lp:acm_pp",
+ "task": "link_prediction",
+ "dataset": "acm_pp",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "checks": {
+  "runnable": true,
+  "a_losses_finite": true,
+  "train_loss_steps": 1,
+  "non_finite_train_losses": [],
+  "val_losses": [
+   [
+    0,
+    2.354302406311035
+   ]
+  ],
+  "b_no_stop_condition": true,
+  "c_score_std": [
+   {
+    "epoch": 0,
+    "val": 1.0658036470413208,
+    "test_2hop": 1.0059014558792114,
+    "test_random": 1.0390090942382812
+   }
+  ],
+  "c_no_collapse": true,
+  "d_parameters_moved": true,
+  "e_train_loss_first_last": [
+   4.766355514526367,
+   4.766355514526367
+  ]
+ },
+ "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"
+}

@@ -42,11 +42,13 @@ HGB_NC = {"acm": ("ACM", "paper"), "dblp": ("DBLP", "author"), "imdb": ("IMDB", 
           "freebase": ("Freebase", "book")}
 H2GB_NC = ("ogbn-mag", "mag-year", "oag-cs", "oag-eng", "oag-chem", "ieee-cis-g", "h-pokec", "pdns")
 #: local LP tasks: (Hetero²Net list key of the NC release it derives from, NC target type of that list)
-LP_LOCAL = {"acm_pa": ("acm", "paper"), "dblp_ap": ("dblp", "author"), "imdb_ma": ("imdb", "movie"),
+LP_LOCAL = {"acm_pa": ("acm", "paper"), "acm_pp": ("acm", "paper"), "dblp_ap": ("dblp", "author"),
+            "imdb_ma": ("imdb", "movie"),
             "freebase_bb": (None, None), "pubmed": (None, None), "lastfm": (None, None)}
 LP_LARGE = {"ogbn-mag_pp": ("ogbn-mag", "paper"), "h-pokec_uu": (None, None)}
 #: task-level H_edge (spec §1): the LP tasks whose two endpoint types carry labels, with the NC graph holding them
 TASK_H_EDGE = {"freebase_bb": ("freebase", ("book", "and", "book")),
+               "acm_pp": ("acm", ("paper", "cite", "paper")),  # card 15: both ends are labelled papers
                "ogbn-mag_pp": ("ogbn-mag", ("paper", "cites", "paper")),
                "h-pokec_uu": ("h-pokec", ("user", "has_friend", "user"))}
 GC = {"mutag": "MUTAG", "proteins": "PROTEINS", "enzymes": "ENZYMES", "nci1": "NCI1"}

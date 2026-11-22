@@ -1,0 +1,166 @@
+job=18279 node=g3n01 start=2026-11-22T10:00:30+09:00
+git=03ea4a128186017f3145d97426aa1c6bbcbf9ea9 branch=card15 dirty=7
+8b4885143b74c7158aec29a9723055d5  scripts/diagnostics/card15/a1_data_checks.py
+db67f545086bdf3eb62f01b5d48d61e7  scripts/diagnostics/card15/l_flags.py
+== task acm_pp: configs/experiments/acm_pp_h2snn_v3b.yaml
+== task dblp_ap: ../docs/card11_inputs/h2snn_link_prediction_dblp_ap_tune_run0_daily-sweep-73/config.yaml
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+  warnings.warn(
+== a1_counts
+task	head_type	relation	tail_type	num_heads	num_tails	message_edges	message_edges_target_rel	relations	target_pair_kept_relations	train_pos	val_pos	test_2hop_pos	train_neg	val_neg	test_2hop_neg	test_random_neg	test_heads_without_2hop_neg
+acm_pp	paper	rel_0	paper	3025	3025	272921	4328	0:author/rel_3/paper 1:paper/rel_0/paper 2:paper/rel_4/subject 3:paper/rel_6/term	paper/rel_0/paper	4328	481	534	4328	481	534	534	0
+dblp_ap	author	rel_0	paper	4057	14328	116051	15913	0:author/rel_0/paper 1:paper/rel_1/term 2:paper/rel_2/venue	author/rel_0/paper	15913	1768	1964	15913	1768	0	1964	1256
+
+== a1_leakage
+task	split	kind	n	in_message_graph_any_rel	in_message_graph_target_pair	reversed_in_message_graph_any_rel	reversed_in_target_pair	duplicates_within_split	in_other_splits_positives	known_positive
+acm_pp	train	positives	4328	4328	4328	40	40	0	0	4328
+acm_pp	train	negatives	4328	6	6	2	2	2		8
+acm_pp	val	positives	481	0	0	4	4	0	0	481
+acm_pp	val	negatives	481	0	0	0	0	0		1
+acm_pp	test_2hop	positives	534	0	0	2	2	0	0	534
+acm_pp	test_2hop	negatives	534	0	0	0	0	0		0
+acm_pp	test_random	negatives	534	0	0	0	0	0		0
+dblp_ap	train	positives	15913	15913	15913	0	0	0	0	15913
+dblp_ap	train	negatives	15913	25	25	0	0	6		27
+dblp_ap	val	positives	1768	0	0	0	0	0	0	1768
+dblp_ap	val	negatives	1768	2	2	0	0	0		2
+dblp_ap	test_2hop	positives	1964	0	0	0	0	0	0	1964
+dblp_ap	test_2hop	negatives	0	0	0	0	0	0		0
+dblp_ap	test_random	negatives	1964	0	0	0	0	0		0
+
+== a1_degree
+task	split	kind	end	degree	n	mean	q0	q10	q25	q50	q75	q90	q100	share_deg0
+acm_pp	train	pos	head	all	4328	99.806	19	71	86	100	114	126	205	0.0000
+acm_pp	train	pos	head	target_rel	4328	5.386	1	2	3	4	7	10	39	0.0000
+acm_pp	train	pos	tail	all	4328	101.325	19	74	86	102	115	130	205	0.0000
+acm_pp	train	pos	tail	target_rel	4328	10.160	1	2	4	7	12	20	65	0.0000
+acm_pp	train	neg	head	all	4328	99.806	19	71	86	100	114	126	205	0.0000
+acm_pp	train	neg	head	target_rel	4328	5.386	1	2	3	4	7	10	39	0.0000
+acm_pp	train	neg	tail	all	4328	91.917	19	59	75	93	108	122	205	0.0000
+acm_pp	train	neg	tail	target_rel	4328	2.800	0	0	1	2	4	7	39	0.2440
+acm_pp	val	pos	head	all	481	99.765	39	71	85	100	116	128	160	0.0000
+acm_pp	val	pos	head	target_rel	481	4.466	0	1	2	4	6	9	34	0.0832
+acm_pp	val	pos	tail	all	481	101.393	40	72	86	103	118	130	154	0.0000
+acm_pp	val	pos	tail	target_rel	481	9.010	0	1	3	6	12	19	65	0.0353
+acm_pp	val	neg	head	all	481	99.765	39	71	85	100	116	128	160	0.0000
+acm_pp	val	neg	head	target_rel	481	4.466	0	1	2	4	6	9	34	0.0832
+acm_pp	val	neg	tail	all	481	92.940	28	60	79	93	107	121	191	0.0000
+acm_pp	val	neg	tail	target_rel	481	2.886	0	0	1	2	4	7	30	0.2474
+acm_pp	test	pos	head	all	534	97.811	38	71	85	99.5	110	120	160	0.0000
+acm_pp	test	pos	head	target_rel	534	4.500	0	1	2	4	6	10	29	0.0824
+acm_pp	test	pos	tail	all	534	100.918	37	73	85	102	115	132.7	154	0.0000
+acm_pp	test	pos	tail	target_rel	534	10.236	0	2	4	7	12	21	65	0.0243
+acm_pp	test_2hop	neg	head	all	534	97.811	38	71	85	99.5	110	120	160	0.0000
+acm_pp	test_2hop	neg	head	target_rel	534	4.500	0	1	2	4	6	10	29	0.0824
+acm_pp	test_2hop	neg	tail	all	534	92.496	33	61	78	93.5	106	120.7	191	0.0000
+acm_pp	test_2hop	neg	tail	target_rel	534	2.715	0	0	0	2	4	7	21	0.2547
+acm_pp	test_random	neg	head	all	534	97.811	38	71	85	99.5	110	120	160	0.0000
+acm_pp	test_random	neg	head	target_rel	534	4.500	0	1	2	4	6	10	29	0.0824
+acm_pp	test_random	neg	tail	all	534	90.298	28	55.3	75	91	106	120	205	0.0000
+acm_pp	test_random	neg	tail	target_rel	534	2.457	0	0	0	1	3	7	18	0.2846
+dblp_ap	train	pos	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	pos	tail	all	15913	8.569	3	6	7	8	10	11	22	0.0000
+dblp_ap	train	pos	tail	target_rel	15913	1.540	1	1	1	1	2	3	5	0.0000
+dblp_ap	train	neg	head	all	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	head	target_rel	15913	15.315	1	2	3	7	17	37	144	0.0000
+dblp_ap	train	neg	tail	all	15913	8.080	2	6	7	8	9	11	22	0.0000
+dblp_ap	train	neg	tail	target_rel	15913	1.110	0	0	1	1	1	2	5	0.1443
+dblp_ap	val	pos	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	pos	tail	all	1768	7.566	2	5	6	7	9	10	19	0.0000
+dblp_ap	val	pos	tail	target_rel	1768	0.555	0	0	0	0	1	2	5	0.5781
+dblp_ap	val	neg	head	all	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	head	target_rel	1768	14.148	0	1	2	6	16	36	144	0.0905
+dblp_ap	val	neg	tail	all	1768	8.111	3	6	7	8	9	11	19	0.0000
+dblp_ap	val	neg	tail	target_rel	1768	1.136	0	0	1	1	1	2	4	0.1256
+dblp_ap	test	pos	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test	pos	tail	all	1964	7.459	3	5	6	7	9	10	16	0.0000
+dblp_ap	test	pos	tail	target_rel	1964	0.534	0	0	0	0	1	1	4	0.5804
+dblp_ap	test_2hop	neg	head	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	head	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	all	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_2hop	neg	tail	target_rel	0		nan	nan	nan	nan	nan	nan	nan	
+dblp_ap	test_random	neg	head	all	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	head	target_rel	1964	13.154	0	1	2	6	15	32	144	0.0774
+dblp_ap	test_random	neg	tail	all	1964	8.123	3	6	7	8	9	11	19	0.0000
+dblp_ap	test_random	neg	tail	target_rel	1964	1.114	0	0	1	1	1	2	5	0.1456
+
+== a1_features
+task	node_type	nodes	input_width	encoder	deg0_share_all	mean_degree_all
+acm_pp	paper	3025	1902	Identity (features)	0.0000	91.653
+acm_pp	author	5959	1902	Identity (features)	0.0000	1.670
+acm_pp	subject	56	1902	Identity (features)	0.0000	54.018
+acm_pp	term	1902	0	Sequential	0.0000	134.395
+dblp_ap	author	4057	0	Sequential	0.0668	3.922
+dblp_ap	paper	14328	4231	Identity (features)	0.0000	8.100
+dblp_ap	term	7723	50	Identity (features)	0.0000	11.111
+dblp_ap	venue	20	0	Sequential	0.0000	716.400
+
+== a1_degree_auroc
+task	split	degree	score	n_pos	n_neg	auroc
+acm_pp	train	all	head+tail	4328	4328	0.5876
+acm_pp	train	all	head	4328	4328	0.5000
+acm_pp	train	all	tail	4328	4328	0.6106
+acm_pp	train	target_rel	head+tail	4328	4328	0.7809
+acm_pp	train	target_rel	head	4328	4328	0.5000
+acm_pp	train	target_rel	tail	4328	4328	0.8434
+acm_pp	val	all	head+tail	481	481	0.5834
+acm_pp	val	all	head	481	481	0.5000
+acm_pp	val	all	tail	481	481	0.6070
+acm_pp	val	target_rel	head+tail	481	481	0.7209
+acm_pp	val	target_rel	head	481	481	0.5000
+acm_pp	val	target_rel	tail	481	481	0.7831
+acm_pp	test_2hop	all	head+tail	534	534	0.5757
+acm_pp	test_2hop	all	head	534	534	0.5000
+acm_pp	test_2hop	all	tail	534	534	0.6038
+acm_pp	test_2hop	target_rel	head+tail	534	534	0.7438
+acm_pp	test_2hop	target_rel	head	534	534	0.5000
+acm_pp	test_2hop	target_rel	tail	534	534	0.8209
+acm_pp	test_random	all	head+tail	534	534	0.6039
+acm_pp	test_random	all	head	534	534	0.5000
+acm_pp	test_random	all	tail	534	534	0.6294
+acm_pp	test_random	target_rel	head+tail	534	534	0.7682
+acm_pp	test_random	target_rel	head	534	534	0.5000
+acm_pp	test_random	target_rel	tail	534	534	0.8374
+dblp_ap	train	all	head+tail	15913	15913	0.5148
+dblp_ap	train	all	head	15913	15913	0.5000
+dblp_ap	train	all	tail	15913	15913	0.5657
+dblp_ap	train	target_rel	head+tail	15913	15913	0.5519
+dblp_ap	train	target_rel	head	15913	15913	0.5000
+dblp_ap	train	target_rel	tail	15913	15913	0.6482
+dblp_ap	val	all	head+tail	1768	1768	0.4855
+dblp_ap	val	all	head	1768	1768	0.5000
+dblp_ap	val	all	tail	1768	1768	0.4294
+dblp_ap	val	target_rel	head+tail	1768	1768	0.4200
+dblp_ap	val	target_rel	head	1768	1768	0.5000
+dblp_ap	val	target_rel	tail	1768	1768	0.2741
+dblp_ap	test_2hop	all	head+tail	1964	0	nan
+dblp_ap	test_2hop	all	head	1964	0	nan
+dblp_ap	test_2hop	all	tail	1964	0	nan
+dblp_ap	test_2hop	target_rel	head+tail	1964	0	nan
+dblp_ap	test_2hop	target_rel	head	1964	0	nan
+dblp_ap	test_2hop	target_rel	tail	1964	0	nan
+dblp_ap	test_random	all	head+tail	1964	1964	0.4808
+dblp_ap	test_random	all	head	1964	1964	0.5000
+dblp_ap	test_random	all	tail	1964	1964	0.4088
+dblp_ap	test_random	target_rel	head+tail	1964	1964	0.4185
+dblp_ap	test_random	target_rel	head	1964	1964	0.5000
+dblp_ap	test_random	target_rel	tail	1964	1964	0.2771
+
+| task | head / tail | features head / tail | other rel. head / tail | val pos deg0 tail / head | val neg deg0 tail / head | AUROC all: train / val / test-2hop / test-rand | AUROC target pair: train / val | (i) | (ii) | flag |
+|---|---|---|---|---|---|---|---|---|---|---|
+| acm_pp | paper / paper | yes / yes | 3 / 3 | 0.000 / 0.000 | 0.000 / 0.000 | 0.5876 / 0.5834 / 0.5757 / 0.6039 | 0.7809 / 0.7209 | no | no | **no** |
+| dblp_ap | author / paper | no (Sequential) / yes | 0 / 2 | 0.000 / 0.090 | 0.000 / 0.090 | 0.5148 / 0.4855 / nan / 0.4808 | 0.5519 / 0.4200 | no | yes | **no** |
+end=2026-11-22T10:00:48+09:00

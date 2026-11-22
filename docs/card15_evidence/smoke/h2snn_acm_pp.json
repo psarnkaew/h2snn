@@ -1,0 +1,89 @@
+{
+ "model": "h2snn",
+ "config": {
+  "template": "configs/experiments/acm_pa_h2snn_v3b.yaml",
+  "data": {
+   "dataset_name": "acm_pp",
+   "task_type": "link_prediction",
+   "root": "data",
+   "target_relation": [
+    "paper",
+    "rel_0",
+    "paper"
+   ],
+   "decoder_type": "dot",
+   "wisp_max_length": 4,
+   "wisp_walks_per_anchor": 8
+  },
+  "model": {
+   "d": 32,
+   "d_r": 16,
+   "edge_mlp_hidden_dim": 128,
+   "face_mlp_hidden_dim": 128,
+   "classifier_hidden_dim": 128,
+   "orthogonal_map": "fasthpp",
+   "propagation": "anchored",
+   "arm": "full",
+   "tau_init": 1.0,
+   "solver_tolerance": 0.0001,
+   "solver_warmup_tolerance": 0.001,
+   "solver_warmup_epochs": 10,
+   "solver_max_iterations": 100
+  },
+  "epochs": 1,
+  "seed": 0
+ },
+ "epochs": [
+  {
+   "epoch": 0,
+   "train_loss": 0.7908593416213989,
+   "val_loss": 0.6999750137329102,
+   "tau": 1.0100501775741577,
+   "path_log_w_range": 1.183927059173584,
+   "pcg_iters": {
+    "pcg_fwd_iters": 6.0,
+    "pcg_bwd_iters": 6.0
+   }
+  }
+ ],
+ "stop_condition": null,
+ "error": null,
+ "seconds": 1.8174808695912361,
+ "parameters_moved": 34,
+ "parameters_total": 34,
+ "parameters_not_moved": [],
+ "max_abs_change": 0.009999996982514858,
+ "run": "h2snn:lp:acm_pp",
+ "task": "link_prediction",
+ "dataset": "acm_pp",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "checks": {
+  "runnable": true,
+  "a_losses_finite": true,
+  "train_loss_steps": 1,
+  "non_finite_train_losses": [],
+  "val_losses": [
+   [
+    0,
+    0.6999750137329102
+   ]
+  ],
+  "b_no_stop_condition": true,
+  "c_score_std": [
+   {
+    "epoch": 0,
+    "val": 0.1183137446641922,
+    "test_2hop": 0.12004062533378601,
+    "test_random": 0.11872103810310364
+   }
+  ],
+  "c_no_collapse": true,
+  "d_parameters_moved": true,
+  "e_train_loss_first_last": [
+   0.7908593416213989,
+   0.7908593416213989
+  ]
+ },
+ "note": "Part N smoke: correctness checks only; no accuracy, F1, ROC-AUC or MRR is recorded (card N7)"
+}

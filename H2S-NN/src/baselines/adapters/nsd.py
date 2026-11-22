@@ -75,7 +75,7 @@ READS_BATCH_PLAN = True
 #: Card 1c F7 (G-10): large LP on `large_lp_training.py` with the dataset's GCN fan-out (D1 / G-8 samplers).
 LARGE_LP_DATASETS = frozenset({"ogbn-mag_pp", "h-pokec_uu"})
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 
 #: Restriction-map families, from neural-sheaf-diffusion/exp/run.py:151-157.

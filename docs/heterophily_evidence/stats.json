@@ -243,6 +243,171 @@
   "peak_rss_gb": 0.387
  },
  {
+  "dataset": "acm_pp",
+  "task": "lp",
+  "measure": "mde",
+  "harness_commit": "c59b44b45ca8ed1a6614f61aadbe18564d76d8e5",
+  "job": "18287",
+  "node": "g3n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py attribute_homophily (D-a: mde_chunked above 2e6 edges; H2b: closed form on a complete G_P; H2c-1: closed form on a disjoint union of cliques)",
+  "target_relation": "paper-rel_0-paper",
+  "loader": "src/data/link_prediction_dataset.py:612 _load_local_hgb_link_data (.data: every relation's training facts; F17 node.dat)",
+  "symmetrisation": {
+   "author-rel_3-paper": "kept (reverse partner paper-rel_2-author)",
+   "paper-rel_0-paper": "kept (reverse partner paper-rel_1-paper)",
+   "paper-rel_1-paper": "kept (reverse partner paper-rel_0-paper)",
+   "paper-rel_2-author": "kept (reverse partner author-rel_3-paper)",
+   "paper-rel_4-subject": "kept (reverse partner subject-rel_5-paper)",
+   "paper-rel_6-term": "kept (reverse partner term-rel_7-paper)",
+   "subject-rel_5-paper": "kept (reverse partner paper-rel_4-subject)",
+   "term-rel_7-paper": "kept (reverse partner paper-rel_6-term)"
+  },
+  "graph": {
+   "node_types": {
+    "paper": 3025,
+    "author": 5959,
+    "subject": 56,
+    "term": 1902
+   },
+   "edge_types": {
+    "author-rel_3-paper": 9949,
+    "paper-rel_0-paper": 4330,
+    "paper-rel_1-paper": 4330,
+    "paper-rel_2-author": 9949,
+    "paper-rel_4-subject": 3025,
+    "paper-rel_6-term": 255619,
+    "subject-rel_5-paper": 3025,
+    "term-rel_7-paper": 255619
+   }
+  },
+  "per_endpoint_type": {
+   "paper": {
+    "value": 0.7368905211175987,
+    "form": "MDE, mean over M2 (raw features)",
+    "feature_dim": 1902,
+    "feature_dtype": "torch.float32",
+    "per_metapath": [
+     {
+      "metapath": "paper-author-paper",
+      "steps": [
+       [
+        "paper",
+        "author"
+       ],
+       [
+        "author",
+        "paper"
+       ]
+      ],
+      "gp_complete": false,
+      "hub": null,
+      "gp_cliques": false,
+      "edges": 29767,
+      "reference": 2.157297372817993,
+      "value": 2.157297372817993,
+      "code_path": "hetero2net.attribute_homophily (reference)"
+     },
+     {
+      "metapath": "paper-subject-paper",
+      "steps": [
+       [
+        "paper",
+        "subject"
+       ],
+       [
+        "subject",
+        "paper"
+       ]
+      ],
+      "gp_complete": false,
+      "hub": null,
+      "gp_cliques": true,
+      "edges": 2217089,
+      "value": 0.0427225686757869,
+      "cliques": 56,
+      "code_path": "closed form (H2c-1: disjoint cliques)"
+     },
+     {
+      "metapath": "paper-term-paper",
+      "steps": [
+       [
+        "paper",
+        "term"
+       ],
+       [
+        "term",
+        "paper"
+       ]
+      ],
+      "gp_complete": false,
+      "hub": null,
+      "gp_cliques": false,
+      "edges": 9150595,
+      "value": 0.010651621859015746,
+      "chunked": 0.010651621859015746,
+      "code_path": "mde_chunked (D-a)"
+     }
+    ],
+    "m2": [
+     "paper-author-paper",
+     "paper-subject-paper",
+     "paper-term-paper"
+    ],
+    "m2_source": "Hetero2Net predefined list 'acm' (App. B.1)"
+   }
+  },
+  "value": {
+   "paper": 0.7368905211175987
+  },
+  "wall_s": 36.15,
+  "peak_rss_gb": 3.171
+ },
+ {
+  "dataset": "acm_pp",
+  "task": "lp",
+  "measure": "task_h_edge",
+  "harness_commit": "c59b44b45ca8ed1a6614f61aadbe18564d76d8e5",
+  "job": "18287",
+  "node": "g3n01",
+  "threads": 8,
+  "vendor_commits": {
+   "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+   "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+  },
+  "code": "hetero2net/homophily.py label_homophily",
+  "symmetrisation": {
+   "paper-cite-paper": "kept (reverse partner paper-ref-paper)",
+   "paper-ref-paper": "kept (reverse partner paper-cite-paper)",
+   "paper-to-author": "kept (reverse partner author-to-paper)",
+   "author-to-paper": "kept (reverse partner paper-to-author)",
+   "paper-to-subject": "kept (reverse partner subject-to-paper)",
+   "subject-to-paper": "kept (reverse partner paper-to-subject)",
+   "paper-to-term": "kept (reverse partner term-to-paper)",
+   "term-to-paper": "kept (reverse partner paper-to-term)"
+  },
+  "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset) (labels of acm; full target relation: all task positives)",
+  "relation": "paper-cite-paper",
+  "labels_of": "paper",
+  "value": 0.12034440040588379,
+  "form": "heterophily: 1 - label_homophily",
+  "fill_seeds": [
+   0
+  ],
+  "value_over_fill_seeds": [
+   0.12034440040588379
+  ],
+  "spread": null,
+  "edges": 5343,
+  "self_loops": 8,
+  "wall_s": 1.78,
+  "peak_rss_gb": 0.739
+ },
+ {
   "dataset": "dblp_ap",
   "task": "lp",
   "measure": "mde",

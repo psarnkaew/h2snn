@@ -1,0 +1,22 @@
+job=18289 node=g3n01 start=2026-11-22T11:19:41+09:00
+git=c59b44b45ca8ed1a6614f61aadbe18564d76d8e5 branch=card15
+test_a_validation_fact_missing_from_link_dat_raises (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_a_validation_fact_missing_from_link_dat_raises) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_non_target_relations_absent_from_the_file_stay_whole (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_non_target_relations_absent_from_the_file_stay_whole) ... ok
+test_reverse_only_fixture_raises (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_reverse_only_fixture_raises)
+J1.3 finding 2: a test fact back in link.dat only as its r' row breaks rho; the ... ok
+test_validation_facts_leave_the_message_graph_in_both_orientations (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_validation_facts_leave_the_message_graph_in_both_orientations) ... ok
+test_validation_is_the_file_and_the_split_is_81_9_10 (tests.test_lp_valid_files.DerivedTaskValidFileTests.test_validation_is_the_file_and_the_split_is_81_9_10) ... ok
+test_self_inverse_relation_listed_in_one_orientation_raises (tests.test_lp_valid_files.FileWrittenFromTheCarveTests.test_self_inverse_relation_listed_in_one_orientation_raises) ... ok
+test_written_file_reproduces_the_loaders_carve (tests.test_lp_valid_files.FileWrittenFromTheCarveTests.test_written_file_reproduces_the_loaders_carve) ... ok
+test_derived_tasks_evaluate_81_9_10 (tests.test_lp_valid_files.RealValidFileTests.test_derived_tasks_evaluate_81_9_10) ... ok
+test_lastfm_file_is_target_only (tests.test_lp_valid_files.RealValidFileTests.test_lastfm_file_is_target_only) ... ok
+test_pubmed_file_is_target_only (tests.test_lp_valid_files.RealValidFileTests.test_pubmed_file_is_target_only) ... ok
+test_target_only_file_keeps_the_target_split_and_completes_the_rest (tests.test_lp_valid_files.TargetOnlyFileTests.test_target_only_file_keeps_the_target_split_and_completes_the_rest) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 26.347s
+
+OK
+end=2026-11-22T11:20:09+09:00 exit=0

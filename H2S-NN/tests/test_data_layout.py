@@ -47,7 +47,7 @@ class DataLayoutTests(unittest.TestCase):
     def test_loader_specs_live_under_lp(self) -> None:
         from src.data.link_prediction_dataset import _LOCAL_HGB_LINK_DATASETS, local_hgb_link_dir
 
-        for name in ("acm_pa", "dblp_ap", "imdb_ma", "freebase_bb", "pubmed", "lastfm"):
+        for name in ("acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb", "pubmed", "lastfm"):
             folder = local_hgb_link_dir(Path("x"), name)
             self.assertEqual(folder.parts[:2], ("x", "LP"), name)
         self.assertEqual(local_hgb_link_dir(Path("x"), "acm_pa"), Path("x/LP/lp_derived/acm_pa"))

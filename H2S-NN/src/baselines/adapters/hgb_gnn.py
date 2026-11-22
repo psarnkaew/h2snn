@@ -57,7 +57,7 @@ VENDOR = "hgb_nc_gnn"
 VENDOR_LP = "hgb_lp_gnn"
 SUPPORTED_DATASETS = frozenset(HGB_DEFAULT_FEATS_TYPE)
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
-SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "dblp_ap", "imdb_ma", "freebase_bb"})
+SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
 #: Part 2 E1 (author decision S1): the H2GB NC datasets, on H2GB's `hgt` sampler with H2GB's own YAML fan-out of
 #: this method and dataset (`src/baselines/minibatch.py`).

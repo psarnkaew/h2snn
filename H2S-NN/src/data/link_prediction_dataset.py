@@ -83,6 +83,16 @@ _LOCAL_HGB_LINK_DATASETS = {
         "node_type_names": {0: "paper", 1: "author", 2: "subject", 3: "term"},
         "feature_rule": True,
     },
+    # acm_pp (card 15): ("paper", "rel_0", "paper"), HGB ACM paper-cite-paper; rho(rel_0) = rel_1
+    # (paper-ref-paper). Split by unordered pair like freebase_bb (25 mutual-citation pairs; option b,
+    # 2026-11-22): self-loops stay in the message graph and are never positives.
+    "acm_pp": {
+        "folder": f"{LP_DERIVED_DIR}/acm_pp",
+        "node_type_names": {0: "paper", 1: "author", 2: "subject", 3: "term"},
+        "exclude_self_loop_positives": True,
+        "feature_rule": True,
+        "split_unit": "unordered_pair",
+    },
     "dblp_ap": {
         "folder": f"{LP_DERIVED_DIR}/dblp_ap",
         "node_type_names": {0: "author", 1: "paper", 2: "term", 3: "venue"},
