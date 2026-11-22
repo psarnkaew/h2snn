@@ -67,7 +67,39 @@ class _AutoMultiClassCompat:
         self._module.LogisticRegression = self._original
 
 
-def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path, schema_name: str | None = None) -> None:
+class _Seed0:
+    """Card 17 step 3c: MetaPath2Vec is trained at seed 0 (H2GB's `pe_dir` has no seed); the run's random states
+    (python, numpy, torch CPU and CUDA) are restored afterwards, so a run is the same whether the cache existed."""
+
+    def __init__(self, device: Any) -> None:
+        self.device = device
+
+    def __enter__(self) -> None:
+        import random
+
+        import numpy as np
+
+        from src.utils.misc import seed_everything
+
+        self._states = (random.getstate(), np.random.get_state(), torch.get_rng_state(),
+                        torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None)
+        seed_everything(0, self.device if self.device is not None else "cpu")
+
+    def __exit__(self, *exc: Any) -> None:
+        import random
+
+        import numpy as np
+
+        python_state, numpy_state, torch_state, cuda_states = self._states
+        random.setstate(python_state)
+        np.random.set_state(numpy_state)
+        torch.set_rng_state(torch_state)
+        if cuda_states is not None:
+            torch.cuda.set_rng_state_all(cuda_states)
+
+
+def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path, schema_name: str | None = None,
+                         device: Any = None) -> None:
     """H2GB's MetaPath2Vec embeddings (trained by H2GB's code if `pe_dir` has none) as each type's
     `pestat_Hetero_Metapath` (`master_loader.py:262-281`). Needs H2GB's cfg configured first. `schema_name`: the
     dataset name H2GB's `preprocess_Metapath` dispatches on, when it differs from the dataset's own (decision G-7)."""
@@ -78,7 +110,7 @@ def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path, schema_name:
 
     pe_dir = Path(pe_dir)
     if not pe_dir.exists() or not check_Metapath(str(pe_dir)):
-        with _AutoMultiClassCompat():
+        with _AutoMultiClassCompat(), _Seed0(device):
             preprocess_Metapath(str(pe_dir),
                                 dataset_obj if schema_name is None else DatasetShim(dataset_obj[0], schema_name))
     model = load_Metapath(str(pe_dir))
@@ -112,8 +144,9 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     from src.baselines.adapters._h2gb_network import configure_from_yaml, seed_predictions
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.bundles import bundle_data_root
-    from src.baselines.h2gb_published import (fanout_from_args, h2gb_optimizer_and_schedule, is_h2gb_published,
-                                              published_overrides, published_plan, resolve_published, run_settings)
+    from src.baselines.h2gb_published import (fanout_from_args, h2gb_criterion, h2gb_optimizer_and_schedule,
+                                              is_h2gb_published, published_overrides, published_plan,
+                                              resolve_published, run_settings)
     from src.baselines.protocol import NODE_CLASSIFICATION
     from src.baselines.minibatch import (eval_loader, h2gb_sample_sizes, hgt_loader, minibatch_plan,
                                          train_minibatch_node_classification, val_subset_loader)
@@ -147,11 +180,13 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
         fanout = fanout_from_args(args, tuple(data.node_types))
         cfg_overrides = {**published_overrides(values), "share.dim_out": int(num_classes)}
         dim_pe = int(args["posenc_Hetero_Metapath.dim_pe"]) if METAPATH in stack else 0
+        criterion = h2gb_criterion(args)  # card 17: the yaml's loss (weighted on IEEE-CIS-G)
     else:
         fanout = h2gb_sample_sizes("h2gformer", bundle.dataset, tuple(data.node_types))
         plan = minibatch_plan(bundle.dataset, int(params.get("batch_size", 256)))
         cfg_overrides = overrides(params, num_classes, stack)
         dim_pe = metapath_dim_pe(int(params.get("hidden_dim", 64))) if METAPATH in stack else 0
+        criterion = torch.nn.functional.cross_entropy
     loaders = (hgt_loader(data, fanout, target, "train", plan.batch_size, shuffle=True, steps=plan.steps_per_epoch),
                eval_loader(data, fanout, target, "val", plan.batch_size),
                eval_loader(data, fanout, target, "test", plan.batch_size))
@@ -166,9 +201,11 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     with pushd_sys_path("h2gb"):
         cfg = configure_from_yaml("h2gformer", bundle.dataset, data, target, device, cfg_overrides)
         if METAPATH in stack:
+            # card 17 step 3c: one MetaPath2Vec per dataset and width, trained at seed 0 (H2GB's pe_dir has no
+            # seed); every seed and trial, tuned and published, reuses it
             pe_dir = Path(params.get("metapath_cache", "experiments/h2gb_metapath2vec")) / bundle.dataset / \
-                f"dim{dim_pe}_seed{seed}"
-            attach_h2gb_metapath(dataset_obj, data, pe_dir, SCHEMA_NAME.get(bundle.dataset))
+                f"dim{dim_pe}"
+            attach_h2gb_metapath(dataset_obj, data, pe_dir, SCHEMA_NAME.get(bundle.dataset), device=device)
         torch.manual_seed(seed)
         model = build_gtmodel(data, bundle.dataset, num_classes).to(device)
         schedule = None
@@ -187,7 +224,7 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
         model=model, forward_seeds=forward_seeds, train_loader=loaders[0], val_loader=loaders[1],
         test_loader=loaders[2], val_ids=val_ids, test_ids=test_ids, val_subset_loader=subset_loader,
         val_subset_ids=subset_ids, target_type=target, optimizer=optimizer,
-        criterion=torch.nn.functional.cross_entropy, plan=plan, report=getattr(params, "report", None), labels=labels,
+        criterion=criterion, plan=plan, report=getattr(params, "report", None), labels=labels,
         schedule=schedule)
     record["params_source"] = params.source
     record["node_encoder"] = "+".join(stack)

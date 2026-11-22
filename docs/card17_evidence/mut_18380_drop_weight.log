@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_weighted_loss_known_answer (tests.test_card17_ieee_cis.WeightedLossTests.test_weighted_loss_known_answer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card17/H2S-NN/tests/test_card17_ieee_cis.py", line 76, in test_weighted_loss_known_answer
+    self.assertTrue(torch.allclose(criterion(logits, y), h2gb, atol=1e-7, rtol=0))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=1)

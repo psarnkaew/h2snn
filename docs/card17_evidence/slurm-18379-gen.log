@@ -1,0 +1,43 @@
+job=18379 node=g3n01 start=2026-11-22T18:32:42+09:00 git=e52b0252d8f4c21b7b39cf7f505c34079da47fc0
+gat ieee-cis-g absent
+gat mag-year IDENTICAL
+gat oag-chem IDENTICAL
+gat oag-cs IDENTICAL
+gat oag-eng IDENTICAL
+gat pdns IDENTICAL
+gcn h-pokec IDENTICAL
+gcn ieee-cis-g absent
+gcn mag-year IDENTICAL
+gcn oag-chem IDENTICAL
+gcn oag-cs IDENTICAL
+gcn oag-eng IDENTICAL
+gcn pdns IDENTICAL
+h2gformer h-pokec IDENTICAL
+h2gformer ieee-cis-g absent
+h2gformer mag-year IDENTICAL
+h2gformer oag-chem IDENTICAL
+h2gformer oag-cs IDENTICAL
+h2gformer oag-eng IDENTICAL
+h2gformer ogbn-mag IDENTICAL
+h2gformer pdns IDENTICAL
+han h-pokec IDENTICAL
+han ieee-cis-g absent
+han mag-year IDENTICAL
+han oag-chem IDENTICAL
+han oag-cs IDENTICAL
+han oag-eng IDENTICAL
+han pdns IDENTICAL
+rgcn h-pokec IDENTICAL
+rgcn ieee-cis-g absent
+rgcn mag-year IDENTICAL
+rgcn oag-chem IDENTICAL
+rgcn oag-cs IDENTICAL
+rgcn oag-eng IDENTICAL
+rgcn pdns IDENTICAL
+checked 30, differing 0
+wrote /mnt/data/peeradon/h2snn-card17/H2S-NN/configs/baselines/gcn/node_classification/ieee-cis-g.yaml 33 keys
+wrote /mnt/data/peeradon/h2snn-card17/H2S-NN/configs/baselines/gat/node_classification/ieee-cis-g.yaml 34 keys
+wrote /mnt/data/peeradon/h2snn-card17/H2S-NN/configs/baselines/rgcn/node_classification/ieee-cis-g.yaml 33 keys
+wrote /mnt/data/peeradon/h2snn-card17/H2S-NN/configs/baselines/han/node_classification/ieee-cis-g.yaml 34 keys
+wrote /mnt/data/peeradon/h2snn-card17/H2S-NN/configs/baselines/h2gformer/node_classification/ieee-cis-g.yaml 41 keys
+end=2026-11-22T18:32:46+09:00 exit=0

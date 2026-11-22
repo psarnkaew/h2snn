@@ -22,7 +22,7 @@ import torch
 def configure_from_yaml(method: str, dataset: str, data: Any, target_type: str, device: torch.device,
                         overrides: dict[str, Any]) -> Any:
     """H2GB's cfg for `method` on `dataset` (its YAML), `overrides` (dotted keys) applied, the input widths of
-    `data` (types with `x`) in `cfg.share.dim_in`. Returns the cfg."""
+    `data` in `cfg.share.dim_in` (None for a type without `x`, as H2GB). Returns the cfg."""
     from src.baselines.minibatch import h2gb_config_file
 
     import H2GB  # noqa: F401  - registers H2GB's modules and config groups
@@ -39,7 +39,10 @@ def configure_from_yaml(method: str, dataset: str, data: Any, target_type: str, 
     assert_cfg(cfg)  # as H2GB's load_cfg after merging (graphgym/config.py:510-537): heads default to the task
     cfg.device = str(device)
     cfg.dataset.task_entity = target_type
-    cfg.share["dim_in"] = {t: int(data[t].x.size(1)) for t in data.node_types if data[t].get("x") is not None}
+    # card 17 step 3b: a featureless type gets None, as H2GB sets it (graphgym/loader.py:197-203), so the raw
+    # encoder has a `dim_emb` entry for the nn.Embedding it builds for that type; types with `x` keep their width
+    cfg.share["dim_in"] = {t: int(data[t].x.size(1)) if data[t].get("x") is not None else None
+                           for t in data.node_types}
     return cfg
 
 

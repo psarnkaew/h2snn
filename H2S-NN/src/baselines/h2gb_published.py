@@ -40,6 +40,8 @@ H2GB_PUBLISHED_CELLS: frozenset[tuple[str, str]] = frozenset({
     *(("han", d) for d in _H2GB_SIX),
     *(("rgcn", d) for d in _H2GB_SIX),
     *(("h2gformer", d) for d in ("ogbn-mag",) + _H2GB_SIX),
+    # card 17 (author 2026-11-22): the IEEE-CIS-G yamls as written, weighted cross-entropy included (`h2gb_criterion`)
+    *((m, "ieee-cis-g") for m in ("gcn", "gat", "rgcn", "han", "h2gformer")),
 })
 
 #: yaml keys not transcribed (prefix match on the dotted key), with the reason: they are data, evaluation or logging,
@@ -191,6 +193,31 @@ def published_plan(dataset: str, settings: H2GBRunSettings) -> Any:
     return dataclasses.replace(plan, epochs=settings.epochs, eval_period=settings.eval_period, patience=None)
 
 
+def h2gb_criterion(args: dict[str, Any]) -> Any:
+    """The training loss of the resolved arguments (card 17 step 3). `cross_entropy`: `F.cross_entropy`, unchanged.
+    `weighted_cross_entropy` with a `model.loss_fun_weight` list: `F.cross_entropy(logits, y, weight=w)` on the step's
+    training targets, equal to H2GB's multi-class form `F.nll_loss(F.log_softmax(pred, -1), true, weight=w)`
+    (`H2GB/loss/weighted_cross_entropy.py`). Without a list H2GB derives the weights from each batch; refused."""
+    import torch
+
+    loss = args["model.loss_fun"]
+    if loss == "cross_entropy":
+        return torch.nn.functional.cross_entropy
+    if loss != "weighted_cross_entropy":
+        raise ValueError(f"loss {loss!r}: the shared loop trains with cross_entropy or weighted_cross_entropy.")
+    weights = args.get("model.loss_fun_weight")
+    if weights is None:
+        raise ValueError("weighted_cross_entropy without model.loss_fun_weight (H2GB's batch-dependent weights) is not "
+                         "supported; no yaml we run uses it.")
+    weights = [float(w) for w in weights]
+
+    def weighted_cross_entropy(logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        weight = torch.tensor(weights, dtype=logits.dtype, device=logits.device)
+        return torch.nn.functional.cross_entropy(logits, target, weight=weight)
+
+    return weighted_cross_entropy
+
+
 def h2gb_optimizer_and_schedule(model: Any, cfg: Any, args: dict[str, Any], settings: H2GBRunSettings
                                 ) -> tuple[Any, Any]:
     """H2GB's optimizer and scheduler (`H2GB/main.py:108-110`) from the resolved arguments, and the step rule.
@@ -267,8 +294,7 @@ def fit_h2gb_published(bundle: Any, params: Any, *, model_name: str, seed: int, 
     ensure_pyg_submodules()
     with pushd_sys_path("h2gb"):
         _, args = resolve_published(model_name, bundle.dataset, data, target, device, values)
-    if args["model.loss_fun"] != "cross_entropy":
-        raise ValueError(f"loss {args['model.loss_fun']!r}: the shared loop trains with cross-entropy.")
+    criterion = h2gb_criterion(args)
     settings = run_settings(args)
     plan = published_plan(bundle.dataset, settings)
     fanout = fanout_from_args(args, tuple(data.node_types))
@@ -289,7 +315,7 @@ def fit_h2gb_published(bundle: Any, params: Any, *, model_name: str, seed: int, 
         train_loader=loaders[0], val_loader=loaders[1], test_loader=loaders[2],
         val_ids=data[target].val_mask.nonzero().view(-1), test_ids=data[target].test_mask.nonzero().view(-1),
         val_subset_loader=subset_loader, val_subset_ids=subset_ids, target_type=target, optimizer=optimizer,
-        criterion=torch.nn.functional.cross_entropy, plan=plan, report=getattr(params, "report", None),
+        criterion=criterion, plan=plan, report=getattr(params, "report", None),
         labels=labels, schedule=schedule)
     record["params_source"] = "published"
     record["h2gb_model_type"] = str(cfg.model.type)
@@ -300,7 +326,7 @@ def fit_h2gb_published(bundle: Any, params: Any, *, model_name: str, seed: int, 
 
 __all__ = [
     "EXCLUDED_KEYS", "H2GBRunSettings", "H2GB_PUBLISHED_CELLS", "MODEL_SECTIONS", "RUN_ARGUMENTS",
-    "build_h2gb_network", "decode", "fanout_from_args", "fit_h2gb_published", "flatten", "h2gb_optimizer_and_schedule",
+    "build_h2gb_network", "decode", "fanout_from_args", "fit_h2gb_published", "flatten", "h2gb_criterion", "h2gb_optimizer_and_schedule",
     "is_excluded", "is_h2gb_published", "published_overrides", "published_plan", "resolve_published",
     "resolved_run_arguments",
     "run_settings", "yaml_key_lines", "yaml_published_values",

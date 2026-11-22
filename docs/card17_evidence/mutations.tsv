@@ -1,0 +1,1 @@
+drop_weight	src/baselines/h2gb_published.py	return torch.nn.functional.cross_entropy(logits, target, weight=weight)	return torch.nn.functional.cross_entropy(logits, target)	tests.test_card17_ieee_cis.WeightedLossTests.test_weighted_loss_known_answer

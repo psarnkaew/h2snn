@@ -1,0 +1,180 @@
+job=18380 node=g3n01 start=2026-11-22T18:33:31+09:00
+git=e52b0252d8f4c21b7b39cf7f505c34079da47fc0 branch=card17
+ M configs/baselines/paper_filled_cells.tsv
+ M src/baselines/adapters/_h2gb_network.py
+ M src/baselines/adapters/_h2gformer_h2gb.py
+ M src/baselines/h2gb_published.py
+?? configs/baselines/gat/node_classification/ieee-cis-g.yaml
+?? configs/baselines/gcn/node_classification/ieee-cis-g.yaml
+?? configs/baselines/h2gformer/node_classification/ieee-cis-g.yaml
+?? configs/baselines/han/node_classification/ieee-cis-g.yaml
+?? configs/baselines/rgcn/node_classification/ieee-cis-g.yaml
+?? tests/test_card17_ieee_cis.py
+test_second_seed_reuses_the_seed0_cache (tests.test_card17_ieee_cis.MetapathCacheTests.test_second_seed_reuses_the_seed0_cache) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+WARNING:root:Layers after message passing should be >=1
+/mnt/data/peeradon/h2snn-card17/H2S-NN/vendor/H2GB/H2GB/loader/encoding_generator.py:571: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  emb = torch.load(embedding_path, map_location='cpu')
+WARNING:root:Layers after message passing should be >=1
+ok
+test_five_cells_published_and_resolve (tests.test_card17_ieee_cis.PublishedCellsTests.test_five_cells_published_and_resolve) ... ok
+test_cross_entropy_unchanged_and_no_weight_refused (tests.test_card17_ieee_cis.WeightedLossTests.test_cross_entropy_unchanged_and_no_weight_refused) ... ok
+test_weighted_loss_known_answer (tests.test_card17_ieee_cis.WeightedLossTests.test_weighted_loss_known_answer) ... ok
+test_accumulation_rule_is_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_accumulation_rule_is_h2gbs) ... ok
+test_h2gb_run_arguments_equal_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_h2gb_run_arguments_equal_the_yaml) ... ok
+test_published_file_equals_the_yaml (tests.test_card8_published.H2GBPublishedTests.test_published_file_equals_the_yaml) ... ok
+test_published_homo_gnn_step_is_finite_and_moves (tests.test_card8_published.H2GBPublishedTests.test_published_homo_gnn_step_is_finite_and_moves)
+The published H2GB path's network (H2GB's HomoGNNModel, GCN yaml) on one sampled batch. ... ok
+test_settings_scheduler_and_step_rule_are_h2gbs (tests.test_card8_published.H2GBPublishedTests.test_settings_scheduler_and_step_rule_are_h2gbs) ... ok
+test_source_epoch_steps_clips_and_schedules (tests.test_card8_published.H2GBPublishedTests.test_source_epoch_steps_clips_and_schedules) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:206: UserWarning: Seems like `optimizer.step()` has been overridden after learning rate scheduler initialization. Please, make sure to call `optimizer.step()` before `lr_scheduler.step()`. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+ok
+test_gcn_equals_homognn (tests.test_card8_published.HGBLPPublishedTests.test_gcn_equals_homognn) ... ok
+test_magnn_lastfm_equals_run_lastfm (tests.test_card8_published.HGBLPPublishedTests.test_magnn_lastfm_equals_run_lastfm) ... ok
+test_rgcn_pubmed_equals_link_predict (tests.test_card8_published.HGBLPPublishedTests.test_rgcn_pubmed_equals_link_predict) ... ok
+test_run_arguments_equal_run_freebase (tests.test_card8_published.MagnnFreebaseTests.test_run_arguments_equal_run_freebase) ... ok
+test_filled_cells_skipped_and_seed_default_zero (tests.test_card8_published.PublishedRunnerTests.test_filled_cells_skipped_and_seed_default_zero) ... ok
+test_fit_cell_refuses_before_building_anything (tests.test_card8_published.SourceScheduleRefusalTests.test_fit_cell_refuses_before_building_anything) ... ok
+test_tuned_runs_refuse_source_schedule_keys (tests.test_card8_published.SourceScheduleRefusalTests.test_tuned_runs_refuse_source_schedule_keys) ... ok
+test_mag_year_metapath_schema_and_step (tests.test_baselines_h2gb_classa.H2GformerMagYearTests.test_mag_year_metapath_schema_and_step) ... WARNING:root:Layers after message passing should be >=1
+/mnt/data/peeradon/h2snn-card17/H2S-NN/vendor/H2GB/H2GB/loader/encoding_generator.py:571: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  emb = torch.load(embedding_path, map_location='cpu')
+ok
+test_h2gformer_label_channel_reads_training_labels_only (tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_label_channel_reads_training_labels_only) ... WARNING:root:Layers after message passing should be >=1
+WARNING:root:Layers after message passing should be >=1
+ok
+test_h2gformer_step (tests.test_baselines_h2gb_classa.H2GformerTests.test_h2gformer_step) ... WARNING:root:Layers after message passing should be >=1
+ok
+test_gat_step (tests.test_baselines_h2gb_classa.OneStepTests.test_gat_step) ... ok
+test_gcn_step (tests.test_baselines_h2gb_classa.OneStepTests.test_gcn_step) ... ok
+test_han_step (tests.test_baselines_h2gb_classa.OneStepTests.test_han_step) ... ok
+test_embeddings_are_produced_and_consumed (tests.test_partP_h2gformer.MetapathChannelTests.test_embeddings_are_produced_and_consumed) ... ok
+test_hidden_width_128_builds_with_metapath (tests.test_partP_h2gformer.MetapathChannelTests.test_hidden_width_128_builds_with_metapath) ... ok
+test_the_label_channel_reads_training_labels (tests.test_partP_h2gformer.RouteTests.test_the_label_channel_reads_training_labels) ... ok
+test_validation_and_test_labels_do_not_reach_the_label_channel (tests.test_partP_h2gformer.RouteTests.test_validation_and_test_labels_do_not_reach_the_label_channel) ... ok
+test_hops_exist_on_the_real_graphs (tests.test_partP_h2gformer.SchemaTests.test_hops_exist_on_the_real_graphs) ... ok
+test_schemas_are_cyclic_edge_types_of_the_graph (tests.test_partP_h2gformer.SchemaTests.test_schemas_are_cyclic_edge_types_of_the_graph) ... ok
+test_schemas_equal_the_table_concatenation (tests.test_partP_h2gformer.SchemaTests.test_schemas_equal_the_table_concatenation) ... ok
+test_metapath2vec_settings_equal_h2gbs (tests.test_partP_h2gformer.SettingsTests.test_metapath2vec_settings_equal_h2gbs) ... ok
+test_h2gb_stacks_equal_their_configs (tests.test_partP_h2gformer.StackTests.test_h2gb_stacks_equal_their_configs) ... ok
+test_stack_per_cell_is_t2 (tests.test_partP_h2gformer.StackTests.test_stack_per_cell_is_t2) ... ok
+test_every_line_passes_validate_only (tests.test_tsubame_cell_list.CellListTests.test_every_line_passes_validate_only) ... ok
+test_phase1_lines_are_the_registry_runnable_cells (tests.test_tsubame_cell_list.CellListTests.test_phase1_lines_are_the_registry_runnable_cells) ... ok
+test_probe_line_is_one_trial_at_the_smallest_point (tests.test_card8_phases.LineTests.test_probe_line_is_one_trial_at_the_smallest_point) ... ok
+test_published_line_parses_and_completes (tests.test_card8_phases.LineTests.test_published_line_parses_and_completes) ... ok
+test_h2snn_and_early_are_byte_identical_to_the_base (tests.test_card8_phases.PhaseTests.test_h2snn_and_early_are_byte_identical_to_the_base) ... ok
+test_phases_disjoint_and_cover_every_runnable_cell_once (tests.test_card8_phases.PhaseTests.test_phases_disjoint_and_cover_every_runnable_cell_once) ... FAIL
+test_T9_ablation_lines_equal_the_manifests (tests.test_card7_tsubame.AblationPhaseTests.test_T9_ablation_lines_equal_the_manifests)
+Card 9 W8 (v3): seed lines only, one per `runs` row (v2: also one tuning line per `tune` row and the ... ok
+test_T9_existing_phases_byte_identical (tests.test_card7_tsubame.ExistingPhasesTests.test_T9_existing_phases_byte_identical) ... ok
+Processing...
+Done!
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+test_T9_a_line_runs_as_the_slot_runs_it (tests.test_card7_tsubame.PerturbationPhaseTests.test_T9_a_line_runs_as_the_slot_runs_it)
+GCN on the toy original graph through `python run_row.py ... --resume` from H2S-NN/, then a second leg. ... ok
+test_T9_perturbation_lines_equal_the_manifest (tests.test_card7_tsubame.PerturbationPhaseTests.test_T9_perturbation_lines_equal_the_manifest) ... ok
+test_T9_resume_dropped_cwd_copy_done (tests.test_card7_tsubame.RunRowTests.test_T9_resume_dropped_cwd_copy_done) ... Preparing MetaPath2Vec encoding for dataset ogbn-mag using pre-defined metapath [('author', 'writes', 'paper'), ('paper', 'has_topic', 'field_of_study'), ('field_of_study', 'rev_has_topic', 'paper'), ('paper', 'rev_writes', 'author'), ('author', 'affiliated_with', 'institution'), ('institution', 'rev_affiliated_with', 'author'), ('author', 'writes', 'paper'), ('paper', 'cites', 'paper'), ('paper', 'rev_writes', 'author')].
+Epoch: 1, Accuracy: 0.5463
+Epoch: 2, Accuracy: 0.4537
+Epoch: 3, Accuracy: 0.5833
+Epoch: 4, Accuracy: 0.3519
+Epoch: 5, Accuracy: 0.4352
+/tmp/tmpepuxxwlc/cells_tuning.txt: 61 runnable line(s), 59 comment line(s)
+card8 C5 line counts: {"baselines-early": 4, "baselines-1": 61, "baselines-2": 112, "published": 43, "probe": 10} node_f tasks: {"baselines-early": 1, "baselines-1": 16, "baselines-2": 28, "published": 11, "probe": 3}
+/tmp/tmpbhdz358p/lists/cells_ablation_seeds.txt: 8 runnable line(s), 0 comment line(s)
+/tmp/tmprznuheh9/baselines-early/cells_tuning.txt: 4 runnable line(s), 0 comment line(s)
+/tmp/tmprznuheh9/baselines-early/cells_tuning.txt: 4 runnable line(s), 0 comment line(s)
+/tmp/tmprznuheh9/h2snn/cells_tuning.txt: 24 runnable line(s), 1 comment line(s)
+/tmp/tmprznuheh9/h2snn/cells_tuning.txt: 24 runnable line(s), 1 comment line(s)
+run_row: cwd=/tmp/tmpqdksydwd/work /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmpqdksydwd/launcher.py --write /tmp/tmpqdksydwd/record.json --x 1
+ok
+test_T9_tuned_config_waits_then_materialises (tests.test_card7_tsubame.RunRowTests.test_T9_tuned_config_waits_then_materialises) ... row complete: /tmp/tmpqdksydwd/summary.json exists
+waiting: /tmp/tmp2v5m456m/best_tuned_run0.json does not exist yet (the arm's sweep has not finished)
+run_row: cwd=/mnt/data/peeradon/h2snn-card17/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmp2v5m456m/launcher.py --write /tmp/tmp2v5m456m/record.json
+run_row: cwd=/mnt/data/peeradon/h2snn-card17/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmp2v5m456m/launcher.py --write /tmp/tmp2v5m456m/record.json
+run_row: cwd=/mnt/data/peeradon/h2snn-card17/H2S-NN /mnt/home/peeradon/.conda/envs/h2snn-b/bin/python /tmp/tmp2v5m456m/launcher.py --write /tmp/tmp2v5m456m/record.json --h2snn_config /tmp/tmp2v5m456m/t2.yaml
+ok
+test_T9_timing_lines (tests.test_card7_tsubame.TimingPhaseTests.test_T9_timing_lines) ... ok
+test_T1_subset_only_during_training_then_one_whole_split_pass (tests.test_card5_protocol_hooks.B1aTests.test_T1_subset_only_during_training_then_one_whole_split_pass) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:43,060 | INFO | Epoch 0000 | train_loss: 1.1242 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1474 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:43,346 | INFO | Epoch 0001 | train_loss: 1.1091 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1367 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:43,620 | INFO | Epoch 0002 | train_loss: 1.1314 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1270 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.0000 | test_auroc: 0.0000 | test_macro_f1: 0.0000 | test_micro_f1: 0.0000
+ok
+test_T2_pdns_subset_follows_the_run_seed (tests.test_card5_protocol_hooks.B1aTests.test_T2_pdns_subset_follows_the_run_seed) ... ok
+test_T3_selection_by_the_subset_metric (tests.test_card5_protocol_hooks.B1aTests.test_T3_selection_by_the_subset_metric) ... ok
+test_T9_h2snn_phase (tests.test_card5_protocol_hooks.CellListTests.test_T9_h2snn_phase) ... ok
+test_T5_energy_at_a_model_solution (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_at_a_model_solution) ... ok
+test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section (tests.test_card5_protocol_hooks.EnergyTests.test_T5_energy_terms_against_the_dense_reference_and_the_thm4_section) ... ok
+test_T4_records_equal_the_base_commit (tests.test_card5_protocol_hooks.HgbUnchangedTests.test_T4_records_equal_the_base_commit) ... 2026-11-22 18:38:44,083 | INFO | fact layer: {'fact_layer': 'tied', 'rho': {'paper__cite__paper': 'paper__ref__paper', 'paper__ref__paper': 'paper__cite__paper', 'paper__to__author': 'author__to__paper', 'author__to__paper': 'paper__to__author', 'paper__to__subject': 'subject__to__paper', 'subject__to__paper': 'paper__to__subject', 'paper__to__term': 'term__to__paper', 'term__to__paper': 'paper__to__term'}, 'kept_relations': ['paper__cite__paper', 'paper__to__author', 'paper__to__subject', 'paper__to__term'], 'self_inverse_relations': [], 'unmatched_edges': {'paper__cite__paper': 0, 'paper__ref__paper': 0, 'paper__to__author': 0, 'author__to__paper': 0, 'paper__to__subject': 0, 'subject__to__paper': 0, 'paper__to__term': 0, 'term__to__paper': 0}, 'facts_before': 480, 'facts_after': 240}
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:44,319 | INFO | Epoch 0000 | train_loss: 1.1103 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1905 | train_micro_f1: 0.2857 | val_loss: 1.1172 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-22 18:38:44,325 | INFO | Checkpoint metric macro_f1: 0.0000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:44,526 | INFO | Epoch 0001 | train_loss: 1.1058 | train_acc: 0.2143 | train_auroc: 0.0000 | train_macro_f1: 0.1333 | train_micro_f1: 0.2143 | val_loss: 1.1165 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:44,726 | INFO | Epoch 0002 | train_loss: 1.0941 | train_acc: 0.2857 | train_auroc: 0.0000 | train_macro_f1: 0.1778 | train_micro_f1: 0.2857 | val_loss: 1.1158 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+2026-11-22 18:38:44,728 | INFO | Checkpoint metric macro_f1: 0.0000
+2026-11-22 18:38:44,728 | INFO | Best epoch 0 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167 | test_acc: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:45,074 | INFO | Epoch 0000 | train_loss: 1.1242 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1147 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3152 | test_micro_f1: 0.4167
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:45,416 | INFO | Epoch 0001 | train_loss: 1.1091 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1130 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.5000 | test_auroc: 0.0000 | test_macro_f1: 0.3818 | test_micro_f1: 0.5000
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/utils/checkpoint.py:1399: FutureWarning: `torch.cpu.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cpu', args...)` instead.
+  with device_autocast_ctx, torch.cpu.amp.autocast(**cpu_autocast_kwargs), recompute_context:  # type: ignore[attr-defined]
+2026-11-22 18:38:45,743 | INFO | Epoch 0002 | train_loss: 1.1314 | train_acc: 0.0000 | train_auroc: 0.0000 | train_macro_f1: 0.0000 | train_micro_f1: 0.0000 | val_loss: 1.1116 | val_acc: 0.0000 | val_auroc: 0.0000 | val_macro_f1: 0.0000 | val_micro_f1: 0.0000 | test_acc: 0.4167 | test_auroc: 0.0000 | test_macro_f1: 0.3148 | test_micro_f1: 0.4167
+ok
+test_T6_full_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_full_batch) ... ok
+test_T6_mini_batch (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_mini_batch) ... ok
+test_T6_refused_in_training_and_tuning_configs (tests.test_card5_protocol_hooks.KnockoutTests.test_T6_refused_in_training_and_tuning_configs) ... ok
+test_T7_transports_per_fact (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T7_transports_per_fact) ... ok
+test_T8_cells_per_target (tests.test_card5_protocol_hooks.TransportAndCellTests.test_T8_cells_per_target) ... ok
+
+======================================================================
+FAIL: test_phases_disjoint_and_cover_every_runnable_cell_once (tests.test_card8_phases.PhaseTests.test_phases_disjoint_and_cover_every_runnable_cell_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card17/H2S-NN/tests/test_card8_phases.py", line 68, in test_phases_disjoint_and_cover_every_runnable_cell_once
+    self.assertEqual(counts["published"], 38)  # NC 33 + LP 5
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 43 != 38
+
+----------------------------------------------------------------------
+Ran 58 tests in 313.235s
+
+FAILED (failures=1)
+targets exit=1
+Ran 1 test in 0.010s
+
+FAILED (failures=1)
+MUTATION drop_weight: CAUGHT (test failed, rc=1)
+ H2S-NN/src/baselines/adapters/_h2gb_network.py   |  7 +++-
+ H2S-NN/src/baselines/adapters/_h2gformer_h2gb.py | 51 ++++++++++++++++++++----
+ H2S-NN/src/baselines/h2gb_published.py           | 34 ++++++++++++++--
+ 3 files changed, 79 insertions(+), 13 deletions(-)
+== make_cell_list --phase published (ieee-cis-g lines)
+44
+scripts/run_baseline_published.py --task node_classification --models gat --datasets ieee-cis-g --final_seeds 0 1 2 3 4 --output_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/experiments/baselines --state_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_published.py --task node_classification --models gcn --datasets ieee-cis-g --final_seeds 0 1 2 3 4 --output_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/experiments/baselines --state_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_published.py --task node_classification --models h2gformer --datasets ieee-cis-g --final_seeds 0 1 2 3 4 --output_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/experiments/baselines --state_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_published.py --task node_classification --models han --datasets ieee-cis-g --final_seeds 0 1 2 3 4 --output_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/experiments/baselines --state_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/state --wandb_project h2snn_baseline_t4
+scripts/run_baseline_published.py --task node_classification --models rgcn --datasets ieee-cis-g --final_seeds 0 1 2 3 4 --output_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/experiments/baselines --state_dir /mnt/data/peeradon/h2snn-card17/H2S-NN/out/state --wandb_project h2snn_baseline_t4
+end=2026-11-22T18:38:49+09:00 exit=1

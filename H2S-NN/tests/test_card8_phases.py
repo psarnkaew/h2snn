@@ -65,7 +65,7 @@ class PhaseTests(unittest.TestCase):
         counts = {k: len(v) for k, v in cells.items()}
         print("card8 C5 line counts:", json.dumps(counts), "node_f tasks:",
               json.dumps({k: -(-v // 4) for k, v in counts.items()}))
-        self.assertEqual(counts["published"], 38)  # NC 33 + LP 5
+        self.assertEqual(counts["published"], 43)  # NC 38 + LP 5 (card 17: + the five IEEE-CIS-G H2GB cells)
         self.assertEqual(counts["probe"], 10)      # MAGNN: NC 8 + LP 2
 
     def test_h2snn_and_early_are_byte_identical_to_the_base(self) -> None:
