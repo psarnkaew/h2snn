@@ -50,7 +50,7 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(set(nc_methods), {s.name for s in MODELS})
         nc = Counter(cell_status(m, NODE_CLASSIFICATION, d) for m in nc_methods for d in DATASETS[NODE_CLASSIFICATION])
         lp = Counter(cell_status(m, LINK_PREDICTION, d) for m in lp_methods for d in DATASETS[LINK_PREDICTION])
-        self.assertEqual(dict(nc), {"filled": 49, "published": 33, "tune": 89, "probe": 8, "N/A": 1})
+        self.assertEqual(dict(nc), {"filled": 44, "published": 38, "tune": 89, "probe": 8, "N/A": 1})  # card 17: 5 IEEE-CIS-G H2GB cells filled -> published
         self.assertEqual(dict(lp), {"published": 5, "tune": 88, "probe": 2, "N/A": 1})
         gc = Counter(cell_status(m, GRAPH_CLASSIFICATION, d) for m in nc_methods for d in DATASETS[GRAPH_CLASSIFICATION])
         self.assertEqual(gc["filled"], 24)
