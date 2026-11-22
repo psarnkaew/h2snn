@@ -15,6 +15,7 @@ The method is unchanged. Sources: decisions log rows of 2026-11-21/22; the repor
 - (AD4) GC epochs 500; GC runs last; NCI1 kept.
 - (AD5) Checkpoint and selection signal reaffirmed (1.28 option 1), with the benchmark differences listed in the appendix table.
 - (AD6) Freeze moves to the merged `v3b`.
+- (AD7) Binary F1 reported on IEEE-CIS-G and PDNS (H4 corrected).
 
 ## Edits
 
@@ -41,7 +42,7 @@ The method is unchanged. Sources: decisions log rows of 2026-11-21/22; the repor
 **AD5 — §6 "Evaluation protocol"**, append to the appendix-table examples:
 > HGB's NC and LP runners early-stop and checkpoint on validation loss (e.g. `NC/benchmark/methods/GNN/run.py:127`), and HAN on loss and accuracy. H2GB selects the best epoch by its yaml's `metric_best` (accuracy, or binary F1 on PDNS and IEEE-CIS). Ours is the validation metric, unchanged (1.28 option 1, reaffirmed 2026-11-22).
 
-*Open, not part of this edit:* ops' check of the H2GB binary-F1 rows of the published-number register (IEEE-CIS-G, PDNS). If those numbers are binary F1, a separate edit adds binary F1 as a reported metric on those two datasets.
+**AD7 — §6 node classification, metrics (author 2026-11-22, card 16):** on the two-class H2GB datasets (IEEE-CIS-G, PDNS) every method we run also reports **binary F1 of class 1** (argmax of `C = 2` logits), and the main table shows binary F1 there, as H2GB's `metric_best: f1` is binary F1 on ≤ 2 classes (`H2GB/graphgym/logger.py:220-226`, `H2GB/logger.py:155`). This replaces spec 1.14 H4 ("H2GB's F1 is Macro-F1 on IEEE-CIS-G"), which was wrong. Selection stays validation Macro-F1 on the B1a subset; the difference goes in the appendix table.
 
 **AD6 — header "Status"**: "frozen with `v3b` `<merged SHA>` (1.30)". The freeze covers this spec and all code that affects training or any reported number, as in 1.23.
 
