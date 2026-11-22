@@ -15,7 +15,7 @@ The method is unchanged. Sources: decisions log rows of 2026-11-21/22; the repor
 - (AD4) GC epochs 500; GC runs last; NCI1 kept.
 - (AD5) Checkpoint and selection signal reaffirmed (1.28 option 1), with the benchmark differences listed in the appendix table.
 - (AD6) Freeze moves to the merged `v3b`.
-- (AD7) Binary F1 reported on IEEE-CIS-G and PDNS (H4 corrected).
+- (AD7) H4 corrected: H2GB's `f1` on the two-class datasets is binary F1; how the copied IEEE-CIS-G numbers appear in Table 1 is OPEN (author).
 - (AD8) Epoch budget of tuned cells: 500 epochs, patience 40 on the validation metric (HGB NC, H2GB NC, LP).
 
 ## Edits
@@ -43,7 +43,7 @@ The method is unchanged. Sources: decisions log rows of 2026-11-21/22; the repor
 **AD5 — §6 "Evaluation protocol"**, append to the appendix-table examples:
 > HGB's NC and LP runners early-stop and checkpoint on validation loss (e.g. `NC/benchmark/methods/GNN/run.py:127`), and HAN on loss and accuracy. H2GB selects the best epoch by its yaml's `metric_best` (accuracy, or binary F1 on PDNS and IEEE-CIS). Ours is the validation metric, unchanged (1.28 option 1, reaffirmed 2026-11-22).
 
-**AD7 — §6 node classification, metrics (author 2026-11-22, card 16):** on the two-class H2GB datasets (IEEE-CIS-G, PDNS) every method we run also reports **binary F1 of class 1** (argmax of `C = 2` logits), and the main table shows binary F1 there, as H2GB's `metric_best: f1` is binary F1 on ≤ 2 classes (`H2GB/graphgym/logger.py:220-226`, `H2GB/logger.py:155`). This replaces spec 1.14 H4 ("H2GB's F1 is Macro-F1 on IEEE-CIS-G"), which was wrong. Selection stays validation Macro-F1 on the B1a subset; the difference goes in the appendix table.
+**AD7 — §6 node classification, metrics (2026-11-22):** spec 1.14 H4 ("H2GB's F1 is Macro-F1 on IEEE-CIS-G") is wrong: H2GB's `metric_best: f1` on ≤ 2 classes is binary F1 of class 1 (`H2GB/graphgym/logger.py:220-226`, `H2GB/logger.py:155`). We report Macro- and Micro-F1 on every dataset, IEEE-CIS-G and PDNS included (author: card 16 part 1 withdrawn). **OPEN (author):** how the copied IEEE-CIS-G numbers (binary F1) appear in Table 1.
 
 **AD8 — §6 "Tuning", the budget (author 2026-11-22, card 16 part 2; evidence `docs/ops_evidence/epoch_budget_2026-11-22/`):** every tuned cell, H2S-NN and baselines, on LP, HGB NC and H2GB NC trains at most **500 epochs with early stopping, patience 40**, on the validation metric (HGB NC Macro-F1; H2GB NC the B1a-subset Macro-F1; LP ROC-AUC), checkpoint at the best validation evaluation; on H2GB, early stopping is checked at the evaluations (every `eval_period` epochs: 4, OAG 2) and patience counts epochs. Replaces HGB NC 300/30, LP 40/40 and H2GB 500 without early stopping. Reason: neither HGB nor H2GB states an epoch rule (HGB App. C: early stopping "to promise fully training"; HGB code 40–1500 epochs, patience 5–200), the LP cap of 40 bound H2S-NN (dblp_ap: 85 of 100 trials best in the last 5 epochs), no HGB NC trial reached 300, H2GB trials took 4–42 h at a fixed 500. GC and published-configuration cells unchanged. The appendix lists each method's source budget against ours, and the share of trials that reach the 500 cap per cell.
 

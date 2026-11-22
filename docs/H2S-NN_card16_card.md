@@ -1,6 +1,8 @@
-# Card 16 — Binary F1 on IEEE-CIS-G and PDNS; epoch budget of tuned cells (500 / patience 40)
+# Card 16 — Epoch budget of tuned cells (500 / patience 40) [Part 1, binary F1, withdrawn]
 
 Written 2026-11-22 by the model design session; approved by the author the same day. Small evaluation change; no method change, no change to selection.
+
+> **Part 1 (binary F1) WITHDRAWN by the author, 2026-11-22 (via ops).** Only Part 2 (epoch budget) is to be implemented. The sections "Why" to "Report" below describe the withdrawn Part 1 and are kept for the record; the base, git rules and report format still apply to Part 2.
 
 ## Why
 H2GB's `metric_best: f1` on IEEE-CIS and PDNS is the **binary F1 of class 1** (`H2GB/graphgym/logger.py:220-226` picks `classification_binary` for ≤ 2 classes; `H2GB/logger.py:155` `f1_score(true, pred)`). The published IEEE-CIS-G numbers we copy (register, corrected 2026-11-22) are therefore binary F1, while we report Macro-F1. The columns must match.
