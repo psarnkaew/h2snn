@@ -38,7 +38,7 @@ class DryRunFlagTests(unittest.TestCase):
         self.assertIn("dry-run", args.wandb_tags)
         self.assertEqual(TrainConfig.from_dict(payload).epochs, 1)
         plain = _apply_base_cli(self.raw, _args())
-        self.assertEqual(TrainConfig.from_dict(plain).epochs, 300)  # the HGB NC budget, untouched
+        self.assertEqual(TrainConfig.from_dict(plain).epochs, 500)  # the HGB NC budget (card 16), untouched
         with self.assertRaises(ValueError):
             _apply_base_cli(self.raw, _args(dry_run=True, epochs=5))
 

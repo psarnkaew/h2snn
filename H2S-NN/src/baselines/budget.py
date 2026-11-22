@@ -35,10 +35,10 @@ from src.baselines.protocol import (
 )
 
 #: Spec v1.15 §6 (J4; card Part M, M9): the budget of each task under its source protocol, from
-#: the table H2S-NN uses too (`src/configs/config.py: PROTOCOL_BUDGETS`): HGB NC at most 300
-#: epochs with patience 30, LP 40 epochs with patience 40, H2GB NC 500 epochs without early
-#: stopping (patience = epochs; the best validation epoch is selected), GC as HetSheaf (patience
-#: 50 on validation loss, test with the final weights; 200 vs 500 epochs open, O4).
+#: the table H2S-NN uses too (`src/configs/config.py: PROTOCOL_BUDGETS`): HGB NC, LP and H2GB NC at
+#: most 500 epochs with patience 40 (card 16 part 2; H2GB NC checks it at its evaluations, every
+#: `eval_period` epochs, `src/baselines/minibatch.py`), GC as HetSheaf (patience 50 on validation
+#: loss, test with the final weights). A published cell keeps its source's epochs and patience.
 TASK_EPOCHS: dict[str, int] = {
     NODE_CLASSIFICATION: protocol_budget(NODE_CLASSIFICATION).epochs,
     LINK_PREDICTION: protocol_budget(LINK_PREDICTION).epochs,

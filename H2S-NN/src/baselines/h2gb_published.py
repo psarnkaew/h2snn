@@ -187,7 +187,8 @@ def published_plan(dataset: str, settings: H2GBRunSettings) -> Any:
     if settings.iter_per_epoch != plan.steps_per_epoch:
         raise ValueError(f"{dataset}: yaml iter_per_epoch {settings.iter_per_epoch} x batch {settings.batch_size} is "
                          f"not one epoch of {plan.epoch_targets} targets.")
-    return dataclasses.replace(plan, epochs=settings.epochs, eval_period=settings.eval_period)
+    # card 16 part 2: a published cell keeps H2GB's rule, no early stopping
+    return dataclasses.replace(plan, epochs=settings.epochs, eval_period=settings.eval_period, patience=None)
 
 
 def h2gb_optimizer_and_schedule(model: Any, cfg: Any, args: dict[str, Any], settings: H2GBRunSettings

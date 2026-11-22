@@ -1,8 +1,8 @@
 """Part M, M9: the training protocol shared by every method (spec v1.15 §6, J4).
 
 AdamW everywhere; no learning-rate scheduler; no gradient clipping; epochs, patience and the
-selection metric per task and source protocol (HGB NC 300/30 on validation Macro-F1; LP 40/40
-on validation ROC-AUC; H2GB NC 500 without early stopping; GC as HetSheaf: patience 50 on
+selection metric per task and source protocol (card 16 part 2: HGB NC 500/40 on validation Macro-F1; LP
+500/40 on validation ROC-AUC; H2GB NC 500/40 checked at its evaluations; GC as HetSheaf: patience 50 on
 validation loss, final weights); H2S-NN's scalar group (theta_tau, b: 10x lr, no weight decay)
 unchanged."""
 
@@ -140,9 +140,9 @@ class SchedulerAndClippingTests(unittest.TestCase):
 class BudgetTableTests(unittest.TestCase):
     def test_protocol_budgets(self) -> None:
         expected = {
-            ("node_classification", "hgb"): (300, 30, "macro_f1", "max"),
-            ("node_classification", "h2gb"): (500, None, "macro_f1", "max"),
-            ("link_prediction", "hgb"): (40, 40, "auroc", "max"),
+            ("node_classification", "hgb"): (500, 40, "macro_f1", "max"),
+            ("node_classification", "h2gb"): (500, 40, "macro_f1", "max"),
+            ("link_prediction", "hgb"): (500, 40, "auroc", "max"),
             ("graph_classification", "hetsheaf"): (200, 50, "loss", "min"),
         }
         self.assertEqual({k: (b.epochs, b.patience, b.monitor, b.mode)
@@ -154,17 +154,17 @@ class BudgetTableTests(unittest.TestCase):
         from src.baselines.budget import default_budget
 
         self.assertEqual((default_budget("node_classification").epochs,
-                          default_budget("node_classification").patience), (300, 30))
+                          default_budget("node_classification").patience), (500, 40))
         self.assertEqual((default_budget("link_prediction").epochs,
-                          default_budget("link_prediction").patience), (40, 40))
+                          default_budget("link_prediction").patience), (500, 40))
         self.assertEqual((default_budget("graph_classification").epochs,
                           default_budget("graph_classification").patience), (200, 50))
         mag = default_budget("node_classification", "mag-year")
-        self.assertEqual((mag.epochs, mag.patience), (500, 500))  # no early stopping
+        self.assertEqual((mag.epochs, mag.patience), (500, 40))  # card 16 part 2
 
     def test_h2snn_defaults_follow_the_protocol(self) -> None:
-        cases = {"acm": (300, 30, "macro_f1"), "freebase_bb": (40, 40, "auroc"),
-                 "lastfm": (40, 40, "auroc"), "mutag": (200, 50, "macro_f1")}
+        cases = {"acm": (500, 40, "macro_f1"), "freebase_bb": (500, 40, "auroc"),
+                 "lastfm": (500, 40, "auroc"), "mutag": (200, 50, "macro_f1")}
         for dataset, want in cases.items():
             data = {"dataset_name": dataset}
             if dataset == "freebase_bb":

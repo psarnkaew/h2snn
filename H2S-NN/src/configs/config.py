@@ -699,9 +699,12 @@ GRAPH_CLASSIFICATION_PRESETS: dict[str, dict[str, Any]] = {
 # Spec v1.15 §6, J4 (card Part M, M9): epochs, early stopping and the selection metric per task
 # and source protocol, shared by H2S-NN and every baseline (src/baselines/budget.py reads this
 # table). `patience: None` = no early stopping (the best validation epoch is selected).
-# HGB NC: run_new.py, max 300 epochs, patience 30; HGB LP: 40 epochs, patience 40; H2GB NC: 500
-# epochs, no early stopping; GC: HetSheaf (early stopping on validation LOSS, patience 50, test
-# with the final weights; epochs 200 = HetSheaf's gc_config.yaml, 500 = its sweep: open O4).
+# Card 16 part 2 (author 2026-11-22; docs/ops_evidence/epoch_budget_2026-11-22): tuned cells of HGB NC, LP
+# and H2GB NC train at most 500 epochs with patience 40 (was HGB NC 300/30, LP 40/40, H2GB NC 500 without
+# early stopping); H2GB loops check it at their evaluations (every eval_period epochs), patience counting
+# epochs. Published-configuration cells keep their source's budget. GC: HetSheaf (early stopping on
+# validation LOSS, patience 50, test with the final weights; epochs 200 = HetSheaf's gc_config.yaml,
+# 500 = its sweep and the H2S-NN GC configs, card 13).
 # NC/LP monitor the validation metric (NC Macro-F1, LP ROC-AUC), not the validation loss.
 @dataclass(frozen=True, slots=True)
 class ProtocolBudget:
@@ -713,9 +716,9 @@ class ProtocolBudget:
 
 
 PROTOCOL_BUDGETS: dict[tuple[str, str], ProtocolBudget] = {
-    ("node_classification", "hgb"): ProtocolBudget("hgb", 300, 30, "macro_f1", "max"),
-    ("node_classification", "h2gb"): ProtocolBudget("h2gb", 500, None, "macro_f1", "max"),
-    ("link_prediction", "hgb"): ProtocolBudget("hgb", 40, 40, "auroc", "max"),
+    ("node_classification", "hgb"): ProtocolBudget("hgb", 500, 40, "macro_f1", "max"),
+    ("node_classification", "h2gb"): ProtocolBudget("h2gb", 500, 40, "macro_f1", "max"),
+    ("link_prediction", "hgb"): ProtocolBudget("hgb", 500, 40, "auroc", "max"),
     ("graph_classification", "hetsheaf"): ProtocolBudget("hetsheaf", 200, 50, "loss", "min"),
 }
 # H2GB node-classification datasets (spec v1.15 §6; data pending, M11).

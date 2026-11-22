@@ -25,11 +25,11 @@ class BudgetTableTests(unittest.TestCase):
         by = {r["class"]: r for r in rows}
         self.assertEqual(set(by), {"hgb_nc", "h2gb_nc", "local_lp", "large_lp", "gc"})
         self.assertEqual((by["h2gb_nc"]["epochs"], by["h2gb_nc"]["patience"], by["h2gb_nc"]["batch_sizes"]),
-                         (500, None, (32, 256, 1024)))
+                         (500, 40, (32, 256, 1024)))
         self.assertEqual((by["hgb_nc"]["epochs"], by["hgb_nc"]["patience"], by["hgb_nc"]["batch_sizes"]),
-                         (300, 30, None))
+                         (500, 40, None))
         self.assertEqual((by["large_lp"]["epochs"], by["large_lp"]["patience"], by["large_lp"]["positives_per_step"],
-                          by["large_lp"]["mode"]), (40, 40, 8192, "minibatch"))
+                          by["large_lp"]["mode"]), (500, 40, 8192, "minibatch"))
         self.assertEqual(by["local_lp"]["positives_per_step"], 8192)
 
     def test_dataset_classes(self) -> None:
@@ -60,9 +60,9 @@ class ReadersTests(unittest.TestCase):
 
         params = BaselineParams(values={}, source="tuned")
         self.assertEqual((resolve_budget("node_classification", params, "oag-cs").epochs,
-                          resolve_budget("node_classification", params, "oag-cs").patience), (500, 500))
+                          resolve_budget("node_classification", params, "oag-cs").patience), (500, 40))
         self.assertEqual((resolve_budget("node_classification", params, "acm").epochs,
-                          resolve_budget("node_classification", params).patience), (300, 30))
+                          resolve_budget("node_classification", params).patience), (500, 40))
         self.assertEqual(batch_plan("node_classification", "h-pokec").epoch_targets, 8192)
 
     def test_registry_cells_on_h2gb_and_large_lp_read_the_table_or_say_why_not(self) -> None:
