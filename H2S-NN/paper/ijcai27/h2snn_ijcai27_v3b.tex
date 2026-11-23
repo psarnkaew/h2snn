@@ -201,7 +201,7 @@ The first sum is the edge sheaf of Section~\ref{sec:maps}; the other two tie eac
   Y^\star=\arg\min_Y\ \tfrac12\norm{x-h}^2+\tfrac{\tau}{2}\,Y^{\transpose}\hat LY,\qquad \tau=e^{\theta}.
   \label{eq:solve}
 \end{equation}
-The anchor keeps each node close to its own encoding and thus preserves its identity, the energy asks comparable pairs to agree, and a learned scalar $\tau>0$ sets the balance. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone, and the representation is the node part of the solution (Proposition~\ref{prop:unique}),
+We used Preconditioned Conjugate Gradient (PCG) solver to solve this formula. The anchor keeps each node close to its own encoding and thus preserves its identity, the energy asks comparable pairs to agree, and a learned scalar $\tau>0$ sets the balance. Eliminating the edge and face states exactly yields an operator $\hat S\in\R^{|V|d\times|V|d}$ on the nodes alone, and the representation is the node part of the solution (Proposition~\ref{prop:unique}),
 \begin{equation}
   x^\star=(I+\tau\hat S)^{-1}h=\alpha\sum_{k\ge0}(1-\alpha)^k(I-\hat S)^kh,\qquad\alpha=\tfrac1{1+\tau}.
   \label{eq:xstar}
@@ -261,8 +261,6 @@ Each dataset follows its own benchmark protocol, including splitting, preprocess
 \paragraph{Results.} Tables~\ref{tab:node-cls}--\ref{tab:graph-cls} report node classification, link prediction and graph classification. H2S-NN obtains the best result on \res{} of the 12 node classification datasets, on \res{} of the 8 link prediction tasks and on \res{} of the 4 graph classification datasets. H2S-NN works on the original graph and samples its meta-path instances, so it needs no hand-designed meta-paths, yet it outperforms the meta-path-based models HAN, MAGNN and SeHGNN by \res{} Macro-F1 on average on node classification tasks. It also outperforms the sheaf models NSD and HetSheaf, whose maps lie on edges only, by \res{} on average on node classification tasks. Therefore, our model can achieve best overall performace has generalizability against tasks, scales, and dataset characteristics, while keeping original graph structure and meta-path information.
 
 
-\textcolor{red}{\textbf{[TODO, author note --- see H2S-NN design session 04.] Meta-path sets of the heterophily measures are not one rule.}}
-
 \begin{table*}[!htbp]
   \centering
   \caption{Node classification, Macro-F1 (mean $\pm$ std over five seeds; Micro-F1 in Appendix~\ref{app:data}); best in bold. \emph{Top:} heterophily of each dataset (higher is more heterophilic); MDE is not bounded by 1, so its values are not comparable across datasets. Groups: graph treated as homogeneous or heterogeneous (Hom./Het.), model designed for homophily or heterophily (hom./het.). Some metrics are -- since it doesn't have node features or labels}
@@ -275,7 +273,7 @@ Each dataset follows its own benchmark protocol, including splitting, preprocess
     & & ACM & DBLP & IMDB & Free. & mag & m-year & oag-cs & oag-eng & oag-chem & IEEE & Pokec & PDNS \\
     \midrule
     \multicolumn{2}{l}{Heterophily $\mathcal{H}^2$} & 0.399 & 0.173 & 0.737 & 0.995 & 0.877 & 0.965 & 0.965 & 0.873 & 0.886 & 0.985 & 0.949 & 0.787 \\
-    \multicolumn{2}{l}{Heterophily MLH} & 0.404 & 0.128 & 0.325 & 0.846 & 0.873 & 0.772 & 0.980 & 0.912 & 0.921 & 0.135 & 0.385 & 0.485 \\
+    \multicolumn{2}{l}{Heterophily MLH} & 0.262 & 0.128 & 0.325 & 0.846 & 0.844 & 0.749 & 0.964 & 0.868 & 0.876 & 0.135 & 0.386 & 0.392 \\
     \multicolumn{2}{l}{Heterophily MDE} & 0.737 & 0.800 & 0.593 & -- & 0.004 & 0.004 & 5.379 & 9.202 & 6.150 & 0.000 & 0.006 & 0.002 \\
     \midrule
     \textbf{Group} & \textbf{Model} & & & & & & & & & & & & \\
@@ -630,7 +628,8 @@ To address heterogeneous graph learning under heterophily, we proposed the Heter
 \appendix
 \section{Notation and Algorithm}
 \label{app:notation}
-Table~\ref{tab:app-notation} collects the symbols used in the paper, and Algorithm~\ref{alg:train} gives the training of \method{}. Each walk step chooses a relation and then an unvisited neighbour along it, and a walk and its reverse give the same instance. The linear system is solved by conjugate gradients with a diagonal preconditioner, and the gradient through the solve needs one more solve with the same operator, so no iteration is stored. Evaluation runs the same steps up to the prediction, on one fixed draw of faces.
+To give clear explanation and better understanding on this paper, Table~\ref{tab:app-notation} collects the symbols used in the paper, grouped by the part of the model in which they appear, and Algorithm~\ref{alg:train} gives one training step of \method{}, from encoding the nodes to the task loss. Two steps of the algorithm deserve a short explanation. First, faces are sampled by walks in which each step chooses a relation and then an unvisited neighbour along it, so that no walk revisits a node, and a walk and its reverse give the same instance, so that each face is counted once. Second, the linear system of Eq.~\ref{eq:xstar} is solved by conjugate gradients with a diagonal preconditioner, and the gradient through the solve needs only one more solve with the same operator, so that no solver iteration is stored and memory does not grow with the number of iterations. At evaluation, the model runs the same steps up to the prediction on one fixed draw of faces, so that the reported scores do not change with the sampling.
+
 
 \begin{table}[!htbp]
   \centering
@@ -717,26 +716,11 @@ Table~\ref{tab:app-notation} collects the symbols used in the paper, and Algorit
 
 \section{Proof Details}
 \label{app:proofs}
-Section~\ref{sec:theory} gives complete proofs. This appendix expands the steps they compress and adds two remarks. Propositions~\ref{prop:forced} and~\ref{prop:reach} are stated for $E$ and $L$ before normalisation; normalising by $D$ only rescales a consistent state by $D^{1/2}$, so both also hold for $\hat L$.
-
-\subsection{Smoothing with Identity Maps}
-This subsection details Proposition~\ref{prop:separate}(ii). With identity maps, every term of $E$ is a weighted squared difference of two states, so
-\begin{equation*}
-  L=L_G\otimes I_d,
-\end{equation*}
-where $L_G$ is the Laplacian of the weighted graph whose vertices are the nodes, edges and faces and whose links are the terms of $E$. Splitting the vertices into nodes ($x$) and edges and faces ($w$), and eliminating $w$, gives
-\begin{equation*}
-  L_I=L_{G,xx}-L_{G,xw}L_{G,ww}^{-1}L_{G,wx}.
-\end{equation*}
-$L_I$ is again a graph Laplacian on the nodes:
-\begin{itemize}
-  \item its rows sum to zero, since $L_G\mathbf 1=0$ implies $L_I\mathbf 1=0$;
-  \item its off-diagonal entries are non-positive, since $L_{G,xx}$ is diagonal ($E$ has no node--node term), $L_{G,xw}\le0$, and $L_{G,ww}^{-1}\ge0$ for the nonsingular M-matrix $L_{G,ww}$.
-\end{itemize}
-Normalising gives $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, so $x^\star=(I+\tau\hat S_I)^{-1}h$ is personalised-PageRank smoothing.
+Section~\ref{sec:theory} gives complete proofs in compressed form. To make each step easy to check, this appendix expands those steps and adds two remarks, one on relations that are their own reverse and one on why face maps are composed rather than learned. Propositions~\ref{prop:forced} and~\ref{prop:reach} are stated for $E$ and $L$ before normalisation, and both also hold for $\hat L$, since normalising by $D$ only rescales a consistent state by $D^{1/2}$ and therefore keeps it consistent.
 
 \subsection{Class-Separating States}
-This subsection details Proposition~\ref{prop:separate}(i). Let $p_1,p_2$ span a plane $P$ and place the $K$ class vectors on a circle in it,
+\label{app:separate}
+This subsection details Proposition~\ref{prop:separate}(i), which shows that the maps of Equation~\eqref{eq:maps} can keep every class apart without paying any energy. The idea is to give each class its own direction in one plane and let every edge map rotate the direction of one endpoint onto that of the other. Let $p_1,p_2$ span a plane $P$ and place the $K$ class vectors on a circle in it,
 \begin{equation*}
   a_k=\cos\alpha_k\,p_1+\sin\alpha_k\,p_2,\qquad \alpha_k=2\pi k/K .
 \end{equation*}
@@ -754,17 +738,34 @@ This subsection details Proposition~\ref{prop:separate}(i). Let $p_1,p_2$ span a
   so $D^{1/2}Y$ is a stationary point of Equation~\eqref{eq:solve}, and $x^\star=h$ by Proposition~\ref{prop:unique}.
   \item \emph{Separation.} $\langle a_k,x^\star_v\rangle=D_v^{1/2}\cos(\alpha_k-\alpha_{y(v)})$ is largest exactly at $k=y(v)$.
 \end{enumerate}
-The construction uses two of the four dimensions of each $U_r$ and holds for any number of classes. It shows that such states exist, not that training reaches them.
+The construction uses only two of the four dimensions of each $U_r$ and holds for any number of classes. It shows that such states exist, not that training reaches them.
+
+\subsection{Smoothing with Identity Maps}
+This subsection details Proposition~\ref{prop:separate}(ii), which shows what is lost when the maps cannot rotate. With identity maps, every term of $E$ is a weighted squared difference of two states, so the energy no longer depends on the feature directions and
+\begin{equation*}
+  L=L_G\otimes I_d,
+\end{equation*}
+where $L_G$ is the Laplacian of the weighted graph whose vertices are the nodes, edges and faces and whose links are the terms of $E$. Splitting the states into those of the nodes, $x$, and those of the edges and faces, $(s,z)$, and eliminating $(s,z)$ gives
+\begin{equation*}
+  L_I=L_{G,xx}-L_{G,x(s,z)}L_{G,(s,z)(s,z)}^{-1}L_{G,(s,z)x}.
+\end{equation*}
+$L_I$ is again a graph Laplacian on the nodes:
+\begin{itemize}
+  \item its rows sum to zero, since $L_G\mathbf 1=0$ implies $L_I\mathbf 1=0$;
+  \item its off-diagonal entries are non-positive, since $L_{G,xx}$ is diagonal ($E$ has no node--node term), $L_{G,x(s,z)}\le0$, and $L_{G,(s,z)(s,z)}^{-1}\ge0$ for the nonsingular M-matrix $L_{G,(s,z)(s,z)}$.
+\end{itemize}
+Normalising gives $\hat S_I=D_x^{-1/2}L_ID_x^{-1/2}$, so $x^\star=(I+\tau\hat S_I)^{-1}h$ is personalised-PageRank smoothing, which pulls every node towards its neighbours whatever their class and therefore cannot keep different-class neighbours apart as the construction of Appendix~\ref{app:separate} does.
 
 \subsection{Relations That Are Their Own Reverse}
-For such a relation neither endpoint comes first, so the rotation is split evenly between them,
+For a relation that is its own reverse, such as paper--paper citation treated as undirected, neither endpoint comes first, so the rotation is split evenly between the two maps,
 \begin{equation*}
   F_{u\inc e}=\exp(-U_rC_eU_r^{\transpose}/2),\qquad F_{v\inc e}=\exp(U_rC_eU_r^{\transpose}/2),
 \end{equation*}
-with $C_e$ changing sign when the endpoints are swapped. The construction above still holds: both maps send the class vectors of the endpoints to the vector at their mean angle $(\alpha_{y(u)}+\alpha_{y(v)})/2$, so the edge is consistent.
+with $C_e$ changing sign when the endpoints are swapped, so that the edge does not depend on which endpoint is listed first. The construction of Appendix~\ref{app:separate} still holds: both maps send the class vectors of the endpoints to the vector at their mean angle $(\alpha_{y(u)}+\alpha_{y(v)})/2$, so the edge remains consistent.
 
 \subsection{Why Face Maps Are Composed}
-If face maps were learned freely, a consistent node state would also have to make them agree with the edge maps along every path, which happens only by chance. In a numerical check on a small random graph, free face maps removed every nonzero zero-energy state, so Proposition~\ref{prop:forced} fails without the composition. We also verified Proposition~\ref{prop:reach}(ii) numerically on random orthogonal maps.
+Composing the face maps from the edge maps is what makes Proposition~\ref{prop:forced} hold. If face maps were learned freely, a consistent node state would also have to make them agree with the edge maps along every path, which happens only by chance. In a numerical check on a small random graph, free face maps removed every nonzero zero-energy state, so Proposition~\ref{prop:forced} fails without the composition. We also verified Proposition~\ref{prop:reach}(ii) numerically on random orthogonal maps.
+
 
 %======================================================================
 \section{Experimental Setup}
@@ -775,10 +776,9 @@ This appendix describes the datasets, the training and evaluation protocol, the 
 Tables~\ref{tab:app-nc}--\ref{tab:app-gc} summarise the datasets of the three tasks.
 \begin{itemize}
   \item \emph{Node classification.} ACM, DBLP, IMDB and Freebase come from HGB \cite{lv2021hgb} and are small graphs from citation, bibliography, movie and knowledge-graph domains. The other eight come from H2GB \cite{lin2025heterophily}: ogbn-mag and mag-year share the academic graph of OGB-MAG, labelled by venue and by publication year; oag-cs, oag-eng and oag-chem are academic graphs of the Open Academic Graph, labelled by venue; IEEE-CIS-G is a transaction graph for fraud detection, H-Pokec a social network and PDNS a passive-DNS graph for malicious-domain detection.
-  \item \emph{Link prediction.} PubMed, a biomedical graph, and LastFM, a music graph of users, artists and tags without features, are HGB's link prediction benchmarks. The other six tasks are built from the node classification graphs, each with one relation as the target; held-out edges are removed in both directions from the graph the models see.
+  \item \emph{Link prediction.} There are two benchmark datasets from HGB \cite{lv2021hgb}, PubMed a biomedical graph, and LastFM, a music graph of users, artists and tags without features. The other six tasks are built from the node classification graphs, each with one relation as the target; held-out edges are removed in both directions from the graph the models see.
   \item \emph{Graph classification.} The four TU datasets \cite{morris2020tudataset} are prepared as in HetSheaf: node types come from the node labels, edge types from the edge labels where they exist, and every node has the constant feature~1. Because the types are derived from labels, this task checks generalisability only.
 \end{itemize}
-Hetero$^2$Net reports the complementary homophily share, so its published MLH values correspond to $1-\mathrm{MLH}$ in Equation~\eqref{eq:mlh}.
 
 \begin{table*}[!htbp]
   \centering
@@ -846,6 +846,32 @@ Hetero$^2$Net reports the complementary homophily share, so its published MLH va
     \bottomrule
   \end{tabular}
 \end{table}
+\subsection{Heterophily metrics calculation}
+All three heterophily measures, $\mathcal{H}^2$, MLH and MDE, use the same $\mathcal{P}_2$, built by the rule of H2GB \cite{lin2025heterophily}: every length-two type sequence that starts and ends at the target type, including those through relations between two target-type nodes. We state this because the values depend on the set; Hetero$^2$Net, for example, uses a predefined list per dataset \cite{li2025hetero2net}, so its published values are not directly comparable with ours.
+Table~\ref{tab:app-lp-mde} gives the MDE of each link prediction task, computed on its training graph for each endpoint type that has features.
+
+\begin{table}[!htbp]
+  \centering
+  \caption{MDE of the link prediction tasks on the training graph, per endpoint type with features; -- marks tasks without node features.}
+  \label{tab:app-lp-mde}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{llr}
+    \toprule
+    Task & Endpoint type & MDE \\
+    \midrule
+    ACM & paper & \res \\
+    DBLP & paper & 0.039 \\
+    IMDB & movie & 0.517 \\
+    Freebase & -- & -- \\
+    PubMed & disease & \res \\
+    LastFM & -- & -- \\
+    ogbn-mag & paper & \res \\
+    H-Pokec & user & \res \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 
 \subsection{Training and Evaluation}
 \begin{itemize}
@@ -854,31 +880,22 @@ Hetero$^2$Net reports the complementary homophily share, so its published MLH va
   \item \emph{Negatives.} Each test positive is paired with one random tail of the same type that is not a neighbour of the head, drawn once by HGB's sampler, so every method is scored on the same pairs.
   \item \emph{Metrics.} Macro-F1 averages over the classes present in a split, and Micro-F1 over all nodes; on IMDB a genre is predicted when its logit is positive. MRR ranks the true tail among the candidates of the same head.
   \item \emph{Walks.} \method{} samples new walks in every training epoch and one fixed draw for evaluation.
-  \item \emph{Statistics.} The main tables involve 48 Welch tests of \method{} against the best method run under our protocol, corrected by Holm's method within each task.
 \end{itemize}
 
 \subsection{Prediction Heads}
-Table~\ref{tab:app-heads} lists the heads of \method{}, which read the solved node states $x^\star$. The baselines keep their own node classification networks; for link prediction they use the same decoders and batches of 8{,}192 positives, and their graph classification results are the published rows of HetSheaf.
+Each task reads the solved node states $x^\star$ through its own head, while the diffusion before it is shared by all three tasks. Each baseline models also used the same prediction heads.
 
-\begin{table}[!htbp]
-  \centering
-  \caption{Prediction heads and losses of \method{}.}
-  \label{tab:app-heads}
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{lp{0.5\columnwidth}p{0.3\columnwidth}}
-    \toprule
-    Task & Head & Loss \\
-    \midrule
-    NC & two-layer MLP (hidden 128, GELU, dropout) & cross-entropy; binary cross-entropy per genre on IMDB \\
-    LP & linear layer and GELU on each endpoint, then dot product or DistMult with a full $d\times d$ matrix per relation & binary cross-entropy, one random negative per positive \\
-    GC & mean, max, sum or attention pooling, then one linear layer & cross-entropy \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\textbf{Node classification.} A two-layer MLP with hidden size 128, GELU and dropout maps the state of each target node to class scores. It is trained with cross-entropy, except on IMDB, where a movie can have several genres and the loss is binary cross-entropy per genre.
+
+\textbf{Link prediction.} Each endpoint state first passes through a linear layer and GELU, and the pair is then scored by a dot product or by DistMult with a full $d\times d$ matrix per relation. The loss is binary cross-entropy, with one random negative per positive.
+
+\textbf{Graph classification.} The node states of a graph are pooled by mean, max, sum or attention pooling and mapped to class scores by one linear layer, trained with cross-entropy.
+
+\textbf{Baselines.} The baselines keep their own node classification networks. For link prediction they use the same decoders as \method{} and batches of 8{,}192 positives, and for graph classification we report the published rows of HetSheaf.
+
 
 \subsection{Hyperparameter Search}
-Every tuned cell, of \method{} or of a baseline, runs 100 trials of Bayesian optimisation on seed 0 and is then run on seeds 0--4 with the selected configuration. A baseline cell with a published configuration (from HGB, H2GB or the method's own repository) is run as configured, and a cell with a published number keeps it. All tuned methods use AdamW without a scheduler or gradient clipping and share the axes in the top of Table~\ref{tab:app-space}; Table~\ref{tab:app-base-space} lists each baseline's own axes. Every tuned cell, of \method{} or of a baseline, trains for at most 500 epochs with early stopping on the validation metric and patience 40, where an epoch on H2GB covers 8{,}192 targets; graph classification trains for 500 epochs with patience 50, as in HetSheaf.
+Every tuned cell, of \method{} or of a baseline, runs 500 trials of Bayesian optimisation on seed 0 and is then run on seeds 0--4 with the selected configuration. All tuned methods use AdamW without a scheduler or gradient clipping and share the axes in the top of Table~\ref{tab:app-space}; Table~\ref{tab:app-base-space} lists each baseline's own axes. Every tuned cell, of \method{} or of a baseline, trains for at most 500 epochs with early stopping on the validation metric and patience 40, where an epoch on H2GB covers 8{,}192 targets; graph classification trains for 500 epochs with patience 50, as in HetSheaf.
 
 \begin{table}[!htbp]
   \centering
@@ -903,9 +920,9 @@ Every tuned cell, of \method{} or of a baseline, runs 100 trials of Bayesian opt
     Rank of the edge rotations & 4 \\
     Bound in $w_f$ & 10 \\
     Initial $\tau$ & 1 \\
-    Solver tolerance; maximum iterations & $10^{-4}$; 100 \\
+    Solver tolerance & $10^{-4}$ \\
+    Solver maximum iterations & 100 \\
     Hidden size of the MLPs & 128 \\
-    Optimiser & AdamW; $\theta$ and the output bias of $g$ at $10\times$ the learning rate, no weight decay \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -946,7 +963,7 @@ Table~\res{} reports node classification Micro-F1 and Table~\res{} link predicti
 \label{app:analysis}
 
 \subsection{Decision Rules}
-Five seeds are too few for a significance test to detect realistic differences, so the analyses of Section~\ref{sec:discussion} use thresholds fixed before the runs instead of $p$-values; fixing them in advance prevents the criterion from being chosen after the results are seen.
+The analyses of Section~\ref{sec:discussion} use thresholds fixed before the runs instead of $p$-values; fixing them in advance prevents the criterion from being chosen after the results are seen.
 \begin{itemize}
   \item \emph{Better.} A model is better than another on a dataset when its mean paired difference over the seeds is positive and it wins on at least four of the five seeds.
   \item \emph{Helps.} A component helps when the full model is better than the variant without it on at least three of the four datasets. For \emph{Identity maps}, whose effect should appear only under heterophily, the full model must be better on IMDB and Freebase.
