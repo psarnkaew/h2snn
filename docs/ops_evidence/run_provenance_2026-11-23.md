@@ -2,7 +2,7 @@
 
 Rule (2026-11-20): one cell = one GPU type, for all of its tuning trials and final seeds.
 Code for every cell below: v3b 0b9873d, unless a row says otherwise.
-The model session asked for these lists (reply to card 19, 2026-11-23). This file is the ops source; the register can point to it.
+The model session asked for these lists (reply on the H2G-former fix, card 20, 2026-11-23). This file is the ops source; the register can point to it.
 
 ## H2S-NN (ours)
 
