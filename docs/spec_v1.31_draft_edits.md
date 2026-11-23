@@ -11,7 +11,7 @@ Decision: author 2026-11-23, option A — all three heterophily measures (ℋ²,
 - (AE3) Hetero²Net's lists are used only for the reproduction check of Hetero²Net's published MLH (DBLP 0.87, ACM 0.60, IMDB 0.24), reported in the appendix.
 - (AE4) The perturbation study is unchanged: card 7's generator already measures h on H2GB's set. Its starting values are ACM 0.262 and DBLP 0.128.
 - (AE5) Freeze unchanged. Card 19 adds an analysis-only script that reads data and card 6 records and does not touch `src/`.
-- (AE6) LP MDE is not reported (it is not in the paper). Its 1.14 records stay in the repository as diagnostics and are not recomputed. *(Open item O-1: author to confirm.)*
+- (AE6) LP MDE is recomputed on H2GB's set, per endpoint type that keeps features, on the task's training graph. It is reported in the appendix (author, 2026-11-23).
 
 ## Edits
 
@@ -24,8 +24,8 @@ Decision: author 2026-11-23, option A — all three heterophily measures (ℋ²,
 **AE2 — §1, bullet "Attribute heterophily: MDE (1.14)"**: replace "on raw features of the target type, same `M₂` as MLH" with:
 > on raw features of the target type, on H2GB's `M₂` (1.31; one `G_P` per relation sequence, so e.g. ACM's paper–cite–paper and paper–ref–paper paths are separate terms).
 
-In the same bullet, replace the sentence from "Link prediction: computed on the task's files …" to "… is "–"." with:
-> Link prediction: no heterophily value is reported (1.31, AE6). The 1.14 LP MDE records remain diagnostics.
+In the same bullet, in the sentence "Link prediction: computed on the task's files after the F17 feature rule (author decision D1), per endpoint type that keeps features, on the training graph", append:
+> ; `M₂` of an endpoint type is H2GB's rule with that type as the target, on the training graph (the task relation's training facts included, as every model sees them); reported in the appendix (1.31, AE6)
 
 **AE4 — §6, perturbation sentence** "moves heterophily h = 1 − MLH ∈ [0, 1] (spec §1 `M₂`; ℋ² reported beside)": append:
 > (1.31: `M₂` is H2GB's set, as the card 7 generator already uses; the original graphs have h = 0.262 on ACM and 0.128 on DBLP)
@@ -54,5 +54,13 @@ In the same bullet, replace the sentence from "Link prediction: computed on the 
 
 Point for the paper: H2GB's own Table 2 prints MLH 0.8731 (ogbn-mag), 0.7718 (mag-year) and 0.3922 (H-Pokec). These equal our 1.30 values on the shorter sets, not the 1.31 values on H2GB's ℋ² set. Card 19 step 4 reads H2GB's code to find out why. The paper must not claim that our MLH reproduces H2GB's Table 2.
 
-## Open items
-- **O-1 (AE6).** LP MDE not reported. Recommended: yes, because the paper has no LP heterophily row. Alternative: recompute it per endpoint type on H2GB's set (card 19 would grow by about 9 records).
+LP MDE (appendix), per endpoint type with features. 1.30 values are from the card 6 records. Card 19 step 3b computes the 1.31 values:
+| Task | Endpoint type | 1.30 MDE (set) | 1.31 |
+|---|---|---|---|
+| acm_pp | paper | 0.737 (PAP, PSP, PTP) | recompute (adds paper–cite–paper) |
+| dblp_ap | paper | 0.0386 (PTP, PVP, PAP) | gate: expected equal |
+| imdb_ma | movie | 0.517 (MDM, MAM, MKM) | gate: expected equal |
+| pubmed | disease | 0.0780 (3 paths) | recompute (adds disease–disease relations) |
+| ogbn-mag_pp | paper | 0.00401 (PFP, PAP) | recompute (adds paper–cites–paper) |
+| h-pokec_uu | user | 0.00576 (15 paths) | recompute (adds has_friend) |
+| freebase_bb, lastfm | – | – (features removed, F17) | – |
