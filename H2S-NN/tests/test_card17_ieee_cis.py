@@ -133,6 +133,7 @@ class MetapathCacheTests(unittest.TestCase):
                 mock.patch("src.baselines.minibatch.eval_loader", lambda *a, **k: None), \
                 mock.patch("src.baselines.minibatch.val_subset_loader", lambda *a, **k: (None, torch.zeros(0))), \
                 mock.patch("src.baselines.minibatch.train_minibatch_node_classification", lambda **k: {}), \
+                mock.patch.object(h2gf, "share_metapath_with_subset_view", lambda *a, **k: None), \
                 mock.patch.object(h2gf, "build_gtmodel", lambda *a, **k: torch.nn.Linear(1, 1)):
             params = Params(hidden_dim=16, metapath_cache=tmp)
             bundle = types.SimpleNamespace(dataset="ogbn-mag", metadata={"seed": None})
