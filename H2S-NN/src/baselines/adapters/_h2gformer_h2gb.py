@@ -119,6 +119,17 @@ def attach_h2gb_metapath(dataset_obj: Any, data: Any, pe_dir: Path, schema_name:
         data[node_type]["pestat_Hetero_Metapath"] = emb[model["start"][node_type]:model["end"][node_type]]
 
 
+def share_metapath_with_subset_view(subset_loader: Any, data: Any) -> None:
+    """Card 20: the B1a subset loader samples from a shallow copy of `data` (`val_subset_loader`) with its own node
+    stores, made before `attach_h2gb_metapath`; give that view the same `pestat_Hetero_Metapath` tensors. The call
+    order is kept: `hgt_loader` resets H2GB's cfg (`set_cfg`), so configuring the cfg earlier would not survive."""
+    view = subset_loader.loader.data   # H2GB's LoaderWrapper -> PyG HGTLoader -> the view it samples from
+    if view is data:
+        return
+    for node_type in data.node_types:
+        view[node_type]["pestat_Hetero_Metapath"] = data[node_type]["pestat_Hetero_Metapath"]
+
+
 def overrides(params: Any, num_classes: int, stack: tuple[str, ...]) -> dict[str, Any]:
     hidden = int(params.get("hidden_dim", 64))
     out = {"gnn.dim_inner": hidden, "gt.dim_hidden": hidden, "gt.layers": int(params.get("gt_layers", 3)),
@@ -206,6 +217,7 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
             pe_dir = Path(params.get("metapath_cache", "experiments/h2gb_metapath2vec")) / bundle.dataset / \
                 f"dim{dim_pe}"
             attach_h2gb_metapath(dataset_obj, data, pe_dir, SCHEMA_NAME.get(bundle.dataset), device=device)
+            share_metapath_with_subset_view(subset_loader, data)
         torch.manual_seed(seed)
         model = build_gtmodel(data, bundle.dataset, num_classes).to(device)
         schedule = None
@@ -232,4 +244,5 @@ def fit(bundle: Any, params: Any, *, seed: int, device: torch.device) -> dict[st
     return record
 
 
-__all__ = ["UNRUNNABLE", "attach_h2gb_metapath", "build_gtmodel", "fit", "overrides", "prepare_label_channel"]
+__all__ = ["UNRUNNABLE", "attach_h2gb_metapath", "build_gtmodel", "fit", "overrides", "prepare_label_channel",
+           "share_metapath_with_subset_view"]

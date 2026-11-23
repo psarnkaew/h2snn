@@ -1,0 +1,42 @@
+job=18602 node=g2tn01 start=2026-11-23T18:41:24+09:00
+fix  git=dc4e4dafeb75884c6ecb46dc50576782d22c4cd1 dirty_src=1
+base git=0b9873d0c19455c8df56fa152492188d8918b62d dirty_src=0
+== fix
+  import torch_geometric.typing
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+  emb = torch.load(embedding_path, map_location='cpu')
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 51.441s
+
+OK
+== base 0b9873d (test file copied into the base checkout's tests/, removed after)
+            ^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card20-base/H2S-NN/vendor/H2GB/H2GB/graphgym/models/layer.py", line 93, in forward
+    batch = self.model(batch)
+            ^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 117, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (16x8 and 16x16)
+
+----------------------------------------------------------------------
+Ran 1 test in 49.563s
+
+FAILED (errors=1)
+== training identity: first training-step loss
+base=1.46321439743042 fix=1.46321439743042 equal=yes
+end=2026-11-23T18:43:10+09:00
