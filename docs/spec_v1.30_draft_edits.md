@@ -1,6 +1,8 @@
 # Spec 1.30 — draft edits (model design session, 2026-11-22)
 
-Status: **DRAFT, not applied.** To be applied to `docs/H2S-NN_methodology_spec.md` after:
+Status: **APPLIED 2026-11-23** to `docs/H2S-NN_methodology_spec.md` (freeze `v3b` `0b9873d`; AD7 extended with card 17). Original draft text below.
+
+Former status: **DRAFT, not applied.** To be applied to `docs/H2S-NN_methodology_spec.md` after:
 - the merge of cards 12 and 14 (`merge-c12-c14`) is reviewed;
 - card 15 reports (acm_pp flagged or not);
 - the author approves.
