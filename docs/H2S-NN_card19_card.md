@@ -1,63 +1,52 @@
-# Card 19 — Heterophily on H2GB's meta-path set (MLH, MDE; spec 1.31 option A)
+# Card 19 — H2G-former: MetaPath2Vec channel missing from the B1a validation loader (H2GB mini-batch)
 
-Written 2026-11-23 by the model design session. The author chose option A: ℋ², MLH and MDE all use H2GB's meta-path rule. Draft: `docs/spec_v1.31_draft_edits.md`. Report: `docs/H2S-NN_card19_report.md`.
+Written 2026-11-23 by the model design session on the ops report of the same day (wave 1, job 9523125, code `0b9873d`). Report: `docs/H2S-NN_card19_report.md`.
 
-**This is analysis only.** Runs are in progress, so this card must not touch any code that training, models, baselines or the perturbation generator use. One new script and one test file. No file under `H2S-NN/src/`, `H2S-NN/configs/`, `H2S-NN/scripts/perturbation/` or `vendor/` changes. `v3b` and the freeze (`0b9873d`) do not move.
+## Why (VERIFIED-CODE, `0b9873d`)
+- H2G-former seed 0 on mag-year, oag-chem, ogbn-mag and PDNS crashed at the first validation (end of epoch 5) with `mat1 and mat2 shapes cannot be multiplied` in `pre_gt_dict` (`vendor/H2GB/H2GB/network/gt_model.py:201`). Training batches pass.
+- Cause, in `src/baselines/adapters/_h2gformer_h2gb.py` `fit`:
+  - line 194 builds the B1a subset loader. `val_subset_loader` (`src/baselines/minibatch.py:224-241`) makes `view = copy(data)`, a shallow copy that has **its own node stores**;
+  - line 208, later, `attach_h2gb_metapath` writes `pestat_Hetero_Metapath` into `data`'s node stores only;
+  - so batches from the subset loader have no MetaPath2Vec channel. The train, val and test loaders use `data` itself and see it.
+- The width missing in each crash equals `dim_pe` exactly (`metapath_dim_pe`, `_h2gformer_encoders.py:168`): PDNS 32 (64 − 32), oag-chem 128 (256 − 128), mag-year and ogbn-mag 128 (512 − 384).
+- Not affected: stacks without MetaPath2Vec (IEEE-CIS-G, OAG-ENG, OAG-CS: `Hetero_Raw+Hetero_Label`), which finished. The label channel is safe on the view: `prepare_label_channel` keeps the same training mask, and H2GB's label encoder on a "val" batch reads only `train_mask` (`hetero_label_encoder.py:43-50`), so validation labels never enter.
+- Scope: every H2G-former cell with `Hetero_Metapath` on the H2GB mini-batch path, published and tuned.
 
-## Why
-- Table 1 mixes two sets. ℋ² uses H2GB's set, and MLH/MDE use Hetero²Net's lists. Example: ACM MLH is 0.404 in the table, but the perturbation study starts at 0.262 (H2GB's set).
-- **MLH needs no new computation.** Card 6's ℋ² records (`docs/heterophily_evidence/records/nc__<ds>__h2.json`) already store `calcHomophily`'s `h_edge` for every meta-path of H2GB's set, per label problem and fill seed. MLH = 1 − mean `h_edge` over the same rows.
-- **MDE must be computed** on H2GB's set for: ACM, ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, H-Pokec, PDNS. Freebase stays "–". DBLP, IMDB and IEEE-CIS-G have the same set as before and serve as gates.
-- **LP MDE (appendix, author 2026-11-23)** is computed on H2GB's set for acm_pp (paper), pubmed (disease), ogbn-mag_pp (paper) and h-pokec_uu (user). dblp_ap (paper) and imdb_ma (movie) serve as gates. freebase_bb and lastfm stay "–" (features removed, F17).
+## Fix (eval input only; training unchanged)
+1. In `_h2gformer_h2gb.fit`, make the B1a subset loader see the same node features as the other loaders. Preferred: attach the MetaPath2Vec embedding to `data` **before** `val_subset_loader` is called. That means H2GB's cfg is configured first, as `attach_h2gb_metapath` requires.
+   - The split loaders and the subset ids must still be built from the original masks, before `prepare_label_channel`, as now.
+   - Check that moving `configure_from_yaml` earlier does not change the cfg the loaders or the model see. `hgt_loader` sets H2GB's cfg from its arguments. If it does change it, keep the order and attach `pestat_Hetero_Metapath` to the view's node stores instead. State which way you chose and why.
+2. The training path must be unchanged:
+   - same batches, same RNG draws (`_Seed0` restores the RNG state; `torch.manual_seed(seed)` still comes before `build_gtmodel`), same model;
+   - say in the report whether any training input changes. Expected: none.
+3. Check the other callers of `val_subset_loader`: `h2sgnn.py:493`, `hetsheaf.py:786`, `hgb_han.py:454`, `rgcn.py:282`, `h2gb_published.py:304`, `minibatch.py:555`.
+   - For each, does the caller write any node or edge attribute to `data` after the call that its model reads? List the answers. Read only, change nothing unless one does.
+   - If one does, stop and report.
 
-## Base and git
-- Branch `card19` from `v3b` `0b9873d0c19455c8df56fa152492188d8918b62d`. Copy `vendor/` (never symlink).
-- Use `sbatch` only (lab cluster). Stage by explicit path and push `card19`. Never merge into `v3b`. The numbers carry the `card19` commit hash.
+## Tests (only these)
+- **One CPU test.** Reuse card 17's cache-test fixture (`tests/test_card17_ieee_cis.py`, H2GB's `preprocess_Metapath` stubbed to write a known embedding) on the same Metapath dataset.
+  - Run `fit` with a plan of one training step and one evaluation epoch, so the B1a subset is evaluated once.
+  - It must pass on the fix and fail on `0b9873d` with the shape error. Show both.
+  - Also assert that a subset-loader batch has `pestat_Hetero_Metapath` on every node type that a train batch has it on.
+- **Training identity.** In the same job, record the fixture's first training-step loss on `0b9873d` and on the fix; they must be equal. Run the old commit from a second checkout or `git worktree`.
+- No GPU smoke, no full suite. Ops runs the full suite once at review, and the real check is ops' rerun of seed 0.
 
-## Steps
-1. **Script** `H2S-NN/scripts/heterophily/h2gb_set_measures.py`. It only imports from `src.analysis.heterophily` (as `het`) and from `scripts/heterophily_stats.py` (`load_nc`, the same symmetrisation `het.symmetrise_facts`). It does not modify them.
-   - `--measure mlh --records DIR`: reads every `nc__<ds>__h2.json` and writes, per dataset:
-     - MLH = 1 − mean `h_edge` over the rows of the first fill seed (the primary value), plus the value per fill seed where the record has several;
-     - IMDB: the mean over genres;
-     - the labeled-only value from the `labeled_only` rows where present;
-     - the path names, and the count of skipped empty paths.
-     - No graph is loaded.
-   - `--measure mde --dataset X [--metapath-index I]`:
-     - Load the graph as card 6 does. Enumerate `het.h2gb_metapaths(sym.edge_types, target)`. **Stop** if the names differ from the `h2gb_metapaths` list in that dataset's card 6 ℋ² record.
-     - For each path, build `mini = het.labeled_only_metapath_data(sym, path, target, all-True)`. Skip the path if `het._mini_gp_empty(mini)` (as `calcHomophily` does). Otherwise call `het.mde_measure(mini, "tgt", [[("tgt", "mid"), ("mid", "tgt")]], x.float(), both=<dataset in HGB>)`.
-     - MDE = mean over non-empty paths.
-     - `--task lp --dataset <task> --measure mde`: as card 6's LP branch (`heterophily_stats.py` `run`, task `lp`). Load the training graph and symmetrise the same way. For each endpoint type that keeps features, enumerate `het.h2gb_metapaths(sym.edge_types, t)` with that type as the target, then use the same per-path mini-graph route. The task relation's training facts stay in the graph, as card 6 had them. An endpoint type without features is "–" with the card 6 reason.
-   - `--metapath-index` computes one path per job, as card 6's H2c-2 does, for long paths (H-Pokec `has_friend`, OAG). A `--collect` call joins the parts.
-   - Output: one JSON per (dataset, measure) in `docs/heterophily_evidence/h2gb_set/records/`, with job, node, commit, wall time and peak memory, as card 6 records them. Also write `docs/heterophily_evidence/h2gb_set/table.md`: ℋ² (copied from card 6), MLH 1.30 → 1.31, MDE 1.30 → 1.31, number of paths and of empty paths.
-2. **Gates (stop on failure):**
-   - (G1) MDE by the new route equals card 6's MDE records on DBLP, IMDB and IEEE-CIS-G, and on LP dblp_ap (paper) and imdb_ma (movie) (relative difference ≤ 1e-6). If an LP gate set differs from the card 6 `m2` list, report the two lists and stop.
-   - (G2) MLH from the records: ACM 0.2621, DBLP 0.1278, IMDB 0.3247, Freebase 0.8464 (±1e-4). These are the Part J / card 6 values on H2GB's set.
-   - (G3) `git diff 0b9873d card19 -- H2S-NN/src H2S-NN/configs H2S-NN/scripts/perturbation vendor` is empty.
-3. **Runs:** MDE for ACM, ogbn-mag, mag-year, oag-cs, oag-eng, oag-chem, H-Pokec and PDNS.
-   - Before submitting, estimate the `G_P` sizes from card 6's `plan` and `hubs` records.
-   - Use card 6's memory settings, and split by path where card 6 did.
-   - Expected empty paths: OAG 30 of 46 each; no others.
-   - **3b (LP):** MDE for acm_pp, pubmed, ogbn-mag_pp and h-pokec_uu, plus the gates dblp_ap and imdb_ma. Split h-pokec_uu by path as in NC.
-4. **Read-only check of H2GB's MLH.** H2GB Table 2 prints MLH 0.8731 (ogbn-mag), 0.7718 (mag-year) and 0.3922 (H-Pokec). Our MLH on H2GB's ℋ² set is 0.844, 0.749 and 0.386. Find in H2GB's code or paper which paths or which code give its Table 2 MLH, with `file:line`. Report only; change nothing.
-5. **Perturbation consistency (read-only, no regeneration):**
-   - The generator's `compute_heterophily.h2gb_metapaths` lists the same paths as `het.h2gb_metapaths` on ACM and DBLP.
-   - The original-graph h in card 7's manifest equals the step 1 MLH (0.2621 / 0.1278).
+## Preconditions
+- Worktree `/mnt/data/peeradon/h2snn-card19`, branch `card19` from `origin/v3b` `0b9873d0c19455c8df56fa152492188d8918b62d`; `git merge` the design-docs SHA given in the prompt.
+- Copy (do not symlink) the git-ignored `vendor/`; `data` → `/mnt/data/peeradon/h2snn/H2S-NN/data`.
 
-## Tests (only these; no full suite)
-`H2S-NN/tests/test_card19_h2gb_set.py`:
-- (a) Toy graph with two relations between the target type and itself (like cite/ref) plus one target–other relation. For each H2GB path, the mini-graph MDE equals `het.mde_reference` on that path's `G_P` built by hand.
-- (b) MLH from a hand-made ℋ² record (two paths, two fill seeds) gives the expected value.
+## Rules
+- `sbatch` only on the lab, CPU job `--mem 16G --time 1:00:00`.
+- `git diff origin/v3b...card19 -- H2S-NN/src` touches only `src/baselines/adapters/_h2gformer_h2gb.py`, plus `src/baselines/minibatch.py` only if step 1's fallback needs it there.
+- Stage by explicit path; one commit for code + test, one for the report; push `card19`. Never merge into `v3b`; never stash, reset or rebase.
+- Stop if the training identity fails, or if another caller in step 3 has the same defect.
 
-## Report
-Include:
-- the script and the tests;
-- gates G1–G3 with their numbers;
-- the table of step 1, and the LP table (task, endpoint type, paths, MDE 1.30 → 1.31);
-- the per-path MDE of ACM;
-- step 4 with `file:line`;
-- step 5;
-- jobs, wall time and peak memory.
+## Report (`docs/H2S-NN_card19_report.md`, short)
+- The diff and which way step 1 went.
+- The test result on the fix and on `0b9873d`, with job ids.
+- The training-identity line.
+- The step 3 table: caller, writes after the call (yes/no).
+- Last line `branch=card19 sha=<head> card=docs/H2S-NN_card19_card.md base=0b9873d0c19455c8df56fa152492188d8918b62d`.
 
-Last line: `branch=card19 sha=<sha> card=docs/H2S-NN_card19_card.md base=0b9873d0c19455c8df56fa152492188d8918b62d`.
-
-Estimate: about 2 h of agent work, plus the MDE jobs (H-Pokec and OAG dominate, card 6 scale).
+## Estimate
+About 2 h, including the queue.
