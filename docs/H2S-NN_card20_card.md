@@ -1,6 +1,8 @@
-# Card 19 — H2G-former: MetaPath2Vec channel missing from the B1a validation loader (H2GB mini-batch)
+# Card 20 — H2G-former: MetaPath2Vec channel missing from the B1a validation loader (H2GB mini-batch)
 
-Written 2026-11-23 by the model design session on the ops report of the same day (wave 1, job 9523125, code `0b9873d`). Report: `docs/H2S-NN_card19_report.md`.
+Written 2026-11-23 by the model design session on the ops report of the same day (wave 1, job 9523125, code `0b9873d`). Report: `docs/H2S-NN_card20_report.md`.
+
+Renumbered 2026-11-23 from card 19 (`fac3307`): the name `card19` is taken by another session's card (MLH/MDE on H2GB's set). Nothing else changed.
 
 ## Why (VERIFIED-CODE, `0b9873d`)
 - H2G-former seed 0 on mag-year, oag-chem, ogbn-mag and PDNS crashed at the first validation (end of epoch 5) with `mat1 and mat2 shapes cannot be multiplied` in `pre_gt_dict` (`vendor/H2GB/H2GB/network/gt_model.py:201`). Training batches pass.
@@ -32,21 +34,21 @@ Written 2026-11-23 by the model design session on the ops report of the same day
 - No GPU smoke, no full suite. Ops runs the full suite once at review, and the real check is ops' rerun of seed 0.
 
 ## Preconditions
-- Worktree `/mnt/data/peeradon/h2snn-card19`, branch `card19` from `origin/v3b` `0b9873d0c19455c8df56fa152492188d8918b62d`; `git merge` the design-docs SHA given in the prompt.
+- Worktree `/mnt/data/peeradon/h2snn-card20`, branch `card20` from `origin/v3b` `0b9873d0c19455c8df56fa152492188d8918b62d`; `git merge` the design-docs SHA given in the prompt.
 - Copy (do not symlink) the git-ignored `vendor/`; `data` → `/mnt/data/peeradon/h2snn/H2S-NN/data`.
 
 ## Rules
 - `sbatch` only on the lab, CPU job `--mem 16G --time 1:00:00`.
-- `git diff origin/v3b...card19 -- H2S-NN/src` touches only `src/baselines/adapters/_h2gformer_h2gb.py`, plus `src/baselines/minibatch.py` only if step 1's fallback needs it there.
-- Stage by explicit path; one commit for code + test, one for the report; push `card19`. Never merge into `v3b`; never stash, reset or rebase.
+- `git diff origin/v3b...card20 -- H2S-NN/src` touches only `src/baselines/adapters/_h2gformer_h2gb.py`, plus `src/baselines/minibatch.py` only if step 1's fallback needs it there.
+- Stage by explicit path; one commit for code + test, one for the report; push `card20`. Never merge into `v3b`; never stash, reset or rebase.
 - Stop if the training identity fails, or if another caller in step 3 has the same defect.
 
-## Report (`docs/H2S-NN_card19_report.md`, short)
+## Report (`docs/H2S-NN_card20_report.md`, short)
 - The diff and which way step 1 went.
 - The test result on the fix and on `0b9873d`, with job ids.
 - The training-identity line.
 - The step 3 table: caller, writes after the call (yes/no).
-- Last line `branch=card19 sha=<head> card=docs/H2S-NN_card19_card.md base=0b9873d0c19455c8df56fa152492188d8918b62d`.
+- Last line `branch=card20 sha=<head> card=docs/H2S-NN_card20_card.md base=0b9873d0c19455c8df56fa152492188d8918b62d`.
 
 ## Estimate
 About 2 h, including the queue.
