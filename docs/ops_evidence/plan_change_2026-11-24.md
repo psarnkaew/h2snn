@@ -174,3 +174,9 @@ Baseline per-trial times above are taken from published-configuration runs (full
 - Layer-1 findings for the model session:
   - The PSHGCN H-Pokec override (K = 1, hidden ≤ 64, spec 1.23) is never applied (`pshgcn.py:181-188` returns before `:202`).
   - Time risk: HINormer builds H-Pokec sequences in a Python loop, and ChebNetII recomputes whole-graph bases per batch.
+
+## 6. Loader speed, H-Pokec crash, seeds 3–4 (author, 2026-11-24 evening)
+- Measurement (job 9550269, gpu_1, 16 cores): HGT sampling at batch 32 is 95 → 19 ms/batch (PDNS) and 73 → 15 ms/batch (oag-eng) from 0 to 6 workers. A real PDNS GCN published run spends about 24 s of its 28 s epoch sampling, with 0.9 GB peak GPU memory.
+- Published GCN, HAN and R-GCN on H-Pokec NC: all 11 seed lines of job 9533064 crashed with `cannot sample n_sample <= 0 samples`. The yaml gives `user` 4 hops and the other types 3, so the sampler reads an undefined size at hop 4. Not rerun.
+- Card 21 (`docs/H2S-NN_card21_card.md`, b72f070): loader workers 6 (author: 6, not more) + pad shorter hop lists. Held until it merges: 9545676 (43 tasks) and 9545677.19–27.
+- Seeds: keep 3 (0–2) for every cell first. After card 21 merges and points are re-estimated on measured speed, run seeds 3–4 as a second wave if points allow (estimate +80–100 points, ~500–600 GPU-h).
