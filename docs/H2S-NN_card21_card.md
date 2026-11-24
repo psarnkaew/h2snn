@@ -1,0 +1,96 @@
+# Card 21 — H2GB loader: worker processes, and the H-Pokec unequal-hop sampler crash
+
+Written 2026-11-24 by the ops session on its measurement of the same day. The author approved writing it ("write the card and fix the H-Pokec sampler crash"). Report: `docs/H2S-NN_card21_report.md`.
+
+## Why
+
+### A. The H2GB loader runs with no worker processes (VERIFIED-RUN, TSUBAME gpu_1, H100, 16 cores, code `0b9873d`)
+- `hgt_loader` (`src/baselines/minibatch.py:183-213`) already takes `num_workers` and sets H2GB's `cfg.num_workers` / `cfg.train.persistent_workers`.
+  - Every caller leaves the default `0`: `h2gb_published.py:301-304`, `hgb_han.py:451-454`, `rgcn.py:279-282`, `h2sgnn.py:493-501`, `hetsheaf.py:786-790`, `_h2gformer_h2gb.py:190-194`, `minibatch.py:555-561`, and `eval_loader` / `val_subset_loader` through them.
+  - `cfg.train.pin_memory` is forced `False`.
+  - H2GB's own yamls use 16–18 workers with persistent workers and pin_memory. `h2gb_published.py:55` drops them as "hardware".
+- Measured: HGT sampling only, GCN published configuration (batch 32, 256 batches per epoch), 100 batches after 5 warm-up batches (ops job 9550269):
+
+  | dataset | workers 0 | 4 | 6 |
+  |---|---|---|---|
+  | PDNS | 95 ms/batch | 24 | 19 |
+  | oag-eng | 73 ms/batch | 19 | 15 |
+
+- A real run: PDNS GCN published seed 3 (job 9530256 task 25) took 3.9 h for 500 epochs, about 28 s/epoch. About 24 s of that is sampling. Peak GPU memory was 0.9 GB.
+- So the H2GB-dataset baselines are bound by CPU sampling. With 6 workers, sampling (about 5 s/epoch) runs alongside the GPU step.
+
+### B. H-Pokec crash: hop lists of unequal length (VERIFIED-RUN + VERIFIED-CODE)
+- Published GCN, HAN and R-GCN on H-Pokec NC: all 11 seed lines of job 9533064 (tasks 1–5, 11–13, 16–18) exited 1 after 1–7 epochs:
+  - `RuntimeError: cannot sample n_sample <= 0 samples` in `torch.ops.torch_sparse.hgt_sample`;
+  - reached from `HGTLoader.collate_fn` → `sample_from_nodes`.
+  - Example log: `logs/lines/cells_pub30s_nodef.line001.9533064.1.0.log`.
+- The H-Pokec fan-out in every H2GB H-Pokec yaml (`configs/baselines/{gcn,han,rgcn,h2gformer}/node_classification/h-pokec.yaml`, `train.neighbor_sizes_dict`) gives `user` **4** hops (`[2048, 2048, 512, 512]`) and every other node type **3** (`[128, 128, 128]`).
+- PyG 2.8.0 `HGTSampler` sets `num_hops = max(len(v) for v in num_samples.values())` = 4.
+  - torch_sparse 0.6.18 then reads `num_samples[type][3]` for the 3-element lists: an unchecked read past the end of the list.
+  - The value read is arbitrary. When it is ≤ 0 and that type has nodes in its budget at hop 4, the sampler raises.
+  - That fits a crash at a random batch after some epochs. Card step B1 confirms it.
+- The same dict sits in H2GB's yaml, so H2GB's own code has the same undefined read.
+- Scope: every method on H-Pokec NC through `hgt_loader`, published and tuned, including H2G-former. Two H2G-former H-Pokec published seed lines are running now with the same dict.
+- H2S-NN does not use this loader.
+
+## Fix
+A1. **Workers.**
+- Add one module constant in `src/baselines/minibatch.py`, `LOADER_WORKERS`: default **6**, overridable by the environment variable `H2SNN_LOADER_WORKERS` (int ≥ 0), so ops can change it without a card.
+- `hgt_loader`'s `num_workers` default becomes `None`, meaning `LOADER_WORKERS`. `eval_loader` and `val_subset_loader` do the same.
+- Callers stay unchanged unless one passes `0` explicitly; list any that do.
+- `cfg.train.persistent_workers = num_workers > 0` as now. Set `cfg.train.pin_memory = num_workers > 0`.
+
+A2. **Other sampled loaders, same constant.**
+- Pass `num_workers=LOADER_WORKERS` and `persistent_workers=LOADER_WORKERS > 0` where the loader is built:
+  - `_hetero2net_h2gb.py:99, 111` (`NeighborLoader`);
+  - `large_lp_training.py:67, 75` (`NeighborLoader` / `HGTLoader`);
+  - `large_lp_minibatch.py:70` (`LinkNeighborLoader`).
+- If a loader there is iterated in a way that breaks with workers (for example a generator or closure that cannot be pickled, or a loader rebuilt every step), leave it at 0 and say which one and why.
+
+A3. **Determinism.**
+- With workers, a seeded run must still be reproducible. Two runs with the same seed and the same `LOADER_WORKERS` must give the same batches.
+- Pass a `torch.Generator` seeded from the run seed to the loader, or confirm that `torch.manual_seed` before loader creation already fixes it. Say which.
+- Batches will differ from `LOADER_WORKERS=0`. That is expected; state it in the report.
+
+B1. **Confirm the cause.**
+- On CPU, on a small synthetic heterogeneous graph, build `HGTLoader` with one type at 4 hops and another at 3. Show that hop 4 reads an undefined size: either the raise, or a sampled count for the 3-hop type at hop 4.
+- Then show that the fix removes it.
+
+B2. **Fix it in `fanout_from_args`** (`h2gb_published.py`; also any tuned path that builds an H-Pokec fan-out dict).
+- Pad every shorter hop list to the longest length by repeating its last value. On H-Pokec that gives `[128, 128, 128, 128]` for the 15 non-user types.
+- This keeps H2GB's 4-hop `user` sampling and gives the other types a defined size at hop 4.
+- Datasets whose lists are already equal must be unchanged; check every H2GB NC yaml and list any other dataset with unequal lengths.
+- This is a baseline fix, not a deviation. Record it in the report in one line.
+
+## Tests (only these)
+- **One CPU test file** `tests/test_card21_loader.py`:
+  1. `LOADER_WORKERS` default 6 and the environment override.
+  2. The unequal-hop graph of B1 crashes, or reads an undefined size, before padding and samples cleanly after it. Use 20 batches and a fixed seed.
+  3. Same seed and `num_workers=2`: two loader passes give identical first-batch node ids.
+- No GPU smoke and no full suite. Ops runs the full suite at review and measures the real speed-up on TSUBAME.
+
+## Preconditions
+- Worktree `/mnt/data/peeradon/h2snn-card21`, branch `card21` from `origin/v3b` `f1fc158409ad7d122ee67c42c897208282b9fd65`; `git merge` the design-docs SHA given in the prompt.
+- Copy (do not symlink) the git-ignored `vendor/`; `data` → `/mnt/data/peeradon/h2snn/H2S-NN/data`.
+
+## Rules
+- `sbatch` only on the lab, CPU job `--mem 16G --time 1:00:00 --cpus-per-task 4`.
+- `git diff origin/v3b...card21 -- H2S-NN/src` touches only:
+  - `src/baselines/minibatch.py`, `src/baselines/h2gb_published.py`;
+  - `src/baselines/adapters/_hetero2net_h2gb.py`;
+  - `src/baselines/large_lp_training.py`, `src/baselines/large_lp_minibatch.py`.
+- No change to models, losses, schedules or the B1a selection.
+- Stage by explicit path; one commit for code + test, one for the report; push `card21`. Never merge into `v3b`; never stash, reset or rebase.
+- Stop and report if B1 does not reproduce the undefined read, or if A3 cannot be made deterministic.
+
+## Report (`docs/H2S-NN_card21_report.md`, short)
+- The diff.
+- A2: one line per loader, workers on or left at 0, and why.
+- A3: how determinism is ensured.
+- B1: the evidence.
+- B2: the list of datasets with unequal hop lengths.
+- The test result with job id.
+- Last line `branch=card21 sha=<head> card=docs/H2S-NN_card21_card.md base=f1fc158409ad7d122ee67c42c897208282b9fd65`.
+
+## Estimate
+About 2–3 h, including the queue.
