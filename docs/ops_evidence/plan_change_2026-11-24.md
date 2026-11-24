@@ -203,3 +203,18 @@ Author decision 2026-11-25: conditional approval of the v3b move. Pending baseli
     - 9553168: `cells_pub_hpokec_c21`, 9 lines.
     - 9553170, then 9553172 held as the second leg: `cells_pub_h2gf_hpokec_c21`, 3 lines.
 - **Measurement still to do:** host maxrss and s/epoch with 6 workers on the first H-Pokec NC and ogbn-mag NC jobs. Then re-estimate points, before seeds 3–4.
+
+### Lab, 2026-11-25 (author: stop H2S-NN MUTAG and LastFM, run light baselines instead)
+
+- **Stopped:** H2S-NN MUTAG GC (18458, 6 of 100 trials) and LastFM LP (18444, 9 of 100 trials).
+  - Both ran at about 1 CPU core with the GPU at 0–22%.
+  - MUTAG took 150–300 s/epoch; LastFM took 24–100 s/epoch.
+  - Their tuning state is kept.
+- **Submitted:** 26 not-started baseline b1 lab lines, run on v3b 2e3e160 with 40 trials, 28G memory, 72 h per leg, 2 legs.
+  - Lists `cells_tuning_b1_light_{2080ti,a6000,3090,titan_rtx}.lab.txt`, jobs:
+    - 18863/18864 (2080 Ti, 8 lines)
+    - 18865/18866 (A6000, 4 lines)
+    - 18867/18868 (3090, 4 lines)
+    - 18872/18873 (TITAN RTX, 10 lines)
+  - 12 cells with no trial yet moved from 3090 to 2080 Ti or A6000, chosen by their fit-check peak memory. Each cell still runs on one GPU type. Backup: `lab_gpu_types.tsv.bak_c21light`.
+- **Not touched:** the Hetero²Net acm_pp and dblp_ap lab sweeps (18560_5, 18562_7). They are at 69 and 86 trials, past the 40-trial target; stopping them awaits the author.
