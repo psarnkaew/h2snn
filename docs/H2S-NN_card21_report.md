@@ -1,6 +1,6 @@
 # Card 21 report: loader workers, the H-Pokec unequal-hop fix, HINormer cache, ChebNetII eval bases
 
-Card `docs/H2S-NN_card21_card.md` (design-docs `ba3ecd8`, with Amendments 1 and 2). Branch `card21` from `origin/v3b` `f1fc158`, merge `ba3ecd8` (`b7aff39`), code + test `4d79a11`. Not merged into `v3b`.
+Card `docs/H2S-NN_card21_card.md` (design-docs `ba3ecd8`, with Amendments 1 and 2; Amendment 3 from `966230e`). Branch `card21` from `origin/v3b` `f1fc158`, merge `ba3ecd8` (`b7aff39`), code + test `4d79a11`; merge `966230e` (`0181cf5`), Amendment 3 code + test `5bb3a81`. Not merged into `v3b`.
 
 ## Diff (`git diff origin/v3b...card21 -- H2S-NN/src H2S-NN/tests`)
 
@@ -93,4 +93,23 @@ Card `docs/H2S-NN_card21_card.md` (design-docs `ba3ecd8`, with Amendments 1 and 
 - Amendment 1.5: measure host maxrss with 6 workers on TSUBAME.
 - Set `H2SNN_HINORMER_SEQ_CACHE` for HINormer H2GB cells.
 
-branch=card21 sha=4d79a114b494c1c9bed5c94b52812571d15afe43 card=docs/H2S-NN_card21_card.md base=f1fc158409ad7d122ee67c42c897208282b9fd65
+## Amendment 3: the training loader starts its workers at the first batch
+
+**Fix (`minibatch.py` only)**
+- `_drop_eager_iterator`, used for both training and `_PassLoader`, undoes H2GB's `iter(dataloader)` in `LoaderWrapper.__init__`. It sets `iter_loader = None`, clears the DataLoader's cached `_iterator` and calls `_shutdown_workers()` on the dropped iterator.
+- With workers, the training wrapper's `iter_loader` becomes `_LazyIterator`, which calls `iter(loader)` at the first `__next__`. So no worker exists when `hgt_loader` returns.
+- H2GB's wrapper code is unchanged: `step` batches per pass, the iterator continued across passes and replaced by `iter(loader)` when exhausted. Persistent workers, once started at the first batch, are reused on restarts as before.
+- With 0 workers the path is unchanged.
+
+**Hetero2Net:** its training `NeighborLoader` is already lazy. `epoch_batches` calls `iter(loader)` at the first batch (`state["it"]` is missing), and `loaders()` creates no iterator. No change.
+
+**Test 6** (2 workers)
+- Setup: training and evaluation loaders are built; then `data["user"].late` is added and `data["user"].y` is replaced.
+- Check: the first training batch and the first evaluation batch must carry `late` and the new `y` at their `n_id`.
+- Job 18860, log `docs/card21_evidence/job18860_amendment3.log`:
+  - **On `4d79a11`**, the new test file in a temporary worktree: **FAIL**, `'late' not found` in the training batch (the training loader is checked first).
+  - **On the fix** (tree = `5bb3a81`): the whole file, **6 tests OK**.
+
+No run used card 21 code, so nothing is void.
+
+branch=card21 sha=5bb3a81b6ccdbeb44919f95bae1831d45f44fbb8 card=docs/H2S-NN_card21_card.md base=f1fc158409ad7d122ee67c42c897208282b9fd65

@@ -1,0 +1,46 @@
+job=18860 node=g3an01 start=2026-11-25T00:01:15+09:00
+=== A: old code 4d79a11 + new test file, test 6 only
+git=4d79a114b494c1c9bed5c94b52812571d15afe43
+ M tests/test_card21_loader.py
+test_6_loaders_see_changes_made_after_build (tests.test_card21_loader.LateDataChangeTests.test_6_loaders_see_changes_made_after_build)
+Amendment 3: an adapter changes `data` after building its loaders (H2G-former's label channel, pestat); ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=2432467) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+FAIL
+
+======================================================================
+FAIL: test_6_loaders_see_changes_made_after_build (tests.test_card21_loader.LateDataChangeTests.test_6_loaders_see_changes_made_after_build)
+Amendment 3: an adapter changes `data` after building its loaders (H2G-former's label channel, pestat);
+----------------------------------------------------------------------
+AssertionError: 'late' not found in {'x': tensor([[-1.3518e+00, -2.8922e-02,  8.0249e-01,  2.6280e-01,  6.9011e-01],
+
+----------------------------------------------------------------------
+Ran 1 test in 19.949s
+
+FAILED (failures=1)
+=== B: fix, whole card 21 file
+git=0181cf5567ac1e99d7baaf2503816749c1925bcb
+ M src/baselines/minibatch.py
+ M tests/test_card21_loader.py
+test_4_eval_pass_equals_per_batch_recomputation (tests.test_card21_loader.ChebNetIIEvalBasesTests.test_4_eval_pass_equals_per_batch_recomputation) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_3_same_seed_same_batches_with_workers (tests.test_card21_loader.DeterminismTests.test_3_same_seed_same_batches_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=2432578) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+ok
+test_2_padding_and_sampling (tests.test_card21_loader.EqualHopTests.test_2_padding_and_sampling) ... ok
+test_5_cache_keeps_sequences_and_random_state (tests.test_card21_loader.HINormerSequenceCacheTests.test_5_cache_keeps_sequences_and_random_state) ... ok
+test_6_loaders_see_changes_made_after_build (tests.test_card21_loader.LateDataChangeTests.test_6_loaders_see_changes_made_after_build)
+Amendment 3: an adapter changes `data` after building its loaders (H2G-former's label channel, pestat); ... ok
+test_1_default_and_environment_override (tests.test_card21_loader.LoaderWorkersTests.test_1_default_and_environment_override) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 85.552s
+
+OK
+end=2026-11-25T00:03:06+09:00 old_exit=1 fix_exit=0
