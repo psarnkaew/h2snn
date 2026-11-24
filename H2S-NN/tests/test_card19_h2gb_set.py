@@ -97,6 +97,9 @@ class Card19(unittest.TestCase):
         gp = hand_gp(data, path)
         self.assertEqual(fields["edges"], gp.size(1))
         self.assertAlmostEqual(fields["value"], het.mde_reference(gp, data["paper"].x), places=5)
+        mod.OVERLAP_GROUP_ELEMENTS = 15  # 3 occurrences per gather: groups split across chunks (carry)
+        small, _ = mod.overlap_clique_mde(mini, data["paper"].x)
+        self.assertAlmostEqual(small["value"], fields["value"], places=12)
 
     def test_b_mlh_from_h2_record(self) -> None:
         mod = _script()

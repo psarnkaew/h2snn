@@ -159,23 +159,31 @@ def overlap_clique_mde(mini: Any, x: torch.Tensor,
         deg.index_add_(0, tgt, (1 if s % 2 else -1) * size[inv])
     edges = int(deg.sum())
     used = deg > 0
-    x64 = x.to(torch.float64)
-    sq = float(x64[used].square().sum())
-    y = torch.zeros_like(x64)
-    y[used] = x64[used] / deg[used].to(torch.float64).sqrt().unsqueeze(1)
+    y = x.to(torch.float64)  # y = x/√d in place (the only float64 copy of x); ‖y_p‖²·d_p = ‖x_p‖²
+    y.div_(deg.clamp(min=1).to(torch.float64).sqrt().unsqueeze(1))
+    y[~used] = 0
+    sq = float((y.square().sum(dim=1) * deg.to(torch.float64)).sum())
     cross = 0.0
-    block = max(1, OVERLAP_GROUP_ELEMENTS // max(1, x.size(1)))
+    cap = max(1, OVERLAP_GROUP_ELEMENTS // max(1, x.size(1)))  # occurrences gathered at once
     for s in range(1, kmax + 1):
         tgt, inv = _level_subsets(key, k, n_mid, s)
         order = torch.argsort(inv)
         tgt, inv = tgt[order], inv[order]
-        n_groups = int(inv[-1]) + 1
-        bounds = torch.searchsorted(inv, torch.arange(0, n_groups + block, block).clamp(max=n_groups))
-        level = 0.0
-        for g0, a, b in zip(range(0, n_groups, block), bounds[:-1].tolist(), bounds[1:].tolist()):
-            sums = torch.zeros(min(block, n_groups - g0), x.size(1), dtype=torch.float64)
-            sums.index_add_(0, inv[a:b] - g0, y[tgt[a:b]])
-            level += float(sums.square().sum())
+        level, carry, carry_g = 0.0, None, -1
+        for a in range(0, inv.numel(), cap):  # groups are contiguous; one may span two chunks (carried)
+            g = inv[a:a + cap]
+            g0, g1 = int(g[0]), int(g[-1])
+            sums = torch.zeros(g1 - g0 + 1, x.size(1), dtype=torch.float64)
+            sums.index_add_(0, g - g0, y[tgt[a:a + cap]])
+            if carry is not None:
+                if carry_g == g0:
+                    sums[0] += carry
+                else:
+                    level += float(carry.square().sum())
+            carry, carry_g = sums[-1].clone(), g1
+            level += float(sums[:-1].square().sum())
+        if carry is not None:
+            level += float(carry.square().sum())
         cross += level if s % 2 else -level
     value = (2 * sq - 2 * cross) / 4 / edges
     return {"edges": edges, "value": value, "k_max": kmax, "occurrences_per_level": per_level,
