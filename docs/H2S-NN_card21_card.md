@@ -155,3 +155,28 @@ C3. **PSHGCN on H-Pokec: no change.**
 - Ops probe (job 9545379, smallest grid point, 1 trial): GPU peak 0.9 GB, host maxrss 77 GB, 39 min.
 
 Files: add `src/baselines/adapters/hinormer.py` and `src/baselines/adapters/_chebnetii_h2gb.py` to the allowed list. Tests: add test 4 (C2) to `tests/test_card21_loader.py`. Estimate: +1–2 h.
+
+## Amendment 3 (model design session, after the report at `card21` `4a4335a`; 2026-11-24)
+**Problem (VERIFIED-CODE).** H2GB's `LoaderWrapper.__init__` calls `iter(dataloader)` (`vendor/H2GB/H2GB/sampler/custom_sampler.py:26`), so the training loader's workers fork when `hgt_loader` returns.
+- A persistent DataLoader also caches that iterator in `loader._iterator` and reuses it. The training workers therefore keep the graph as it was when the loader was built.
+- Adapters change `data` after building their loaders. In `_h2gformer_h2gb.py`, after `hgt_loader(...)`:
+  - `prepare_label_channel` replaces `y`, `train_mask` and `val_mask`;
+  - `attach_h2gb_metapath` adds `pestat_Hetero_Metapath`;
+  - `configure_from_yaml` sets H2GB's `cfg`.
+- With 0 workers the sampler ran in the main process and saw these changes. With workers, the training batches miss them, while the evaluation passes (`_PassLoader`, forked at each pass) see them. Training and evaluation then read different graphs. This is the card 20 failure in another form.
+
+**Fix (in `minibatch.py` only).**
+- With `num_workers > 0`, `hgt_loader` returns a training loader that has **no live iterator and no worker process**.
+  - Discard H2GB's eager iterator and shut its workers down.
+  - Clear the DataLoader's cached `_iterator`.
+  - Create the iterator at the first batch.
+- H2GB's training semantics stay unchanged: `step` batches per pass, the iterator continued across passes, restarted when exhausted. For example, give the wrapper a lazy iterator object that calls `iter(self.loader)` on its first `__next__`.
+- Check the same for `_hetero2net_h2gb.py`'s training `NeighborLoader`, and report it.
+
+**Test 6** (add to `tests/test_card21_loader.py`, CPU, `num_workers = 2`).
+- Build the training and evaluation loaders.
+- Then add a new node attribute to `data`, and replace one existing tensor such as `y`.
+- The first training batch and the first evaluation batch must both carry the new attribute and the new `y`.
+- Also check that the test fails on `4d79a11` and passes on the fix; report both.
+
+**Runs.** No run has used card 21 code (it is not merged), so nothing is void. Ops runs the full suite at review as planned.
