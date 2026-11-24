@@ -78,6 +78,26 @@ class Card19(unittest.TestCase):
         summary = mod.summarise_mde(rows, [het.metapath_name(p) for p in paths])
         self.assertAlmostEqual(summary["value"], sum(r["value"] for r in rows) / 5, places=12)
 
+    def test_c_overlap_closed_form_equals_reference(self) -> None:
+        mod = _script()
+        g = torch.Generator().manual_seed(0)
+        n, n_mid = 40, 6
+        pairs = torch.stack([torch.randint(0, n, (90,), generator=g), torch.randint(0, n_mid, (90,), generator=g)])
+        data = HeteroData()
+        data["paper"].num_nodes = n
+        data["paper"].x = torch.randn(n, 5, generator=g)
+        data["field"].num_nodes = n_mid
+        data["paper", "in", "field"].edge_index = pairs
+        data["field", "rev_in", "paper"].edge_index = pairs.flip(0)
+        path = [("paper", "in", "field"), ("field", "rev_in", "paper")]
+        mini = het.labeled_only_metapath_data(data, path, "paper", torch.ones(n, dtype=torch.bool))
+        fields, why = mod.overlap_clique_mde(mini, data["paper"].x)
+        self.assertIsNotNone(fields, why)
+        self.assertGreater(fields["k_max"], 2)  # cliques overlap (levels ≥ 3 used)
+        gp = hand_gp(data, path)
+        self.assertEqual(fields["edges"], gp.size(1))
+        self.assertAlmostEqual(fields["value"], het.mde_reference(gp, data["paper"].x), places=5)
+
     def test_b_mlh_from_h2_record(self) -> None:
         mod = _script()
 

@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
 import os
 import signal
 import socket
@@ -79,6 +80,106 @@ def git_head() -> str:
 def _mean(values: list[float | None]) -> float | None:
     vals = [v for v in values if v is not None]
     return None if not vals else sum(vals) / len(vals)
+
+
+# ----------------------------------------------------------------------------------------------- MDE: overlapping cliques
+#: overlap closed form: subset occurrences allowed per level (memory bound; above it the path keeps D-a)
+OVERLAP_MAX_OCC = 150_000_000
+#: overlap closed form: rows of the per-subset feature sums held at once (float64)
+OVERLAP_GROUP_ELEMENTS = 100_000_000
+
+
+def overlap_targets(mini: Any) -> tuple[torch.Tensor, torch.Tensor, int] | None:
+    """When step 2 of the mini graph is the transpose of step 1 (`G_P = A Aᵀ`, symmetric): the unique (target, mid)
+    pairs sorted by target then mid, their per-target counts k, and the number of mid nodes. Else None."""
+    (e1,), (e2,) = ([mini[e].edge_index for e in mini.edge_types if e[0] == s] for s in ("tgt", "mid"))
+    n_mid = int(mini["mid"].num_nodes)
+    key1 = torch.unique(e1[0] * n_mid + e1[1])
+    key2 = torch.unique(e2[1] * n_mid + e2[0])
+    if key1.numel() == 0 or not torch.equal(key1, key2):
+        return None
+    k = torch.bincount(key1 // n_mid, minlength=int(mini["tgt"].num_nodes))
+    return key1, k, n_mid
+
+
+def _level_subsets(key: torch.Tensor, k: torch.Tensor, n_mid: int, s: int) -> tuple[torch.Tensor, torch.Tensor]:
+    """Every s-subset S of every target's mid set: (target of each occurrence, subset id per occurrence); subset ids
+    are 0..(distinct subsets − 1), equal for equal subsets."""
+    from itertools import combinations
+
+    mids = key % n_mid
+    ptr = torch.zeros(k.numel() + 1, dtype=torch.long)
+    ptr[1:] = torch.cumsum(k, 0)
+    targets, rows = [], []
+    for kk in torch.unique(k).tolist():
+        if kk < s:
+            continue
+        who = (k == kk).nonzero().flatten()
+        mat = mids[ptr[who].unsqueeze(1) + torch.arange(kk)]  # (n_k, kk), ascending
+        comb = torch.tensor(list(combinations(range(kk), s)), dtype=torch.long)  # (C, s)
+        rows.append(mat[:, comb].reshape(-1, s))
+        targets.append(who.repeat_interleave(comb.size(0)))
+    if not rows:
+        return torch.empty(0, dtype=torch.long), torch.empty(0, dtype=torch.long)
+    sub = torch.cat(rows)
+    if float(n_mid) ** s < 2 ** 62:
+        code = torch.zeros(sub.size(0), dtype=torch.long)
+        for j in range(s):
+            code = code * n_mid + sub[:, j]
+        _, inv = torch.unique(code, return_inverse=True)
+    else:
+        _, inv = torch.unique(sub, dim=0, return_inverse=True)
+    return torch.cat(targets), inv
+
+
+def overlap_clique_mde(mini: Any, x: torch.Tensor,
+                       max_occ: int = OVERLAP_MAX_OCC) -> tuple[dict[str, Any] | None, str]:
+    """Exact `attribute_homophily` / `mde_chunked` on `G_P = A Aᵀ` (two targets adjacent iff they share a mid node;
+    a union of overlapping cliques, self-pairs kept) without building `G_P`. With F(p) the mid set of target p and
+    n_S = #{q : S ⊆ F(q)}, inclusion–exclusion gives
+      degree d_p = Σ_{∅≠S⊆F(p)} (−1)^{|S|+1} n_S,   Σ_{(r,c)∈G_P} y_r·y_c = Σ_S (−1)^{|S|+1} ‖Σ_{q ⊇ S} y_q‖²,
+    and, `G_P` being symmetric (source degree = destination degree = d), with y = x/√d the energy sum is
+    Σ ‖y_r − y_c‖²/4 = (2 Σ_{d_p>0} ‖x_p‖² − 2 Σ y_r·y_c)/4 over Σ d_p edges. Float64 throughout.
+    Returns (row fields, "") or (None, reason) when it does not apply (then the path keeps its usual route)."""
+    found = overlap_targets(mini)
+    if found is None:
+        return None, "step 2 is not the transpose of step 1"
+    key, k, n_mid = found
+    kmax = int(k.max())
+    per_level = [int((torch.tensor([math.comb(kk, s) for kk in range(kmax + 1)], dtype=torch.float64)
+                      * torch.bincount(k, minlength=kmax + 1).double()).sum()) for s in range(1, kmax + 1)]
+    if max(per_level) > max_occ:
+        return None, f"subset occurrences per level {max(per_level)} > {max_occ} (k max {kmax})"
+    het.log(f"overlap closed form: k max {kmax}, occurrences per level {per_level}")
+    n = int(k.numel())
+    deg = torch.zeros(n, dtype=torch.long)
+    for s in range(1, kmax + 1):
+        tgt, inv = _level_subsets(key, k, n_mid, s)
+        size = torch.bincount(inv)
+        deg.index_add_(0, tgt, (1 if s % 2 else -1) * size[inv])
+    edges = int(deg.sum())
+    used = deg > 0
+    x64 = x.to(torch.float64)
+    sq = float(x64[used].square().sum())
+    y = torch.zeros_like(x64)
+    y[used] = x64[used] / deg[used].to(torch.float64).sqrt().unsqueeze(1)
+    cross = 0.0
+    block = max(1, OVERLAP_GROUP_ELEMENTS // max(1, x.size(1)))
+    for s in range(1, kmax + 1):
+        tgt, inv = _level_subsets(key, k, n_mid, s)
+        order = torch.argsort(inv)
+        tgt, inv = tgt[order], inv[order]
+        n_groups = int(inv[-1]) + 1
+        bounds = torch.searchsorted(inv, torch.arange(0, n_groups + block, block).clamp(max=n_groups))
+        level = 0.0
+        for g0, a, b in zip(range(0, n_groups, block), bounds[:-1].tolist(), bounds[1:].tolist()):
+            sums = torch.zeros(min(block, n_groups - g0), x.size(1), dtype=torch.float64)
+            sums.index_add_(0, inv[a:b] - g0, y[tgt[a:b]])
+            level += float(sums.square().sum())
+        cross += level if s % 2 else -level
+    value = (2 * sq - 2 * cross) / 4 / edges
+    return {"edges": edges, "value": value, "k_max": kmax, "occurrences_per_level": per_level,
+            "code_path": "closed form (overlapping cliques: inclusion–exclusion over shared mid sets; card 19)"}, ""
 
 
 # ----------------------------------------------------------------------------------------------- MLH
@@ -149,8 +250,10 @@ def type_sequence(name_or_path: Any) -> str:
 
 
 def mde_paths(data: Any, target: str, x: torch.Tensor, paths: list[list[tuple[str, str, str]]],
-              chosen: list[int], both: bool) -> list[dict[str, Any]]:
-    """Per chosen H2GB meta-path: the mini-graph route (empty `G_P` skipped as `calcHomophily` does)."""
+              chosen: list[int], both: bool, overlap: bool = False) -> list[dict[str, Any]]:
+    """Per chosen H2GB meta-path: the mini-graph route (empty `G_P` skipped as `calcHomophily` does). `overlap`
+    (`--overlap-cliques`): a `G_P = A Aᵀ` with no H2b hub and not disjoint cliques uses `overlap_clique_mde`
+    instead of D-a (same value, no `G_P` built)."""
     everyone = torch.ones(int(data[target].num_nodes), dtype=torch.bool)
     rows = []
     for i in chosen:
@@ -162,6 +265,13 @@ def mde_paths(data: Any, target: str, x: torch.Tensor, paths: list[list[tuple[st
             rows.append({"metapath_index": i, "metapath": name, "empty": True, "value": None,
                          "code_path": "empty G_P: skipped (as calcHomophily)"})
             continue
+        if overlap and not both and het.complete_gp_hub(mini, MINI_PATH[0]) is None \
+                and het.clique_gp_mid(mini, MINI_PATH[0]) is None:
+            fields, why = overlap_clique_mde(mini, x)
+            if fields is not None:
+                rows.append({"metapath_index": i, "metapath": name, "empty": False, **fields})
+                continue
+            het.log(f"overlap closed form not used: {why}")
         rec = het.mde_measure(mini, "tgt", MINI_PATH, x, both=both)
         row = dict(rec["per_metapath"][0])
         row.pop("metapath", None)
@@ -196,7 +306,8 @@ def run_mde(args: argparse.Namespace, record: dict[str, Any]) -> None:
         if x is None:
             record.update(value=None, reason="target type has no features", h2gb_metapaths=names)
             return
-        rows = mde_paths(sym, target, x.float(), paths, chosen_of(len(paths)), both=args.dataset in stats.HGB_NC)
+        rows = mde_paths(sym, target, x.float(), paths, chosen_of(len(paths)), both=args.dataset in stats.HGB_NC,
+                         overlap=args.overlap_cliques)
         record.update(feature_dim=int(x.size(1)), **summarise_mde(rows, names))
         _part(args, record, len(paths))
         return
@@ -220,7 +331,7 @@ def run_mde(args: argparse.Namespace, record: dict[str, Any]) -> None:
             record["per_endpoint_type"][t] = {"gate_set": {"h2gb": names, "card6_m2": old, "equal": equal}}
             if not equal:
                 raise Stop(f"LP gate set {args.dataset}/{t} differs from card 6 m2: {names} vs {old}")
-        rows = mde_paths(sym, t, x.float(), paths, chosen_of(len(paths)), both=False)
+        rows = mde_paths(sym, t, x.float(), paths, chosen_of(len(paths)), both=False, overlap=args.overlap_cliques)
         entry = record["per_endpoint_type"].get(t, {})
         entry.update(feature_dim=int(x.size(1)), **summarise_mde(rows, names))
         record["per_endpoint_type"][t] = entry
@@ -402,6 +513,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--data-root", default=None)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--deadline-h", type=float, default=23.5)
+    parser.add_argument("--overlap-cliques", action="store_true",
+                        help="G_P = A Aᵀ paths: inclusion–exclusion closed form instead of D-a (author 2026-11-24)")
     parser.add_argument("--collect", action="store_true", help="join the per-path MDE parts of --dataset")
     parser.add_argument("--table", action="store_true", help="write table.md from the records")
     parser.add_argument("--gates", action="store_true", help="write gates.json (G1, G2) from the records")
@@ -429,6 +542,7 @@ def main(argv: list[str] | None = None) -> int:
     record: dict[str, Any] = {**base, "dataset": args.dataset, "task": args.task, "measure": "mde",
                               "code": "per H2GB meta-path: labeled_only_metapath_data (all targets) + mde_measure "
                                       "(hetero2net attribute_homophily; D-a chunked; H2b/H2c-1 closed forms)"}
+    record["overlap_cliques"] = bool(args.overlap_cliques)
     signal.signal(signal.SIGALRM, _alarm)
     signal.alarm(int(args.deadline_h * 3600))
     code = 0
