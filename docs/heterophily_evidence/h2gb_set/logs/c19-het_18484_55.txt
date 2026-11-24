@@ -1,0 +1,172 @@
+job=18684 array=18484_55 node=g2n01 start=2026-11-24T04:29:15+09:00
+git=c3e93123bce3be0905bc352955c9f473741a8707 branch=card19 mem=16384M cpus=8
+args: --measure mde --task nc --dataset oag-cs --metapath-index 15 deadline_h=23.500
+/mnt/data/peeradon/h2snn-card19/H2S-NN/vendor/H2GB/H2GB/datasets/oag_dataset.py:72: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1518.03it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2892.62it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2976.79it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3158.36it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3113.81it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3151.24it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3187.16it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3204.20it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3206.65it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3199.32it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2707.75it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3175.10it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2949.58it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3209.11it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3204.20it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3201.76it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3201.76it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3209.11it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3211.57it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3100.00it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2813.08it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3226.39it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3243.85it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3264.05it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3184.74it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3228.87it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3209.11it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3216.49it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2910.69it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3238.84it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3231.36it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3231.36it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3226.39it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3221.43it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3070.50it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3246.37it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3241.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3236.35it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3238.84it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3238.84it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3223.91it/s]
+[04:29:33] MDE paper: meta-path 15 paper-PF_in_L1-field-rev_PF_in_L1-paper
+[04:34:35] G_P tgt-mid-tgt: rows 37400/546704 (6.8 %), edges so far 4577793594, 301 s
+[04:39:36] G_P tgt-mid-tgt: rows 74000/546704 (13.5 %), edges so far 9121314489, 602 s
+[04:44:37] G_P tgt-mid-tgt: rows 113600/546704 (20.8 %), edges so far 13446054414, 903 s
+[04:49:38] G_P tgt-mid-tgt: rows 155000/546704 (28.4 %), edges so far 17796522109, 1204 s
+[04:54:39] G_P tgt-mid-tgt: rows 197800/546704 (36.2 %), edges so far 22190474077, 1505 s
+[04:59:40] G_P tgt-mid-tgt: rows 235800/546704 (43.1 %), edges so far 26587098990, 1806 s
+[05:04:41] G_P tgt-mid-tgt: rows 293400/546704 (53.7 %), edges so far 32809895921, 2107 s
+[05:09:41] G_P tgt-mid-tgt: rows 349200/546704 (63.9 %), edges so far 38604066718, 2407 s
+[05:14:42] G_P tgt-mid-tgt: rows 402600/546704 (73.6 %), edges so far 44236132517, 2707 s
+[05:19:43] G_P tgt-mid-tgt: rows 431600/546704 (78.9 %), edges so far 47358354528, 3008 s
+[05:24:43] G_P tgt-mid-tgt: rows 460800/546704 (84.3 %), edges so far 50473694468, 3309 s
+[05:29:43] G_P tgt-mid-tgt: rows 488200/546704 (89.3 %), edges so far 53574521746, 3609 s
+[05:34:44] G_P tgt-mid-tgt: rows 516800/546704 (94.5 %), edges so far 56574941748, 3910 s
+[05:39:46] G_P tgt-mid-tgt: rows 545400/546704 (99.8 %), edges so far 59637444426, 4212 s
+[05:45:47] G_P tgt-mid-tgt: rows 1800/546704 (0.3 %), edges so far 136862645, 346 s
+[05:51:33] G_P tgt-mid-tgt: rows 3000/546704 (0.5 %), edges so far 257222720, 692 s
+[05:57:21] G_P tgt-mid-tgt: rows 4000/546704 (0.7 %), edges so far 370495974, 1040 s
+[06:02:41] G_P tgt-mid-tgt: rows 5000/546704 (0.9 %), edges so far 475893648, 1360 s
+[06:08:25] G_P tgt-mid-tgt: rows 6200/546704 (1.1 %), edges so far 600822786, 1704 s
+[06:14:19] G_P tgt-mid-tgt: rows 7000/546704 (1.3 %), edges so far 721467466, 2059 s
+[06:20:50] G_P tgt-mid-tgt: rows 7800/546704 (1.4 %), edges so far 842088877, 2449 s
+[06:27:19] G_P tgt-mid-tgt: rows 8600/546704 (1.6 %), edges so far 962879868, 2838 s
+[06:33:45] G_P tgt-mid-tgt: rows 9400/546704 (1.7 %), edges so far 1080924456, 3224 s
+[06:40:12] G_P tgt-mid-tgt: rows 10200/546704 (1.9 %), edges so far 1200690704, 3611 s
+[06:46:01] G_P tgt-mid-tgt: rows 11000/546704 (2.0 %), edges so far 1301243345, 3961 s
+[06:52:18] G_P tgt-mid-tgt: rows 12000/546704 (2.2 %), edges so far 1411233340, 4337 s
+[06:57:43] G_P tgt-mid-tgt: rows 13000/546704 (2.4 %), edges so far 1520698544, 4662 s
+[07:03:44] G_P tgt-mid-tgt: rows 14000/546704 (2.6 %), edges so far 1629584167, 5023 s
+[07:09:33] G_P tgt-mid-tgt: rows 15000/546704 (2.7 %), edges so far 1742796610, 5372 s
+[07:15:27] G_P tgt-mid-tgt: rows 16000/546704 (2.9 %), edges so far 1857494222, 5726 s
+[07:20:48] G_P tgt-mid-tgt: rows 16800/546704 (3.1 %), edges so far 1977466724, 6047 s
+[07:26:13] G_P tgt-mid-tgt: rows 17600/546704 (3.2 %), edges so far 2076277954, 6372 s
+[07:31:37] G_P tgt-mid-tgt: rows 18600/546704 (3.4 %), edges so far 2187261812, 6697 s
+[07:36:45] G_P tgt-mid-tgt: rows 19400/546704 (3.5 %), edges so far 2287180219, 7004 s
+[07:42:49] G_P tgt-mid-tgt: rows 20400/546704 (3.7 %), edges so far 2409439919, 7369 s
+[07:48:08] G_P tgt-mid-tgt: rows 21400/546704 (3.9 %), edges so far 2517651950, 7687 s
+[07:53:53] G_P tgt-mid-tgt: rows 22600/546704 (4.1 %), edges so far 2630974455, 8032 s
+[07:59:45] G_P tgt-mid-tgt: rows 23600/546704 (4.3 %), edges so far 2743782940, 8384 s
+[08:05:26] G_P tgt-mid-tgt: rows 24400/546704 (4.5 %), edges so far 2863906742, 8725 s
+[08:10:43] G_P tgt-mid-tgt: rows 25200/546704 (4.6 %), edges so far 2978320168, 9042 s
+[08:15:51] G_P tgt-mid-tgt: rows 25800/546704 (4.7 %), edges so far 3082247601, 9350 s
+[08:21:01] G_P tgt-mid-tgt: rows 26400/546704 (4.8 %), edges so far 3185627481, 9660 s
+[08:26:48] G_P tgt-mid-tgt: rows 27200/546704 (5.0 %), edges so far 3285171847, 10007 s
+[08:32:00] G_P tgt-mid-tgt: rows 28200/546704 (5.2 %), edges so far 3393097251, 10319 s
+[08:37:34] G_P tgt-mid-tgt: rows 29000/546704 (5.3 %), edges so far 3505116974, 10654 s
+[08:42:49] G_P tgt-mid-tgt: rows 30000/546704 (5.5 %), edges so far 3606266450, 10968 s
+[08:49:03] G_P tgt-mid-tgt: rows 31200/546704 (5.7 %), edges so far 3719187800, 11342 s
+[08:54:50] G_P tgt-mid-tgt: rows 32400/546704 (5.9 %), edges so far 3858746901, 11689 s
+[08:59:58] G_P tgt-mid-tgt: rows 33000/546704 (6.0 %), edges so far 3962913974, 11997 s
+[09:05:03] G_P tgt-mid-tgt: rows 33600/546704 (6.1 %), edges so far 4065961661, 12302 s
+[09:10:07] G_P tgt-mid-tgt: rows 34200/546704 (6.3 %), edges so far 4170293028, 12606 s
+[09:15:13] G_P tgt-mid-tgt: rows 34800/546704 (6.4 %), edges so far 4273040405, 12912 s
+[09:20:17] G_P tgt-mid-tgt: rows 35400/546704 (6.5 %), edges so far 4376994181, 13216 s
+[09:26:24] G_P tgt-mid-tgt: rows 36200/546704 (6.6 %), edges so far 4481473118, 13584 s
+[09:32:07] G_P tgt-mid-tgt: rows 37600/546704 (6.9 %), edges so far 4596858981, 13927 s
+[09:38:27] G_P tgt-mid-tgt: rows 38600/546704 (7.1 %), edges so far 4735542424, 14306 s
+[09:44:23] G_P tgt-mid-tgt: rows 39400/546704 (7.2 %), edges so far 4853583665, 14662 s
+[09:50:34] G_P tgt-mid-tgt: rows 40200/546704 (7.4 %), edges so far 4977185009, 15033 s
+[09:56:41] G_P tgt-mid-tgt: rows 41000/546704 (7.5 %), edges so far 5100111826, 15401 s
+[10:02:29] G_P tgt-mid-tgt: rows 41800/546704 (7.6 %), edges so far 5211013488, 15748 s
+[10:07:38] G_P tgt-mid-tgt: rows 42600/546704 (7.8 %), edges so far 5312570320, 16057 s
+[10:13:45] G_P tgt-mid-tgt: rows 43600/546704 (8.0 %), edges so far 5431385522, 16424 s
+[10:19:13] G_P tgt-mid-tgt: rows 44600/546704 (8.2 %), edges so far 5541442578, 16752 s
+[10:24:44] G_P tgt-mid-tgt: rows 45600/546704 (8.3 %), edges so far 5649489585, 17083 s
+[10:30:14] G_P tgt-mid-tgt: rows 46600/546704 (8.5 %), edges so far 5760008800, 17413 s
+[10:35:35] G_P tgt-mid-tgt: rows 47600/546704 (8.7 %), edges so far 5869110597, 17734 s
+[10:41:15] G_P tgt-mid-tgt: rows 48600/546704 (8.9 %), edges so far 5980894003, 18074 s
+[10:46:50] G_P tgt-mid-tgt: rows 49600/546704 (9.1 %), edges so far 6092415238, 18409 s
+[10:52:31] G_P tgt-mid-tgt: rows 50600/546704 (9.3 %), edges so far 6205719799, 18750 s
+[10:58:08] G_P tgt-mid-tgt: rows 51600/546704 (9.4 %), edges so far 6315447505, 19087 s
+[11:03:35] G_P tgt-mid-tgt: rows 52600/546704 (9.6 %), edges so far 6422314923, 19414 s
+[11:09:30] G_P tgt-mid-tgt: rows 53600/546704 (9.8 %), edges so far 6551097461, 19769 s
+[11:15:49] G_P tgt-mid-tgt: rows 54400/546704 (10.0 %), edges so far 6669367046, 20148 s
+[11:20:55] G_P tgt-mid-tgt: rows 55400/546704 (10.1 %), edges so far 6769244498, 20454 s
+[11:26:30] G_P tgt-mid-tgt: rows 57000/546704 (10.4 %), edges so far 6869390602, 20789 s
+[11:31:41] G_P tgt-mid-tgt: rows 58600/546704 (10.7 %), edges so far 6970867101, 21100 s
+[11:36:53] G_P tgt-mid-tgt: rows 59800/546704 (10.9 %), edges so far 7075269178, 21412 s
+[11:42:10] G_P tgt-mid-tgt: rows 60600/546704 (11.1 %), edges so far 7181494446, 21729 s
+[11:48:20] G_P tgt-mid-tgt: rows 61600/546704 (11.3 %), edges so far 7325392354, 22099 s
+[11:53:30] G_P tgt-mid-tgt: rows 62200/546704 (11.4 %), edges so far 7429187984, 22409 s
+[11:58:34] G_P tgt-mid-tgt: rows 62800/546704 (11.5 %), edges so far 7533018134, 22713 s
+[12:03:44] G_P tgt-mid-tgt: rows 63400/546704 (11.6 %), edges so far 7636797652, 23023 s
+[12:08:54] G_P tgt-mid-tgt: rows 64000/546704 (11.7 %), edges so far 7741463044, 23334 s
+[12:14:00] G_P tgt-mid-tgt: rows 64600/546704 (11.8 %), edges so far 7845133830, 23639 s
+[12:19:07] G_P tgt-mid-tgt: rows 65200/546704 (11.9 %), edges so far 7949103743, 23946 s
+[12:24:11] G_P tgt-mid-tgt: rows 65800/546704 (12.0 %), edges so far 8052291773, 24250 s
+[12:29:52] G_P tgt-mid-tgt: rows 66800/546704 (12.2 %), edges so far 8225355220, 24591 s
+[12:35:20] G_P tgt-mid-tgt: rows 67600/546704 (12.4 %), edges so far 8362652449, 24919 s
+[12:40:49] G_P tgt-mid-tgt: rows 69000/546704 (12.6 %), edges so far 8524083116, 25248 s
+[12:46:17] G_P tgt-mid-tgt: rows 70000/546704 (12.8 %), edges so far 8649198778, 25576 s
+[12:51:42] G_P tgt-mid-tgt: rows 70800/546704 (13.0 %), edges so far 8780651793, 25901 s
+[12:57:28] G_P tgt-mid-tgt: rows 71800/546704 (13.1 %), edges so far 8932206859, 26247 s
+[13:02:38] G_P tgt-mid-tgt: rows 73800/546704 (13.5 %), edges so far 9103305288, 26557 s
+[13:07:48] G_P tgt-mid-tgt: rows 75400/546704 (13.8 %), edges so far 9258198074, 26868 s
+[13:13:17] G_P tgt-mid-tgt: rows 77000/546704 (14.1 %), edges so far 9411849483, 27197 s
+[13:18:19] G_P tgt-mid-tgt: rows 79000/546704 (14.5 %), edges so far 9568563938, 27499 s
+[13:23:57] G_P tgt-mid-tgt: rows 80600/546704 (14.7 %), edges so far 9784629352, 27836 s
+[13:29:29] G_P tgt-mid-tgt: rows 82200/546704 (15.0 %), edges so far 9942454737, 28168 s
+[13:34:55] G_P tgt-mid-tgt: rows 83800/546704 (15.3 %), edges so far 10092350118, 28495 s
+[13:40:14] G_P tgt-mid-tgt: rows 85000/546704 (15.5 %), edges so far 10261045757, 28813 s
+[13:45:19] G_P tgt-mid-tgt: rows 87000/546704 (15.9 %), edges so far 10435923311, 29118 s
+[13:50:33] G_P tgt-mid-tgt: rows 89200/546704 (16.3 %), edges so far 10611730419, 29432 s
+[13:55:56] G_P tgt-mid-tgt: rows 91000/546704 (16.6 %), edges so far 10808126542, 29756 s
+[14:01:07] G_P tgt-mid-tgt: rows 92600/546704 (16.9 %), edges so far 10992764389, 30066 s
+[14:06:17] G_P tgt-mid-tgt: rows 94200/546704 (17.2 %), edges so far 11174215308, 30376 s
+[14:11:32] G_P tgt-mid-tgt: rows 96000/546704 (17.6 %), edges so far 11373374372, 30691 s
+[14:16:43] G_P tgt-mid-tgt: rows 97000/546704 (17.7 %), edges so far 11554312715, 31002 s
+[14:22:44] G_P tgt-mid-tgt: rows 97600/546704 (17.9 %), edges so far 11664331201, 31363 s
+[14:27:56] G_P tgt-mid-tgt: rows 98200/546704 (18.0 %), edges so far 11735905074, 31675 s
+[14:33:19] G_P tgt-mid-tgt: rows 99000/546704 (18.1 %), edges so far 11827051952, 31998 s
+[14:38:37] G_P tgt-mid-tgt: rows 99800/546704 (18.3 %), edges so far 11917068634, 32316 s
+[14:44:02] G_P tgt-mid-tgt: rows 100600/546704 (18.4 %), edges so far 12007978023, 32641 s
+[14:49:30] G_P tgt-mid-tgt: rows 101400/546704 (18.5 %), edges so far 12097971828, 32969 s
+[14:55:18] G_P tgt-mid-tgt: rows 102200/546704 (18.7 %), edges so far 12199351767, 33317 s
+[15:00:38] G_P tgt-mid-tgt: rows 102800/546704 (18.8 %), edges so far 12297132529, 33637 s
+[15:06:49] G_P tgt-mid-tgt: rows 103400/546704 (18.9 %), edges so far 12399505694, 34008 s
+[15:12:12] G_P tgt-mid-tgt: rows 104200/546704 (19.1 %), edges so far 12481652018, 34331 s
+slurmstepd-g2n01: error: *** JOB 18684 ON g2n01 CANCELLED AT 2026-11-24T15:15:47 ***

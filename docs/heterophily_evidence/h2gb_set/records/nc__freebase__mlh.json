@@ -1,0 +1,55 @@
+{
+ "harness_commit": "c3e93123bce3be0905bc352955c9f473741a8707",
+ "job": "18477",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "wall_s": 0.07,
+ "peak_rss_gb": 0.388,
+ "dataset": "freebase",
+ "task": "nc",
+ "measure": "mlh",
+ "source": "docs/heterophily_evidence/records/nc__freebase__h2.json (card 6 job 17243, harness c7c3ac174b8ad4d97ceb45680ce9125f055b7829)",
+ "h2_value": 0.9953457173232891,
+ "value": 0.8464417095623231,
+ "value_over_fill_seeds": [
+  0.8464417095623231,
+  0.8453311344444543,
+  0.8458356176771262,
+  0.8458765969049036,
+  0.8465930669689163
+ ],
+ "fill_seeds": {
+  "label": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "spread": [
+  0.8453311344444543,
+  0.8465930669689163
+ ],
+ "labeled_only": 0.47754839243242686,
+ "h2gb_metapaths": [
+  "book-and-book-and-book",
+  "book-to-film-rev_to-book",
+  "book-on-sports-rev_on-book",
+  "book-on-location-rev_on-book",
+  "book-about-organization-rev_about-book",
+  "book-rev_in-music-in-book",
+  "book-rev_to-people-to-book",
+  "book-rev_about-business-about-book"
+ ],
+ "paths": 8,
+ "rows_first_seed": 8,
+ "empty_paths": 0,
+ "empty_paths_named": null,
+ "form": "heterophily: 1 - mean over H2GB's non-empty meta-paths (and genres) of calcHomophily h_edge"
+}

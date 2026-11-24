@@ -1,0 +1,68 @@
+{
+ "harness_commit": "c3e93123bce3be0905bc352955c9f473741a8707",
+ "job": "18480",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "dataset": "dblp",
+ "task": "nc",
+ "measure": "mde",
+ "code": "per H2GB meta-path: labeled_only_metapath_data (all targets) + mde_measure (hetero2net attribute_homophily; D-a chunked; H2b/H2c-1 closed forms)",
+ "symmetrisation": {
+  "author-to-paper": "kept (reverse partner paper-to-author)",
+  "paper-to-term": "kept (reverse partner term-to-paper)",
+  "paper-to-venue": "kept (reverse partner venue-to-paper)",
+  "paper-to-author": "kept (reverse partner author-to-paper)",
+  "term-to-paper": "kept (reverse partner paper-to-term)",
+  "venue-to-paper": "kept (reverse partner paper-to-venue)"
+ },
+ "loader": "src/data/dataset.py:31-52 (offline_hgb_dataset, src/data/offline.py:21: PyG HGBDataset)",
+ "target": "author",
+ "graph": {
+  "node_types": {
+   "author": 4057,
+   "paper": 14328,
+   "term": 7723,
+   "venue": 20
+  },
+  "edge_types": {
+   "author-to-paper": 19645,
+   "paper-to-term": 85810,
+   "paper-to-venue": 14328,
+   "paper-to-author": 19645,
+   "term-to-paper": 85810,
+   "venue-to-paper": 14328
+  }
+ },
+ "card6_h2_paths_equal": true,
+ "feature_dim": 334,
+ "value": 0.8004068732261658,
+ "form": "MDE, mean over H2GB's non-empty meta-paths (raw features; per-path mini graph)",
+ "h2gb_metapaths": [
+  "author-to-paper-to-author"
+ ],
+ "paths": 1,
+ "empty_paths": 0,
+ "empty_paths_named": [],
+ "per_metapath": [
+  {
+   "metapath_index": 0,
+   "metapath": "author-to-paper-to-author",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": null,
+   "edges": 11113,
+   "reference": 0.8004068732261658,
+   "chunked": 0.8004068840186298,
+   "value": 0.8004068732261658,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  }
+ ],
+ "wall_s": 2.26,
+ "peak_rss_gb": 0.921
+}

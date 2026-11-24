@@ -1,0 +1,5 @@
+--measure mde --task nc --dataset dblp
+--measure mde --task nc --dataset imdb
+--measure mde --task lp --dataset dblp_ap
+--measure mde --task lp --dataset imdb_ma
+--measure mde --task nc --dataset ieee-cis-g

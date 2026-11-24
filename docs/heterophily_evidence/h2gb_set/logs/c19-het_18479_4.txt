@@ -1,0 +1,13 @@
+job=18483 array=18479_4 node=g2n01 start=2026-11-23T10:39:48+09:00
+git=c3e93123bce3be0905bc352955c9f473741a8707 branch=card19 mem=16384M cpus=8
+args: --measure mde --task lp --dataset imdb_ma deadline_h=3.500
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 607.43it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1060.24it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1801.68it/s]
+[10:40:00] MDE movie: meta-path 0 movie-rel_0-director-rel_1-movie
+[10:40:00] MDE movie: meta-path 1 movie-rel_2-actor-rel_3-movie
+[10:40:03] MDE movie: meta-path 2 movie-rel_4-keyword-rel_5-movie
+[10:40:18] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/lp__imdb_ma__mde.json: value {'actor': None, 'movie': 0.5168307926901368}
+end=2026-11-23T10:40:19+09:00 exit=0

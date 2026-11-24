@@ -1,0 +1,26 @@
+job=18494 array=18484_4 node=g2n01 start=2026-11-23T12:46:39+09:00
+git=c3e93123bce3be0905bc352955c9f473741a8707 branch=card19 mem=16384M cpus=8
+args: --measure mde --task nc --dataset pdns deadline_h=23.500
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1342.18it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2790.62it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3008.83it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3057.07it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3002.37it/s]
+[12:47:35] MDE domain_node: meta-path 0 domain_node-apex-domain_node-apex-domain_node
+[12:55:08] MDE domain_node: meta-path 1 domain_node-apex-domain_node-similar-domain_node
+[13:00:53] MDE domain_node: meta-path 2 domain_node-resolves-ip_node-rev_resolves-domain_node
+[13:06:06] G_P tgt-mid-tgt: rows 325600/897635 (36.3 %), edges so far 124291427, 300 s
+[13:11:06] G_P tgt-mid-tgt: rows 655800/897635 (73.1 %), edges so far 193267250, 600 s
+[13:19:48] G_P tgt-mid-tgt: rows 328600/897635 (36.6 %), edges so far 124895090, 300 s
+[13:24:48] G_P tgt-mid-tgt: rows 664600/897635 (74.0 %), edges so far 193873630, 600 s
+[13:28:15] MDE domain_node: meta-path 3 domain_node-similar-domain_node-apex-domain_node
+[13:32:26] MDE domain_node: meta-path 4 domain_node-similar-domain_node-similar-domain_node
+[13:42:17] G_P tgt-mid-tgt: rows 867000/897635 (96.6 %), edges so far 2032813, 300 s
+[13:47:27] G_P tgt-mid-tgt: rows 869600/897635 (96.9 %), edges so far 2037112, 300 s
+[13:47:37] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__pdns__mde.json: value 0.033568495862447895
+Total labeled 897635
+Labeled node count for 0, 60: 87252
+Labeled node count for 0, 6: 3997
+end=2026-11-23T13:47:38+09:00 exit=0

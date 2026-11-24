@@ -1,0 +1,9 @@
+TESTS
+--measure mde --task nc --dataset oag-cs --metapath-index 8 --overlap-cliques --out-dir /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/overlap_gate
+--measure mde --task nc --dataset oag-cs --metapath-index 22 --overlap-cliques --out-dir /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/overlap_gate
+--measure mde --task nc --dataset oag-cs --metapath-index 29 --overlap-cliques --out-dir /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/overlap_gate
+--measure mde --task nc --dataset oag-cs --metapath-index 36 --overlap-cliques --out-dir /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/overlap_gate
+--measure mde --task nc --dataset oag-cs --metapath-index 15 --overlap-cliques
+--measure mde --task nc --dataset oag-eng --metapath-index 1 --overlap-cliques
+--measure mde --task nc --dataset oag-chem --metapath-index 8 --overlap-cliques
+--measure mde --task nc --dataset oag-chem --metapath-index 15 --overlap-cliques

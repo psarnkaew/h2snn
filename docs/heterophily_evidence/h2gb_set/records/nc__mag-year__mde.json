@@ -1,0 +1,93 @@
+{
+ "harness_commit": "c3e93123bce3be0905bc352955c9f473741a8707",
+ "job": "18488",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "dataset": "mag-year",
+ "task": "nc",
+ "measure": "mde",
+ "code": "per H2GB meta-path: labeled_only_metapath_data (all targets) + mde_measure (hetero2net attribute_homophily; D-a chunked; H2b/H2c-1 closed forms)",
+ "symmetrisation": {
+  "author-affiliated_with-institution": "kept (reverse partner institution-rev_affiliated_with-author)",
+  "institution-rev_affiliated_with-author": "kept (reverse partner author-affiliated_with-institution)",
+  "author-writes-paper": "kept (reverse partner paper-rev_writes-author)",
+  "paper-rev_writes-author": "kept (reverse partner author-writes-paper)",
+  "paper-cites-paper": "kept",
+  "paper-has_topic-field_of_study": "kept (reverse partner field_of_study-rev_has_topic-paper)",
+  "field_of_study-rev_has_topic-paper": "kept (reverse partner paper-has_topic-field_of_study)"
+ },
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "target": "paper",
+ "graph": {
+  "node_types": {
+   "paper": 736389,
+   "author": 1134649,
+   "field_of_study": 59965,
+   "institution": 8740
+  },
+  "edge_types": {
+   "author-affiliated_with-institution": 1043998,
+   "institution-rev_affiliated_with-author": 1043998,
+   "author-writes-paper": 7145660,
+   "paper-rev_writes-author": 7145660,
+   "paper-cites-paper": 10792672,
+   "paper-has_topic-field_of_study": 7505078,
+   "field_of_study-rev_has_topic-paper": 7505078
+  }
+ },
+ "card6_h2_paths_equal": true,
+ "feature_dim": 128,
+ "value": 0.0033274547294435256,
+ "form": "MDE, mean over H2GB's non-empty meta-paths (raw features; per-path mini graph)",
+ "h2gb_metapaths": [
+  "paper-rev_writes-author-writes-paper",
+  "paper-cites-paper-cites-paper",
+  "paper-has_topic-field_of_study-rev_has_topic-paper"
+ ],
+ "paths": 3,
+ "empty_paths": 0,
+ "empty_paths_named": [],
+ "per_metapath": [
+  {
+   "metapath_index": 0,
+   "metapath": "paper-rev_writes-author-writes-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 65933339,
+   "value": 0.008020522229801168,
+   "chunked": 0.008020522229801168,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 1,
+   "metapath": "paper-cites-paper-cites-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 365056545,
+   "value": 0.001960742561692262,
+   "chunked": 0.001960742561692262,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 2,
+   "metapath": "paper-has_topic-field_of_study-rev_has_topic-paper",
+   "empty": false,
+   "gp_complete": true,
+   "hub": 14055,
+   "edges": 542268759321,
+   "value": 1.0993968371468243e-06,
+   "code_path": "closed form (H2b: complete G_P)"
+  }
+ ],
+ "wall_s": 7470.18,
+ "peak_rss_gb": 6.326
+}

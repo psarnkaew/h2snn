@@ -1,0 +1,47 @@
+{
+ "harness_commit": "c3e93123bce3be0905bc352955c9f473741a8707",
+ "job": "18477",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "wall_s": 0.07,
+ "peak_rss_gb": 0.388,
+ "dataset": "ieee-cis-g",
+ "task": "nc",
+ "measure": "mlh",
+ "source": "docs/heterophily_evidence/records/nc__ieee-cis-g__h2.json (card 6 job 17443, harness 4b3fb07f19dcb4da297611a9414ca9c2dde641e9)",
+ "h2_value": 0.9845820322675123,
+ "value": 0.13518402346234992,
+ "value_over_fill_seeds": [
+  0.13518402346234992
+ ],
+ "fill_seeds": {
+  "label": [
+   0
+  ]
+ },
+ "spread": null,
+ "labeled_only": null,
+ "h2gb_metapaths": [
+  "transaction-to-card1-rev_to-transaction",
+  "transaction-to-card2-rev_to-transaction",
+  "transaction-to-card3-rev_to-transaction",
+  "transaction-to-card4-rev_to-transaction",
+  "transaction-to-card5-rev_to-transaction",
+  "transaction-to-card6-rev_to-transaction",
+  "transaction-to-ProductCD-rev_to-transaction",
+  "transaction-to-addr1-rev_to-transaction",
+  "transaction-to-addr2-rev_to-transaction",
+  "transaction-to-P_emaildomain-rev_to-transaction",
+  "transaction-to-R_emaildomain-rev_to-transaction"
+ ],
+ "paths": 11,
+ "rows_first_seed": 11,
+ "empty_paths": 0,
+ "empty_paths_named": null,
+ "form": "heterophily: 1 - mean over H2GB's non-empty meta-paths (and genres) of calcHomophily h_edge"
+}

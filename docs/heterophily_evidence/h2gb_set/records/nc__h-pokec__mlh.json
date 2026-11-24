@@ -1,0 +1,52 @@
+{
+ "harness_commit": "c3e93123bce3be0905bc352955c9f473741a8707",
+ "job": "18477",
+ "node": "g2n01",
+ "threads": 8,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "wall_s": 0.07,
+ "peak_rss_gb": 0.388,
+ "dataset": "h-pokec",
+ "task": "nc",
+ "measure": "mlh",
+ "source": "docs/heterophily_evidence/records/nc__h-pokec__h2.json (card 6 job 17741,17742,17743,17744,17745,17746,17747,17748,17749,17750,17751,17752,17753,17754,17755,17740, harness b35dddaad3b14bba90503ce70e2ed82a8dc52812)",
+ "h2_value": 0.9487727334053488,
+ "value": 0.38612648204143085,
+ "value_over_fill_seeds": [
+  0.38612648204143085
+ ],
+ "fill_seeds": {
+  "label": [
+   0
+  ]
+ },
+ "spread": null,
+ "labeled_only": null,
+ "h2gb_metapaths": [
+  "user-has_friend-user-has_friend-user",
+  "user-lists-life_style-rev_lists-user",
+  "user-lists-music-rev_lists-user",
+  "user-lists-cars-rev_lists-user",
+  "user-lists-politics-rev_lists-user",
+  "user-lists-relationships-rev_lists-user",
+  "user-lists-art_culture-rev_lists-user",
+  "user-lists-hobbies_interests-rev_lists-user",
+  "user-lists-science_technologies-rev_lists-user",
+  "user-lists-computers_internet-rev_lists-user",
+  "user-lists-education-rev_lists-user",
+  "user-lists-sport-rev_lists-user",
+  "user-lists-movies-rev_lists-user",
+  "user-lists-travelling-rev_lists-user",
+  "user-lists-health-rev_lists-user",
+  "user-lists-companies_brands-rev_lists-user"
+ ],
+ "paths": 16,
+ "rows_first_seed": 16,
+ "empty_paths": 0,
+ "empty_paths_named": [],
+ "form": "heterophily: 1 - mean over H2GB's non-empty meta-paths (and genres) of calcHomophily h_edge"
+}

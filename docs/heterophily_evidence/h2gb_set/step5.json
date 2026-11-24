@@ -1,0 +1,40 @@
+{
+ "acm": {
+  "generator_paths": [
+   "paper-cite-paper-cite-paper",
+   "paper-cite-paper-ref-paper",
+   "paper-ref-paper-cite-paper",
+   "paper-ref-paper-ref-paper",
+   "paper-to-author-to-paper",
+   "paper-to-subject-to-paper",
+   "paper-to-term-to-paper"
+  ],
+  "harness_paths": [
+   "paper-cite-paper-cite-paper",
+   "paper-cite-paper-ref-paper",
+   "paper-ref-paper-cite-paper",
+   "paper-ref-paper-ref-paper",
+   "paper-to-author-to-paper",
+   "paper-to-subject-to-paper",
+   "paper-to-term-to-paper"
+  ],
+  "paths_equal": true,
+  "card7_original_h": 0.26208780539590504,
+  "card7_original_h2_index": 0.3994066586863758,
+  "card19_mlh": 0.26208780539590504,
+  "abs_diff": 0.0
+ },
+ "dblp": {
+  "generator_paths": [
+   "author-to-paper-to-author"
+  ],
+  "harness_paths": [
+   "author-to-paper-to-author"
+  ],
+  "paths_equal": true,
+  "card7_original_h": 0.12777827769279226,
+  "card7_original_h2_index": 0.17323631048202515,
+  "card19_mlh": 0.12777827769279226,
+  "abs_diff": 0.0
+ }
+}

@@ -1,0 +1,7 @@
+6584e8b8776155b086508e073eef0b864ff2c5bd
+[20:19:01] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__h-pokec__mde.json: value 0.00560171481138663
+[20:19:02] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/lp__h-pokec_uu__mde.json: value {'user': 0.005685446317789489}
+[20:19:04] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-cs__mde.json: value 63.0843940671042
+[20:19:05] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-eng__mde.json: value 93.95123812768452
+[20:19:07] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-chem__mde.json: value 88.55524315496696
+gates_exit=0

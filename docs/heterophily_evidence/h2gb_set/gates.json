@@ -1,0 +1,70 @@
+{
+ "G1": [
+  {
+   "case": "nc dblp",
+   "card6": 0.8004068732261658,
+   "card19": 0.8004068732261658,
+   "rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "case": "nc imdb",
+   "card6": 0.5927698860565821,
+   "card19": 0.5927698860565821,
+   "rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "case": "nc ieee-cis-g",
+   "card6": 9.830400795669565e-15,
+   "card19": 9.830400795669565e-15,
+   "rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "case": "lp dblp_ap (paper)",
+   "card6": 0.03857939770821734,
+   "card19": 0.038579397700297856,
+   "set_equal": true,
+   "rel_diff": 2.052775570141354e-10,
+   "pass": true
+  },
+  {
+   "case": "lp imdb_ma (movie)",
+   "card6": 0.516830804447333,
+   "card19": 0.5168307926901368,
+   "set_equal": true,
+   "rel_diff": 2.2748636721009834e-08,
+   "pass": true
+  }
+ ],
+ "G2": [
+  {
+   "dataset": "acm",
+   "expected": 0.2621,
+   "card19": 0.26208780539590504,
+   "pass": true
+  },
+  {
+   "dataset": "dblp",
+   "expected": 0.1278,
+   "card19": 0.12777827769279226,
+   "pass": true
+  },
+  {
+   "dataset": "imdb",
+   "expected": 0.3247,
+   "card19": 0.32467365221172956,
+   "pass": true
+  },
+  {
+   "dataset": "freebase",
+   "expected": 0.8464,
+   "card19": 0.8464417095623231,
+   "pass": true
+  }
+ ],
+ "G1_pass": true,
+ "G2_pass": true,
+ "pass": true
+}

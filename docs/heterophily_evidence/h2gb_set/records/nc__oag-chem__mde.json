@@ -1,0 +1,945 @@
+{
+ "dataset": "oag-chem",
+ "task": "nc",
+ "measure": "mde",
+ "loader": "src/data/dataset.py:53-58 -> src/data/h2gb_nc.py:179 load_h2gb_nc (H2GB's preformat_*; seed 0)",
+ "symmetrisation": {
+  "paper-PP_cite-paper": "kept",
+  "author-AP_write_last-paper": "kept (reverse partner paper-rev_AP_write_last-author)",
+  "author-AP_write_other-paper": "kept (reverse partner paper-rev_AP_write_other-author)",
+  "author-AP_write_first-paper": "kept (reverse partner paper-rev_AP_write_first-author)",
+  "field-FF_in-field": "kept",
+  "paper-PF_in_L3-field": "kept (reverse partner field-rev_PF_in_L3-paper)",
+  "paper-PF_in_L2-field": "kept (reverse partner field-rev_PF_in_L2-paper)",
+  "paper-PF_in_L1-field": "kept (reverse partner field-rev_PF_in_L1-paper)",
+  "paper-PF_in_L0-field": "kept (reverse partner field-rev_PF_in_L0-paper)",
+  "paper-PF_in_L4-field": "kept (reverse partner field-rev_PF_in_L4-paper)",
+  "paper-PF_in_L5-field": "kept (reverse partner field-rev_PF_in_L5-paper)",
+  "author-in-affiliation": "kept (reverse partner affiliation-rev_in-author)",
+  "paper-rev_AP_write_last-author": "kept (reverse partner author-AP_write_last-paper)",
+  "paper-rev_AP_write_other-author": "kept (reverse partner author-AP_write_other-paper)",
+  "paper-rev_AP_write_first-author": "kept (reverse partner author-AP_write_first-paper)",
+  "field-rev_PF_in_L3-paper": "kept (reverse partner paper-PF_in_L3-field)",
+  "field-rev_PF_in_L2-paper": "kept (reverse partner paper-PF_in_L2-field)",
+  "field-rev_PF_in_L1-paper": "kept (reverse partner paper-PF_in_L1-field)",
+  "field-rev_PF_in_L0-paper": "kept (reverse partner paper-PF_in_L0-field)",
+  "field-rev_PF_in_L4-paper": "kept (reverse partner paper-PF_in_L4-field)",
+  "field-rev_PF_in_L5-paper": "kept (reverse partner paper-PF_in_L5-field)",
+  "affiliation-rev_in-author": "kept (reverse partner author-in-affiliation)"
+ },
+ "graph": {
+  "node_types": {
+   "paper": 747290,
+   "field": 65290,
+   "author": 1097433,
+   "affiliation": 8868
+  },
+  "edge_types": {
+   "paper-PP_cite-paper": 14452754,
+   "author-AP_write_last-paper": 664930,
+   "author-AP_write_other-paper": 1634514,
+   "author-AP_write_first-paper": 630999,
+   "field-FF_in-field": 821818,
+   "paper-PF_in_L3-field": 1710391,
+   "paper-PF_in_L2-field": 3108157,
+   "paper-PF_in_L1-field": 1332023,
+   "paper-PF_in_L0-field": 747417,
+   "paper-PF_in_L4-field": 398183,
+   "paper-PF_in_L5-field": 87674,
+   "author-in-affiliation": 1097433,
+   "paper-rev_AP_write_last-author": 664930,
+   "paper-rev_AP_write_other-author": 1634514,
+   "paper-rev_AP_write_first-author": 630999,
+   "field-rev_PF_in_L3-paper": 1710391,
+   "field-rev_PF_in_L2-paper": 3108157,
+   "field-rev_PF_in_L1-paper": 1332023,
+   "field-rev_PF_in_L0-paper": 747417,
+   "field-rev_PF_in_L4-paper": 398183,
+   "field-rev_PF_in_L5-paper": 87674,
+   "affiliation-rev_in-author": 1097433
+  }
+ },
+ "target": "paper",
+ "target_relation": null,
+ "vendor_commits": {
+  "hetero2net": "49133947f33ba46ccd3efb869727f8aef3d7254a",
+  "h2gb": "d3b49db63ad66f8a3282dbe699d50ce10ed3062a"
+ },
+ "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+ "job": "18803,18806,18807,18808,18809,18810,18811,18812,18786,18813,18814,18815,18816,18817,18818,18778,18819,18820,18821,18822,18823,18824,18825,18826,18827,18828,18829,18830,18831,18832,18833,18834,18835,18836,18837,18838,18839,18842,18841,18843,18844,18845,18846,18847,18848,18850",
+ "node": "g2n01",
+ "threads": 2,
+ "script": "H2S-NN/scripts/heterophily/h2gb_set_measures.py (card 19)",
+ "parts": [
+  {
+   "metapath_index": 0,
+   "job": "18803",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 9036.86,
+   "peak_rss_gb": 10.405
+  },
+  {
+   "metapath_index": 1,
+   "job": "18806",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 9953.55,
+   "peak_rss_gb": 10.361
+  },
+  {
+   "metapath_index": 2,
+   "job": "18807",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 23.37,
+   "peak_rss_gb": 10.406
+  },
+  {
+   "metapath_index": 3,
+   "job": "18808",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 25.17,
+   "peak_rss_gb": 10.362
+  },
+  {
+   "metapath_index": 4,
+   "job": "18809",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 23.95,
+   "peak_rss_gb": 10.382
+  },
+  {
+   "metapath_index": 5,
+   "job": "18810",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.51,
+   "peak_rss_gb": 10.394
+  },
+  {
+   "metapath_index": 6,
+   "job": "18811",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.9,
+   "peak_rss_gb": 10.383
+  },
+  {
+   "metapath_index": 7,
+   "job": "18812",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.8,
+   "peak_rss_gb": 10.399
+  },
+  {
+   "metapath_index": 8,
+   "job": "18786",
+   "node": "g3n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 90.75,
+   "peak_rss_gb": 16.506
+  },
+  {
+   "metapath_index": 9,
+   "job": "18813",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.11,
+   "peak_rss_gb": 10.391
+  },
+  {
+   "metapath_index": 10,
+   "job": "18814",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.21,
+   "peak_rss_gb": 10.397
+  },
+  {
+   "metapath_index": 11,
+   "job": "18815",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.59,
+   "peak_rss_gb": 10.423
+  },
+  {
+   "metapath_index": 12,
+   "job": "18816",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.93,
+   "peak_rss_gb": 10.406
+  },
+  {
+   "metapath_index": 13,
+   "job": "18817",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.08,
+   "peak_rss_gb": 10.401
+  },
+  {
+   "metapath_index": 14,
+   "job": "18818",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.66,
+   "peak_rss_gb": 10.419
+  },
+  {
+   "metapath_index": 15,
+   "job": "18778",
+   "node": "g3n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 26.08,
+   "peak_rss_gb": 16.427
+  },
+  {
+   "metapath_index": 16,
+   "job": "18819",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.47,
+   "peak_rss_gb": 10.406
+  },
+  {
+   "metapath_index": 17,
+   "job": "18820",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.07,
+   "peak_rss_gb": 10.403
+  },
+  {
+   "metapath_index": 18,
+   "job": "18821",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.57,
+   "peak_rss_gb": 10.404
+  },
+  {
+   "metapath_index": 19,
+   "job": "18822",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.24,
+   "peak_rss_gb": 10.357
+  },
+  {
+   "metapath_index": 20,
+   "job": "18823",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.16,
+   "peak_rss_gb": 10.387
+  },
+  {
+   "metapath_index": 21,
+   "job": "18824",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.58,
+   "peak_rss_gb": 10.397
+  },
+  {
+   "metapath_index": 22,
+   "job": "18825",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 24.32,
+   "peak_rss_gb": 10.406
+  },
+  {
+   "metapath_index": 23,
+   "job": "18826",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 23.02,
+   "peak_rss_gb": 10.404
+  },
+  {
+   "metapath_index": 24,
+   "job": "18827",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.88,
+   "peak_rss_gb": 10.41
+  },
+  {
+   "metapath_index": 25,
+   "job": "18828",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.87,
+   "peak_rss_gb": 10.382
+  },
+  {
+   "metapath_index": 26,
+   "job": "18829",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.89,
+   "peak_rss_gb": 10.373
+  },
+  {
+   "metapath_index": 27,
+   "job": "18830",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.01,
+   "peak_rss_gb": 10.363
+  },
+  {
+   "metapath_index": 28,
+   "job": "18831",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.26,
+   "peak_rss_gb": 10.402
+  },
+  {
+   "metapath_index": 29,
+   "job": "18832",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 1045.17,
+   "peak_rss_gb": 10.426
+  },
+  {
+   "metapath_index": 30,
+   "job": "18833",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 23.21,
+   "peak_rss_gb": 10.411
+  },
+  {
+   "metapath_index": 31,
+   "job": "18834",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.98,
+   "peak_rss_gb": 10.382
+  },
+  {
+   "metapath_index": 32,
+   "job": "18835",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.5,
+   "peak_rss_gb": 10.372
+  },
+  {
+   "metapath_index": 33,
+   "job": "18836",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.65,
+   "peak_rss_gb": 10.385
+  },
+  {
+   "metapath_index": 34,
+   "job": "18837",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 21.94,
+   "peak_rss_gb": 10.435
+  },
+  {
+   "metapath_index": 35,
+   "job": "18838",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 22.15,
+   "peak_rss_gb": 10.387
+  },
+  {
+   "metapath_index": 36,
+   "job": "18839",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 159.35,
+   "peak_rss_gb": 10.393
+  },
+  {
+   "metapath_index": 37,
+   "job": "18842",
+   "node": "g3n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 16.77,
+   "peak_rss_gb": 24.644
+  },
+  {
+   "metapath_index": 38,
+   "job": "18841",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 1036.37,
+   "peak_rss_gb": 10.449
+  },
+  {
+   "metapath_index": 39,
+   "job": "18843",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 249.28,
+   "peak_rss_gb": 10.41
+  },
+  {
+   "metapath_index": 40,
+   "job": "18844",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 494.62,
+   "peak_rss_gb": 10.383
+  },
+  {
+   "metapath_index": 41,
+   "job": "18845",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 977.33,
+   "peak_rss_gb": 10.396
+  },
+  {
+   "metapath_index": 42,
+   "job": "18846",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 270.85,
+   "peak_rss_gb": 10.354
+  },
+  {
+   "metapath_index": 43,
+   "job": "18847",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 255.03,
+   "peak_rss_gb": 10.399
+  },
+  {
+   "metapath_index": 44,
+   "job": "18848",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 375.08,
+   "peak_rss_gb": 10.399
+  },
+  {
+   "metapath_index": 45,
+   "job": "18850",
+   "node": "g2n01",
+   "harness_commit": "6584e8b8776155b086508e073eef0b864ff2c5bd",
+   "wall_s": 17.22,
+   "peak_rss_gb": 24.468
+  }
+ ],
+ "card6_h2_paths_equal": true,
+ "feature_dim": 768,
+ "value": 88.55524315496696,
+ "form": "MDE, mean over H2GB's non-empty meta-paths (raw features; per-path mini graph)",
+ "h2gb_metapaths": [
+  "paper-PP_cite-paper-PP_cite-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+  "paper-rev_AP_write_last-author-AP_write_last-paper",
+  "paper-rev_AP_write_last-author-AP_write_other-paper",
+  "paper-rev_AP_write_last-author-AP_write_first-paper",
+  "paper-rev_AP_write_other-author-AP_write_last-paper",
+  "paper-rev_AP_write_other-author-AP_write_other-paper",
+  "paper-rev_AP_write_other-author-AP_write_first-paper",
+  "paper-rev_AP_write_first-author-AP_write_last-paper",
+  "paper-rev_AP_write_first-author-AP_write_other-paper",
+  "paper-rev_AP_write_first-author-AP_write_first-paper"
+ ],
+ "paths": 46,
+ "empty_paths": 30,
+ "empty_paths_named": [
+  "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+  "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+  "paper-PF_in_L5-field-rev_PF_in_L4-paper"
+ ],
+ "per_metapath": [
+  {
+   "metapath_index": 0,
+   "metapath": "paper-PP_cite-paper-PP_cite-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 530147229,
+   "value": 1.7682461942558825,
+   "chunked": 1.7682461942558825,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 1,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L3-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 3891915033,
+   "value": 0.2000284953183103,
+   "chunked": 0.2000284953183103,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 2,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L2-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 3,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L1-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 4,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L0-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 5,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L4-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 6,
+   "metapath": "paper-PF_in_L3-field-rev_PF_in_L5-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 7,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L3-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 8,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L2-paper",
+   "empty": false,
+   "edges": 31052541764,
+   "value": 0.025273483472484336,
+   "k_max": 8,
+   "occurrences_per_level": [
+    3108157,
+    6015747,
+    6953910,
+    5197392,
+    2553765,
+    801274,
+    146129,
+    11816
+   ],
+   "code_path": "closed form (overlapping cliques: inclusion\u2013exclusion over shared mid sets; card 19)"
+  },
+  {
+   "metapath_index": 9,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L1-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 10,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L0-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 11,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L4-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 12,
+   "metapath": "paper-PF_in_L2-field-rev_PF_in_L5-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 13,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L3-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 14,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L2-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 15,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L1-paper",
+   "empty": false,
+   "edges": 161262093106,
+   "value": 0.002783062443983069,
+   "k_max": 5,
+   "occurrences_per_level": [
+    1332023,
+    697843,
+    114868,
+    1787,
+    3
+   ],
+   "code_path": "closed form (overlapping cliques: inclusion\u2013exclusion over shared mid sets; card 19)"
+  },
+  {
+   "metapath_index": 16,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L0-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 17,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L4-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 18,
+   "metapath": "paper-PF_in_L1-field-rev_PF_in_L5-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 19,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L3-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 20,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L2-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 21,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L1-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 22,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L0-paper",
+   "empty": false,
+   "gp_complete": true,
+   "hub": 43687,
+   "edges": 558442344100,
+   "value": 0.00014559177596078568,
+   "code_path": "closed form (H2b: complete G_P)"
+  },
+  {
+   "metapath_index": 23,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L4-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 24,
+   "metapath": "paper-PF_in_L0-field-rev_PF_in_L5-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 25,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L3-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 26,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L2-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 27,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L1-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 28,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L0-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 29,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L4-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 210892697,
+   "value": 0.8795904544205525,
+   "chunked": 0.8795904544205525,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 30,
+   "metapath": "paper-PF_in_L4-field-rev_PF_in_L5-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 31,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L3-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 32,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L2-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 33,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L1-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 34,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L0-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 35,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L4-paper",
+   "empty": true,
+   "value": null,
+   "code_path": "empty G_P: skipped (as calcHomophily)"
+  },
+  {
+   "metapath_index": 36,
+   "metapath": "paper-PF_in_L5-field-rev_PF_in_L5-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 13707387,
+   "value": 1.8664316743827263,
+   "chunked": 1.8664316743827263,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 37,
+   "metapath": "paper-rev_AP_write_last-author-AP_write_last-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 10445294,
+   "value": 4.0848053202876295,
+   "cliques": 235169,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  },
+  {
+   "metapath_index": 38,
+   "metapath": "paper-rev_AP_write_last-author-AP_write_other-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 5461330,
+   "value": 104.65152503348666,
+   "chunked": 104.65152503348666,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 39,
+   "metapath": "paper-rev_AP_write_last-author-AP_write_first-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 1293618,
+   "reference": 367.7486267089844,
+   "value": 367.7486267089844,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath_index": 40,
+   "metapath": "paper-rev_AP_write_other-author-AP_write_last-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 5461330,
+   "value": 104.65152503348668,
+   "chunked": 104.65152503348668,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 41,
+   "metapath": "paper-rev_AP_write_other-author-AP_write_other-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 9376312,
+   "value": 26.51881425915961,
+   "chunked": 26.51881425915961,
+   "code_path": "mde_chunked (D-a)"
+  },
+  {
+   "metapath_index": 42,
+   "metapath": "paper-rev_AP_write_other-author-AP_write_first-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 1958820,
+   "reference": 212.64874267578125,
+   "value": 212.64874267578125,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath_index": 43,
+   "metapath": "paper-rev_AP_write_first-author-AP_write_last-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 1293618,
+   "reference": 367.7486572265625,
+   "value": 367.7486572265625,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath_index": 44,
+   "metapath": "paper-rev_AP_write_first-author-AP_write_other-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": false,
+   "edges": 1958820,
+   "reference": 212.64874267578125,
+   "value": 212.64874267578125,
+   "code_path": "hetero2net.attribute_homophily (reference)"
+  },
+  {
+   "metapath_index": 45,
+   "metapath": "paper-rev_AP_write_first-author-AP_write_first-paper",
+   "empty": false,
+   "gp_complete": false,
+   "hub": null,
+   "gp_cliques": true,
+   "edges": 1976981,
+   "value": 11.439952589871579,
+   "cliques": 396635,
+   "code_path": "closed form (H2c-1: disjoint cliques)"
+  }
+ ],
+ "wall_s": 9953.55,
+ "wall_s_sum": 24703.36,
+ "peak_rss_gb": 24.644
+}

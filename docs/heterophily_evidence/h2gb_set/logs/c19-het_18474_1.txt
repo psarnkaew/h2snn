@@ -1,0 +1,7 @@
+job=18475 array=18474_1 node=g2n01 start=2026-11-23T10:34:45+09:00
+git=0b9873d0c19455c8df56fa152492188d8918b62d branch=card19 mem=8192M cpus=8
+status: ?? scripts/heterophily/h2gb_set_measures.py
+status: ?? tests/test_card19_h2gb_set.py
+args: TESTS deadline_h=0.500
+/mnt/home/peeradon/.conda/envs/h2snn-b/bin/python: No module named pytest
+end=2026-11-23T10:34:45+09:00 exit=1

@@ -1,0 +1,20 @@
+job=18476 array=18476_1 node=g2n01 start=2026-11-23T10:35:45+09:00
+git=0b9873d0c19455c8df56fa152492188d8918b62d branch=card19 mem=8192M cpus=8
+status: ?? scripts/heterophily/h2gb_set_measures.py
+status: ?? tests/test_card19_h2gb_set.py
+args: TESTS deadline_h=0.500
+test_a_mini_graph_mde_equals_reference_per_h2gb_path (tests.test_card19_h2gb_set.Card19.test_a_mini_graph_mde_equals_reference_per_h2gb_path) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[10:35:48] MDE paper: meta-path 0 paper-cite-paper-cite-paper
+[10:35:48] MDE paper: meta-path 1 paper-cite-paper-ref-paper
+[10:35:48] MDE paper: meta-path 2 paper-ref-paper-cite-paper
+[10:35:48] MDE paper: meta-path 3 paper-ref-paper-ref-paper
+[10:35:48] MDE paper: meta-path 4 paper-writes-author-rev_writes-paper
+ok
+test_b_mlh_from_h2_record (tests.test_card19_h2gb_set.Card19.test_b_mlh_from_h2_record) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.039s
+
+OK
+end=2026-11-23T10:35:49+09:00 exit=0

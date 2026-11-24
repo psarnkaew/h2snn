@@ -1,0 +1,13 @@
+git=c3e93123bce3be0905bc352955c9f473741a8707 node=g2n01
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1396.24it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2910.69it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3204.20it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3256.45it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3199.32it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3218.96it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3266.59it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2373.69it/s]
+acm {'generator_paths': ['paper-cite-paper-cite-paper', 'paper-cite-paper-ref-paper', 'paper-ref-paper-cite-paper', 'paper-ref-paper-ref-paper', 'paper-to-author-to-paper', 'paper-to-subject-to-paper', 'paper-to-term-to-paper'], 'harness_paths': ['paper-cite-paper-cite-paper', 'paper-cite-paper-ref-paper', 'paper-ref-paper-cite-paper', 'paper-ref-paper-ref-paper', 'paper-to-author-to-paper', 'paper-to-subject-to-paper', 'paper-to-term-to-paper'], 'paths_equal': True, 'card7_original_h': 0.26208780539590504, 'card7_original_h2_index': 0.3994066586863758, 'card19_mlh': 0.26208780539590504, 'abs_diff': 0.0}
+dblp {'generator_paths': ['author-to-paper-to-author'], 'harness_paths': ['author-to-paper-to-author'], 'paths_equal': True, 'card7_original_h': 0.12777827769279226, 'card7_original_h2_index': 0.17323631048202515, 'card19_mlh': 0.12777827769279226, 'abs_diff': 0.0}

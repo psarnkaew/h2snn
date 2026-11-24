@@ -1,0 +1,21 @@
+job=18779 array=18778_1 node=g3n01 start=2026-11-24T15:24:18+09:00
+git=6584e8b8776155b086508e073eef0b864ff2c5bd branch=card19 mem=16384M cpus=8
+args: TESTS deadline_h=3.500
+test_a_mini_graph_mde_equals_reference_per_h2gb_path (tests.test_card19_h2gb_set.Card19.test_a_mini_graph_mde_equals_reference_per_h2gb_path) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+[15:24:21] MDE paper: meta-path 0 paper-cite-paper-cite-paper
+[15:24:21] MDE paper: meta-path 1 paper-cite-paper-ref-paper
+[15:24:21] MDE paper: meta-path 2 paper-ref-paper-cite-paper
+[15:24:21] MDE paper: meta-path 3 paper-ref-paper-ref-paper
+[15:24:21] MDE paper: meta-path 4 paper-writes-author-rev_writes-paper
+ok
+test_b_mlh_from_h2_record (tests.test_card19_h2gb_set.Card19.test_b_mlh_from_h2_record) ... ok
+test_c_overlap_closed_form_equals_reference (tests.test_card19_h2gb_set.Card19.test_c_overlap_closed_form_equals_reference) ... [15:24:21] overlap closed form: k max 5, occurrences per level [76, 59, 30, 9, 1]
+[15:24:21] overlap closed form: k max 5, occurrences per level [76, 59, 30, 9, 1]
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.073s
+
+OK
+end=2026-11-24T15:24:21+09:00 exit=0

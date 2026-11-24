@@ -1,0 +1,18 @@
+job=18474 array=18474_2 node=g2n01 start=2026-11-23T10:35:15+09:00
+git=0b9873d0c19455c8df56fa152492188d8918b62d branch=card19 mem=8192M cpus=8
+status: ?? scripts/heterophily/h2gb_set_measures.py
+status: ?? tests/test_card19_h2gb_set.py
+args: --measure mlh deadline_h=0.500
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__acm__mlh.json: value 0.26208780539590504
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__dblp__mlh.json: value 0.12777827769279226
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__freebase__mlh.json: value 0.8464417095623231
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__h-pokec__mlh.json: value 0.38612648204143085
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__ieee-cis-g__mlh.json: value 0.13518402346234992
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__imdb__mlh.json: value 0.32467365221172956
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__mag-year__mlh.json: value 0.7489694239155431
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-chem__mlh.json: value 0.8756838712414312
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-cs__mlh.json: value 0.963963832495443
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__oag-eng__mlh.json: value 0.8681354521328801
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__ogbn-mag__mlh.json: value 0.8443067102306757
+[10:35:16] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__pdns__mlh.json: value 0.3917512683821407
+end=2026-11-23T10:35:17+09:00 exit=0

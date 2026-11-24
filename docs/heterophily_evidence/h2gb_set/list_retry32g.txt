@@ -1,0 +1,3 @@
+--measure mde --task nc --dataset oag-chem --metapath-index 37
+--measure mde --task nc --dataset oag-chem --metapath-index 45
+--measure mde --task nc --dataset oag-chem --metapath-index 1 --overlap-cliques --out-dir /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/overlap_gate

@@ -1,0 +1,37 @@
+job=18486 array=18484_2 node=g2n01 start=2026-11-23T10:43:43+09:00
+git=c3e93123bce3be0905bc352955c9f473741a8707 branch=card19 mem=16384M cpus=8
+args: --measure mde --task nc --dataset ogbn-mag deadline_h=23.500
+/mnt/data/peeradon/h2snn-card19/H2S-NN/vendor/H2GB/H2GB/datasets/mag_dataset.py:71: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.data, self.slices = torch.load(self.processed_paths[0])
+  0%|          | 0/1 [00:00<?, ?it/s]/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_sparse/matmul.py:97: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at ../aten/src/ATen/SparseCsrTensorImpl.cpp:53.)
+  C = torch.sparse.mm(A, B)
+Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 1521.88it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 2882.68it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0:   0%|          | 0/1 [00:00<?, ?it/s]Running edge homophily:1.0: 100%|██████████| 1/1 [00:00<00:00, 3113.81it/s]
+[10:44:09] MDE paper: meta-path 0 paper-rev_writes-author-writes-paper
+[10:49:57] G_P tgt-mid-tgt: rows 177200/736389 (24.1 %), edges so far 13424265, 300 s
+[10:54:57] G_P tgt-mid-tgt: rows 340200/736389 (46.2 %), edges so far 24785032, 600 s
+[10:59:57] G_P tgt-mid-tgt: rows 504800/736389 (68.6 %), edges so far 42201711, 900 s
+[11:04:58] G_P tgt-mid-tgt: rows 668600/736389 (90.8 %), edges so far 58251672, 1201 s
+[11:12:04] G_P tgt-mid-tgt: rows 155200/736389 (21.1 %), edges so far 11937150, 300 s
+[11:17:04] G_P tgt-mid-tgt: rows 314400/736389 (42.7 %), edges so far 22980007, 600 s
+[11:22:04] G_P tgt-mid-tgt: rows 465800/736389 (63.3 %), edges so far 39023491, 901 s
+[11:27:04] G_P tgt-mid-tgt: rows 620400/736389 (84.2 %), edges so far 53160487, 1201 s
+[11:30:49] MDE paper: meta-path 1 paper-cites-paper-cites-paper
+[11:36:11] G_P tgt-mid-tgt: rows 97000/736389 (13.2 %), edges so far 45105725, 300 s
+[11:41:11] G_P tgt-mid-tgt: rows 199000/736389 (27.0 %), edges so far 80460140, 601 s
+[11:46:11] G_P tgt-mid-tgt: rows 308400/736389 (41.9 %), edges so far 118402624, 901 s
+[11:51:11] G_P tgt-mid-tgt: rows 418200/736389 (56.8 %), edges so far 169712288, 1201 s
+[11:56:12] G_P tgt-mid-tgt: rows 527400/736389 (71.6 %), edges so far 229580379, 1501 s
+[12:01:12] G_P tgt-mid-tgt: rows 636400/736389 (86.4 %), edges so far 294774232, 1801 s
+[12:10:47] G_P tgt-mid-tgt: rows 87600/736389 (11.9 %), edges so far 41920363, 300 s
+[12:15:48] G_P tgt-mid-tgt: rows 179000/736389 (24.3 %), edges so far 73396726, 601 s
+[12:20:48] G_P tgt-mid-tgt: rows 276000/736389 (37.5 %), edges so far 107296146, 901 s
+[12:25:48] G_P tgt-mid-tgt: rows 376800/736389 (51.2 %), edges so far 143010231, 1201 s
+[12:30:48] G_P tgt-mid-tgt: rows 459400/736389 (62.4 %), edges so far 195802106, 1501 s
+[12:35:49] G_P tgt-mid-tgt: rows 547400/736389 (74.3 %), edges so far 240382741, 1802 s
+[12:40:49] G_P tgt-mid-tgt: rows 638200/736389 (86.7 %), edges so far 295809266, 2102 s
+[12:45:49] G_P tgt-mid-tgt: rows 724800/736389 (98.4 %), edges so far 354222498, 2402 s
+[12:46:35] MDE paper: meta-path 2 paper-has_topic-field_of_study-rev_has_topic-paper
+[12:46:36] wrote /mnt/data/peeradon/h2snn-card19/docs/heterophily_evidence/h2gb_set/records/nc__ogbn-mag__mde.json: value 0.0033274547294435256
+end=2026-11-23T12:46:37+09:00 exit=0
