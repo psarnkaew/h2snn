@@ -44,7 +44,7 @@
 |---|---|
 | Datasets | HGB ACM, DBLP (homophilic), IMDB, Freebase (heterophilic). Node classification. Freebase is full batch if the largest configuration fits on one H100 94 GB (card 5 U3), else mini-batch (spec 1.26) |
 | Metric | Test Macro-F1 (IMDB: the mean per-genre F1, spec §6). Checkpoints are selected on validation Macro-F1 |
-| Seeds | **1–5** (seed 0 is the tuning seed of `full` and is excluded, because the rows are not tuned and seed 0 would favour `full`). Runs are paired by seed: the same seed gives the same WISP draws and batch order in every row. `full`'s main-table runs of seeds 1–4 are reused; `full` seed 5 is run |
+| Seeds | **1–5** (seed 0 is the tuning seed of `full` and is excluded, because the rows are not tuned and seed 0 would favour `full`). Runs are paired by seed: the same seed gives the same WISP draws and batch order in every row. `full`'s main-table runs of seeds 1–2 are reused; `full` seeds 3–5 are run (spec 1.32, author 2026-11-24) |
 | Configuration | **(a) only:** `full`'s tuned configuration for that dataset, with the row's one change. No row is tuned on its own. Stated in the paper: "hyperparameters fixed to `full`'s tuned values" |
 | "`full` better than row X on a dataset" | Both: (1) the mean over seeds 1–5 of the paired difference `full − X` is > 0; (2) `full` is strictly higher than X in **at least 4 of the 5 seeds**. No p-value and no multiplicity adjustment are computed or reported |
 | Reported per comparison | Mean ± sample std (ddof = 1) per row; the five paired differences; their mean; the 4-of-5 count |
@@ -93,7 +93,7 @@ Example used throughout: papers P1 (AI) and P9 (DB) share author A7, and the wal
 ## 4. Analyses
 
 ### 4.1 Schema read-out (Q3)
-Computed from `full`'s runs of seeds 1–5 (configuration (a); seeds 1–4 are the main-table runs). No training.
+Computed from `full`'s runs of seeds 1–5 (configuration (a); seeds 1–2 are the main-table runs; seeds 3–5 are run for the ablation). No training.
 
 **Quantities:**
 - `c_σ`: coverage, the share of the face mass in sub-path schema σ with every `w_f = 1`;
