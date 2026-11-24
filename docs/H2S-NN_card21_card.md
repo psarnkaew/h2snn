@@ -94,3 +94,36 @@ B2. **Fix it in `fanout_from_args`** (`h2gb_published.py`; also any tuned path t
 
 ## Estimate
 About 2–3 h, including the queue.
+
+## Amendment 1 (model design session, author-approved 2026-11-24)
+Review of the card against `v3b` `f1fc158`. These points replace the card text where they differ.
+
+1. **B2: pad where the loader is built, not in `fanout_from_args`.**
+   - `fanout_from_args` serves only the published path.
+   - Tuned cells read the fan-out from `h2gb_sample_sizes`, which returns the same unequal H-Pokec lists. The call sites are `hgb_han.py:447`, `rgcn.py:275`, `h2sgnn.py:485`, `hetsheaf.py:775`, `_h2gformer_h2gb.py:196`, `minibatch.py:540` and `large_lp_training.py:217` (H-Pokec U–U LP).
+   - Add one helper `equal_hop_fanout(sizes)` in `minibatch.py`. It pads every shorter list to the longest length by repeating the last value, and returns equal-length input unchanged.
+   - Apply the helper in `hgt_loader`, before `cfg.train.neighbor_sizes_dict` is set, and where `large_lp_training.py` builds its `HGTLoader`. Every NC and LP source is then covered.
+   - `fanout_from_args` and `h2gb_sample_sizes` stay unchanged.
+   - `repeat_fanout` is unaffected: it already refuses lists that are not constant.
+2. **Workers per run.**
+   - A run keeps four loaders alive (train, val, test, B1a subset; e.g. `hgb_han.py:451-455`, `h2gb_published.py:301-304`). Six persistent workers on each would mean 24 processes on a 16-core node.
+   - Use instead:
+     - the train loader: `LOADER_WORKERS` workers, persistent;
+     - `eval_loader` and `val_subset_loader`: `LOADER_WORKERS` workers, **not** persistent, so they exist only during an evaluation pass;
+     - pin_memory: as A1.
+   - The A2 loaders follow the same rule (training loaders persistent, evaluation loaders not).
+   - Report the peak process count of one run.
+3. **Test 2 checks the fix, not the crash.**
+   - Reading past the end of a C++ vector is undefined behaviour, so the pre-padding crash may not reproduce on every run.
+   - Test 2 asserts two things:
+     - after `equal_hop_fanout`, all lists have the same length and keep their first values;
+     - 20 batches sample without error on the B1 graph with a fixed seed.
+   - The pre-padding crash or undefined read is **evidence for B1** in the report, not a test assertion. The B1 stop condition still applies to that evidence.
+4. **Runs already made on H-Pokec NC with the unequal dict are void.** Their hop-4 sizes for non-`user` types were undefined. This covers the two H2G-former published seed lines now running and any H-Pokec NC line that finished.
+   - Every H-Pokec NC cell, published and tuned, runs on the card 21 code.
+   - Ops records which lines are void in the run register.
+5. **Memory (ops, at review, not the agent).**
+   - On TSUBAME, measure host maxrss with `LOADER_WORKERS = 6` for one H-Pokec NC run and one ogbn-mag NC run.
+   - Compare it with the layer-1 estimates, which assume 0 workers.
+   - If a cell would exceed 96 GB, set `H2SNN_LOADER_WORKERS` lower for that cell.
+6. **Allowed files are unchanged.** The test file stays `tests/test_card21_loader.py`.
