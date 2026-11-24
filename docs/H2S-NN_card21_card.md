@@ -127,3 +127,31 @@ Review of the card against `v3b` `f1fc158`. These points replace the card text w
    - Compare it with the layer-1 estimates, which assume 0 workers.
    - If a cell would exceed 96 GB, set `H2SNN_LOADER_WORKERS` lower for that cell.
 6. **Allowed files are unchanged.** The test file stays `tests/test_card21_loader.py`.
+
+## Amendment 2 (ops session, author-approved 2026-11-24): two more slow spots; PSHGCN unchanged
+These are speed-only changes. Any change to a model's outputs, its RNG draws or the B1a selection is out of scope. If a change cannot keep the results identical, leave that code as it is and report it.
+
+C1. **HINormer: per-target Python loop** (`adapters/hinormer.py:100-121` `build_node_sequences_for`, called at `:296`).
+- The loop runs over every target with `random.sample`: 1.63M users on H-Pokec, 546k papers on oag-cs, once per trial.
+- Allowed: cache the result for a trial with the same (dataset, target ids, `len_seq`, Python `random` state at the call), in memory or on disk under the run's state directory.
+- First verify that the `random` state at the call is the same across trials that share a seed. If it is not, the cache is not allowed. A vectorised rewrite is not allowed either, because it changes the draws.
+- Report:
+  - the measured time of one call on H-Pokec (CPU job, `len_seq` 50);
+  - whether the cache applies.
+
+C2. **ChebNetII: whole-graph bases per evaluation batch** (`_chebnetii_h2gb.py:164-190` `ForwardBases`, IEEE-CIS-G and H-Pokec).
+- Training needs the recomputation, because the parameters change every step. Evaluation does not: the parameters are fixed for the whole pass.
+- Compute the bases once per evaluation pass (val, B1a subset, test) under `torch.no_grad()`, then index the batch rows.
+- Equality check, in the test file (test 4):
+  - small synthetic graph, CPU;
+  - the logits of one evaluation pass before and after the change;
+  - equal within `atol 1e-6`.
+- If equality fails, revert C2 and report.
+
+C3. **PSHGCN on H-Pokec: no change.**
+- The 2026-11-16 override (`search_grids.py:74-80`, `K = 1`, `hidden ≤ 64`) was written for the full-graph search space.
+- H-Pokec is now in `H2GB_GENERIC_DATASETS` (`pshgcn.py:94`). Its decoupled mini-batch space (`pshgcn.py:184-190`, `K = 2` fixed, `hidden_x` 256–1024) returns before the override is applied at `:202`.
+- That space is the intended one. The override has no effect, and removing it changes nothing. Leave both as they are.
+- Ops probe (job 9545379, smallest grid point, 1 trial): GPU peak 0.9 GB, host maxrss 77 GB, 39 min.
+
+Files: add `src/baselines/adapters/hinormer.py` and `src/baselines/adapters/_chebnetii_h2gb.py` to the allowed list. Tests: add test 4 (C2) to `tests/test_card21_loader.py`. Estimate: +1–2 h.
