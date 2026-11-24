@@ -93,11 +93,16 @@ def epoch_batches(loader: Any, state: dict, steps: int) -> Iterator[Any]:
 
 
 def loaders(train_data: Any, test_data: Any, node_type: str, batch_size: int) -> tuple[Any, Any, Any]:
+    """Card 21 A2: `LOADER_WORKERS` workers each; the training loader's persist (its pass continues across epochs,
+    `epoch_batches`), an evaluation loader's live for one pass."""
     from torch_geometric.loader import NeighborLoader
+
+    from src.baselines.minibatch import LOADER_WORKERS
 
     def make(data: Any, mask: torch.Tensor, shuffle: bool) -> Any:
         return NeighborLoader(data, num_neighbors=NUM_NEIGHBORS, batch_size=batch_size,
-                              input_nodes=(node_type, mask), shuffle=shuffle)
+                              input_nodes=(node_type, mask), shuffle=shuffle, num_workers=LOADER_WORKERS,
+                              persistent_workers=shuffle and LOADER_WORKERS > 0)
 
     return (make(train_data, train_data[node_type].train_mask, True),
             make(train_data, train_data[node_type].val_mask, False),   # main.py:165-174: validation on train_data
@@ -108,8 +113,10 @@ def index_loader(data: Any, node_type: str, ids: torch.Tensor, batch_size: int) 
     """Their evaluation NeighborLoader over explicit target ids (card 1f B1a validation subset), no shuffling."""
     from torch_geometric.loader import NeighborLoader
 
+    from src.baselines.minibatch import LOADER_WORKERS
+
     return NeighborLoader(data, num_neighbors=NUM_NEIGHBORS, batch_size=batch_size, input_nodes=(node_type, ids),
-                          shuffle=False)
+                          shuffle=False, num_workers=LOADER_WORKERS)  # card 21 A2: workers for one pass
 
 
 def seed_logits(model: Any, batch: Any, node_type: str) -> torch.Tensor:

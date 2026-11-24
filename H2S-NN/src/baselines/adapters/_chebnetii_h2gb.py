@@ -177,16 +177,49 @@ class ForwardBases(torch.nn.Module):
         self.register_buffer("laplacian", torch.sparse_coo_tensor(
             np.vstack((coo.row, coo.col)), torch.from_numpy(coo.data).float(), (num_nodes, num_nodes)).coalesce())
         self.K = int(K)
+        self._eval_cache: tuple[tuple, int, int, list[torch.Tensor]] | None = None
 
-    def forward(self, features: list[torch.Tensor], rows: torch.Tensor) -> list[torch.Tensor]:
+    def _all_bases(self, features: list[torch.Tensor]) -> list[torch.Tensor]:
         t0 = self.projection(features)
         t1 = torch.sparse.mm(self.laplacian, t0)
-        out = [t0[rows], t1[rows]]
+        out = [t0, t1]
         for _ in range(1, self.K):
             t2 = 2 * torch.sparse.mm(self.laplacian, t1) - t0
             t0, t1 = t1, t2
-            out.append(t2[rows])
+            out.append(t2)
         return out
+
+    def _eval_key(self, features: list[torch.Tensor]) -> tuple:
+        # parameters: storage and in-place version (optimizer steps, load_state_dict); the Laplacian and the inputs
+        # (some sparse) by identity
+        return (tuple((t.data_ptr(), t._version) for t in self.projection.parameters()), id(self.laplacian),
+                tuple(id(f) for f in features))
+
+    def forward(self, features: list[torch.Tensor], rows: torch.Tensor) -> list[torch.Tensor]:
+        """Training: every forward over the whole graph (the parameters change each step). Card 21 C2: in eval mode
+        without grad the parameters are fixed for the pass, so the bases of the node type that holds `rows` are
+        computed once and kept until a parameter, the Laplacian or a feature tensor changes (`_version`)."""
+        if self.training or torch.is_grad_enabled():
+            self._eval_cache = None
+            return [basis[rows] for basis in self._all_bases(features)]
+        key = self._eval_key(features)
+        cache = self._eval_cache
+        if cache is not None and cache[0] == key and bool(((rows >= cache[1]) & (rows < cache[2])).all()):
+            return [basis[rows - cache[1]] for basis in cache[3]]
+        self._eval_cache = None
+        first = int(rows.min()) if rows.numel() else 0
+        lo = 0
+        for f in features:  # the type block that holds the first row: the target type's rows
+            hi = lo + int(f.size(0))
+            if first < hi:
+                break
+            lo = hi
+        bases = self._all_bases(features)
+        if not bool(((rows >= lo) & (rows < hi)).all()):  # rows across type blocks: no cache
+            return [basis[rows] for basis in bases]
+        self._eval_cache = (key, lo, hi, [basis[lo:hi].clone() for basis in bases])
+        del bases
+        return [basis[rows - lo] for basis in self._eval_cache[3]]
 
 
 __all__ = ["ForwardBases", "ProjectedBases", "forward_inputs", "block_bases", "block_inputs", "build_model", "chebyshev_bases",

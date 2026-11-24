@@ -49,6 +49,7 @@ class Sampler:
     def step(self, graph: Any, relation: tuple[str, str, str], node_type: str, links: torch.Tensor
              ) -> tuple[Any, torch.Tensor]:
         """(sampled subgraph of the step, endpoint row positions `[2, L]` in the encoder's node-type rows)."""
+        # card 21 A2: a loader built per step for one batch keeps 0 workers (a worker start per step costs more)
         if self.mode == "link":
             batch = next(iter(link_loader(graph, relation, links, self.fanout, batch_size=int(links.size(1)),
                                           shuffle=False)))
@@ -60,20 +61,27 @@ class Sampler:
         return batch, torch.searchsorted(nodes, links)
 
     def endpoints(self, graph: Any, node_type: str, nodes: torch.Tensor, batch_size: int = EVAL_BATCH_TARGETS):
-        """Batches whose first `batch_size` node-type rows are `nodes`, in order, each computed once."""
+        """Batches whose first `batch_size` node-type rows are `nodes`, in order, each computed once (card 21 A2:
+        `LOADER_WORKERS` workers for this pass, not persistent)."""
+        from src.baselines.minibatch import LOADER_WORKERS
+
         if self.mode == "link":
             from torch_geometric.loader import NeighborLoader
 
             return NeighborLoader(graph, num_neighbors=self.fanout, input_nodes=(node_type, nodes),
-                                  batch_size=batch_size, shuffle=False)
-        return _hgt(graph, node_type, nodes, self.fanout, batch_size)
+                                  batch_size=batch_size, shuffle=False, num_workers=LOADER_WORKERS)
+        return _hgt(graph, node_type, nodes, self.fanout, batch_size, num_workers=LOADER_WORKERS)
 
 
-def _hgt(graph: Any, node_type: str, nodes: torch.Tensor, sample_sizes: dict[str, list[int]], batch_size: int):
+def _hgt(graph: Any, node_type: str, nodes: torch.Tensor, sample_sizes: dict[str, list[int]], batch_size: int,
+         num_workers: int = 0):
+    """PyG `HGTLoader`; the fan-out through `equal_hop_fanout` (card 21 B2, H-Pokec U-U)."""
     from torch_geometric.loader import HGTLoader
 
-    return HGTLoader(graph, num_samples={k: list(v) for k, v in sample_sizes.items()}, input_nodes=(node_type, nodes),
-                     batch_size=batch_size, shuffle=False)
+    from src.baselines.minibatch import equal_hop_fanout
+
+    return HGTLoader(graph, num_samples={k: list(v) for k, v in equal_hop_fanout(sample_sizes).items()},
+                     input_nodes=(node_type, nodes), batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
 
 @dataclass

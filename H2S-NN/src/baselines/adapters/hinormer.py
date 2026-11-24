@@ -31,7 +31,11 @@ Protocol notes:
 
 from __future__ import annotations
 
+import hashlib
+import os
+import pickle
 import random
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -118,6 +122,47 @@ def build_node_sequences_for(graph: Any, nodes: torch.Tensor, len_seq: int) -> t
             read += 1
             start = int(node_seq[row, read].item())
     return node_seq
+
+
+#: Card 21 C1: directory of the on-disk sequence cache (ops sets it under the run's state directory; unset: no cache).
+SEQUENCE_CACHE_ENV = "H2SNN_HINORMER_SEQ_CACHE"
+
+
+def sequence_cache_key(dataset: str, graph: Any, nodes: torch.Tensor, len_seq: int) -> str:
+    """What fixes `build_node_sequences_for`'s output: the dataset, the graph's edges, the target ids, `len_seq` and
+    Python's `random` state at the call (its only source of randomness)."""
+    digest = hashlib.sha256()
+    source, destination = graph.edges()
+    digest.update(repr((str(dataset), int(graph.num_nodes()), int(len_seq))).encode())
+    for tensor in (source, destination, nodes):
+        digest.update(tensor.detach().cpu().contiguous().to(torch.int64).numpy().tobytes())
+    digest.update(pickle.dumps(random.getstate(), protocol=4))
+    return digest.hexdigest()
+
+
+def cached_node_sequences(graph: Any, nodes: torch.Tensor, len_seq: int, *, dataset: str,
+                          cache_dir: str | Path | None = None) -> tuple[torch.Tensor, str]:
+    """Card 21 C1: `build_node_sequences_for`, cached on disk by `sequence_cache_key`. A hit returns the stored
+    sequences and sets Python's `random` state to the one the uncached call left (so every later draw is unchanged);
+    a miss computes, then stores both. `cache_dir` None: `$H2SNN_HINORMER_SEQ_CACHE`, unset = no cache. Returns
+    (sequences, "hit" | "miss" | "off")."""
+    cache_dir = cache_dir if cache_dir is not None else os.environ.get(SEQUENCE_CACHE_ENV)
+    if not cache_dir:
+        return build_node_sequences_for(graph, nodes, len_seq), "off"
+    path = Path(cache_dir) / f"hinormer_seq_{sequence_cache_key(dataset, graph, nodes, len_seq)}.pkl"
+    if path.exists():
+        with path.open("rb") as handle:
+            stored = pickle.load(handle)
+        random.setstate(stored["random_state_after"])
+        return stored["node_seq"].to(torch.long), "hit"
+    node_seq = build_node_sequences_for(graph, nodes, len_seq)
+    compact = node_seq.to(torch.int32) if node_seq.numel() == 0 or int(node_seq.max()) < 2 ** 31 else node_seq
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(f".tmp{os.getpid()}")
+    with tmp.open("wb") as handle:
+        pickle.dump({"node_seq": compact, "random_state_after": random.getstate()}, handle, protocol=4)
+    os.replace(tmp, path)
+    return node_seq, "miss"
 
 
 def allow_isolated_nodes(model: Any) -> Any:
@@ -293,7 +338,8 @@ class HINormerAdapter:
         source, destination = view.edge_index_without_self_loops  # as run.py: no self-loops added back
         graph = dgl.graph((source.cpu(), destination.cpu()), num_nodes=view.num_nodes)
         data = bundle.data
-        node_seq = build_node_sequences_for(graph, data.target_indices.cpu(), int(params.get("len_seq", 50)))
+        node_seq, seq_cache = cached_node_sequences(graph, data.target_indices.cpu(), int(params.get("len_seq", 50)),
+                                                    dataset=bundle.dataset)  # card 21 C1
         graph = graph.to(device)
         node_type = view.node_type.to(device)
         type_emb = torch.eye(len(view.node_type_names)).to(device)
@@ -312,6 +358,7 @@ class HINormerAdapter:
         record["params_source"] = params.source
         record["batch_size"] = float(plan.batch_size)
         record["implementation"] = "official (Ffffffffire/HINormer), card 1c F1"
+        record["sequence_cache"] = seq_cache
         return record
 
 

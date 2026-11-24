@@ -36,6 +36,7 @@
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -56,6 +57,39 @@ H2GB_CONFIG_METHODS: dict[str, str] = {"gcn": "GCN", "gat": "GAT", "han": "HAN",
                                        "rgcn": "RGCN"}  # card 8 C1/C2: R-GCN runs H2GB's own yaml (published only)
 #: D1 (author): a class-C method without a node-wise forward uses the dataset's H2GB GCN fan-out.
 CLASS_C_REFERENCE_METHOD = "gcn"
+
+
+def _loader_workers() -> int:
+    raw = os.environ.get("H2SNN_LOADER_WORKERS", "6")
+    try:
+        value = int(raw)
+    except ValueError:
+        raise ValueError(f"H2SNN_LOADER_WORKERS must be an int >= 0, got {raw!r}.") from None
+    if value < 0:
+        raise ValueError(f"H2SNN_LOADER_WORKERS must be an int >= 0, got {raw!r}.")
+    return value
+
+
+#: Card 21 A1: worker processes of every sampled loader (H2GB's yamls use 16-18; the sampling is CPU-bound). Default
+#: 6, overridden by the environment variable `H2SNN_LOADER_WORKERS` (read at import). Training loaders keep their
+#: workers (persistent); evaluation loaders start them for one pass only (Amendment 1.2). 0: the old in-process path.
+LOADER_WORKERS: int = _loader_workers()
+
+
+def equal_hop_fanout(sizes: dict[str, list[int]]) -> dict[str, list[int]]:
+    """Card 21 B2: every per-type hop list padded to the longest length by repeating its last value. PyG's
+    `HGTSampler` runs `max(len)` hops and torch_sparse's `hgt_sample` reads `num_samples[type][hop]` unchecked, so a
+    shorter list gives an undefined size past its end (H-Pokec: `user` 4 hops, the other types 3). Equal-length input
+    is returned unchanged."""
+    depth = max((len(v) for v in sizes.values()), default=0)
+    if all(len(v) == depth for v in sizes.values()):
+        return sizes
+    out: dict[str, list[int]] = {}
+    for key, values in sizes.items():
+        if not values:
+            raise ValueError(f"empty fan-out list for {key!r}.")
+        out[key] = list(values) + [values[-1]] * (depth - len(values))
+    return out
 
 
 @dataclass(frozen=True, slots=True)
@@ -180,16 +214,46 @@ class _H2GBDatasetShim:
         return self.data
 
 
+class _PassLoader:
+    """A validation/test `LoaderWrapper` of H2GB (restarted each pass) whose DataLoader iterator, and so its worker
+    processes, exists only during a pass (card 21 Amendment 1.2). `.loader` is the PyG `HGTLoader`, as on H2GB's
+    wrapper. A pass yields H2GB's wrapper's batches: the first `min(step, len(loader))` of a fresh iterator."""
+
+    def __init__(self, wrapper: Any) -> None:
+        self.loader = wrapper.loader
+        self.step = wrapper.step
+        self.split = wrapper.split
+        wrapper.iter_loader = None  # H2GB's eagerly created iterator: its workers stop here
+
+    def __len__(self) -> int:
+        return min(self.step, len(self.loader))
+
+    def __iter__(self) -> Iterable[Any]:
+        iterator = iter(self.loader)
+        try:
+            for _ in range(len(self)):
+                yield next(iterator)
+        finally:
+            del iterator
+
+
 def hgt_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, split: str, batch_size: int, *,
-               shuffle: bool, steps: int, num_workers: int = 0) -> Any:
+               shuffle: bool, steps: int, num_workers: int | None = None) -> Any:
     """H2GB's `get_HGTloader` on `data` (seeds: `data[target_type][f'{split}_mask']`), with `steps` batches per
-    pass of its `LoaderWrapper` (training: continued across passes; validation/test: restarted each pass)."""
+    pass of its `LoaderWrapper` (training: continued across passes; validation/test: restarted each pass).
+    Card 21: `num_workers` None = `LOADER_WORKERS`; with workers the training loader's workers persist and a
+    validation/test loader's exist during a pass only (`_PassLoader`); the fan-out goes through `equal_hop_fanout`.
+    The batches are fixed by the torch seed at iterator creation (workers: a base seed drawn then, worker `i` seeded
+    `base + i`, batches dealt round-robin); they differ between 0 and >0 workers."""
     from src.baselines.adapters._pyg_compat import ensure_pyg_submodules
     from src.baselines.runtime.vendor_paths import pushd_sys_path
 
     if split not in ("train", "val", "test"):
         raise ValueError(f"unknown split {split!r}.")
     ensure_pyg_submodules()
+    num_workers = LOADER_WORKERS if num_workers is None else int(num_workers)
+    persistent = num_workers > 0 and split == "train"
+    sample_sizes = equal_hop_fanout(sample_sizes)
     with pushd_sys_path("h2gb"):
         import H2GB  # noqa: F401
         from H2GB.graphgym.config import cfg, set_cfg  # type: ignore[import-not-found]
@@ -199,13 +263,13 @@ def hgt_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, 
         cfg.train.neighbor_sizes_dict = repr({key: list(value) for key, value in sample_sizes.items()})
         cfg.dataset.task_entity = target_type
         cfg.num_workers = int(num_workers)
-        cfg.train.persistent_workers = num_workers > 0
-        cfg.train.pin_memory = False
+        cfg.train.persistent_workers = persistent
+        cfg.train.pin_memory = num_workers > 0
         cfg.train.iter_per_epoch = int(steps)
         cfg.val.iter_per_epoch = int(steps)
         loader = get_HGTloader(_H2GBDatasetShim(data), batch_size, shuffle=shuffle, split=split)
         set_cfg(cfg)
-    return loader
+    return _PassLoader(loader) if num_workers > 0 and not persistent else loader
 
 
 def eval_steps(num_targets: int, batch_size: int) -> int:
@@ -214,7 +278,7 @@ def eval_steps(num_targets: int, batch_size: int) -> int:
 
 
 def eval_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, split: str, batch_size: int,
-                num_workers: int = 0) -> Any:
+                num_workers: int | None = None) -> Any:
     """Every target of `split` once, in the mask's order (no shuffling)."""
     count = int(data[target_type][f"{split}_mask"].sum())
     return hgt_loader(data, sample_sizes, target_type, split, batch_size, shuffle=False,
@@ -222,7 +286,7 @@ def eval_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str,
 
 
 def val_subset_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, dataset: str,
-                      batch_size: int, num_workers: int = 0, *, run_seed: int | None = None
+                      batch_size: int, num_workers: int | None = None, *, run_seed: int | None = None
                       ) -> tuple[Any, torch.Tensor]:
     """(loader, ids) over the B1a validation subset of `dataset`: H2GB's loader, called unchanged, on a shallow copy
     of `data` whose target `val_mask` holds the subset ids only (the caller's graph is not modified). `run_seed`: the
@@ -570,7 +634,7 @@ def fit_homogeneous_on_hgt(bundle: Any, params: Any, *, fanout_method: str, seed
 
 
 __all__ = [
-    "CLASS_C_REFERENCE_METHOD", "batch_type_inputs", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "SourceSchedule", "eval_loader",
+    "CLASS_C_REFERENCE_METHOD", "LOADER_WORKERS", "batch_type_inputs", "equal_hop_fanout", "h2gb_input_dims", "H2GB_CONFIG_FOLDERS", "H2GB_CONFIG_METHODS", "MinibatchPlan", "SourceSchedule", "eval_loader",
     "eval_steps", "evaluate_split", "fit_homogeneous_on_hgt", "h2gb_config_file", "h2gb_graph", "index_batches", "h2gb_sample_sizes", "hgb_homogeneous_batch", "hgt_loader",
     "is_eval_epoch", "is_source_step", "minibatch_plan", "repeat_fanout", "seed_rows", "stops_early",
     "train_index_minibatch",
