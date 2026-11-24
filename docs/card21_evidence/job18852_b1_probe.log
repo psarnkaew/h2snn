@@ -1,0 +1,64 @@
+job=18852 node=g3n01 git=b7aff39766986f8e48d2c2c4b40338e8b3ecc52c start=2026-11-24T22:35:00+09:00
+ M src/baselines/adapters/_chebnetii_h2gb.py
+ M src/baselines/adapters/_hetero2net_h2gb.py
+ M src/baselines/adapters/hinormer.py
+ M src/baselines/large_lp_training.py
+ M src/baselines/minibatch.py
+?? tests/test_card21_loader.py
+2.4.1+cu124 0.6.18+pt24cu124 2.8.0
+test_4_eval_pass_equals_per_batch_recomputation (tests.test_card21_loader.ChebNetIIEvalBasesTests.test_4_eval_pass_equals_per_batch_recomputation) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+ok
+test_3_same_seed_same_batches_with_workers (tests.test_card21_loader.DeterminismTests.test_3_same_seed_same_batches_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+ERROR
+test_2_padding_and_sampling (tests.test_card21_loader.EqualHopTests.test_2_padding_and_sampling) ... ERROR
+test_5_cache_keeps_sequences_and_random_state (tests.test_card21_loader.HINormerSequenceCacheTests.test_5_cache_keeps_sequences_and_random_state) ... ok
+test_1_default_and_environment_override (tests.test_card21_loader.LoaderWorkersTests.test_1_default_and_environment_override) ... ok
+
+======================================================================
+ERROR: test_3_same_seed_same_batches_with_workers (tests.test_card21_loader.DeterminismTests.test_3_same_seed_same_batches_with_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card21/H2S-NN/tests/test_card21_loader.py", line 104, in test_3_same_seed_same_batches_with_workers
+    first, second = first_batch_ids(), first_batch_ids()
+                    ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card21/H2S-NN/tests/test_card21_loader.py", line 100, in first_batch_ids
+    loader = hgt_loader(data, B1_FANOUT, "user", "train", 16, shuffle=True, steps=5, num_workers=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card21/H2S-NN/src/baselines/minibatch.py", line 266, in hgt_loader
+    cfg.train.persistent_workers = persistent
+                                   ^^^^^^^^^^
+NameError: name 'persistent' is not defined
+
+======================================================================
+ERROR: test_2_padding_and_sampling (tests.test_card21_loader.EqualHopTests.test_2_padding_and_sampling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card21/H2S-NN/tests/test_card21_loader.py", line 86, in test_2_padding_and_sampling
+    loader = hgt_loader(data, B1_FANOUT, "user", "train", 8, shuffle=True, steps=20, num_workers=0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card21/H2S-NN/src/baselines/minibatch.py", line 266, in hgt_loader
+    cfg.train.persistent_workers = persistent
+                                   ^^^^^^^^^^
+NameError: name 'persistent' is not defined
+
+----------------------------------------------------------------------
+Ran 5 tests in 25.630s
+
+FAILED (errors=2)
+=== B1 probe (run 1)
+unpadded: fanout={'user': [16, 16, 8, 8], 'item': [4, 4, 4]}
+  batches=900 raises=0 messages={}
+  item nodes per batch: min=12 max=187; batches with > 12 items (more than 3 hops x 4 can give) = 882
+padded: fanout={'user': [16, 16, 8, 8], 'item': [4, 4, 4, 4]}
+  batches=900 raises=0 messages={}
+  item nodes per batch: min=16 max=16; batches with > 12 items (more than 3 hops x 4 can give) = 900
+=== B1 probe (run 2)
+unpadded: fanout={'user': [16, 16, 8, 8], 'item': [4, 4, 4]}
+  batches=900 raises=0 messages={}
+  item nodes per batch: min=12 max=190; batches with > 12 items (more than 3 hops x 4 can give) = 867
+padded: fanout={'user': [16, 16, 8, 8], 'item': [4, 4, 4, 4]}
+  batches=900 raises=0 messages={}
+  item nodes per batch: min=16 max=16; batches with > 12 items (more than 3 hops x 4 can give) = 900
+end=2026-11-24T22:35:40+09:00 tests_exit=1

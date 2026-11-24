@@ -1,0 +1,18 @@
+job=18856 node=g3an01 git=4d79a114b494c1c9bed5c94b52812571d15afe43 start=2026-11-24T23:27:53+09:00
+=== process 1 (seed 0)
+bundle 21.7s
+nodes=1731977 edges=51774836 targets=1632803
+random_state_at_call=58ae6fb433941c12 cache_key=531a48930791728d
+status=miss seconds=704.8 shape=(1632803, 50) node_seq_sha=68262de7d5e92da0 random_state_after=6677638768f6cc20 first_random_after=0.6704438895754976
+maxrss_GB=33.2
+=== process 2 (seed 0, same cache)
+bundle 20.8s
+nodes=1731977 edges=51774836 targets=1632803
+random_state_at_call=58ae6fb433941c12 cache_key=531a48930791728d
+status=hit seconds=4.6 shape=(1632803, 50) node_seq_sha=68262de7d5e92da0 random_state_after=6677638768f6cc20 first_random_after=0.6704438895754976
+maxrss_GB=33.2
+total 247558
+drwxr-sr-x 2 peeradon compute-users         3 Nov 24 23:44 .
+drwxr-sr-x 3 peeradon compute-users         3 Nov 24 23:44 ..
+-rw-r--r-- 1 peeradon compute-users 326564838 Nov 24 23:44 hinormer_seq_531a48930791728df814c3edbf52eb2fe022638c2013c74a3b23a4df6d953940.pkl
+end=2026-11-24T23:48:50+09:00
