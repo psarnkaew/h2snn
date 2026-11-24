@@ -155,3 +155,22 @@ Baseline per-trial times above are taken from published-configuration runs (full
    - Ablation pre-registration: seeds 1–5 unchanged; reuse of main-table seeds is now 1–2.
 5. Dataset list with a "deferred" status: mag-year, oag-chem, Freebase B–B, ogbn-mag P–P, NCI1.
 6. Timing runs (C5) stay on one GPU type (H100, TSUBAME).
+
+## 5. OOM decisions (author, 2026-11-24, after OOM layer 1)
+- **H2G-former × Freebase NC: N/A (OOM).** Source: layer 1, `docs/ops_evidence/oom_layer1_2026-11-24/oom_layer1.md`.
+  - The adapter moves a dense identity feature matrix for each of the 8 node types to the GPU (34.46 GiB) and keeps a second copy (`pristine_x`).
+  - At the first forward, 94.18 GiB is live, above the 93.58 GiB device.
+  - No grid axis touches these tensors.
+  - Not probed (author: report OOM). The tuning leg and its probe were deleted (9545679 task 2, 9545380), and `t4_auto` skips the line (`NA_TOKENS`).
+- **MAGNN published configuration × Freebase NC and × LastFM LP: N/A (OOM, host memory).**
+  - Job 9533063 on `node_q` (192 GB host) was killed after 113 s and 341 s, with `qacct` maxrss 178.7 and 182.3 GB (exit 137).
+  - This is above the 96 GB host of the `gpu_1` rule. Not rerun.
+- Remaining layer-2 probes (job 9545379, 1 epoch at the smallest grid point):
+  - Hetero²Net × Freebase NC
+  - PSHGCN × H-Pokec NC
+  - PSHGCN × H-Pokec U–U
+  - H2SGNN × H-Pokec U–U
+  - Hetero²Net × H-Pokec U–U
+- Layer-1 findings for the model session:
+  - The PSHGCN H-Pokec override (K = 1, hidden ≤ 64, spec 1.23) is never applied (`pshgcn.py:181-188` returns before `:202`).
+  - Time risk: HINormer builds H-Pokec sequences in a Python loop, and ChebNetII recomputes whole-graph bases per batch.
