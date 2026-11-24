@@ -214,6 +214,31 @@ class _H2GBDatasetShim:
         return self.data
 
 
+def _drop_eager_iterator(wrapper: Any) -> None:
+    """Undo H2GB's `LoaderWrapper.__init__` `iter(dataloader)` (`custom_sampler.py:26`): its worker processes are shut
+    down and the DataLoader's cached (persistent) iterator cleared, so no worker holds `data` as it was at build
+    (card 21 Amendment 3: adapters change `data` after building their loaders)."""
+    iterator, wrapper.iter_loader = wrapper.iter_loader, None
+    wrapper.loader._iterator = None
+    shutdown = getattr(iterator, "_shutdown_workers", None)
+    if shutdown is not None:
+        shutdown()
+
+
+class _LazyIterator:
+    """The training `LoaderWrapper`'s first iterator, created at the first batch (card 21 Amendment 3). H2GB's wrapper
+    replaces it with `iter(loader)` when it is exhausted, as before."""
+
+    def __init__(self, loader: Any) -> None:
+        self.loader = loader
+        self.iterator: Any = None
+
+    def __next__(self) -> Any:
+        if self.iterator is None:
+            self.iterator = iter(self.loader)
+        return next(self.iterator)
+
+
 class _PassLoader:
     """A validation/test `LoaderWrapper` of H2GB (restarted each pass) whose DataLoader iterator, and so its worker
     processes, exists only during a pass (card 21 Amendment 1.2). `.loader` is the PyG `HGTLoader`, as on H2GB's
@@ -223,7 +248,7 @@ class _PassLoader:
         self.loader = wrapper.loader
         self.step = wrapper.step
         self.split = wrapper.split
-        wrapper.iter_loader = None  # H2GB's eagerly created iterator: its workers stop here
+        _drop_eager_iterator(wrapper)
 
     def __len__(self) -> int:
         return min(self.step, len(self.loader))
@@ -269,7 +294,12 @@ def hgt_loader(data: Any, sample_sizes: dict[str, list[int]], target_type: str, 
         cfg.val.iter_per_epoch = int(steps)
         loader = get_HGTloader(_H2GBDatasetShim(data), batch_size, shuffle=shuffle, split=split)
         set_cfg(cfg)
-    return _PassLoader(loader) if num_workers > 0 and not persistent else loader
+    if num_workers > 0 and not persistent:
+        return _PassLoader(loader)
+    if persistent:  # card 21 Amendment 3: no worker forks before the first training batch
+        _drop_eager_iterator(loader)
+        loader.iter_loader = _LazyIterator(loader.loader)
+    return loader
 
 
 def eval_steps(num_targets: int, batch_size: int) -> int:

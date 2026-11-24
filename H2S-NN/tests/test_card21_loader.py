@@ -9,6 +9,8 @@
    per-batch recomputation (atol 1e-6), also after a training step changes the parameters.
 5. (C1) HINormer sequence cache: miss and hit give the uncached sequences, and the first `random.random()` after the
    call is the uncached call's.
+6. (Amendment 3) With 2 workers, the first training and evaluation batches see an attribute added and a `y` replaced
+   in `data` after the loaders were built.
 """
 
 from __future__ import annotations
@@ -114,6 +116,28 @@ class DeterminismTests(unittest.TestCase):
         for _ in range(2):  # a pass starts its workers and ends them; the next pass restarts
             self.assertTrue(torch.equal(seed_order(with_workers), reference))
         self.assertEqual(sorted(reference.tolist()), data["user"].val_mask.nonzero().view(-1).tolist())
+
+
+class LateDataChangeTests(unittest.TestCase):
+    def test_6_loaders_see_changes_made_after_build(self) -> None:
+        """Amendment 3: an adapter changes `data` after building its loaders (H2G-former's label channel, pestat);
+        with workers, the first training and evaluation batches carry the new attribute and the new `y`."""
+        from src.baselines.minibatch import eval_loader, hgt_loader
+
+        data = b1_graph()
+        torch.manual_seed(0)
+        train = hgt_loader(data, B1_FANOUT, "user", "train", 16, shuffle=True, steps=5, num_workers=2)
+        val = eval_loader(data, B1_FANOUT, "user", "val", 16, num_workers=2)
+        n_user = data["user"].num_nodes
+        new_y = torch.arange(n_user) % 7 + 100
+        data["user"].late = torch.arange(n_user, dtype=torch.float32).unsqueeze(1) * 2.0
+        data["user"].y = new_y
+        for label, loader in (("train", train), ("val", val)):
+            batch = next(iter(loader))
+            store = batch["user"]
+            self.assertIn("late", store, label)
+            self.assertTrue(torch.equal(store.late.view(-1), store.n_id.float() * 2.0), label)
+            self.assertTrue(torch.equal(store.y, new_y[store.n_id]), label)
 
 
 def _old_forward(bases_module, features, rows):
