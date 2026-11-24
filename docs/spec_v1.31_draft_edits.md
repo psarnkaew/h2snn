@@ -1,6 +1,6 @@
 # Spec 1.31 — draft edits (model design session, 2026-11-23)
 
-Status: **DRAFT, card 19 reported** (`card19` report `d7d89ab`, evidence `dfc9a8a`; reviewed by the model session 2026-11-24). Apply to `docs/H2S-NN_methodology_spec.md` when the author approves the new Table 1 rows. `card19` is not merged into `v3b`; the numbers carry its hash.
+Status: **APPLIED 2026-11-24** to `docs/H2S-NN_methodology_spec.md` (author OK; backup `docs/spec_backups/H2S-NN_methodology_spec_v1.30.md`). Former status: **DRAFT, card 19 reported** (`card19` report `d7d89ab`, evidence `dfc9a8a`; reviewed by the model session 2026-11-24). Apply to `docs/H2S-NN_methodology_spec.md` when the author approves the new Table 1 rows. `card19` is not merged into `v3b`; the numbers carry its hash.
 
 Decision: author 2026-11-23, option A — all three heterophily measures (ℋ², MLH, MDE) use H2GB's meta-path rule. The method is unchanged. No code that affects training, models or any H2S-NN or baseline run changes, so the freeze (`v3b` `0b9873d`) stays where it is (AE5).
 
