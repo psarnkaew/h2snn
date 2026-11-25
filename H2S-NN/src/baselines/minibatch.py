@@ -486,7 +486,8 @@ def hgb_homogeneous_batch(batch: Any, node_types: tuple[str, ...]) -> tuple[list
                                                                           dict[str, tuple[int, int]]]:
     """HGB's homogeneous reduction (`bundles._symmetrize_with_self_loops`: sum of relations, symmetrised, self-loops
     removed then added) of a (sampled) heterogeneous graph, nodes concatenated in `node_types` order: (per-type
-    features, edge_index, node slices)."""
+    features, edge_index, node slices). A featureless type's features are None (card 22 B: IEEE-CIS-G's non-target
+    types have no `x`; callers take their inputs from `batch_type_inputs`)."""
     from src.baselines.bundles import _symmetrize_with_self_loops
 
     offsets: dict[str, tuple[int, int]] = {}
@@ -500,7 +501,7 @@ def hgb_homogeneous_batch(batch: Any, node_types: tuple[str, ...]) -> tuple[list
         index = batch[src, rel, dst].edge_index
         edges.append(torch.stack([index[0] + offsets[src][0], index[1] + offsets[dst][0]]))
     edge_index = torch.cat(edges, dim=1) if edges else torch.empty(2, 0, dtype=torch.long)
-    return [batch[t].x for t in node_types], _symmetrize_with_self_loops(edge_index, start), offsets
+    return [batch[t].get("x") for t in node_types], _symmetrize_with_self_loops(edge_index, start), offsets
 
 
 def h2gb_graph(bundle: Any) -> Any:

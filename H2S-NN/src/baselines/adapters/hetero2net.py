@@ -554,7 +554,7 @@ class Hetero2NetAdapter:
             logits, labels = [], []
             with torch.no_grad():
                 for batch in loader:
-                    batch = batch.to(device, "x", "edge_index")
+                    batch = batch.to(device, "x", "edge_index", "y_emb")  # card 22 A: y_emb with the model
                     logits.append(h2gb.seed_logits(model, batch, node_type))
                     labels.append(batch[node_type].y[: int(batch[node_type].batch_size)].to(device))
             return classification_metrics(torch.cat(logits), torch.cat(labels), is_multilabel=False)
@@ -564,11 +564,20 @@ class Hetero2NetAdapter:
                                        bundle.metadata.get("seed"))
         subset_loader = h2gb.index_loader(train_data, node_type, subset_ids, plan.batch_size)
         state: dict = {}
+
+        def on_device(batches: Any) -> Any:
+            """Card 22 A: their `main.py:105-108` puts `y` (and so `y_emb`) on the device before building the loaders;
+            their step moves only `x` and `edge_index` (`utils.py:25`). Here the graph stays on the CPU (the loaders'
+            workers sample it), so each batch's `y` and `y_emb` move in the main process."""
+            for batch in batches:
+                yield batch.to(device, "y", "y_emb")
+
         with pushd_sys_path(VENDOR):
             from hetero2net.utils import train_mini_batch  # type: ignore[import-not-found]
 
             def train_epoch(epoch: int) -> float:
-                return train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
+                return train_mini_batch(model, optimizer, on_device(h2gb.epoch_batches(train_loader, state,
+                                                                                    plan.steps_per_epoch)),
                                  device, p=float(params.get("p", 0.7)), metapaths=metapaths,
                                  r=float(params.get("r", 0.5)), alpha=float(params.get("alpha", 0.2)),
                                  beta=float(params.get("beta", 0.4)))
