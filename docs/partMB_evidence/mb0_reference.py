@@ -19,6 +19,10 @@ job 16721 step 13, git e0a7ca12fd37a7915d44740bf453926accd8526a; sha256
 83f5f57d4feee19624f5bb9e38e935032813546c7a159c4f523d36d183c91700 (copy of
 docs/cluster_evidence3/mb0_reference_E.pt). It is portable with E and 1 thread (0/139 differing on
 g2n01 again and on g3an01, i9-10900X). `mb0_reference.pt` is the Windows capture, kept as history.
+Re-captured 2026-11-26 (card 23 review, item 4) at v3b b0f13fb43bcc77bdf15f73a2caa026140179e441 with the same
+procedure (g2n01, h2snn-b, E, 1 thread; job 19006, docs/card23_evidence/mb0_capture.sbatch): 136 tensors, sha256
+42dcd9bf6ed3e8ed7b900807682a8e90982a2e5d035355ca78bc2bf1e468bfbf. The e0a7ca1 capture above no longer matched
+v3b (b0f13fb itself: 126 of 136 differing, job 19005).
 Rule R2 of that card: `compare` refuses to run (exit 2) unless E is in effect, and the references
 are computed with 1 thread (restored after).
 """

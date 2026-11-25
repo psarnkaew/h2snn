@@ -1,0 +1,7 @@
+job=19006 node=g2n01 Model name:                              Intel(R) Core(TM) i9-10900K CPU @ 3.70GHz git=b0f13fb43bcc77bdf15f73a2caa026140179e441
+torch 2.4.1+cu124 cpu_capability AVX2
+saved /mnt/data/peeradon/h2snn-card23/docs/partMB_evidence/mb0_reference_cluster.pt
+save exit=0
+42dcd9bf6ed3e8ed7b900807682a8e90982a2e5d035355ca78bc2bf1e468bfbf  /mnt/data/peeradon/h2snn-card23/docs/partMB_evidence/mb0_reference_cluster.pt
+compared 136 tensors; differing: none
+b0f13fb compare exit=0
