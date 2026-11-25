@@ -1,0 +1,58 @@
+job=18888 node=g2n01 WANDB_MODE=unset
+=== tree=/mnt/data/peeradon/h2snn-card22 git=e03e89f27b508614571f89a766f41d0a385e56e8 dirty:  M src/baselines/adapters/hetero2net.py  M src/baselines/minibatch.py 
+test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=542799) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=542799) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=542799) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=542799) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 46.283s
+
+OK
+exit=0
+=== tree=/mnt/data/peeradon/h2snn-c22old git=2e3e160712953356596c9d4a786b8f1f1d1ba4aa dirty: 
+test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=543402) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+ERROR
+
+======================================================================
+ERROR: test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/tests/test_card22_h2gb_failures.py", line 128, in test_2_ieee_shape_with_workers
+    record = mb.fit_homogeneous_on_hgt(SimpleNamespace(dataset="toy", metadata={"seed": 0}),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 651, in fit_homogeneous_on_hgt
+    record = train_minibatch_node_classification(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 449, in train_minibatch_node_classification
+    logits = forward_seeds(batch)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 644, in forward_seeds
+    _, edge_index, offsets = hgb_homogeneous_batch(batch, node_types)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 503, in hgb_homogeneous_batch
+    return [batch[t].x for t in node_types], _symmetrize_with_self_loops(edge_index, start), offsets
+            ^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/storage.py", line 96, in __getattr__
+    raise AttributeError(
+AttributeError: 'NodeStorage' object has no attribute 'x'
+
+----------------------------------------------------------------------
+Ran 1 test in 31.940s
+
+FAILED (errors=1)
+exit=1

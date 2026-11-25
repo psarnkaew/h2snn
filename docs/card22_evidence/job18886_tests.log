@@ -1,0 +1,207 @@
+job=18886 node=g2n01 WANDB_MODE=unset
+NVIDIA GeForce RTX 2080 Ti
+=== tree=/mnt/data/peeradon/h2snn-card22 git=674901dba3220d007d8a905ab17272f24e5738ef dirty: 
+test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=545498) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=545498) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=545498) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=545498) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+ok
+test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn-card22/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+0it [00:00, ?it/s]1it [00:00,  2.94it/s]2it [00:00,  4.88it/s]
+
+  test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=2) ... ERROR
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn-card22/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+0it [00:00, ?it/s]2it [00:00, 55.63it/s]
+  test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=0) ... ERROR
+
+======================================================================
+ERROR: test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/tests/test_card22_h2gb_failures.py", line 101, in test_1_fit_h2gb_on_gpu_with_workers
+    record = hetero2net.Hetero2NetAdapter()._fit_h2gb(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/adapters/hetero2net.py", line 585, in _fit_h2gb
+    record = train_h2gb_epochs(model=model, plan=plan, train_epoch=train_epoch, evaluate=evaluate,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/adapters/hetero2net.py", line 610, in train_h2gb_epochs
+    best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+                                                                           ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/minibatch.py", line 339, in _cpu_state
+    return {key: value.detach().to("cpu", copy=True) for key, value in model.state_dict().items()}
+                 ^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/parameter.py", line 159, in __torch_function__
+    raise ValueError(
+ValueError: Attempted to use an uninitialized parameter in <method 'detach' of 'torch._C.TensorBase' objects>. This error happens when you are using a `LazyModule` or explicitly manipulating `torch.nn.parameter.UninitializedParameter` objects. When using LazyModules Call `forward` with a dummy batch to initialize the parameters before calling torch functions
+
+======================================================================
+ERROR: test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/tests/test_card22_h2gb_failures.py", line 101, in test_1_fit_h2gb_on_gpu_with_workers
+    record = hetero2net.Hetero2NetAdapter()._fit_h2gb(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/adapters/hetero2net.py", line 585, in _fit_h2gb
+    record = train_h2gb_epochs(model=model, plan=plan, train_epoch=train_epoch, evaluate=evaluate,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/adapters/hetero2net.py", line 610, in train_h2gb_epochs
+    best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+                                                                           ^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-card22/H2S-NN/src/baselines/minibatch.py", line 339, in _cpu_state
+    return {key: value.detach().to("cpu", copy=True) for key, value in model.state_dict().items()}
+                 ^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/parameter.py", line 159, in __torch_function__
+    raise ValueError(
+ValueError: Attempted to use an uninitialized parameter in <method 'detach' of 'torch._C.TensorBase' objects>. This error happens when you are using a `LazyModule` or explicitly manipulating `torch.nn.parameter.UninitializedParameter` objects. When using LazyModules Call `forward` with a dummy batch to initialize the parameters before calling torch functions
+
+----------------------------------------------------------------------
+Ran 2 tests in 73.962s
+
+FAILED (errors=2)
+exit=1
+=== tree=/mnt/data/peeradon/h2snn-c22old git=2e3e160712953356596c9d4a786b8f1f1d1ba4aa dirty: 
+test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/__init__.py:4: DeprecationWarning: 'torch-cluster' is no longer necessary and is being ignored. Its functionality has been migrated to 'pyg-lib>=0.6.0'.
+  import torch_geometric.typing
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/performer_pytorch/performer_pytorch.py:17: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  TORCH_GE_1_8_0 = LooseVersion(torch.__version__) >= LooseVersion('1.8.0')
+/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=545736) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  self.pid = os.fork()
+ERROR
+test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) ... /mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/loader/neighbor_loader.py:229: UserWarning: Using 'NeighborSampler' without a 'pyg-lib' installation is deprecated and will be removed soon. Please install 'pyg-lib' for accelerated neighborhood sampling
+  neighbor_sampler = NeighborSampler(
+/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+
+  test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=2) ... ERROR
+/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py:18: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=amp_emabled)
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+  test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=0) ... ERROR
+
+======================================================================
+ERROR: test_2_ieee_shape_with_workers (tests.test_card22_h2gb_failures.FeaturelessTypesTests.test_2_ieee_shape_with_workers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/tests/test_card22_h2gb_failures.py", line 128, in test_2_ieee_shape_with_workers
+    record = mb.fit_homogeneous_on_hgt(SimpleNamespace(dataset="toy", metadata={"seed": 0}),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 651, in fit_homogeneous_on_hgt
+    record = train_minibatch_node_classification(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 449, in train_minibatch_node_classification
+    logits = forward_seeds(batch)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 644, in forward_seeds
+    _, edge_index, offsets = hgb_homogeneous_batch(batch, node_types)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/minibatch.py", line 503, in hgb_homogeneous_batch
+    return [batch[t].x for t in node_types], _symmetrize_with_self_loops(edge_index, start), offsets
+            ^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch_geometric/data/storage.py", line 96, in __getattr__
+    raise AttributeError(
+AttributeError: 'NodeStorage' object has no attribute 'x'
+
+======================================================================
+ERROR: test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/tests/test_card22_h2gb_failures.py", line 101, in test_1_fit_h2gb_on_gpu_with_workers
+    record = hetero2net.Hetero2NetAdapter()._fit_h2gb(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 576, in _fit_h2gb
+    record = train_h2gb_epochs(model=model, plan=plan, train_epoch=train_epoch, evaluate=evaluate,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 596, in train_h2gb_epochs
+    train_loss = train_epoch(epoch)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 571, in train_epoch
+    return train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py", line 42, in train_mini_batch
+    y_pred, homos, heteros = model(batch.x_dict, batch.edge_index_dict, y_emb)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/models.py", line 114, in forward
+    y_emb = self.dropout(self.embedding(y_emb) * mask)
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/sparse.py", line 164, in forward
+    return F.embedding(
+           ^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/functional.py", line 2267, in embedding
+    return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu! (when checking argument for argument index in method wrapper_CUDA__index_select)
+
+======================================================================
+ERROR: test_1_fit_h2gb_on_gpu_with_workers (tests.test_card22_h2gb_failures.Hetero2NetH2GBDeviceTests.test_1_fit_h2gb_on_gpu_with_workers) (workers=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/tests/test_card22_h2gb_failures.py", line 101, in test_1_fit_h2gb_on_gpu_with_workers
+    record = hetero2net.Hetero2NetAdapter()._fit_h2gb(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 576, in _fit_h2gb
+    record = train_h2gb_epochs(model=model, plan=plan, train_epoch=train_epoch, evaluate=evaluate,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 596, in train_h2gb_epochs
+    train_loss = train_epoch(epoch)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/src/baselines/adapters/hetero2net.py", line 571, in train_epoch
+    return train_mini_batch(model, optimizer, h2gb.epoch_batches(train_loader, state, plan.steps_per_epoch),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/utils.py", line 42, in train_mini_batch
+    y_pred, homos, heteros = model(batch.x_dict, batch.edge_index_dict, y_emb)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/peeradon/h2snn-c22old/H2S-NN/vendor/Hetero2Net/hetero2net/models.py", line 114, in forward
+    y_emb = self.dropout(self.embedding(y_emb) * mask)
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/modules/sparse.py", line 164, in forward
+    return F.embedding(
+           ^^^^^^^^^^^^
+  File "/mnt/home/peeradon/.conda/envs/h2snn-b/lib/python3.12/site-packages/torch/nn/functional.py", line 2267, in embedding
+    return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu! (when checking argument for argument index in method wrapper_CUDA__index_select)
+
+----------------------------------------------------------------------
+Ran 2 tests in 68.178s
+
+FAILED (errors=3)
+exit=1

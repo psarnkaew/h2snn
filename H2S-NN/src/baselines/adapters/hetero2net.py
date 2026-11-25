@@ -597,8 +597,23 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
     """Hetero2Net's H2GB NC epoch loop under the U2 rule (card 1f U5.4): at H2GB's eval epochs the B1a validation
     subset only (no test pass); the best subset macro-F1 epoch's weights (CPU copy, ties: earliest) restored after the
     last epoch; one whole-split validation and test pass; early stopping by `stops_early` (card 16 part 2)."""
-    from src.baselines.minibatch import _cpu_state, _subset_fields, is_eval_epoch, stops_early
+    from torch.nn.parameter import is_lazy
 
+    from src.baselines.minibatch import _subset_fields, is_eval_epoch, stops_early
+
+    def snapshot() -> dict[str, torch.Tensor]:
+        """Card 22 A: `_cpu_state` without the parameters still lazy (their `EdgeDecoder.lin1`, `models.py:14`, runs
+        only with a metapath list and beta > 0; an edge type's conv only once a batch holds that type), which cannot
+        be copied and took no part in the forward so far."""
+        return {key: value.detach().to("cpu", copy=True) for key, value in model.state_dict().items()
+                if not is_lazy(value)}
+
+    def restore(state: dict[str, torch.Tensor]) -> None:
+        missing, unexpected = model.load_state_dict(state, strict=False)
+        if unexpected or not set(missing) <= lazy_at_best:
+            raise RuntimeError(f"best-epoch restore: missing {missing}, unexpected {unexpected}")
+
+    lazy_at_best: set[str] = set()
     best_monitor, best_epoch = float("-inf"), -1
     best_state: dict[str, torch.Tensor] | None = None
     for epoch in range(plan.epochs):
@@ -607,7 +622,8 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
             continue
         sub_metrics = evaluate(subset_loader)
         if sub_metrics["macro_f1"] > best_monitor:
-            best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, _cpu_state(model)
+            best_monitor, best_epoch, best_state = sub_metrics["macro_f1"], epoch, snapshot()
+            lazy_at_best = set(model.state_dict()) - set(best_state)
         report_epoch(report, epoch=epoch, monitor=sub_metrics["macro_f1"], running_best=best_monitor,
                      metrics=sub_metrics, prefix="val_subset",  # card 8 C7
                      extra={"train/loss": None if train_loss is None else float(train_loss)})
@@ -615,7 +631,7 @@ def train_h2gb_epochs(*, model: torch.nn.Module, plan: Any, train_epoch: Callabl
             break
     if best_state is None:
         raise RuntimeError("mini-batch training produced no evaluated epoch.")
-    model.load_state_dict(best_state)
+    restore(best_state)
     record: dict[str, Any] = node_classification_record(val_metrics=evaluate(val_loader),
                                                         test_metrics=evaluate(test_loader), best_epoch=best_epoch)
     record.update(_subset_fields(subset_ids, best_monitor))
