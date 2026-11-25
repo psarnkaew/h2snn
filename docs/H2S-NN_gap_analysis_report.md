@@ -198,3 +198,86 @@ Every change to H2S-NN, its search space or its selection rule after seeing thes
 - I did not verify that IMDB NC `test_acc` (0.316) is exact-match accuracy for every model.
 - I did not compute a heterophily measure.
 - IMDB M–A LP baselines are still running, so the IMDB M–A seed-1 drop (0.666) stays open.
+
+## 6. Round 2 (author's request, 2026-11-25): which hyperparameter or which part of the model?
+
+Source: the 100 tuning trials per NC cell (`tuning_trials_run0.json`) and their `metrics.jsonl`, plus the code under `src/models/` and `src/baselines/search_grids.py`.
+"Per SD" means the change in macro-F1 points for a one-standard-deviation change of that hyperparameter. The estimates come from a joint linear regression over the 100 trials; the inputs are log lr, d, encoder dropout, classifier dropout, log weight decay, l_max and log₂ walks.
+
+### 6.1 Learning rate: not too high. Lowering the floor to 1e-6 goes the wrong way
+
+| Cell | lr 1e-4–3e-4 | 3e-4–1e-3 | 1e-3–3e-3 | 3e-3–1e-2 | Effect on test, per SD |
+|---|---|---|---|---|---|
+| ACM (test) | 88.42 (n = 6, best epoch 83) | 89.05 (n = 11) | **89.66** (n = 37) | 89.47 (n = 46, best epoch 10) | +0.18 |
+| DBLP (test) | 85.63 (n = 2, best epoch 263) | — | 91.32 (n = 8) | **92.97** (n = 90) | +0.66 |
+| IMDB (test) | 40.95 (n = 2) | 53.24 (n = 3) | 59.36 (n = 4) | **62.97** (n = 91) | +3.22 |
+
+- **Lower lr is worse on every dataset.** It trains slowly (best epoch 83–263) and scores lower. Trials below 1e-4 would sit even lower, so widening the range down to 1e-6 would only waste trials.
+- **On DBLP and IMDB the upper edge (1e-2) is binding**: the top-10 trials have lr 0.006–0.0099.
+- **On ACM, lr hardly matters** for test (+0.18 per SD). The fast fit on ACM (§1.3) is therefore not caused by a too-large lr.
+
+### 6.2 Hidden dimension d: limiting on IMDB only
+
+| Cell | Effect of d on test, per SD | By d |
+|---|---|---|
+| ACM | +0.05 | d = 16: 88.05, d = 32: 89.48, d = 64: 89.47 (saturated) |
+| DBLP | +0.02 | No effect |
+| IMDB | **+1.11** | d = 64 in all of the top 10 (upper edge) |
+
+In H2S-NN, d is both the stalk dimension and the entire node-representation width: the classifier reads x* ∈ ℝ^d. The baselines' hidden width goes up to 256 (`search_grids.HIDDEN`), while H2S-NN stops at 64. On IMDB, d = 128 is worth testing. On ACM, width is not the bottleneck.
+
+### 6.3 Dropout: the strongest test predictor on ACM, under-explored by the search and capped by the range
+
+| ACM encoder dropout | Trials | Val | Test |
+|---|---|---|---|
+| 0.0–0.3 | 15 | 92.53 | 88.77 |
+| 0.3–0.5 | 53 | 93.38 | 89.17 (the selected trial has 0.448) |
+| 0.5–0.7 | 26 | 93.23 | 90.10 |
+| 0.7–0.9 | **6** | 94.12 | **90.48** |
+
+- **On ACM, encoder dropout has the largest effect on test** (+0.59 per SD, the biggest coefficient). Yet the search sampled 0.7–0.9 only 6 times, because the noisy validation (§1.2) did not reward it.
+- **On DBLP and IMDB the upper edge (0.9) is binding**: 85 and 73 of 100 trials sit in 0.7–0.9, and its effect on test is +0.96 and +0.44 per SD.
+- **What H2S-NN lacks compared with the baselines** (`src/models/node_encoder.py`):
+  - `encoder_dropout` acts after `Linear(d_t → d) + LayerNorm + GELU`, on the d-dimensional h0, not on the raw features.
+  - The baselines also tune *input-feature dropout* (`search_grids.INPUT_DROP`, 0–0.9; PSHGCN publishes 0.85 for ACM).
+  - ACM paper and author features are 1,902-dim bag-of-words. One `Linear(1902 → 32)` per type, trained on 726 labels, memorises within about 10 epochs (§1.3). Input dropout is the standard regulariser for this, and H2S-NN does not have it.
+  - The featureless term type gets a free `nn.Embedding(1902, d)`, which adds 1,902 × d parameters trained only through the loss.
+- **Weight decay** has no effect (−0.03 per SD on ACM test).
+- **`l_max`** is negative on ACM (−0.18 test, −0.34 val per SD); l_max = 3 is best (§1.2).
+
+### 6.4 Model component: the sheaf diffusion helps ACM, but the checkpoint is taken before it has trained
+
+Across the 100 ACM trials, at the selected epoch (`metrics.jsonl`, train block):
+
+| Correlation with | Test | Val |
+|---|---|---|
+| τ (diffusion time) | **+0.45** | −0.08 |
+| Path log-weight range | +0.28 | −0.32 |
+| Best epoch | −0.24 | **−0.50** |
+
+- Trials whose diffusion grew (larger τ) generalise better. Validation does not see this, and it actually prefers *early* checkpoints (−0.50).
+- So the selection systematically picks checkpoints where τ ≈ 1.04 (its initial value). On DBLP τ ≈ 6.1, and there validation and test agree on τ (+0.37 and +0.21).
+- **The model:** h0 = TypeEncoder(x) → one anchored solve (PᵀP + τL̂)Y* = Pᵀh0 → MLP head on x*.
+  - On ACM the linear encoder alone fits the training labels before τ and the path weights have moved.
+  - The head therefore learns on an almost unsmoothed h0, which validation (181 nodes) rewards and test (2,118 nodes) does not.
+- **Conclusion:** the problem on ACM is not a broken component. It is an **ordering problem**: the encoder memorises faster than the diffusion trains, and nothing in the search space slows the encoder down (no input dropout, encoder dropout capped at 0.9 and rarely sampled, τ_init fixed at 1.0).
+
+**Confidence:** medium–high for the correlations. Causation needs the diagnostics in §6.5.
+
+### 6.5 Diagnostic plan (lab, needs the author's OK)
+
+Everything uses the selected ACM configuration, 3 seeds per point, and config overrides only (no code change). Results are read on validation first. Test is reported separately and labelled as diagnosis. ACM takes about 1.6 s per epoch and about 60 epochs per run, so about 2 minutes per run.
+
+| # | Question | Runs | Change |
+|---|---|---|---|
+| D1 | Does more encoder dropout close the gap? | `encoder_dropout` ∈ {0.7, 0.85, 0.9, 0.95} × 3 = 12 | config |
+| D2 | Does a larger initial τ help (does diffusion train in time)? | `tau_init` ∈ {3, 6} × 3 = 6 | config (fixed card value, not a search key) |
+| D3 | Which component matters on ACM? | Arms `h0_only` (no diffusion), `S2` (identity fact maps), `ego_head` ([x*, h0]), `direction_blind_maps`, `endpoints` × 3 = 15 | config (existing ablation switches) |
+| D4 | Does width help? | d = 128 on ACM and on IMDB × 3 = 6 | config |
+| D5 | Is l_max = 3 better on validation with seeds averaged? | l_max = 3 × 3 = 3 | config |
+
+Total: about 42 runs, about 1.5–2 GPU-hours on one lab GPU.
+
+**Input-feature dropout** (the clearest gap compared with the baselines) needs a code change in `node_encoder.py`, so it is a proposal for the model session, not a diagnostic. If D1 helps strongly, that is the evidence for it.
+
+Adopting any of these after seeing test results is a deviation. That decision belongs to the author and the model session.
