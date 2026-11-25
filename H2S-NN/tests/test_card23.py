@@ -369,6 +369,91 @@ class TuningSpaceTests(unittest.TestCase):
         self.assertEqual((payload["model"]["input_dropout"], payload["optim"]["ema_decay"]), (0.4, 0.99))
 
 
+class ReviewFollowUpTests(unittest.TestCase):
+    """Card 23 review items 1-3: the trial objective under C6, the enforced switch rule, the re-tune configs."""
+
+    def _raw(self, name: str, **top) -> dict:
+        from scripts.run_h2snn_wandb_tuning import load_raw_config
+
+        raw = load_raw_config(ROOT / "configs" / "experiments" / f"{name}.yaml")
+        raw["device"] = "cpu"
+        raw.update(top)
+        return raw
+
+    def _trial(self, raw: dict):
+        """`train_trial` with a stand-in trainer: epoch 0 reports raw val 0.9; the selected epoch has raw val
+        0.7 and smoothed score 0.65. Returns the record and the `best/macro_f1` values sent to W&B."""
+        import sys
+        from unittest import mock
+
+        import scripts.run_h2snn_wandb_tuning as tuning
+
+        class _Trainer:
+            _best_test_metrics = None
+
+            def fit(self, _data, epoch_callback):
+                self._best_test_metrics = {"epoch": 0, "best_epoch": 0, "val_macro_f1": 0.7,
+                                           "val_smoothed_score": 0.65, "test_macro_f1": 0.6}
+                epoch_callback(0, {"loss": 1.0}, {"macro_f1": 0.9}, {"macro_f1": 0.5})
+
+        logged: list[float] = []
+        fake_wandb = SimpleNamespace(run=object(), log=lambda payload, step=None: logged.append(
+            payload["best/macro_f1"]))
+        components = (None, None, None, None, SimpleNamespace(close=lambda: None), None, _Trainer())
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch("src.builders.build_experiment_components", lambda cfg: components), \
+                mock.patch.dict(sys.modules, {"wandb": fake_wandb}):
+            record = tuning.train_trial(raw, params={}, run_index=0, num_runs=1, seed=0, base_exp_name="t",
+                                        output_dir=Path(tmp), monitor="val_macro_f1", trial_name="t0")
+        return record, logged
+
+    def test_trial_objective_is_the_smoothed_score_with_w_gt_1(self) -> None:
+        from src.utils.wandb_campaign import sweep_objective
+
+        record, logged = self._trial(self._raw("acm_h2snn_c23"))
+        self.assertEqual(sweep_objective(record, "val_macro_f1"), 0.65)  # what the worker logs to the sweep
+        self.assertEqual(record["val_macro_f1_raw"], 0.7)
+        self.assertEqual(logged, [0.65])
+        record, logged = self._trial(self._raw("acm_h2snn_v3b"))  # w = 1: unchanged
+        self.assertEqual(sweep_objective(record, "val_macro_f1"), 0.7)
+        self.assertNotIn("val_macro_f1_raw", record)
+        self.assertEqual(logged, [0.9])
+
+    def test_pack_space_needs_eval_draws_8_and_smoothing_5(self) -> None:
+        from scripts.run_h2snn_wandb_tuning import _build_sweep_for_run
+        from src.configs.config import TrainConfig
+
+        def sweep(raw):
+            return _build_sweep_for_run(args=argparse.Namespace(d_values=None, grid_point=None),
+                                        base_cfg=TrainConfig.from_dict(raw), base_exp_name="fp",
+                                        monitor="val_macro_f1", run_index=0)
+
+        for top, data, model in (({"checkpoint_smoothing": 3}, {"eval_draws": 8}, {}),
+                                 ({"checkpoint_smoothing": 5}, {"eval_draws": 4}, {}),
+                                 ({}, {}, {"input_dropout": 0.2}),
+                                 ({}, {}, {})):
+            raw = self._raw("acm_h2snn_v3b", **top)
+            raw["data"].update(data)
+            raw["model"].update(model)
+            if not (top or data or model):
+                raw["optim"]["ema_decay"] = 0.9
+            with self.subTest(top=top, data=data, model=model), self.assertRaisesRegex(ValueError, "card-23"):
+                sweep(raw)
+        for name in ("acm", "dblp", "imdb"):
+            with self.subTest(name=name):
+                self.assertIn("ema_decay", sweep(self._raw(f"{name}_h2snn_c23"))["parameters"])
+
+    def test_retune_configs_differ_from_v3b_in_the_two_keys_only(self) -> None:
+        from scripts.run_h2snn_wandb_tuning import load_raw_config
+
+        for name in ("acm", "dblp", "imdb"):
+            with self.subTest(name=name):
+                old = load_raw_config(ROOT / "configs" / "experiments" / f"{name}_h2snn_v3b.yaml")
+                new = load_raw_config(ROOT / "configs" / "experiments" / f"{name}_h2snn_c23.yaml")
+                self.assertEqual((new["data"].pop("eval_draws"), new.pop("checkpoint_smoothing")), (8, 5))
+                self.assertEqual(new, old)
+
+
 class OtherTrainersRefuseTests(unittest.TestCase):
     """(f) C4-C6 belong to the full-batch NC trainer."""
 

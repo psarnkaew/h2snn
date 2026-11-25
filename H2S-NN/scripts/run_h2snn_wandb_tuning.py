@@ -106,6 +106,10 @@ SPACE_PACK_LR: dict[str, Any] = {"distribution": "log_uniform_values", "min": 1e
 SPACE_PACK_D_NC: list[int] = [16, 32, 64, 128]
 SPACE_PACK_INPUT_DROPOUT: dict[str, Any] = {"distribution": "uniform", "min": 0.0, "max": 0.9}
 SPACE_PACK_EMA_DECAY: dict[str, Any] = {"values": [0.0, 0.9, 0.99, 0.999]}
+# Card 23 review, item 2: the fixed settings of the re-tuned cells; with the pack space on, a base config with
+# other values is refused before the sweep is created.
+PACK_EVAL_DRAWS = 8
+PACK_CHECKPOINT_SMOOTHING = 5
 # Tuning on seed 0 only, then the best configuration on seeds 0-4 (spec §6).
 TUNING_SEED = 0
 FINAL_SEEDS: tuple[int, ...] = (0, 1, 2, 3, 4)
@@ -520,6 +524,9 @@ def train_trial(
     reset_peak()  # card 10 A2.2: the peak of this trial covers data, training and evaluation
 
     data, _, _, _, logger, _, trainer = build_experiment_components(cfg)
+    # Card 23 review, item 1: with C6 (w > 1) the trial objective is the smoothed validation score at the
+    # selected epoch, the quantity the selection maximises; w = 1: the running maximum, as before.
+    smoothed = cfg.checkpoint_smoothing > 1
     trained = {"epoch": False}  # card 10 A2.2: a training epoch reached the epoch callback
     stopped = {"epoch": None}  # card 16 part 2: the last epoch the trainer reported = the epoch the trial stopped at
     try:
@@ -533,7 +540,10 @@ def train_trial(
             test_metrics: dict[str, float],
         ) -> None:
             nonlocal best_seen
-            best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
+            if smoothed:
+                best_seen = float((trainer._best_test_metrics or {}).get("val_smoothed_score", best_seen))
+            else:
+                best_seen = max(best_seen, float(val_metrics.get(monitor_key, 0.0)))
             stopped["epoch"] = int(epoch)
             trained["epoch"] |= bool(train_metrics)
             try:
@@ -557,6 +567,11 @@ def train_trial(
         raw_record = getattr(trainer, "_best_test_metrics", None)
         if raw_record is None:
             raise RuntimeError(f"Tuning trial {trial_name} did not produce best metrics.")
+        if smoothed:  # card 23 review, item 1: the objective field holds the smoothed score (what the sweep ranks
+            # by, `sweep_objective`); the raw value at the selected epoch stays as `val_<monitor>_raw`
+            objective_key = f"val_{monitor_key}"
+            raw_record = {**raw_record, f"{objective_key}_raw": raw_record[objective_key],
+                          objective_key: raw_record["val_smoothed_score"]}
         # the whole validation and test splits are evaluated into the record (after training under B1a, whose
         # epoch callback sees only the validation subset), and the peak is read after that evaluation
         val_done, test_done = record_phases(raw_record, monitor)
@@ -618,6 +633,15 @@ def _build_sweep_for_run(
     unit_label: str = "run",
     unit_name: str | None = None,
 ) -> dict[str, Any]:
+    pack_keys = regularisation_pack_keys_set(base_cfg)
+    if pack_keys and (base_cfg.data.eval_draws, base_cfg.checkpoint_smoothing) != (
+            PACK_EVAL_DRAWS, PACK_CHECKPOINT_SMOOTHING):
+        # Card 23 review, item 2: any pack key switches the card-23 space on; it is tuned only with the
+        # re-tuned cells' fixed settings.
+        raise ValueError(
+            f"{', '.join(pack_keys)} switch(es) on the card-23 search space, which needs data.eval_draws: "
+            f"{PACK_EVAL_DRAWS} and checkpoint_smoothing: {PACK_CHECKPOINT_SMOOTHING} in the base config "
+            f"(got {base_cfg.data.eval_draws} and {base_cfg.checkpoint_smoothing}).")
     sweep_config = build_sweep_config(
         task_type=base_cfg.task_type,
         metric=monitor,
@@ -625,7 +649,7 @@ def _build_sweep_for_run(
         decoder_type=base_cfg.data.decoder_type,
         dataset_name=base_cfg.data.dataset_name,
         d_values=args.d_values,
-        regularisation_pack=bool(regularisation_pack_keys_set(base_cfg)),  # card 23
+        regularisation_pack=bool(pack_keys),  # card 23
         training_mode=base_cfg.data.training_mode,
     )
     if base_cfg.tuning.arm:  # spec 1.24 Y4: an arm-tuning sweep drops the arm's inert keys
