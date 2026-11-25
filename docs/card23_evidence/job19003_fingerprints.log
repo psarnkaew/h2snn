@@ -1,0 +1,5 @@
+job=19003 node=g2n01 base_git=b0f13fb43bcc77bdf15f73a2caa026140179e441 card23_git=e8e87c3159853c8b6905079bf285eb6ca18214b4 card23_dirty=11
+base exit=0
+card23 exit=0
+FINGERPRINTS IDENTICAL
+{"config": "acm+pack", "base": "5800bce8f8732bde4ba98caa806a77d2e97013124a0ef91f6e0f233b52c594c6", "sweep": "623bcf799019c683376d1ec3262945a403f12fffabd6c00fba6711ced424ed90", "params": ["classifier_dropout", "d", "ema_decay", "encoder_dropout", "input_dropout", "lr", "weight_decay", "wisp_max_length", "wisp_walks_per_anchor"], "space": {"d": {"values": [16, 32, 64, 128]}, "lr": {"distribution": "log_uniform_values", "min": 0.0001, "max": 0.03}, "weight_decay": {"values": [0.0, 1e-05, 5e-05, 0.0001, 0.0005, 0.001, 0.01, 0.1, 0.8]}, "wisp_max_length": {"values": [2, 3, 4, 5]}, "wisp_walks_per_anchor": {"values": [8, 16, 32, 64]}, "encoder_dropout": {"distribution": "uniform", "min": 0.0, "max": 0.99}, "input_dropout": {"distribution": "uniform", "min": 0.0, "max": 0.9}, "classifier_dropout": {"distribution": "uniform", "min": 0.0, "max": 0.9}, "ema_decay": {"values": [0.0, 0.9, 0.99, 0.999]}}}

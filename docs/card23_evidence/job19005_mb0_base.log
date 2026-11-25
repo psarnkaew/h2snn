@@ -1,0 +1,14 @@
+job=19005 node=g2n01
+=== tree=/mnt/data/peeradon/h2snn-runs/b0f13fb43bcc77bdf15f73a2caa026140179e441 git=b0f13fb43bcc77bdf15f73a2caa026140179e441
+compared 136 tensors; differing: 126
+exit=1
+saved /tmp/tmp.nsYcfOUe0h/b0f13fb43bcc77bdf15f73a2caa026140179e441.pt
+save exit=0
+=== tree=/mnt/data/peeradon/h2snn-card23 git=e8e87c3159853c8b6905079bf285eb6ca18214b4
+compared 136 tensors; differing: 126
+exit=1
+saved /tmp/tmp.nsYcfOUe0h/h2snn-card23.pt
+save exit=0
+=== card23 compare against the b0f13fb capture of this job
+compared 136 tensors; differing: none
+exit=0
