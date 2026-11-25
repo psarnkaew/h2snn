@@ -247,3 +247,22 @@ The author approved the card 22 merge ("อนุมัติ merge card 22 ไ�
   - The search spaces still pair `euler` with larger d: CSNN `d ∈ {2,3,4}` (`csnn.py:202-205`) and NSD `d ∈ {2,…,5}` (`nsd.py:253-256`).
   - Every such grid point fails as a trial on every dataset, so it uses up a slot in the trial budget.
   - The fix is a search-space decision, owned by the spec.
+
+## 9. Five seeds everywhere (author, advisor, 2026-11-25)
+
+The author set the main-table seeds back to 5 (seeds 0–4), at the advisor's request ("ตั้ง N_SEEDS = 5 แล้วเริ่มเลย", set N_SEEDS = 5 and start now). This replaces "seeds 0–2" of §1.
+The spec (1.32 AF) and ablation pre-registration v3 are owned by the model session. v3 reuses main-table seeds 1–2 and runs seeds 3–5, which now overlap main-table seeds 3–4.
+
+- **Points estimate** from measured per-seed wall time on gpu_1 (0.2 points/h; balance 1,781 before submission): about 40–70 points for seeds 3–4 of every cell.
+  - Tuned baselines with budget 500/40: 0.01–0.3 h per seed.
+  - Published configs: 2–6 h per seed on H2GB; 32 cells already had 5 published seeds.
+  - H2S-NN: 0.5–1 h on Freebase, IEEE-CIS-G and DBLP; 3–8 h on OAG, PDNS and H-Pokec; 6–11 h on ogbn-mag.
+- **t4_auto:** `N_SEEDS = 5` (backup `.bak_seeds5`). Finished sweeps get per-seed lines for seeds 3–4 on the cell's own out-dir lists, with no retuning. First submission:
+  - 9565207 (early, 8 lines), 9565225 (b1, 40 lines), 9565226 (b2 gpu_1, 14 lines).
+- **H-Pokec NC published** (the void rerun of §7): seeds 3–4 were added on the same `2e3e160` checkout as seeds 0–2.
+  - 9565183: `cells_pub_hpokec_c21_s34`, GCN/HAN/R-GCN, 6 lines.
+  - 9565184: `cells_pub_h2gf_hpokec_c21_s34`, H2G-former, 2 lines.
+- **Dashboard:** `dash_status.py` and `lab_status.py` count 5 seeds (data v30). A lab cell with 3 of 5 seeds shows as Stopped until the author gives the go on the lab.
+- **Not run yet:**
+  - Lab seeds 3–4. These need a lab resubmission, which waits for the author's go.
+  - H2G-former ogbn-mag published: only seeds 1 and 4 exist. Seeds 0, 2 and 3 were killed at the 12 h job limit (6 lines, job 9537255). This is reported and not rerun.
