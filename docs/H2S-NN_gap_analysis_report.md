@@ -305,3 +305,90 @@ Caveat: the training metrics are probably logged in train mode, with dropout on,
   - IMDB M–A: also d = 8.
 - The exception is IMDB NC, where d = 64 binds (§6.2): there, more width *and* more dropout could both help.
 - H2GB cells: not checked (curves not read).
+
+## 8. Every dataset: rank and training curves (author's request, 2026-11-25)
+
+**Sources.**
+- Lab: `<lab-out>`.
+- TSUBAME (read only): every H2S-NN trial run directory in `<t4-out:0b9873d>/h2snn/*_tune_run0_*` (`metrics.jsonl`, `best_test_metrics.json`, `config.yaml`), and the baselines in `<t4-out:0b9873d>` and `<t4-out:2d822a4>`.
+
+**H2GB caveat.** For H2GB, H2S-NN has 1–37 finished trials per cell, and the number shown is the test score of the *best-validation trial* (one seed). The baselines show the mean over 3–5 final seeds.
+
+### 8.1 Rank among the numbers produced by our pipeline (test)
+
+| Cell | H2S-NN | Best of ours | H2S-NN rank |
+|---|---|---|---|
+| ACM NC | 88.78 | HetSheaf 91.1 (2 seeds), H2G-former 90.60 | 4 / 4 |
+| DBLP NC | 93.09 | H2G-former 93.33 | 2 / 4 |
+| IMDB NC | 64.04 | H2G-former 64.61 | 2 / 7 |
+| ACM P–P LP | 0.935 (0.957 without seed 1) | NSD 0.958 | 10 / 10 (2 / 10 without seed 1) |
+| DBLP A–P LP | 0.868 (trial) | NSD 0.876 | 2 / 4 |
+| IMDB M–A LP | 0.706 | HetSheaf 0.778 | 3 / 3 (lab baselines still running) |
+| PDNS | 0.933 (9 trials) | H2G-former 0.961 | 3 / 6 |
+| IEEE-CIS-G | 0.550 (34 trials) | R-GCN 0.612 | 8 / 10 |
+| H-Pokec | 0.685 (5 trials) | R-GCN 0.789 | 3 / 4 |
+| mag-year | 0.336 (24 trials) | H2G-former 0.487 | 2 / 2 |
+| oag-cs | 0.032 (4 trials) | H2G-former 0.094 | 7 / 8 |
+| oag-eng | 0.090 (7 trials) | H2G-former 0.221 | 4 / 6 |
+| oag-chem | 0.072 (1 trial) | H2G-former 0.147 | 3 / 6 |
+| ogbn-mag | 0.058 (1 trial) | H2G-former 0.381 | 2 / 2 |
+
+H2S-NN is first in no cell. It is close to the top on DBLP NC, IMDB NC, DBLP A–P LP and ACM LP (without seed 1), and clearly behind on ACM NC, IMDB M–A and every H2GB NC cell.
+
+**Against the best published numbers** (author, 2026-11-25):
+
+| Dataset | Best published | H2S-NN | Gap | HetSheaf ours − published (pipeline offset) |
+|---|---|---|---|---|
+| ACM | H2SGNN 94.47 | 88.78 | −5.7 | −3.2 |
+| DBLP | H2SGNN 95.19 | 93.09 | −2.1 | −2.1 |
+| IMDB | SeHGNN 67.11 | 64.04 | −3.1 | −2.1 |
+
+- Only the HetSheaf rerun measures the pipeline offset directly. For H2SGNN on ACM and DBLP, and for SeHGNN, we have no rerun on our pipeline.
+- Our H2SGNN on IMDB gives 63.57, below H2S-NN; the H2SGNN paper reports no IMDB result.
+- So on DBLP and IMDB the gap to the best published number is about the size of the measured offset. On ACM about 2.5–3.5 points remain after the offset.
+
+### 8.2 Two different regimes in the curves
+
+**(A) HGB, full batch (ACM, IMDB, Freebase NC, all lab LP): overfit (§7).**
+- Freebase NC, the best trial:
+  - train macro-F1 0.975 against val 0.30;
+  - val loss lowest at epoch 7 (1.48), rising to 5.5 by the end;
+  - all top-3 trials chose d = 16, the smallest value.
+
+**(B) H2GB, minibatch: underfit, and stopped while still improving.**
+
+| Cell | Train loss at the end | Val loss at the end | Curve at stop |
+|---|---|---|---|
+| PDNS | 0.153 | 0.154 | Val loss still at its minimum and val F1 still rising when patience stopped the run at epoch 156 |
+| H-Pokec | 0.580 | 0.566 | Val F1 still rising (0.6885 at the last evaluation) when the run stopped at epoch 312; lr chosen 1e-4–3e-4 |
+| oag-eng / oag-cs / oag-chem | 3.5 / 3.8 / 3.0 | 3.07 / 4.09 / 3.34 | Slow monotone decrease; best epoch close to the last evaluation |
+| mag-year | 1.285 | 1.298 | Plateau from about epoch 48 (val F1 0.29–0.32) |
+| ogbn-mag | 3.17 | 2.96 | Plateau from about epoch 24 |
+| IEEE-CIS-G | 0.19 | 0.28 | Val macro-F1 0.48–0.52 almost the whole run, close to all-majority (0.4755; accuracy 0.905) |
+
+Train loss and val loss are almost equal, so there is no generalisation gap. The model has not fitted the training set.
+
+**Protocol differences found in the code** (`src/trainers/minibatch_trainer.py`, `src/baselines/h2gb_published.py`):
+
+1. **Early stopping.**
+   - H2S-NN stops after 40 epochs without a gain in validation-subset macro-F1. That is only 10–20 evaluations of a noisy metric (`bad_epochs += period`, period 2–4).
+   - The published-config baselines run with `patience=None`, so the full H2GB epoch count. Their best epochs are 300–499.
+2. **Schedule.** The baselines use H2GB's optimizer and scheduler (warm-up and schedule); H2S-NN uses constant lr (`scheduler: none`).
+3. **Loss on IEEE-CIS-G.**
+   - The published-config baselines train with `weighted_cross_entropy` (fixed class weights).
+   - H2S-NN uses unweighted `cross_entropy` (`minibatch_trainer.py:134`).
+   - The tuned baselines on the same plain protocol score like H2S-NN (PSHGCN 0.570, ChebNetII 0.538; H2SGNN and HINormer 0.475, which is all-majority).
+   - So most of the IEEE-CIS-G gap is the loss and protocol, not the model.
+4. **Capacity on large datasets.** The representation is d ≤ 64, with a single linear encoder. Featureless types are free embeddings trained only through minibatches (ogbn-mag authors, Freebase). The H2GB NC cells with many classes (oag-*, ogbn-mag) underfit the most.
+
+### 8.3 What follows
+
+| Regime | Problem | What to change (proposals; each is a deviation the author and the model session decide) |
+|---|---|---|
+| HGB, full batch | Overfit, plus noisy selection | Input-feature dropout or a higher dropout range; selection on val loss or smoothed val; τ_init; a lower lr floor for IMDB M–A only (§6, §7) |
+| H2GB, minibatch | Underfit, plus stopping too early, plus loss and schedule different from the baselines | Patience in *evaluations*, or on val loss (or no early stopping, as for the published-config baselines); an lr schedule; weighted CE on IEEE-CIS-G (the same loss as the baselines); d up to 128–256 on oag-*, ogbn-mag and mag-year |
+| Reference | The gap to published is measured only through HetSheaf | Rerun H2SGNN (ACM, DBLP) and SeHGNN (ACM, DBLP, IMDB) on our pipeline (lab, small datasets) to measure the real gap to the strongest methods |
+
+**Diagnostics** (need the author's OK):
+- Lab: D1–D5 from §6.5.
+- TSUBAME: 1–2 H2S-NN runs on PDNS and on IEEE-CIS-G with the baselines' protocol (no early stopping, weighted CE on IEEE). These cost TSUBAME points.
