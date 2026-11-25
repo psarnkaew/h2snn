@@ -392,3 +392,51 @@ Train loss and val loss are almost equal, so there is no generalisation gap. The
 **Diagnostics** (need the author's OK):
 - Lab: D1–D5 from §6.5.
 - TSUBAME: 1–2 H2S-NN runs on PDNS and on IEEE-CIS-G with the baselines' protocol (no early stopping, weighted CE on IEEE). These cost TSUBAME points.
+
+## 9. Is the solver (T_max) a cause? (author's question, 2026-11-25)
+
+**Author's decision (2026-11-25):** do not rerun the published methods (H2SGNN, SeHGNN). The "Reference" row of §8.3 is withdrawn.
+
+**Code** (`src/models/anchored_solve.py`):
+- PCG runs with `solver_max_iterations` (T_max) = 100 and tolerance 1e-3 for the first 10 epochs, then 1e-4.
+- `solve_anchored(..., strict=True)` *raises* `PCGConvergenceError` when any scope reaches T_max without converging.
+- So a run that finished converged on every step.
+
+**Evidence that T_max is not hit:**
+
+| Cells | Epochs checked | Largest forward iterations | Epochs at T_max | Not converged |
+|---|---|---|---|---|
+| Lab, all 5 cells (`metrics.jsonl` train block, 105 runs each) | ≈ 75,000 | 56 (ACM LP); ACM NC 20, DBLP NC 47, IMDB NC 29, IMDB M–A 30 | 0 | 0 |
+| TSUBAME full-batch: DBLP A–P LP, Freebase NC, Freebase B–B LP | ≈ 19,600 | 72, 32, 31 | 0 | 0 |
+
+- No `PCGConvergenceError` appears in any run log on the lab or on TSUBAME.
+- **Gap: the minibatch NC trainer does not log τ or the PCG statistics** (its train block holds only `loss` and `steps`). For PDNS, IEEE-CIS-G, H-Pokec, mag-year, oag-* and ogbn-mag we know only that nothing raised.
+
+**A related solver limit that does bite: the stop condition τ > 50** (`tau_stop`, spec v1.16 §6) ends the run, and the trial then has no result.
+
+| Cell | Trials stopped | Epoch | lr | Batch |
+|---|---|---|---|---|
+| ogbn-mag | 2 of 5 | 8, 295 | 5.7e-4, 6.9e-4 | 32, 1024 |
+| oag-cs | 2 of 8 | 1, 6 | 8.1e-3, 8.2e-3 | 32 |
+| oag-chem | 1 of 3 | 9 | 9.4e-3 | 256 |
+| oag-eng | 1 of 10 | 100 | 4.3e-3 | 32 |
+| IEEE-CIS-G | 1 of 37 | 11 | 7.4e-3 | 32 |
+| PDNS | 1 of 12 | 20 | 9.5e-3 | 256 |
+| H-Pokec U–U LP | 1 of 8 | 0 | 8.8e-3 | full batch |
+| MUTAG (lab) | 2 | 34, 68 | — | — |
+
+- Every stopped trial has τ_init = 1 and `scalar_lr_scale` = 10, so θ_τ (log τ) learns at 10 × lr.
+- With a minibatch of 32–256 targets there are many Adam steps per epoch. At 10 × lr ≈ 0.04–0.09, θ_τ can travel from 0 to log 50 ≈ 3.9 within one epoch. This explains the stops at epochs 0–11.
+- **Effect on the results:**
+  - (i) These trials are lost: 2 of 5 on ogbn-mag, 2 of 8 on oag-cs.
+  - (ii) The search is steered away from high lr exactly on the cells that underfit (§8.2).
+  - (iii) If τ wants to grow without bound, the diffusion is pushing towards heavy smoothing, which may itself limit fitting on these datasets. This is not shown, because τ is not logged in the completed minibatch runs.
+
+**Verdict.**
+- T_max = 100 is **not** a cause in any cell where it can be checked: at most 72 iterations, never at the cap.
+- The τ dynamics in minibatch mode (scalar lr × 10, many steps per epoch, the τ > 50 stop) is a **plausible contributor** to the H2GB underfit and to the lost trials. Confidence: medium for the lost trials (observed), low for the underfit (not observable without logging).
+
+**Proposals** (for the model session; changes to the code or to fixed values are deviations):
+- Log τ and the PCG statistics in the minibatch trainer. This is logging only and does not change results.
+- In minibatch mode, use `scalar_lr_scale` = 1, or set it per optimizer step rather than per epoch.
+- *Diagnostic (TSUBAME, needs OK):* one PDNS run with τ logged, to see whether τ stays near 1 or climbs in a completed run.
