@@ -571,3 +571,7 @@ Train loss and val loss are almost equal, so there is no generalisation gap. The
 4. Depth for H2GB, as a separate design question.
 
 Map nonlinearity and extra classifier dropout: no.
+
+**D6 (lab job 19001, author OK):**
+- ACM with `data.feature_normalization: row` gives val 93.12 ± 0.86, test **88.90 ± 0.45**, best epochs 16, 16, 17, τ ≈ 1.14. That is no gain over the selected configuration (89.07).
+- Feature scale is not the cause, so this option is dropped. Input-feature *dropout* (M1) remains the candidate on the feature side.

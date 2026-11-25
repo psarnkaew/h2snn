@@ -64,7 +64,7 @@ Nothing here has been applied.
 | M6 | Log τ and PCG statistics in the minibatch trainer | Logging only | `minibatch_trainer.py` | §9 | Needed to diagnose H2GB; no change to results |
 | M7 | `scalar_lr_scale` in minibatch mode: 1, or scaled per optimizer step | Code / fixed value | Optimizer groups | §9 (τ > 50 stops) | Recovers lost trials on ogbn-mag and oag-* |
 | M8 | Checkpoint selection on validation loss or smoothed validation | Protocol (all methods) | Trainers | §1.2–1.3 (ACM validation is noise-dominated) | Optional; it would have to apply to every method |
-| M9 | `feature_normalization: row` | Config (exists) | — | D6 result: see §4 | — |
+| M9 | ~~`feature_normalization: row`~~ | Config (exists) | — | D6: 88.90 vs 89.07, no gain (§4) | **Dropped** |
 
 **Not recommended:**
 - more classifier dropout (already tuned over 0–0.9 and not at the edge);
@@ -94,7 +94,14 @@ Nothing here has been applied.
 
 ## 4. D6 (feature normalisation) result
 
-_Pending: lab job 19001, 3 ACM runs with `data.feature_normalization: row` at the selected configuration. This section will be filled in when the job ends._
+Lab job 19001: 3 ACM runs with `data.feature_normalization: row` at the selected configuration (seeds 0–2).
+
+| Variant | Val | Test | Best epoch | τ at the best epoch |
+|---|---|---|---|---|
+| Selected (original seeds 0–2) | 94.26 ± 1.22 | 89.07 ± 0.69 | 8, 8, 12 | ≈ 1.0 |
+| Row normalisation | 93.12 ± 0.86 | 88.90 ± 0.45 | 16, 16, 17 | 1.14 |
+
+**Row normalisation gives no gain.** The encoder still fits early (best epoch about 16, τ ≈ 1). Feature scale is not the cause. M9 is dropped.
 
 ## 5. Implications for the paper (for the author)
 
