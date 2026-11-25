@@ -492,3 +492,36 @@ Train loss and val loss are almost equal, so there is no generalisation gap. The
 - The clean route is a re-tune with a widened range. For example: dropout up to 0.95–0.99, plus input-feature dropout; d ∈ {16, …, 128}.
 - To be fair, the same widening must apply to the baselines' shared ranges (`search_grids.DROPOUT` caps every method at 0.9), or the paper must state that only H2S-NN's range was widened.
 - Cost on the lab: one 100-trial ACM sweep takes about 3–4 GPU-hours (≈ 2 min per trial); IMDB about 2× that.
+
+## 11. Does the anchor matter? (author's question, 2026-11-25)
+
+**What the anchor is.**
+- The anchored solve is Y* = argmin ‖PY − h0‖² + τ YᵀL̂Y, that is (PᵀP + τL̂)Y* = Pᵀh0 (`src/models/anchored_solve.py`).
+- The anchor term ‖PY − h0‖² keeps each node's state close to its own encoding h0, and τ sets how strongly the diffusion pulls against it:
+  - τ → 0 gives Y* = h0 (`h0_only`);
+  - τ → ∞ gives full smoothing, where the anchor no longer matters.
+- `anchored` is the only propagation left (Chebyshev was removed), so there is no "un-anchored" arm. Anchor strength is controlled through τ alone.
+
+| Setting | Effective anchor | ACM test | τ at the best epoch |
+|---|---|---|---|
+| `h0_only` (D3) | Infinite: no diffusion | 86.01 | — |
+| Selected configuration | Strong (τ ≈ 1) | 89.07 | ≈ 1.0 |
+| D2 τ_init 3 / 6 | Weaker from the start | 89.54 / 90.05 | 2.5 / 4.7 |
+| D1 encoder dropout 0.95 | Weaker, learned | **93.16** | 4.7 |
+| 100 ACM trials | — | Correlation(test, τ) = +0.45 | — |
+| DBLP selected | — | 93.09 (validation and test consistent) | ≈ 6 |
+
+**Reading.**
+- **Too strong an anchor hurts:** removing the diffusion costs 3.1 points, and the checkpoint selected on ACM sits at τ ≈ 1.
+- **A weaker anchor by itself does not fix it:**
+  - D2 τ_init 6 reaches the same τ (4.7) as D1 encoder dropout 0.95, but scores 90.05 against 93.16.
+  - The solve is linear in h0, so it smooths whatever h0 holds. When the encoder has memorised the 726 labels, h0 is overfit and smoothing it does not recover the test signal.
+  - Encoder dropout makes h0 an unreliable anchor during training, which forces the model to use its neighbours. τ then grows *because of* this, not as the cause.
+- **Too weak an anchor stops the run:** τ > 50 ended 9 H2GB trials (§9). Whether completed minibatch runs drift towards weak anchoring cannot be checked, because τ is not logged there.
+- **Walk anchors (the other "anchor": WISP walks per anchor):**
+  - This setting matters little on ACM (−0.09 per SD on test), but helps on DBLP (+0.61) and IMDB (+0.60).
+  - On IMDB, 64 walks (the upper edge) appear among the top trials. Widen this range in any re-tune.
+
+**Verdict.** The anchor matters through how it interacts with h0, not on its own. The fix lies in the quality of h0 (regularising the encoder), not in a stronger or weaker anchor.
+
+**Optional check.** Run D1 at 0.95 with τ frozen at 1, 3 runs (about 6 min on the lab). This shows whether the gain needs τ to grow. It needs a small code switch (θ_τ trainable on or off), so it goes to the model session.
