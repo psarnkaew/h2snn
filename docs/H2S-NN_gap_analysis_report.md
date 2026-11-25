@@ -440,3 +440,55 @@ Train loss and val loss are almost equal, so there is no generalisation gap. The
 - Log τ and the PCG statistics in the minibatch trainer. This is logging only and does not change results.
 - In minibatch mode, use `scalar_lr_scale` = 1, or set it per optimizer step rather than per epoch.
 - *Diagnostic (TSUBAME, needs OK):* one PDNS run with τ logged, to see whether τ stays near 1 or climbs in a completed run.
+
+## 10. Diagnostic results D1–D5 (lab job 18974, 2026-11-25; author OK)
+
+**Setup.**
+- Code: checkout `0b9873d`, run on an RTX 3090 (the GPU type of the original runs).
+- Each variant uses the selected final configuration of the cell with **one field changed**, and runs seeds 0–2.
+- Outputs are in lab `h2snn-analysis/gapdiag_2026-11-25/`, outside every result directory.
+- **Control:** ACM seed 0 with the original settings reproduces the original final seed exactly (val 95.626, test 89.492, best epoch 8).
+- Reference: the original final seeds 0–2.
+
+| Cell | Variant | Val | Test | Best epoch | τ at the best epoch |
+|---|---|---|---|---|---|
+| ACM | Selected (enc. dropout 0.448), original seeds 0–2 | 94.26 ± 1.22 | 89.07 ± 0.69 | 8, 8, 12 | ≈ 1.0 |
+| ACM | **D1** enc. dropout 0.7 | 92.89 ± 1.19 | 89.82 ± 0.62 | 11, 11, 9 | 1.26 |
+| ACM | **D1** enc. dropout 0.85 | 93.81 ± 0.52 | 90.65 ± 1.21 | 11, 18, 67 | 2.23 |
+| ACM | **D1** enc. dropout 0.9 | 94.24 ± 1.41 | 92.04 ± 0.39 | 44, 43, 28 | 3.14 |
+| ACM | **D1** enc. dropout 0.95 | **94.97 ± 0.96** | **93.16 ± 0.40** | 51, 55, 67 | 4.70 |
+| ACM | D2 τ_init 3 | 93.64 ± 1.36 | 89.54 ± 0.24 | 7, 8, 8 | 2.52 |
+| ACM | D2 τ_init 6 | 93.28 ± 0.94 | 90.05 ± 0.77 | 7, 13, 8 | 4.71 |
+| ACM | D3 `h0_only` (no diffusion) | 91.69 ± 0.84 | **86.01 ± 0.81** | 13, 10, 14 | — |
+| ACM | D3 `S2` (identity fact maps) | 92.45 ± 0.26 | 89.54 ± 0.25 | 13, 15, 14 | 0.86 |
+| ACM | D3 `ego_head` | 92.79 ± 1.90 | 88.77 ± 0.26 | 10, 9, 13 | 1.09 |
+| ACM | D3 `direction_blind_maps` | 93.04 ± 0.90 | 90.02 ± 0.31 | 13, 9, 11 | 0.93 |
+| ACM | D3 `endpoints` | 93.20 ± 0.55 | 89.49 ± 0.29 | 9, 10, 11 | 0.93 |
+| ACM | D4 d = 128 | 93.33 ± 0.59 | 88.71 ± 0.73 | 7, 5, 14 | 0.90 |
+| ACM | D5 l_max = 3 | 93.81 ± 0.95 | 89.60 ± 0.29 | 15, 8, 10 | 1.04 |
+| IMDB | Selected (d = 64), original seeds 0–2 | 66.73 ± 0.84 | 63.59 ± 0.67 | 15, 18, 14 | — |
+| IMDB | **D4** d = 128 | 66.05 ± 0.45 | **65.60 ± 0.46** | 30, 31, 10 | 1.14 |
+
+**Findings.**
+
+1. **Encoder dropout is the main cause of the ACM gap (confirmed).**
+   - Test rises monotonically with encoder dropout: 89.07 → 89.82 → 90.65 → 92.04 → **93.16** (+4.1, about 6 seed std).
+   - At 0.9–0.95, the best epoch moves from 8 to 28–67 and τ grows from ≈ 1 to 3–4.7. This is the mechanism of §6.4: once the encoder cannot memorise the 726 labels, the diffusion has time to train.
+   - Validation moves the same way (94.97 at 0.95, the highest), so the effect is visible without test.
+   - 93.16 is above every same-pipeline ACM baseline (HetSheaf 91.1, H2G-former 90.60), above published GCN/GAT/R-GCN/HAN, and below published H2SGNN (94.47), PSHGCN (94.35) and SeHGNN (94.05).
+   - **The best value, 0.95, lies outside the shared search range (upper edge 0.9).**
+2. **The diffusion helps; the learned maps do not (on ACM).**
+   - `h0_only` loses 3.1 points (86.01 vs 89.07), so the sheaf diffusion contributes.
+   - Identity fact maps (`S2`), direction-blind maps and `endpoints` are within noise of the full model (89.5–90.0). On ACM, the learned SO(d) maps add nothing measurable.
+3. **τ_init alone does not help** (89.5 / 90.1). τ starts larger, but the encoder still memorises by epoch 7–13. Overfitting of the encoder is the cause, not the speed of τ.
+4. **Width:**
+   - ACM d = 128 shows no gain (88.71), as §6.2 predicted.
+   - **IMDB d = 128: test +2.0** (65.60 vs 63.59), above H2G-former ours (64.61) and published HetSheaf (64.51), below SeHGNN (67.11).
+   - On IMDB, validation does *not* show it (66.05 vs 66.73). Selection on validation would therefore not have picked d = 128; this result is weaker evidence than D1.
+5. **l_max = 3:** +0.5, within noise (§1.2 overstated it).
+
+**What this means for the protocol** (decision for the author and the model session):
+- Adopting encoder dropout 0.95, or d = 128, after seeing test is a deviation.
+- The clean route is a re-tune with a widened range. For example: dropout up to 0.95–0.99, plus input-feature dropout; d ∈ {16, …, 128}.
+- To be fair, the same widening must apply to the baselines' shared ranges (`search_grids.DROPOUT` caps every method at 0.9), or the paper must state that only H2S-NN's range was widened.
+- Cost on the lab: one 100-trial ACM sweep takes about 3–4 GPU-hours (≈ 2 min per trial); IMDB about 2× that.
