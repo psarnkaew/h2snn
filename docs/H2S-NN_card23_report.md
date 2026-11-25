@@ -44,4 +44,20 @@ Card: `docs/H2S-NN_card23_card.md` (design-docs `7cf5b1d`, merged into `card23`)
 - 17 shipped configs give identical base-config and sweep fingerprints on b0f13fb and card23. They cover NC, LP, GC and H2GB, ACM included: base `888ca7ac…`, sweep `c84be876…`.
 - ACM with the pack gets new fingerprints (base `5800bce8…`, sweep `623bcf79…`) and the space given above.
 
-branch=card23 sha=fe9ec1d97b8e32a9abc5eece1c3b1d90c263fda3 card=docs/H2S-NN_card23_card.md base=b0f13fb43bcc77bdf15f73a2caa026140179e441
+## Follow-up (design-session review, 2026-11-26)
+Code commit `d1b9d37`. The mb0 reference has its own commit, `466bf83`.
+
+1. **Trial objective under C6** (`run_h2snn_wandb_tuning.train_trial`). With `checkpoint_smoothing` > 1:
+   - The record's objective field `val_<monitor>` holds the smoothed score at the selected epoch. The worker sends this value to the sweep through `sweep_objective`, and `best_tuned_run0.json` is chosen by it too.
+   - The raw value at that epoch is kept as `val_<monitor>_raw`.
+   - The per-epoch W&B `best/<monitor>` is that smoothed score as well.
+   - Final-seed records (same `train_trial`) get the same fields.
+   - With w = 1 nothing changes. `wandb_campaign.py` is untouched.
+2. **Switch rule enforced** (`_build_sweep_for_run`, which runs before any sweep is created). If any pack key is non-off, the base config must have `data.eval_draws: 8` and `checkpoint_smoothing: 5` (`PACK_EVAL_DRAWS` and `PACK_CHECKPOINT_SMOOTHING`); otherwise it raises `ValueError`.
+3. **Re-tune configs.** `configs/experiments/{acm,dblp,imdb}_h2snn_c23.yaml` are the `*_h2snn_v3b.yaml` configs with only `data.eval_draws: 8` and `checkpoint_smoothing: 5` added, plus a header comment. A test checks that nothing else differs. `exp_name` is still `<name>_h2snn_v3b` as instructed, so ops should pass a new `--exp_name`. With the old name, the old tuning state is refused, not overwritten.
+4. **mb0 reference re-captured** at v3b `b0f13fb` with the script's own `save` (job 19006, g2n01, h2snn-b, E, 1 thread).
+   - 136 tensors, sha256 `42dcd9bf…bfbf`. b0f13fb compares against it with 0 differing.
+   - The provenance note in `mb0_reference.py` is updated.
+- **Tests, job 19007** (same targets, plus 3 new tests in `test_card23`): **75 tests OK**. `mb0_reference.py compare` on card23 against the new reference: **136 tensors, differing: none**.
+
+branch=card23 sha=d1b9d37c3c3b31aebddba1707d5f66ed83aa6677 card=docs/H2S-NN_card23_card.md base=b0f13fb43bcc77bdf15f73a2caa026140179e441
