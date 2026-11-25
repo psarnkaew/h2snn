@@ -266,3 +266,11 @@ The spec (1.32 AF) and ablation pre-registration v3 are owned by the model sessi
 - **Not run yet:**
   - Lab seeds 3–4. These need a lab resubmission, which waits for the author's go.
   - H2G-former ogbn-mag published: only seeds 1 and 4 exist. Seeds 0, 2 and 3 were killed at the 12 h job limit (6 lines, job 9537255). This is reported and not rerun.
+- **Lab, 2026-11-25 17:48** (author: "ส่ง lab ได้เลย รวม 12 cell ด้วย", send the lab jobs now, the 12 cells included; big models later): watcher `lab_seeds5_watch.sh` (ops).
+  - **Tuning:** the 10 cancelled light lines resumed on `b0f13fb`, 40 trials. Jobs 18937/18938 (2080 Ti, 5 lines), 18939/18940 (3090, 1 line), 18941/18942 (TITAN RTX, 4 lines).
+  - **Seeds 0–4:** submitted for every lab baseline cell whose 40-trial sweep finished: the 12 cells, plus HAN DBLP, H2G-former PubMed, and Hetero²Net ACM and DBLP.
+    - Jobs 18943–18959, on the same GPU type as each cell's tuning, from the checkout that ran its tuning: `2e3e160`, or `0b9873d` for Hetero²Net.
+    - Hetero²Net ACM and DBLP ran 100 and 82+ trials before the 40-trial target was set. Their best configuration is selected over all recorded trials.
+  - **Later cells:** the remaining sweeps (the 10 above, and HAN LastFM at 34/40) get seeds 0–4 from the watcher when they finish.
+  - **Lab cells that already had final seeds:** all have 5 seeds (0–4).
+  - **Later (author):** H2S-NN on the lab (LastFM and PubMed LP; MUTAG, ENZYMES and PROTEINS GC), CSNN LastFM, and H2G-former ogbn-mag published seeds 0, 2 and 3.
