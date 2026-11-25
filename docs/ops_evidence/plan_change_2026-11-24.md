@@ -180,3 +180,41 @@ Baseline per-trial times above are taken from published-configuration runs (full
 - Published GCN, HAN and R-GCN on H-Pokec NC: all 11 seed lines of job 9533064 crashed with `cannot sample n_sample <= 0 samples`. The yaml gives `user` 4 hops and the other types 3, so the sampler reads an undefined size at hop 4. Not rerun.
 - Card 21 (`docs/H2S-NN_card21_card.md`, b72f070): loader workers 6 (author: 6, not more) + pad shorter hop lists. Held until it merges: 9545676 (43 tasks) and 9545677.19–27.
 - Seeds: keep 3 (0–2) for every cell first. After card 21 merges and points are re-estimated on measured speed, run seeds 3–4 as a second wave if points allow (estimate +80–100 points, ~500–600 GPU-h).
+
+## 7. Card 21 merged; jobs moved to the new code (author, 2026-11-25)
+
+Author decision 2026-11-25: conditional approval of the v3b move. Pending baseline lines move to the new v3b. Void H-Pokec NC lines are stopped and requeued. No in-place checkout update.
+
+- **Review:** diff `f1fc158..5bb3a81 -- H2S-NN/src` shows no problem. `2e3e160` adds docs only on top of `5bb3a81`.
+- **Full suite:** lab job 18861 on `5bb3a81` ran 1009 tests: 5 failures and 2 errors. All 7 came from how ops ran the suite, not from card 21:
+  - The sbatch did not set the pinned AVX2 kernel settings of `scripts/slurm/run_tests.sbatch`. This failed 4 bit-exact tests: golden, card 5 T4, and 2 mb0 compare.
+  - `WANDB_MODE=disabled` failed 3 W&B tests.
+  - Rerun of those targets with the `run_tests.sbatch` environment: job 18862, 11 tests OK.
+  - No test compares batches against a 0-worker loader.
+- **v3b:** fast-forwarded `f1fc158 → 2e3e160`.
+- **TSUBAME checkout:** new directory `h2snn-runs/2e3e160…`, with `vendor` copied (diff clean), `data` symlinked and the MetaPath2Vec cache copied. Running jobs keep their checkouts.
+- **HINormer cache:** an ops `qsub` wrapper adds `-v H2SNN_HINORMER_SEQ_CACHE=<out>/hinormer_seq_cache` to every job submitted by t4_auto. The setting is confirmed in the job `env_list`.
+- **Tuning legs:** t4_auto BASE now runs all baseline lists (early, b1, b2 gpu_1, b2 node_q, H2G-former) on `2e3e160`. H2S-NN lists are unchanged.
+  - Not-started legs 9545672, 9545674, 9545676, 9545677 and 9545679 were deleted.
+  - Resubmitted on `2e3e160`: 9553074 (early, 4), 9553078 (b1, 20), 9553079 (b2 gpu_1, 43), 9553082 (b2 node_q, 27), 9553085 (H2G-former, 1).
+- **Void H-Pokec NC published lines:** these ran with the unequal hop dict.
+  - Affected: GCN, HAN and R-GCN (job 9533064) and H2G-former (9537254 and hpokec_w2). None had a finished seed or saved state.
+  - Rerun of seeds 0–2 on `2e3e160`:
+    - 9553168: `cells_pub_hpokec_c21`, 9 lines.
+    - 9553170, then 9553172 held as the second leg: `cells_pub_h2gf_hpokec_c21`, 3 lines.
+- **Measurement still to do:** host maxrss and s/epoch with 6 workers on the first H-Pokec NC and ogbn-mag NC jobs. Then re-estimate points, before seeds 3–4.
+
+### Lab, 2026-11-25 (author: stop H2S-NN MUTAG and LastFM, run light baselines instead)
+
+- **Stopped:** H2S-NN MUTAG GC (18458, 6 of 100 trials) and LastFM LP (18444, 9 of 100 trials).
+  - Both ran at about 1 CPU core with the GPU at 0–22%.
+  - MUTAG took 150–300 s/epoch; LastFM took 24–100 s/epoch.
+  - Their tuning state is kept.
+- **Submitted:** 26 not-started baseline b1 lab lines, run on v3b 2e3e160 with 40 trials, 28G memory, 72 h per leg, 2 legs.
+  - Lists `cells_tuning_b1_light_{2080ti,a6000,3090,titan_rtx}.lab.txt`, jobs:
+    - 18863/18864 (2080 Ti, 8 lines)
+    - 18865/18866 (A6000, 4 lines)
+    - 18867/18868 (3090, 4 lines)
+    - 18872/18873 (TITAN RTX, 10 lines)
+  - 12 cells with no trial yet moved from 3090 to 2080 Ti or A6000, chosen by their fit-check peak memory. Each cell still runs on one GPU type. Backup: `lab_gpu_types.tsv.bak_c21light`.
+- **Not touched:** the Hetero²Net acm_pp and dblp_ap lab sweeps (18560_5, 18562_7). They are at 69 and 86 trials, past the 40-trial target; stopping them awaits the author.
