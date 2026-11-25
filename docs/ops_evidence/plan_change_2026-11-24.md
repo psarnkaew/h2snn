@@ -218,3 +218,59 @@ Author decision 2026-11-25: conditional approval of the v3b move. Pending baseli
     - 18872/18873 (TITAN RTX, 10 lines)
   - 12 cells with no trial yet moved from 3090 to 2080 Ti or A6000, chosen by their fit-check peak memory. Each cell still runs on one GPU type. Backup: `lab_gpu_types.tsv.bak_c21light`.
 - **Not touched:** the Hetero²Net acm_pp and dblp_ap lab sweeps (18560_5, 18562_7). They are at 69 and 86 trials, past the 40-trial target; stopping them awaits the author.
+
+## 8. Card 22 merged; failed H2GB cells reset (author, 2026-11-25)
+
+The author approved the card 22 merge ("อนุมัติ merge card 22 ได้เลย") and, earlier, resetting the failed sweep states after the merge.
+
+- **Card 22:** head `b0f13fb` (code `1b03c39`), report `docs/H2S-NN_card22_report.md` on v3b.
+  - The source diff touches only `hetero2net.py` and `minibatch.py`, which the card allows.
+- **Full suite:** lab job 18910 on `b0f13fb`, with the `run_tests.sbatch` environment and without `WANDB_MODE`: 1011 tests OK.
+- **v3b:** fast-forwarded `2e3e160 → b0f13fb`.
+- **Checkouts:** both are new directories for `b0f13fb`. Running jobs keep their checkouts.
+  - TSUBAME: `vendor` copied (diff clean), `data` symlinked, `experiments/` (MetaPath2Vec cache) copied.
+  - Lab: a worktree, with `vendor` copied.
+- **t4_auto:** the baseline lists now run on `b0f13fb`; the qsub wrapper (HINormer cache) is unchanged.
+  - Baseline tasks still queued on `2e3e160` (9553079, 9553082) stay there. Card 22 changes nothing for them:
+    - The Hetero²Net path changed only for H2GB NC, and all those tasks were moved off that checkout.
+    - `hgb_homogeneous_batch` now gives `None` only where a type has no `x`, which happens only on IEEE-CIS-G.
+- **Reset:** these four cells had 0 successful and 40 failed trials each. Their `state/<cell>` and `experiments/baselines/<cell>` directories were renamed to `<cell>.void_card22_2e3e160`. Nothing was deleted.
+  - Hetero²Net oag-cs NC and IEEE-CIS-G NC.
+  - CSNN and NSD IEEE-CIS-G NC.
+- **Held Hetero²Net H2GB NC tasks** (all through `_fit_h2gb`, which would fail the same way) were deleted from the old checkout:
+  - 9553079.22 (oag-eng), 9553079.38 (pdns), 9553082.14 (freebase), 9553082.23 (h-pokec).
+  - Hetero²Net h-pokec_uu LP (9553082.6) uses the unchanged large-LP path and stays.
+- **Resubmitted on `b0f13fb`:** the 4 reset cells and the 4 held cells, list `cells_tuning_b2_c22_reset.txt` (8 lines, 40 trials), job 9564510, priority −100 like other tuning legs.
+- **SeHGNN IEEE-CIS-G NC:** no reset. The num_hops 4 trials are host OOM with both 6 and 0 workers (card 22 job 18887).
+- **Finding for the model session (not changed by ops):** CSNN oag-cs had 1 failed trial (attempt 1, `orth: euler`, `d: 4`).
+  - The vendor `orthogonal.py:74` asserts `2 <= d <= 3` for `euler`, in both the CSNN and the NSD vendor copies.
+  - The search spaces still pair `euler` with larger d: CSNN `d ∈ {2,3,4}` (`csnn.py:202-205`) and NSD `d ∈ {2,…,5}` (`nsd.py:253-256`).
+  - Every such grid point fails as a trial on every dataset, so it uses up a slot in the trial budget.
+  - The fix is a search-space decision, owned by the spec.
+
+## 9. Five seeds everywhere (author, advisor, 2026-11-25)
+
+The author set the main-table seeds back to 5 (seeds 0–4), at the advisor's request ("ตั้ง N_SEEDS = 5 แล้วเริ่มเลย", set N_SEEDS = 5 and start now). This replaces "seeds 0–2" of §1.
+The spec (1.32 AF) and ablation pre-registration v3 are owned by the model session. v3 reuses main-table seeds 1–2 and runs seeds 3–5, which now overlap main-table seeds 3–4.
+
+- **Points estimate** from measured per-seed wall time on gpu_1 (0.2 points/h; balance 1,781 before submission): about 40–70 points for seeds 3–4 of every cell.
+  - Tuned baselines with budget 500/40: 0.01–0.3 h per seed.
+  - Published configs: 2–6 h per seed on H2GB; 32 cells already had 5 published seeds.
+  - H2S-NN: 0.5–1 h on Freebase, IEEE-CIS-G and DBLP; 3–8 h on OAG, PDNS and H-Pokec; 6–11 h on ogbn-mag.
+- **t4_auto:** `N_SEEDS = 5` (backup `.bak_seeds5`). Finished sweeps get per-seed lines for seeds 3–4 on the cell's own out-dir lists, with no retuning. First submission:
+  - 9565207 (early, 8 lines), 9565225 (b1, 40 lines), 9565226 (b2 gpu_1, 14 lines).
+- **H-Pokec NC published** (the void rerun of §7): seeds 3–4 were added on the same `2e3e160` checkout as seeds 0–2.
+  - 9565183: `cells_pub_hpokec_c21_s34`, GCN/HAN/R-GCN, 6 lines.
+  - 9565184: `cells_pub_h2gf_hpokec_c21_s34`, H2G-former, 2 lines.
+- **Dashboard:** `dash_status.py` and `lab_status.py` count 5 seeds (data v30). A lab cell with 3 of 5 seeds shows as Stopped until the author gives the go on the lab.
+- **Not run yet:**
+  - Lab seeds 3–4. These need a lab resubmission, which waits for the author's go.
+  - H2G-former ogbn-mag published: only seeds 1 and 4 exist. Seeds 0, 2 and 3 were killed at the 12 h job limit (6 lines, job 9537255). This is reported and not rerun.
+- **Lab, 2026-11-25 17:48** (author: "ส่ง lab ได้เลย รวม 12 cell ด้วย", send the lab jobs now, the 12 cells included; big models later): watcher `lab_seeds5_watch.sh` (ops).
+  - **Tuning:** the 10 cancelled light lines resumed on `b0f13fb`, 40 trials. Jobs 18937/18938 (2080 Ti, 5 lines), 18939/18940 (3090, 1 line), 18941/18942 (TITAN RTX, 4 lines).
+  - **Seeds 0–4:** submitted for every lab baseline cell whose 40-trial sweep finished: the 12 cells, plus HAN DBLP, H2G-former PubMed, and Hetero²Net ACM and DBLP.
+    - Jobs 18943–18959, on the same GPU type as each cell's tuning, from the checkout that ran its tuning: `2e3e160`, or `0b9873d` for Hetero²Net.
+    - Hetero²Net ACM and DBLP ran 100 and 82+ trials before the 40-trial target was set. Their best configuration is selected over all recorded trials.
+  - **Later cells:** the remaining sweeps (the 10 above, and HAN LastFM at 34/40) get seeds 0–4 from the watcher when they finish.
+  - **Lab cells that already had final seeds:** all have 5 seeds (0–4).
+  - **Later (author):** H2S-NN on the lab (LastFM and PubMed LP; MUTAG, ENZYMES and PROTEINS GC), CSNN LastFM, and H2G-former ogbn-mag published seeds 0, 2 and 3.
