@@ -281,3 +281,27 @@ Total: about 42 runs, about 1.5–2 GPU-hours on one lab GPU.
 **Input-feature dropout** (the clearest gap compared with the baselines) needs a code change in `node_encoder.py`, so it is a proposal for the model session, not a diagnostic. If D1 helps strongly, that is the evidence for it.
 
 Adopting any of these after seeing test results is a deviation. That decision belongs to the author and the model session.
+
+## 7. Overfit or underfit? (author's question, 2026-11-25)
+
+Source: final-seed `metrics.jsonl` for each cell, plus the IMDB M–A tuning trials grouped by d, decoder and lr.
+Caveat: the training metrics are probably logged in train mode, with dropout on, so training scores may be slightly underestimated.
+
+| Cell | Train at the best epoch | Val | Later in the run | Verdict |
+|---|---|---|---|---|
+| ACM NC | Macro-F1 0.92–0.95 (seed 2: 0.99); train loss 0.29–0.46 | 0.92–0.96 | Train 1.00 and train loss 0.001 by epoch ~20; val loss 0.23 (minimum at epoch 10–13) → 0.75–0.91 | **Overfits fast.** The good window lasts only about 3–5 epochs. The checkpoint is picked at its start, while the model is still underfit, and 10 epochs later it is overfit. |
+| ACM LP, seeds 0/2/3/4 | AUROC 0.99 | 0.95 | Val loss minimum 0.41–0.43 at epoch 77–112, rising to 0.64–1.4, while val AUROC keeps rising slowly | Overfits in calibration only (over-confident scores); the ranking still improves. Not a limiting factor (0.957 is top). |
+| ACM LP, seed 1 | AUROC 0.87 (0.94 at the last epoch) | 0.84, flat from epoch 30 to 76 | Val loss 0.54 → 0.87 | Stuck in a poor optimum: underfit compared with the other seeds, and overfitting inside that optimum (§2). |
+| IMDB M–A LP | AUROC 0.81–0.85; train loss ≈ 0.5 | 0.68–0.74 | Flat | **Looks underfit, but is overfit-limited.** In the trials, larger or faster models reach train AUROC 0.95–0.97 while val *falls* (d = 64: 0.65–0.70; d = 16 with lr < 1e-3: 0.726). The search escapes overfitting by going to the smallest d (16) and the lowest lr (1e-4–2e-4, the lower edge). |
+| IMDB NC | Macro-F1 0.67–0.83 | 0.66–0.68 | Train 0.92–0.94; val loss 0.49 → 0.88–1.10 | Overfits after about epoch 14. |
+| DBLP NC (for comparison) | 0.99 | 0.94–0.97 | Val loss 0.17–0.22 → 0.26–0.31 | Mild overfit; the window is wide (best epoch 32–64). |
+
+**Reading.**
+- None of the weak cells is capacity-limited. Each is limited by generalisation: the model can fit the training labels and edges, and the extra fit does not transfer.
+- The fixes therefore lie in regularisation and in when to stop or select, not in more capacity or longer training:
+  - input-feature dropout or a higher dropout range;
+  - a lower lr floor *for IMDB M–A only* (1e-5, since the lower edge 1e-4 binds there);
+  - checkpoint selection on validation loss or smoothed validation;
+  - IMDB M–A: also d = 8.
+- The exception is IMDB NC, where d = 64 binds (§6.2): there, more width *and* more dropout could both help.
+- H2GB cells: not checked (curves not read).
