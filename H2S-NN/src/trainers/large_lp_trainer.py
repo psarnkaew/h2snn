@@ -15,7 +15,7 @@ from typing import Any, Callable
 
 import torch
 
-from src.configs.config import TrainConfig
+from src.configs.config import TrainConfig, reject_full_batch_nc_options
 from src.data.large_lp_h2snn import LargeLinkH2SData
 from src.trainers.minibatch_lp import LinkEpochLoop, LinkScopes
 
@@ -70,6 +70,7 @@ class _EpochLoop(LinkEpochLoop):
 class LargeLinkTrainer:
     def __init__(self, model: torch.nn.Module, optimizer: torch.optim.Optimizer, cfg: TrainConfig, logger,
                  checkpointer) -> None:
+        reject_full_batch_nc_options(cfg, "LargeLinkTrainer")  # card 23 C4-C6
         self.model, self.optimizer, self.cfg = model, optimizer, cfg
         self.logger, self.checkpointer = logger, checkpointer
         self.device = torch.device(cfg.device)

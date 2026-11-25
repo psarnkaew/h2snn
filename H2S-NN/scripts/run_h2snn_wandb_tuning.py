@@ -15,7 +15,8 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.configs.config import (H2GB_NC_DATASETS, MINIBATCH_BATCH_SIZES, TrainConfig, arm_search_space,
-                               reject_never_tuned_settings)
+                               default_training_mode, regularisation_pack_keys_set, reject_never_tuned_settings,
+                               without_default_pack_keys)
 from src.baselines import search_grids as shared_grids
 from src.utils.misc import dataclass_to_dict, save_config, seed_everything
 from src.utils.run_reports import (
@@ -39,7 +40,6 @@ from src.utils.wandb_campaign import (  # noqa: F401  (canonical_fingerprint and
     TUNING_STATE_VERSION,
     CampaignConfig,
     CampaignUnit,
-    canonical_fingerprint,
     load_tuning_state,
     resolve_campaign_state,
     run_campaign_worker,
@@ -48,6 +48,23 @@ from src.utils.wandb_campaign import (  # noqa: F401  (canonical_fingerprint and
     save_tuning_state,
     validate_resume_state,
 )
+from src.utils.wandb_campaign import canonical_fingerprint as _campaign_fingerprint  # noqa: E402
+
+
+def canonical_fingerprint(payload: Any) -> str:
+    """`wandb_campaign.canonical_fingerprint` of `payload` without the card-23 keys at their off values
+    (`without_default_pack_keys`; a no-op for payloads that do not carry them, e.g. sweep configs). A
+    resolved configuration without the regularisation pack keeps its `b0f13fb` base fingerprint, so
+    existing H2S-NN sweeps (and the GC repeated-CV sweeps, which import this name) resume unchanged."""
+    if isinstance(payload, dict):
+        payload = without_default_pack_keys(payload)
+    return _campaign_fingerprint(payload)
+
+
+def base_config_fingerprint(cfg: TrainConfig) -> str:
+    """Fingerprint of the fully resolved dataclass, so defaults cannot disappear merely because a YAML
+    key was omitted (card-23 keys at their off values excepted, see `canonical_fingerprint`)."""
+    return canonical_fingerprint(dataclass_to_dict(cfg))
 
 # The current model falls back to a single learned identity embedding when every
 # node type is featureless.  In that branch ModelConfig.encoder_dropout is not
@@ -79,6 +96,16 @@ SPACE_GRAPH_POOLING: dict[str, Any] = {"values": ["mean", "max", "add", "attenti
 # with every baseline (`src/baselines/heads.py` `build_link_decoder`); `concat_mlp` is removed (from
 # tuning, runs, the config and the model; M3a, M3a-fix).
 SPACE_DECODER_TYPE: dict[str, Any] = {"values": ["dot", "distmult"]}
+# Card 23 (author 2026-11-26; spec 1.33): the space of the re-tuned cells, used when the base config sets a
+# key of the regularisation pack (`regularisation_pack_keys_set`; the cells fix data.eval_draws: 8 and
+# checkpoint_smoothing: 5): encoder dropout to 0.99 (C2), lr to 3e-2 and d up to 128 on NC (C3), input
+# dropout where encoder_dropout is tuned (C1), and the EMA decay on full-batch NC (C5). H2S-NN only: the
+# shared `search_grids` ranges and every baseline space are unchanged. Without the pack: the space above.
+SPACE_PACK_ENCODER_DROPOUT: dict[str, Any] = {"distribution": "uniform", "min": 0.0, "max": 0.99}
+SPACE_PACK_LR: dict[str, Any] = {"distribution": "log_uniform_values", "min": 1e-4, "max": 3e-2}
+SPACE_PACK_D_NC: list[int] = [16, 32, 64, 128]
+SPACE_PACK_INPUT_DROPOUT: dict[str, Any] = {"distribution": "uniform", "min": 0.0, "max": 0.9}
+SPACE_PACK_EMA_DECAY: dict[str, Any] = {"values": [0.0, 0.9, 0.99, 0.999]}
 # Tuning on seed 0 only, then the best configuration on seeds 0-4 (spec §6).
 TUNING_SEED = 0
 FINAL_SEEDS: tuple[int, ...] = (0, 1, 2, 3, 4)
@@ -100,6 +127,9 @@ CONDITIONAL_PARAMETER_NAMES = frozenset(
         "decoder_type",
         # Card 2 D6.7 (spec 1.17 Q4, author decision 4 of the card 2 review): the H2GB NC datasets only
         "batch_size",
+        # Card 23: the regularisation-pack space only (C1, C5)
+        "input_dropout",
+        "ema_decay",
     }
 )
 KNOWN_PARAMETER_NAMES = PRIMARY_PARAMETER_NAMES | CONDITIONAL_PARAMETER_NAMES
@@ -294,7 +324,7 @@ def validate_trial_params(
     if "graph_pooling" in params and str(params["graph_pooling"]) not in {
             "mean", "max", "add", "attention"}:
         raise ValueError(f"W&B proposed invalid graph_pooling={params['graph_pooling']!r}.")
-    for key in ("encoder_dropout", "classifier_dropout"):
+    for key in ("encoder_dropout", "classifier_dropout", "input_dropout", "ema_decay"):
         if key in params and not 0.0 <= float(params[key]) < 1.0:
             raise ValueError(
                 f"W&B proposed invalid {key}={params[key]!r}; {key} must be in [0, 1)."
@@ -336,6 +366,8 @@ def build_sweep_config(
     decoder_type: str | None = None,
     dataset_name: str = "",
     d_values: list[int] | tuple[int, ...] | None = None,
+    regularisation_pack: bool = False,
+    training_mode: str = "",
 ) -> dict[str, Any]:
     """The W&B sweep of H2S-NN (spec v1.15 §6 Tuning; card Part M, M10): plain Bayes, no
     Hyperband or other early termination; the space holds only components of the method:
@@ -344,19 +376,23 @@ def build_sweep_config(
     H2GB NC datasets batch_size in {32, 256, 1024} (spec 1.17 Q4; card 2 D6.7; nowhere else).
     `decoder_type` is the base config's decoder: `concat_mlp` is refused (W2), any other value is
     replaced per trial by the tuned one. `epochs` is not used by the sweep (no early termination);
-    it is kept for the callers' signature."""
+    it is kept for the callers' signature.
+    `regularisation_pack` (card 23): the re-tuned cells' space (SPACE_PACK_*); `training_mode` ("" = the
+    dataset's) decides full-batch NC, where the EMA decay is tuned."""
     if decoder_type is not None and decoder_type not in SPACE_DECODER_TYPE["values"]:
         raise ValueError(
             f"data.decoder_type: {decoder_type} is not an LP decoder of the tuned model: H2S-NN's "
             f"decoder is tuned in {SPACE_DECODER_TYPE['values']}, the LP head shared with every "
             "baseline (spec v1.22 W2; concat_mlp is removed).")
 
+    if d_values is None and regularisation_pack and task_type == "node_classification":
+        d_values = SPACE_PACK_D_NC  # card 23 C3
     resolved_d_values = validate_d_values(
         d_values if d_values is not None else default_d_values(task_type)
     )
     parameters: dict[str, Any] = {
         "d": {"values": resolved_d_values},
-        "lr": dict(SPACE_LR),
+        "lr": dict(SPACE_PACK_LR if regularisation_pack else SPACE_LR),  # card 23 C3
         "weight_decay": {"values": list(SPACE_WEIGHT_DECAY["values"])},
         "wisp_max_length": {"values": list(SPACE_WISP_MAX_LENGTH["values"])},
         "wisp_walks_per_anchor": {"values": list(SPACE_WISP_WALKS_PER_ANCHOR["values"])},
@@ -364,7 +400,10 @@ def build_sweep_config(
     # encoder_dropout is unconsumed without node features (spec §4.1: absent for featureless
     # datasets), so it is omitted rather than generating duplicate trials.
     if dataset_name.lower() not in FEATURELESS_DATASETS:
-        parameters["encoder_dropout"] = dict(SPACE_DROPOUT)
+        parameters["encoder_dropout"] = dict(SPACE_PACK_ENCODER_DROPOUT if regularisation_pack
+                                             else SPACE_DROPOUT)  # card 23 C2
+        if regularisation_pack:  # card 23 C1: under the condition of encoder_dropout
+            parameters["input_dropout"] = dict(SPACE_PACK_INPUT_DROPOUT)
 
     # The classifier dropout exists in the NC head only: LP's dot and DistMult decoders have none
     # (`classifier_dropout` reached LP only through the removed concat_mlp MLP; M3a-A0), and the
@@ -381,6 +420,10 @@ def build_sweep_config(
     # the range of every method (MB2); nowhere else (full batch / per graph / LP positives per step).
     if task_type == "node_classification" and dataset_name.lower() in H2GB_NC_DATASETS:
         parameters["batch_size"] = {"values": list(MINIBATCH_BATCH_SIZES)}
+    # Card 23 C5: the EMA decay on full-batch NC only (the trainer that implements C4-C6).
+    if (regularisation_pack and task_type == "node_classification"
+            and (training_mode or default_training_mode(task_type, dataset_name)) == "full_batch"):
+        parameters["ema_decay"] = {"values": list(SPACE_PACK_EMA_DECAY["values"])}
 
     # the dataset name lets the check accept batch_size on H2GB NC and refuse it elsewhere (config.py MB2)
     reject_never_tuned_settings({"data": {"dataset_name": dataset_name}} if dataset_name else None, parameters)
@@ -404,9 +447,11 @@ def apply_sweep_overrides(
     optim = payload.setdefault("optim", {})
     data = payload.setdefault("data", {})
 
-    for key in ("encoder_dropout", "classifier_dropout"):
+    for key in ("encoder_dropout", "classifier_dropout", "input_dropout"):
         if key in params:
             model[key] = params[key]
+    if "ema_decay" in params:  # card 23 C5
+        optim["ema_decay"] = params["ema_decay"]
     if "d" in params:
         model["d"] = int(params["d"])
     if "graph_pooling" in params:
@@ -580,6 +625,8 @@ def _build_sweep_for_run(
         decoder_type=base_cfg.data.decoder_type,
         dataset_name=base_cfg.data.dataset_name,
         d_values=args.d_values,
+        regularisation_pack=bool(regularisation_pack_keys_set(base_cfg)),  # card 23
+        training_mode=base_cfg.data.training_mode,
     )
     if base_cfg.tuning.arm:  # spec 1.24 Y4: an arm-tuning sweep drops the arm's inert keys
         sweep_config["parameters"] = arm_search_space(sweep_config["parameters"], base_cfg.tuning.arm)
@@ -656,7 +703,7 @@ def run_seed_sweep(
     )
     # Fingerprint the fully resolved dataclass so defaults cannot disappear merely
     # because a YAML key was omitted.
-    base_config_fingerprint = canonical_fingerprint(dataclass_to_dict(base_cfg))
+    base_fingerprint = base_config_fingerprint(base_cfg)
 
     campaign = _campaign_config(args)
     if getattr(args, "grid_point", None) is not None:  # card 10 A3.1: one trial per point of the probe's grid
@@ -677,7 +724,7 @@ def run_seed_sweep(
         base_exp_name=base_exp_name,
         output_dir=base_cfg.output_dir,
         task_type=base_cfg.task_type,
-        base_config_fingerprint=base_config_fingerprint,
+        base_config_fingerprint=base_fingerprint,
         monitor=monitor,
         state_path=state_path,
         # Each trial re-spawns this script with --worker_context.
@@ -701,7 +748,7 @@ def validate_tuning_setup(
     run_start: int = 0,
     run_count: int | None = None,
 ) -> None:
-    base_fingerprint = canonical_fingerprint(dataclass_to_dict(base_cfg))
+    base_fingerprint = base_config_fingerprint(base_cfg)
     effective_run_count = num_runs if run_count is None else run_count
     for run_index in range(run_start, run_start + effective_run_count):
         state_path = state_dir / f"tuning_state_run{run_index}.json"

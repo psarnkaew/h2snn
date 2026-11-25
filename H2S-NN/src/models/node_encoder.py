@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import torch
+import torch.nn.functional as F
 from torch import nn
 
 
@@ -17,6 +18,10 @@ class TypeSpecificNodeEncoder(nn.Module):
     `type_input_dims` is optional. When it is omitted every type is built at the shared
     `input_dim`, which is the correct behaviour for datasets whose types all share one
     feature width (e.g. the TUDataset graph-classification benchmarks).
+
+    `input_dropout` (card 23 C1, `model.input_dropout`): dropout on each featured type's raw
+    features before its `Linear`; featureless types are untouched. At 0 (the default) the call
+    is skipped, so no RNG is consumed and the forward is that of `b0f13fb`.
     """
 
     def __init__(
@@ -28,8 +33,12 @@ class TypeSpecificNodeEncoder(nn.Module):
         type_input_dims: tuple[int, ...] | None = None,
         type_num_nodes: tuple[int, ...] | None = None,
         type_offsets: tuple[int, ...] | None = None,
+        input_dropout: float = 0.0,
     ) -> None:
         super().__init__()
+        if not 0.0 <= float(input_dropout) < 1.0:
+            raise ValueError(f"input_dropout must be in [0, 1), got {input_dropout}.")
+        self.input_dropout = float(input_dropout)
         if type_input_dims is None:
             type_input_dims = (input_dim,) * num_node_types
         if len(type_input_dims) != num_node_types:
@@ -100,7 +109,10 @@ class TypeSpecificNodeEncoder(nn.Module):
             if type_dim > 0:
                 # Feature matrices are zero-padded on the right to a shared width, so a
                 # type's real attributes are always the prefix columns [0, d_t).
-                encoded = self.encoders[node_type_id](x[mask][:, :type_dim])
+                features = x[mask][:, :type_dim]
+                if self.input_dropout > 0.0:  # card 23 C1; skipped at 0 (no RNG drawn)
+                    features = F.dropout(features, self.input_dropout, training=self.training)
+                encoded = self.encoders[node_type_id](features)
             else:
                 # Nodes of a type occupy one contiguous block of the flattened id space
                 # (see stack_node_features), so subtracting the block start gives the

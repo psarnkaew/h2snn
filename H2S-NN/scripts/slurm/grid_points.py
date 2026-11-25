@@ -79,6 +79,7 @@ OTHER_AXES = frozenset({
     "weight_decay",
     # H2S-NN
     "encoder_dropout", "classifier_dropout",
+    "ema_decay",  # card 23 C5: theta_ema is one copy of the parameters at every value
 })
 GRID_POINTS = ("min", "max")
 PEAK_TAG = "FIT_PEAK"

@@ -434,6 +434,7 @@ class H2SNN(nn.Module):
                 type_input_dims=dims.type_input_dims,
                 type_num_nodes=dims.type_num_nodes,
                 type_offsets=dims.type_offsets,
+                input_dropout=model_config.input_dropout,
             )
         self.relation_embedding = nn.Embedding(dims.num_relations, model_config.d_r)
         # rho(r) = r relations of the data's fact layer (the GC path builder needs them).

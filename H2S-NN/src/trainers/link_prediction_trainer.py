@@ -5,7 +5,7 @@ import json
 import torch
 import torch.nn as nn
 
-from src.configs.config import TrainConfig
+from src.configs.config import TrainConfig, reject_full_batch_nc_options
 from src.data.link_pred_structures import PreparedLinkPredData
 from src.models.h2snn_model import H2SNN
 from src.utils.checkpointer import Checkpointer
@@ -40,6 +40,7 @@ class LinkPredictionTrainer:
         logger: ExperimentLogger,
         checkpointer: Checkpointer,
     ) -> None:
+        reject_full_batch_nc_options(cfg, "LinkPredictionTrainer")  # card 23 C4-C6
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler

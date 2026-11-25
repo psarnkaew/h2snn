@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.loader import DataLoader
 
-from src.configs.config import TrainConfig
+from src.configs.config import TrainConfig, reject_full_batch_nc_options
 from src.data.graph_faces import build_typed_path_face_groups
 from src.data.wisp_tasks import build_graph_wisp_path_groups
 from src.data.graph_classification_dataset import GraphClassificationFold
@@ -40,6 +40,7 @@ class GraphClassificationTrainer:
         logger: ExperimentLogger,
         checkpointer: Checkpointer,
     ) -> None:
+        reject_full_batch_nc_options(cfg, "GraphClassificationTrainer")  # card 23 C4-C6
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler

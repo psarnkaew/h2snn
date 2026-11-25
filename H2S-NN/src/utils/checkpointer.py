@@ -81,8 +81,11 @@ class Checkpointer:
         epoch: int,
         metrics: dict[str, float],
         metadata: dict[str, Any] | None = None,
+        score: float | None = None,
     ) -> bool:
-        score = self._extract_score(metrics)
+        """Save `best.pt` if the score beats the best so far. `score` (card 23 C6: the smoothed
+        selection score) replaces the metric read from `metrics`; None = that metric."""
+        score = self._extract_score(metrics) if score is None else float(score)
         if self._is_better(score):
             self.best_score = score
             self.save(

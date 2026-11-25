@@ -31,7 +31,7 @@ from typing import Callable
 import torch
 import torch.nn as nn
 
-from src.configs.config import EVAL_BATCH_TARGETS, TrainConfig
+from src.configs.config import EVAL_BATCH_TARGETS, TrainConfig, reject_full_batch_nc_options
 from src.data.scopes import build_scope_batch
 from src.data.structures import PreparedH2SData
 from src.data.wisp_sampler import AnchorCells, build_wisp_anchor_cells
@@ -102,6 +102,7 @@ class TrainingOrder:
 class MiniBatchNodeTrainer:
     def __init__(self, model: nn.Module, optimizer: torch.optim.Optimizer, cfg: TrainConfig,
                  logger: ExperimentLogger, checkpointer: Checkpointer) -> None:
+        reject_full_batch_nc_options(cfg, "MiniBatchNodeTrainer")  # card 23 C4-C6
         self.model = model
         self.optimizer = optimizer
         self.cfg = cfg

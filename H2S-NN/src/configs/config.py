@@ -888,6 +888,10 @@ class DataConfig:
     # (node-classification trainer, resample_paths only). Changes no result: the seed schedule
     # and the proposal inputs are those of the sequential path (bit-identity test).
     overlap_sampling: bool = True
+    # Card 23 C4: K evaluation draws (full-batch NC trainer only). Draw 0 is the evaluation draw
+    # (seed `seed`), draw k >= 1 has seed `seed + EVAL_DRAW_SEED_STRIDE * k`; validation and test
+    # read the mean of the K forwards' probabilities. 1 (default) = the single evaluation draw.
+    eval_draws: int = 1
     # Part MB (MB4): training mode ("" = the dataset's, `default_training_mode`), batch size B
     # (mini-batch only; tuned in MINIBATCH_BATCH_SIZES on H2GB NC), epoch = `epoch_targets`
     # training targets (0 = MINIBATCH_EPOCH_TARGETS), evaluation every `eval_period` epochs
@@ -945,6 +949,8 @@ class DataConfig:
         if not isinstance(self.overlap_sampling, bool):
             raise ValueError(
                 f"data.overlap_sampling must be a boolean, got {self.overlap_sampling!r}.")
+        if isinstance(self.eval_draws, bool) or not isinstance(self.eval_draws, int) or self.eval_draws < 1:
+            raise ValueError(f"data.eval_draws must be an integer >= 1, got {self.eval_draws!r}.")
         # path_source: schemas with r >= 1 is the fixed-literature-schema row (spec v1.19 §6; card
         # Part O O3): the tuned `full` configuration with only the path source changed, so its
         # tuned l_max is carried along (not read by the schema draw) and r is the row's walk
@@ -993,6 +999,8 @@ class DataConfig:
             wisp_proposal=str(raw.get("wisp_proposal", "uniform")),
             # Not cast with bool(): a string such as "false" must fail validation.
             overlap_sampling=raw.get("overlap_sampling", True),
+            # Not cast with int(): 2.9 or `true` must fail validation.
+            eval_draws=raw.get("eval_draws", 1),
             training_mode=str(raw.get("training_mode", "")),
             batch_size=int(raw.get("batch_size", 0)),
             epoch_targets=int(raw.get("epoch_targets", 0)),
@@ -1376,6 +1384,9 @@ class ModelConfig:
     d: int = 64
     d_r: int = 16
     encoder_dropout: float = 0.1
+    # Card 23 C1: dropout on each featured type's raw input features, before its Linear
+    # (`TypeSpecificNodeEncoder`); 0 (default) = off, no RNG drawn.
+    input_dropout: float = 0.0
     # Hidden width of the node->edge map MLPs (and of the free-map ablation's MLP).
     edge_mlp_hidden_dim: int = 128
     # Hidden width of the positional path encoder that feeds the path gate w_f.
@@ -1481,6 +1492,8 @@ class ModelConfig:
             raise ValueError(f"model.map_scale_eps must be positive, got {self.map_scale_eps}.")
         if not isinstance(self.checkpointing, bool):
             raise ValueError(f"model.checkpointing must be a boolean, got {self.checkpointing!r}.")
+        if not 0.0 <= self.input_dropout < 1.0:
+            raise ValueError(f"model.input_dropout must be in [0, 1), got {self.input_dropout}.")
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "ModelConfig":
@@ -1491,6 +1504,7 @@ class ModelConfig:
             d=int(raw.get("d", 64)),
             d_r=int(raw.get("d_r", 16)),
             encoder_dropout=float(raw.get("encoder_dropout", 0.1)),
+            input_dropout=float(raw.get("input_dropout", 0.0)),
             edge_mlp_hidden_dim=int(raw.get("edge_mlp_hidden_dim", 128)),
             face_mlp_hidden_dim=int(raw.get("face_mlp_hidden_dim", 128)),
             classifier_hidden_dim=int(raw.get("classifier_hidden_dim", 128)),
@@ -1594,12 +1608,18 @@ class OptimConfig:
     # as a multiple of `lr` (own parameter group, no weight decay). Full-batch training takes one optimizer step
     # per epoch, so at the base rate these scalars barely move (plan §4.7).
     scalar_lr_scale: float = 10.0
+    # Card 23 C5 (full-batch NC trainer only): EMA of every parameter after each optimizer step,
+    # theta_ema <- beta theta_ema + (1 - beta) theta; evaluation, selection and the best checkpoint
+    # use theta_ema. 0 (default) = off.
+    ema_decay: float = 0.0
 
     def __post_init__(self) -> None:
         if not self.scalar_lr_scale > 0.0:
             raise ValueError(
                 f"optim.scalar_lr_scale must be positive, got {self.scalar_lr_scale}."
             )
+        if not 0.0 <= self.ema_decay < 1.0:
+            raise ValueError(f"optim.ema_decay must be in [0, 1), got {self.ema_decay}.")
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "OptimConfig":
@@ -1611,6 +1631,7 @@ class OptimConfig:
             scheduler=str(raw.get("scheduler", "none")),
             grad_clip=float(raw.get("grad_clip", 0.0)),
             scalar_lr_scale=float(raw.get("scalar_lr_scale", 10.0)),
+            ema_decay=float(raw.get("ema_decay", 0.0)),
         )
 
 
@@ -1674,6 +1695,9 @@ class TrainConfig:
     checkpoint_metric: str = "acc"
     checkpoint_mode: str = "max"
     early_stopping_patience: int = 100
+    # Card 23 C6 (full-batch NC trainer only): epoch e is scored by the mean of the checkpoint
+    # metric over epochs max(0, e - w + 1)..e; 1 (default) = the epoch's own value.
+    checkpoint_smoothing: int = 1
     use_wandb: bool = False
     wandb_project: str = "h2snn"
     wandb_entity: str = ""
@@ -1689,6 +1713,10 @@ class TrainConfig:
             if current != value:
                 raise ValueError(f"tuning.arm: {self.tuning.arm} needs {section}.{key}: {value}, "
                                  f"got {current!r}.")
+        if (isinstance(self.checkpoint_smoothing, bool) or not isinstance(self.checkpoint_smoothing, int)
+                or self.checkpoint_smoothing < 1):
+            raise ValueError(
+                f"checkpoint_smoothing must be an integer >= 1, got {self.checkpoint_smoothing!r}.")
         if self.ablation.fact_maps_identity and self.model.arm not in IDENTITY_MAP_ARMS:
             raise ValueError(
                 f"ablation.fact_maps_identity is defined for model.arm in {IDENTITY_MAP_ARMS} (S2, S0; "
@@ -1733,6 +1761,8 @@ class TrainConfig:
                 "early_stopping_patience",
                 default_patience if "epochs" not in raw or budget.patience is not None
                 else int(raw["epochs"]))),
+            # Not cast with int(): 2.9 or `true` must fail validation.
+            checkpoint_smoothing=raw.get("checkpoint_smoothing", 1),
             use_wandb=bool(raw.get("use_wandb", False)),
             wandb_project=str(raw.get("wandb_project", "h2snn")),
             wandb_entity=str(raw.get("wandb_entity", "")),
@@ -1747,6 +1777,70 @@ class TrainConfig:
                 f"got {config.early_stopping_patience}."
             )
         return config
+
+
+# ----------------------------------------------------------------- card 23 regularisation pack
+#: Card 23 C4: evaluation draw k >= 1 has seed `seed + EVAL_DRAW_SEED_STRIDE * k`, so it never meets a
+#: training draw's seed `seed + epoch`; draw 0 is the evaluation draw (seed `seed`).
+EVAL_DRAW_SEED_STRIDE: int = 1_000_003
+#: Card 23: every key of the regularisation pack with its off value (each off = bit-identical to b0f13fb).
+#: C1 (`model.input_dropout`) acts in every trainer through the model; C4-C6 belong to the full-batch NC
+#: trainer (`src/trainers/trainer.py`) and every other trainer refuses them (`reject_full_batch_nc_options`).
+REGULARISATION_PACK_KEYS: tuple[tuple[tuple[str, ...], Any], ...] = (
+    (("model", "input_dropout"), 0.0),
+    (("data", "eval_draws"), 1),
+    (("optim", "ema_decay"), 0.0),
+    (("checkpoint_smoothing",), 1),
+)
+FULL_BATCH_NC_ONLY_KEYS: tuple[tuple[tuple[str, ...], Any], ...] = REGULARISATION_PACK_KEYS[1:]
+
+
+def pack_setting(cfg: Any, path: tuple[str, ...]) -> Any:
+    """The value of the card-23 key `path` in `cfg`; its off value when `cfg` does not carry it (a
+    stand-in configuration of a unit test)."""
+    off = dict(REGULARISATION_PACK_KEYS)[path]
+    value = cfg
+    for name in path:
+        value = getattr(value, name, None)
+        if value is None:
+            return off
+    return value
+
+
+def regularisation_pack_keys_set(cfg: "TrainConfig") -> tuple[str, ...]:
+    """The card-23 keys `cfg` sets to a value other than off (dotted names); empty = the pack is off."""
+    return tuple(".".join(path) for path, off in REGULARISATION_PACK_KEYS if pack_setting(cfg, path) != off)
+
+
+def reject_full_batch_nc_options(cfg: "TrainConfig", trainer: str) -> None:
+    """Card 23: C4-C6 (`data.eval_draws`, `optim.ema_decay`, `checkpoint_smoothing`) exist in the full-batch
+    NC trainer only; `trainer` (any other) raises if one of them is set to a value other than off."""
+    on = [".".join(path) for path, off in FULL_BATCH_NC_ONLY_KEYS if pack_setting(cfg, path) != off]
+    if on:
+        offs = ", ".join(".".join(path) + f": {off}" for path, off in FULL_BATCH_NC_ONLY_KEYS)
+        raise ValueError(f"{', '.join(on)} (card 23 C4-C6) belong to the full-batch node-classification "
+                         f"trainer only; {trainer} refuses them (leave them at {offs}).")
+
+
+def without_default_pack_keys(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """A resolved configuration dict (`dataclass_to_dict`) without the card-23 keys that are at their off
+    values: the view the tuning fingerprints hash, so a configuration without the pack keeps its
+    `b0f13fb` fingerprint (existing sweeps resume unchanged). A key set to another value stays."""
+    out = dict(payload)
+    for path, off in REGULARISATION_PACK_KEYS:
+        *sections, key = path
+        parent: Any = out
+        for name in sections:
+            child = parent.get(name)
+            if not isinstance(child, Mapping):
+                parent = None
+                break
+            child = dict(child)  # copied: the caller's payload is not changed
+            parent[name] = child
+            parent = child
+        if parent is not None and key in parent and parent[key] == off and not isinstance(parent[key], bool):
+            del parent[key]
+    return out
 
 
 # ----------------------------------------------------------------- fixed-literature-schema row
