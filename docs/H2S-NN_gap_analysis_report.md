@@ -525,3 +525,49 @@ Train loss and val loss are almost equal, so there is no generalisation gap. The
 **Verdict.** The anchor matters through how it interacts with h0, not on its own. The fix lies in the quality of h0 (regularising the encoder), not in a stronger or weaker anchor.
 
 **Optional check.** Run D1 at 0.95 with τ frozen at 1, 3 runs (about 6 min on the lab). This shows whether the gain needs τ to grow. It needs a small code switch (θ_τ trainable on or off), so it goes to the model session.
+
+## 12. Other dropouts and nonlinearity in the maps? (author's question, 2026-11-25)
+
+**What the model has today** (`src/models/`; checkout `0b9873d`):
+
+| Place | Dropout | Nonlinearity |
+|---|---|---|
+| Raw input features (1,902-dim bag-of-words on ACM) | **None** (the baselines have `INPUT_DROP`, 0–0.9) | — |
+| Encoder output h0 (`node_encoder.py`) | `encoder_dropout` | Linear → LayerNorm → GELU |
+| Map MLPs (`sheaf_maps.py` `_build_mlp`: Linear → GELU → Linear over the endpoints' h0) and path encoder g | None | Yes: the maps are already nonlinear functions of h0 |
+| The map itself (Q_e ∈ SO(d), applied to the stalk) | — | Linear and orthogonal by design (gauge argument, Thm 1) |
+| Anchored solve | — | Linear in h0, one solve, no stacking |
+| NC head (`h2snn_model.py:528`) | `classifier_dropout` | Linear → GELU → Dropout → Linear |
+| LP head (`link_readout.py`: Linear(2d → d) + GELU, then dot or DistMult) | **None** | GELU |
+
+**Evidence and verdict, by option:**
+
+1. **Input-feature dropout: the strongest candidate, needs code.**
+   - D1 shows that ACM needs the self-feature path broken: encoder dropout 0.95 on a 32-dim h0 keeps about 1.6 units per node.
+   - Dropout on the 1,902 raw features does the same job more gently. It is what the baselines tune (PSHGCN publishes 0.85 on ACM).
+2. **Feature normalisation: testable now, as a config switch.**
+   - `data.feature_normalization` exists (row-normalising, as HetSheaf does); the current runs use `none`.
+   - A test is 3 ACM runs, about 6 minutes on the lab.
+3. **LP decoder or edge dropout: candidate for IMDB M–A only, needs code.**
+   - The LP head has no dropout. IMDB M–A is limited by overfitting (§7: larger models reach train AUROC 0.96 while validation falls).
+   - ACM LP does not need it (0.957 without seed 1).
+4. **More classifier (decoder) dropout on NC: not needed.**
+   - It is already tuned over 0–0.9. On ACM the top trials use 0.67–0.87, not the edge.
+   - Its effect on test is small: +0.29 per SD on ACM, 0 on DBLP, +0.32 on IMDB.
+5. **Dropout in the map MLPs or path encoder: low priority.** Identity fact maps (`S2`) score the same as the full model on ACM (D3), so regularising the maps cannot move ACM much.
+6. **Nonlinearity in the map: not recommended.**
+   - The maps are already MLP outputs.
+   - Making the transport itself nonlinear breaks the SO(d) sheaf (the gauge argument and Thm 1; see the "Why SO(d) maps" decision).
+   - D3 shows the maps are not the lever on ACM.
+7. **Missing depth: a candidate for H2GB only, larger change.**
+   - The model is one linear solve between a one-layer encoder and the head. What is missing is nonlinearity *between* diffusion steps (stacking solves, or a nonlinear layer on x*).
+   - This is a capacity lever that fits the H2GB underfitting (§8.2), not the ACM overfitting.
+   - It is untested and a model change for the model session.
+
+**Ranked proposal:**
+1. Input-feature dropout (code; model session).
+2. A feature-normalisation check (config; 3 runs, ~6 min, needs OK).
+3. LP head dropout for IMDB M–A (code).
+4. Depth for H2GB, as a separate design question.
+
+Map nonlinearity and extra classifier dropout: no.
