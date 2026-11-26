@@ -274,3 +274,20 @@ The spec (1.32 AF) and ablation pre-registration v3 are owned by the model sessi
   - **Later cells:** the remaining sweeps (the 10 above, and HAN LastFM at 34/40) get seeds 0–4 from the watcher when they finish.
   - **Lab cells that already had final seeds:** all have 5 seeds (0–4).
   - **Later (author):** H2S-NN on the lab (LastFM and PubMed LP; MUTAG, ENZYMES and PROTEINS GC), CSNN LastFM, and H2G-former ogbn-mag published seeds 0, 2 and 3.
+
+## 10. Card 23 merged; H2S-NN HGB NC re-tune on the lab (author, 2026-11-26)
+
+Author decision 2026-11-26: conditional approval of the v3b move. If the full suite passes, fast-forward v3b without asking again; then re-tune ACM NC, then DBLP and IMDB NC, with the card 23 regularisation pack.
+
+- **Review:** the `b0f13fb..528aa9b` source diff matches the card.
+  - Every pack option is guarded and skipped when off (input dropout, EMA, K-draw averaged evaluation, smoothed checkpoint selection).
+  - Off, the code path is that of `b0f13fb`.
+  - No source problem found.
+- **Full suite:** lab job 19008 on `528aa9b`, with the `run_tests.sbatch` environment and without `WANDB_MODE`: 1029 tests OK.
+- **v3b:** fast-forwarded `b0f13fb → 528aa9b`. New lab worktree `h2snn-runs/528aa9b…`, with vendor copied and data linked.
+- **Re-tune** (ops `lab_c23_watch.sh`): `<ds>_h2snn_c23.yaml`, `--exp_name <ds>_h2snn_c23`, 100 trials, 72 h × 2 legs, on the GPU type of each original lab cell. When a sweep finishes, the best configuration runs on seeds 0–2 (card text).
+  - ACM: 3090, job 19009/19010, W&B sweep `8x9xtrkg`.
+  - DBLP: TITAN RTX, job 19011/19012, sweep `ax0y6bj3`.
+  - IMDB: 3090, job 19013/19014, sweep `a8pvz3p4`.
+  - ACM was submitted first. DBLP and IMDB run in parallel, since the card fixed that they run whatever ACM shows.
+- H2S-NN sweeps running on older SHAs are unaffected (their fingerprints are unchanged).
