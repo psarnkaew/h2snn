@@ -291,3 +291,15 @@ Author decision 2026-11-26: conditional approval of the v3b move. If the full su
   - IMDB: 3090, job 19013/19014, sweep `a8pvz3p4`.
   - ACM was submitted first. DBLP and IMDB run in parallel, since the card fixed that they run whatever ACM shows.
 - H2S-NN sweeps running on older SHAs are unaffected (their fingerprints are unchanged).
+
+## 11. Card 23 seeds 3–4 on TSUBAME (author, 2026-11-27)
+
+Card 23 asked for the best configuration on seeds 0–2. That ran on the lab and did not match the main table's 5 seeds (§9). The author asked for seeds 3–4 of every card 23 cell, on TSUBAME H100 ("สั่งเลย รัน seed 3–4 ทั้งหมด แบบบน TSUBAME", go, run seeds 3–4 for all of them, on TSUBAME).
+
+- **Deviation from rule 1 (one cell = one GPU type), chosen by the author** when asked: seeds 0–2 ran on the lab (ACM and IMDB on RTX 3090, DBLP on TITAN RTX), seeds 3–4 run on H100.
+- **Code:** a new TSUBAME checkout of v3b 528aa9b, the same code as the lab seeds. Only `best_tuned_run0.json` was copied from the lab out dir; the md5 sums match. No retuning.
+- **ACM and IMDB:** job 9585871, 4 tasks, one seed per task, gpu_1, 24 h.
+- **DBLP:** its sweep had 91/100 trials. `c23_dblp_s34_t4.sh` waits for the lab seeds 0–2 to start, then submits seeds 3–4 the same way.
+- **Seeds 0–2 results** (test ×100, mean ± std, for reference only):
+  - ACM: Macro-F1 93.32 ± 0.51. The old configuration on the same seeds scored 89.07 ± 0.69.
+  - IMDB: Macro-F1 65.59 ± 0.51, against 63.59 ± 0.67.
