@@ -303,3 +303,18 @@ Card 23 asked for the best configuration on seeds 0–2. That ran on the lab and
 - **Seeds 0–2 results** (test ×100, mean ± std, for reference only):
   - ACM: Macro-F1 93.32 ± 0.51. The old configuration on the same seeds scored 89.07 ± 0.69.
   - IMDB: Macro-F1 65.59 ± 0.51, against 63.59 ± 0.67.
+
+## 12. Lab seed jobs moved to TSUBAME (author, 2026-11-27)
+
+The author asked to move lab work to TSUBAME step by step ("ทยอยเอางานลง TSUBAME", move the work onto TSUBAME bit by bit). The first step: seven seed jobs for LP cells tuned on the lab's RTX 2080 Ti had waited more than a day in that queue.
+
+- **Cancelled on the lab** (pending, never started): 18943, 18944, 18945, 18963, 18967, 19022, 19024.
+- **Cells:** GCN, H2SGNN, R-GCN, CSNN and Hetero²Net on IMDB M–A LP; H2SGNN on LastFM LP; PSHGCN on DBLP A–P LP.
+- **Submitted on TSUBAME H100**, one seed per task (seeds 0–4), with no retuning. Each cell's `best_tuned_run0.json` was copied from the lab. Out dir: `h2snn-out/lab_moved`.
+  - Job 9587883: checkout 2e3e160 (GCN, H2SGNN).
+  - Job 9587886: checkout b0f13fb (the rest).
+  - Each cell runs on the checkout its tuning ran on.
+- **Mixed hardware, as in §11:** tuning ran on the 2080 Ti, the seeds run on H100.
+- **Collecting results:** `pull_t4_seeds.sh` (ops) copies finished `final_seed<N>.json` files back into the lab cell directories and never overwrites existing files. Card 23 seeds 3–4 come back the same way.
+- **Card 23 DBLP:** the sweep finished. Seeds 0–2 run on the lab (job 19026); seeds 3–4 run on TSUBAME (job 9586898).
+- **Card 23 results, 5 seeds** (test Macro-F1 ×100, mean ± std): ACM 93.30 ± 0.43 (old 88.78 ± 0.64); IMDB 65.78 ± 0.65 (old 64.04 ± 1.07).
