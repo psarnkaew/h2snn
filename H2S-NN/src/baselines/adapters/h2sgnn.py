@@ -28,6 +28,7 @@ than node-type pairs -- see :mod:`._gc_typed`.
 
 from __future__ import annotations
 
+import functools
 from types import SimpleNamespace
 from typing import Any
 
@@ -61,6 +62,7 @@ from src.baselines.protocol import (
 )
 from src.baselines.published import load_published_params
 from src.baselines.runtime import pushd_sys_path
+from src.baselines.runtime.blocked_spmm import blocked_matmul, bound_attribute
 from src.baselines.training import (
     node_classification_criterion,
     train_full_batch_node_classification,
@@ -74,6 +76,29 @@ VENDOR = "h2sgnn"
 # YouTube, Amazon removed (spec 1.5); the derived tasks wired in Part P P2.
 SUPPORTED_LP_DATASETS = frozenset({"lastfm", "pubmed", "acm_pa", "acm_pp", "dblp_ap", "imdb_ma", "freebase_bb"})
 SUPPORTED_GC_DATASETS = frozenset({"mutag", "proteins", "enzymes", "nci1"})
+
+#: Card 24: row-block cap for the node-classification forward. Freebase NC's combined operator
+#: ``A = add(adjs_list, softmax(beta))`` has 185M non-zeros and its values carry beta's gradient;
+#: torch_sparse 0.6.18's SPMMSum value-gradient backward faults (illegal memory access) above
+#: about 2**26 non-zeros (lab jobs 19089/19096: 50M ok, 70M fails). 50M leaves a margin below
+#: that limit (lab job 19097: same output and value gradients at 50M; 185M runs in 4 blocks).
+NC_MAX_NNZ = 50_000_000
+
+
+def blocked_vendor_forward(model: Any, *inputs: Any, max_nnz: int = NC_MAX_NNZ) -> Any:
+    """``model(*inputs)`` with the vendor module's ``torch_sparse_matmul`` row-blocked (card 24).
+
+    H2SGNN/model.py calls ``torch_sparse_matmul`` by module-global name (``GPR_GPR`` and the
+    other bases); bind :func:`blocked_matmul` there for the forward only. The autograd graph built
+    inside carries the blocked product into the backward. Operators with at most ``max_nnz``
+    non-zeros take the plain call, so every cell but Freebase NC is unchanged. Vendor file not
+    edited (same mechanism as the link-prediction encoder, card 1e F3.1).
+    """
+
+    namespace = type(model).forward.__globals__
+    with bound_attribute(namespace, "torch_sparse_matmul", functools.partial(blocked_matmul, max_nnz=max_nnz)):
+        return model(*inputs)
+
 
 #: Polynomial bases H2SGNN implements (H2SGNN/model.py:80-86).
 POLY_CHOICES = ("GPR_GPR", "GPR_legendre", "GPR_jaco")
@@ -297,7 +322,7 @@ class H2SGNNAdapter:
 
         record = train_full_batch_node_classification(
             model=model,
-            forward=lambda: model(adjs, feature_list, adjs_list),
+            forward=lambda: blocked_vendor_forward(model, adjs, feature_list, adjs_list),
             labels=labels.to(device),
             train_idx=train_idx.to(device),
             val_idx=val_idx.to(device),
