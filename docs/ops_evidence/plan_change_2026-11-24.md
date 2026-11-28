@@ -375,3 +375,13 @@ The author asked to move lab work to TSUBAME step by step ("ทยอยเอ�
   - Dry run: only this line planned (1 task, 3.8 points; balance 2,304).
   - Submitted as TSUBAME job 9608455; checked to run from `h2snn-runs/fe25277`.
   - The driver then runs further legs and the 5 per-seed finals on the same code. Failures are reported, never rerun.
+
+**v3b = `fe25277`** (author go, 2026-11-29).
+- The author approved the fast-forward of v3b to `fe25277`. On checking, `origin/v3b` already pointed at `fe25277` (a fast-forward from `528aa9b`; same sha as `card24`), so ops pushed nothing.
+- The suite on that sha (lab job 19202, 1030 OK) is the final-suite check. Running jobs keep their own per-SHA checkouts; nothing is moved or rerun.
+- Lab `$OPS/t4_auto.py` re-synced from the TSUBAME copy (it lacked the card 24 entry; backup `t4_auto.py.bak_pre_c24sync`).
+- Dashboard v45: Freebase H2SGNN NC Queued with a card 24 note; 7 H-Pokec rerun cells Running with a rerun note.
+
+**H-Pokec rerun progress** (2026-11-29 00:00, about 9 h after the start of job 9602950).
+- Completed trials: CSNN NC 2, GAT NC 1, NSD LP 1 (failed), the other four 0. That is 4–9+ h per trial, so 40 trials would take about 7–15+ days per cell.
+- NSD LP trial 1 failed with `AssertionError: assert 2 <= self.d <= 3` in the orthogonal-map module: the search space pairs a map type that supports only d = 2–3 with a larger d. The sweep goes on to the next trial. This needs a search-space fix in a card; ops made no change.
