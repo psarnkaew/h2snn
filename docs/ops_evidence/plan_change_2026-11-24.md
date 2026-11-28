@@ -360,3 +360,18 @@ The author asked to move lab work to TSUBAME step by step ("ทยอยเอ�
   - At 50 M it gives the same output and the same value gradients as the plain product, and x-gradients within 1.4e-6 (summation order).
   - At the full 185 M it runs in 4 blocks with 7.6 GiB peak memory and finite gradients.
   - This is a fix for a card (H2SGNN adapter, Freebase); ops made no code change.
+
+**H2SGNN Freebase NC: card 24 fix and rerun** (author, 2026-11-28).
+- **Code.** Branch `card24` at `fe25277` (on v3b 528aa9b). In `src/baselines/adapters/h2sgnn.py`, the NC forward binds the vendor's module-global `torch_sparse_matmul` to the row-blocked product of `src/baselines/runtime/blocked_spmm.py` (cap 50 M nonzeros per block) for the duration of the call. `vendor/` is unchanged. An operator with at most 50 M nonzeros takes the plain call, so every other H2SGNN NC cell gives bit-identical results. LP keeps its existing cap of 2²⁶−1. Report: `docs/H2S-NN_card24_report.md` on `card24`.
+- **Tests.** New `tests/test_baselines_h2sgnn_nc_blocked.py` checks, on a 40-node matrix in at least 3 blocks, that the outputs are equal and the value gradients match. Full suite on lab job 19202: 1030 tests OK.
+- **v3b not moved.** A fast-forward of v3b to `fe25277` keeps the same sha; that is the author's call.
+- **Reset.** Old cell renamed in the `0b9873d` out dir, nothing deleted:
+  - `state/h2sgnn_node_classification_freebase` → `.void_card24_2e3e160`;
+  - `experiments/baselines/h2sgnn_node_classification_freebase` → `.void_card24_2e3e160`.
+- **Rerun.**
+  - New list `cells_tuning_b2_h2sgnn_fb_c24.txt`: the same tuning line, 40 trials.
+  - `t4_auto.py`: a new BASE entry with code `C24 = fe25277` on gpu_1 (backup `t4_auto.py.bak_c24`).
+  - The cell runs only from the new list. Provenance before the cut `2026-11-28T23:08:06+09:00` does not count; this follows the `RERUN_1128` precedent.
+  - Dry run: only this line planned (1 task, 3.8 points; balance 2,304).
+  - Submitted as TSUBAME job 9608455; checked to run from `h2snn-runs/fe25277`.
+  - The driver then runs further legs and the 5 per-seed finals on the same code. Failures are reported, never rerun.
