@@ -318,3 +318,32 @@ The author asked to move lab work to TSUBAME step by step ("ทยอยเอ�
 - **Collecting results:** `pull_t4_seeds.sh` (ops) copies finished `final_seed<N>.json` files back into the lab cell directories and never overwrites existing files. Card 23 seeds 3–4 come back the same way.
 - **Card 23 DBLP:** the sweep finished. Seeds 0–2 run on the lab (job 19026); seeds 3–4 run on TSUBAME (job 9586898).
 - **Card 23 results, 5 seeds** (test Macro-F1 ×100, mean ± std): ACM 93.30 ± 0.43 (old 88.78 ± 0.64); IMDB 65.78 ± 0.65 (old 64.04 ± 1.07).
+
+## 13. Fixes and reruns (author, 2026-11-28)
+
+**The §12 seed jobs failed and were resubmitted.**
+- Jobs 9587883 and 9587886 failed on every task in under a minute. Cause: ops copied only `best_tuned_run0.json`, and `run_final_seeds` also reads `tuning_trials_run0.json`.
+- Ops copied `tuning_trials_run0.json` and `tuning_summary.json` from the lab for all 7 cells and resubmitted the same lists: jobs 9602498 (2e3e160) and 9602499 (b0f13fb). The failed logs are kept in `lab_moved/logs/failed_20261127`.
+
+**Card 23 is now the dashboard's main value** for H2S-NN on ACM, DBLP and IMDB NC (author). Five seeds, test Macro-F1 ×100: ACM 93.30 ± 0.43, DBLP 94.47 ± 0.27, IMDB 65.78 ± 0.65. The earlier v3b 0b9873d result stays in each row's note. The paper and the register are unchanged; the model session owns them.
+
+**Seven H-Pokec cells rerun on TSUBAME** (author: "ส่งทั้ง 7 cell ขึ้น TSUBAME เลย", send all 7 cells to TSUBAME now).
+- **Cells:** GAT, NSD and CSNN on H-Pokec NC; GCN, GAT, NSD and CSNN on H-Pokec U–U LP.
+- **What failed:** all 40 tuning trials of each cell, on checkout 2e3e160, with `AttributeError: 'NodeStorage' object has no attribute 'x'` in `hgb_homogeneous_batch` (`src/baselines/minibatch.py`). H-Pokec has a node type without features.
+- **The fix already existed:** card 22 B (featureless types), in b0f13fb. The baseline code in b0f13fb and 528aa9b is identical.
+- **Rerun setup**
+  - List: `cells_tuning_b2_hpokec_r1128.txt`, with the original lines and a fresh sweep state (`state_r1128`).
+  - Checkout b0f13fb, gpu_1. First leg: job 9602950.
+  - The failed cell directories moved to `experiments/baselines/_failed_2e3e160`; nothing was deleted.
+- **t4_auto changes**
+  - It tracks the new list: next legs, then 5 seeds.
+  - It ignores these cells' old lines.
+  - It does not count their pre-rerun final-seed tries.
+- **Mixed code within H-Pokec:** these cells run on b0f13fb. The other H-Pokec baselines started on 2e3e160 and their later legs ran on b0f13fb. The only code difference that matters here is the featureless-type handling.
+
+**Dashboard fixes in `dash_status.py`** (display only; no result changed)
+- A Problem stays a Problem. Before, a failed cell whose chain had ended showed "Not started, waiting for the author's go".
+- A line whose output directory holds the cell's seeds is preferred over a probe line. Before, PSHGCN H-Pokec and Hetero²Net Freebase showed Not started although their 5 seeds were done.
+- Finished TSUBAME cells now fill the Result column from their seed table. 65 cells had shown it empty.
+
+**H2SGNN Freebase NC:** all 40 trials failed on 2e3e160 with `CUBLAS_STATUS_EXECUTION_FAILED` in `loss.backward()`. The H2SGNN adapter is unchanged up to 528aa9b, so this is not a fixed bug. A lab diagnostic (job 19069, one dry-run trial at the min and max grid points, `CUDA_LAUNCH_BLOCKING=1`, no W&B) looks for the cause; it is not a result.
