@@ -347,3 +347,16 @@ The author asked to move lab work to TSUBAME step by step ("ทยอยเอ�
 - Finished TSUBAME cells now fill the Result column from their seed table. 65 cells had shown it empty.
 
 **H2SGNN Freebase NC:** all 40 trials failed on 2e3e160 with `CUBLAS_STATUS_EXECUTION_FAILED` in `loss.backward()`. The H2SGNN adapter is unchanged up to 528aa9b, so this is not a fixed bug. A lab diagnostic (job 19069, one dry-run trial at the min and max grid points, `CUDA_LAUNCH_BLOCKING=1`, no W&B) looks for the cause; it is not a result.
+
+**H2SGNN Freebase NC: cause found** (author go for the TSUBAME diagnostic, 2026-11-28). These are diagnostic runs, not results. Files are in `h2snn-out/diag_h2sgnn_fb_1128`.
+- **TSUBAME H100, job 9604709.** One dry-run trial with `CUDA_LAUNCH_BLOCKING=1` and autograd anomaly mode. The real error is `illegal memory access` in `SPMMSum::backward` of torch_sparse. Its forward op is `torch_sparse_matmul(A, x)` in `vendor/H2SGNN/model.py:116` (`GPR_GPR`). Peak GPU memory was 22.7 GiB, so this is not a memory problem. The earlier `CUBLAS_STATUS_EXECUTION_FAILED` was a follow-on error.
+- **Lab CPU, jobs 19070 and 19085.** The 8 meta-path operators are 40,402 × 40,402 with 227 M nonzeros together. Their sum `A` has 185 M nonzeros. Every index is in range and every value is finite. The CPU backward works.
+- **Lab RTX 3090, jobs 19086, 19089, 19096, 19097** (torch 2.4.1, torch_sparse 0.6.18):
+  - `index_select` alone works up to 185 M × 7.
+  - `A @ x` with backward works at the full size when `A`'s values need no gradient.
+  - When they do need one (H2SGNN learns the meta-path weights β), it works at 10, 30 and 50 M nonzeros and fails at 70, 90, 100, 153 and 185 M.
+  - The threshold fits 2³¹/32 ≈ 67.1 M, which suggests an int32 overflow in the value-gradient kernel. This is a reading of the numbers; the torch_sparse source was not checked.
+- **Workaround tested on the lab (job 19097).** `A @ x` split into row blocks of at most 50 M nonzeros:
+  - At 50 M it gives the same output and the same value gradients as the plain product, and x-gradients within 1.4e-6 (summation order).
+  - At the full 185 M it runs in 4 blocks with 7.6 GiB peak memory and finite gradients.
+  - This is a fix for a card (H2SGNN adapter, Freebase); ops made no code change.
