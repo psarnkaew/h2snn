@@ -219,3 +219,16 @@ Uses `full` and `no_path_cells`, configuration (a), the 4 datasets, seeds 1–5,
 ## 7. Removed from v1 (author, 2026-11-19; unchanged)
 - **Arms:** the C2 ladder `schema`, C10 `closure_only`, C11 `hub_A`, C12 `covering_only`, C16 `direction_blind_maps`, C17 `free_cell_maps`, C18 `ego_head`, `h₀`-only. (`uniform` returns in v3 as its own row, not as part of a ladder.)
 - **Analyses:** C6 on the 12 NC datasets and its title rule; N1–N4, N2b, N2c; U3; the C5 scaling curve and the mini-batch vs full-batch gap.
+
+## 8. Amendment 1 (2026-11-29, with spec 1.34; fixed before the affected results)
+- **Tuning cut-off (spec 1.34 AH2).**
+  - Every tuning whose result this document uses ends at 2026-12-11 00:00 JST or at its trial target, whichever comes first. This covers `full`'s tuning on each dataset and the tuned configurations of the baselines in §4.
+  - A trial counts only if it ended before the cut.
+  - The configuration used is the best completed trial by validation. Configuration (a) is then `full`'s best completed trial.
+  - The ablation and analysis runs themselves are not tuned, so the cut does not apply to them.
+  - A method whose tuning has no scored trial at the cut is shown as N/A in the analyses that need its tuned configuration.
+  - Where a configuration comes from a sweep below its target, the table or figure says so and gives the trial count.
+- **NSD and CSNN Euler maps (spec 1.34 AH3, card 25).**
+  - `orth: euler` is used only with `d` ≤ 3. For d > 3 the adapter uses `householder`, and the run records `orth_effective`.
+  - This touches the perturbation analysis (§4) only through these two baselines' tuned configurations.
+- Nothing else in v3 changes.
